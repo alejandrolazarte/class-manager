@@ -70,6 +70,8 @@ Each milestone gets a backend plan and a frontend plan under `docs/backend/<date
 
 ### M1 — Clients and students
 
+Plans in [backend](backend/20260925-clients-and-students/plan.md) and [frontend](frontend/20260925-clients-and-students/plan.md).
+
 - Adapt the template's `Client` as the payer; add `Student` belonging to a client.
 - One form to register an adult who attends (client and student at once) or a parent with one or more children.
 - Search students by name.
