@@ -6,7 +6,7 @@ import {
   setInstructorActive,
 } from "@/features/instructors/instructorsApi";
 import { InstructorFormScreen } from "@/features/instructors/screens/InstructorFormScreen";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
@@ -33,7 +33,7 @@ describe("When deactivating instructor with classes", () => {
     );
 
     expect(
-      await screen.findByText(translate("instructors.form.hasActiveClassGroups", { count: 2 })),
+      await screen.findByText(translateCount("instructors.form.hasActiveClassGroups", 2)),
     ).toBeOnTheScreen();
   });
 });

@@ -1,7 +1,9 @@
 const nonDigitPattern = /\D/g;
 const internationalPrefix = "+";
+const argentinaPrefix = "+54";
 const argentinaMobilePrefix = "+549";
 const argentinaMobileLength = 14;
+const argentinaLandlineLength = 13;
 const areaCodeLength = 2;
 const firstBlockEnd = 6;
 const maximumDigits = 15;
@@ -28,13 +30,20 @@ export function formatPhoneNumberAsTyped(typedText: string): string {
 
 export function formatPhoneNumberForDisplay(normalizedPhoneNumber: string): string {
   if (
-    !normalizedPhoneNumber.startsWith(argentinaMobilePrefix) ||
-    normalizedPhoneNumber.length !== argentinaMobileLength
+    normalizedPhoneNumber.startsWith(argentinaMobilePrefix) &&
+    normalizedPhoneNumber.length === argentinaMobileLength
   ) {
-    return normalizedPhoneNumber;
+    const localNumber = normalizedPhoneNumber.slice(argentinaMobilePrefix.length);
+    return `+54 9 ${formatPhoneNumberAsTyped(localNumber)}`;
   }
-  const localNumber = normalizedPhoneNumber.slice(argentinaMobilePrefix.length);
-  return `+54 9 ${formatPhoneNumberAsTyped(localNumber)}`;
+  if (
+    normalizedPhoneNumber.startsWith(argentinaPrefix) &&
+    normalizedPhoneNumber.length === argentinaLandlineLength
+  ) {
+    const localNumber = normalizedPhoneNumber.slice(argentinaPrefix.length);
+    return `+54 ${formatPhoneNumberAsTyped(localNumber)}`;
+  }
+  return normalizedPhoneNumber;
 }
 
 export function toDialableDigits(normalizedPhoneNumber: string): string {

@@ -6,7 +6,7 @@ import { formatLongDate } from "@/features/sessions/dates";
 import { AttendanceStatus } from "@/features/sessions/types";
 import { useSessionDetails } from "@/features/sessions/useSessionDetails";
 import { useRecordAttendance, useRestoreSession } from "@/features/sessions/useSessionMutations";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 
@@ -16,6 +16,8 @@ interface SessionScreenProps {
 }
 
 type PendingStatuses = Record<string, AttendanceStatus | null>;
+
+const summarySeparator = " · ";
 
 export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps) {
   const {
@@ -76,11 +78,11 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         </Text>
         {session.isCancelled ? null : (
           <Text className="text-base font-medium text-brand">
-            {translate("sessions.session.summary", {
-              present: presentCount,
-              absent: absentCount,
-              unmarked: unmarkedCount,
-            })}
+            {[
+              translateCount("sessions.attendance.presentCount", presentCount),
+              translateCount("sessions.attendance.absentCount", absentCount),
+              translate("sessions.attendance.unmarkedCount", { count: unmarkedCount }),
+            ].join(summarySeparator)}
           </Text>
         )}
       </View>
