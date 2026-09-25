@@ -8,6 +8,11 @@ public static class ApiRoutes
     public const string StudentsOfClient = "/students";
     public const string Students = "/api/students";
     public const string StudentById = "/{studentId:guid}";
+    public const string Instructors = "/api/instructors";
+    public const string InstructorById = "/{instructorId:guid}";
+    public const string ClassGroups = "/api/class-groups";
+    public const string ClassGroupById = "/{classGroupId:guid}";
+    public const string Active = "/active";
     public const string Business = "/api/business";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";

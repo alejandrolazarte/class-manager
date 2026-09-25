@@ -41,6 +41,10 @@ export function SettingsScreen() {
           detail={business.name}
           onPress={() => router.push(routes.businessSettings)}
         />
+        <SettingsRow
+          label={translate("settings.instructors")}
+          onPress={() => router.push(routes.instructors)}
+        />
       </View>
       <View className="px-4">
         <Button variant="secondary" label={translate("settings.signOut")} onPress={signOut} />

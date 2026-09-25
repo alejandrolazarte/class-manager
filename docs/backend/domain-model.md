@@ -18,6 +18,9 @@ erDiagram
     Business ||--o{ Client : has
     Business ||--o{ Student : has
     Client ||--o{ Student : "is responsible for"
+    Business ||--o{ Instructor : has
+    Business ||--o{ ClassGroup : offers
+    Instructor ||--o{ ClassGroup : teaches
 ```
 
 ### Business (tenant root)
@@ -75,6 +78,36 @@ The person who attends classes. The client is who pays and is contacted; an adul
 
 Indexes: unique `(TenantId, ClientId, FullName)` and `(TenantId, FullName)` for search.
 
+### Instructor (added in M2)
+
+| Property | Type | Rules |
+|---|---|---|
+| `Id` | `Guid` | v7 |
+| `TenantId` | `Guid` | Tenant (the business) |
+| `FullName` | `string` | Required, trimmed, 2–120 characters, **unique per business** |
+| `IsActive` | `bool` | Can't be deactivated while teaching active class groups |
+
+Sign up creates the owner as the first instructor.
+
+### ClassGroup (added in M2)
+
+A weekly recurring class, for example "Natación inicial, Tuesday and Thursday 18:00, 45 minutes, 8 spots".
+
+| Property | Type | Rules |
+|---|---|---|
+| `Id` | `Guid` | v7 |
+| `TenantId` | `Guid` | Tenant (the business) |
+| `Name` | `string` | Required, trimmed, 2–80 characters |
+| `InstructorId` | `Guid` | An active instructor of the same business |
+| `Weekdays` | `ClassWeekdays` | Flags (`Monday = 1 … Sunday = 64`), at least one; stored as `int` |
+| `StartTime` | `TimeOnly` | Wall-clock time in the business's time zone, stored as `time`, never converted to UTC |
+| `DurationMinutes` | `int` | 15–240, multiple of 5, ends by midnight |
+| `Capacity` | `int` | 1–100 |
+| `Location` | `string?` | Optional, max 80 characters |
+| `IsActive` | `bool` | Inactive groups are hidden from the weekly view |
+
+`ClassSchedule` (weekdays, start time, duration) is the value object behind it: it validates the time rules and answers `OverlapsWith` (shares a weekday and the time ranges intersect; touching ends don't overlap). An instructor can't teach two active class groups that overlap.
+
 ## Value objects
 
 ### PhoneNumber
@@ -122,6 +155,8 @@ Rules:
 Core/Abstractions/Persistence/
   IClientRepository.cs
   IStudentRepository.cs
+  IInstructorRepository.cs
+  IClassGroupRepository.cs
   IBusinessRepository.cs
   IBusinessMemberRepository.cs
   IUnitOfWork.cs         → Task SaveChangesAsync(CancellationToken)

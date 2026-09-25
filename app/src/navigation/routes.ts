@@ -1,4 +1,8 @@
 export const routes = {
+  classes: "/classes",
+  newClassGroup: (weekday?: string) =>
+    weekday ? `/classes/new?weekday=${encodeURIComponent(weekday)}` : "/classes/new",
+  classGroup: (classGroupId: string) => `/classes/${classGroupId}`,
   students: "/students",
   registerClient: "/students/new",
   clientDetail: (clientId: string) => `/students/clients/${clientId}`,
@@ -7,4 +11,7 @@ export const routes = {
   signUp: "/sign-up",
   settings: "/settings",
   businessSettings: "/settings/business",
+  instructors: "/settings/instructors",
+  newInstructor: "/settings/instructors/new",
+  instructor: (instructorId: string) => `/settings/instructors/${instructorId}`,
 } as const;

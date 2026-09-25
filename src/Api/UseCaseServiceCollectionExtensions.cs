@@ -1,6 +1,8 @@
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Businesses;
+using ClassManager.Core.UseCases.ClassGroups;
 using ClassManager.Core.UseCases.Clients;
+using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Api;
@@ -22,6 +24,15 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<AddStudentCommand, StudentResponse>, AddStudentUseCase>();
         services.AddScoped<IUseCase<GetStudentQuery, StudentSummaryResponse>, GetStudentUseCase>();
         services.AddScoped<IUseCase<SearchStudentsQuery, IReadOnlyList<StudentSummaryResponse>>, SearchStudentsUseCase>();
+        services.AddScoped<IUseCase<ListInstructorsQuery, IReadOnlyList<InstructorResponse>>, ListInstructorsUseCase>();
+        services.AddScoped<IUseCase<CreateInstructorCommand, InstructorResponse>, CreateInstructorUseCase>();
+        services.AddScoped<IUseCase<UpdateInstructorCommand, InstructorResponse>, UpdateInstructorUseCase>();
+        services.AddScoped<IUseCase<SetInstructorActiveCommand, InstructorResponse>, SetInstructorActiveUseCase>();
+        services.AddScoped<IUseCase<ListClassGroupsQuery, IReadOnlyList<ClassGroupResponse>>, ListClassGroupsUseCase>();
+        services.AddScoped<IUseCase<GetClassGroupQuery, ClassGroupResponse>, GetClassGroupUseCase>();
+        services.AddScoped<IUseCase<CreateClassGroupCommand, ClassGroupResponse>, CreateClassGroupUseCase>();
+        services.AddScoped<IUseCase<UpdateClassGroupCommand, ClassGroupResponse>, UpdateClassGroupUseCase>();
+        services.AddScoped<IUseCase<SetClassGroupActiveCommand, ClassGroupResponse>, SetClassGroupActiveUseCase>();
         services.AddScoped<IUseCase<UpdateBusinessSettingsCommand, UpdateBusinessSettingsResponse>, UpdateBusinessSettingsUseCase>();
 
         return services;

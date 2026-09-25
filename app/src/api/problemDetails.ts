@@ -32,3 +32,11 @@ export function getStringExtension(
   const extensionValue = problem[extensionName];
   return typeof extensionValue === "string" ? extensionValue : undefined;
 }
+
+export function getNumberExtension(
+  problem: ProblemDetails,
+  extensionName: string,
+): number | undefined {
+  const extensionValue = problem[extensionName];
+  return typeof extensionValue === "number" ? extensionValue : undefined;
+}

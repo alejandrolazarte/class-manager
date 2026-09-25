@@ -17,6 +17,7 @@ internal static class TestData
     public const string OwnerPassword = "a long passphrase";
     public const string BusinessName = "Panadería Laura";
     public const string StudentFullName = "Tomás Pérez";
+    public const string InstructorFullName = "Laura Gómez";
 
     public static readonly DateTimeOffset Now = new(2026, 9, 24, 12, 0, 0, TimeSpan.Zero);
     public static readonly DateOnly Today = DateOnly.FromDateTime(Now.UtcDateTime);

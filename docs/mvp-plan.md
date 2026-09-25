@@ -66,7 +66,7 @@ Every entity except `Business` is tenant-owned and gets its isolation test.
 
 ## Milestones
 
-Status: M1 done (backend and frontend). Next: M2, instructors and class groups.
+Status: M1 and M2 done (backend and frontend). Next: M3, enrollments.
 
 Each milestone gets a backend plan and a frontend plan under `docs/backend/<date>-<name>/plan.md` and `docs/frontend/<date>-<name>/plan.md` before code is written.
 
@@ -79,6 +79,8 @@ Plans in [backend](backend/20260925-clients-and-students/plan.md) and [frontend]
 - Search students by name.
 
 ### M2 — Instructors and class groups
+
+Plans in [backend](backend/20260925-instructors-and-class-groups/plan.md) and [frontend](frontend/20260925-instructors-and-class-groups/plan.md).
 
 - CRUD for instructors and class groups (weekdays, start time, duration, capacity, instructor).
 - Weekly view: the classes of each day.
