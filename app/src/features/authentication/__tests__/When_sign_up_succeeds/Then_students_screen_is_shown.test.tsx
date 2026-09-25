@@ -20,7 +20,7 @@ describe("When sign up succeeds", () => {
     jest.mocked(signUp).mockResolvedValue(issuedTokens);
   });
 
-  it("Then clients screen is shown", async () => {
+  it("Then students screen is shown", async () => {
     await renderWithSession(
       <RedirectWhenSignedIn>
         <SignUpScreen />
@@ -29,7 +29,7 @@ describe("When sign up succeeds", () => {
     await fillSignUpForm();
     await submitSignUpForm();
 
-    await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith("/clients"));
+    await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith("/students"));
     expect(refreshTokenStorage.write).toHaveBeenCalledWith(issuedTokens.refreshToken);
   });
 });

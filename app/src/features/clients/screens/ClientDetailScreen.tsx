@@ -1,10 +1,14 @@
+import { useRouter } from "expo-router";
 import { ActivityIndicator, Linking, ScrollView, Text, View } from "react-native";
 import {
   formatPhoneNumberForDisplay,
   toDialableDigits,
 } from "@/features/clients/phoneNumberFormatting";
 import { useClient } from "@/features/clients/useClient";
+import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 
@@ -17,6 +21,7 @@ interface ClientDetailScreenProps {
 }
 
 export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
+  const router = useRouter();
   const { data: client, isPending, isError, refetch } = useClient(clientId);
 
   if (isPending) {
@@ -78,6 +83,36 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           <Text className="text-base text-gray-900">{client.notes}</Text>
         </View>
       ) : null}
+      <View className="gap-2">
+        <Text className="text-lg font-semibold text-gray-900">
+          {translate("clients.detail.students")}
+        </Text>
+        {client.students.length === 0 ? (
+          <Text className="text-base text-gray-600">{translate("clients.detail.noStudents")}</Text>
+        ) : (
+          client.students.map((student) => {
+            const ageLabel = studentAgeLabel(student.birthDate);
+            return (
+              <View key={student.id} className="gap-1 rounded-xl bg-white p-3">
+                <Text className="text-base font-semibold text-gray-900">{student.fullName}</Text>
+                {student.birthDate && ageLabel ? (
+                  <Text className="text-sm text-gray-600">
+                    {`${formatBirthDateForDisplay(student.birthDate)} · ${ageLabel}`}
+                  </Text>
+                ) : null}
+                {student.notes ? (
+                  <Text className="text-sm text-gray-500">{student.notes}</Text>
+                ) : null}
+              </View>
+            );
+          })
+        )}
+        <Button
+          variant="secondary"
+          label={translate("clients.detail.addStudent")}
+          onPress={() => router.push(routes.addStudent(client.id))}
+        />
+      </View>
     </ScrollView>
   );
 }

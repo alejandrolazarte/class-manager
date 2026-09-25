@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { Pressable, Text, View } from "react-native";
+import { AttendeesSection } from "@/features/clients/components/AttendeesSection";
 import { formatPhoneNumberAsTyped } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientFormValues } from "@/features/clients/registerClientSchema";
 import { translate } from "@/i18n/translate";
@@ -21,6 +22,9 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
 
   return (
     <View className="gap-4">
+      <Text className="text-lg font-semibold text-gray-900">
+        {translate("clients.register.contactSection")}
+      </Text>
       <Controller
         control={control}
         name="fullName"
@@ -92,6 +96,7 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
           </Text>
         </Pressable>
       )}
+      <AttendeesSection form={form} />
       <Button
         label={translate("clients.register.submit")}
         onPress={onSubmit}

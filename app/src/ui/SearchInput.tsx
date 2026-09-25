@@ -1,18 +1,18 @@
 import { TextInput } from "react-native";
 
-interface ClientSearchInputProps {
+interface SearchInputProps {
   value: string;
   onChangeText: (searchText: string) => void;
   placeholder: string;
   autoFocus?: boolean;
 }
 
-export function ClientSearchInput({
+export function SearchInput({
   value,
   onChangeText,
   placeholder,
   autoFocus = false,
-}: ClientSearchInputProps) {
+}: SearchInputProps) {
   return (
     <TextInput
       accessibilityLabel={placeholder}

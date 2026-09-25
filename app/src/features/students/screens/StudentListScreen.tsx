@@ -1,47 +1,47 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
-import { ClientListItem } from "@/features/clients/components/ClientListItem";
-import { ClientSearchInput } from "@/features/clients/components/ClientSearchInput";
-import { useClientSearch } from "@/features/clients/useClientSearch";
+import { StudentListItem } from "@/features/students/components/StudentListItem";
+import { useStudentSearch } from "@/features/students/useStudentSearch";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
+import { SearchInput } from "@/ui/SearchInput";
 
-export function ClientListScreen() {
+export function StudentListScreen() {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const {
-    data: clients = [],
+    data: students = [],
     isPending,
     isError,
     refetch,
     isRefetching,
     debouncedSearch,
-  } = useClientSearch(searchText);
-  const openNewClient = () => router.push(routes.newClient);
+  } = useStudentSearch(searchText);
+  const openRegisterClient = () => router.push(routes.registerClient);
 
   const emptyState =
     debouncedSearch.length > 0 ? (
       <Text className="p-6 text-center text-base text-gray-600">
-        {translate("clients.list.noResults", { search: debouncedSearch })}
+        {translate("students.list.noResults", { search: debouncedSearch })}
       </Text>
     ) : (
       <View className="items-center gap-4 p-6">
-        <Text className="text-lg text-gray-700">{translate("clients.list.emptyTitle")}</Text>
-        <Button label={translate("clients.list.emptyCallToAction")} onPress={openNewClient} />
+        <Text className="text-lg text-gray-700">{translate("students.list.emptyTitle")}</Text>
+        <Button label={translate("students.list.emptyCallToAction")} onPress={openRegisterClient} />
       </View>
     );
 
   return (
     <View className="flex-1 bg-gray-50">
       <View className="p-4">
-        <ClientSearchInput
+        <SearchInput
           value={searchText}
           onChangeText={setSearchText}
-          placeholder={translate("clients.list.searchPlaceholder")}
+          placeholder={translate("students.list.searchPlaceholder")}
         />
       </View>
       {isError ? (
@@ -59,12 +59,12 @@ export function ClientListScreen() {
         <ActivityIndicator className="mt-6" />
       ) : (
         <FlatList
-          data={clients}
-          keyExtractor={(client) => client.id}
-          renderItem={({ item: client }) => (
-            <ClientListItem
-              client={client}
-              onPress={() => router.push(routes.clientDetail(client.id))}
+          data={students}
+          keyExtractor={(student) => student.id}
+          renderItem={({ item: student }) => (
+            <StudentListItem
+              student={student}
+              onPress={() => router.push(routes.clientDetail(student.clientId))}
             />
           )}
           ListEmptyComponent={isError ? null : emptyState}
@@ -74,8 +74,8 @@ export function ClientListScreen() {
         />
       )}
       <FloatingActionButton
-        accessibilityLabel={translate("clients.list.newClient")}
-        onPress={openNewClient}
+        accessibilityLabel={translate("students.list.newStudent")}
+        onPress={openRegisterClient}
       />
     </View>
   );

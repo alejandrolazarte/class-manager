@@ -112,6 +112,14 @@ The existing client tests move to the new routes and keep passing.
 5. Students section in the client detail and the add student screen.
 6. Manual check on web against the local API.
 
+## Implementation notes
+
+- Status: done. Tests in `src/features/clients/__tests__` and `src/features/students/__tests__`; the e2e sign up and sign in tests now land on `/students`.
+- The client list screen, its search hook and its item were removed: the student list replaces them. The search box moved to `src/ui/SearchInput.tsx`.
+- `toRegisterClientFieldName` maps API field names back to the form: `students[0]` is the contact when "Esta persona viene a clase" is on, so `students[1]` is the first additional student.
+- "Today" for the birth date check uses the device's date; the API checks against the business's time zone, so the edge case around midnight is decided by the API.
+- Pending: manual check on Android (Expo Go).
+
 ## Out of scope
 
 - Editing and deleting clients and students.

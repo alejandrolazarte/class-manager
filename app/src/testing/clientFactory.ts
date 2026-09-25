@@ -1,6 +1,6 @@
-import { Client } from "@/features/clients/types";
+import { ClientDetails } from "@/features/clients/types";
 
-export function buildClient(overrides: Partial<Client> = {}): Client {
+export function buildClient(overrides: Partial<ClientDetails> = {}): ClientDetails {
   return {
     id: "0192f0c4-0000-7000-8000-000000000001",
     fullName: "Ana Pérez",
@@ -8,6 +8,7 @@ export function buildClient(overrides: Partial<Client> = {}): Client {
     email: null,
     notes: null,
     createdAt: "2026-09-24T14:05:00Z",
+    students: [],
     ...overrides,
   };
 }

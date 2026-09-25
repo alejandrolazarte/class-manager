@@ -14,9 +14,10 @@ import {
   emptyRegisterClientFormValues,
   RegisterClientFormValues,
   registerClientSchema,
+  toRegisterClientFieldName,
   toRegisterClientRequest,
 } from "@/features/clients/registerClientSchema";
-import { Client } from "@/features/clients/types";
+import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { useRegisterClient } from "@/features/clients/useRegisterClient";
 import { translate } from "@/i18n/translate";
@@ -26,18 +27,12 @@ import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
 
 const badRequestStatus = 400;
-const registerClientFieldNames = Object.keys(
-  emptyRegisterClientFormValues,
-) as (keyof RegisterClientFormValues)[];
+const singleStudent = 1;
 
 type SubmissionFailure =
   | { kind: "phoneNumberTaken"; existingClientId: string }
   | { kind: "network" }
   | { kind: "unexpected" };
-
-function isRegisterClientFieldName(fieldName: string): fieldName is keyof RegisterClientFormValues {
-  return (registerClientFieldNames as string[]).includes(fieldName);
-}
 
 export function RegisterClientScreen() {
   const router = useRouter();
@@ -53,8 +48,12 @@ export function RegisterClientScreen() {
     submissionFailure?.kind === "phoneNumberTaken" ? submissionFailure.existingClientId : undefined;
   const { data: existingClient } = useClient(existingClientId);
 
-  const navigateAfterRegistration = (registeredClient: Client) => {
-    showToast(translate("clients.register.success"));
+  const navigateAfterRegistration = (registeredClient: ClientDetails) => {
+    showToast(
+      registeredClient.students.length > singleStudent
+        ? translate("clients.register.successPlural")
+        : translate("clients.register.success"),
+    );
     router.replace(routes.clientDetail(registeredClient.id));
   };
 
@@ -79,13 +78,15 @@ export function RegisterClientScreen() {
       return;
     }
     if (isApiError(registrationError) && registrationError.status === badRequestStatus) {
-      const fieldErrors = Object.entries(getFieldErrors(registrationError.problem)).filter(
-        ([fieldName]) => isRegisterClientFieldName(fieldName),
+      const clientAttends = form.getValues("clientAttends");
+      const fieldErrors = Object.entries(getFieldErrors(registrationError.problem)).flatMap(
+        ([serverFieldName, message]) => {
+          const formFieldName = toRegisterClientFieldName(serverFieldName, clientAttends);
+          return formFieldName === null ? [] : [{ formFieldName, message }];
+        },
       );
-      fieldErrors.forEach(([fieldName, message]) => {
-        if (isRegisterClientFieldName(fieldName)) {
-          form.setError(fieldName, { type: "server", message });
-        }
+      fieldErrors.forEach(({ formFieldName, message }) => {
+        form.setError(formFieldName, { type: "server", message });
       });
       if (fieldErrors.length > 0) {
         return;
