@@ -23,6 +23,7 @@ export function buildClassGroup(overrides: Partial<ClassGroup> = {}): ClassGroup
     capacity: 8,
     location: "Pileta chica",
     isActive: true,
+    enrolledCount: 0,
     ...overrides,
   };
 }

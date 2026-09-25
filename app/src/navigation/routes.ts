@@ -3,6 +3,8 @@ export const routes = {
   newClassGroup: (weekday?: string) =>
     weekday ? `/classes/new?weekday=${encodeURIComponent(weekday)}` : "/classes/new",
   classGroup: (classGroupId: string) => `/classes/${classGroupId}`,
+  editClassGroup: (classGroupId: string) => `/classes/${classGroupId}/edit`,
+  enrollStudent: (classGroupId: string) => `/classes/${classGroupId}/enroll`,
   students: "/students",
   registerClient: "/students/new",
   clientDetail: (clientId: string) => `/students/clients/${clientId}`,

@@ -71,6 +71,14 @@ src/features/classGroups/__tests__/
   When_class_has_enrollments/Then_card_shows_enrolled_over_capacity.test.tsx
 ```
 
+## Implementation notes
+
+- Status: done. Tests in `src/features/enrollments/__tests__` and the enrolled count test in `src/features/classGroups/__tests__`.
+- Tapping a class in the weekly view now opens the roster; the form moved to `classes/[classGroupId]/edit`.
+- The unenroll confirmation is an in-screen banner instead of a native alert, so it works the same on web and in tests.
+- "Empieza el …" compares the start date with the device's date; the API's roster already uses the business's today.
+- Pending: manual check on Android (Expo Go).
+
 ## Out of scope
 
 - Choosing a future start date in the UI (the API supports it; the app enrolls from today).

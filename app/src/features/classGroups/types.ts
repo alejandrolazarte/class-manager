@@ -13,6 +13,7 @@ export interface ClassGroup {
   capacity: number;
   location: string | null;
   isActive: boolean;
+  enrolledCount: number;
 }
 
 export interface SaveClassGroupRequest {
