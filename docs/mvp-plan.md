@@ -87,6 +87,8 @@ Plans in [backend](backend/20260925-instructors-and-class-groups/plan.md) and [f
 
 ### M3 — Enrollments
 
+Plans in [backend](backend/20260925-enrollments/plan.md) and [frontend](frontend/20260925-enrollments/plan.md).
+
 - Enroll and unenroll a student, with capacity check and a start date.
 - A class group shows its students and free spots; a student shows their classes.
 
