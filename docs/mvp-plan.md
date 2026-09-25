@@ -66,7 +66,7 @@ Every entity except `Business` is tenant-owned and gets its isolation test.
 
 ## Milestones
 
-Status: M1, M2 and M3 done (backend and frontend). Next: M4, attendance.
+Status: M1 to M4 done (backend and frontend). Next: M5, monthly fees.
 
 Each milestone gets a backend plan and a frontend plan under `docs/backend/<date>-<name>/plan.md` and `docs/frontend/<date>-<name>/plan.md` before code is written.
 
@@ -93,6 +93,8 @@ Plans in [backend](backend/20260925-enrollments/plan.md) and [frontend](frontend
 - A class group shows its students and free spots; a student shows their classes.
 
 ### M4 — Attendance
+
+Plans in [backend](backend/20260926-attendance/plan.md) and [frontend](frontend/20260926-attendance/plan.md).
 
 - "Today" screen: today's sessions for the business, in time order.
 - Take attendance for a session: enrolled students, present or absent, one tap each.

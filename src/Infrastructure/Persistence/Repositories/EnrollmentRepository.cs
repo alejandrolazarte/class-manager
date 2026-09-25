@@ -41,8 +41,36 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
                 enrollment.EndDate))
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(Guid classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
+        await (
+            from enrollment in ActiveOn(sessionDate)
+            where enrollment.ClassGroupId == classGroupId
+            join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
+            join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
+            orderby student.FullName
+            select new RosterEntry(
+                enrollment.Id,
+                student.Id,
+                student.FullName,
+                student.BirthDate,
+                client.Id,
+                client.FullName,
+                enrollment.StartDate,
+                enrollment.EndDate))
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyDictionary<Guid, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken) =>
+        await ActiveOn(sessionDate)
+            .GroupBy(enrollment => enrollment.ClassGroupId)
+            .Select(group => new { ClassGroupId = group.Key, Count = group.Count() })
+            .ToDictionaryAsync(group => group.ClassGroupId, group => group.Count, cancellationToken);
+
     public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(Guid studentId, DateOnly today, CancellationToken cancellationToken) =>
         await Current(today).Where(enrollment => enrollment.StudentId == studentId).ToListAsync(cancellationToken);
+
+    private IQueryable<Enrollment> ActiveOn(DateOnly sessionDate) =>
+        context.Enrollments.AsNoTracking().Where(enrollment =>
+            enrollment.StartDate <= sessionDate && (enrollment.EndDate == null || enrollment.EndDate >= sessionDate));
 
     private IQueryable<Enrollment> Current(DateOnly today) =>
         context.Enrollments.AsNoTracking().Where(enrollment => enrollment.EndDate == null || enrollment.EndDate >= today);
