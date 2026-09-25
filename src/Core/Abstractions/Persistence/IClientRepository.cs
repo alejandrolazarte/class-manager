@@ -10,5 +10,7 @@ public interface IClientRepository
 
     Task<Client?> GetByIdAsync(Guid clientId, CancellationToken cancellationToken);
 
+    Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken);
 }

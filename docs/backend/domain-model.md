@@ -26,6 +26,7 @@ erDiagram
     ClassGroup ||--o{ ClassSession : "occurs as"
     ClassSession ||--o{ Attendance : records
     Student ||--o{ Attendance : has
+    Client ||--o{ Payment : makes
 ```
 
 ### Business (tenant root)
@@ -39,6 +40,7 @@ erDiagram
 | `DefaultCountryCallingCode` | `string` | 1–3 digits, for example `54`; used to normalize local phone numbers |
 | `CurrencyCode` | `string` | ISO 4217, 3 letters, for example `ARS`; normalized to upper case |
 | `CreatedAt` | `DateTimeOffset` | UTC |
+| `DefaultMonthlyFee` | `decimal?` | Optional default fee for every client, `decimal(12,2)` (added in M5) |
 
 `Business` is the only entity that does **not** implement `ITenantOwned`.
 
@@ -66,6 +68,7 @@ Unique `(TenantId, UserId)`. The access token carries the member's `TenantId` as
 | `Email` | `string?` | Optional, valid format, max 254 characters |
 | `Notes` | `string?` | Optional, max 1000 characters  |
 | `CreatedAt` | `DateTimeOffset` | UTC |
+| `MonthlyFee` | `decimal?` | Optional override of the business's default fee (added in M5) |
 
 ### Student (added in M1)
 
@@ -157,6 +160,24 @@ One date of a class group. Created on demand, only when attendance is taken or t
 
 Unique `(TenantId, ClassSessionId, StudentId)`. Attendance can only be taken for today or past dates.
 
+### Payment (added in M5)
+
+Money received from a client for a month. The fee is per client (a family pays one fee).
+
+| Property | Type | Rules |
+|---|---|---|
+| `Id` | `Guid` | v7 |
+| `TenantId` | `Guid` | Tenant (the business) |
+| `ClientId` | `Guid` | A client of the same business |
+| `Amount` | `decimal` | Greater than 0, at most 10,000,000, 2 decimals, `decimal(12,2)` |
+| `Month` | `DateOnly` | First day of the month it pays (`BillingMonth`), from 2000-01 to 12 months ahead |
+| `PaidOn` | `DateOnly` | Not after today |
+| `Method` | `PaymentMethod` | `Cash`, `Transfer`, `Card`, `Other`, stored as a string |
+| `Notes` | `string?` | Optional, max 200 characters |
+| `CreatedAt` | `DateTimeOffset` | UTC |
+
+A month's fees list the clients with a student enrolled at any point of that month. Effective fee: the client's `MonthlyFee`, else the business's `DefaultMonthlyFee`, else none. Status: `Paid` (paid ≥ fee), `Partial`, `Unpaid` or `NoFee`.
+
 ## Value objects
 
 ### PhoneNumber
@@ -209,6 +230,7 @@ Core/Abstractions/Persistence/
   IEnrollmentRepository.cs
   IClassSessionRepository.cs
   IAttendanceRepository.cs
+  IPaymentRepository.cs
   IBusinessRepository.cs
   IBusinessMemberRepository.cs
   IUnitOfWork.cs         → Task SaveChangesAsync(CancellationToken)

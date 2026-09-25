@@ -6,6 +6,7 @@ export function buildBusiness(overrides: Partial<Business> = {}): Business {
     timeZoneId: "America/Argentina/Buenos_Aires",
     currencyCode: "ARS",
     defaultCountryCallingCode: "54",
+    defaultMonthlyFee: 12000,
     ...overrides,
   };
 }

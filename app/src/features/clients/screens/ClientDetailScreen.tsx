@@ -6,6 +6,7 @@ import {
 } from "@/features/clients/phoneNumberFormatting";
 import { useClient } from "@/features/clients/useClient";
 import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
+import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { translate } from "@/i18n/translate";
@@ -115,6 +116,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           onPress={() => router.push(routes.addStudent(client.id))}
         />
       </View>
+      <ClientFeeSection client={client} />
     </ScrollView>
   );
 }

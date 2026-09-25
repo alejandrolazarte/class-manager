@@ -10,6 +10,9 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
     public Task<Client?> GetByIdAsync(Guid clientId, CancellationToken cancellationToken) =>
         context.Clients.AsNoTracking().FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 
+    public Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken) =>
+        context.Clients.FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
+
     public async Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken)
     {
         var clients = context.Clients.AsNoTracking();

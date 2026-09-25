@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSession } from "@/features/authentication/useSession";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { formatMoney } from "@/features/fees/money";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Button } from "@/ui/Button";
@@ -40,6 +41,15 @@ export function SettingsScreen() {
           label={translate("settings.business")}
           detail={business.name}
           onPress={() => router.push(routes.businessSettings)}
+        />
+        <SettingsRow
+          label={translate("settings.monthlyFee")}
+          detail={
+            business.defaultMonthlyFee === null
+              ? translate("settings.monthlyFeeMissing")
+              : formatMoney(business.defaultMonthlyFee, business.currencyCode)
+          }
+          onPress={() => router.push(routes.defaultMonthlyFee)}
         />
         <SettingsRow
           label={translate("settings.instructors")}

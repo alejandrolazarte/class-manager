@@ -20,6 +20,7 @@ public sealed class Then_returns_200(ApiFixture fixture)
             registeredClient.PhoneNumber,
             registeredClient.Email,
             registeredClient.Notes,
-            registeredClient.CreatedAt));
+            registeredClient.CreatedAt,
+            registeredClient.MonthlyFee));
     }
 }

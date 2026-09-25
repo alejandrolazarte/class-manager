@@ -26,6 +26,7 @@ public sealed class Client : ITenantOwned
     public string? Email { get; private set; }
     public string? Notes { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public decimal? MonthlyFee { get; private set; }
 
     public static Result<Client> Create(
         string? fullName,
@@ -61,6 +62,18 @@ public sealed class Client : ITenantOwned
             Notes = trimmedNotes,
             CreatedAt = createdAt.ToUniversalTime(),
         };
+    }
+
+    public Result SetMonthlyFee(decimal? amount)
+    {
+        var validation = Fees.MonthlyFee.Validate(amount, nameof(MonthlyFee));
+        if (validation.IsFailure)
+        {
+            return validation;
+        }
+
+        MonthlyFee = amount;
+        return Result.Success();
     }
 
     private static string? TrimToNull(string? value) =>
