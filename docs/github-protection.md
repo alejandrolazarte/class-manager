@@ -1,6 +1,6 @@
 # GitHub protection
 
-Date: 2026-09-24
+Date: 2026-09-25 (settings applied to this repository; the approach comes from salon-manager, 2026-09-24)
 
 Repository: `alejandrolazarte/class-manager` (private, GitHub Free account)
 
@@ -47,6 +47,14 @@ This protects against **mistakes** (an accidental push, an agent going too far),
 git config core.hooksPath .githooks
 ```
 
+### Delete head branches after merge
+
+```powershell
+'{"delete_branch_on_merge":true}' | gh api repos/alejandrolazarte/class-manager --method PATCH --input -
+```
+
+Why: merged branches don't pile up, and a pull request stacked on another one is retargeted to `main` automatically when its base branch is deleted.
+
 ### Restrict Actions to GitHub-owned actions
 
 ```powershell
@@ -68,6 +76,7 @@ Why: workflows cannot write to the repository or approve pull requests. `ci.yml`
 
 - Actions: `allowed_actions: selected`, GitHub-owned only, verified creators not allowed.
 - Workflow token: `read`, cannot approve pull requests.
+- Merged branches: deleted automatically (`delete_branch_on_merge: true`).
 - Collaborators: only the owner (`admin`).
 - Secrets: none.
 - `main`: protected by the local hook and agent deny rules; changes go through pull requests with CI.
@@ -76,6 +85,7 @@ Why: workflows cannot write to the repository or approve pull requests. `ci.yml`
 
 ```powershell
 git config core.hooksPath
+gh api repos/alejandrolazarte/class-manager --jq '.delete_branch_on_merge'
 gh api repos/alejandrolazarte/class-manager/actions/permissions
 gh api repos/alejandrolazarte/class-manager/actions/permissions/selected-actions
 gh api repos/alejandrolazarte/class-manager/actions/permissions/workflow
