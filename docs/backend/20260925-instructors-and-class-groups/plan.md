@@ -183,6 +183,13 @@ Persistence/
 3. `ClassGroup` + repository + migration + create and list.
 4. Update, set active, instructor deactivation guard (I3).
 
+## Implementation notes
+
+- Status: backend done. Unit tests in `Domain/ClassGroups`, `Domain/Instructors`, `UseCases/ClassGroups` and `UseCases/Instructors`; integration tests in `Endpoints/ClassGroups` and `Endpoints/Instructors`.
+- Instructor and class group checks shared by create, update and activate live in `ClassGroupRules`.
+- `SetActiveRequest` lives in `Core/UseCases` and is used by both `/active` endpoints.
+- Deactivating a class group never checks conflicts; activating one checks the instructor is active and free.
+
 ## Out of scope
 
 - Instructor accounts (instructors signing in).

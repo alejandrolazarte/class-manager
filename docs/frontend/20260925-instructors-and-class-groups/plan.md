@@ -109,6 +109,15 @@ src/features/instructors/__tests__/
 4. Weekly view and the new tab.
 5. Manual check on web against the local API.
 
+## Implementation notes
+
+- Status: done. Tests in `src/features/classGroups/__tests__` and `src/features/instructors/__tests__`.
+- The class form reuses the settings form layout (`SettingsFormScreenLayout`) for its error banners.
+- Duration: the preset chips and the "Otra duración" field edit the same value, so a preset shows its number in the field.
+- The edit form keeps the current instructor as an option even when they were deactivated, so an old class still opens.
+- `routes.newClassGroup(weekday)` passes the selected day as `?weekday=`, and the form preselects it.
+- Pending: manual check on Android (Expo Go).
+
 ## Out of scope
 
 - A calendar grid (week at a glance with hours); the per-day list is enough for a handful of classes.

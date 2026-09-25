@@ -15,6 +15,14 @@ export default function TabsLayout() {
       <BusinessProvider>
         <Tabs screenOptions={{ tabBarActiveTintColor: brandColor }}>
           <Tabs.Screen
+            name="classes"
+            options={{
+              title: translate("tabs.classes"),
+              headerShown: false,
+              tabBarIcon: ({ color }) => <TabIcon glyph="📅" color={color} />,
+            }}
+          />
+          <Tabs.Screen
             name="students"
             options={{
               title: translate("tabs.students"),
