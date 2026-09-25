@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Domain.Instructors;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Authentication;
@@ -21,6 +22,7 @@ public sealed class SignUpOwnerUseCase(
     ITokenService tokenService,
     IBusinessRepository businessRepository,
     IBusinessMemberRepository businessMemberRepository,
+    IInstructorRepository instructorRepository,
     IUnitOfWork unitOfWork,
     ITenantScope tenantScope,
     TimeProvider timeProvider)
@@ -65,6 +67,7 @@ public sealed class SignUpOwnerUseCase(
         tenantScope.Establish(business.Value!.Id);
         businessRepository.Add(business.Value);
         businessMemberRepository.Add(BusinessMember.CreateOwner(business.Value.Id, userId.Value));
+        instructorRepository.Add(Instructor.Create(account.Value.FullName).Value!);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var tokens = await tokenService.IssueAsync(

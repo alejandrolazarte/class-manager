@@ -32,5 +32,7 @@ app.MapAuthenticationEndpoints();
 app.MapBusinessEndpoints();
 app.MapClientEndpoints();
 app.MapStudentEndpoints();
+app.MapInstructorEndpoints();
+app.MapClassGroupEndpoints();
 
 app.Run();
