@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import { RosterItem } from "@/features/enrollments/components/RosterItem";
-import { todayIsoDate } from "@/features/enrollments/todayIsoDate";
+import { todayIsoDate } from "@/features/sessions/dates";
 import { RosterEntry } from "@/features/enrollments/types";
 import { useClassRoster } from "@/features/enrollments/useClassRoster";
 import { useEndEnrollment } from "@/features/enrollments/useEnrollmentMutations";

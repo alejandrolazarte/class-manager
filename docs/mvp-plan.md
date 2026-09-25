@@ -66,7 +66,7 @@ Every entity except `Business` is tenant-owned and gets its isolation test.
 
 ## Milestones
 
-Status: M1, M2 and M3 done (backend and frontend). Next: M4, attendance.
+Status: M1 to M4 done (backend and frontend). Next: M5, monthly fees.
 
 Each milestone gets a backend plan and a frontend plan under `docs/backend/<date>-<name>/plan.md` and `docs/frontend/<date>-<name>/plan.md` before code is written.
 

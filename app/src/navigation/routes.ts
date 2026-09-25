@@ -1,4 +1,6 @@
 export const routes = {
+  today: "/today",
+  session: (classGroupId: string, sessionDate: string) => `/today/${classGroupId}/${sessionDate}`,
   classes: "/classes",
   newClassGroup: (weekday?: string) =>
     weekday ? `/classes/new?weekday=${encodeURIComponent(weekday)}` : "/classes/new",

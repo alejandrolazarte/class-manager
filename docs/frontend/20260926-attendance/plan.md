@@ -11,7 +11,7 @@ app/(tabs)/
   today/
     _layout.tsx
     index.tsx                              → DayScreen (?date=YYYY-MM-DD, today by default)
-    [classGroupId]/[date].tsx              → SessionScreen
+    [classGroupId]/[sessionDate].tsx       → SessionScreen
   classes/ students/ settings/             ← unchanged
 ```
 
@@ -62,6 +62,14 @@ src/features/sessions/__tests__/
   When_next_day_is_pressed/Then_sessions_of_that_day_are_requested.test.tsx
   When_date_is_labeled/Then_it_uses_spanish_weekday_and_month.test.ts
 ```
+
+## Implementation notes
+
+- Status: done. Tests in `src/features/sessions/__tests__`.
+- The day screen keeps the shown date in local state (initialized from `?date=`), so the arrows don't push a new screen per day.
+- A mark shows immediately from local pending state; on success the session cache is updated in place and the day counts are refetched; on error the pending mark is dropped and a banner shows.
+- `todayIsoDate` moved to `src/features/sessions/dates.ts` and is shared with the class roster.
+- Pending: manual check on Android (Expo Go).
 
 ## Out of scope
 
