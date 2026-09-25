@@ -18,5 +18,9 @@ public interface IEnrollmentRepository
 
     Task<IReadOnlyList<RosterEntry>> ListRosterAsync(Guid classGroupId, DateOnly today, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(Guid classGroupId, DateOnly sessionDate, CancellationToken cancellationToken);
+
+    Task<IReadOnlyDictionary<Guid, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(Guid studentId, DateOnly today, CancellationToken cancellationToken);
 }

@@ -149,6 +149,13 @@ Persistence/
   When_Attendance_belongs_to_another_business/Then_it_is_not_returned.cs
 ```
 
+## Implementation notes
+
+- Status: backend done. Unit tests in `Domain/Sessions` and `UseCases/Sessions`, integration tests in `Endpoints/Sessions`.
+- Route parameter is `{sessionDate}`: interface parameters named `date` trip CA1716 (reserved keyword in other .NET languages).
+- `SessionRules.FindScheduledClassGroupAsync` is the shared A1 check.
+- The roster of a date comes from `IEnrollmentRepository.ListRosterOnAsync`, which only includes enrollments active on that date (unlike the M3 roster, which also shows future starts).
+
 ## Out of scope
 
 - Make-up classes, trial students and walk-ins who aren't enrolled.

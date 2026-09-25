@@ -23,6 +23,9 @@ erDiagram
     Instructor ||--o{ ClassGroup : teaches
     ClassGroup ||--o{ Enrollment : has
     Student ||--o{ Enrollment : has
+    ClassGroup ||--o{ ClassSession : "occurs as"
+    ClassSession ||--o{ Attendance : records
+    Student ||--o{ Attendance : has
 ```
 
 ### Business (tenant root)
@@ -128,6 +131,32 @@ An enrollment is **current** on a date when `EndDate` is `null` or on/after that
 
 "Today" comes from `IBusinessCalendarService`, which applies the business's time zone to `TimeProvider`.
 
+### ClassSession (added in M4)
+
+One date of a class group. Created on demand, only when attendance is taken or the class is cancelled for that date; the day view merges the class groups that meet on the weekday with the sessions stored for the date.
+
+| Property | Type | Rules |
+|---|---|---|
+| `Id` | `Guid` | v7 |
+| `TenantId` | `Guid` | Tenant (the business) |
+| `ClassGroupId` | `Guid` | The class group must meet on that weekday |
+| `Date` | `DateOnly` | Unique per class group |
+| `IsCancelled` | `bool` | A cancelled session takes no attendance; a session with attendance can't be cancelled |
+| `CancellationReason` | `string?` | Optional, max 200 characters |
+| `CreatedAt` | `DateTimeOffset` | UTC |
+
+### Attendance (added in M4)
+
+| Property | Type | Rules |
+|---|---|---|
+| `Id` | `Guid` | v7 |
+| `TenantId` | `Guid` | Tenant (the business) |
+| `ClassSessionId` | `Guid` | Session of the same business |
+| `StudentId` | `Guid` | Enrolled in the class on that date (started on or before it and not ended before it) |
+| `Status` | `AttendanceStatus` | `Present` or `Absent`, stored as a string; no row means not taken yet |
+
+Unique `(TenantId, ClassSessionId, StudentId)`. Attendance can only be taken for today or past dates.
+
 ## Value objects
 
 ### PhoneNumber
@@ -178,6 +207,8 @@ Core/Abstractions/Persistence/
   IInstructorRepository.cs
   IClassGroupRepository.cs
   IEnrollmentRepository.cs
+  IClassSessionRepository.cs
+  IAttendanceRepository.cs
   IBusinessRepository.cs
   IBusinessMemberRepository.cs
   IUnitOfWork.cs         → Task SaveChangesAsync(CancellationToken)

@@ -1,0 +1,16 @@
+using ClassManager.Core.Domain.Sessions;
+
+namespace ClassManager.Core.Abstractions.Persistence;
+
+public interface IAttendanceRepository
+{
+    void Add(Attendance attendance);
+
+    void Remove(Attendance attendance);
+
+    Task<Attendance?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Attendance>> ListBySessionAsync(Guid classSessionId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyDictionary<Guid, AttendanceCount>> CountBySessionsAsync(IReadOnlyCollection<Guid> classSessionIds, CancellationToken cancellationToken);
+}

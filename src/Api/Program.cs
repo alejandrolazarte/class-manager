@@ -35,5 +35,6 @@ app.MapStudentEndpoints();
 app.MapInstructorEndpoints();
 app.MapClassGroupEndpoints();
 app.MapEnrollmentEndpoints();
+app.MapSessionEndpoints();
 
 app.Run();

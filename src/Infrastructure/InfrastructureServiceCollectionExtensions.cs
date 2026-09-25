@@ -43,6 +43,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IInstructorRepository, InstructorRepository>();
         services.AddScoped<IClassGroupRepository, ClassGroupRepository>();
         services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+        services.AddScoped<IClassSessionRepository, ClassSessionRepository>();
+        services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 
         return services.AddSecurity();
     }

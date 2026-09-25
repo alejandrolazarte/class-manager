@@ -6,6 +6,7 @@ using ClassManager.Core.UseCases.ClassGroups;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Enrollments;
 using ClassManager.Core.UseCases.Instructors;
+using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Api;
@@ -41,6 +42,11 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<EndEnrollmentCommand, EndEnrollmentResponse>, EndEnrollmentUseCase>();
         services.AddScoped<IUseCase<ListClassRosterQuery, IReadOnlyList<RosterEntryResponse>>, ListClassRosterUseCase>();
         services.AddScoped<IUseCase<ListStudentEnrollmentsQuery, IReadOnlyList<StudentEnrollmentResponse>>, ListStudentEnrollmentsUseCase>();
+        services.AddScoped<IUseCase<ListDaySessionsQuery, IReadOnlyList<DaySessionResponse>>, ListDaySessionsUseCase>();
+        services.AddScoped<IUseCase<GetSessionQuery, SessionDetailsResponse>, GetSessionUseCase>();
+        services.AddScoped<IUseCase<RecordAttendanceCommand, RecordAttendanceResponse>, RecordAttendanceUseCase>();
+        services.AddScoped<IUseCase<CancelSessionCommand, SessionStatusResponse>, CancelSessionUseCase>();
+        services.AddScoped<IUseCase<RestoreSessionCommand, SessionStatusResponse>, RestoreSessionUseCase>();
         services.AddScoped<IUseCase<UpdateBusinessSettingsCommand, UpdateBusinessSettingsResponse>, UpdateBusinessSettingsUseCase>();
 
         return services;
