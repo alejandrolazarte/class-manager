@@ -102,6 +102,8 @@ Plans in [backend](backend/20260926-attendance/plan.md) and [frontend](frontend/
 
 ### M5 — Monthly fees
 
+Plans in [backend](backend/20260926-monthly-fees/plan.md) and [frontend](frontend/20260926-monthly-fees/plan.md).
+
 - Monthly fee per client (default from the business settings, overridable per client).
 - Record a payment (amount, date, method, month it pays).
 - "Who owes" list for the current month.
@@ -120,7 +122,7 @@ After M5: pilot with one or two real instructors ([hosting plan](hosting-plan.md
 
 | Decision | Needed by | Notes |
 |---|---|---|
-| Fee per client or per student | M5 | Per client is simpler and covers families; a sibling discount would need per student |
+| Fee per client or per student | M5 | Decided: per client, with a default on the business and an optional override per client |
 | Reusing scheduling code from salon-manager | M2 | Weekly schedule and time off exist there; copy what M2 needs, extract to the template only when both apps prove it's the same |
 | Class packs vs make-up classes first | After the pilot | Let the pilot users decide |
 | Pricing model | Before public launch | Free plan limits (for example number of students) |
