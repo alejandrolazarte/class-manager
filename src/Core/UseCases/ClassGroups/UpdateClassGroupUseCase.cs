@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
 
@@ -9,9 +10,13 @@ public sealed record UpdateClassGroupCommand(Guid ClassGroupId, ClassGroupDetail
 public sealed class UpdateClassGroupUseCase(
     IInstructorRepository instructorRepository,
     IClassGroupRepository classGroupRepository,
-    IUnitOfWork unitOfWork)
+    IEnrollmentRepository enrollmentRepository,
+    IUnitOfWork unitOfWork,
+    IBusinessCalendarService businessCalendar)
     : IUseCase<UpdateClassGroupCommand, ClassGroupResponse>
 {
+    private const string CapacityBelowEnrolledMessage = "Capacity can't be lower than the students currently enrolled.";
+
     public async Task<Result<ClassGroupResponse>> ExecuteAsync(UpdateClassGroupCommand command, CancellationToken cancellationToken)
     {
         var classGroup = await classGroupRepository.GetForUpdateAsync(command.ClassGroupId, cancellationToken);
@@ -43,6 +48,16 @@ public sealed class UpdateClassGroupUseCase(
             }
         }
 
+        var today = await businessCalendar.TodayAsync(cancellationToken);
+        var enrolledCount = await enrollmentRepository.CountCurrentAsync(classGroup.Id, today, cancellationToken);
+        if (details.Capacity < enrolledCount)
+        {
+            return Result.Validation<ClassGroupResponse>(
+                CapacityBelowEnrolledMessage,
+                ClassGroupErrorCodes.CapacityBelowEnrolled,
+                nameof(ClassGroupDetails.Capacity));
+        }
+
         var update = classGroup.Update(details.Name, instructor.Value!.Id, schedule.Value!, details.Capacity, details.Location);
         if (update.IsFailure)
         {
@@ -51,6 +66,6 @@ public sealed class UpdateClassGroupUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ClassGroupResponse.From(classGroup, instructor.Value.FullName);
+        return ClassGroupResponse.From(classGroup, instructor.Value.FullName, enrolledCount);
     }
 }

@@ -10,6 +10,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Instructor> Instructors => Set<Instructor>();
     public DbSet<ClassGroup> ClassGroups => Set<ClassGroup>();
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
 
     public Guid CurrentTenantId => tenantContext.TenantId;
 

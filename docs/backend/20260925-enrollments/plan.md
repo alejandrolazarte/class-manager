@@ -37,7 +37,7 @@ POST /api/class-groups/{classGroupId}/enrollments
 
 | Status | When |
 |---|---|
-| `201` | Enrolled, `Location: /api/enrollments/{id}` |
+| `201` | Enrolled, `Location` points to the class roster |
 | `404` | `class_group.not_found` or `student.not_found` (includes another business's) |
 | `409` | `enrollment.already_enrolled` with `enrollmentId`; `class_group.full` with `capacity`; `class_group.inactive` |
 
@@ -158,6 +158,13 @@ Endpoints/Enrollments/
 Persistence/
   When_Enrollment_belongs_to_another_business/Then_it_is_not_returned.cs
 ```
+
+## Implementation notes
+
+- Status: backend done. Unit tests in `Domain/Enrollments` and `UseCases/Enrollments`, integration tests in `Endpoints/Enrollments`.
+- `Location` of a new enrollment points to the class roster: there is no single-enrollment `GET`.
+- `IBusinessCalendarService` (`Core/Services/BusinessCalendarService.cs`) gives "today" in the business's time zone; class group use cases use it for `enrolledCount`, E6 and E7.
+- The integration tests' clock is fixed at 2026-09-24, so "today" in them is that date.
 
 ## Out of scope
 

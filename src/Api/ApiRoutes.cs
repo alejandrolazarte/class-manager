@@ -13,6 +13,10 @@ public static class ApiRoutes
     public const string ClassGroups = "/api/class-groups";
     public const string ClassGroupById = "/{classGroupId:guid}";
     public const string Active = "/active";
+    public const string EnrollmentsSegment = "/enrollments";
+    public const string Enrollments = "/api/enrollments";
+    public const string EnrollmentById = "/{enrollmentId:guid}";
+    public const string End = "/end";
     public const string Business = "/api/business";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";
