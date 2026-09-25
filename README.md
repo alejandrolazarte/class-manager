@@ -82,6 +82,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [MVP plan](docs/mvp-plan.md) — goal, scope, domain sketch and milestones
 - [GitHub protection](docs/github-protection.md) — how `main` is protected on a free private repo, and audit commands
 - [Running the e2e tests](docs/e2e/running-e2e-tests.md) — Playwright against the web app, the real API and SQL Server
+- [Demo screenshots](docs/e2e/demo-screenshots.md) — load a demo business and capture every screen at phone size
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
 - [Hosting plan](docs/hosting-plan.md) — free Azure setup for a pilot, limits and costs to watch
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
