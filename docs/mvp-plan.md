@@ -94,6 +94,8 @@ Plans in [backend](backend/20260925-enrollments/plan.md) and [frontend](frontend
 
 ### M4 — Attendance
 
+Plans in [backend](backend/20260926-attendance/plan.md) and [frontend](frontend/20260926-attendance/plan.md).
+
 - "Today" screen: today's sessions for the business, in time order.
 - Take attendance for a session: enrolled students, present or absent, one tap each.
 - Cancel a session (holiday, pool closed) so it doesn't count as an absence.
