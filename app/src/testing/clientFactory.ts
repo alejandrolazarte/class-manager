@@ -8,6 +8,7 @@ export function buildClient(overrides: Partial<ClientDetails> = {}): ClientDetai
     email: null,
     notes: null,
     createdAt: "2026-09-24T14:05:00Z",
+    monthlyFee: null,
     students: [],
     ...overrides,
   };

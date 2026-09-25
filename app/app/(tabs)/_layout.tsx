@@ -39,6 +39,14 @@ export default function TabsLayout() {
             }}
           />
           <Tabs.Screen
+            name="fees"
+            options={{
+              title: translate("tabs.fees"),
+              headerShown: false,
+              tabBarIcon: ({ color }) => <TabIcon glyph="💰" color={color} />,
+            }}
+          />
+          <Tabs.Screen
             name="settings"
             options={{
               title: translate("tabs.settings"),

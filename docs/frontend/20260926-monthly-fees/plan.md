@@ -57,6 +57,14 @@ src/features/fees/__tests__/
   When_default_fee_is_missing/Then_settings_link_is_shown.test.tsx
 ```
 
+## Implementation notes
+
+- Status: done. Tests in `src/features/fees/__tests__`.
+- The "Deben" filter shows `Unpaid` and `Partial`; `NoFee` clients only appear under "Todos".
+- The payment date reuses the `dd/mm/aaaa` helpers from students and rejects future dates on the device; the API checks against the business's today.
+- Setting the default fee invalidates the business query, so every screen reading `useCurrentBusiness` gets the new fee.
+- Pending: manual check on Android (Expo Go).
+
 ## Out of scope
 
 - Payment history screen beyond the client's last payments.

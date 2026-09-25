@@ -3,6 +3,7 @@ export interface Business {
   timeZoneId: string;
   currencyCode: string;
   defaultCountryCallingCode: string;
+  defaultMonthlyFee: number | null;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -12,4 +13,4 @@ export interface UpdateBusinessSettingsRequest {
   defaultCountryCallingCode: string;
 }
 
-export type UpdateBusinessSettingsResponse = Business;
+export type UpdateBusinessSettingsResponse = Omit<Business, "defaultMonthlyFee">;

@@ -7,6 +7,7 @@ export interface Client {
   email: string | null;
   notes: string | null;
   createdAt: string;
+  monthlyFee: number | null;
 }
 
 export interface ClientDetails extends Client {
