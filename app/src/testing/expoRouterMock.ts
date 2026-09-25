@@ -1,0 +1,24 @@
+import { useEffect } from "react";
+
+export const routerMock = {
+  push: jest.fn(),
+  replace: jest.fn(),
+  navigate: jest.fn(),
+  back: jest.fn(),
+  canGoBack: jest.fn(() => true),
+  setParams: jest.fn(),
+};
+
+export const searchParametersMock: { current: Record<string, string> } = { current: {} };
+
+export function resetExpoRouterMock(): void {
+  Object.values(routerMock).forEach((mockFunction) => mockFunction.mockClear());
+  searchParametersMock.current = {};
+}
+
+export function RedirectMock({ href }: { href: unknown }): null {
+  useEffect(() => {
+    routerMock.replace(href);
+  }, [href]);
+  return null;
+}

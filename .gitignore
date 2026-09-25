@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+
+# Local config with secrets
+src/Api/appsettings.Development.json
+
+# Frontend
+node_modules/
+app/dist/
+app/.expo/
+app/web-build/
+app/.env.local
+
+# Local Claude instructions (not published)
+CLAUDE.local.md
+
+# OS
+.DS_Store
+Thumbs.db

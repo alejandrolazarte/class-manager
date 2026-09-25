@@ -1,0 +1,35 @@
+using ClassManager.Core.Domain.Businesses;
+using ClassManager.Security.Hosting;
+using ClassManager.Tenancy.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
+
+namespace ClassManager.Api.Authentication;
+
+internal static class AppAuthenticationServiceCollectionExtensions
+{
+    private const int ForwardedProxyHopCount = 1;
+
+    public static IServiceCollection AddAppAuthentication(this IServiceCollection services)
+    {
+        services.AddSecurityAuthentication();
+
+        services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
+            .AddPolicy(AuthorizationPolicies.OwnerOnly, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireRole(nameof(BusinessRole.Owner)));
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardLimit = ForwardedProxyHopCount;
+            options.KnownIPNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
+
+        services.AddClaimsTenancy();
+
+        return services;
+    }
+}

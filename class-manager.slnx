@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Api/Api.csproj" />
+    <Project Path="src/Core/Core.csproj" />
+    <Project Path="src/Infrastructure/Infrastructure.csproj" />
+    <Project Path="src/Security/Security.csproj" />
+    <Project Path="src/Tenancy.AspNetCore/Tenancy.AspNetCore.csproj" />
+    <Project Path="src/Tenancy/Tenancy.csproj" />
+  </Folder>
+  <Folder Name="/analyzers/">
+    <Project Path="analyzers/ClassManager.Analyzers/ClassManager.Analyzers.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ClassManager.Analyzers.U.Tests/ClassManager.Analyzers.U.Tests.csproj" />
+    <Project Path="tests/ClassManager.Api.I.Tests/ClassManager.Api.I.Tests.csproj" />
+    <Project Path="tests/ClassManager.Core.U.Tests/ClassManager.Core.U.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="NuGet.config" />
+    <File Path=".gitignore" />
+  </Folder>
+</Solution>

@@ -1,0 +1,5 @@
+global using ClassManager.Core.Abstractions.Persistence;
+global using ClassManager.Core.Domain.Businesses;
+global using ClassManager.Core.Domain.Clients;
+global using ClassManager.Tenancy;
+global using Microsoft.EntityFrameworkCore;

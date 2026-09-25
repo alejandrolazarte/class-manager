@@ -1,0 +1,149 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { getFieldErrors, getStringExtension } from "@/api/problemDetails";
+import { isApiError, isNetworkError } from "@/api/httpClient";
+import {
+  clientErrorCodes,
+  phoneNumberTakenClientIdExtension,
+} from "@/features/clients/clientErrorCodes";
+import { ClientForm } from "@/features/clients/components/ClientForm";
+import {
+  emptyRegisterClientFormValues,
+  RegisterClientFormValues,
+  registerClientSchema,
+  toRegisterClientRequest,
+} from "@/features/clients/registerClientSchema";
+import { Client } from "@/features/clients/types";
+import { useClient } from "@/features/clients/useClient";
+import { useRegisterClient } from "@/features/clients/useRegisterClient";
+import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
+import { Banner } from "@/ui/Banner";
+import { Button } from "@/ui/Button";
+import { useToast } from "@/ui/ToastProvider";
+
+const badRequestStatus = 400;
+const registerClientFieldNames = Object.keys(
+  emptyRegisterClientFormValues,
+) as (keyof RegisterClientFormValues)[];
+
+type SubmissionFailure =
+  | { kind: "phoneNumberTaken"; existingClientId: string }
+  | { kind: "network" }
+  | { kind: "unexpected" };
+
+function isRegisterClientFieldName(fieldName: string): fieldName is keyof RegisterClientFormValues {
+  return (registerClientFieldNames as string[]).includes(fieldName);
+}
+
+export function RegisterClientScreen() {
+  const router = useRouter();
+  const { showToast } = useToast();
+  const registerClientMutation = useRegisterClient();
+  const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const form = useForm<RegisterClientFormValues>({
+    resolver: zodResolver(registerClientSchema),
+    defaultValues: emptyRegisterClientFormValues,
+    mode: "onTouched",
+  });
+  const existingClientId =
+    submissionFailure?.kind === "phoneNumberTaken" ? submissionFailure.existingClientId : undefined;
+  const { data: existingClient } = useClient(existingClientId);
+
+  const navigateAfterRegistration = (registeredClient: Client) => {
+    showToast(translate("clients.register.success"));
+    router.replace(routes.clientDetail(registeredClient.id));
+  };
+
+  const handleRegistrationError = (registrationError: unknown) => {
+    if (isNetworkError(registrationError)) {
+      setSubmissionFailure({ kind: "network" });
+      return;
+    }
+    if (
+      isApiError(registrationError) &&
+      registrationError.hasCode(clientErrorCodes.phoneNumberTaken)
+    ) {
+      const conflictingClientId = getStringExtension(
+        registrationError.problem,
+        phoneNumberTakenClientIdExtension,
+      );
+      setSubmissionFailure(
+        conflictingClientId
+          ? { kind: "phoneNumberTaken", existingClientId: conflictingClientId }
+          : { kind: "unexpected" },
+      );
+      return;
+    }
+    if (isApiError(registrationError) && registrationError.status === badRequestStatus) {
+      const fieldErrors = Object.entries(getFieldErrors(registrationError.problem)).filter(
+        ([fieldName]) => isRegisterClientFieldName(fieldName),
+      );
+      fieldErrors.forEach(([fieldName, message]) => {
+        if (isRegisterClientFieldName(fieldName)) {
+          form.setError(fieldName, { type: "server", message });
+        }
+      });
+      if (fieldErrors.length > 0) {
+        return;
+      }
+    }
+    setSubmissionFailure({ kind: "unexpected" });
+  };
+
+  const submit = form.handleSubmit(async (formValues) => {
+    setSubmissionFailure(null);
+    try {
+      const registeredClient = await registerClientMutation.mutateAsync(
+        toRegisterClientRequest(formValues),
+      );
+      navigateAfterRegistration(registeredClient);
+    } catch (registrationError) {
+      handleRegistrationError(registrationError);
+    }
+  });
+
+  return (
+    <KeyboardAvoidingView
+      className="flex-1 bg-gray-50"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView contentContainerClassName="gap-4 p-4" keyboardShouldPersistTaps="handled">
+        {submissionFailure?.kind === "phoneNumberTaken" ? (
+          <Banner
+            tone="warning"
+            message={
+              existingClient
+                ? translate("clients.register.phoneTaken", { name: existingClient.fullName })
+                : translate("clients.register.phoneTakenUnknownName")
+            }
+          >
+            <Button
+              variant="secondary"
+              label={translate("clients.register.openClient")}
+              onPress={() => router.push(routes.clientDetail(submissionFailure.existingClientId))}
+            />
+          </Banner>
+        ) : null}
+        {submissionFailure?.kind === "network" ? (
+          <Banner message={translate("common.networkError")}>
+            <Button variant="secondary" label={translate("common.retry")} onPress={submit} />
+          </Banner>
+        ) : null}
+        {submissionFailure?.kind === "unexpected" ? (
+          <Banner message={translate("common.unexpectedError")} />
+        ) : null}
+        <View>
+          <ClientForm
+            form={form}
+            onSubmit={submit}
+            isSubmitting={registerClientMutation.isPending}
+          />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
