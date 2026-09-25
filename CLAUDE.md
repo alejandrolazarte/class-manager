@@ -1,6 +1,6 @@
 # class-manager
 
-Multi-tenant app template: .NET 10 API + Expo app (Android, iOS and web). Each business signs up and gets its own tenant; all businesses share one database, isolated by `TenantId`. It ships with authentication, tenancy, business settings and one sample tenant-owned entity (`Client`) to copy when adding the real domain.
+Multi-tenant management app for class-based businesses (swimming, yoga, pilates, functional training): students, weekly group classes, enrollments, attendance and monthly fees. Each business (an instructor or a studio) signs up and gets its own tenant; all businesses share one database, isolated by `TenantId`.
 
 ## Stack
 

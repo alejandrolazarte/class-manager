@@ -1,8 +1,8 @@
 # class-manager
 
-Multi-tenant app template: .NET 10 API + Expo app (Android, iOS and web). Each business signs up and gets its own tenant; all businesses share one database, isolated by `TenantId`. It ships with authentication, tenancy, business settings and one sample tenant-owned entity (`Client`) to copy when adding the real domain.
+Multi-tenant management app for class-based businesses (swimming, yoga, pilates, functional training): students, weekly group classes, enrollments, attendance and monthly fees. Each business (an instructor or a studio) signs up and gets its own tenant; all businesses share one database, isolated by `TenantId`.
 
-New app from this template: see [Using the template](docs/template.md).
+Generated from [app-template](https://github.com/alejandrolazarte/app-template) on 2026-09-25. Fix platform bugs (`Security`, `Tenancy`, analyzers) in the template first, then port them here. What the MVP includes: [MVP plan](docs/mvp-plan.md).
 
 - **Backend**: ASP.NET Core Minimal API (.NET 10) + EF Core + SQL Server
 - **Frontend**: Expo (React Native) for Android, iOS and web
@@ -79,7 +79,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 ## Docs
 
 - [CLAUDE.md](CLAUDE.md) — conventions and rules for contributors and AI agents
-- [Using the template](docs/template.md) — create a new app, what to rename and what GitHub doesn't copy
+- [MVP plan](docs/mvp-plan.md) — goal, scope, domain sketch and milestones
 - [GitHub protection](docs/github-protection.md) — how `main` is protected on a free private repo, and audit commands
 - [Running the e2e tests](docs/e2e/running-e2e-tests.md) — Playwright against the web app, the real API and SQL Server
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
