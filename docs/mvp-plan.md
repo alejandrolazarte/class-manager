@@ -80,6 +80,8 @@ Plans in [backend](backend/20260925-clients-and-students/plan.md) and [frontend]
 
 ### M2 — Instructors and class groups
 
+Plans in [backend](backend/20260925-instructors-and-class-groups/plan.md) and [frontend](frontend/20260925-instructors-and-class-groups/plan.md).
+
 - CRUD for instructors and class groups (weekdays, start time, duration, capacity, instructor).
 - Weekly view: the classes of each day.
 
