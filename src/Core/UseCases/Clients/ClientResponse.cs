@@ -8,8 +8,9 @@ public sealed record ClientResponse(
     string PhoneNumber,
     string? Email,
     string? Notes,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    decimal? MonthlyFee)
 {
     public static ClientResponse From(Client client) =>
-        new(client.Id, client.FullName, client.PhoneNumber.Value, client.Email, client.Notes, client.CreatedAt);
+        new(client.Id, client.FullName, client.PhoneNumber.Value, client.Email, client.Notes, client.CreatedAt, client.MonthlyFee);
 }

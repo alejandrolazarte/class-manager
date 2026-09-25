@@ -5,6 +5,7 @@ using ClassManager.Core.UseCases.Businesses;
 using ClassManager.Core.UseCases.ClassGroups;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Enrollments;
+using ClassManager.Core.UseCases.Fees;
 using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
@@ -47,6 +48,12 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RecordAttendanceCommand, RecordAttendanceResponse>, RecordAttendanceUseCase>();
         services.AddScoped<IUseCase<CancelSessionCommand, SessionStatusResponse>, CancelSessionUseCase>();
         services.AddScoped<IUseCase<RestoreSessionCommand, SessionStatusResponse>, RestoreSessionUseCase>();
+        services.AddScoped<IUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse>, SetDefaultMonthlyFeeUseCase>();
+        services.AddScoped<IUseCase<SetClientMonthlyFeeCommand, ClientResponse>, SetClientMonthlyFeeUseCase>();
+        services.AddScoped<IUseCase<RecordPaymentCommand, PaymentResponse>, RecordPaymentUseCase>();
+        services.AddScoped<IUseCase<ListClientPaymentsQuery, IReadOnlyList<PaymentResponse>>, ListClientPaymentsUseCase>();
+        services.AddScoped<IUseCase<DeletePaymentCommand, PaymentResponse>, DeletePaymentUseCase>();
+        services.AddScoped<IUseCase<ListMonthlyFeesQuery, MonthlyFeesResponse>, ListMonthlyFeesUseCase>();
         services.AddScoped<IUseCase<UpdateBusinessSettingsCommand, UpdateBusinessSettingsResponse>, UpdateBusinessSettingsUseCase>();
 
         return services;

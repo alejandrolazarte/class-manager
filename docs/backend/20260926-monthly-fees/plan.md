@@ -119,6 +119,12 @@ Persistence/
   When_Payment_belongs_to_another_business/Then_it_is_not_returned.cs
 ```
 
+## Implementation notes
+
+- Status: backend done. Unit tests in `Domain/Fees` and `UseCases/Fees`, integration tests in `Endpoints/Fees`.
+- `Business` and `Client` call `Fees.MonthlyFee.Validate` with the namespace-qualified name because `Client.MonthlyFee` is also a property name.
+- Clients with a payment for the month but no enrollment in it are not listed; their payment still shows in the client's payments.
+
 ## Out of scope
 
 - Class packs, per-class prices and discounts as rules.

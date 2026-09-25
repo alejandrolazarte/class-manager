@@ -35,6 +35,7 @@ public sealed partial class Business
     public string CurrencyCode { get; private set; } = string.Empty;
     public string DefaultCountryCallingCode { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
+    public decimal? DefaultMonthlyFee { get; private set; }
 
     public static Result<Business> Create(
         string? name,
@@ -88,6 +89,18 @@ public sealed partial class Business
         TimeZoneId = timeZoneId!;
         CurrencyCode = normalizedCurrencyCode!;
         DefaultCountryCallingCode = defaultCountryCallingCode!;
+        return Result.Success();
+    }
+
+    public Result SetDefaultMonthlyFee(decimal? amount)
+    {
+        var validation = Fees.MonthlyFee.Validate(amount, nameof(DefaultMonthlyFee));
+        if (validation.IsFailure)
+        {
+            return validation;
+        }
+
+        DefaultMonthlyFee = amount;
         return Result.Success();
     }
 

@@ -13,6 +13,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
     public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
+    public DbSet<Payment> Payments => Set<Payment>();
 
     public Guid CurrentTenantId => tenantContext.TenantId;
 

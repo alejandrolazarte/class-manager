@@ -10,10 +10,11 @@ public sealed record BusinessResponse(
     string Name,
     string TimeZoneId,
     string CurrencyCode,
-    string DefaultCountryCallingCode)
+    string DefaultCountryCallingCode,
+    decimal? DefaultMonthlyFee)
 {
     public static BusinessResponse From(Business business) =>
-        new(business.Name, business.TimeZoneId, business.CurrencyCode, business.DefaultCountryCallingCode);
+        new(business.Name, business.TimeZoneId, business.CurrencyCode, business.DefaultCountryCallingCode, business.DefaultMonthlyFee);
 }
 
 public sealed class GetCurrentBusinessUseCase(IBusinessRepository businessRepository) : IUseCase<GetCurrentBusinessQuery, BusinessResponse>

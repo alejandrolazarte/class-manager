@@ -15,6 +15,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .IsRequired();
         builder.Property(client => client.Email).HasMaxLength(Client.EmailMaxLength);
         builder.Property(client => client.Notes).HasMaxLength(Client.NotesMaxLength);
+        builder.Property(client => client.MonthlyFee).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(client => client.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(client => new { client.TenantId, client.PhoneNumber }).IsUnique();

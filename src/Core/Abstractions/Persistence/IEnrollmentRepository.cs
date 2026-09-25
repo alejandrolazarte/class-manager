@@ -22,5 +22,7 @@ public interface IEnrollmentRepository
 
     Task<IReadOnlyDictionary<Guid, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<EnrolledStudentInPeriod>> ListEnrolledInPeriodAsync(DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(Guid studentId, DateOnly today, CancellationToken cancellationToken);
 }

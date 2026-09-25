@@ -3,6 +3,7 @@ global using ClassManager.Core.Domain.Businesses;
 global using ClassManager.Core.Domain.ClassGroups;
 global using ClassManager.Core.Domain.Clients;
 global using ClassManager.Core.Domain.Enrollments;
+global using ClassManager.Core.Domain.Fees;
 global using ClassManager.Core.Domain.Instructors;
 global using ClassManager.Core.Domain.Sessions;
 global using ClassManager.Core.Domain.Students;

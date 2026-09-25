@@ -11,6 +11,7 @@ public sealed record ClientDetailsResponse(
     string? Email,
     string? Notes,
     DateTimeOffset CreatedAt,
+    decimal? MonthlyFee,
     IReadOnlyList<StudentResponse> Students)
 {
     public static ClientDetailsResponse From(Client client, IEnumerable<Student> students) =>
@@ -21,5 +22,6 @@ public sealed record ClientDetailsResponse(
             client.Email,
             client.Notes,
             client.CreatedAt,
+            client.MonthlyFee,
             [.. students.OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase).Select(StudentResponse.From)]);
 }
