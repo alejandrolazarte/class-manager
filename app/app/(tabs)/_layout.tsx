@@ -13,7 +13,9 @@ export default function TabsLayout() {
   return (
     <RedirectWhenSignedOut>
       <BusinessProvider>
-        <Tabs screenOptions={{ tabBarActiveTintColor: brandColor }}>
+        <Tabs
+          screenOptions={{ tabBarActiveTintColor: brandColor, tabBarLabelStyle: { flexShrink: 0 } }}
+        >
           <Tabs.Screen
             name="classes"
             options={{

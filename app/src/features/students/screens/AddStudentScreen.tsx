@@ -2,9 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, Text } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
+import { useClient } from "@/features/clients/useClient";
 import { StudentFields } from "@/features/students/components/StudentFields";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import {
@@ -32,6 +33,7 @@ interface AddStudentScreenProps {
 export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
   const router = useRouter();
   const { showToast } = useToast();
+  const { data: client } = useClient(clientId);
   const addStudentMutation = useAddStudent(clientId);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const form = useForm<StudentFormValues>({
@@ -79,6 +81,11 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView contentContainerClassName="gap-4 p-4" keyboardShouldPersistTaps="handled">
+        {client ? (
+          <Text className="text-base text-gray-600">
+            {translate("students.add.forClient", { name: client.fullName })}
+          </Text>
+        ) : null}
         {submissionFailure === "network" ? (
           <Banner message={translate("common.networkError")}>
             <Button variant="secondary" label={translate("common.retry")} onPress={submit} />

@@ -74,7 +74,7 @@ export function StudentListScreen() {
         />
       )}
       <FloatingActionButton
-        accessibilityLabel={translate("students.list.newStudent")}
+        accessibilityLabel={translate("students.list.newClient")}
         onPress={openRegisterClient}
       />
     </View>
