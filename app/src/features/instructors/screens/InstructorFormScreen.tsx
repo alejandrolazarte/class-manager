@@ -26,7 +26,7 @@ import { SettingsFormScreenLayout } from "@/features/settings/components/Setting
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
@@ -113,9 +113,7 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
       {activeClassGroupCount > 0 ? (
         <Banner
           tone="warning"
-          message={translate("instructors.form.hasActiveClassGroups", {
-            count: activeClassGroupCount,
-          })}
+          message={translateCount("instructors.form.hasActiveClassGroups", activeClassGroupCount)}
         />
       ) : null}
       <Controller

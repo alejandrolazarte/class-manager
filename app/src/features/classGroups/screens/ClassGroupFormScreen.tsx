@@ -30,7 +30,7 @@ import { SettingsFormScreenLayout } from "@/features/settings/components/Setting
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -149,7 +149,7 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
       {enrolledStudentCount > 0 ? (
         <Banner
           tone="warning"
-          message={translate("classGroups.form.hasEnrollments", { count: enrolledStudentCount })}
+          message={translateCount("classGroups.form.hasEnrollments", enrolledStudentCount)}
         />
       ) : null}
       {instructors.length === 0 ? (
