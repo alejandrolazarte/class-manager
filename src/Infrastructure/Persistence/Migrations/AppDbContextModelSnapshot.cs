@@ -129,6 +129,44 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("Clients");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Students.Student", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("TenantId", "FullName");
+
+                    b.HasIndex("TenantId", "ClientId", "FullName")
+                        .IsUnique();
+
+                    b.ToTable("Students");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BusinessMember", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
@@ -140,6 +178,21 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.Client", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Students.Student", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")

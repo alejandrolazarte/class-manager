@@ -31,5 +31,6 @@ app.MapHealthChecks(ApiRoutes.Health).AllowAnonymous();
 app.MapAuthenticationEndpoints();
 app.MapBusinessEndpoints();
 app.MapClientEndpoints();
+app.MapStudentEndpoints();
 
 app.Run();

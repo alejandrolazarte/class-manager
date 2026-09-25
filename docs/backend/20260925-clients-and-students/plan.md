@@ -166,7 +166,8 @@ UseCases/Students/
   When_AddStudent_with_taken_name/Then_returns_conflict_with_existing_id.cs
   When_AddStudent_loses_a_race_on_name/Then_returns_conflict.cs
   When_AddStudent_with_valid_data/Then_student_is_added_and_saved.cs
-  When_AddStudent_birth_date_is_today_in_business_time_zone/Then_student_is_added.cs
+  When_AddStudent_birth_date_is_tomorrow_in_business_time_zone/Then_returns_validation.cs
+  When_GetStudent_with_unknown_id/Then_returns_not_found.cs
   When_SearchStudents_with_limit_over_maximum/Then_limit_is_capped.cs
 ```
 
@@ -196,6 +197,13 @@ The last three are the tenancy guarantees.
 3. `AddStudentUseCase` + `GetStudentUseCase` + endpoints.
 4. `RegisterClientUseCase` with students, `ClientDetailsResponse` in register and get.
 5. `SearchStudentsUseCase` + endpoint.
+
+## Implementation notes
+
+- Status: backend done. Unit tests in `tests/ClassManager.Core.U.Tests/Domain/Students` and `UseCases/Students`, integration tests in `tests/ClassManager.Api.I.Tests/Endpoints/Students`.
+- Validation field names come back as `students[1].FullName`: `ResultHttpExtensions` only lowercases the first letter. The app normalizes each segment.
+- The student summary is a join of `Students` and `Clients`; both keep their tenant query filter. EF Core can't translate filters on a record built through its constructor, so the join goes through a small member-initialized class and the projection to `StudentSummary` is the last step.
+- The `LIKE` escaping moved from `ClientRepository` to `LikePatterns`, shared by both searches.
 
 ## Out of scope
 

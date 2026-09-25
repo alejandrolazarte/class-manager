@@ -2,6 +2,8 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Core.Domain.Students;
+using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Core.UseCases.Clients;
 
@@ -9,23 +11,29 @@ public sealed record RegisterClientCommand(
     string? FullName,
     string? PhoneNumber,
     string? Email,
-    string? Notes);
+    string? Notes,
+    IReadOnlyList<NewStudent>? Students);
 
 public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,
     IClientRepository clientRepository,
+    IStudentRepository studentRepository,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
-    : IUseCase<RegisterClientCommand, ClientResponse>
+    : IUseCase<RegisterClientCommand, ClientDetailsResponse>
 {
-    private const string PhoneNumberTakenMessage = "A client with this phone number is already registered.";
+    public const int MaximumStudentsPerRegistration = 10;
 
-    public async Task<Result<ClientResponse>> ExecuteAsync(RegisterClientCommand command, CancellationToken cancellationToken)
+    private const string PhoneNumberTakenMessage = "A client with this phone number is already registered.";
+    private const string TooManyStudentsMessage = "A registration can include at most 10 students.";
+    private const string DuplicateStudentNameMessage = "Another student in this registration has the same name.";
+
+    public async Task<Result<ClientDetailsResponse>> ExecuteAsync(RegisterClientCommand command, CancellationToken cancellationToken)
     {
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
         if (business is null)
         {
-            return Result.Unauthorized<ClientResponse>(BusinessErrorCodes.CurrentBusinessNotFoundMessage, BusinessErrorCodes.CurrentBusinessNotFound);
+            return Result.Unauthorized<ClientDetailsResponse>(BusinessErrorCodes.CurrentBusinessNotFoundMessage, BusinessErrorCodes.CurrentBusinessNotFound);
         }
 
         var phoneNumber = PhoneNumber.Create(command.PhoneNumber, business.DefaultCountryCallingCode);
@@ -34,10 +42,17 @@ public sealed class RegisterClientUseCase(
             return phoneNumber.Error! with { FieldName = nameof(RegisterClientCommand.PhoneNumber) };
         }
 
-        var client = Client.Create(command.FullName, phoneNumber.Value!, command.Email, command.Notes, timeProvider.GetUtcNow());
+        var now = timeProvider.GetUtcNow();
+        var client = Client.Create(command.FullName, phoneNumber.Value!, command.Email, command.Notes, now);
         if (client.IsFailure)
         {
             return client.Error!;
+        }
+
+        var students = CreateStudents(client.Value!.Id, command.Students ?? [], business.TodayAt(now), now);
+        if (students.IsFailure)
+        {
+            return students.Error!;
         }
 
         var existingClient = await clientRepository.FindByPhoneNumberAsync(phoneNumber.Value!, cancellationToken);
@@ -46,7 +61,12 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(existingClient.Id);
         }
 
-        clientRepository.Add(client.Value!);
+        clientRepository.Add(client.Value);
+        foreach (var student in students.Value!)
+        {
+            studentRepository.Add(student);
+        }
+
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -57,11 +77,53 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(winnerClient?.Id);
         }
 
-        return ClientResponse.From(client.Value!);
+        return ClientDetailsResponse.From(client.Value, students.Value!);
     }
 
-    private static Result<ClientResponse> PhoneNumberTaken(Guid? existingClientId) =>
-        Result.Conflict<ClientResponse>(
+    private static Result<IReadOnlyList<Student>> CreateStudents(
+        Guid clientId,
+        IReadOnlyList<NewStudent> newStudents,
+        DateOnly today,
+        DateTimeOffset now)
+    {
+        if (newStudents.Count > MaximumStudentsPerRegistration)
+        {
+            return Result.Validation<IReadOnlyList<Student>>(
+                TooManyStudentsMessage,
+                StudentErrorCodes.TooMany,
+                nameof(RegisterClientCommand.Students));
+        }
+
+        var students = new List<Student>();
+        var fullNames = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+        for (var index = 0; index < newStudents.Count; index++)
+        {
+            var newStudent = newStudents[index];
+            var student = Student.Create(clientId, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now);
+            if (student.IsFailure)
+            {
+                return student.Error! with { FieldName = StudentFieldName(index, student.Error.FieldName) };
+            }
+
+            if (!fullNames.Add(student.Value!.FullName))
+            {
+                return Result.Validation<IReadOnlyList<Student>>(
+                    DuplicateStudentNameMessage,
+                    StudentErrorCodes.DuplicateName,
+                    StudentFieldName(index, nameof(Student.FullName)));
+            }
+
+            students.Add(student.Value);
+        }
+
+        return students;
+    }
+
+    private static string StudentFieldName(int index, string? fieldName) =>
+        $"{nameof(RegisterClientCommand.Students)}[{index}].{fieldName}";
+
+    private static Result<ClientDetailsResponse> PhoneNumberTaken(Guid? existingClientId) =>
+        Result.Conflict<ClientDetailsResponse>(
             PhoneNumberTakenMessage,
             ClientErrorCodes.PhoneNumberTaken,
             new Dictionary<string, object?> { [ClientErrorCodes.ExistingClientIdDetail] = existingClientId });

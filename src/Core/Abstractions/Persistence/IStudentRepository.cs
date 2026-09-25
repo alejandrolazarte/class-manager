@@ -1,0 +1,16 @@
+using ClassManager.Core.Domain.Students;
+
+namespace ClassManager.Core.Abstractions.Persistence;
+
+public interface IStudentRepository
+{
+    void Add(Student student);
+
+    Task<Student?> FindByClientAndNameAsync(Guid clientId, string fullName, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken);
+
+    Task<StudentSummary?> GetSummaryByIdAsync(Guid studentId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<StudentSummary>> SearchAsync(StudentSearchCriteria criteria, CancellationToken cancellationToken);
+}

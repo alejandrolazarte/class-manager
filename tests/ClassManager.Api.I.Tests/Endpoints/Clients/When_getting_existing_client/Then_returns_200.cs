@@ -14,6 +14,12 @@ public sealed class Then_returns_200(ApiFixture fixture)
         var client = await business.HttpClient.GetFromJsonAsync<ClientResponse>(
             new Uri($"{ApiRoutes.Clients}/{registeredClient.Id}", UriKind.Relative), ApiRequests.JsonOptions);
 
-        client.ShouldBe(registeredClient);
+        client.ShouldBe(new ClientResponse(
+            registeredClient.Id,
+            registeredClient.FullName,
+            registeredClient.PhoneNumber,
+            registeredClient.Email,
+            registeredClient.Notes,
+            registeredClient.CreatedAt));
     }
 }

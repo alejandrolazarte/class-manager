@@ -2,9 +2,6 @@ namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class ClientRepository(AppDbContext context) : IClientRepository
 {
-    private const char LikeWildcard = '%';
-    private const string LikeEscapeCharacter = "\\";
-
     public void Add(Client client) => context.Clients.Add(client);
 
     public Task<Client?> FindByPhoneNumberAsync(PhoneNumber phoneNumber, CancellationToken cancellationToken) =>
@@ -19,15 +16,13 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
 
         if (criteria.FullNameFragment is not null)
         {
-            var fullNamePattern = LikeWildcard + EscapeLikePattern(criteria.FullNameFragment) + LikeWildcard;
-            var phoneNumberPattern = criteria.PhoneNumberPrefix is null
-                ? null
-                : EscapeLikePattern(criteria.PhoneNumberPrefix) + LikeWildcard;
+            var fullNamePattern = LikePatterns.Contains(criteria.FullNameFragment);
+            var phoneNumberPattern = LikePatterns.StartsWith(criteria.PhoneNumberPrefix);
 
             clients = clients.Where(client =>
-                EF.Functions.Like(client.FullName, fullNamePattern, LikeEscapeCharacter)
+                EF.Functions.Like(client.FullName, fullNamePattern, LikePatterns.EscapeCharacter)
                 || (phoneNumberPattern != null
-                    && EF.Functions.Like((string)(object)client.PhoneNumber, phoneNumberPattern, LikeEscapeCharacter)));
+                    && EF.Functions.Like((string)(object)client.PhoneNumber, phoneNumberPattern, LikePatterns.EscapeCharacter)));
         }
 
         return await clients
@@ -36,10 +31,4 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             .ToListAsync(cancellationToken);
     }
 
-    private static string EscapeLikePattern(string value) =>
-        value
-            .Replace(LikeEscapeCharacter, LikeEscapeCharacter + LikeEscapeCharacter, StringComparison.Ordinal)
-            .Replace("%", LikeEscapeCharacter + "%", StringComparison.Ordinal)
-            .Replace("_", LikeEscapeCharacter + "_", StringComparison.Ordinal)
-            .Replace("[", LikeEscapeCharacter + "[", StringComparison.Ordinal);
 }

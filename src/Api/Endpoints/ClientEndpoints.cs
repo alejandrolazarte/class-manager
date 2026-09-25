@@ -18,7 +18,7 @@ internal static class ClientEndpoints
 
     private static async Task<IResult> RegisterClientAsync(
         RegisterClientCommand command,
-        IUseCase<RegisterClientCommand, ClientResponse> useCase,
+        IUseCase<RegisterClientCommand, ClientDetailsResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
@@ -28,7 +28,7 @@ internal static class ClientEndpoints
 
     private static async Task<IResult> GetClientAsync(
         Guid clientId,
-        IUseCase<GetClientQuery, ClientResponse> useCase,
+        IUseCase<GetClientQuery, ClientDetailsResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetClientQuery(clientId), cancellationToken);

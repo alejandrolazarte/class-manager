@@ -16,6 +16,8 @@ Entities, invariants and tenancy rules. Everything here lives in `src/Core/Domai
 erDiagram
     Business ||--o{ BusinessMember : "is run by"
     Business ||--o{ Client : has
+    Business ||--o{ Student : has
+    Client ||--o{ Student : "is responsible for"
 ```
 
 ### Business (tenant root)
@@ -56,6 +58,22 @@ Unique `(TenantId, UserId)`. The access token carries the member's `TenantId` as
 | `Email` | `string?` | Optional, valid format, max 254 characters |
 | `Notes` | `string?` | Optional, max 1000 characters  |
 | `CreatedAt` | `DateTimeOffset` | UTC |
+
+### Student (added in M1)
+
+The person who attends classes. The client is who pays and is contacted; an adult who attends is a client with one student of the same name.
+
+| Property | Type | Rules |
+|---|---|---|
+| `Id` | `Guid` | v7 |
+| `TenantId` | `Guid` | Tenant (the business) |
+| `ClientId` | `Guid` | Required; the client must belong to the same business |
+| `FullName` | `string` | Required, trimmed, 2–120 characters, **unique per client** |
+| `BirthDate` | `DateOnly?` | Optional, from 1900-01-01 to today in the business's time zone |
+| `Notes` | `string?` | Optional, max 1000 characters (for example "afraid of deep water") |
+| `CreatedAt` | `DateTimeOffset` | UTC |
+
+Indexes: unique `(TenantId, ClientId, FullName)` and `(TenantId, FullName)` for search.
 
 ## Value objects
 
@@ -103,6 +121,7 @@ Rules:
 ```text
 Core/Abstractions/Persistence/
   IClientRepository.cs
+  IStudentRepository.cs
   IBusinessRepository.cs
   IBusinessMemberRepository.cs
   IUnitOfWork.cs         → Task SaveChangesAsync(CancellationToken)
