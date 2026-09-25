@@ -12,6 +12,24 @@ export async function fillRegisterClientForm(fullName: string, phoneNumber: stri
   );
 }
 
+export async function setClientAttends(clientAttends: boolean): Promise<void> {
+  await fireEvent(
+    screen.getByLabelText(translate("clients.register.clientAttends")),
+    "valueChange",
+    clientAttends,
+  );
+}
+
+export async function addAdditionalStudent(fullName: string, birthDate = ""): Promise<void> {
+  await fireEvent.press(
+    screen.getByRole("button", { name: translate("clients.register.addAttendee") }),
+  );
+  const fullNameFields = screen.getAllByLabelText(translate("students.fields.fullName"));
+  const birthDateFields = screen.getAllByLabelText(translate("students.fields.birthDate"));
+  await fireEvent.changeText(fullNameFields[fullNameFields.length - 1], fullName);
+  await fireEvent.changeText(birthDateFields[birthDateFields.length - 1], birthDate);
+}
+
 export async function submitRegisterClientForm(): Promise<void> {
   await fireEvent.press(screen.getByRole("button", { name: translate("clients.register.submit") }));
 }

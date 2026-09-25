@@ -66,9 +66,13 @@ Every entity except `Business` is tenant-owned and gets its isolation test.
 
 ## Milestones
 
+Status: M1 done (backend and frontend). Next: M2, instructors and class groups.
+
 Each milestone gets a backend plan and a frontend plan under `docs/backend/<date>-<name>/plan.md` and `docs/frontend/<date>-<name>/plan.md` before code is written.
 
 ### M1 — Clients and students
+
+Plans in [backend](backend/20260925-clients-and-students/plan.md) and [frontend](frontend/20260925-clients-and-students/plan.md).
 
 - Adapt the template's `Client` as the payer; add `Student` belonging to a client.
 - One form to register an adult who attends (client and student at once) or a parent with one or more children.

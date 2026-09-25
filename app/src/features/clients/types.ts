@@ -1,3 +1,5 @@
+import { NewStudentRequest, Student } from "@/features/students/types";
+
 export interface Client {
   id: string;
   fullName: string;
@@ -7,14 +9,14 @@ export interface Client {
   createdAt: string;
 }
 
+export interface ClientDetails extends Client {
+  students: Student[];
+}
+
 export interface RegisterClientRequest {
   fullName: string;
   phoneNumber: string;
   email?: string;
   notes?: string;
-}
-
-export interface SearchClientsRequest {
-  search: string;
-  limit: number;
+  students: NewStudentRequest[];
 }

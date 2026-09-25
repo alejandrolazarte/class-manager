@@ -16,8 +16,10 @@ internal static class TestData
     public const string OwnerEmail = "laura@example.com";
     public const string OwnerPassword = "a long passphrase";
     public const string BusinessName = "Panadería Laura";
+    public const string StudentFullName = "Tomás Pérez";
 
     public static readonly DateTimeOffset Now = new(2026, 9, 24, 12, 0, 0, TimeSpan.Zero);
+    public static readonly DateOnly Today = DateOnly.FromDateTime(Now.UtcDateTime);
 
     public static Business Business() =>
         ClassManager.Core.Domain.Businesses.Business.Create("Demo business", "demo-business", BuenosAiresTimeZoneId, CurrencyCode, DefaultCountryCallingCode, Now).Value!;

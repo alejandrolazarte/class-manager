@@ -10,7 +10,7 @@ export function RedirectWhenSignedIn({ children }: PropsWithChildren) {
     return <LoadingScreen />;
   }
   if (session.status === "signedIn") {
-    return <Redirect href={routes.clients} />;
+    return <Redirect href={routes.students} />;
   }
   return children;
 }

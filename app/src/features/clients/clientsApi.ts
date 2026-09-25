@@ -1,16 +1,12 @@
 import { httpClient } from "@/api/httpClient";
-import { Client, RegisterClientRequest, SearchClientsRequest } from "@/features/clients/types";
+import { ClientDetails, RegisterClientRequest } from "@/features/clients/types";
 
-const clientsPath = "/api/clients";
+export const clientsPath = "/api/clients";
 
-export function registerClient(request: RegisterClientRequest): Promise<Client> {
-  return httpClient.post<Client>(clientsPath, request);
+export function registerClient(request: RegisterClientRequest): Promise<ClientDetails> {
+  return httpClient.post<ClientDetails>(clientsPath, request);
 }
 
-export function getClient(clientId: string): Promise<Client> {
-  return httpClient.get<Client>(`${clientsPath}/${encodeURIComponent(clientId)}`);
-}
-
-export function searchClients({ search, limit }: SearchClientsRequest): Promise<Client[]> {
-  return httpClient.get<Client[]>(clientsPath, { search, limit });
+export function getClient(clientId: string): Promise<ClientDetails> {
+  return httpClient.get<ClientDetails>(`${clientsPath}/${encodeURIComponent(clientId)}`);
 }

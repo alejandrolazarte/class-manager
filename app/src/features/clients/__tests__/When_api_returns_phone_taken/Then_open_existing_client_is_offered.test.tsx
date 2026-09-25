@@ -38,6 +38,6 @@ describe("When api returns phone taken", () => {
     await fireEvent.press(
       screen.getByRole("button", { name: translate("clients.register.openClient") }),
     );
-    expect(routerMock.push).toHaveBeenCalledWith(`/clients/${existingClient.id}`);
+    expect(routerMock.push).toHaveBeenCalledWith(`/students/clients/${existingClient.id}`);
   });
 });

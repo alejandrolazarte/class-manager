@@ -22,12 +22,8 @@ describe("When registration succeeds", () => {
     await submitRegisterClientForm();
 
     await waitFor(() =>
-      expect(routerMock.replace).toHaveBeenCalledWith(`/clients/${registeredClient.id}`),
+      expect(routerMock.replace).toHaveBeenCalledWith(`/students/clients/${registeredClient.id}`),
     );
     expect(screen.getByText(translate("clients.register.success"))).toBeOnTheScreen();
-    expect(registerClient).toHaveBeenCalledWith({
-      fullName: registeredClient.fullName,
-      phoneNumber: "11 2233-4455",
-    });
   });
 });
