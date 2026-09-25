@@ -17,7 +17,6 @@ app/(tabs)/
 
 ```ts
 routes.today                         = "/today"
-routes.day(date)                     = "/today?date={date}"
 routes.session(classGroupId, date)   = "/today/{classGroupId}/{date}"
 ```
 
