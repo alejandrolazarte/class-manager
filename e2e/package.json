@@ -1,0 +1,22 @@
+{
+  "name": "class-manager-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "db:migrate": "node scripts/migrateDatabase.mjs",
+    "web:build": "node scripts/buildWeb.mjs",
+    "test": "pnpm web:build && playwright test",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:no-build": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "^22.20.4",
+    "prettier": "^3.9.9",
+    "serve": "^14.2.6",
+    "typescript": "~6.0.3"
+  }
+}
