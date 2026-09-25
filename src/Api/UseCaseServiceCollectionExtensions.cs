@@ -1,7 +1,10 @@
+using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Businesses;
 using ClassManager.Core.UseCases.ClassGroups;
 using ClassManager.Core.UseCases.Clients;
+using ClassManager.Core.UseCases.Enrollments;
 using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.Students;
 
@@ -12,6 +15,7 @@ internal static class UseCaseServiceCollectionExtensions
     public static IServiceCollection AddUseCases(this IServiceCollection services)
     {
         services.AddSingleton(TimeProvider.System);
+        services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
 
         services.AddScoped<IUseCase<SignUpOwnerCommand, TokenResponse>, SignUpOwnerUseCase>();
         services.AddScoped<IUseCase<SignInCommand, TokenResponse>, SignInUseCase>();
@@ -33,6 +37,10 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<CreateClassGroupCommand, ClassGroupResponse>, CreateClassGroupUseCase>();
         services.AddScoped<IUseCase<UpdateClassGroupCommand, ClassGroupResponse>, UpdateClassGroupUseCase>();
         services.AddScoped<IUseCase<SetClassGroupActiveCommand, ClassGroupResponse>, SetClassGroupActiveUseCase>();
+        services.AddScoped<IUseCase<EnrollStudentCommand, EnrollmentResponse>, EnrollStudentUseCase>();
+        services.AddScoped<IUseCase<EndEnrollmentCommand, EndEnrollmentResponse>, EndEnrollmentUseCase>();
+        services.AddScoped<IUseCase<ListClassRosterQuery, IReadOnlyList<RosterEntryResponse>>, ListClassRosterUseCase>();
+        services.AddScoped<IUseCase<ListStudentEnrollmentsQuery, IReadOnlyList<StudentEnrollmentResponse>>, ListStudentEnrollmentsUseCase>();
         services.AddScoped<IUseCase<UpdateBusinessSettingsCommand, UpdateBusinessSettingsResponse>, UpdateBusinessSettingsUseCase>();
 
         return services;

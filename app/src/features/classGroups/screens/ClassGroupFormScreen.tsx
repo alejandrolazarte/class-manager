@@ -3,12 +3,13 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
-import { getStringExtension } from "@/api/problemDetails";
+import { getNumberExtension, getStringExtension } from "@/api/problemDetails";
 import { isApiError } from "@/api/httpClient";
 import { ClassGroupForm } from "@/features/classGroups/components/ClassGroupForm";
 import {
   classGroupErrorCodes,
   conflictingClassGroupIdExtension,
+  enrollmentCountExtension,
 } from "@/features/classGroups/classGroupErrorCodes";
 import {
   classGroupFieldNames,
@@ -60,6 +61,7 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
   const { data: allClassGroups = [] } = useClassGroupsIncludingInactive();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [busyConflict, setBusyConflict] = useState<BusyConflict | null>(null);
+  const [enrolledStudentCount, setEnrolledStudentCount] = useState(0);
   const form = useForm<ClassGroupFormValues>({
     resolver: zodResolver(classGroupSchema),
     defaultValues: toClassGroupFormValues({
@@ -75,6 +77,10 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
   );
 
   const handleSaveError = (saveError: unknown) => {
+    if (isApiError(saveError) && saveError.hasCode(classGroupErrorCodes.hasEnrollments)) {
+      setEnrolledStudentCount(getNumberExtension(saveError.problem, enrollmentCountExtension) ?? 1);
+      return;
+    }
     if (isApiError(saveError) && saveError.hasCode(classGroupErrorCodes.instructorBusy)) {
       setBusyConflict({
         otherClassGroupId: getStringExtension(saveError.problem, conflictingClassGroupIdExtension),
@@ -111,6 +117,7 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
     }
     setSubmissionFailure(null);
     setBusyConflict(null);
+    setEnrolledStudentCount(0);
     const isActive = !classGroup.isActive;
     try {
       await setClassGroupActiveMutation.mutateAsync({ classGroupId: classGroup.id, isActive });
@@ -137,6 +144,12 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
                 })
               : translate("classGroups.form.instructorBusyUnknownClass")
           }
+        />
+      ) : null}
+      {enrolledStudentCount > 0 ? (
+        <Banner
+          tone="warning"
+          message={translate("classGroups.form.hasEnrollments", { count: enrolledStudentCount })}
         />
       ) : null}
       {instructors.length === 0 ? (

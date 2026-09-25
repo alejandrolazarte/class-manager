@@ -21,6 +21,8 @@ erDiagram
     Business ||--o{ Instructor : has
     Business ||--o{ ClassGroup : offers
     Instructor ||--o{ ClassGroup : teaches
+    ClassGroup ||--o{ Enrollment : has
+    Student ||--o{ Enrollment : has
 ```
 
 ### Business (tenant root)
@@ -108,6 +110,24 @@ A weekly recurring class, for example "Natación inicial, Tuesday and Thursday 1
 
 `ClassSchedule` (weekdays, start time, duration) is the value object behind it: it validates the time rules and answers `OverlapsWith` (shares a weekday and the time ranges intersect; touching ends don't overlap). An instructor can't teach two active class groups that overlap.
 
+### Enrollment (added in M3)
+
+A student in a class group from a date until they leave.
+
+| Property | Type | Rules |
+|---|---|---|
+| `Id` | `Guid` | v7 |
+| `TenantId` | `Guid` | Tenant (the business) |
+| `StudentId` | `Guid` | A student of the same business |
+| `ClassGroupId` | `Guid` | An active class group of the same business when enrolling |
+| `StartDate` | `DateOnly` | Defaults to today in the business's time zone |
+| `EndDate` | `DateOnly?` | Last day attended; `null` while enrolled; never before `StartDate` (ending before the start deletes the enrollment) |
+| `CreatedAt` | `DateTimeOffset` | UTC |
+
+An enrollment is **current** on a date when `EndDate` is `null` or on/after that date. A student has at most one open enrollment per class group (filtered unique index `(TenantId, StudentId, ClassGroupId) WHERE EndDate IS NULL`), and current enrollments never exceed the class group's capacity (checked in the use case). A class group with current enrollments can't be deactivated, and its capacity can't drop below them.
+
+"Today" comes from `IBusinessCalendarService`, which applies the business's time zone to `TimeProvider`.
+
 ## Value objects
 
 ### PhoneNumber
@@ -157,6 +177,7 @@ Core/Abstractions/Persistence/
   IStudentRepository.cs
   IInstructorRepository.cs
   IClassGroupRepository.cs
+  IEnrollmentRepository.cs
   IBusinessRepository.cs
   IBusinessMemberRepository.cs
   IUnitOfWork.cs         → Task SaveChangesAsync(CancellationToken)

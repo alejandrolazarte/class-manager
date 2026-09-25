@@ -14,9 +14,10 @@ public sealed record ClassGroupResponse(
     int DurationMinutes,
     int Capacity,
     string? Location,
-    bool IsActive)
+    bool IsActive,
+    int EnrolledCount)
 {
-    public static ClassGroupResponse From(ClassGroup classGroup, string instructorFullName)
+    public static ClassGroupResponse From(ClassGroup classGroup, string instructorFullName, int enrolledCount)
     {
         var schedule = classGroup.Schedule;
         return new(
@@ -30,6 +31,7 @@ public sealed record ClassGroupResponse(
             schedule.DurationMinutes,
             classGroup.Capacity,
             classGroup.Location,
-            classGroup.IsActive);
+            classGroup.IsActive,
+            enrolledCount);
     }
 }

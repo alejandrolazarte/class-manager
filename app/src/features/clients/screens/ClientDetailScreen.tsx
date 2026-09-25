@@ -5,6 +5,7 @@ import {
   toDialableDigits,
 } from "@/features/clients/phoneNumberFormatting";
 import { useClient } from "@/features/clients/useClient";
+import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { translate } from "@/i18n/translate";
@@ -103,6 +104,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
                 {student.notes ? (
                   <Text className="text-sm text-gray-500">{student.notes}</Text>
                 ) : null}
+                <StudentClasses studentId={student.id} />
               </View>
             );
           })

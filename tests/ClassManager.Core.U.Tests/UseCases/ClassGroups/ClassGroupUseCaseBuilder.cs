@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.UseCases.ClassGroups;
@@ -10,12 +11,15 @@ internal sealed class ClassGroupUseCaseBuilder
     public Mock<IInstructorRepository> Instructors { get; } = new();
     public Mock<IClassGroupRepository> ClassGroups { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
+    public Mock<IEnrollmentRepository> Enrollments { get; } = new();
+    public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
 
     public ClassGroupUseCaseBuilder()
     {
         Instructors.Setup(repository => repository.GetByIdAsync(Instructor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Instructor);
         ClassGroups.Setup(repository => repository.ListActiveByInstructorAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
     }
 
     public ClassGroupDetails ValidDetails() =>
@@ -26,5 +30,9 @@ internal sealed class ClassGroupUseCaseBuilder
 
     public CreateClassGroupUseCase BuildCreate() => new(Instructors.Object, ClassGroups.Object, UnitOfWork.Object);
 
-    public UpdateClassGroupUseCase BuildUpdate() => new(Instructors.Object, ClassGroups.Object, UnitOfWork.Object);
+    public UpdateClassGroupUseCase BuildUpdate() =>
+        new(Instructors.Object, ClassGroups.Object, Enrollments.Object, UnitOfWork.Object, BusinessCalendar.Object);
+
+    public SetClassGroupActiveUseCase BuildSetActive() =>
+        new(Instructors.Object, ClassGroups.Object, Enrollments.Object, UnitOfWork.Object, BusinessCalendar.Object);
 }
