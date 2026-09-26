@@ -2,7 +2,7 @@
 
 Date: 2026-09-24
 
-How to host class-manager for free while it is in the pilot stage, and what to watch so it stays free.
+How to host class-manager for free while it is in the pilot stage, and what to watch so it stays free. The exact commands are in the [pilot deployment runbook](pilot-deployment.md).
 
 ## Decision
 
@@ -58,6 +58,18 @@ The region is not fixed in advance: choose it when creating the resources, based
 - **Check the free offers in that region.** Not every service or free offer is available in every region.
 - **Changing it later is a migration.** Moving the database to another region means exporting and importing it, so choose with the expected customers in mind.
 
+**Decision (2026-09-26): France Central (`francecentral`, Paris).** Customers are expected in Spain and Argentina. Hosting in the EU keeps Spanish customers' data inside the EU (GDPR), and Argentina's data protection rules accept EU countries as adequate destinations, so Argentine customers can be served from there too. The reverse (EU data in Brazil) would need extra transfer safeguards. Latency from Argentina is higher than from `brazilsouth`, which is acceptable for this app.
+
+Regions tried first, on a new pay-as-you-go subscription:
+
+| Region | Result |
+|---|---|
+| Spain Central | Serverless SQL exists, but the free offer is not: `ProvisioningDisabled`, "free limit database is not supported for provided service level objective or region" |
+| North Europe | New SQL servers not accepted for this subscription: `RegionDoesNotAllowProvisioning` |
+| France Central | Server and free database created |
+
+Moving to Spain later (for example when paying for the database is acceptable) is a migration: convert the free database to a paid tier (a setting change; data stays), copy it to a server in Spain (`az sql db copy`, or export and import a `.bacpac`), then point a new container app at it. The free offer can't be copied directly, and a database converted to paid can't go back to the free offer.
+
 ### 1. Resource group and budget alert
 
 ```powershell
@@ -80,7 +92,7 @@ Create a **USD 1 monthly budget with an email alert** in Cost Management. It is 
 ### 4. Azure Container Apps
 
 - Create an environment on the consumption plan.
-- Create the app from the `ghcr.io` image, with registry credentials stored as a Container Apps secret (a fine-grained token with `read:packages` only).
+- Create the app from the `ghcr.io` image, with registry credentials stored as a Container Apps secret (a classic token with `read:packages` only: GitHub Packages doesn't accept fine-grained tokens).
 - `minReplicas: 0`, `maxReplicas: 1` for the pilot.
 - **JWT signing key:** generate at least 32 random bytes and store them as a Container Apps secret, exposed to the app as the environment variable `Authentication__Jwt__SigningKey` (a `secretref`, never a plain value). Issuer, audience and token lifetimes come from `appsettings.json`. The API validates the key at startup and does not start if it is missing or shorter than 32 bytes.
 
@@ -92,12 +104,12 @@ Create a **USD 1 monthly budget with an email alert** in Cost Management. It is 
   Rotating the key signs every user out (existing access tokens stop validating; refresh tokens keep working and issue tokens with the new key). Rotate it if it may have leaked.
 - The API trusts one `X-Forwarded-For` hop so the per-IP rate limit on `/api/auth/*` sees the real client behind the ingress. Keep ingress as the only way to reach the container.
 - Enable a **system-assigned managed identity** and grant it access to the database (`CREATE USER [class-manager-api] FROM EXTERNAL PROVIDER`, then `db_datareader`, `db_datawriter`).
-- Connection string without a password: `Server=tcp:<server>.database.windows.net;Database=ClassManager;Authentication=Active Directory Default;Encrypt=True`.
-- Logs: keep the Log Analytics workspace small (short retention) or disable it; ingestion beyond the free amount is billed.
+- Connection string without a password: `Server=tcp:<server>.database.windows.net;Database=ClassManager;Authentication=Active Directory Managed Identity;Encrypt=True`. Migrations from the pipeline or the PC use `Active Directory Default` instead (the Azure CLI sign-in).
+- Logs: the environment is created without a Log Analytics workspace (`--logs-destination none`); live logs still stream with `az containerapp logs show`. SQL command logs are at `Warning` outside Development.
 
 ### 5. Database migrations
 
-Run EF Core migrations as an explicit step (a migration bundle executed from the pipeline or the owner's PC), never automatically on API startup. There are two contexts, each with its own bundle: `AppDbContext` (business data) and `SecurityDbContext` (Identity users and refresh tokens, schema `identity`). See [local-development.md](backend/local-development.md#database-schema).
+Run EF Core migrations as an explicit step (`scripts/migrate-database.mjs`, from the pipeline or the owner's PC), never automatically on API startup. The script applies both contexts: `AppDbContext` (business data) and `SecurityDbContext` (Identity users and refresh tokens, schema `identity`). See [local-development.md](backend/local-development.md#database-schema).
 
 Don't run `scripts/seed-demo-business.cs` against the pilot database: businesses sign up themselves.
 
@@ -105,7 +117,7 @@ Don't run `scripts/seed-demo-business.cs` against the pilot database: businesses
 
 - Build: `pnpm expo export --platform web`, output `dist/`.
 - Connect the GitHub repository through the Cloudflare Pages GitHub integration; it builds on Cloudflare, so no extra GitHub Action is needed.
-- `EXPO_PUBLIC_API_URL` set to the Container Apps URL.
+- `EXPO_PUBLIC_API_BASE_URL` set to the Container Apps URL.
 - Add the Pages domain to the API's CORS allowlist (configuration, not a hardcoded string).
 
 ### 7. Mobile app (pilot)
@@ -120,7 +132,7 @@ GitHub Actions only allows GitHub-owned actions (see [github-protection.md](gith
 - Authenticate with **OpenID Connect** (federated credential on an Entra app registration; no client secret stored in GitHub).
 - If an Azure action becomes necessary, add it to the allowed actions **pinned by commit SHA** and document why in `github-protection.md`.
 
-Flow: PR merged to `main` → build + tests → push image to `ghcr.io` → `az containerapp update --image ...:<commit-sha>`.
+Flow (`.github/workflows/deploy.yml`): PR merged to `main` → CI green → push image to `ghcr.io` → migrations → `az containerapp update --image ...:<commit-sha>`.
 
 ## Security checklist
 

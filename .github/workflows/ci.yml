@@ -32,6 +32,14 @@ jobs:
 
       - run: dotnet test class-manager.slnx --no-build --verbosity normal
 
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: docker build --file src/Api/Containerfile --tag class-manager-api:ci .
+
   frontend:
     runs-on: ubuntu-latest
     timeout-minutes: 15

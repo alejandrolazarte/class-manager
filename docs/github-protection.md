@@ -78,7 +78,7 @@ Why: workflows cannot write to the repository or approve pull requests. `ci.yml`
 - Workflow token: `read`, cannot approve pull requests.
 - Merged branches: deleted automatically (`delete_branch_on_merge: true`).
 - Collaborators: only the owner (`admin`).
-- Secrets: none.
+- Secrets: none. Variables: `AZURE_*` for the deploy workflow (identifiers, not credentials).
 - `main`: protected by the local hook and agent deny rules; changes go through pull requests with CI.
 
 ## Audit commands
@@ -93,6 +93,17 @@ gh api repos/alejandrolazarte/class-manager/collaborators --paginate
 gh api repos/alejandrolazarte/class-manager/actions/secrets
 rg -n "pull_request_target|secrets|workflow_run|uses:|permissions:" .github
 ```
+
+## Deploy workflow
+
+`deploy.yml` is the only workflow with more than read access, and only in the job that needs it:
+
+| Job | Extra permission | Why |
+|---|---|---|
+| `image` | `packages: write` | Push the API image to `ghcr.io` with the built-in `GITHUB_TOKEN` |
+| `api` | `id-token: write` | Sign in to Azure with OpenID Connect; no Azure secret is stored in GitHub |
+
+It is triggered by `workflow_run` of CI and only proceeds for a successful **push** to `main` (never for pull requests), checking out the exact commit CI tested. Azure identifiers are repository variables (`AZURE_*`), not secrets. The Entra federated credential only trusts `repo:alejandrolazarte/class-manager:ref:refs/heads/main`. Setup: [pilot deployment runbook](pilot-deployment.md).
 
 ## Rules for the future
 

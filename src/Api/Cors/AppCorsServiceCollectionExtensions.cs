@@ -14,7 +14,7 @@ public static class AppCorsServiceCollectionExtensions
         services.AddCors(options => options.AddPolicy(AppPolicyName, policy => policy
             .WithOrigins(allowedOrigins)
             .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
-            .WithMethods(HttpMethods.Get, HttpMethods.Post, HttpMethods.Put)));
+            .WithMethods(HttpMethods.Get, HttpMethods.Post, HttpMethods.Put, HttpMethods.Delete)));
 
         return services;
     }
