@@ -93,11 +93,13 @@ az ad sp create --id $deployClientId
 az ad app federated-credential create --id $deployClientId --parameters federated-credential.json
 Remove-Item federated-credential.json
 
-az role assignment create --assignee $deployClientId --role Contributor `
+$deployObjectId = az ad sp show --id $deployClientId --query id --output tsv
+az role assignment create --assignee-object-id $deployObjectId --assignee-principal-type ServicePrincipal --role Contributor `
   --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup"
+az role assignment list --assignee-object-id $deployObjectId --all --query "[].[roleDefinitionName, scope]" --output tsv
 ```
 
-`Contributor` on the resource group only: the pipeline updates the container app and opens a temporary firewall rule; it can't touch anything outside `class-manager-rg`.
+Assigning by object id avoids a race with the service principal that was just created. The last command must print `Contributor` and the resource group. `Contributor` on the resource group only: the pipeline updates the container app and opens a temporary firewall rule; it can't touch anything outside `class-manager-rg`.
 
 ## 5. Container Apps
 
@@ -108,18 +110,21 @@ The image lives in a private package on `ghcr.io`. Container Apps needs a token 
 ### JWT signing key
 
 ```powershell
-$jwtSigningKey = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48))
+$keyBytes = New-Object byte[] 48
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($keyBytes)
+$jwtSigningKey = [Convert]::ToBase64String($keyBytes)
 ```
 
 Used only by this environment; never the local user-secrets key. Don't save it anywhere else: Container Apps keeps it as a secret.
 
 ### Environment and app
 
-The environment has no Log Analytics workspace (`--logs-destination none`), so logs cost nothing; live logs still work with `az containerapp logs show`.
+`use_dynamic_install` lets the CLI install the `containerapp` extension without an interactive prompt. The environment has no Log Analytics workspace (`--logs-destination none`), so logs cost nothing; live logs still work with `az containerapp logs show`.
 
 The app starts with Microsoft's sample ASP.NET image, which also listens on 8080. The first deploy from GitHub replaces it.
 
 ```powershell
+az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors
 az containerapp env create --name $containerEnvironment --resource-group $resourceGroup --location $location `
   --logs-destination none
 
@@ -244,7 +249,7 @@ az containerapp show --name $containerApp --resource-group $resourceGroup --quer
 az containerapp secret list --name $containerApp --resource-group $resourceGroup --query "[].name"
 az sql server firewall-rule list --server $sqlServer --resource-group $resourceGroup --output table
 az sql db show --name $database --server $sqlServer --resource-group $resourceGroup --query "{free:useFreeLimit, whenExhausted:freeLimitExhaustionBehavior}"
-az role assignment list --assignee $deployClientId --all --output table
+az role assignment list --assignee-object-id $deployObjectId --all --output table
 gh variable list --repo $repository
 ```
 

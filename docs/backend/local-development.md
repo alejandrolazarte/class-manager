@@ -43,7 +43,7 @@ The API refuses to start without `Authentication:Jwt:SigningKey` (at least 32 by
 dotnet user-secrets set "Authentication:Jwt:SigningKey" "<at least 32 random characters>" --project src/Api
 ```
 
-One way to generate a key: `[Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48))`.
+One way to generate a key (works in Windows PowerShell 5.1 and PowerShell 7): `$keyBytes = New-Object byte[] 48; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($keyBytes); [Convert]::ToBase64String($keyBytes)`.
 
 Issuer, audience and token lifetimes have defaults in `appsettings.json` under `Authentication:Jwt`. Integration tests set their own key in `BusinessApiFactory`.
 
