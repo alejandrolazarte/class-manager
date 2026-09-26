@@ -132,6 +132,8 @@
   "settings.signOut": "Cerrar sesión",
   "businessSettings.title": "Negocio",
   "businessSettings.name": "Nombre del negocio",
+  "businessSettings.currency": "Moneda",
+  "businessSettings.currencyChangeNotice": "Los montos ya cargados (cuotas y pagos) no se convierten: solo cambia cómo se muestran.",
   "businessSettings.saved": "Datos del negocio guardados",
   "weekdays.short.Monday": "Lun",
   "weekdays.short.Tuesday": "Mar",
