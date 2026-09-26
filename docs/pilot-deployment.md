@@ -1,0 +1,255 @@
+# Pilot deployment runbook
+
+Date: 2026-09-26
+
+Step-by-step commands to put class-manager online for the pilot, following the [hosting plan](hosting-plan.md). Run them once, in order, from PowerShell on the owner's PC. After this setup, every merge to `main` deploys by itself (see [Automatic deploys](#automatic-deploys)).
+
+## What the repository already has
+
+| Piece | Where |
+|---|---|
+| API image | `src/Api/Containerfile` (non-root, port 8080). CI builds it on every pull request |
+| Migrations | `scripts/migrate-database.mjs` applies `AppDbContext` and `SecurityDbContext` to the database in `MIGRATIONS_CONNECTION_STRING` |
+| Deploy pipeline | `.github/workflows/deploy.yml`, runs after CI passes on `main`; skipped until the `AZURE_CLIENT_ID` variable exists |
+| Android pilot build | `app/eas.json`, profile `pilot`: an APK installed from a link |
+
+## Before starting
+
+- An Azure account with a subscription (the free account is enough).
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli), .NET 10 SDK and Node.js 22 on the PC.
+- A Cloudflare account and an Expo account.
+
+## 1. Names and sign-in
+
+```powershell
+az login
+$location = "spaincentral"
+$resourceGroup = "class-manager-rg"
+$sqlServer = "class-manager-sql-$(Get-Random -Maximum 99999)"
+$database = "ClassManager"
+$containerEnvironment = "class-manager-env"
+$containerApp = "class-manager-api"
+$deployApplication = "class-manager-github-deploy"
+$repository = "alejandrolazarte/class-manager"
+$subscriptionId = az account show --query id --output tsv
+$tenantId = az account show --query tenantId --output tsv
+```
+
+The SQL server name must be unique across Azure; write down the generated `$sqlServer`, it goes into GitHub later.
+
+The region comes from the [hosting plan](hosting-plan.md#region). Check that Container Apps and serverless SQL are offered there before creating anything:
+
+```powershell
+az provider register --namespace Microsoft.App --wait
+az provider show --namespace Microsoft.App --query "resourceTypes[?resourceType=='managedEnvironments'].locations" --output tsv
+az sql db list-editions --location $location --edition GeneralPurpose --output table
+```
+
+The first list must include "Spain Central" and the second must show `GP_S_Gen5` objectives. If not, pick another EU region in the hosting plan first.
+
+## 2. Resource group and budget alert
+
+```powershell
+az group create --name $resourceGroup --location $location
+```
+
+In the portal: **Cost Management → Budgets → Add**, scope `class-manager-rg`, USD 1 per month, email alert at 100%. It's the safety net if something stops being free.
+
+## 3. SQL server and free database
+
+The server only accepts Microsoft Entra sign-ins (no SQL passwords). The owner is its Entra admin; a Gmail or Outlook account works as a guest user of the Azure directory.
+
+```powershell
+$owner = az ad signed-in-user show --query "{id:id, name:userPrincipalName}" --output json | ConvertFrom-Json
+az sql server create --name $sqlServer --resource-group $resourceGroup --location $location `
+  --enable-ad-only-auth --external-admin-principal-type User `
+  --external-admin-name $owner.name --external-admin-sid $owner.id
+
+az sql db create --name $database --server $sqlServer --resource-group $resourceGroup `
+  --edition GeneralPurpose --family Gen5 --capacity 2 --compute-model Serverless `
+  --use-free-limit --free-limit-exhaustion-behavior AutoPause --backup-storage-redundancy Local
+
+az sql server firewall-rule create --name AllowAzureServices --server $sqlServer --resource-group $resourceGroup `
+  --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
+```
+
+`AllowAzureServices` lets the API reach the database. The PC and GitHub get temporary rules only while they run migrations.
+
+## 4. Deploy identity for GitHub Actions
+
+An Entra application that GitHub signs in as through OpenID Connect: no client secret exists, so there is nothing to leak or rotate.
+
+```powershell
+$deployClientId = az ad app create --display-name $deployApplication --query appId --output tsv
+az ad sp create --id $deployClientId
+
+@{
+  name = "main-branch"
+  issuer = "https://token.actions.githubusercontent.com"
+  subject = "repo:${repository}:ref:refs/heads/main"
+  audiences = @("api://AzureADTokenExchange")
+} | ConvertTo-Json | Set-Content federated-credential.json
+az ad app federated-credential create --id $deployClientId --parameters federated-credential.json
+Remove-Item federated-credential.json
+
+az role assignment create --assignee $deployClientId --role Contributor `
+  --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup"
+```
+
+`Contributor` on the resource group only: the pipeline updates the container app and opens a temporary firewall rule; it can't touch anything outside `class-manager-rg`.
+
+## 5. Container Apps
+
+### Registry token
+
+The image lives in a private package on `ghcr.io`. Container Apps needs a token to pull it. GitHub Packages only accepts **classic** personal access tokens: create one at GitHub → Settings → Developer settings → Personal access tokens (classic), with only the `read:packages` scope and a one-year expiry.
+
+### JWT signing key
+
+```powershell
+$jwtSigningKey = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48))
+```
+
+Used only by this environment; never the local user-secrets key. Don't save it anywhere else: Container Apps keeps it as a secret.
+
+### Environment and app
+
+The environment has no Log Analytics workspace (`--logs-destination none`), so logs cost nothing; live logs still work with `az containerapp logs show`.
+
+The app starts with Microsoft's sample ASP.NET image, which also listens on 8080. The first deploy from GitHub replaces it.
+
+```powershell
+az containerapp env create --name $containerEnvironment --resource-group $resourceGroup --location $location `
+  --logs-destination none
+
+$githubPackagesToken = Read-Host "Classic token with read:packages"
+$databaseConnectionString = "Server=tcp:$sqlServer.database.windows.net,1433;Database=$database;Authentication=Active Directory Managed Identity;Encrypt=True;Connect Timeout=60;ConnectRetryCount=6;ConnectRetryInterval=20"
+
+az containerapp create --name $containerApp --resource-group $resourceGroup --environment $containerEnvironment `
+  --image mcr.microsoft.com/dotnet/samples:aspnetapp --target-port 8080 --ingress external `
+  --min-replicas 0 --max-replicas 1 --cpu 0.25 --memory 0.5Gi --system-assigned `
+  --registry-server ghcr.io --registry-username alejandrolazarte --registry-password $githubPackagesToken `
+  --secrets "jwt-signing-key=$jwtSigningKey" `
+  --env-vars "Authentication__Jwt__SigningKey=secretref:jwt-signing-key" "ConnectionStrings__BusinessDatabase=$databaseConnectionString"
+
+$apiHost = az containerapp show --name $containerApp --resource-group $resourceGroup --query properties.configuration.ingress.fqdn --output tsv
+"https://$apiHost"
+```
+
+The connection string has no password: the app signs in to SQL with its managed identity. `ConnectRetry*` covers the few seconds the free database takes to resume after a pause.
+
+## 6. Database users
+
+Open the database in the portal: **SQL databases → ClassManager → Query editor**, sign in with your Entra account, and run:
+
+```sql
+CREATE USER [class-manager-api] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_datareader ADD MEMBER [class-manager-api];
+ALTER ROLE db_datawriter ADD MEMBER [class-manager-api];
+
+CREATE USER [class-manager-github-deploy] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_ddladmin ADD MEMBER [class-manager-github-deploy];
+ALTER ROLE db_datareader ADD MEMBER [class-manager-github-deploy];
+ALTER ROLE db_datawriter ADD MEMBER [class-manager-github-deploy];
+```
+
+| User | Is | Can |
+|---|---|---|
+| `class-manager-api` | The container app's managed identity | Read and write data; never change the schema |
+| `class-manager-github-deploy` | The GitHub Actions identity | Also change the schema (`db_ddladmin`), to run migrations |
+
+## 7. GitHub variables
+
+Repository variables, not secrets: none of these values grants access by itself.
+
+```powershell
+gh variable set AZURE_CLIENT_ID --body $deployClientId --repo $repository
+gh variable set AZURE_TENANT_ID --body $tenantId --repo $repository
+gh variable set AZURE_SUBSCRIPTION_ID --body $subscriptionId --repo $repository
+gh variable set AZURE_RESOURCE_GROUP --body $resourceGroup --repo $repository
+gh variable set AZURE_CONTAINER_APP --body $containerApp --repo $repository
+gh variable set AZURE_SQL_SERVER --body $sqlServer --repo $repository
+gh variable set AZURE_SQL_DATABASE --body $database --repo $repository
+```
+
+`AZURE_CLIENT_ID` goes last on purpose if you set them by hand: the deploy workflow is skipped while it is empty.
+
+## 8. First deploy
+
+Re-run the latest CI run on `main` from the Actions tab (or merge any pull request). When it passes, the **Deploy** workflow:
+
+1. Builds the image and pushes it to `ghcr.io/alejandrolazarte/class-manager-api:<commit>`.
+2. Signs in to Azure with OpenID Connect and opens the SQL firewall to the runner's IP.
+3. Applies the migrations, then closes the firewall rule.
+4. Points the container app at the new image and waits for `/health`.
+
+Check it: `https://<api host>/health` answers `Healthy`.
+
+The first image push creates the `class-manager-api` package on GitHub as private and linked to the repository. Leave it private.
+
+## 9. Web app (Cloudflare Pages)
+
+In Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**, repository `alejandrolazarte/class-manager`, project name `class-manager`.
+
+| Setting | Value |
+|---|---|
+| Production branch | `main` |
+| Root directory | `app` |
+| Build command | `corepack enable && pnpm install --frozen-lockfile && pnpm expo export --platform web` |
+| Build output directory | `dist` |
+| Environment variable `NODE_VERSION` | `22` |
+| Environment variable `EXPO_PUBLIC_API_BASE_URL` | `https://<api host>` |
+
+Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. Pages serves `index.html` for any path, which is what the single-page web build needs.
+
+Then allow the Pages domain in the API's CORS list:
+
+```powershell
+az containerapp update --name $containerApp --resource-group $resourceGroup `
+  --set-env-vars "Cors__AllowedOrigins__0=https://class-manager.pages.dev"
+```
+
+Use the domain Cloudflare actually assigned if `class-manager` was taken.
+
+## 10. Android APK for the pilot
+
+```powershell
+cd app
+pnpm dlx eas-cli login
+pnpm dlx eas-cli init
+pnpm dlx eas-cli env:create --environment preview --name EXPO_PUBLIC_API_BASE_URL --value "https://<api host>" --visibility plaintext
+pnpm dlx eas-cli build --platform android --profile pilot
+```
+
+`eas init` links the app to the Expo project and adds its id to `app.json`; commit that change in a pull request. The build ends with a link and a QR code: pilot instructors open it on their phone and install the APK. The Android package id is `com.alejandrolazarte.classmanager`; it can't change once the app is on Google Play.
+
+The API URL is baked into the APK at build time, so changing the API host means building a new APK.
+
+## Automatic deploys
+
+| On | What happens |
+|---|---|
+| Pull request | CI builds and tests; also builds the API image (without pushing) |
+| Merge to `main`, CI green | `deploy.yml`: image to `ghcr.io`, migrations, container app updated |
+| Push to `main` | Cloudflare Pages rebuilds the web app |
+| New APK | Manual: `eas build --profile pilot`, only when the mobile app changed |
+
+Migrations run before the new image starts, while the previous version is still serving. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys.
+
+## Audit commands
+
+```powershell
+az containerapp show --name $containerApp --resource-group $resourceGroup --query "{image:properties.template.containers[0].image, minReplicas:properties.template.scale.minReplicas, identity:identity.type}"
+az containerapp secret list --name $containerApp --resource-group $resourceGroup --query "[].name"
+az sql server firewall-rule list --server $sqlServer --resource-group $resourceGroup --output table
+az sql db show --name $database --server $sqlServer --resource-group $resourceGroup --query "{free:useFreeLimit, whenExhausted:freeLimitExhaustionBehavior}"
+az role assignment list --assignee $deployClientId --all --output table
+gh variable list --repo $repository
+```
+
+Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key` and the registry password, only `AllowAzureServices` remains in the firewall, and the database uses the free limit with `AutoPause`.
+
+## Rotating secrets
+
+- **JWT key:** `az containerapp secret set ... --secrets jwt-signing-key=<new key>` and restart the revision. Everyone is signed out once; refresh tokens keep working.
+- **Registry token:** create a new classic token, then `az containerapp registry set --name $containerApp --resource-group $resourceGroup --server ghcr.io --username alejandrolazarte --password <token>`. Do it before the old one expires or new deploys fail to pull the image.

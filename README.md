@@ -85,6 +85,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Demo screenshots](docs/e2e/demo-screenshots.md) — load a demo business and capture every screen at phone size
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
 - [Hosting plan](docs/hosting-plan.md) — free Azure setup for a pilot, limits and costs to watch
+- [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Cloudflare Pages and the Android APK
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
 - [Local development](docs/backend/local-development.md) — migrations, JWT signing key, demo seed data and owner
 - [Running the Expo app](docs/frontend/running-the-app.md) — configuration and frontend tests
