@@ -23,7 +23,7 @@ Step-by-step commands to put class-manager online for the pilot, following the [
 
 ```powershell
 az login
-$location = "spaincentral"
+$location = "francecentral"
 $resourceGroup = "class-manager-rg"
 $sqlServer = "class-manager-sql-$(Get-Random -Maximum 99999)"
 $database = "ClassManager"
@@ -41,11 +41,12 @@ The region comes from the [hosting plan](hosting-plan.md#region). Check that Con
 
 ```powershell
 az provider register --namespace Microsoft.App --wait
+az provider register --namespace Microsoft.Sql --wait
 az provider show --namespace Microsoft.App --query "resourceTypes[?resourceType=='managedEnvironments'].locations" --output tsv
 az sql db list-editions --location $location --edition GeneralPurpose --output table
 ```
 
-The first list must include "Spain Central" and the second must show `GP_S_Gen5` objectives. If not, pick another EU region in the hosting plan first.
+The first list must include "France Central" and the second must show `GP_S_Gen5` objectives. These checks don't prove the free offer is available: only creating the database does (Spain Central passed both checks and still refused it). If step 3 fails, delete the empty server and try the next EU region from the hosting plan.
 
 ## 2. Resource group and budget alert
 

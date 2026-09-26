@@ -58,7 +58,17 @@ The region is not fixed in advance: choose it when creating the resources, based
 - **Check the free offers in that region.** Not every service or free offer is available in every region.
 - **Changing it later is a migration.** Moving the database to another region means exporting and importing it, so choose with the expected customers in mind.
 
-**Decision (2026-09-26): Spain Central (`spaincentral`, Madrid).** Customers are expected in Spain and Argentina. Hosting in the EU keeps Spanish customers' data inside the EU (GDPR), and Argentina's data protection rules accept EU countries as adequate destinations, so Argentine customers can be served from there too. The reverse (EU data in Brazil) would need extra transfer safeguards. Latency from Argentina is higher than from `brazilsouth`, which is acceptable for this app. Check the free offers are available in `spaincentral` before creating anything (the runbook has the commands).
+**Decision (2026-09-26): France Central (`francecentral`, Paris).** Customers are expected in Spain and Argentina. Hosting in the EU keeps Spanish customers' data inside the EU (GDPR), and Argentina's data protection rules accept EU countries as adequate destinations, so Argentine customers can be served from there too. The reverse (EU data in Brazil) would need extra transfer safeguards. Latency from Argentina is higher than from `brazilsouth`, which is acceptable for this app.
+
+Regions tried first, on a new pay-as-you-go subscription:
+
+| Region | Result |
+|---|---|
+| Spain Central | Serverless SQL exists, but the free offer is not: `ProvisioningDisabled`, "free limit database is not supported for provided service level objective or region" |
+| North Europe | New SQL servers not accepted for this subscription: `RegionDoesNotAllowProvisioning` |
+| France Central | Server and free database created |
+
+Moving to Spain later (for example when paying for the database is acceptable) is a migration: convert the free database to a paid tier (a setting change; data stays), copy it to a server in Spain (`az sql db copy`, or export and import a `.bacpac`), then point a new container app at it. The free offer can't be copied directly, and a database converted to paid can't go back to the free offer.
 
 ### 1. Resource group and budget alert
 
