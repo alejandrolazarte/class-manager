@@ -27,6 +27,7 @@ function run(dotnetArguments) {
 }
 
 run(["tool", "restore"]);
+run(["restore", "src/Api/Api.csproj"]);
 for (const { context, project } of migrations) {
   run([
     "ef",
