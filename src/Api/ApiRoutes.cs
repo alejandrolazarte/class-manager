@@ -23,6 +23,7 @@ public static class ApiRoutes
     public const string Attendance = "/attendance";
     public const string AttendanceByStudent = "/attendance/{studentId:guid}";
     public const string Cancellation = "/cancellation";
+    public const string Schedule = "/schedule";
     public const string MonthlyFee = "/monthly-fee";
     public const string PaymentsSegment = "/payments";
     public const string Payments = "/api/payments";

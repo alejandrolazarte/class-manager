@@ -8,6 +8,10 @@ public sealed class ClassSession : ITenantOwned
     public const int CancellationReasonMaxLength = 200;
 
     private const string CancellationReasonLengthMessage = "The reason must be at most 200 characters.";
+    private const string EndsAfterMidnightMessage = "The class must end by midnight.";
+    private const string CancelledMessage = "The class is cancelled on that date.";
+    private const string StartTimeFieldName = "StartTime";
+    private const int MinutesPerDay = 24 * 60;
 
     private ClassSession()
     {
@@ -19,6 +23,7 @@ public sealed class ClassSession : ITenantOwned
     public DateOnly Date { get; private set; }
     public bool IsCancelled { get; private set; }
     public string? CancellationReason { get; private set; }
+    public TimeOnly? RescheduledStartTime { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static ClassSession Create(Guid classGroupId, DateOnly date, DateTimeOffset createdAt) =>
@@ -42,6 +47,26 @@ public sealed class ClassSession : ITenantOwned
         CancellationReason = trimmedReason;
         return Result.Success();
     }
+
+    public Result Reschedule(TimeOnly startTime, int durationMinutes, TimeOnly usualStartTime)
+    {
+        if (IsCancelled)
+        {
+            return Result.Conflict(CancelledMessage, SessionErrorCodes.Cancelled);
+        }
+
+        if ((startTime.Hour * 60) + startTime.Minute + durationMinutes > MinutesPerDay)
+        {
+            return Result.Validation(EndsAfterMidnightMessage, fieldName: StartTimeFieldName);
+        }
+
+        RescheduledStartTime = startTime == usualStartTime ? null : startTime;
+        return Result.Success();
+    }
+
+    public void ClearReschedule() => RescheduledStartTime = null;
+
+    public TimeOnly EffectiveStartTime(TimeOnly usualStartTime) => RescheduledStartTime ?? usualStartTime;
 
     public void Restore()
     {

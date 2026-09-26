@@ -22,9 +22,11 @@ public sealed record SessionDetailsResponse(
     DateOnly Date,
     string StartTime,
     string EndTime,
+    string? OriginalStartTime,
     bool IsCancelled,
     string? CancellationReason,
     bool CanTakeAttendance,
+    bool CanReschedule,
     IReadOnlyList<SessionStudentResponse> Students);
 
 public sealed class GetSessionUseCase(
@@ -51,17 +53,20 @@ public sealed class GetSessionUseCase(
         var roster = await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var isCancelled = session?.IsCancelled ?? false;
-        var schedule = classGroup.Value!.Schedule;
+        var usualStartTime = classGroup.Value!.StartTime;
+        var startTime = session?.EffectiveStartTime(usualStartTime) ?? usualStartTime;
 
         return new SessionDetailsResponse(
             classGroup.Value.Id,
             classGroup.Value.Name,
             command.Date,
-            schedule.StartTime.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture),
-            schedule.EndTime.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture),
+            FormatTime(startTime),
+            FormatTime(startTime.AddMinutes(classGroup.Value.DurationMinutes)),
+            session?.RescheduledStartTime is null ? null : FormatTime(usualStartTime),
             isCancelled,
             session?.CancellationReason,
             CanTakeAttendance: !isCancelled && command.Date <= today,
+            CanReschedule: !isCancelled && command.Date >= today,
             [
                 .. roster.Select(entry => new SessionStudentResponse(
                     entry.StudentId,
@@ -71,4 +76,6 @@ public sealed class GetSessionUseCase(
                     statuses.TryGetValue(entry.StudentId, out var status) ? status : null)),
             ]);
     }
+
+    private static string FormatTime(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);
 }

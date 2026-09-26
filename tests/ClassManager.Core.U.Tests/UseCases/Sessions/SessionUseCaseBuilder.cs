@@ -26,6 +26,8 @@ internal sealed class SessionUseCaseBuilder
         ClassGroup = ClassGroup.Create(
             "Natación inicial", Instructor.Id, ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!, 8, null).Value!;
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
+        ClassGroups.Setup(repository => repository.ListActiveByInstructorAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Sessions.Setup(repository => repository.ListByDateAsync(It.IsAny<DateOnly>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         ClassGroups.Setup(repository => repository.GetByIdAsync(ClassGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(ClassGroup);
         Enrollments
             .Setup(repository => repository.ListRosterOnAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
@@ -48,6 +50,9 @@ internal sealed class SessionUseCaseBuilder
 
     public CancelSessionUseCase BuildCancel() =>
         new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
+
+    public RescheduleSessionUseCase BuildReschedule() =>
+        new(ClassGroups.Object, Sessions.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
 
     public ListDaySessionsUseCase BuildListDay() =>
         new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, BusinessCalendar.Object);

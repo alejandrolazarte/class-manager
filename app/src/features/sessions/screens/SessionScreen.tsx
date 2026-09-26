@@ -2,10 +2,15 @@ import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
+import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
 import { formatLongDate } from "@/features/sessions/dates";
 import { AttendanceStatus } from "@/features/sessions/types";
 import { useSessionDetails } from "@/features/sessions/useSessionDetails";
-import { useRecordAttendance, useRestoreSession } from "@/features/sessions/useSessionMutations";
+import {
+  useRecordAttendance,
+  useRestoreSession,
+  useRestoreSessionSchedule,
+} from "@/features/sessions/useSessionMutations";
 import { translate, translateCount } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -28,6 +33,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   } = useSessionDetails(classGroupId, sessionDate);
   const recordAttendanceMutation = useRecordAttendance(classGroupId, sessionDate);
   const restoreSessionMutation = useRestoreSession(classGroupId, sessionDate);
+  const restoreSessionScheduleMutation = useRestoreSessionSchedule(classGroupId, sessionDate);
   const [pendingStatuses, setPendingStatuses] = useState<PendingStatuses>({});
   const [hasSaveFailed, setHasSaveFailed] = useState(false);
 
@@ -105,6 +111,25 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
           </Banner>
         </View>
       ) : null}
+      {session.originalStartTime && !session.isCancelled ? (
+        <View className="px-4">
+          <Banner
+            tone="warning"
+            message={translate("sessions.reschedule.notice", {
+              original: session.originalStartTime,
+            })}
+          >
+            {session.canReschedule ? (
+              <Button
+                variant="secondary"
+                label={translate("sessions.reschedule.restore")}
+                onPress={() => restoreSessionScheduleMutation.mutate()}
+                isLoading={restoreSessionScheduleMutation.isPending}
+              />
+            ) : null}
+          </Banner>
+        </View>
+      ) : null}
       {!session.isCancelled && !session.canTakeAttendance ? (
         <Text className="px-4 text-base text-gray-600">{translate("sessions.session.notYet")}</Text>
       ) : null}
@@ -132,7 +157,10 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         </View>
       )}
       {session.isCancelled ? null : (
-        <View className="px-4">
+        <View className="gap-3 px-4">
+          {session.canReschedule ? (
+            <ReschedulePanel classGroupId={classGroupId} sessionDate={sessionDate} />
+          ) : null}
           <CancelSessionPanel classGroupId={classGroupId} sessionDate={sessionDate} />
         </View>
       )}

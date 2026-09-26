@@ -66,7 +66,7 @@ Every entity except `Business` is tenant-owned and gets its isolation test.
 
 ## Milestones
 
-Status: M1 to M5 done (backend and frontend). Next: pilot with one or two real instructors.
+Status: M1 to M5 done (backend and frontend), plus rescheduling one session on the same day ([plan](backend/20260926-reschedule-session/plan.md)). Next: pilot with one or two real instructors.
 
 Each milestone gets a backend plan and a frontend plan under `docs/backend/<date>-<name>/plan.md` and `docs/frontend/<date>-<name>/plan.md` before code is written.
 
