@@ -84,10 +84,14 @@ An Entra application that GitHub signs in as through OpenID Connect: no client s
 $deployClientId = az ad app create --display-name $deployApplication --query appId --output tsv
 az ad sp create --id $deployClientId
 
+$repositoryInfo = gh api "repos/$repository" | ConvertFrom-Json
+$deploySubject = "repo:$($repositoryInfo.owner.login)@$($repositoryInfo.owner.id)/$($repositoryInfo.name)@$($repositoryInfo.id):ref:refs/heads/main"
+$deploySubject
+
 @{
   name = "main-branch"
   issuer = "https://token.actions.githubusercontent.com"
-  subject = "repo:${repository}:ref:refs/heads/main"
+  subject = $deploySubject
   audiences = @("api://AzureADTokenExchange")
 } | ConvertTo-Json | Set-Content federated-credential.json
 az ad app federated-credential create --id $deployClientId --parameters federated-credential.json
@@ -98,6 +102,8 @@ az role assignment create --assignee-object-id $deployObjectId --assignee-princi
   --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup"
 az role assignment list --assignee-object-id $deployObjectId --all --query "[].[roleDefinitionName, scope]" --output tsv
 ```
+
+GitHub sends the subject with the owner's and the repository's numeric ids (`repo:alejandrolazarte@55626992/class-manager@1388192765:ref:refs/heads/main`), not just their names, so a repository recreated with the same name can't reuse this trust. `$deploySubject` must print that shape. Entra can take a minute or two to apply a new or changed credential: a deploy started right after fails with `AADSTS700213` and works when re-run.
 
 Assigning by object id avoids a race with the service principal that was just created. The last command must print `Contributor` and the resource group. `Contributor` on the resource group only: the pipeline updates the container app and opens a temporary firewall rule; it can't touch anything outside `class-manager-rg`.
 

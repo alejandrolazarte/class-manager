@@ -103,7 +103,7 @@ rg -n "pull_request_target|secrets|workflow_run|uses:|permissions:" .github
 | `image` | `packages: write` | Push the API image to `ghcr.io` with the built-in `GITHUB_TOKEN` |
 | `api` | `id-token: write` | Sign in to Azure with OpenID Connect; no Azure secret is stored in GitHub |
 
-It is triggered by `workflow_run` of CI and only proceeds for a successful **push** to `main` (never for pull requests), checking out the exact commit CI tested. Azure identifiers are repository variables (`AZURE_*`), not secrets. The Entra federated credential only trusts `repo:alejandrolazarte/class-manager:ref:refs/heads/main`. Setup: [pilot deployment runbook](pilot-deployment.md).
+It is triggered by `workflow_run` of CI and only proceeds for a successful **push** to `main` (never for pull requests), checking out the exact commit CI tested. Azure identifiers are repository variables (`AZURE_*`), not secrets. The Entra federated credential only trusts `repo:alejandrolazarte@55626992/class-manager@1388192765:ref:refs/heads/main` (GitHub's subject includes the owner and repository ids). Setup: [pilot deployment runbook](pilot-deployment.md).
 
 ## Rules for the future
 
