@@ -20,6 +20,10 @@ internal static class SessionEndpoints
             .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
         classGroups.MapDelete(SessionRoute + ApiRoutes.Cancellation, RestoreSessionAsync)
             .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+        classGroups.MapPut(SessionRoute + ApiRoutes.Schedule, RescheduleSessionAsync)
+            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+        classGroups.MapDelete(SessionRoute + ApiRoutes.Schedule, RestoreSessionScheduleAsync)
+            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
 
         return endpoints;
     }
@@ -78,6 +82,29 @@ internal static class SessionEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new RestoreSessionCommand(classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RescheduleSessionAsync(
+        Guid classGroupId,
+        DateOnly sessionDate,
+        RescheduleSessionRequest request,
+        IUseCase<RescheduleSessionCommand, SessionStatusResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RescheduleSessionCommand(classGroupId, sessionDate, request.StartTime), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RestoreSessionScheduleAsync(
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<RestoreSessionScheduleCommand, SessionStatusResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RestoreSessionScheduleCommand(classGroupId, sessionDate), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }

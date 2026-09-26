@@ -69,6 +69,9 @@ public sealed class ClassSchedule
     public static ClassSchedule FromStored(ClassWeekdays weekdays, TimeOnly startTime, int durationMinutes) =>
         new(weekdays, startTime, durationMinutes);
 
+    public static ClassSchedule ForDay(DayOfWeek day, TimeOnly startTime, int durationMinutes) =>
+        new(ToFlag(day), startTime, durationMinutes);
+
     public bool MeetsOn(DayOfWeek day) => (Weekdays & ToFlag(day)) != ClassWeekdays.None;
 
     public bool OverlapsWith(ClassSchedule other) =>

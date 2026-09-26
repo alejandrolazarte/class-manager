@@ -14,6 +14,7 @@ public sealed record DaySessionResponse(
     DateOnly Date,
     string StartTime,
     string EndTime,
+    string? OriginalStartTime,
     string InstructorFullName,
     string? Location,
     bool IsCancelled,
@@ -38,8 +39,6 @@ public sealed class ListDaySessionsUseCase(
         var date = command.Date ?? await businessCalendar.TodayAsync(cancellationToken);
         var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken))
             .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek))
-            .OrderBy(classGroup => classGroup.StartTime)
-            .ThenBy(classGroup => classGroup.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
@@ -55,13 +54,14 @@ public sealed class ListDaySessionsUseCase(
             {
                 var session = sessions.GetValueOrDefault(classGroup.Id);
                 var attendanceCount = session is null ? NoAttendance : attendanceCounts.GetValueOrDefault(session.Id, NoAttendance);
-                var schedule = classGroup.Schedule;
+                var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
                 return new DaySessionResponse(
                     classGroup.Id,
                     classGroup.Name,
                     date,
-                    schedule.StartTime.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture),
-                    schedule.EndTime.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture),
+                    FormatTime(startTime),
+                    FormatTime(startTime.AddMinutes(classGroup.DurationMinutes)),
+                    session?.RescheduledStartTime is null ? null : FormatTime(classGroup.StartTime),
                     instructorNames.GetValueOrDefault(classGroup.InstructorId, string.Empty),
                     classGroup.Location,
                     session?.IsCancelled ?? false,
@@ -69,7 +69,11 @@ public sealed class ListDaySessionsUseCase(
                     enrolledCounts.GetValueOrDefault(classGroup.Id),
                     attendanceCount.Present,
                     attendanceCount.Absent);
-            }),
+            })
+            .OrderBy(session => session.StartTime, StringComparer.Ordinal)
+            .ThenBy(session => session.ClassGroupName, StringComparer.CurrentCultureIgnoreCase),
         ]);
     }
+
+    private static string FormatTime(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);
 }

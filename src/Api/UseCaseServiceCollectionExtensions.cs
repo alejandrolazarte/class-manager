@@ -48,6 +48,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RecordAttendanceCommand, RecordAttendanceResponse>, RecordAttendanceUseCase>();
         services.AddScoped<IUseCase<CancelSessionCommand, SessionStatusResponse>, CancelSessionUseCase>();
         services.AddScoped<IUseCase<RestoreSessionCommand, SessionStatusResponse>, RestoreSessionUseCase>();
+        services.AddScoped<IUseCase<RescheduleSessionCommand, SessionStatusResponse>, RescheduleSessionUseCase>();
+        services.AddScoped<IUseCase<RestoreSessionScheduleCommand, SessionStatusResponse>, RestoreSessionScheduleUseCase>();
         services.AddScoped<IUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse>, SetDefaultMonthlyFeeUseCase>();
         services.AddScoped<IUseCase<SetClientMonthlyFeeCommand, ClientResponse>, SetClientMonthlyFeeUseCase>();
         services.AddScoped<IUseCase<RecordPaymentCommand, PaymentResponse>, RecordPaymentUseCase>();
