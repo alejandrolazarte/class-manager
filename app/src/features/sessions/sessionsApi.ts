@@ -6,6 +6,7 @@ const classGroupsPath = "/api/class-groups";
 const sessionsSegment = "sessions";
 const attendanceSegment = "attendance";
 const cancellationSegment = "cancellation";
+const scheduleSegment = "schedule";
 
 function sessionPath(classGroupId: string, sessionDate: string): string {
   return `${classGroupsPath}/${encodeURIComponent(classGroupId)}/${sessionsSegment}/${encodeURIComponent(sessionDate)}`;
@@ -45,4 +46,18 @@ export function restoreSession(classGroupId: string, sessionDate: string): Promi
   return httpClient.delete<void>(
     `${sessionPath(classGroupId, sessionDate)}/${cancellationSegment}`,
   );
+}
+
+export function rescheduleSession(
+  classGroupId: string,
+  sessionDate: string,
+  startTime: string,
+): Promise<void> {
+  return httpClient.put<void>(`${sessionPath(classGroupId, sessionDate)}/${scheduleSegment}`, {
+    startTime,
+  });
+}
+
+export function restoreSessionSchedule(classGroupId: string, sessionDate: string): Promise<void> {
+  return httpClient.delete<void>(`${sessionPath(classGroupId, sessionDate)}/${scheduleSegment}`);
 }

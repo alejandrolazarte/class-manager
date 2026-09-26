@@ -1,6 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sessionQueryKeys } from "@/features/sessions/sessionQueryKeys";
-import { cancelSession, recordAttendance, restoreSession } from "@/features/sessions/sessionsApi";
+import {
+  cancelSession,
+  recordAttendance,
+  rescheduleSession,
+  restoreSession,
+  restoreSessionSchedule,
+} from "@/features/sessions/sessionsApi";
 import { AttendanceStatus, SessionDetails } from "@/features/sessions/types";
 
 interface RecordAttendanceVariables {
@@ -52,6 +58,22 @@ export function useRestoreSession(classGroupId: string, sessionDate: string) {
   const invalidateSession = useInvalidateSession(classGroupId, sessionDate);
   return useMutation({
     mutationFn: () => restoreSession(classGroupId, sessionDate),
+    onSuccess: invalidateSession,
+  });
+}
+
+export function useRescheduleSession(classGroupId: string, sessionDate: string) {
+  const invalidateSession = useInvalidateSession(classGroupId, sessionDate);
+  return useMutation({
+    mutationFn: (startTime: string) => rescheduleSession(classGroupId, sessionDate, startTime),
+    onSuccess: invalidateSession,
+  });
+}
+
+export function useRestoreSessionSchedule(classGroupId: string, sessionDate: string) {
+  const invalidateSession = useInvalidateSession(classGroupId, sessionDate);
+  return useMutation({
+    mutationFn: () => restoreSessionSchedule(classGroupId, sessionDate),
     onSuccess: invalidateSession,
   });
 }

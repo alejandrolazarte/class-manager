@@ -6,6 +6,7 @@ export interface DaySession {
   date: string;
   startTime: string;
   endTime: string;
+  originalStartTime: string | null;
   instructorFullName: string;
   location: string | null;
   isCancelled: boolean;
@@ -29,8 +30,10 @@ export interface SessionDetails {
   date: string;
   startTime: string;
   endTime: string;
+  originalStartTime: string | null;
   isCancelled: boolean;
   cancellationReason: string | null;
   canTakeAttendance: boolean;
+  canReschedule: boolean;
   students: SessionStudent[];
 }

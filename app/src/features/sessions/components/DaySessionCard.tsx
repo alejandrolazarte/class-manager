@@ -26,7 +26,9 @@ export function DaySessionCard({ session, onPress }: DaySessionCardProps) {
       className={`gap-1 border-b border-gray-100 bg-white px-4 py-3 ${session.isCancelled ? "opacity-60" : ""}`}
     >
       <Text className="text-sm font-medium text-brand">
-        {`${session.startTime}–${session.endTime}`}
+        {session.originalStartTime
+          ? `${session.startTime}–${session.endTime} · ${translate("sessions.day.rescheduled", { original: session.originalStartTime })}`
+          : `${session.startTime}–${session.endTime}`}
       </Text>
       <Text className="text-base font-semibold text-gray-900">{session.classGroupName}</Text>
       <Text className={`text-sm ${session.isCancelled ? "text-red-600" : "text-gray-600"}`}>

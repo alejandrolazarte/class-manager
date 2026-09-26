@@ -42,3 +42,9 @@ Api.I.Tests/Endpoints/Sessions/When_rescheduling_session_of_another_business/The
 app/src/features/sessions/__tests__/When_session_is_rescheduled/Then_request_has_new_start_time.test.tsx
 app/src/features/sessions/__tests__/When_session_was_rescheduled/Then_original_time_and_restore_are_shown.test.tsx
 ```
+
+## Implementation notes
+
+- Status: done (backend and frontend).
+- `ClassSchedule.ForDay` builds a single-day schedule, so the busy check reuses `OverlapsWith` with the other classes' effective times that date; cancelled dates of other classes don't block.
+- The reschedule panel sits above "Cancelar clase ese día" and only shows for today or future dates that aren't cancelled.
