@@ -34,6 +34,13 @@
     ],
     "experiments": {
       "typedRoutes": false
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "126cc23a-1b72-4baa-9590-639a326aa379"
+      }
+    },
+    "owner": "alejandro-lazarte"
   }
 }

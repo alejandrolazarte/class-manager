@@ -201,7 +201,7 @@ The first image push creates the `class-manager-api` package on GitHub as privat
 
 ## 9. Web app (Cloudflare Pages)
 
-In Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**, repository `alejandrolazarte/class-manager`, project name `class-manager`.
+In Cloudflare: **Compute → Workers & Pages → Create**. The create screen defaults to Workers; use **Continue to Pages** (the "legacy Pages workflow" link at the bottom), then **Connect to Git** with access to `alejandrolazarte/class-manager` only, project name `class-manager`. The pilot got `class-manager-3cm.pages.dev` because `class-manager` was taken.
 
 | Setting | Value |
 |---|---|
@@ -233,7 +233,7 @@ pnpm dlx eas-cli env:create --environment preview --name EXPO_PUBLIC_API_BASE_UR
 pnpm dlx eas-cli build --platform android --profile pilot
 ```
 
-`eas init` links the app to the Expo project and adds its id to `app.json`; commit that change in a pull request. The build ends with a link and a QR code: pilot instructors open it on their phone and install the APK. The Android package id is `com.alejandrolazarte.classmanager`; it can't change once the app is on Google Play.
+`eas init` asks which Expo account owns the project (the pilot uses the personal account `alejandro-lazarte`), links the app to the Expo project and adds `extra.eas.projectId` and `owner` to `app.json`; commit that change in a pull request. `eas build` asks to generate an Android keystore the first time: accept, Expo stores it. The build ends with a link and a QR code: pilot instructors open it on their phone and install the APK. The Android package id is `com.alejandrolazarte.classmanager`; it can't change once the app is on Google Play.
 
 The API URL is baked into the APK at build time, so changing the API host means building a new APK.
 
