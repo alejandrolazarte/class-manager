@@ -46,12 +46,22 @@ Every endpoint except `/api/auth/*` and `/health` requires a JWT whose `tenant_i
 
 ## Setup steps
 
-Commands use the Azure CLI (`az`). Names are suggestions; the region should be close to the businesses (for example `brazilsouth`).
+Commands use the Azure CLI (`az`). Names are suggestions; `<region>` is decided when the hosting is created (see [Region](#region)).
+
+### Region
+
+The region is not fixed in advance: choose it when creating the resources, based on where the customers are at that moment.
+
+- **Data protection law first.** If any customer is in the European Union, personal data (students, often minors, and their parents) must be hosted in an EU region to comply with GDPR. Other countries may have their own residency rules: check them before choosing.
+- **Then latency.** Among the allowed regions, pick the one closest to the customers.
+- **One region for every tenant.** All tenants share a single database, so the region must satisfy the strictest requirement among the customers. Serving customers with incompatible requirements means a separate deployment per region.
+- **Check the free offers in that region.** Not every service or free offer is available in every region.
+- **Changing it later is a migration.** Moving the database to another region means exporting and importing it, so choose with the expected customers in mind.
 
 ### 1. Resource group and budget alert
 
 ```powershell
-az group create --name class-manager-rg --location brazilsouth
+az group create --name class-manager-rg --location <region>
 ```
 
 Create a **USD 1 monthly budget with an email alert** in Cost Management. It is the safety net if something stops being free.
