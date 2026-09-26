@@ -9,6 +9,7 @@ import {
   getCountryPreset,
   getCountrySelectionForTimeZone,
 } from "@/features/business/countryPresets";
+import { currencyOptions } from "@/features/business/currencyOptions";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import {
   businessSettingsFieldNames,
@@ -20,7 +21,9 @@ import { SettingsFormScreenLayout } from "@/features/settings/components/Setting
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate } from "@/i18n/translate";
+import { Text, View } from "react-native";
 import { Button } from "@/ui/Button";
+import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
@@ -57,6 +60,12 @@ export function BusinessSettingsScreen() {
       defaultCountryCallingCode: countryPreset.callingCode,
     });
   };
+
+  const selectCurrency = (currencyCode: string) =>
+    setRegionalSettings((current) => ({ ...current, currencyCode }));
+  const countryCurrencyCode = getCountryPreset(
+    regionalSettings.countrySelection.countryCode,
+  ).currencyCode;
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -101,6 +110,28 @@ export function BusinessSettingsScreen() {
         selection={regionalSettings.countrySelection}
         onSelectionChange={selectCountry}
       />
+      <View className="gap-2">
+        <Text className="text-sm font-medium text-gray-700">
+          {translate("businessSettings.currency")}
+        </Text>
+        <View className="flex-row flex-wrap gap-2">
+          {currencyOptions(countryCurrencyCode, regionalSettings.currencyCode).map(
+            (currencyCode) => (
+              <Chip
+                key={currencyCode}
+                label={currencyCode}
+                isSelected={regionalSettings.currencyCode === currencyCode}
+                onPress={() => selectCurrency(currencyCode)}
+              />
+            ),
+          )}
+        </View>
+        {regionalSettings.currencyCode === business.currencyCode ? null : (
+          <Text className="text-sm text-amber-700">
+            {translate("businessSettings.currencyChangeNotice")}
+          </Text>
+        )}
+      </View>
       <Button
         label={translate("common.save")}
         onPress={save}
