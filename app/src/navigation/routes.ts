@@ -33,4 +33,5 @@ export const routes = {
   classPacks: "/settings/class-packs",
   newClassPack: "/settings/class-packs/new",
   classPack: (classPackId: string) => `/settings/class-packs/${classPackId}`,
+  importExport: "/settings/import-export",
 } as const;

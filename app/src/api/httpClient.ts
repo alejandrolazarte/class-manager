@@ -17,6 +17,8 @@ interface RequestOptions {
   isAnonymous: boolean;
 }
 
+type ResponseReader<TResponse> = (response: Response) => Promise<TResponse>;
+
 const authenticatedRequest: RequestOptions = { isAnonymous: false };
 const anonymousRequest: RequestOptions = { isAnonymous: true };
 
@@ -39,17 +41,26 @@ async function readProblem(response: Response): Promise<ProblemDetails> {
   }
 }
 
+function readJson<TResponse>(response: Response): Promise<TResponse> {
+  return response.json() as Promise<TResponse>;
+}
+
+function readText(response: Response): Promise<string> {
+  return response.text();
+}
+
 async function fetchWithHeaders(
   url: string,
   requestInit: RequestInit,
   accessToken: string | null,
 ): Promise<Response> {
+  const isFormBody = requestInit.body instanceof FormData;
   try {
     return await fetch(url, {
       ...requestInit,
       headers: {
         Accept: jsonContentType,
-        "Content-Type": jsonContentType,
+        ...(isFormBody ? {} : { "Content-Type": jsonContentType }),
         ...(accessToken !== null
           ? { [authorizationHeader]: `${bearerScheme} ${accessToken}` }
           : {}),
@@ -86,6 +97,7 @@ async function send<TResponse>(
   url: string,
   requestInit: RequestInit,
   { isAnonymous }: RequestOptions,
+  readResponse: ResponseReader<TResponse> = readJson,
 ): Promise<TResponse> {
   const response = isAnonymous
     ? await fetchWithHeaders(url, requestInit, null)
@@ -97,7 +109,7 @@ async function send<TResponse>(
   if (response.status === noContentStatus) {
     return undefined as TResponse;
   }
-  return (await response.json()) as TResponse;
+  return readResponse(response);
 }
 
 export const httpClient = {
@@ -114,6 +126,12 @@ export const httpClient = {
       { method: "POST", body: JSON.stringify(body) },
       authenticatedRequest,
     );
+  },
+  getText(path: string): Promise<string> {
+    return send(buildUrl(path), { method: "GET" }, authenticatedRequest, readText);
+  },
+  postForm<TResponse>(path: string, form: FormData): Promise<TResponse> {
+    return send<TResponse>(buildUrl(path), { method: "POST", body: form }, authenticatedRequest);
   },
   put<TResponse>(path: string, body: unknown): Promise<TResponse> {
     return send<TResponse>(

@@ -8,10 +8,16 @@ using ClassManager.Core.UseCases.ClassPacks;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Enrollments;
 using ClassManager.Core.UseCases.Fees;
+using ClassManager.Core.UseCases.ImportExport;
+using ClassManager.Core.UseCases.ImportExport.Instructors;
+using ClassManager.Core.UseCases.ImportExport.Students;
 using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.PrivateLessons;
 using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
+using ClassManager.ImportExport.Parsing;
+using ClassManager.ImportExport.Tabular;
+using ClassManager.ImportExport.Tabular.Csv;
 
 namespace ClassManager.Api;
 
@@ -22,8 +28,18 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
+        services.AddSingleton<ITabularReader, CsvTabularReader>();
+        services.AddSingleton<ITabularWriter, CsvTabularWriter>();
+        services.AddSingleton<IImportParser, ImportParser>();
+        services.AddScoped<IImportModule, InstructorImportModule>();
+        services.AddScoped<IImportModule, StudentImportModule>();
 
         services.AddScoped<IUseCase<SignUpOwnerCommand, TokenResponse>, SignUpOwnerUseCase>();
+        services.AddScoped<IUseCase<GetImportSchemaQuery, ImportSchemaResponse>, GetImportSchemaUseCase>();
+        services.AddScoped<IUseCase<PreviewImportCommand, ImportReport>, PreviewImportUseCase>();
+        services.AddScoped<IUseCase<ImportFileCommand, ImportReport>, ImportFileUseCase>();
+        services.AddScoped<IUseCase<GetImportTemplateQuery, ExportFile>, GetImportTemplateUseCase>();
+        services.AddScoped<IUseCase<ExportQuery, ExportFile>, ExportUseCase>();
         services.AddScoped<IUseCase<SignInCommand, TokenResponse>, SignInUseCase>();
         services.AddScoped<IUseCase<RefreshSessionCommand, TokenResponse>, RefreshSessionUseCase>();
         services.AddScoped<IUseCase<SignOutCommand, SignOutResponse>, SignOutUseCase>();

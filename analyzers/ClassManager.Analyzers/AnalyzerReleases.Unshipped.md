@@ -14,3 +14,4 @@ ARCH001 | Architecture | Error | CoreDependencyAnalyzer
 ARCH002 | Architecture | Error | IgnoreQueryFiltersAnalyzer
 ARCH003 | Architecture | Error | SecurityIndependenceAnalyzer
 ARCH004 | Architecture | Error | TenancyIndependenceAnalyzer
+ARCH005 | Architecture | Error | ImportExportIndependenceAnalyzer

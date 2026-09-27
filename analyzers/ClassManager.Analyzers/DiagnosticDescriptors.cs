@@ -78,4 +78,12 @@ internal static class DiagnosticDescriptors
         category: ArchitectureCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor ImportExportMustNotDependOnApplication = new(
+        id: "ARCH005",
+        title: "ImportExport must not depend on the application",
+        messageFormat: "ImportExport cannot use '{0}'; keep the engine free of business concepts and implement module profiles in Core",
+        category: ArchitectureCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

@@ -61,6 +61,13 @@ export function SettingsScreen() {
         />
         <ListDivider />
         <ListRow
+          icon="importExport"
+          label={translate("settings.importExport")}
+          detail={translate("settings.importExportHint")}
+          onPress={() => router.push(routes.importExport)}
+        />
+        <ListDivider />
+        <ListRow
           icon="business"
           label={translate("settings.business")}
           detail={business.name}

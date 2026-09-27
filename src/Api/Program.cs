@@ -39,5 +39,6 @@ app.MapSessionEndpoints();
 app.MapPrivateLessonEndpoints();
 app.MapFeeEndpoints();
 app.MapClassPackEndpoints();
+app.MapImportExportEndpoints();
 
 app.Run();

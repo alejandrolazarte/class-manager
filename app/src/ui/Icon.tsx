@@ -53,6 +53,10 @@ const iconGlyphs = {
   warning: "warning-amber",
   error: "error-outline",
   delete: "delete-outline",
+  importExport: "import-export",
+  info: "info-outline",
+  download: "file-download",
+  upload: "file-upload",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {
