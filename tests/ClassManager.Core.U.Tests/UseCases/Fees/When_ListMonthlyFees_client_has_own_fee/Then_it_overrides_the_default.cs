@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.U.Tests.UseCases.Fees.When_ListMonthlyFees_client_has_own_fee;

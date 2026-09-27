@@ -8,6 +8,8 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)' != 'ClassManager.Analyzers'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)analyzers/ClassManager.Analyzers/ClassManager.Analyzers.csproj"

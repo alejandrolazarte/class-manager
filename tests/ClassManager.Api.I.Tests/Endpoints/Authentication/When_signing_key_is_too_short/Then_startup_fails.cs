@@ -1,5 +1,4 @@
 using ClassManager.Security.Tokens;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ClassManager.Api.I.Tests.Endpoints.Authentication.When_signing_key_is_too_short;

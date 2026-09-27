@@ -1,5 +1,3 @@
-using ClassManager.Core.Domain.ClassPacks;
-
 namespace ClassManager.Core.U.Tests.Domain.ClassPacks.When_ClassPackPurchase_pack_lasts_two_months;
 
 public sealed class Then_it_expires_the_day_before_two_months_later
