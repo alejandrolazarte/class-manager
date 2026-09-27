@@ -3,6 +3,7 @@
     <RootNamespace>ClassManager.Core</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../ImportExport/ImportExport.csproj" />
     <ProjectReference Include="../Tenancy/Tenancy.csproj" />
   </ItemGroup>
 </Project>

@@ -39,6 +39,11 @@ public static class ApiRoutes
     public const string Fees = "/api/fees";
     public const string PrivateLessons = "/api/private-lessons";
     public const string PrivateLessonById = "/{privateLessonId:guid}";
+    public const string ImportExport = "/api/import-export";
+    public const string ImportModule = "/{module}";
+    public const string SchemaAction = "/schema";
+    public const string PreviewAction = "/preview";
+    public const string ImportAction = "/import";
     public const string Business = "/api/business";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";

@@ -72,7 +72,7 @@ Same columns as the import, so an export can be edited and imported into another
 | `POST` | `/api/import-export/{module}/import` | Same body → per-row result after saving |
 | `GET` | `/api/import-export/{module}/export` | CSV file `students-2026-09-29.csv` |
 
-Unknown module → 404. File too big, too many rows, unreadable file or missing required column → 400 problem details with an error code (`importFileTooLarge`, `importTooManyRows`, `importUnreadableFile`, `importEmptyFile`, `importMissingColumns`).
+Unknown module → 404. File too big, too many rows, unreadable file or missing required column → 400 problem details with an error code (`import.file_too_large`, `import.too_many_rows`, `import.unreadable_file`, `import.empty_file`, `import.missing_columns`).
 
 ```json
 POST /api/import-export/students/preview → 200
@@ -87,12 +87,12 @@ POST /api/import-export/students/preview → 200
   "rows": [
     { "line": 2, "status": "Valid", "errors": [] },
     { "line": 7, "status": "Error", "errors": [ { "key": "phone", "code": "validation", "message": "Phone number must have between 8 and 15 digits including the country code." } ] },
-    { "line": 9, "status": "Skipped", "errors": [ { "key": "studentName", "code": "studentAlreadyRegistered", "message": "The client already has a student with this name." } ] }
+    { "line": 9, "status": "Skipped", "errors": [ { "key": "studentName", "code": "student.already_registered", "message": "The client already has a student with this name." } ] }
   ]
 }
 ```
 
-`import` returns the same shape with `summary.created` instead of `valid`.
+`import` returns the same shape; its `valid` rows are the ones created. Error codes follow the repo's `area.snake_case` convention (`import.required`, `import.duplicate_in_file`, `instructor.name_taken`...). The upload is `multipart/form-data` with a `file` field; antiforgery is disabled on these endpoints because the API uses bearer tokens, not cookies, and the form body is capped at 1 MB + 64 KB so bigger uploads are rejected before reaching the parser.
 
 ## Architecture
 
@@ -105,14 +105,17 @@ src/ImportExport/            ← engine, no dependencies (ARCH005)
   ImportParser               file → mapping + ImportRow (GetText, GetDate) + cell errors (limits enforced here)
   ImportLimits, ImportFileError, ImportErrorCodes
 
-src/Core/ImportExport/       ← business side
-  Students/StudentImportProfile, StudentImportRow, StudentExportRow
-  Instructors/InstructorImportProfile, InstructorImportRow
-  PreviewImportUseCase       parse + profile validation, no save
-  ImportUseCase              parse + validation + save valid rows in one transaction
-  ExportUseCase              repository → rows → ITabularWriter
-  IImportModule              per module: columns, validate rows against the domain and the database, save them
-  ImportRowResult, ImportReport   per-row status (Valid, Error, Skipped) and summary
+src/Core/UseCases/ImportExport/   ← business side
+  IImportModule              per module: Name, Columns, PlanAsync(rows) → ImportPlan
+  ImportPlan                 per-row results + AddValidRows (adds the new entities to the repositories, no save)
+  ImportFlow                 module lookup, parse, rows with cell errors never reach the module, report
+  GetImportSchemaUseCase     module columns
+  PreviewImportUseCase       ImportFlow, nothing added or saved
+  ImportFileUseCase          ImportFlow + AddValidRows + one SaveChanges (atomic); unique violation → 409
+  ImportRowResult, ImportSummary, ImportReport, ImportUseCaseErrorCodes
+  Instructors/InstructorImportModule
+  Students/StudentImportModule          (step 3)
+  ExportUseCase                         (step 4)
 
 src/Infrastructure/          ← repository queries the modules need (clients by phone in bulk, students by client ids)
 src/Api/Endpoints/ImportExportEndpoints.cs   ← multipart upload, file results, module lookup
@@ -121,10 +124,10 @@ src/Api/Endpoints/ImportExportEndpoints.cs   ← multipart upload, file results,
 Flow of `import`:
 
 ```text
-IFormFile ─► Api ─► ImportUseCase(module, stream)
+IFormFile ─► Api ─► ImportFileUseCase(module, stream)
                       ├─ ImportParser (engine): read CSV, match headers, convert types, cell errors
-                      ├─ IImportModule.ValidateAsync (Core): domain factories, duplicates in file and in DB
-                      └─ IImportModule.SaveAsync (Core): Add valid entities, one SaveChanges in a transaction
+                      ├─ IImportModule.PlanAsync (Core): domain factories, duplicates in file and in DB
+                      └─ ImportPlan.AddValidRows + IUnitOfWork.SaveChangesAsync (one atomic save)
                                                        └─ tenant stamped by TenantStampingSaveChangesInterceptor
 ```
 
@@ -148,7 +151,7 @@ XLSX, manual column mapping, updating existing records, importing classes/enroll
 ## Steps
 
 1. ~~`src/ImportExport` + ARCH005 + CSV reader/writer + header matcher + parser, with their unit tests.~~ Done: see [import-export.md](../../import-export.md). Windows-1252 fallback and formula escaping on export were added on the way.
-2. `Core`: instructors module and use cases (the simplest module, proves the whole path), repository additions, endpoints and integration tests.
+2. ~~`Core`: instructors module and use cases (the simplest module, proves the whole path), endpoints and integration tests.~~ Done: schema, preview and import for `instructors`. No repository additions were needed (`ListAllAsync` covers duplicates).
 3. `Core`: students module, bulk repository queries, integration tests including tenant isolation.
 4. Export and template endpoints.
 5. Docs: `docs/import-export.md` (library, like `tenancy.md`), `analyzers.md`, `domain-model.md` unchanged; link from `README.md`.
