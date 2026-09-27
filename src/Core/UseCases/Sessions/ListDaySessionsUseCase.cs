@@ -3,13 +3,22 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record ListDaySessionsQuery(DateOnly? Date);
 
+public enum SessionKind
+{
+    Group,
+    Private,
+}
+
 public sealed record DaySessionResponse(
-    Guid ClassGroupId,
+    SessionKind Kind,
+    Guid? ClassGroupId,
+    Guid? PrivateLessonId,
     string ClassGroupName,
     DateOnly Date,
     string StartTime,
@@ -21,7 +30,8 @@ public sealed record DaySessionResponse(
     string? CancellationReason,
     int EnrolledCount,
     int PresentCount,
-    int AbsentCount);
+    int AbsentCount,
+    IReadOnlyList<string> StudentNames);
 
 public sealed class ListDaySessionsUseCase(
     IClassGroupRepository classGroupRepository,
@@ -29,9 +39,13 @@ public sealed class ListDaySessionsUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
+    IPrivateLessonRepository privateLessonRepository,
+    IStudentRepository studentRepository,
     IBusinessCalendarService businessCalendar)
     : IUseCase<ListDaySessionsQuery, IReadOnlyList<DaySessionResponse>>
 {
+    private const string StudentNameSeparator = ", ";
+
     private static readonly AttendanceCount NoAttendance = new(0, 0);
 
     public async Task<Result<IReadOnlyList<DaySessionResponse>>> ExecuteAsync(ListDaySessionsQuery command, CancellationToken cancellationToken)
@@ -48,15 +62,49 @@ public sealed class ListDaySessionsUseCase(
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(
             [.. sessions.Values.Select(session => session.Id)], cancellationToken);
 
-        return Result.Success<IReadOnlyList<DaySessionResponse>>(
+        var privateLessons = await privateLessonRepository.ListBetweenAsync(date, date, cancellationToken);
+        var studentNames = (await studentRepository.ListSummariesByIdsAsync(
+                [.. privateLessons.SelectMany(lesson => lesson.Students).Select(lessonStudent => lessonStudent.StudentId).Distinct()],
+                cancellationToken))
+            .ToDictionary(student => student.Id, student => student.FullName);
+
+        return Result.Success(SortByStartTime(
         [
+            .. privateLessons.Select(lesson =>
+            {
+                IReadOnlyList<string> names =
+                [
+                    .. lesson.Students
+                        .Select(lessonStudent => studentNames.GetValueOrDefault(lessonStudent.StudentId, string.Empty))
+                        .Order(StringComparer.CurrentCultureIgnoreCase),
+                ];
+                return new DaySessionResponse(
+                    SessionKind.Private,
+                    null,
+                    lesson.Id,
+                    string.Join(StudentNameSeparator, names),
+                    date,
+                    FormatTime(lesson.StartTime),
+                    FormatTime(lesson.EndTime),
+                    null,
+                    instructorNames.GetValueOrDefault(lesson.InstructorId, string.Empty),
+                    lesson.Location,
+                    lesson.IsCancelled,
+                    lesson.CancellationReason,
+                    lesson.Students.Count,
+                    lesson.Students.Count(lessonStudent => lessonStudent.Status == AttendanceStatus.Present),
+                    lesson.Students.Count(lessonStudent => lessonStudent.Status == AttendanceStatus.Absent),
+                    names);
+            }),
             .. classGroups.Select(classGroup =>
             {
                 var session = sessions.GetValueOrDefault(classGroup.Id);
                 var attendanceCount = session is null ? NoAttendance : attendanceCounts.GetValueOrDefault(session.Id, NoAttendance);
                 var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
                 return new DaySessionResponse(
+                    SessionKind.Group,
                     classGroup.Id,
+                    null,
                     classGroup.Name,
                     date,
                     FormatTime(startTime),
@@ -68,12 +116,18 @@ public sealed class ListDaySessionsUseCase(
                     session?.CancellationReason,
                     enrolledCounts.GetValueOrDefault(classGroup.Id),
                     attendanceCount.Present,
-                    attendanceCount.Absent);
-            })
+                    attendanceCount.Absent,
+                    []);
+            }),
+        ]));
+    }
+
+    private static IReadOnlyList<DaySessionResponse> SortByStartTime(IEnumerable<DaySessionResponse> sessions) =>
+    [
+        .. sessions
             .OrderBy(session => session.StartTime, StringComparer.Ordinal)
             .ThenBy(session => session.ClassGroupName, StringComparer.CurrentCultureIgnoreCase),
-        ]);
-    }
+    ];
 
     private static string FormatTime(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);
 }

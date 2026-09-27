@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.UseCases.PrivateLessons;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
@@ -9,7 +11,9 @@ public sealed record CreateClassGroupCommand(ClassGroupDetails Details);
 public sealed class CreateClassGroupUseCase(
     IInstructorRepository instructorRepository,
     IClassGroupRepository classGroupRepository,
-    IUnitOfWork unitOfWork)
+    IPrivateLessonRepository privateLessonRepository,
+    IUnitOfWork unitOfWork,
+    IBusinessCalendarService businessCalendar)
     : IUseCase<CreateClassGroupCommand, ClassGroupResponse>
 {
     public async Task<Result<ClassGroupResponse>> ExecuteAsync(CreateClassGroupCommand command, CancellationToken cancellationToken)
@@ -35,6 +39,8 @@ public sealed class CreateClassGroupUseCase(
 
         var conflict = await ClassGroupRules.FindInstructorConflictAsync(
             classGroupRepository, instructor.Value.Id, classGroup.Value!.Id, schedule.Value!, cancellationToken);
+        conflict ??= await InstructorAgendaRules.FindWeeklyPrivateLessonConflictAsync(
+            privateLessonRepository, instructor.Value.Id, schedule.Value!, await businessCalendar.TodayAsync(cancellationToken), cancellationToken);
         if (conflict is not null)
         {
             return conflict;

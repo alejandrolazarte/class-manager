@@ -9,6 +9,7 @@ namespace ClassManager.Core.Services;
 public sealed class ClassBalanceService(
     IClassPackPurchaseRepository purchaseRepository,
     IAttendanceRepository attendanceRepository,
+    IPrivateLessonRepository privateLessonRepository,
     IFeeScheduleRepository feeScheduleRepository,
     IBusinessCalendarService businessCalendar)
     : IClassBalanceService
@@ -22,7 +23,11 @@ public sealed class ClassBalanceService(
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var purchases = await purchaseRepository.ListByClientsAsync(clientIds, cancellationToken);
-        var attendedClasses = await attendanceRepository.ListAttendedClassesByClientsAsync(clientIds, cancellationToken);
+        IReadOnlyList<ClientAttendedClass> attendedClasses =
+        [
+            .. await attendanceRepository.ListAttendedClassesByClientsAsync(clientIds, cancellationToken),
+            .. await privateLessonRepository.ListAttendedClassesByClientsAsync(clientIds, cancellationToken),
+        ];
         var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync(clientIds, cancellationToken);
 
         return clientIds.Distinct().ToDictionary(

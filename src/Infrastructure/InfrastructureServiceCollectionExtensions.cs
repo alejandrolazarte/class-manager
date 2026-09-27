@@ -49,6 +49,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IFeeScheduleRepository, FeeScheduleRepository>();
         services.AddScoped<IClassPackRepository, ClassPackRepository>();
         services.AddScoped<IClassPackPurchaseRepository, ClassPackPurchaseRepository>();
+        services.AddScoped<IPrivateLessonRepository, PrivateLessonRepository>();
 
         return services.AddSecurity();
     }

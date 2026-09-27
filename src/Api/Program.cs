@@ -36,6 +36,7 @@ app.MapInstructorEndpoints();
 app.MapClassGroupEndpoints();
 app.MapEnrollmentEndpoints();
 app.MapSessionEndpoints();
+app.MapPrivateLessonEndpoints();
 app.MapFeeEndpoints();
 app.MapClassPackEndpoints();
 

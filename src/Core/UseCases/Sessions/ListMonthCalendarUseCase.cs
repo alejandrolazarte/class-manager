@@ -16,6 +16,7 @@ public sealed class ListMonthCalendarUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
+    IPrivateLessonRepository privateLessonRepository,
     IBusinessCalendarService businessCalendar)
     : IUseCase<ListMonthCalendarQuery, MonthCalendarResponse>
 {
@@ -40,18 +41,23 @@ public sealed class ListMonthCalendarUseCase(
             .ToDictionary(session => (session.ClassGroupId, session.Date));
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(
             [.. sessions.Values.Select(session => session.Id)], cancellationToken);
+        var privateLessonsByDate = (await privateLessonRepository.ListBetweenAsync(firstDay, lastDay, cancellationToken))
+            .ToLookup(lesson => lesson.Date);
 
         var days = new List<CalendarDayResponse>();
         for (var date = firstDay; date <= lastDay; date = date.AddDays(1))
         {
             var dayClassGroups = classGroups.Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)).ToList();
-            if (dayClassGroups.Count == 0)
+            var dayPrivateLessons = privateLessonsByDate[date].ToList();
+            if (dayClassGroups.Count == 0 && dayPrivateLessons.Count == 0)
             {
                 continue;
             }
 
-            var cancelledCount = 0;
-            var pendingAttendanceCount = 0;
+            var cancelledCount = dayPrivateLessons.Count(lesson => lesson.IsCancelled);
+            var pendingAttendanceCount = date < today
+                ? dayPrivateLessons.Count(lesson => !lesson.IsCancelled && lesson.Students.Any(lessonStudent => lessonStudent.Status is null))
+                : 0;
             foreach (var classGroup in dayClassGroups)
             {
                 var session = sessions.GetValueOrDefault((classGroup.Id, date));
@@ -69,7 +75,7 @@ public sealed class ListMonthCalendarUseCase(
                 }
             }
 
-            days.Add(new CalendarDayResponse(date, dayClassGroups.Count, cancelledCount, pendingAttendanceCount));
+            days.Add(new CalendarDayResponse(date, dayClassGroups.Count + dayPrivateLessons.Count, cancelledCount, pendingAttendanceCount));
         }
 
         return new MonthCalendarResponse(month.Value.ToString(), days);
