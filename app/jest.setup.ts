@@ -9,6 +9,14 @@ jest.mock("expo-router", () => {
     "./src/testing/expoRouterMock",
   );
   return {
+    DarkTheme: jest.requireActual("expo-router/build/react-navigation/native/theming/DarkTheme")
+      .DarkTheme,
+    DefaultTheme: jest.requireActual(
+      "expo-router/build/react-navigation/native/theming/DefaultTheme",
+    ).DefaultTheme,
+    ThemeProvider: jest.requireActual(
+      "expo-router/build/react-navigation/core/theming/ThemeProvider",
+    ).ThemeProvider,
     Redirect: RedirectMock,
     useRouter: () => routerMock,
     router: routerMock,
