@@ -10,7 +10,7 @@ import {
   toSellClassPackRequest,
 } from "@/features/classPacks/sellClassPackSchema";
 import { useSellClassPack } from "@/features/classPacks/useClassPackMutations";
-import { useClassPacks } from "@/features/classPacks/useClassPacks";
+import { useClassBalance, useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatMoney, toAmountText } from "@/features/fees/money";
 import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
@@ -28,6 +28,7 @@ import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
+import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -51,10 +52,24 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
       method: "Cash",
       purchasedOn: formatBirthDateForDisplay(todayIsoDate()),
       notes: "",
+      trialLessonId: "",
     },
     mode: "onTouched",
   });
   const selectedClassPackId = useWatch({ control: form.control, name: "classPackId" });
+  const selectedTrialLessonId = useWatch({ control: form.control, name: "trialLessonId" });
+  const { data: balance } = useClassBalance(clientId);
+  const deductibleTrials = balance?.deductibleTrials ?? [];
+
+  const applyPrice = (classPackId: string, trialLessonId: string) => {
+    const classPack = classPacks.find((candidate) => candidate.id === classPackId);
+    if (classPack === undefined) {
+      return;
+    }
+    const trialPrice =
+      deductibleTrials.find((trial) => trial.privateLessonId === trialLessonId)?.trialPrice ?? 0;
+    form.setValue("price", toAmountText(classPack.price - trialPrice));
+  };
 
   const sell = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -109,7 +124,7 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
                   isSelected={field.value === classPack.id}
                   onPress={() => {
                     field.onChange(classPack.id);
-                    form.setValue("price", toAmountText(classPack.price));
+                    applyPrice(classPack.id, selectedTrialLessonId);
                   }}
                 />
               ))}
@@ -126,6 +141,35 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
           </View>
         )}
       />
+      {deductibleTrials.length > 0 ? (
+        <Controller
+          control={form.control}
+          name="trialLessonId"
+          render={({ field }) => (
+            <View className="gap-2">
+              {deductibleTrials.map((trial) => {
+                const isSelected = field.value === trial.privateLessonId;
+                return (
+                  <ToggleSwitch
+                    key={trial.privateLessonId}
+                    label={translate("classPacks.sell.deductTrial", {
+                      date: formatBirthDateForDisplay(trial.date),
+                      student: trial.studentFullName,
+                      amount: formatMoney(trial.trialPrice, currencyCode),
+                    })}
+                    value={isSelected}
+                    onValueChange={(shouldDeduct) => {
+                      const trialLessonId = shouldDeduct ? trial.privateLessonId : "";
+                      field.onChange(trialLessonId);
+                      applyPrice(selectedClassPackId, trialLessonId);
+                    }}
+                  />
+                );
+              })}
+            </View>
+          )}
+        />
+      ) : null}
       <Controller
         control={form.control}
         name="price"

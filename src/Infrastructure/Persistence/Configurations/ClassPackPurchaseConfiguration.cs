@@ -12,6 +12,11 @@ internal sealed class ClassPackPurchaseConfiguration : IEntityTypeConfiguration<
         builder.Property(purchase => purchase.Id).ValueGeneratedNever();
         builder.Property(purchase => purchase.Name).HasMaxLength(ClassPack.NameMaxLength).IsRequired();
         builder.Property(purchase => purchase.Price).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
+        builder.Property(purchase => purchase.MaterialUrl).HasMaxLength(ClassPack.MaterialUrlMaxLength);
+        builder.HasOne<PrivateLesson>().WithMany().HasForeignKey(purchase => purchase.TrialLessonId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(purchase => new { purchase.TenantId, purchase.TrialLessonId })
+            .IsUnique()
+            .HasFilter("[TrialLessonId] IS NOT NULL");
         builder.Property(purchase => purchase.Method).HasConversion<string>().HasMaxLength(MethodMaxLength);
         builder.Property(purchase => purchase.Notes).HasMaxLength(ClassPackPurchase.NotesMaxLength);
 

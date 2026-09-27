@@ -52,6 +52,8 @@ describe("When private lesson is scheduled weekly", () => {
         location: null,
         notes: null,
         repeatWeeks: 10,
+        isTrial: false,
+        trialPrice: null,
       }),
     );
   });

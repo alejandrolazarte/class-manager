@@ -7,23 +7,38 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record SellClassPackRequest(Guid? ClassPackId, decimal? Price, DateOnly? PurchasedOn, PaymentMethod? Method, string? Notes)
+public sealed record SellClassPackRequest(
+    Guid? ClassPackId,
+    decimal? Price,
+    DateOnly? PurchasedOn,
+    PaymentMethod? Method,
+    string? Notes,
+    Guid? TrialLessonId = null)
 {
-    public SellClassPackCommand ToCommand(Guid clientId) => new(clientId, ClassPackId, Price, PurchasedOn, Method, Notes);
+    public SellClassPackCommand ToCommand(Guid clientId) => new(clientId, ClassPackId, Price, PurchasedOn, Method, Notes, TrialLessonId);
 }
 
-public sealed record SellClassPackCommand(Guid ClientId, Guid? ClassPackId, decimal? Price, DateOnly? PurchasedOn, PaymentMethod? Method, string? Notes);
+public sealed record SellClassPackCommand(
+    Guid ClientId,
+    Guid? ClassPackId,
+    decimal? Price,
+    DateOnly? PurchasedOn,
+    PaymentMethod? Method,
+    string? Notes,
+    Guid? TrialLessonId = null);
 
 public sealed class SellClassPackUseCase(
     IClientRepository clientRepository,
     IClassPackRepository classPackRepository,
     IClassPackPurchaseRepository purchaseRepository,
+    IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider)
     : IUseCase<SellClassPackCommand, ClassPackPurchaseResponse>
 {
     private const string ClientNotFoundMessage = "The client does not exist.";
+    private const string TrialNotDeductibleMessage = "That trial class can't be deducted from this sale.";
 
     public async Task<Result<ClassPackPurchaseResponse>> ExecuteAsync(SellClassPackCommand command, CancellationToken cancellationToken)
     {
@@ -52,9 +67,35 @@ public sealed class SellClassPackUseCase(
             return purchase.Error!;
         }
 
+        if (command.TrialLessonId is not null)
+        {
+            if (!await IsDeductibleTrialAsync(client.Id, command.TrialLessonId.Value, cancellationToken))
+            {
+                return Result.Validation<ClassPackPurchaseResponse>(
+                    TrialNotDeductibleMessage, ClassPackErrorCodes.TrialNotDeductible, nameof(SellClassPackCommand.TrialLessonId));
+            }
+
+            purchase.Value!.DeductTrial(command.TrialLessonId.Value);
+        }
+
         purchaseRepository.Add(purchase.Value!);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (UniqueConstraintViolationException)
+        {
+            return Result.Validation<ClassPackPurchaseResponse>(
+                TrialNotDeductibleMessage, ClassPackErrorCodes.TrialNotDeductible, nameof(SellClassPackCommand.TrialLessonId));
+        }
 
         return ClassPackPurchaseResponse.From(purchase.Value!);
+    }
+
+    private async Task<bool> IsDeductibleTrialAsync(Guid clientId, Guid trialLessonId, CancellationToken cancellationToken)
+    {
+        var paidTrials = await privateLessonRepository.ListPaidTrialsByClientAsync(clientId, cancellationToken);
+        return paidTrials.Any(trial => trial.PrivateLessonId == trialLessonId)
+            && !await purchaseRepository.IsTrialDeductedAsync(trialLessonId, cancellationToken);
     }
 }

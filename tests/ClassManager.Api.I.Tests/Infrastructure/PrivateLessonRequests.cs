@@ -12,10 +12,12 @@ public static class PrivateLessonRequests
         Guid studentId,
         DateOnly date,
         string startTime = "10:00",
-        int repeatWeeks = 1) =>
+        int repeatWeeks = 1,
+        decimal? trialPrice = null) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.PrivateLessons,
-            new SchedulePrivateLessonCommand(instructorId, [studentId], date, startTime, 45, "Piscina Alboraya", null, repeatWeeks),
+            new SchedulePrivateLessonCommand(
+                instructorId, [studentId], date, startTime, 45, "Piscina Alboraya", null, repeatWeeks, trialPrice is not null, trialPrice),
             ApiRequests.JsonOptions);
 
     public static async Task<PrivateLessonResponse> SchedulePrivateLessonAsync(
@@ -23,9 +25,10 @@ public static class PrivateLessonRequests
         Guid instructorId,
         Guid studentId,
         DateOnly date,
-        string startTime = "10:00")
+        string startTime = "10:00",
+        decimal? trialPrice = null)
     {
-        using var response = await httpClient.PostPrivateLessonAsync(instructorId, studentId, date, startTime);
+        using var response = await httpClient.PostPrivateLessonAsync(instructorId, studentId, date, startTime, trialPrice: trialPrice);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<List<PrivateLessonResponse>>(ApiRequests.JsonOptions))![0];
     }

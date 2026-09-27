@@ -492,5 +492,19 @@
   "privateLessons.deleted": "Clase borrada",
   "privateLessons.lockedByAttendance": "Ya tomaste asistencia; borrá las marcas para moverla o cancelarla",
   "privateLessons.notFound": "No encontramos esta clase",
-  "privateLessons.withCoach": "Particular con {coach}"
+  "privateLessons.withCoach": "Particular con {coach}",
+  "classPacks.form.classDuration": "Duración de cada clase",
+  "classPacks.form.noFixedDuration": "Sin fijar",
+  "classPacks.form.materialUrl": "Link al material (opcional)",
+  "classPacks.form.materialUrlPlaceholder": "https://… (PDF, video, Drive)",
+  "classPacks.validation.materialUrlInvalid": "Pegá un link que empiece con https://",
+  "classPacks.list.duration": "{minutes} min",
+  "classPacks.balance.material": "Ver material del curso",
+  "classPacks.balance.openMaterial": "Abrir material de {name}",
+  "classPacks.sell.deductTrial": "Descontar la prueba del {date} ({student}): −{amount}",
+  "privateLessons.trial": "Prueba",
+  "privateLessons.form.isTrial": "Es una clase de prueba",
+  "privateLessons.form.trialPrice": "Precio de la prueba (vacío si es gratis)",
+  "privateLessons.trialFree": "Clase de prueba gratis",
+  "privateLessons.trialPaid": "Clase de prueba · {price}"
 }

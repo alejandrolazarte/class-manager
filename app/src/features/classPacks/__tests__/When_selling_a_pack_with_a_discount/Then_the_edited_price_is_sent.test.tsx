@@ -23,6 +23,9 @@ describe("When selling a pack with a discount", () => {
       expiresOn: "2026-11-04",
       method: "Cash",
       notes: null,
+      classDurationMinutes: null,
+      materialUrl: null,
+      trialLessonId: null,
     });
   });
 

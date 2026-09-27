@@ -1,7 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { getStringExtension } from "@/api/problemDetails";
@@ -9,6 +10,8 @@ import { commonDurationsInMinutes } from "@/features/classGroups/classGroupSchem
 import { formatStartTimeAsTyped } from "@/features/classGroups/startTimeFormatting";
 import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
+import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
+import { getClassBalance } from "@/features/classPacks/classPacksApi";
 import { LessonStudentPicker } from "@/features/privateLessons/components/LessonStudentPicker";
 import {
   conflictingDateExtension,
@@ -18,6 +21,7 @@ import {
   privateLessonFieldNames,
   PrivateLessonFormValues,
   privateLessonLimits,
+  LessonStudent,
   privateLessonSchema,
   toPrivateLessonDetails,
   toPrivateLessonFormValues,
@@ -43,6 +47,7 @@ import { Chip } from "@/ui/Chip";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { NumberStepper } from "@/ui/NumberStepper";
 import { TextField } from "@/ui/TextField";
+import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
 
 const badRequestStatus = 400;
@@ -96,6 +101,32 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
     mode: "onTouched",
   });
   const { control } = form;
+  const queryClient = useQueryClient();
+  const isTrial = useWatch({ control, name: "isTrial" });
+
+  const applyFamilyPackDuration = async (student: LessonStudent) => {
+    if (
+      isEditing ||
+      form.getValues("students").length > 1 ||
+      form.getFieldState("durationMinutes").isDirty
+    ) {
+      return;
+    }
+    try {
+      const balance = await queryClient.fetchQuery({
+        queryKey: classPackQueryKeys.balance(student.clientId),
+        queryFn: () => getClassBalance(student.clientId),
+      });
+      const packDuration = balance.purchases.find(
+        (usage) => usage.status === "Active" && usage.classDurationMinutes !== null,
+      )?.classDurationMinutes;
+      if (packDuration) {
+        form.setValue("durationMinutes", String(packDuration));
+      }
+    } catch {
+      return;
+    }
+  };
 
   const handleSaveError = (saveError: unknown) => {
     if (isApiError(saveError) && saveError.hasCode(privateLessonErrorCodes.instructorBusy)) {
@@ -155,6 +186,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
           <LessonStudentPicker
             students={field.value}
             onChange={field.onChange}
+            onStudentAdded={applyFamilyPackDuration}
             errorMessage={fieldState.error?.message}
             isReadOnly={isEditing}
           />
@@ -274,6 +306,33 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
           />
         )}
       />
+      <Controller
+        control={control}
+        name="isTrial"
+        render={({ field }) => (
+          <ToggleSwitch
+            label={translate("privateLessons.form.isTrial")}
+            value={field.value}
+            onValueChange={field.onChange}
+          />
+        )}
+      />
+      {isTrial ? (
+        <Controller
+          control={control}
+          name="trialPrice"
+          render={({ field, fieldState }) => (
+            <TextField
+              label={translate("privateLessons.form.trialPrice")}
+              keyboardType="decimal-pad"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              errorMessage={fieldState.error?.message}
+            />
+          )}
+        />
+      ) : null}
       {isEditing ? null : (
         <Controller
           control={control}

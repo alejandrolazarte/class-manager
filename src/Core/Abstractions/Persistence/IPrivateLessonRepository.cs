@@ -21,5 +21,7 @@ public interface IPrivateLessonRepository
 
     Task<IReadOnlyList<PrivateLesson>> ListByInstructorFromAsync(Guid instructorId, DateOnly firstDate, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<PaidTrialLesson>> ListPaidTrialsByClientAsync(Guid clientId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 }
