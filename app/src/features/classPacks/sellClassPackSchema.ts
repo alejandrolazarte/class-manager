@@ -19,6 +19,7 @@ export const sellClassPackSchema = z.object({
       translate("fees.validation.paidOnInvalid"),
     ),
   notes: z.string().max(notesMaximumLength, translate("fees.validation.notesTooLong")),
+  trialLessonId: z.string(),
 });
 
 export type SellClassPackFormValues = z.input<typeof sellClassPackSchema>;
@@ -31,5 +32,6 @@ export function toSellClassPackRequest(formValues: SellClassPackFormValues): Sel
     purchasedOn: parseBirthDate(formValues.purchasedOn) ?? "",
     method: formValues.method,
     notes: notes.length > 0 ? notes : null,
+    trialLessonId: formValues.trialLessonId.length > 0 ? formValues.trialLessonId : null,
   };
 }

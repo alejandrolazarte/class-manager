@@ -21,6 +21,9 @@ internal sealed class ClassPackPurchaseRepository(AppDbContext context) : IClass
             .ToListAsync(cancellationToken);
     }
 
+    public Task<bool> IsTrialDeductedAsync(Guid trialLessonId, CancellationToken cancellationToken) =>
+        context.ClassPackPurchases.AsNoTracking().AnyAsync(purchase => purchase.TrialLessonId == trialLessonId, cancellationToken);
+
     public async Task<decimal> SumPriceBetweenAsync(DateOnly firstDay, DateOnly lastDay, CancellationToken cancellationToken) =>
         await context.ClassPackPurchases.AsNoTracking()
             .Where(purchase => purchase.PurchasedOn >= firstDay && purchase.PurchasedOn <= lastDay)

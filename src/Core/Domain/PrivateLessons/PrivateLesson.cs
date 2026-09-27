@@ -1,5 +1,6 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
 using ClassManager.Tenancy;
 
@@ -21,6 +22,7 @@ public sealed class PrivateLesson : ITenantOwned
     private const string CancelledMessage = "The lesson is cancelled.";
     private const string StudentNotInLessonMessage = "The student isn't in this lesson.";
     private const string StudentIdsFieldName = "StudentIds";
+    private const string TrialPriceWithoutTrialMessage = "Only a trial class has a trial price.";
     private const int MinutesPerHour = 60;
 
     private readonly List<PrivateLessonStudent> _students = [];
@@ -40,6 +42,8 @@ public sealed class PrivateLesson : ITenantOwned
     public bool IsCancelled { get; private set; }
     public string? CancellationReason { get; private set; }
     public Guid? SeriesId { get; private set; }
+    public bool IsTrial { get; private set; }
+    public decimal? TrialPrice { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public IReadOnlyList<PrivateLessonStudent> Students => _students;
 
@@ -126,6 +130,27 @@ public sealed class PrivateLesson : ITenantOwned
         }
 
         lessonStudent.Mark(status);
+        return Result.Success();
+    }
+
+    public Result SetTrial(bool isTrial, decimal? trialPrice)
+    {
+        if (!isTrial && trialPrice is not null)
+        {
+            return Result.Validation(TrialPriceWithoutTrialMessage, fieldName: nameof(TrialPrice));
+        }
+
+        if (trialPrice is not null and not 0)
+        {
+            var priceValidation = MonthlyFee.Validate(trialPrice.Value, nameof(TrialPrice));
+            if (priceValidation.IsFailure)
+            {
+                return priceValidation;
+            }
+        }
+
+        IsTrial = isTrial;
+        TrialPrice = trialPrice is 0 ? null : trialPrice;
         return Result.Success();
     }
 

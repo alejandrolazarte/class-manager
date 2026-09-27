@@ -36,6 +36,7 @@ export function buildDaySession(overrides: Partial<DaySession> = {}): DaySession
     classGroupId: "0192f0d2-0000-7000-8000-000000000001",
     privateLessonId: null,
     studentNames: [],
+    isTrial: false,
     classGroupName: "Natación inicial",
     date: sessionDate,
     startTime: "18:00",

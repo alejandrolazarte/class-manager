@@ -18,10 +18,11 @@ public static class ClassPackRequests
         return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> PostClassPackSaleAsync(this HttpClient httpClient, Guid clientId, Guid classPackId, decimal? price = null) =>
+    public static Task<HttpResponseMessage> PostClassPackSaleAsync(
+        this HttpClient httpClient, Guid clientId, Guid classPackId, decimal? price = null, Guid? trialLessonId = null) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.ClassPackPurchasesSegment}",
-            new SellClassPackRequest(classPackId, price, null, PaymentMethod.Cash, null),
+            new SellClassPackRequest(classPackId, price, null, PaymentMethod.Cash, null, trialLessonId),
             ApiRequests.JsonOptions);
 
     public static async Task<ClassPackPurchaseResponse> SellClassPackAsync(this HttpClient httpClient, Guid clientId, Guid classPackId)

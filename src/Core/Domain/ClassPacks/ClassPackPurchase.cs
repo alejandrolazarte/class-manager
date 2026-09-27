@@ -28,6 +28,9 @@ public sealed class ClassPackPurchase : ITenantOwned
     public DateOnly? ExpiresOn { get; private set; }
     public PaymentMethod Method { get; private set; }
     public string? Notes { get; private set; }
+    public int? ClassDurationMinutes { get; private set; }
+    public string? MaterialUrl { get; private set; }
+    public Guid? TrialLessonId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static Result<ClassPackPurchase> Sell(
@@ -80,9 +83,13 @@ public sealed class ClassPackPurchase : ITenantOwned
             ExpiresOn = pack.ValidityMonths is null ? null : purchasedOn.AddMonths(pack.ValidityMonths.Value).AddDays(-1),
             Method = method.Value,
             Notes = trimmedNotes,
+            ClassDurationMinutes = pack.ClassDurationMinutes,
+            MaterialUrl = pack.MaterialUrl,
             CreatedAt = createdAt.ToUniversalTime(),
         };
     }
+
+    public void DeductTrial(Guid trialLessonId) => TrialLessonId = trialLessonId;
 
     public bool IsValidOn(DateOnly date) => ExpiresOn is null || ExpiresOn >= date;
 }

@@ -146,11 +146,18 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<int>("ClassCount")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ClassDurationMinutes")
+                        .HasColumnType("int");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<string>("MaterialUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -183,6 +190,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<int>("ClassCount")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ClassDurationMinutes")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("ClassPackId")
                         .HasColumnType("uniqueidentifier");
 
@@ -194,6 +204,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateOnly?>("ExpiresOn")
                         .HasColumnType("date");
+
+                    b.Property<string>("MaterialUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Method")
                         .IsRequired()
@@ -219,15 +233,24 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("TrialLessonId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClassPackId");
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("TrialLessonId");
+
                     b.HasIndex("TenantId", "ClientId");
 
                     b.HasIndex("TenantId", "PurchasedOn");
+
+                    b.HasIndex("TenantId", "TrialLessonId")
+                        .IsUnique()
+                        .HasFilter("[TrialLessonId] IS NOT NULL");
 
                     b.ToTable("ClassPackPurchases");
                 });
@@ -467,6 +490,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsCancelled")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsTrial")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Location")
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
@@ -483,6 +509,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("TrialPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
 
                     b.HasKey("Id");
 
@@ -687,6 +717,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.PrivateLessons.PrivateLesson", null)
+                        .WithMany()
+                        .HasForeignKey("TrialLessonId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.Client", b =>

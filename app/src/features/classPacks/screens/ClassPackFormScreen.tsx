@@ -23,7 +23,10 @@ import { SettingsItemState } from "@/features/settings/components/SettingsItemSt
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate, TranslationKey } from "@/i18n/translate";
+import { commonDurationsInMinutes } from "@/features/classGroups/classGroupSchema";
+import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
+import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
@@ -41,7 +44,7 @@ interface ClassPackFieldOptions {
   name: keyof ClassPackFormValues;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
-  keyboardType?: "default" | "number-pad" | "decimal-pad";
+  keyboardType?: "default" | "number-pad" | "decimal-pad" | "url";
 }
 
 function ClassPackEditor({ classPack }: ClassPackEditorProps) {
@@ -107,6 +110,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           label={translate(labelKey)}
           placeholder={placeholderKey ? translate(placeholderKey) : undefined}
           keyboardType={keyboardType}
+          autoCapitalize={keyboardType === "url" ? "none" : undefined}
           value={field.value}
           onChangeText={field.onChange}
           onBlur={field.onBlur}
@@ -142,6 +146,38 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         labelKey: "classPacks.form.validityMonths",
         placeholderKey: "classPacks.form.validityPlaceholder",
         keyboardType: "number-pad",
+      })}
+      <Controller
+        control={form.control}
+        name="classDurationMinutes"
+        render={({ field }) => (
+          <View className="gap-2">
+            <AppText variant="label" tone="muted">
+              {translate("classPacks.form.classDuration")}
+            </AppText>
+            <View className="flex-row flex-wrap gap-2">
+              <Chip
+                label={translate("classPacks.form.noFixedDuration")}
+                isSelected={field.value.length === 0}
+                onPress={() => field.onChange("")}
+              />
+              {commonDurationsInMinutes.map((durationMinutes) => (
+                <Chip
+                  key={durationMinutes}
+                  label={translate("classGroups.form.durationOption", { minutes: durationMinutes })}
+                  isSelected={field.value === String(durationMinutes)}
+                  onPress={() => field.onChange(String(durationMinutes))}
+                />
+              ))}
+            </View>
+          </View>
+        )}
+      />
+      {renderField({
+        name: "materialUrl",
+        labelKey: "classPacks.form.materialUrl",
+        placeholderKey: "classPacks.form.materialUrlPlaceholder",
+        keyboardType: "url",
       })}
       <View className="gap-3">
         <Button

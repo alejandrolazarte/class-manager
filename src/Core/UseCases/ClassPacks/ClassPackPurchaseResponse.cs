@@ -12,8 +12,23 @@ public sealed record ClassPackPurchaseResponse(
     DateOnly PurchasedOn,
     DateOnly? ExpiresOn,
     PaymentMethod Method,
-    string? Notes)
+    string? Notes,
+    int? ClassDurationMinutes,
+    string? MaterialUrl,
+    Guid? TrialLessonId)
 {
     public static ClassPackPurchaseResponse From(ClassPackPurchase purchase) =>
-        new(purchase.Id, purchase.ClientId, purchase.Name, purchase.ClassCount, purchase.Price, purchase.PurchasedOn, purchase.ExpiresOn, purchase.Method, purchase.Notes);
+        new(
+            purchase.Id,
+            purchase.ClientId,
+            purchase.Name,
+            purchase.ClassCount,
+            purchase.Price,
+            purchase.PurchasedOn,
+            purchase.ExpiresOn,
+            purchase.Method,
+            purchase.Notes,
+            purchase.ClassDurationMinutes,
+            purchase.MaterialUrl,
+            purchase.TrialLessonId);
 }
