@@ -75,10 +75,10 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
             where enrollment.StartDate <= periodEnd && (enrollment.EndDate == null || enrollment.EndDate >= periodStart)
             join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
-            select new { client.Id, client.FullName, client.PhoneNumber, client.MonthlyFee, StudentFullName = student.FullName })
+            select new { client.Id, client.FullName, client.PhoneNumber, StudentFullName = student.FullName })
             .ToListAsync(cancellationToken);
 
-        return [.. rows.Select(row => new EnrolledStudentInPeriod(row.Id, row.FullName, row.PhoneNumber.Value, row.MonthlyFee, row.StudentFullName))];
+        return [.. rows.Select(row => new EnrolledStudentInPeriod(row.Id, row.FullName, row.PhoneNumber.Value, row.StudentFullName))];
     }
 
     public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(Guid studentId, DateOnly today, CancellationToken cancellationToken) =>

@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 
@@ -6,7 +7,11 @@ namespace ClassManager.Core.UseCases.Clients;
 
 public sealed record GetClientQuery(Guid ClientId);
 
-public sealed class GetClientUseCase(IClientRepository clientRepository, IStudentRepository studentRepository)
+public sealed class GetClientUseCase(
+    IClientRepository clientRepository,
+    IStudentRepository studentRepository,
+    IFeeScheduleRepository feeScheduleRepository,
+    IBusinessCalendarService businessCalendar)
     : IUseCase<GetClientQuery, ClientDetailsResponse>
 {
     private const string NotFoundMessage = "The client does not exist.";
@@ -20,7 +25,9 @@ public sealed class GetClientUseCase(IClientRepository clientRepository, IStuden
         }
 
         var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
+        var billingPlanChanges = await feeScheduleRepository.ListClientPlanChangesAsync([client.Id], cancellationToken);
+        var today = await businessCalendar.TodayAsync(cancellationToken);
 
-        return ClientDetailsResponse.From(client, students);
+        return ClientDetailsResponse.From(client, students, billingPlanChanges, today);
     }
 }

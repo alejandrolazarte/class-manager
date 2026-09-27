@@ -194,7 +194,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await mark(beginners.id, studentId(sofia, "Mateo Martínez"), "Absent");
   await mark(advanced.id, studentId(diego, "Valentina Fernández"), "Present");
 
-  await send("PUT", `/api/clients/${sofia.id}/monthly-fee`, { amount: 40000 });
+  await send("PUT", `/api/clients/${sofia.id}/billing-plan`, { kind: "CustomFee", customFee: 40000 });
   const pay = (clientId: string, amount: number, method: string) =>
     send("POST", `/api/clients/${clientId}/payments`, {
       amount,

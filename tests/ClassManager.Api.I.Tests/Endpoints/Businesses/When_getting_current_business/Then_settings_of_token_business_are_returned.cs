@@ -15,11 +15,13 @@ public sealed class Then_settings_of_token_business_are_returned(ApiFixture fixt
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var settings = await response.Content.ReadFromJsonAsync<BusinessResponse>(ApiRequests.JsonOptions);
+        settings!.DefaultMonthlyFeeChanges.ShouldBeEmpty();
         settings.ShouldBe(new BusinessResponse(
             business.Business.Name,
             business.Business.TimeZoneId,
             business.Business.CurrencyCode,
             business.Business.DefaultCountryCallingCode,
-            DefaultMonthlyFee: null));
+            DefaultMonthlyFee: null,
+            settings.DefaultMonthlyFeeChanges));
     }
 }

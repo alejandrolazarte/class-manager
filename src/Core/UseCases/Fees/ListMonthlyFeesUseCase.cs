@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
@@ -17,16 +18,28 @@ public sealed record ClientFeeResponse(
     decimal Balance,
     FeeStatus Status);
 
+public sealed record ClassPackClientResponse(
+    Guid ClientId,
+    string ClientFullName,
+    string ClientPhoneNumber,
+    IReadOnlyList<string> StudentNames,
+    int AvailableClasses,
+    int UnpaidClasses);
+
 public sealed record MonthlyFeesResponse(
     string Month,
     decimal TotalDue,
     decimal TotalPaid,
-    IReadOnlyList<ClientFeeResponse> Clients);
+    IReadOnlyList<ClientFeeResponse> Clients,
+    decimal ClassPackSales,
+    IReadOnlyList<ClassPackClientResponse> ClassPackClients);
 
 public sealed class ListMonthlyFeesUseCase(
-    IBusinessRepository businessRepository,
     IEnrollmentRepository enrollmentRepository,
     IPaymentRepository paymentRepository,
+    IFeeScheduleRepository feeScheduleRepository,
+    IClassBalanceService classBalanceService,
+    IClassPackPurchaseRepository classPackPurchaseRepository,
     IBusinessCalendarService businessCalendar)
     : IUseCase<ListMonthlyFeesQuery, MonthlyFeesResponse>
 {
@@ -40,36 +53,91 @@ public sealed class ListMonthlyFeesUseCase(
             return month.Error!;
         }
 
-        var business = await businessRepository.GetCurrentAsync(cancellationToken);
         var enrolledStudents = await enrollmentRepository.ListEnrolledInPeriodAsync(month.Value!.FirstDay, month.Value.LastDay, cancellationToken);
-        var paidByClient = await paymentRepository.SumByClientForMonthAsync(month.Value.FirstDay, cancellationToken);
-
-        var clients = enrolledStudents
+        var enrolledClients = enrolledStudents
             .GroupBy(student => student.ClientId)
-            .Select(clientStudents =>
+            .Select(clientStudents => new EnrolledClient(
+                clientStudents.First(),
+                [.. clientStudents.Select(student => student.StudentFullName).Distinct().Order(StringComparer.CurrentCultureIgnoreCase)]))
+            .ToList();
+        var clientIds = enrolledClients.Select(enrolledClient => enrolledClient.Row.ClientId).ToList();
+
+        var defaultFee = FeeTimeline.DefaultFeeIn(await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken), month.Value);
+        var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync(clientIds, cancellationToken);
+        var planByClient = enrolledClients.ToDictionary(
+            enrolledClient => enrolledClient.Row.ClientId,
+            enrolledClient => FeeTimeline.PlanIn(planChanges.Where(change => change.ClientId == enrolledClient.Row.ClientId), month.Value));
+
+        var monthlyClients = await ListMonthlyClientsAsync(
+            enrolledClients.Where(enrolledClient => !planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
+            planByClient,
+            defaultFee,
+            month.Value,
+            cancellationToken);
+        var classPackClients = await ListClassPackClientsAsync(
+            enrolledClients.Where(enrolledClient => planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
+            cancellationToken);
+        var classPackSales = await classPackPurchaseRepository.SumPriceBetweenAsync(month.Value.FirstDay, month.Value.LastDay, cancellationToken);
+
+        return new MonthlyFeesResponse(
+            month.Value.ToString(),
+            monthlyClients.Sum(client => client.Fee ?? 0),
+            monthlyClients.Sum(client => client.Paid),
+            monthlyClients,
+            classPackSales,
+            classPackClients);
+    }
+
+    private async Task<IReadOnlyList<ClientFeeResponse>> ListMonthlyClientsAsync(
+        IReadOnlyList<EnrolledClient> enrolledClients,
+        Dictionary<Guid, BillingPlan> planByClient,
+        decimal? defaultFee,
+        BillingMonth month,
+        CancellationToken cancellationToken)
+    {
+        var paidByClient = await paymentRepository.SumByClientForMonthAsync(month.FirstDay, cancellationToken);
+
+        return [.. enrolledClients
+            .Select(enrolledClient =>
             {
-                var client = clientStudents.First();
-                var fee = client.ClientMonthlyFee ?? business?.DefaultMonthlyFee;
-                var paid = paidByClient.GetValueOrDefault(client.ClientId);
+                var clientId = enrolledClient.Row.ClientId;
+                var fee = planByClient[clientId].MonthlyFee(defaultFee);
+                var paid = paidByClient.GetValueOrDefault(clientId);
                 return new ClientFeeResponse(
-                    client.ClientId,
-                    client.ClientFullName,
-                    client.ClientPhoneNumber,
-                    [.. clientStudents.Select(student => student.StudentFullName).Distinct().Order(StringComparer.CurrentCultureIgnoreCase)],
+                    clientId,
+                    enrolledClient.Row.ClientFullName,
+                    enrolledClient.Row.ClientPhoneNumber,
+                    enrolledClient.StudentNames,
                     fee,
                     paid,
                     fee is null ? 0 : Math.Max(fee.Value - paid, 0),
                     StatusOf(fee, paid));
             })
             .OrderBy(client => client.Status)
-            .ThenBy(client => client.ClientFullName, StringComparer.CurrentCultureIgnoreCase)
-            .ToList();
+            .ThenBy(client => client.ClientFullName, StringComparer.CurrentCultureIgnoreCase)];
+    }
 
-        return new MonthlyFeesResponse(
-            month.Value.ToString(),
-            clients.Sum(client => client.Fee ?? 0),
-            clients.Sum(client => client.Paid),
-            clients);
+    private async Task<IReadOnlyList<ClassPackClientResponse>> ListClassPackClientsAsync(
+        IReadOnlyList<EnrolledClient> enrolledClients,
+        CancellationToken cancellationToken)
+    {
+        var balances = await classBalanceService.CalculateAsync([.. enrolledClients.Select(enrolledClient => enrolledClient.Row.ClientId)], cancellationToken);
+
+        return [.. enrolledClients
+            .Select(enrolledClient =>
+            {
+                var balance = balances[enrolledClient.Row.ClientId];
+                return new ClassPackClientResponse(
+                    enrolledClient.Row.ClientId,
+                    enrolledClient.Row.ClientFullName,
+                    enrolledClient.Row.ClientPhoneNumber,
+                    enrolledClient.StudentNames,
+                    balance.AvailableClasses,
+                    balance.UnpaidClasses);
+            })
+            .OrderByDescending(client => client.UnpaidClasses)
+            .ThenBy(client => client.AvailableClasses)
+            .ThenBy(client => client.ClientFullName, StringComparer.CurrentCultureIgnoreCase)];
     }
 
     private static FeeStatus StatusOf(decimal? fee, decimal paid) => fee switch
@@ -79,4 +147,6 @@ public sealed class ListMonthlyFeesUseCase(
         _ when paid > 0 => FeeStatus.Partial,
         _ => FeeStatus.Unpaid,
     };
+
+    private sealed record EnrolledClient(EnrolledStudentInPeriod Row, IReadOnlyList<string> StudentNames);
 }

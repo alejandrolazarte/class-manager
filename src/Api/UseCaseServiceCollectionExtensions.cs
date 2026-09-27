@@ -1,8 +1,10 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Businesses;
 using ClassManager.Core.UseCases.ClassGroups;
+using ClassManager.Core.UseCases.ClassPacks;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Enrollments;
 using ClassManager.Core.UseCases.Fees;
@@ -18,6 +20,7 @@ internal static class UseCaseServiceCollectionExtensions
     {
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
+        services.AddScoped<IClassBalanceService, ClassBalanceService>();
 
         services.AddScoped<IUseCase<SignUpOwnerCommand, TokenResponse>, SignUpOwnerUseCase>();
         services.AddScoped<IUseCase<SignInCommand, TokenResponse>, SignInUseCase>();
@@ -51,7 +54,14 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RescheduleSessionCommand, SessionStatusResponse>, RescheduleSessionUseCase>();
         services.AddScoped<IUseCase<RestoreSessionScheduleCommand, SessionStatusResponse>, RestoreSessionScheduleUseCase>();
         services.AddScoped<IUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse>, SetDefaultMonthlyFeeUseCase>();
-        services.AddScoped<IUseCase<SetClientMonthlyFeeCommand, ClientResponse>, SetClientMonthlyFeeUseCase>();
+        services.AddScoped<IUseCase<SetClientBillingPlanCommand, ClientBillingResponse>, SetClientBillingPlanUseCase>();
+        services.AddScoped<IUseCase<ListClassPacksQuery, IReadOnlyList<ClassPackResponse>>, ListClassPacksUseCase>();
+        services.AddScoped<IUseCase<CreateClassPackCommand, ClassPackResponse>, CreateClassPackUseCase>();
+        services.AddScoped<IUseCase<UpdateClassPackCommand, ClassPackResponse>, UpdateClassPackUseCase>();
+        services.AddScoped<IUseCase<SetClassPackActiveCommand, ClassPackResponse>, SetClassPackActiveUseCase>();
+        services.AddScoped<IUseCase<SellClassPackCommand, ClassPackPurchaseResponse>, SellClassPackUseCase>();
+        services.AddScoped<IUseCase<DeleteClassPackPurchaseCommand, ClassPackPurchaseResponse>, DeleteClassPackPurchaseUseCase>();
+        services.AddScoped<IUseCase<GetClientClassBalanceQuery, ClassBalanceResponse>, GetClientClassBalanceUseCase>();
         services.AddScoped<IUseCase<RecordPaymentCommand, PaymentResponse>, RecordPaymentUseCase>();
         services.AddScoped<IUseCase<ListClientPaymentsQuery, IReadOnlyList<PaymentResponse>>, ListClientPaymentsUseCase>();
         services.AddScoped<IUseCase<DeletePaymentCommand, PaymentResponse>, DeletePaymentUseCase>();

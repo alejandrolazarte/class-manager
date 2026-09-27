@@ -6,6 +6,10 @@ namespace ClassManager.Core.Domain.Fees;
 public sealed record BillingMonth
 {
     public const string Format = "yyyy-MM";
+    public const int MonthsAheadAllowed = 12;
+    public const string AllowedRangeMessage = "The month must be between 2000-01 and 12 months from now.";
+
+    public static readonly DateOnly EarliestFirstDay = new(2000, 1, 1);
 
     private const string FormatMessage = "The month must use the YYYY-MM format.";
 
@@ -25,6 +29,9 @@ public sealed record BillingMonth
             : Result.Validation<BillingMonth>(FormatMessage, fieldName: fieldName);
 
     public BillingMonth AddMonths(int months) => new(FirstDay.AddMonths(months));
+
+    public bool IsWithinAllowedRange(DateOnly today) =>
+        FirstDay >= EarliestFirstDay && FirstDay <= From(today).AddMonths(MonthsAheadAllowed).FirstDay;
 
     public override string ToString() => FirstDay.ToString(Format, CultureInfo.InvariantCulture);
 }

@@ -13,4 +13,6 @@ public interface IAttendanceRepository
     Task<IReadOnlyList<Attendance>> ListBySessionAsync(Guid classSessionId, CancellationToken cancellationToken);
 
     Task<IReadOnlyDictionary<Guid, AttendanceCount>> CountBySessionsAsync(IReadOnlyCollection<Guid> classSessionIds, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 }
