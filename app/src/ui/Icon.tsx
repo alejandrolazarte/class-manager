@@ -31,6 +31,7 @@ const iconGlyphs = {
   schedule: "schedule",
   notYet: "hourglass-top",
   enroll: "person-add",
+  privateLesson: "person",
   unenroll: "person-remove",
   edit: "edit",
   monthlyFee: "sell",

@@ -1,7 +1,12 @@
 export type AttendanceStatus = "Present" | "Absent";
 
+export type SessionKind = "Group" | "Private";
+
 export interface DaySession {
-  classGroupId: string;
+  kind: SessionKind;
+  classGroupId: string | null;
+  privateLessonId: string | null;
+  studentNames: string[];
   classGroupName: string;
   date: string;
   startTime: string;

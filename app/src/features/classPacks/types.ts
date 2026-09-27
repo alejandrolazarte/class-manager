@@ -55,6 +55,7 @@ export interface AttendedClass {
   date: string;
   studentFullName: string;
   classGroupName: string;
+  isPrivateLesson: boolean;
 }
 
 export interface ClassBalance {

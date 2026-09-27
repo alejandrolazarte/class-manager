@@ -23,7 +23,7 @@ export const commonDurationsInMinutes = [30, 45, 60, 90] as const;
 
 const wholeNumberPattern = /^\d+$/;
 
-function isWholeNumberBetween(value: string, minimum: number, maximum: number): boolean {
+export function isWholeNumberBetween(value: string, minimum: number, maximum: number): boolean {
   const trimmedValue = value.trim();
   if (!wholeNumberPattern.test(trimmedValue)) {
     return false;

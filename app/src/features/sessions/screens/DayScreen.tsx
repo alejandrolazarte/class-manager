@@ -6,6 +6,7 @@ import { DaySessionCard } from "@/features/sessions/components/DaySessionCard";
 import { MonthCalendarGrid } from "@/features/sessions/components/MonthCalendarGrid";
 import { WeekStrip } from "@/features/sessions/components/WeekStrip";
 import { addDays, formatLongDate, monthOfDate, todayIsoDate } from "@/features/sessions/dates";
+import { DaySession } from "@/features/sessions/types";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
 import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";
 import { addMonths, formatMonth } from "@/features/fees/months";
@@ -15,6 +16,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { EmptyState } from "@/ui/EmptyState";
+import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { IconButton } from "@/ui/IconButton";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -26,6 +28,12 @@ interface DayScreenProps {
 }
 
 const summarySeparator = " · ";
+
+function sessionRoute(session: DaySession): string {
+  return session.kind === "Private"
+    ? routes.privateLesson(session.privateLessonId ?? "")
+    : routes.session(session.classGroupId ?? "", session.date);
+}
 
 export function DayScreen({ initialDate }: DayScreenProps) {
   const router = useRouter();
@@ -161,7 +169,14 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   );
 
   return (
-    <Screen>
+    <Screen
+      overlay={
+        <FloatingActionButton
+          label={translate("privateLessons.new")}
+          onPress={() => router.push(routes.newPrivateLesson(sessionDate))}
+        />
+      }
+    >
       {isPending ? (
         <View>
           {header}
@@ -170,13 +185,13 @@ export function DayScreen({ initialDate }: DayScreenProps) {
       ) : (
         <FlatList
           data={sessions}
-          keyExtractor={(session) => session.classGroupId}
+          keyExtractor={(session) => session.privateLessonId ?? session.classGroupId ?? ""}
           ListHeaderComponent={header}
           renderItem={({ item: session }) => (
             <View className="px-5 pb-3">
               <DaySessionCard
                 session={session}
-                onPress={() => router.push(routes.session(session.classGroupId, session.date))}
+                onPress={() => router.push(sessionRoute(session))}
               />
             </View>
           )}
@@ -185,7 +200,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
           }
           refreshing={isRefetching}
           onRefresh={() => refetch()}
-          contentContainerClassName="w-full max-w-2xl self-center pb-6"
+          contentContainerClassName="w-full max-w-2xl self-center pb-28"
         />
       )}
     </Screen>

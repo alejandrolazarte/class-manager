@@ -9,6 +9,18 @@ export default function TodayLayout() {
         name="[classGroupId]/[sessionDate]"
         options={{ title: translate("sessions.session.title") }}
       />
+      <Stack.Screen
+        name="private/new"
+        options={{ title: translate("privateLessons.form.newTitle") }}
+      />
+      <Stack.Screen
+        name="private/[privateLessonId]/index"
+        options={{ title: translate("privateLessons.title") }}
+      />
+      <Stack.Screen
+        name="private/[privateLessonId]/edit"
+        options={{ title: translate("privateLessons.form.editTitle") }}
+      />
     </Stack>
   );
 }
