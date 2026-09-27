@@ -13,6 +13,7 @@ internal static class AnalyzerTestRunner
     public const string SecurityAssemblyName = "Security";
     public const string TenancyAssemblyName = "Tenancy";
     public const string TenancyIntegrationAssemblyName = "Tenancy.AspNetCore";
+    public const string ImportExportAssemblyName = "ImportExport";
 
     private const string XunitStubFilePath = "/stubs/Xunit.cs";
     private const string XunitStubSource = """

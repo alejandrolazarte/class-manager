@@ -94,3 +94,5 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Roslyn analyzers](docs/analyzers.md) — test layout and architecture rules enforced by the build
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package
 - [Tenancy library](docs/tenancy.md) — what `src/Tenancy` and `src/Tenancy.AspNetCore` contain and how the app plugs into them
+- [Import and export library](docs/import-export.md) — the CSV engine in `src/ImportExport`: reading, header matching, limits and formula escaping
+- [Import and export plan](docs/backend/20260929-import-export/plan.md) — students and coaches from and to a spreadsheet

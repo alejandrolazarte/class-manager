@@ -18,8 +18,10 @@ src/Infrastructure/  ← EF Core DbContext, repositories, external services, ada
 src/Security/        ← reusable auth library: Identity accounts, JWT + refresh tokens (no business concepts, ARCH003)
 src/Tenancy/         ← reusable tenancy abstractions: ITenantOwned, ITenantContext (no dependencies, ARCH004)
 src/Tenancy.AspNetCore/ ← tenant query filters, stamping interceptor, claims tenant context (ARCH004)
+src/ImportExport/    ← reusable import/export engine: CSV, column matching, limits (no dependencies, ARCH005)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
 tests/ClassManager.Api.I.Tests/   ← integration tests: endpoints and persistence (Testcontainers)
+tests/ClassManager.ImportExport.U.Tests/ ← unit tests: import/export engine
 app/                 ← Expo app (mobile + web)
 e2e/                 ← Playwright e2e tests: web build + real API + SQL Server (critical flows only)
 docs/                ← decisions and runbooks

@@ -66,13 +66,13 @@ Same columns as the import, so an export can be edited and imported into another
 
 | Method | Endpoint | Result |
 |---|---|---|
-| `GET` | `/api/import-export/{module}/schema` | Columns: `key`, `header`, `type`, `required`, `aliases`, `description` |
+| `GET` | `/api/import-export/{module}/schema` | Columns: `key`, `header`, `type`, `required`, `aliases`, `example` |
 | `GET` | `/api/import-export/{module}/template` | CSV with the header row and one example row |
 | `POST` | `/api/import-export/{module}/preview` | `multipart/form-data` with `file` → per-row result, nothing saved |
 | `POST` | `/api/import-export/{module}/import` | Same body → per-row result after saving |
 | `GET` | `/api/import-export/{module}/export` | CSV file `students-2026-09-29.csv` |
 
-Unknown module → 404. File too big, too many rows, unreadable file or missing required column → 400 problem details with an error code (`importFileTooLarge`, `importTooManyRows`, `importUnreadableFile`, `importMissingColumns`).
+Unknown module → 404. File too big, too many rows, unreadable file or missing required column → 400 problem details with an error code (`importFileTooLarge`, `importTooManyRows`, `importUnreadableFile`, `importEmptyFile`, `importMissingColumns`).
 
 ```json
 POST /api/import-export/students/preview → 200
@@ -98,13 +98,12 @@ POST /api/import-export/students/preview → 200
 
 ```text
 src/ImportExport/            ← engine, no dependencies (ARCH005)
-  ImportColumn               key, header, type, required, aliases, description, example
+  ImportColumn               key, header, type, required, aliases, example
   ColumnType                 Text, Date, Email, Phone
-  IImportProfile<TRow>       Module, Columns, TRow ReadRow(ImportRowValues)
   ITabularReader / Writer    CsvTabularReader, CsvTabularWriter
   HeaderMatcher              normalization + aliases → ColumnMapping
-  ImportParser               file → mapping + typed rows + cell errors (limits enforced here)
-  ImportRowResult, ImportReport, ImportErrorCodes
+  ImportParser               file → mapping + ImportRow (GetText, GetDate) + cell errors (limits enforced here)
+  ImportLimits, ImportFileError, ImportErrorCodes
 
 src/Core/ImportExport/       ← business side
   Students/StudentImportProfile, StudentImportRow, StudentExportRow
@@ -112,7 +111,8 @@ src/Core/ImportExport/       ← business side
   PreviewImportUseCase       parse + profile validation, no save
   ImportUseCase              parse + validation + save valid rows in one transaction
   ExportUseCase              repository → rows → ITabularWriter
-  IImportModule              per module: validate rows against the domain and the database, save them
+  IImportModule              per module: columns, validate rows against the domain and the database, save them
+  ImportRowResult, ImportReport   per-row status (Valid, Error, Skipped) and summary
 
 src/Infrastructure/          ← repository queries the modules need (clients by phone in bulk, students by client ids)
 src/Api/Endpoints/ImportExportEndpoints.cs   ← multipart upload, file results, module lookup
@@ -147,7 +147,7 @@ XLSX, manual column mapping, updating existing records, importing classes/enroll
 
 ## Steps
 
-1. `src/ImportExport` + ARCH005 + CSV reader/writer + header matcher + parser, with their unit tests.
+1. ~~`src/ImportExport` + ARCH005 + CSV reader/writer + header matcher + parser, with their unit tests.~~ Done: see [import-export.md](../../import-export.md). Windows-1252 fallback and formula escaping on export were added on the way.
 2. `Core`: instructors module and use cases (the simplest module, proves the whole path), repository additions, endpoints and integration tests.
 3. `Core`: students module, bulk repository queries, integration tests including tenant isolation.
 4. Export and template endpoints.

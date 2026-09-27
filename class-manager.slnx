@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Api/Api.csproj" />
     <Project Path="src/Core/Core.csproj" />
+    <Project Path="src/ImportExport/ImportExport.csproj" />
     <Project Path="src/Infrastructure/Infrastructure.csproj" />
     <Project Path="src/Security/Security.csproj" />
     <Project Path="src/Tenancy.AspNetCore/Tenancy.AspNetCore.csproj" />
@@ -14,6 +15,7 @@
     <Project Path="tests/ClassManager.Analyzers.U.Tests/ClassManager.Analyzers.U.Tests.csproj" />
     <Project Path="tests/ClassManager.Api.I.Tests/ClassManager.Api.I.Tests.csproj" />
     <Project Path="tests/ClassManager.Core.U.Tests/ClassManager.Core.U.Tests.csproj" />
+    <Project Path="tests/ClassManager.ImportExport.U.Tests/ClassManager.ImportExport.U.Tests.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
