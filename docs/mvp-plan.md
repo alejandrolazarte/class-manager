@@ -118,6 +118,13 @@ Plans in [backend](backend/20260927-fee-history-and-class-packs/plan.md) and [fr
 - Each family pays a monthly fee or per class; a catalog of class packs (single class, 4 classes, 8 classes for 2 months).
 - Selling a pack records the payment; attending uses a class; the family shows classes left and unpaid.
 
+### M7 — Private lessons
+
+Plan in [backend](backend/20260928-private-lessons/plan.md), part of the [DF Swimming pilot plan](pilot-df-swimming.md).
+
+- One-off lessons for one to four students, optionally repeated weekly, that use classes from the family's pack.
+- Packs with class duration and a material link; trial classes.
+
 ## Definition of done (per use case)
 
 - Tests written first (RED), then implementation (GREEN), then cleanup.

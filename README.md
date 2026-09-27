@@ -80,6 +80,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 
 - [CLAUDE.md](CLAUDE.md) — conventions and rules for contributors and AI agents
 - [MVP plan](docs/mvp-plan.md) — goal, scope, domain sketch and milestones
+- [Pilot plan: DF Swimming Team](docs/pilot-df-swimming.md) — what the first pilot needs, in phases (private lessons, coach accounts)
 - [GitHub protection](docs/github-protection.md) — how `main` is protected on a free private repo, and audit commands
 - [Running the e2e tests](docs/e2e/running-e2e-tests.md) — Playwright against the web app, the real API and SQL Server
 - [Demo screenshots](docs/e2e/demo-screenshots.md) — load a demo business and capture every screen at phone size
