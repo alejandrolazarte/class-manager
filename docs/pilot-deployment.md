@@ -193,7 +193,7 @@ Re-run the latest CI run on `main` from the Actions tab (or merge any pull reque
 
 1. Builds the image and pushes it to `ghcr.io/alejandrolazarte/class-manager-api:<commit>`.
 2. Signs in to Azure with OpenID Connect and opens the SQL firewall to the runner's IP.
-3. Applies the migrations, then closes the firewall rule. The free database pauses when idle and answers `40613 Database 'ClassManager' is not currently available` while it resumes (about a minute), so `scripts/migrate-database.mjs` retries each context up to 6 times, 30 seconds apart.
+3. Applies the migrations, then closes the firewall rule. The free database pauses when idle and answers `40613 Database 'ClassManager' is not currently available` while it resumes (about a minute), so `scripts/migrate-database.mjs` retries each context on that error only, up to 4 attempts 30 seconds apart. Any other migration error fails the deploy on the first attempt.
 4. Points the container app at the new image and waits for `/health`.
 
 Check it: `https://<api host>/health` answers `Healthy`.

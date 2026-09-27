@@ -2,9 +2,11 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const connectionStringVariable = "MIGRATIONS_CONNECTION_STRING";
-const maximumMigrationAttempts = 6;
+const maximumMigrationAttempts = 4;
 const secondsBetweenMigrationAttempts = 30;
 const millisecondsPerSecond = 1000;
+const databaseResumingErrorNumber = "Error Number:40613";
+const capturedOutputLimitInBytes = 64 * 1024 * 1024;
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 const connectionString = process.env[connectionStringVariable];
 const migrations = [
@@ -42,17 +44,34 @@ function waitSeconds(seconds) {
   );
 }
 
+function runDotnetCapturingOutput(dotnetArguments) {
+  const result = spawnSync("dotnet", dotnetArguments, {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+    maxBuffer: capturedOutputLimitInBytes,
+  });
+  process.stdout.write(result.stdout ?? "");
+  process.stderr.write(result.stderr ?? "");
+  return {
+    status: result.status,
+    isDatabaseResuming: `${result.stdout}${result.stderr}`.includes(
+      databaseResumingErrorNumber,
+    ),
+  };
+}
+
 function runWhileTheDatabaseResumes(dotnetArguments) {
   for (let attempt = 1; ; attempt++) {
-    const status = runDotnet(dotnetArguments);
+    const { status, isDatabaseResuming } =
+      runDotnetCapturingOutput(dotnetArguments);
     if (status === 0) {
       return;
     }
-    if (attempt === maximumMigrationAttempts) {
+    if (!isDatabaseResuming || attempt === maximumMigrationAttempts) {
       process.exit(status ?? 1);
     }
     console.warn(
-      `Attempt ${attempt} of ${maximumMigrationAttempts} failed. A paused database takes about a minute to resume; retrying in ${secondsBetweenMigrationAttempts} seconds.`,
+      `Attempt ${attempt} of ${maximumMigrationAttempts}: the database is not available yet. A paused database takes about a minute to resume; retrying in ${secondsBetweenMigrationAttempts} seconds.`,
     );
     waitSeconds(secondsBetweenMigrationAttempts);
   }
