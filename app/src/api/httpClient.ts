@@ -41,8 +41,9 @@ async function readProblem(response: Response): Promise<ProblemDetails> {
   }
 }
 
-function readJson<TResponse>(response: Response): Promise<TResponse> {
-  return response.json() as Promise<TResponse>;
+async function readJson<TResponse>(response: Response): Promise<TResponse> {
+  const body = await response.text();
+  return (body === "" ? undefined : JSON.parse(body)) as TResponse;
 }
 
 function readText(response: Response): Promise<string> {
