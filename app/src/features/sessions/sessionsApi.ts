@@ -1,7 +1,13 @@
 import { httpClient } from "@/api/httpClient";
-import { AttendanceStatus, DaySession, SessionDetails } from "@/features/sessions/types";
+import {
+  AttendanceStatus,
+  DaySession,
+  MonthCalendar,
+  SessionDetails,
+} from "@/features/sessions/types";
 
 const sessionsPath = "/api/sessions";
+const calendarSegment = "calendar";
 const classGroupsPath = "/api/class-groups";
 const sessionsSegment = "sessions";
 const attendanceSegment = "attendance";
@@ -14,6 +20,10 @@ function sessionPath(classGroupId: string, sessionDate: string): string {
 
 export function listDaySessions(sessionDate: string): Promise<DaySession[]> {
   return httpClient.get<DaySession[]>(sessionsPath, { date: sessionDate });
+}
+
+export function getMonthCalendar(month: string): Promise<MonthCalendar> {
+  return httpClient.get<MonthCalendar>(`${sessionsPath}/${calendarSegment}`, { month });
 }
 
 export function getSession(classGroupId: string, sessionDate: string): Promise<SessionDetails> {

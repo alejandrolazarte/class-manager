@@ -19,6 +19,7 @@ public static class ApiRoutes
     public const string End = "/end";
     public const string Sessions = "/api/sessions";
     public const string SessionsSegment = "/sessions";
+    public const string Calendar = "/calendar";
     public const string SessionByDate = "/{sessionDate}";
     public const string Attendance = "/attendance";
     public const string AttendanceByStudent = "/attendance/{studentId:guid}";

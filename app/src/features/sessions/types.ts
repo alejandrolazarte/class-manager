@@ -37,3 +37,15 @@ export interface SessionDetails {
   canReschedule: boolean;
   students: SessionStudent[];
 }
+
+export interface CalendarDay {
+  date: string;
+  classCount: number;
+  cancelledCount: number;
+  pendingAttendanceCount: number;
+}
+
+export interface MonthCalendar {
+  month: string;
+  days: CalendarDay[];
+}

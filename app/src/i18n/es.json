@@ -442,5 +442,15 @@
   "themes.aqua": "Agua",
   "themes.violet": "Violeta",
   "themes.ocean": "Océano",
-  "settings.businessSummary": "Moneda {currency}"
+  "settings.businessSummary": "Moneda {currency}",
+  "sessions.calendar.show": "Ver mes",
+  "sessions.calendar.hide": "Ver semana",
+  "sessions.calendar.previousMonth": "Mes anterior",
+  "sessions.calendar.nextMonth": "Mes siguiente",
+  "sessions.calendar.pending": "asistencia pendiente",
+  "sessions.calendar.cancelled": "cancelada",
+  "sessions.calendar.legendClasses": "Hay clases",
+  "sessions.calendar.legendPending": "Asistencia pendiente",
+  "sessions.calendar.legendCancelled": "Clase cancelada",
+  "sessions.calendar.dayLabel": "{weekday} {day}"
 }

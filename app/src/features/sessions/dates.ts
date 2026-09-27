@@ -46,3 +46,17 @@ export function weekOf(isoDate: string): string[] {
 export function dayOfMonth(isoDate: string): number {
   return parseIsoDate(isoDate).getDate();
 }
+
+const monthGridWeeks = 6;
+const firstDayOfMonth = "01";
+
+export function monthOfDate(isoDate: string): string {
+  return isoDate.slice(0, 7);
+}
+
+export function monthGridOf(month: string): string[] {
+  const [monday] = weekOf(`${month}${isoDateSeparator}${firstDayOfMonth}`);
+  return Array.from({ length: monthGridWeeks * daysPerWeek }, (_, dayIndex) =>
+    addDays(monday ?? `${month}${isoDateSeparator}${firstDayOfMonth}`, dayIndex),
+  );
+}

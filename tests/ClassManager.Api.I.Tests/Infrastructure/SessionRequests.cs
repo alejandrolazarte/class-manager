@@ -25,4 +25,9 @@ public static class SessionRequests
         httpClient.GetFromJsonAsync<List<DaySessionResponse>>(
             new Uri($"{ApiRoutes.Sessions}?date={sessionDate.ToString(IsoDateFormat, CultureInfo.InvariantCulture)}", UriKind.Relative),
             ApiRequests.JsonOptions);
+
+    public static Task<MonthCalendarResponse?> GetMonthCalendarAsync(this HttpClient httpClient, string month) =>
+        httpClient.GetFromJsonAsync<MonthCalendarResponse>(
+            new Uri($"{ApiRoutes.Sessions}{ApiRoutes.Calendar}?month={month}", UriKind.Relative),
+            ApiRequests.JsonOptions);
 }
