@@ -11,6 +11,7 @@ export const routes = {
   registerClient: "/students/new",
   clientDetail: (clientId: string) => `/students/clients/${clientId}`,
   addStudent: (clientId: string) => `/students/clients/${clientId}/new-student`,
+  sellClassPack: (clientId: string) => `/students/clients/${clientId}/sell-pack`,
   fees: "/fees",
   recordPayment: (clientId: string, month: string) =>
     `/fees/${clientId}/pay?month=${encodeURIComponent(month)}`,
@@ -22,4 +23,7 @@ export const routes = {
   instructors: "/settings/instructors",
   newInstructor: "/settings/instructors/new",
   instructor: (instructorId: string) => `/settings/instructors/${instructorId}`,
+  classPacks: "/settings/class-packs",
+  newClassPack: "/settings/class-packs/new",
+  classPack: (classPackId: string) => `/settings/class-packs/${classPackId}`,
 } as const;

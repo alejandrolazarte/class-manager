@@ -58,6 +58,11 @@ export function SettingsScreen() {
           onPress={() => router.push(routes.defaultMonthlyFee)}
         />
         <SettingsRow
+          label={translate("settings.classPacks")}
+          detail={translate("settings.classPacksHint")}
+          onPress={() => router.push(routes.classPacks)}
+        />
+        <SettingsRow
           label={translate("settings.instructors")}
           onPress={() => router.push(routes.instructors)}
         />

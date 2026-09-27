@@ -1,4 +1,4 @@
-import { ClientFee, MonthlyFees } from "@/features/fees/types";
+import { ClassPackClient, ClientFee, MonthlyFees } from "@/features/fees/types";
 
 export const feeMonth = "2026-09";
 
@@ -16,11 +16,28 @@ export function buildClientFee(overrides: Partial<ClientFee> = {}): ClientFee {
   };
 }
 
-export function buildMonthlyFees(clients: ClientFee[]): MonthlyFees {
+export function buildClassPackClient(overrides: Partial<ClassPackClient> = {}): ClassPackClient {
+  return {
+    clientId: "0192f0c4-0000-7000-8000-000000000002",
+    clientFullName: "Jorge Díaz",
+    clientPhoneNumber: "+5491133445566",
+    studentNames: ["Mateo Díaz"],
+    availableClasses: 0,
+    unpaidClasses: 2,
+    ...overrides,
+  };
+}
+
+export function buildMonthlyFees(
+  clients: ClientFee[],
+  classPackClients: ClassPackClient[] = [],
+): MonthlyFees {
   return {
     month: feeMonth,
     totalDue: clients.reduce((total, client) => total + (client.fee ?? 0), 0),
     totalPaid: clients.reduce((total, client) => total + client.paid, 0),
     clients,
+    classPackSales: 0,
+    classPackClients,
   };
 }

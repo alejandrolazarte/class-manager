@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { ClassBalanceSection } from "@/features/classPacks/components/ClassBalanceSection";
 import { ClientDetails } from "@/features/clients/types";
+import { describeBillingPlan } from "@/features/fees/billingPlanDescription";
+import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
 import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
-import { formatMonth } from "@/features/fees/months";
-import { useDeletePayment, useSetClientMonthlyFee } from "@/features/fees/useFeeMutations";
+import { formatMonth, monthOf } from "@/features/fees/months";
+import { BillingPlanKind } from "@/features/fees/types";
+import { useDeletePayment, useSetClientBillingPlan } from "@/features/fees/useFeeMutations";
 import { useClientPayments } from "@/features/fees/useFees";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { translate, TranslationKey } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
-import { AppText } from "@/ui/AppText";
+import { useToast } from "@/ui/ToastProvider";
+
+const billingPlanKinds: readonly BillingPlanKind[] = ["BusinessFee", "CustomFee", "ClassPacks"];
 
 interface ClientFeeSectionProps {
   client: ClientDetails;
@@ -19,25 +27,32 @@ interface ClientFeeSectionProps {
 
 export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const business = useCurrentBusiness();
+  const { showToast } = useToast();
   const { data: payments = [] } = useClientPayments(client.id);
-  const setClientMonthlyFeeMutation = useSetClientMonthlyFee(client.id);
+  const setBillingPlanMutation = useSetClientBillingPlan(client.id);
   const deletePaymentMutation = useDeletePayment();
   const [isEditing, setIsEditing] = useState(false);
-  const [amountText, setAmountText] = useState(toAmountText(client.monthlyFee));
+  const [kind, setKind] = useState<BillingPlanKind>(client.billingPlan.kind);
+  const [amountText, setAmountText] = useState(toAmountText(client.billingPlan.customFee));
+  const [effectiveFrom, setEffectiveFrom] = useState(monthOf());
   const [hasFailed, setHasFailed] = useState(false);
   const money = (amount: number) => formatMoney(amount, business.currencyCode);
-  const effectiveFee = client.monthlyFee ?? business.defaultMonthlyFee;
-  const feeLabel =
-    effectiveFee === null
-      ? translate("fees.client.noFee")
-      : translate(client.monthlyFee === null ? "fees.client.defaultFee" : "fees.client.ownFee", {
-          fee: money(effectiveFee),
-        });
+  const currentMonth = monthOf();
+  const upcomingChanges = client.billingPlanChanges.filter(
+    (change) => change.effectiveFrom > currentMonth,
+  );
+  const customFee = parseAmount(amountText);
+  const canSave = kind !== "CustomFee" || (customFee !== null && customFee > 0);
 
-  const saveFee = async (amount: number | null) => {
+  const savePlan = async () => {
     setHasFailed(false);
     try {
-      await setClientMonthlyFeeMutation.mutateAsync(amount);
+      await setBillingPlanMutation.mutateAsync({
+        kind,
+        customFee: kind === "CustomFee" ? customFee : null,
+        effectiveFrom,
+      });
+      showToast(translate("fees.client.saved"));
       setIsEditing(false);
     } catch {
       setHasFailed(true);
@@ -48,25 +63,46 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
     <View className="gap-2">
       <AppText variant="heading">{translate("fees.client.title")}</AppText>
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
-      <AppText variant="body">{feeLabel}</AppText>
+      <AppText variant="body">
+        {describeBillingPlan(client.billingPlan, business.defaultMonthlyFee, business.currencyCode)}
+      </AppText>
+      {upcomingChanges.map((change) => (
+        <AppText key={change.effectiveFrom} variant="caption" tone="muted">
+          {translate("fees.client.upcomingChange", {
+            month: formatMonth(change.effectiveFrom),
+            plan: describeBillingPlan(change, business.defaultMonthlyFee, business.currencyCode),
+          })}
+        </AppText>
+      ))}
       {isEditing ? (
-        <View className="gap-2 rounded-xl bg-surface p-3">
-          <TextField
-            label={translate("fees.client.ownFeeAmount")}
-            keyboardType="decimal-pad"
-            value={amountText}
-            onChangeText={setAmountText}
-          />
+        <View className="gap-3 rounded-xl bg-surface p-3">
+          <AppText variant="label" tone="muted">
+            {translate("fees.client.planKind")}
+          </AppText>
+          <View className="flex-row flex-wrap gap-2">
+            {billingPlanKinds.map((planKind) => (
+              <Chip
+                key={planKind}
+                label={translate(`fees.plan.${planKind}` as TranslationKey)}
+                isSelected={kind === planKind}
+                onPress={() => setKind(planKind)}
+              />
+            ))}
+          </View>
+          {kind === "CustomFee" ? (
+            <TextField
+              label={translate("fees.client.ownFeeAmount")}
+              keyboardType="decimal-pad"
+              value={amountText}
+              onChangeText={setAmountText}
+            />
+          ) : null}
+          <EffectiveMonthPicker month={effectiveFrom} onChange={setEffectiveFrom} />
           <Button
             label={translate("common.save")}
-            disabled={parseAmount(amountText) === null}
-            onPress={() => saveFee(parseAmount(amountText))}
-            isLoading={setClientMonthlyFeeMutation.isPending}
-          />
-          <Button
-            variant="secondary"
-            label={translate("fees.client.useDefault")}
-            onPress={() => saveFee(null)}
+            disabled={!canSave}
+            onPress={savePlan}
+            isLoading={setBillingPlanMutation.isPending}
           />
         </View>
       ) : (
@@ -76,6 +112,9 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
           onPress={() => setIsEditing(true)}
         />
       )}
+      {client.billingPlan.kind === "ClassPacks" ? (
+        <ClassBalanceSection clientId={client.id} />
+      ) : null}
       {payments.length > 0 ? (
         <View className="gap-1">
           <AppText variant="label" tone="subtle">

@@ -1,13 +1,18 @@
 import { httpClient } from "@/api/httpClient";
 import { Business } from "@/features/business/types";
-import { Client } from "@/features/clients/types";
-import { MonthlyFees, Payment, RecordPaymentRequest } from "@/features/fees/types";
+import {
+  ClientBilling,
+  MonthlyFees,
+  Payment,
+  RecordPaymentRequest,
+  SetBillingPlanRequest,
+} from "@/features/fees/types";
 
 const feesPath = "/api/fees";
 const businessMonthlyFeePath = "/api/business/monthly-fee";
 const clientsPath = "/api/clients";
 const paymentsPath = "/api/payments";
-const monthlyFeeSegment = "monthly-fee";
+const billingPlanSegment = "billing-plan";
 const paymentsSegment = "payments";
 
 function clientPath(clientId: string): string {
@@ -18,12 +23,18 @@ export function listMonthlyFees(month: string): Promise<MonthlyFees> {
   return httpClient.get<MonthlyFees>(feesPath, { month });
 }
 
-export function setDefaultMonthlyFee(amount: number | null): Promise<Business> {
-  return httpClient.put<Business>(businessMonthlyFeePath, { amount });
+export function setDefaultMonthlyFee(
+  amount: number | null,
+  effectiveFrom: string,
+): Promise<Business> {
+  return httpClient.put<Business>(businessMonthlyFeePath, { amount, effectiveFrom });
 }
 
-export function setClientMonthlyFee(clientId: string, amount: number | null): Promise<Client> {
-  return httpClient.put<Client>(`${clientPath(clientId)}/${monthlyFeeSegment}`, { amount });
+export function setClientBillingPlan(
+  clientId: string,
+  request: SetBillingPlanRequest,
+): Promise<ClientBilling> {
+  return httpClient.put<ClientBilling>(`${clientPath(clientId)}/${billingPlanSegment}`, request);
 }
 
 export function recordPayment(clientId: string, request: RecordPaymentRequest): Promise<Payment> {

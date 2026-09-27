@@ -1,14 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { businessQueryKeys } from "@/features/business/businessQueryKeys";
+import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import { clientQueryKeys } from "@/features/clients/clientQueryKeys";
 import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
 import {
   deletePayment,
   recordPayment,
-  setClientMonthlyFee,
+  setClientBillingPlan,
   setDefaultMonthlyFee,
 } from "@/features/fees/feesApi";
-import { RecordPaymentRequest } from "@/features/fees/types";
+import { RecordPaymentRequest, SetBillingPlanRequest } from "@/features/fees/types";
 
 function useInvalidateFees() {
   const queryClient = useQueryClient();
@@ -34,7 +35,8 @@ export function useDeletePayment() {
 export function useSetDefaultMonthlyFee() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (amount: number | null) => setDefaultMonthlyFee(amount),
+    mutationFn: ({ amount, effectiveFrom }: { amount: number | null; effectiveFrom: string }) =>
+      setDefaultMonthlyFee(amount, effectiveFrom),
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: businessQueryKeys.all }),
@@ -43,14 +45,15 @@ export function useSetDefaultMonthlyFee() {
   });
 }
 
-export function useSetClientMonthlyFee(clientId: string) {
+export function useSetClientBillingPlan(clientId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (amount: number | null) => setClientMonthlyFee(clientId, amount),
+    mutationFn: (request: SetBillingPlanRequest) => setClientBillingPlan(clientId, request),
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: clientQueryKeys.detail(clientId) }),
         queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
+        queryClient.invalidateQueries({ queryKey: classPackQueryKeys.all }),
       ]),
   });
 }

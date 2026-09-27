@@ -14,6 +14,10 @@ export default function StudentsLayout() {
         name="clients/[clientId]/new-student"
         options={{ title: translate("students.add.title") }}
       />
+      <Stack.Screen
+        name="clients/[clientId]/sell-pack"
+        options={{ title: translate("classPacks.sell.title") }}
+      />
     </Stack>
   );
 }

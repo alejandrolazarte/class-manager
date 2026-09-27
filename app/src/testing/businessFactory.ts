@@ -7,6 +7,7 @@ export function buildBusiness(overrides: Partial<Business> = {}): Business {
     currencyCode: "ARS",
     defaultCountryCallingCode: "54",
     defaultMonthlyFee: 12000,
+    defaultMonthlyFeeChanges: [{ effectiveFrom: "2026-01", amount: 12000 }],
     ...overrides,
   };
 }
