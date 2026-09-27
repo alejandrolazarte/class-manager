@@ -181,51 +181,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                 FROM Clients
                 WHERE MonthlyFee IS NOT NULL;
                 """);
-
-            migrationBuilder.DropColumn(
-                name: "MonthlyFee",
-                table: "Clients");
-
-            migrationBuilder.DropColumn(
-                name: "DefaultMonthlyFee",
-                table: "Businesses");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<decimal>(
-                name: "MonthlyFee",
-                table: "Clients",
-                type: "decimal(12,2)",
-                precision: 12,
-                scale: 2,
-                nullable: true);
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "DefaultMonthlyFee",
-                table: "Businesses",
-                type: "decimal(12,2)",
-                precision: 12,
-                scale: 2,
-                nullable: true);
-
-            migrationBuilder.Sql("""
-                UPDATE Businesses
-                SET DefaultMonthlyFee = (
-                    SELECT TOP 1 Amount FROM DefaultMonthlyFeeChanges
-                    WHERE DefaultMonthlyFeeChanges.TenantId = Businesses.Id AND EffectiveFrom <= SYSUTCDATETIME()
-                    ORDER BY EffectiveFrom DESC);
-                """);
-
-            migrationBuilder.Sql("""
-                UPDATE Clients
-                SET MonthlyFee = (
-                    SELECT TOP 1 CustomFee FROM ClientBillingPlanChanges
-                    WHERE ClientBillingPlanChanges.ClientId = Clients.Id AND EffectiveFrom <= SYSUTCDATETIME()
-                    ORDER BY EffectiveFrom DESC);
-                """);
-
             migrationBuilder.DropTable(
                 name: "ClassPackPurchases");
 
@@ -237,7 +197,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "ClassPacks");
-
         }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260927012045_AddFeeHistoryAndClassPacks")]
+    [Migration("20260927013633_AddFeeHistoryAndClassPacks")]
     partial class AddFeeHistoryAndClassPacks
     {
         /// <inheritdoc />
@@ -43,6 +43,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
+
+                    b.Property<decimal?>("DefaultMonthlyFee")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -247,6 +251,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
+
+                    b.Property<decimal?>("MonthlyFee")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)

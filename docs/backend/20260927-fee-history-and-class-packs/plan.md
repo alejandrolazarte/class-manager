@@ -76,7 +76,8 @@ Purchase `status`: `Active`, `UsedUp` or `Expired`. `classPackClients` lists fam
 - `DefaultMonthlyFeeChanges` (`TenantId`, `EffectiveFrom`, `Amount?`), unique `(TenantId, EffectiveFrom)`.
 - `ClientBillingPlanChanges` (`TenantId`, `ClientId`, `EffectiveFrom`, `Kind`, `CustomFee?`), unique `(TenantId, ClientId, EffectiveFrom)`.
 - `ClassPacks`, `ClassPackPurchases` (index `(TenantId, ClientId)`).
-- Migration `AddFeeHistoryAndClassPacks` moves `Businesses.DefaultMonthlyFee` and `Clients.MonthlyFee` into the change tables effective from 2000-01, so nothing changes for existing data, then drops both columns.
+- Migration `AddFeeHistoryAndClassPacks` copies `Businesses.DefaultMonthlyFee` and `Clients.MonthlyFee` into the change tables effective from 2000-01, so nothing changes for existing data. It is additive: the old columns stay, mapped as retired shadow properties, because the previous API version still reads them while the migration runs during a deploy ([pilot deployment](../../pilot-deployment.md)).
+- **Follow-up (next deploy):** remove the shadow properties and add a migration that drops `Businesses.DefaultMonthlyFee` and `Clients.MonthlyFee`. A fee changed with the old version during the deploy window is not copied; set it again after the deploy if it happens.
 
 ## Tests (write first)
 
