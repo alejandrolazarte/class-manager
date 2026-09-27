@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
@@ -24,6 +25,9 @@ public sealed class StudentImportModule(
     public const string ContactNameKey = "contactName";
     public const string ContactNotesKey = "contactNotes";
 
+    private const string ExportDateFormat = "dd/MM/yyyy";
+    private const string InternationalPrefix = "+";
+    private const string CountryCodeSeparator = " ";
     private const string AlreadyRegisteredMessage = "The family already has a student with this name.";
     private const string ContactMismatchMessage = "This phone belongs to a family with another Responsable. Check the phone or the Responsable.";
 
@@ -80,6 +84,45 @@ public sealed class StudentImportModule(
         var results = rows.Select(context.Plan).ToList();
 
         return new ImportPlan(results, () => AddValidRows(context));
+    }
+
+    public async Task<Result<IReadOnlyList<IReadOnlyDictionary<string, string?>>>> ExportRowsAsync(CancellationToken cancellationToken)
+    {
+        var business = await businessRepository.GetCurrentAsync(cancellationToken);
+        if (business is null)
+        {
+            return Result.Unauthorized<IReadOnlyList<IReadOnlyDictionary<string, string?>>>(
+                BusinessErrorCodes.CurrentBusinessNotFoundMessage,
+                BusinessErrorCodes.CurrentBusinessNotFound);
+        }
+
+        var clientsById = (await clientRepository.ListAllAsync(cancellationToken)).ToDictionary(client => client.Id);
+        var students = await studentRepository.ListAllAsync(cancellationToken);
+
+        return students
+            .Where(student => clientsById.ContainsKey(student.ClientId))
+            .Select(student => (IReadOnlyDictionary<string, string?>)ToExportRow(student, clientsById[student.ClientId], business.DefaultCountryCallingCode))
+            .ToList();
+    }
+
+    private static Dictionary<string, string?> ToExportRow(Student student, Client client, string defaultCountryCallingCode) =>
+        new Dictionary<string, string?>
+        {
+            [StudentNameKey] = student.FullName,
+            [PhoneKey] = ToExportPhoneNumber(client.PhoneNumber, defaultCountryCallingCode),
+            [EmailKey] = client.Email,
+            [BirthDateKey] = student.BirthDate?.ToString(ExportDateFormat, CultureInfo.InvariantCulture),
+            [StudentNotesKey] = student.Notes,
+            [ContactNameKey] = StringComparer.CurrentCultureIgnoreCase.Equals(client.FullName, student.FullName) ? null : client.FullName,
+            [ContactNotesKey] = client.Notes,
+        };
+
+    private static string ToExportPhoneNumber(PhoneNumber phoneNumber, string defaultCountryCallingCode)
+    {
+        var localPrefix = InternationalPrefix + defaultCountryCallingCode;
+        return phoneNumber.Value.StartsWith(localPrefix, StringComparison.Ordinal)
+            ? localPrefix + CountryCodeSeparator + phoneNumber.Value[localPrefix.Length..]
+            : phoneNumber.Value;
     }
 
     private async Task<Dictionary<PhoneNumber, StudentImportFamily>> LoadExistingFamiliesAsync(

@@ -44,6 +44,8 @@ public static class ApiRoutes
     public const string SchemaAction = "/schema";
     public const string PreviewAction = "/preview";
     public const string ImportAction = "/import";
+    public const string TemplateAction = "/template";
+    public const string ExportAction = "/export";
     public const string Business = "/api/business";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";

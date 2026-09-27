@@ -22,6 +22,13 @@ public static class ImportRequests
         return httpClient.PostAsync(new Uri(ModuleRoute(module, action), UriKind.Relative), form);
     }
 
+    public static async Task<string> DownloadCsvAsync(this HttpClient httpClient, string module, string action)
+    {
+        using var response = await httpClient.GetAsync(new Uri(ModuleRoute(module, action), UriKind.Relative));
+        response.EnsureSuccessStatusCode();
+        return Encoding.UTF8.GetString(await response.Content.ReadAsByteArrayAsync());
+    }
+
     public static async Task<ImportReport> ImportFileAsync(this HttpClient httpClient, string module, string csvText)
     {
         using var response = await httpClient.PostImportFileAsync(module, ApiRoutes.ImportAction, csvText);

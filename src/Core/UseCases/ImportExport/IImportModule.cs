@@ -11,4 +11,6 @@ public interface IImportModule
     IReadOnlyList<ImportColumn> Columns { get; }
 
     Task<Result<ImportPlan>> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken);
+
+    Task<Result<IReadOnlyList<IReadOnlyDictionary<string, string?>>>> ExportRowsAsync(CancellationToken cancellationToken);
 }

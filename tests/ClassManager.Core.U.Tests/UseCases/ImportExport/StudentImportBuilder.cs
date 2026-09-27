@@ -35,6 +35,8 @@ internal sealed class StudentImportBuilder
             .Setup(repository => repository.ListByClientIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyCollection<Guid> clientIds, CancellationToken _) =>
                 ExistingStudents.Where(student => clientIds.Contains(student.ClientId)).ToList());
+        Clients.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => ExistingClients);
+        Students.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => ExistingStudents);
         Clients.Setup(repository => repository.Add(It.IsAny<Client>())).Callback<Client>(AddedClients.Add);
         Students.Setup(repository => repository.Add(It.IsAny<Student>())).Callback<Student>(AddedStudents.Add);
     }
@@ -48,11 +50,21 @@ internal sealed class StudentImportBuilder
         ExistingClients.Add(client);
         foreach (var studentName in studentNames)
         {
-            ExistingStudents.Add(Student.Create(client.Id, studentName, null, null, TestData.Today, TestData.Now).Value!);
+            AddExistingStudent(client, studentName, null);
         }
 
         return client;
     }
+
+    public Client AddExistingClient(string fullName, string phoneNumber, string? email, string? notes)
+    {
+        var client = Client.Create(fullName, PhoneNumber.Create(phoneNumber, TestData.DefaultCountryCallingCode).Value!, email, notes, TestData.Now).Value!;
+        ExistingClients.Add(client);
+        return client;
+    }
+
+    public void AddExistingStudent(Client client, string fullName, DateOnly? birthDate, string? notes = null) =>
+        ExistingStudents.Add(Student.Create(client.Id, fullName, birthDate, notes, TestData.Today, TestData.Now).Value!);
 
     public async Task<Result<ImportPlan>> PlanAsync(string rowsText)
     {

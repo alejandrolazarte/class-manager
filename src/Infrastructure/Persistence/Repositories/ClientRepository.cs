@@ -22,6 +22,9 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
     public Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken) =>
         context.Clients.FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 
+    public async Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken) =>
+        await context.Clients.AsNoTracking().ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken)
     {
         var clients = context.Clients.AsNoTracking();

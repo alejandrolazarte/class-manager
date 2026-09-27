@@ -15,6 +15,8 @@ internal static class ImportExportEndpoints
             .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
 
         modules.MapGet(ApiRoutes.SchemaAction, GetSchemaAsync);
+        modules.MapGet(ApiRoutes.TemplateAction, GetTemplateAsync);
+        modules.MapGet(ApiRoutes.ExportAction, ExportAsync);
         modules.MapPost(ApiRoutes.PreviewAction, PreviewAsync)
             .DisableAntiforgery()
             .WithFormOptions(multipartBodyLengthLimit: ImportLimits.DefaultMaximumFileSizeInBytes + MultipartOverheadInBytes);
@@ -34,6 +36,29 @@ internal static class ImportExportEndpoints
 
         return result.ToOkResult();
     }
+
+    private static async Task<IResult> GetTemplateAsync(
+        string module,
+        IUseCase<GetImportTemplateQuery, ExportFile> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetImportTemplateQuery(module), cancellationToken);
+
+        return result.ToHttpResult(ToFileResult);
+    }
+
+    private static async Task<IResult> ExportAsync(
+        string module,
+        IUseCase<ExportQuery, ExportFile> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ExportQuery(module), cancellationToken);
+
+        return result.ToHttpResult(ToFileResult);
+    }
+
+    private static IResult ToFileResult(ExportFile file) =>
+        TypedResults.File(file.Content, file.ContentType, file.FileName);
 
     private static async Task<IResult> PreviewAsync(
         string module,

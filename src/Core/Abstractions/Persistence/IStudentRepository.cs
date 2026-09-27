@@ -10,6 +10,8 @@ public interface IStudentRepository
 
     Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Student>> ListAllAsync(CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Student>> ListByClientIdsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 
     Task<StudentSummary?> GetSummaryByIdAsync(Guid studentId, CancellationToken cancellationToken);

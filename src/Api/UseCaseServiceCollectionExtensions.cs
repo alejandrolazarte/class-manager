@@ -38,6 +38,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<GetImportSchemaQuery, ImportSchemaResponse>, GetImportSchemaUseCase>();
         services.AddScoped<IUseCase<PreviewImportCommand, ImportReport>, PreviewImportUseCase>();
         services.AddScoped<IUseCase<ImportFileCommand, ImportReport>, ImportFileUseCase>();
+        services.AddScoped<IUseCase<GetImportTemplateQuery, ExportFile>, GetImportTemplateUseCase>();
+        services.AddScoped<IUseCase<ExportQuery, ExportFile>, ExportUseCase>();
         services.AddScoped<IUseCase<SignInCommand, TokenResponse>, SignInUseCase>();
         services.AddScoped<IUseCase<RefreshSessionCommand, TokenResponse>, RefreshSessionUseCase>();
         services.AddScoped<IUseCase<SignOutCommand, SignOutResponse>, SignOutUseCase>();

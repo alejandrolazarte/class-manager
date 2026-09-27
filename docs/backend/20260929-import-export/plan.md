@@ -63,6 +63,10 @@ A coach with the same name already exists (case-insensitive, as today) → `Skip
 
 Same columns as the import, so an export can be edited and imported into another business. `students` exports one row per student with its client, leaving `Responsable` empty when the client has the student's name; `instructors` exports every coach, active or not. No filters in the first version.
 
+- Phones are written as `+<country code> <number>` (for example `+34 611222333`) when they use the business's country code. With the space Excel keeps them as text; without it Excel would turn `+34611222333` into a number, drop the `+` and a later import would add the country code twice.
+- Birth dates are written as `dd/MM/yyyy`.
+- A family registered without students has no row: the file is one row per student.
+
 ## Endpoints
 
 `{module}` is `students` or `instructors`. All require the owner's token.
@@ -118,7 +122,7 @@ src/Core/UseCases/ImportExport/   ← business side
   ImportRowResult, ImportSummary, ImportReport, ImportUseCaseErrorCodes
   Instructors/InstructorImportModule
   Students/StudentImportModule
-  ExportUseCase                         (step 4)
+  GetImportTemplateUseCase, ExportUseCase, ExportFile
 
 src/Infrastructure/          ← repository queries the modules need (clients by phone in bulk, students by client ids)
 src/Api/Endpoints/ImportExportEndpoints.cs   ← multipart upload, file results, module lookup
@@ -156,7 +160,7 @@ XLSX, manual column mapping, updating existing records, importing classes/enroll
 1. ~~`src/ImportExport` + ARCH005 + CSV reader/writer + header matcher + parser, with their unit tests.~~ Done: see [import-export.md](../../import-export.md). Windows-1252 fallback and formula escaping on export were added on the way.
 2. ~~`Core`: instructors module and use cases (the simplest module, proves the whole path), endpoints and integration tests.~~ Done: schema, preview and import for `instructors`. No repository additions were needed (`ListAllAsync` covers duplicates).
 3. ~~`Core`: students module, bulk repository queries, integration tests including tenant isolation.~~ Done: `IClientRepository.ListByPhoneNumbersAsync` and `IStudentRepository.ListByClientIdsAsync` load the families in two queries; `IImportModule.PlanAsync` returns `Result<ImportPlan>` so a module can fail as a whole (no current business).
-4. Export and template endpoints.
+4. ~~Export and template endpoints.~~ Done: `IImportModule.ExportRowsAsync` gives one value per column key; `GetImportTemplateUseCase` writes the header and each column's `Example`; `ExportUseCase` names the file `{module}-{yyyy-MM-dd}.csv`. An integration test exports a business's students and imports them into another one with nothing lost.
 5. Docs: `docs/import-export.md` (library, like `tenancy.md`), `analyzers.md`, `domain-model.md` unchanged; link from `README.md`.
 6. Frontend plan and screens (separate PR).
 

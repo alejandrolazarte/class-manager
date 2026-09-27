@@ -18,6 +18,11 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
             .OrderBy(student => student.FullName)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Student>> ListAllAsync(CancellationToken cancellationToken) =>
+        await context.Students.AsNoTracking()
+            .OrderBy(student => student.FullName)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Student>> ListByClientIdsAsync(
         IReadOnlyCollection<Guid> clientIds,
         CancellationToken cancellationToken) =>
