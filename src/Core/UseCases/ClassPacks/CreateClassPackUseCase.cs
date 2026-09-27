@@ -4,7 +4,13 @@ using ClassManager.Core.Domain.ClassPacks;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record CreateClassPackCommand(string? Name, int? ClassCount, decimal? Price, int? ValidityMonths);
+public sealed record CreateClassPackCommand(
+    string? Name,
+    int? ClassCount,
+    decimal? Price,
+    int? ValidityMonths,
+    int? ClassDurationMinutes = null,
+    string? MaterialUrl = null);
 
 public sealed class CreateClassPackUseCase(IClassPackRepository classPackRepository, IUnitOfWork unitOfWork, TimeProvider timeProvider)
     : IUseCase<CreateClassPackCommand, ClassPackResponse>
@@ -15,6 +21,12 @@ public sealed class CreateClassPackUseCase(IClassPackRepository classPackReposit
         if (classPack.IsFailure)
         {
             return classPack.Error!;
+        }
+
+        var lessons = classPack.Value!.DefineLessons(command.ClassDurationMinutes, command.MaterialUrl);
+        if (lessons.IsFailure)
+        {
+            return lessons.Error!;
         }
 
         if (await classPackRepository.FindByNameAsync(classPack.Value!.Name, cancellationToken) is not null)

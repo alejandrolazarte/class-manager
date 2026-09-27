@@ -7,6 +7,8 @@ export interface ClassPack {
   price: number;
   validityMonths: number | null;
   isActive: boolean;
+  classDurationMinutes: number | null;
+  materialUrl: string | null;
 }
 
 export interface SaveClassPackRequest {
@@ -14,6 +16,8 @@ export interface SaveClassPackRequest {
   classCount: number;
   price: number;
   validityMonths: number | null;
+  classDurationMinutes: number | null;
+  materialUrl: string | null;
 }
 
 export interface ClassPackPurchase {
@@ -26,6 +30,9 @@ export interface ClassPackPurchase {
   expiresOn: string | null;
   method: PaymentMethod;
   notes: string | null;
+  classDurationMinutes: number | null;
+  materialUrl: string | null;
+  trialLessonId: string | null;
 }
 
 export interface SellClassPackRequest {
@@ -34,6 +41,7 @@ export interface SellClassPackRequest {
   purchasedOn: string;
   method: PaymentMethod;
   notes: string | null;
+  trialLessonId: string | null;
 }
 
 export type ClassPackPurchaseStatus = "Active" | "UsedUp" | "Expired";
@@ -49,6 +57,15 @@ export interface ClassPackUsage {
   usedClasses: number;
   remainingClasses: number;
   status: ClassPackPurchaseStatus;
+  classDurationMinutes: number | null;
+  materialUrl: string | null;
+}
+
+export interface DeductibleTrial {
+  privateLessonId: string;
+  date: string;
+  studentFullName: string;
+  trialPrice: number;
 }
 
 export interface AttendedClass {
@@ -63,4 +80,5 @@ export interface ClassBalance {
   unpaidClasses: number;
   purchases: ClassPackUsage[];
   unpaidAttendances: AttendedClass[];
+  deductibleTrials: DeductibleTrial[];
 }

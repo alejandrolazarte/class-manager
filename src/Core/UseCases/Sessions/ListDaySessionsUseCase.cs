@@ -31,7 +31,8 @@ public sealed record DaySessionResponse(
     int EnrolledCount,
     int PresentCount,
     int AbsentCount,
-    IReadOnlyList<string> StudentNames);
+    IReadOnlyList<string> StudentNames,
+    bool IsTrial = false);
 
 public sealed class ListDaySessionsUseCase(
     IClassGroupRepository classGroupRepository,
@@ -94,7 +95,8 @@ public sealed class ListDaySessionsUseCase(
                     lesson.Students.Count,
                     lesson.Students.Count(lessonStudent => lessonStudent.Status == AttendanceStatus.Present),
                     lesson.Students.Count(lessonStudent => lessonStudent.Status == AttendanceStatus.Absent),
-                    names);
+                    names,
+                    lesson.IsTrial);
             }),
             .. classGroups.Select(classGroup =>
             {

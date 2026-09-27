@@ -28,7 +28,9 @@ public sealed record PrivateLessonResponse(
     string? CancellationReason,
     Guid? SeriesId,
     bool CanTakeAttendance,
-    IReadOnlyList<PrivateLessonStudentResponse> Students)
+    IReadOnlyList<PrivateLessonStudentResponse> Students,
+    bool IsTrial,
+    decimal? TrialPrice)
 {
     public static PrivateLessonResponse From(
         PrivateLesson lesson,
@@ -65,7 +67,9 @@ public sealed record PrivateLessonResponse(
                             lessonStudent.Status);
                     })
                     .OrderBy(student => student.StudentFullName, StringComparer.CurrentCultureIgnoreCase),
-            ]);
+            ],
+            lesson.IsTrial,
+            lesson.TrialPrice);
     }
 
     public static string FormatTime(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);

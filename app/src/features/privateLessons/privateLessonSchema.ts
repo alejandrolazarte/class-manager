@@ -11,6 +11,7 @@ import {
   SchedulePrivateLessonRequest,
 } from "@/features/privateLessons/types";
 import { formatBirthDateForDisplay, parseBirthDate } from "@/features/students/birthDateFormatting";
+import { parseAmount, toAmountText } from "@/features/fees/money";
 import { translate } from "@/i18n/translate";
 
 export const privateLessonLimits = {
@@ -23,7 +24,11 @@ export const privateLessonLimits = {
 
 const defaultDurationMinutes = "45";
 
-const lessonStudentSchema = z.object({ id: z.string(), fullName: z.string() });
+const lessonStudentSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  clientId: z.string(),
+});
 
 export type LessonStudent = z.infer<typeof lessonStudentSchema>;
 
@@ -71,6 +76,13 @@ export const privateLessonSchema = z
       .string()
       .max(privateLessonLimits.notesMaximumLength, translate("students.validation.notesTooLong")),
     repeatWeeks: z.string(),
+    isTrial: z.boolean(),
+    trialPrice: z
+      .string()
+      .refine(
+        (typedPrice) => typedPrice.trim().length === 0 || (parseAmount(typedPrice) ?? 0) > 0,
+        translate("fees.validation.amountInvalid"),
+      ),
   })
   .refine(
     (formValues) =>
@@ -93,6 +105,7 @@ export const privateLessonFieldNames = [
   "location",
   "notes",
   "repeatWeeks",
+  "trialPrice",
 ] as const satisfies readonly (keyof PrivateLessonFormValues)[];
 
 export function toPrivateLessonFormValues({
@@ -109,6 +122,7 @@ export function toPrivateLessonFormValues({
       students: lesson.students.map((student) => ({
         id: student.studentId,
         fullName: student.studentFullName,
+        clientId: student.clientId,
       })),
       instructorId: lesson.instructorId,
       date: formatBirthDateForDisplay(lesson.date),
@@ -117,6 +131,8 @@ export function toPrivateLessonFormValues({
       location: lesson.location ?? "",
       notes: lesson.notes ?? "",
       repeatWeeks: String(privateLessonLimits.minimumRepeatWeeks),
+      isTrial: lesson.isTrial,
+      trialPrice: toAmountText(lesson.trialPrice),
     };
   }
   return {
@@ -128,6 +144,8 @@ export function toPrivateLessonFormValues({
     location: "",
     notes: "",
     repeatWeeks: String(privateLessonLimits.minimumRepeatWeeks),
+    isTrial: false,
+    trialPrice: "",
   };
 }
 
@@ -144,6 +162,11 @@ export function toPrivateLessonDetails(formValues: PrivateLessonFormValues): Pri
     durationMinutes: Number(formValues.durationMinutes),
     location: toOptionalText(formValues.location),
     notes: toOptionalText(formValues.notes),
+    isTrial: formValues.isTrial,
+    trialPrice:
+      formValues.isTrial && formValues.trialPrice.trim().length > 0
+        ? parseAmount(formValues.trialPrice)
+        : null,
   };
 }
 

@@ -22,7 +22,10 @@ import { Icon } from "@/ui/Icon";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
+import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
+import { formatMoney } from "@/features/fees/money";
 
 interface PrivateLessonScreenProps {
   privateLessonId: string;
@@ -36,6 +39,7 @@ const studentNameSeparator = ", ";
 export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProps) {
   const router = useRouter();
   const { showToast } = useToast();
+  const currencyCode = useBusinessCurrency();
   const lessonQuery = usePrivateLesson(privateLessonId);
   const recordAttendanceMutation = useRecordPrivateLessonAttendance(privateLessonId);
   const restoreMutation = useRestorePrivateLesson(privateLessonId);
@@ -104,6 +108,18 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
         />
       }
     >
+      {lesson.isTrial ? (
+        <StatusPill
+          tone="primary"
+          label={
+            lesson.trialPrice === null
+              ? translate("privateLessons.trialFree")
+              : translate("privateLessons.trialPaid", {
+                  price: formatMoney(lesson.trialPrice, currencyCode),
+                })
+          }
+        />
+      ) : null}
       {lesson.notes ? (
         <View className="gap-0.5 rounded-2xl bg-muted px-3.5 py-3">
           <AppText variant="overline" tone="subtle">

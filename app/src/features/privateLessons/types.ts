@@ -24,6 +24,8 @@ export interface PrivateLesson {
   seriesId: string | null;
   canTakeAttendance: boolean;
   students: PrivateLessonStudent[];
+  isTrial: boolean;
+  trialPrice: number | null;
 }
 
 export interface PrivateLessonDetails {
@@ -33,6 +35,8 @@ export interface PrivateLessonDetails {
   durationMinutes: number;
   location: string | null;
   notes: string | null;
+  isTrial: boolean;
+  trialPrice: number | null;
 }
 
 export interface SchedulePrivateLessonRequest extends PrivateLessonDetails {

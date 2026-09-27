@@ -7,6 +7,7 @@ export interface DaySession {
   classGroupId: string | null;
   privateLessonId: string | null;
   studentNames: string[];
+  isTrial: boolean;
   classGroupName: string;
   date: string;
   startTime: string;

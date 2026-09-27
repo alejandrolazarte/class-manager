@@ -11,7 +11,10 @@ export const classPackLimits = {
   maximumClassCount: 100,
   minimumValidityMonths: 1,
   maximumValidityMonths: 24,
+  materialUrlMaximumLength: 500,
 } as const;
+
+const httpsUrlPattern = /^https:\/\/\S+$/i;
 
 const wholeNumberPattern = /^\d+$/;
 
@@ -54,6 +57,18 @@ export const classPackSchema = z.object({
         ),
       translate("classPacks.validation.validityInvalid"),
     ),
+  classDurationMinutes: z.string(),
+  materialUrl: z
+    .string()
+    .trim()
+    .max(
+      classPackLimits.materialUrlMaximumLength,
+      translate("classPacks.validation.materialUrlInvalid"),
+    )
+    .refine(
+      (materialUrl) => materialUrl.length === 0 || httpsUrlPattern.test(materialUrl),
+      translate("classPacks.validation.materialUrlInvalid"),
+    ),
 });
 
 export type ClassPackFormValues = z.input<typeof classPackSchema>;
@@ -63,6 +78,8 @@ export const classPackFieldNames = [
   "classCount",
   "price",
   "validityMonths",
+  "classDurationMinutes",
+  "materialUrl",
 ] as const satisfies readonly (keyof ClassPackFormValues)[];
 
 export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValues {
@@ -71,6 +88,10 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
     classCount: classPack ? String(classPack.classCount) : "",
     price: classPack ? String(classPack.price).replace(".", ",") : "",
     validityMonths: classPack?.validityMonths ? String(classPack.validityMonths) : "",
+    classDurationMinutes: classPack?.classDurationMinutes
+      ? String(classPack.classDurationMinutes)
+      : "",
+    materialUrl: classPack?.materialUrl ?? "",
   };
 }
 
@@ -81,5 +102,8 @@ export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveCla
     classCount: Number(formValues.classCount.trim()),
     price: parseAmount(formValues.price) ?? 0,
     validityMonths: validityMonths.length === 0 ? null : Number(validityMonths),
+    classDurationMinutes:
+      formValues.classDurationMinutes.length === 0 ? null : Number(formValues.classDurationMinutes),
+    materialUrl: formValues.materialUrl.trim().length === 0 ? null : formValues.materialUrl.trim(),
   };
 }

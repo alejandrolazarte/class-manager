@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.PrivateLessons;
@@ -10,10 +11,12 @@ public sealed record DeletedPrivateLessonResponse(Guid Id);
 
 public sealed class DeletePrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,
+    IClassPackPurchaseRepository purchaseRepository,
     IUnitOfWork unitOfWork)
     : IUseCase<DeletePrivateLessonCommand, DeletedPrivateLessonResponse>
 {
     private const string HasAttendanceMessage = "Attendance was already taken for this lesson.";
+    private const string DeductedTrialMessage = "This trial class was deducted from a pack sale. Delete that sale first.";
 
     public async Task<Result<DeletedPrivateLessonResponse>> ExecuteAsync(DeletePrivateLessonCommand command, CancellationToken cancellationToken)
     {
@@ -26,6 +29,11 @@ public sealed class DeletePrivateLessonUseCase(
         if (lesson.HasAttendance)
         {
             return Result.Conflict<DeletedPrivateLessonResponse>(HasAttendanceMessage, SessionErrorCodes.HasAttendance);
+        }
+
+        if (await purchaseRepository.IsTrialDeductedAsync(lesson.Id, cancellationToken))
+        {
+            return Result.Conflict<DeletedPrivateLessonResponse>(DeductedTrialMessage, ClassPackErrorCodes.TrialNotDeductible);
         }
 
         privateLessonRepository.Remove(lesson);

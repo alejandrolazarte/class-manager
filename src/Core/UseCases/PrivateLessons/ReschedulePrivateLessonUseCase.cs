@@ -12,7 +12,9 @@ public sealed record ReschedulePrivateLessonRequest(
     string? StartTime,
     int? DurationMinutes,
     string? Location,
-    string? Notes);
+    string? Notes,
+    bool IsTrial = false,
+    decimal? TrialPrice = null);
 
 public sealed record ReschedulePrivateLessonCommand(Guid PrivateLessonId, ReschedulePrivateLessonRequest Details);
 
@@ -63,6 +65,12 @@ public sealed class ReschedulePrivateLessonUseCase(
         if (reschedule.IsFailure)
         {
             return reschedule.Error!;
+        }
+
+        var trial = lesson.SetTrial(details.IsTrial, details.TrialPrice);
+        if (trial.IsFailure)
+        {
+            return trial.Error!;
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

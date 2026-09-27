@@ -12,6 +12,7 @@ import { SearchInput } from "@/ui/SearchInput";
 interface LessonStudentPickerProps {
   students: LessonStudent[];
   onChange: (students: LessonStudent[]) => void;
+  onStudentAdded?: (student: LessonStudent) => void;
   errorMessage?: string;
   isReadOnly?: boolean;
 }
@@ -21,6 +22,7 @@ const maximumSuggestions = 5;
 export function LessonStudentPicker({
   students,
   onChange,
+  onStudentAdded,
   errorMessage,
   isReadOnly = false,
 }: LessonStudentPickerProps) {
@@ -74,7 +76,13 @@ export function LessonStudentPicker({
               accessibilityRole="button"
               accessibilityLabel={student.fullName}
               onPress={() => {
-                onChange([...students, { id: student.id, fullName: student.fullName }]);
+                const addedStudent = {
+                  id: student.id,
+                  fullName: student.fullName,
+                  clientId: student.clientId,
+                };
+                onChange([...students, addedStudent]);
+                onStudentAdded?.(addedStudent);
                 setSearchText("");
               }}
               className="flex-row items-center gap-3 border-b border-border px-4 py-3 active:bg-muted"

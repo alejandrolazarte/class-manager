@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Pressable, View } from "react-native";
+import { Linking, Pressable, View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { ClassPackUsage } from "@/features/classPacks/types";
 import { useDeleteClassPackPurchase } from "@/features/classPacks/useClassPackMutations";
@@ -70,8 +70,33 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
           <View className="flex-1">
             <AppText variant="body">{`${usage.name} · ${formatMoney(usage.price, currencyCode)}`}</AppText>
             <AppText variant="caption" tone="muted">
-              {`${translate("classPacks.balance.usage", { used: usage.usedClasses, total: usage.classCount })} · ${usageStatusLabel(usage)}`}
+              {[
+                translate("classPacks.balance.usage", {
+                  used: usage.usedClasses,
+                  total: usage.classCount,
+                }),
+                usage.classDurationMinutes
+                  ? translate("classPacks.list.duration", { minutes: usage.classDurationMinutes })
+                  : null,
+                usageStatusLabel(usage),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </AppText>
+            {usage.materialUrl ? (
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel={translate("classPacks.balance.openMaterial", {
+                  name: usage.name,
+                })}
+                onPress={() => Linking.openURL(usage.materialUrl ?? "")}
+                className="self-start py-1"
+              >
+                <AppText variant="link" tone="primary">
+                  {translate("classPacks.balance.material")}
+                </AppText>
+              </Pressable>
+            ) : null}
           </View>
           <Pressable
             accessibilityRole="button"

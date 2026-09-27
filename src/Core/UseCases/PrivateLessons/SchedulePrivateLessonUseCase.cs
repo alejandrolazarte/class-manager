@@ -16,7 +16,9 @@ public sealed record SchedulePrivateLessonCommand(
     int? DurationMinutes,
     string? Location,
     string? Notes,
-    int? RepeatWeeks);
+    int? RepeatWeeks,
+    bool IsTrial = false,
+    decimal? TrialPrice = null);
 
 public sealed class SchedulePrivateLessonUseCase(
     IInstructorRepository instructorRepository,
@@ -79,7 +81,13 @@ public sealed class SchedulePrivateLessonUseCase(
                 return lesson.Error!;
             }
 
-            lessons.Add(lesson.Value!);
+            var trial = lesson.Value!.SetTrial(command.IsTrial, command.TrialPrice);
+            if (trial.IsFailure)
+            {
+                return trial.Error!;
+            }
+
+            lessons.Add(lesson.Value);
         }
 
         var conflict = await InstructorAgendaRules.FindConflictAsync(

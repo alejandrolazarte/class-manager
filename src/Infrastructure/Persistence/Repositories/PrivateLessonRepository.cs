@@ -38,6 +38,17 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             .Where(lesson => lesson.InstructorId == instructorId && lesson.Date >= firstDate && !lesson.IsCancelled)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<PaidTrialLesson>> ListPaidTrialsByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+        await (
+            from lesson in context.PrivateLessons.AsNoTracking()
+            where lesson.IsTrial && lesson.TrialPrice != null && !lesson.IsCancelled
+            join lessonStudent in context.PrivateLessonStudents.AsNoTracking() on lesson.Id equals lessonStudent.PrivateLessonId
+            join student in context.Students.AsNoTracking() on lessonStudent.StudentId equals student.Id
+            where student.ClientId == clientId
+            orderby lesson.Date
+            select new PaidTrialLesson(lesson.Id, lesson.Date, student.FullName, lesson.TrialPrice!.Value))
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(
         IReadOnlyCollection<Guid> clientIds,
         CancellationToken cancellationToken)
@@ -53,6 +64,7 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             join student in context.Students.AsNoTracking() on lessonStudent.StudentId equals student.Id
             where clientIds.Contains(student.ClientId)
             join lesson in context.PrivateLessons.AsNoTracking() on lessonStudent.PrivateLessonId equals lesson.Id
+            where !lesson.IsTrial
             join instructor in context.Instructors.AsNoTracking() on lesson.InstructorId equals instructor.Id
             select new { student.ClientId, lesson.Date, StudentFullName = student.FullName, InstructorFullName = instructor.FullName })
             .ToListAsync(cancellationToken);

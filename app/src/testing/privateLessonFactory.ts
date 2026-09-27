@@ -31,6 +31,8 @@ export function buildPrivateLesson(overrides: Partial<PrivateLesson> = {}): Priv
     seriesId: null,
     canTakeAttendance: true,
     students: [buildPrivateLessonStudent()],
+    isTrial: false,
+    trialPrice: null,
     ...overrides,
   };
 }

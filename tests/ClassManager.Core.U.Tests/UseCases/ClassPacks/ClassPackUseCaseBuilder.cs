@@ -56,7 +56,7 @@ internal sealed class ClassPackUseCaseBuilder
         new(Purchases.Object, Attendances.Object, PrivateLessons.Object, FeeSchedule.Object, BusinessCalendar.Object);
 
     public SellClassPackUseCase BuildSell() =>
-        new(Clients.Object, ClassPacks.Object, Purchases.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+        new(Clients.Object, ClassPacks.Object, Purchases.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
 
     public CreateClassPackUseCase BuildCreate() =>
         new(ClassPacks.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
