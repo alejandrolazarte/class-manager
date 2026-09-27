@@ -5,8 +5,10 @@ import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
 
 const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
 const settleMilliseconds = 800;
+const darkColorScheme = "dark";
+const colorScheme = process.env.SCREENSHOTS_COLOR_SCHEME === darkColorScheme ? "dark" : "light";
 
-test.use({ locale: "es-AR", timezoneId: demoTimeZoneId });
+test.use({ locale: "es-AR", timezoneId: demoTimeZoneId, colorScheme });
 
 test("App screens", async ({ page, request }) => {
   const demo = await seedDemoBusiness(request);

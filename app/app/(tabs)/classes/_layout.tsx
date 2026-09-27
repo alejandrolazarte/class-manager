@@ -7,8 +7,16 @@ export default function ClassesLayout() {
       <Stack.Screen name="index" options={{ title: translate("classGroups.week.title") }} />
       <Stack.Screen name="new" options={{ title: translate("classGroups.form.newTitle") }} />
       <Stack.Screen
-        name="[classGroupId]"
+        name="[classGroupId]/index"
+        options={{ title: translate("enrollments.detail.title") }}
+      />
+      <Stack.Screen
+        name="[classGroupId]/edit"
         options={{ title: translate("classGroups.form.editTitle") }}
+      />
+      <Stack.Screen
+        name="[classGroupId]/enroll"
+        options={{ title: translate("enrollments.enroll.title") }}
       />
     </Stack>
   );
