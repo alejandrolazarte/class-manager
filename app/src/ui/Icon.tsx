@@ -41,6 +41,7 @@ const iconGlyphs = {
   appearance: "contrast",
   palette: "palette",
   signOut: "logout",
+  password: "lock-reset",
   search: "search",
   call: "call",
   whatsApp: "chat",

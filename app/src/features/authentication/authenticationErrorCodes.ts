@@ -3,4 +3,5 @@ export const authenticationErrorCodes = {
   invalidCredentials: "auth.invalid_credentials",
   lockedOut: "auth.locked_out",
   invalidRefreshToken: "auth.invalid_refresh_token",
+  invalidPasswordResetToken: "auth.invalid_password_reset_token",
 } as const;

@@ -492,5 +492,15 @@
   "privateLessons.deleted": "Clase borrada",
   "privateLessons.lockedByAttendance": "Ya tomaste asistencia; borrá las marcas para moverla o cancelarla",
   "privateLessons.notFound": "No encontramos esta clase",
-  "privateLessons.withCoach": "Particular con {coach}"
+  "privateLessons.withCoach": "Particular con {coach}",
+  "authentication.signIn.forgotPassword": "¿Olvidaste tu contraseña?",
+  "authentication.signIn.forgotPasswordHelp": "Escribinos y te mandamos un link para elegir una contraseña nueva. El link sirve una sola vez y vence en 24 horas.",
+  "authentication.signIn.askForResetLink": "Pedir el link por WhatsApp",
+  "authentication.signIn.resetLinkMessage": "Hola, olvidé mi contraseña de la app. Mi email es {email}",
+  "authentication.resetPassword.title": "Elegí una contraseña nueva",
+  "authentication.resetPassword.newPassword": "Contraseña nueva",
+  "authentication.resetPassword.submit": "Guardar contraseña",
+  "authentication.resetPassword.saved": "Listo. Ingresá con tu contraseña nueva",
+  "authentication.resetPassword.invalidLink": "El link venció o ya se usó. Pedí uno nuevo.",
+  "authentication.resetPassword.goToSignIn": "Ir a ingresar"
 }

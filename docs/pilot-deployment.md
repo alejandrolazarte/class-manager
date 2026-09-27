@@ -211,6 +211,7 @@ In Cloudflare: **Compute → Workers & Pages → Create**. The create screen def
 | Build output directory | `dist` |
 | Environment variable `NODE_VERSION` | `22` |
 | Environment variable `EXPO_PUBLIC_API_BASE_URL` | `https://<api host>` |
+| Environment variable `EXPO_PUBLIC_SUPPORT_WHATSAPP_NUMBER` | Optional. Digits only with the country code (`34600111222`). Shows "Pedir el link por WhatsApp" under "¿Olvidaste tu contraseña?" |
 
 Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and Pages does not publish folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. Pages serves `index.html` for any path, which is what the single-page web build needs.
 
@@ -218,8 +219,10 @@ Then allow the Pages domain in the API's CORS list:
 
 ```powershell
 az containerapp update --name $containerApp --resource-group $resourceGroup `
-  --set-env-vars "Cors__AllowedOrigins__0=https://class-manager.pages.dev"
+  --set-env-vars "Cors__AllowedOrigins__0=https://class-manager.pages.dev" "WebApp__Url=https://class-manager.pages.dev"
 ```
+
+`WebApp__Url` is where password reset links point (see [Forgotten passwords](#forgotten-passwords)).
 
 Use the domain Cloudflare actually assigned if `class-manager` was taken.
 
@@ -236,6 +239,23 @@ pnpm dlx eas-cli build --platform android --profile pilot
 `eas init` asks which Expo account owns the project (the pilot uses the personal account `alejandro-lazarte`), links the app to the Expo project and adds `extra.eas.projectId` and `owner` to `app.json`; commit that change in a pull request. `eas build` asks to generate an Android keystore the first time: accept, Expo stores it. The build ends with a link and a QR code: pilot instructors open it on their phone and install the APK. The Android package id is `com.alejandrolazarte.classmanager`; it can't change once the app is on Google Play.
 
 The API URL is baked into the APK at build time, so changing the API host means building a new APK.
+
+## Forgotten passwords
+
+The app doesn't send email yet. When someone forgets their password, they tap **¿Olvidaste tu contraseña?** and ask for a link (by WhatsApp when `EXPO_PUBLIC_SUPPORT_WHATSAPP_NUMBER` is set). Create the link from a shell inside the running API container:
+
+```powershell
+Invoke-WebRequest "https://<api host>/health" | Out-Null
+az containerapp exec --name $containerApp --resource-group $resourceGroup --command "/bin/bash"
+```
+
+The health request wakes the app if it scaled to zero. Inside the shell:
+
+```bash
+dotnet Api.dll create-password-reset-link laura@example.com
+```
+
+It prints `https://<web app>/reset-password?token=...`. Send that link to the person: it opens "Elegí una contraseña nueva" in the browser, works once and expires after 24 hours. Saving the new password signs the account out everywhere and clears a lockout. An unknown email prints "No account uses this email." and creates nothing.
 
 ## Automatic deploys
 

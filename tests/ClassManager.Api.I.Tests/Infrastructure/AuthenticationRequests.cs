@@ -1,3 +1,4 @@
+using ClassManager.Api.Commands;
 using ClassManager.Core.UseCases.Authentication;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
@@ -12,6 +13,8 @@ public static class AuthenticationRequests
     public const string SignInRoute = ApiRoutes.Authentication + ApiRoutes.SignIn;
     public const string RefreshRoute = ApiRoutes.Authentication + ApiRoutes.Refresh;
     public const string SignOutRoute = ApiRoutes.Authentication + ApiRoutes.SignOut;
+    public const string PasswordResetRoute = ApiRoutes.Authentication + ApiRoutes.PasswordReset;
+    public const string WebAppResetPasswordUrl = "http://localhost:8081" + PasswordResetLinkCommand.ResetPasswordPath;
 
     public static string UniqueEmail() => $"owner-{Guid.NewGuid():N}@example.com";
 
@@ -55,4 +58,18 @@ public static class AuthenticationRequests
 
     public static async Task<TokenResponse> ReadTokensAsync(this HttpResponseMessage response) =>
         (await response.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
+
+    public static Task<HttpResponseMessage> PostPasswordResetAsync(this HttpClient httpClient, string token, string newPassword) =>
+        httpClient.PostAsJsonAsync(PasswordResetRoute, new ResetPasswordCommand(token, newPassword), ApiRequests.JsonOptions);
+
+    public static async Task<string> CreatePasswordResetLinkAsync(this IServiceProvider services, string email)
+    {
+        await using var output = new StringWriter();
+        var exitCode = await PasswordResetLinkCommand.RunAsync(services, [PasswordResetLinkCommand.Name, email], output);
+        exitCode.ShouldBe(0);
+        return output.ToString().Trim();
+    }
+
+    public static string TokenOf(string passwordResetLink) =>
+        passwordResetLink[(passwordResetLink.IndexOf('=', StringComparison.Ordinal) + 1)..];
 }

@@ -22,7 +22,7 @@ public static class SecurityServiceCollectionExtensions
     private static readonly TimeSpan TokenClockSkew = TimeSpan.FromSeconds(30);
 
     /// <summary>
-    /// User accounts (ASP.NET Core Identity), token issuing with refresh token rotation and <see cref="SecurityDbContext"/>.
+    /// User accounts (ASP.NET Core Identity), password reset tokens, token issuing with refresh token rotation and <see cref="SecurityDbContext"/>.
     /// The application must also register an <see cref="ITokenSubjectResolver"/>.
     /// </summary>
     public static IServiceCollection AddSecurityServices(this IServiceCollection services, Action<SecurityOptions> configure)
@@ -47,6 +47,9 @@ public static class SecurityServiceCollectionExtensions
         services.AddSingleton<IAccessTokenFactory, JwtAccessTokenFactory>();
         services.AddScoped<ITokenIssuer, JwtTokenIssuer>();
         services.AddScoped<IUserAccountService, UserAccountService>();
+        services.Configure<PasswordResetOptions>(passwordResetOptions =>
+            passwordResetOptions.TokenLifetime = securityOptions.PasswordResetTokenLifetime);
+        services.AddScoped<IPasswordResetService, PasswordResetService>();
 
         return services;
     }
