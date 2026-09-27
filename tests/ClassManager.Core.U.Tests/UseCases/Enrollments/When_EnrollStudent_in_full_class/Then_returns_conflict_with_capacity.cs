@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.ClassGroups;
-using ClassManager.Core.Domain.Enrollments;
 
 namespace ClassManager.Core.U.Tests.UseCases.Enrollments.When_EnrollStudent_in_full_class;
 

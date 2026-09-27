@@ -1,6 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Domain.ClassGroups;
-using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.U.Tests.UseCases.Sessions.When_ListDaySessions;

@@ -85,7 +85,7 @@ cd app; pnpm typecheck; pnpm test --ci; pnpm lint; pnpm format:check   # pnpm fo
 cd e2e; pnpm typecheck; pnpm format:check; pnpm test                     # e2e job
 ```
 
-Line endings are LF everywhere (`.editorconfig` and `.gitattributes`). Constants and `static readonly` fields are PascalCase; other private fields use `_camelCase`. Naming violations (`IDE1006`) break the build. Don't disable a lint rule to get green: fix the code, or raise the rule in the PR.
+Line endings are LF everywhere (`.editorconfig` and `.gitattributes`). Constants and `static readonly` fields are PascalCase; other private fields use `_camelCase`. Naming violations (`IDE1006`) and unnecessary `using` directives (`IDE0005`) break the build and `dotnet format --verify-no-changes`; `dotnet format class-manager.slnx` removes unused usings. Don't disable a lint rule to get green: fix the code, or raise the rule in the PR.
 
 Integration tests start SQL Server through Testcontainers, which talks to Podman via the `\\.\pipe\docker_engine` pipe. The Podman machine must be running (`podman machine start`).
 

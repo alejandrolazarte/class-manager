@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.UseCases.ClassGroups;
 

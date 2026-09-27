@@ -1,5 +1,3 @@
-using ClassManager.Core.Domain.ClassGroups;
-using ClassManager.Core.Domain.Enrollments;
 using ClassManager.Core.UseCases.Enrollments;
 
 namespace ClassManager.Core.U.Tests.UseCases.Enrollments.When_EndEnrollment_before_start;

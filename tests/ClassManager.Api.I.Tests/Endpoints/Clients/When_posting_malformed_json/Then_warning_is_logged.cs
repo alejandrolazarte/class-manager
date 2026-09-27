@@ -1,7 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
 using ClassManager.Api.ErrorHandling;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

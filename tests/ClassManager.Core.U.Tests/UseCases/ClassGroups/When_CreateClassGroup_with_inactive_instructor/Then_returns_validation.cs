@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.UseCases.ClassGroups;
 
 namespace ClassManager.Core.U.Tests.UseCases.ClassGroups.When_CreateClassGroup_with_inactive_instructor;

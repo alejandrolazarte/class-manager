@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.ClassGroups;
-using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.U.Tests.UseCases.Sessions.When_RescheduleSession_with_busy_instructor;
