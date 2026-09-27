@@ -110,6 +110,14 @@ Plans in [backend](backend/20260926-monthly-fees/plan.md) and [frontend](fronten
 
 After M5: pilot with one or two real instructors ([hosting plan](hosting-plan.md)), then decide between class packs and make-up classes based on what they ask for.
 
+### M6 — Fee history and class packs
+
+Plans in [backend](backend/20260927-fee-history-and-class-packs/plan.md) and [frontend](frontend/20260927-fee-history-and-class-packs/plan.md). Asked by the pilot instructor.
+
+- Fee changes apply from a month on; past months keep their fee.
+- Each family pays a monthly fee or per class; a catalog of class packs (single class, 4 classes, 8 classes for 2 months).
+- Selling a pack records the payment; attending uses a class; the family shows classes left and unpaid.
+
 ## Definition of done (per use case)
 
 - Tests written first (RED), then implementation (GREEN), then cleanup.
@@ -124,5 +132,5 @@ After M5: pilot with one or two real instructors ([hosting plan](hosting-plan.md
 |---|---|---|
 | Fee per client or per student | M5 | Decided: per client, with a default on the business and an optional override per client |
 | Reusing scheduling code from salon-manager | M2 | Weekly schedule and time off exist there; copy what M2 needs, extract to the template only when both apps prove it's the same |
-| Class packs vs make-up classes first | After the pilot | Let the pilot users decide |
+| Class packs vs make-up classes first | After the pilot | Decided: class packs first (M6), asked by the pilot instructor |
 | Pricing model | Before public launch | Free plan limits (for example number of students) |

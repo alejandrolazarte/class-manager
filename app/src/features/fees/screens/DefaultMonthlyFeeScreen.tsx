@@ -1,11 +1,15 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { parseAmount, toAmountText } from "@/features/fees/money";
+import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
+import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
+import { formatMonth, monthOf } from "@/features/fees/months";
 import { useSetDefaultMonthlyFee } from "@/features/fees/useFeeMutations";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
@@ -16,6 +20,7 @@ export function DefaultMonthlyFeeScreen() {
   const business = useCurrentBusiness();
   const setDefaultMonthlyFeeMutation = useSetDefaultMonthlyFee();
   const [amountText, setAmountText] = useState(toAmountText(business.defaultMonthlyFee));
+  const [effectiveFrom, setEffectiveFrom] = useState(monthOf());
   const [amountError, setAmountError] = useState<string | undefined>(undefined);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
 
@@ -29,7 +34,7 @@ export function DefaultMonthlyFeeScreen() {
     }
     setAmountError(undefined);
     try {
-      await setDefaultMonthlyFeeMutation.mutateAsync(amount);
+      await setDefaultMonthlyFeeMutation.mutateAsync({ amount, effectiveFrom });
       showToast(translate("fees.defaultFee.saved"));
       router.back();
     } catch (saveError) {
@@ -47,11 +52,34 @@ export function DefaultMonthlyFeeScreen() {
         onChangeText={setAmountText}
         errorMessage={amountError}
       />
+      <EffectiveMonthPicker month={effectiveFrom} onChange={setEffectiveFrom} />
+      <AppText variant="caption" tone="muted">
+        {translate("fees.defaultFee.effectiveHint")}
+      </AppText>
       <Button
         label={translate("common.save")}
         onPress={save}
         isLoading={setDefaultMonthlyFeeMutation.isPending}
       />
+      {business.defaultMonthlyFeeChanges.length > 0 ? (
+        <View className="gap-1">
+          <AppText variant="label" tone="subtle">
+            {translate("fees.defaultFee.history")}
+          </AppText>
+          {[...business.defaultMonthlyFeeChanges].reverse().map((change) => (
+            <AppText key={change.effectiveFrom} variant="body">
+              {change.amount === null
+                ? translate("fees.defaultFee.historyNoFee", {
+                    month: formatMonth(change.effectiveFrom),
+                  })
+                : translate("fees.defaultFee.historyItem", {
+                    month: formatMonth(change.effectiveFrom),
+                    fee: formatMoney(change.amount, business.currencyCode),
+                  })}
+            </AppText>
+          ))}
+        </View>
+      ) : null}
     </SettingsFormScreenLayout>
   );
 }

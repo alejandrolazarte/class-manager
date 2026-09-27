@@ -27,6 +27,11 @@ erDiagram
     ClassSession ||--o{ Attendance : records
     Student ||--o{ Attendance : has
     Client ||--o{ Payment : makes
+    Business ||--o{ DefaultMonthlyFeeChange : "sets fee"
+    Client ||--o{ ClientBillingPlanChange : "is billed by"
+    Business ||--o{ ClassPack : sells
+    Client ||--o{ ClassPackPurchase : buys
+    ClassPack ||--o{ ClassPackPurchase : "sold as"
 ```
 
 ### Business (tenant root)
@@ -40,7 +45,6 @@ erDiagram
 | `DefaultCountryCallingCode` | `string` | 1–3 digits, for example `54`; used to normalize local phone numbers |
 | `CurrencyCode` | `string` | ISO 4217, 3 letters, for example `ARS`; normalized to upper case |
 | `CreatedAt` | `DateTimeOffset` | UTC |
-| `DefaultMonthlyFee` | `decimal?` | Optional default fee for every client, `decimal(12,2)` (added in M5) |
 
 `Business` is the only entity that does **not** implement `ITenantOwned`.
 
@@ -68,7 +72,6 @@ Unique `(TenantId, UserId)`. The access token carries the member's `TenantId` as
 | `Email` | `string?` | Optional, valid format, max 254 characters |
 | `Notes` | `string?` | Optional, max 1000 characters  |
 | `CreatedAt` | `DateTimeOffset` | UTC |
-| `MonthlyFee` | `decimal?` | Optional override of the business's default fee (added in M5) |
 
 ### Student (added in M1)
 
@@ -176,7 +179,53 @@ Money received from a client for a month. The fee is per client (a family pays o
 | `Notes` | `string?` | Optional, max 200 characters |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 
-A month's fees list the clients with a student enrolled at any point of that month. Effective fee: the client's `MonthlyFee`, else the business's `DefaultMonthlyFee`, else none. Status: `Paid` (paid ≥ fee), `Partial`, `Unpaid` or `NoFee`.
+A month's fees list the clients with a student enrolled at any point of that month and a monthly plan that month. Effective fee: the client's own fee (`CustomFee` plan), else the business's default fee in force that month, else none. Status: `Paid` (paid ≥ fee), `Partial`, `Unpaid` or `NoFee`.
+
+### DefaultMonthlyFeeChange (added in M6)
+
+The business's default fee from a month on. The fee of a month is the change with the latest `EffectiveFrom` on or before it; earlier months keep theirs. Replaced `Business.DefaultMonthlyFee`.
+
+| Property | Type | Rules |
+|---|---|---|
+| `EffectiveFrom` | `DateOnly` | First day of a month, 2000-01 to 12 months ahead; unique per business |
+| `Amount` | `decimal?` | Same rule as payments; `null` removes the default fee from that month |
+
+### ClientBillingPlanChange (added in M6)
+
+How a family pays from a month on. No change means `BusinessFee`. Replaced `Client.MonthlyFee`.
+
+| Property | Type | Rules |
+|---|---|---|
+| `ClientId` | `Guid` | A client of the same business |
+| `EffectiveFrom` | `DateOnly` | First day of a month, 2000-01 to 12 months ahead; unique per client |
+| `Kind` | `BillingPlanKind` | `BusinessFee`, `CustomFee` or `ClassPacks`, stored as a string |
+| `CustomFee` | `decimal?` | Required for `CustomFee`, `null` otherwise |
+
+### ClassPack (added in M6)
+
+An item of the business's catalog: "Clase suelta" (1 class), "4 clases", "8 clases en 2 meses".
+
+| Property | Type | Rules |
+|---|---|---|
+| `Name` | `string` | 2–60 characters, unique per business |
+| `ClassCount` | `int` | 1–100 |
+| `Price` | `decimal` | Same rule as payments |
+| `ValidityMonths` | `int?` | 1–24; `null` means the classes never expire |
+| `IsActive` | `bool` | Inactive packs can't be sold |
+
+### ClassPackPurchase (added in M6)
+
+A pack sold to a family; it is also the payment. Copies name, classes and expiry from the catalog so later edits don't change it.
+
+| Property | Type | Rules |
+|---|---|---|
+| `ClientId`, `ClassPackId` | `Guid` | Of the same business |
+| `Price` | `decimal` | The catalog price unless lowered for a discount |
+| `PurchasedOn` | `DateOnly` | Not after today |
+| `ExpiresOn` | `DateOnly?` | `PurchasedOn` + validity − 1 day; `null` without validity |
+| `Method`, `Notes` | | Same rules as payments |
+
+**Class balance** (computed, not stored): each `Present` attendance of the family's students in a month when the family was on `ClassPacks`, oldest first, uses a class of the pack valid on that date that expires first (packs without expiry last). Attendances left without a pack are unpaid classes; classes left in an expired pack are lost.
 
 ## Value objects
 

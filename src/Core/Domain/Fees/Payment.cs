@@ -6,12 +6,8 @@ namespace ClassManager.Core.Domain.Fees;
 public sealed class Payment : ITenantOwned
 {
     public const int NotesMaxLength = 200;
-    public const int MonthsAheadAllowed = 12;
-
-    public static readonly DateOnly EarliestMonth = new(2000, 1, 1);
 
     private const string PaidOnInFutureMessage = "The payment date can't be in the future.";
-    private const string MonthRangeMessage = "The month must be between 2000-01 and 12 months from now.";
     private const string NotesLengthMessage = "Notes must be at most 200 characters.";
     private const string MethodRequiredMessage = "Choose a payment method.";
 
@@ -47,9 +43,9 @@ public sealed class Payment : ITenantOwned
             return amountValidation.Error!;
         }
 
-        if (month.FirstDay < EarliestMonth || month.FirstDay > BillingMonth.From(today).AddMonths(MonthsAheadAllowed).FirstDay)
+        if (!month.IsWithinAllowedRange(today))
         {
-            return Result.Validation<Payment>(MonthRangeMessage, fieldName: nameof(Month));
+            return Result.Validation<Payment>(BillingMonth.AllowedRangeMessage, fieldName: nameof(Month));
         }
 
         if (paidOn > today)

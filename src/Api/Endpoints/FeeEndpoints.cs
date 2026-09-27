@@ -1,7 +1,6 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Businesses;
-using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Api.Endpoints;
@@ -14,7 +13,7 @@ internal static class FeeEndpoints
             .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
 
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
-        clients.MapPut(ApiRoutes.ClientById + ApiRoutes.MonthlyFee, SetClientMonthlyFeeAsync)
+        clients.MapPut(ApiRoutes.ClientById + ApiRoutes.BillingPlan, SetClientBillingPlanAsync)
             .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, RecordPaymentAsync)
             .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
@@ -33,18 +32,18 @@ internal static class FeeEndpoints
         IUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new SetDefaultMonthlyFeeCommand(request.Amount), cancellationToken);
+        var result = await useCase.ExecuteAsync(new SetDefaultMonthlyFeeCommand(request.Amount, request.EffectiveFrom), cancellationToken);
 
         return result.ToOkResult();
     }
 
-    private static async Task<IResult> SetClientMonthlyFeeAsync(
+    private static async Task<IResult> SetClientBillingPlanAsync(
         Guid clientId,
-        SetMonthlyFeeRequest request,
-        IUseCase<SetClientMonthlyFeeCommand, ClientResponse> useCase,
+        SetClientBillingPlanRequest request,
+        IUseCase<SetClientBillingPlanCommand, ClientBillingResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new SetClientMonthlyFeeCommand(clientId, request.Amount), cancellationToken);
+        var result = await useCase.ExecuteAsync(request.ToCommand(clientId), cancellationToken);
 
         return result.ToOkResult();
     }

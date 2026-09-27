@@ -1,3 +1,4 @@
+import { BillingPlan, BillingPlanChange } from "@/features/fees/types";
 import { NewStudentRequest, Student } from "@/features/students/types";
 
 export interface Client {
@@ -7,10 +8,11 @@ export interface Client {
   email: string | null;
   notes: string | null;
   createdAt: string;
-  monthlyFee: number | null;
 }
 
 export interface ClientDetails extends Client {
+  billingPlan: BillingPlan;
+  billingPlanChanges: BillingPlanChange[];
   students: Student[];
 }
 

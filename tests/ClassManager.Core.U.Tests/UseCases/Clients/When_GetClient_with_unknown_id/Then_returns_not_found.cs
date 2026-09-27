@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.UseCases.Clients;
 
@@ -10,7 +11,8 @@ public sealed class Then_returns_not_found
     public async Task Then_returns_not_found_Run()
     {
         var clients = new Mock<IClientRepository>();
-        var useCase = new GetClientUseCase(clients.Object, new Mock<IStudentRepository>().Object);
+        var useCase = new GetClientUseCase(
+            clients.Object, new Mock<IStudentRepository>().Object, new Mock<IFeeScheduleRepository>().Object, new Mock<IBusinessCalendarService>().Object);
 
         var response = await useCase.ExecuteAsync(new GetClientQuery(Guid.CreateVersion7()), CancellationToken.None);
 

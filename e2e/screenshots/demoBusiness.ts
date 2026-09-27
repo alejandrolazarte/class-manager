@@ -22,6 +22,7 @@ export interface DemoBusiness {
   beginnersClassGroupId: string;
   familyClientId: string;
   debtorClientId: string;
+  classPackClientId: string;
 }
 
 function todayIn(timeZoneId: string): string {
@@ -30,6 +31,12 @@ function todayIn(timeZoneId: string): string {
 
 function weekdayOf(isoDate: string): string {
   return weekOrder[new Date(`${isoDate}T12:00:00Z`).getUTCDay()] ?? "Monday";
+}
+
+function nextMonthOf(month: string): string {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const nextMonth = new Date(Date.UTC(year ?? 2026, monthNumber ?? 1, 1));
+  return nextMonth.toISOString().slice(0, 7);
 }
 
 function withToday(weekdays: string[], today: string): string[] {
@@ -193,8 +200,12 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await mark(beginners.id, studentId(ana, "Lucía Pérez"), "Present");
   await mark(beginners.id, studentId(sofia, "Mateo Martínez"), "Absent");
   await mark(advanced.id, studentId(diego, "Valentina Fernández"), "Present");
+  await mark(beginners.id, studentId(paula, "Emma Suárez"), "Present");
 
-  await send("PUT", `/api/clients/${sofia.id}/monthly-fee`, { amount: 40000 });
+  await send("PUT", `/api/clients/${sofia.id}/billing-plan`, {
+    kind: "CustomFee",
+    customFee: 40000,
+  });
   const pay = (clientId: string, amount: number, method: string) =>
     send("POST", `/api/clients/${clientId}/payments`, {
       amount,
@@ -207,6 +218,32 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await pay(carla.id, 25000, "Cash");
   await pay(sofia.id, 20000, "Transfer");
 
+  await send("PUT", "/api/business/monthly-fee", {
+    amount: 28000,
+    effectiveFrom: nextMonthOf(month),
+  });
+  const createClassPack = (
+    name: string,
+    classCount: number,
+    price: number,
+    validityMonths: number | null,
+  ) => send<Identified>("POST", "/api/class-packs", { name, classCount, price, validityMonths });
+  await createClassPack("Clase suelta", 1, 7000, null);
+  const fourClasses = await createClassPack("4 clases", 4, 24000, 1);
+  await createClassPack("8 clases", 8, 44000, 2);
+  await send("PUT", `/api/clients/${paula.id}/billing-plan`, {
+    kind: "ClassPacks",
+    customFee: null,
+    effectiveFrom: month,
+  });
+  await send("POST", `/api/clients/${paula.id}/class-pack-purchases`, {
+    classPackId: fourClasses.id,
+    price: 22000,
+    purchasedOn: monthStart,
+    method: "Cash",
+    notes: "Descuento por pago en efectivo",
+  });
+
   return {
     email,
     today,
@@ -214,5 +251,6 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     beginnersClassGroupId: beginners.id,
     familyClientId: ana.id,
     debtorClientId: diego.id,
+    classPackClientId: paula.id,
   };
 }

@@ -25,6 +25,13 @@ public static class ApiRoutes
     public const string Cancellation = "/cancellation";
     public const string Schedule = "/schedule";
     public const string MonthlyFee = "/monthly-fee";
+    public const string BillingPlan = "/billing-plan";
+    public const string ClassPacks = "/api/class-packs";
+    public const string ClassPackById = "/{classPackId:guid}";
+    public const string ClassPackPurchasesSegment = "/class-pack-purchases";
+    public const string ClassPackPurchases = "/api/class-pack-purchases";
+    public const string ClassPackPurchaseById = "/{purchaseId:guid}";
+    public const string ClassBalance = "/class-balance";
     public const string PaymentsSegment = "/payments";
     public const string Payments = "/api/payments";
     public const string PaymentById = "/{paymentId:guid}";

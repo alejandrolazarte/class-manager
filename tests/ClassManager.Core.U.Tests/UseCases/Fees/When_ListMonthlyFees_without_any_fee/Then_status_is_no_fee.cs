@@ -9,7 +9,7 @@ public sealed class Then_status_is_no_fee
     public async Task Then_status_is_no_fee_Run()
     {
         var builder = new FeeUseCaseBuilder();
-        builder.Business.SetDefaultMonthlyFee(null);
+        builder.DefaultFeeChanges.Clear();
         builder.AddEnrolledClient("Ana Pérez");
 
         var response = await builder.BuildList().ExecuteAsync(new ListMonthlyFeesQuery(null), CancellationToken.None);

@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { ClassPackClientRow } from "@/features/fees/components/ClassPackClientRow";
 import { ClientFeeRow } from "@/features/fees/components/ClientFeeRow";
 import { formatMoney } from "@/features/fees/money";
 import { addMonths, formatMonth, monthOf } from "@/features/fees/months";
@@ -34,6 +35,9 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
   const clients = (monthlyFees?.clients ?? []).filter(
     (clientFee: ClientFee) => filter === "all" || debtorStatuses.has(clientFee.status),
   );
+  const classPackClients = (monthlyFees?.classPackClients ?? []).filter(
+    (classPackClient) => filter === "all" || classPackClient.unpaidClasses > 0,
+  );
 
   return (
     <View className="flex-1 bg-background">
@@ -65,6 +69,13 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
             {translate("fees.month.summary", {
               paid: money(monthlyFees.totalPaid),
               due: money(monthlyFees.totalDue),
+            })}
+          </AppText>
+        ) : null}
+        {monthlyFees && monthlyFees.classPackSales > 0 ? (
+          <AppText variant="body" tone="muted">
+            {translate("fees.month.classPackSales", {
+              amount: money(monthlyFees.classPackSales),
             })}
           </AppText>
         ) : null}
@@ -105,11 +116,27 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
             />
           )}
           ListEmptyComponent={
-            isError ? null : (
+            isError || classPackClients.length > 0 ? null : (
               <AppText variant="body" tone="muted" className="p-6 text-center">
                 {translate(filter === "debtors" ? "fees.month.nobodyOwes" : "fees.month.empty")}
               </AppText>
             )
+          }
+          ListFooterComponent={
+            classPackClients.length > 0 ? (
+              <View>
+                <AppText variant="label" tone="subtle" className="px-4 pb-2 pt-6">
+                  {translate("fees.month.classPacksTitle")}
+                </AppText>
+                {classPackClients.map((classPackClient) => (
+                  <ClassPackClientRow
+                    key={classPackClient.clientId}
+                    classPackClient={classPackClient}
+                    onPress={() => router.push(routes.clientDetail(classPackClient.clientId))}
+                  />
+                ))}
+              </View>
+            ) : null
           }
           refreshing={isRefetching}
           onRefresh={() => refetch()}

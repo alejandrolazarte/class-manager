@@ -12,6 +12,7 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 - Four class groups: Natación inicial and Natación avanzada (Monday, Wednesday, Friday and whatever day the script runs, so "Hoy" always has classes), Aquagym and Natación adultos (Tuesday and Thursday).
 - Six families, nine enrollments from the first day of the current month, and attendance for today.
 - A default fee of $25.000, one family with its own fee, and payments that leave families paid, partially paid and owing.
+- A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez family paying per class with a discounted 4-class pack and one class already used.
 
 Every run signs up a new business with a unique email, so it can run against the same database many times.
 
@@ -45,5 +46,9 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `10-cuotas`, `10b-cuotas-todos` | Month fees, debtors and everyone |
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-profes` | Settings and instructors |
+| `14-familia-por-clases` | Family paying per class: classes left and packs |
+| `15-vender-pack` | Sell a pack |
+| `16-packs` | Class pack catalog |
+| `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
 
 When a new screen is added, add a row to `screens` in `e2e/screenshots/App_screens.capture.ts` with the path and a text that proves it finished loading.
