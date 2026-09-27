@@ -28,7 +28,7 @@ export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
   return (
     <SafeAreaProvider>
-      <ThemeProvider initialColorSchemePreference="light">
+      <ThemeProvider>
         <QueryClientProvider client={queryClient}>
           <SessionProvider>
             <ToastProvider>
