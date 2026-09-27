@@ -1,11 +1,12 @@
 import "@/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SplashScreen, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "@/features/authentication/SessionProvider";
 import { useSession } from "@/features/authentication/useSession";
+import { ThemedStatusBar } from "@/theme/ThemedStatusBar";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 import { ToastProvider } from "@/ui/ToastProvider";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -27,14 +28,16 @@ export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <ToastProvider>
-            <StatusBar style="dark" />
-            <RootNavigator />
-          </ToastProvider>
-        </SessionProvider>
-      </QueryClientProvider>
+      <ThemeProvider initialColorSchemePreference="light">
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
+            <ToastProvider>
+              <ThemedStatusBar />
+              <RootNavigator />
+            </ToastProvider>
+          </SessionProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

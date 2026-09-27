@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Pressable, Text, TextInputProps, View } from "react-native";
+import { Pressable, TextInputProps, View } from "react-native";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 import { TextField } from "@/ui/TextField";
 
 interface PasswordFieldProps extends Omit<TextInputProps, "secureTextEntry"> {
@@ -23,9 +24,9 @@ export function PasswordField(passwordFieldProps: PasswordFieldProps) {
         className="self-end"
         onPress={() => setIsPasswordVisible((wasPasswordVisible) => !wasPasswordVisible)}
       >
-        <Text className="text-sm font-medium text-brand">
+        <AppText variant="label" tone="primary">
           {translate(isPasswordVisible ? "common.hidePassword" : "common.showPassword")}
-        </Text>
+        </AppText>
       </Pressable>
     </View>
   );

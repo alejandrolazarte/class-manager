@@ -7,7 +7,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { AppText } from "@/ui/AppText";
 
 const toastDurationMilliseconds = 3000;
 
@@ -36,8 +37,10 @@ export function ToastProvider({ children }: PropsWithChildren) {
       {children}
       {visibleMessage !== null ? (
         <View pointerEvents="none" className="absolute bottom-24 left-0 right-0 items-center px-4">
-          <View accessibilityRole="alert" className="rounded-full bg-gray-900 px-5 py-3">
-            <Text className="text-base text-white">{visibleMessage}</Text>
+          <View accessibilityRole="alert" className="rounded-full bg-inverse px-5 py-3">
+            <AppText variant="body" tone="inverse">
+              {visibleMessage}
+            </AppText>
           </View>
         </View>
       ) : null}

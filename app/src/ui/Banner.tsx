@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { AppText } from "@/ui/AppText";
 
 type BannerTone = "error" | "warning";
 
@@ -9,8 +10,8 @@ interface BannerProps extends PropsWithChildren {
 }
 
 const toneClassNames: Record<BannerTone, string> = {
-  error: "border-red-300 bg-red-50",
-  warning: "border-amber-300 bg-amber-50",
+  error: "border-danger/40 bg-danger-soft",
+  warning: "border-warning/40 bg-warning-soft",
 };
 
 export function Banner({ message, tone = "error", children }: BannerProps) {
@@ -19,7 +20,7 @@ export function Banner({ message, tone = "error", children }: BannerProps) {
       accessibilityRole="alert"
       className={`gap-3 rounded-xl border p-3 ${toneClassNames[tone]}`}
     >
-      <Text className="text-base text-gray-900">{message}</Text>
+      <AppText variant="body">{message}</AppText>
       {children}
     </View>
   );

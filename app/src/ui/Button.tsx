@@ -1,4 +1,7 @@
-import { ActivityIndicator, Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
+import { ThemeColorToken } from "@/theme/themeColorTokens";
+import { AppText, TextTone } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 type ButtonVariant = "primary" | "secondary" | "danger";
 
@@ -12,15 +15,21 @@ interface ButtonProps {
 }
 
 const containerClassNames: Record<ButtonVariant, string> = {
-  primary: "bg-brand",
-  secondary: "border border-brand bg-white",
-  danger: "bg-red-600",
+  primary: "bg-primary",
+  secondary: "border border-primary bg-surface",
+  danger: "bg-danger",
 };
 
-const labelClassNames: Record<ButtonVariant, string> = {
-  primary: "text-white",
-  secondary: "text-brand",
-  danger: "text-white",
+const labelTones: Record<ButtonVariant, TextTone> = {
+  primary: "onPrimary",
+  secondary: "primary",
+  danger: "onDanger",
+};
+
+const spinnerTones: Record<ButtonVariant, ThemeColorToken> = {
+  primary: "primary-foreground",
+  secondary: "primary",
+  danger: "danger-foreground",
 };
 
 export function Button({
@@ -41,8 +50,10 @@ export function Button({
       onPress={onPress}
       className={`min-h-12 flex-row items-center justify-center rounded-xl px-4 ${containerClassNames[variant]} ${isInactive ? "opacity-50" : ""}`}
     >
-      {isLoading ? <ActivityIndicator color="#ffffff" /> : null}
-      <Text className={`text-base font-semibold ${labelClassNames[variant]}`}>{label}</Text>
+      {isLoading ? <Spinner tone={spinnerTones[variant]} testID="button-spinner" /> : null}
+      <AppText variant="bodyStrong" tone={labelTones[variant]}>
+        {label}
+      </AppText>
     </Pressable>
   );
 }

@@ -1,14 +1,14 @@
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 import { translate } from "@/i18n/translate";
-import { brandColor } from "@/ui/colors";
+import { Spinner } from "@/ui/Spinner";
 
 export function LoadingScreen() {
   return (
     <View
-      className="flex-1 items-center justify-center bg-gray-50"
+      className="flex-1 items-center justify-center bg-background"
       accessibilityLabel={translate("common.loading")}
     >
-      <ActivityIndicator size="large" color={brandColor} />
+      <Spinner size="large" />
     </View>
   );
 }

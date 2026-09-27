@@ -3,6 +3,7 @@ import { render } from "@testing-library/react-native";
 import { ReactElement } from "react";
 import { SessionProvider } from "@/features/authentication/SessionProvider";
 import { createTestQueryClient } from "@/testing/testQueryClients";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 import { ToastProvider } from "@/ui/ToastProvider";
 
 interface RenderWithSessionOptions {
@@ -14,11 +15,13 @@ export async function renderWithSession(
   { queryClient = createTestQueryClient() }: RenderWithSessionOptions = {},
 ) {
   const renderResult = await render(
-    <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        <ToastProvider>{element}</ToastProvider>
-      </SessionProvider>
-    </QueryClientProvider>,
+    <ThemeProvider initialColorSchemePreference="light">
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <ToastProvider>{element}</ToastProvider>
+        </SessionProvider>
+      </QueryClientProvider>
+    </ThemeProvider>,
   );
   return { ...renderResult, queryClient };
 }
