@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { getImportSchema, previewImport } from "@/features/importExport/importExportApi";
-import { pickCsvFile } from "@/features/importExport/pickCsvFile";
+import { pickImportFile } from "@/features/importExport/pickImportFile";
 import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
 import { translate } from "@/i18n/translate";
 import {
@@ -11,13 +11,13 @@ import {
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/importExport/importExportApi");
-jest.mock("@/features/importExport/pickCsvFile");
-jest.mock("@/features/importExport/saveCsvFile");
+jest.mock("@/features/importExport/pickImportFile");
+jest.mock("@/features/importExport/saveSpreadsheetFile");
 
 describe("When previewing a students file", () => {
   beforeEach(() => {
     jest.mocked(getImportSchema).mockResolvedValue(buildStudentsSchema());
-    jest.mocked(pickCsvFile).mockResolvedValue(pickedStudentsFile);
+    jest.mocked(pickImportFile).mockResolvedValue(pickedStudentsFile);
     jest.mocked(previewImport).mockResolvedValue(buildStudentsReport());
   });
 

@@ -46,8 +46,8 @@ async function readJson<TResponse>(response: Response): Promise<TResponse> {
   return (body === "" ? undefined : JSON.parse(body)) as TResponse;
 }
 
-function readText(response: Response): Promise<string> {
-  return response.text();
+function readBytes(response: Response): Promise<ArrayBuffer> {
+  return response.arrayBuffer();
 }
 
 async function fetchWithHeaders(
@@ -128,8 +128,8 @@ export const httpClient = {
       authenticatedRequest,
     );
   },
-  getText(path: string): Promise<string> {
-    return send(buildUrl(path), { method: "GET" }, authenticatedRequest, readText);
+  getBytes(path: string): Promise<ArrayBuffer> {
+    return send(buildUrl(path), { method: "GET" }, authenticatedRequest, readBytes);
   },
   postForm<TResponse>(path: string, form: FormData): Promise<TResponse> {
     return send<TResponse>(buildUrl(path), { method: "POST", body: form }, authenticatedRequest);

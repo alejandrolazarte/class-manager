@@ -10,17 +10,32 @@ Date: 2026-09-29
 |---|---|---|
 | `Columns` | `ImportColumn`, `ColumnType` | What a module accepts: stable `Key`, file `Header`, `Type`, `IsRequired`, `Aliases`, `Example` |
 | `Tabular` | `ITabularReader`, `ITabularWriter`, `TabularData`, `FormulaEscaping` | File format boundary: bytes to rows and rows to bytes |
-| `Tabular/Csv` | `CsvTabularReader`, `CsvTabularWriter` | The only format for now |
+| `Tabular/Csv` | `CsvTabularReader`, `CsvTabularWriter` | CSV, still accepted on import |
 | `Parsing` | `IImportParser`, `ImportParser`, `HeaderMatcher`, `ImportRow`, `ImportCellError` | Limits, header matching, required cells and date conversion |
 | root | `ImportLimits`, `ImportFileError`, `ImportErrorCodes` | File-level limits and error codes |
 
-The library has no dependencies. `Core` references it and defines the modules and use cases in `src/Core/UseCases/ImportExport`; `Api` registers `ImportParser`, `CsvTabularReader`, `CsvTabularWriter` and every `IImportModule`, and exposes them under `/api/import-export/{module}`.
+`src/ImportExport.Xlsx` (also under ARCH005) adds `XlsxTabularReader`, `XlsxTabularWriter` and `XlsxOrCsvTabularReader`, which picks the reader from the file's first bytes (a ZIP signature means XLSX, anything else CSV).
+
+Both libraries have no package dependencies (XLSX is written and read with `System.IO.Compression` and `System.Xml`). `Core` references `ImportExport` and defines the modules and use cases in `src/Core/UseCases/ImportExport`; `Api` registers `ImportParser`, `XlsxOrCsvTabularReader`, `XlsxTabularWriter` and every `IImportModule`, and exposes them under `/api/import-export/{module}`.
+
+## Why exports are XLSX
+
+Exports and templates were CSV (UTF-8 with BOM) until 2026-09-27. The bytes were correct, but the Google Sheets app on Android ignores the BOM and decodes a shared CSV as Windows-1252: headers showed `ï»¿Alumno` and `TelÃ©fono`. A CSV has no reliable way to declare its encoding to every viewer, while an XLSX stores text as UTF-8 XML by definition, so Excel, Google Sheets (web and mobile) and Numbers all open it correctly. Import still accepts CSV, so files people already have keep working.
 
 ## Adding a module
 
 1. In `Core`, implement `IImportModule`: a lowercase `Name` (the route segment), its `Columns`, and `PlanAsync`, which returns `Result<ImportPlan>` (a failure stops the whole import, for example when there is no current business). It turns rows without cell errors into domain entities with the existing factories and returns one `ImportRowResult` per row (`Valid`, `Error` or `Skipped`) plus `AddValidRows`, which only adds entities to repositories. Saving is the use case's job.
 2. Register it in `AddUseCases` as `services.AddScoped<IImportModule, ...>()`.
 3. Tests: unit tests for the module rules, and an integration test proving another business doesn't see the imported rows.
+
+## XLSX rules
+
+| Concern | Reading | Writing |
+|---|---|---|
+| Sheet | The first sheet of the workbook, found through the package relationships | One sheet, `Sheet1` |
+| Cells | Shared strings (rich text runs joined, phonetic runs ignored), inline strings, formula results, booleans (`TRUE`/`FALSE`), numbers as invariant text (`611222333`, `12.5`) and date-formatted numbers or `t="d"` cells as `yyyy-MM-dd` (1900 and 1904 date systems) | Every cell is an inline string, so nothing is ever evaluated as a formula and no escaping is needed; characters that XML cannot hold are removed |
+| Layout | Cells are placed by their reference (`C2`), so skipped cells stay empty; rows keep their sheet row number for error messages; blank rows are skipped; columns after 1,024 are ignored | Bold header row, frozen; every column formatted as text (`@`), so phones and dates typed later in Excel stay as typed |
+| Safety | DTDs are prohibited; each part of the ZIP is read up to 16 MB (compressed size is already capped by the 1 MB upload limit); a broken ZIP or XML is `import.unreadable_file` | |
 
 ## CSV rules
 
@@ -44,4 +59,4 @@ The library has no dependencies. `Core` references it and defines the modules an
 ## Rules
 
 - ARCH005: `ImportExport` and `ImportExport.*` cannot use `ClassManager.Core`, `Infrastructure`, `Api`, `Security` or `Tenancy` (see [analyzers.md](analyzers.md)). The tenant never comes from a file: modules turn rows into normal commands and the tenancy interceptor stamps them.
-- A new format (for example XLSX) is a new `ITabularReader` / `ITabularWriter` in its own project; profiles and use cases don't change.
+- A new format is a new `ITabularReader` / `ITabularWriter` in its own project, like `ImportExport.Xlsx`; profiles and use cases don't change.

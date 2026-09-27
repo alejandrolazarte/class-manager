@@ -7,17 +7,17 @@ import {
   importFile,
   previewImport,
 } from "@/features/importExport/importExportApi";
-import { csvFileNames } from "@/features/importExport/csvFileNames";
+import { spreadsheetFileNames } from "@/features/importExport/spreadsheetFileNames";
 import { importExportQueryKeys } from "@/features/importExport/importExportQueryKeys";
-import { PickedCsvFile } from "@/features/importExport/pickCsvFile";
-import { saveCsvFile } from "@/features/importExport/saveCsvFile";
+import { PickedImportFile } from "@/features/importExport/pickImportFile";
+import { saveSpreadsheetFile } from "@/features/importExport/saveSpreadsheetFile";
 import { ImportModule } from "@/features/importExport/types";
 import { instructorQueryKeys } from "@/features/instructors/instructorQueryKeys";
 import { studentQueryKeys } from "@/features/students/studentQueryKeys";
 
 interface ImportFileVariables {
   module: ImportModule;
-  file: PickedCsvFile;
+  file: PickedImportFile;
 }
 
 export function useImportSchema(module: ImportModule) {
@@ -49,13 +49,16 @@ export function useImportFile() {
 export function useDownloadTemplate() {
   return useMutation({
     mutationFn: async (module: ImportModule) =>
-      saveCsvFile(csvFileNames.template(module), await downloadTemplate(module)),
+      saveSpreadsheetFile(spreadsheetFileNames.template(module), await downloadTemplate(module)),
   });
 }
 
 export function useDownloadExport() {
   return useMutation({
     mutationFn: async (module: ImportModule) =>
-      saveCsvFile(csvFileNames.export(module, new Date()), await downloadExport(module)),
+      saveSpreadsheetFile(
+        spreadsheetFileNames.export(module, new Date()),
+        await downloadExport(module),
+      ),
   });
 }

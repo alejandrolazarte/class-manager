@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/ImportExport/ImportExport.csproj" />
+    <ProjectReference Include="../../src/ImportExport.Xlsx/ImportExport.Xlsx.csproj" />
   </ItemGroup>
 </Project>

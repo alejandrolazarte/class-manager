@@ -15,8 +15,8 @@ public sealed class Then_every_student_is_created_again(ApiFixture fixture)
         await business.HttpClient.RegisterClientAsync(students: [new NewStudent("Lucas Pérez", new DateOnly(2015, 3, 7), "Alergia; \"leve\""), new NewStudent("Sofía Pérez", null, null)]);
         await business.HttpClient.RegisterClientAsync("Marta Ruiz", "11 5555-6666", [new NewStudent("Marta Ruiz", null, null)]);
 
-        var exported = await business.HttpClient.DownloadCsvAsync(StudentImportModule.ModuleName, ApiRoutes.ExportAction);
-        var report = await otherBusiness.HttpClient.ImportFileAsync(StudentImportModule.ModuleName, exported);
+        var exported = await business.HttpClient.DownloadWorkbookAsync(StudentImportModule.ModuleName, ApiRoutes.ExportAction);
+        var report = await otherBusiness.HttpClient.ImportWorkbookAsync(StudentImportModule.ModuleName, exported);
 
         report.Summary.ShouldBe(new ImportSummary(Total: 3, Valid: 3, Errors: 0, Skipped: 0));
         var students = await otherBusiness.HttpClient.GetFromJsonAsync<List<StudentSummaryResponse>>(new Uri(ApiRoutes.Students, UriKind.Relative), ApiRequests.JsonOptions);

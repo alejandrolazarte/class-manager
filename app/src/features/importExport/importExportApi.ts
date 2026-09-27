@@ -1,6 +1,6 @@
 import { httpClient } from "@/api/httpClient";
-import { csvFileForm } from "@/features/importExport/csvFileForm";
-import { PickedCsvFile } from "@/features/importExport/pickCsvFile";
+import { importFileForm } from "@/features/importExport/importFileForm";
+import { PickedImportFile } from "@/features/importExport/pickImportFile";
 import { ImportModule, ImportReport, ImportSchema } from "@/features/importExport/types";
 
 const importExportPath = "/api/import-export";
@@ -13,18 +13,18 @@ export function getImportSchema(module: ImportModule): Promise<ImportSchema> {
   return httpClient.get<ImportSchema>(modulePath(module, "schema"));
 }
 
-export function previewImport(module: ImportModule, file: PickedCsvFile): Promise<ImportReport> {
-  return httpClient.postForm<ImportReport>(modulePath(module, "preview"), csvFileForm(file));
+export function previewImport(module: ImportModule, file: PickedImportFile): Promise<ImportReport> {
+  return httpClient.postForm<ImportReport>(modulePath(module, "preview"), importFileForm(file));
 }
 
-export function importFile(module: ImportModule, file: PickedCsvFile): Promise<ImportReport> {
-  return httpClient.postForm<ImportReport>(modulePath(module, "import"), csvFileForm(file));
+export function importFile(module: ImportModule, file: PickedImportFile): Promise<ImportReport> {
+  return httpClient.postForm<ImportReport>(modulePath(module, "import"), importFileForm(file));
 }
 
-export function downloadTemplate(module: ImportModule): Promise<string> {
-  return httpClient.getText(modulePath(module, "template"));
+export function downloadTemplate(module: ImportModule): Promise<ArrayBuffer> {
+  return httpClient.getBytes(modulePath(module, "template"));
 }
 
-export function downloadExport(module: ImportModule): Promise<string> {
-  return httpClient.getText(modulePath(module, "export"));
+export function downloadExport(module: ImportModule): Promise<ArrayBuffer> {
+  return httpClient.getBytes(modulePath(module, "export"));
 }

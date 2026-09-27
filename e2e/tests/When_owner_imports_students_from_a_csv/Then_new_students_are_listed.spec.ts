@@ -12,7 +12,7 @@ test("Then new students are listed", async ({ page, request }) => {
   await page.goto("/settings/import-export");
 
   const fileChooserPromise = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Elegir archivo CSV" }).click();
+  await page.getByRole("button", { name: "Elegir archivo (Excel o CSV)" }).click();
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles({
     name: "alumnos.csv",

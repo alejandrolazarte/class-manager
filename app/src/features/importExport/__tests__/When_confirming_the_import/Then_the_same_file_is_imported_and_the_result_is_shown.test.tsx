@@ -4,7 +4,7 @@ import {
   importFile,
   previewImport,
 } from "@/features/importExport/importExportApi";
-import { pickCsvFile } from "@/features/importExport/pickCsvFile";
+import { pickImportFile } from "@/features/importExport/pickImportFile";
 import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
 import { translate, translateCount } from "@/i18n/translate";
 import {
@@ -15,13 +15,13 @@ import {
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/importExport/importExportApi");
-jest.mock("@/features/importExport/pickCsvFile");
-jest.mock("@/features/importExport/saveCsvFile");
+jest.mock("@/features/importExport/pickImportFile");
+jest.mock("@/features/importExport/saveSpreadsheetFile");
 
 describe("When confirming the import", () => {
   beforeEach(() => {
     jest.mocked(getImportSchema).mockResolvedValue(buildStudentsSchema());
-    jest.mocked(pickCsvFile).mockResolvedValue(pickedStudentsFile);
+    jest.mocked(pickImportFile).mockResolvedValue(pickedStudentsFile);
     jest.mocked(previewImport).mockResolvedValue(buildStudentsReport());
     jest.mocked(importFile).mockResolvedValue(buildStudentsReport());
   });
