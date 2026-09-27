@@ -122,7 +122,9 @@ Don't run `scripts/seed-demo-business.cs` against the pilot database: businesses
 
 ### 7. Mobile app (pilot)
 
-- Use EAS Build with an **internal distribution** profile: pilot businesses install an APK from a link, with no Play Store needed yet.
+- Pilot businesses install the **web app as a PWA** from the browser ("Install app" on Android, "Add to Home Screen" on iPhone). It updates itself on every push to `main`, with no APK, no "unknown sources" permission and no store. See [pilot deployment](pilot-deployment.md#10-installing-the-app-on-phones-pwa).
+- The app uses no native-only feature today: session and theme storage have web variants (`*.web.ts`, `localStorage`).
+- The EAS `pilot` profile (an APK installed from a link) stays available but is not the default: Android asks to allow installs from unknown sources, which is too much friction for instructors.
 - Store publishing (Google Play: USD 25 once; Apple: USD 99 per year) waits until the app leaves the pilot.
 
 ## Deployment pipeline

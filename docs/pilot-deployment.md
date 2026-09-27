@@ -11,7 +11,8 @@ Step-by-step commands to put class-manager online for the pilot, following the [
 | API image | `src/Api/Containerfile` (non-root, port 8080). CI builds it on every pull request |
 | Migrations | `scripts/migrate-database.mjs` applies `AppDbContext` and `SecurityDbContext` to the database in `MIGRATIONS_CONNECTION_STRING` |
 | Deploy pipeline | `.github/workflows/deploy.yml`, runs after CI passes on `main`; skipped until the `AZURE_CLIENT_ID` variable exists |
-| Android pilot build | `app/eas.json`, profile `pilot`: an APK installed from a link |
+| Installable web app (PWA) | `app/public/`: `index.html` template, `manifest.webmanifest`, icons and `service-worker.js`, copied into `dist/` by `expo export` |
+| Android pilot build | `app/eas.json`, profile `pilot`: an APK installed from a link (optional, see step 11) |
 
 ## Before starting
 
@@ -225,7 +226,30 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
 
 Use the domain Cloudflare actually assigned if `class-manager` was taken.
 
-## 10. Android APK for the pilot
+## 10. Installing the app on phones (PWA)
+
+The web app from step 9 is also an installable app (a Progressive Web App). Instructors install it from the browser: no APK, no "allow installs from unknown sources", no store. It updates itself: every push to `main` rebuilds Pages, and the next time the app opens it loads the new version.
+
+**Android (Chrome):** open `https://<pages domain>`, then **⋮ → Install app** (or the "Install" banner Chrome shows). The app appears in the launcher with its icon and opens full screen.
+
+**iPhone:** open the same link in Safari, tap **Share → Add to Home Screen → Add**. Since iOS 16.4 the Share menu in other browsers (Chrome, Edge) offers it too.
+
+What makes it installable, all under `app/public/` (Expo copies the folder into `dist/`):
+
+| File | Why |
+|---|---|
+| `index.html` | Replaces Expo's default HTML template: Spanish `lang`, `theme-color`, the manifest link, the Apple home-screen tags, and the service worker registration |
+| `manifest.webmanifest` | Name, icons, colors and `display: standalone` (full screen, no browser bar) |
+| `icons/` | 192 and 512 px icons for Android (the 512 one also as `maskable`) and the 180 px `apple-touch-icon` for iPhone, resized from `assets/images/icon.png` |
+| `service-worker.js` | Only handles page navigations: always asks the network first, so a deploy is never hidden behind a stale copy. API calls, scripts and images are not intercepted. It caches the page only as an offline fallback |
+
+The icons are copies of the app icon: when the icon changes, regenerate them at the same sizes.
+
+Check it after a deploy: Chrome DevTools → **Application → Manifest** shows no errors and **Service workers** shows `service-worker.js` activated. Lighthouse's PWA checks were removed from recent Chrome versions; the Application tab is the reference.
+
+## 11. Android APK (optional)
+
+Not needed for the pilot: the PWA covers it. Kept for testing native-only behaviour, and as the base for Google Play and the App Store later. Installing an APK from a link makes Android ask to allow installs from unknown sources, which is why it isn't the default.
 
 ```powershell
 cd app
@@ -267,7 +291,8 @@ Without `Email__Smtp__Host` the API doesn't send anything: it logs a warning, an
 | Pull request | CI builds and tests; also builds the API image (without pushing) |
 | Merge to `main`, CI green | `deploy.yml`: image to `ghcr.io`, migrations, container app updated |
 | Push to `main` | Cloudflare Pages rebuilds the web app |
-| New APK | Manual: `eas build --profile pilot`, only when the mobile app changed |
+| Push to `main` | Installed PWAs pick up the new web app the next time they open |
+| New APK (optional) | Manual: `eas build --profile pilot`, only when native behaviour needs testing |
 
 Migrations run before the new image starts, while the previous version is still serving. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys.
 
