@@ -11,6 +11,7 @@ import { routes } from "@/navigation/routes";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
+import { Card } from "@/ui/Card";
 
 interface ClassBalanceSectionProps {
   clientId: string;
@@ -42,11 +43,11 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
 
   const availableTone: TextTone = balance.availableClasses > 0 ? "success" : "muted";
   return (
-    <View className="gap-2 rounded-xl bg-surface p-3">
-      <AppText variant="label" tone="subtle">
+    <Card className="gap-2.5 p-4">
+      <AppText variant="overline" tone="subtle">
         {translate("classPacks.balance.title")}
       </AppText>
-      <AppText variant="bodyStrong" tone={availableTone}>
+      <AppText variant="title" tone={availableTone}>
         {translateCount("classPacks.balance.available", balance.availableClasses)}
       </AppText>
       {balance.unpaidClasses > 0 ? (
@@ -64,7 +65,7 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
       {balance.purchases.map((usage) => (
         <View
           key={usage.id}
-          className={`flex-row items-center gap-3 border-t border-border-subtle pt-2 ${usage.status === "Active" ? "" : "opacity-60"}`}
+          className={`flex-row items-center gap-3 border-t border-border pt-2.5 ${usage.status === "Active" ? "" : "opacity-60"}`}
         >
           <View className="flex-1">
             <AppText variant="body">{`${usage.name} · ${formatMoney(usage.price, currencyCode)}`}</AppText>
@@ -84,9 +85,11 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
         </View>
       ))}
       <Button
+        size="medium"
+        icon="classPacks"
         label={translate("classPacks.balance.sell")}
         onPress={() => router.push(routes.sellClassPack(clientId))}
       />
-    </View>
+    </Card>
   );
 }

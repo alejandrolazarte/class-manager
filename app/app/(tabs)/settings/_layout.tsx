@@ -3,7 +3,7 @@ import { translate } from "@/i18n/translate";
 
 export default function SettingsLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ title: translate("settings.title") }} />
       <Stack.Screen name="business" options={{ title: translate("businessSettings.title") }} />
       <Stack.Screen name="monthly-fee" options={{ title: translate("fees.defaultFee.title") }} />

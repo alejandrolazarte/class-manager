@@ -10,6 +10,7 @@ export function ClassPackListScreen() {
   const { data: classPacks = [], isPending, isError, isRefetching, refetch } = useClassPacks(true);
   return (
     <SettingsListScreenLayout
+      title={translate("classPacks.list.title")}
       items={classPacks}
       isPending={isPending}
       isError={isError}

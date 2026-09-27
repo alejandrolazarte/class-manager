@@ -10,7 +10,7 @@ interface WeekdayChipsProps {
 
 export function WeekdayChips({ selectedWeekdays, onToggleWeekday }: WeekdayChipsProps) {
   return (
-    <View className="flex-row flex-wrap gap-2">
+    <View className="flex-row gap-1.5">
       {weekOrder.map((weekday) => (
         <Chip
           key={weekday}
@@ -18,6 +18,8 @@ export function WeekdayChips({ selectedWeekdays, onToggleWeekday }: WeekdayChips
           accessibilityLabel={weekdayLongLabel(weekday)}
           isSelected={selectedWeekdays.includes(weekday)}
           onPress={() => onToggleWeekday(weekday)}
+          shape="tile"
+          className="flex-1"
         />
       ))}
     </View>

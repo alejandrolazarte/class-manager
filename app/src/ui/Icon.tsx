@@ -1,28 +1,63 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ComponentProps } from "react";
 import { ColorValue } from "react-native";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { useTheme } from "@/theme/useTheme";
 
-type IoniconsGlyph = ComponentProps<typeof Ionicons>["name"];
+type MaterialIconsGlyph = ComponentProps<typeof MaterialIcons>["name"];
 
 const iconGlyphs = {
-  today: "checkmark-circle-outline",
-  classes: "calendar-outline",
-  students: "people-outline",
-  fees: "wallet-outline",
-  settings: "settings-outline",
+  today: "today",
+  classes: "calendar-month",
+  students: "group",
+  fees: "payments",
+  settings: "settings",
+  brand: "pool",
   add: "add",
-  previous: "chevron-back",
-  next: "chevron-forward",
-  paid: "checkmark-circle",
-} as const satisfies Record<string, IoniconsGlyph>;
+  remove: "remove",
+  previous: "chevron-left",
+  next: "chevron-right",
+  back: "arrow-back",
+  close: "close",
+  expand: "expand-more",
+  collapse: "expand-less",
+  present: "check",
+  absent: "close",
+  allPresent: "done-all",
+  paid: "check-circle",
+  cancelled: "event-busy",
+  schedule: "schedule",
+  notYet: "hourglass-top",
+  enroll: "person-add",
+  unenroll: "person-remove",
+  edit: "edit",
+  monthlyFee: "sell",
+  instructors: "sports",
+  business: "storefront",
+  classPacks: "confirmation-number",
+  appearance: "contrast",
+  palette: "palette",
+  signOut: "logout",
+  search: "search",
+  call: "call",
+  whatsApp: "chat",
+  celebration: "celebration",
+  cash: "payments",
+  transfer: "account-balance",
+  card: "credit-card",
+  otherMethod: "more-horiz",
+  warning: "warning-amber",
+  error: "error-outline",
+  delete: "delete-outline",
+} as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {
   small: 16,
   medium: 20,
-  large: 24,
-  extraLarge: 28,
+  large: 22,
+  extraLarge: 24,
+  huge: 40,
+  hero: 60,
 } as const;
 
 export type IconName = keyof typeof iconGlyphs;
@@ -49,7 +84,7 @@ export function Icon({
   const { colors } = useTheme();
   const isDecorative = accessibilityLabel === undefined;
   return (
-    <Ionicons
+    <MaterialIcons
       name={iconGlyphs[name]}
       size={iconSizes[size]}
       color={color ?? colors[tone]}

@@ -26,3 +26,7 @@ export function translateCount(
   const form = count === singularCount ? "one" : "other";
   return translate(`${key}.${form}` as TranslationKey, { ...values, count });
 }
+
+export function hasTranslation(key: string): key is TranslationKey {
+  return key in spanishTranslations;
+}

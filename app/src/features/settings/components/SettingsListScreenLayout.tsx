@@ -3,11 +3,14 @@ import { FlatList, View } from "react-native";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { EmptyState } from "@/ui/EmptyState";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
-import { AppText } from "@/ui/AppText";
+import { Screen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
 
 interface SettingsListScreenLayoutProps<TItem> {
+  title: string;
   items: TItem[];
   isPending: boolean;
   isError: boolean;
@@ -21,6 +24,7 @@ interface SettingsListScreenLayoutProps<TItem> {
 }
 
 export function SettingsListScreenLayout<TItem>({
+  title,
   items,
   isPending,
   isError,
@@ -33,37 +37,41 @@ export function SettingsListScreenLayout<TItem>({
   onNewItem,
 }: SettingsListScreenLayoutProps<TItem>) {
   return (
-    <View className="flex-1 bg-background">
-      {isError ? (
-        <View className="p-4">
-          <Banner message={translate("common.unexpectedError")}>
-            <Button variant="secondary" label={translate("common.retry")} onPress={onRefetch} />
-          </Banner>
-        </View>
-      ) : null}
+    <Screen overlay={<FloatingActionButton label={newItemLabel} onPress={onNewItem} />}>
+      <View className="gap-3.5 pb-3.5">
+        <ScreenHeader navigation="back" title={title} />
+        {isError ? (
+          <View className="px-5">
+            <Banner message={translate("common.unexpectedError")}>
+              <Button
+                variant="secondary"
+                size="medium"
+                label={translate("common.retry")}
+                onPress={onRefetch}
+              />
+            </Banner>
+          </View>
+        ) : null}
+      </View>
       {isPending ? (
         <Spinner className="mt-6" />
       ) : (
         <FlatList
           data={items}
           keyExtractor={keyExtractor}
-          renderItem={({ item }) => renderItem(item)}
+          renderItem={({ item }) => <View className="px-5 pb-3.5">{renderItem(item)}</View>}
           ListEmptyComponent={
             isError ? null : (
-              <View className="items-center gap-4 p-6">
-                <AppText tone="muted" variant="lead">
-                  {emptyMessage}
-                </AppText>
+              <EmptyState message={emptyMessage}>
                 <Button label={newItemLabel} onPress={onNewItem} />
-              </View>
+              </EmptyState>
             )
           }
           refreshing={isRefetching}
           onRefresh={onRefetch}
-          contentContainerClassName="pb-24"
+          contentContainerClassName="w-full max-w-2xl self-center pb-28"
         />
       )}
-      <FloatingActionButton accessibilityLabel={newItemLabel} onPress={onNewItem} />
-    </View>
+    </Screen>
   );
 }

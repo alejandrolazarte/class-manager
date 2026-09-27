@@ -1,14 +1,15 @@
 import { ThemeProvider as NavigationThemeProvider } from "expo-router";
 import { vars } from "nativewind";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useCallback, useMemo, useState } from "react";
 import { useColorScheme, View } from "react-native";
 import { buildNavigationTheme } from "@/theme/buildNavigationTheme";
 import { buildThemeVariables } from "@/theme/buildThemeVariables";
 import { ColorSchemePreference, ThemeContext, ThemeContextValue } from "@/theme/ThemeContext";
-import { ColorScheme, defaultThemeName, ThemeName, themes } from "@/theme/themes";
+import { ColorScheme, defaultThemeName, ThemeName, ThemeRegistry, themes } from "@/theme/themes";
 
 interface ThemeProviderProps {
   children: ReactNode;
+  customThemes?: ThemeRegistry;
   initialThemeName?: ThemeName;
   initialColorSchemePreference?: ColorSchemePreference;
 }
@@ -25,16 +26,24 @@ function resolveColorScheme(
 
 export function ThemeProvider({
   children,
+  customThemes,
   initialThemeName = defaultThemeName,
   initialColorSchemePreference = "system",
 }: ThemeProviderProps) {
-  const [themeName, setThemeName] = useState<ThemeName>(initialThemeName);
+  const registry = useMemo<ThemeRegistry>(() => ({ ...themes, ...customThemes }), [customThemes]);
+  const [requestedThemeName, setRequestedThemeName] = useState<ThemeName>(initialThemeName);
   const [colorSchemePreference, setColorSchemePreference] = useState<ColorSchemePreference>(
     initialColorSchemePreference,
   );
+  const themeName = requestedThemeName in registry ? requestedThemeName : defaultThemeName;
   const colorScheme = resolveColorScheme(colorSchemePreference, useColorScheme());
-  const colors = themes[themeName][colorScheme];
+  const colors = registry[themeName]![colorScheme];
 
+  const previewColors = useCallback(
+    (candidateThemeName: ThemeName) =>
+      (registry[candidateThemeName] ?? registry[defaultThemeName]!)[colorScheme],
+    [registry, colorScheme],
+  );
   const themeVariablesStyle = useMemo(() => vars(buildThemeVariables(colors)), [colors]);
   const navigationTheme = useMemo(
     () => buildNavigationTheme(colors, colorScheme),
@@ -43,13 +52,15 @@ export function ThemeProvider({
   const themeContextValue = useMemo<ThemeContextValue>(
     () => ({
       themeName,
+      themeNames: Object.keys(registry),
       colorScheme,
       colorSchemePreference,
       colors,
-      setThemeName,
+      previewColors,
+      setThemeName: setRequestedThemeName,
       setColorSchemePreference,
     }),
-    [themeName, colorScheme, colorSchemePreference, colors],
+    [themeName, registry, colorScheme, colorSchemePreference, colors, previewColors],
   );
 
   return (

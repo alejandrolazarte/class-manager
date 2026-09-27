@@ -27,6 +27,6 @@ describe("When one student is absent", () => {
       <SessionScreen classGroupId={session.classGroupId} sessionDate={sessionDate} />,
     );
 
-    expect(await screen.findByText("1 vino · 1 faltó · 0 sin marcar")).toBeOnTheScreen();
+    expect(await screen.findByLabelText("1 vino · 1 faltó · 0 sin marcar")).toBeOnTheScreen();
   });
 });

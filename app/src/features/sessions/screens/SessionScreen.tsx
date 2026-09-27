@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
@@ -12,10 +12,16 @@ import {
   useRestoreSessionSchedule,
 } from "@/features/sessions/useSessionMutations";
 import { translate, translateCount } from "@/i18n/translate";
+import { AppText, TextTone } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { AppText } from "@/ui/AppText";
+import { Card } from "@/ui/Card";
+import { Icon } from "@/ui/Icon";
+import { ListDivider } from "@/ui/ListRow";
+import { Screen, ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
+import { useToast } from "@/ui/ToastProvider";
 
 interface SessionScreenProps {
   classGroupId: string;
@@ -24,9 +30,30 @@ interface SessionScreenProps {
 
 type PendingStatuses = Record<string, AttendanceStatus | null>;
 
+interface CountTileProps {
+  count: number;
+  label: string;
+  className: string;
+  countTone: TextTone;
+}
+
 const summarySeparator = " · ";
 
+function CountTile({ count, label, className, countTone }: CountTileProps) {
+  return (
+    <View className={`flex-1 gap-0.5 rounded-2xl px-3 py-2.5 ${className}`}>
+      <AppText variant="headline" tone={countTone}>
+        {count}
+      </AppText>
+      <AppText variant="footnote" tone="muted" className="font-label">
+        {label}
+      </AppText>
+    </View>
+  );
+}
+
 export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps) {
+  const { showToast } = useToast();
   const {
     data: session,
     isPending,
@@ -40,15 +67,26 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const [hasSaveFailed, setHasSaveFailed] = useState(false);
 
   if (isPending) {
-    return <Spinner className="mt-6" />;
+    return (
+      <Screen header={<ScreenHeader navigation="back" title="" />}>
+        <Spinner className="mt-6" />
+      </Screen>
+    );
   }
   if (isError || session === undefined) {
     return (
-      <View className="p-4">
+      <ScrollScreen
+        header={<ScreenHeader navigation="back" title={translate("sessions.session.title")} />}
+      >
         <Banner message={translate("common.unexpectedError")}>
-          <Button variant="secondary" label={translate("common.retry")} onPress={() => refetch()} />
+          <Button
+            variant="secondary"
+            size="medium"
+            label={translate("common.retry")}
+            onPress={() => refetch()}
+          />
         </Banner>
-      </View>
+      </ScrollScreen>
     );
   }
 
@@ -76,76 +114,127 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const presentCount = statuses.filter((status) => status === "Present").length;
   const absentCount = statuses.filter((status) => status === "Absent").length;
   const unmarkedCount = statuses.length - presentCount - absentCount;
+  const canMarkAttendance = session.canTakeAttendance && !session.isCancelled;
+
+  const markAllPresent = () =>
+    Promise.all(
+      session.students
+        .filter((student) => statusOf(student.studentId, student.status) === null)
+        .map((student) => changeStatus(student.studentId, "Present")),
+    );
+
+  const restoreSession = async () => {
+    await restoreSessionMutation.mutateAsync();
+    showToast(translate("sessions.session.restoredToast"));
+  };
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 pb-12">
-      <View className="gap-1 bg-surface p-4">
-        <AppText variant="display">{session.classGroupName}</AppText>
-        <AppText variant="body" tone="muted">
-          {`${formatLongDate(session.date)} · ${session.startTime}–${session.endTime}`}
-        </AppText>
-        {session.isCancelled ? null : (
-          <AppText tone="primary" variant="link">
-            {[
-              translateCount("sessions.attendance.presentCount", presentCount),
-              translateCount("sessions.attendance.absentCount", absentCount),
-              translate("sessions.attendance.unmarkedCount", { count: unmarkedCount }),
-            ].join(summarySeparator)}
-          </AppText>
-        )}
-      </View>
-      {session.isCancelled ? (
-        <View className="px-4">
-          <Banner
-            tone="warning"
-            message={
-              session.cancellationReason
-                ? translate("sessions.session.cancelled", { reason: session.cancellationReason })
-                : translate("sessions.session.cancelledWithoutReason")
-            }
-          >
-            <Button
-              variant="secondary"
-              label={translate("sessions.session.restore")}
-              onPress={() => restoreSessionMutation.mutate()}
-              isLoading={restoreSessionMutation.isPending}
-            />
-          </Banner>
+    <ScrollScreen
+      header={
+        <ScreenHeader
+          navigation="back"
+          eyebrow={translate("sessions.session.title")}
+          title={session.classGroupName}
+          subtitle={`${formatLongDate(session.date)} · ${session.startTime}–${session.endTime}`}
+        />
+      }
+    >
+      {session.isCancelled ? null : (
+        <View
+          accessible
+          accessibilityLabel={[
+            translateCount("sessions.attendance.presentCount", presentCount),
+            translateCount("sessions.attendance.absentCount", absentCount),
+            translate("sessions.attendance.unmarkedCount", { count: unmarkedCount }),
+          ].join(summarySeparator)}
+          className="flex-row gap-2"
+        >
+          <CountTile
+            count={presentCount}
+            label={translateCount("sessions.attendance.presentLabel", presentCount)}
+            className="bg-success-soft"
+            countTone="success"
+          />
+          <CountTile
+            count={absentCount}
+            label={translateCount("sessions.attendance.absentLabel", absentCount)}
+            className="bg-danger-soft"
+            countTone="danger"
+          />
+          <CountTile
+            count={unmarkedCount}
+            label={translate("sessions.attendance.unmarkedLabel")}
+            className="bg-muted"
+            countTone="default"
+          />
         </View>
+      )}
+      {session.isCancelled ? (
+        <Banner
+          tone="warning"
+          icon="cancelled"
+          message={
+            session.cancellationReason
+              ? translate("sessions.session.cancelled", { reason: session.cancellationReason })
+              : translate("sessions.session.cancelledWithoutReason")
+          }
+        >
+          <Button
+            variant="outline"
+            size="medium"
+            label={translate("sessions.session.restore")}
+            onPress={restoreSession}
+            isLoading={restoreSessionMutation.isPending}
+          />
+        </Banner>
       ) : null}
       {session.originalStartTime && !session.isCancelled ? (
-        <View className="px-4">
-          <Banner
-            tone="warning"
-            message={translate("sessions.reschedule.notice", {
-              original: session.originalStartTime,
-            })}
-          >
-            {session.canReschedule ? (
-              <Button
-                variant="secondary"
-                label={translate("sessions.reschedule.restore")}
-                onPress={() => restoreSessionScheduleMutation.mutate()}
-                isLoading={restoreSessionScheduleMutation.isPending}
-              />
-            ) : null}
-          </Banner>
-        </View>
+        <Banner
+          tone="warning"
+          icon="schedule"
+          message={translate("sessions.reschedule.notice", {
+            original: session.originalStartTime,
+          })}
+        >
+          {session.canReschedule ? (
+            <Button
+              variant="outline"
+              size="medium"
+              label={translate("sessions.reschedule.restore")}
+              onPress={() => restoreSessionScheduleMutation.mutate()}
+              isLoading={restoreSessionScheduleMutation.isPending}
+            />
+          ) : null}
+        </Banner>
       ) : null}
       {!session.isCancelled && !session.canTakeAttendance ? (
-        <AppText variant="body" tone="muted" className="px-4">
-          {translate("sessions.session.notYet")}
-        </AppText>
+        <Banner tone="info" message={translate("sessions.session.notYet")} />
       ) : null}
-      {hasSaveFailed ? (
-        <View className="px-4">
-          <Banner message={translate("sessions.attendance.saveFailed")} />
-        </View>
-      ) : null}
+      {hasSaveFailed ? <Banner message={translate("sessions.attendance.saveFailed")} /> : null}
       {session.isCancelled ? null : (
-        <View>
+        <View className="gap-2">
+          {canMarkAttendance && session.students.length > 0 ? (
+            <View className="flex-row items-center justify-between gap-2">
+              <AppText variant="caption" tone="subtle" className="flex-1">
+                {translate("sessions.attendance.swipeHint")}
+              </AppText>
+              {unmarkedCount > 0 ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={translate("sessions.attendance.allPresent")}
+                  onPress={markAllPresent}
+                  className="flex-row items-center gap-1.5 rounded-full bg-success-soft px-3.5 py-2 active:opacity-80"
+                >
+                  <Icon name="allPresent" size="medium" tone="success-soft-foreground" />
+                  <AppText variant="eyebrow" tone="successSoft">
+                    {translate("sessions.attendance.allPresent")}
+                  </AppText>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
           {session.students.length === 0 ? (
-            <AppText variant="body" tone="muted" className="px-4">
+            <AppText variant="body" tone="muted" className="py-2">
               {translate("sessions.session.noStudents")}
             </AppText>
           ) : null}
@@ -161,13 +250,24 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         </View>
       )}
       {session.isCancelled ? null : (
-        <View className="gap-3 px-4">
+        <Card className="mt-1">
           {session.canReschedule ? (
-            <ReschedulePanel classGroupId={classGroupId} sessionDate={sessionDate} />
+            <>
+              <ReschedulePanel
+                classGroupId={classGroupId}
+                sessionDate={sessionDate}
+                currentStartTime={session.startTime}
+              />
+              <ListDivider />
+            </>
           ) : null}
-          <CancelSessionPanel classGroupId={classGroupId} sessionDate={sessionDate} />
-        </View>
+          <CancelSessionPanel
+            classGroupId={classGroupId}
+            sessionDate={sessionDate}
+            hasAttendance={presentCount + absentCount > 0}
+          />
+        </Card>
       )}
-    </ScrollView>
+    </ScrollScreen>
   );
 }

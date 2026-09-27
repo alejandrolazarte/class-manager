@@ -22,10 +22,12 @@ export const themeColorTokens = [
   "warning-soft",
   "warning-soft-foreground",
   "success",
+  "success-foreground",
   "success-soft",
   "success-soft-foreground",
   "inverse",
   "inverse-foreground",
+  "shadow",
 ] as const;
 
 export type ThemeColorToken = (typeof themeColorTokens)[number];
@@ -58,6 +60,7 @@ export const themeContrastPairs: readonly ThemeContrastPair[] = [
   { foreground: "warning-soft-foreground", background: "warning-soft" },
   { foreground: "foreground", background: "warning-soft" },
   { foreground: "success", background: "surface" },
+  { foreground: "success-foreground", background: "success" },
   { foreground: "success-soft-foreground", background: "success-soft" },
   { foreground: "inverse-foreground", background: "inverse" },
 ];

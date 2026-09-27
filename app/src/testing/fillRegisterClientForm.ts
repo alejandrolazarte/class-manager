@@ -13,11 +13,12 @@ export async function fillRegisterClientForm(fullName: string, phoneNumber: stri
 }
 
 export async function setClientAttends(clientAttends: boolean): Promise<void> {
-  await fireEvent(
-    screen.getByLabelText(translate("clients.register.clientAttends")),
-    "valueChange",
-    clientAttends,
-  );
+  const clientAttendsSwitch = screen.getByRole("switch", {
+    name: translate("clients.register.clientAttends"),
+  });
+  if (Boolean(clientAttendsSwitch.props.accessibilityState?.checked) !== clientAttends) {
+    await fireEvent.press(clientAttendsSwitch);
+  }
 }
 
 export async function addAdditionalStudent(fullName: string, birthDate = ""): Promise<void> {

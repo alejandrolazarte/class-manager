@@ -10,7 +10,7 @@ export function RedirectWhenSignedOut({ children }: PropsWithChildren) {
     return <LoadingScreen />;
   }
   if (session.status === "signedOut") {
-    return <Redirect href={routes.signIn} />;
+    return <Redirect href={routes.welcome} />;
   }
   return children;
 }

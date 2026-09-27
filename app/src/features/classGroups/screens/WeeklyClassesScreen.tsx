@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, Pressable, ScrollView, View } from "react-native";
 import { ClassGroupCard } from "@/features/classGroups/components/ClassGroupCard";
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
 import { Weekday } from "@/features/classGroups/types";
@@ -11,14 +11,44 @@ import {
   weekdayShortLabel,
   weekOrder,
 } from "@/features/classGroups/weekdays";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Chip } from "@/ui/Chip";
+import { EmptyState } from "@/ui/EmptyState";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
-import { AppText } from "@/ui/AppText";
+import { Screen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
+
+interface DayFilterChipProps {
+  weekday: Weekday;
+  classCount: number;
+  isSelected: boolean;
+  onPress: () => void;
+}
+
+function DayFilterChip({ weekday, classCount, isSelected, onPress }: DayFilterChipProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={weekdayLongLabel(weekday)}
+      accessibilityState={{ selected: isSelected }}
+      onPress={onPress}
+      className={`h-10 min-w-12 flex-row items-center justify-center gap-1.5 rounded-full px-3.5 ${isSelected ? "bg-primary" : "border-[1.5px] border-border bg-surface"}`}
+    >
+      <AppText variant="link" tone={isSelected ? "onPrimary" : "default"}>
+        {weekdayShortLabel(weekday)}
+      </AppText>
+      {isSelected || classCount === 0 ? null : (
+        <AppText variant="footnote" tone="subtle" className="font-strong text-[11px]">
+          {classCount}
+        </AppText>
+      )}
+    </Pressable>
+  );
+}
 
 export function WeeklyClassesScreen() {
   const router = useRouter();
@@ -35,69 +65,93 @@ export function WeeklyClassesScreen() {
 
   const emptyState =
     classGroups.length === 0 ? (
-      <View className="items-center gap-4 p-6">
-        <AppText tone="muted" variant="lead">
-          {translate("classGroups.week.emptyTitle")}
-        </AppText>
+      <EmptyState icon="classes" message={translate("classGroups.week.emptyTitle")}>
         <Button
           label={translate("classGroups.week.emptyCallToAction")}
           onPress={openNewClassGroup}
         />
-      </View>
+      </EmptyState>
     ) : (
-      <AppText variant="body" tone="muted" className="p-6 text-center">
-        {translate("classGroups.week.noClassesOnDay", {
+      <EmptyState
+        message={translate("classGroups.week.noClassesOnDay", {
           day: weekdayLongLabel(selectedWeekday).toLowerCase(),
         })}
-      </AppText>
+      />
     );
 
-  return (
-    <View className="flex-1 bg-background">
-      <View className="flex-row flex-wrap gap-2 p-4">
-        {weekOrder.map((weekday) => (
-          <Chip
-            key={weekday}
-            label={weekdayShortLabel(weekday)}
-            accessibilityLabel={weekdayLongLabel(weekday)}
-            isSelected={weekday === selectedWeekday}
-            onPress={() => setSelectedWeekday(weekday)}
-          />
-        ))}
-      </View>
+  const header = (
+    <View className="gap-[18px] pb-3">
+      <ScreenHeader
+        eyebrow={
+          isPending ? undefined : translateCount("classGroups.week.perWeek", classGroups.length)
+        }
+        title={translate("classGroups.week.title")}
+      />
+      {isPending ? null : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="gap-1.5 px-5"
+        >
+          {weekOrder.map((weekday) => (
+            <DayFilterChip
+              key={weekday}
+              weekday={weekday}
+              classCount={classesOfDay(classGroups, weekday).length}
+              isSelected={weekday === selectedWeekday}
+              onPress={() => setSelectedWeekday(weekday)}
+            />
+          ))}
+        </ScrollView>
+      )}
       {isError ? (
-        <View className="px-4">
+        <View className="px-5">
           <Banner message={translate("common.unexpectedError")}>
             <Button
               variant="secondary"
+              size="medium"
               label={translate("common.retry")}
               onPress={() => refetch()}
             />
           </Banner>
         </View>
       ) : null}
+    </View>
+  );
+
+  return (
+    <Screen
+      overlay={
+        <FloatingActionButton
+          label={translate("classGroups.week.newClassGroup")}
+          onPress={openNewClassGroup}
+        />
+      }
+    >
       {isPending ? (
-        <Spinner className="mt-6" />
+        <View>
+          {header}
+          <Spinner className="mt-6" />
+        </View>
       ) : (
         <FlatList
           data={dayClassGroups}
           keyExtractor={(classGroup) => classGroup.id}
+          ListHeaderComponent={header}
           renderItem={({ item: classGroup }) => (
-            <ClassGroupCard
-              classGroup={classGroup}
-              onPress={() => router.push(routes.classGroup(classGroup.id))}
-            />
+            <View className="px-5 pb-3">
+              <ClassGroupCard
+                classGroup={classGroup}
+                onPress={() => router.push(routes.classGroup(classGroup.id))}
+              />
+            </View>
           )}
           ListEmptyComponent={isError ? null : emptyState}
           refreshing={isRefetching}
           onRefresh={() => refetch()}
-          contentContainerClassName="pb-24"
+          contentContainerClassName="w-full max-w-2xl self-center pb-28"
         />
       )}
-      <FloatingActionButton
-        accessibilityLabel={translate("classGroups.week.newClassGroup")}
-        onPress={openNewClassGroup}
-      />
-    </View>
+    </Screen>
   );
 }

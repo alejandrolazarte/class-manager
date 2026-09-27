@@ -32,3 +32,17 @@ export function formatLongDate(isoDate: string): string {
     month: translate(`months.${date.getMonth() + 1}` as TranslationKey),
   });
 }
+
+const daysPerWeek = 7;
+const javaScriptMondayOffset = 6;
+
+export function weekOf(isoDate: string): string[] {
+  const date = parseIsoDate(isoDate);
+  const daysSinceMonday = (date.getDay() + javaScriptMondayOffset) % daysPerWeek;
+  const monday = addDays(isoDate, -daysSinceMonday);
+  return Array.from({ length: daysPerWeek }, (_, dayIndex) => addDays(monday, dayIndex));
+}
+
+export function dayOfMonth(isoDate: string): number {
+  return parseIsoDate(isoDate).getDate();
+}

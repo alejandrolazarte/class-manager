@@ -21,6 +21,7 @@ import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
+import { BrandMark } from "@/ui/BrandMark";
 
 const badRequestStatus = 400;
 
@@ -73,7 +74,11 @@ export function SignInScreen() {
   });
 
   return (
-    <AuthenticationScreenLayout title={translate("authentication.signIn.title")}>
+    <AuthenticationScreenLayout
+      title={translate("authentication.signIn.title")}
+      onBack={() => router.replace(routes.welcome)}
+      mark={<BrandMark />}
+    >
       {signInFailure === "invalidCredentials" ? (
         <Banner message={translate("authentication.signIn.invalidCredentials")} />
       ) : null}
@@ -124,7 +129,11 @@ export function SignInScreen() {
         onPress={submit}
         isLoading={form.formState.isSubmitting}
       />
-      <Pressable accessibilityRole="link" onPress={() => router.replace(routes.signUp)}>
+      <Pressable
+        accessibilityRole="link"
+        className="py-1.5"
+        onPress={() => router.replace(routes.signUp)}
+      >
         <AppText tone="primary" variant="link" className="text-center">
           {translate("authentication.signIn.goToSignUp")}
         </AppText>

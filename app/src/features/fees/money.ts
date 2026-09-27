@@ -32,3 +32,15 @@ export function parseAmount(typedAmount: string): number | null {
 export function toAmountText(amount: number | null): string {
   return amount === null || amount <= 0 ? "" : String(amount).replace(decimalPoint, decimalComma);
 }
+
+const currencyPartType = "currency";
+
+export function currencySymbol(currencyCode: string): string {
+  const currencyPart = new Intl.NumberFormat(moneyLocale, {
+    style: "currency",
+    currency: currencyCode,
+  })
+    .formatToParts(0)
+    .find((part) => part.type === currencyPartType);
+  return currencyPart?.value ?? currencyCode;
+}

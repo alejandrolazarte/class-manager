@@ -26,17 +26,28 @@ import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
+import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 
 const badRequestStatus = 400;
 
 type SignUpFailure =
   { kind: "emailTaken"; email: string } | { kind: "network" } | { kind: "unexpected" };
 
-function SectionTitle({ title }: { title: string }) {
+type SignUpStep = 1 | 2;
+
+const signUpStepCount = 2;
+const accountStepFieldNames = ["ownerFullName", "email", "password"] as const;
+
+function StepProgress({ step }: { step: SignUpStep }) {
   return (
-    <AppText variant="heading" accessibilityRole="header">
-      {title}
-    </AppText>
+    <View className="flex-row gap-1.5">
+      {[1, 2].map((stepNumber) => (
+        <View
+          key={stepNumber}
+          className={`h-1.5 flex-1 rounded-full ${stepNumber <= step ? "bg-primary" : "bg-muted"}`}
+        />
+      ))}
+    </View>
   );
 }
 
@@ -44,6 +55,7 @@ export function SignUpScreen() {
   const router = useRouter();
   const { signUp } = useSession();
   const [signUpFailure, setSignUpFailure] = useState<SignUpFailure | null>(null);
+  const [step, setStep] = useState<SignUpStep>(1);
   const [initialCountrySelection] = useState(() =>
     getCountrySelectionForTimeZone(getDeviceTimeZone()),
   );
@@ -58,10 +70,17 @@ export function SignUpScreen() {
     },
     mode: "onTouched",
   });
-  const [countryCode, timeZoneId] = useWatch({
+  const [countryCode, timeZoneId, password] = useWatch({
     control: form.control,
-    name: ["countryCode", "timeZoneId"],
+    name: ["countryCode", "timeZoneId", "password"],
   });
+  const hasLongEnoughPassword = password.length >= authenticationLimits.passwordMinimumLength;
+
+  const continueToBusinessStep = async () => {
+    if (await form.trigger(accountStepFieldNames)) {
+      setStep(2);
+    }
+  };
 
   const handleSignUpError = (signUpError: unknown, email: string) => {
     if (isNetworkError(signUpError)) {
@@ -77,6 +96,9 @@ export function SignUpScreen() {
       signUpError.status === badRequestStatus &&
       applyServerFieldErrors(form, signUpError.problem, signUpFieldNames)
     ) {
+      if (accountStepFieldNames.some((fieldName) => form.getFieldState(fieldName).invalid)) {
+        setStep(1);
+      }
       return;
     }
     setSignUpFailure({ kind: "unexpected" });
@@ -93,7 +115,16 @@ export function SignUpScreen() {
   });
 
   return (
-    <AuthenticationScreenLayout title={translate("authentication.signUp.title")}>
+    <AuthenticationScreenLayout
+      eyebrow={translate("authentication.signUp.step", { step, total: signUpStepCount })}
+      title={translate(
+        step === 1
+          ? "authentication.signUp.accountSection"
+          : "authentication.signUp.businessSection",
+      )}
+      onBack={() => (step === 2 ? setStep(1) : router.replace(routes.welcome))}
+      progress={<StepProgress step={step} />}
+    >
       {signUpFailure?.kind === "emailTaken" ? (
         <Banner tone="warning" message={translate("authentication.signUp.emailTaken")}>
           <Button
@@ -113,87 +144,94 @@ export function SignUpScreen() {
       {signUpFailure?.kind === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
-      <View className="gap-4">
-        <SectionTitle title={translate("authentication.signUp.accountSection")} />
-        <Controller
-          control={form.control}
-          name="ownerFullName"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={translate("authentication.signUp.ownerFullName")}
-              autoCapitalize="words"
-              autoComplete="name"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-              errorMessage={fieldState.error?.message}
-            />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={translate("authentication.signUp.email")}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-              errorMessage={fieldState.error?.message}
-            />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="password"
-          render={({ field, fieldState }) => (
-            <PasswordField
-              label={translate("authentication.signUp.password")}
-              placeholder={translate("authentication.signUp.passwordHint")}
-              autoComplete="new-password"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-              errorMessage={fieldState.error?.message}
-            />
-          )}
-        />
-      </View>
-      <View className="gap-4">
-        <SectionTitle title={translate("authentication.signUp.businessSection")} />
-        <Controller
-          control={form.control}
-          name="businessName"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={translate("authentication.signUp.businessName")}
-              autoCapitalize="words"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-              errorMessage={fieldState.error?.message}
-            />
-          )}
-        />
-        <CountryPicker
-          selection={{ countryCode, timeZoneId }}
-          onSelectionChange={(selection) => {
-            form.setValue("countryCode", selection.countryCode);
-            form.setValue("timeZoneId", selection.timeZoneId, {
-              shouldValidate: form.formState.isSubmitted,
-            });
-          }}
-        />
-      </View>
-      <Button
-        label={translate("authentication.signUp.submit")}
-        onPress={submit}
-        isLoading={form.formState.isSubmitting}
-      />
-      <Pressable accessibilityRole="link" onPress={() => router.replace(routes.signIn)}>
+      {step === 1 ? (
+        <View className="gap-4">
+          <Controller
+            control={form.control}
+            name="ownerFullName"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={translate("authentication.signUp.ownerFullName")}
+                autoCapitalize="words"
+                autoComplete="name"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={translate("authentication.signUp.email")}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <PasswordField
+                label={translate("authentication.signUp.password")}
+                hint={translate("authentication.signUp.passwordHint")}
+                isHintSatisfied={hasLongEnoughPassword}
+                autoComplete="new-password"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
+          />
+          <Button label={translate("common.continue")} onPress={continueToBusinessStep} />
+        </View>
+      ) : (
+        <View className="gap-4">
+          <Controller
+            control={form.control}
+            name="businessName"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={translate("authentication.signUp.businessName")}
+                autoCapitalize="words"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
+          />
+          <CountryPicker
+            selection={{ countryCode, timeZoneId }}
+            onSelectionChange={(selection) => {
+              form.setValue("countryCode", selection.countryCode);
+              form.setValue("timeZoneId", selection.timeZoneId, {
+                shouldValidate: form.formState.isSubmitted,
+              });
+            }}
+          />
+          <Button
+            label={translate("authentication.signUp.submit")}
+            onPress={submit}
+            isLoading={form.formState.isSubmitting}
+          />
+        </View>
+      )}
+      <Pressable
+        accessibilityRole="link"
+        className="py-1.5"
+        onPress={() => router.replace(routes.signIn)}
+      >
         <AppText tone="primary" variant="link" className="text-center">
           {translate("authentication.signUp.goToSignIn")}
         </AppText>

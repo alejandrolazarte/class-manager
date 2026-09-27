@@ -117,7 +117,11 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
   );
 
   return (
-    <SettingsFormScreenLayout submissionFailure={submissionFailure} onRetry={save}>
+    <SettingsFormScreenLayout
+      title={translate(classPack ? "classPacks.form.editTitle" : "classPacks.form.newTitle")}
+      submissionFailure={submissionFailure}
+      onRetry={save}
+    >
       {renderField({
         name: "name",
         labelKey: "classPacks.form.name",
@@ -147,7 +151,8 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         />
         {classPack ? (
           <Button
-            variant="secondary"
+            variant={classPack.isActive ? "dangerOutline" : "outline"}
+            size="medium"
             label={translate(
               classPack.isActive ? "classPacks.form.deactivate" : "classPacks.form.activate",
             )}

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { useRouter } from "expo-router";
+import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { ClassBalanceSection } from "@/features/classPacks/components/ClassBalanceSection";
 import { ClientDetails } from "@/features/clients/types";
@@ -18,6 +19,10 @@ import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { Card } from "@/ui/Card";
+import { IconButton } from "@/ui/IconButton";
+import { SectionTitle } from "@/ui/SectionTitle";
+import { routes } from "@/navigation/routes";
 
 const billingPlanKinds: readonly BillingPlanKind[] = ["BusinessFee", "CustomFee", "ClassPacks"];
 
@@ -26,6 +31,7 @@ interface ClientFeeSectionProps {
 }
 
 export function ClientFeeSection({ client }: ClientFeeSectionProps) {
+  const router = useRouter();
   const business = useCurrentBusiness();
   const { showToast } = useToast();
   const { data: payments = [] } = useClientPayments(client.id);
@@ -60,91 +66,112 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   };
 
   return (
-    <View className="gap-2">
-      <AppText variant="heading">{translate("fees.client.title")}</AppText>
+    <View className="gap-4">
+      <SectionTitle title={translate("fees.client.title")} />
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
-      <AppText variant="body">
-        {describeBillingPlan(client.billingPlan, business.defaultMonthlyFee, business.currencyCode)}
-      </AppText>
-      {upcomingChanges.map((change) => (
-        <AppText key={change.effectiveFrom} variant="caption" tone="muted">
-          {translate("fees.client.upcomingChange", {
-            month: formatMonth(change.effectiveFrom),
-            plan: describeBillingPlan(change, business.defaultMonthlyFee, business.currencyCode),
-          })}
-        </AppText>
-      ))}
-      {isEditing ? (
-        <View className="gap-3 rounded-xl bg-surface p-3">
-          <AppText variant="label" tone="muted">
-            {translate("fees.client.planKind")}
+      <Card className="gap-3 p-4">
+        <View className="gap-0.5">
+          <AppText variant="title">
+            {describeBillingPlan(
+              client.billingPlan,
+              business.defaultMonthlyFee,
+              business.currencyCode,
+            )}
           </AppText>
-          <View className="flex-row flex-wrap gap-2">
-            {billingPlanKinds.map((planKind) => (
-              <Chip
-                key={planKind}
-                label={translate(`fees.plan.${planKind}` as TranslationKey)}
-                isSelected={kind === planKind}
-                onPress={() => setKind(planKind)}
-              />
-            ))}
-          </View>
-          {kind === "CustomFee" ? (
-            <TextField
-              label={translate("fees.client.ownFeeAmount")}
-              keyboardType="decimal-pad"
-              value={amountText}
-              onChangeText={setAmountText}
-            />
-          ) : null}
-          <EffectiveMonthPicker month={effectiveFrom} onChange={setEffectiveFrom} />
-          <Button
-            label={translate("common.save")}
-            disabled={!canSave}
-            onPress={savePlan}
-            isLoading={setBillingPlanMutation.isPending}
-          />
+          {upcomingChanges.map((change) => (
+            <AppText key={change.effectiveFrom} variant="caption" tone="subtle">
+              {translate("fees.client.upcomingChange", {
+                month: formatMonth(change.effectiveFrom),
+                plan: describeBillingPlan(
+                  change,
+                  business.defaultMonthlyFee,
+                  business.currencyCode,
+                ),
+              })}
+            </AppText>
+          ))}
         </View>
-      ) : (
-        <Button
-          variant="secondary"
-          label={translate("fees.client.changeFee")}
-          onPress={() => setIsEditing(true)}
-        />
-      )}
-      {client.billingPlan.kind === "ClassPacks" ? (
-        <ClassBalanceSection clientId={client.id} />
-      ) : null}
-      {payments.length > 0 ? (
-        <View className="gap-1">
-          <AppText variant="label" tone="subtle">
-            {translate("fees.client.payments")}
+        {client.billingPlan.kind === "ClassPacks" ? null : (
+          <Button
+            size="medium"
+            icon="cash"
+            label={translate("fees.client.recordPayment")}
+            onPress={() => router.push(routes.recordPayment(client.id, currentMonth))}
+          />
+        )}
+        {isEditing ? (
+          <View className="gap-3 rounded-2xl bg-muted p-3">
+            <AppText variant="label" tone="muted">
+              {translate("fees.client.planKind")}
+            </AppText>
+            <View className="flex-row flex-wrap gap-2">
+              {billingPlanKinds.map((planKind) => (
+                <Chip
+                  key={planKind}
+                  label={translate(`fees.plan.${planKind}` as TranslationKey)}
+                  isSelected={kind === planKind}
+                  onPress={() => setKind(planKind)}
+                />
+              ))}
+            </View>
+            {kind === "CustomFee" ? (
+              <TextField
+                label={translate("fees.client.ownFeeAmount")}
+                keyboardType="decimal-pad"
+                value={amountText}
+                onChangeText={setAmountText}
+              />
+            ) : null}
+            <EffectiveMonthPicker month={effectiveFrom} onChange={setEffectiveFrom} />
+            <Button
+              size="medium"
+              label={translate("common.save")}
+              disabled={!canSave}
+              onPress={savePlan}
+              isLoading={setBillingPlanMutation.isPending}
+            />
+          </View>
+        ) : (
+          <Button
+            variant="secondary"
+            size="medium"
+            label={translate("fees.client.changeFee")}
+            onPress={() => setIsEditing(true)}
+          />
+        )}
+        <AppText variant="overline" tone="subtle" className="mt-0.5">
+          {translate("fees.client.payments")}
+        </AppText>
+        {payments.length === 0 ? (
+          <AppText variant="body" tone="muted">
+            {translate("fees.client.noPayments")}
           </AppText>
-          {payments.map((payment) => (
-            <View
-              key={payment.id}
-              className="flex-row items-center gap-3 rounded-xl bg-surface p-3"
-            >
-              <View className="flex-1">
-                <AppText variant="body">
-                  {`${money(payment.amount)} · ${formatMonth(payment.month)}`}
-                </AppText>
-                <AppText variant="caption" tone="muted">
+        ) : (
+          payments.map((payment) => (
+            <View key={payment.id} className="flex-row items-center gap-2">
+              <View className="min-w-0 flex-1 gap-px">
+                <AppText variant="bodyStrong">{money(payment.amount)}</AppText>
+                <AppText variant="caption" tone="subtle">
                   {`${formatBirthDateForDisplay(payment.paidOn)} · ${translate(`fees.methods.${payment.method}` as TranslationKey)}`}
                 </AppText>
               </View>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={translate("fees.client.deletePayment")}
+              <AppText variant="label" tone="muted">
+                {formatMonth(payment.month)}
+              </AppText>
+              <IconButton
+                icon="delete"
+                tone="subtle-foreground"
+                accessibilityLabel={translate("fees.client.deletePaymentOf", {
+                  amount: money(payment.amount),
+                })}
                 onPress={() => deletePaymentMutation.mutate(payment.id)}
-              >
-                <AppText variant="label" tone="danger">
-                  {translate("fees.client.deletePayment")}
-                </AppText>
-              </Pressable>
+              />
             </View>
-          ))}
-        </View>
+          ))
+        )}
+      </Card>
+      {client.billingPlan.kind === "ClassPacks" ? (
+        <ClassBalanceSection clientId={client.id} />
       ) : null}
     </View>
   );

@@ -131,7 +131,11 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
   };
 
   return (
-    <SettingsFormScreenLayout submissionFailure={submissionFailure} onRetry={save}>
+    <SettingsFormScreenLayout
+      title={translate(classGroup ? "classGroups.form.editTitle" : "classGroups.form.newTitle")}
+      submissionFailure={submissionFailure}
+      onRetry={save}
+    >
       {busyConflict ? (
         <Banner
           tone="warning"
@@ -170,7 +174,8 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
         />
         {classGroup ? (
           <Button
-            variant="secondary"
+            variant={classGroup.isActive ? "dangerOutline" : "outline"}
+            size="medium"
             label={translate(
               classGroup.isActive ? "classGroups.form.deactivate" : "classGroups.form.activate",
             )}

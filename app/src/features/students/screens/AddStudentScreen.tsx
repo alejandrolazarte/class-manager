@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { StudentFields } from "@/features/students/components/StudentFields";
@@ -19,6 +18,11 @@ import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
+import { AppText } from "@/ui/AppText";
+import { Card } from "@/ui/Card";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
+import { useClient } from "@/features/clients/useClient";
 
 const badRequestStatus = 400;
 const studentFieldNames = ["fullName", "birthDate", "notes"] as const;
@@ -33,6 +37,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const addStudentMutation = useAddStudent(clientId);
+  const { data: client } = useClient(clientId);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
@@ -74,30 +79,39 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
   });
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-background"
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <ScrollScreen
+      header={
+        <ScreenHeader
+          navigation="close"
+          eyebrow={client?.fullName}
+          title={translate("students.add.title")}
+        />
+      }
     >
-      <ScrollView contentContainerClassName="gap-4 p-4" keyboardShouldPersistTaps="handled">
-        {submissionFailure === "network" ? (
-          <Banner message={translate("common.networkError")}>
-            <Button variant="secondary" label={translate("common.retry")} onPress={submit} />
-          </Banner>
-        ) : null}
-        {submissionFailure === "unexpected" ? (
-          <Banner message={translate("common.unexpectedError")} />
-        ) : null}
+      {submissionFailure === "network" ? (
+        <Banner message={translate("common.networkError")}>
+          <Button variant="secondary" label={translate("common.retry")} onPress={submit} />
+        </Banner>
+      ) : null}
+      {submissionFailure === "unexpected" ? (
+        <Banner message={translate("common.unexpectedError")} />
+      ) : null}
+      <Card className="gap-3 p-4">
+        <AppText variant="link" tone="primary">
+          {translate("students.add.studentCard")}
+        </AppText>
         <StudentFields
           control={form.control}
           paths={{ fullName: "fullName", birthDate: "birthDate", notes: "notes" }}
           autoFocus
+          isInsideCard
         />
-        <Button
-          label={translate("students.add.submit")}
-          onPress={submit}
-          isLoading={addStudentMutation.isPending}
-        />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </Card>
+      <Button
+        label={translate("students.add.submit")}
+        onPress={submit}
+        isLoading={addStudentMutation.isPending}
+      />
+    </ScrollScreen>
   );
 }

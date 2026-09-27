@@ -43,7 +43,11 @@ export function DefaultMonthlyFeeScreen() {
   };
 
   return (
-    <SettingsFormScreenLayout submissionFailure={submissionFailure} onRetry={save}>
+    <SettingsFormScreenLayout
+      title={translate("fees.defaultFee.title")}
+      submissionFailure={submissionFailure}
+      onRetry={save}
+    >
       <TextField
         label={translate("fees.defaultFee.amount")}
         placeholder={translate("fees.defaultFee.placeholder")}
