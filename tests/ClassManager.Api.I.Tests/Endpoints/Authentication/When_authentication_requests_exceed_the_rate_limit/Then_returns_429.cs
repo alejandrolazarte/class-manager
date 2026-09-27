@@ -1,5 +1,4 @@
 using ClassManager.Security.Hosting;
-using Microsoft.AspNetCore.Hosting;
 
 namespace ClassManager.Api.I.Tests.Endpoints.Authentication.When_authentication_requests_exceed_the_rate_limit;
 

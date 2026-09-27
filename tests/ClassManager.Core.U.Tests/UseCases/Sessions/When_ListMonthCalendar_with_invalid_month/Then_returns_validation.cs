@@ -1,4 +1,3 @@
-using ClassManager.Core.Common;
 using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.U.Tests.UseCases.Sessions.When_ListMonthCalendar_with_invalid_month;

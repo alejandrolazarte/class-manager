@@ -40,6 +40,7 @@ csharp_style_inlined_variable_declaration = true:suggestion
 ######## Code quality ########
 dotnet_diagnostic.IDE0059.severity = warning
 dotnet_diagnostic.CA1305.severity = error
+dotnet_diagnostic.IDE0005.severity = error
 ######## Formatting ########
 dotnet_style_allow_multiple_blank_lines_experimental = false:suggestion
 csharp_style_allow_blank_lines_between_consecutive_braces_experimental = false:suggestion

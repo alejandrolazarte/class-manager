@@ -21,6 +21,9 @@ export const routes = {
   welcome: "/welcome",
   signIn: "/sign-in",
   signUp: "/sign-up",
+  resetPassword: "/reset-password",
+  forgotPassword: (email: string) =>
+    email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
   settings: "/settings",
   businessSettings: "/settings/business",
   defaultMonthlyFee: "/settings/monthly-fee",

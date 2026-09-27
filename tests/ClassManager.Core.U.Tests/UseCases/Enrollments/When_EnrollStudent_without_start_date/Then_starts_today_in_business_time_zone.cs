@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Enrollments;
 
 namespace ClassManager.Core.U.Tests.UseCases.Enrollments.When_EnrollStudent_without_start_date;

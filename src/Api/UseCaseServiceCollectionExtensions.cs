@@ -43,6 +43,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<SignInCommand, TokenResponse>, SignInUseCase>();
         services.AddScoped<IUseCase<RefreshSessionCommand, TokenResponse>, RefreshSessionUseCase>();
         services.AddScoped<IUseCase<SignOutCommand, SignOutResponse>, SignOutUseCase>();
+        services.AddScoped<IUseCase<ResetPasswordCommand, ResetPasswordResponse>, ResetPasswordUseCase>();
+        services.AddScoped<IUseCase<RequestPasswordResetCommand, RequestPasswordResetResponse>, RequestPasswordResetUseCase>();
         services.AddScoped<IUseCase<GetCurrentBusinessQuery, BusinessResponse>, GetCurrentBusinessUseCase>();
         services.AddScoped<IUseCase<RegisterClientCommand, ClientDetailsResponse>, RegisterClientUseCase>();
         services.AddScoped<IUseCase<GetClientQuery, ClientDetailsResponse>, GetClientUseCase>();

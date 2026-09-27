@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.UseCases.Instructors;
 
 namespace ClassManager.Core.U.Tests.UseCases.Instructors.When_UpdateInstructor_keeps_its_own_name;

@@ -14,6 +14,8 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+
     public static void ConfigureSqlServer(SqlServerDbContextOptionsBuilder sqlServer) =>
         sqlServer.MigrationsHistoryTable(MigrationsHistoryTableName, SchemaName);
 
@@ -33,6 +35,17 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
             refreshToken.HasIndex(token => token.TokenHash).IsUnique();
             refreshToken.HasIndex(token => token.UserId);
             refreshToken.HasOne<ApplicationUser>().WithMany().HasForeignKey(token => token.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<PasswordResetToken>(passwordResetToken =>
+        {
+            passwordResetToken.HasKey(token => token.Id);
+            passwordResetToken.Property(token => token.Id).ValueGeneratedNever();
+            passwordResetToken.Property(token => token.TokenHash)
+                .HasMaxLength(PasswordResetToken.TokenHashLength).IsFixedLength().IsRequired();
+            passwordResetToken.HasIndex(token => token.TokenHash).IsUnique();
+            passwordResetToken.HasIndex(token => token.UserId);
+            passwordResetToken.HasOne<ApplicationUser>().WithMany().HasForeignKey(token => token.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

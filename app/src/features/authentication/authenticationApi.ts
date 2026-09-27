@@ -1,6 +1,8 @@
 import { anonymousHttpClient } from "@/api/httpClient";
 import {
+  PasswordResetRequest,
   RefreshSessionRequest,
+  ResetPasswordRequest,
   SignInRequest,
   SignOutRequest,
   SignUpRequest,
@@ -12,6 +14,8 @@ const authenticationPaths = {
   signIn: "/api/auth/sign-in",
   refresh: "/api/auth/refresh",
   signOut: "/api/auth/sign-out",
+  passwordReset: "/api/auth/password-reset",
+  passwordResetRequest: "/api/auth/password-reset-request",
 } as const;
 
 export function signUp(request: SignUpRequest): Promise<TokenResponse> {
@@ -28,4 +32,12 @@ export function refreshSession(request: RefreshSessionRequest): Promise<TokenRes
 
 export function signOut(request: SignOutRequest): Promise<void> {
   return anonymousHttpClient.post<void>(authenticationPaths.signOut, request);
+}
+
+export function resetPassword(request: ResetPasswordRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.passwordReset, request);
+}
+
+export function requestPasswordReset(request: PasswordResetRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.passwordResetRequest, request);
 }

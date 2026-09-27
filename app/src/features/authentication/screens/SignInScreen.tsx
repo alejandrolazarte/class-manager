@@ -130,6 +130,15 @@ export function SignInScreen() {
         isLoading={form.formState.isSubmitting}
       />
       <Pressable
+        accessibilityRole="button"
+        className="py-1.5"
+        onPress={() => router.push(routes.forgotPassword(form.getValues("email").trim()))}
+      >
+        <AppText tone="primary" variant="link" className="text-center">
+          {translate("authentication.signIn.forgotPassword")}
+        </AppText>
+      </Pressable>
+      <Pressable
         accessibilityRole="link"
         className="py-1.5"
         onPress={() => router.replace(routes.signUp)}
