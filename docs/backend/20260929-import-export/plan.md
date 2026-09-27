@@ -1,6 +1,6 @@
 # Backend plan — Import and export (students and coaches)
 
-Status: **draft for validation**, nothing implemented yet.
+Status: **validated** (2026-09-29): CSV only, valid rows imported and invalid rows skipped, existing records skipped, no class group column.
 
 Adapted from the design proposal "Motor genérico de Importación / Exportación" (metadata-driven engine with one profile per module). The [pilot plan](../../pilot-df-swimming.md) lists "import current students from a spreadsheet" as needed before the pilot starts; this plan covers that with the smallest version of the engine that is still reusable.
 
@@ -26,18 +26,20 @@ An owner moving from a spreadsheet loads their current students and coaches in o
 
 ## Modules
 
-### `students` — one row per student, with the family that pays
+### `students` — one row per student
 
-A `Student` always belongs to a `Client` (who pays and is contacted), so each row carries both. Rows with the same phone number are the same family: siblings go on separate rows with the same phone.
+Adult students on their own are the normal case: a row with only `Alumno` and `Teléfono` creates one client and one student with the same name, exactly what the app does today with the "who attends" switch ([clients and students plan](../20260925-clients-and-students/plan.md)). The `Responsable` column is only for minors or anyone whose classes someone else pays: leave it empty otherwise.
+
+Rows with the same phone number are the same family: siblings go on separate rows with the same phone and the same `Responsable`.
 
 | Key | Header | Type | Required | Aliases | Rule |
 |---|---|---|---|---|---|
 | `studentName` | Alumno | text | yes | nombre, nombre alumno, student | `Student.Create` |
+| `phone` | Teléfono | phone | yes | telefono, móvil, movil, celular, whatsapp | `PhoneNumber.Create` with the business country code; the student's own phone, or the responsible person's |
+| `email` | Email | email | no | correo, mail, e-mail | `Client.Create` |
 | `birthDate` | Fecha de nacimiento | date | no | nacimiento, fecha nac, birth date | `dd/MM/yyyy` or `yyyy-MM-dd` |
 | `studentNotes` | Notas alumno | text | no | notas, observaciones | `Student.Create` |
-| `contactName` | Responsable | text | no | tutor, padre, madre, cliente, contact | empty = same as `studentName` (adult student) |
-| `phone` | Teléfono | phone | yes | telefono, móvil, movil, celular, whatsapp | `PhoneNumber.Create` with the business country code |
-| `email` | Email | email | no | correo, mail, e-mail | `Client.Create` |
+| `contactName` | Responsable | text | no | tutor, padre, madre, cliente, contact | only for minors; empty = the student is their own contact |
 | `contactNotes` | Notas responsable | text | no | | `Client.Create` |
 
 Per row, in order:
@@ -56,7 +58,7 @@ A coach with the same name already exists (case-insensitive, as today) → `Skip
 
 ### Export
 
-Same columns as the import, so an export can be edited and imported into another business. `students` exports one row per student with its client; `instructors` exports every coach, active or not. No filters in the first version.
+Same columns as the import, so an export can be edited and imported into another business. `students` exports one row per student with its client, leaving `Responsable` empty when the client has the student's name; `instructors` exports every coach, active or not. No filters in the first version.
 
 ## Endpoints
 
@@ -152,9 +154,9 @@ XLSX, manual column mapping, updating existing records, importing classes/enroll
 5. Docs: `docs/import-export.md` (library, like `tenancy.md`), `analyzers.md`, `domain-model.md` unchanged; link from `README.md`.
 6. Frontend plan and screens (separate PR).
 
-## Open questions
+## Decisions taken on validation
 
-1. CSV only for the pilot, or does XLSX need to be in the first version?
-2. Skip invalid rows and import the rest (proposed), or all-or-nothing?
-3. Existing records: skip (proposed), or update them from the file?
-4. Should the students file also accept a class group column to enroll students on import, or leave enrollments manual?
+1. CSV only for the pilot; XLSX stays in the later phases.
+2. Invalid rows are skipped and the valid ones imported.
+3. Existing records are skipped, never updated.
+4. No class group column: enrollments stay manual.
