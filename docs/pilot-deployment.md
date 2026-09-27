@@ -193,7 +193,7 @@ Re-run the latest CI run on `main` from the Actions tab (or merge any pull reque
 
 1. Builds the image and pushes it to `ghcr.io/alejandrolazarte/class-manager-api:<commit>`.
 2. Signs in to Azure with OpenID Connect and opens the SQL firewall to the runner's IP.
-3. Applies the migrations, then closes the firewall rule.
+3. Applies the migrations, then closes the firewall rule. The free database pauses when idle and answers `40613 Database 'ClassManager' is not currently available` while it resumes (about a minute), so `scripts/migrate-database.mjs` retries each context up to 6 times, 30 seconds apart.
 4. Points the container app at the new image and waits for `/health`.
 
 Check it: `https://<api host>/health` answers `Healthy`.
@@ -294,7 +294,7 @@ Without `Email__Smtp__Host` the API doesn't send anything: it logs a warning, an
 | Push to `main` | Installed PWAs pick up the new web app the next time they open |
 | New APK (optional) | Manual: `eas build --profile pilot`, only when native behaviour needs testing |
 
-Migrations run before the new image starts, while the previous version is still serving. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys.
+Migrations run before the new image starts, while the previous version is still serving. If a migration fails, the new image is never deployed but Cloudflare Pages still publishes the new web app, so the web and the API can be out of step until the next successful deploy: check the **Deploy** run after every merge. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys.
 
 ## Audit commands
 
