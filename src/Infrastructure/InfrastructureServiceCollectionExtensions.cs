@@ -1,5 +1,7 @@
+using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Accounts;
+using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Persistence.Repositories;
 using ClassManager.Infrastructure.Security;
@@ -10,6 +12,7 @@ using ClassManager.Tenancy.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ClassManager.Infrastructure;
 
@@ -51,7 +54,21 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClassPackPurchaseRepository, ClassPackPurchaseRepository>();
         services.AddScoped<IPrivateLessonRepository, PrivateLessonRepository>();
 
-        return services.AddSecurity();
+        return services.AddEmail().AddSecurity();
+    }
+
+    private static IServiceCollection AddEmail(this IServiceCollection services)
+    {
+        services.AddOptions<SmtpOptions>().BindConfiguration(SmtpOptions.SectionName);
+        services.AddSingleton<IWebAppLinks, WebAppLinks>();
+        services.AddSingleton<SmtpEmailSender>();
+        services.AddSingleton<LoggingEmailSender>();
+        services.AddSingleton<IEmailSender>(serviceProvider =>
+            serviceProvider.GetRequiredService<IOptions<SmtpOptions>>().Value.IsConfigured
+                ? serviceProvider.GetRequiredService<SmtpEmailSender>()
+                : serviceProvider.GetRequiredService<LoggingEmailSender>());
+
+        return services;
     }
 
     private static IServiceCollection AddSecurity(this IServiceCollection services)

@@ -218,8 +218,10 @@ Then allow the Pages domain in the API's CORS list:
 
 ```powershell
 az containerapp update --name $containerApp --resource-group $resourceGroup `
-  --set-env-vars "Cors__AllowedOrigins__0=https://class-manager.pages.dev"
+  --set-env-vars "Cors__AllowedOrigins__0=https://class-manager.pages.dev" "WebApp__Url=https://class-manager.pages.dev"
 ```
+
+`WebApp__Url` is where the links in emails point (see [Email](#email)).
 
 Use the domain Cloudflare actually assigned if `class-manager` was taken.
 
@@ -236,6 +238,27 @@ pnpm dlx eas-cli build --platform android --profile pilot
 `eas init` asks which Expo account owns the project (the pilot uses the personal account `alejandro-lazarte`), links the app to the Expo project and adds `extra.eas.projectId` and `owner` to `app.json`; commit that change in a pull request. `eas build` asks to generate an Android keystore the first time: accept, Expo stores it. The build ends with a link and a QR code: pilot instructors open it on their phone and install the APK. The Android package id is `com.alejandrolazarte.classmanager`; it can't change once the app is on Google Play.
 
 The API URL is baked into the APK at build time, so changing the API host means building a new APK.
+
+## Email
+
+The API sends email (today, only "¿Olvidaste tu contraseña?" links) through SMTP. The pilot uses a Gmail account; any SMTP provider works by changing the same settings, and another kind of provider only needs a new `IEmailSender` in `src/Infrastructure/Email`.
+
+1. Create a Gmail account for the app (for example `classmanager.app@gmail.com`).
+2. In that account: **Security → 2-Step Verification** on, then **App passwords** (<https://myaccount.google.com/apppasswords>) → create one named `class-manager`. Copy the 16 letters.
+3. Give them to the API:
+
+```powershell
+$gmailAddress = "classmanager.app@gmail.com"
+az containerapp secret set --name $containerApp --resource-group $resourceGroup --secrets "smtp-password=<16-letter app password>"
+az containerapp update --name $containerApp --resource-group $resourceGroup `
+  --set-env-vars "Email__Smtp__Host=smtp.gmail.com" "Email__Smtp__Port=587" `
+  "Email__Smtp__UserName=$gmailAddress" "Email__Smtp__Password=secretref:smtp-password" `
+  "Email__Smtp__FromName=Class Manager"
+```
+
+Gmail sends from the account's own address and allows about 500 emails per day, plenty for the pilot. Test it with **¿Olvidaste tu contraseña?** on the web app: the email arrives from the Gmail address with a link to `WebApp__Url/reset-password?token=…`, which works once and expires after 24 hours.
+
+Without `Email__Smtp__Host` the API doesn't send anything: it logs a warning, and the email body at `Debug` level, which is how local development gets the link (`appsettings.Development.example.json` turns that on).
 
 ## Automatic deploys
 
@@ -259,9 +282,10 @@ az role assignment list --assignee-object-id $deployObjectId --all --output tabl
 gh variable list --repo $repository
 ```
 
-Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key` and the registry password, only `AllowAzureServices` remains in the firewall, and the database uses the free limit with `AutoPause`.
+Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, and the database uses the free limit with `AutoPause`.
 
 ## Rotating secrets
 
 - **JWT key:** `az containerapp secret set ... --secrets jwt-signing-key=<new key>` and restart the revision. Everyone is signed out once; refresh tokens keep working.
+- **Gmail app password:** create a new one in the Gmail account, `az containerapp secret set ... --secrets smtp-password=<new>`, restart the revision, then delete the old app password.
 - **Registry token:** create a new classic token, then `az containerapp registry set --name $containerApp --resource-group $resourceGroup --server ghcr.io --username alejandrolazarte --password <token>`. Do it before the old one expires or new deploys fail to pull the image.

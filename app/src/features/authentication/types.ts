@@ -17,6 +17,15 @@ export interface RefreshSessionRequest {
   refreshToken: string;
 }
 
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 export interface SignOutRequest {
   refreshToken: string;
 }

@@ -12,6 +12,9 @@ public static class AuthenticationRequests
     public const string SignInRoute = ApiRoutes.Authentication + ApiRoutes.SignIn;
     public const string RefreshRoute = ApiRoutes.Authentication + ApiRoutes.Refresh;
     public const string SignOutRoute = ApiRoutes.Authentication + ApiRoutes.SignOut;
+    public const string PasswordResetRoute = ApiRoutes.Authentication + ApiRoutes.PasswordReset;
+    public const string PasswordResetRequestRoute = ApiRoutes.Authentication + ApiRoutes.PasswordResetRequest;
+    public const string WebAppResetPasswordUrl = "http://localhost:8081/reset-password?token=";
 
     public static string UniqueEmail() => $"owner-{Guid.NewGuid():N}@example.com";
 
@@ -55,4 +58,21 @@ public static class AuthenticationRequests
 
     public static async Task<TokenResponse> ReadTokensAsync(this HttpResponseMessage response) =>
         (await response.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
+
+    public static Task<HttpResponseMessage> PostPasswordResetAsync(this HttpClient httpClient, string token, string newPassword) =>
+        httpClient.PostAsJsonAsync(PasswordResetRoute, new ResetPasswordCommand(token, newPassword), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostPasswordResetRequestAsync(this HttpClient httpClient, string email) =>
+        httpClient.PostAsJsonAsync(PasswordResetRequestRoute, new RequestPasswordResetCommand(email), ApiRequests.JsonOptions);
+
+    public static async Task<string> RequestPasswordResetLinkAsync(this HttpClient httpClient, RecordingEmailSender emailSender, string email)
+    {
+        using var response = await httpClient.PostPasswordResetRequestAsync(email);
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
+        var body = emailSender.SentTo(email)[^1].TextBody;
+        return body.Split('\n').Single(line => line.StartsWith(WebAppResetPasswordUrl, StringComparison.Ordinal));
+    }
+
+    public static string TokenOf(string passwordResetLink) =>
+        Uri.UnescapeDataString(passwordResetLink[WebAppResetPasswordUrl.Length..]);
 }

@@ -14,7 +14,7 @@ The project boundary gives most of the benefit now: business concepts can't leak
 
 | Area | Types |
 |---|---|
-| Accounts | `ApplicationUser`, `ApplicationRole`, `IUserAccountService` (create, verify credentials with lockout) |
+| Accounts | `ApplicationUser`, `ApplicationRole`, `IUserAccountService` (create, verify credentials with lockout), `IPasswordResetService` (single-use reset tokens stored hashed; a reset clears the lockout and revokes every session) |
 | Tokens | `ITokenIssuer` (issue, refresh with rotation and reuse detection, revoke), `JwtOptions`, `SecurityClaimTypes`, `TokenSubject` |
 | Persistence | `SecurityDbContext` (schema `identity`) and its migrations |
 | Hosting | `AddSecurityServices`, `AddSecurityAuthentication` (JWT bearer validation + rate limit policy `authentication`) |
