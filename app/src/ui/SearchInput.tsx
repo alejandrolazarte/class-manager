@@ -1,5 +1,6 @@
-import { TextInput } from "react-native";
+import { TextInput, View } from "react-native";
 import { useTheme } from "@/theme/useTheme";
+import { Icon } from "@/ui/Icon";
 
 interface SearchInputProps {
   value: string;
@@ -16,17 +17,20 @@ export function SearchInput({
 }: SearchInputProps) {
   const { colors } = useTheme();
   return (
-    <TextInput
-      accessibilityLabel={placeholder}
-      accessibilityRole="search"
-      placeholder={placeholder}
-      value={value}
-      onChangeText={onChangeText}
-      autoFocus={autoFocus}
-      autoCorrect={false}
-      clearButtonMode="while-editing"
-      placeholderTextColor={colors["subtle-foreground"]}
-      className="rounded-xl border border-border-strong bg-surface px-3 py-3 text-base text-foreground"
-    />
+    <View className="h-[52px] flex-row items-center gap-2.5 rounded-2xl border-[1.5px] border-border bg-surface px-3.5">
+      <Icon name="search" tone="subtle-foreground" />
+      <TextInput
+        accessibilityLabel={placeholder}
+        accessibilityRole="search"
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        autoFocus={autoFocus}
+        autoCorrect={false}
+        clearButtonMode="while-editing"
+        placeholderTextColor={colors["subtle-foreground"]}
+        className="h-full min-w-0 flex-1 font-text text-[15px] text-foreground"
+      />
+    </View>
   );
 }

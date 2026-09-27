@@ -1,26 +1,47 @@
 import { PropsWithChildren } from "react";
 import { View } from "react-native";
 import { AppText } from "@/ui/AppText";
+import { Icon, IconName } from "@/ui/Icon";
+import { ThemeColorToken } from "@/theme/themeColorTokens";
 
-type BannerTone = "error" | "warning";
+type BannerTone = "error" | "warning" | "info";
 
 interface BannerProps extends PropsWithChildren {
   message: string;
   tone?: BannerTone;
+  icon?: IconName;
 }
 
 const toneClassNames: Record<BannerTone, string> = {
-  error: "border-danger/40 bg-danger-soft",
-  warning: "border-warning/40 bg-warning-soft",
+  error: "bg-danger-soft",
+  warning: "bg-warning-soft",
+  info: "bg-muted",
 };
 
-export function Banner({ message, tone = "error", children }: BannerProps) {
+const defaultIcons: Record<BannerTone, IconName> = {
+  error: "error",
+  warning: "warning",
+  info: "notYet",
+};
+
+const iconTones: Record<BannerTone, ThemeColorToken> = {
+  error: "danger",
+  warning: "warning",
+  info: "muted-foreground",
+};
+
+export function Banner({ message, tone = "error", icon, children }: BannerProps) {
   return (
     <View
       accessibilityRole="alert"
-      className={`gap-3 rounded-xl border p-3 ${toneClassNames[tone]}`}
+      className={`gap-3 rounded-[18px] px-4 py-3.5 ${toneClassNames[tone]}`}
     >
-      <AppText variant="body">{message}</AppText>
+      <View className="flex-row items-center gap-2.5">
+        <Icon name={icon ?? defaultIcons[tone]} tone={iconTones[tone]} />
+        <AppText variant="bodyStrong" className="flex-1 font-label">
+          {message}
+        </AppText>
+      </View>
       {children}
     </View>
   );

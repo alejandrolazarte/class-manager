@@ -1,18 +1,23 @@
 import { Text, TextProps } from "react-native";
 
 export const textVariantClassNames = {
-  display: "text-2xl font-bold",
-  headline: "text-xl font-bold",
-  title: "text-xl font-semibold",
-  heading: "text-lg font-semibold",
-  lead: "text-lg",
-  body: "text-base",
-  bodyStrong: "text-base font-semibold",
-  link: "text-base font-medium",
-  label: "text-sm font-medium",
-  caption: "text-sm",
-  footnote: "text-xs",
-  badge: "text-xs font-medium",
+  hero: "font-heavy text-[30px] leading-[33px] tracking-[-0.6px]",
+  display: "font-heavy text-[26px] leading-[30px] tracking-[-0.5px]",
+  headline: "font-heavy text-[22px] leading-[26px] tracking-[-0.4px]",
+  amount: "font-heavy text-[32px] leading-[36px] tracking-[-0.6px]",
+  title: "font-heavy text-xl",
+  heading: "font-strong text-[17px] leading-[22px]",
+  lead: "font-text text-base leading-[23px]",
+  body: "font-text text-[15px] leading-[21px]",
+  bodyStrong: "font-strong text-[15px] leading-[20px]",
+  button: "font-strong text-base",
+  link: "font-strong text-sm",
+  eyebrow: "font-strong text-[13px] leading-4",
+  label: "font-label text-[13px]",
+  caption: "font-text text-[13px] leading-[17px]",
+  footnote: "font-text text-xs",
+  badge: "font-strong text-xs",
+  overline: "font-strong text-xs uppercase tracking-[0.7px]",
 } as const;
 
 export const textToneClassNames = {
@@ -21,6 +26,7 @@ export const textToneClassNames = {
   subtle: "text-subtle-foreground",
   disabled: "text-disabled-foreground",
   primary: "text-primary",
+  primarySoft: "text-primary-soft-foreground",
   onPrimary: "text-primary-foreground",
   danger: "text-danger",
   onDanger: "text-danger-foreground",
@@ -28,6 +34,7 @@ export const textToneClassNames = {
   warning: "text-warning",
   warningSoft: "text-warning-soft-foreground",
   success: "text-success",
+  onSuccess: "text-success-foreground",
   successSoft: "text-success-soft-foreground",
   inverse: "text-inverse-foreground",
 } as const;
@@ -42,12 +49,13 @@ interface AppTextProps extends TextProps {
   className?: string;
 }
 
-export function AppText({ variant, tone = "default", className, ...textProps }: AppTextProps) {
-  const classNames = [
-    variant ? textVariantClassNames[variant] : undefined,
-    textToneClassNames[tone],
-    className,
-  ]
+export function AppText({
+  variant = "body",
+  tone = "default",
+  className,
+  ...textProps
+}: AppTextProps) {
+  const classNames = [textVariantClassNames[variant], textToneClassNames[tone], className]
     .filter(Boolean)
     .join(" ");
   return <Text className={classNames} {...textProps} />;

@@ -1,13 +1,6 @@
-import { View } from "react-native";
 import { translate } from "@/i18n/translate";
-import { AppText } from "@/ui/AppText";
+import { StatusPill } from "@/ui/StatusPill";
 
 export function InactiveChip() {
-  return (
-    <View className="rounded-full bg-muted px-2 py-1">
-      <AppText variant="badge" tone="muted">
-        {translate("common.inactive")}
-      </AppText>
-    </View>
-  );
+  return <StatusPill label={translate("common.inactive")} tone="neutral" isSmall />;
 }

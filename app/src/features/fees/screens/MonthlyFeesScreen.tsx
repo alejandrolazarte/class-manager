@@ -4,18 +4,23 @@ import { FlatList, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { ClassPackClientRow } from "@/features/fees/components/ClassPackClientRow";
 import { ClientFeeRow } from "@/features/fees/components/ClientFeeRow";
+import { MonthlySummaryCard } from "@/features/fees/components/MonthlySummaryCard";
 import { formatMoney } from "@/features/fees/money";
 import { addMonths, formatMonth, monthOf } from "@/features/fees/months";
 import { ClientFee } from "@/features/fees/types";
 import { useMonthlyFees } from "@/features/fees/useFees";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { StepArrow } from "@/ui/StepArrow";
-import { Chip } from "@/ui/Chip";
-import { AppText } from "@/ui/AppText";
+import { EmptyState } from "@/ui/EmptyState";
+import { Screen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
+import { SectionTitle } from "@/ui/SectionTitle";
+import { SegmentedControl } from "@/ui/SegmentedControl";
 import { Spinner } from "@/ui/Spinner";
+import { StepArrow } from "@/ui/StepArrow";
 
 interface MonthlyFeesScreenProps {
   initialMonth?: string;
@@ -32,102 +37,121 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
   const [filter, setFilter] = useState<FeeFilter>("debtors");
   const { data: monthlyFees, isPending, isError, isRefetching, refetch } = useMonthlyFees(month);
   const money = (amount: number) => formatMoney(amount, business.currencyCode);
-  const clients = (monthlyFees?.clients ?? []).filter(
-    (clientFee: ClientFee) => filter === "all" || debtorStatuses.has(clientFee.status),
+  const allClients = monthlyFees?.clients ?? [];
+  const debtors = allClients.filter((clientFee: ClientFee) => debtorStatuses.has(clientFee.status));
+  const clients = [...(filter === "all" ? allClients : debtors)].sort(
+    (first, second) => second.balance - first.balance,
   );
   const classPackClients = (monthlyFees?.classPackClients ?? []).filter(
     (classPackClient) => filter === "all" || classPackClient.unpaidClasses > 0,
   );
+  const filterOptions = [
+    { value: "debtors" as const, key: "fees.month.filterDebtors" as const, count: debtors.length },
+    { value: "all" as const, key: "fees.month.filterAll" as const, count: allClients.length },
+  ].map(({ value, key, count }) => ({
+    value,
+    accessibilityLabel: translate(key),
+    label: monthlyFees
+      ? translate("fees.month.filterWithCount", { label: translate(key), count })
+      : translate(key),
+  }));
 
-  return (
-    <View className="flex-1 bg-background">
-      <View className="flex-row items-center justify-between bg-surface py-2">
-        <StepArrow
-          direction="previous"
-          label={translate("fees.month.previous")}
-          onPress={() => setMonth(addMonths(month, -1))}
-        />
-        <AppText variant="heading">{formatMonth(month)}</AppText>
-        <StepArrow
-          direction="next"
-          label={translate("fees.month.next")}
-          onPress={() => setMonth(addMonths(month, 1))}
-        />
-      </View>
-      <View className="gap-3 p-4">
+  const header = (
+    <View className="gap-4 pb-3">
+      <ScreenHeader
+        eyebrow={translate("fees.month.title")}
+        title={formatMonth(month)}
+        accessory={
+          <View className="flex-row gap-1">
+            <StepArrow
+              direction="previous"
+              label={translate("fees.month.previous")}
+              onPress={() => setMonth(addMonths(month, -1))}
+            />
+            <StepArrow
+              direction="next"
+              label={translate("fees.month.next")}
+              onPress={() => setMonth(addMonths(month, 1))}
+            />
+          </View>
+        }
+      />
+      <View className="gap-4 px-5">
         {business.defaultMonthlyFee === null ? (
           <Banner tone="warning" message={translate("fees.month.noDefaultFee")}>
             <Button
-              variant="secondary"
+              variant="outline"
+              size="medium"
               label={translate("fees.month.setDefaultFee")}
               onPress={() => router.push(routes.defaultMonthlyFee)}
             />
           </Banner>
         ) : null}
         {monthlyFees ? (
-          <AppText variant="link">
-            {translate("fees.month.summary", {
-              paid: money(monthlyFees.totalPaid),
-              due: money(monthlyFees.totalDue),
-            })}
-          </AppText>
+          <MonthlySummaryCard
+            monthlyFees={monthlyFees}
+            debtorCount={debtors.length}
+            owedAmount={debtors.reduce((total, debtor) => total + debtor.balance, 0)}
+            money={money}
+          />
         ) : null}
         {monthlyFees && monthlyFees.classPackSales > 0 ? (
-          <AppText variant="body" tone="muted">
+          <AppText variant="label" tone="muted">
             {translate("fees.month.classPackSales", {
               amount: money(monthlyFees.classPackSales),
             })}
           </AppText>
         ) : null}
-        <View className="flex-row gap-2">
-          <Chip
-            label={translate("fees.month.filterDebtors")}
-            isSelected={filter === "debtors"}
-            onPress={() => setFilter("debtors")}
-          />
-          <Chip
-            label={translate("fees.month.filterAll")}
-            isSelected={filter === "all"}
-            onPress={() => setFilter("all")}
-          />
-        </View>
-      </View>
-      {isError ? (
-        <View className="px-4">
+        <SegmentedControl options={filterOptions} selectedValue={filter} onChange={setFilter} />
+        {isError ? (
           <Banner message={translate("common.unexpectedError")}>
             <Button
               variant="secondary"
+              size="medium"
               label={translate("common.retry")}
               onPress={() => refetch()}
             />
           </Banner>
-        </View>
-      ) : null}
+        ) : null}
+      </View>
+    </View>
+  );
+
+  return (
+    <Screen>
       {isPending ? (
-        <Spinner className="mt-6" />
+        <View>
+          {header}
+          <Spinner className="mt-6" />
+        </View>
       ) : (
         <FlatList
           data={clients}
           keyExtractor={(clientFee) => clientFee.clientId}
+          ListHeaderComponent={header}
           renderItem={({ item: clientFee }) => (
-            <ClientFeeRow
-              clientFee={clientFee}
-              onPress={() => router.push(routes.recordPayment(clientFee.clientId, month))}
-            />
+            <View className="px-5 pb-2.5">
+              <ClientFeeRow
+                clientFee={clientFee}
+                onPress={() => router.push(routes.recordPayment(clientFee.clientId, month))}
+              />
+            </View>
           )}
           ListEmptyComponent={
-            isError || classPackClients.length > 0 ? null : (
-              <AppText variant="body" tone="muted" className="p-6 text-center">
-                {translate(filter === "debtors" ? "fees.month.nobodyOwes" : "fees.month.empty")}
-              </AppText>
+            isError || classPackClients.length > 0 ? null : filter === "debtors" ? (
+              <EmptyState
+                icon="celebration"
+                iconTone="success"
+                message={translate("fees.month.nobodyOwes")}
+              />
+            ) : (
+              <EmptyState message={translate("fees.month.empty")} />
             )
           }
           ListFooterComponent={
             classPackClients.length > 0 ? (
-              <View>
-                <AppText variant="label" tone="subtle" className="px-4 pb-2 pt-6">
-                  {translate("fees.month.classPacksTitle")}
-                </AppText>
+              <View className="gap-2.5 px-5 pt-4">
+                <SectionTitle title={translate("fees.month.classPacksTitle")} isOverline />
                 {classPackClients.map((classPackClient) => (
                   <ClassPackClientRow
                     key={classPackClient.clientId}
@@ -140,9 +164,9 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
           }
           refreshing={isRefetching}
           onRefresh={() => refetch()}
-          contentContainerClassName="pb-12"
+          contentContainerClassName="w-full max-w-2xl self-center pb-8"
         />
       )}
-    </View>
+    </Screen>
   );
 }

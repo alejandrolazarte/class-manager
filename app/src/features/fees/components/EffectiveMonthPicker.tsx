@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { addMonths, formatMonth } from "@/features/fees/months";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { StepArrow } from "@/ui/StepArrow";
+import { IconButton } from "@/ui/IconButton";
 
 interface EffectiveMonthPickerProps {
   month: string;
@@ -11,20 +11,22 @@ interface EffectiveMonthPickerProps {
 
 export function EffectiveMonthPicker({ month, onChange }: EffectiveMonthPickerProps) {
   return (
-    <View className="gap-1">
+    <View className="gap-1.5">
       <AppText variant="label" tone="muted">
         {translate("fees.effectiveMonth.label")}
       </AppText>
-      <View className="flex-row items-center justify-between rounded-xl border border-border-strong bg-surface">
-        <StepArrow
-          direction="previous"
-          label={translate("fees.effectiveMonth.previous")}
+      <View className="h-[52px] flex-row items-center justify-between rounded-2xl border-[1.5px] border-border bg-surface px-1">
+        <IconButton
+          icon="previous"
+          tone="primary"
+          accessibilityLabel={translate("fees.effectiveMonth.previous")}
           onPress={() => onChange(addMonths(month, -1))}
         />
         <AppText variant="bodyStrong">{formatMonth(month)}</AppText>
-        <StepArrow
-          direction="next"
-          label={translate("fees.effectiveMonth.next")}
+        <IconButton
+          icon="next"
+          tone="primary"
+          accessibilityLabel={translate("fees.effectiveMonth.next")}
           onPress={() => onChange(addMonths(month, 1))}
         />
       </View>

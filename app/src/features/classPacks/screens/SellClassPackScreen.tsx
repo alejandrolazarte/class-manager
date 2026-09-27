@@ -12,7 +12,7 @@ import {
 import { useSellClassPack } from "@/features/classPacks/useClassPackMutations";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatMoney, toAmountText } from "@/features/fees/money";
-import { paymentMethods } from "@/features/fees/paymentSchema";
+import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { todayIsoDate } from "@/features/sessions/dates";
@@ -20,7 +20,7 @@ import {
   formatBirthDateAsTyped,
   formatBirthDateForDisplay,
 } from "@/features/students/birthDateFormatting";
-import { translate, translateCount, TranslationKey } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
@@ -29,6 +29,8 @@ import { Chip } from "@/ui/Chip";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 
 interface SellClassPackScreenProps {
   clientId: string;
@@ -70,7 +72,9 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
   }
   if (classPacks.length === 0) {
     return (
-      <View className="flex-1 bg-background p-4">
+      <ScrollScreen
+        header={<ScreenHeader navigation="close" title={translate("classPacks.sell.title")} />}
+      >
         <Banner tone="warning" message={translate("classPacks.sell.noPacks")}>
           <Button
             variant="secondary"
@@ -78,12 +82,16 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
             onPress={() => router.push(routes.classPacks)}
           />
         </Banner>
-      </View>
+      </ScrollScreen>
     );
   }
 
   return (
-    <SettingsFormScreenLayout submissionFailure={submissionFailure} onRetry={sell}>
+    <SettingsFormScreenLayout
+      title={translate("classPacks.sell.title")}
+      submissionFailure={submissionFailure}
+      onRetry={sell}
+    >
       <Controller
         control={form.control}
         name="classPackId"
@@ -136,21 +144,7 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
         control={form.control}
         name="method"
         render={({ field }) => (
-          <View className="gap-2">
-            <AppText variant="label" tone="muted">
-              {translate("fees.payment.method")}
-            </AppText>
-            <View className="flex-row flex-wrap gap-2">
-              {paymentMethods.map((method) => (
-                <Chip
-                  key={method}
-                  label={translate(`fees.methods.${method}` as TranslationKey)}
-                  isSelected={field.value === method}
-                  onPress={() => field.onChange(method)}
-                />
-              ))}
-            </View>
-          </View>
+          <PaymentMethodPicker value={field.value} onChange={field.onChange} />
         )}
       />
       <Controller

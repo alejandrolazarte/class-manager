@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Linking, ScrollView, View } from "react-native";
+import { Linking, View } from "react-native";
 import {
   formatPhoneNumberForDisplay,
   toDialableDigits,
@@ -15,6 +15,11 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
 import { Spinner } from "@/ui/Spinner";
+import { Avatar } from "@/ui/Avatar";
+import { Card } from "@/ui/Card";
+import { Screen, ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
+import { SectionTitle } from "@/ui/SectionTitle";
 
 const telephoneScheme = "tel:";
 const emailScheme = "mailto:";
@@ -29,28 +34,45 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const { data: client, isPending, isError, refetch } = useClient(clientId);
 
   if (isPending) {
-    return <Spinner className="mt-6" />;
+    return (
+      <Screen header={<ScreenHeader navigation="back" title="" />}>
+        <Spinner className="mt-6" />
+      </Screen>
+    );
   }
   if (isError || client === undefined) {
     return (
-      <View className="p-4">
+      <ScrollScreen header={<ScreenHeader navigation="back" title="" />}>
         <Banner message={translate("clients.detail.notFound")}>
-          <Button variant="secondary" label={translate("common.retry")} onPress={() => refetch()} />
+          <Button
+            variant="secondary"
+            size="medium"
+            label={translate("common.retry")}
+            onPress={() => refetch()}
+          />
         </Banner>
-      </View>
+      </ScrollScreen>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 p-4">
-      <AppText variant="display">{client.fullName}</AppText>
-      <AppText tone="muted" variant="lead">
-        {formatPhoneNumberForDisplay(client.phoneNumber)}
-      </AppText>
-      <View className="flex-row gap-3">
+    <ScrollScreen
+      header={
+        <ScreenHeader
+          navigation="back"
+          leading={<Avatar name={client.fullName} tone="primary" size="large" />}
+          eyebrow={translate("clients.detail.title")}
+          title={client.fullName}
+          subtitle={formatPhoneNumberForDisplay(client.phoneNumber)}
+        />
+      }
+    >
+      <View className="flex-row gap-2.5">
         <View className="flex-1">
           <Button
             variant="secondary"
+            size="medium"
+            icon="call"
             label={translate("clients.detail.call")}
             onPress={() => Linking.openURL(`${telephoneScheme}${client.phoneNumber}`)}
           />
@@ -58,6 +80,8 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
         <View className="flex-1">
           <Button
             variant="secondary"
+            size="medium"
+            icon="whatsApp"
             label={translate("clients.detail.whatsApp")}
             onPress={() =>
               Linking.openURL(`${whatsAppBaseUrl}${toDialableDigits(client.phoneNumber)}`)
@@ -65,42 +89,47 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           />
         </View>
       </View>
-      {client.email ? (
-        <View className="gap-1">
-          <AppText variant="label" tone="subtle">
-            {translate("clients.detail.email")}
-          </AppText>
-          <AppText
-            variant="body"
-            tone="primary"
-            accessibilityRole="link"
-
-            onPress={() => Linking.openURL(`${emailScheme}${client.email}`)}
-          >
-            {client.email}
-          </AppText>
+      {client.email || client.notes ? (
+        <View className="gap-3 rounded-2xl bg-muted px-3.5 py-3">
+          {client.email ? (
+            <View className="gap-0.5">
+              <AppText variant="overline" tone="subtle">
+                {translate("clients.detail.email")}
+              </AppText>
+              <AppText
+                variant="bodyStrong"
+                tone="primary"
+                accessibilityRole="link"
+                onPress={() => Linking.openURL(`${emailScheme}${client.email}`)}
+              >
+                {client.email}
+              </AppText>
+            </View>
+          ) : null}
+          {client.notes ? (
+            <View className="gap-0.5">
+              <AppText variant="overline" tone="subtle">
+                {translate("clients.detail.notes")}
+              </AppText>
+              <AppText variant="body">{client.notes}</AppText>
+            </View>
+          ) : null}
         </View>
       ) : null}
-      {client.notes ? (
-        <View className="gap-1">
-          <AppText variant="label" tone="subtle">
-            {translate("clients.detail.notes")}
-          </AppText>
-          <AppText variant="body">{client.notes}</AppText>
-        </View>
-      ) : null}
-      <View className="gap-2">
-        <AppText variant="heading">{translate("clients.detail.students")}</AppText>
-        {client.students.length === 0 ? (
-          <AppText variant="body" tone="muted">
-            {translate("clients.detail.noStudents")}
-          </AppText>
-        ) : (
-          client.students.map((student) => {
-            const ageLabel = studentAgeLabel(student.birthDate);
-            return (
-              <View key={student.id} className="gap-1 rounded-xl bg-surface p-3">
-                <AppText variant="bodyStrong">{student.fullName}</AppText>
+      <SectionTitle title={translate("clients.detail.students")} />
+      {client.students.length === 0 ? (
+        <AppText variant="body" tone="muted">
+          {translate("clients.detail.noStudents")}
+        </AppText>
+      ) : (
+        client.students.map((student) => {
+          const ageLabel = studentAgeLabel(student.birthDate);
+          return (
+            <Card key={student.id} className="gap-2.5 px-4 py-3.5">
+              <View className="gap-0.5">
+                <AppText variant="heading" className="text-base">
+                  {student.fullName}
+                </AppText>
                 {student.birthDate && ageLabel ? (
                   <AppText variant="caption" tone="muted">
                     {`${formatBirthDateForDisplay(student.birthDate)} · ${ageLabel}`}
@@ -111,18 +140,20 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
                     {student.notes}
                   </AppText>
                 ) : null}
-                <StudentClasses studentId={student.id} />
               </View>
-            );
-          })
-        )}
-        <Button
-          variant="secondary"
-          label={translate("clients.detail.addStudent")}
-          onPress={() => router.push(routes.addStudent(client.id))}
-        />
-      </View>
+              <StudentClasses studentId={student.id} />
+            </Card>
+          );
+        })
+      )}
+      <Button
+        variant="dashed"
+        size="medium"
+        icon="add"
+        label={translate("clients.detail.addStudent")}
+        onPress={() => router.push(routes.addStudent(client.id))}
+      />
       <ClientFeeSection client={client} />
-    </ScrollView>
+    </ScrollScreen>
   );
 }

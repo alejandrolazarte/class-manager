@@ -7,6 +7,10 @@ export type ColorScheme = (typeof colorSchemes)[number];
 
 export type ThemeDefinition = Record<ColorScheme, ThemeColors>;
 
+export type ThemeName = string;
+
+export type ThemeRegistry = Readonly<Record<ThemeName, ThemeDefinition>>;
+
 const neutralLightColors = {
   background: palette.gray50,
   foreground: palette.gray900,
@@ -26,10 +30,12 @@ const neutralLightColors = {
   "warning-soft": palette.amber100,
   "warning-soft-foreground": palette.amber800,
   success: palette.green700,
+  "success-foreground": palette.white,
   "success-soft": palette.green100,
   "success-soft-foreground": palette.green800,
   inverse: palette.gray900,
   "inverse-foreground": palette.white,
+  shadow: palette.gray900,
 } as const;
 
 const neutralDarkColors = {
@@ -51,11 +57,78 @@ const neutralDarkColors = {
   "warning-soft": palette.amber950,
   "warning-soft-foreground": palette.amber300,
   success: palette.green300,
+  "success-foreground": palette.gray950,
   "success-soft": palette.green950,
   "success-soft-foreground": palette.green300,
   inverse: palette.gray100,
   "inverse-foreground": palette.gray900,
+  shadow: palette.gray950,
 } as const;
+
+const aquaTheme: ThemeDefinition = {
+  light: {
+    background: palette.aqua50,
+    foreground: palette.aqua900,
+    surface: palette.white,
+    muted: palette.aqua150,
+    "muted-foreground": palette.aqua600,
+    "subtle-foreground": palette.aqua500,
+    "disabled-foreground": palette.aqua400,
+    border: palette.aqua200,
+    "border-subtle": palette.aqua100,
+    "border-strong": palette.aqua300,
+    primary: palette.lagoon600,
+    "primary-foreground": palette.white,
+    "primary-strong": palette.lagoon700,
+    "primary-soft": palette.lagoon100,
+    "primary-soft-foreground": palette.lagoon800,
+    danger: palette.coral600,
+    "danger-foreground": palette.white,
+    "danger-soft": palette.coral100,
+    "danger-soft-foreground": palette.coral800,
+    warning: palette.sand600,
+    "warning-soft": palette.sand100,
+    "warning-soft-foreground": palette.sand800,
+    success: palette.seaGreen600,
+    "success-foreground": palette.white,
+    "success-soft": palette.seaGreen100,
+    "success-soft-foreground": palette.seaGreen800,
+    inverse: palette.aqua900,
+    "inverse-foreground": palette.aqua50,
+    shadow: palette.aquaShadow,
+  },
+  dark: {
+    background: palette.aquaNight950,
+    foreground: palette.aquaNight50,
+    surface: palette.aquaNight900,
+    muted: palette.aquaNight850,
+    "muted-foreground": palette.aquaNight200,
+    "subtle-foreground": palette.aquaNight400,
+    "disabled-foreground": palette.aquaNight600,
+    border: palette.aquaNight800,
+    "border-subtle": palette.aquaNight875,
+    "border-strong": palette.aquaNight700,
+    primary: palette.lagoon400,
+    "primary-foreground": palette.lagoon975,
+    "primary-strong": palette.lagoon300,
+    "primary-soft": palette.lagoon900,
+    "primary-soft-foreground": palette.lagoon200,
+    danger: palette.coral400,
+    "danger-foreground": palette.lagoon975,
+    "danger-soft": palette.coral900,
+    "danger-soft-foreground": palette.coral200,
+    warning: palette.sand400,
+    "warning-soft": palette.sand900,
+    "warning-soft-foreground": palette.sand200,
+    success: palette.seaGreen400,
+    "success-foreground": palette.lagoon975,
+    "success-soft": palette.seaGreen900,
+    "success-soft-foreground": palette.seaGreen200,
+    inverse: palette.aquaNight50,
+    "inverse-foreground": palette.aquaNight950,
+    shadow: palette.aquaNightShadow,
+  },
+};
 
 const violetTheme: ThemeDefinition = {
   light: {
@@ -96,10 +169,11 @@ const oceanTheme: ThemeDefinition = {
 };
 
 export const themes = {
+  aqua: aquaTheme,
   violet: violetTheme,
   ocean: oceanTheme,
-} as const satisfies Record<string, ThemeDefinition>;
+} as const satisfies ThemeRegistry;
 
-export type ThemeName = keyof typeof themes;
+export type BuiltInThemeName = keyof typeof themes;
 
-export const defaultThemeName: ThemeName = "violet";
+export const defaultThemeName: BuiltInThemeName = "aqua";

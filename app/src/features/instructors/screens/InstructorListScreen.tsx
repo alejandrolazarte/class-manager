@@ -16,6 +16,7 @@ export function InstructorListScreen() {
   } = useInstructorsIncludingInactive();
   return (
     <SettingsListScreenLayout
+      title={translate("instructors.list.title")}
       items={instructors}
       isPending={isPending}
       isError={isError}

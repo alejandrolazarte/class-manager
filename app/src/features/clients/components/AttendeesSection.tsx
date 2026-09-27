@@ -1,5 +1,5 @@
 import { Controller, useFieldArray, UseFormReturn } from "react-hook-form";
-import { Pressable, Switch, View } from "react-native";
+import { Pressable, View } from "react-native";
 import {
   maximumStudentsPerRegistration,
   RegisterClientFormValues,
@@ -9,6 +9,9 @@ import { emptyStudentFormValues } from "@/features/students/studentSchema";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
+import { Card } from "@/ui/Card";
+import { SectionTitle } from "@/ui/SectionTitle";
+import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
 interface AttendeesSectionProps {
   form: UseFormReturn<RegisterClientFormValues>;
@@ -22,30 +25,34 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
   const attendeesErrorMessage = formState.errors.clientAttends?.message;
 
   return (
-    <View className="gap-4">
-      <AppText variant="heading">{translate("clients.register.attendeesSection")}</AppText>
+    <View className="gap-3">
+      <SectionTitle title={translate("clients.register.attendeesSection")} isOverline />
       <Controller
         control={control}
         name="clientAttends"
         render={({ field }) => (
-          <View className="flex-row items-center justify-between">
-            <AppText variant="body">{translate("clients.register.clientAttends")}</AppText>
-            <Switch
-              accessibilityLabel={translate("clients.register.clientAttends")}
-              value={field.value}
-              onValueChange={(clientAttendsValue) => {
-                field.onChange(clientAttendsValue);
-                void form.trigger("clientAttends");
-              }}
-            />
-          </View>
+          <ToggleSwitch
+            label={translate("clients.register.clientAttends")}
+            value={field.value}
+            onValueChange={(clientAttendsValue) => {
+              field.onChange(clientAttendsValue);
+              void form.trigger("clientAttends");
+            }}
+          />
         )}
       />
       {fields.map((additionalStudentField, index) => (
-        <View
-          key={additionalStudentField.id}
-          className="gap-3 rounded-xl border border-border bg-surface p-3"
-        >
+        <Card key={additionalStudentField.id} className="gap-3 p-4">
+          <View className="flex-row items-center justify-between">
+            <AppText variant="link" tone="primary">
+              {translate("clients.register.attendeeCard")}
+            </AppText>
+            <Pressable accessibilityRole="button" className="p-1" onPress={() => remove(index)}>
+              <AppText tone="danger" variant="link">
+                {translate("common.remove")}
+              </AppText>
+            </Pressable>
+          </View>
           <StudentFields
             control={control}
             paths={{
@@ -54,23 +61,21 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
               notes: `additionalStudents.${index}.notes`,
             }}
             autoFocus
+            isInsideCard
           />
-          <Pressable accessibilityRole="button" onPress={() => remove(index)}>
-            <AppText tone="danger" variant="link">
-              {translate("common.remove")}
-            </AppText>
-          </Pressable>
-        </View>
+        </Card>
       ))}
       {attendeeCount < maximumStudentsPerRegistration ? (
         <Button
-          variant="secondary"
+          variant="dashed"
+          size="medium"
+          icon="enroll"
           label={translate("clients.register.addAttendee")}
           onPress={() => append({ ...emptyStudentFormValues })}
         />
       ) : null}
       {attendeesErrorMessage ? (
-        <AppText variant="caption" tone="danger" accessibilityRole="alert">
+        <AppText variant="label" tone="danger" accessibilityRole="alert">
           {attendeesErrorMessage}
         </AppText>
       ) : null}

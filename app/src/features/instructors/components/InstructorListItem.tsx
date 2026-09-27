@@ -1,7 +1,10 @@
-import { Pressable } from "react-native";
+import { View } from "react-native";
 import { Instructor } from "@/features/instructors/types";
 import { InactiveChip } from "@/features/settings/components/InactiveChip";
 import { AppText } from "@/ui/AppText";
+import { Avatar } from "@/ui/Avatar";
+import { Card } from "@/ui/Card";
+import { Icon } from "@/ui/Icon";
 
 interface InstructorListItemProps {
   instructor: Instructor;
@@ -10,16 +13,19 @@ interface InstructorListItemProps {
 
 export function InstructorListItem({ instructor, onPress }: InstructorListItemProps) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={instructor.fullName}
-      onPress={() => onPress(instructor)}
-      className={`flex-row items-center gap-3 border-b border-border-subtle bg-surface px-4 py-4 ${instructor.isActive ? "" : "opacity-50"}`}
-    >
-      <AppText variant="bodyStrong" className="flex-1">
-        {instructor.fullName}
-      </AppText>
-      {instructor.isActive ? null : <InactiveChip />}
-    </Pressable>
+    <View className={instructor.isActive ? "" : "opacity-60"}>
+      <Card
+        onPress={() => onPress(instructor)}
+        accessibilityLabel={instructor.fullName}
+        className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
+      >
+        <Avatar name={instructor.fullName} />
+        <AppText variant="bodyStrong" className="min-w-0 flex-1">
+          {instructor.fullName}
+        </AppText>
+        {instructor.isActive ? null : <InactiveChip />}
+        <Icon name="next" tone="subtle-foreground" />
+      </Card>
+    </View>
   );
 }

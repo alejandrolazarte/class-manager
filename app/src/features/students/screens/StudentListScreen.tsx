@@ -7,9 +7,11 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { EmptyState } from "@/ui/EmptyState";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
+import { Screen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
-import { AppText } from "@/ui/AppText";
 import { Spinner } from "@/ui/Spinner";
 
 export function StudentListScreen() {
@@ -27,60 +29,63 @@ export function StudentListScreen() {
 
   const emptyState =
     debouncedSearch.length > 0 ? (
-      <AppText variant="body" tone="muted" className="p-6 text-center">
-        {translate("students.list.noResults", { search: debouncedSearch })}
-      </AppText>
+      <EmptyState message={translate("students.list.noResults", { search: debouncedSearch })} />
     ) : (
-      <View className="items-center gap-4 p-6">
-        <AppText tone="muted" variant="lead">
-          {translate("students.list.emptyTitle")}
-        </AppText>
+      <EmptyState icon="students" message={translate("students.list.emptyTitle")}>
         <Button label={translate("students.list.emptyCallToAction")} onPress={openRegisterClient} />
-      </View>
+      </EmptyState>
     );
 
   return (
-    <View className="flex-1 bg-background">
-      <View className="p-4">
-        <SearchInput
-          value={searchText}
-          onChangeText={setSearchText}
-          placeholder={translate("students.list.searchPlaceholder")}
+    <Screen
+      overlay={
+        <FloatingActionButton
+          label={translate("students.list.newStudent")}
+          onPress={openRegisterClient}
         />
-      </View>
-      {isError ? (
-        <View className="px-4">
-          <Banner message={translate("common.unexpectedError")}>
-            <Button
-              variant="secondary"
-              label={translate("common.retry")}
-              onPress={() => refetch()}
-            />
-          </Banner>
+      }
+    >
+      <View className="gap-4 pb-4">
+        <ScreenHeader title={translate("students.list.title")} />
+        <View className="gap-4 px-5">
+          <SearchInput
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder={translate("students.list.searchPlaceholder")}
+          />
+          {isError ? (
+            <Banner message={translate("common.unexpectedError")}>
+              <Button
+                variant="secondary"
+                size="medium"
+                label={translate("common.retry")}
+                onPress={() => refetch()}
+              />
+            </Banner>
+          ) : null}
         </View>
-      ) : null}
+      </View>
       {isPending ? (
         <Spinner className="mt-6" />
       ) : (
         <FlatList
           data={students}
           keyExtractor={(student) => student.id}
+          keyboardShouldPersistTaps="handled"
           renderItem={({ item: student }) => (
-            <StudentListItem
-              student={student}
-              onPress={() => router.push(routes.clientDetail(student.clientId))}
-            />
+            <View className="px-5 pb-2.5">
+              <StudentListItem
+                student={student}
+                onPress={() => router.push(routes.clientDetail(student.clientId))}
+              />
+            </View>
           )}
           ListEmptyComponent={isError ? null : emptyState}
           refreshing={isRefetching}
           onRefresh={() => refetch()}
-          contentContainerClassName="pb-24"
+          contentContainerClassName="w-full max-w-2xl self-center pb-28"
         />
       )}
-      <FloatingActionButton
-        accessibilityLabel={translate("students.list.newStudent")}
-        onPress={openRegisterClient}
-      />
-    </View>
+    </Screen>
   );
 }

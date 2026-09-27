@@ -1,20 +1,27 @@
 import { Pressable } from "react-native";
+import { AppText } from "@/ui/AppText";
+import { useElevationStyle } from "@/ui/elevation";
 import { Icon } from "@/ui/Icon";
 
 interface FloatingActionButtonProps {
-  accessibilityLabel: string;
+  label: string;
   onPress: () => void;
 }
 
-export function FloatingActionButton({ accessibilityLabel, onPress }: FloatingActionButtonProps) {
+export function FloatingActionButton({ label, onPress }: FloatingActionButtonProps) {
+  const elevationStyle = useElevationStyle("floating");
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={label}
       onPress={onPress}
-      className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg"
+      style={elevationStyle}
+      className="absolute bottom-5 right-[18px] h-14 flex-row items-center gap-2 rounded-[18px] bg-primary pl-4 pr-5 active:bg-primary-strong"
     >
       <Icon name="add" size="extraLarge" tone="primary-foreground" />
+      <AppText variant="bodyStrong" tone="onPrimary">
+        {label}
+      </AppText>
     </Pressable>
   );
 }

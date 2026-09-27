@@ -10,11 +10,14 @@ import { useRescheduleSession } from "@/features/sessions/useSessionMutations";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { ListRow } from "@/ui/ListRow";
 import { TextField } from "@/ui/TextField";
+import { useToast } from "@/ui/ToastProvider";
 
 interface ReschedulePanelProps {
   classGroupId: string;
   sessionDate: string;
+  currentStartTime: string;
 }
 
 type RescheduleFailure = "instructorBusy" | "invalidTime" | "unexpected";
@@ -27,11 +30,22 @@ const failureMessages = {
   unexpected: "common.unexpectedError",
 } as const;
 
-export function ReschedulePanel({ classGroupId, sessionDate }: ReschedulePanelProps) {
+export function ReschedulePanel({
+  classGroupId,
+  sessionDate,
+  currentStartTime,
+}: ReschedulePanelProps) {
+  const { showToast } = useToast();
   const rescheduleSessionMutation = useRescheduleSession(classGroupId, sessionDate);
   const [isOpen, setIsOpen] = useState(false);
   const [startTime, setStartTime] = useState("");
   const [failure, setFailure] = useState<RescheduleFailure | null>(null);
+
+  const toggle = () => {
+    setFailure(null);
+    setStartTime(isOpen ? "" : currentStartTime);
+    setIsOpen(!isOpen);
+  };
 
   const confirm = async () => {
     setFailure(null);
@@ -43,6 +57,7 @@ export function ReschedulePanel({ classGroupId, sessionDate }: ReschedulePanelPr
       await rescheduleSessionMutation.mutateAsync(startTime);
       setIsOpen(false);
       setStartTime("");
+      showToast(translate("sessions.reschedule.saved"));
     } catch (rescheduleError) {
       if (
         isApiError(rescheduleError) &&
@@ -59,36 +74,33 @@ export function ReschedulePanel({ classGroupId, sessionDate }: ReschedulePanelPr
     }
   };
 
-  if (!isOpen) {
-    return (
-      <Button
-        variant="secondary"
-        label={translate("sessions.reschedule.open")}
-        onPress={() => setIsOpen(true)}
-      />
-    );
-  }
-
   return (
-    <View className="gap-3 rounded-xl border border-border bg-surface p-3">
-      {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
-      <TextField
-        label={translate("sessions.reschedule.startTime")}
-        placeholder={translate("classGroups.form.startTimePlaceholder")}
-        keyboardType="number-pad"
-        value={startTime}
-        onChangeText={(typedText) => setStartTime(formatStartTimeAsTyped(typedText))}
+    <View>
+      <ListRow
+        icon="schedule"
+        label={translate("sessions.reschedule.open")}
+        isExpanded={isOpen}
+        onPress={toggle}
       />
-      <Button
-        label={translate("sessions.reschedule.confirm")}
-        onPress={confirm}
-        isLoading={rescheduleSessionMutation.isPending}
-      />
-      <Button
-        variant="secondary"
-        label={translate("common.cancel")}
-        onPress={() => setIsOpen(false)}
-      />
+      {isOpen ? (
+        <View className="gap-2.5 px-4 pb-4">
+          {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
+          <TextField
+            label={translate("sessions.reschedule.startTime")}
+            placeholder={translate("classGroups.form.startTimePlaceholder")}
+            keyboardType="number-pad"
+            fieldSurface="background"
+            value={startTime}
+            onChangeText={(typedText) => setStartTime(formatStartTimeAsTyped(typedText))}
+          />
+          <Button
+            size="medium"
+            label={translate("sessions.reschedule.confirm")}
+            onPress={confirm}
+            isLoading={rescheduleSessionMutation.isPending}
+          />
+        </View>
+      ) : null}
     </View>
   );
 }

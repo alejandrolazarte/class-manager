@@ -25,6 +25,6 @@ describe("When system color scheme is dark", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getByText(`dark ${themes.violet.dark.background}`)).toBeTruthy();
+    expect(screen.getByText(`dark ${themes.aqua.dark.background}`)).toBeTruthy();
   });
 });

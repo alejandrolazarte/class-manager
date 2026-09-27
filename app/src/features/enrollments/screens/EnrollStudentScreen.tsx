@@ -14,10 +14,18 @@ import { SearchInput } from "@/ui/SearchInput";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
 import { Spinner } from "@/ui/Spinner";
+import { Avatar } from "@/ui/Avatar";
+import { EmptyState } from "@/ui/EmptyState";
+import { Screen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
+import { studentAgeLabel } from "@/features/students/studentAgeLabel";
+import { normalizeStudentName } from "@/features/students/studentSchema";
 
 interface EnrollStudentScreenProps {
   classGroupId: string;
 }
+
+const detailSeparator = " · ";
 
 type EnrollFailure = "classFull" | "alreadyEnrolled" | "unexpected";
 
@@ -65,17 +73,24 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
   };
 
   return (
-    <View className="flex-1 bg-background">
-      <View className="gap-3 p-4">
-        <SearchInput
-          value={searchText}
-          onChangeText={setSearchText}
-          placeholder={translate("students.list.searchPlaceholder")}
-          autoFocus
+    <Screen>
+      <View className="gap-3.5 pb-3.5">
+        <ScreenHeader
+          navigation="close"
+          eyebrow={classGroupName}
+          title={translate("enrollments.enroll.title")}
         />
-        {enrollFailure ? (
-          <Banner tone="warning" message={translate(enrollFailureMessages[enrollFailure])} />
-        ) : null}
+        <View className="gap-3.5 px-5">
+          <SearchInput
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder={translate("students.list.searchPlaceholder")}
+            autoFocus
+          />
+          {enrollFailure ? (
+            <Banner tone="warning" message={translate(enrollFailureMessages[enrollFailure])} />
+          ) : null}
+        </View>
       </View>
       {isPending ? (
         <Spinner className="mt-6" />
@@ -83,8 +98,19 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
         <FlatList
           data={students}
           keyExtractor={(student) => student.id}
-          renderItem={({ item: student }) => {
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="w-full max-w-2xl self-center px-5 pb-8"
+          renderItem={({ item: student, index }) => {
             const isEnrolled = enrolledStudentIds.has(student.id);
+            const isOwnClient =
+              normalizeStudentName(student.fullName) ===
+              normalizeStudentName(student.clientFullName);
+            const details = [
+              studentAgeLabel(student.birthDate),
+              isOwnClient
+                ? null
+                : translate("students.list.responsible", { name: student.clientFullName }),
+            ].filter((detail): detail is string => Boolean(detail));
             return (
               <Pressable
                 accessibilityRole="button"
@@ -92,29 +118,28 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
                 accessibilityState={{ disabled: isEnrolled }}
                 disabled={isEnrolled || enrollStudentMutation.isPending}
                 onPress={() => enroll(student)}
-                className={`flex-row items-center gap-3 border-b border-border-subtle bg-surface px-4 py-3 ${isEnrolled ? "opacity-50" : ""}`}
+                className={`flex-row items-center gap-3 border-b border-border bg-surface px-4 py-3 active:bg-muted ${index === 0 ? "rounded-t-[20px]" : ""} ${index === students.length - 1 ? "rounded-b-[20px] border-b-0" : ""} ${isEnrolled ? "opacity-50" : ""}`}
               >
-                <View className="flex-1 gap-1">
+                <Avatar name={student.fullName} size="small" tone="muted" />
+                <View className="min-w-0 flex-1 gap-0.5">
                   <AppText variant="bodyStrong">{student.fullName}</AppText>
-                  <AppText variant="caption" tone="muted">
-                    {translate("students.list.responsible", { name: student.clientFullName })}
-                  </AppText>
+                  {details.length > 0 ? (
+                    <AppText variant="caption" tone="subtle">
+                      {details.join(detailSeparator)}
+                    </AppText>
+                  ) : null}
                 </View>
-                {isEnrolled ? (
-                  <AppText variant="caption" tone="subtle">
-                    {translate("enrollments.enroll.alreadyEnrolled")}
-                  </AppText>
-                ) : null}
+                <AppText variant="badge" tone={isEnrolled ? "subtle" : "primary"}>
+                  {translate(
+                    isEnrolled ? "enrollments.enroll.alreadyEnrolled" : "enrollments.enroll.enroll",
+                  )}
+                </AppText>
               </Pressable>
             );
           }}
-          ListEmptyComponent={
-            <AppText variant="body" tone="muted" className="p-6 text-center">
-              {translate("enrollments.enroll.noStudents")}
-            </AppText>
-          }
+          ListEmptyComponent={<EmptyState message={translate("enrollments.enroll.noStudents")} />}
         />
       )}
-    </View>
+    </Screen>
   );
 }

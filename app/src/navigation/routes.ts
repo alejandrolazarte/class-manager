@@ -15,6 +15,7 @@ export const routes = {
   fees: "/fees",
   recordPayment: (clientId: string, month: string) =>
     `/fees/${clientId}/pay?month=${encodeURIComponent(month)}`,
+  welcome: "/welcome",
   signIn: "/sign-in",
   signUp: "/sign-up",
   settings: "/settings",

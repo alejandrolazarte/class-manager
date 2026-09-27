@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { getFieldErrors, getStringExtension } from "@/api/problemDetails";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import {
@@ -25,6 +25,8 @@ import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 
 const badRequestStatus = 400;
 const singleStudent = 1;
@@ -108,43 +110,36 @@ export function RegisterClientScreen() {
   });
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-background"
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <ScrollScreen
+      header={<ScreenHeader navigation="close" title={translate("clients.register.title")} />}
     >
-      <ScrollView contentContainerClassName="gap-4 p-4" keyboardShouldPersistTaps="handled">
-        {submissionFailure?.kind === "phoneNumberTaken" ? (
-          <Banner
-            tone="warning"
-            message={
-              existingClient
-                ? translate("clients.register.phoneTaken", { name: existingClient.fullName })
-                : translate("clients.register.phoneTakenUnknownName")
-            }
-          >
-            <Button
-              variant="secondary"
-              label={translate("clients.register.openClient")}
-              onPress={() => router.push(routes.clientDetail(submissionFailure.existingClientId))}
-            />
-          </Banner>
-        ) : null}
-        {submissionFailure?.kind === "network" ? (
-          <Banner message={translate("common.networkError")}>
-            <Button variant="secondary" label={translate("common.retry")} onPress={submit} />
-          </Banner>
-        ) : null}
-        {submissionFailure?.kind === "unexpected" ? (
-          <Banner message={translate("common.unexpectedError")} />
-        ) : null}
-        <View>
-          <ClientForm
-            form={form}
-            onSubmit={submit}
-            isSubmitting={registerClientMutation.isPending}
+      {submissionFailure?.kind === "phoneNumberTaken" ? (
+        <Banner
+          tone="warning"
+          message={
+            existingClient
+              ? translate("clients.register.phoneTaken", { name: existingClient.fullName })
+              : translate("clients.register.phoneTakenUnknownName")
+          }
+        >
+          <Button
+            variant="secondary"
+            label={translate("clients.register.openClient")}
+            onPress={() => router.push(routes.clientDetail(submissionFailure.existingClientId))}
           />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </Banner>
+      ) : null}
+      {submissionFailure?.kind === "network" ? (
+        <Banner message={translate("common.networkError")}>
+          <Button variant="secondary" label={translate("common.retry")} onPress={submit} />
+        </Banner>
+      ) : null}
+      {submissionFailure?.kind === "unexpected" ? (
+        <Banner message={translate("common.unexpectedError")} />
+      ) : null}
+      <View>
+        <ClientForm form={form} onSubmit={submit} isSubmitting={registerClientMutation.isPending} />
+      </View>
+    </ScrollScreen>
   );
 }

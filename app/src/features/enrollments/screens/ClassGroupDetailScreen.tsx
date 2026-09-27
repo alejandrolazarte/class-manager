@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import { RosterItem } from "@/features/enrollments/components/RosterItem";
 import { todayIsoDate } from "@/features/sessions/dates";
@@ -9,13 +9,18 @@ import { useClassRoster } from "@/features/enrollments/useClassRoster";
 import { useEndEnrollment } from "@/features/enrollments/useEnrollmentMutations";
 import { summarizeSchedule } from "@/features/enrollments/weekdaySummary";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
 import { Spinner } from "@/ui/Spinner";
+import { Card } from "@/ui/Card";
+import { ProgressBar } from "@/ui/ProgressBar";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
+import { SectionTitle } from "@/ui/SectionTitle";
 
 interface ClassGroupDetailScreenProps {
   classGroupId: string;
@@ -73,68 +78,87 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
   };
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 pb-12">
-      <View className="gap-1 bg-surface p-4">
-        <AppText variant="display">{classGroup.name}</AppText>
-        <AppText variant="body" tone="muted">
-          {details.join(detailSeparator)}
-        </AppText>
-        <AppText tone="primary" variant="link">
-          {translate("enrollments.detail.spots", {
-            enrolled: enrolledCount,
-            capacity: classGroup.capacity,
-          })}
-        </AppText>
-      </View>
-      {entryToUnenroll ? (
-        <View className="px-4">
-          <Banner
-            tone="warning"
-            message={translate("enrollments.detail.unenrollQuestion", {
-              student: entryToUnenroll.studentFullName,
-              classGroup: classGroup.name,
+    <ScrollScreen
+      header={
+        <ScreenHeader
+          navigation="back"
+          navigationAction={
+            <Button
+              variant="ghost"
+              size="medium"
+              icon="edit"
+              label={translate("enrollments.detail.editClass")}
+              onPress={() => router.push(routes.editClassGroup(classGroup.id))}
+            />
+          }
+          title={classGroup.name}
+          subtitle={details.join(detailSeparator)}
+        />
+      }
+    >
+      <Card className="gap-3 p-4">
+        <View className="flex-row items-baseline justify-between">
+          <AppText variant="title" tone="primary">
+            {translate("enrollments.detail.spots", {
+              enrolled: enrolledCount,
+              capacity: classGroup.capacity,
             })}
-          >
-            <Button
-              variant="danger"
-              label={translate("enrollments.detail.confirmUnenroll")}
-              onPress={confirmUnenroll}
-              isLoading={endEnrollmentMutation.isPending}
-            />
-            <Button
-              variant="secondary"
-              label={translate("common.cancel")}
-              onPress={() => setEntryToUnenroll(null)}
-            />
-          </Banner>
+          </AppText>
+          <AppText variant="label" tone="subtle">
+            {isFull
+              ? translate("classGroups.card.full")
+              : translateCount("enrollments.detail.free", classGroup.capacity - enrolledCount)}
+          </AppText>
         </View>
-      ) : null}
-      {hasUnenrollFailed ? (
-        <View className="px-4">
-          <Banner message={translate("common.unexpectedError")} />
+        <View className="flex-row">
+          <ProgressBar ratio={classGroup.capacity > 0 ? enrolledCount / classGroup.capacity : 0} />
         </View>
-      ) : null}
-      <View className="gap-3 px-4">
         <Button
+          size="medium"
+          icon="enroll"
           label={translate(
             isFull ? "enrollments.detail.classFull" : "enrollments.detail.enrollStudent",
           )}
           disabled={isFull}
           onPress={() => router.push(routes.enrollStudent(classGroup.id))}
         />
-        <Button
-          variant="secondary"
-          label={translate("enrollments.detail.editClass")}
-          onPress={() => router.push(routes.editClassGroup(classGroup.id))}
-        />
-      </View>
-      <View>
-        <AppText variant="heading" className="px-4 pb-2">
-          {translate("enrollments.detail.students")}
-        </AppText>
-        {rosterQuery.isPending ? <Spinner className="mt-4" /> : null}
+      </Card>
+      {entryToUnenroll ? (
+        <Banner
+          tone="warning"
+          icon="unenroll"
+          message={translate("enrollments.detail.unenrollQuestion", {
+            student: entryToUnenroll.studentFullName,
+            classGroup: classGroup.name,
+          })}
+        >
+          <View className="flex-row gap-2">
+            <View className="flex-1">
+              <Button
+                variant="secondary"
+                size="medium"
+                label={translate("common.cancel")}
+                onPress={() => setEntryToUnenroll(null)}
+              />
+            </View>
+            <View className="flex-1">
+              <Button
+                variant="danger"
+                size="medium"
+                label={translate("enrollments.detail.confirmUnenroll")}
+                onPress={confirmUnenroll}
+                isLoading={endEnrollmentMutation.isPending}
+              />
+            </View>
+          </View>
+        </Banner>
+      ) : null}
+      {hasUnenrollFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
+      <SectionTitle title={translate("enrollments.detail.students")} />
+      <Card>
+        {rosterQuery.isPending ? <Spinner className="my-4" /> : null}
         {rosterQuery.data && roster.length === 0 ? (
-          <AppText variant="body" tone="muted" className="px-4">
+          <AppText variant="body" tone="muted" className="px-4 py-[18px]">
             {translate("enrollments.detail.noStudents")}
           </AppText>
         ) : null}
@@ -146,7 +170,7 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
             onUnenroll={setEntryToUnenroll}
           />
         ))}
-      </View>
-    </ScrollView>
+      </Card>
+    </ScrollScreen>
   );
 }

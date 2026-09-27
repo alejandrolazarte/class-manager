@@ -92,7 +92,11 @@ export function BusinessSettingsScreen() {
   });
 
   return (
-    <SettingsFormScreenLayout submissionFailure={submissionFailure} onRetry={save}>
+    <SettingsFormScreenLayout
+      title={translate("businessSettings.title")}
+      submissionFailure={submissionFailure}
+      onRetry={save}
+    >
       <Controller
         control={form.control}
         name="name"

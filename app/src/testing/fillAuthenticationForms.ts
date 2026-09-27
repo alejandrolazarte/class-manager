@@ -37,8 +37,9 @@ export async function fillSignUpForm(): Promise<void> {
     screen.getByLabelText(translate("authentication.signUp.password")),
     ownerPassword,
   );
+  await fireEvent.press(screen.getByRole("button", { name: translate("common.continue") }));
   await fireEvent.changeText(
-    screen.getByLabelText(translate("authentication.signUp.businessName")),
+    await screen.findByLabelText(translate("authentication.signUp.businessName")),
     "Panadería Laura",
   );
 }

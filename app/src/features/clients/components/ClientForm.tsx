@@ -8,6 +8,7 @@ import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
+import { SectionTitle } from "@/ui/SectionTitle";
 
 interface ClientFormProps {
   form: UseFormReturn<RegisterClientFormValues>;
@@ -22,65 +23,19 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
   const isSubmitBlockedByErrors = formState.isSubmitted && !formState.isValid;
 
   return (
-    <View className="gap-4">
-      <AppText variant="heading">{translate("clients.register.contactSection")}</AppText>
-      <Controller
-        control={control}
-        name="fullName"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("clients.register.fullName")}
-            autoFocus
-            autoCapitalize="words"
-            autoComplete="name"
-            returnKeyType="next"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="phoneNumber"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("clients.register.phoneNumber")}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            value={field.value}
-            onChangeText={(typedText) => field.onChange(formatPhoneNumberAsTyped(typedText))}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="notes"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("clients.register.notes")}
-            placeholder={translate("clients.register.notesPlaceholder")}
-            multiline
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
-          />
-        )}
-      />
-      {isEmailVisible ? (
+    <View className="gap-[18px]">
+      <View className="gap-3">
+        <SectionTitle title={translate("clients.register.contactSection")} isOverline />
         <Controller
           control={control}
-          name="email"
+          name="fullName"
           render={({ field, fieldState }) => (
             <TextField
-              label={translate("clients.register.email")}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
+              label={translate("clients.register.fullName")}
+              autoFocus
+              autoCapitalize="words"
+              autoComplete="name"
+              returnKeyType="next"
               value={field.value}
               onChangeText={field.onChange}
               onBlur={field.onBlur}
@@ -88,13 +43,60 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
             />
           )}
         />
-      ) : (
-        <Pressable accessibilityRole="button" onPress={() => setAreMoreDetailsExpanded(true)}>
-          <AppText tone="primary" variant="link">
-            {translate("clients.register.moreDetails")}
-          </AppText>
-        </Pressable>
-      )}
+        <Controller
+          control={control}
+          name="phoneNumber"
+          render={({ field, fieldState }) => (
+            <TextField
+              label={translate("clients.register.phoneNumber")}
+              keyboardType="phone-pad"
+              autoComplete="tel"
+              value={field.value}
+              onChangeText={(typedText) => field.onChange(formatPhoneNumberAsTyped(typedText))}
+              onBlur={field.onBlur}
+              errorMessage={fieldState.error?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="notes"
+          render={({ field, fieldState }) => (
+            <TextField
+              label={translate("clients.register.notes")}
+              placeholder={translate("clients.register.notesPlaceholder")}
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              errorMessage={fieldState.error?.message}
+            />
+          )}
+        />
+        {isEmailVisible ? (
+          <Controller
+            control={control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={translate("clients.register.email")}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
+          />
+        ) : (
+          <Pressable accessibilityRole="button" onPress={() => setAreMoreDetailsExpanded(true)}>
+            <AppText tone="primary" variant="link">
+              {translate("clients.register.moreDetails")}
+            </AppText>
+          </Pressable>
+        )}
+      </View>
       <AttendeesSection form={form} />
       <Button
         label={translate("clients.register.submit")}

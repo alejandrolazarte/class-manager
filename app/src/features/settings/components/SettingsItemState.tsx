@@ -1,8 +1,9 @@
-import { View } from "react-native";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
+import { Spinner } from "@/ui/Spinner";
 
 interface SettingsItemStateProps {
   isPending: boolean;
@@ -17,18 +18,22 @@ export function SettingsItemState({
   notFoundMessage,
   onRetry,
 }: SettingsItemStateProps) {
-  if (isPending) {
-    return <LoadingScreen />;
-  }
   return (
-    <View className="flex-1 bg-background p-4">
-      {isError ? (
+    <ScrollScreen header={<ScreenHeader navigation="back" title="" />}>
+      {isPending ? (
+        <Spinner size="large" className="mt-6" />
+      ) : isError ? (
         <Banner message={translate("common.unexpectedError")}>
-          <Button variant="secondary" label={translate("common.retry")} onPress={onRetry} />
+          <Button
+            variant="secondary"
+            size="medium"
+            label={translate("common.retry")}
+            onPress={onRetry}
+          />
         </Banner>
       ) : (
         <Banner message={notFoundMessage} />
       )}
-    </View>
+    </ScrollScreen>
   );
 }

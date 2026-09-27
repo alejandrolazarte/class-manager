@@ -3,7 +3,7 @@ import { translate } from "@/i18n/translate";
 
 export default function StudentsLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ title: translate("students.list.title") }} />
       <Stack.Screen name="new" options={{ title: translate("clients.register.title") }} />
       <Stack.Screen

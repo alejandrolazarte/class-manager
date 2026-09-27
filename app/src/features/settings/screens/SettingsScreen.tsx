@@ -1,54 +1,43 @@
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { useSession } from "@/features/authentication/useSession";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
+import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
-import { Button } from "@/ui/Button";
-import { Icon } from "@/ui/Icon";
 import { AppText } from "@/ui/AppText";
-
-interface SettingsRowProps {
-  label: string;
-  detail?: string;
-  onPress: () => void;
-}
-
-function SettingsRow({ label, detail, onPress }: SettingsRowProps) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      className="flex-row items-center gap-3 border-b border-border-subtle bg-surface px-4 py-4"
-    >
-      <View className="flex-1 gap-1">
-        <AppText variant="bodyStrong">{label}</AppText>
-        {detail ? (
-          <AppText variant="caption" tone="muted">
-            {detail}
-          </AppText>
-        ) : null}
-      </View>
-      <Icon name="next" size="medium" tone="disabled-foreground" />
-    </Pressable>
-  );
-}
+import { BrandMark } from "@/ui/BrandMark";
+import { Button } from "@/ui/Button";
+import { Card } from "@/ui/Card";
+import { ListDivider, ListRow } from "@/ui/ListRow";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 
 export function SettingsScreen() {
   const router = useRouter();
   const business = useCurrentBusiness();
   const { signOut } = useSession();
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-6 pb-12 pt-4">
-      <View>
-        <SettingsRow
-          label={translate("settings.business")}
-          detail={business.name}
-          onPress={() => router.push(routes.businessSettings)}
-        />
-        <SettingsRow
+    <ScrollScreen header={<ScreenHeader title={translate("settings.title")} />}>
+      <Card
+        onPress={() => router.push(routes.businessSettings)}
+        accessibilityLabel={translate("settings.business")}
+        className="flex-row items-center gap-3.5 p-4"
+      >
+        <BrandMark size="small" />
+        <View className="min-w-0 flex-1 gap-0.5">
+          <AppText variant="bodyStrong" className="text-base">
+            {business.name}
+          </AppText>
+          <AppText variant="caption" tone="subtle">
+            {translate("settings.businessSummary", { currency: business.currencyCode })}
+          </AppText>
+        </View>
+      </Card>
+      <Card>
+        <ListRow
+          icon="monthlyFee"
           label={translate("settings.monthlyFee")}
           detail={
             business.defaultMonthlyFee === null
@@ -57,19 +46,37 @@ export function SettingsScreen() {
           }
           onPress={() => router.push(routes.defaultMonthlyFee)}
         />
-        <SettingsRow
+        <ListDivider />
+        <ListRow
+          icon="instructors"
+          label={translate("settings.instructors")}
+          onPress={() => router.push(routes.instructors)}
+        />
+        <ListDivider />
+        <ListRow
+          icon="classPacks"
           label={translate("settings.classPacks")}
           detail={translate("settings.classPacksHint")}
           onPress={() => router.push(routes.classPacks)}
         />
-        <SettingsRow
-          label={translate("settings.instructors")}
-          onPress={() => router.push(routes.instructors)}
+        <ListDivider />
+        <ListRow
+          icon="business"
+          label={translate("settings.business")}
+          detail={business.name}
+          onPress={() => router.push(routes.businessSettings)}
         />
-      </View>
-      <View className="px-4">
-        <Button variant="secondary" label={translate("settings.signOut")} onPress={signOut} />
-      </View>
-    </ScrollView>
+      </Card>
+      <Card>
+        <AppearanceSettings />
+      </Card>
+      <Button
+        variant="dangerOutline"
+        size="medium"
+        icon="signOut"
+        label={translate("settings.signOut")}
+        onPress={signOut}
+      />
+    </ScrollScreen>
   );
 }

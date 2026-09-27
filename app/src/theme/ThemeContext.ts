@@ -6,9 +6,11 @@ export type ColorSchemePreference = ColorScheme | "system";
 
 export interface ThemeContextValue {
   themeName: ThemeName;
+  themeNames: ThemeName[];
   colorScheme: ColorScheme;
   colorSchemePreference: ColorSchemePreference;
   colors: ThemeColors;
+  previewColors: (themeName: ThemeName) => ThemeColors;
   setThemeName: (themeName: ThemeName) => void;
   setColorSchemePreference: (preference: ColorSchemePreference) => void;
 }

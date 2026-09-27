@@ -109,7 +109,11 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
   };
 
   return (
-    <SettingsFormScreenLayout submissionFailure={submissionFailure} onRetry={save}>
+    <SettingsFormScreenLayout
+      title={translate(instructor ? "instructors.form.editTitle" : "instructors.form.newTitle")}
+      submissionFailure={submissionFailure}
+      onRetry={save}
+    >
       {activeClassGroupCount > 0 ? (
         <Banner
           tone="warning"
@@ -139,7 +143,8 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
         />
         {instructor ? (
           <Button
-            variant="secondary"
+            variant={instructor.isActive ? "dangerOutline" : "outline"}
+            size="medium"
             label={translate(instructor.isActive ? "common.deactivate" : "common.activate")}
             onPress={toggleActive}
             isLoading={setInstructorActiveMutation.isPending}

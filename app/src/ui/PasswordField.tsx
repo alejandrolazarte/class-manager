@@ -7,6 +7,8 @@ import { TextField } from "@/ui/TextField";
 interface PasswordFieldProps extends Omit<TextInputProps, "secureTextEntry"> {
   label: string;
   errorMessage?: string;
+  hint?: string;
+  isHintSatisfied?: boolean;
 }
 
 export function PasswordField(passwordFieldProps: PasswordFieldProps) {
@@ -21,10 +23,10 @@ export function PasswordField(passwordFieldProps: PasswordFieldProps) {
       />
       <Pressable
         accessibilityRole="button"
-        className="self-end"
+        className="self-end py-1"
         onPress={() => setIsPasswordVisible((wasPasswordVisible) => !wasPasswordVisible)}
       >
-        <AppText variant="label" tone="primary">
+        <AppText variant="link" tone="primary">
           {translate(isPasswordVisible ? "common.hidePassword" : "common.showPassword")}
         </AppText>
       </Pressable>

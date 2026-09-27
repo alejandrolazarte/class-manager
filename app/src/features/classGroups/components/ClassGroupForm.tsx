@@ -3,12 +3,14 @@ import { View } from "react-native";
 import { WeekdayChips } from "@/features/classGroups/components/WeekdayChips";
 import {
   ClassGroupFormValues,
+  classGroupLimits,
   commonDurationsInMinutes,
 } from "@/features/classGroups/classGroupSchema";
 import { formatStartTimeAsTyped } from "@/features/classGroups/startTimeFormatting";
 import { Instructor } from "@/features/instructors/types";
 import { translate } from "@/i18n/translate";
 import { Chip } from "@/ui/Chip";
+import { NumberStepper } from "@/ui/NumberStepper";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
 
@@ -19,7 +21,7 @@ interface ClassGroupFormProps {
 
 function FieldError({ message }: { message?: string }) {
   return message ? (
-    <AppText variant="caption" tone="danger" accessibilityRole="alert">
+    <AppText variant="label" tone="danger" accessibilityRole="alert">
       {message}
     </AppText>
   ) : null;
@@ -36,7 +38,7 @@ function FieldLabel({ label }: { label: string }) {
 export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
   const { control } = form;
   return (
-    <View className="gap-4">
+    <View className="gap-[18px]">
       <Controller
         control={control}
         name="name"
@@ -72,21 +74,44 @@ export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
           </View>
         )}
       />
-      <Controller
-        control={control}
-        name="startTime"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("classGroups.form.startTime")}
-            placeholder={translate("classGroups.form.startTimePlaceholder")}
-            keyboardType="number-pad"
-            value={field.value}
-            onChangeText={(typedText) => field.onChange(formatStartTimeAsTyped(typedText))}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
+      <View className="flex-row gap-3">
+        <View className="flex-1">
+          <Controller
+            control={control}
+            name="startTime"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={translate("classGroups.form.startTime")}
+                placeholder={translate("classGroups.form.startTimePlaceholder")}
+                keyboardType="number-pad"
+                value={field.value}
+                onChangeText={(typedText) => field.onChange(formatStartTimeAsTyped(typedText))}
+                onBlur={field.onBlur}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
           />
-        )}
-      />
+        </View>
+        <View className="flex-1">
+          <Controller
+            control={control}
+            name="capacity"
+            render={({ field, fieldState }) => (
+              <NumberStepper
+                label={translate("classGroups.form.capacity")}
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                minimum={classGroupLimits.minimumCapacity}
+                maximum={classGroupLimits.maximumCapacity}
+                decreaseLabel={translate("classGroups.form.decreaseCapacity")}
+                increaseLabel={translate("classGroups.form.increaseCapacity")}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
+          />
+        </View>
+      </View>
       <Controller
         control={control}
         name="durationMinutes"
@@ -114,20 +139,6 @@ export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
             />
             <FieldError message={fieldState.error?.message} />
           </View>
-        )}
-      />
-      <Controller
-        control={control}
-        name="capacity"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("classGroups.form.capacity")}
-            keyboardType="number-pad"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
-          />
         )}
       />
       <Controller
