@@ -1,4 +1,3 @@
-using ClassManager.Core.UseCases.ImportExport;
 using ClassManager.Core.UseCases.ImportExport.Instructors;
 using ClassManager.Core.UseCases.Instructors;
 

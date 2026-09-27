@@ -1,5 +1,3 @@
-using ClassManager.ImportExport;
-
 namespace ClassManager.ImportExport.U.Tests.Parsing.When_file_misses_a_required_column;
 
 public sealed class Then_missing_columns_error_names_the_header

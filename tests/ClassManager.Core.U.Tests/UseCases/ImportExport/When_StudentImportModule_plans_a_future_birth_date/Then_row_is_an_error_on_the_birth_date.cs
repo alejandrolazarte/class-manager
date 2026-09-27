@@ -1,4 +1,3 @@
-using ClassManager.Core.UseCases.ImportExport;
 using ClassManager.Core.UseCases.ImportExport.Students;
 
 namespace ClassManager.Core.U.Tests.UseCases.ImportExport.When_StudentImportModule_plans_a_future_birth_date;

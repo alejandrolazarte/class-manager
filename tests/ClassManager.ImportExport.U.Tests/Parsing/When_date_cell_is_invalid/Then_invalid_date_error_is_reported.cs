@@ -1,5 +1,3 @@
-using ClassManager.ImportExport;
-
 namespace ClassManager.ImportExport.U.Tests.Parsing.When_date_cell_is_invalid;
 
 public sealed class Then_invalid_date_error_is_reported

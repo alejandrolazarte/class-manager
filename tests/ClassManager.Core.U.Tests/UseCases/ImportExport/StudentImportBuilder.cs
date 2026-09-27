@@ -1,6 +1,5 @@
 using System.Text;
 using ClassManager.Core.Abstractions.Persistence;
-using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.ImportExport;

@@ -1,5 +1,3 @@
-using ClassManager.ImportExport;
-
 namespace ClassManager.ImportExport.U.Tests.Tabular.Csv.When_quote_is_not_closed;
 
 public sealed class Then_unreadable_file_error_is_returned

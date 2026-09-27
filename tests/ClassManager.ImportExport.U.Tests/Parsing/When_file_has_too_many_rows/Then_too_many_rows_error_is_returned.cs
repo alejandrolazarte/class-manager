@@ -1,5 +1,3 @@
-using ClassManager.ImportExport;
-
 namespace ClassManager.ImportExport.U.Tests.Parsing.When_file_has_too_many_rows;
 
 public sealed class Then_too_many_rows_error_is_returned

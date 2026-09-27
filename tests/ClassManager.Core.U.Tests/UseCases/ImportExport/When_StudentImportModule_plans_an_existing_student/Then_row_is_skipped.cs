@@ -1,6 +1,5 @@
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.ImportExport;
-using ClassManager.Core.UseCases.ImportExport.Students;
 
 namespace ClassManager.Core.U.Tests.UseCases.ImportExport.When_StudentImportModule_plans_an_existing_student;
 

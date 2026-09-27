@@ -1,5 +1,3 @@
-using ClassManager.ImportExport;
-
 namespace ClassManager.ImportExport.U.Tests.Parsing.When_required_cell_is_empty;
 
 public sealed class Then_required_error_is_reported_for_that_cell

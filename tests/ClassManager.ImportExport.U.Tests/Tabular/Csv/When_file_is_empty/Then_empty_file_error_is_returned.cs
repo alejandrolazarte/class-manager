@@ -1,5 +1,3 @@
-using ClassManager.ImportExport;
-
 namespace ClassManager.ImportExport.U.Tests.Tabular.Csv.When_file_is_empty;
 
 public sealed class Then_empty_file_error_is_returned

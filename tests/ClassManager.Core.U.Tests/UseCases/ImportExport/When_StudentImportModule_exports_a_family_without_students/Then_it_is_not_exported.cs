@@ -1,5 +1,3 @@
-using ClassManager.Core.UseCases.ImportExport.Students;
-
 namespace ClassManager.Core.U.Tests.UseCases.ImportExport.When_StudentImportModule_exports_a_family_without_students;
 
 public sealed class Then_it_is_not_exported

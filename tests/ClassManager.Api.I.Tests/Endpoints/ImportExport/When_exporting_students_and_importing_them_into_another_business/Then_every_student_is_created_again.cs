@@ -1,4 +1,3 @@
-using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.ImportExport;
 using ClassManager.Core.UseCases.ImportExport.Students;
 using ClassManager.Core.UseCases.Students;

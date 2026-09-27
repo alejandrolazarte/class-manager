@@ -1,5 +1,4 @@
 using ClassManager.Core.UseCases.ImportExport;
-using ClassManager.Core.UseCases.ImportExport.Students;
 
 namespace ClassManager.Core.U.Tests.UseCases.ImportExport.When_StudentImportModule_plans_a_responsable_that_differs_from_the_existing_client;
 
