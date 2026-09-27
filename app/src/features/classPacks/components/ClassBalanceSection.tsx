@@ -57,7 +57,7 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
           </AppText>
           {balance.unpaidAttendances.map((attended, index) => (
             <AppText key={`${attended.date}-${index}`} variant="caption" tone="muted">
-              {`${formatBirthDateForDisplay(attended.date)} · ${attended.studentFullName} · ${attended.classGroupName}`}
+              {`${formatBirthDateForDisplay(attended.date)} · ${attended.studentFullName} · ${attended.isPrivateLesson ? translate("privateLessons.withCoach", { coach: attended.classGroupName }) : attended.classGroupName}`}
             </AppText>
           ))}
         </View>

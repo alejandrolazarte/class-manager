@@ -12,8 +12,13 @@ interface DaySessionCardProps {
 }
 
 const detailSeparator = " · ";
+const studentNameSeparator = ", ";
 
 export function DaySessionCard({ session, onPress }: DaySessionCardProps) {
+  const isPrivate = session.kind === "Private";
+  const title = isPrivate
+    ? session.studentNames.join(studentNameSeparator)
+    : session.classGroupName;
   const details = [session.instructorFullName, session.location].filter(
     (detail): detail is string => Boolean(detail),
   );
@@ -30,12 +35,20 @@ export function DaySessionCard({ session, onPress }: DaySessionCardProps) {
       <View className="min-w-0 flex-1">
         <Card
           onPress={() => onPress(session)}
-          accessibilityLabel={`${session.startTime} ${session.classGroupName}`}
+          accessibilityLabel={`${session.startTime} ${title}`}
           className="gap-2.5 px-4 py-3.5"
         >
           <View className="flex-row items-start justify-between gap-2">
             <View className="min-w-0 flex-1 gap-[3px]">
-              <AppText variant="heading">{session.classGroupName}</AppText>
+              {isPrivate ? (
+                <View className="flex-row items-center gap-1">
+                  <Icon name="privateLesson" size="small" tone="primary" />
+                  <AppText variant="badge" tone="primary">
+                    {translate("privateLessons.kind")}
+                  </AppText>
+                </View>
+              ) : null}
+              <AppText variant="heading">{title}</AppText>
               <AppText variant="caption" tone="muted">
                 {details.join(detailSeparator)}
               </AppText>

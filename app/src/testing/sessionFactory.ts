@@ -32,7 +32,10 @@ export function buildSessionDetails(overrides: Partial<SessionDetails> = {}): Se
 
 export function buildDaySession(overrides: Partial<DaySession> = {}): DaySession {
   return {
+    kind: "Group",
     classGroupId: "0192f0d2-0000-7000-8000-000000000001",
+    privateLessonId: null,
+    studentNames: [],
     classGroupName: "Natación inicial",
     date: sessionDate,
     startTime: "18:00",

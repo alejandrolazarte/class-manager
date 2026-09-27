@@ -16,8 +16,18 @@ describe("When family has unpaid classes", () => {
         availableClasses: 0,
         unpaidClasses: 2,
         unpaidAttendances: [
-          { date: "2026-09-12", studentFullName: "Mateo Díaz", classGroupName: "Natación" },
-          { date: "2026-09-19", studentFullName: "Mateo Díaz", classGroupName: "Natación" },
+          {
+            date: "2026-09-12",
+            studentFullName: "Mateo Díaz",
+            classGroupName: "Natación",
+            isPrivateLesson: false,
+          },
+          {
+            date: "2026-09-19",
+            studentFullName: "Mateo Díaz",
+            classGroupName: "Natación",
+            isPrivateLesson: false,
+          },
         ],
       }),
     );

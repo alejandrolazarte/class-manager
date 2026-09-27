@@ -1,6 +1,9 @@
 export const routes = {
   today: "/today",
   session: (classGroupId: string, sessionDate: string) => `/today/${classGroupId}/${sessionDate}`,
+  newPrivateLesson: (date: string) => `/today/private/new?date=${encodeURIComponent(date)}`,
+  privateLesson: (privateLessonId: string) => `/today/private/${privateLessonId}`,
+  editPrivateLesson: (privateLessonId: string) => `/today/private/${privateLessonId}/edit`,
   classes: "/classes",
   newClassGroup: (weekday?: string) =>
     weekday ? `/classes/new?weekday=${encodeURIComponent(weekday)}` : "/classes/new",
