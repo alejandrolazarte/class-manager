@@ -21,11 +21,12 @@ import { SettingsFormScreenLayout } from "@/features/settings/components/Setting
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate } from "@/i18n/translate";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { AppText } from "@/ui/AppText";
 
 const badRequestStatus = 400;
 
@@ -111,9 +112,9 @@ export function BusinessSettingsScreen() {
         onSelectionChange={selectCountry}
       />
       <View className="gap-2">
-        <Text className="text-sm font-medium text-gray-700">
+        <AppText variant="label" tone="muted">
           {translate("businessSettings.currency")}
-        </Text>
+        </AppText>
         <View className="flex-row flex-wrap gap-2">
           {currencyOptions(countryCurrencyCode, regionalSettings.currencyCode).map(
             (currencyCode) => (
@@ -127,9 +128,9 @@ export function BusinessSettingsScreen() {
           )}
         </View>
         {regionalSettings.currencyCode === business.currencyCode ? null : (
-          <Text className="text-sm text-amber-700">
+          <AppText variant="caption" tone="warning">
             {translate("businessSettings.currencyChangeNotice")}
-          </Text>
+          </AppText>
         )}
       </View>
       <Button

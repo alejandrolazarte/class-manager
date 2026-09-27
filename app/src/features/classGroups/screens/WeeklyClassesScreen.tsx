@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { ClassGroupCard } from "@/features/classGroups/components/ClassGroupCard";
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
 import { Weekday } from "@/features/classGroups/types";
@@ -17,6 +17,8 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 export function WeeklyClassesScreen() {
   const router = useRouter();
@@ -34,22 +36,24 @@ export function WeeklyClassesScreen() {
   const emptyState =
     classGroups.length === 0 ? (
       <View className="items-center gap-4 p-6">
-        <Text className="text-lg text-gray-700">{translate("classGroups.week.emptyTitle")}</Text>
+        <AppText tone="muted" variant="lead">
+          {translate("classGroups.week.emptyTitle")}
+        </AppText>
         <Button
           label={translate("classGroups.week.emptyCallToAction")}
           onPress={openNewClassGroup}
         />
       </View>
     ) : (
-      <Text className="p-6 text-center text-base text-gray-600">
+      <AppText variant="body" tone="muted" className="p-6 text-center">
         {translate("classGroups.week.noClassesOnDay", {
           day: weekdayLongLabel(selectedWeekday).toLowerCase(),
         })}
-      </Text>
+      </AppText>
     );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-background">
       <View className="flex-row flex-wrap gap-2 p-4">
         {weekOrder.map((weekday) => (
           <Chip
@@ -73,7 +77,7 @@ export function WeeklyClassesScreen() {
         </View>
       ) : null}
       {isPending ? (
-        <ActivityIndicator className="mt-6" />
+        <Spinner className="mt-6" />
       ) : (
         <FlatList
           data={dayClassGroups}

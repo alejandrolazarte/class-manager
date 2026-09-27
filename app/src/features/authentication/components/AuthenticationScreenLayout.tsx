@@ -1,6 +1,7 @@
 import { PropsWithChildren } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, Text } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AppText } from "@/ui/AppText";
 
 interface AuthenticationScreenLayoutProps extends PropsWithChildren {
   title: string;
@@ -8,7 +9,7 @@ interface AuthenticationScreenLayoutProps extends PropsWithChildren {
 
 export function AuthenticationScreenLayout({ title, children }: AuthenticationScreenLayoutProps) {
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -17,9 +18,9 @@ export function AuthenticationScreenLayout({ title, children }: AuthenticationSc
           contentContainerClassName="w-full max-w-md gap-4 self-center p-6"
           keyboardShouldPersistTaps="handled"
         >
-          <Text accessibilityRole="header" className="text-2xl font-bold text-gray-900">
+          <AppText variant="display" accessibilityRole="header">
             {title}
-          </Text>
+          </AppText>
           {children}
         </ScrollView>
       </KeyboardAvoidingView>

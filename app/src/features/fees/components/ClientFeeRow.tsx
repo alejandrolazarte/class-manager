@@ -1,21 +1,22 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { summarizeNames } from "@/features/fees/summarizeNames";
 import { formatMoney } from "@/features/fees/money";
 import { ClientFee } from "@/features/fees/types";
 import { translate } from "@/i18n/translate";
+import { AppText, TextTone } from "@/ui/AppText";
 
 interface ClientFeeRowProps {
   clientFee: ClientFee;
   onPress: (clientFee: ClientFee) => void;
 }
 
-const statusClassNames = {
-  Unpaid: "text-red-600",
-  Partial: "text-amber-700",
-  NoFee: "text-gray-500",
-  Paid: "text-green-700",
-} as const;
+const statusTones: Record<ClientFee["status"], TextTone> = {
+  Unpaid: "danger",
+  Partial: "warning",
+  NoFee: "subtle",
+  Paid: "success",
+};
 
 export function ClientFeeRow({ clientFee, onPress }: ClientFeeRowProps) {
   const currencyCode = useBusinessCurrency();
@@ -34,15 +35,17 @@ export function ClientFeeRow({ clientFee, onPress }: ClientFeeRowProps) {
       accessibilityRole="button"
       accessibilityLabel={clientFee.clientFullName}
       onPress={() => onPress(clientFee)}
-      className="flex-row items-center gap-3 border-b border-gray-100 bg-white px-4 py-3"
+      className="flex-row items-center gap-3 border-b border-border-subtle bg-surface px-4 py-3"
     >
       <View className="flex-1 gap-1">
-        <Text className="text-base font-semibold text-gray-900">{clientFee.clientFullName}</Text>
-        <Text className="text-sm text-gray-600">{summarizeNames(clientFee.studentNames)}</Text>
+        <AppText variant="bodyStrong">{clientFee.clientFullName}</AppText>
+        <AppText variant="caption" tone="muted">
+          {summarizeNames(clientFee.studentNames)}
+        </AppText>
       </View>
-      <Text className={`text-sm font-medium ${statusClassNames[clientFee.status]}`}>
+      <AppText variant="label" tone={statusTones[clientFee.status]}>
         {statusLabel}
-      </Text>
+      </AppText>
     </Pressable>
   );
 }

@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import { DaySessionCard } from "@/features/sessions/components/DaySessionCard";
 import { addDays, formatLongDate, todayIsoDate } from "@/features/sessions/dates";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
@@ -8,30 +8,12 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { StepArrow } from "@/ui/StepArrow";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 interface DayScreenProps {
   initialDate?: string;
-}
-
-function DayArrow({
-  label,
-  glyph,
-  onPress,
-}: {
-  label: string;
-  glyph: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      className="px-4 py-2"
-    >
-      <Text className="text-2xl text-brand">{glyph}</Text>
-    </Pressable>
-  );
 }
 
 export function DayScreen({ initialDate }: DayScreenProps) {
@@ -47,26 +29,26 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   } = useDaySessions(sessionDate);
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="flex-row items-center justify-between bg-white py-2">
-        <DayArrow
+    <View className="flex-1 bg-background">
+      <View className="flex-row items-center justify-between bg-surface py-2">
+        <StepArrow
+          direction="previous"
           label={translate("sessions.day.previous")}
-          glyph="‹"
           onPress={() => setSessionDate(addDays(sessionDate, -1))}
         />
         <View className="items-center">
-          <Text className="text-lg font-semibold text-gray-900">{formatLongDate(sessionDate)}</Text>
+          <AppText variant="heading">{formatLongDate(sessionDate)}</AppText>
           {sessionDate === today ? null : (
             <Pressable accessibilityRole="button" onPress={() => setSessionDate(today)}>
-              <Text className="text-sm font-medium text-brand">
+              <AppText variant="label" tone="primary">
                 {translate("sessions.day.backToToday")}
-              </Text>
+              </AppText>
             </Pressable>
           )}
         </View>
-        <DayArrow
+        <StepArrow
+          direction="next"
           label={translate("sessions.day.next")}
-          glyph="›"
           onPress={() => setSessionDate(addDays(sessionDate, 1))}
         />
       </View>
@@ -82,7 +64,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
         </View>
       ) : null}
       {isPending ? (
-        <ActivityIndicator className="mt-6" />
+        <Spinner className="mt-6" />
       ) : (
         <FlatList
           data={sessions}
@@ -95,9 +77,9 @@ export function DayScreen({ initialDate }: DayScreenProps) {
           )}
           ListEmptyComponent={
             isError ? null : (
-              <Text className="p-6 text-center text-base text-gray-600">
+              <AppText variant="body" tone="muted" className="p-6 text-center">
                 {translate("sessions.day.empty")}
-              </Text>
+              </AppText>
             )
           }
           refreshing={isRefetching}

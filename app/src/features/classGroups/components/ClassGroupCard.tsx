@@ -1,6 +1,7 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { ClassGroup } from "@/features/classGroups/types";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 
 interface ClassGroupCardProps {
   classGroup: ClassGroup;
@@ -23,22 +24,28 @@ export function ClassGroupCard({ classGroup, onPress }: ClassGroupCardProps) {
       accessibilityRole="button"
       accessibilityLabel={`${classGroup.startTime} ${classGroup.name}`}
       onPress={() => onPress(classGroup)}
-      className="gap-1 border-b border-gray-100 bg-white px-4 py-3"
+      className="gap-1 border-b border-border-subtle bg-surface px-4 py-3"
     >
-      <Text className="text-sm font-medium text-brand">
+      <AppText variant="label" tone="primary">
         {`${classGroup.startTime}–${classGroup.endTime}`}
-      </Text>
+      </AppText>
       <View className="flex-row items-center gap-2">
-        <Text testID="class-group-name" className="text-base font-semibold text-gray-900">
+        <AppText variant="bodyStrong" testID="class-group-name">
           {classGroup.name}
-        </Text>
+        </AppText>
         {classGroup.enrolledCount >= classGroup.capacity ? (
-          <Text className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+          <AppText
+            variant="badge"
+            tone="warningSoft"
+            className="rounded-full bg-warning-soft px-2 py-0.5"
+          >
             {translate("classGroups.card.full")}
-          </Text>
+          </AppText>
         ) : null}
       </View>
-      <Text className="text-sm text-gray-600">{details.join(detailSeparator)}</Text>
+      <AppText variant="caption" tone="muted">
+        {details.join(detailSeparator)}
+      </AppText>
     </Pressable>
   );
 }

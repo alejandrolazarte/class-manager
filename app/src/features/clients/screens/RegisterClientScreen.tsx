@@ -109,7 +109,7 @@ export function RegisterClientScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-background"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView contentContainerClassName="gap-4 p-4" keyboardShouldPersistTaps="handled">

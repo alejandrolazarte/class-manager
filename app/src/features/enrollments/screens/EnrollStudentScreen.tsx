@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import { enrollmentErrorCodes } from "@/features/enrollments/enrollmentErrorCodes";
@@ -12,6 +12,8 @@ import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { SearchInput } from "@/ui/SearchInput";
 import { useToast } from "@/ui/ToastProvider";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 interface EnrollStudentScreenProps {
   classGroupId: string;
@@ -63,7 +65,7 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-background">
       <View className="gap-3 p-4">
         <SearchInput
           value={searchText}
@@ -76,7 +78,7 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
         ) : null}
       </View>
       {isPending ? (
-        <ActivityIndicator className="mt-6" />
+        <Spinner className="mt-6" />
       ) : (
         <FlatList
           data={students}
@@ -90,26 +92,26 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
                 accessibilityState={{ disabled: isEnrolled }}
                 disabled={isEnrolled || enrollStudentMutation.isPending}
                 onPress={() => enroll(student)}
-                className={`flex-row items-center gap-3 border-b border-gray-100 bg-white px-4 py-3 ${isEnrolled ? "opacity-50" : ""}`}
+                className={`flex-row items-center gap-3 border-b border-border-subtle bg-surface px-4 py-3 ${isEnrolled ? "opacity-50" : ""}`}
               >
                 <View className="flex-1 gap-1">
-                  <Text className="text-base font-semibold text-gray-900">{student.fullName}</Text>
-                  <Text className="text-sm text-gray-600">
+                  <AppText variant="bodyStrong">{student.fullName}</AppText>
+                  <AppText variant="caption" tone="muted">
                     {translate("students.list.responsible", { name: student.clientFullName })}
-                  </Text>
+                  </AppText>
                 </View>
                 {isEnrolled ? (
-                  <Text className="text-sm text-gray-500">
+                  <AppText variant="caption" tone="subtle">
                     {translate("enrollments.enroll.alreadyEnrolled")}
-                  </Text>
+                  </AppText>
                 ) : null}
               </Pressable>
             );
           }}
           ListEmptyComponent={
-            <Text className="p-6 text-center text-base text-gray-600">
+            <AppText variant="body" tone="muted" className="p-6 text-center">
               {translate("enrollments.enroll.noStudents")}
-            </Text>
+            </AppText>
           }
         />
       )}

@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { StudentListItem } from "@/features/students/components/StudentListItem";
 import { useStudentSearch } from "@/features/students/useStudentSearch";
 import { translate } from "@/i18n/translate";
@@ -9,6 +9,8 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { SearchInput } from "@/ui/SearchInput";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 export function StudentListScreen() {
   const router = useRouter();
@@ -25,18 +27,20 @@ export function StudentListScreen() {
 
   const emptyState =
     debouncedSearch.length > 0 ? (
-      <Text className="p-6 text-center text-base text-gray-600">
+      <AppText variant="body" tone="muted" className="p-6 text-center">
         {translate("students.list.noResults", { search: debouncedSearch })}
-      </Text>
+      </AppText>
     ) : (
       <View className="items-center gap-4 p-6">
-        <Text className="text-lg text-gray-700">{translate("students.list.emptyTitle")}</Text>
+        <AppText tone="muted" variant="lead">
+          {translate("students.list.emptyTitle")}
+        </AppText>
         <Button label={translate("students.list.emptyCallToAction")} onPress={openRegisterClient} />
       </View>
     );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-background">
       <View className="p-4">
         <SearchInput
           value={searchText}
@@ -56,7 +60,7 @@ export function StudentListScreen() {
         </View>
       ) : null}
       {isPending ? (
-        <ActivityIndicator className="mt-6" />
+        <Spinner className="mt-6" />
       ) : (
         <FlatList
           data={students}

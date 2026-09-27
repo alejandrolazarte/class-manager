@@ -1,8 +1,9 @@
-import { Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { normalizeStudentName } from "@/features/students/studentSchema";
 import { StudentSummary } from "@/features/students/types";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 
 interface StudentListItemProps {
   student: StudentSummary;
@@ -18,20 +19,20 @@ export function StudentListItem({ student, onPress }: StudentListItemProps) {
       accessibilityRole="button"
       accessibilityLabel={student.fullName}
       onPress={() => onPress(student)}
-      className="gap-1 border-b border-gray-100 bg-white px-4 py-3"
+      className="gap-1 border-b border-border-subtle bg-surface px-4 py-3"
     >
-      <Text className="text-base font-semibold text-gray-900">
+      <AppText variant="bodyStrong">
         {ageLabel ? `${student.fullName} · ${ageLabel}` : student.fullName}
-      </Text>
+      </AppText>
       {isOwnClient ? null : (
-        <Text className="text-sm text-gray-600">
+        <AppText variant="caption" tone="muted">
           {translate("students.list.responsible", { name: student.clientFullName })}
-        </Text>
+        </AppText>
       )}
       {student.notes ? (
-        <Text numberOfLines={1} className="text-sm text-gray-500">
+        <AppText variant="caption" tone="subtle" numberOfLines={1}>
           {student.notes}
-        </Text>
+        </AppText>
       ) : null}
     </Pressable>
   );

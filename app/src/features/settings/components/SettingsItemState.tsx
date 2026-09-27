@@ -21,7 +21,7 @@ export function SettingsItemState({
     return <LoadingScreen />;
   }
   return (
-    <View className="flex-1 bg-gray-50 p-4">
+    <View className="flex-1 bg-background p-4">
       {isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button variant="secondary" label={translate("common.retry")} onPress={onRetry} />

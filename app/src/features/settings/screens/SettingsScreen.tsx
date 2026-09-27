@@ -1,11 +1,13 @@
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useSession } from "@/features/authentication/useSession";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Button } from "@/ui/Button";
+import { Icon } from "@/ui/Icon";
+import { AppText } from "@/ui/AppText";
 
 interface SettingsRowProps {
   label: string;
@@ -19,13 +21,17 @@ function SettingsRow({ label, detail, onPress }: SettingsRowProps) {
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className="flex-row items-center gap-3 border-b border-gray-100 bg-white px-4 py-4"
+      className="flex-row items-center gap-3 border-b border-border-subtle bg-surface px-4 py-4"
     >
       <View className="flex-1 gap-1">
-        <Text className="text-base font-semibold text-gray-900">{label}</Text>
-        {detail ? <Text className="text-sm text-gray-600">{detail}</Text> : null}
+        <AppText variant="bodyStrong">{label}</AppText>
+        {detail ? (
+          <AppText variant="caption" tone="muted">
+            {detail}
+          </AppText>
+        ) : null}
       </View>
-      <Text className="text-xl text-gray-400">›</Text>
+      <Icon name="next" size="medium" tone="disabled-foreground" />
     </Pressable>
   );
 }
@@ -35,7 +41,7 @@ export function SettingsScreen() {
   const business = useCurrentBusiness();
   const { signOut } = useSession();
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="gap-6 pb-12 pt-4">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-6 pb-12 pt-4">
       <View>
         <SettingsRow
           label={translate("settings.business")}

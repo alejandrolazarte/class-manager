@@ -2,13 +2,17 @@ import { Text, TextProps } from "react-native";
 
 export const textVariantClassNames = {
   display: "text-2xl font-bold",
+  headline: "text-xl font-bold",
   title: "text-xl font-semibold",
   heading: "text-lg font-semibold",
+  lead: "text-lg",
   body: "text-base",
   bodyStrong: "text-base font-semibold",
+  link: "text-base font-medium",
   label: "text-sm font-medium",
   caption: "text-sm",
   footnote: "text-xs",
+  badge: "text-xs font-medium",
 } as const;
 
 export const textToneClassNames = {

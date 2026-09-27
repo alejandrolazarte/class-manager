@@ -22,7 +22,7 @@ export function BusinessProvider({ children }: PropsWithChildren) {
   }
   if (businessQuery.isError) {
     return (
-      <View className="flex-1 justify-center bg-gray-50 p-6">
+      <View className="flex-1 justify-center bg-background p-6">
         <Banner message={translate("business.loadError")}>
           <Button
             variant="secondary"

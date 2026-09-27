@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { ClientFeeRow } from "@/features/fees/components/ClientFeeRow";
 import { formatMoney } from "@/features/fees/money";
@@ -11,7 +11,10 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { StepArrow } from "@/ui/StepArrow";
 import { Chip } from "@/ui/Chip";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 interface MonthlyFeesScreenProps {
   initialMonth?: string;
@@ -20,27 +23,6 @@ interface MonthlyFeesScreenProps {
 type FeeFilter = "debtors" | "all";
 
 const debtorStatuses = new Set(["Unpaid", "Partial"]);
-
-function MonthArrow({
-  label,
-  glyph,
-  onPress,
-}: {
-  label: string;
-  glyph: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      className="px-4 py-2"
-    >
-      <Text className="text-2xl text-brand">{glyph}</Text>
-    </Pressable>
-  );
-}
 
 export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
   const router = useRouter();
@@ -54,17 +36,17 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="flex-row items-center justify-between bg-white py-2">
-        <MonthArrow
+    <View className="flex-1 bg-background">
+      <View className="flex-row items-center justify-between bg-surface py-2">
+        <StepArrow
+          direction="previous"
           label={translate("fees.month.previous")}
-          glyph="‹"
           onPress={() => setMonth(addMonths(month, -1))}
         />
-        <Text className="text-lg font-semibold text-gray-900">{formatMonth(month)}</Text>
-        <MonthArrow
+        <AppText variant="heading">{formatMonth(month)}</AppText>
+        <StepArrow
+          direction="next"
           label={translate("fees.month.next")}
-          glyph="›"
           onPress={() => setMonth(addMonths(month, 1))}
         />
       </View>
@@ -79,12 +61,12 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
           </Banner>
         ) : null}
         {monthlyFees ? (
-          <Text className="text-base font-medium text-gray-800">
+          <AppText variant="link">
             {translate("fees.month.summary", {
               paid: money(monthlyFees.totalPaid),
               due: money(monthlyFees.totalDue),
             })}
-          </Text>
+          </AppText>
         ) : null}
         <View className="flex-row gap-2">
           <Chip
@@ -111,7 +93,7 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
         </View>
       ) : null}
       {isPending ? (
-        <ActivityIndicator className="mt-6" />
+        <Spinner className="mt-6" />
       ) : (
         <FlatList
           data={clients}
@@ -124,9 +106,9 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
           )}
           ListEmptyComponent={
             isError ? null : (
-              <Text className="p-6 text-center text-base text-gray-600">
+              <AppText variant="body" tone="muted" className="p-6 text-center">
                 {translate(filter === "debtors" ? "fees.month.nobodyOwes" : "fees.month.empty")}
-              </Text>
+              </AppText>
             )
           }
           refreshing={isRefetching}

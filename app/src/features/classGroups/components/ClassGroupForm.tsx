@@ -1,5 +1,5 @@
 import { Controller, UseFormReturn } from "react-hook-form";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { WeekdayChips } from "@/features/classGroups/components/WeekdayChips";
 import {
   ClassGroupFormValues,
@@ -10,6 +10,7 @@ import { Instructor } from "@/features/instructors/types";
 import { translate } from "@/i18n/translate";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
+import { AppText } from "@/ui/AppText";
 
 interface ClassGroupFormProps {
   form: UseFormReturn<ClassGroupFormValues>;
@@ -18,14 +19,18 @@ interface ClassGroupFormProps {
 
 function FieldError({ message }: { message?: string }) {
   return message ? (
-    <Text accessibilityRole="alert" className="text-sm text-red-600">
+    <AppText variant="caption" tone="danger" accessibilityRole="alert">
       {message}
-    </Text>
+    </AppText>
   ) : null;
 }
 
 function FieldLabel({ label }: { label: string }) {
-  return <Text className="text-sm font-medium text-gray-700">{label}</Text>;
+  return (
+    <AppText variant="label" tone="muted">
+      {label}
+    </AppText>
+  );
 }
 
 export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {

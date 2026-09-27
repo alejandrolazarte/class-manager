@@ -1,9 +1,10 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { RosterEntry } from "@/features/enrollments/types";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { normalizeStudentName } from "@/features/students/studentSchema";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 
 interface RosterItemProps {
   entry: RosterEntry;
@@ -16,22 +17,22 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
   const isOwnClient =
     normalizeStudentName(entry.studentFullName) === normalizeStudentName(entry.clientFullName);
   return (
-    <View className="flex-row items-center gap-3 border-b border-gray-100 bg-white px-4 py-3">
+    <View className="flex-row items-center gap-3 border-b border-border-subtle bg-surface px-4 py-3">
       <View className="flex-1 gap-1">
-        <Text className="text-base font-semibold text-gray-900">
+        <AppText variant="bodyStrong">
           {ageLabel ? `${entry.studentFullName} · ${ageLabel}` : entry.studentFullName}
-        </Text>
+        </AppText>
         {isOwnClient ? null : (
-          <Text className="text-sm text-gray-600">
+          <AppText variant="caption" tone="muted">
             {translate("students.list.responsible", { name: entry.clientFullName })}
-          </Text>
+          </AppText>
         )}
         {entry.startDate > today ? (
-          <Text className="text-sm text-gray-500">
+          <AppText variant="caption" tone="subtle">
             {translate("enrollments.detail.startsOn", {
               date: formatBirthDateForDisplay(entry.startDate),
             })}
-          </Text>
+          </AppText>
         ) : null}
       </View>
       <Pressable
@@ -41,9 +42,9 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
         })}
         onPress={() => onUnenroll(entry)}
       >
-        <Text className="text-sm font-medium text-red-600">
+        <AppText variant="label" tone="danger">
           {translate("enrollments.detail.unenroll")}
-        </Text>
+        </AppText>
       </Pressable>
     </View>
   );
