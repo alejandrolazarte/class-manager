@@ -30,7 +30,10 @@ export function useRecordAttendance(classGroupId: string, sessionDate: string) {
             ),
           },
       );
-      await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.day(sessionDate) });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: sessionQueryKeys.day(sessionDate) }),
+        queryClient.invalidateQueries({ queryKey: sessionQueryKeys.calendars() }),
+      ]);
     },
   });
 }
@@ -43,6 +46,7 @@ function useInvalidateSession(classGroupId: string, sessionDate: string) {
         queryKey: sessionQueryKeys.session(classGroupId, sessionDate),
       }),
       queryClient.invalidateQueries({ queryKey: sessionQueryKeys.day(sessionDate) }),
+      queryClient.invalidateQueries({ queryKey: sessionQueryKeys.calendars() }),
     ]);
 }
 

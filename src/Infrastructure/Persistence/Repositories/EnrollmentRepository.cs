@@ -65,6 +65,15 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
             .Select(group => new { ClassGroupId = group.Key, Count = group.Count() })
             .ToDictionaryAsync(group => group.ClassGroupId, group => group.Count, cancellationToken);
 
+    public async Task<IReadOnlyList<ClassGroupEnrollmentPeriod>> ListActiveInPeriodAsync(
+        DateOnly periodStart,
+        DateOnly periodEnd,
+        CancellationToken cancellationToken) =>
+        await context.Enrollments.AsNoTracking()
+            .Where(enrollment => enrollment.StartDate <= periodEnd && (enrollment.EndDate == null || enrollment.EndDate >= periodStart))
+            .Select(enrollment => new ClassGroupEnrollmentPeriod(enrollment.ClassGroupId, enrollment.StartDate, enrollment.EndDate))
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<EnrolledStudentInPeriod>> ListEnrolledInPeriodAsync(
         DateOnly periodStart,
         DateOnly periodEnd,

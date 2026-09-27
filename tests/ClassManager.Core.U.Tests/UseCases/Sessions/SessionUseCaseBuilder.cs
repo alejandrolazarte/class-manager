@@ -54,6 +54,26 @@ internal sealed class SessionUseCaseBuilder
     public RescheduleSessionUseCase BuildReschedule() =>
         new(ClassGroups.Object, Sessions.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
 
+    public ListMonthCalendarUseCase BuildMonthCalendar() =>
+        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, BusinessCalendar.Object);
+
+    public void SetupMonthCalendar(
+        IReadOnlyList<ClassGroupEnrollmentPeriod> enrollmentPeriods,
+        IReadOnlyList<ClassSession> sessions,
+        IReadOnlyDictionary<Guid, AttendanceCount> attendanceCounts)
+    {
+        ClassGroups.Setup(repository => repository.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync([ClassGroup]);
+        Enrollments
+            .Setup(repository => repository.ListActiveInPeriodAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(enrollmentPeriods);
+        Sessions
+            .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(sessions);
+        Attendances
+            .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(attendanceCounts);
+    }
+
     public ListDaySessionsUseCase BuildListDay() =>
         new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, BusinessCalendar.Object);
 }

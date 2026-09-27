@@ -3,15 +3,19 @@ import { useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { DaySessionCard } from "@/features/sessions/components/DaySessionCard";
+import { MonthCalendarGrid } from "@/features/sessions/components/MonthCalendarGrid";
 import { WeekStrip } from "@/features/sessions/components/WeekStrip";
-import { addDays, formatLongDate, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, formatLongDate, monthOfDate, todayIsoDate } from "@/features/sessions/dates";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
+import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";
+import { addMonths, formatMonth } from "@/features/fees/months";
 import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { EmptyState } from "@/ui/EmptyState";
+import { IconButton } from "@/ui/IconButton";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
@@ -35,6 +39,18 @@ export function DayScreen({ initialDate }: DayScreenProps) {
     isRefetching,
     refetch,
   } = useDaySessions(sessionDate);
+  const [isMonthView, setIsMonthView] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(() => monthOfDate(sessionDate));
+  const { data: monthCalendar } = useMonthCalendar(calendarMonth, isMonthView);
+
+  const toggleMonthView = () => {
+    setCalendarMonth(monthOfDate(sessionDate));
+    setIsMonthView(!isMonthView);
+  };
+  const selectCalendarDate = (isoDate: string) => {
+    setSessionDate(isoDate);
+    setIsMonthView(false);
+  };
 
   const eyebrow =
     sessionDate === today
@@ -62,21 +78,62 @@ export function DayScreen({ initialDate }: DayScreenProps) {
         title={formatLongDate(sessionDate)}
         accessory={
           <View className="flex-row gap-1">
-            <StepArrow
-              direction="previous"
-              label={translate("sessions.day.previous")}
-              onPress={() => setSessionDate(addDays(sessionDate, -1))}
+            <IconButton
+              variant="outlined"
+              icon={isMonthView ? "weekView" : "monthView"}
+              tone="primary"
+              accessibilityLabel={translate(
+                isMonthView ? "sessions.calendar.hide" : "sessions.calendar.show",
+              )}
+              onPress={toggleMonthView}
             />
-            <StepArrow
-              direction="next"
-              label={translate("sessions.day.next")}
-              onPress={() => setSessionDate(addDays(sessionDate, 1))}
-            />
+            {isMonthView ? (
+              <>
+                <StepArrow
+                  direction="previous"
+                  label={translate("sessions.calendar.previousMonth")}
+                  onPress={() => setCalendarMonth(addMonths(calendarMonth, -1))}
+                />
+                <StepArrow
+                  direction="next"
+                  label={translate("sessions.calendar.nextMonth")}
+                  onPress={() => setCalendarMonth(addMonths(calendarMonth, 1))}
+                />
+              </>
+            ) : (
+              <>
+                <StepArrow
+                  direction="previous"
+                  label={translate("sessions.day.previous")}
+                  onPress={() => setSessionDate(addDays(sessionDate, -1))}
+                />
+                <StepArrow
+                  direction="next"
+                  label={translate("sessions.day.next")}
+                  onPress={() => setSessionDate(addDays(sessionDate, 1))}
+                />
+              </>
+            )}
           </View>
         }
       />
       <View className="gap-[18px] px-5">
-        <WeekStrip selectedDate={sessionDate} today={today} onSelectDate={setSessionDate} />
+        {isMonthView ? (
+          <View className="gap-2">
+            <AppText variant="heading" className="text-center">
+              {formatMonth(calendarMonth)}
+            </AppText>
+            <MonthCalendarGrid
+              month={calendarMonth}
+              days={monthCalendar?.days ?? []}
+              selectedDate={sessionDate}
+              today={today}
+              onSelectDate={selectCalendarDate}
+            />
+          </View>
+        ) : (
+          <WeekStrip selectedDate={sessionDate} today={today} onSelectDate={setSessionDate} />
+        )}
         <View className="min-h-6 flex-row items-center justify-between">
           <AppText variant="bodyStrong" tone="muted" className="font-label">
             {isPending ? "" : summary}

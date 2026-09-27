@@ -10,7 +10,9 @@ internal static class SessionEndpoints
 
     public static IEndpointRouteBuilder MapSessionEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGroup(ApiRoutes.Sessions).MapGet("/", ListDaySessionsAsync);
+        var sessions = endpoints.MapGroup(ApiRoutes.Sessions);
+        sessions.MapGet("/", ListDaySessionsAsync);
+        sessions.MapGet(ApiRoutes.Calendar, ListMonthCalendarAsync);
 
         var classGroups = endpoints.MapGroup(ApiRoutes.ClassGroups);
         classGroups.MapGet(SessionRoute, GetSessionAsync);
@@ -34,6 +36,16 @@ internal static class SessionEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new ListDaySessionsQuery(date), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> ListMonthCalendarAsync(
+        string? month,
+        IUseCase<ListMonthCalendarQuery, MonthCalendarResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ListMonthCalendarQuery(month), cancellationToken);
 
         return result.ToOkResult();
     }

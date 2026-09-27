@@ -9,4 +9,6 @@ public interface IClassSessionRepository
     Task<ClassSession?> FindForUpdateAsync(Guid classGroupId, DateOnly sessionDate, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClassSession>> ListByDateAsync(DateOnly sessionDate, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<ClassSession>> ListBetweenAsync(DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken);
 }

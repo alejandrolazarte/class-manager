@@ -47,6 +47,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<ListClassRosterQuery, IReadOnlyList<RosterEntryResponse>>, ListClassRosterUseCase>();
         services.AddScoped<IUseCase<ListStudentEnrollmentsQuery, IReadOnlyList<StudentEnrollmentResponse>>, ListStudentEnrollmentsUseCase>();
         services.AddScoped<IUseCase<ListDaySessionsQuery, IReadOnlyList<DaySessionResponse>>, ListDaySessionsUseCase>();
+        services.AddScoped<IUseCase<ListMonthCalendarQuery, MonthCalendarResponse>, ListMonthCalendarUseCase>();
         services.AddScoped<IUseCase<GetSessionQuery, SessionDetailsResponse>, GetSessionUseCase>();
         services.AddScoped<IUseCase<RecordAttendanceCommand, RecordAttendanceResponse>, RecordAttendanceUseCase>();
         services.AddScoped<IUseCase<CancelSessionCommand, SessionStatusResponse>, CancelSessionUseCase>();

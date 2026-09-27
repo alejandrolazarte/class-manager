@@ -9,6 +9,8 @@ type MaterialIconsGlyph = ComponentProps<typeof MaterialIcons>["name"];
 const iconGlyphs = {
   today: "today",
   classes: "calendar-month",
+  monthView: "calendar-view-month",
+  weekView: "view-week",
   students: "group",
   fees: "payments",
   settings: "settings",
