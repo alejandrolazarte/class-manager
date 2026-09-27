@@ -161,8 +161,8 @@ XLSX, manual column mapping, updating existing records, importing classes/enroll
 2. ~~`Core`: instructors module and use cases (the simplest module, proves the whole path), endpoints and integration tests.~~ Done: schema, preview and import for `instructors`. No repository additions were needed (`ListAllAsync` covers duplicates).
 3. ~~`Core`: students module, bulk repository queries, integration tests including tenant isolation.~~ Done: `IClientRepository.ListByPhoneNumbersAsync` and `IStudentRepository.ListByClientIdsAsync` load the families in two queries; `IImportModule.PlanAsync` returns `Result<ImportPlan>` so a module can fail as a whole (no current business).
 4. ~~Export and template endpoints.~~ Done: `IImportModule.ExportRowsAsync` gives one value per column key; `GetImportTemplateUseCase` writes the header and each column's `Example`; `ExportUseCase` names the file `{module}-{yyyy-MM-dd}.csv`. An integration test exports a business's students and imports them into another one with nothing lost.
-5. Docs: `docs/import-export.md` (library, like `tenancy.md`), `analyzers.md`, `domain-model.md` unchanged; link from `README.md`.
-6. Frontend plan and screens (separate PR).
+5. ~~Docs: `docs/import-export.md` (library, like `tenancy.md`), `analyzers.md`, `domain-model.md` unchanged; link from `README.md`.~~ Done along the way.
+6. ~~Frontend plan and screens.~~ Done in the same branch: [frontend plan](../../frontend/20260929-import-export/plan.md), Settings → Importar y exportar, plus the e2e test `When_owner_imports_students_from_a_csv`.
 
 ## Decisions taken on validation
 

@@ -31,6 +31,7 @@ export default function SettingsLayout() {
         name="class-packs/[classPackId]"
         options={{ title: translate("classPacks.form.editTitle") }}
       />
+      <Stack.Screen name="import-export" options={{ title: translate("importExport.title") }} />
     </Stack>
   );
 }
