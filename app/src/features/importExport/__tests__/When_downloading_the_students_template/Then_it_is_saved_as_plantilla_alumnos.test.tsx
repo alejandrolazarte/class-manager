@@ -1,21 +1,21 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { downloadTemplate, getImportSchema } from "@/features/importExport/importExportApi";
-import { saveCsvFile } from "@/features/importExport/saveCsvFile";
+import { saveSpreadsheetFile } from "@/features/importExport/saveSpreadsheetFile";
 import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
 import { translate } from "@/i18n/translate";
 import { buildStudentsSchema } from "@/testing/importExportFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/importExport/importExportApi");
-jest.mock("@/features/importExport/pickCsvFile");
-jest.mock("@/features/importExport/saveCsvFile");
+jest.mock("@/features/importExport/pickImportFile");
+jest.mock("@/features/importExport/saveSpreadsheetFile");
 
-const templateCsv = "Alumno;Teléfono\r\nLucas Gómez;611 222 333\r\n";
+const templateWorkbook = new Uint8Array([0x50, 0x4b, 0x03, 0x04]).buffer;
 
 describe("When downloading the students template", () => {
   beforeEach(() => {
     jest.mocked(getImportSchema).mockResolvedValue(buildStudentsSchema());
-    jest.mocked(downloadTemplate).mockResolvedValue(templateCsv);
+    jest.mocked(downloadTemplate).mockResolvedValue(templateWorkbook);
   });
 
   it("Then it is saved as plantilla alumnos", async () => {
@@ -26,7 +26,7 @@ describe("When downloading the students template", () => {
     );
 
     await waitFor(() =>
-      expect(saveCsvFile).toHaveBeenCalledWith("plantilla-alumnos.csv", templateCsv),
+      expect(saveSpreadsheetFile).toHaveBeenCalledWith("plantilla-alumnos.xlsx", templateWorkbook),
     );
   });
 });

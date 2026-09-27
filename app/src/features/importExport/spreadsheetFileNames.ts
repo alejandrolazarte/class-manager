@@ -13,7 +13,7 @@ export function fileModuleName(module: ImportModule): string {
   return translate(fileModuleKeys[module]);
 }
 
-export const csvFileNames = {
+export const spreadsheetFileNames = {
   template: (module: ImportModule) =>
     translate("importExport.fileName.template", { module: fileModuleName(module) }),
   export: (module: ImportModule, date: Date) =>

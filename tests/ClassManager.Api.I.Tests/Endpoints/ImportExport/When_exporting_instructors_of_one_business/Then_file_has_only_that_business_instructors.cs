@@ -13,8 +13,8 @@ public sealed class Then_file_has_only_that_business_instructors(ApiFixture fixt
         await business.HttpClient.CreateInstructorAsync("Marta Ruiz");
         await otherBusiness.HttpClient.CreateInstructorAsync("Pedro Sanz");
 
-        var exported = await business.HttpClient.DownloadCsvAsync(InstructorImportModule.ModuleName, ApiRoutes.ExportAction);
+        var exported = await business.HttpClient.DownloadWorkbookAsync(InstructorImportModule.ModuleName, ApiRoutes.ExportAction);
 
-        exported.ShouldBe("﻿Profesor\r\nMarta Ruiz\r\n");
+        ImportRequests.WorkbookRows(exported).ShouldBe([["Profesor"], ["Marta Ruiz"]]);
     }
 }

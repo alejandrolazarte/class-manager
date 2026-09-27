@@ -1,7 +1,7 @@
-import { PickedCsvFile } from "@/features/importExport/pickCsvFile";
+import { PickedImportFile } from "@/features/importExport/pickImportFile";
 import { ImportReport, ImportSchema } from "@/features/importExport/types";
 
-export const pickedStudentsFile: PickedCsvFile = {
+export const pickedStudentsFile: PickedImportFile = {
   name: "alumnos.csv",
   uri: "file:///cache/alumnos.csv",
 };

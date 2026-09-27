@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ImportColumnsCard } from "@/features/importExport/components/ImportColumnsCard";
 import { ImportPreviewCard } from "@/features/importExport/components/ImportPreviewCard";
-import { fileModuleName } from "@/features/importExport/csvFileNames";
+import { fileModuleName } from "@/features/importExport/spreadsheetFileNames";
 import { fileErrorMessage } from "@/features/importExport/importMessages";
-import { PickedCsvFile, pickCsvFile } from "@/features/importExport/pickCsvFile";
+import { PickedImportFile, pickImportFile } from "@/features/importExport/pickImportFile";
 import { ImportModule, ImportReport } from "@/features/importExport/types";
 import {
   useDownloadExport,
@@ -28,7 +28,7 @@ const moduleOptions: readonly SegmentedOption<ImportModule>[] = [
 ];
 
 interface PreviewedFile {
-  file: PickedCsvFile;
+  file: PickedImportFile;
   report: ImportReport;
 }
 
@@ -55,7 +55,7 @@ export function ImportExportScreen() {
   }
 
   async function chooseFile() {
-    const file = await pickCsvFile();
+    const file = await pickImportFile();
     if (file === null) {
       return;
     }
@@ -66,7 +66,7 @@ export function ImportExportScreen() {
     );
   }
 
-  function confirmImport(file: PickedCsvFile) {
+  function confirmImport(file: PickedImportFile) {
     importFile.mutate(
       { module, file },
       {

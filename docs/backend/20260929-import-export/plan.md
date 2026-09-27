@@ -166,7 +166,7 @@ XLSX, manual column mapping, updating existing records, importing classes/enroll
 
 ## Decisions taken on validation
 
-1. CSV only for the pilot; XLSX stays in the later phases.
+1. ~~CSV only for the pilot; XLSX stays in the later phases.~~ XLSX added on 2026-09-27 for exports and templates (import accepts both) after the Google Sheets Android app showed broken accents in the CSV: see [import-export.md](../../import-export.md#why-exports-are-xlsx).
 2. Invalid rows are skipped and the valid ones imported.
 3. Existing records are skipped, never updated.
 4. No class group column: enrollments stay manual.

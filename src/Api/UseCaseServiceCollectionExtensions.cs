@@ -18,6 +18,7 @@ using ClassManager.Core.UseCases.Students;
 using ClassManager.ImportExport.Parsing;
 using ClassManager.ImportExport.Tabular;
 using ClassManager.ImportExport.Tabular.Csv;
+using ClassManager.ImportExport.Xlsx;
 
 namespace ClassManager.Api;
 
@@ -28,8 +29,10 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
-        services.AddSingleton<ITabularReader, CsvTabularReader>();
-        services.AddSingleton<ITabularWriter, CsvTabularWriter>();
+        services.AddSingleton<CsvTabularReader>();
+        services.AddSingleton(new XlsxTabularReader());
+        services.AddSingleton<ITabularReader, XlsxOrCsvTabularReader>();
+        services.AddSingleton<ITabularWriter, XlsxTabularWriter>();
         services.AddSingleton<IImportParser, ImportParser>();
         services.AddScoped<IImportModule, InstructorImportModule>();
         services.AddScoped<IImportModule, StudentImportModule>();
