@@ -34,6 +34,10 @@ test("App screens", async ({ page, request }) => {
     ["11-registrar-pago", `/fees/${demo.debtorClientId}/pay?month=${demo.month}`, "Forma de pago"],
     ["12-ajustes", "/settings", "Cuota mensual"],
     ["13-profes", "/settings/instructors", "Martín Díaz"],
+    ["14-familia-por-clases", `/students/clients/${demo.classPackClientId}`, "Quedan"],
+    ["15-vender-pack", `/students/clients/${demo.classPackClientId}/sell-pack`, "Forma de pago"],
+    ["16-packs", "/settings/class-packs", "8 clases"],
+    ["17-cuota-mensual", "/settings/monthly-fee", "Cambios de cuota"],
   ];
 
   for (const [fileName, path, visibleText] of screens) {
