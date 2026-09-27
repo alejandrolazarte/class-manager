@@ -14,12 +14,14 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IClassPackPurchaseRepository> Purchases { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IAttendanceRepository> Attendances { get; } = new();
+    public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public ClassPack Pack { get; } = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!;
     public List<ClassPackPurchase> ClientPurchases { get; } = [];
     public List<ClientAttendedClass> ClientAttendedClasses { get; } = [];
+    public List<ClientAttendedClass> ClientAttendedPrivateLessons { get; } = [];
     public List<ClientBillingPlanChange> PlanChanges { get; } = [];
 
     public ClassPackUseCaseBuilder()
@@ -32,6 +34,9 @@ internal sealed class ClassPackUseCaseBuilder
         Attendances
             .Setup(repository => repository.ListAttendedClassesByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClientAttendedClasses);
+        PrivateLessons
+            .Setup(repository => repository.ListAttendedClassesByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ClientAttendedPrivateLessons);
         FeeSchedule
             .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);
@@ -43,8 +48,12 @@ internal sealed class ClassPackUseCaseBuilder
     public void Attend(Guid clientId, DateOnly date) =>
         ClientAttendedClasses.Add(new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, "Natación")));
 
+    public void AttendPrivateLesson(Guid clientId, DateOnly date) =>
+        ClientAttendedPrivateLessons.Add(
+            new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, TestData.InstructorFullName, IsPrivateLesson: true)));
+
     public ClassBalanceService BuildBalanceService() =>
-        new(Purchases.Object, Attendances.Object, FeeSchedule.Object, BusinessCalendar.Object);
+        new(Purchases.Object, Attendances.Object, PrivateLessons.Object, FeeSchedule.Object, BusinessCalendar.Object);
 
     public SellClassPackUseCase BuildSell() =>
         new(Clients.Object, ClassPacks.Object, Purchases.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));

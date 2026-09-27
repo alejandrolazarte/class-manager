@@ -29,10 +29,10 @@ public sealed record ClassPackUsageResponse(
             usage.Status);
 }
 
-public sealed record AttendedClassResponse(DateOnly Date, string StudentFullName, string ClassGroupName)
+public sealed record AttendedClassResponse(DateOnly Date, string StudentFullName, string ClassGroupName, bool IsPrivateLesson)
 {
     public static AttendedClassResponse From(AttendedClass attendedClass) =>
-        new(attendedClass.Date, attendedClass.StudentFullName, attendedClass.ClassGroupName);
+        new(attendedClass.Date, attendedClass.StudentFullName, attendedClass.ClassGroupName, attendedClass.IsPrivateLesson);
 }
 
 public sealed record ClassBalanceResponse(

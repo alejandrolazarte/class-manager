@@ -12,5 +12,7 @@ public interface IStudentRepository
 
     Task<StudentSummary?> GetSummaryByIdAsync(Guid studentId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<StudentSummary>> ListSummariesByIdsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<StudentSummary>> SearchAsync(StudentSearchCriteria criteria, CancellationToken cancellationToken);
 }

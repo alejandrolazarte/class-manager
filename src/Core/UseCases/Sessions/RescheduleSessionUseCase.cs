@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Sessions;
+using ClassManager.Core.UseCases.PrivateLessons;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
@@ -14,6 +15,7 @@ public sealed record RescheduleSessionCommand(Guid ClassGroupId, DateOnly Date, 
 public sealed class RescheduleSessionUseCase(
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
+    IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider)
@@ -42,7 +44,14 @@ public sealed class RescheduleSessionUseCase(
             return Result.Validation<SessionStatusResponse>(StartTimeFormatMessage, fieldName: nameof(RescheduleSessionCommand.StartTime));
         }
 
-        var conflict = await FindInstructorConflictAsync(classGroup.Value!, command.Date, startTime, cancellationToken);
+        var conflict = await FindInstructorConflictAsync(classGroup.Value!, command.Date, startTime, cancellationToken)
+            ?? await InstructorAgendaRules.FindPrivateLessonConflictAsync(
+                privateLessonRepository,
+                classGroup.Value!.InstructorId,
+                [command.Date],
+                ClassSchedule.ForDay(command.Date.DayOfWeek, startTime, classGroup.Value.DurationMinutes),
+                ignoredPrivateLessonId: null,
+                cancellationToken);
         if (conflict is not null)
         {
             return conflict;

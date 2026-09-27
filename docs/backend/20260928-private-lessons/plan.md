@@ -6,7 +6,7 @@ See [pilot plan](../../pilot-df-swimming.md). Coaches of the pilot sell courses 
 
 - **A private lesson is a one-off scheduled class**, not a weekly group: coach, date, start time, duration, optional place, one to four students, optional notes. It never repeats. For "every Tuesday for 10 weeks", the app offers **repeat weekly N times**, which creates N separate lessons that can each be moved or cancelled on their own.
 - **Its own entity (`PrivateLesson`)**, not a `ClassGroup` without weekdays. Group classes keep their invariants (weekly schedule, capacity, enrollments); a private lesson has its students directly and no enrollment.
-- **Attendance per student**, same `Present` / `Absent` as group sessions, in `PrivateLessonAttendance`. A lesson can be cancelled with a reason, or moved to another date or time, while no attendance was taken.
+- **Attendance per student**, same `Present` / `Absent` as group sessions, stored on the lesson's student row (`PrivateLessonStudents.Status`) instead of a separate attendance table: a lesson's students are fixed, so one row per student is enough. A lesson can be cancelled with a reason, or moved to another date or time, while no attendance was taken.
 - **Packs pay private lessons like group classes.** The class-balance allocation (M6) takes the union of group and private attendances of a family: oldest first, the pack valid on that date that expires first. Private lesson attendances count for families on `ClassPacks`; for families on a monthly fee they don't use classes (a family can have both).
 - **Pack catalog additions:** optional `classDurationMinutes` (30, 45, 60...) and optional `materialUrl` (https only, ≤ 500 characters). The purchase copies both. Scheduling a lesson for a student whose family has an active pack with a duration defaults the lesson to that duration.
 - **Trial class:** `isTrial` on the lesson, plus a `trialPrice` (0 = free). A paid trial is recorded as a payment. When the family buys a pack after a trial, the sale can include the trial ("count the trial as the first class"): the trial attendance is then paid by that pack.
@@ -26,7 +26,8 @@ See [pilot plan](../../pilot-df-swimming.md). Coaches of the pilot sell courses 
 
 Existing endpoints that change:
 
-- `GET /api/sessions?date=` returns group sessions **and** private lessons of that day, each with `kind: "Group" | "Private"`, the private lesson id and its student names.
+- `GET /api/sessions?date=` returns group sessions **and** private lessons of that day, each with `kind: "Group" | "Private"`, `classGroupId` (null for private lessons), `privateLessonId` and `studentNames`. For a private lesson, `classGroupName` holds the student names, so an app that doesn't know the kind yet still shows something meaningful.
+- Creating or editing a class group, and rescheduling one group session, also check the coach's private lessons.
 - `GET /api/sessions/calendar?month=` counts private lessons in `classCount`, `cancelledCount` and `pendingAttendanceCount`.
 - `GET /api/clients/{id}/class-balance` includes private lesson attendances; `unpaidAttendances` shows them with the coach name instead of a class name.
 - Class pack catalog and purchase gain `classDurationMinutes` and `materialUrl`. The sale gains `includeTrialLessonId`.
@@ -50,6 +51,12 @@ POST /api/private-lessons
 → 201 [ { "id": "...", "date": "2026-10-06", ... }, ... ]
 ```
 
+## Delivery
+
+- **Part 1 (this PR):** private lessons, weekly repeat, attendance, coach conflicts in both directions, and private lessons in the day list, month calendar and class balance.
+- **Part 2:** pack `classDurationMinutes` and `materialUrl`, and trial classes (`isTrial`, `trialPrice`, counting the trial in a later pack).
+- **Part 3:** the app screens.
+
 ## Business rules
 
 | # | Rule | Result |
@@ -67,8 +74,7 @@ POST /api/private-lessons
 ## Data
 
 - `PrivateLessons` (`TenantId`, `InstructorId`, `Date`, `StartTime`, `DurationMinutes`, `Location?`, `Notes?`, `IsTrial`, `TrialPrice?`, `IsCancelled`, `CancellationReason?`, `SeriesId?`, `CreatedAt`), index `(TenantId, Date)` and `(TenantId, InstructorId, Date)`.
-- `PrivateLessonStudents` (`TenantId`, `PrivateLessonId`, `StudentId`), unique per lesson and student.
-- `PrivateLessonAttendances` (`TenantId`, `PrivateLessonId`, `StudentId`, `Status`), unique per lesson and student.
+- `PrivateLessonStudents` (`TenantId`, `PrivateLessonId`, `StudentId`, `Status?`), unique per lesson and student; deleted with its lesson.
 - `ClassPacks` and `ClassPackPurchases` gain nullable `ClassDurationMinutes` and `MaterialUrl`; `ClassPackPurchases` gains nullable `TrialLessonId`.
 - One additive migration `AddPrivateLessons`.
 

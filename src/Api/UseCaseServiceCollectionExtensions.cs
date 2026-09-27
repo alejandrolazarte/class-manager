@@ -9,6 +9,7 @@ using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Enrollments;
 using ClassManager.Core.UseCases.Fees;
 using ClassManager.Core.UseCases.Instructors;
+using ClassManager.Core.UseCases.PrivateLessons;
 using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
 
@@ -48,6 +49,13 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<ListStudentEnrollmentsQuery, IReadOnlyList<StudentEnrollmentResponse>>, ListStudentEnrollmentsUseCase>();
         services.AddScoped<IUseCase<ListDaySessionsQuery, IReadOnlyList<DaySessionResponse>>, ListDaySessionsUseCase>();
         services.AddScoped<IUseCase<ListMonthCalendarQuery, MonthCalendarResponse>, ListMonthCalendarUseCase>();
+        services.AddScoped<IUseCase<SchedulePrivateLessonCommand, IReadOnlyList<PrivateLessonResponse>>, SchedulePrivateLessonUseCase>();
+        services.AddScoped<IUseCase<GetPrivateLessonQuery, PrivateLessonResponse>, GetPrivateLessonUseCase>();
+        services.AddScoped<IUseCase<ReschedulePrivateLessonCommand, PrivateLessonResponse>, ReschedulePrivateLessonUseCase>();
+        services.AddScoped<IUseCase<CancelPrivateLessonCommand, PrivateLessonResponse>, CancelPrivateLessonUseCase>();
+        services.AddScoped<IUseCase<RestorePrivateLessonCommand, PrivateLessonResponse>, RestorePrivateLessonUseCase>();
+        services.AddScoped<IUseCase<RecordPrivateLessonAttendanceCommand, RecordAttendanceResponse>, RecordPrivateLessonAttendanceUseCase>();
+        services.AddScoped<IUseCase<DeletePrivateLessonCommand, DeletedPrivateLessonResponse>, DeletePrivateLessonUseCase>();
         services.AddScoped<IUseCase<GetSessionQuery, SessionDetailsResponse>, GetSessionUseCase>();
         services.AddScoped<IUseCase<RecordAttendanceCommand, RecordAttendanceResponse>, RecordAttendanceUseCase>();
         services.AddScoped<IUseCase<CancelSessionCommand, SessionStatusResponse>, CancelSessionUseCase>();

@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.UseCases.PrivateLessons;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
@@ -11,6 +12,7 @@ public sealed class UpdateClassGroupUseCase(
     IInstructorRepository instructorRepository,
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
+    IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar)
     : IUseCase<UpdateClassGroupCommand, ClassGroupResponse>
@@ -41,7 +43,9 @@ public sealed class UpdateClassGroupUseCase(
         if (classGroup.IsActive)
         {
             var conflict = await ClassGroupRules.FindInstructorConflictAsync(
-                classGroupRepository, instructor.Value!.Id, classGroup.Id, schedule.Value!, cancellationToken);
+                classGroupRepository, instructor.Value!.Id, classGroup.Id, schedule.Value!, cancellationToken)
+                ?? await InstructorAgendaRules.FindWeeklyPrivateLessonConflictAsync(
+                    privateLessonRepository, instructor.Value.Id, schedule.Value!, await businessCalendar.TodayAsync(cancellationToken), cancellationToken);
             if (conflict is not null)
             {
                 return conflict;

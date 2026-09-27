@@ -15,7 +15,9 @@ internal sealed class SessionUseCaseBuilder
     public Mock<IEnrollmentRepository> Enrollments { get; } = new();
     public Mock<IClassSessionRepository> Sessions { get; } = new();
     public Mock<IAttendanceRepository> Attendances { get; } = new();
+    public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
+    public Mock<IStudentRepository> Students { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
     public ClassGroup ClassGroup { get; }
@@ -28,6 +30,18 @@ internal sealed class SessionUseCaseBuilder
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
         ClassGroups.Setup(repository => repository.ListActiveByInstructorAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Sessions.Setup(repository => repository.ListByDateAsync(It.IsAny<DateOnly>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Sessions
+            .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        PrivateLessons
+            .Setup(repository => repository.ListByInstructorOnDatesAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<DateOnly>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        Students
+            .Setup(repository => repository.ListSummariesByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        PrivateLessons
+            .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         ClassGroups.Setup(repository => repository.GetByIdAsync(ClassGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(ClassGroup);
         Enrollments
             .Setup(repository => repository.ListRosterOnAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
@@ -52,10 +66,10 @@ internal sealed class SessionUseCaseBuilder
         new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
 
     public RescheduleSessionUseCase BuildReschedule() =>
-        new(ClassGroups.Object, Sessions.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+        new(ClassGroups.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
 
     public ListMonthCalendarUseCase BuildMonthCalendar() =>
-        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, BusinessCalendar.Object);
+        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, BusinessCalendar.Object);
 
     public void SetupMonthCalendar(
         IReadOnlyList<ClassGroupEnrollmentPeriod> enrollmentPeriods,
@@ -75,5 +89,5 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public ListDaySessionsUseCase BuildListDay() =>
-        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, BusinessCalendar.Object);
+        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, Students.Object, BusinessCalendar.Object);
 }

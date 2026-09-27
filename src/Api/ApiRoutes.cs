@@ -37,6 +37,8 @@ public static class ApiRoutes
     public const string Payments = "/api/payments";
     public const string PaymentById = "/{paymentId:guid}";
     public const string Fees = "/api/fees";
+    public const string PrivateLessons = "/api/private-lessons";
+    public const string PrivateLessonById = "/{privateLessonId:guid}";
     public const string Business = "/api/business";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";
