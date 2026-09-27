@@ -18,7 +18,7 @@ The library has no dependencies. `Core` references it and defines the modules an
 
 ## Adding a module
 
-1. In `Core`, implement `IImportModule`: a lowercase `Name` (the route segment), its `Columns`, and `PlanAsync`, which turns rows without cell errors into domain entities with the existing factories and returns one `ImportRowResult` per row (`Valid`, `Error` or `Skipped`) plus `AddValidRows`, which only adds entities to repositories. Saving is the use case's job.
+1. In `Core`, implement `IImportModule`: a lowercase `Name` (the route segment), its `Columns`, and `PlanAsync`, which returns `Result<ImportPlan>` (a failure stops the whole import, for example when there is no current business). It turns rows without cell errors into domain entities with the existing factories and returns one `ImportRowResult` per row (`Valid`, `Error` or `Skipped`) plus `AddValidRows`, which only adds entities to repositories. Saving is the use case's job.
 2. Register it in `AddUseCases` as `services.AddScoped<IImportModule, ...>()`.
 3. Tests: unit tests for the module rules, and an integration test proving another business doesn't see the imported rows.
 

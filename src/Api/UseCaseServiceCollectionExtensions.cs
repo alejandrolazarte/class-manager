@@ -10,6 +10,7 @@ using ClassManager.Core.UseCases.Enrollments;
 using ClassManager.Core.UseCases.Fees;
 using ClassManager.Core.UseCases.ImportExport;
 using ClassManager.Core.UseCases.ImportExport.Instructors;
+using ClassManager.Core.UseCases.ImportExport.Students;
 using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.PrivateLessons;
 using ClassManager.Core.UseCases.Sessions;
@@ -31,6 +32,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton<ITabularWriter, CsvTabularWriter>();
         services.AddSingleton<IImportParser, ImportParser>();
         services.AddScoped<IImportModule, InstructorImportModule>();
+        services.AddScoped<IImportModule, StudentImportModule>();
 
         services.AddScoped<IUseCase<SignUpOwnerCommand, TokenResponse>, SignUpOwnerUseCase>();
         services.AddScoped<IUseCase<GetImportSchemaQuery, ImportSchemaResponse>, GetImportSchemaUseCase>();

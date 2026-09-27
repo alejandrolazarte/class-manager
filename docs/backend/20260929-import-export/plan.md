@@ -44,9 +44,12 @@ Rows with the same phone number are the same family: siblings go on separate row
 
 Per row, in order:
 
-1. The phone already belongs to a client of the business → the student is added to that client (the contact columns are ignored, shown as a warning if they differ).
-2. Otherwise the first row with that phone creates the client; later rows with the same phone reuse it. A later row whose `contactName` differs from the first one is an error.
-3. The client already has a student with that name (in the database or earlier in the file) → `Skipped`.
+1. The phone already belongs to a client of the business → the student joins that family; `Email` and `Notas responsable` are ignored because existing clients are never updated.
+2. Otherwise the first **valid** row with that phone creates the client (named after `Responsable`, or after the student when it is empty); later rows with the same phone join it. A row whose own student is invalid doesn't create the family, so its siblings still can.
+3. A row that fills `Responsable` with a name different from the family's contact (existing or created earlier in the file) is an error (`import.contact_mismatch`): it usually means a wrong phone would join two unrelated families. An empty `Responsable` always joins, so two adults sharing a phone end up in one family, as the app does when adding a student to a family.
+4. The family already has a student with that name in the database → `Skipped` (`student.already_registered`); earlier in the same file → error (`import.duplicate_in_file`).
+
+Domain errors land on the column that caused them: the phone on `phone`, the client name on `contactName` (or `studentName` when `Responsable` is empty), email, birth date and notes on their own columns.
 
 ### `instructors` — coaches
 
@@ -106,7 +109,7 @@ src/ImportExport/            ← engine, no dependencies (ARCH005)
   ImportLimits, ImportFileError, ImportErrorCodes
 
 src/Core/UseCases/ImportExport/   ← business side
-  IImportModule              per module: Name, Columns, PlanAsync(rows) → ImportPlan
+  IImportModule              per module: Name, Columns, PlanAsync(rows) → Result<ImportPlan>
   ImportPlan                 per-row results + AddValidRows (adds the new entities to the repositories, no save)
   ImportFlow                 module lookup, parse, rows with cell errors never reach the module, report
   GetImportSchemaUseCase     module columns
@@ -114,7 +117,7 @@ src/Core/UseCases/ImportExport/   ← business side
   ImportFileUseCase          ImportFlow + AddValidRows + one SaveChanges (atomic); unique violation → 409
   ImportRowResult, ImportSummary, ImportReport, ImportUseCaseErrorCodes
   Instructors/InstructorImportModule
-  Students/StudentImportModule          (step 3)
+  Students/StudentImportModule
   ExportUseCase                         (step 4)
 
 src/Infrastructure/          ← repository queries the modules need (clients by phone in bulk, students by client ids)
@@ -152,7 +155,7 @@ XLSX, manual column mapping, updating existing records, importing classes/enroll
 
 1. ~~`src/ImportExport` + ARCH005 + CSV reader/writer + header matcher + parser, with their unit tests.~~ Done: see [import-export.md](../../import-export.md). Windows-1252 fallback and formula escaping on export were added on the way.
 2. ~~`Core`: instructors module and use cases (the simplest module, proves the whole path), endpoints and integration tests.~~ Done: schema, preview and import for `instructors`. No repository additions were needed (`ListAllAsync` covers duplicates).
-3. `Core`: students module, bulk repository queries, integration tests including tenant isolation.
+3. ~~`Core`: students module, bulk repository queries, integration tests including tenant isolation.~~ Done: `IClientRepository.ListByPhoneNumbersAsync` and `IStudentRepository.ListByClientIdsAsync` load the families in two queries; `IImportModule.PlanAsync` returns `Result<ImportPlan>` so a module can fail as a whole (no current business).
 4. Export and template endpoints.
 5. Docs: `docs/import-export.md` (library, like `tenancy.md`), `analyzers.md`, `domain-model.md` unchanged; link from `README.md`.
 6. Frontend plan and screens (separate PR).

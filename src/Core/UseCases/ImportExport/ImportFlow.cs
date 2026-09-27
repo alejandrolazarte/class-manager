@@ -38,16 +38,20 @@ internal static class ImportFlow
 
         var rowsWithoutCellErrors = parsed.Import!.Rows.Where(row => !row.HasErrors).ToList();
         var plan = await module.Value.PlanAsync(rowsWithoutCellErrors, cancellationToken);
+        if (plan.IsFailure)
+        {
+            return plan.Error!;
+        }
 
         var rows = parsed.Import.Rows
             .Where(row => row.HasErrors)
             .Select(row => ImportRowResult.Error(row.LineNumber, row.Errors))
-            .Concat(plan.Rows)
+            .Concat(plan.Value!.Rows)
             .OrderBy(row => row.Line)
             .ToList();
 
         var report = new ImportReport(module.Value.Name, parsed.Import.Mapping.Headers, ImportSummary.From(rows), rows);
-        return (report, plan);
+        return (report, plan.Value);
     }
 
     public static ImportCellError DuplicateInFile(string key) =>

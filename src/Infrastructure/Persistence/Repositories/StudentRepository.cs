@@ -18,6 +18,15 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
             .OrderBy(student => student.FullName)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Student>> ListByClientIdsAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        CancellationToken cancellationToken) =>
+        clientIds.Count == 0
+            ? []
+            : await context.Students.AsNoTracking()
+                .Where(student => clientIds.Contains(student.ClientId))
+                .ToListAsync(cancellationToken);
+
     public Task<StudentSummary?> GetSummaryByIdAsync(Guid studentId, CancellationToken cancellationToken) =>
         StudentsWithClient()
             .Where(studentWithClient => studentWithClient.Student.Id == studentId)

@@ -1,3 +1,4 @@
+using ClassManager.Core.Common;
 using ClassManager.ImportExport.Columns;
 using ClassManager.ImportExport.Parsing;
 
@@ -9,5 +10,5 @@ public interface IImportModule
 
     IReadOnlyList<ImportColumn> Columns { get; }
 
-    Task<ImportPlan> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken);
+    Task<Result<ImportPlan>> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken);
 }

@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.ImportExport.Columns;
 using ClassManager.ImportExport.Parsing;
@@ -24,7 +25,7 @@ public sealed class InstructorImportModule(IInstructorRepository instructorRepos
 
     public IReadOnlyList<ImportColumn> Columns { get; } = [FullNameColumn];
 
-    public async Task<ImportPlan> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken)
+    public async Task<Result<ImportPlan>> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken)
     {
         var existingInstructors = await instructorRepository.ListAllAsync(cancellationToken);
         var existingNames = existingInstructors.Select(instructor => instructor.FullName).ToHashSet(StringComparer.CurrentCultureIgnoreCase);

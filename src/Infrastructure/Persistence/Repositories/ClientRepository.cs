@@ -7,6 +7,15 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
     public Task<Client?> FindByPhoneNumberAsync(PhoneNumber phoneNumber, CancellationToken cancellationToken) =>
         context.Clients.AsNoTracking().FirstOrDefaultAsync(client => client.PhoneNumber == phoneNumber, cancellationToken);
 
+    public async Task<IReadOnlyList<Client>> ListByPhoneNumbersAsync(
+        IReadOnlyCollection<PhoneNumber> phoneNumbers,
+        CancellationToken cancellationToken) =>
+        phoneNumbers.Count == 0
+            ? []
+            : await context.Clients.AsNoTracking()
+                .Where(client => phoneNumbers.Contains(client.PhoneNumber))
+                .ToListAsync(cancellationToken);
+
     public Task<Client?> GetByIdAsync(Guid clientId, CancellationToken cancellationToken) =>
         context.Clients.AsNoTracking().FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 

@@ -36,6 +36,7 @@ internal sealed class ImportUseCaseBuilder
     public async Task<ImportPlan> PlanInstructorsAsync(string csvText)
     {
         var parsed = await Parser.ParseAsync(Csv(csvText), InstructorModule.Columns, ImportLimits.Default, CancellationToken.None);
-        return await InstructorModule.PlanAsync(parsed.Import!.Rows, CancellationToken.None);
+        var plan = await InstructorModule.PlanAsync(parsed.Import!.Rows, CancellationToken.None);
+        return plan.Value!;
     }
 }
