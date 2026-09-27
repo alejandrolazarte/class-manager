@@ -34,7 +34,17 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
         </View>
         <View className="flex-1 gap-1">
           <AppText variant="bodyStrong">{classPack.name}</AppText>
-          <AppText variant="caption" tone="subtle">{`${summary} · ${validity}`}</AppText>
+          <AppText variant="caption" tone="subtle">
+            {[
+              summary,
+              classPack.classDurationMinutes
+                ? translate("classPacks.list.duration", { minutes: classPack.classDurationMinutes })
+                : null,
+              validity,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </AppText>
         </View>
         {classPack.isActive ? null : <InactiveChip />}
         <Icon name="next" tone="subtle-foreground" />

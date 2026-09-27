@@ -13,7 +13,9 @@ public sealed record ClassPackUsageResponse(
     PaymentMethod Method,
     int UsedClasses,
     int RemainingClasses,
-    ClassPackPurchaseStatus Status)
+    ClassPackPurchaseStatus Status,
+    int? ClassDurationMinutes,
+    string? MaterialUrl)
 {
     public static ClassPackUsageResponse From(ClassPackUsage usage) =>
         new(
@@ -26,7 +28,9 @@ public sealed record ClassPackUsageResponse(
             usage.Purchase.Method,
             usage.UsedClasses,
             usage.RemainingClasses,
-            usage.Status);
+            usage.Status,
+            usage.Purchase.ClassDurationMinutes,
+            usage.Purchase.MaterialUrl);
 }
 
 public sealed record AttendedClassResponse(DateOnly Date, string StudentFullName, string ClassGroupName, bool IsPrivateLesson)
@@ -35,16 +39,20 @@ public sealed record AttendedClassResponse(DateOnly Date, string StudentFullName
         new(attendedClass.Date, attendedClass.StudentFullName, attendedClass.ClassGroupName, attendedClass.IsPrivateLesson);
 }
 
+public sealed record DeductibleTrialResponse(Guid PrivateLessonId, DateOnly Date, string StudentFullName, decimal TrialPrice);
+
 public sealed record ClassBalanceResponse(
     int AvailableClasses,
     int UnpaidClasses,
     IReadOnlyList<ClassPackUsageResponse> Purchases,
-    IReadOnlyList<AttendedClassResponse> UnpaidAttendances)
+    IReadOnlyList<AttendedClassResponse> UnpaidAttendances,
+    IReadOnlyList<DeductibleTrialResponse> DeductibleTrials)
 {
-    public static ClassBalanceResponse From(ClassBalance balance) =>
+    public static ClassBalanceResponse From(ClassBalance balance, IReadOnlyList<DeductibleTrialResponse> deductibleTrials) =>
         new(
             balance.AvailableClasses,
             balance.UnpaidClasses,
             [.. balance.Purchases.Select(ClassPackUsageResponse.From)],
-            [.. balance.UnpaidAttendances.Select(AttendedClassResponse.From)]);
+            [.. balance.UnpaidAttendances.Select(AttendedClassResponse.From)],
+            deductibleTrials);
 }

@@ -8,6 +8,8 @@ export function buildClassPack(overrides: Partial<ClassPack> = {}): ClassPack {
     price: 160,
     validityMonths: 2,
     isActive: true,
+    classDurationMinutes: null,
+    materialUrl: null,
     ...overrides,
   };
 }
@@ -28,9 +30,12 @@ export function buildClassBalance(overrides: Partial<ClassBalance> = {}): ClassB
         usedClasses: 3,
         remainingClasses: 5,
         status: "Active",
+        classDurationMinutes: null,
+        materialUrl: null,
       },
     ],
     unpaidAttendances: [],
+    deductibleTrials: [],
     ...overrides,
   };
 }

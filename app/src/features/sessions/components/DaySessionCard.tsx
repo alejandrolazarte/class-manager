@@ -44,7 +44,7 @@ export function DaySessionCard({ session, onPress }: DaySessionCardProps) {
                 <View className="flex-row items-center gap-1">
                   <Icon name="privateLesson" size="small" tone="primary" />
                   <AppText variant="badge" tone="primary">
-                    {translate("privateLessons.kind")}
+                    {translate(session.isTrial ? "privateLessons.trial" : "privateLessons.kind")}
                   </AppText>
                 </View>
               ) : null}

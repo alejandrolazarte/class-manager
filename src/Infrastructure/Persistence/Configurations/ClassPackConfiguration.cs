@@ -10,6 +10,7 @@ internal sealed class ClassPackConfiguration : IEntityTypeConfiguration<ClassPac
         builder.Property(classPack => classPack.Id).ValueGeneratedNever();
         builder.Property(classPack => classPack.Name).HasMaxLength(ClassPack.NameMaxLength).IsRequired();
         builder.Property(classPack => classPack.Price).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
+        builder.Property(classPack => classPack.MaterialUrl).HasMaxLength(ClassPack.MaterialUrlMaxLength);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(classPack => classPack.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(classPack => new { classPack.TenantId, classPack.Name }).IsUnique();

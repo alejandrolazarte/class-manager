@@ -3,12 +3,26 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record UpdateClassPackRequest(string? Name, int? ClassCount, decimal? Price, int? ValidityMonths)
+public sealed record UpdateClassPackRequest(
+    string? Name,
+    int? ClassCount,
+    decimal? Price,
+    int? ValidityMonths,
+    int? ClassDurationMinutes = null,
+    string? MaterialUrl = null)
 {
-    public UpdateClassPackCommand ToCommand(Guid classPackId) => new(classPackId, Name, ClassCount, Price, ValidityMonths);
+    public UpdateClassPackCommand ToCommand(Guid classPackId) =>
+        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, MaterialUrl);
 }
 
-public sealed record UpdateClassPackCommand(Guid ClassPackId, string? Name, int? ClassCount, decimal? Price, int? ValidityMonths);
+public sealed record UpdateClassPackCommand(
+    Guid ClassPackId,
+    string? Name,
+    int? ClassCount,
+    decimal? Price,
+    int? ValidityMonths,
+    int? ClassDurationMinutes = null,
+    string? MaterialUrl = null);
 
 public sealed class UpdateClassPackUseCase(IClassPackRepository classPackRepository, IUnitOfWork unitOfWork)
     : IUseCase<UpdateClassPackCommand, ClassPackResponse>
@@ -25,6 +39,12 @@ public sealed class UpdateClassPackUseCase(IClassPackRepository classPackReposit
         if (update.IsFailure)
         {
             return update.Error!;
+        }
+
+        var lessons = classPack.DefineLessons(command.ClassDurationMinutes, command.MaterialUrl);
+        if (lessons.IsFailure)
+        {
+            return lessons.Error!;
         }
 
         var packWithSameName = await classPackRepository.FindByNameAsync(classPack.Name, cancellationToken);

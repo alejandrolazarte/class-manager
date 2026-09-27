@@ -11,6 +11,7 @@ internal sealed class PrivateLessonConfiguration : IEntityTypeConfiguration<Priv
         builder.Property(lesson => lesson.Location).HasMaxLength(PrivateLesson.LocationMaxLength);
         builder.Property(lesson => lesson.Notes).HasMaxLength(PrivateLesson.NotesMaxLength);
         builder.Property(lesson => lesson.CancellationReason).HasMaxLength(PrivateLesson.CancellationReasonMaxLength);
+        builder.Property(lesson => lesson.TrialPrice).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Ignore(lesson => lesson.EndTime);
         builder.Ignore(lesson => lesson.HasAttendance);
 
