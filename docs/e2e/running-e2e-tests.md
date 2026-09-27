@@ -5,7 +5,7 @@ The suite in `e2e/` drives the **Expo web build** with Playwright against the **
 ## What a run does
 
 1. `pnpm db:migrate` applies both EF Core migrations (`AppDbContext` and `SecurityDbContext`) to the database in `E2E_DATABASE_CONNECTION_STRING`, using the `dotnet-ef` version pinned in `dotnet-tools.json`.
-2. `pnpm web:build` exports the web app (`expo export --platform web`) into `e2e/.web-build`, pointing it at the API URL.
+2. `pnpm web:build` exports the web app (`expo export --platform web`) into `e2e/.web-build`, pointing it at the API URL, and moves package assets out of `node_modules` the same way the production build does.
 3. `playwright test` starts the API (`dotnet run`, `Development` environment, random JWT key, high auth rate limit) and a static server for the web build (`serve --single`), then runs the tests.
 
 Every test signs up its own business with a unique email, so the database never needs to be cleaned and tests don't depend on each other.

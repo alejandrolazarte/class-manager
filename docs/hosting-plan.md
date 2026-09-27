@@ -115,7 +115,7 @@ Don't run `scripts/seed-demo-business.cs` against the pilot database: businesses
 
 ### 6. Web app (Cloudflare Pages)
 
-- Build: `pnpm expo export --platform web`, output `dist/`.
+- Build: `pnpm export:web` (`expo export --platform web` plus moving package assets out of `node_modules`, see [pilot deployment](pilot-deployment.md)), output `dist/`.
 - Connect the GitHub repository through the Cloudflare Pages GitHub integration; it builds on Cloudflare, so no extra GitHub Action is needed.
 - `EXPO_PUBLIC_API_BASE_URL` set to the Container Apps URL.
 - Add the Pages domain to the API's CORS allowlist (configuration, not a hardcoded string).

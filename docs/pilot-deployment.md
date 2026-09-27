@@ -207,12 +207,12 @@ In Cloudflare: **Compute → Workers & Pages → Create**. The create screen def
 |---|---|
 | Production branch | `main` |
 | Root directory | `app` |
-| Build command | `corepack enable && pnpm install --frozen-lockfile && pnpm expo export --platform web` |
+| Build command | `corepack enable && pnpm install --frozen-lockfile && pnpm export:web` |
 | Build output directory | `dist` |
 | Environment variable `NODE_VERSION` | `22` |
 | Environment variable `EXPO_PUBLIC_API_BASE_URL` | `https://<api host>` |
 
-Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. Pages serves `index.html` for any path, which is what the single-page web build needs.
+Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and Pages does not publish folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. Pages serves `index.html` for any path, which is what the single-page web build needs.
 
 Then allow the Pages domain in the API's CORS list:
 

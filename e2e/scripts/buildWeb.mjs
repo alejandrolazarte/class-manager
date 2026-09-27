@@ -14,4 +14,12 @@ const result = spawnSync(
     env: { ...process.env, EXPO_PUBLIC_API_BASE_URL: apiUrl },
   },
 );
-process.exit(result.status ?? 1);
+if (result.status !== 0) {
+  process.exit(result.status ?? 1);
+}
+
+const relocation = spawnSync("node", ["scripts/relocateNodeModulesAssets.js", outputDirectory], {
+  cwd: appDirectory,
+  stdio: "inherit",
+});
+process.exit(relocation.status ?? 1);

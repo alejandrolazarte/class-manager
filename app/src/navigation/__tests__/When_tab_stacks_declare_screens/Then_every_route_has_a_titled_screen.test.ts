@@ -1,18 +1,8 @@
 import { isValidElement, ReactElement, ReactNode } from "react";
+import { nodeFileSystem, nodePath } from "@/testing/nodeFileSystem";
 
-interface FileSystem {
-  existsSync: (path: string) => boolean;
-  readdirSync: (path: string) => string[];
-  statSync: (path: string) => { isDirectory: () => boolean };
-}
-
-interface PathUtilities {
-  join: (...paths: string[]) => string;
-  relative: (from: string, to: string) => string;
-}
-
-const { existsSync, readdirSync, statSync }: FileSystem = jest.requireActual("node:fs");
-const { join, relative }: PathUtilities = jest.requireActual("node:path");
+const { existsSync, readdirSync, statSync } = nodeFileSystem;
+const { join, relative } = nodePath;
 const appRootFromTestFile = "../../../../..";
 
 const tabsDirectory = join(expect.getState().testPath ?? "", appRootFromTestFile, "app/(tabs)");
