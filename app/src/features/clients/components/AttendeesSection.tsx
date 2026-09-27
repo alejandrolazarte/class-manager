@@ -1,5 +1,5 @@
 import { Controller, useFieldArray, UseFormReturn } from "react-hook-form";
-import { Pressable, Switch, Text, View } from "react-native";
+import { Pressable, Switch, View } from "react-native";
 import {
   maximumStudentsPerRegistration,
   RegisterClientFormValues,
@@ -8,6 +8,7 @@ import { StudentFields } from "@/features/students/components/StudentFields";
 import { emptyStudentFormValues } from "@/features/students/studentSchema";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
+import { AppText } from "@/ui/AppText";
 
 interface AttendeesSectionProps {
   form: UseFormReturn<RegisterClientFormValues>;
@@ -22,17 +23,13 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
 
   return (
     <View className="gap-4">
-      <Text className="text-lg font-semibold text-gray-900">
-        {translate("clients.register.attendeesSection")}
-      </Text>
+      <AppText variant="heading">{translate("clients.register.attendeesSection")}</AppText>
       <Controller
         control={control}
         name="clientAttends"
         render={({ field }) => (
           <View className="flex-row items-center justify-between">
-            <Text className="text-base text-gray-800">
-              {translate("clients.register.clientAttends")}
-            </Text>
+            <AppText variant="body">{translate("clients.register.clientAttends")}</AppText>
             <Switch
               accessibilityLabel={translate("clients.register.clientAttends")}
               value={field.value}
@@ -47,7 +44,7 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
       {fields.map((additionalStudentField, index) => (
         <View
           key={additionalStudentField.id}
-          className="gap-3 rounded-xl border border-gray-200 bg-white p-3"
+          className="gap-3 rounded-xl border border-border bg-surface p-3"
         >
           <StudentFields
             control={control}
@@ -59,7 +56,9 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
             autoFocus
           />
           <Pressable accessibilityRole="button" onPress={() => remove(index)}>
-            <Text className="text-base font-medium text-red-600">{translate("common.remove")}</Text>
+            <AppText tone="danger" variant="link">
+              {translate("common.remove")}
+            </AppText>
           </Pressable>
         </View>
       ))}
@@ -71,9 +70,9 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
         />
       ) : null}
       {attendeesErrorMessage ? (
-        <Text accessibilityRole="alert" className="text-sm text-red-600">
+        <AppText variant="caption" tone="danger" accessibilityRole="alert">
           {attendeesErrorMessage}
-        </Text>
+        </AppText>
       ) : null}
     </View>
   );

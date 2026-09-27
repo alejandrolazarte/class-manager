@@ -1,7 +1,8 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useStudentEnrollments } from "@/features/enrollments/useStudentEnrollments";
 import { summarizeSchedule } from "@/features/enrollments/weekdaySummary";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 
 interface StudentClassesProps {
   studentId: string;
@@ -14,15 +15,17 @@ export function StudentClasses({ studentId }: StudentClassesProps) {
   }
   if (enrollments.length === 0) {
     return (
-      <Text className="text-sm text-gray-500">{translate("enrollments.studentClasses.none")}</Text>
+      <AppText variant="caption" tone="subtle">
+        {translate("enrollments.studentClasses.none")}
+      </AppText>
     );
   }
   return (
     <View className="gap-1">
       {enrollments.map((enrollment) => (
-        <Text key={enrollment.enrollmentId} className="text-sm text-brand">
+        <AppText variant="caption" tone="primary" key={enrollment.enrollmentId}>
           {`${enrollment.classGroupName} · ${summarizeSchedule(enrollment.weekdays, enrollment.startTime)}`}
-        </Text>
+        </AppText>
       ))}
     </View>
   );

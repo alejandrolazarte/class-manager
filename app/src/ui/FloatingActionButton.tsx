@@ -1,4 +1,5 @@
-import { Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
+import { Icon } from "@/ui/Icon";
 
 interface FloatingActionButtonProps {
   accessibilityLabel: string;
@@ -11,9 +12,9 @@ export function FloatingActionButton({ accessibilityLabel, onPress }: FloatingAc
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}
-      className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-brand shadow-lg"
+      className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg"
     >
-      <Text className="text-3xl font-light text-white">+</Text>
+      <Icon name="add" size="extraLarge" tone="primary-foreground" />
     </Pressable>
   );
 }

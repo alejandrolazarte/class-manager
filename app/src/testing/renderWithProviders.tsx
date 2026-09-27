@@ -5,6 +5,7 @@ import { CurrentBusinessProvider } from "@/features/business/CurrentBusinessProv
 import { Business } from "@/features/business/types";
 import { buildBusiness } from "@/testing/businessFactory";
 import { createTestQueryClient } from "@/testing/testQueryClients";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 import { ToastProvider } from "@/ui/ToastProvider";
 
 export { createTestQueryClient };
@@ -22,11 +23,13 @@ export async function renderWithProviders(
   }: RenderWithProvidersOptions = {},
 ) {
   const renderResult = await render(
-    <QueryClientProvider client={queryClient}>
-      <CurrentBusinessProvider business={business}>
-        <ToastProvider>{element}</ToastProvider>
-      </CurrentBusinessProvider>
-    </QueryClientProvider>,
+    <ThemeProvider initialColorSchemePreference="light">
+      <QueryClientProvider client={queryClient}>
+        <CurrentBusinessProvider business={business}>
+          <ToastProvider>{element}</ToastProvider>
+        </CurrentBusinessProvider>
+      </QueryClientProvider>
+    </ThemeProvider>,
   );
   return { ...renderResult, queryClient };
 }

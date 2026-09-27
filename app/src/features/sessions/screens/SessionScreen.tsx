@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
@@ -14,6 +14,8 @@ import {
 import { translate, translateCount } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 interface SessionScreenProps {
   classGroupId: string;
@@ -38,7 +40,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const [hasSaveFailed, setHasSaveFailed] = useState(false);
 
   if (isPending) {
-    return <ActivityIndicator className="mt-6" />;
+    return <Spinner className="mt-6" />;
   }
   if (isError || session === undefined) {
     return (
@@ -76,20 +78,20 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const unmarkedCount = statuses.length - presentCount - absentCount;
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="gap-4 pb-12">
-      <View className="gap-1 bg-white p-4">
-        <Text className="text-2xl font-bold text-gray-900">{session.classGroupName}</Text>
-        <Text className="text-base text-gray-700">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 pb-12">
+      <View className="gap-1 bg-surface p-4">
+        <AppText variant="display">{session.classGroupName}</AppText>
+        <AppText variant="body" tone="muted">
           {`${formatLongDate(session.date)} · ${session.startTime}–${session.endTime}`}
-        </Text>
+        </AppText>
         {session.isCancelled ? null : (
-          <Text className="text-base font-medium text-brand">
+          <AppText tone="primary" variant="link">
             {[
               translateCount("sessions.attendance.presentCount", presentCount),
               translateCount("sessions.attendance.absentCount", absentCount),
               translate("sessions.attendance.unmarkedCount", { count: unmarkedCount }),
             ].join(summarySeparator)}
-          </Text>
+          </AppText>
         )}
       </View>
       {session.isCancelled ? (
@@ -131,7 +133,9 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         </View>
       ) : null}
       {!session.isCancelled && !session.canTakeAttendance ? (
-        <Text className="px-4 text-base text-gray-600">{translate("sessions.session.notYet")}</Text>
+        <AppText variant="body" tone="muted" className="px-4">
+          {translate("sessions.session.notYet")}
+        </AppText>
       ) : null}
       {hasSaveFailed ? (
         <View className="px-4">
@@ -141,9 +145,9 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
       {session.isCancelled ? null : (
         <View>
           {session.students.length === 0 ? (
-            <Text className="px-4 text-base text-gray-600">
+            <AppText variant="body" tone="muted" className="px-4">
               {translate("sessions.session.noStudents")}
-            </Text>
+            </AppText>
           ) : null}
           {session.students.map((student) => (
             <AttendanceRow

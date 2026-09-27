@@ -1,4 +1,5 @@
 import { TextInput } from "react-native";
+import { useTheme } from "@/theme/useTheme";
 
 interface SearchInputProps {
   value: string;
@@ -13,6 +14,7 @@ export function SearchInput({
   placeholder,
   autoFocus = false,
 }: SearchInputProps) {
+  const { colors } = useTheme();
   return (
     <TextInput
       accessibilityLabel={placeholder}
@@ -23,7 +25,8 @@ export function SearchInput({
       autoFocus={autoFocus}
       autoCorrect={false}
       clearButtonMode="while-editing"
-      className="rounded-xl border border-gray-300 bg-white px-3 py-3 text-base"
+      placeholderTextColor={colors["subtle-foreground"]}
+      className="rounded-xl border border-border-strong bg-surface px-3 py-3 text-base text-foreground"
     />
   );
 }

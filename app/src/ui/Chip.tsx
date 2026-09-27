@@ -1,4 +1,5 @@
-import { Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
+import { AppText, TextTone } from "@/ui/AppText";
 
 interface ChipProps {
   label: string;
@@ -16,15 +17,11 @@ export function Chip({
   accessibilityLabel,
 }: ChipProps) {
   const stateClassName = isSelected
-    ? "border-brand bg-brand"
+    ? "border-primary bg-primary"
     : disabled
-      ? "border-gray-200 bg-gray-100"
-      : "border-gray-300 bg-white";
-  const labelClassName = isSelected
-    ? "text-white"
-    : disabled
-      ? "text-gray-400 line-through"
-      : "text-gray-800";
+      ? "border-border bg-muted"
+      : "border-border-strong bg-surface";
+  const labelTone: TextTone = isSelected ? "onPrimary" : disabled ? "disabled" : "default";
   return (
     <Pressable
       accessibilityRole="button"
@@ -34,7 +31,9 @@ export function Chip({
       onPress={onPress}
       className={`rounded-full border px-3 py-2 ${stateClassName}`}
     >
-      <Text className={`text-sm ${labelClassName}`}>{label}</Text>
+      <AppText variant="caption" tone={labelTone} className={disabled ? "line-through" : ""}>
+        {label}
+      </AppText>
     </Pressable>
   );
 }

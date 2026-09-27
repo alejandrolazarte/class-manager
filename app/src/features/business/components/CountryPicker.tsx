@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import {
   CountrySelection,
   countryPresets,
@@ -9,6 +9,7 @@ import {
 } from "@/features/business/countryPresets";
 import { translate } from "@/i18n/translate";
 import { Chip } from "@/ui/Chip";
+import { AppText } from "@/ui/AppText";
 
 interface CountryPickerProps {
   selection: CountrySelection;
@@ -22,7 +23,9 @@ export function CountryPicker({ selection, onSelectionChange }: CountryPickerPro
 
   return (
     <View className="gap-2">
-      <Text className="text-sm font-medium text-gray-700">{translate("business.country")}</Text>
+      <AppText variant="label" tone="muted">
+        {translate("business.country")}
+      </AppText>
       <View className="flex-row flex-wrap gap-2">
         {countryPresets.map((countryPreset) => (
           <Chip
@@ -37,20 +40,22 @@ export function CountryPicker({ selection, onSelectionChange }: CountryPickerPro
         ))}
       </View>
       <View className="flex-row flex-wrap items-center gap-2">
-        <Text className="text-sm text-gray-600">
+        <AppText variant="caption" tone="muted">
           {translate("business.countrySummary", {
             timeZone: formatTimeZoneForDisplay(selection.timeZoneId),
             currency: selectedCountryPreset.currencyCode,
             callingCode: selectedCountryPreset.callingCode,
           })}
-        </Text>
+        </AppText>
         {hasSeveralTimeZones && !isTimeZoneListExpanded ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={translate("business.changeTimeZone")}
             onPress={() => setIsTimeZoneListExpanded(true)}
           >
-            <Text className="text-sm font-medium text-brand">{translate("common.change")}</Text>
+            <AppText variant="label" tone="primary">
+              {translate("common.change")}
+            </AppText>
           </Pressable>
         ) : null}
       </View>

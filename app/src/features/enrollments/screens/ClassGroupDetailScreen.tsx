@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import { RosterItem } from "@/features/enrollments/components/RosterItem";
 import { todayIsoDate } from "@/features/sessions/dates";
@@ -14,6 +14,8 @@ import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 interface ClassGroupDetailScreenProps {
   classGroupId: string;
@@ -71,16 +73,18 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="gap-4 pb-12">
-      <View className="gap-1 bg-white p-4">
-        <Text className="text-2xl font-bold text-gray-900">{classGroup.name}</Text>
-        <Text className="text-base text-gray-700">{details.join(detailSeparator)}</Text>
-        <Text className="text-base font-medium text-brand">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 pb-12">
+      <View className="gap-1 bg-surface p-4">
+        <AppText variant="display">{classGroup.name}</AppText>
+        <AppText variant="body" tone="muted">
+          {details.join(detailSeparator)}
+        </AppText>
+        <AppText tone="primary" variant="link">
           {translate("enrollments.detail.spots", {
             enrolled: enrolledCount,
             capacity: classGroup.capacity,
           })}
-        </Text>
+        </AppText>
       </View>
       {entryToUnenroll ? (
         <View className="px-4">
@@ -125,14 +129,14 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
         />
       </View>
       <View>
-        <Text className="px-4 pb-2 text-lg font-semibold text-gray-900">
+        <AppText variant="heading" className="px-4 pb-2">
           {translate("enrollments.detail.students")}
-        </Text>
-        {rosterQuery.isPending ? <ActivityIndicator className="mt-4" /> : null}
+        </AppText>
+        {rosterQuery.isPending ? <Spinner className="mt-4" /> : null}
         {rosterQuery.data && roster.length === 0 ? (
-          <Text className="px-4 text-base text-gray-600">
+          <AppText variant="body" tone="muted" className="px-4">
             {translate("enrollments.detail.noStudents")}
-          </Text>
+          </AppText>
         ) : null}
         {roster.map((entry) => (
           <RosterItem

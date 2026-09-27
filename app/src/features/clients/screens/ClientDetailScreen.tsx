@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { ActivityIndicator, Linking, ScrollView, Text, View } from "react-native";
+import { Linking, ScrollView, View } from "react-native";
 import {
   formatPhoneNumberForDisplay,
   toDialableDigits,
@@ -13,6 +13,8 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { AppText } from "@/ui/AppText";
+import { Spinner } from "@/ui/Spinner";
 
 const telephoneScheme = "tel:";
 const emailScheme = "mailto:";
@@ -27,7 +29,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const { data: client, isPending, isError, refetch } = useClient(clientId);
 
   if (isPending) {
-    return <ActivityIndicator className="mt-6" />;
+    return <Spinner className="mt-6" />;
   }
   if (isError || client === undefined) {
     return (
@@ -40,11 +42,11 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="gap-4 p-4">
-      <Text className="text-2xl font-bold text-gray-900">{client.fullName}</Text>
-      <Text className="text-lg text-gray-700">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 p-4">
+      <AppText variant="display">{client.fullName}</AppText>
+      <AppText tone="muted" variant="lead">
         {formatPhoneNumberForDisplay(client.phoneNumber)}
-      </Text>
+      </AppText>
       <View className="flex-row gap-3">
         <View className="flex-1">
           <Button
@@ -65,45 +67,49 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
       </View>
       {client.email ? (
         <View className="gap-1">
-          <Text className="text-sm font-medium text-gray-500">
+          <AppText variant="label" tone="subtle">
             {translate("clients.detail.email")}
-          </Text>
-          <Text
+          </AppText>
+          <AppText
+            variant="body"
+            tone="primary"
             accessibilityRole="link"
-            className="text-base text-brand"
+
             onPress={() => Linking.openURL(`${emailScheme}${client.email}`)}
           >
             {client.email}
-          </Text>
+          </AppText>
         </View>
       ) : null}
       {client.notes ? (
         <View className="gap-1">
-          <Text className="text-sm font-medium text-gray-500">
+          <AppText variant="label" tone="subtle">
             {translate("clients.detail.notes")}
-          </Text>
-          <Text className="text-base text-gray-900">{client.notes}</Text>
+          </AppText>
+          <AppText variant="body">{client.notes}</AppText>
         </View>
       ) : null}
       <View className="gap-2">
-        <Text className="text-lg font-semibold text-gray-900">
-          {translate("clients.detail.students")}
-        </Text>
+        <AppText variant="heading">{translate("clients.detail.students")}</AppText>
         {client.students.length === 0 ? (
-          <Text className="text-base text-gray-600">{translate("clients.detail.noStudents")}</Text>
+          <AppText variant="body" tone="muted">
+            {translate("clients.detail.noStudents")}
+          </AppText>
         ) : (
           client.students.map((student) => {
             const ageLabel = studentAgeLabel(student.birthDate);
             return (
-              <View key={student.id} className="gap-1 rounded-xl bg-white p-3">
-                <Text className="text-base font-semibold text-gray-900">{student.fullName}</Text>
+              <View key={student.id} className="gap-1 rounded-xl bg-surface p-3">
+                <AppText variant="bodyStrong">{student.fullName}</AppText>
                 {student.birthDate && ageLabel ? (
-                  <Text className="text-sm text-gray-600">
+                  <AppText variant="caption" tone="muted">
                     {`${formatBirthDateForDisplay(student.birthDate)} · ${ageLabel}`}
-                  </Text>
+                  </AppText>
                 ) : null}
                 {student.notes ? (
-                  <Text className="text-sm text-gray-500">{student.notes}</Text>
+                  <AppText variant="caption" tone="subtle">
+                    {student.notes}
+                  </AppText>
                 ) : null}
                 <StudentClasses studentId={student.id} />
               </View>

@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { authenticationErrorCodes } from "@/features/authentication/authenticationErrorCodes";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
@@ -20,6 +20,7 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
+import { AppText } from "@/ui/AppText";
 
 const badRequestStatus = 400;
 
@@ -124,9 +125,9 @@ export function SignInScreen() {
         isLoading={form.formState.isSubmitting}
       />
       <Pressable accessibilityRole="link" onPress={() => router.replace(routes.signUp)}>
-        <Text className="text-center text-base font-medium text-brand">
+        <AppText tone="primary" variant="link" className="text-center">
           {translate("authentication.signIn.goToSignUp")}
-        </Text>
+        </AppText>
       </Pressable>
     </AuthenticationScreenLayout>
   );

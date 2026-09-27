@@ -1,25 +1,20 @@
 import { Tabs } from "expo-router";
-import { ColorValue, Text } from "react-native";
 import { RedirectWhenSignedOut } from "@/features/authentication/components/RedirectWhenSignedOut";
 import { BusinessProvider } from "@/features/business/BusinessProvider";
 import { translate } from "@/i18n/translate";
-import { brandColor } from "@/ui/colors";
-
-function TabIcon({ glyph, color }: { glyph: string; color: ColorValue }) {
-  return <Text style={{ color, fontSize: 20 }}>{glyph}</Text>;
-}
+import { Icon } from "@/ui/Icon";
 
 export default function TabsLayout() {
   return (
     <RedirectWhenSignedOut>
       <BusinessProvider>
-        <Tabs screenOptions={{ tabBarActiveTintColor: brandColor }}>
+        <Tabs>
           <Tabs.Screen
             name="today"
             options={{
               title: translate("tabs.today"),
               headerShown: false,
-              tabBarIcon: ({ color }) => <TabIcon glyph="✅" color={color} />,
+              tabBarIcon: ({ color }) => <Icon name="today" color={color} />,
             }}
           />
           <Tabs.Screen
@@ -27,7 +22,7 @@ export default function TabsLayout() {
             options={{
               title: translate("tabs.classes"),
               headerShown: false,
-              tabBarIcon: ({ color }) => <TabIcon glyph="📅" color={color} />,
+              tabBarIcon: ({ color }) => <Icon name="classes" color={color} />,
             }}
           />
           <Tabs.Screen
@@ -35,7 +30,7 @@ export default function TabsLayout() {
             options={{
               title: translate("tabs.students"),
               headerShown: false,
-              tabBarIcon: ({ color }) => <TabIcon glyph="👤" color={color} />,
+              tabBarIcon: ({ color }) => <Icon name="students" color={color} />,
             }}
           />
           <Tabs.Screen
@@ -43,7 +38,7 @@ export default function TabsLayout() {
             options={{
               title: translate("tabs.fees"),
               headerShown: false,
-              tabBarIcon: ({ color }) => <TabIcon glyph="💰" color={color} />,
+              tabBarIcon: ({ color }) => <Icon name="fees" color={color} />,
             }}
           />
           <Tabs.Screen
@@ -51,7 +46,7 @@ export default function TabsLayout() {
             options={{
               title: translate("tabs.settings"),
               headerShown: false,
-              tabBarIcon: ({ color }) => <TabIcon glyph="⚙️" color={color} />,
+              tabBarIcon: ({ color }) => <Icon name="settings" color={color} />,
             }}
           />
         </Tabs>

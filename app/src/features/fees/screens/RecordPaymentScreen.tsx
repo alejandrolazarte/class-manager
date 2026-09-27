@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney, toAmountText } from "@/features/fees/money";
 import { formatMonth } from "@/features/fees/months";
@@ -28,6 +28,7 @@ import { Chip } from "@/ui/Chip";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { AppText } from "@/ui/AppText";
 
 interface RecordPaymentScreenProps {
   clientId: string;
@@ -71,15 +72,15 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
   return (
     <SettingsFormScreenLayout submissionFailure={submissionFailure} onRetry={save}>
       <View className="gap-1">
-        <Text className="text-xl font-bold text-gray-900">{clientFee?.clientFullName ?? ""}</Text>
-        <Text className="text-base text-gray-700">
+        <AppText variant="headline">{clientFee?.clientFullName ?? ""}</AppText>
+        <AppText variant="body" tone="muted">
           {clientFee?.fee
             ? translate("fees.payment.feeOfMonth", {
                 month: formatMonth(month),
                 fee: formatMoney(clientFee.fee, currencyCode),
               })
             : formatMonth(month)}
-        </Text>
+        </AppText>
       </View>
       <Controller
         control={form.control}
@@ -100,9 +101,9 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
         name="method"
         render={({ field }) => (
           <View className="gap-2">
-            <Text className="text-sm font-medium text-gray-700">
+            <AppText variant="label" tone="muted">
               {translate("fees.payment.method")}
-            </Text>
+            </AppText>
             <View className="flex-row flex-wrap gap-2">
               {paymentMethods.map((method) => (
                 <Chip

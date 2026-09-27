@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AttendeesSection } from "@/features/clients/components/AttendeesSection";
 import { formatPhoneNumberAsTyped } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientFormValues } from "@/features/clients/registerClientSchema";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
+import { AppText } from "@/ui/AppText";
 
 interface ClientFormProps {
   form: UseFormReturn<RegisterClientFormValues>;
@@ -22,9 +23,7 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
 
   return (
     <View className="gap-4">
-      <Text className="text-lg font-semibold text-gray-900">
-        {translate("clients.register.contactSection")}
-      </Text>
+      <AppText variant="heading">{translate("clients.register.contactSection")}</AppText>
       <Controller
         control={control}
         name="fullName"
@@ -91,9 +90,9 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
         />
       ) : (
         <Pressable accessibilityRole="button" onPress={() => setAreMoreDetailsExpanded(true)}>
-          <Text className="text-base font-medium text-brand">
+          <AppText tone="primary" variant="link">
             {translate("clients.register.moreDetails")}
-          </Text>
+          </AppText>
         </Pressable>
       )}
       <AttendeesSection form={form} />

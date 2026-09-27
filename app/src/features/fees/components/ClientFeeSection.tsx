@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { ClientDetails } from "@/features/clients/types";
 import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
@@ -11,6 +11,7 @@ import { translate, TranslationKey } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
+import { AppText } from "@/ui/AppText";
 
 interface ClientFeeSectionProps {
   client: ClientDetails;
@@ -45,11 +46,11 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
 
   return (
     <View className="gap-2">
-      <Text className="text-lg font-semibold text-gray-900">{translate("fees.client.title")}</Text>
+      <AppText variant="heading">{translate("fees.client.title")}</AppText>
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
-      <Text className="text-base text-gray-800">{feeLabel}</Text>
+      <AppText variant="body">{feeLabel}</AppText>
       {isEditing ? (
-        <View className="gap-2 rounded-xl bg-white p-3">
+        <View className="gap-2 rounded-xl bg-surface p-3">
           <TextField
             label={translate("fees.client.ownFeeAmount")}
             keyboardType="decimal-pad"
@@ -77,27 +78,30 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
       )}
       {payments.length > 0 ? (
         <View className="gap-1">
-          <Text className="text-sm font-medium text-gray-500">
+          <AppText variant="label" tone="subtle">
             {translate("fees.client.payments")}
-          </Text>
+          </AppText>
           {payments.map((payment) => (
-            <View key={payment.id} className="flex-row items-center gap-3 rounded-xl bg-white p-3">
+            <View
+              key={payment.id}
+              className="flex-row items-center gap-3 rounded-xl bg-surface p-3"
+            >
               <View className="flex-1">
-                <Text className="text-base text-gray-900">
+                <AppText variant="body">
                   {`${money(payment.amount)} · ${formatMonth(payment.month)}`}
-                </Text>
-                <Text className="text-sm text-gray-600">
+                </AppText>
+                <AppText variant="caption" tone="muted">
                   {`${formatBirthDateForDisplay(payment.paidOn)} · ${translate(`fees.methods.${payment.method}` as TranslationKey)}`}
-                </Text>
+                </AppText>
               </View>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={translate("fees.client.deletePayment")}
                 onPress={() => deletePaymentMutation.mutate(payment.id)}
               >
-                <Text className="text-sm font-medium text-red-600">
+                <AppText variant="label" tone="danger">
                   {translate("fees.client.deletePayment")}
-                </Text>
+                </AppText>
               </Pressable>
             </View>
           ))}

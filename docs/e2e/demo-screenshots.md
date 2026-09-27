@@ -27,7 +27,7 @@ pnpm screenshots            # builds the web app, then captures
 pnpm screenshots:no-build   # reuses the last web build
 ```
 
-The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR` to write them somewhere else. The API and the web server start automatically, or are reused if already running on ports 5000 and 8081.
+The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR` to write them somewhere else. Set `SCREENSHOTS_COLOR_SCHEME=dark` to capture the dark theme (light by default). The API and the web server start automatically, or are reused if already running on ports 5000 and 8081.
 
 ## Screens
 

@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { authenticationErrorCodes } from "@/features/authentication/authenticationErrorCodes";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
@@ -25,6 +25,7 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
+import { AppText } from "@/ui/AppText";
 
 const badRequestStatus = 400;
 
@@ -33,9 +34,9 @@ type SignUpFailure =
 
 function SectionTitle({ title }: { title: string }) {
   return (
-    <Text accessibilityRole="header" className="text-lg font-semibold text-gray-900">
+    <AppText variant="heading" accessibilityRole="header">
       {title}
-    </Text>
+    </AppText>
   );
 }
 
@@ -193,9 +194,9 @@ export function SignUpScreen() {
         isLoading={form.formState.isSubmitting}
       />
       <Pressable accessibilityRole="link" onPress={() => router.replace(routes.signIn)}>
-        <Text className="text-center text-base font-medium text-brand">
+        <AppText tone="primary" variant="link" className="text-center">
           {translate("authentication.signUp.goToSignIn")}
-        </Text>
+        </AppText>
       </Pressable>
     </AuthenticationScreenLayout>
   );

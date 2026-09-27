@@ -89,6 +89,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
 - [Local development](docs/backend/local-development.md) — migrations, JWT signing key, demo seed data and owner
 - [Running the Expo app](docs/frontend/running-the-app.md) — configuration and frontend tests
+- [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, AppText, Icon and the lint rules that keep screens on the theme
 - [Roslyn analyzers](docs/analyzers.md) — test layout and architecture rules enforced by the build
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package
 - [Tenancy library](docs/tenancy.md) — what `src/Tenancy` and `src/Tenancy.AspNetCore` contain and how the app plugs into them

@@ -48,7 +48,7 @@ export function CancelSessionPanel({ classGroupId, sessionDate }: CancelSessionP
   }
 
   return (
-    <View className="gap-3 rounded-xl border border-gray-200 bg-white p-3">
+    <View className="gap-3 rounded-xl border border-border bg-surface p-3">
       {cancelFailure ? (
         <Banner
           tone="warning"
