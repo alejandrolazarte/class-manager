@@ -10,7 +10,8 @@ See [pilot plan](../../pilot-df-swimming.md). Coaches of the pilot sell courses 
 - **Packs pay private lessons like group classes.** The class-balance allocation (M6) takes the union of group and private attendances of a family: oldest first, the pack valid on that date that expires first. Private lesson attendances count for families on `ClassPacks`; for families on a monthly fee they don't use classes (a family can have both).
 - **Pack catalog additions:** optional `classDurationMinutes` (30, 45, 60...) and optional `materialUrl` (https only, ≤ 500 characters). The purchase copies both. Scheduling a lesson for a student whose family has an active pack with a duration defaults the lesson to that duration.
 - **Trial class:** `isTrial` on the lesson, plus a `trialPrice` (0 = free). A paid trial is recorded as a payment. When the family buys a pack after a trial, the sale can include the trial ("count the trial as the first class"): the trial attendance is then paid by that pack.
-- **Coach conflicts:** a coach can't have two private lessons, or a private lesson and a group class, overlapping on the same date. Same `instructorBusy` code as class groups.
+- **Coach conflicts are per coach, never per business:** the same coach can't have two private lessons, or a private lesson and a group class, overlapping on the same date, because one person can't be at two pools at once. Different coaches never conflict, whatever the place or time (the owner in Tenerife and another coach in Valencia can both teach at 18:00). Two coaches sharing a pool at the same time is also allowed. Same `instructorBusy` code as class groups.
+- **Times are local wall-clock times of the pool.** A business has one time zone, and the pilot spans the Canary Islands (one hour behind the peninsula). Each coach enters the local time of the pool, and the app shows it as entered. That is enough while nothing is sent at an exact time. Per-place time zones come with places, in a later phase (see the [pilot plan](../../pilot-df-swimming.md)).
 
 ## Scope
 
@@ -57,7 +58,7 @@ POST /api/private-lessons
 | L2 | Active coach of the business | Validation / `404` |
 | L3 | Start time `HH:mm`, duration 15–240 in steps of 5, ends by midnight (same as class groups) | Validation |
 | L4 | `repeatWeeks` 1–52; every created lesson passes L5, or none is created | Validation / `409` |
-| L5 | The coach has no overlapping private lesson or group session that date | `409 instructorBusy` with the conflicting date |
+| L5 | The same coach has no overlapping private lesson or group session that date (other coaches are never checked) | `409 instructorBusy` with the conflicting date |
 | L6 | Attendance only for the lesson's students, not on a cancelled lesson, not for a future date | Validation / `409` |
 | L7 | Cancel, move and delete only while no attendance was taken | `409 hasAttendance` |
 | L8 | `trialPrice` follows the amount rule and is only allowed with `isTrial` | Validation |

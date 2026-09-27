@@ -43,6 +43,10 @@ Pick from what the owner asks for most:
 - Lead tracking: contact → trial class → course.
 - Online booking that only offers the durations and classes the student has left, to replace Timify.
 
+### Places
+
+Pools and cities as a list per business ("Piscina Alboraya, Valencia", "Tenerife"), each with its own time zone (the Canary Islands are one hour behind the peninsula). Classes pick a place instead of free text, and the owner can filter by place. Needed before reminders sent at an exact time, or before online booking.
+
 ### Later — Franchise layer
 
 Each affiliate as its own business, with a brand account that shares the course catalog and standards and sees affiliates' activity. This is a large change in tenancy ([tenancy](tenancy.md)), so it waits until the single-business pilot proves the product.
