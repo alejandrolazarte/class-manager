@@ -13,7 +13,7 @@ public sealed class Then_only_the_new_password_signs_in(ApiFixture fixture)
         using var client = fixture.ApiFactory.CreateClient();
         var command = AuthenticationRequests.SignUpCommand();
         var tokens = await client.SignUpAsync(command);
-        var link = await fixture.ApiFactory.Services.CreatePasswordResetLinkAsync(command.Email!);
+        var link = await client.RequestPasswordResetLinkAsync(fixture.ApiFactory.EmailSender, command.Email!);
 
         using var resetResponse = await client.PostPasswordResetAsync(AuthenticationRequests.TokenOf(link), NewPassword);
 

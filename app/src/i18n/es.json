@@ -494,13 +494,16 @@
   "privateLessons.notFound": "No encontramos esta clase",
   "privateLessons.withCoach": "Particular con {coach}",
   "authentication.signIn.forgotPassword": "¿Olvidaste tu contraseña?",
-  "authentication.signIn.forgotPasswordHelp": "Escribinos y te mandamos un link para elegir una contraseña nueva. El link sirve una sola vez y vence en 24 horas.",
-  "authentication.signIn.askForResetLink": "Pedir el link por WhatsApp",
-  "authentication.signIn.resetLinkMessage": "Hola, olvidé mi contraseña de la app. Mi email es {email}",
   "authentication.resetPassword.title": "Elegí una contraseña nueva",
   "authentication.resetPassword.newPassword": "Contraseña nueva",
   "authentication.resetPassword.submit": "Guardar contraseña",
   "authentication.resetPassword.saved": "Listo. Ingresá con tu contraseña nueva",
   "authentication.resetPassword.invalidLink": "El link venció o ya se usó. Pedí uno nuevo.",
-  "authentication.resetPassword.goToSignIn": "Ir a ingresar"
+  "authentication.forgotPassword.title": "Recuperá tu contraseña",
+  "authentication.forgotPassword.hint": "Te mandamos un link por email para elegir una contraseña nueva.",
+  "authentication.forgotPassword.email": "Email",
+  "authentication.forgotPassword.submit": "Enviar link",
+  "authentication.forgotPassword.sent": "Si {email} tiene una cuenta, te llega un email con el link. Revisá también el spam. El link vence en 24 horas.",
+  "authentication.forgotPassword.backToSignIn": "Volver a ingresar",
+  "authentication.resetPassword.askForNewLink": "Pedir un link nuevo"
 }

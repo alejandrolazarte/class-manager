@@ -54,6 +54,6 @@ Each affiliate as its own business, with a brand account that shares the course 
 ## Also needed before the pilot starts
 
 - Deploy ([pilot deployment](pilot-deployment.md)).
-- ~~"Forgot password"~~: done without email. The operator creates a single-use link and sends it by WhatsApp ([forgotten passwords](pilot-deployment.md#forgotten-passwords)). Email comes with coach invitations.
+- ~~"Forgot password"~~: done, by email through a Gmail account ([email](pilot-deployment.md#email)).
 - Import current students from a spreadsheet (CSV), or load them with a script.
 - Error reporting and a WhatsApp feedback button in Ajustes.

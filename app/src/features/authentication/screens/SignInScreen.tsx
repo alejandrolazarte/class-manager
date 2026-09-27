@@ -2,9 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Linking, Pressable } from "react-native";
+import { Pressable } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
-import { appConfiguration } from "@/config/appConfiguration";
 import { authenticationErrorCodes } from "@/features/authentication/authenticationErrorCodes";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
 import {
@@ -25,7 +24,6 @@ import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
 
 const badRequestStatus = 400;
-const whatsAppBaseUrl = "https://wa.me/";
 
 type SignInFailure = "invalidCredentials" | "lockedOut" | "network" | "unexpected";
 
@@ -34,8 +32,6 @@ export function SignInScreen() {
   const { email: prefilledEmail } = useLocalSearchParams<{ email?: string }>();
   const { signIn } = useSession();
   const [signInFailure, setSignInFailure] = useState<SignInFailure | null>(null);
-  const [isForgotPasswordHelpVisible, setIsForgotPasswordHelpVisible] = useState(false);
-  const supportWhatsAppNumber = appConfiguration.supportWhatsAppNumber;
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: prefilledEmail ?? "", password: "" },
@@ -76,15 +72,6 @@ export function SignInScreen() {
       handleSignInError(signInError);
     }
   });
-
-  const askForResetLink = () => {
-    const message = translate("authentication.signIn.resetLinkMessage", {
-      email: form.getValues("email").trim(),
-    });
-    Linking.openURL(
-      `${whatsAppBaseUrl}${supportWhatsAppNumber}?text=${encodeURIComponent(message)}`,
-    );
-  };
 
   return (
     <AuthenticationScreenLayout
@@ -145,27 +132,12 @@ export function SignInScreen() {
       <Pressable
         accessibilityRole="button"
         className="py-1.5"
-        onPress={() => setIsForgotPasswordHelpVisible(true)}
+        onPress={() => router.push(routes.forgotPassword(form.getValues("email").trim()))}
       >
         <AppText tone="primary" variant="link" className="text-center">
           {translate("authentication.signIn.forgotPassword")}
         </AppText>
       </Pressable>
-      {isForgotPasswordHelpVisible ? (
-        <Banner
-          tone="info"
-          icon="password"
-          message={translate("authentication.signIn.forgotPasswordHelp")}
-        >
-          {supportWhatsAppNumber ? (
-            <Button
-              variant="secondary"
-              label={translate("authentication.signIn.askForResetLink")}
-              onPress={askForResetLink}
-            />
-          ) : null}
-        </Banner>
-      ) : null}
       <Pressable
         accessibilityRole="link"
         className="py-1.5"

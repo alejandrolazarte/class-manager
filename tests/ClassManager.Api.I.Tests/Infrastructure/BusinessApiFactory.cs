@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Email;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Tokens;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +19,8 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
 
     public static readonly DateTimeOffset Now = new(2026, 9, 24, 12, 0, 0, TimeSpan.Zero);
 
+    public RecordingEmailSender EmailSender { get; } = new();
+
     public BusinessApiFactory(string databaseConnectionString)
         : this(databaseConnectionString, new FakeTimeProvider(Now))
     {
@@ -32,6 +35,10 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
         builder.UseSetting(
             $"{AuthenticationRateLimitOptions.SectionName}:{nameof(AuthenticationRateLimitOptions.PermitLimit)}",
             TestAuthenticationPermitLimit.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        builder.ConfigureTestServices(services => services.Replace(ServiceDescriptor.Singleton(timeProvider)));
+        builder.ConfigureTestServices(services =>
+        {
+            services.Replace(ServiceDescriptor.Singleton(timeProvider));
+            services.Replace(ServiceDescriptor.Singleton<IEmailSender>(EmailSender));
+        });
     }
 }

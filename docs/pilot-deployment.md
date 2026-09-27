@@ -211,7 +211,6 @@ In Cloudflare: **Compute → Workers & Pages → Create**. The create screen def
 | Build output directory | `dist` |
 | Environment variable `NODE_VERSION` | `22` |
 | Environment variable `EXPO_PUBLIC_API_BASE_URL` | `https://<api host>` |
-| Environment variable `EXPO_PUBLIC_SUPPORT_WHATSAPP_NUMBER` | Optional. Digits only with the country code (`34600111222`). Shows "Pedir el link por WhatsApp" under "¿Olvidaste tu contraseña?" |
 
 Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and Pages does not publish folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. Pages serves `index.html` for any path, which is what the single-page web build needs.
 
@@ -222,7 +221,7 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
   --set-env-vars "Cors__AllowedOrigins__0=https://class-manager.pages.dev" "WebApp__Url=https://class-manager.pages.dev"
 ```
 
-`WebApp__Url` is where password reset links point (see [Forgotten passwords](#forgotten-passwords)).
+`WebApp__Url` is where the links in emails point (see [Email](#email)).
 
 Use the domain Cloudflare actually assigned if `class-manager` was taken.
 
@@ -240,22 +239,26 @@ pnpm dlx eas-cli build --platform android --profile pilot
 
 The API URL is baked into the APK at build time, so changing the API host means building a new APK.
 
-## Forgotten passwords
+## Email
 
-The app doesn't send email yet. When someone forgets their password, they tap **¿Olvidaste tu contraseña?** and ask for a link (by WhatsApp when `EXPO_PUBLIC_SUPPORT_WHATSAPP_NUMBER` is set). Create the link from a shell inside the running API container:
+The API sends email (today, only "¿Olvidaste tu contraseña?" links) through SMTP. The pilot uses a Gmail account; any SMTP provider works by changing the same settings, and another kind of provider only needs a new `IEmailSender` in `src/Infrastructure/Email`.
+
+1. Create a Gmail account for the app (for example `classmanager.app@gmail.com`).
+2. In that account: **Security → 2-Step Verification** on, then **App passwords** (<https://myaccount.google.com/apppasswords>) → create one named `class-manager`. Copy the 16 letters.
+3. Give them to the API:
 
 ```powershell
-Invoke-WebRequest "https://<api host>/health" | Out-Null
-az containerapp exec --name $containerApp --resource-group $resourceGroup --command "/bin/bash"
+$gmailAddress = "classmanager.app@gmail.com"
+az containerapp secret set --name $containerApp --resource-group $resourceGroup --secrets "smtp-password=<16-letter app password>"
+az containerapp update --name $containerApp --resource-group $resourceGroup `
+  --set-env-vars "Email__Smtp__Host=smtp.gmail.com" "Email__Smtp__Port=587" `
+  "Email__Smtp__UserName=$gmailAddress" "Email__Smtp__Password=secretref:smtp-password" `
+  "Email__Smtp__FromName=Class Manager"
 ```
 
-The health request wakes the app if it scaled to zero. Inside the shell:
+Gmail sends from the account's own address and allows about 500 emails per day, plenty for the pilot. Test it with **¿Olvidaste tu contraseña?** on the web app: the email arrives from the Gmail address with a link to `WebApp__Url/reset-password?token=…`, which works once and expires after 24 hours.
 
-```bash
-dotnet Api.dll create-password-reset-link laura@example.com
-```
-
-It prints `https://<web app>/reset-password?token=...`. Send that link to the person: it opens "Elegí una contraseña nueva" in the browser, works once and expires after 24 hours. Saving the new password signs the account out everywhere and clears a lockout. An unknown email prints "No account uses this email." and creates nothing.
+Without `Email__Smtp__Host` the API doesn't send anything: it logs a warning, and the email body at `Debug` level, which is how local development gets the link (`appsettings.Development.example.json` turns that on).
 
 ## Automatic deploys
 
@@ -279,9 +282,10 @@ az role assignment list --assignee-object-id $deployObjectId --all --output tabl
 gh variable list --repo $repository
 ```
 
-Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key` and the registry password, only `AllowAzureServices` remains in the firewall, and the database uses the free limit with `AutoPause`.
+Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, and the database uses the free limit with `AutoPause`.
 
 ## Rotating secrets
 
 - **JWT key:** `az containerapp secret set ... --secrets jwt-signing-key=<new key>` and restart the revision. Everyone is signed out once; refresh tokens keep working.
+- **Gmail app password:** create a new one in the Gmail account, `az containerapp secret set ... --secrets smtp-password=<new>`, restart the revision, then delete the old app password.
 - **Registry token:** create a new classic token, then `az containerapp registry set --name $containerApp --resource-group $resourceGroup --server ghcr.io --username alejandrolazarte --password <token>`. Do it before the old one expires or new deploys fail to pull the image.

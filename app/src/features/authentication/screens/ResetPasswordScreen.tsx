@@ -84,8 +84,8 @@ export function ResetPasswordScreen() {
         <Banner message={translate("authentication.resetPassword.invalidLink")}>
           <Button
             variant="secondary"
-            label={translate("authentication.resetPassword.goToSignIn")}
-            onPress={goToSignIn}
+            label={translate("authentication.resetPassword.askForNewLink")}
+            onPress={() => router.replace(routes.forgotPassword(""))}
           />
         </Banner>
       ) : null}

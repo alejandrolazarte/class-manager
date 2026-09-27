@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 
 using ClassManager.Api;
 using ClassManager.Api.Authentication;
-using ClassManager.Api.Commands;
 using ClassManager.Api.Cors;
 using ClassManager.Api.Endpoints;
 using ClassManager.Api.ErrorHandling;
@@ -19,12 +18,6 @@ builder.Services.AddUseCases();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
 var app = builder.Build();
-
-if (PasswordResetLinkCommand.Matches(args))
-{
-    Environment.ExitCode = await PasswordResetLinkCommand.RunAsync(app.Services, args, Console.Out);
-    return;
-}
 
 app.UseForwardedHeaders();
 app.UseExceptionHandler();

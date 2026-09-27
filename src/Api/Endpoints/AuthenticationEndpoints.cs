@@ -16,6 +16,7 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.SignIn, SignInAsync);
         authentication.MapPost(ApiRoutes.Refresh, RefreshAsync);
         authentication.MapPost(ApiRoutes.SignOut, SignOutAsync);
+        authentication.MapPost(ApiRoutes.PasswordResetRequest, RequestPasswordResetAsync);
         authentication.MapPost(ApiRoutes.PasswordReset, ResetPasswordAsync);
 
         return endpoints;
@@ -59,6 +60,16 @@ internal static class AuthenticationEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RequestPasswordResetAsync(
+        RequestPasswordResetCommand command,
+        IUseCase<RequestPasswordResetCommand, RequestPasswordResetResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.Accepted((string?)null));
     }
 
     private static async Task<IResult> ResetPasswordAsync(

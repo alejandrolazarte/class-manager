@@ -46,4 +46,5 @@ public static class ApiRoutes
     public const string Refresh = "/refresh";
     public const string SignOut = "/sign-out";
     public const string PasswordReset = "/password-reset";
+    public const string PasswordResetRequest = "/password-reset-request";
 }
