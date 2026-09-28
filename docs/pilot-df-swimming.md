@@ -29,7 +29,7 @@ Outside the app during the pilot: Timify for public booking, WordPress and Whats
 
 ### Phase 2 — Coaches see their own agenda (early in the pilot)
 
-[Backend plan](backend/20260928-roles-and-permissions/plan.md): permissions per endpoint, system roles (Owner, Coach) and, later, custom roles per business.
+[Backend plan](backend/20260928-roles-and-permissions/plan.md): permissions per endpoint, the brand as an organization with one business per branch (Tenerife, Valencia, Barcelona), system roles (`BrandOwner`, `BranchOwner`, `Coach`, `Viewer`) and custom roles per branch.
 
 - Coach accounts: the owner invites a coach by email. The coach signs in and sees only their classes, students and attendance. Only the owner sees money.
 - Hoy and the calendar gain a coach filter for the owner.
@@ -51,7 +51,7 @@ Pools and cities as a list per business ("Piscina Alboraya, Valencia", "Tenerife
 
 ### Later — Franchise layer
 
-Each affiliate as its own business, with a brand account that shares the course catalog and standards and sees affiliates' activity. This is a large change in tenancy ([tenancy](tenancy.md)), so it waits until the single-business pilot proves the product.
+Branches as their own businesses under one organization, and brand owners who can act in every branch, come with Phase 2 ([backend plan](backend/20260928-roles-and-permissions/plan.md)). What stays for later: a course catalog shared from the brand, brand reports with totals only, and a public brand page that routes leads to branches.
 
 ## Also needed before the pilot starts
 
