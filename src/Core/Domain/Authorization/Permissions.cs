@@ -38,15 +38,16 @@ public static class Permissions
 
     public static IReadOnlyList<string> BrandOnly { get; } = [Members.ManageBranchOwners];
 
-    public static IReadOnlyList<string> OwnScoped { get; } =
-    [
-        ClassGroups.ViewOwn,
-        Sessions.ViewOwn,
-        Attendance.RecordOwn,
-        PrivateLessons.ViewOwn,
-        PrivateLessons.ManageOwn,
-        Students.ViewOwn,
-    ];
+    public static IReadOnlyDictionary<string, string> EveryInstructorPermissionByOwnPermission { get; } =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [ClassGroups.ViewOwn] = ClassGroups.ViewAll,
+            [Sessions.ViewOwn] = Sessions.ViewAll,
+            [Attendance.RecordOwn] = Attendance.RecordAll,
+            [PrivateLessons.ViewOwn] = PrivateLessons.ViewAll,
+            [PrivateLessons.ManageOwn] = PrivateLessons.ManageAll,
+            [Students.ViewOwn] = Students.ViewAll,
+        };
 
     public static class Business
     {

@@ -50,5 +50,10 @@ public static class SystemRolePermissions
             _ => FrozenSet<string>.Empty,
         };
 
-    public static bool NeedsInstructor(BusinessRole role) => Of(role).Overlaps(Permissions.OwnScoped);
+    public static bool NeedsInstructor(BusinessRole role)
+    {
+        var permissions = Of(role);
+        return Permissions.EveryInstructorPermissionByOwnPermission.Any(pair =>
+            permissions.Contains(pair.Key) && !permissions.Contains(pair.Value));
+    }
 }

@@ -108,6 +108,60 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("BusinessMembers");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Businesses.MemberInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("AcceptedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("InstructorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InvitedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nchar(64)")
+                        .IsFixedLength();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstructorId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Email");
+
+                    b.ToTable("MemberInvitations");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroup", b =>
                 {
                     b.Property<Guid>("Id")
@@ -738,6 +792,20 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BusinessMember", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
+                        .WithMany()
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Businesses.MemberInvitation", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
                         .WithMany()

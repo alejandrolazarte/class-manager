@@ -43,6 +43,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IOrganizationMemberRepository, OrganizationMemberRepository>();
         services.AddScoped<IBusinessRepository, BusinessRepository>();
         services.AddScoped<IBusinessMemberRepository, BusinessMemberRepository>();
+        services.AddScoped<IMemberInvitationRepository, MemberInvitationRepository>();
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<IInstructorRepository, InstructorRepository>();
@@ -91,6 +92,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ICurrentMember, CurrentMember>();
+        services.AddSingleton<ISecretTokenGenerator, SecretTokenGenerator>();
 
         return services;
     }
