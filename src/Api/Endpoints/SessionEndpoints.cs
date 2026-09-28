@@ -11,21 +11,21 @@ internal static class SessionEndpoints
     public static IEndpointRouteBuilder MapSessionEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var sessions = endpoints.MapGroup(ApiRoutes.Sessions);
-        sessions.MapGet("/", ListDaySessionsAsync);
-        sessions.MapGet(ApiRoutes.Calendar, ListMonthCalendarAsync);
+        sessions.MapGet("/", ListDaySessionsAsync).RequirePermission(Permissions.Sessions.ViewAll);
+        sessions.MapGet(ApiRoutes.Calendar, ListMonthCalendarAsync).RequirePermission(Permissions.Sessions.ViewAll);
 
         var classGroups = endpoints.MapGroup(ApiRoutes.ClassGroups);
-        classGroups.MapGet(SessionRoute, GetSessionAsync);
+        classGroups.MapGet(SessionRoute, GetSessionAsync).RequirePermission(Permissions.Sessions.ViewAll);
         classGroups.MapPut(SessionRoute + ApiRoutes.AttendanceByStudent, RecordAttendanceAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Attendance.RecordAll);
         classGroups.MapPut(SessionRoute + ApiRoutes.Cancellation, CancelSessionAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Sessions.Manage);
         classGroups.MapDelete(SessionRoute + ApiRoutes.Cancellation, RestoreSessionAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Sessions.Manage);
         classGroups.MapPut(SessionRoute + ApiRoutes.Schedule, RescheduleSessionAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Sessions.Manage);
         classGroups.MapDelete(SessionRoute + ApiRoutes.Schedule, RestoreSessionScheduleAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Sessions.Manage);
 
         return endpoints;
     }

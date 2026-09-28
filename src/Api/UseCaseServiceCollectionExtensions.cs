@@ -12,6 +12,7 @@ using ClassManager.Core.UseCases.ImportExport;
 using ClassManager.Core.UseCases.ImportExport.Instructors;
 using ClassManager.Core.UseCases.ImportExport.Students;
 using ClassManager.Core.UseCases.Instructors;
+using ClassManager.Core.UseCases.Members;
 using ClassManager.Core.UseCases.PrivateLessons;
 using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
@@ -49,6 +50,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<ResetPasswordCommand, ResetPasswordResponse>, ResetPasswordUseCase>();
         services.AddScoped<IUseCase<RequestPasswordResetCommand, RequestPasswordResetResponse>, RequestPasswordResetUseCase>();
         services.AddScoped<IUseCase<GetCurrentBusinessQuery, BusinessResponse>, GetCurrentBusinessUseCase>();
+        services.AddScoped<IUseCase<GetCurrentMemberQuery, CurrentMemberResponse>, GetCurrentMemberUseCase>();
         services.AddScoped<IUseCase<RegisterClientCommand, ClientDetailsResponse>, RegisterClientUseCase>();
         services.AddScoped<IUseCase<GetClientQuery, ClientDetailsResponse>, GetClientUseCase>();
         services.AddScoped<IUseCase<SearchClientsQuery, IReadOnlyList<ClientResponse>>, SearchClientsUseCase>();

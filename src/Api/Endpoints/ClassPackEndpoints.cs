@@ -9,18 +9,19 @@ internal static class ClassPackEndpoints
     public static IEndpointRouteBuilder MapClassPackEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var classPacks = endpoints.MapGroup(ApiRoutes.ClassPacks);
-        classPacks.MapGet("/", ListClassPacksAsync);
-        classPacks.MapPost("/", CreateClassPackAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        classPacks.MapPut(ApiRoutes.ClassPackById, UpdateClassPackAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        classPacks.MapPut(ApiRoutes.ClassPackById + ApiRoutes.Active, SetClassPackActiveAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+        classPacks.MapGet("/", ListClassPacksAsync).RequirePermission(Permissions.ClassPacks.View);
+        classPacks.MapPost("/", CreateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
+        classPacks.MapPut(ApiRoutes.ClassPackById, UpdateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
+        classPacks.MapPut(ApiRoutes.ClassPackById + ApiRoutes.Active, SetClassPackActiveAsync).RequirePermission(Permissions.ClassPacks.Manage);
 
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.ClassPackPurchasesSegment, SellClassPackAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        clients.MapGet(ApiRoutes.ClientById + ApiRoutes.ClassBalance, GetClientClassBalanceAsync);
+            .RequirePermission(Permissions.ClassPacks.Sell);
+        clients.MapGet(ApiRoutes.ClientById + ApiRoutes.ClassBalance, GetClientClassBalanceAsync)
+            .RequirePermission(Permissions.ClassPacks.View);
 
         endpoints.MapGroup(ApiRoutes.ClassPackPurchases).MapDelete(ApiRoutes.ClassPackPurchaseById, DeleteClassPackPurchaseAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.ClassPacks.Sell);
 
         return endpoints;
     }

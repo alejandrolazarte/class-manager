@@ -22,6 +22,6 @@ public sealed class Then_access_token_contains_tenant_id(ApiFixture fixture)
         var accessToken = new JsonWebToken(tokens.AccessToken);
         accessToken.GetClaim(TenantClaimTypes.TenantId).Value.ShouldBe(business.Id.ToString());
         accessToken.GetClaim(SecurityClaimTypes.Email).Value.ShouldBe(command.Email);
-        accessToken.GetClaim(SecurityClaimTypes.Role).Value.ShouldBe("Owner");
+        accessToken.GetClaim(SecurityClaimTypes.Role).Value.ShouldBe("BranchOwner");
     }
 }

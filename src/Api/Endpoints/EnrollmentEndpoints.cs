@@ -10,13 +10,15 @@ internal static class EnrollmentEndpoints
     {
         var classGroups = endpoints.MapGroup(ApiRoutes.ClassGroups);
         classGroups.MapPost(ApiRoutes.ClassGroupById + ApiRoutes.EnrollmentsSegment, EnrollStudentAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        classGroups.MapGet(ApiRoutes.ClassGroupById + ApiRoutes.EnrollmentsSegment, ListClassRosterAsync);
+            .RequirePermission(Permissions.Enrollments.Manage);
+        classGroups.MapGet(ApiRoutes.ClassGroupById + ApiRoutes.EnrollmentsSegment, ListClassRosterAsync)
+            .RequirePermission(Permissions.Enrollments.View);
 
-        endpoints.MapGroup(ApiRoutes.Students).MapGet(ApiRoutes.StudentById + ApiRoutes.EnrollmentsSegment, ListStudentEnrollmentsAsync);
+        endpoints.MapGroup(ApiRoutes.Students).MapGet(ApiRoutes.StudentById + ApiRoutes.EnrollmentsSegment, ListStudentEnrollmentsAsync)
+            .RequirePermission(Permissions.Enrollments.View);
 
         endpoints.MapGroup(ApiRoutes.Enrollments).MapPut(ApiRoutes.EnrollmentById + ApiRoutes.End, EndEnrollmentAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Enrollments.Manage);
 
         return endpoints;
     }

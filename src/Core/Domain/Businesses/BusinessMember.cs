@@ -15,12 +15,12 @@ public sealed class BusinessMember : ITenantOwned
     public Guid UserId { get; private set; }
     public BusinessRole Role { get; private set; }
 
-    public static BusinessMember CreateOwner(Guid businessId, Guid userId) =>
+    public static BusinessMember CreateBranchOwner(Guid businessId, Guid userId) =>
         new()
         {
             Id = Guid.CreateVersion7(),
             TenantId = businessId,
             UserId = userId,
-            Role = BusinessRole.Owner,
+            Role = BusinessRole.BranchOwner,
         };
 }

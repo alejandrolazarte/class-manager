@@ -29,7 +29,7 @@ Core            ports: IIdentityService, ITokenService, SessionUser (business + 
 Infrastructure  adapters: IdentityService, TokenService, BusinessTokenSubjectResolver
   │                  ▼
   └──────────► Security   generic: IUserAccountService, ITokenIssuer, ITokenSubjectResolver
-Api             AddSecurityAuthentication + app policies (fallback, OwnerOnly), AddClaimsTenancy
+Api             AddSecurityAuthentication + permission policies (see authorization.md), AddClaimsTenancy
 ```
 
 - `Core` never references `Security`: use cases keep talking to their own ports and `Result`.

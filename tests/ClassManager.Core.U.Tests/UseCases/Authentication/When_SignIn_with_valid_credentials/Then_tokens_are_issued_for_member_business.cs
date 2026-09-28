@@ -14,7 +14,7 @@ public sealed class Then_tokens_are_issued_for_member_business
 
         builder.Tokens.Verify(
             service => service.IssueAsync(
-                new SessionUser(builder.UserId, TestData.OwnerEmail, builder.Member.TenantId, BusinessRole.Owner),
+                new SessionUser(builder.UserId, TestData.OwnerEmail, builder.Member.TenantId, BusinessRole.BranchOwner),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         response.Value!.AccessToken.ShouldBe(TestData.IssuedTokens().AccessToken);

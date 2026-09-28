@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Instructors;
+using ClassManager.Core.Domain.Organizations;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Tenancy;
 using Microsoft.Extensions.Time.Testing;
@@ -12,12 +13,16 @@ namespace ClassManager.Core.U.Tests.UseCases.Authentication;
 internal sealed class SignUpOwnerUseCaseBuilder
 {
     public Guid UserId { get; } = Guid.CreateVersion7();
+    public Organization? AddedOrganization { get; private set; }
+    public OrganizationMember? AddedOrganizationMember { get; private set; }
     public Business? AddedBusiness { get; private set; }
     public BusinessMember? AddedMember { get; private set; }
     public Instructor? AddedInstructor { get; private set; }
 
     public Mock<IIdentityService> Identity { get; } = new();
     public Mock<ITokenService> Tokens { get; } = new();
+    public Mock<IOrganizationRepository> Organizations { get; } = new();
+    public Mock<IOrganizationMemberRepository> OrganizationMembers { get; } = new();
     public Mock<IBusinessRepository> Businesses { get; } = new();
     public Mock<IBusinessMemberRepository> BusinessMembers { get; } = new();
     public Mock<IInstructorRepository> Instructors { get; } = new();
@@ -39,6 +44,12 @@ internal sealed class SignUpOwnerUseCaseBuilder
         Businesses
             .Setup(repository => repository.IsSlugTakenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        Organizations
+            .Setup(repository => repository.Add(It.IsAny<Organization>()))
+            .Callback<Organization>(organization => AddedOrganization = organization);
+        OrganizationMembers
+            .Setup(repository => repository.Add(It.IsAny<OrganizationMember>()))
+            .Callback<OrganizationMember>(member => AddedOrganizationMember = member);
         Businesses
             .Setup(repository => repository.Add(It.IsAny<Business>()))
             .Callback<Business>(business => AddedBusiness = business);
@@ -67,6 +78,8 @@ internal sealed class SignUpOwnerUseCaseBuilder
         new(
             Identity.Object,
             Tokens.Object,
+            Organizations.Object,
+            OrganizationMembers.Object,
             Businesses.Object,
             BusinessMembers.Object,
             Instructors.Object,

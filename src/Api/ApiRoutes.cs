@@ -47,6 +47,7 @@ public static class ApiRoutes
     public const string TemplateAction = "/template";
     public const string ExportAction = "/export";
     public const string Business = "/api/business";
+    public const string Me = "/api/me";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";
     public const string SignIn = "/sign-in";

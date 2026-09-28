@@ -1,3 +1,4 @@
+using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Clients;
 
@@ -9,9 +10,9 @@ internal static class ClientEndpoints
     {
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
 
-        clients.MapPost("/", RegisterClientAsync);
-        clients.MapGet(ApiRoutes.ClientById, GetClientAsync);
-        clients.MapGet("/", SearchClientsAsync);
+        clients.MapPost("/", RegisterClientAsync).RequirePermission(Permissions.Students.Manage);
+        clients.MapGet(ApiRoutes.ClientById, GetClientAsync).RequirePermission(Permissions.Students.ViewAll);
+        clients.MapGet("/", SearchClientsAsync).RequirePermission(Permissions.Students.ViewAll);
 
         return endpoints;
     }

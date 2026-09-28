@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var business = Business.Create("Demo business", "demo-business", TestData.BuenosAiresTimeZoneId, "ABC", TestData.DefaultCountryCallingCode, TestData.Now);
+        var business = Business.Create(Guid.CreateVersion7(), "Demo business", "demo-business", TestData.BuenosAiresTimeZoneId, "ABC", TestData.DefaultCountryCallingCode, TestData.Now);
 
         business.Error!.FieldName.ShouldBe(nameof(Business.CurrencyCode));
     }

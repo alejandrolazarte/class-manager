@@ -29,7 +29,7 @@ See [pilot plan](../../pilot-df-swimming.md), Phase 2. DF Swimming Team is a bra
 - **System roles are defined in code**: they can't be edited or deleted, and they get new permissions with each release.
 - **Custom roles are rows of one business** (`Roles`, `RolePermissions`). "Copy" creates a custom role prefilled with the permissions of any role. A custom role is a snapshot: permissions shipped later are shown as new in the role editor, not added by themselves.
 - **A branch member has exactly one role** in that branch: a system role or a custom role of the same business.
-- **Permissions are resolved on the server on every request**, with a short in-memory cache invalidated when a role or member changes, not stored in the JWT. Removing someone takes effect at once instead of when the 15-minute access token expires.
+- **Permissions are resolved on the server on every request**, once per request (two small indexed queries), not stored in the JWT. Removing someone takes effect at once instead of when the 15-minute access token expires. A cache comes only if measurements ask for it.
 - **The app asks what it can show.** `GET /api/me` returns the current branch, the role and the permission codes; the app hides tabs and buttons from it. The server stays the only enforcement.
 - **Invitations reuse the password reset mechanism**: a single-use link by email, valid 7 days. Accepting creates the Identity user if needed and the membership.
 
@@ -87,7 +87,7 @@ Brand-level permissions (`organization.manage`, `branches.create`, `brandOwners.
 ## Enforcement
 
 - `RequirePermission(Permissions.Payments.Record)` on each endpoint, backed by an `IAuthorizationPolicyProvider` that turns `permission:<code>` policies into a `PermissionRequirement`. `AuthorizationPolicies.OwnerOnly` disappears.
-- `IPermissionResolver`: for the user and the current branch, the permissions of their branch role; if they are `BrandOwner` of the branch's organization, all permissions. No membership and not brand owner means `401`, even with a valid token.
+- `ICurrentMember` (`CurrentMember` in `Infrastructure`): for the user and the current branch, the permissions of their branch role; if they are `BrandOwner` of the branch's organization, all permissions. No membership and not brand owner means `403`, even with a valid token.
 - "Own" scopes are applied in the use cases through `ICurrentMember` in `Core` (member id, instructor id, `HasPermission(code)`), never by the endpoint alone.
 - Brand endpoints check `OrganizationMembers`, not the current branch. Listing branches reads `Businesses` by `OrganizationId`, never branch data.
 - A test enumerates every endpoint and fails if one has neither a permission nor `AllowAnonymous`.
@@ -125,7 +125,7 @@ Brand-level permissions (`organization.manage`, `branches.create`, `brandOwners.
 
 ## Delivery
 
-1. **Permissions without behavior change.** Catalog, `RequirePermission` on every endpoint, `ICurrentMember`, `IPermissionResolver`, `GET /api/me`, the "every endpoint has a permission" test. `Organizations`, `OrganizationMembers` and the migration that makes every current owner `BrandOwner` of their own organization. Owners keep full access.
+1. **Permissions without behavior change.** Done ([authorization](../../authorization.md)). Catalog (`.all` codes only; `.own` codes come with step 2), `RequirePermission` on every endpoint, `ICurrentMember`, `GET /api/me`, the "every endpoint has a permission" test. `Organizations`, `OrganizationMembers` and the migration that gives every existing business its own organization (same id), makes each current owner its `BrandOwner`, and renames their `BusinessMembers` role from `Owner` to `BranchOwner`. The `Role` column keeps its name until custom roles add `RoleId`. Owners keep full access.
 2. **Branch members.** `BranchOwner`, `Coach` and `Viewer`, `InstructorId`, invitations, "own" scopes, `RecordedByMemberId`.
 3. **Branches.** Create a branch, `GET /api/me/branches`, switch branch, brand owners management. After this, DF runs Tenerife, Valencia and Barcelona under one brand.
 4. **Custom roles.** `Roles`, `RolePermissions`, copy, role editor.

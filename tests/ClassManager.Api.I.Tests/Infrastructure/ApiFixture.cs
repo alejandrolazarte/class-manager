@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Domain.Organizations;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
@@ -74,7 +75,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         Guid businessId,
         TimeProvider? timeProvider = null,
         string? signingKey = null,
-        BusinessRole role = BusinessRole.Owner)
+        Guid? userId = null)
     {
         var configuredOptions = ApiFactory.Services.GetRequiredService<IOptions<JwtOptions>>().Value;
         var options = new JwtOptions
@@ -87,7 +88,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             RefreshTokenLifetime = configuredOptions.RefreshTokenLifetime,
         };
         var accessTokenFactory = new JwtAccessTokenFactory(Options.Create(options), timeProvider ?? new FakeTimeProvider(BusinessApiFactory.Now));
-        var testOwner = new TokenSubject(Guid.CreateVersion7(), TestOwnerEmail, businessId, role.ToString());
+        var testOwner = new TokenSubject(userId ?? Guid.CreateVersion7(), TestOwnerEmail, businessId, nameof(BusinessRole.BranchOwner));
 
         return accessTokenFactory.Create(testOwner).Token;
     }
@@ -99,11 +100,14 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         return client;
     }
 
-    public HttpClient CreateClientFor(Guid businessId) => CreateClientWithToken(CreateAccessToken(businessId));
+    public HttpClient CreateClientFor(Guid businessId, Guid userId) => CreateClientWithToken(CreateAccessToken(businessId, userId: userId));
 
     public async Task<SeededBusiness> SeedBusinessAsync()
     {
+        var organization = Organization.Create(BusinessName, BusinessApiFactory.Now).Value!;
+        var ownerUserId = Guid.CreateVersion7();
         var business = Business.Create(
+            organization.Id,
             BusinessName,
             $"business-{Guid.NewGuid():N}",
             BuenosAiresTimeZoneId,
@@ -112,9 +116,12 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             BusinessApiFactory.Now).Value!;
 
         await using var context = CreateDbContext(business.Id);
+        context.Organizations.Add(organization);
+        context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerUserId));
         context.Businesses.Add(business);
+        context.BusinessMembers.Add(BusinessMember.CreateBranchOwner(business.Id, ownerUserId));
         await context.SaveChangesAsync();
 
-        return new SeededBusiness(business, CreateClientFor(business.Id));
+        return new SeededBusiness(business, CreateClientFor(business.Id, ownerUserId), ownerUserId);
     }
 }

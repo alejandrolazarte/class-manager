@@ -10,11 +10,11 @@ internal static class ClassGroupEndpoints
     {
         var classGroups = endpoints.MapGroup(ApiRoutes.ClassGroups);
 
-        classGroups.MapGet("/", ListClassGroupsAsync);
-        classGroups.MapGet(ApiRoutes.ClassGroupById, GetClassGroupAsync);
-        classGroups.MapPost("/", CreateClassGroupAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        classGroups.MapPut(ApiRoutes.ClassGroupById, UpdateClassGroupAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        classGroups.MapPut(ApiRoutes.ClassGroupById + ApiRoutes.Active, SetClassGroupActiveAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+        classGroups.MapGet("/", ListClassGroupsAsync).RequirePermission(Permissions.ClassGroups.ViewAll);
+        classGroups.MapGet(ApiRoutes.ClassGroupById, GetClassGroupAsync).RequirePermission(Permissions.ClassGroups.ViewAll);
+        classGroups.MapPost("/", CreateClassGroupAsync).RequirePermission(Permissions.ClassGroups.Manage);
+        classGroups.MapPut(ApiRoutes.ClassGroupById, UpdateClassGroupAsync).RequirePermission(Permissions.ClassGroups.Manage);
+        classGroups.MapPut(ApiRoutes.ClassGroupById + ApiRoutes.Active, SetClassGroupActiveAsync).RequirePermission(Permissions.ClassGroups.Manage);
 
         return endpoints;
     }

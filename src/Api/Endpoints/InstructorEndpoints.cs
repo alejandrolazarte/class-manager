@@ -10,10 +10,10 @@ internal static class InstructorEndpoints
     {
         var instructors = endpoints.MapGroup(ApiRoutes.Instructors);
 
-        instructors.MapGet("/", ListInstructorsAsync);
-        instructors.MapPost("/", CreateInstructorAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        instructors.MapPut(ApiRoutes.InstructorById, UpdateInstructorAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        instructors.MapPut(ApiRoutes.InstructorById + ApiRoutes.Active, SetInstructorActiveAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+        instructors.MapGet("/", ListInstructorsAsync).RequirePermission(Permissions.Instructors.View);
+        instructors.MapPost("/", CreateInstructorAsync).RequirePermission(Permissions.Instructors.Manage);
+        instructors.MapPut(ApiRoutes.InstructorById, UpdateInstructorAsync).RequirePermission(Permissions.Instructors.Manage);
+        instructors.MapPut(ApiRoutes.InstructorById + ApiRoutes.Active, SetInstructorActiveAsync).RequirePermission(Permissions.Instructors.Manage);
 
         return endpoints;
     }

@@ -39,6 +39,8 @@ public static class InfrastructureServiceCollectionExtensions
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+        services.AddScoped<IOrganizationMemberRepository, OrganizationMemberRepository>();
         services.AddScoped<IBusinessRepository, BusinessRepository>();
         services.AddScoped<IBusinessMemberRepository, BusinessMemberRepository>();
         services.AddScoped<IClientRepository, ClientRepository>();
@@ -88,6 +90,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ITokenSubjectResolver, BusinessTokenSubjectResolver>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<ICurrentMember, CurrentMember>();
 
         return services;
     }

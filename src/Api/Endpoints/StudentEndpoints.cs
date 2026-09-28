@@ -1,3 +1,4 @@
+using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Students;
 
@@ -7,11 +8,12 @@ internal static class StudentEndpoints
 {
     public static IEndpointRouteBuilder MapStudentEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGroup(ApiRoutes.Clients).MapPost(ApiRoutes.ClientById + ApiRoutes.StudentsOfClient, AddStudentAsync);
+        endpoints.MapGroup(ApiRoutes.Clients).MapPost(ApiRoutes.ClientById + ApiRoutes.StudentsOfClient, AddStudentAsync)
+            .RequirePermission(Permissions.Students.Manage);
 
         var students = endpoints.MapGroup(ApiRoutes.Students);
-        students.MapGet(ApiRoutes.StudentById, GetStudentAsync);
-        students.MapGet("/", SearchStudentsAsync);
+        students.MapGet(ApiRoutes.StudentById, GetStudentAsync).RequirePermission(Permissions.Students.ViewAll);
+        students.MapGet("/", SearchStudentsAsync).RequirePermission(Permissions.Students.ViewAll);
 
         return endpoints;
     }

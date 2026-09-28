@@ -93,6 +93,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, AppText, Icon and the lint rules that keep screens on the theme
 - [Roslyn analyzers](docs/analyzers.md) — test layout and architecture rules enforced by the build
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package
+- [Authorization](docs/authorization.md) — organizations, brand and branch roles, and the permission every endpoint requires
 - [Tenancy library](docs/tenancy.md) — what `src/Tenancy` and `src/Tenancy.AspNetCore` contain and how the app plugs into them
 - [Import and export library](docs/import-export.md) — the import/export engine in `src/ImportExport` and `src/ImportExport.Xlsx`: XLSX and CSV reading, header matching, limits and why exports are XLSX
 - [Import and export plan](docs/backend/20260929-import-export/plan.md) — students and coaches from and to a spreadsheet

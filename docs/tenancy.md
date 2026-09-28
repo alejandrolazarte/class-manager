@@ -25,6 +25,7 @@ Api             AddClaimsTenancy()  (ITenantContext and ITenantScope from the ac
 ```
 
 - The tenant is the `Business`. Every tenant-owned entity has a `TenantId` column that points to `Businesses.Id`.
+- A business belongs to an `Organization` (the brand). Organizations and their members are not tenant-owned; they only decide who can access which business ([authorization](authorization.md)).
 - `ITenantDbContext.CurrentTenantId` must be a property of the `DbContext` itself: EF Core evaluates it per query, so each request sees its own tenant.
 - Security issues the token with its `TenantClaimType`; the application sets it to `TenantClaimTypes.TenantId`, so both libraries agree on `tenant_id` without depending on each other.
 - Business-specific rules stay in `Core`, for example `BusinessErrorCodes.CurrentBusinessNotFound`.

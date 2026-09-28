@@ -1,4 +1,4 @@
-using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Security.Hosting;
 using ClassManager.Tenancy.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +15,10 @@ internal static class AppAuthenticationServiceCollectionExtensions
         services.AddSecurityAuthentication();
 
         services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
-            .AddPolicy(AuthorizationPolicies.OwnerOnly, policy => policy
-                .RequireAuthenticatedUser()
-                .RequireRole(nameof(BusinessRole.Owner)));
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<ICurrentUser, ClaimsCurrentUser>();
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {
