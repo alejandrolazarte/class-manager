@@ -13,6 +13,19 @@ const colorSchemeOptions: readonly { value: ColorSchemePreference; labelKey: Tra
 ];
 
 const themeTranslationPrefix = "themes.";
+const swatchesPerRow = 3;
+
+function toSwatchRows(themeNames: readonly ThemeName[]): (ThemeName | null)[][] {
+  const rows: (ThemeName | null)[][] = [];
+  for (let rowStart = 0; rowStart < themeNames.length; rowStart += swatchesPerRow) {
+    const row: (ThemeName | null)[] = themeNames.slice(rowStart, rowStart + swatchesPerRow);
+    while (row.length < swatchesPerRow) {
+      row.push(null);
+    }
+    rows.push(row);
+  }
+  return rows;
+}
 
 function themeDisplayName(themeName: ThemeName): string {
   const translationKey = `${themeTranslationPrefix}${themeName}`;
@@ -66,11 +79,17 @@ export function AppearanceSettings() {
       {themeNames.length > 1 ? (
         <View className="gap-2">
           <AppText variant="bodyStrong">{translate("settings.colors")}</AppText>
-          <View className="flex-row gap-2">
-            {themeNames.map((themeName) => (
-              <ThemeSwatch key={themeName} themeName={themeName} />
-            ))}
-          </View>
+          {toSwatchRows(themeNames).map((row) => (
+            <View key={row.join()} className="flex-row gap-2">
+              {row.map((themeName, columnIndex) =>
+                themeName ? (
+                  <ThemeSwatch key={themeName} themeName={themeName} />
+                ) : (
+                  <View key={columnIndex} className="flex-1" />
+                ),
+              )}
+            </View>
+          ))}
         </View>
       ) : null}
     </View>
