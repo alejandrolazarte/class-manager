@@ -44,9 +44,3 @@ export interface ChangeMemberRoleRequest {
   role: BusinessRole;
   instructorId: string | null;
 }
-
-export interface AcceptInvitationRequest {
-  token: string;
-  fullName: string;
-  password: string;
-}

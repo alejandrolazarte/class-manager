@@ -1,5 +1,6 @@
 import { anonymousHttpClient } from "@/api/httpClient";
 import {
+  AcceptInvitationRequest,
   PasswordResetRequest,
   RefreshSessionRequest,
   ResetPasswordRequest,
@@ -16,6 +17,7 @@ const authenticationPaths = {
   signOut: "/api/auth/sign-out",
   passwordReset: "/api/auth/password-reset",
   passwordResetRequest: "/api/auth/password-reset-request",
+  acceptInvitation: "/api/auth/invitations/accept",
 } as const;
 
 export function signUp(request: SignUpRequest): Promise<TokenResponse> {
@@ -36,6 +38,10 @@ export function signOut(request: SignOutRequest): Promise<void> {
 
 export function resetPassword(request: ResetPasswordRequest): Promise<void> {
   return anonymousHttpClient.post<void>(authenticationPaths.passwordReset, request);
+}
+
+export function acceptInvitation(request: AcceptInvitationRequest): Promise<TokenResponse> {
+  return anonymousHttpClient.post<TokenResponse>(authenticationPaths.acceptInvitation, request);
 }
 
 export function requestPasswordReset(request: PasswordResetRequest): Promise<void> {

@@ -2,15 +2,21 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import { authenticationSession } from "@/api/authenticationSession";
 import {
+  acceptInvitation as acceptInvitationRequest,
   refreshSession,
   signIn as signInRequest,
   signOut as signOutRequest,
   signUp as signUpRequest,
 } from "@/features/authentication/authenticationApi";
 import { refreshTokenStorage } from "@/features/authentication/sessionStorage";
-import { SignInRequest, SignUpRequest, TokenResponse } from "@/features/authentication/types";
+import {
+  AcceptInvitationRequest,
+  SignInRequest,
+  SignUpRequest,
+  TokenResponse,
+} from "@/features/authentication/types";
 
-export type SessionStartReason = "signUp" | "signIn" | "restore";
+export type SessionStartReason = "signUp" | "signIn" | "invitation" | "restore";
 
 export type SessionState =
   | { status: "restoring" }
@@ -21,6 +27,7 @@ export interface SessionContextValue {
   session: SessionState;
   signIn: (request: SignInRequest) => Promise<void>;
   signUp: (request: SignUpRequest) => Promise<void>;
+  acceptInvitation: (request: AcceptInvitationRequest) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -106,6 +113,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
     [startSession],
   );
 
+  const acceptInvitation = useCallback(
+    async (request: AcceptInvitationRequest) =>
+      startSession(await acceptInvitationRequest(request), "invitation"),
+    [startSession],
+  );
+
   const signOut = useCallback(async () => {
     const storedRefreshToken = await refreshTokenStorage.read();
     if (storedRefreshToken !== null) {
@@ -115,8 +128,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, []);
 
   const contextValue = useMemo(
-    () => ({ session, signIn, signUp, signOut }),
-    [session, signIn, signUp, signOut],
+    () => ({ session, signIn, signUp, acceptInvitation, signOut }),
+    [session, signIn, signUp, acceptInvitation, signOut],
   );
 
   return <SessionContext.Provider value={contextValue}>{children}</SessionContext.Provider>;

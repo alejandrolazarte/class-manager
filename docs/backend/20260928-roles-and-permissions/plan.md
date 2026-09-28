@@ -129,7 +129,7 @@ Brand-level permissions (`organization.manage`, `branches.create`, `brandOwners.
 2. **Branch members.** Split in two:
    - **2a — done** ([authorization](../../authorization.md)). `Coach` and `Viewer`, `BusinessMembers.InstructorId`, `.own` permissions with scopes in class groups, sessions and calendar, attendance, private lessons, rosters, students and clients (`Clients.RegisteredByUserId`), coaches register clients and students, invitations by email (invite, revoke, accept), change role, remove member. Reads outside the scope return `404`, writes `403`. For now `Coach` has no money permissions.
    - **2b — next.** Coaches collect payments: `payments.view.own`, `classPacks.sell` for their students, `RecordedByUserId` on payments and pack sales, monthly fees list narrowed to their students. Also `enrollments.manage.own` (enroll in their own class groups) and resending an invitation.
-   - The app still shows every tab to every role: the frontend plan (hide what `GET /api/me` doesn't allow, team screens, accept-invitation screen) follows.
+   - The app shows each role only what it allows, and has the team and accept-invitation screens ([frontend plan](../../frontend/20260928-roles-and-team/plan.md)).
 3. **Branches.** Create a branch, `GET /api/me/branches`, switch branch, brand owners management. After this, DF runs Tenerife, Valencia and Barcelona under one brand.
 4. **Custom roles.** `Roles`, `RolePermissions`, copy, role editor.
 5. **Later, when asked:** shared course catalog from the brand, brand reports with totals only (no personal data), public brand page that routes leads to branches.

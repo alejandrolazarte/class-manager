@@ -83,6 +83,16 @@ src/features/members/__tests__/
   When_invitation_link_is_invalid/Then_error_is_shown.test.tsx
 ```
 
+## Implementation notes
+
+- Status: done. Tests in `src/features/members/__tests__`.
+- `renderWithProviders` takes a `member` option; it defaults to a brand owner with every permission, so existing screen tests keep their behavior. `buildCoach()` and `buildViewer()` in `src/testing/memberFactory.ts` mirror the backend system roles.
+- The tab rules live in `src/navigation/tabDefinitions.ts` (`isTabVisible`), so they are tested without rendering the router.
+- Lists that a member can read but not change (profes, packs) show their items without the chevron and without "Nuevo".
+- The coach picker in Invitar and Miembro only lists active coaches not linked to another member (`freeInstructors`).
+- Accepting an invitation starts the session with `startedBy: "invitation"` and opens Hoy.
+- Pending: manual check on Android (Expo Go) and on the installed web app.
+
 ## Out of scope
 
 - Custom roles editor (step 4 of the backend plan).

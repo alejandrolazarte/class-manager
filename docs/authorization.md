@@ -59,6 +59,12 @@ The `role` claim in the token is informational; authorization never reads it.
 - Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation.
 - Accepting creates the account when the email has none (full name and password required). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password.
 
+## In the app
+
+- `MemberProvider` loads `GET /api/me` next to the business; `useCan(...)` hides tabs, rows, buttons and sections the member can't use ([frontend plan](frontend/20260928-roles-and-team/plan.md)).
+- Ajustes → Equipo lists members and pending invitations, invites, changes roles and removes members.
+- The email link opens `/accept-invitation?token=`, which creates the account if needed and signs in.
+
 ## Adding an endpoint
 
 1. Pick an existing permission from `Permissions`, or add one there (and to `Permissions.All`).
