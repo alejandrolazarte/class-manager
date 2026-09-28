@@ -51,4 +51,30 @@ test("App screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Todos" }).click();
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, "10b-cuotas-todos.png") });
+
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Índigo", exact: true }).scrollIntoViewIfNeeded();
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "18-colores.png") });
+
+  const themes: [fileName: string, themeName: string][] = [
+    ["19-hoy-tema-violeta", "Violeta"],
+    ["19-hoy-tema-oceano", "Océano"],
+    ["19-hoy-tema-rosa", "Rosa"],
+    ["19-hoy-tema-arena", "Arena"],
+    ["19-hoy-tema-coral", "Coral"],
+    ["19-hoy-tema-cancha", "Cancha"],
+    ["19-hoy-tema-ciruela", "Ciruela"],
+    ["19-hoy-tema-indigo", "Índigo"],
+    ["19-hoy-tema-agua", "Agua"],
+  ];
+
+  for (const [fileName, themeName] of themes) {
+    await page.goto("/settings");
+    await page.getByRole("button", { name: themeName, exact: true }).click();
+    await page.goto("/today");
+    await page.getByText("presentes", { exact: false }).first().waitFor();
+    await page.waitForTimeout(settleMilliseconds);
+    await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
+  }
 });
