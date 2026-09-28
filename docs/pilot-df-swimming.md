@@ -29,6 +29,8 @@ Outside the app during the pilot: Timify for public booking, WordPress and Whats
 
 ### Phase 2 — Coaches see their own agenda (early in the pilot)
 
+[Backend plan](backend/20260928-roles-and-permissions/plan.md): permissions per endpoint, system roles (Owner, Coach) and, later, custom roles per business.
+
 - Coach accounts: the owner invites a coach by email. The coach signs in and sees only their classes, students and attendance. Only the owner sees money.
 - Hoy and the calendar gain a coach filter for the owner.
 - This is the "accounts for instructors" item that the MVP left out ([MVP plan](mvp-plan.md)).
