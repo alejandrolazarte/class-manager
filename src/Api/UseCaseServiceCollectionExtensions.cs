@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Authentication;
+using ClassManager.Core.UseCases.Branches;
 using ClassManager.Core.UseCases.Businesses;
 using ClassManager.Core.UseCases.ClassGroups;
 using ClassManager.Core.UseCases.ClassPacks;
@@ -59,6 +60,10 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<AcceptInvitationCommand, TokenResponse>, AcceptInvitationUseCase>();
         services.AddScoped<IUseCase<ChangeMemberRoleCommand, MemberResponse>, ChangeMemberRoleUseCase>();
         services.AddScoped<IUseCase<RemoveMemberCommand, RemovedMemberResponse>, RemoveMemberUseCase>();
+        services.AddScoped<IUseCase<ListBranchesQuery, IReadOnlyList<BranchResponse>>, ListBranchesUseCase>();
+        services.AddScoped<IUseCase<SwitchBranchCommand, TokenResponse>, SwitchBranchUseCase>();
+        services.AddScoped<IUseCase<CreateBranchCommand, BranchResponse>, CreateBranchUseCase>();
+        services.AddScoped<IUseCase<SetBrandOwnerCommand, BrandOwnerResponse>, SetBrandOwnerUseCase>();
         services.AddScoped<IUseCase<RegisterClientCommand, ClientDetailsResponse>, RegisterClientUseCase>();
         services.AddScoped<IUseCase<GetClientQuery, ClientDetailsResponse>, GetClientUseCase>();
         services.AddScoped<IUseCase<SearchClientsQuery, IReadOnlyList<ClientResponse>>, SearchClientsUseCase>();

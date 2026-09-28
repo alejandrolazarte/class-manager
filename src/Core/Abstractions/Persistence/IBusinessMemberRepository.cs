@@ -8,8 +8,6 @@ public interface IBusinessMemberRepository
 
     void Remove(BusinessMember member);
 
-    Task<BusinessMember?> FindByUserIdAsync(Guid userId, CancellationToken cancellationToken);
-
     Task<IReadOnlyList<BusinessMember>> ListAsync(CancellationToken cancellationToken);
 
     Task<BusinessMember?> GetForUpdateAsync(Guid memberId, CancellationToken cancellationToken);

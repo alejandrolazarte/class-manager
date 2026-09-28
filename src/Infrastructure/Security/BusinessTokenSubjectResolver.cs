@@ -1,13 +1,16 @@
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Security.Tokens;
 
 namespace ClassManager.Infrastructure.Security;
 
-internal sealed class BusinessTokenSubjectResolver(IBusinessMemberRepository businessMemberRepository) : ITokenSubjectResolver
+internal sealed class BusinessTokenSubjectResolver(IBranchDirectory branchDirectory) : ITokenSubjectResolver
 {
-    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, CancellationToken cancellationToken)
+    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken)
     {
-        var member = await businessMemberRepository.FindByUserIdAsync(userId, cancellationToken);
+        var branch = tenantId is { } businessId
+            ? await branchDirectory.FindAsync(userId, businessId, cancellationToken)
+            : await branchDirectory.FindDefaultAsync(userId, cancellationToken);
 
-        return member is null ? null : new TokenSubject(userId, email, member.TenantId, member.Role.ToString());
+        return branch is null ? null : new TokenSubject(userId, email, branch.BusinessId, branch.RoleName);
     }
 }

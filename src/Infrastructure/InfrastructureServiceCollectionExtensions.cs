@@ -92,6 +92,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ICurrentMember, CurrentMember>();
+        services.AddScoped<IBranchDirectory, BranchDirectory>();
         services.AddSingleton<ISecretTokenGenerator, SecretTokenGenerator>();
 
         return services;

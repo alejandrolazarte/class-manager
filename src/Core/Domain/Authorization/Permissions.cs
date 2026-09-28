@@ -9,6 +9,8 @@ public static class Permissions
         Members.View,
         Members.Manage,
         Members.ManageBranchOwners,
+        Brand.CreateBranches,
+        Brand.ManageBrandOwners,
         Instructors.View,
         Instructors.Manage,
         ClassGroups.ViewOwn,
@@ -36,7 +38,8 @@ public static class Permissions
         ImportExport.Run,
     ];
 
-    public static IReadOnlyList<string> BrandOnly { get; } = [Members.ManageBranchOwners];
+    public static IReadOnlyList<string> BrandOnly { get; } =
+        [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners];
 
     public static IReadOnlyDictionary<string, string> EveryInstructorPermissionByOwnPermission { get; } =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -60,6 +63,12 @@ public static class Permissions
         public const string View = "members.view";
         public const string Manage = "members.manage";
         public const string ManageBranchOwners = "branchOwners.manage";
+    }
+
+    public static class Brand
+    {
+        public const string CreateBranches = "branches.create";
+        public const string ManageBrandOwners = "brandOwners.manage";
     }
 
     public static class Instructors
