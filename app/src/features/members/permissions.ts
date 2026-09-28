@@ -1,0 +1,36 @@
+export const permissions = {
+  businessView: "business.view",
+  businessManage: "business.manage",
+  membersView: "members.view",
+  membersManage: "members.manage",
+  branchOwnersManage: "branchOwners.manage",
+  instructorsView: "instructors.view",
+  instructorsManage: "instructors.manage",
+  classGroupsViewOwn: "classGroups.view.own",
+  classGroupsViewAll: "classGroups.view.all",
+  classGroupsManage: "classGroups.manage",
+  enrollmentsView: "enrollments.view",
+  enrollmentsManage: "enrollments.manage",
+  sessionsViewOwn: "sessions.view.own",
+  sessionsViewAll: "sessions.view.all",
+  sessionsManage: "sessions.manage",
+  attendanceRecordOwn: "attendance.record.own",
+  attendanceRecordAll: "attendance.record.all",
+  privateLessonsViewOwn: "privateLessons.view.own",
+  privateLessonsViewAll: "privateLessons.view.all",
+  privateLessonsManageOwn: "privateLessons.manage.own",
+  privateLessonsManageAll: "privateLessons.manage.all",
+  studentsViewOwn: "students.view.own",
+  studentsViewAll: "students.view.all",
+  studentsManage: "students.manage",
+  paymentsViewAll: "payments.view.all",
+  paymentsRecord: "payments.record",
+  classPacksView: "classPacks.view",
+  classPacksManage: "classPacks.manage",
+  classPacksSell: "classPacks.sell",
+  importExportRun: "importExport.run",
+} as const;
+
+export type Permission = (typeof permissions)[keyof typeof permissions];
+
+export const everyPermission: readonly Permission[] = Object.values(permissions);

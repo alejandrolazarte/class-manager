@@ -1,12 +1,15 @@
 import { useRouter } from "expo-router";
 import { InstructorListItem } from "@/features/instructors/components/InstructorListItem";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { SettingsListScreenLayout } from "@/features/settings/components/SettingsListScreenLayout";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 
 export function InstructorListScreen() {
   const router = useRouter();
+  const canManageInstructors = useCan(permissions.instructorsManage);
   const {
     data: instructors = [],
     isPending,
@@ -26,12 +29,14 @@ export function InstructorListScreen() {
       renderItem={(instructor) => (
         <InstructorListItem
           instructor={instructor}
-          onPress={() => router.push(routes.instructor(instructor.id))}
+          onPress={
+            canManageInstructors ? () => router.push(routes.instructor(instructor.id)) : undefined
+          }
         />
       )}
       emptyMessage={translate("instructors.list.empty")}
       newItemLabel={translate("instructors.list.newInstructor")}
-      onNewItem={() => router.push(routes.newInstructor)}
+      onNewItem={canManageInstructors ? () => router.push(routes.newInstructor) : undefined}
     />
   );
 }

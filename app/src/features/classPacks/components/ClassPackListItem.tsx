@@ -10,7 +10,7 @@ import { Icon } from "@/ui/Icon";
 
 interface ClassPackListItemProps {
   classPack: ClassPack;
-  onPress: (classPack: ClassPack) => void;
+  onPress?: (classPack: ClassPack) => void;
 }
 
 export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps) {
@@ -25,7 +25,7 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
   return (
     <View className={classPack.isActive ? "" : "opacity-60"}>
       <Card
-        onPress={() => onPress(classPack)}
+        onPress={onPress ? () => onPress(classPack) : undefined}
         accessibilityLabel={classPack.name}
         className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
       >
@@ -47,7 +47,7 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
           </AppText>
         </View>
         {classPack.isActive ? null : <InactiveChip />}
-        <Icon name="next" tone="subtle-foreground" />
+        {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
       </Card>
     </View>
   );

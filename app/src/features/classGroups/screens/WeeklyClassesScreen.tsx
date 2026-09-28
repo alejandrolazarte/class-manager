@@ -11,6 +11,8 @@ import {
   weekdayShortLabel,
   weekOrder,
 } from "@/features/classGroups/weekdays";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
@@ -52,6 +54,7 @@ function DayFilterChip({ weekday, classCount, isSelected, onPress }: DayFilterCh
 
 export function WeeklyClassesScreen() {
   const router = useRouter();
+  const canManageClassGroups = useCan(permissions.classGroupsManage);
   const [selectedWeekday, setSelectedWeekday] = useState<Weekday>(() => weekdayOf(new Date()));
   const {
     data: classGroups = [],
@@ -66,10 +69,12 @@ export function WeeklyClassesScreen() {
   const emptyState =
     classGroups.length === 0 ? (
       <EmptyState icon="classes" message={translate("classGroups.week.emptyTitle")}>
-        <Button
-          label={translate("classGroups.week.emptyCallToAction")}
-          onPress={openNewClassGroup}
-        />
+        {canManageClassGroups ? (
+          <Button
+            label={translate("classGroups.week.emptyCallToAction")}
+            onPress={openNewClassGroup}
+          />
+        ) : null}
       </EmptyState>
     ) : (
       <EmptyState
@@ -122,10 +127,12 @@ export function WeeklyClassesScreen() {
   return (
     <Screen
       overlay={
-        <FloatingActionButton
-          label={translate("classGroups.week.newClassGroup")}
-          onPress={openNewClassGroup}
-        />
+        canManageClassGroups ? (
+          <FloatingActionButton
+            label={translate("classGroups.week.newClassGroup")}
+            onPress={openNewClassGroup}
+          />
+        ) : undefined
       }
     >
       {isPending ? (

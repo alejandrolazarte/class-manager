@@ -34,4 +34,8 @@ export const routes = {
   newClassPack: "/settings/class-packs/new",
   classPack: (classPackId: string) => `/settings/class-packs/${classPackId}`,
   importExport: "/settings/import-export",
+  team: "/settings/team",
+  inviteMember: "/settings/team/invite",
+  teamMember: (memberId: string) => `/settings/team/${memberId}`,
+  acceptInvitation: "/accept-invitation",
 } as const;

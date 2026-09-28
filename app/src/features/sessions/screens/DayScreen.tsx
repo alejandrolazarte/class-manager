@@ -2,6 +2,8 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { DaySessionCard } from "@/features/sessions/components/DaySessionCard";
 import { MonthCalendarGrid } from "@/features/sessions/components/MonthCalendarGrid";
 import { WeekStrip } from "@/features/sessions/components/WeekStrip";
@@ -37,6 +39,10 @@ function sessionRoute(session: DaySession): string {
 
 export function DayScreen({ initialDate }: DayScreenProps) {
   const router = useRouter();
+  const canScheduleLessons = useCan(
+    permissions.privateLessonsManageAll,
+    permissions.privateLessonsManageOwn,
+  );
   const business = useCurrentBusiness();
   const today = todayIsoDate();
   const [sessionDate, setSessionDate] = useState(initialDate ?? today);
@@ -171,10 +177,12 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   return (
     <Screen
       overlay={
-        <FloatingActionButton
-          label={translate("privateLessons.new")}
-          onPress={() => router.push(routes.newPrivateLesson(sessionDate))}
-        />
+        canScheduleLessons ? (
+          <FloatingActionButton
+            label={translate("privateLessons.new")}
+            onPress={() => router.push(routes.newPrivateLesson(sessionDate))}
+          />
+        ) : undefined
       }
     >
       {isPending ? (

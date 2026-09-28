@@ -3,24 +3,13 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RedirectWhenSignedOut } from "@/features/authentication/components/RedirectWhenSignedOut";
 import { BusinessProvider } from "@/features/business/BusinessProvider";
-import { translate, TranslationKey } from "@/i18n/translate";
+import { useCurrentMember } from "@/features/members/CurrentMemberProvider";
+import { MemberProvider } from "@/features/members/MemberProvider";
+import { translate } from "@/i18n/translate";
+import { isTabVisible, tabDefinitions } from "@/navigation/tabDefinitions";
 import { fontFamilies } from "@/theme/typography";
 import { useTheme } from "@/theme/useTheme";
 import { Icon, IconName } from "@/ui/Icon";
-
-interface TabDefinition {
-  name: string;
-  titleKey: TranslationKey;
-  icon: IconName;
-}
-
-const tabDefinitions: readonly TabDefinition[] = [
-  { name: "today", titleKey: "tabs.today", icon: "today" },
-  { name: "classes", titleKey: "tabs.classes", icon: "classes" },
-  { name: "students", titleKey: "tabs.students", icon: "students" },
-  { name: "fees", titleKey: "tabs.fees", icon: "fees" },
-  { name: "settings", titleKey: "tabs.settings", icon: "settings" },
-];
 
 const tabBarContentHeight = 66;
 const tabBarTopPadding = 10;
@@ -41,43 +30,53 @@ function TabIcon({ icon, isFocused }: { icon: IconName; isFocused: boolean }) {
   );
 }
 
-export default function TabsLayout() {
+function MemberTabs() {
   const { colors } = useTheme();
   const { bottom } = useSafeAreaInsets();
+  const { permissions } = useCurrentMember();
   const bottomPadding = Math.max(bottom, tabBarMinimumBottomPadding);
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.foreground,
+        tabBarInactiveTintColor: colors["muted-foreground"],
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          height: tabBarContentHeight + bottomPadding,
+          paddingTop: tabBarTopPadding,
+          paddingBottom: bottomPadding,
+        },
+        tabBarLabelStyle: {
+          fontFamily: fontFamilies.strong,
+          fontSize: tabLabelFontSize,
+          marginTop: 4,
+        },
+      }}
+    >
+      {tabDefinitions.map((tab) => (
+        <Tabs.Screen
+          key={tab.name}
+          name={tab.name}
+          options={{
+            title: translate(tab.titleKey),
+            href: isTabVisible(tab, permissions) ? undefined : null,
+            tabBarIcon: ({ focused }) => <TabIcon icon={tab.icon} isFocused={focused} />,
+          }}
+        />
+      ))}
+    </Tabs>
+  );
+}
+
+export default function TabsLayout() {
   return (
     <RedirectWhenSignedOut>
       <BusinessProvider>
-        <Tabs
-          screenOptions={{
-            headerShown: false,
-            tabBarActiveTintColor: colors.foreground,
-            tabBarInactiveTintColor: colors["muted-foreground"],
-            tabBarStyle: {
-              backgroundColor: colors.surface,
-              borderTopColor: colors.border,
-              height: tabBarContentHeight + bottomPadding,
-              paddingTop: tabBarTopPadding,
-              paddingBottom: bottomPadding,
-            },
-            tabBarLabelStyle: {
-              fontFamily: fontFamilies.strong,
-              fontSize: tabLabelFontSize,
-              marginTop: 4,
-            },
-          }}
-        >
-          {tabDefinitions.map((tab) => (
-            <Tabs.Screen
-              key={tab.name}
-              name={tab.name}
-              options={{
-                title: translate(tab.titleKey),
-                tabBarIcon: ({ focused }) => <TabIcon icon={tab.icon} isFocused={focused} />,
-              }}
-            />
-          ))}
-        </Tabs>
+        <MemberProvider>
+          <MemberTabs />
+        </MemberProvider>
       </BusinessProvider>
     </RedirectWhenSignedOut>
   );

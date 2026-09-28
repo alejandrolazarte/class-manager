@@ -3,6 +3,8 @@ import { useState } from "react";
 import { View } from "react-native";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import { RosterItem } from "@/features/enrollments/components/RosterItem";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { todayIsoDate } from "@/features/sessions/dates";
 import { RosterEntry } from "@/features/enrollments/types";
 import { useClassRoster } from "@/features/enrollments/useClassRoster";
@@ -35,6 +37,8 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
   const rosterQuery = useClassRoster(classGroupId);
   const endEnrollmentMutation = useEndEnrollment();
   const [entryToUnenroll, setEntryToUnenroll] = useState<RosterEntry | null>(null);
+  const canManageClassGroups = useCan(permissions.classGroupsManage);
+  const canManageEnrollments = useCan(permissions.enrollmentsManage);
   const [hasUnenrollFailed, setHasUnenrollFailed] = useState(false);
   const classGroup = classGroupsQuery.data?.find((candidate) => candidate.id === classGroupId);
 
@@ -83,13 +87,15 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
         <ScreenHeader
           navigation="back"
           navigationAction={
-            <Button
-              variant="ghost"
-              size="medium"
-              icon="edit"
-              label={translate("enrollments.detail.editClass")}
-              onPress={() => router.push(routes.editClassGroup(classGroup.id))}
-            />
+            canManageClassGroups ? (
+              <Button
+                variant="ghost"
+                size="medium"
+                icon="edit"
+                label={translate("enrollments.detail.editClass")}
+                onPress={() => router.push(routes.editClassGroup(classGroup.id))}
+              />
+            ) : undefined
           }
           title={classGroup.name}
           subtitle={details.join(detailSeparator)}
@@ -113,15 +119,17 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
         <View className="flex-row">
           <ProgressBar ratio={classGroup.capacity > 0 ? enrolledCount / classGroup.capacity : 0} />
         </View>
-        <Button
-          size="medium"
-          icon="enroll"
-          label={translate(
-            isFull ? "enrollments.detail.classFull" : "enrollments.detail.enrollStudent",
-          )}
-          disabled={isFull}
-          onPress={() => router.push(routes.enrollStudent(classGroup.id))}
-        />
+        {canManageEnrollments ? (
+          <Button
+            size="medium"
+            icon="enroll"
+            label={translate(
+              isFull ? "enrollments.detail.classFull" : "enrollments.detail.enrollStudent",
+            )}
+            disabled={isFull}
+            onPress={() => router.push(routes.enrollStudent(classGroup.id))}
+          />
+        ) : null}
       </Card>
       {entryToUnenroll ? (
         <Banner
@@ -167,7 +175,7 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
             key={entry.enrollmentId}
             entry={entry}
             today={todayIsoDate()}
-            onUnenroll={setEntryToUnenroll}
+            onUnenroll={canManageEnrollments ? setEntryToUnenroll : undefined}
           />
         ))}
       </Card>
