@@ -30,7 +30,9 @@ describe("When custom theme is registered", () => {
     );
 
     expect(
-      screen.getByText(`${customPrimaryColor} aqua,violet,ocean,${customThemeName}`),
+      screen.getByText(
+        `${customPrimaryColor} ${[...Object.keys(themes), customThemeName].join(",")}`,
+      ),
     ).toBeTruthy();
   });
 });

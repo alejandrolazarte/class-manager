@@ -50,5 +50,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
 | `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
+| `18-colores` | Color picker in Ajustes |
+| `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
 
-When a new screen is added, add a row to `screens` in `e2e/screenshots/App_screens.capture.ts` with the path and a text that proves it finished loading.
+When a new screen is added, add a row to `screens` in `e2e/screenshots/App_screens.capture.ts` with the path and a text that proves it finished loading. When a built-in theme is added, add it to `themes` in the same file.
