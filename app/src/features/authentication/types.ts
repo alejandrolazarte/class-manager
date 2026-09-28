@@ -32,6 +32,11 @@ export interface AcceptInvitationRequest {
   password: string;
 }
 
+export interface SwitchBranchRequest {
+  refreshToken: string;
+  businessId: string;
+}
+
 export interface SignOutRequest {
   refreshToken: string;
 }

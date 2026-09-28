@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { Fragment, ReactElement } from "react";
 import { View } from "react-native";
 import { useSession } from "@/features/authentication/useSession";
+import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
 import { useCan } from "@/features/members/CurrentMemberProvider";
@@ -32,7 +33,22 @@ export function SettingsScreen() {
   const canViewClassPacks = useCan(permissions.classPacksView);
   const canImportExport = useCan(permissions.importExportRun);
   const canViewTeam = useCan(permissions.membersView);
+  const canCreateBranches = useCan(permissions.branchesCreate);
+  const { data: branches = [] } = useBranches();
+  const currentBranchName = branches.find((branch) => branch.isCurrent)?.name ?? business.name;
   const rows: SettingsRow[] = [
+    {
+      key: "branches",
+      isVisible: canCreateBranches || branches.length > 1,
+      row: (
+        <ListRow
+          icon="business"
+          label={translate("settings.branches")}
+          detail={branches.length > 1 ? currentBranchName : translate("settings.branchesHint")}
+          onPress={() => router.push(routes.branches)}
+        />
+      ),
+    },
     {
       key: "team",
       isVisible: canViewTeam,

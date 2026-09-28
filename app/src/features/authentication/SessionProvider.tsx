@@ -7,6 +7,7 @@ import {
   signIn as signInRequest,
   signOut as signOutRequest,
   signUp as signUpRequest,
+  switchBranch as switchBranchRequest,
 } from "@/features/authentication/authenticationApi";
 import { refreshTokenStorage } from "@/features/authentication/sessionStorage";
 import {
@@ -16,7 +17,7 @@ import {
   TokenResponse,
 } from "@/features/authentication/types";
 
-export type SessionStartReason = "signUp" | "signIn" | "invitation" | "restore";
+export type SessionStartReason = "signUp" | "signIn" | "invitation" | "branchSwitch" | "restore";
 
 export type SessionState =
   | { status: "restoring" }
@@ -28,6 +29,7 @@ export interface SessionContextValue {
   signIn: (request: SignInRequest) => Promise<void>;
   signUp: (request: SignUpRequest) => Promise<void>;
   acceptInvitation: (request: AcceptInvitationRequest) => Promise<void>;
+  switchBranch: (businessId: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -119,6 +121,19 @@ export function SessionProvider({ children }: PropsWithChildren) {
     [startSession],
   );
 
+  const switchBranch = useCallback(
+    async (businessId: string) => {
+      const storedRefreshToken = await refreshTokenStorage.read();
+      if (storedRefreshToken === null) {
+        throw new MissingRefreshTokenError();
+      }
+      const tokens = await switchBranchRequest({ refreshToken: storedRefreshToken, businessId });
+      await startSession(tokens, "branchSwitch");
+      await queryClient.resetQueries();
+    },
+    [queryClient, startSession],
+  );
+
   const signOut = useCallback(async () => {
     const storedRefreshToken = await refreshTokenStorage.read();
     if (storedRefreshToken !== null) {
@@ -128,8 +143,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, []);
 
   const contextValue = useMemo(
-    () => ({ session, signIn, signUp, acceptInvitation, signOut }),
-    [session, signIn, signUp, acceptInvitation, signOut],
+    () => ({ session, signIn, signUp, acceptInvitation, switchBranch, signOut }),
+    [session, signIn, signUp, acceptInvitation, switchBranch, signOut],
   );
 
   return <SessionContext.Provider value={contextValue}>{children}</SessionContext.Provider>;

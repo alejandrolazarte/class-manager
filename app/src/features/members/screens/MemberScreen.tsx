@@ -3,16 +3,23 @@ import { useState } from "react";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
+import { useCan } from "@/features/members/CurrentMemberProvider";
 import { RoleFields } from "@/features/members/components/RoleFields";
 import { freeInstructors } from "@/features/members/freeInstructors";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
+import { permissions } from "@/features/members/permissions";
 import { BusinessRole, Member, Team } from "@/features/members/types";
 import { useTeam } from "@/features/members/useTeam";
-import { useChangeMemberRole, useRemoveMember } from "@/features/members/useTeamMutations";
+import {
+  useChangeMemberRole,
+  useRemoveMember,
+  useSetBrandOwner,
+} from "@/features/members/useTeamMutations";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
@@ -32,6 +39,9 @@ function MemberEditor({ member, team }: MemberEditorProps) {
   const instructorsQuery = useActiveInstructors();
   const changeRoleMutation = useChangeMemberRole(member.id);
   const removeMutation = useRemoveMember();
+  const brandOwnerMutation = useSetBrandOwner(member.id);
+  const canManageBrandOwners = useCan(permissions.brandOwnersManage);
+  const [isLastBrandOwner, setIsLastBrandOwner] = useState(false);
   const [role, setRole] = useState<BusinessRole>(member.role);
   const [instructorId, setInstructorId] = useState<string | null>(member.instructorId);
   const [instructorError, setInstructorError] = useState<string | undefined>();
@@ -59,6 +69,21 @@ function MemberEditor({ member, team }: MemberEditorProps) {
         return;
       }
       setSubmissionFailure(toSubmissionFailure(saveError));
+    }
+  };
+
+  const toggleBrandOwner = async () => {
+    setSubmissionFailure(null);
+    setIsLastBrandOwner(false);
+    try {
+      await brandOwnerMutation.mutateAsync(!member.isBrandOwner);
+      showToast(translate("team.member.brandOwnerSaved"));
+    } catch (brandOwnerError) {
+      if (isApiError(brandOwnerError) && brandOwnerError.hasCode(memberErrorCodes.lastBrandOwner)) {
+        setIsLastBrandOwner(true);
+        return;
+      }
+      setSubmissionFailure(toSubmissionFailure(brandOwnerError));
     }
   };
 
@@ -93,6 +118,23 @@ function MemberEditor({ member, team }: MemberEditorProps) {
         onPress={save}
         isLoading={changeRoleMutation.isPending}
       />
+      {canManageBrandOwners ? (
+        <View className="gap-2">
+          <AppText variant="caption" tone="subtle">
+            {translate("team.member.brandOwnerHint")}
+          </AppText>
+          {isLastBrandOwner ? <Banner message={translate("team.member.lastBrandOwner")} /> : null}
+          <Button
+            variant="outline"
+            size="medium"
+            label={translate(
+              member.isBrandOwner ? "team.member.removeBrandOwner" : "team.member.makeBrandOwner",
+            )}
+            onPress={toggleBrandOwner}
+            isLoading={brandOwnerMutation.isPending}
+          />
+        </View>
+      ) : null}
       {isConfirmingRemove ? (
         <Banner
           tone="warning"

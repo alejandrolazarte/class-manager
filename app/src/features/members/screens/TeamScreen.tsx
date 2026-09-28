@@ -49,6 +49,9 @@ function MemberCard({ member, coachFullName, onPress }: MemberCardProps) {
           {roleDescription(member.role, coachFullName)}
         </AppText>
       </View>
+      {member.isBrandOwner ? (
+        <StatusPill label={translate("team.brandOwner")} tone="neutral" isSmall />
+      ) : null}
       {member.isCurrentUser ? (
         <StatusPill label={translate("team.you")} tone="primary" isSmall />
       ) : null}

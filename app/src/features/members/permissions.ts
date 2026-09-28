@@ -4,6 +4,8 @@ export const permissions = {
   membersView: "members.view",
   membersManage: "members.manage",
   branchOwnersManage: "branchOwners.manage",
+  branchesCreate: "branches.create",
+  brandOwnersManage: "brandOwners.manage",
   instructorsView: "instructors.view",
   instructorsManage: "instructors.manage",
   classGroupsViewOwn: "classGroups.view.own",

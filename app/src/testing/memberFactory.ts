@@ -63,6 +63,7 @@ export function buildMember(overrides: Partial<Member> = {}): Member {
     role: "Coach",
     instructorId: "instructor-coach",
     isCurrentUser: false,
+    isBrandOwner: false,
     ...overrides,
   };
 }
