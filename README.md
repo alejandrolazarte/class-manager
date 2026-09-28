@@ -97,4 +97,5 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Tenancy library](docs/tenancy.md) — what `src/Tenancy` and `src/Tenancy.AspNetCore` contain and how the app plugs into them
 - [Import and export library](docs/import-export.md) — the import/export engine in `src/ImportExport` and `src/ImportExport.Xlsx`: XLSX and CSV reading, header matching, limits and why exports are XLSX
 - [Import and export plan](docs/backend/20260929-import-export/plan.md) — students and coaches from and to a spreadsheet
+- [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes chosen by each user, a theme created by the business from its color, and a business icon

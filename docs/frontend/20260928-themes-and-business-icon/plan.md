@@ -23,6 +23,7 @@ Follow-up to the Claude Design exploration "Iconos y Rubro". It proposed a **Rub
 
 - A custom logo upload ("Subir logo propio"). It will reuse the business icon slot, stored in the database (a few KB per business, inside the Azure SQL free offer, see [hosting plan](../../hosting-plan.md)). It waits until something the students see (a payment receipt) needs it.
 - The new app icon (launcher, splash, `BrandMark`).
+- A second (accent) brand color and locking the business theme; see [branding and plans](../../branding-and-plans.md).
 - A full theme editor (choosing every token). One color covers the need; the `customThemes` support in [theming](../theming.md) already accepts a full definition if that is ever wanted.
 - Asking "¿Qué enseñás?" at sign-up to preselect an icon and a theme. Easy to add later; the owner can change both at any time.
 - An icon per organization (brand) instead of per business (branch). Today every organization has one business; revisit with [branches](../../backend/20260928-roles-and-permissions/plan.md).
