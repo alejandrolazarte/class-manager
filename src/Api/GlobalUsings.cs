@@ -1,3 +1,4 @@
+global using ClassManager.Core.Domain.Authorization;
 global using ClassManager.Core.UseCases;
 global using ClassManager.Infrastructure;
 global using ClassManager.Infrastructure.Persistence;

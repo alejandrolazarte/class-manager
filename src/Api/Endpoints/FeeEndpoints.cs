@@ -10,19 +10,20 @@ internal static class FeeEndpoints
     public static IEndpointRouteBuilder MapFeeEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPut(ApiRoutes.Business + ApiRoutes.MonthlyFee, SetDefaultMonthlyFeeAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Business.Manage);
 
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
         clients.MapPut(ApiRoutes.ClientById + ApiRoutes.BillingPlan, SetClientBillingPlanAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Payments.Record);
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, RecordPaymentAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        clients.MapGet(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, ListClientPaymentsAsync);
+            .RequirePermission(Permissions.Payments.Record);
+        clients.MapGet(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, ListClientPaymentsAsync)
+            .RequirePermission(Permissions.Payments.ViewAll);
 
         endpoints.MapGroup(ApiRoutes.Payments).MapDelete(ApiRoutes.PaymentById, DeletePaymentAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Payments.Record);
 
-        endpoints.MapGroup(ApiRoutes.Fees).MapGet("/", ListMonthlyFeesAsync);
+        endpoints.MapGroup(ApiRoutes.Fees).MapGet("/", ListMonthlyFeesAsync).RequirePermission(Permissions.Payments.ViewAll);
 
         return endpoints;
     }

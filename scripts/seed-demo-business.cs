@@ -13,6 +13,8 @@ const string PasswordTooShortMessage = "The demo owner password must have at lea
 const string DemoOwnerEmail = "owner@demo.local";
 const string DemoOwnerFullName = "Demo owner";
 
+var demoOrganizationId = Guid.Parse("0192f0c3-0000-7000-8000-000000000001");
+var demoBrandOwnerMembershipId = Guid.Parse("0192f0c4-0000-7000-8000-000000000001");
 var demoBusinessId = Guid.Parse("0192f0c0-0000-7000-8000-000000000001");
 var demoOwnerId = Guid.Parse("0192f0c1-0000-7000-8000-000000000001");
 var demoOwnerMembershipId = Guid.Parse("0192f0c2-0000-7000-8000-000000000001");
@@ -36,11 +38,18 @@ await using var transaction = (SqlTransaction)await connection.BeginTransactionA
 
 await ExecuteAsync(
     """
-    IF NOT EXISTS (SELECT 1 FROM Businesses WHERE Id = @Id)
-        INSERT INTO Businesses (Id, Name, Slug, TimeZoneId, CurrencyCode, DefaultCountryCallingCode, CreatedAt)
-        VALUES (@Id, N'Demo business', N'demo-business', N'America/Argentina/Buenos_Aires', N'ARS', N'54', SYSDATETIMEOFFSET());
+    IF NOT EXISTS (SELECT 1 FROM Organizations WHERE Id = @Id)
+        INSERT INTO Organizations (Id, Name, CreatedAt) VALUES (@Id, N'Demo business', SYSDATETIMEOFFSET());
     """,
-    ("@Id", demoBusinessId));
+    ("@Id", demoOrganizationId));
+
+await ExecuteAsync(
+    """
+    IF NOT EXISTS (SELECT 1 FROM Businesses WHERE Id = @Id)
+        INSERT INTO Businesses (Id, OrganizationId, Name, Slug, TimeZoneId, CurrencyCode, DefaultCountryCallingCode, CreatedAt)
+        VALUES (@Id, @OrganizationId, N'Demo business', N'demo-business', N'America/Argentina/Buenos_Aires', N'ARS', N'54', SYSDATETIMEOFFSET());
+    """,
+    ("@Id", demoBusinessId), ("@OrganizationId", demoOrganizationId));
 
 var ownerPasswordHash = new PasswordHasher<object>().HashPassword(new object(), ownerPassword);
 await ExecuteAsync(
@@ -63,9 +72,16 @@ await ExecuteAsync(
 await ExecuteAsync(
     """
     IF NOT EXISTS (SELECT 1 FROM BusinessMembers WHERE Id = @Id)
-        INSERT INTO BusinessMembers (Id, TenantId, UserId, Role) VALUES (@Id, @TenantId, @UserId, N'Owner');
+        INSERT INTO BusinessMembers (Id, TenantId, UserId, Role) VALUES (@Id, @TenantId, @UserId, N'BranchOwner');
     """,
     ("@Id", demoOwnerMembershipId), ("@TenantId", demoBusinessId), ("@UserId", demoOwnerId));
+
+await ExecuteAsync(
+    """
+    IF NOT EXISTS (SELECT 1 FROM OrganizationMembers WHERE Id = @Id)
+        INSERT INTO OrganizationMembers (Id, OrganizationId, UserId, Role) VALUES (@Id, @OrganizationId, @UserId, N'BrandOwner');
+    """,
+    ("@Id", demoBrandOwnerMembershipId), ("@OrganizationId", demoOrganizationId), ("@UserId", demoOwnerId));
 
 await transaction.CommitAsync();
 Console.WriteLine($"Demo business ready. Sign in as {DemoOwnerEmail} with the password you passed.");

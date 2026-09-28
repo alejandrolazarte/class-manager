@@ -17,5 +17,6 @@ internal sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
         builder.Property(business => business.CurrencyCode).HasMaxLength(Business.CurrencyCodeLength).IsFixedLength().IsRequired();
         builder.Property(business => business.DefaultCountryCallingCode).HasMaxLength(Business.DefaultCountryCallingCodeMaxLength).IsRequired();
         builder.HasIndex(business => business.Slug).IsUnique();
+        builder.HasOne<Organization>().WithMany().HasForeignKey(business => business.OrganizationId).OnDelete(DeleteBehavior.Restrict);
     }
 }

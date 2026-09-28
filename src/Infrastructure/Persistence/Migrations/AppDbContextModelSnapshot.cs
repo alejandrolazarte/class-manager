@@ -50,6 +50,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -61,6 +64,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex("Slug")
                         .IsUnique();
@@ -466,6 +471,50 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("Instructors");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Organizations.Organization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Organizations");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Organizations.OrganizationMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("OrganizationId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("OrganizationMembers");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.PrivateLessons.PrivateLesson", b =>
                 {
                     b.Property<Guid>("Id")
@@ -665,6 +714,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("Students");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Businesses.Business", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BusinessMember", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
@@ -798,6 +856,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Organizations.OrganizationMember", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

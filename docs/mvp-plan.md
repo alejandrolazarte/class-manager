@@ -125,6 +125,14 @@ Plan in [backend](backend/20260928-private-lessons/plan.md), part of the [DF Swi
 - One-off lessons for one to four students, optionally repeated weekly, that use classes from the family's pack.
 - Packs with class duration and a material link; trial classes.
 
+### M8 — Organizations, branches, roles and permissions
+
+Plan in [backend](backend/20260928-roles-and-permissions/plan.md), Phase 2 of the [DF Swimming pilot plan](pilot-df-swimming.md).
+
+- Every endpoint requires a permission; system roles `BrandOwner`, `BranchOwner`, `Coach` and `Viewer`, copyable into custom roles per branch.
+- A brand (organization) groups branches, each its own business; brand owners act in every branch.
+- Coaches are invited by email and see their own classes, students and payments.
+
 ## Definition of done (per use case)
 
 - Tests written first (RED), then implementation (GREEN), then cleanup.

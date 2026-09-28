@@ -23,7 +23,7 @@ internal static class TestData
     public static readonly DateOnly Today = DateOnly.FromDateTime(Now.UtcDateTime);
 
     public static Business Business() =>
-        ClassManager.Core.Domain.Businesses.Business.Create("Demo business", "demo-business", BuenosAiresTimeZoneId, CurrencyCode, DefaultCountryCallingCode, Now).Value!;
+        ClassManager.Core.Domain.Businesses.Business.Create(Guid.CreateVersion7(), "Demo business", "demo-business", BuenosAiresTimeZoneId, CurrencyCode, DefaultCountryCallingCode, Now).Value!;
 
     public static PhoneNumber PhoneNumber() =>
         ClassManager.Core.Domain.Clients.PhoneNumber.Create(ClientPhoneNumber, DefaultCountryCallingCode).Value!;

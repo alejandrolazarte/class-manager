@@ -16,7 +16,7 @@ internal sealed class SignInUseCaseBuilder
 
     public SignInUseCaseBuilder()
     {
-        Member = BusinessMember.CreateOwner(Guid.CreateVersion7(), UserId);
+        Member = BusinessMember.CreateBranchOwner(Guid.CreateVersion7(), UserId);
         Identity
             .Setup(service => service.VerifyCredentialsAsync(TestData.OwnerEmail, TestData.OwnerPassword, It.IsAny<CancellationToken>()))
             .ReturnsAsync(CredentialVerification.Verified(UserId, TestData.OwnerEmail));

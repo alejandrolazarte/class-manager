@@ -4,6 +4,8 @@ namespace ClassManager.Infrastructure.Persistence;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext) : DbContext(options), ITenantDbContext
 {
+    public DbSet<Organization> Organizations => Set<Organization>();
+    public DbSet<OrganizationMember> OrganizationMembers => Set<OrganizationMember>();
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<BusinessMember> BusinessMembers => Set<BusinessMember>();
     public DbSet<Client> Clients => Set<Client>();

@@ -11,16 +11,16 @@ internal static class PrivateLessonEndpoints
     {
         var privateLessons = endpoints.MapGroup(ApiRoutes.PrivateLessons);
 
-        privateLessons.MapPost("/", ScheduleAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        privateLessons.MapGet(ApiRoutes.PrivateLessonById, GetAsync);
-        privateLessons.MapPut(ApiRoutes.PrivateLessonById, RescheduleAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
-        privateLessons.MapDelete(ApiRoutes.PrivateLessonById, DeleteAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+        privateLessons.MapPost("/", ScheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll);
+        privateLessons.MapGet(ApiRoutes.PrivateLessonById, GetAsync).RequirePermission(Permissions.PrivateLessons.ViewAll);
+        privateLessons.MapPut(ApiRoutes.PrivateLessonById, RescheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll);
+        privateLessons.MapDelete(ApiRoutes.PrivateLessonById, DeleteAsync).RequirePermission(Permissions.PrivateLessons.ManageAll);
         privateLessons.MapPut(ApiRoutes.PrivateLessonById + ApiRoutes.Cancellation, CancelAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.PrivateLessons.ManageAll);
         privateLessons.MapDelete(ApiRoutes.PrivateLessonById + ApiRoutes.Cancellation, RestoreAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.PrivateLessons.ManageAll);
         privateLessons.MapPut(ApiRoutes.PrivateLessonById + ApiRoutes.AttendanceByStudent, RecordAttendanceAsync)
-            .RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+            .RequirePermission(Permissions.Attendance.RecordAll);
 
         return endpoints;
     }

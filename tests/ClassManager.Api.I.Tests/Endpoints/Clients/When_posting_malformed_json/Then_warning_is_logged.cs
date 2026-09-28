@@ -20,7 +20,7 @@ public sealed class Then_warning_is_logged(ApiFixture fixture)
             builder.ConfigureServices(services => services.AddSingleton<ILoggerProvider>(loggerProvider)));
         using var httpClient = apiFactory.CreateClient();
         httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue(ApiFixture.BearerScheme, fixture.CreateAccessToken(business.Business.Id));
+            new AuthenticationHeaderValue(ApiFixture.BearerScheme, fixture.CreateAccessToken(business.Business.Id, userId: business.OwnerUserId));
 
         using var response = await httpClient.PostRawClientBodyAsync(Encoding.UTF8.GetBytes("{\"fullName\": \"Ana\""));
 

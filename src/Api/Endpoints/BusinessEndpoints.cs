@@ -8,8 +8,8 @@ internal static class BusinessEndpoints
 {
     public static IEndpointRouteBuilder MapBusinessEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet(ApiRoutes.Business, GetCurrentBusinessAsync);
-        endpoints.MapPut(ApiRoutes.Business, UpdateBusinessSettingsAsync).RequireAuthorization(AuthorizationPolicies.OwnerOnly);
+        endpoints.MapGet(ApiRoutes.Business, GetCurrentBusinessAsync).RequirePermission(Permissions.Business.View);
+        endpoints.MapPut(ApiRoutes.Business, UpdateBusinessSettingsAsync).RequirePermission(Permissions.Business.Manage);
 
         return endpoints;
     }

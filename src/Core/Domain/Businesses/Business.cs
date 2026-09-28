@@ -29,6 +29,7 @@ public sealed partial class Business
     }
 
     public Guid Id { get; private set; }
+    public Guid OrganizationId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Slug { get; private set; } = string.Empty;
     public string TimeZoneId { get; private set; } = string.Empty;
@@ -37,6 +38,7 @@ public sealed partial class Business
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static Result<Business> Create(
+        Guid organizationId,
         string? name,
         string? slug,
         string? timeZoneId,
@@ -64,6 +66,7 @@ public sealed partial class Business
         return new Business
         {
             Id = Guid.CreateVersion7(),
+            OrganizationId = organizationId,
             Name = trimmedName,
             Slug = slug,
             TimeZoneId = timeZoneId!,
