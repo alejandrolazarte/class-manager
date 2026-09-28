@@ -22,5 +22,5 @@ internal sealed class AddStudentUseCaseBuilder
         new(Guid.CreateVersion7(), TestData.StudentFullName, new DateOnly(2018, 3, 14), "Afraid of deep water");
 
     public AddStudentUseCase Build() =>
-        new(Businesses.Object, Clients.Object, Students.Object, UnitOfWork.Object, TimeProvider);
+        new(Businesses.Object, Clients.Object, Students.Object, UnitOfWork.Object, TimeProvider, new EveryAccessScopes());
 }

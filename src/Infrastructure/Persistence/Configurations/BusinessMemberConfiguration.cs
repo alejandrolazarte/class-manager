@@ -16,5 +16,7 @@ internal sealed class BusinessMemberConfiguration : IEntityTypeConfiguration<Bus
         builder.HasOne<Business>().WithMany().HasForeignKey(member => member.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(member => new { member.TenantId, member.UserId }).IsUnique();
         builder.HasIndex(member => member.UserId);
+        builder.HasOne<Instructor>().WithMany().HasForeignKey(member => member.InstructorId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(member => new { member.TenantId, member.InstructorId }).IsUnique().HasFilter("[InstructorId] IS NOT NULL");
     }
 }

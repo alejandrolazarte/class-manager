@@ -51,6 +51,11 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
     public async Task<IReadOnlyList<StudentSummary>> SearchAsync(StudentSearchCriteria criteria, CancellationToken cancellationToken)
     {
         var studentsWithClient = StudentsWithClient();
+        if (criteria.Scope is not null)
+        {
+            var clientIdsInScope = ClientScopeQuery.ClientIdsIn(context, criteria.Scope);
+            studentsWithClient = studentsWithClient.Where(studentWithClient => clientIdsInScope.Contains(studentWithClient.Client.Id));
+        }
 
         if (criteria.FullNameFragment is not null)
         {

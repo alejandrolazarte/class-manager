@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Fees;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Authentication;
@@ -30,6 +31,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
+        services.AddScoped<IAccessScopes, AccessScopes>();
         services.AddSingleton<CsvTabularReader>();
         services.AddSingleton(new XlsxTabularReader());
         services.AddSingleton<ITabularReader, XlsxOrCsvTabularReader>();

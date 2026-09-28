@@ -60,7 +60,7 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public RecordAttendanceUseCase BuildRecord() =>
-        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
 
     public CancelSessionUseCase BuildCancel() =>
         new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
@@ -69,7 +69,7 @@ internal sealed class SessionUseCaseBuilder
         new(ClassGroups.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
 
     public ListMonthCalendarUseCase BuildMonthCalendar() =>
-        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, BusinessCalendar.Object);
+        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, BusinessCalendar.Object, new EveryAccessScopes());
 
     public void SetupMonthCalendar(
         IReadOnlyList<ClassGroupEnrollmentPeriod> enrollmentPeriods,
@@ -89,5 +89,5 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public ListDaySessionsUseCase BuildListDay() =>
-        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, Students.Object, BusinessCalendar.Object);
+        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, Students.Object, BusinessCalendar.Object, new EveryAccessScopes());
 }

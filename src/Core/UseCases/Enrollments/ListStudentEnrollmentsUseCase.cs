@@ -1,5 +1,6 @@
 using System.Globalization;
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
@@ -25,7 +26,9 @@ public sealed class ListStudentEnrollmentsUseCase(
     IClassGroupRepository classGroupRepository,
     IInstructorRepository instructorRepository,
     IEnrollmentRepository enrollmentRepository,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IClientRepository clientRepository,
+    IAccessScopes accessScopes)
     : IUseCase<ListStudentEnrollmentsQuery, IReadOnlyList<StudentEnrollmentResponse>>
 {
     private const string StudentNotFoundMessage = "The student does not exist.";
@@ -33,7 +36,7 @@ public sealed class ListStudentEnrollmentsUseCase(
     public async Task<Result<IReadOnlyList<StudentEnrollmentResponse>>> ExecuteAsync(ListStudentEnrollmentsQuery command, CancellationToken cancellationToken)
     {
         var student = await studentRepository.GetSummaryByIdAsync(command.StudentId, cancellationToken);
-        if (student is null)
+        if (student is null || !await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [student.ClientId], cancellationToken))
         {
             return Result.NotFound<IReadOnlyList<StudentEnrollmentResponse>>(StudentNotFoundMessage, StudentErrorCodes.NotFound);
         }

@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
@@ -10,14 +12,17 @@ public sealed class ListClassGroupsUseCase(
     IInstructorRepository instructorRepository,
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<ListClassGroupsQuery, IReadOnlyList<ClassGroupResponse>>
 {
     public async Task<Result<IReadOnlyList<ClassGroupResponse>>> ExecuteAsync(ListClassGroupsQuery command, CancellationToken cancellationToken)
     {
-        var classGroups = command.IncludeInactive
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.ClassGroups.ViewAll, cancellationToken);
+        var classGroups = (command.IncludeInactive
             ? await classGroupRepository.ListAllAsync(cancellationToken)
-            : await classGroupRepository.ListActiveAsync(cancellationToken);
+            : await classGroupRepository.ListActiveAsync(cancellationToken))
+            .Where(classGroup => scope.Includes(classGroup.InstructorId));
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
         var today = await businessCalendar.TodayAsync(cancellationToken);

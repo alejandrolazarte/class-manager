@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Sessions;
@@ -18,7 +20,8 @@ public sealed class RecordAttendanceUseCase(
     IAttendanceRepository attendanceRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IAccessScopes accessScopes)
     : IUseCase<RecordAttendanceCommand, RecordAttendanceResponse>
 {
     private const string InFutureMessage = "Attendance can't be taken before the class date.";
@@ -32,6 +35,12 @@ public sealed class RecordAttendanceUseCase(
         if (classGroup.IsFailure)
         {
             return classGroup.Error!;
+        }
+
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.Attendance.RecordAll, cancellationToken);
+        if (!scope.Includes(classGroup.Value!.InstructorId))
+        {
+            return AccessRules.NotYours();
         }
 
         if (command.Date > await businessCalendar.TodayAsync(cancellationToken))

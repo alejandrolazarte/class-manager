@@ -76,8 +76,10 @@ internal sealed class PrivateLessonUseCaseBuilder
             PrivateLessons.Object,
             UnitOfWork.Object,
             BusinessCalendar.Object,
-            new FakeTimeProvider(TestData.Now));
+            new FakeTimeProvider(TestData.Now),
+            new Mock<IClientRepository>().Object,
+            new EveryAccessScopes());
 
     public RecordPrivateLessonAttendanceUseCase BuildRecordAttendance() =>
-        new(PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object);
+        new(PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new EveryAccessScopes());
 }

@@ -10,6 +10,8 @@ internal static class SessionRules
     private const string ClassGroupNotFoundMessage = "The class group does not exist.";
     private const string NotScheduledMessage = "The class group doesn't meet on that date.";
 
+    public static ResultError ClassGroupNotFound() => new(ClassGroupErrorCodes.NotFound, ClassGroupNotFoundMessage, ErrorKind.NotFound);
+
     public static async Task<Result<ClassGroup>> FindScheduledClassGroupAsync(
         IClassGroupRepository classGroupRepository,
         Guid classGroupId,

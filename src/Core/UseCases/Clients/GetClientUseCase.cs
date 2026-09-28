@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
@@ -11,7 +12,8 @@ public sealed class GetClientUseCase(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IFeeScheduleRepository feeScheduleRepository,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<GetClientQuery, ClientDetailsResponse>
 {
     private const string NotFoundMessage = "The client does not exist.";
@@ -19,7 +21,7 @@ public sealed class GetClientUseCase(
     public async Task<Result<ClientDetailsResponse>> ExecuteAsync(GetClientQuery command, CancellationToken cancellationToken)
     {
         var client = await clientRepository.GetByIdAsync(command.ClientId, cancellationToken);
-        if (client is null)
+        if (client is null || !await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [client.Id], cancellationToken))
         {
             return Result.NotFound<ClientDetailsResponse>(NotFoundMessage, ClientErrorCodes.NotFound);
         }

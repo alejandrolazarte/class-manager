@@ -78,6 +78,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("InstructorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -91,7 +94,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("InstructorId");
+
                     b.HasIndex("UserId");
+
+                    b.HasIndex("TenantId", "InstructorId")
+                        .IsUnique()
+                        .HasFilter("[InstructorId] IS NOT NULL");
 
                     b.HasIndex("TenantId", "UserId")
                         .IsUnique();
@@ -290,6 +299,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<Guid?>("RegisteredByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
@@ -299,6 +311,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId", "PhoneNumber")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "RegisteredByUserId");
 
                     b.ToTable("Clients");
                 });
@@ -725,6 +739,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BusinessMember", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
+                        .WithMany()
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")

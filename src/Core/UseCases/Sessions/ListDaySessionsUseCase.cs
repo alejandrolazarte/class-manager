@@ -1,7 +1,9 @@
 using System.Globalization;
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Sessions;
 
@@ -42,7 +44,8 @@ public sealed class ListDaySessionsUseCase(
     IAttendanceRepository attendanceRepository,
     IPrivateLessonRepository privateLessonRepository,
     IStudentRepository studentRepository,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<ListDaySessionsQuery, IReadOnlyList<DaySessionResponse>>
 {
     private const string StudentNameSeparator = ", ";
@@ -52,8 +55,9 @@ public sealed class ListDaySessionsUseCase(
     public async Task<Result<IReadOnlyList<DaySessionResponse>>> ExecuteAsync(ListDaySessionsQuery command, CancellationToken cancellationToken)
     {
         var date = command.Date ?? await businessCalendar.TodayAsync(cancellationToken);
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, cancellationToken);
         var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken))
-            .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek))
+            .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek) && scope.Includes(classGroup.InstructorId))
             .ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
@@ -63,7 +67,9 @@ public sealed class ListDaySessionsUseCase(
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(
             [.. sessions.Values.Select(session => session.Id)], cancellationToken);
 
-        var privateLessons = await privateLessonRepository.ListBetweenAsync(date, date, cancellationToken);
+        var privateLessons = (await privateLessonRepository.ListBetweenAsync(date, date, cancellationToken))
+            .Where(lesson => scope.Includes(lesson.InstructorId))
+            .ToList();
         var studentNames = (await studentRepository.ListSummariesByIdsAsync(
                 [.. privateLessons.SelectMany(lesson => lesson.Students).Select(lessonStudent => lessonStudent.StudentId).Distinct()],
                 cancellationToken))
