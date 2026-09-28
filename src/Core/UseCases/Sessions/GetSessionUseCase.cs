@@ -1,7 +1,9 @@
 using System.Globalization;
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Sessions;
 
@@ -34,7 +36,8 @@ public sealed class GetSessionUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<GetSessionQuery, SessionDetailsResponse>
 {
     public async Task<Result<SessionDetailsResponse>> ExecuteAsync(GetSessionQuery command, CancellationToken cancellationToken)
@@ -43,6 +46,12 @@ public sealed class GetSessionUseCase(
         if (classGroup.IsFailure)
         {
             return classGroup.Error!;
+        }
+
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, cancellationToken);
+        if (!scope.Includes(classGroup.Value!.InstructorId))
+        {
+            return SessionRules.ClassGroupNotFound();
         }
 
         var session = await sessionRepository.FindForUpdateAsync(command.ClassGroupId, command.Date, cancellationToken);

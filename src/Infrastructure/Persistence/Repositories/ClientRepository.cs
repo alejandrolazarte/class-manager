@@ -1,3 +1,5 @@
+using ClassManager.Core.Abstractions.Security;
+
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class ClientRepository(AppDbContext context) : IClientRepository
@@ -28,6 +30,11 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
     public async Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken)
     {
         var clients = context.Clients.AsNoTracking();
+        if (criteria.Scope is not null)
+        {
+            var clientIdsInScope = ClientScopeQuery.ClientIdsIn(context, criteria.Scope);
+            clients = clients.Where(client => clientIdsInScope.Contains(client.Id));
+        }
 
         if (criteria.FullNameFragment is not null)
         {
@@ -46,4 +53,6 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             .ToListAsync(cancellationToken);
     }
 
+    public Task<bool> IsInScopeAsync(Guid clientId, ClientScope scope, CancellationToken cancellationToken) =>
+        ClientScopeQuery.ClientIdsIn(context, scope).AnyAsync(clientIdInScope => clientIdInScope == clientId, cancellationToken);
 }

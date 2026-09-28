@@ -43,6 +43,7 @@ internal static class ResultHttpExtensions
         ErrorKind.NotFound => StatusCodes.Status404NotFound,
         ErrorKind.Conflict => StatusCodes.Status409Conflict,
         ErrorKind.Unauthorized => StatusCodes.Status401Unauthorized,
+        ErrorKind.Forbidden => StatusCodes.Status403Forbidden,
         ErrorKind.Locked => StatusCodes.Status423Locked,
         _ => StatusCodes.Status500InternalServerError,
     };

@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.Sessions;
 
@@ -11,7 +13,8 @@ public sealed record RecordPrivateLessonAttendanceCommand(Guid PrivateLessonId, 
 public sealed class RecordPrivateLessonAttendanceUseCase(
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<RecordPrivateLessonAttendanceCommand, RecordAttendanceResponse>
 {
     private const string InFutureMessage = "Attendance can't be taken before the lesson date.";
@@ -23,6 +26,12 @@ public sealed class RecordPrivateLessonAttendanceUseCase(
         if (lesson is null)
         {
             return PrivateLessonRules.NotFound();
+        }
+
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.Attendance.RecordAll, cancellationToken);
+        if (!scope.Includes(lesson.InstructorId))
+        {
+            return AccessRules.NotYours();
         }
 
         if (lesson.Date > await businessCalendar.TodayAsync(cancellationToken))

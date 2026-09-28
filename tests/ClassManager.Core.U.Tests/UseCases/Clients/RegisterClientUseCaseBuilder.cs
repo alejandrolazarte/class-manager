@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Students;
 using Microsoft.Extensions.Time.Testing;
@@ -24,5 +25,5 @@ internal sealed class RegisterClientUseCaseBuilder
         ValidCommand() with { Students = [.. studentFullNames.Select(fullName => new NewStudent(fullName, null, null))] };
 
     public RegisterClientUseCase Build() =>
-        new(Businesses.Object, Clients.Object, Students.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
+        new(Businesses.Object, Clients.Object, Students.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now), new Mock<ICurrentUser>().Object);
 }

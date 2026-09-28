@@ -10,7 +10,7 @@ public sealed class Then_returns_not_found
     public async Task Then_returns_not_found_Run()
     {
         var students = new Mock<IStudentRepository>();
-        var useCase = new GetStudentUseCase(students.Object);
+        var useCase = new GetStudentUseCase(students.Object, new Mock<IClientRepository>().Object, new EveryAccessScopes());
 
         var response = await useCase.ExecuteAsync(new GetStudentQuery(Guid.CreateVersion7()), CancellationToken.None);
 

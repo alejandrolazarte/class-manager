@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Fees;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Authentication;
@@ -30,6 +31,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
+        services.AddScoped<IAccessScopes, AccessScopes>();
         services.AddSingleton<CsvTabularReader>();
         services.AddSingleton(new XlsxTabularReader());
         services.AddSingleton<ITabularReader, XlsxOrCsvTabularReader>();
@@ -51,6 +53,12 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RequestPasswordResetCommand, RequestPasswordResetResponse>, RequestPasswordResetUseCase>();
         services.AddScoped<IUseCase<GetCurrentBusinessQuery, BusinessResponse>, GetCurrentBusinessUseCase>();
         services.AddScoped<IUseCase<GetCurrentMemberQuery, CurrentMemberResponse>, GetCurrentMemberUseCase>();
+        services.AddScoped<IUseCase<GetTeamQuery, TeamResponse>, GetTeamUseCase>();
+        services.AddScoped<IUseCase<InviteMemberCommand, InvitationResponse>, InviteMemberUseCase>();
+        services.AddScoped<IUseCase<RevokeInvitationCommand, RevokedInvitationResponse>, RevokeInvitationUseCase>();
+        services.AddScoped<IUseCase<AcceptInvitationCommand, TokenResponse>, AcceptInvitationUseCase>();
+        services.AddScoped<IUseCase<ChangeMemberRoleCommand, MemberResponse>, ChangeMemberRoleUseCase>();
+        services.AddScoped<IUseCase<RemoveMemberCommand, RemovedMemberResponse>, RemoveMemberUseCase>();
         services.AddScoped<IUseCase<RegisterClientCommand, ClientDetailsResponse>, RegisterClientUseCase>();
         services.AddScoped<IUseCase<GetClientQuery, ClientDetailsResponse>, GetClientUseCase>();
         services.AddScoped<IUseCase<SearchClientsQuery, IReadOnlyList<ClientResponse>>, SearchClientsUseCase>();

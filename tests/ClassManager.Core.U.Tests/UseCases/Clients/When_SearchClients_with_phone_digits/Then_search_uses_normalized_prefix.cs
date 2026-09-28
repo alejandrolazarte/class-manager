@@ -12,7 +12,7 @@ public sealed class Then_search_uses_normalized_prefix
         businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
         var clients = new Mock<IClientRepository>();
         clients.Setup(repository => repository.SearchAsync(It.IsAny<ClientSearchCriteria>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        var useCase = new SearchClientsUseCase(businesses.Object, clients.Object);
+        var useCase = new SearchClientsUseCase(businesses.Object, clients.Object, new EveryAccessScopes());
 
         await useCase.ExecuteAsync(new SearchClientsQuery("11 22", null), CancellationToken.None);
 

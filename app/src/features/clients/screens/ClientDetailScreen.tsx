@@ -7,6 +7,8 @@ import {
 import { useClient } from "@/features/clients/useClient";
 import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { translate } from "@/i18n/translate";
@@ -32,6 +34,8 @@ interface ClientDetailScreenProps {
 export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const router = useRouter();
   const { data: client, isPending, isError, refetch } = useClient(clientId);
+  const canManageStudents = useCan(permissions.studentsManage);
+  const canViewPayments = useCan(permissions.paymentsViewAll);
 
   if (isPending) {
     return (
@@ -146,14 +150,16 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           );
         })
       )}
-      <Button
-        variant="dashed"
-        size="medium"
-        icon="add"
-        label={translate("clients.detail.addStudent")}
-        onPress={() => router.push(routes.addStudent(client.id))}
-      />
-      <ClientFeeSection client={client} />
+      {canManageStudents ? (
+        <Button
+          variant="dashed"
+          size="medium"
+          icon="add"
+          label={translate("clients.detail.addStudent")}
+          onPress={() => router.push(routes.addStudent(client.id))}
+        />
+      ) : null}
+      {canViewPayments ? <ClientFeeSection client={client} /> : null}
     </ScrollScreen>
   );
 }

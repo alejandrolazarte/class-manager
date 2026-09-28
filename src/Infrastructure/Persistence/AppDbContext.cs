@@ -8,6 +8,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<OrganizationMember> OrganizationMembers => Set<OrganizationMember>();
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<BusinessMember> BusinessMembers => Set<BusinessMember>();
+    public DbSet<MemberInvitation> MemberInvitations => Set<MemberInvitation>();
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Instructor> Instructors => Set<Instructor>();

@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.UseCases.ClassGroups;
 
@@ -25,7 +27,8 @@ public sealed class ReschedulePrivateLessonUseCase(
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
     IUnitOfWork unitOfWork,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<ReschedulePrivateLessonCommand, PrivateLessonResponse>
 {
     public async Task<Result<PrivateLessonResponse>> ExecuteAsync(ReschedulePrivateLessonCommand command, CancellationToken cancellationToken)
@@ -34,6 +37,12 @@ public sealed class ReschedulePrivateLessonUseCase(
         if (lesson is null)
         {
             return PrivateLessonRules.NotFound();
+        }
+
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.PrivateLessons.ManageAll, cancellationToken);
+        if (!scope.Includes(lesson.InstructorId))
+        {
+            return AccessRules.NotYours();
         }
 
         var details = command.Details;
@@ -47,6 +56,11 @@ public sealed class ReschedulePrivateLessonUseCase(
         if (instructor.IsFailure)
         {
             return instructor.Error!;
+        }
+
+        if (!scope.Includes(instructor.Value!.Id))
+        {
+            return AccessRules.NotYours();
         }
 
         var conflict = await InstructorAgendaRules.FindConflictAsync(

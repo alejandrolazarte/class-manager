@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Pressable, View } from "react-native";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
@@ -54,6 +56,11 @@ function CountTile({ count, label, className, countTone }: CountTileProps) {
 
 export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps) {
   const { showToast } = useToast();
+  const canRecordAttendance = useCan(
+    permissions.attendanceRecordAll,
+    permissions.attendanceRecordOwn,
+  );
+  const canManageSessions = useCan(permissions.sessionsManage);
   const {
     data: session,
     isPending,
@@ -114,7 +121,8 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const presentCount = statuses.filter((status) => status === "Present").length;
   const absentCount = statuses.filter((status) => status === "Absent").length;
   const unmarkedCount = statuses.length - presentCount - absentCount;
-  const canMarkAttendance = session.canTakeAttendance && !session.isCancelled;
+  const canMarkAttendance =
+    canRecordAttendance && session.canTakeAttendance && !session.isCancelled;
 
   const markAllPresent = () =>
     Promise.all(
@@ -179,13 +187,15 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
               : translate("sessions.session.cancelledWithoutReason")
           }
         >
-          <Button
-            variant="outline"
-            size="medium"
-            label={translate("sessions.session.restore")}
-            onPress={restoreSession}
-            isLoading={restoreSessionMutation.isPending}
-          />
+          {canManageSessions ? (
+            <Button
+              variant="outline"
+              size="medium"
+              label={translate("sessions.session.restore")}
+              onPress={restoreSession}
+              isLoading={restoreSessionMutation.isPending}
+            />
+          ) : null}
         </Banner>
       ) : null}
       {session.originalStartTime && !session.isCancelled ? (
@@ -196,7 +206,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
             original: session.originalStartTime,
           })}
         >
-          {session.canReschedule ? (
+          {session.canReschedule && canManageSessions ? (
             <Button
               variant="outline"
               size="medium"
@@ -243,13 +253,13 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
               key={student.studentId}
               student={student}
               status={statusOf(student.studentId, student.status)}
-              disabled={!session.canTakeAttendance}
+              disabled={!canRecordAttendance || !session.canTakeAttendance}
               onChangeStatus={(status) => changeStatus(student.studentId, status)}
             />
           ))}
         </View>
       )}
-      {session.isCancelled ? null : (
+      {session.isCancelled || !canManageSessions ? null : (
         <Card className="mt-1">
           {session.canReschedule ? (
             <>

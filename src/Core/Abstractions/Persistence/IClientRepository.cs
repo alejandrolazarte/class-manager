@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.Abstractions.Persistence;
@@ -17,4 +18,6 @@ public interface IClientRepository
     Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken);
+
+    Task<bool> IsInScopeAsync(Guid clientId, ClientScope scope, CancellationToken cancellationToken);
 }

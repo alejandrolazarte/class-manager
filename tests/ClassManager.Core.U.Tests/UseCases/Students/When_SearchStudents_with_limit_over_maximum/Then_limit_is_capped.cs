@@ -12,7 +12,7 @@ public sealed class Then_limit_is_capped
         businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
         var students = new Mock<IStudentRepository>();
         students.Setup(repository => repository.SearchAsync(It.IsAny<StudentSearchCriteria>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        var useCase = new SearchStudentsUseCase(businesses.Object, students.Object);
+        var useCase = new SearchStudentsUseCase(businesses.Object, students.Object, new EveryAccessScopes());
 
         await useCase.ExecuteAsync(new SearchStudentsQuery("tomi", 500), CancellationToken.None);
 

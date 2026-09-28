@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -19,7 +20,8 @@ public sealed class RegisterClientUseCase(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IUnitOfWork unitOfWork,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    ICurrentUser currentUser)
     : IUseCase<RegisterClientCommand, ClientDetailsResponse>
 {
     public const int MaximumStudentsPerRegistration = 10;
@@ -47,6 +49,11 @@ public sealed class RegisterClientUseCase(
         if (client.IsFailure)
         {
             return client.Error!;
+        }
+
+        if (currentUser.UserId is { } userId)
+        {
+            client.Value!.RecordRegisteredBy(userId);
         }
 
         var students = CreateStudents(client.Value!.Id, command.Students ?? [], business.TodayAt(now), now);

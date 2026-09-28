@@ -1,5 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Sessions;
 
@@ -12,7 +14,8 @@ public sealed record DeletedPrivateLessonResponse(Guid Id);
 public sealed class DeletePrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,
     IClassPackPurchaseRepository purchaseRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IAccessScopes accessScopes)
     : IUseCase<DeletePrivateLessonCommand, DeletedPrivateLessonResponse>
 {
     private const string HasAttendanceMessage = "Attendance was already taken for this lesson.";
@@ -24,6 +27,12 @@ public sealed class DeletePrivateLessonUseCase(
         if (lesson is null)
         {
             return PrivateLessonRules.NotFound();
+        }
+
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.PrivateLessons.ManageAll, cancellationToken);
+        if (!scope.Includes(lesson.InstructorId))
+        {
+            return AccessRules.NotYours();
         }
 
         if (lesson.HasAttendance)

@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.PrivateLessons;
 using ClassManager.Core.Domain.Students;
@@ -28,7 +30,9 @@ public sealed class SchedulePrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IClientRepository clientRepository,
+    IAccessScopes accessScopes)
     : IUseCase<SchedulePrivateLessonCommand, IReadOnlyList<PrivateLessonResponse>>
 {
     public const int MinimumRepeatWeeks = 1;
@@ -61,11 +65,22 @@ public sealed class SchedulePrivateLessonUseCase(
             return instructor.Error!;
         }
 
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.PrivateLessons.ManageAll, cancellationToken);
+        if (!scope.Includes(instructor.Value!.Id))
+        {
+            return AccessRules.NotYours();
+        }
+
         IReadOnlyList<Guid> studentIds = command.StudentIds ?? [];
         var students = await studentRepository.ListSummariesByIdsAsync([.. studentIds.Distinct()], cancellationToken);
         if (students.Count != studentIds.Distinct().Count())
         {
             return Result.NotFound<IReadOnlyList<PrivateLessonResponse>>(StudentNotFoundMessage, StudentErrorCodes.NotFound);
+        }
+
+        if (!await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, students.Select(student => student.ClientId), cancellationToken))
+        {
+            return AccessRules.NotYours();
         }
 
         IReadOnlyList<DateOnly> dates = [.. Enumerable.Range(0, repeatWeeks).Select(week => command.Date.AddDays(week * DaysPerWeek))];

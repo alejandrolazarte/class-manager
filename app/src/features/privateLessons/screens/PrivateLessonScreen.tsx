@@ -1,6 +1,8 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { CancelPrivateLessonPanel } from "@/features/privateLessons/components/CancelPrivateLessonPanel";
 import { usePrivateLesson } from "@/features/privateLessons/usePrivateLesson";
 import {
@@ -38,6 +40,14 @@ const studentNameSeparator = ", ";
 
 export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProps) {
   const router = useRouter();
+  const canRecordAttendance = useCan(
+    permissions.attendanceRecordAll,
+    permissions.attendanceRecordOwn,
+  );
+  const canManageLessons = useCan(
+    permissions.privateLessonsManageAll,
+    permissions.privateLessonsManageOwn,
+  );
   const { showToast } = useToast();
   const currencyCode = useBusinessCurrency();
   const lessonQuery = usePrivateLesson(privateLessonId);
@@ -138,13 +148,15 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
               : translate("sessions.session.cancelledWithoutReason")
           }
         >
-          <Button
-            variant="outline"
-            size="medium"
-            label={translate("sessions.session.restore")}
-            onPress={() => restoreMutation.mutate()}
-            isLoading={restoreMutation.isPending}
-          />
+          {canManageLessons ? (
+            <Button
+              variant="outline"
+              size="medium"
+              label={translate("sessions.session.restore")}
+              onPress={() => restoreMutation.mutate()}
+              isLoading={restoreMutation.isPending}
+            />
+          ) : null}
         </Banner>
       ) : null}
       {!lesson.isCancelled && !lesson.canTakeAttendance ? (
@@ -153,7 +165,7 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
       {hasSaveFailed ? <Banner message={translate("sessions.attendance.saveFailed")} /> : null}
       {lesson.isCancelled ? null : (
         <View className="gap-2">
-          {lesson.canTakeAttendance ? (
+          {lesson.canTakeAttendance && canRecordAttendance ? (
             <View className="flex-row items-center justify-between gap-2">
               <AppText variant="caption" tone="subtle" className="flex-1">
                 {translate("sessions.attendance.swipeHint")}
@@ -182,7 +194,7 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
               key={student.studentId}
               student={student}
               status={statusOf(student.studentId, student.status)}
-              disabled={!lesson.canTakeAttendance}
+              disabled={!canRecordAttendance || !lesson.canTakeAttendance}
               onChangeStatus={(status) => changeStatus(student.studentId, status)}
             />
           ))}
@@ -211,7 +223,7 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
           </View>
         </Banner>
       ) : null}
-      {hasAttendance ? (
+      {!canManageLessons ? null : hasAttendance ? (
         <AppText variant="caption" tone="subtle">
           {translate("privateLessons.lockedByAttendance")}
         </AppText>

@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Sessions;
@@ -17,7 +19,8 @@ public sealed class ListMonthCalendarUseCase(
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
     IPrivateLessonRepository privateLessonRepository,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<ListMonthCalendarQuery, MonthCalendarResponse>
 {
     private static readonly AttendanceCount NoAttendance = new(0, 0);
@@ -35,13 +38,17 @@ public sealed class ListMonthCalendarUseCase(
 
         var firstDay = month.Value!.FirstDay;
         var lastDay = month.Value.LastDay;
-        var classGroups = await classGroupRepository.ListActiveAsync(cancellationToken);
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, cancellationToken);
+        var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken))
+            .Where(classGroup => scope.Includes(classGroup.InstructorId))
+            .ToList();
         var enrollmentPeriods = await enrollmentRepository.ListActiveInPeriodAsync(firstDay, lastDay, cancellationToken);
         var sessions = (await sessionRepository.ListBetweenAsync(firstDay, lastDay, cancellationToken))
             .ToDictionary(session => (session.ClassGroupId, session.Date));
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(
             [.. sessions.Values.Select(session => session.Id)], cancellationToken);
         var privateLessonsByDate = (await privateLessonRepository.ListBetweenAsync(firstDay, lastDay, cancellationToken))
+            .Where(lesson => scope.Includes(lesson.InstructorId))
             .ToLookup(lesson => lesson.Date);
 
         var days = new List<CalendarDayResponse>();

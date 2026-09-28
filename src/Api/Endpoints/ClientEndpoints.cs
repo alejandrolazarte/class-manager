@@ -11,8 +11,8 @@ internal static class ClientEndpoints
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
 
         clients.MapPost("/", RegisterClientAsync).RequirePermission(Permissions.Students.Manage);
-        clients.MapGet(ApiRoutes.ClientById, GetClientAsync).RequirePermission(Permissions.Students.ViewAll);
-        clients.MapGet("/", SearchClientsAsync).RequirePermission(Permissions.Students.ViewAll);
+        clients.MapGet(ApiRoutes.ClientById, GetClientAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
+        clients.MapGet("/", SearchClientsAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
 
         return endpoints;
     }

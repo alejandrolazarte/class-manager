@@ -7,11 +7,15 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
 {
     public const string WebAppUrlSetting = "WebApp:Url";
     public const string ResetPasswordPath = "/reset-password?token=";
+    public const string AcceptInvitationPath = "/accept-invitation?token=";
 
     private const string MissingWebAppUrlMessage = "Set " + WebAppUrlSetting + " to the web app address.";
 
     public string ResetPassword(string token) =>
         WebAppUrl() + ResetPasswordPath + Uri.EscapeDataString(token);
+
+    public string AcceptInvitation(string token) =>
+        WebAppUrl() + AcceptInvitationPath + Uri.EscapeDataString(token);
 
     private string WebAppUrl() =>
         (configuration[WebAppUrlSetting] is { Length: > 0 } webAppUrl

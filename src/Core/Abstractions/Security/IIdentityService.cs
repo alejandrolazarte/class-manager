@@ -7,6 +7,10 @@ public interface IIdentityService
 {
     Task<bool> IsEmailRegisteredAsync(string email, CancellationToken cancellationToken);
 
+    Task<Guid?> FindUserIdByEmailAsync(string email, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<UserAccount>> ListAccountsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
+
     Task<Result<Guid>> CreateOwnerAsync(OwnerAccount account, CancellationToken cancellationToken);
 
     Task<CredentialVerification> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken);

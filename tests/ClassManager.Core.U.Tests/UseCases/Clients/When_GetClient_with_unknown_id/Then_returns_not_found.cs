@@ -12,7 +12,7 @@ public sealed class Then_returns_not_found
     {
         var clients = new Mock<IClientRepository>();
         var useCase = new GetClientUseCase(
-            clients.Object, new Mock<IStudentRepository>().Object, new Mock<IFeeScheduleRepository>().Object, new Mock<IBusinessCalendarService>().Object);
+            clients.Object, new Mock<IStudentRepository>().Object, new Mock<IFeeScheduleRepository>().Object, new Mock<IBusinessCalendarService>().Object, new EveryAccessScopes());
 
         var response = await useCase.ExecuteAsync(new GetClientQuery(Guid.CreateVersion7()), CancellationToken.None);
 
