@@ -72,6 +72,13 @@ export function buildFamilyShop(overrides: Partial<FamilyShop> = {}): FamilyShop
         ],
       },
     ],
+    deliveryClasses: [
+      {
+        classGroupId: "class-group-1",
+        classGroupName: "Natación inicial",
+        studentFullName: "Tomás Pérez",
+      },
+    ],
     ...overrides,
   };
 }
@@ -96,6 +103,9 @@ export function buildFamilyOrder(overrides: Partial<FamilyOrder> = {}): FamilyOr
         refundedQuantity: 0,
       },
     ],
+    delivery: "Pickup",
+    deliveryClassGroupName: null,
+    isReady: false,
     ...overrides,
   };
 }

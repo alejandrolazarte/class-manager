@@ -37,7 +37,7 @@ Families are a different kind of user from the team, kept apart from everything 
 | Home: students with next classes (14 days, cancellations, reschedules and substitutes applied), the month's fee or the class balance | `GET /api/family` | family |
 | Shop: active class packs and active products shown in the app, with availability (`Available`, `OnOrder`, `SoldOut`; never the stock count) | `GET /api/family/shop` | family |
 | My orders | `GET /api/family/orders` | family |
-| Order to pay at the branch (catalog prices only; at most 5 unpaid orders) | `POST /api/family/orders` | family |
+| Order to pay at the branch (catalog prices only; at most 5 unpaid orders; pickup, or a class one of its students attends) | `POST /api/family/orders` | family |
 | Cancel one of my unpaid orders (another family's order is `404`) | `PUT /api/family/orders/{id}/cancellation` | family |
 
 Token responses return `kind` (`team` or `family`) so the app opens the right shell.
@@ -80,7 +80,9 @@ The system `Coach` role has no money permissions. A custom role can add them:
 | Load or adjust stock, history | `POST /api/products/{id}/stock`, `GET /api/products/{id}/stock-movements` | `products.manage` / `products.view` |
 | Orders, newest first (`?awaitingPickup=true`, `?clientId=`) | `GET /api/orders` | `orders.view.all` or `orders.view.own` |
 | Counter sale, mark delivered, refund | `POST /api/orders`, `PUT /api/orders/{id}/delivered`, `POST /api/orders/{id}/refunds` | `orders.manage` |
-| Confirm the payment of a family's order (`?requested=true` lists them), or cancel it | `PUT /api/orders/{id}/payment` `{ method, paidOn? }`, `PUT /api/orders/{id}/cancellation` | `orders.manage` |
+| Confirm the payment of a family's order (`?requested=true` lists them), or cancel it | `PUT /api/orders/{id}/payment` `{ method, paidOn?, isReady }`, `PUT /api/orders/{id}/cancellation` | `orders.manage` |
+| Mark ready (emails the family), choose pickup or a class, the family's classes | `PUT /api/orders/{id}/ready`, `PUT /api/orders/{id}/delivery`, `GET /api/orders/delivery-classes?clientId=` | `orders.manage` |
+| What to hand over in a class, hand it over | `GET /api/class-groups/{id}/deliveries`, `PUT /api/class-groups/{id}/deliveries/{orderId}` | `attendance.record.all` or `attendance.record.own` (own class groups only, like attendance) |
 
 - `orders.view.own` narrows orders to the families the member reaches (the student client scope); orders without a family are only visible with `orders.view.all`. With it, selling to another family returns `403 member.not_yours`, and delivering or refunding its orders returns `404`.
 - The system `Coach` role has no shop permissions; `Viewer` gets `products.view` and `orders.view.all`.

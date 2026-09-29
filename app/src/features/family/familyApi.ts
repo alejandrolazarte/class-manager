@@ -2,6 +2,7 @@ import { httpClient } from "@/api/httpClient";
 import {
   FamilyHome,
   FamilyInvitation,
+  FamilyDelivery,
   FamilyOrder,
   FamilyShop,
   InviteFamilyRequest,
@@ -37,8 +38,11 @@ export function listFamilyOrders(): Promise<FamilyOrder[]> {
   return httpClient.get<FamilyOrder[]>(ordersPath);
 }
 
-export function placeFamilyOrder(lines: PlaceFamilyOrderLine[]): Promise<FamilyOrder> {
-  return httpClient.post<FamilyOrder>(ordersPath, { lines });
+export function placeFamilyOrder(
+  lines: PlaceFamilyOrderLine[],
+  delivery: FamilyDelivery | null,
+): Promise<FamilyOrder> {
+  return httpClient.post<FamilyOrder>(ordersPath, { lines, ...delivery });
 }
 
 export function cancelFamilyOrder(orderId: string): Promise<FamilyOrder> {

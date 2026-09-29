@@ -18,7 +18,7 @@ const isoDateLength = 10;
 
 function statusKey(order: FamilyOrder): TranslationKey {
   if (order.awaitsPickup) {
-    return "family.orders.status.awaitingPickup";
+    return order.isReady ? "family.orders.status.ready" : "family.orders.status.preparing";
   }
   return `family.orders.status.${order.status}` as TranslationKey;
 }
@@ -52,6 +52,15 @@ function FamilyOrderCard({ order, currencyCode }: { order: FamilyOrder; currency
           {line.quantity > 1 ? `${line.quantity} × ${line.name}` : line.name}
         </AppText>
       ))}
+      {order.awaitsPickup || order.status === "Requested" ? (
+        <AppText variant="caption" tone="subtle">
+          {order.delivery === "InClass" && order.deliveryClassGroupName !== null
+            ? translate("family.orders.deliveryInClass", {
+                className: order.deliveryClassGroupName,
+              })
+            : translate("family.orders.deliveryPickup")}
+        </AppText>
+      ) : null}
       {order.status === "Requested" ? (
         <>
           <AppText variant="caption" tone="subtle">

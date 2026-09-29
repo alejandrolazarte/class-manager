@@ -31,6 +31,10 @@ export function buildOrder(overrides: Partial<Order> = {}): Order {
     createdAt: "2026-09-29T10:00:00Z",
     deliveredAt: null,
     cancelledAt: null,
+    delivery: "Pickup",
+    deliveryClassGroupId: null,
+    deliveryClassGroupName: null,
+    readyAt: null,
     lines: [
       {
         id: "0192f0c4-0000-7000-8000-00000000d0a1",

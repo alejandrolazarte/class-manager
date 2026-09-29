@@ -6,7 +6,7 @@ import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
 import { orderClientLabel, orderStatusLabel } from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
-import { useMarkOrderDelivered } from "@/features/orders/useOrderMutations";
+import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useOrderMutations";
 import { formatLongDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -25,6 +25,7 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
   const currencyCode = useBusinessCurrency();
   const { showToast } = useToast();
   const markOrderDeliveredMutation = useMarkOrderDelivered();
+  const markOrderReadyMutation = useMarkOrderReady();
   const [isRefunding, setIsRefunding] = useState(false);
 
   const markDelivered = async () => {
@@ -36,6 +37,21 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
     }
   };
 
+  const markReady = async () => {
+    try {
+      await markOrderReadyMutation.mutateAsync(order.id);
+      showToast(translate("orders.readyNotified"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
+  };
+
+  const hasProducts = order.lines.some((line) => line.kind === "Product");
+  const deliveryLabel =
+    order.delivery === "InClass" && order.deliveryClassGroupName !== null
+      ? translate("orders.deliveryInClass", { className: order.deliveryClassGroupName })
+      : translate("orders.deliveryPickup");
+
   return (
     <Card className="gap-2 p-4" accessibilityLabel={orderClientLabel(order)}>
       <View className="flex-row items-start justify-between gap-3">
@@ -46,6 +62,7 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
               formatLongDate(order.paidOn ?? order.createdAt.slice(0, isoDateLength)),
               order.channel === "App" ? translate("orders.fromApp") : null,
               orderStatusLabel(order),
+              order.awaitsPickup && order.readyAt !== null ? translate("orders.ready") : null,
             ]
               .filter(Boolean)
               .join(" · ")}
@@ -68,9 +85,23 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
             .join(" · ")}
         </AppText>
       ))}
+      {hasProducts && (order.awaitsPickup || order.status === "Requested") ? (
+        <AppText variant="caption" tone="subtle">
+          {deliveryLabel}
+        </AppText>
+      ) : null}
       {canManage && order.status === "Requested" ? <PaymentPanel order={order} /> : null}
       {canManage && (order.status === "Paid" || order.status === "Delivered") ? (
         <View className="flex-row flex-wrap gap-2">
+          {order.awaitsPickup && order.readyAt === null ? (
+            <Button
+              size="medium"
+              variant="secondary"
+              label={translate("orders.markReady")}
+              onPress={markReady}
+              isLoading={markOrderReadyMutation.isPending}
+            />
+          ) : null}
           {order.awaitsPickup ? (
             <Button
               size="medium"

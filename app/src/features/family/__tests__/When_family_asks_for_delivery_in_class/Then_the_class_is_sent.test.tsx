@@ -7,32 +7,34 @@ import { renderWithSession } from "@/testing/renderWithSession";
 
 jest.mock("@/features/family/familyApi");
 
-describe("When family orders from the shop", () => {
+describe("When family asks for delivery in class", () => {
   beforeEach(() => {
     jest.mocked(getFamilyShop).mockResolvedValue(buildFamilyShop());
     jest.mocked(placeFamilyOrder).mockResolvedValue(buildFamilyOrder());
   });
 
-  it("Then the pack and units are sent", async () => {
+  it("Then the class is sent", async () => {
     await renderWithSession(<FamilyShopScreen />);
 
     await fireEvent.press(
-      await screen.findByRole("button", { name: `${translate("family.shop.addPack")} 8 clases` }),
-    );
-    await fireEvent.press(
-      screen.getByLabelText(
+      await screen.findByLabelText(
         translate("orders.counterSale.increase", { name: "Gorro de natación · S" }),
       ),
+    );
+    await fireEvent.press(
+      screen.getByRole("button", {
+        name: translate("delivery.inClass", {
+          className: "Natación inicial",
+          student: "Tomás Pérez",
+        }),
+      }),
     );
     await fireEvent.press(screen.getByRole("button", { name: /Pedir/ }));
 
     await waitFor(() =>
       expect(placeFamilyOrder).toHaveBeenCalledWith(
-        [
-          { classPackId: "pack-8", productVariantId: null, quantity: 1 },
-          { classPackId: null, productVariantId: "variant-s", quantity: 1 },
-        ],
-        { delivery: "Pickup", deliveryClassGroupId: null },
+        [{ classPackId: null, productVariantId: "variant-s", quantity: 1 }],
+        { delivery: "InClass", deliveryClassGroupId: "class-group-1" },
       ),
     );
   });

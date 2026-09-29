@@ -279,6 +279,8 @@ One purchase: at the counter now, from the family app in step 3.
 
 Lines (1–20) keep a snapshot of name and price. A **class pack line** creates the `ClassPackPurchase` when the order is paid, so the classes are credited at once; that purchase can only be undone by refunding the order (`409 class_pack_purchase.from_order`). A **product line** (variant, 1–99 units) records a `Sale` movement for tracked products; the order **awaits pickup** while it is `Paid` with product lines, until it is marked delivered.
 
+An order with products is delivered by **pickup** at the branch or **in class** (`DeliveryClassGroupId`: a class group one of the family's students is enrolled in; the coach of that class sees it and hands it over). `ReadyAt` records when the branch marked it ready to hand over.
+
 A **requested** order reserves its tracked units. The branch confirms the payment (which credits the packs) or cancels it; the family can cancel it too. An order still unpaid 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
 
 **Refunds**: a product line returns some or all of its units, optionally back to stock. A pack line removes the classes not used yet and refunds their share of the price (the purchase keeps only the used classes, or is removed when none was used).

@@ -2,6 +2,15 @@ import { PaymentMethod } from "@/features/fees/types";
 
 export type OrderStatus = "Requested" | "Paid" | "Delivered" | "Cancelled";
 
+export type DeliveryMethod = "Pickup" | "InClass";
+
+export interface ClassDelivery {
+  orderId: string;
+  clientFullName: string | null;
+  isReady: boolean;
+  lines: { name: string; quantity: number }[];
+}
+
 export type OrderFilter = "all" | "requested" | "awaitingPickup";
 
 export const orderFilters: readonly OrderFilter[] = ["all", "requested", "awaitingPickup"];
@@ -36,6 +45,10 @@ export interface Order {
   deliveredAt: string | null;
   lines: OrderLine[];
   cancelledAt: string | null;
+  delivery: DeliveryMethod;
+  deliveryClassGroupId: string | null;
+  deliveryClassGroupName: string | null;
+  readyAt: string | null;
 }
 
 export interface CounterSaleLine {
@@ -52,6 +65,8 @@ export interface CreateCounterSaleRequest {
   paidOn: string | null;
   notes: string | null;
   isDelivered: boolean;
+  delivery: DeliveryMethod | null;
+  deliveryClassGroupId: string | null;
 }
 
 export interface RefundLine {

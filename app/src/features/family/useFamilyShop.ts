@@ -6,7 +6,7 @@ import {
   placeFamilyOrder,
 } from "@/features/family/familyApi";
 import { familyQueryKeys } from "@/features/family/familyQueryKeys";
-import { PlaceFamilyOrderLine } from "@/features/family/types";
+import { FamilyDelivery, PlaceFamilyOrderLine } from "@/features/family/types";
 
 export function useFamilyShop() {
   return useQuery({ queryKey: familyQueryKeys.shop(), queryFn: getFamilyShop });
@@ -24,7 +24,13 @@ function useInvalidateFamily() {
 export function usePlaceFamilyOrder() {
   const invalidate = useInvalidateFamily();
   return useMutation({
-    mutationFn: (lines: PlaceFamilyOrderLine[]) => placeFamilyOrder(lines),
+    mutationFn: ({
+      lines,
+      delivery,
+    }: {
+      lines: PlaceFamilyOrderLine[];
+      delivery: FamilyDelivery | null;
+    }) => placeFamilyOrder(lines, delivery),
     onSuccess: invalidate,
   });
 }
