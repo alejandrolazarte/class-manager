@@ -14,6 +14,7 @@ import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
+import { Icon } from "@/ui/Icon";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -124,18 +125,6 @@ export function SettingsScreen() {
         />
       ),
     },
-    {
-      key: "business",
-      isVisible: canManageBusiness,
-      row: (
-        <ListRow
-          icon="business"
-          label={translate("settings.business")}
-          detail={business.name}
-          onPress={() => router.push(routes.businessSettings)}
-        />
-      ),
-    },
   ];
   const visibleRows = rows.filter((settingsRow) => settingsRow.isVisible);
   return (
@@ -154,6 +143,7 @@ export function SettingsScreen() {
             {translate("settings.businessSummary", { currency: business.currencyCode })}
           </AppText>
         </View>
+        {canManageBusiness ? <Icon name="next" tone="subtle-foreground" /> : null}
       </Card>
       {visibleRows.length > 0 ? (
         <Card>
