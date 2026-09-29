@@ -13,6 +13,7 @@ interface ChipProps {
   icon?: IconName;
   shape?: ChipShape;
   className?: string;
+  count?: number;
 }
 
 const shapeClassNames: Record<ChipShape, string> = {
@@ -29,6 +30,7 @@ export function Chip({
   icon,
   shape = "pill",
   className,
+  count,
 }: ChipProps) {
   const stateClassName = isSelected
     ? "border-primary bg-primary"
@@ -58,6 +60,15 @@ export function Chip({
       >
         {label}
       </AppText>
+      {count === undefined ? null : (
+        <View
+          className={`h-5 min-w-5 items-center justify-center rounded-full px-1.5 ${isSelected ? "bg-primary-foreground" : "bg-muted"}`}
+        >
+          <AppText variant="badge" tone={isSelected ? "primary" : "muted"}>
+            {count}
+          </AppText>
+        </View>
+      )}
     </Pressable>
   );
 }

@@ -3,7 +3,7 @@ import { cancelFamilyOrder, getFamilyHome, listFamilyOrders } from "@/features/f
 import { FamilyOrdersScreen } from "@/features/family/screens/FamilyOrdersScreen";
 import { translate } from "@/i18n/translate";
 import { buildFamilyHome, buildFamilyOrder } from "@/testing/familyFactory";
-import { renderWithSession } from "@/testing/renderWithSession";
+import { renderFamilyScreen } from "@/testing/renderFamilyScreen";
 
 jest.mock("@/features/family/familyApi");
 
@@ -15,7 +15,7 @@ describe("When family cancels an unpaid order", () => {
   });
 
   it("Then the cancellation is sent", async () => {
-    await renderWithSession(<FamilyOrdersScreen />);
+    await renderFamilyScreen(<FamilyOrdersScreen />);
 
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("family.orders.cancel") }),
