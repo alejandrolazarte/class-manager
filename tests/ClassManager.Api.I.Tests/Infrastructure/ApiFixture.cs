@@ -75,7 +75,8 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         Guid businessId,
         TimeProvider? timeProvider = null,
         string? signingKey = null,
-        Guid? userId = null)
+        Guid? userId = null,
+        string? kind = null)
     {
         var configuredOptions = ApiFactory.Services.GetRequiredService<IOptions<JwtOptions>>().Value;
         var options = new JwtOptions
@@ -88,7 +89,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             RefreshTokenLifetime = configuredOptions.RefreshTokenLifetime,
         };
         var accessTokenFactory = new JwtAccessTokenFactory(Options.Create(options), timeProvider ?? new FakeTimeProvider(BusinessApiFactory.Now));
-        var testOwner = new TokenSubject(userId ?? Guid.CreateVersion7(), TestOwnerEmail, businessId, nameof(BusinessRole.BranchOwner));
+        var testOwner = new TokenSubject(userId ?? Guid.CreateVersion7(), TestOwnerEmail, businessId, nameof(BusinessRole.BranchOwner), kind);
 
         return accessTokenFactory.Create(testOwner).Token;
     }

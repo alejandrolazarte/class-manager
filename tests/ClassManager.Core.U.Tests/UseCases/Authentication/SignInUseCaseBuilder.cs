@@ -13,6 +13,8 @@ internal sealed class SignInUseCaseBuilder
     public Mock<IIdentityService> Identity { get; } = new();
     public Mock<ITokenService> Tokens { get; } = new();
     public Mock<IBranchDirectory> Branches { get; } = new();
+    public Mock<IFamilyDirectory> Families { get; } = new();
+    public FamilyLink Family { get; } = new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7());
 
     public SignInUseCaseBuilder()
     {
@@ -29,5 +31,11 @@ internal sealed class SignInUseCaseBuilder
 
     public static SignInCommand ValidCommand() => new(TestData.OwnerEmail, TestData.OwnerPassword);
 
-    public SignInUseCase Build() => new(Identity.Object, Tokens.Object, Branches.Object);
+    public void WithoutBranch() =>
+        Branches.Setup(directory => directory.FindDefaultAsync(UserId, It.IsAny<CancellationToken>())).ReturnsAsync((BranchAccess?)null);
+
+    public void WithFamily() =>
+        Families.Setup(directory => directory.FindDefaultAsync(UserId, It.IsAny<CancellationToken>())).ReturnsAsync(Family);
+
+    public SignInUseCase Build() => new(Identity.Object, Tokens.Object, Branches.Object, Families.Object);
 }

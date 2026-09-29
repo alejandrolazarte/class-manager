@@ -15,9 +15,13 @@ internal static class AppAuthenticationServiceCollectionExtensions
         services.AddSecurityAuthentication();
 
         services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
+            .AddPolicy(
+                AuthorizationPolicies.Family,
+                policy => policy.RequireAuthenticatedUser().AddRequirements(new FamilyRequirement()));
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<IAuthorizationHandler, FamilyAuthorizationHandler>();
         services.AddScoped<ICurrentUser, ClaimsCurrentUser>();
 
         services.Configure<ForwardedHeadersOptions>(options =>

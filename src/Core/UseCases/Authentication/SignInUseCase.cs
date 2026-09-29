@@ -8,7 +8,8 @@ public sealed record SignInCommand(string? Email, string? Password);
 public sealed class SignInUseCase(
     IIdentityService identityService,
     ITokenService tokenService,
-    IBranchDirectory branchDirectory)
+    IBranchDirectory branchDirectory,
+    IFamilyDirectory familyDirectory)
     : IUseCase<SignInCommand, TokenResponse>
 {
     public const string InvalidCredentialsMessage = "Wrong email or password.";
@@ -33,16 +34,22 @@ public sealed class SignInUseCase(
         }
 
         var branch = await branchDirectory.FindDefaultAsync(verification.UserId, cancellationToken);
-        if (branch is null)
+        if (branch is not null)
+        {
+            return TokenResponse.From(await tokenService.IssueAsync(
+                new SessionUser(verification.UserId, verification.Email, branch.BusinessId, branch.RoleName),
+                cancellationToken));
+        }
+
+        var family = await familyDirectory.FindDefaultAsync(verification.UserId, cancellationToken);
+        if (family is null)
         {
             return InvalidCredentials();
         }
 
-        var tokens = await tokenService.IssueAsync(
-            new SessionUser(verification.UserId, verification.Email, branch.BusinessId, branch.RoleName),
-            cancellationToken);
-
-        return TokenResponse.From(tokens);
+        return TokenResponse.From(await tokenService.IssueAsync(
+            new SessionUser(verification.UserId, verification.Email, family.BusinessId, AccountKinds.FamilyRoleName, AccountKinds.Family),
+            cancellationToken));
     }
 
     private static Result<TokenResponse> InvalidCredentials() =>

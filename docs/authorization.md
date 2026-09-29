@@ -20,6 +20,24 @@ How the API decides what a signed-in user may do. The full design is in the [rol
 
 A role that has an `.own` permission without the matching `.all` one needs a linked instructor (`member.instructor_required`).
 
+## Families and adult students
+
+Families are a different kind of user from the team, kept apart from everything the team does:
+
+- A **family account** (`ClientAccounts`: `ClientId`, `UserId`) belongs to whoever pays: a parent or an adult who takes the classes. Children never sign in. A user has at most one family per branch (`family.already_linked` otherwise); several users can share a family.
+- The branch invites from the family card (`POST /api/clients/{id}/app-invitation`, `students.manage` and the same client scope as the rest of the team; the email defaults to the client's). The link (`/accept-family-invitation?token=`) is single-use, valid 7 days and hashed, like team invitations; inviting again revokes the previous one. Accepting (`POST /api/auth/family-invitations/accept`, anonymous) creates the account when the email has none.
+- **The session kind is fixed at sign-in.** Tokens carry a `kind` claim (`team` or `family`; no claim means `team`) and the refresh token stores it, so refreshing or switching branch can never turn a family session into a team one, or the other way. Sign-in opens the team session when the user is a team member and the family session otherwise (a coach who is also a family reaches the family side once a switch exists; not built yet).
+- **Two disjoint authorization paths.** Team endpoints (`permission:` policies) reject any token whose kind is not `team`. Family endpoints, all under `/api/family`, use their own `family` policy: the token kind must be `family` and the user must have a `ClientAccounts` row in the token's branch (read from the database on every request, like `ICurrentMember`). Two tests enforce it: every endpoint is anonymous, a permission or `family`, and `family` only appears under `/api/family` and covers everything there.
+- Family use cases never reuse team use cases and never take a client id from the request: they read it from `IFamilyAccess`.
+
+| Operation | Endpoint | Who |
+|---|---|---|
+| Invite a family or adult student | `POST /api/clients/{id}/app-invitation` `{ email? }` | `students.manage` |
+| Accept the invitation | `POST /api/auth/family-invitations/accept` | anonymous |
+| Home: students with next classes (14 days, cancellations, reschedules and substitutes applied), the month's fee or the class balance | `GET /api/family` | family |
+
+Token responses return `kind` (`team` or `family`) so the app opens the right shell.
+
 ## Custom roles
 
 A branch can have its own roles (`CustomRoles`: name, permission codes, the role it was copied from). They are a snapshot: permissions added to the app later are not added to existing custom roles.
@@ -129,4 +147,6 @@ SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId FROM Busines
 SELECT TenantId, Email, Role, CustomRoleId, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
 SELECT TenantId, Name, Permissions, CopiedFrom FROM CustomRoles;
 SELECT TenantId, ClientId, Amount, Month, RecordedByUserId FROM Payments ORDER BY CreatedAt DESC;
+SELECT TenantId, ClientId, UserId FROM ClientAccounts;
+SELECT TenantId, ClientId, Email, ExpiresAt, AcceptedAt, RevokedAt FROM ClientInvitations;
 ```

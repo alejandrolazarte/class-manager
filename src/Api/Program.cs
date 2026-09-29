@@ -33,6 +33,7 @@ app.MapBusinessEndpoints();
 app.MapMemberEndpoints();
 app.MapRoleEndpoints();
 app.MapClientEndpoints();
+app.MapFamilyEndpoints();
 app.MapStudentEndpoints();
 app.MapInstructorEndpoints();
 app.MapClassGroupEndpoints();

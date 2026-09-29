@@ -9,6 +9,7 @@ using ClassManager.Core.UseCases.ClassGroups;
 using ClassManager.Core.UseCases.ClassPacks;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Enrollments;
+using ClassManager.Core.UseCases.Families;
 using ClassManager.Core.UseCases.Fees;
 using ClassManager.Core.UseCases.ImportExport;
 using ClassManager.Core.UseCases.ImportExport.Instructors;
@@ -100,6 +101,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RestoreSessionCommand, SessionStatusResponse>, RestoreSessionUseCase>();
         services.AddScoped<IUseCase<RescheduleSessionCommand, SessionStatusResponse>, RescheduleSessionUseCase>();
         services.AddScoped<IUseCase<RestoreSessionScheduleCommand, SessionStatusResponse>, RestoreSessionScheduleUseCase>();
+        services.AddScoped<IUseCase<GetFamilyHomeQuery, FamilyHomeResponse>, GetFamilyHomeUseCase>();
+        services.AddScoped<IUseCase<InviteFamilyCommand, FamilyInvitationResponse>, InviteFamilyUseCase>();
+        services.AddScoped<IUseCase<AcceptFamilyInvitationCommand, TokenResponse>, AcceptFamilyInvitationUseCase>();
         services.AddScoped<IUseCase<ListRolesQuery, IReadOnlyList<RoleResponse>>, ListRolesUseCase>();
         services.AddScoped<IUseCase<CreateRoleCommand, RoleResponse>, CreateRoleUseCase>();
         services.AddScoped<IUseCase<UpdateRoleCommand, RoleResponse>, UpdateRoleUseCase>();

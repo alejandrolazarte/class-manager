@@ -24,6 +24,7 @@ Today students and families are not users. This plan adds **family accounts**, a
 - The branch invites from the family card: "Invitar a la app" sends a link by WhatsApp or email (the same single-use, 7-day, hashed-token mechanism as team invitations). Accepting creates the account or links an existing one.
 - A user can be a family in one branch and a team member in another (a coach whose children swim). Sign-in opens the team app when the user is a member of the branch, and the family app otherwise; a switcher covers both, like branches today.
 - Family access is enforced like tenancy: every family endpoint reads the `ClientId` from the user's `ClientAccounts` row, never from the request.
+- **Family and team are separated end to end** (built in step 1, see [authorization](../../authorization.md#families-and-adult-students)): the session kind (`team` / `family`) is fixed at sign-in and kept on refresh, team endpoints reject family tokens, family endpoints (`/api/family/...`, their own `family` policy) reject team tokens, and family use cases never reuse team ones.
 
 ### Products and stock
 
