@@ -15,7 +15,16 @@ internal sealed class TokenService(ITokenIssuer tokenIssuer) : ITokenService
 
     public async Task<Result<IssuedTokens>> RefreshAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        var tokens = await tokenIssuer.RefreshAsync(refreshToken, cancellationToken);
+        var tokens = await tokenIssuer.RefreshAsync(refreshToken, null, cancellationToken);
+
+        return tokens is null
+            ? Result.Unauthorized<IssuedTokens>(AuthenticationErrorCodes.InvalidRefreshTokenMessage, AuthenticationErrorCodes.InvalidRefreshToken)
+            : ToIssuedTokens(tokens);
+    }
+
+    public async Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, CancellationToken cancellationToken)
+    {
+        var tokens = await tokenIssuer.RefreshAsync(refreshToken, businessId, cancellationToken);
 
         return tokens is null
             ? Result.Unauthorized<IssuedTokens>(AuthenticationErrorCodes.InvalidRefreshTokenMessage, AuthenticationErrorCodes.InvalidRefreshToken)
@@ -26,7 +35,7 @@ internal sealed class TokenService(ITokenIssuer tokenIssuer) : ITokenService
         tokenIssuer.RevokeAsync(refreshToken, cancellationToken);
 
     private static TokenSubject ToTokenSubject(SessionUser user) =>
-        new(user.UserId, user.Email, user.TenantId, user.Role.ToString());
+        new(user.UserId, user.Email, user.TenantId, user.RoleName);
 
     private static IssuedTokens ToIssuedTokens(IssuedTokenPair tokens) =>
         new(tokens.AccessToken, tokens.AccessTokenExpiresAt, tokens.RefreshToken, tokens.RefreshTokenExpiresAt);

@@ -47,7 +47,7 @@ Api             AddSecurityAuthentication + permission policies (see authorizati
   ```
 
   `ConfigureDbContext` shares the `AppDbContext` connection so sign up (user + business + membership) runs in one transaction.
-- `ITokenSubjectResolver` is the only thing the library needs from the app: when a refresh token is exchanged, who is this user now (tenant and role)? Returning `null` ends the session.
+- `ITokenSubjectResolver` is the only thing the library needs from the app: when a refresh token is exchanged, who is this user now (tenant and role)? It receives the tenant to resolve: the one stored in the refresh token, or the one asked for when switching tenant (`ITokenIssuer.RefreshAsync(refreshToken, tenantId)`), or none for tokens issued before tenants were stored. Returning `null` ends the session, or refuses the switch.
 - `Api` calls `AddSecurityAuthentication()` and adds its own authorization policies.
 
 ## Extracting it to a NuGet package later

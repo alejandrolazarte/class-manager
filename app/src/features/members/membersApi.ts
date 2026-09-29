@@ -38,3 +38,11 @@ export function changeMemberRole(
 export function removeMember(memberId: string): Promise<void> {
   return httpClient.delete<void>(`${membersPath}/${encodeURIComponent(memberId)}`);
 }
+
+export function makeBrandOwner(memberId: string): Promise<void> {
+  return httpClient.put<void>(`${membersPath}/${encodeURIComponent(memberId)}/brand-owner`, {});
+}
+
+export function removeBrandOwner(memberId: string): Promise<void> {
+  return httpClient.delete<void>(`${membersPath}/${encodeURIComponent(memberId)}/brand-owner`);
+}

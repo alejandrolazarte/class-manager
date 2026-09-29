@@ -82,7 +82,7 @@ public sealed class AcceptInvitationUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var tokens = await tokenService.IssueAsync(
-            new SessionUser(userId.Value, invitation.Email, invitation.TenantId, invitation.Role),
+            new SessionUser(userId.Value, invitation.Email, invitation.TenantId, invitation.Role.ToString()),
             cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 

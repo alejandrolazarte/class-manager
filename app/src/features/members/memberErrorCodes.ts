@@ -3,4 +3,5 @@ export const memberErrorCodes = {
   instructorTaken: "member.instructor_taken",
   instructorRequired: "member.instructor_required",
   invalidInvitation: "invitation.invalid",
+  lastBrandOwner: "brand_owner.last",
 } as const;

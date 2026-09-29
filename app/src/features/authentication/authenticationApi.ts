@@ -7,6 +7,7 @@ import {
   SignInRequest,
   SignOutRequest,
   SignUpRequest,
+  SwitchBranchRequest,
   TokenResponse,
 } from "@/features/authentication/types";
 
@@ -18,6 +19,7 @@ const authenticationPaths = {
   passwordReset: "/api/auth/password-reset",
   passwordResetRequest: "/api/auth/password-reset-request",
   acceptInvitation: "/api/auth/invitations/accept",
+  switchBranch: "/api/auth/branch",
 } as const;
 
 export function signUp(request: SignUpRequest): Promise<TokenResponse> {
@@ -42,6 +44,10 @@ export function resetPassword(request: ResetPasswordRequest): Promise<void> {
 
 export function acceptInvitation(request: AcceptInvitationRequest): Promise<TokenResponse> {
   return anonymousHttpClient.post<TokenResponse>(authenticationPaths.acceptInvitation, request);
+}
+
+export function switchBranch(request: SwitchBranchRequest): Promise<TokenResponse> {
+  return anonymousHttpClient.post<TokenResponse>(authenticationPaths.switchBranch, request);
 }
 
 export function requestPasswordReset(request: PasswordResetRequest): Promise<void> {

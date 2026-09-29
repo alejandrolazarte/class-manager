@@ -1,5 +1,6 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
+using ClassManager.Core.UseCases.Branches;
 using ClassManager.Core.UseCases.Members;
 
 namespace ClassManager.Api.Endpoints;
@@ -9,6 +10,8 @@ internal static class MemberEndpoints
     public static IEndpointRouteBuilder MapMemberEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(ApiRoutes.Me, GetCurrentMemberAsync).RequireMember();
+        endpoints.MapGet(ApiRoutes.MyBranches, ListBranchesAsync).RequireMember();
+        endpoints.MapPost(ApiRoutes.OrganizationBranches, CreateBranchAsync).RequirePermission(Permissions.Brand.CreateBranches);
 
         var members = endpoints.MapGroup(ApiRoutes.Members);
         members.MapGet("/", GetTeamAsync).RequirePermission(Permissions.Members.View);
@@ -16,6 +19,10 @@ internal static class MemberEndpoints
         members.MapDelete(ApiRoutes.InvitationById, RevokeInvitationAsync).RequirePermission(Permissions.Members.Manage);
         members.MapPut(ApiRoutes.MemberById, ChangeRoleAsync).RequirePermission(Permissions.Members.Manage);
         members.MapDelete(ApiRoutes.MemberById, RemoveAsync).RequirePermission(Permissions.Members.Manage);
+        members.MapPut(ApiRoutes.MemberById + ApiRoutes.BrandOwnerSegment, MakeBrandOwnerAsync)
+            .RequirePermission(Permissions.Brand.ManageBrandOwners);
+        members.MapDelete(ApiRoutes.MemberById + ApiRoutes.BrandOwnerSegment, RemoveBrandOwnerAsync)
+            .RequirePermission(Permissions.Brand.ManageBrandOwners);
 
         return endpoints;
     }
@@ -25,6 +32,45 @@ internal static class MemberEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetCurrentMemberQuery(), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> ListBranchesAsync(
+        IUseCase<ListBranchesQuery, IReadOnlyList<BranchResponse>> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ListBranchesQuery(), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> CreateBranchAsync(
+        CreateBranchCommand command,
+        IUseCase<CreateBranchCommand, BranchResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(branch => TypedResults.Created(ApiRoutes.MyBranches, branch));
+    }
+
+    private static async Task<IResult> MakeBrandOwnerAsync(
+        Guid memberId,
+        IUseCase<SetBrandOwnerCommand, BrandOwnerResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new SetBrandOwnerCommand(memberId, IsBrandOwner: true), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> RemoveBrandOwnerAsync(
+        Guid memberId,
+        IUseCase<SetBrandOwnerCommand, BrandOwnerResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new SetBrandOwnerCommand(memberId, IsBrandOwner: false), cancellationToken);
 
         return result.ToOkResult();
     }

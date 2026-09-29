@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   changeMemberRole,
   inviteMember,
+  makeBrandOwner,
+  removeBrandOwner,
   removeMember,
   revokeInvitation,
 } from "@/features/members/membersApi";
@@ -41,6 +43,15 @@ export function useRemoveMember() {
   const invalidateTeam = useInvalidateTeam();
   return useMutation({
     mutationFn: (memberId: string) => removeMember(memberId),
+    onSuccess: invalidateTeam,
+  });
+}
+
+export function useSetBrandOwner(memberId: string) {
+  const invalidateTeam = useInvalidateTeam();
+  return useMutation({
+    mutationFn: (isBrandOwner: boolean) =>
+      isBrandOwner ? makeBrandOwner(memberId) : removeBrandOwner(memberId),
     onSuccess: invalidateTeam,
   });
 }

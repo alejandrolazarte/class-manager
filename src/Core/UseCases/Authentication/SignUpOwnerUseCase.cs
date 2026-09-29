@@ -5,6 +5,7 @@ using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.Domain.Organizations;
+using ClassManager.Core.UseCases.Businesses;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Authentication;
@@ -31,8 +32,6 @@ public sealed class SignUpOwnerUseCase(
     TimeProvider timeProvider)
     : IUseCase<SignUpOwnerCommand, TokenResponse>
 {
-    private const int FirstSlugSuffix = 2;
-
     public async Task<Result<TokenResponse>> ExecuteAsync(SignUpOwnerCommand command, CancellationToken cancellationToken)
     {
         var account = OwnerAccount.Create(command.OwnerFullName, command.Email, command.Password);
@@ -48,7 +47,7 @@ public sealed class SignUpOwnerUseCase(
             return RenameField(organization.Error!, nameof(Organization.Name), nameof(SignUpOwnerCommand.BusinessName));
         }
 
-        var slug = await FindAvailableSlugAsync(command.BusinessName, cancellationToken);
+        var slug = await BusinessSlugAllocator.FindAvailableAsync(businessRepository, command.BusinessName, cancellationToken);
         var business = Business.Create(
             organization.Value!.Id,
             command.BusinessName,
@@ -84,24 +83,11 @@ public sealed class SignUpOwnerUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var tokens = await tokenService.IssueAsync(
-            new SessionUser(userId.Value, account.Value.Email, business.Value.Id, BusinessRole.BranchOwner),
+            new SessionUser(userId.Value, account.Value.Email, business.Value.Id, nameof(BusinessRole.BranchOwner)),
             cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return TokenResponse.From(tokens);
-    }
-
-    private async Task<string> FindAvailableSlugAsync(string? businessName, CancellationToken cancellationToken)
-    {
-        var baseSlug = BusinessSlug.FromName(businessName);
-        var candidateSlug = baseSlug;
-
-        for (var suffix = FirstSlugSuffix; await businessRepository.IsSlugTakenAsync(candidateSlug, cancellationToken); suffix++)
-        {
-            candidateSlug = BusinessSlug.WithSuffix(baseSlug, suffix);
-        }
-
-        return candidateSlug;
     }
 
     private static ResultError RenameField(ResultError error, string entityFieldName, string commandFieldName) =>

@@ -38,4 +38,6 @@ export const routes = {
   inviteMember: "/settings/team/invite",
   teamMember: (memberId: string) => `/settings/team/${memberId}`,
   acceptInvitation: "/accept-invitation",
+  branches: "/settings/branches",
+  newBranch: "/settings/branches/new",
 } as const;

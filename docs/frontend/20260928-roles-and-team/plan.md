@@ -93,8 +93,14 @@ src/features/members/__tests__/
 - Accepting an invitation starts the session with `startedBy: "invitation"` and opens Hoy.
 - Pending: manual check on Android (Expo Go) and on the installed web app.
 
+## Branches (step 3)
+
+- Ajustes → **Sedes** (shown with more than one branch, or to brand owners): every branch the user can open, with their role there and "Actual". Tapping one switches the session (`useSession().switchBranch`, which stores the new refresh token and resets every query) and opens Hoy.
+- **Nueva sede** (`branches.create`): name, country and time zone (the Canary Islands are `Atlantic/Canary`), currency. The new branch appears in the list; tapping it enters.
+- Miembro: **Hacer dueño de marca** / **Quitar de dueños de marca** (`brandOwners.manage`). Equipo shows "Dueño de marca" on those members.
+- Tests in `src/features/branches/__tests__` and `src/features/members/__tests__/When_member_is_made_brand_owner`.
+
 ## Out of scope
 
 - Custom roles editor (step 4 of the backend plan).
-- Branch switcher (step 3).
 - Resending an invitation (revoke and invite again).

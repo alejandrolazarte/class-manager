@@ -2,9 +2,10 @@ namespace ClassManager.Security.Tokens;
 
 /// <summary>
 /// Implemented by the application: rebuilds who a user is (tenant and role) when a refresh token is exchanged.
-/// Returns <see langword="null"/> when the user no longer belongs to any tenant, which ends the session.
+/// With a tenant id, resolves the user in that tenant only; without one, in the user's default tenant.
+/// Returns <see langword="null"/> when the user has no access, which ends the session (or refuses a tenant switch).
 /// </summary>
 public interface ITokenSubjectResolver
 {
-    Task<TokenSubject?> ResolveAsync(Guid userId, string email, CancellationToken cancellationToken);
+    Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken);
 }

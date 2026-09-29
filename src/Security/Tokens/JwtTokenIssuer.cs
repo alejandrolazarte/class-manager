@@ -23,7 +23,7 @@ internal sealed class JwtTokenIssuer(
     public async Task<IssuedTokenPair> IssueAsync(TokenSubject subject, CancellationToken cancellationToken)
     {
         var accessToken = accessTokenFactory.Create(subject);
-        var (refreshToken, refreshTokenValue) = CreateRefreshToken(subject.UserId, Guid.CreateVersion7());
+        var (refreshToken, refreshTokenValue) = CreateRefreshToken(subject, Guid.CreateVersion7());
 
         securityContext.RefreshTokens.Add(refreshToken);
         await securityContext.SaveChangesAsync(cancellationToken);
@@ -31,7 +31,7 @@ internal sealed class JwtTokenIssuer(
         return new IssuedTokenPair(accessToken.Token, accessToken.ExpiresAt, refreshTokenValue, refreshToken.ExpiresAt);
     }
 
-    public async Task<IssuedTokenPair?> RefreshAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task<IssuedTokenPair?> RefreshAsync(string refreshToken, Guid? tenantId, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         var tokenHash = Hash(refreshToken);
@@ -54,7 +54,7 @@ internal sealed class JwtTokenIssuer(
             return null;
         }
 
-        var subject = await FindTokenSubjectAsync(storedToken.UserId, cancellationToken);
+        var subject = await FindTokenSubjectAsync(storedToken.UserId, tenantId ?? storedToken.TenantId, cancellationToken);
         if (subject is null)
         {
             return null;
@@ -75,7 +75,7 @@ internal sealed class JwtTokenIssuer(
         }
 
         var accessToken = accessTokenFactory.Create(subject);
-        var (replacementToken, replacementTokenValue) = CreateRefreshToken(storedToken.UserId, replacementId);
+        var (replacementToken, replacementTokenValue) = CreateRefreshToken(subject, replacementId);
         securityContext.RefreshTokens.Add(replacementToken);
         await securityContext.SaveChangesAsync(cancellationToken);
 
@@ -92,13 +92,13 @@ internal sealed class JwtTokenIssuer(
             .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.RevokedAt, now), cancellationToken);
     }
 
-    private async Task<TokenSubject?> FindTokenSubjectAsync(Guid userId, CancellationToken cancellationToken)
+    private async Task<TokenSubject?> FindTokenSubjectAsync(Guid userId, Guid? tenantId, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
 
         return user?.Email is null
             ? null
-            : await tokenSubjectResolver.ResolveAsync(user.Id, user.Email, cancellationToken);
+            : await tokenSubjectResolver.ResolveAsync(user.Id, user.Email, tenantId, cancellationToken);
     }
 
     private async Task RevokeAllOfUserAsync(Guid userId, DateTimeOffset now, CancellationToken cancellationToken) =>
@@ -106,14 +106,15 @@ internal sealed class JwtTokenIssuer(
             .Where(token => token.UserId == userId && token.RevokedAt == null)
             .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.RevokedAt, now), cancellationToken);
 
-    private (RefreshToken Token, string Value) CreateRefreshToken(Guid userId, Guid refreshTokenId)
+    private (RefreshToken Token, string Value) CreateRefreshToken(TokenSubject subject, Guid refreshTokenId)
     {
         var now = timeProvider.GetUtcNow();
         var value = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(RefreshTokenByteCount));
         var token = new RefreshToken
         {
             Id = refreshTokenId,
-            UserId = userId,
+            UserId = subject.UserId,
+            TenantId = subject.TenantId,
             TokenHash = Hash(value),
             CreatedAt = now,
             ExpiresAt = now + options.Value.RefreshTokenLifetime,

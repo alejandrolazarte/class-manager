@@ -19,6 +19,7 @@ export interface Member {
   role: BusinessRole;
   instructorId: string | null;
   isCurrentUser: boolean;
+  isBrandOwner: boolean;
 }
 
 export interface Invitation {

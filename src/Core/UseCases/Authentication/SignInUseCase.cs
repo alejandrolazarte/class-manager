@@ -1,4 +1,3 @@
-using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 
@@ -9,7 +8,7 @@ public sealed record SignInCommand(string? Email, string? Password);
 public sealed class SignInUseCase(
     IIdentityService identityService,
     ITokenService tokenService,
-    IBusinessMemberRepository businessMemberRepository)
+    IBranchDirectory branchDirectory)
     : IUseCase<SignInCommand, TokenResponse>
 {
     public const string InvalidCredentialsMessage = "Wrong email or password.";
@@ -33,14 +32,14 @@ public sealed class SignInUseCase(
             return InvalidCredentials();
         }
 
-        var member = await businessMemberRepository.FindByUserIdAsync(verification.UserId, cancellationToken);
-        if (member is null)
+        var branch = await branchDirectory.FindDefaultAsync(verification.UserId, cancellationToken);
+        if (branch is null)
         {
             return InvalidCredentials();
         }
 
         var tokens = await tokenService.IssueAsync(
-            new SessionUser(verification.UserId, verification.Email, member.TenantId, member.Role),
+            new SessionUser(verification.UserId, verification.Email, branch.BusinessId, branch.RoleName),
             cancellationToken);
 
         return TokenResponse.From(tokens);

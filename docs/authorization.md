@@ -59,6 +59,20 @@ The `role` claim in the token is informational; authorization never reads it.
 - Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation.
 - Accepting creates the account when the email has none (full name and password required). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password.
 
+## Branches
+
+| Operation | Endpoint | Permission |
+|---|---|---|
+| Branches the user can open, with the current one | `GET /api/me/branches` | access to the current branch |
+| Switch branch (new token pair) | `POST /api/auth/branch` with `refreshToken` and `businessId` | anonymous; the refresh token proves who it is |
+| Create a branch in the current brand | `POST /api/organization/branches` | `branches.create` |
+| Make a member of this branch brand owner, or undo it | `PUT` / `DELETE /api/members/{id}/brand-owner` | `brandOwners.manage` |
+
+- `branches.create`, `brandOwners.manage` and `branchOwners.manage` belong only to brand owners (`Permissions.BrandOnly`).
+- `IBranchDirectory` answers every branch question from the user id: the branches they can open (their `BusinessMembers` rows plus every business of an organization where they are `BrandOwner`), one branch, and the default one. Sign-in, refresh and switching all go through it.
+- Refresh tokens store the business they were issued for. Refreshing keeps that business; switching asks for another one and fails with `403` (`branch.unavailable`) when the user has no access. A session whose branch was taken away ends on its next refresh.
+- The brand always keeps at least one brand owner (`brand_owner.last`), and nobody changes their own brand owner status.
+
 ## In the app
 
 - `MemberProvider` loads `GET /api/me` next to the business; `useCan(...)` hides tabs, rows, buttons and sections the member can't use ([frontend plan](frontend/20260928-roles-and-team/plan.md)).

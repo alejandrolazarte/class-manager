@@ -10,7 +10,9 @@ public sealed record ChangeMemberRoleRequest(BusinessRole? Role, Guid? Instructo
 public sealed record ChangeMemberRoleCommand(Guid MemberId, BusinessRole? Role, Guid? InstructorId);
 
 public sealed class ChangeMemberRoleUseCase(
+    IBusinessRepository businessRepository,
     IBusinessMemberRepository businessMemberRepository,
+    IOrganizationMemberRepository organizationMemberRepository,
     IInstructorRepository instructorRepository,
     IIdentityService identityService,
     ICurrentMember currentMember,
@@ -60,6 +62,9 @@ public sealed class ChangeMemberRoleUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var accounts = await identityService.ListAccountsAsync([member.UserId], cancellationToken);
-        return MemberResponse.From(member, accounts.Count > 0 ? accounts[0] : null, access?.UserId);
+        var business = await businessRepository.GetCurrentAsync(cancellationToken);
+        var isBrandOwner = business is not null
+            && await organizationMemberRepository.FindForUpdateAsync(business.OrganizationId, member.UserId, cancellationToken) is not null;
+        return MemberResponse.From(member, accounts.Count > 0 ? accounts[0] : null, access?.UserId, isBrandOwner);
     }
 }

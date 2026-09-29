@@ -9,16 +9,18 @@ public sealed record MemberResponse(
     string Email,
     BusinessRole Role,
     Guid? InstructorId,
-    bool IsCurrentUser)
+    bool IsCurrentUser,
+    bool IsBrandOwner)
 {
-    public static MemberResponse From(BusinessMember member, UserAccount? account, Guid? currentUserId) =>
+    public static MemberResponse From(BusinessMember member, UserAccount? account, Guid? currentUserId, bool isBrandOwner) =>
         new(
             member.Id,
             account?.FullName ?? string.Empty,
             account?.Email ?? string.Empty,
             member.Role,
             member.InstructorId,
-            member.UserId == currentUserId);
+            member.UserId == currentUserId,
+            isBrandOwner);
 }
 
 public sealed record InvitationResponse(
