@@ -57,6 +57,15 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             .Where(order => order.Status == OrderStatus.Requested && order.CreatedAt <= createdBefore)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(Guid classGroupId, CancellationToken cancellationToken) =>
+        await context.Orders.AsNoTracking()
+            .Include(order => order.Lines)
+            .Where(order => order.Status == OrderStatus.Paid
+                && order.Delivery == DeliveryMethod.InClass
+                && order.DeliveryClassGroupId == classGroupId)
+            .OrderBy(order => order.CreatedAt)
+            .ToListAsync(cancellationToken);
+
     public Task<bool> IsPurchaseFromOrderAsync(Guid purchaseId, CancellationToken cancellationToken) =>
         context.OrderLines.AsNoTracking().AnyAsync(line => line.ClassPackPurchaseId == purchaseId, cancellationToken);
 }

@@ -1,7 +1,9 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.Families;
 
@@ -12,7 +14,11 @@ public sealed class GetFamilyShopUseCase(
     IBusinessRepository businessRepository,
     IClassPackRepository classPackRepository,
     IProductRepository productRepository,
-    IStockMovementRepository stockMovementRepository)
+    IStockMovementRepository stockMovementRepository,
+    IStudentRepository studentRepository,
+    IEnrollmentRepository enrollmentRepository,
+    IClassGroupRepository classGroupRepository,
+    IBusinessCalendarService businessCalendar)
     : IUseCase<GetFamilyShopQuery, FamilyShopResponse>
 {
     public async Task<Result<FamilyShopResponse>> ExecuteAsync(GetFamilyShopQuery command, CancellationToken cancellationToken)
@@ -30,6 +36,10 @@ public sealed class GetFamilyShopUseCase(
             .ToList();
         var stockByVariant = await stockMovementRepository.StockByVariantAsync(
             [.. products.SelectMany(product => product.Variants).Select(variant => variant.Id)], cancellationToken);
+
+        var today = await businessCalendar.TodayAsync(cancellationToken);
+        var deliveryClasses = await DeliveryClasses.ListAsync(
+            access.ClientId, today, studentRepository, enrollmentRepository, classGroupRepository, cancellationToken);
 
         return new FamilyShopResponse(
             business.CurrencyCode,
@@ -49,6 +59,7 @@ public sealed class GetFamilyShopUseCase(
                                 variant.Name,
                                 StockRules.AvailabilityOf(product, stockByVariant.GetValueOrDefault(variant.Id)))),
                     ])),
-            ]);
+            ],
+            deliveryClasses);
     }
 }

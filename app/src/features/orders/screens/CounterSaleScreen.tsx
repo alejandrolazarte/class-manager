@@ -8,7 +8,9 @@ import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPic
 import { formatMoney } from "@/features/fees/money";
 import { PaymentMethod } from "@/features/fees/types";
 import { counterSaleLines, counterSaleTotal, maximumUnitsOf } from "@/features/orders/counterSale";
+import { DeliveryPicker } from "@/features/family/components/DeliveryPicker";
 import { useCreateCounterSale } from "@/features/orders/useOrderMutations";
+import { useDeliveryClasses } from "@/features/orders/useOrders";
 import { productErrorCodes } from "@/features/products/productErrorCodes";
 import { stockSummary, variantLabel } from "@/features/products/stockLabels";
 import { useProducts } from "@/features/products/useProducts";
@@ -49,6 +51,8 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
   const [quantitiesByVariant, setQuantitiesByVariant] = useState<Record<string, string>>({});
   const [method, setMethod] = useState<PaymentMethod>("Cash");
   const [isDelivered, setIsDelivered] = useState(true);
+  const [deliveryClassGroupId, setDeliveryClassGroupId] = useState<string | null>(null);
+  const { data: deliveryClasses = [] } = useDeliveryClasses(clientId);
   const [notes, setNotes] = useState("");
   const [saleProblem, setSaleProblem] = useState<SaleProblem | null>(null);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
@@ -77,6 +81,8 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
         paidOn: null,
         notes: notes.trim().length === 0 ? null : notes.trim(),
         isDelivered,
+        delivery: isDelivered ? null : deliveryClassGroupId === null ? "Pickup" : "InClass",
+        deliveryClassGroupId: isDelivered ? null : deliveryClassGroupId,
       });
       showToast(translate("orders.counterSale.saved"));
       router.back();
@@ -159,6 +165,13 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
         value={isDelivered}
         onValueChange={setIsDelivered}
       />
+      {!isDelivered && deliveryClasses.length > 0 ? (
+        <DeliveryPicker
+          deliveryClasses={deliveryClasses}
+          classGroupId={deliveryClassGroupId}
+          onChange={setDeliveryClassGroupId}
+        />
+      ) : null}
       <TextField
         label={translate("orders.counterSale.notes")}
         value={notes}

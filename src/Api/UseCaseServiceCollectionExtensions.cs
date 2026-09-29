@@ -133,6 +133,11 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RefundOrderCommand, OrderResponse>, RefundOrderUseCase>();
         services.AddScoped<IUseCase<ConfirmOrderPaymentCommand, OrderResponse>, ConfirmOrderPaymentUseCase>();
         services.AddScoped<IUseCase<CancelOrderCommand, OrderResponse>, CancelOrderUseCase>();
+        services.AddScoped<IUseCase<MarkOrderReadyCommand, OrderResponse>, MarkOrderReadyUseCase>();
+        services.AddScoped<IUseCase<ChooseOrderDeliveryCommand, OrderResponse>, ChooseOrderDeliveryUseCase>();
+        services.AddScoped<IUseCase<ListDeliveryClassesQuery, IReadOnlyList<DeliveryClassResponse>>, ListDeliveryClassesUseCase>();
+        services.AddScoped<IUseCase<ListClassDeliveriesQuery, IReadOnlyList<ClassDeliveryResponse>>, ListClassDeliveriesUseCase>();
+        services.AddScoped<IUseCase<DeliverInClassCommand, ClassDeliveryResponse>, DeliverInClassUseCase>();
         services.AddScoped<IUseCase<CancelExpiredOrdersCommand, int>, CancelExpiredOrdersUseCase>();
         services.AddScoped<IUseCase<GetFamilyShopQuery, FamilyShopResponse>, GetFamilyShopUseCase>();
         services.AddScoped<IUseCase<ListFamilyOrdersQuery, IReadOnlyList<FamilyOrderResponse>>, ListFamilyOrdersUseCase>();

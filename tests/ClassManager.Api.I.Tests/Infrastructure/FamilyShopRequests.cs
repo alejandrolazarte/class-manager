@@ -1,4 +1,5 @@
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Orders;
 using ClassManager.Core.UseCases.Families;
 using ClassManager.Core.UseCases.Orders;
 
@@ -12,6 +13,12 @@ public static class FamilyShopRequests
 
     public static Task<HttpResponseMessage> PostFamilyOrderAsync(this HttpClient httpClient, params FamilyOrderLine[] lines) =>
         httpClient.PostAsJsonAsync(ApiRoutes.Family + ApiRoutes.FamilyOrders, new PlaceFamilyOrderCommand(lines), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostFamilyOrderForClassAsync(this HttpClient httpClient, Guid classGroupId, params FamilyOrderLine[] lines) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Family + ApiRoutes.FamilyOrders,
+            new PlaceFamilyOrderCommand(lines, DeliveryMethod.InClass, classGroupId),
+            ApiRequests.JsonOptions);
 
     public static async Task<FamilyOrderResponse> PlaceFamilyOrderAsync(this HttpClient httpClient, params FamilyOrderLine[] lines)
     {
@@ -37,6 +44,16 @@ public static class FamilyShopRequests
             $"{ApiRoutes.Orders}/{orderId}{ApiRoutes.Payment}",
             new ConfirmOrderPaymentRequest(PaymentMethod.Cash, null),
             ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PutOrderReadyAsync(this HttpClient httpClient, Guid orderId) =>
+        httpClient.PutAsync(new Uri($"{ApiRoutes.Orders}/{orderId}{ApiRoutes.Ready}", UriKind.Relative), null);
+
+    public static async Task<List<ClassDeliveryResponse>> ListClassDeliveriesAsync(this HttpClient httpClient, Guid classGroupId) =>
+        (await httpClient.GetFromJsonAsync<List<ClassDeliveryResponse>>(
+            new Uri($"{ApiRoutes.ClassGroups}/{classGroupId}{ApiRoutes.Deliveries}", UriKind.Relative), ApiRequests.JsonOptions))!;
+
+    public static Task<HttpResponseMessage> PutClassDeliveryAsync(this HttpClient httpClient, Guid classGroupId, Guid orderId) =>
+        httpClient.PutAsync(new Uri($"{ApiRoutes.ClassGroups}/{classGroupId}{ApiRoutes.Deliveries}/{orderId}", UriKind.Relative), null);
 
     public static Task<HttpResponseMessage> PutOrderCancellationAsync(this HttpClient httpClient, Guid orderId) =>
         httpClient.PutAsync(new Uri($"{ApiRoutes.Orders}/{orderId}{ApiRoutes.Cancellation}", UriKind.Relative), null);

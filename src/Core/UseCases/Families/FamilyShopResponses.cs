@@ -1,5 +1,6 @@
 using ClassManager.Core.Domain.Orders;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.Families;
 
@@ -17,7 +18,8 @@ public sealed record FamilyShopProductResponse(
 public sealed record FamilyShopResponse(
     string CurrencyCode,
     IReadOnlyList<FamilyShopPackResponse> Packs,
-    IReadOnlyList<FamilyShopProductResponse> Products);
+    IReadOnlyList<FamilyShopProductResponse> Products,
+    IReadOnlyList<DeliveryClassResponse> DeliveryClasses);
 
 public sealed record FamilyOrderLineResponse(Guid Id, OrderLineKind Kind, string Name, int Quantity, decimal Total, int RefundedQuantity);
 
@@ -30,9 +32,12 @@ public sealed record FamilyOrderResponse(
     DateTimeOffset CreatedAt,
     DateOnly? PaidOn,
     DateTimeOffset ExpiresAt,
-    IReadOnlyList<FamilyOrderLineResponse> Lines)
+    IReadOnlyList<FamilyOrderLineResponse> Lines,
+    DeliveryMethod Delivery,
+    string? DeliveryClassGroupName,
+    bool IsReady)
 {
-    public static FamilyOrderResponse From(Order order) =>
+    public static FamilyOrderResponse From(Order order, string? deliveryClassGroupName) =>
         new(
             order.Id,
             order.Status,
@@ -45,5 +50,8 @@ public sealed record FamilyOrderResponse(
             [
                 .. order.Lines.Select(line => new FamilyOrderLineResponse(
                     line.Id, line.Kind, line.Name, line.Quantity, line.Total, line.RefundedQuantity)),
-            ]);
+            ],
+            order.Delivery,
+            deliveryClassGroupName,
+            order.IsReady);
 }

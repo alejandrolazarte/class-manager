@@ -7,7 +7,9 @@ import {
   cancelOrder,
   confirmOrderPayment,
   createCounterSale,
+  deliverInClass,
   markOrderDelivered,
+  markOrderReady,
   refundOrder,
 } from "@/features/orders/ordersApi";
 import { CreateCounterSaleRequest, RefundLine } from "@/features/orders/types";
@@ -51,8 +53,15 @@ export function useRefundOrder() {
 export function useConfirmOrderPayment() {
   const invalidate = useInvalidateOrders();
   return useMutation({
-    mutationFn: ({ orderId, method }: { orderId: string; method: PaymentMethod }) =>
-      confirmOrderPayment(orderId, method),
+    mutationFn: ({
+      orderId,
+      method,
+      isReady,
+    }: {
+      orderId: string;
+      method: PaymentMethod;
+      isReady: boolean;
+    }) => confirmOrderPayment(orderId, method, isReady),
     onSuccess: invalidate,
   });
 }
@@ -61,6 +70,22 @@ export function useCancelOrder() {
   const invalidate = useInvalidateOrders();
   return useMutation({
     mutationFn: (orderId: string) => cancelOrder(orderId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useMarkOrderReady() {
+  const invalidate = useInvalidateOrders();
+  return useMutation({
+    mutationFn: (orderId: string) => markOrderReady(orderId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeliverInClass(classGroupId: string) {
+  const invalidate = useInvalidateOrders();
+  return useMutation({
+    mutationFn: (orderId: string) => deliverInClass(classGroupId, orderId),
     onSuccess: invalidate,
   });
 }

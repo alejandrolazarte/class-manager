@@ -41,6 +41,8 @@ describe("When selling at the counter", () => {
         paidOn: null,
         notes: null,
         isDelivered: true,
+        delivery: null,
+        deliveryClassGroupId: null,
       }),
     );
   });

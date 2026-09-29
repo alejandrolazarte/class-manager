@@ -1,7 +1,9 @@
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Infrastructure.Email;
+using ClassManager.Infrastructure.Notifications;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Persistence.Repositories;
 using ClassManager.Infrastructure.Security;
@@ -63,6 +65,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IStockLock, StockLock>();
         services.AddScoped<IExpiredOrderDirectory, ExpiredOrderDirectory>();
+        services.AddScoped<IOrderNotificationService, OrderNotificationService>();
         services.AddScoped<IPrivateLessonRepository, PrivateLessonRepository>();
 
         return services.AddEmail().AddSecurity();

@@ -7,7 +7,11 @@ namespace ClassManager.Core.UseCases.Orders;
 
 public sealed record ListOrdersQuery(Guid? ClientId, bool AwaitingPickupOnly, bool RequestedOnly = false);
 
-public sealed class ListOrdersUseCase(IOrderRepository orderRepository, IClientRepository clientRepository, IAccessScopes accessScopes)
+public sealed class ListOrdersUseCase(
+    IOrderRepository orderRepository,
+    IClientRepository clientRepository,
+    IClassGroupRepository classGroupRepository,
+    IAccessScopes accessScopes)
     : IUseCase<ListOrdersQuery, IReadOnlyList<OrderResponse>>
 {
     private const int OrderLimit = 200;
@@ -19,11 +23,16 @@ public sealed class ListOrdersUseCase(IOrderRepository orderRepository, IClientR
             new OrderSearchCriteria(command.ClientId, command.AwaitingPickupOnly, OrderLimit, command.RequestedOnly), scope, cancellationToken);
         var clientIds = orders.Select(order => order.ClientId).OfType<Guid>().Distinct().ToList();
         var clientsById = (await clientRepository.ListByIdsAsync(clientIds, cancellationToken)).ToDictionary(client => client.Id);
+        var classGroupNames = orders.Any(order => order.DeliveryClassGroupId is not null)
+            ? (await classGroupRepository.ListAllAsync(cancellationToken)).ToDictionary(classGroup => classGroup.Id, classGroup => classGroup.Name)
+            : [];
 
         return Result.Success<IReadOnlyList<OrderResponse>>(
         [
             .. orders.Select(order => OrderResponse.From(
-                order, order.ClientId is { } clientId ? clientsById.GetValueOrDefault(clientId) : null)),
+                order,
+                order.ClientId is { } clientId ? clientsById.GetValueOrDefault(clientId) : null,
+                order.DeliveryClassGroupId is { } classGroupId ? classGroupNames.GetValueOrDefault(classGroupId) : null)),
         ]);
     }
 }

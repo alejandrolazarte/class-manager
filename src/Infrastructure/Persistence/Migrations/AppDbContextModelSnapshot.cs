@@ -672,6 +672,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("DeliveredByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Delivery")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<Guid?>("DeliveryClassGroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Method")
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
@@ -686,6 +694,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("PaymentRecordedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("ReadyAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -697,6 +708,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("DeliveryClassGroupId");
 
                     b.HasIndex("TenantId", "ClientId");
 
@@ -1383,6 +1396,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.ClassGroups.ClassGroup", null)
+                        .WithMany()
+                        .HasForeignKey("DeliveryClassGroupId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)

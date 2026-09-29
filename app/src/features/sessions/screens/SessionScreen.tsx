@@ -5,6 +5,7 @@ import { permissions } from "@/features/members/permissions";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
+import { ClassDeliveriesCard } from "@/features/orders/components/ClassDeliveriesCard";
 import { SubstitutePanel } from "@/features/sessions/components/SubstitutePanel";
 import { formatLongDate } from "@/features/sessions/dates";
 import { AttendanceStatus } from "@/features/sessions/types";
@@ -291,6 +292,9 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
           ))}
         </View>
       )}
+      {canRecordAttendance && !session.isCancelled ? (
+        <ClassDeliveriesCard classGroupId={classGroupId} />
+      ) : null}
       {session.isCancelled || !canManageSessions ? null : (
         <Card className="mt-1">
           {session.canReschedule ? (

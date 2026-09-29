@@ -9,6 +9,7 @@ public sealed record MarkOrderDeliveredCommand(Guid OrderId);
 public sealed class MarkOrderDeliveredUseCase(
     IOrderRepository orderRepository,
     IClientRepository clientRepository,
+    IClassGroupRepository classGroupRepository,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
@@ -32,7 +33,6 @@ public sealed class MarkOrderDeliveredUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var client = order.ClientId is { } clientId ? await clientRepository.GetByIdAsync(clientId, cancellationToken) : null;
-        return OrderResponse.From(order, client);
+        return await OrderResponses.OfAsync(order, clientRepository, classGroupRepository, cancellationToken);
     }
 }

@@ -27,10 +27,13 @@ describe("When family orders from the shop", () => {
     await fireEvent.press(screen.getByRole("button", { name: /Pedir/ }));
 
     await waitFor(() =>
-      expect(placeFamilyOrder).toHaveBeenCalledWith([
-        { classPackId: "pack-8", productVariantId: null, quantity: 1 },
-        { classPackId: null, productVariantId: "variant-s", quantity: 1 },
-      ]),
+      expect(placeFamilyOrder).toHaveBeenCalledWith(
+        [
+          { classPackId: "pack-8", productVariantId: null, quantity: 1 },
+          { classPackId: null, productVariantId: "variant-s", quantity: 1 },
+        ],
+        { delivery: "Pickup", deliveryClassGroupId: null },
+      ),
     );
   });
 });

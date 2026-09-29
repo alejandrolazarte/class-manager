@@ -9,6 +9,7 @@ import {
   maximumUnitsPerItem,
 } from "@/features/family/familyCart";
 import { familyErrorCodes } from "@/features/family/familyErrorCodes";
+import { DeliveryPicker } from "@/features/family/components/DeliveryPicker";
 import { FamilyShopProduct, FamilyShopVariant } from "@/features/family/types";
 import { useFamilyShop, usePlaceFamilyOrder } from "@/features/family/useFamilyShop";
 import { formatMoney } from "@/features/fees/money";
@@ -45,6 +46,7 @@ export function FamilyShopScreen() {
   const { data: shop, isPending, isError, refetch } = useFamilyShop();
   const placeFamilyOrderMutation = usePlaceFamilyOrder();
   const [cart, setCart] = useState<FamilyCart>({});
+  const [deliveryClassGroupId, setDeliveryClassGroupId] = useState<string | null>(null);
   const [orderProblem, setOrderProblem] = useState<OrderProblem | null>(null);
 
   const setUnits = (itemId: string, units: number) => setCart({ ...cart, [itemId]: units });
@@ -55,7 +57,17 @@ export function FamilyShopScreen() {
     }
     setOrderProblem(null);
     try {
-      await placeFamilyOrderMutation.mutateAsync(cartLines(shop, cart));
+      const lines = cartLines(shop, cart);
+      const hasProducts = lines.some((line) => line.productVariantId !== null);
+      await placeFamilyOrderMutation.mutateAsync({
+        lines,
+        delivery: hasProducts
+          ? {
+              delivery: deliveryClassGroupId === null ? "Pickup" : "InClass",
+              deliveryClassGroupId,
+            }
+          : null,
+      });
       setCart({});
       showToast(translate("family.shop.ordered"));
       router.replace(routes.familyOrders);
@@ -178,6 +190,13 @@ export function FamilyShopScreen() {
         <Banner
           tone="warning"
           message={translate(orderProblemMessages[orderProblem] as TranslationKey)}
+        />
+      ) : null}
+      {lines.some((line) => line.productVariantId !== null) && shop.deliveryClasses.length > 0 ? (
+        <DeliveryPicker
+          deliveryClasses={shop.deliveryClasses}
+          classGroupId={deliveryClassGroupId}
+          onChange={setDeliveryClassGroupId}
         />
       ) : null}
       {lines.length > 0 ? (

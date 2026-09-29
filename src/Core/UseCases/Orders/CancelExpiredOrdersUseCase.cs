@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Orders;
@@ -10,6 +11,7 @@ public sealed class CancelExpiredOrdersUseCase(
     IOrderRepository orderRepository,
     IStockMovementRepository stockMovementRepository,
     IUnitOfWork unitOfWork,
+    IOrderNotificationService orderNotifications,
     TimeProvider timeProvider)
     : IUseCase<CancelExpiredOrdersCommand, int>
 {
@@ -24,6 +26,11 @@ public sealed class CancelExpiredOrdersUseCase(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        foreach (var order in expiredOrders)
+        {
+            await orderNotifications.OrderCancelledAsync(order, OrderCancellationReason.Unpaid, cancellationToken);
+        }
+
         return expiredOrders.Count;
     }
 }

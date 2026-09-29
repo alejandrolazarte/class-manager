@@ -78,10 +78,19 @@ export interface FamilyShopProduct {
   variants: FamilyShopVariant[];
 }
 
+export type DeliveryMethod = "Pickup" | "InClass";
+
+export interface DeliveryClass {
+  classGroupId: string;
+  classGroupName: string;
+  studentFullName: string;
+}
+
 export interface FamilyShop {
   currencyCode: string;
   packs: FamilyShopPack[];
   products: FamilyShopProduct[];
+  deliveryClasses: DeliveryClass[];
 }
 
 export type FamilyOrderStatus = "Requested" | "Paid" | "Delivered" | "Cancelled";
@@ -105,6 +114,14 @@ export interface FamilyOrder {
   paidOn: string | null;
   expiresAt: string;
   lines: FamilyOrderLine[];
+  delivery: DeliveryMethod;
+  deliveryClassGroupName: string | null;
+  isReady: boolean;
+}
+
+export interface FamilyDelivery {
+  delivery: DeliveryMethod;
+  deliveryClassGroupId: string | null;
 }
 
 export interface PlaceFamilyOrderLine {

@@ -31,7 +31,7 @@ describe("When branch confirms an app order", () => {
     await fireEvent.press(screen.getByRole("button", { name: translate("orders.confirmPayment") }));
 
     await waitFor(() =>
-      expect(confirmOrderPayment).toHaveBeenCalledWith(requestedOrder.id, "Card"),
+      expect(confirmOrderPayment).toHaveBeenCalledWith(requestedOrder.id, "Card", true),
     );
   });
 });

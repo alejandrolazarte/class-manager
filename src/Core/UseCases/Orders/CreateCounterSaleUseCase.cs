@@ -18,7 +18,9 @@ public sealed record CreateCounterSaleCommand(
     PaymentMethod? Method,
     DateOnly? PaidOn,
     string? Notes,
-    bool IsDelivered);
+    bool IsDelivered,
+    DeliveryMethod? Delivery = null,
+    Guid? DeliveryClassGroupId = null);
 
 public sealed class CreateCounterSaleUseCase(
     IClientRepository clientRepository,
@@ -28,6 +30,9 @@ public sealed class CreateCounterSaleUseCase(
     IStockMovementRepository stockMovementRepository,
     IStockLock stockLock,
     IOrderRepository orderRepository,
+    IClassGroupRepository classGroupRepository,
+    IStudentRepository studentRepository,
+    IEnrollmentRepository enrollmentRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider,
@@ -73,6 +78,16 @@ public sealed class CreateCounterSaleUseCase(
             return order.Error!;
         }
 
+        if (command.Delivery is not null && order.Value!.AwaitsPickup)
+        {
+            var delivery = await DeliveryClasses.ChooseAsync(
+                order.Value, command.Delivery, command.DeliveryClassGroupId, today, studentRepository, enrollmentRepository, classGroupRepository, cancellationToken);
+            if (delivery.IsFailure)
+            {
+                return delivery.Error!;
+            }
+        }
+
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var stockProblem = await OrderDrafts.LockAndCheckStockAsync(draft.Value, stockLock, stockMovementRepository, cancellationToken);
         if (stockProblem is not null)
@@ -95,6 +110,6 @@ public sealed class CreateCounterSaleUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return OrderResponse.From(order.Value, client);
+        return await OrderResponses.OfAsync(order.Value, clientRepository, classGroupRepository, cancellationToken);
     }
 }
