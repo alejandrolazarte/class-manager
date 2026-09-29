@@ -39,6 +39,7 @@ A role that has an `.own` permission without the matching `.all` one needs a lin
    - `ForInstructorsAsync(<all permission>)`: every instructor, or only the member's linked instructor.
    - `ForClientsAsync()`: every client, or only the clients the member registered and the families of students in the member's class groups or private lessons.
    - Reading something outside the scope returns `404`; changing it returns `403` (`member.not_yours`).
+   - A class session also belongs to its substitute instructor for that date ([session substitutes](backend/20260929-session-substitutes/plan.md)).
 5. Access is read from the database once per request, not from the token, so removing someone or changing a role applies on their next request.
 
 The `role` claim in the token is informational; authorization never reads it.

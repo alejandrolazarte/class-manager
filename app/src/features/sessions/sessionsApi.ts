@@ -13,6 +13,7 @@ const sessionsSegment = "sessions";
 const attendanceSegment = "attendance";
 const cancellationSegment = "cancellation";
 const scheduleSegment = "schedule";
+const substituteSegment = "substitute";
 
 function sessionPath(classGroupId: string, sessionDate: string): string {
   return `${classGroupsPath}/${encodeURIComponent(classGroupId)}/${sessionsSegment}/${encodeURIComponent(sessionDate)}`;
@@ -70,4 +71,18 @@ export function rescheduleSession(
 
 export function restoreSessionSchedule(classGroupId: string, sessionDate: string): Promise<void> {
   return httpClient.delete<void>(`${sessionPath(classGroupId, sessionDate)}/${scheduleSegment}`);
+}
+
+export function assignSubstitute(
+  classGroupId: string,
+  sessionDate: string,
+  instructorId: string,
+): Promise<void> {
+  return httpClient.put<void>(`${sessionPath(classGroupId, sessionDate)}/${substituteSegment}`, {
+    instructorId,
+  });
+}
+
+export function removeSubstitute(classGroupId: string, sessionDate: string): Promise<void> {
+  return httpClient.delete<void>(`${sessionPath(classGroupId, sessionDate)}/${substituteSegment}`);
 }

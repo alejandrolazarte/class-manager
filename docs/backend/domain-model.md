@@ -149,6 +149,8 @@ One date of a class group. Created on demand, only when attendance is taken or t
 | `Date` | `DateOnly` | Unique per class group |
 | `IsCancelled` | `bool` | A cancelled session takes no attendance; a session with attendance can't be cancelled |
 | `CancellationReason` | `string?` | Optional, max 200 characters |
+| `RescheduledStartTime` | `TimeOnly?` | Start time for that date only; null is the class group's time |
+| `SubstituteInstructorId` | `Guid?` | Active instructor who teaches that date instead of the class group's instructor ([plan](20260929-session-substitutes/plan.md)) |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 
 ### Attendance (added in M4)

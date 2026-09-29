@@ -29,6 +29,7 @@ const iconGlyphs = {
   paid: "check-circle",
   cancelled: "event-busy",
   schedule: "schedule",
+  substitute: "swap-horiz",
   notYet: "hourglass-top",
   enroll: "person-add",
   privateLesson: "person",

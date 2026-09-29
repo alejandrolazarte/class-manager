@@ -5,11 +5,13 @@ import { permissions } from "@/features/members/permissions";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
+import { SubstitutePanel } from "@/features/sessions/components/SubstitutePanel";
 import { formatLongDate } from "@/features/sessions/dates";
 import { AttendanceStatus } from "@/features/sessions/types";
 import { useSessionDetails } from "@/features/sessions/useSessionDetails";
 import {
   useRecordAttendance,
+  useRemoveSubstitute,
   useRestoreSession,
   useRestoreSessionSchedule,
 } from "@/features/sessions/useSessionMutations";
@@ -70,6 +72,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const recordAttendanceMutation = useRecordAttendance(classGroupId, sessionDate);
   const restoreSessionMutation = useRestoreSession(classGroupId, sessionDate);
   const restoreSessionScheduleMutation = useRestoreSessionSchedule(classGroupId, sessionDate);
+  const removeSubstituteMutation = useRemoveSubstitute(classGroupId, sessionDate);
   const [pendingStatuses, setPendingStatuses] = useState<PendingStatuses>({});
   const [hasSaveFailed, setHasSaveFailed] = useState(false);
 
@@ -136,6 +139,11 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
     showToast(translate("sessions.session.restoredToast"));
   };
 
+  const removeSubstitute = async () => {
+    await removeSubstituteMutation.mutateAsync();
+    showToast(translate("sessions.substitute.removed"));
+  };
+
   return (
     <ScrollScreen
       header={
@@ -143,7 +151,11 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
           navigation="back"
           eyebrow={translate("sessions.session.title")}
           title={session.classGroupName}
-          subtitle={`${formatLongDate(session.date)} · ${session.startTime}–${session.endTime}`}
+          subtitle={[
+            formatLongDate(session.date),
+            `${session.startTime}–${session.endTime}`,
+            session.instructorFullName,
+          ].join(summarySeparator)}
         />
       }
     >
@@ -217,6 +229,26 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
           ) : null}
         </Banner>
       ) : null}
+      {session.originalInstructorFullName && !session.isCancelled ? (
+        <Banner
+          tone="info"
+          icon="substitute"
+          message={translate("sessions.substitute.notice", {
+            substitute: session.instructorFullName,
+            original: session.originalInstructorFullName,
+          })}
+        >
+          {canManageSessions ? (
+            <Button
+              variant="outline"
+              size="medium"
+              label={translate("sessions.substitute.remove")}
+              onPress={removeSubstitute}
+              isLoading={removeSubstituteMutation.isPending}
+            />
+          ) : null}
+        </Banner>
+      ) : null}
       {!session.isCancelled && !session.canTakeAttendance ? (
         <Banner tone="info" message={translate("sessions.session.notYet")} />
       ) : null}
@@ -271,6 +303,12 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
               <ListDivider />
             </>
           ) : null}
+          <SubstitutePanel
+            classGroupId={classGroupId}
+            sessionDate={sessionDate}
+            currentInstructorId={session.instructorId}
+          />
+          <ListDivider />
           <CancelSessionPanel
             classGroupId={classGroupId}
             sessionDate={sessionDate}
