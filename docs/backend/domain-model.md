@@ -261,6 +261,10 @@ Append-only ledger per variant; the stock is the sum of `Quantity`.
 | `Adjustment` | ±1–10,000, not leaving the stock below 0, with a note | Correcting a count (broken, lost) |
 | `Sale` | −units | Paying an order with tracked products |
 | `Refund` | +units | Refunding units that came back to the shelf |
+| `Reservation` | −units | A family's order waiting for payment; it stays as the sale once paid |
+| `Cancellation` | +units | Releasing a reservation when the order is cancelled |
+
+Checking and taking stock (counter sales and family orders) runs in a transaction under a SQL Server application lock per variant (`sp_getapplock`, resource `stock:<variant id>`, taken in id order, 10 s timeout), so two sales can't both take the last unit.
 
 ### Order and OrderLine (added with the shop)
 
@@ -270,10 +274,12 @@ One purchase: at the counter now, from the family app in step 3.
 |---|---|---|
 | `ClientId` | `Guid?` | Required when a line is a class pack; a counter sale of products can have no family |
 | `Channel` | `OrderChannel` | `Counter` or `App` |
-| `Status` | `OrderStatus` | `Requested` → `Paid` → `Delivered`, or `Cancelled`. A counter sale starts `Paid` |
+| `Status` | `OrderStatus` | `Requested` → `Paid` → `Delivered`, or `Requested` → `Cancelled`. A counter sale starts `Paid`; a family's order starts `Requested` |
 | `Method`, `PaidOn`, `Notes` | | Same rules as payments |
 
 Lines (1–20) keep a snapshot of name and price. A **class pack line** creates the `ClassPackPurchase` when the order is paid, so the classes are credited at once; that purchase can only be undone by refunding the order (`409 class_pack_purchase.from_order`). A **product line** (variant, 1–99 units) records a `Sale` movement for tracked products; the order **awaits pickup** while it is `Paid` with product lines, until it is marked delivered.
+
+A **requested** order reserves its tracked units. The branch confirms the payment (which credits the packs) or cancels it; the family can cancel it too. An order still unpaid 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
 
 **Refunds**: a product line returns some or all of its units, optionally back to stock. A pack line removes the classes not used yet and refunds their share of the price (the purchase keeps only the used classes, or is removed when none was used).
 

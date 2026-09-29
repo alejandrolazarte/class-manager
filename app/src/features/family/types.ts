@@ -53,3 +53,62 @@ export interface FamilyInvitation {
   email: string;
   expiresAt: string;
 }
+
+export type StockAvailability = "Available" | "OnOrder" | "SoldOut";
+
+export interface FamilyShopPack {
+  id: string;
+  name: string;
+  classCount: number;
+  price: number;
+  validityMonths: number | null;
+}
+
+export interface FamilyShopVariant {
+  id: string;
+  name: string;
+  availability: StockAvailability;
+}
+
+export interface FamilyShopProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  variants: FamilyShopVariant[];
+}
+
+export interface FamilyShop {
+  currencyCode: string;
+  packs: FamilyShopPack[];
+  products: FamilyShopProduct[];
+}
+
+export type FamilyOrderStatus = "Requested" | "Paid" | "Delivered" | "Cancelled";
+
+export interface FamilyOrderLine {
+  id: string;
+  kind: "ClassPack" | "Product";
+  name: string;
+  quantity: number;
+  total: number;
+  refundedQuantity: number;
+}
+
+export interface FamilyOrder {
+  id: string;
+  status: FamilyOrderStatus;
+  awaitsPickup: boolean;
+  total: number;
+  refundedAmount: number;
+  createdAt: string;
+  paidOn: string | null;
+  expiresAt: string;
+  lines: FamilyOrderLine[];
+}
+
+export interface PlaceFamilyOrderLine {
+  classPackId: string | null;
+  productVariantId: string | null;
+  quantity: number;
+}

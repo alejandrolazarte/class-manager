@@ -1,3 +1,6 @@
 export const familyQueryKeys = {
-  home: () => ["family", "home"] as const,
+  all: ["family"] as const,
+  home: () => [...familyQueryKeys.all, "home"] as const,
+  shop: () => [...familyQueryKeys.all, "shop"] as const,
+  orders: () => [...familyQueryKeys.all, "orders"] as const,
 };

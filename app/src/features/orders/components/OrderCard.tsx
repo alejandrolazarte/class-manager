@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
+import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
 import { orderClientLabel, orderStatusLabel } from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
@@ -12,6 +13,8 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
 import { useToast } from "@/ui/ToastProvider";
+
+const isoDateLength = 10;
 
 interface OrderCardProps {
   order: Order;
@@ -39,7 +42,11 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
         <View className="flex-1 gap-0.5">
           <AppText variant="bodyStrong">{orderClientLabel(order)}</AppText>
           <AppText variant="caption" tone="subtle">
-            {[order.paidOn ? formatLongDate(order.paidOn) : null, orderStatusLabel(order)]
+            {[
+              formatLongDate(order.paidOn ?? order.createdAt.slice(0, isoDateLength)),
+              order.channel === "App" ? translate("orders.fromApp") : null,
+              orderStatusLabel(order),
+            ]
               .filter(Boolean)
               .join(" · ")}
           </AppText>
@@ -61,7 +68,8 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
             .join(" · ")}
         </AppText>
       ))}
-      {canManage ? (
+      {canManage && order.status === "Requested" ? <PaymentPanel order={order} /> : null}
+      {canManage && (order.status === "Paid" || order.status === "Delivered") ? (
         <View className="flex-row flex-wrap gap-2">
           {order.awaitsPickup ? (
             <Button

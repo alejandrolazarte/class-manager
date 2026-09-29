@@ -35,6 +35,10 @@ Families are a different kind of user from the team, kept apart from everything 
 | Invite a family or adult student | `POST /api/clients/{id}/app-invitation` `{ email? }` | `students.manage` |
 | Accept the invitation | `POST /api/auth/family-invitations/accept` | anonymous |
 | Home: students with next classes (14 days, cancellations, reschedules and substitutes applied), the month's fee or the class balance | `GET /api/family` | family |
+| Shop: active class packs and active products shown in the app, with availability (`Available`, `OnOrder`, `SoldOut`; never the stock count) | `GET /api/family/shop` | family |
+| My orders | `GET /api/family/orders` | family |
+| Order to pay at the branch (catalog prices only; at most 5 unpaid orders) | `POST /api/family/orders` | family |
+| Cancel one of my unpaid orders (another family's order is `404`) | `PUT /api/family/orders/{id}/cancellation` | family |
 
 Token responses return `kind` (`team` or `family`) so the app opens the right shell.
 
@@ -76,6 +80,7 @@ The system `Coach` role has no money permissions. A custom role can add them:
 | Load or adjust stock, history | `POST /api/products/{id}/stock`, `GET /api/products/{id}/stock-movements` | `products.manage` / `products.view` |
 | Orders, newest first (`?awaitingPickup=true`, `?clientId=`) | `GET /api/orders` | `orders.view.all` or `orders.view.own` |
 | Counter sale, mark delivered, refund | `POST /api/orders`, `PUT /api/orders/{id}/delivered`, `POST /api/orders/{id}/refunds` | `orders.manage` |
+| Confirm the payment of a family's order (`?requested=true` lists them), or cancel it | `PUT /api/orders/{id}/payment` `{ method, paidOn? }`, `PUT /api/orders/{id}/cancellation` | `orders.manage` |
 
 - `orders.view.own` narrows orders to the families the member reaches (the student client scope); orders without a family are only visible with `orders.view.all`. With it, selling to another family returns `403 member.not_yours`, and delivering or refunding its orders returns `404`.
 - The system `Coach` role has no shop permissions; `Viewer` gets `products.view` and `orders.view.all`.

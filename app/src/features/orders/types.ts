@@ -2,6 +2,10 @@ import { PaymentMethod } from "@/features/fees/types";
 
 export type OrderStatus = "Requested" | "Paid" | "Delivered" | "Cancelled";
 
+export type OrderFilter = "all" | "requested" | "awaitingPickup";
+
+export const orderFilters: readonly OrderFilter[] = ["all", "requested", "awaitingPickup"];
+
 export type OrderLineKind = "ClassPack" | "Product";
 
 export interface OrderLine {
@@ -31,6 +35,7 @@ export interface Order {
   createdAt: string;
   deliveredAt: string | null;
   lines: OrderLine[];
+  cancelledAt: string | null;
 }
 
 export interface CounterSaleLine {

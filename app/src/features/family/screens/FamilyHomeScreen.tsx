@@ -3,9 +3,11 @@ import { feeStatusLabel, feeStatusTones } from "@/features/fees/components/feeSt
 import { formatMoney } from "@/features/fees/money";
 import { useSession } from "@/features/authentication/useSession";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
+import { useRouter } from "expo-router";
 import { FamilyBilling, FamilyNextClass, FamilyStudent } from "@/features/family/types";
 import { formatLongDate } from "@/features/sessions/dates";
 import { translate, translateCount } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -112,6 +114,7 @@ function BillingCard({ billing, currencyCode }: { billing: FamilyBilling; curren
 }
 
 export function FamilyHomeScreen() {
+  const router = useRouter();
   const { signOut } = useSession();
   const { data: home, isPending, isError, refetch } = useFamilyHome();
 
@@ -155,6 +158,25 @@ export function FamilyHomeScreen() {
       }
     >
       <BillingCard billing={home.billing} currencyCode={home.currencyCode} />
+      <View className="flex-row gap-2">
+        <View className="flex-1">
+          <Button
+            size="medium"
+            icon="products"
+            label={translate("family.shop.title")}
+            onPress={() => router.push(routes.familyShop)}
+          />
+        </View>
+        <View className="flex-1">
+          <Button
+            size="medium"
+            variant="secondary"
+            icon="orders"
+            label={translate("family.orders.title")}
+            onPress={() => router.push(routes.familyOrders)}
+          />
+        </View>
+      </View>
       <SectionTitle title={translate("family.students.title")} />
       {home.students.length === 0 ? (
         <AppText variant="body" tone="muted">

@@ -52,6 +52,8 @@ export const routes = {
   acceptInvitation: "/accept-invitation",
   acceptFamilyInvitation: "/accept-family-invitation",
   family: "/family",
+  familyShop: "/family/shop",
+  familyOrders: "/family/orders",
   branches: "/settings/branches",
   newBranch: "/settings/branches/new",
 } as const;
