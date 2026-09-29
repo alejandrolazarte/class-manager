@@ -34,7 +34,12 @@ describe("When team is listed", () => {
     expect(await screen.findByText(owner.fullName)).toBeOnTheScreen();
     expect(screen.getByText(translate("team.you"))).toBeOnTheScreen();
     expect(
-      await screen.findByText(translate("roles.coachOf", { coach: coachInstructor.fullName })),
+      await screen.findByText(
+        translate("roles.withCoach", {
+          role: translate("roles.Coach"),
+          coach: coachInstructor.fullName,
+        }),
+      ),
     ).toBeOnTheScreen();
     expect(screen.getByText(invitation.email)).toBeOnTheScreen();
     expect(

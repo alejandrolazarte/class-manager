@@ -9,7 +9,7 @@ public static class SystemRolePermissions
     private static readonly FrozenSet<string> EveryPermission = Permissions.All.ToFrozenSet(StringComparer.Ordinal);
 
     private static readonly FrozenSet<string> BranchOwnerPermissions =
-        Permissions.All.Except(Permissions.BrandOnly).ToFrozenSet(StringComparer.Ordinal);
+        Permissions.Assignable.ToFrozenSet(StringComparer.Ordinal);
 
     private static readonly FrozenSet<string> CoachPermissions = new[]
     {
@@ -50,10 +50,9 @@ public static class SystemRolePermissions
             _ => FrozenSet<string>.Empty,
         };
 
-    public static bool NeedsInstructor(BusinessRole role)
-    {
-        var permissions = Of(role);
-        return Permissions.EveryInstructorPermissionByOwnPermission.Any(pair =>
+    public static bool NeedsInstructor(BusinessRole role) => NeedsInstructor(Of(role));
+
+    public static bool NeedsInstructor(IReadOnlySet<string> permissions) =>
+        Permissions.EveryInstructorPermissionByOwnPermission.Any(pair =>
             permissions.Contains(pair.Key) && !permissions.Contains(pair.Value));
-    }
 }

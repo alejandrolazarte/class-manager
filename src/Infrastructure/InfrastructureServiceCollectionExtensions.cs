@@ -44,6 +44,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IBusinessRepository, BusinessRepository>();
         services.AddScoped<IBusinessMemberRepository, BusinessMemberRepository>();
         services.AddScoped<IMemberInvitationRepository, MemberInvitationRepository>();
+        services.AddScoped<ICustomRoleRepository, CustomRoleRepository>();
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<IInstructorRepository, InstructorRepository>();

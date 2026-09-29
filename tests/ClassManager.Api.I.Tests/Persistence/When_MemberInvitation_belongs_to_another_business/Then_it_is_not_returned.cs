@@ -12,7 +12,7 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
         var business = await fixture.SeedBusinessAsync();
         var otherBusiness = await fixture.SeedBusinessAsync();
         var otherInvitation = MemberInvitation.Create(
-            "someone@example.com", BusinessRole.Viewer, null, Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N"), Guid.CreateVersion7(), BusinessApiFactory.Now).Value!;
+            "someone@example.com", MemberRole.System(BusinessRole.Viewer), null, Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N"), Guid.CreateVersion7(), BusinessApiFactory.Now).Value!;
         await using (var otherBusinessContext = fixture.CreateDbContext(otherBusiness.Business.Id))
         {
             otherBusinessContext.MemberInvitations.Add(otherInvitation);

@@ -30,6 +30,7 @@ const iconGlyphs = {
   cancelled: "event-busy",
   schedule: "schedule",
   substitute: "swap-horiz",
+  roles: "admin-panel-settings",
   notYet: "hourglass-top",
   enroll: "person-add",
   privateLesson: "person",

@@ -5,9 +5,10 @@ import { useActiveInstructors } from "@/features/instructors/useActiveInstructor
 import { RoleFields } from "@/features/members/components/RoleFields";
 import { freeInstructors } from "@/features/members/freeInstructors";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
-import { BusinessRole } from "@/features/members/types";
 import { useTeam } from "@/features/members/useTeam";
 import { useInviteMember } from "@/features/members/useTeamMutations";
+import { findRoleChoice } from "@/features/roles/roleChoices";
+import { useRoles } from "@/features/roles/useRoles";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { translate } from "@/i18n/translate";
@@ -16,7 +17,7 @@ import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const defaultRole: BusinessRole = "Coach";
+const defaultRoleKey = "Coach";
 
 export function InviteMemberScreen() {
   const router = useRouter();
@@ -24,8 +25,9 @@ export function InviteMemberScreen() {
   const inviteMutation = useInviteMember();
   const instructorsQuery = useActiveInstructors();
   const teamQuery = useTeam();
+  const { data: roles } = useRoles();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<BusinessRole>(defaultRole);
+  const [roleKey, setRoleKey] = useState(defaultRoleKey);
   const [instructorId, setInstructorId] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | undefined>();
   const [instructorError, setInstructorError] = useState<string | undefined>();
@@ -36,17 +38,19 @@ export function InviteMemberScreen() {
     setSubmissionFailure(null);
     const trimmedEmail = email.trim();
     const isEmailValid = emailPattern.test(trimmedEmail);
-    const isCoachMissing = role === "Coach" && instructorId === null;
+    const roleChoice = findRoleChoice(roleKey, roles);
+    const isCoachMissing = roleChoice?.needsCoach === true && instructorId === null;
     setEmailError(isEmailValid ? undefined : translate("team.invite.emailInvalid"));
     setInstructorError(isCoachMissing ? translate("team.invite.coachRequired") : undefined);
-    if (!isEmailValid || isCoachMissing) {
+    if (!isEmailValid || isCoachMissing || roleChoice === undefined) {
       return;
     }
     try {
       await inviteMutation.mutateAsync({
         email: trimmedEmail,
-        role,
-        instructorId: role === "Coach" ? instructorId : null,
+        role: roleChoice.role,
+        customRoleId: roleChoice.customRoleId,
+        instructorId: roleChoice.needsCoach ? instructorId : null,
       });
       showToast(translate("team.invite.sent"));
       router.back();
@@ -79,10 +83,10 @@ export function InviteMemberScreen() {
         errorMessage={emailError}
       />
       <RoleFields
-        role={role}
+        roleKey={roleKey}
         instructorId={instructorId}
         instructors={instructors}
-        onRoleChange={setRole}
+        onRoleChange={setRoleKey}
         onInstructorChange={setInstructorId}
         instructorError={instructorError}
       />

@@ -8,6 +8,7 @@ public sealed record MemberResponse(
     string FullName,
     string Email,
     BusinessRole Role,
+    Guid? CustomRoleId,
     Guid? InstructorId,
     bool IsCurrentUser,
     bool IsBrandOwner)
@@ -18,6 +19,7 @@ public sealed record MemberResponse(
             account?.FullName ?? string.Empty,
             account?.Email ?? string.Empty,
             member.Role,
+            member.CustomRoleId,
             member.InstructorId,
             member.UserId == currentUserId,
             isBrandOwner);
@@ -27,11 +29,12 @@ public sealed record InvitationResponse(
     Guid Id,
     string Email,
     BusinessRole Role,
+    Guid? CustomRoleId,
     Guid? InstructorId,
     DateTimeOffset ExpiresAt)
 {
     public static InvitationResponse From(MemberInvitation invitation) =>
-        new(invitation.Id, invitation.Email, invitation.Role, invitation.InstructorId, invitation.ExpiresAt);
+        new(invitation.Id, invitation.Email, invitation.Role, invitation.CustomRoleId, invitation.InstructorId, invitation.ExpiresAt);
 }
 
 public sealed record TeamResponse(IReadOnlyList<MemberResponse> Members, IReadOnlyList<InvitationResponse> Invitations);

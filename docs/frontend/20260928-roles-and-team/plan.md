@@ -100,7 +100,13 @@ src/features/members/__tests__/
 - Miembro: **Hacer dueño de marca** / **Quitar de dueños de marca** (`brandOwners.manage`). Equipo shows "Dueño de marca" on those members.
 - Tests in `src/features/branches/__tests__` and `src/features/members/__tests__/When_member_is_made_brand_owner`.
 
-## Out of scope
+## Custom roles (step 4)
 
-- Custom roles editor (step 4 of the backend plan).
+- Ajustes → **Roles** (`members.view`): "Roles de tu sede" and "Roles de la app" with how many people have each. A system role opens read-only with its permissions by module and "Copiar y personalizar" (`roles.manage`).
+- **Nuevo rol / editar**: name and permissions by module. Modules tied to a coach use "No / Solo lo suyo / Todo"; the rest are on/off chips. Only permissions the member has are offered. Errors: name taken, in use (delete), members without a coach, own role.
+- Invitar and Miembro list custom roles next to the system ones (only roles within the member's permissions) and ask for the coach when the chosen role only sees its own classes (`needsCoach`).
+- Equipo, invitations and Sedes show the custom role name.
+- Tests in `src/features/roles/__tests__` and `src/features/members/__tests__/When_member_is_invited_with_a_custom_role`.
+
+## Out of scope
 - Resending an invitation (revoke and invite again).

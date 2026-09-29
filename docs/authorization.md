@@ -1,12 +1,12 @@
 # Authorization: organizations, roles and permissions
 
-How the API decides what a signed-in user may do. The full design, including the parts not built yet (branch switching, custom roles, coaches collecting payments), is in the [roles and permissions plan](backend/20260928-roles-and-permissions/plan.md).
+How the API decides what a signed-in user may do. The full design, including the parts not built yet (coaches collecting only from their own students), is in the [roles and permissions plan](backend/20260928-roles-and-permissions/plan.md).
 
 ## Model
 
 - An **organization** is the brand. It groups **businesses** (branches). The tenant is still the business: `tenant_id` in the access token, `TenantId` on every tenant-owned row ([tenancy](tenancy.md)).
 - `OrganizationMembers` holds brand-level roles. Today: `BrandOwner`.
-- `BusinessMembers` holds the role inside one business (`BranchOwner`, `Coach`, `Viewer`) and, for coaches, the linked `InstructorId`.
+- `BusinessMembers` holds the role inside one business (`BranchOwner`, `Coach`, `Viewer`, or `Custom` with a `CustomRoleId`) and, for roles that only see their own classes, the linked `InstructorId`.
 - Sign-up creates an organization, its first business, and makes the user `BrandOwner` of the organization and `BranchOwner` of the business.
 
 ## System roles
@@ -14,11 +14,30 @@ How the API decides what a signed-in user may do. The full design, including the
 | Role | Can |
 |---|---|
 | `BrandOwner` | Every permission in every business of the organization, including giving or taking the `BranchOwner` role |
-| `BranchOwner` | Everything inside the business except the `BranchOwner` role itself |
+| `BranchOwner` | Everything inside the business except the `BranchOwner` role itself, including custom roles |
 | `Coach` | Their own class groups, sessions and private lessons; attendance in them; their students; register clients and students. No money, settings or team |
 | `Viewer` | Read everything in the business (money included), change nothing |
 
 A role that has an `.own` permission without the matching `.all` one needs a linked instructor (`member.instructor_required`).
+
+## Custom roles
+
+A branch can have its own roles (`CustomRoles`: name, permission codes, the role it was copied from). They are a snapshot: permissions added to the app later are not added to existing custom roles.
+
+| Operation | Endpoint | Permission |
+|---|---|---|
+| System and custom roles of the branch, with member counts | `GET /api/roles` | `members.view` |
+| Create a role (empty or copied: the app sends the permissions) | `POST /api/roles` `{ name, permissions, copiedFrom }` | `roles.manage` |
+| Rename it and set its permissions | `PUT /api/roles/{id}` | `roles.manage` |
+| Delete it | `DELETE /api/roles/{id}` | `roles.manage` |
+
+- Names are 2–60 characters, unique per branch, and can't be a system role name (`role.name_reserved`).
+- Brand permissions (`Permissions.BrandOnly`) and unknown codes are rejected (`role.permission_not_assignable`).
+- **Nobody hands out permissions they don't have**: creating or editing a role, inviting with a role and changing someone's role fail with `403 role.exceeds_own` when the role has a permission the current member lacks.
+- Nobody edits the role they hold (`403 role.own_role`).
+- A role with an `.own` permission and without the matching `.all` needs a linked coach: editing a role into that shape fails with `409 role.instructor_required` while a member or pending invitation with that role has no coach.
+- A role used by members or pending invitations can't be deleted (`409 role.in_use`); deleting it removes its old, used or revoked invitations.
+- Invitations and member changes send `role: "Custom"` with `customRoleId`. Team, invitation and `GET /api/me` responses return `customRoleId`; `GET /api/me/branches` returns `customRoleName`.
 
 ## Permissions
 
@@ -33,7 +52,7 @@ A role that has an `.own` permission without the matching `.all` one needs a lin
 2. `PermissionPolicyProvider` turns a `permission:<codes>` policy into a `PermissionRequirement`.
 3. `PermissionAuthorizationHandler` asks `ICurrentMember` for the user's access to the business in the token:
    - `BrandOwner` of the business's organization: every permission.
-   - Otherwise the permissions of their `BusinessMembers` role.
+   - Otherwise the permissions of their `BusinessMembers` role: a system role from `SystemRolePermissions`, or the stored permissions of their custom role (brand permissions filtered out).
    - Neither: no access, the request gets `403`.
 4. Use cases ask `IAccessScopes` what the member may reach:
    - `ForInstructorsAsync(<all permission>)`: every instructor, or only the member's linked instructor.
@@ -78,6 +97,7 @@ The `role` claim in the token is informational; authorization never reads it.
 
 - `MemberProvider` loads `GET /api/me` next to the business; `useCan(...)` hides tabs, rows, buttons and sections the member can't use ([frontend plan](frontend/20260928-roles-and-team/plan.md)).
 - Ajustes → Equipo lists members and pending invitations, invites, changes roles and removes members.
+- Ajustes → Roles lists the branch's roles and the app's; a system role can be copied into a custom one, and custom roles are edited by module with "No / Solo lo suyo / Todo" for the modules tied to a coach.
 - The email link opens `/accept-invitation?token=`, which creates the account if needed and signs in.
 
 ## Adding an endpoint
@@ -89,11 +109,12 @@ The `role` claim in the token is informational; authorization never reads it.
 ## Audit
 
 ```powershell
-dotnet test tests/ClassManager.Api.I.Tests --filter "FullyQualifiedName~Authorization|FullyQualifiedName~Coaches|FullyQualifiedName~Viewers|FullyQualifiedName~Members"
+dotnet test tests/ClassManager.Api.I.Tests --filter "FullyQualifiedName~Authorization|FullyQualifiedName~Coaches|FullyQualifiedName~Viewers|FullyQualifiedName~Members|FullyQualifiedName~Roles"
 ```
 
 ```sql
 SELECT o.Name, om.UserId, om.Role FROM OrganizationMembers om JOIN Organizations o ON o.Id = om.OrganizationId;
-SELECT b.Name, bm.UserId, bm.Role, bm.InstructorId FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
-SELECT TenantId, Email, Role, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
+SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
+SELECT TenantId, Email, Role, CustomRoleId, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
+SELECT TenantId, Name, Permissions, CopiedFrom FROM CustomRoles;
 ```

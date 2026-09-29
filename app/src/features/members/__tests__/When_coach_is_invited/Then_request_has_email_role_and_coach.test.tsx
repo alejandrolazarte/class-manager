@@ -3,13 +3,16 @@ import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { getTeam, inviteMember } from "@/features/members/membersApi";
 import { InviteMemberScreen } from "@/features/members/screens/InviteMemberScreen";
 import { translate } from "@/i18n/translate";
+import { listRoles } from "@/features/roles/rolesApi";
 import { buildInstructor } from "@/testing/classGroupFactory";
 import { routerMock } from "@/testing/expoRouterMock";
 import { buildInvitation, buildMember } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
+import { buildSystemRoles } from "@/testing/roleFactory";
 
 jest.mock("@/features/members/membersApi");
 jest.mock("@/features/instructors/instructorsApi");
+jest.mock("@/features/roles/rolesApi");
 
 const freeInstructor = buildInstructor({ id: "instructor-free", fullName: "Marcos Díaz" });
 const linkedInstructor = buildInstructor({ id: "instructor-linked", fullName: "Laura Gómez" });
@@ -17,6 +20,7 @@ const email = "marcos@example.com";
 
 describe("When coach is invited", () => {
   beforeEach(() => {
+    jest.mocked(listRoles).mockResolvedValue(buildSystemRoles());
     jest.mocked(listActiveInstructors).mockResolvedValue([freeInstructor, linkedInstructor]);
     jest.mocked(getTeam).mockResolvedValue({
       members: [buildMember({ instructorId: linkedInstructor.id })],
@@ -37,6 +41,7 @@ describe("When coach is invited", () => {
       expect(inviteMember).toHaveBeenCalledWith({
         email,
         role: "Coach",
+        customRoleId: null,
         instructorId: freeInstructor.id,
       }),
     );

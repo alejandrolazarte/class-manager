@@ -6,7 +6,7 @@ import { Branch } from "@/features/branches/types";
 import { useBranches } from "@/features/branches/useBranches";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { roleLabel } from "@/features/members/roleLabels";
+import { memberRoleLabel } from "@/features/roles/roleChoices";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
@@ -24,7 +24,10 @@ function branchRoleDescription(branch: Branch): string {
   if (branch.isBrandOwner) {
     return translate("branches.brandOwner");
   }
-  return branch.branchRole === null ? "" : roleLabel(branch.branchRole);
+  if (branch.branchRole === "Custom") {
+    return branch.customRoleName ?? memberRoleLabel(branch.branchRole, null, undefined);
+  }
+  return branch.branchRole === null ? "" : memberRoleLabel(branch.branchRole, null, undefined);
 }
 
 export function BranchesScreen() {

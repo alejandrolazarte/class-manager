@@ -5,27 +5,27 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record ChangeMemberRoleRequest(BusinessRole? Role, Guid? InstructorId);
+public sealed record ChangeMemberRoleRequest(BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null);
 
-public sealed record ChangeMemberRoleCommand(Guid MemberId, BusinessRole? Role, Guid? InstructorId);
+public sealed record ChangeMemberRoleCommand(Guid MemberId, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null);
 
 public sealed class ChangeMemberRoleUseCase(
     IBusinessRepository businessRepository,
     IBusinessMemberRepository businessMemberRepository,
     IOrganizationMemberRepository organizationMemberRepository,
     IInstructorRepository instructorRepository,
+    ICustomRoleRepository customRoleRepository,
     IIdentityService identityService,
     ICurrentMember currentMember,
     IUnitOfWork unitOfWork)
     : IUseCase<ChangeMemberRoleCommand, MemberResponse>
 {
-    private const string RoleRequiredMessage = "Choose a role.";
-
     public async Task<Result<MemberResponse>> ExecuteAsync(ChangeMemberRoleCommand command, CancellationToken cancellationToken)
     {
-        if (command.Role is not { } role)
+        var role = await MemberRules.ResolveRoleAsync(customRoleRepository, command.Role, command.CustomRoleId, cancellationToken);
+        if (role.IsFailure)
         {
-            return Result.Validation<MemberResponse>(RoleRequiredMessage, fieldName: nameof(ChangeMemberRoleCommand.Role));
+            return role.Error!;
         }
 
         var member = await businessMemberRepository.GetForUpdateAsync(command.MemberId, cancellationToken);
@@ -40,10 +40,14 @@ public sealed class ChangeMemberRoleUseCase(
             return MemberRules.OwnMembership();
         }
 
-        if (!await MemberRules.CanManageRoleAsync(currentMember, member.Role, cancellationToken)
-            || !await MemberRules.CanManageRoleAsync(currentMember, role, cancellationToken))
+        if (!await MemberRules.CanManageRoleAsync(currentMember, member.Role, cancellationToken))
         {
             return MemberRules.RoleNotAllowed();
+        }
+
+        if (await MemberRules.CheckCanGiveAsync(currentMember, role.Value!, cancellationToken) is { } roleError)
+        {
+            return roleError;
         }
 
         var instructorError = await MemberRules.ValidateInstructorAsync(
@@ -53,7 +57,7 @@ public sealed class ChangeMemberRoleUseCase(
             return instructorError;
         }
 
-        var change = member.ChangeRole(role, command.InstructorId);
+        var change = member.ChangeRole(role.Value!, command.InstructorId);
         if (change.IsFailure)
         {
             return change.Error!;

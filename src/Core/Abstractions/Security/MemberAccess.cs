@@ -8,7 +8,8 @@ public sealed record MemberAccess(
     BusinessRole? BranchRole,
     Guid? InstructorId,
     bool IsBrandOwner,
-    IReadOnlySet<string> Permissions)
+    IReadOnlySet<string> Permissions,
+    Guid? CustomRoleId = null)
 {
     public bool HasPermission(string permission) => Permissions.Contains(permission);
 }

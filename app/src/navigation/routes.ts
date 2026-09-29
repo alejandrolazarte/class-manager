@@ -37,6 +37,12 @@ export const routes = {
   team: "/settings/team",
   inviteMember: "/settings/team/invite",
   teamMember: (memberId: string) => `/settings/team/${memberId}`,
+  roles: "/settings/roles",
+  newRole: (copyFromRoleKey?: string) =>
+    copyFromRoleKey
+      ? `/settings/roles/new?copyFrom=${encodeURIComponent(copyFromRoleKey)}`
+      : "/settings/roles/new",
+  role: (roleKey: string) => `/settings/roles/${roleKey}`,
   acceptInvitation: "/accept-invitation",
   branches: "/settings/branches",
   newBranch: "/settings/branches/new",

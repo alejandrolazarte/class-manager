@@ -4,6 +4,7 @@ export const permissions = {
   membersView: "members.view",
   membersManage: "members.manage",
   branchOwnersManage: "branchOwners.manage",
+  rolesManage: "roles.manage",
   branchesCreate: "branches.create",
   brandOwnersManage: "brandOwners.manage",
   instructorsView: "instructors.view",
@@ -36,3 +37,28 @@ export const permissions = {
 export type Permission = (typeof permissions)[keyof typeof permissions];
 
 export const everyPermission: readonly Permission[] = Object.values(permissions);
+
+export const brandOnlyPermissions: readonly Permission[] = [
+  permissions.branchOwnersManage,
+  permissions.branchesCreate,
+  permissions.brandOwnersManage,
+];
+
+export const everyInstructorPermissionByOwnPermission: Readonly<
+  Partial<Record<Permission, Permission>>
+> = {
+  [permissions.classGroupsViewOwn]: permissions.classGroupsViewAll,
+  [permissions.sessionsViewOwn]: permissions.sessionsViewAll,
+  [permissions.attendanceRecordOwn]: permissions.attendanceRecordAll,
+  [permissions.privateLessonsViewOwn]: permissions.privateLessonsViewAll,
+  [permissions.privateLessonsManageOwn]: permissions.privateLessonsManageAll,
+  [permissions.studentsViewOwn]: permissions.studentsViewAll,
+};
+
+export function needsCoach(rolePermissions: readonly Permission[]): boolean {
+  return Object.entries(everyInstructorPermissionByOwnPermission).some(
+    ([ownPermission, allPermission]) =>
+      rolePermissions.includes(ownPermission as Permission) &&
+      !rolePermissions.includes(allPermission),
+  );
+}

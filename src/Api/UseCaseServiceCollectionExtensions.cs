@@ -16,6 +16,7 @@ using ClassManager.Core.UseCases.ImportExport.Students;
 using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.Members;
 using ClassManager.Core.UseCases.PrivateLessons;
+using ClassManager.Core.UseCases.Roles;
 using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
 using ClassManager.ImportExport.Parsing;
@@ -98,6 +99,10 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RestoreSessionCommand, SessionStatusResponse>, RestoreSessionUseCase>();
         services.AddScoped<IUseCase<RescheduleSessionCommand, SessionStatusResponse>, RescheduleSessionUseCase>();
         services.AddScoped<IUseCase<RestoreSessionScheduleCommand, SessionStatusResponse>, RestoreSessionScheduleUseCase>();
+        services.AddScoped<IUseCase<ListRolesQuery, IReadOnlyList<RoleResponse>>, ListRolesUseCase>();
+        services.AddScoped<IUseCase<CreateRoleCommand, RoleResponse>, CreateRoleUseCase>();
+        services.AddScoped<IUseCase<UpdateRoleCommand, RoleResponse>, UpdateRoleUseCase>();
+        services.AddScoped<IUseCase<DeleteRoleCommand, DeletedRoleResponse>, DeleteRoleUseCase>();
         services.AddScoped<IUseCase<AssignSubstituteCommand, SessionStatusResponse>, AssignSubstituteUseCase>();
         services.AddScoped<IUseCase<RemoveSubstituteCommand, SessionStatusResponse>, RemoveSubstituteUseCase>();
         services.AddScoped<IUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse>, SetDefaultMonthlyFeeUseCase>();

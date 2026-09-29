@@ -7,7 +7,7 @@ public sealed class Then_member_is_created
     [Fact]
     public void Then_member_is_created_Run()
     {
-        var member = BusinessMember.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), BusinessRole.BranchOwner, instructorId: null);
+        var member = BusinessMember.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), MemberRole.System(BusinessRole.BranchOwner), instructorId: null);
 
         member.Value!.Role.ShouldBe(BusinessRole.BranchOwner);
     }

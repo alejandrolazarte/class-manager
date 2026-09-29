@@ -22,6 +22,7 @@ public sealed class MemberInvitation : ITenantOwned
     public Guid TenantId { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public BusinessRole Role { get; private set; }
+    public Guid? CustomRoleId { get; private set; }
     public Guid? InstructorId { get; private set; }
     public string TokenHash { get; private set; } = string.Empty;
     public Guid InvitedByUserId { get; private set; }
@@ -32,7 +33,7 @@ public sealed class MemberInvitation : ITenantOwned
 
     public static Result<MemberInvitation> Create(
         string? email,
-        BusinessRole role,
+        MemberRole role,
         Guid? instructorId,
         string tokenHash,
         Guid invitedByUserId,
@@ -53,7 +54,8 @@ public sealed class MemberInvitation : ITenantOwned
         {
             Id = Guid.CreateVersion7(),
             Email = trimmedEmail,
-            Role = role,
+            Role = role.Role,
+            CustomRoleId = role.CustomRoleId,
             InstructorId = instructorId,
             TokenHash = tokenHash,
             InvitedByUserId = invitedByUserId,

@@ -5,4 +5,5 @@ public enum BusinessRole
     BranchOwner,
     Coach,
     Viewer,
+    Custom,
 }
