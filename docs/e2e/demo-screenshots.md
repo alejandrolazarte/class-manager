@@ -75,5 +75,6 @@ The family signs in through the sign-in screen, then the test captures:
 | `25-familia-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |
 | `26-familia-carrito` | Cart: lines, delivery place, payment and total |
 | `27-familia-pedidos`, `28-familia-pedidos-anteriores` | Orders in progress with tracking, and past orders |
+| `29-familia-ajustes` | Settings: account, appearance and sign out |
 
 Run only these with `pnpm screenshots:no-build Family_screens`.

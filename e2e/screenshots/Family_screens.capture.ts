@@ -82,4 +82,8 @@ test("Family screens", async ({ page, request }) => {
   await page.getByRole("button", { name: /Anteriores/ }).click();
   await page.getByText("Cancelado").first().waitFor();
   await capture(page, "28-familia-pedidos-anteriores");
+
+  await page.goto("/family/settings");
+  await page.getByText("Apariencia").first().waitFor();
+  await capture(page, "29-familia-ajustes");
 });

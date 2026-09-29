@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import { useSession } from "@/features/authentication/useSession";
 import { BillingTile } from "@/features/family/components/BillingTile";
 import { NextClassHero } from "@/features/family/components/NextClassHero";
 import { ShopPreview } from "@/features/family/components/ShopPreview";
@@ -19,7 +18,6 @@ import { Spinner } from "@/ui/Spinner";
 
 export function FamilyHomeScreen() {
   const router = useRouter();
-  const { signOut } = useSession();
   const { data: home, isPending, isError, refetch } = useFamilyHome();
   const { data: shop } = useFamilyShop();
   const { student, selectStudent } = useSelectedStudent(home?.students ?? []);
@@ -42,13 +40,6 @@ export function FamilyHomeScreen() {
             onPress={() => refetch()}
           />
         </Banner>
-        <Button
-          variant="dangerOutline"
-          size="medium"
-          icon="signOut"
-          label={translate("family.signOut")}
-          onPress={signOut}
-        />
       </ScrollScreen>
     );
   }
@@ -91,13 +82,6 @@ export function FamilyHomeScreen() {
           onOpenProduct={(productId) => router.navigate(routes.familyProduct(productId))}
         />
       )}
-      <Button
-        variant="ghost"
-        size="medium"
-        icon="signOut"
-        label={translate("family.signOut")}
-        onPress={signOut}
-      />
     </ScrollScreen>
   );
 }
