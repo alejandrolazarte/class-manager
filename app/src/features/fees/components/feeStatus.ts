@@ -10,7 +10,9 @@ export const feeStatusTones: Record<FeeStatus, StatusTone> = {
   Paid: "success",
 };
 
-export function feeStatusLabel(clientFee: ClientFee, currencyCode: string): string {
+export type FeeStatusSummary = Pick<ClientFee, "status" | "balance" | "paid" | "fee">;
+
+export function feeStatusLabel(clientFee: FeeStatusSummary, currencyCode: string): string {
   const money = (amount: number) => formatMoney(amount, currencyCode);
   return {
     Unpaid: translate("fees.status.unpaid", { balance: money(clientFee.balance) }),

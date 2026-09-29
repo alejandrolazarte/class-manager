@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import { authenticationSession } from "@/api/authenticationSession";
 import {
+  acceptFamilyInvitation as acceptFamilyInvitationRequest,
   acceptInvitation as acceptInvitationRequest,
   refreshSession,
   signIn as signInRequest,
@@ -9,26 +10,35 @@ import {
   signUp as signUpRequest,
   switchBranch as switchBranchRequest,
 } from "@/features/authentication/authenticationApi";
+import { SessionKind, sessionKindOf } from "@/features/authentication/sessionKind";
 import { refreshTokenStorage } from "@/features/authentication/sessionStorage";
 import {
+  AcceptFamilyInvitationRequest,
   AcceptInvitationRequest,
   SignInRequest,
   SignUpRequest,
   TokenResponse,
 } from "@/features/authentication/types";
 
-export type SessionStartReason = "signUp" | "signIn" | "invitation" | "branchSwitch" | "restore";
+export type SessionStartReason =
+  "signUp" | "signIn" | "invitation" | "familyInvitation" | "branchSwitch" | "restore";
 
 export type SessionState =
   | { status: "restoring" }
   | { status: "signedOut" }
-  | { status: "signedIn"; startedBy: SessionStartReason; ownerFullName?: string };
+  | {
+      status: "signedIn";
+      startedBy: SessionStartReason;
+      kind: SessionKind;
+      ownerFullName?: string;
+    };
 
 export interface SessionContextValue {
   session: SessionState;
   signIn: (request: SignInRequest) => Promise<void>;
   signUp: (request: SignUpRequest) => Promise<void>;
   acceptInvitation: (request: AcceptInvitationRequest) => Promise<void>;
+  acceptFamilyInvitation: (request: AcceptFamilyInvitationRequest) => Promise<void>;
   switchBranch: (businessId: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -63,7 +73,7 @@ async function restoreSession(): Promise<SessionState> {
     const restoredAccessToken = await authenticationSession.refreshAccessToken();
     return restoredAccessToken === null
       ? signedOutSession
-      : { status: "signedIn", startedBy: "restore" };
+      : { status: "signedIn", startedBy: "restore", kind: sessionKindOf(restoredAccessToken) };
   } catch {
     return signedOutSession;
   }
@@ -99,7 +109,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
     async (tokens: TokenResponse, startedBy: SessionStartReason, ownerFullName?: string) => {
       authenticationSession.startSession(tokens.accessToken);
       await refreshTokenStorage.write(tokens.refreshToken);
-      setSession({ status: "signedIn", startedBy, ownerFullName });
+      setSession({
+        status: "signedIn",
+        startedBy,
+        kind: sessionKindOf(tokens.accessToken),
+        ownerFullName,
+      });
     },
     [],
   );
@@ -118,6 +133,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const acceptInvitation = useCallback(
     async (request: AcceptInvitationRequest) =>
       startSession(await acceptInvitationRequest(request), "invitation"),
+    [startSession],
+  );
+
+  const acceptFamilyInvitation = useCallback(
+    async (request: AcceptFamilyInvitationRequest) =>
+      startSession(await acceptFamilyInvitationRequest(request), "familyInvitation"),
     [startSession],
   );
 
@@ -143,8 +164,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, []);
 
   const contextValue = useMemo(
-    () => ({ session, signIn, signUp, acceptInvitation, switchBranch, signOut }),
-    [session, signIn, signUp, acceptInvitation, switchBranch, signOut],
+    () => ({
+      session,
+      signIn,
+      signUp,
+      acceptInvitation,
+      acceptFamilyInvitation,
+      switchBranch,
+      signOut,
+    }),
+    [session, signIn, signUp, acceptInvitation, acceptFamilyInvitation, switchBranch, signOut],
   );
 
   return <SessionContext.Provider value={contextValue}>{children}</SessionContext.Provider>;

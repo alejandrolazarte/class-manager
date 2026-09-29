@@ -7,7 +7,7 @@ internal sealed class PermissionAuthorizationHandler(ICurrentMember currentMembe
 {
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
-        if (context.User.Identity?.IsAuthenticated != true)
+        if (context.User.Identity?.IsAuthenticated != true || !AccountKinds.IsTeam(SessionKindClaim.Of(context.User)))
         {
             return;
         }

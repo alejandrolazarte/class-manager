@@ -35,8 +35,8 @@ internal sealed class TokenService(ITokenIssuer tokenIssuer) : ITokenService
         tokenIssuer.RevokeAsync(refreshToken, cancellationToken);
 
     private static TokenSubject ToTokenSubject(SessionUser user) =>
-        new(user.UserId, user.Email, user.TenantId, user.RoleName);
+        new(user.UserId, user.Email, user.TenantId, user.RoleName, user.Kind);
 
     private static IssuedTokens ToIssuedTokens(IssuedTokenPair tokens) =>
-        new(tokens.AccessToken, tokens.AccessTokenExpiresAt, tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
+        new(tokens.AccessToken, tokens.AccessTokenExpiresAt, tokens.RefreshToken, tokens.RefreshTokenExpiresAt, tokens.Kind);
 }

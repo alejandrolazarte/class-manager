@@ -14,17 +14,23 @@ internal sealed class JwtAccessTokenFactory(IOptions<JwtOptions> options, TimePr
         var issuedAt = TruncateToSeconds(timeProvider.GetUtcNow());
         var expiresAt = issuedAt + jwtOptions.AccessTokenLifetime;
 
+        var claims = new Dictionary<string, object>
+        {
+            [SecurityClaimTypes.Subject] = subject.UserId.ToString(),
+            [SecurityClaimTypes.Email] = subject.Email,
+            [jwtOptions.TenantClaimType] = subject.TenantId.ToString(),
+            [SecurityClaimTypes.Role] = subject.Role,
+        };
+        if (subject.Kind is not null)
+        {
+            claims[SecurityClaimTypes.Kind] = subject.Kind;
+        }
+
         var token = _tokenHandler.CreateToken(new SecurityTokenDescriptor
         {
             Issuer = jwtOptions.Issuer,
             Audience = jwtOptions.Audience,
-            Claims = new Dictionary<string, object>
-            {
-                [SecurityClaimTypes.Subject] = subject.UserId.ToString(),
-                [SecurityClaimTypes.Email] = subject.Email,
-                [jwtOptions.TenantClaimType] = subject.TenantId.ToString(),
-                [SecurityClaimTypes.Role] = subject.Role,
-            },
+            Claims = claims,
             IssuedAt = issuedAt.UtcDateTime,
             NotBefore = issuedAt.UtcDateTime,
             Expires = expiresAt.UtcDateTime,

@@ -3,10 +3,12 @@ namespace ClassManager.Security.Tokens;
 public sealed class RefreshToken
 {
     public const int TokenHashLength = 64;
+    public const int KindMaxLength = 20;
 
     public Guid Id { get; init; }
     public Guid UserId { get; init; }
     public Guid? TenantId { get; init; }
+    public string? Kind { get; init; }
     public string TokenHash { get; init; } = string.Empty;
     public DateTimeOffset CreatedAt { get; init; }
     public DateTimeOffset ExpiresAt { get; init; }

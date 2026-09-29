@@ -32,6 +32,7 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
             refreshToken.HasKey(token => token.Id);
             refreshToken.Property(token => token.Id).ValueGeneratedNever();
             refreshToken.Property(token => token.TokenHash).HasMaxLength(RefreshToken.TokenHashLength).IsFixedLength().IsRequired();
+            refreshToken.Property(token => token.Kind).HasMaxLength(RefreshToken.KindMaxLength);
             refreshToken.HasIndex(token => token.TokenHash).IsUnique();
             refreshToken.HasIndex(token => token.UserId);
             refreshToken.HasOne<ApplicationUser>().WithMany().HasForeignKey(token => token.UserId).OnDelete(DeleteBehavior.Cascade);

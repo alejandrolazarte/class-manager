@@ -15,7 +15,7 @@ public sealed class Then_every_endpoint_requires_a_permission_or_is_anonymous(Ap
         var endpoints = fixture.ApiFactory.Services.GetRequiredService<EndpointDataSource>().Endpoints.OfType<RouteEndpoint>().ToList();
 
         var unprotectedEndpoints = endpoints
-            .Where(endpoint => !IsAnonymous(endpoint) && !RequiresPermission(endpoint))
+            .Where(endpoint => !IsAnonymous(endpoint) && !RequiresPermission(endpoint) && !RequiresFamily(endpoint))
             .Select(endpoint => endpoint.DisplayName)
             .ToList();
 
@@ -28,4 +28,8 @@ public sealed class Then_every_endpoint_requires_a_permission_or_is_anonymous(Ap
     private static bool RequiresPermission(Endpoint endpoint) =>
         endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>()
             .Any(authorizeData => authorizeData.Policy?.StartsWith(AuthorizationPolicies.PermissionPrefix, StringComparison.Ordinal) == true);
+
+    private static bool RequiresFamily(Endpoint endpoint) =>
+        endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>()
+            .Any(authorizeData => authorizeData.Policy == AuthorizationPolicies.Family);
 }

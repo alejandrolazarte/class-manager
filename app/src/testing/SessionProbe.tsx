@@ -10,6 +10,7 @@ export function SessionProbe() {
   return (
     <>
       <Text>{session.status}</Text>
+      {session.status === "signedIn" ? <Text>{session.kind}</Text> : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={signOutProbeLabel}

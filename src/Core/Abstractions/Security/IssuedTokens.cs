@@ -4,4 +4,5 @@ public sealed record IssuedTokens(
     string AccessToken,
     DateTimeOffset AccessTokenExpiresAt,
     string RefreshToken,
-    DateTimeOffset RefreshTokenExpiresAt);
+    DateTimeOffset RefreshTokenExpiresAt,
+    string? Kind = null);

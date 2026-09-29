@@ -6,8 +6,14 @@ public sealed record TokenResponse(
     string AccessToken,
     DateTimeOffset AccessTokenExpiresAt,
     string RefreshToken,
-    DateTimeOffset RefreshTokenExpiresAt)
+    DateTimeOffset RefreshTokenExpiresAt,
+    string Kind = AccountKinds.Team)
 {
     public static TokenResponse From(IssuedTokens tokens) =>
-        new(tokens.AccessToken, tokens.AccessTokenExpiresAt, tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
+        new(
+            tokens.AccessToken,
+            tokens.AccessTokenExpiresAt,
+            tokens.RefreshToken,
+            tokens.RefreshTokenExpiresAt,
+            tokens.Kind ?? AccountKinds.Team);
 }

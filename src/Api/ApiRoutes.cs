@@ -4,6 +4,8 @@ public static class ApiRoutes
 {
     public const string Health = "/health";
     public const string Clients = "/api/clients";
+    public const string Family = "/api/family";
+    public const string AppInvitation = "/app-invitation";
     public const string ClientById = "/{clientId:guid}";
     public const string StudentsOfClient = "/students";
     public const string Students = "/api/students";
@@ -57,6 +59,7 @@ public static class ApiRoutes
     public const string InvitationsSegment = "/invitations";
     public const string InvitationById = "/invitations/{invitationId:guid}";
     public const string AcceptInvitation = "/invitations/accept";
+    public const string AcceptFamilyInvitation = "/family-invitations/accept";
     public const string MyBranches = "/api/me/branches";
     public const string SwitchBranch = "/branch";
     public const string OrganizationBranches = "/api/organization/branches";

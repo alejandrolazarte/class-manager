@@ -119,7 +119,7 @@ public sealed class ListMonthlyFeesUseCase(
                     fee,
                     paid,
                     fee is null ? 0 : Math.Max(fee.Value - paid, 0),
-                    StatusOf(fee, paid));
+                    FeeRules.StatusOf(fee, paid));
             })
             .OrderBy(client => client.Status)
             .ThenBy(client => client.ClientFullName, StringComparer.CurrentCultureIgnoreCase)];
@@ -147,14 +147,6 @@ public sealed class ListMonthlyFeesUseCase(
             .ThenBy(client => client.AvailableClasses)
             .ThenBy(client => client.ClientFullName, StringComparer.CurrentCultureIgnoreCase)];
     }
-
-    private static FeeStatus StatusOf(decimal? fee, decimal paid) => fee switch
-    {
-        null => FeeStatus.NoFee,
-        _ when paid >= fee => FeeStatus.Paid,
-        _ when paid > 0 => FeeStatus.Partial,
-        _ => FeeStatus.Unpaid,
-    };
 
     private sealed record EnrolledClient(EnrolledStudentInPeriod Row, IReadOnlyList<string> StudentNames);
 }

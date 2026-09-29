@@ -1,6 +1,6 @@
 # Plan — Family app, shop and online payments
 
-Status: proposal. Steps 1–4 need no payment provider; Stripe Connect comes last.
+Status: step 1 done, the rest is a proposal. Steps 1–4 need no payment provider; Stripe Connect comes last.
 
 ## Goal
 
@@ -24,6 +24,7 @@ Today students and families are not users. This plan adds **family accounts**, a
 - The branch invites from the family card: "Invitar a la app" sends a link by WhatsApp or email (the same single-use, 7-day, hashed-token mechanism as team invitations). Accepting creates the account or links an existing one.
 - A user can be a family in one branch and a team member in another (a coach whose children swim). Sign-in opens the team app when the user is a member of the branch, and the family app otherwise; a switcher covers both, like branches today.
 - Family access is enforced like tenancy: every family endpoint reads the `ClientId` from the user's `ClientAccounts` row, never from the request.
+- **Family and team are separated end to end** (built in step 1, see [authorization](../../authorization.md#families-and-adult-students)): the session kind (`team` / `family`) is fixed at sign-in and kept on refresh, team endpoints reject family tokens, family endpoints (`/api/family/...`, their own `family` policy) reject team tokens, and family use cases never reuse team ones.
 
 ### Products and stock
 
@@ -118,7 +119,7 @@ A family account has no team permissions.
 
 Each step is usable on its own; steps 1–4 need no payment provider.
 
-1. **Family and adult student accounts.** Invitation from the family card, accept, sign in to the family app, Inicio (read only: next classes, class balance, fee of the month). Tenant and family isolation tests.
+1. **Family and adult student accounts — done** ([authorization](../../authorization.md#families-and-adult-students)). Invitation from the family card ("Invitar a la app"), accept screen (`/accept-family-invitation`), sign-in opens the family shell (`/family`), Inicio is read only: students with their next classes (14 days, cancellations, reschedules and substitutes applied), the month's fee or the class balance, and "se paga en la sede". Family and team sessions are separated end to end (kind fixed at sign-in, disjoint policies and endpoints, tests for both directions). Not built yet: opening the family side when the same user is also a team member, e2e for the invitation flow (needs the invitation email in e2e), the branch's theme in the family shell.
 2. **Products and orders at the counter.** Products, variants, stock ledger, counter sales, pickup, refunds. Useful from day one for merchandise.
 3. **Shop in the family app, pay at the branch.** Packs and products shown in the app, cart, orders that reserve stock, the branch confirms the payment and the app credits classes or moves stock, "Mis pedidos", automatic cancellation after 7 days.
 4. **Notifications.** Email (and later push) to the family when an order is ready to pick up and to the branch when an order is placed.

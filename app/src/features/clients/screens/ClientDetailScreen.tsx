@@ -6,6 +6,7 @@ import {
 } from "@/features/clients/phoneNumberFormatting";
 import { useClient } from "@/features/clients/useClient";
 import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
+import { InviteFamilySection } from "@/features/family/components/InviteFamilySection";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
@@ -120,6 +121,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           ) : null}
         </View>
       ) : null}
+      {canManageStudents ? <InviteFamilySection client={client} /> : null}
       <SectionTitle title={translate("clients.detail.students")} />
       {client.students.length === 0 ? (
         <AppText variant="body" tone="muted">
