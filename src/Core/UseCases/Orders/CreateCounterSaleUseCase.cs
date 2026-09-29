@@ -3,13 +3,10 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
-using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Orders;
 using ClassManager.Core.Domain.Products;
-using ClassManager.Core.UseCases.ClassPacks;
-using ClassManager.Core.UseCases.Products;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -29,6 +26,7 @@ public sealed class CreateCounterSaleUseCase(
     IClassPackPurchaseRepository purchaseRepository,
     IProductRepository productRepository,
     IStockMovementRepository stockMovementRepository,
+    IStockLock stockLock,
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
@@ -56,139 +54,47 @@ public sealed class CreateCounterSaleUseCase(
             }
         }
 
-        var requestedLines = command.Lines ?? [];
-        var packs = await LoadPacksAsync(requestedLines, cancellationToken);
-        var products = await productRepository.ListByVariantsAsync(
-            [.. requestedLines.Select(line => line.ProductVariantId).OfType<Guid>().Distinct()], cancellationToken);
-
-        var lines = new List<OrderLine>();
-        foreach (var requestedLine in requestedLines)
+        var requestedLines = (command.Lines ?? [])
+            .Select(line => new RequestedOrderLine(line.ClassPackId, line.ProductVariantId, line.Quantity, line.UnitPrice))
+            .ToList();
+        var draft = await OrderDrafts.BuildAsync(requestedLines, OrderAudience.Team, classPackRepository, productRepository, cancellationToken);
+        if (draft.IsFailure)
         {
-            var line = BuildLine(requestedLine, packs, products);
-            if (line.IsFailure)
-            {
-                return line.Error!;
-            }
-
-            lines.Add(line.Value!);
-        }
-
-        var stockCheck = await CheckStockAsync(lines, products, cancellationToken);
-        if (stockCheck is not null)
-        {
-            return stockCheck;
+            return draft.Error!;
         }
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var now = timeProvider.GetUtcNow();
         var access = await currentMember.GetAccessAsync(cancellationToken);
         var order = Order.CounterSale(
-            client?.Id, lines, command.Method, command.PaidOn ?? today, command.Notes, command.IsDelivered, today, access?.UserId, now);
+            client?.Id, draft.Value!.Lines, command.Method, command.PaidOn ?? today, command.Notes, command.IsDelivered, today, access?.UserId, now);
         if (order.IsFailure)
         {
             return order.Error!;
         }
 
-        foreach (var line in order.Value!.Lines)
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        var stockProblem = await OrderDrafts.LockAndCheckStockAsync(draft.Value, stockLock, stockMovementRepository, cancellationToken);
+        if (stockProblem is not null)
         {
-            if (line.Kind == OrderLineKind.ClassPack)
-            {
-                var purchase = ClassPackPurchase.Sell(
-                    client!.Id, packs[line.ClassPackId!.Value], line.UnitPrice, order.Value.PaidOn!.Value, order.Value.Method, order.Value.Notes, today, now, access?.UserId);
-                if (purchase.IsFailure)
-                {
-                    return purchase.Error!;
-                }
+            return stockProblem;
+        }
 
-                purchaseRepository.Add(purchase.Value!);
-                line.LinkPurchase(purchase.Value!.Id);
-                continue;
-            }
+        var credit = OrderPayments.CreditClassPacks(order.Value!, draft.Value.Packs, purchaseRepository, today, now, access?.UserId);
+        if (credit.IsFailure)
+        {
+            return credit.Error!;
+        }
 
-            var product = products.First(candidate => candidate.Id == line.ProductId);
-            if (product.TracksStock)
-            {
-                stockMovementRepository.Add(StockMovement.Sale(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access?.UserId, now));
-            }
+        foreach (var line in order.Value!.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))
+        {
+            stockMovementRepository.Add(StockMovement.Sale(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access?.UserId, now));
         }
 
         orderRepository.Add(order.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return OrderResponse.From(order.Value, client);
-    }
-
-    private async Task<Dictionary<Guid, ClassPack>> LoadPacksAsync(IReadOnlyList<CounterSaleLine> lines, CancellationToken cancellationToken)
-    {
-        var packs = new Dictionary<Guid, ClassPack>();
-        foreach (var classPackId in lines.Select(line => line.ClassPackId).OfType<Guid>().Distinct())
-        {
-            if (await classPackRepository.GetByIdAsync(classPackId, cancellationToken) is { } pack)
-            {
-                packs[classPackId] = pack;
-            }
-        }
-
-        return packs;
-    }
-
-    private static Result<OrderLine> BuildLine(
-        CounterSaleLine requestedLine,
-        Dictionary<Guid, ClassPack> packs,
-        IReadOnlyList<Product> products)
-    {
-        switch (requestedLine)
-        {
-            case { ClassPackId: { } classPackId, ProductVariantId: null }:
-                if (!packs.TryGetValue(classPackId, out var pack))
-                {
-                    return ClassPackFailures.NotFound();
-                }
-
-                return pack.IsActive ? OrderLine.ForClassPack(pack, requestedLine.UnitPrice) : ProductFailures.NotSold();
-            case { ProductVariantId: { } variantId, ClassPackId: null }:
-                var product = products.FirstOrDefault(candidate => candidate.FindVariant(variantId) is not null);
-                if (product is null)
-                {
-                    return ProductFailures.VariantNotFound();
-                }
-
-                var variant = product.FindVariant(variantId)!;
-                if (!product.IsActive || !variant.IsActive)
-                {
-                    return ProductFailures.NotSold();
-                }
-
-                return OrderLine.ForProduct(product, variant, requestedLine.Quantity, requestedLine.UnitPrice);
-            default:
-                return OrderFailures.LineItemRequired();
-        }
-    }
-
-    private async Task<ResultError?> CheckStockAsync(
-        IReadOnlyList<OrderLine> lines,
-        IReadOnlyList<Product> products,
-        CancellationToken cancellationToken)
-    {
-        var quantityByVariant = lines
-            .Where(line => line.Kind == OrderLineKind.Product)
-            .GroupBy(line => line.ProductVariantId!.Value)
-            .ToDictionary(group => group.Key, group => group.Sum(line => line.Quantity));
-        if (quantityByVariant.Count == 0)
-        {
-            return null;
-        }
-
-        var stockByVariant = await stockMovementRepository.StockByVariantAsync([.. quantityByVariant.Keys], cancellationToken);
-        foreach (var (variantId, quantity) in quantityByVariant)
-        {
-            var product = products.First(candidate => candidate.FindVariant(variantId) is not null);
-            if (!StockRules.CanSell(product, stockByVariant.GetValueOrDefault(variantId), quantity))
-            {
-                return ProductFailures.OutOfStock(product.SaleNameOf(product.FindVariant(variantId)!));
-            }
-        }
-
-        return null;
     }
 }

@@ -131,6 +131,13 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<CreateCounterSaleCommand, OrderResponse>, CreateCounterSaleUseCase>();
         services.AddScoped<IUseCase<MarkOrderDeliveredCommand, OrderResponse>, MarkOrderDeliveredUseCase>();
         services.AddScoped<IUseCase<RefundOrderCommand, OrderResponse>, RefundOrderUseCase>();
+        services.AddScoped<IUseCase<ConfirmOrderPaymentCommand, OrderResponse>, ConfirmOrderPaymentUseCase>();
+        services.AddScoped<IUseCase<CancelOrderCommand, OrderResponse>, CancelOrderUseCase>();
+        services.AddScoped<IUseCase<CancelExpiredOrdersCommand, int>, CancelExpiredOrdersUseCase>();
+        services.AddScoped<IUseCase<GetFamilyShopQuery, FamilyShopResponse>, GetFamilyShopUseCase>();
+        services.AddScoped<IUseCase<ListFamilyOrdersQuery, IReadOnlyList<FamilyOrderResponse>>, ListFamilyOrdersUseCase>();
+        services.AddScoped<IUseCase<PlaceFamilyOrderCommand, FamilyOrderResponse>, PlaceFamilyOrderUseCase>();
+        services.AddScoped<IUseCase<CancelFamilyOrderCommand, FamilyOrderResponse>, CancelFamilyOrderUseCase>();
         services.AddScoped<IUseCase<RecordPaymentCommand, PaymentResponse>, RecordPaymentUseCase>();
         services.AddScoped<IUseCase<ListClientPaymentsQuery, IReadOnlyList<PaymentResponse>>, ListClientPaymentsUseCase>();
         services.AddScoped<IUseCase<DeletePaymentCommand, PaymentResponse>, DeletePaymentUseCase>();

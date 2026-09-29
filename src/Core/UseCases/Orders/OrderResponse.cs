@@ -29,7 +29,8 @@ public sealed record OrderResponse(
     string? Notes,
     DateTimeOffset CreatedAt,
     DateTimeOffset? DeliveredAt,
-    IReadOnlyList<OrderLineResponse> Lines)
+    IReadOnlyList<OrderLineResponse> Lines,
+    DateTimeOffset? CancelledAt = null)
 {
     public static OrderResponse From(Order order, Client? client) =>
         new(
@@ -57,5 +58,6 @@ public sealed record OrderResponse(
                     line.RefundedQuantity,
                     line.RefundedAmount,
                     line.ClassPackPurchaseId)),
-            ]);
+            ],
+            order.CancelledAt);
 }

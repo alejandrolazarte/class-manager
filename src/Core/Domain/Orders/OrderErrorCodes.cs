@@ -8,5 +8,7 @@ public static class OrderErrorCodes
     public const string NotRefundable = "order.not_refundable";
     public const string NothingToRefund = "order.nothing_to_refund";
     public const string ClientRequired = "order.client_required";
+    public const string NotRequested = "order.not_requested";
+    public const string TooManyOpen = "order.too_many_open";
     public const string PurchaseFromOrder = "class_pack_purchase.from_order";
 }

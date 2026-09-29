@@ -6,4 +6,6 @@ public enum StockMovementKind
     Adjustment,
     Sale,
     Refund,
+    Reservation,
+    Cancellation,
 }

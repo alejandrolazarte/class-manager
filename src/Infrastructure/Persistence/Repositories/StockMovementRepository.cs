@@ -19,6 +19,11 @@ internal sealed class StockMovementRepository(AppDbContext context) : IStockMove
             .ToDictionaryAsync(entry => entry.VariantId, entry => entry.Stock, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<StockMovement>> ListReservationsByOrderAsync(Guid orderId, CancellationToken cancellationToken) =>
+        await context.StockMovements.AsNoTracking()
+            .Where(movement => movement.OrderId == orderId && movement.Kind == StockMovementKind.Reservation)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<StockMovement>> ListByProductAsync(Guid productId, int limit, CancellationToken cancellationToken) =>
         await (
             from movement in context.StockMovements.AsNoTracking()

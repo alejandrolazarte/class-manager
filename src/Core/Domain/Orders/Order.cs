@@ -8,6 +8,9 @@ public sealed class Order : ITenantOwned
 {
     public const int NotesMaxLength = 200;
     public const int MaximumLineCount = 20;
+    public const int MaximumOpenRequestsPerFamily = 5;
+
+    public static readonly TimeSpan RequestLifetime = TimeSpan.FromDays(7);
 
     private const string LinesRequiredMessage = "Add at least one item, and at most 20.";
     private const string MethodRequiredMessage = "Choose a payment method.";
@@ -17,6 +20,7 @@ public sealed class Order : ITenantOwned
     private const string NotAwaitingPickupMessage = "This order has nothing waiting to be picked up.";
     private const string NotRefundableMessage = "Only paid orders can be refunded.";
     private const string NothingToRefundMessage = "There are no unused classes left to refund.";
+    private const string NotRequestedMessage = "Only orders waiting for payment can be paid or cancelled.";
     private const int RefundDecimals = 2;
 
     private readonly List<OrderLine> _lines = [];
@@ -38,6 +42,8 @@ public sealed class Order : ITenantOwned
     public string? Notes { get; private set; }
     public Guid? CreatedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? CancelledAt { get; private set; }
+    public Guid? CancelledByUserId { get; private set; }
     public IReadOnlyList<OrderLine> Lines => _lines;
 
     public decimal Total => _lines.Sum(line => line.Total);
@@ -59,6 +65,76 @@ public sealed class Order : ITenantOwned
         Guid? recordedByUserId,
         DateTimeOffset createdAt)
     {
+        var order = Create(clientId, OrderChannel.Counter, lines, notes, recordedByUserId, createdAt);
+        if (order.IsFailure)
+        {
+            return order;
+        }
+
+        var payment = order.Value!.ConfirmPayment(method, paidOn, today, recordedByUserId);
+        if (payment.IsFailure)
+        {
+            return payment.Error!;
+        }
+
+        if (isDelivered && order.Value.HasProducts)
+        {
+            order.Value.MarkDelivered(recordedByUserId, createdAt);
+        }
+
+        return order;
+    }
+
+    public static Result<Order> Request(Guid clientId, IReadOnlyList<OrderLine> lines, Guid? requestedByUserId, DateTimeOffset createdAt) =>
+        Create(clientId, OrderChannel.App, lines, null, requestedByUserId, createdAt);
+
+    public Result ConfirmPayment(PaymentMethod? method, DateOnly paidOn, DateOnly today, Guid? recordedByUserId)
+    {
+        if (Status != OrderStatus.Requested)
+        {
+            return Result.Conflict(NotRequestedMessage, OrderErrorCodes.NotRequested);
+        }
+
+        if (method is null || !Enum.IsDefined(method.Value))
+        {
+            return Result.Validation(MethodRequiredMessage, fieldName: nameof(Method));
+        }
+
+        if (paidOn > today)
+        {
+            return Result.Validation(PaidOnInFutureMessage, fieldName: nameof(PaidOn));
+        }
+
+        Status = OrderStatus.Paid;
+        Method = method;
+        PaidOn = paidOn;
+        PaymentRecordedByUserId = recordedByUserId;
+        return Result.Success();
+    }
+
+    public Result Cancel(Guid? cancelledByUserId, DateTimeOffset cancelledAt)
+    {
+        if (Status != OrderStatus.Requested)
+        {
+            return Result.Conflict(NotRequestedMessage, OrderErrorCodes.NotRequested);
+        }
+
+        Status = OrderStatus.Cancelled;
+        CancelledAt = cancelledAt.ToUniversalTime();
+        CancelledByUserId = cancelledByUserId;
+        return Result.Success();
+    }
+
+    public bool IsExpired(DateTimeOffset now) => Status == OrderStatus.Requested && CreatedAt + RequestLifetime <= now;
+
+    private static Result<Order> Create(
+        Guid? clientId,
+        OrderChannel channel,
+        IReadOnlyList<OrderLine> lines,
+        string? notes,
+        Guid? createdByUserId,
+        DateTimeOffset createdAt)
+    {
         if (lines.Count is 0 or > MaximumLineCount)
         {
             return Result.Validation<Order>(LinesRequiredMessage, fieldName: OrderLine.LinesFieldName);
@@ -67,16 +143,6 @@ public sealed class Order : ITenantOwned
         if (clientId is null && lines.Any(line => line.Kind == OrderLineKind.ClassPack))
         {
             return Result.Validation<Order>(ClientRequiredMessage, OrderErrorCodes.ClientRequired, nameof(ClientId));
-        }
-
-        if (method is null || !Enum.IsDefined(method.Value))
-        {
-            return Result.Validation<Order>(MethodRequiredMessage, fieldName: nameof(Method));
-        }
-
-        if (paidOn > today)
-        {
-            return Result.Validation<Order>(PaidOnInFutureMessage, fieldName: nameof(PaidOn));
         }
 
         var trimmedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
@@ -89,24 +155,16 @@ public sealed class Order : ITenantOwned
         {
             Id = Guid.CreateVersion7(),
             ClientId = clientId,
-            Channel = OrderChannel.Counter,
-            Status = OrderStatus.Paid,
-            Method = method,
-            PaidOn = paidOn,
-            PaymentRecordedByUserId = recordedByUserId,
+            Channel = channel,
+            Status = OrderStatus.Requested,
             Notes = trimmedNotes,
-            CreatedByUserId = recordedByUserId,
+            CreatedByUserId = createdByUserId,
             CreatedAt = createdAt.ToUniversalTime(),
         };
         foreach (var line in lines)
         {
             line.AttachTo(order.Id);
             order._lines.Add(line);
-        }
-
-        if (isDelivered && order.HasProducts)
-        {
-            order.MarkDelivered(recordedByUserId, createdAt);
         }
 
         return order;

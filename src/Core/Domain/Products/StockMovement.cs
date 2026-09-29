@@ -73,6 +73,19 @@ public sealed class StockMovement : ITenantOwned
     public static StockMovement Return(Guid variantId, int quantity, Guid orderId, Guid? recordedByUserId, DateTimeOffset createdAt) =>
         Create(variantId, StockMovementKind.Refund, quantity, orderId, null, recordedByUserId, createdAt);
 
+    public static StockMovement Reserve(Guid variantId, int quantity, Guid orderId, Guid? recordedByUserId, DateTimeOffset createdAt) =>
+        Create(variantId, StockMovementKind.Reservation, -quantity, orderId, null, recordedByUserId, createdAt);
+
+    public static StockMovement Release(StockMovement reservation, Guid? recordedByUserId, DateTimeOffset createdAt) =>
+        Create(
+            reservation.ProductVariantId,
+            StockMovementKind.Cancellation,
+            -reservation.Quantity,
+            reservation.OrderId,
+            null,
+            recordedByUserId,
+            createdAt);
+
     private static StockMovement Create(
         Guid variantId,
         StockMovementKind kind,
