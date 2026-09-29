@@ -8,6 +8,7 @@ export type BusinessRole = SystemRole | "Custom";
 
 export interface CurrentMember {
   businessId: string;
+  userId?: string | null;
   branchRole: BusinessRole | null;
   customRoleId?: string | null;
   instructorId: string | null;

@@ -1,6 +1,6 @@
 # Authorization: organizations, roles and permissions
 
-How the API decides what a signed-in user may do. The full design, including the parts not built yet (coaches collecting only from their own students), is in the [roles and permissions plan](backend/20260928-roles-and-permissions/plan.md).
+How the API decides what a signed-in user may do. The full design, including the parts not built yet (coaches enrolling in their own classes, resending invitations), is in the [roles and permissions plan](backend/20260928-roles-and-permissions/plan.md).
 
 ## Model
 
@@ -38,6 +38,16 @@ A branch can have its own roles (`CustomRoles`: name, permission codes, the role
 - A role with an `.own` permission and without the matching `.all` needs a linked coach: editing a role into that shape fails with `409 role.instructor_required` while a member or pending invitation with that role has no coach.
 - A role used by members or pending invitations can't be deleted (`409 role.in_use`); deleting it removes its old, used or revoked invitations.
 - Invitations and member changes send `role: "Custom"` with `customRoleId`. Team, invitation and `GET /api/me` responses return `customRoleId`; `GET /api/me/branches` returns `customRoleName`.
+
+## Collecting from a coach's own families
+
+The system `Coach` role has no money permissions. A custom role can add them:
+
+- `payments.view.own` (instead of `payments.view.all`) narrows the monthly fees list, a family's payments and the class pack sales total to the families the member reaches: the same client scope as `students.view.own` (clients they registered and families of students in their class groups or private lessons). Reading a family outside it returns `404`.
+- With `payments.view.own`, `payments.record` and `classPacks.sell` only work for those families: recording a payment, changing the billing plan or selling a pack for another family returns `403 member.not_yours`.
+- Payments and pack sales store `RecordedByUserId`. A family's payments show who recorded each one (`recordedByUserId`, `recordedByFullName`).
+- Without `payments.view.all`, a member only deletes payments and pack sales they recorded themselves.
+- A family's class balance (`GET /api/clients/{id}/class-balance`) follows the student scope.
 
 ## Permissions
 
@@ -117,4 +127,5 @@ SELECT o.Name, om.UserId, om.Role FROM OrganizationMembers om JOIN Organizations
 SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
 SELECT TenantId, Email, Role, CustomRoleId, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
 SELECT TenantId, Name, Permissions, CopiedFrom FROM CustomRoles;
+SELECT TenantId, ClientId, Amount, Month, RecordedByUserId FROM Payments ORDER BY CreatedAt DESC;
 ```

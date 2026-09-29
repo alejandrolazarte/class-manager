@@ -710,5 +710,7 @@
   "roles.editor.inUse": "Hay personas o invitaciones con este rol. Cambiales el rol antes de borrarlo.",
   "roles.editor.instructorRequired": "Con \"Solo lo suyo\" cada persona necesita un profe vinculado, y hay personas con este rol sin profe. Vinculalas en Equipo primero.",
   "roles.editor.ownRole": "No podés cambiar el rol que tenés vos.",
-  "roles.editor.exceedsOwn": "No podés dar permisos que vos no tenés."
+  "roles.editor.exceedsOwn": "No podés dar permisos que vos no tenés.",
+  "fees.client.recordedBy": "Cobró {name}",
+  "fees.month.ownTitle": "Cuotas de tus familias"
 }

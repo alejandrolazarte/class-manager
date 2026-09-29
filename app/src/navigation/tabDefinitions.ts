@@ -17,7 +17,7 @@ export const tabDefinitions: readonly TabDefinition[] = [
     name: "fees",
     titleKey: "tabs.fees",
     icon: "fees",
-    anyOfPermissions: [permissions.paymentsViewAll],
+    anyOfPermissions: [permissions.paymentsViewAll, permissions.paymentsViewOwn],
   },
   { name: "settings", titleKey: "tabs.settings", icon: "settings" },
 ];

@@ -32,6 +32,7 @@ export function buildClassBalance(overrides: Partial<ClassBalance> = {}): ClassB
         status: "Active",
         classDurationMinutes: null,
         materialUrl: null,
+        recordedByUserId: null,
       },
     ],
     unpaidAttendances: [],

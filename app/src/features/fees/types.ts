@@ -64,6 +64,8 @@ export interface Payment {
   paidOn: string;
   method: PaymentMethod;
   notes: string | null;
+  recordedByUserId: string | null;
+  recordedByFullName: string | null;
 }
 
 export interface RecordPaymentRequest {
