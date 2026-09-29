@@ -11,10 +11,25 @@ export interface FamilyNextClass {
   isCancelled: boolean;
 }
 
+export type WeekAttendance = "Attended" | "Missed" | "NoClasses";
+
+export interface FamilyAttendanceWeek {
+  weekStart: string;
+  attendance: WeekAttendance;
+}
+
+export interface FamilyAttendance {
+  streakWeeks: number;
+  streakSince: string | null;
+  attendedClasses: number;
+  recentWeeks: FamilyAttendanceWeek[];
+}
+
 export interface FamilyStudent {
   id: string;
   fullName: string;
   nextClasses: FamilyNextClass[];
+  attendance: FamilyAttendance;
 }
 
 export interface FamilyMonthlyFee {

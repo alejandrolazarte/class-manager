@@ -15,4 +15,10 @@ public interface IAttendanceRepository
     Task<IReadOnlyDictionary<Guid, AttendanceCount>> CountBySessionsAsync(IReadOnlyCollection<Guid> classSessionIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(
+        IReadOnlyCollection<Guid> studentIds, DateOnly firstDate, CancellationToken cancellationToken);
+
+    Task<IReadOnlyDictionary<Guid, int>> CountAttendedClassesByStudentsAsync(
+        IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
 }

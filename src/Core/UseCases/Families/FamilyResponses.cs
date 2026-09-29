@@ -1,4 +1,5 @@
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Families;
 
@@ -12,7 +13,17 @@ public sealed record FamilyNextClassResponse(
     bool IsPrivateLesson,
     bool IsCancelled);
 
-public sealed record FamilyStudentResponse(Guid Id, string FullName, IReadOnlyList<FamilyNextClassResponse> NextClasses);
+public sealed record FamilyAttendanceResponse(
+    int StreakWeeks,
+    DateOnly? StreakSince,
+    int AttendedClasses,
+    IReadOnlyList<AttendanceWeek> RecentWeeks);
+
+public sealed record FamilyStudentResponse(
+    Guid Id,
+    string FullName,
+    IReadOnlyList<FamilyNextClassResponse> NextClasses,
+    FamilyAttendanceResponse Attendance);
 
 public sealed record FamilyMonthlyFeeResponse(string Month, decimal? Fee, decimal Paid, decimal Balance, FeeStatus Status);
 

@@ -1,4 +1,5 @@
 import {
+  FamilyAttendance,
   FamilyHome,
   FamilyNextClass,
   FamilyOrder,
@@ -32,11 +33,22 @@ export function buildFamilyNextClass(overrides: Partial<FamilyNextClass> = {}): 
   };
 }
 
+export function buildFamilyAttendance(overrides: Partial<FamilyAttendance> = {}): FamilyAttendance {
+  return {
+    streakWeeks: 0,
+    streakSince: null,
+    attendedClasses: 0,
+    recentWeeks: [],
+    ...overrides,
+  };
+}
+
 export function buildFamilyStudent(overrides: Partial<FamilyStudent> = {}): FamilyStudent {
   return {
     id: "0192f0c5-0000-7000-8000-000000000001",
     fullName: "Tomás Pérez",
     nextClasses: [buildFamilyNextClass()],
+    attendance: buildFamilyAttendance(),
     ...overrides,
   };
 }

@@ -6,6 +6,7 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.UseCases.Families;
@@ -20,6 +21,7 @@ public sealed class GetFamilyHomeUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
+    IAttendanceRepository attendanceRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
     IFeeScheduleRepository feeScheduleRepository,
@@ -54,6 +56,12 @@ public sealed class GetFamilyHomeUseCase(
         var privateLessons = (await privateLessonRepository.ListBetweenAsync(today, lastDate, cancellationToken))
             .Where(lesson => lesson.Students.Any(lessonStudent => students.Any(student => student.Id == lessonStudent.StudentId)))
             .ToList();
+
+        var studentIds = students.Select(student => student.Id).ToList();
+        var attendanceMarks = (await attendanceRepository.ListMarksByStudentsAsync(
+                studentIds, AttendanceStreaks.FirstDayToLoad(today), cancellationToken))
+            .ToLookup(studentMark => studentMark.StudentId, studentMark => studentMark.Mark);
+        var attendedClasses = await attendanceRepository.CountAttendedClassesByStudentsAsync(studentIds, cancellationToken);
 
         var studentResponses = new List<FamilyStudentResponse>();
         foreach (var student in students.OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase))
@@ -99,7 +107,8 @@ public sealed class GetFamilyHomeUseCase(
                         .OrderBy(nextClass => nextClass.Date)
                         .ThenBy(nextClass => nextClass.StartTime, StringComparer.Ordinal)
                         .Take(NextClassLimit),
-                ]));
+                ],
+                Attendance(attendanceMarks[student.Id].ToList(), attendedClasses.GetValueOrDefault(student.Id), today)));
         }
 
         return new FamilyHomeResponse(
@@ -130,6 +139,12 @@ public sealed class GetFamilyHomeUseCase(
             classGroup.Location,
             IsPrivateLesson: false,
             session?.IsCancelled ?? false);
+    }
+
+    private static FamilyAttendanceResponse Attendance(IReadOnlyCollection<AttendanceMark> marks, int attendedClasses, DateOnly today)
+    {
+        var streak = AttendanceStreaks.Calculate(marks, today);
+        return new FamilyAttendanceResponse(streak.Weeks, streak.Since, attendedClasses, streak.RecentWeeks);
     }
 
     private async Task<FamilyBillingResponse> BillingAsync(Guid clientId, DateOnly today, CancellationToken cancellationToken)

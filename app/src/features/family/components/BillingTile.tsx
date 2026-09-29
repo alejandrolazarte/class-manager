@@ -32,17 +32,15 @@ export function BillingTile({ billing, currencyCode, onBuyClasses }: BillingTile
     const paidRatio =
       monthlyFee.fee === null || monthlyFee.fee === 0 ? 1 : monthlyFee.paid / monthlyFee.fee;
     return (
-      <Card className="gap-2 p-3.5">
+      <Card className="flex-1 gap-2 p-3.5">
         <TileTitle icon="fees" title={translate("family.fee.title")} />
-        <View className="flex-row items-center justify-between gap-2">
-          <AppText variant="headline">
-            {monthlyFee.fee === null ? "—" : formatMoney(monthlyFee.fee, currencyCode)}
-          </AppText>
-          <StatusPill
-            label={feeStatusLabel(monthlyFee, currencyCode)}
-            tone={feeStatusTones[monthlyFee.status]}
-          />
-        </View>
+        <AppText variant="headline">
+          {monthlyFee.fee === null ? "—" : formatMoney(monthlyFee.fee, currencyCode)}
+        </AppText>
+        <StatusPill
+          label={feeStatusLabel(monthlyFee, currencyCode)}
+          tone={feeStatusTones[monthlyFee.status]}
+        />
         <View className="flex-row">
           <ProgressBar ratio={paidRatio} tone="success" />
         </View>
@@ -55,7 +53,7 @@ export function BillingTile({ billing, currencyCode, onBuyClasses }: BillingTile
   if (billing.classes !== null) {
     const { classes } = billing;
     return (
-      <Card className="gap-2 p-3.5">
+      <Card className="flex-1 gap-2 p-3.5">
         <TileTitle icon="classPacks" title={translate("family.classes.title")} />
         <AppText variant="headline">
           {translateCount("family.classes.available", classes.availableClasses)}

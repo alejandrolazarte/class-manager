@@ -938,5 +938,10 @@
   "family.orders.payBeforeOrCancelled": "Pagalo en la sede antes del {date} o se cancela solo.",
   "family.nextClass.inHours": "En {hours} h {minutes} min",
   "family.nextClass.inMinutes": "En {minutes} min",
-  "family.nextClass.now": "Ahora"
+  "family.nextClass.now": "Ahora",
+  "family.streak.title": "Racha",
+  "family.streak.weeks.one": "1 semana",
+  "family.streak.weeks.other": "{count} semanas",
+  "family.streak.since": "Sin faltar desde {month}",
+  "family.streak.start": "Venís esta semana y arrancás una racha"
 }
