@@ -53,7 +53,7 @@ test("App screens", async ({ page, request }) => {
   await page.screenshot({ path: join(outputDirectory, "10b-cuotas-todos.png") });
 
   await page.goto("/settings");
-  await page.getByRole("button", { name: "Índigo", exact: true }).scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Grafito", exact: true }).scrollIntoViewIfNeeded();
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, "18-colores.png") });
 
@@ -61,11 +61,9 @@ test("App screens", async ({ page, request }) => {
     ["19-hoy-tema-violeta", "Violeta"],
     ["19-hoy-tema-oceano", "Océano"],
     ["19-hoy-tema-rosa", "Rosa"],
-    ["19-hoy-tema-arena", "Arena"],
-    ["19-hoy-tema-coral", "Coral"],
-    ["19-hoy-tema-cancha", "Cancha"],
     ["19-hoy-tema-ciruela", "Ciruela"],
     ["19-hoy-tema-indigo", "Índigo"],
+    ["19-hoy-tema-grafito", "Grafito"],
     ["19-hoy-tema-agua", "Agua"],
   ];
 
