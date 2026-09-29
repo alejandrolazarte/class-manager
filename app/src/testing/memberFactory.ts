@@ -6,6 +6,7 @@ export const coachPermissions: readonly Permission[] = [
   "instructors.view",
   "classGroups.view.own",
   "enrollments.view",
+  "enrollments.manage.own",
   "sessions.view.own",
   "attendance.record.own",
   "privateLessons.view.own",

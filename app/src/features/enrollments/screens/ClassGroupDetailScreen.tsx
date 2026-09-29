@@ -38,7 +38,10 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
   const endEnrollmentMutation = useEndEnrollment();
   const [entryToUnenroll, setEntryToUnenroll] = useState<RosterEntry | null>(null);
   const canManageClassGroups = useCan(permissions.classGroupsManage);
-  const canManageEnrollments = useCan(permissions.enrollmentsManage);
+  const canManageEnrollments = useCan(
+    permissions.enrollmentsManage,
+    permissions.enrollmentsManageOwn,
+  );
   const [hasUnenrollFailed, setHasUnenrollFailed] = useState(false);
   const classGroup = classGroupsQuery.data?.find((candidate) => candidate.id === classGroupId);
 

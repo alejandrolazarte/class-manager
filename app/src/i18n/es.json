@@ -710,5 +710,7 @@
   "roles.editor.ownRole": "No podés cambiar el rol que tenés vos.",
   "roles.editor.exceedsOwn": "No podés dar permisos que vos no tenés.",
   "fees.client.recordedBy": "Cobró {name}",
-  "fees.month.ownTitle": "Cuotas de tus familias"
+  "fees.month.ownTitle": "Cuotas de tus familias",
+  "team.resend": "Reenviar",
+  "team.resent": "Invitación reenviada, vence en 7 días"
 }

@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Enrollments;
 using ClassManager.Core.Domain.Students;
@@ -20,7 +22,9 @@ public sealed class EnrollStudentUseCase(
     IEnrollmentRepository enrollmentRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IAccessScopes accessScopes,
+    IClientRepository clientRepository)
     : IUseCase<EnrollStudentCommand, EnrollmentResponse>
 {
     private const string ClassGroupNotFoundMessage = "The class group does not exist.";
@@ -42,8 +46,14 @@ public sealed class EnrollStudentUseCase(
             return Result.Conflict<EnrollmentResponse>(ClassGroupInactiveMessage, ClassGroupErrorCodes.Inactive);
         }
 
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.Enrollments.Manage, cancellationToken);
+        if (!scope.Includes(classGroup.InstructorId))
+        {
+            return AccessRules.NotYours();
+        }
+
         var student = command.StudentId is null ? null : await studentRepository.GetSummaryByIdAsync(command.StudentId.Value, cancellationToken);
-        if (student is null)
+        if (student is null || !await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [student.ClientId], cancellationToken))
         {
             return Result.NotFound<EnrollmentResponse>(StudentNotFoundMessage, StudentErrorCodes.NotFound);
         }

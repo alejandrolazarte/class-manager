@@ -58,6 +58,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<GetTeamQuery, TeamResponse>, GetTeamUseCase>();
         services.AddScoped<IUseCase<InviteMemberCommand, InvitationResponse>, InviteMemberUseCase>();
         services.AddScoped<IUseCase<RevokeInvitationCommand, RevokedInvitationResponse>, RevokeInvitationUseCase>();
+        services.AddScoped<IUseCase<ResendInvitationCommand, InvitationResponse>, ResendInvitationUseCase>();
         services.AddScoped<IUseCase<AcceptInvitationCommand, TokenResponse>, AcceptInvitationUseCase>();
         services.AddScoped<IUseCase<ChangeMemberRoleCommand, MemberResponse>, ChangeMemberRoleUseCase>();
         services.AddScoped<IUseCase<RemoveMemberCommand, RemovedMemberResponse>, RemoveMemberUseCase>();

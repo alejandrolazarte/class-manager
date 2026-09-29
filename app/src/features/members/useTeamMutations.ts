@@ -5,6 +5,7 @@ import {
   makeBrandOwner,
   removeBrandOwner,
   removeMember,
+  resendInvitation,
   revokeInvitation,
 } from "@/features/members/membersApi";
 import { memberQueryKeys } from "@/features/members/memberQueryKeys";
@@ -27,6 +28,14 @@ export function useRevokeInvitation() {
   const invalidateTeam = useInvalidateTeam();
   return useMutation({
     mutationFn: (invitationId: string) => revokeInvitation(invitationId),
+    onSuccess: invalidateTeam,
+  });
+}
+
+export function useResendInvitation() {
+  const invalidateTeam = useInvalidateTeam();
+  return useMutation({
+    mutationFn: (invitationId: string) => resendInvitation(invitationId),
     onSuccess: invalidateTeam,
   });
 }

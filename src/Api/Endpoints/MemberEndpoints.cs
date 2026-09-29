@@ -17,6 +17,7 @@ internal static class MemberEndpoints
         members.MapGet("/", GetTeamAsync).RequirePermission(Permissions.Members.View);
         members.MapPost(ApiRoutes.InvitationsSegment, InviteAsync).RequirePermission(Permissions.Members.Manage);
         members.MapDelete(ApiRoutes.InvitationById, RevokeInvitationAsync).RequirePermission(Permissions.Members.Manage);
+        members.MapPost(ApiRoutes.InvitationById + ApiRoutes.Resend, ResendInvitationAsync).RequirePermission(Permissions.Members.Manage);
         members.MapPut(ApiRoutes.MemberById, ChangeRoleAsync).RequirePermission(Permissions.Members.Manage);
         members.MapDelete(ApiRoutes.MemberById, RemoveAsync).RequirePermission(Permissions.Members.Manage);
         members.MapPut(ApiRoutes.MemberById + ApiRoutes.BrandOwnerSegment, MakeBrandOwnerAsync)
@@ -71,6 +72,16 @@ internal static class MemberEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new SetBrandOwnerCommand(memberId, IsBrandOwner: false), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> ResendInvitationAsync(
+        Guid invitationId,
+        IUseCase<ResendInvitationCommand, InvitationResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ResendInvitationCommand(invitationId), cancellationToken);
 
         return result.ToOkResult();
     }

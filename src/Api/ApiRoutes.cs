@@ -17,6 +17,7 @@ public static class ApiRoutes
     public const string Enrollments = "/api/enrollments";
     public const string EnrollmentById = "/{enrollmentId:guid}";
     public const string End = "/end";
+    public const string Resend = "/resend";
     public const string Sessions = "/api/sessions";
     public const string SessionsSegment = "/sessions";
     public const string Calendar = "/calendar";

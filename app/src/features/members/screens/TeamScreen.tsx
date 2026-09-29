@@ -6,7 +6,7 @@ import { permissions } from "@/features/members/permissions";
 import { roleDescription } from "@/features/members/roleLabels";
 import { Invitation, Member } from "@/features/members/types";
 import { useTeam } from "@/features/members/useTeam";
-import { useRevokeInvitation } from "@/features/members/useTeamMutations";
+import { useResendInvitation, useRevokeInvitation } from "@/features/members/useTeamMutations";
 import { memberRoleLabel } from "@/features/roles/roleChoices";
 import { Role } from "@/features/roles/types";
 import { useRoles } from "@/features/roles/useRoles";
@@ -69,7 +69,9 @@ interface InvitationCardProps {
   roles: Role[] | undefined;
   canRevoke: boolean;
   isRevoking: boolean;
+  isResending: boolean;
   onRevoke: () => void;
+  onResend: () => void;
 }
 
 function InvitationCard({
@@ -77,7 +79,9 @@ function InvitationCard({
   roles,
   canRevoke,
   isRevoking,
+  isResending,
   onRevoke,
+  onResend,
 }: InvitationCardProps) {
   return (
     <Card className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3">
@@ -93,14 +97,24 @@ function InvitationCard({
         </AppText>
       </View>
       {canRevoke ? (
-        <Button
-          variant="ghost"
-          size="medium"
-          label={translate("team.revoke")}
-          accessibilityLabel={`${translate("team.revoke")} ${invitation.email}`}
-          onPress={onRevoke}
-          isLoading={isRevoking}
-        />
+        <View className="items-end">
+          <Button
+            variant="ghost"
+            size="medium"
+            label={translate("team.resend")}
+            accessibilityLabel={`${translate("team.resend")} ${invitation.email}`}
+            onPress={onResend}
+            isLoading={isResending}
+          />
+          <Button
+            variant="ghost"
+            size="medium"
+            label={translate("team.revoke")}
+            accessibilityLabel={`${translate("team.revoke")} ${invitation.email}`}
+            onPress={onRevoke}
+            isLoading={isRevoking}
+          />
+        </View>
       ) : null}
     </Card>
   );
@@ -114,11 +128,17 @@ export function TeamScreen() {
   const { data: roles } = useRoles();
   const instructorsQuery = useInstructorsIncludingInactive();
   const revokeMutation = useRevokeInvitation();
+  const resendMutation = useResendInvitation();
   const instructorNames = new Map(
     (instructorsQuery.data ?? []).map((instructor) => [instructor.id, instructor.fullName]),
   );
   const coachNameOf = (instructorId: string | null) =>
     instructorId === null ? undefined : instructorNames.get(instructorId);
+
+  const resend = async (invitationId: string) => {
+    await resendMutation.mutateAsync(invitationId);
+    showToast(translate("team.resent"));
+  };
 
   const revoke = async (invitationId: string) => {
     await revokeMutation.mutateAsync(invitationId);
@@ -177,7 +197,11 @@ export function TeamScreen() {
                   isRevoking={
                     revokeMutation.isPending && revokeMutation.variables === invitation.id
                   }
+                  isResending={
+                    resendMutation.isPending && resendMutation.variables === invitation.id
+                  }
                   onRevoke={() => revoke(invitation.id)}
+                  onResend={() => resend(invitation.id)}
                 />
               ))}
             </>

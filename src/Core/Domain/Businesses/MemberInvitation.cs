@@ -66,6 +66,14 @@ public sealed class MemberInvitation : ITenantOwned
 
     public bool IsPendingAt(DateTimeOffset now) => AcceptedAt is null && RevokedAt is null && ExpiresAt > now;
 
+    public bool IsOpen => AcceptedAt is null && RevokedAt is null;
+
+    public void Renew(string tokenHash, DateTimeOffset renewedAt)
+    {
+        TokenHash = tokenHash;
+        ExpiresAt = (renewedAt + Lifetime).ToUniversalTime();
+    }
+
     public void Accept(DateTimeOffset acceptedAt) => AcceptedAt = acceptedAt.ToUniversalTime();
 
     public void Revoke(DateTimeOffset revokedAt) => RevokedAt = revokedAt.ToUniversalTime();
