@@ -13,6 +13,9 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(order => order.Channel).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(order => order.Status).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(order => order.Method).HasConversion<string>().HasMaxLength(EnumMaxLength);
+        builder.Property(order => order.Delivery).HasConversion<string>().HasMaxLength(EnumMaxLength);
+        builder.Ignore(order => order.IsReady);
+        builder.HasOne<ClassGroup>().WithMany().HasForeignKey(order => order.DeliveryClassGroupId).OnDelete(DeleteBehavior.Restrict);
         builder.Property(order => order.Notes).HasMaxLength(Order.NotesMaxLength);
         builder.Ignore(order => order.Total);
         builder.Ignore(order => order.RefundedAmount);

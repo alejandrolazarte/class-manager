@@ -17,5 +17,7 @@ public interface IOrderRepository
 
     Task<IReadOnlyList<Order>> ListRequestedCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(Guid classGroupId, CancellationToken cancellationToken);
+
     Task<bool> IsPurchaseFromOrderAsync(Guid purchaseId, CancellationToken cancellationToken);
 }

@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
@@ -9,10 +10,12 @@ public sealed record CancelOrderCommand(Guid OrderId);
 public sealed class CancelOrderUseCase(
     IOrderRepository orderRepository,
     IClientRepository clientRepository,
+    IClassGroupRepository classGroupRepository,
     IStockMovementRepository stockMovementRepository,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
+    IOrderNotificationService orderNotifications,
     TimeProvider timeProvider)
     : IUseCase<CancelOrderCommand, OrderResponse>
 {
@@ -34,8 +37,8 @@ public sealed class CancelOrderUseCase(
 
         await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access?.UserId, now, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await orderNotifications.OrderCancelledAsync(order, OrderCancellationReason.ByBranch, cancellationToken);
 
-        var client = order.ClientId is { } clientId ? await clientRepository.GetByIdAsync(clientId, cancellationToken) : null;
-        return OrderResponse.From(order, client);
+        return await OrderResponses.OfAsync(order, clientRepository, classGroupRepository, cancellationToken);
     }
 }

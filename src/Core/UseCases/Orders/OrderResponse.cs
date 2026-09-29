@@ -30,9 +30,13 @@ public sealed record OrderResponse(
     DateTimeOffset CreatedAt,
     DateTimeOffset? DeliveredAt,
     IReadOnlyList<OrderLineResponse> Lines,
-    DateTimeOffset? CancelledAt = null)
+    DateTimeOffset? CancelledAt,
+    DeliveryMethod Delivery,
+    Guid? DeliveryClassGroupId,
+    string? DeliveryClassGroupName,
+    DateTimeOffset? ReadyAt)
 {
-    public static OrderResponse From(Order order, Client? client) =>
+    public static OrderResponse From(Order order, Client? client, string? deliveryClassGroupName) =>
         new(
             order.Id,
             order.ClientId,
@@ -59,5 +63,9 @@ public sealed record OrderResponse(
                     line.RefundedAmount,
                     line.ClassPackPurchaseId)),
             ],
-            order.CancelledAt);
+            order.CancelledAt,
+            order.Delivery,
+            order.DeliveryClassGroupId,
+            deliveryClassGroupName,
+            order.ReadyAt);
 }

@@ -6,7 +6,7 @@ namespace ClassManager.Core.UseCases.Families;
 
 public sealed record ListFamilyOrdersQuery;
 
-public sealed class ListFamilyOrdersUseCase(IFamilyAccess familyAccess, IOrderRepository orderRepository)
+public sealed class ListFamilyOrdersUseCase(IFamilyAccess familyAccess, IOrderRepository orderRepository, IClassGroupRepository classGroupRepository)
     : IUseCase<ListFamilyOrdersQuery, IReadOnlyList<FamilyOrderResponse>>
 {
     private const int OrderLimit = 50;
@@ -20,6 +20,6 @@ public sealed class ListFamilyOrdersUseCase(IFamilyAccess familyAccess, IOrderRe
         }
 
         var orders = await orderRepository.ListAsync(new OrderSearchCriteria(access.ClientId, false, OrderLimit), null, cancellationToken);
-        return Result.Success<IReadOnlyList<FamilyOrderResponse>>([.. orders.Select(FamilyOrderResponse.From)]);
+        return Result.Success(await FamilyOrderResponses.OfAsync(orders, classGroupRepository, cancellationToken));
     }
 }

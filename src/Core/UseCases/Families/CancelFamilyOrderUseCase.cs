@@ -10,6 +10,7 @@ public sealed record CancelFamilyOrderCommand(Guid OrderId);
 public sealed class CancelFamilyOrderUseCase(
     IFamilyAccess familyAccess,
     IOrderRepository orderRepository,
+    IClassGroupRepository classGroupRepository,
     IStockMovementRepository stockMovementRepository,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
@@ -39,6 +40,6 @@ public sealed class CancelFamilyOrderUseCase(
         await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access.UserId, now, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return FamilyOrderResponse.From(order);
+        return (await FamilyOrderResponses.OfAsync([order], classGroupRepository, cancellationToken))[0];
     }
 }

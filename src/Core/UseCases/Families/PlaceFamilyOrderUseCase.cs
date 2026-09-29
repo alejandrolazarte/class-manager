@@ -1,5 +1,7 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Orders;
 using ClassManager.Core.Domain.Products;
@@ -9,7 +11,10 @@ namespace ClassManager.Core.UseCases.Families;
 
 public sealed record FamilyOrderLine(Guid? ClassPackId, Guid? ProductVariantId, int? Quantity);
 
-public sealed record PlaceFamilyOrderCommand(IReadOnlyList<FamilyOrderLine>? Lines);
+public sealed record PlaceFamilyOrderCommand(
+    IReadOnlyList<FamilyOrderLine>? Lines,
+    DeliveryMethod? Delivery = null,
+    Guid? DeliveryClassGroupId = null);
 
 public sealed class PlaceFamilyOrderUseCase(
     IFamilyAccess familyAccess,
@@ -18,7 +23,12 @@ public sealed class PlaceFamilyOrderUseCase(
     IStockMovementRepository stockMovementRepository,
     IStockLock stockLock,
     IOrderRepository orderRepository,
+    IClassGroupRepository classGroupRepository,
+    IStudentRepository studentRepository,
+    IEnrollmentRepository enrollmentRepository,
     IUnitOfWork unitOfWork,
+    IBusinessCalendarService businessCalendar,
+    IOrderNotificationService orderNotifications,
     TimeProvider timeProvider)
     : IUseCase<PlaceFamilyOrderCommand, FamilyOrderResponse>
 {
@@ -46,6 +56,17 @@ public sealed class PlaceFamilyOrderUseCase(
             return order.Error!;
         }
 
+        if (command.Delivery is not null && order.Value!.HasProducts)
+        {
+            var today = await businessCalendar.TodayAsync(cancellationToken);
+            var delivery = await DeliveryClasses.ChooseAsync(
+                order.Value, command.Delivery, command.DeliveryClassGroupId, today, studentRepository, enrollmentRepository, classGroupRepository, cancellationToken);
+            if (delivery.IsFailure)
+            {
+                return delivery.Error!;
+            }
+        }
+
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var stockProblem = await OrderDrafts.LockAndCheckStockAsync(draft.Value, stockLock, stockMovementRepository, cancellationToken);
         if (stockProblem is not null)
@@ -66,7 +87,8 @@ public sealed class PlaceFamilyOrderUseCase(
         orderRepository.Add(order.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        await orderNotifications.OrderPlacedAsync(order.Value, cancellationToken);
 
-        return FamilyOrderResponse.From(order.Value);
+        return (await FamilyOrderResponses.OfAsync([order.Value], classGroupRepository, cancellationToken))[0];
     }
 }

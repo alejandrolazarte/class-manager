@@ -1,22 +1,23 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record MarkOrderDeliveredCommand(Guid OrderId);
+public sealed record MarkOrderReadyCommand(Guid OrderId);
 
-public sealed class MarkOrderDeliveredUseCase(
+public sealed class MarkOrderReadyUseCase(
     IOrderRepository orderRepository,
     IClientRepository clientRepository,
     IClassGroupRepository classGroupRepository,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
-    ICurrentMember currentMember,
+    IOrderNotificationService orderNotifications,
     TimeProvider timeProvider)
-    : IUseCase<MarkOrderDeliveredCommand, OrderResponse>
+    : IUseCase<MarkOrderReadyCommand, OrderResponse>
 {
-    public async Task<Result<OrderResponse>> ExecuteAsync(MarkOrderDeliveredCommand command, CancellationToken cancellationToken)
+    public async Task<Result<OrderResponse>> ExecuteAsync(MarkOrderReadyCommand command, CancellationToken cancellationToken)
     {
         var order = await orderRepository.GetForUpdateAsync(command.OrderId, cancellationToken);
         if (order is null || !await OrderAccess.CanReachAsync(accessScopes, clientRepository, order, cancellationToken))
@@ -24,14 +25,14 @@ public sealed class MarkOrderDeliveredUseCase(
             return OrderFailures.NotFound();
         }
 
-        var access = await currentMember.GetAccessAsync(cancellationToken);
-        var delivery = order.MarkDelivered(access?.UserId, timeProvider.GetUtcNow());
-        if (delivery.IsFailure)
+        var ready = order.MarkReady(timeProvider.GetUtcNow());
+        if (ready.IsFailure)
         {
-            return delivery.Error!;
+            return ready.Error!;
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await orderNotifications.OrderReadyAsync(order, cancellationToken);
 
         return await OrderResponses.OfAsync(order, clientRepository, classGroupRepository, cancellationToken);
     }

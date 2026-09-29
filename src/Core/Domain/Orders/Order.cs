@@ -20,6 +20,9 @@ public sealed class Order : ITenantOwned
     private const string NotAwaitingPickupMessage = "This order has nothing waiting to be picked up.";
     private const string NotRefundableMessage = "Only paid orders can be refunded.";
     private const string NothingToRefundMessage = "There are no unused classes left to refund.";
+    private const string NothingToDeliverMessage = "This order has no products to deliver.";
+    private const string DeliveryClassRequiredMessage = "Choose the class where the products are handed over.";
+    private const string AlreadyReadyMessage = "This order is already marked ready.";
     private const string NotRequestedMessage = "Only orders waiting for payment can be paid or cancelled.";
     private const int RefundDecimals = 2;
 
@@ -42,6 +45,9 @@ public sealed class Order : ITenantOwned
     public string? Notes { get; private set; }
     public Guid? CreatedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public DeliveryMethod Delivery { get; private set; }
+    public Guid? DeliveryClassGroupId { get; private set; }
+    public DateTimeOffset? ReadyAt { get; private set; }
     public DateTimeOffset? CancelledAt { get; private set; }
     public Guid? CancelledByUserId { get; private set; }
     public IReadOnlyList<OrderLine> Lines => _lines;
@@ -53,6 +59,8 @@ public sealed class Order : ITenantOwned
     public bool HasProducts => _lines.Any(line => line.Kind == OrderLineKind.Product);
 
     public bool AwaitsPickup => Status == OrderStatus.Paid && HasProducts;
+
+    public bool IsReady => ReadyAt is not null;
 
     public static Result<Order> CounterSale(
         Guid? clientId,
@@ -171,6 +179,44 @@ public sealed class Order : ITenantOwned
     }
 
     public OrderLine? FindLine(Guid lineId) => _lines.FirstOrDefault(line => line.Id == lineId);
+
+    public Result ChooseDelivery(DeliveryMethod? delivery, Guid? classGroupId)
+    {
+        if (Status is not (OrderStatus.Requested or OrderStatus.Paid) || !HasProducts)
+        {
+            return Result.Conflict(NothingToDeliverMessage, OrderErrorCodes.NotAwaitingPickup);
+        }
+
+        switch (delivery)
+        {
+            case DeliveryMethod.Pickup:
+                Delivery = DeliveryMethod.Pickup;
+                DeliveryClassGroupId = null;
+                return Result.Success();
+            case DeliveryMethod.InClass when classGroupId is not null && ClientId is not null:
+                Delivery = DeliveryMethod.InClass;
+                DeliveryClassGroupId = classGroupId;
+                return Result.Success();
+            default:
+                return Result.Validation(DeliveryClassRequiredMessage, OrderErrorCodes.ClassNotValid, nameof(DeliveryClassGroupId));
+        }
+    }
+
+    public Result MarkReady(DateTimeOffset readyAt)
+    {
+        if (!AwaitsPickup)
+        {
+            return Result.Conflict(NotAwaitingPickupMessage, OrderErrorCodes.NotAwaitingPickup);
+        }
+
+        if (IsReady)
+        {
+            return Result.Conflict(AlreadyReadyMessage, OrderErrorCodes.AlreadyReady);
+        }
+
+        ReadyAt = readyAt.ToUniversalTime();
+        return Result.Success();
+    }
 
     public Result MarkDelivered(Guid? deliveredByUserId, DateTimeOffset deliveredAt)
     {

@@ -19,6 +19,7 @@ public sealed record RefundOrderCommand(Guid OrderId, IReadOnlyList<RefundLine>?
 public sealed class RefundOrderUseCase(
     IOrderRepository orderRepository,
     IClientRepository clientRepository,
+    IClassGroupRepository classGroupRepository,
     IClassPackPurchaseRepository purchaseRepository,
     IClassBalanceService classBalanceService,
     IProductRepository productRepository,
@@ -64,8 +65,7 @@ public sealed class RefundOrderUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var client = order.ClientId is { } clientId ? await clientRepository.GetByIdAsync(clientId, cancellationToken) : null;
-        return OrderResponse.From(order, client);
+        return await OrderResponses.OfAsync(order, clientRepository, classGroupRepository, cancellationToken);
     }
 
     private async Task<Result> RefundClassesAsync(Order order, OrderLine line, CancellationToken cancellationToken)
