@@ -15,7 +15,8 @@ public sealed record ClassPackUsageResponse(
     int RemainingClasses,
     ClassPackPurchaseStatus Status,
     int? ClassDurationMinutes,
-    string? MaterialUrl)
+    string? MaterialUrl,
+    Guid? RecordedByUserId = null)
 {
     public static ClassPackUsageResponse From(ClassPackUsage usage) =>
         new(
@@ -30,7 +31,8 @@ public sealed record ClassPackUsageResponse(
             usage.RemainingClasses,
             usage.Status,
             usage.Purchase.ClassDurationMinutes,
-            usage.Purchase.MaterialUrl);
+            usage.Purchase.MaterialUrl,
+            usage.Purchase.RecordedByUserId);
 }
 
 public sealed record AttendedClassResponse(DateOnly Date, string StudentFullName, string ClassGroupName, bool IsPrivateLesson)

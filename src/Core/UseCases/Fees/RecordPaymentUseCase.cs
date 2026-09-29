@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
@@ -18,7 +19,9 @@ public sealed class RecordPaymentUseCase(
     IPaymentRepository paymentRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IAccessScopes accessScopes,
+    ICurrentMember currentMember)
     : IUseCase<RecordPaymentCommand, PaymentResponse>
 {
     private const string ClientNotFoundMessage = "The client does not exist.";
@@ -31,6 +34,11 @@ public sealed class RecordPaymentUseCase(
             return Result.NotFound<PaymentResponse>(ClientNotFoundMessage, ClientErrorCodes.NotFound);
         }
 
+        if (!await MoneyRules.CanCollectFromAsync(accessScopes, clientRepository, client.Id, cancellationToken))
+        {
+            return AccessRules.NotYours();
+        }
+
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var month = command.Month is null
             ? BillingMonth.From(today)
@@ -40,8 +48,17 @@ public sealed class RecordPaymentUseCase(
             return month.Error!;
         }
 
+        var access = await currentMember.GetAccessAsync(cancellationToken);
         var payment = Payment.Create(
-            client.Id, command.Amount, month.Value!, command.PaidOn ?? today, command.Method, command.Notes, today, timeProvider.GetUtcNow());
+            client.Id,
+            command.Amount,
+            month.Value!,
+            command.PaidOn ?? today,
+            command.Method,
+            command.Notes,
+            today,
+            timeProvider.GetUtcNow(),
+            access?.UserId);
         if (payment.IsFailure)
         {
             return payment.Error!;

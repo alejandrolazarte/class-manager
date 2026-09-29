@@ -1,9 +1,11 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
@@ -34,7 +36,9 @@ public sealed class SellClassPackUseCase(
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IAccessScopes accessScopes,
+    ICurrentMember currentMember)
     : IUseCase<SellClassPackCommand, ClassPackPurchaseResponse>
 {
     private const string ClientNotFoundMessage = "The client does not exist.";
@@ -46,6 +50,11 @@ public sealed class SellClassPackUseCase(
         if (client is null)
         {
             return Result.NotFound<ClassPackPurchaseResponse>(ClientNotFoundMessage, ClientErrorCodes.NotFound);
+        }
+
+        if (!await MoneyRules.CanCollectFromAsync(accessScopes, clientRepository, client.Id, cancellationToken))
+        {
+            return AccessRules.NotYours();
         }
 
         if (command.ClassPackId is null)
@@ -60,8 +69,17 @@ public sealed class SellClassPackUseCase(
         }
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
+        var access = await currentMember.GetAccessAsync(cancellationToken);
         var purchase = ClassPackPurchase.Sell(
-            client.Id, classPack, command.Price, command.PurchasedOn ?? today, command.Method, command.Notes, today, timeProvider.GetUtcNow());
+            client.Id,
+            classPack,
+            command.Price,
+            command.PurchasedOn ?? today,
+            command.Method,
+            command.Notes,
+            today,
+            timeProvider.GetUtcNow(),
+            access?.UserId);
         if (purchase.IsFailure)
         {
             return purchase.Error!;

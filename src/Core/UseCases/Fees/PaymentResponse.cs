@@ -9,8 +9,19 @@ public sealed record PaymentResponse(
     string Month,
     DateOnly PaidOn,
     PaymentMethod Method,
-    string? Notes)
+    string? Notes,
+    Guid? RecordedByUserId = null,
+    string? RecordedByFullName = null)
 {
-    public static PaymentResponse From(Payment payment) =>
-        new(payment.Id, payment.ClientId, payment.Amount, payment.BillingMonth.ToString(), payment.PaidOn, payment.Method, payment.Notes);
+    public static PaymentResponse From(Payment payment, string? recordedByFullName = null) =>
+        new(
+            payment.Id,
+            payment.ClientId,
+            payment.Amount,
+            payment.BillingMonth.ToString(),
+            payment.PaidOn,
+            payment.Method,
+            payment.Notes,
+            payment.RecordedByUserId,
+            recordedByFullName);
 }
