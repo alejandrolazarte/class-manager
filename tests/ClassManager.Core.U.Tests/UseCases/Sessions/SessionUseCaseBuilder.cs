@@ -20,6 +20,7 @@ internal sealed class SessionUseCaseBuilder
     public Mock<IStudentRepository> Students { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
+    public Instructor Substitute { get; } = Instructor.Create("Laura Gómez").Value!;
     public ClassGroup ClassGroup { get; }
     public Guid EnrolledStudentId { get; } = Guid.CreateVersion7();
 
@@ -29,6 +30,12 @@ internal sealed class SessionUseCaseBuilder
             "Natación inicial", Instructor.Id, ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!, 8, null).Value!;
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
         ClassGroups.Setup(repository => repository.ListActiveByInstructorAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Instructors.Setup(repository => repository.GetByIdAsync(Instructor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Instructor);
+        Instructors.Setup(repository => repository.GetByIdAsync(Substitute.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Substitute);
+        Instructors.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([Instructor, Substitute]);
+        Sessions
+            .Setup(repository => repository.ListSubstitutionsAsync(It.IsAny<Guid>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         Sessions.Setup(repository => repository.ListByDateAsync(It.IsAny<DateOnly>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Sessions
             .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
@@ -67,6 +74,9 @@ internal sealed class SessionUseCaseBuilder
 
     public RescheduleSessionUseCase BuildReschedule() =>
         new(ClassGroups.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+
+    public AssignSubstituteUseCase BuildAssignSubstitute() =>
+        new(ClassGroups.Object, Instructors.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
 
     public ListMonthCalendarUseCase BuildMonthCalendar() =>
         new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, BusinessCalendar.Object, new EveryAccessScopes());

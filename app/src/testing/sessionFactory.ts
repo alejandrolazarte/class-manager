@@ -17,6 +17,9 @@ export function buildSessionDetails(overrides: Partial<SessionDetails> = {}): Se
   return {
     classGroupId: "0192f0d2-0000-7000-8000-000000000001",
     classGroupName: "Natación inicial",
+    instructorId: "0192f0d1-0000-7000-8000-000000000001",
+    instructorFullName: "Laura Gómez",
+    originalInstructorFullName: null,
     date: sessionDate,
     startTime: "18:00",
     endTime: "18:45",
@@ -43,6 +46,7 @@ export function buildDaySession(overrides: Partial<DaySession> = {}): DaySession
     endTime: "18:45",
     originalStartTime: null,
     instructorFullName: "Laura Gómez",
+    originalInstructorFullName: null,
     location: null,
     isCancelled: false,
     cancellationReason: null,

@@ -24,33 +24,61 @@ internal static class InstructorAgendaRules
             return privateLessonConflict;
         }
 
-        var classGroups = await repositories.ClassGroups.ListActiveByInstructorAsync(instructorId, cancellationToken);
-        if (classGroups.Count == 0)
+        var overlap = await FindClassGroupOverlapAsync(
+            repositories, instructorId, dates, schedule.StartTime, schedule.DurationMinutes, ignoredClassGroupId: null, cancellationToken);
+        return overlap is null ? null : Busy(overlap.Date, ClassGroupErrorCodes.ConflictingClassGroupIdDetail, overlap.ClassGroup.Id);
+    }
+
+    public static async Task<ClassGroupOverlap?> FindClassGroupOverlapAsync(
+        InstructorAgendaRepositories repositories,
+        Guid instructorId,
+        IReadOnlyList<DateOnly> dates,
+        TimeOnly startTime,
+        int durationMinutes,
+        Guid? ignoredClassGroupId,
+        CancellationToken cancellationToken)
+    {
+        var firstDate = dates.Min();
+        var lastDate = dates.Max();
+        var usualClassGroups = await repositories.ClassGroups.ListActiveByInstructorAsync(instructorId, cancellationToken);
+        var substitutions = await repositories.Sessions.ListSubstitutionsAsync(instructorId, firstDate, lastDate, cancellationToken);
+        if (usualClassGroups.Count == 0 && substitutions.Count == 0)
         {
             return null;
         }
 
-        var sessions = (await repositories.Sessions.ListBetweenAsync(dates.Min(), dates.Max(), cancellationToken))
+        var classGroupsById = usualClassGroups.ToDictionary(classGroup => classGroup.Id);
+        foreach (var classGroupId in substitutions.Select(session => session.ClassGroupId).Distinct())
+        {
+            if (!classGroupsById.ContainsKey(classGroupId)
+                && await repositories.ClassGroups.GetByIdAsync(classGroupId, cancellationToken) is { IsActive: true } substitutedClassGroup)
+            {
+                classGroupsById[classGroupId] = substitutedClassGroup;
+            }
+        }
+
+        var sessions = (await repositories.Sessions.ListBetweenAsync(firstDate, lastDate, cancellationToken))
             .ToDictionary(session => (session.ClassGroupId, session.Date));
         foreach (var date in dates)
         {
-            var lessonTime = ClassSchedule.ForDay(date.DayOfWeek, schedule.StartTime, schedule.DurationMinutes);
-            var overlappingClassGroup = classGroups
-                .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek))
+            var requestedTime = ClassSchedule.ForDay(date.DayOfWeek, startTime, durationMinutes);
+            var overlappingClassGroup = classGroupsById.Values
+                .Where(classGroup => classGroup.Id != ignoredClassGroupId && classGroup.Schedule.MeetsOn(date.DayOfWeek))
                 .FirstOrDefault(classGroup =>
                 {
                     var session = sessions.GetValueOrDefault((classGroup.Id, date));
-                    if (session?.IsCancelled == true)
+                    if (session?.IsCancelled == true
+                        || (session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId) != instructorId)
                     {
                         return false;
                     }
 
-                    var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
-                    return ClassSchedule.ForDay(date.DayOfWeek, startTime, classGroup.DurationMinutes).OverlapsWith(lessonTime);
+                    var sessionStartTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
+                    return ClassSchedule.ForDay(date.DayOfWeek, sessionStartTime, classGroup.DurationMinutes).OverlapsWith(requestedTime);
                 });
             if (overlappingClassGroup is not null)
             {
-                return Busy(date, ClassGroupErrorCodes.ConflictingClassGroupIdDetail, overlappingClassGroup.Id);
+                return new ClassGroupOverlap(date, overlappingClassGroup);
             }
         }
 
@@ -102,6 +130,8 @@ internal static class InstructorAgendaRules
             },
         };
 }
+
+internal sealed record ClassGroupOverlap(DateOnly Date, ClassGroup ClassGroup);
 
 internal sealed record InstructorAgendaRepositories(
     IClassGroupRepository ClassGroups,

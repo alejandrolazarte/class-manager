@@ -18,6 +18,13 @@ public static class SessionRequests
             new RecordAttendanceRequest(status),
             ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PutSubstituteAsync(
+        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, Guid instructorId) =>
+        httpClient.PutAsJsonAsync(
+            $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Substitute}",
+            new AssignSubstituteRequest(instructorId),
+            ApiRequests.JsonOptions);
+
     public static Task<SessionDetailsResponse?> GetSessionAsync(this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate) =>
         httpClient.GetFromJsonAsync<SessionDetailsResponse>(new Uri(SessionPath(classGroupId, sessionDate), UriKind.Relative), ApiRequests.JsonOptions);
 

@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sessionQueryKeys } from "@/features/sessions/sessionQueryKeys";
 import {
+  assignSubstitute,
   cancelSession,
   recordAttendance,
+  removeSubstitute,
   rescheduleSession,
   restoreSession,
   restoreSessionSchedule,
@@ -78,6 +80,22 @@ export function useRestoreSessionSchedule(classGroupId: string, sessionDate: str
   const invalidateSession = useInvalidateSession(classGroupId, sessionDate);
   return useMutation({
     mutationFn: () => restoreSessionSchedule(classGroupId, sessionDate),
+    onSuccess: invalidateSession,
+  });
+}
+
+export function useAssignSubstitute(classGroupId: string, sessionDate: string) {
+  const invalidateSession = useInvalidateSession(classGroupId, sessionDate);
+  return useMutation({
+    mutationFn: (instructorId: string) => assignSubstitute(classGroupId, sessionDate, instructorId),
+    onSuccess: invalidateSession,
+  });
+}
+
+export function useRemoveSubstitute(classGroupId: string, sessionDate: string) {
+  const invalidateSession = useInvalidateSession(classGroupId, sessionDate);
+  return useMutation({
+    mutationFn: () => removeSubstitute(classGroupId, sessionDate),
     onSuccess: invalidateSession,
   });
 }

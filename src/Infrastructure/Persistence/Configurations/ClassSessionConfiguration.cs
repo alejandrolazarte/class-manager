@@ -12,7 +12,9 @@ internal sealed class ClassSessionConfiguration : IEntityTypeConfiguration<Class
 
         builder.HasOne<Business>().WithMany().HasForeignKey(session => session.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<ClassGroup>().WithMany().HasForeignKey(session => session.ClassGroupId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Instructor>().WithMany().HasForeignKey(session => session.SubstituteInstructorId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(session => new { session.TenantId, session.ClassGroupId, session.Date }).IsUnique();
         builder.HasIndex(session => new { session.TenantId, session.Date });
+        builder.HasIndex(session => new { session.TenantId, session.SubstituteInstructorId, session.Date });
     }
 }

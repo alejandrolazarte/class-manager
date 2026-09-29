@@ -37,8 +37,9 @@ public sealed class RecordAttendanceUseCase(
             return classGroup.Error!;
         }
 
+        var session = await sessionRepository.FindForUpdateAsync(command.ClassGroupId, command.Date, cancellationToken);
         var scope = await accessScopes.ForInstructorsAsync(Permissions.Attendance.RecordAll, cancellationToken);
-        if (!scope.Includes(classGroup.Value!.InstructorId))
+        if (!SessionRules.IsInScope(scope, classGroup.Value!, session))
         {
             return AccessRules.NotYours();
         }
@@ -55,7 +56,6 @@ public sealed class RecordAttendanceUseCase(
                 StudentNotEnrolledMessage, SessionErrorCodes.StudentNotEnrolled, nameof(RecordAttendanceCommand.StudentId));
         }
 
-        var session = await sessionRepository.FindForUpdateAsync(command.ClassGroupId, command.Date, cancellationToken);
         if (session?.IsCancelled == true)
         {
             return Result.Conflict<RecordAttendanceResponse>(CancelledMessage, SessionErrorCodes.Cancelled);

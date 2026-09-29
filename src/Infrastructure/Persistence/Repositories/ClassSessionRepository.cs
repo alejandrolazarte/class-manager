@@ -16,4 +16,10 @@ internal sealed class ClassSessionRepository(AppDbContext context) : IClassSessi
         await context.ClassSessions.AsNoTracking()
             .Where(session => session.Date >= firstDate && session.Date <= lastDate)
             .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<ClassSession>> ListSubstitutionsAsync(
+        Guid instructorId, DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken) =>
+        await context.ClassSessions.AsNoTracking()
+            .Where(session => session.SubstituteInstructorId == instructorId && session.Date >= firstDate && session.Date <= lastDate)
+            .ToListAsync(cancellationToken);
 }

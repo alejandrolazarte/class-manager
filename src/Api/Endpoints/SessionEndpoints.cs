@@ -26,6 +26,10 @@ internal static class SessionEndpoints
             .RequirePermission(Permissions.Sessions.Manage);
         classGroups.MapDelete(SessionRoute + ApiRoutes.Schedule, RestoreSessionScheduleAsync)
             .RequirePermission(Permissions.Sessions.Manage);
+        classGroups.MapPut(SessionRoute + ApiRoutes.Substitute, AssignSubstituteAsync)
+            .RequirePermission(Permissions.Sessions.Manage);
+        classGroups.MapDelete(SessionRoute + ApiRoutes.Substitute, RemoveSubstituteAsync)
+            .RequirePermission(Permissions.Sessions.Manage);
 
         return endpoints;
     }
@@ -117,6 +121,29 @@ internal static class SessionEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new RestoreSessionScheduleCommand(classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> AssignSubstituteAsync(
+        Guid classGroupId,
+        DateOnly sessionDate,
+        AssignSubstituteRequest request,
+        IUseCase<AssignSubstituteCommand, SessionStatusResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new AssignSubstituteCommand(classGroupId, sessionDate, request.InstructorId), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RemoveSubstituteAsync(
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<RemoveSubstituteCommand, SessionStatusResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RemoveSubstituteCommand(classGroupId, sessionDate), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }

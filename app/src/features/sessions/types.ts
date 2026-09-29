@@ -14,6 +14,7 @@ export interface DaySession {
   endTime: string;
   originalStartTime: string | null;
   instructorFullName: string;
+  originalInstructorFullName: string | null;
   location: string | null;
   isCancelled: boolean;
   cancellationReason: string | null;
@@ -33,6 +34,9 @@ export interface SessionStudent {
 export interface SessionDetails {
   classGroupId: string;
   classGroupName: string;
+  instructorId: string;
+  instructorFullName: string;
+  originalInstructorFullName: string | null;
   date: string;
   startTime: string;
   endTime: string;

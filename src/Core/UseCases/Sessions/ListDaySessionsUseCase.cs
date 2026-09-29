@@ -34,7 +34,8 @@ public sealed record DaySessionResponse(
     int PresentCount,
     int AbsentCount,
     IReadOnlyList<string> StudentNames,
-    bool IsTrial = false);
+    bool IsTrial = false,
+    string? OriginalInstructorFullName = null);
 
 public sealed class ListDaySessionsUseCase(
     IClassGroupRepository classGroupRepository,
@@ -56,13 +57,14 @@ public sealed class ListDaySessionsUseCase(
     {
         var date = command.Date ?? await businessCalendar.TodayAsync(cancellationToken);
         var scope = await accessScopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, cancellationToken);
+        var sessions = (await sessionRepository.ListByDateAsync(date, cancellationToken))
+            .ToDictionary(session => session.ClassGroupId);
         var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken))
-            .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek) && scope.Includes(classGroup.InstructorId))
+            .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)
+                && SessionRules.IsInScope(scope, classGroup, sessions.GetValueOrDefault(classGroup.Id)))
             .ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
-        var sessions = (await sessionRepository.ListByDateAsync(date, cancellationToken))
-            .ToDictionary(session => session.ClassGroupId);
         var enrolledCounts = await enrollmentRepository.CountActiveOnByClassGroupAsync(date, cancellationToken);
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(
             [.. sessions.Values.Select(session => session.Id)], cancellationToken);
@@ -118,14 +120,17 @@ public sealed class ListDaySessionsUseCase(
                     FormatTime(startTime),
                     FormatTime(startTime.AddMinutes(classGroup.DurationMinutes)),
                     session?.RescheduledStartTime is null ? null : FormatTime(classGroup.StartTime),
-                    instructorNames.GetValueOrDefault(classGroup.InstructorId, string.Empty),
+                    instructorNames.GetValueOrDefault(session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId, string.Empty),
                     classGroup.Location,
                     session?.IsCancelled ?? false,
                     session?.CancellationReason,
                     enrolledCounts.GetValueOrDefault(classGroup.Id),
                     attendanceCount.Present,
                     attendanceCount.Absent,
-                    []);
+                    [],
+                    OriginalInstructorFullName: session?.SubstituteInstructorId is null
+                        ? null
+                        : instructorNames.GetValueOrDefault(classGroup.InstructorId, string.Empty));
             }),
         ]));
     }

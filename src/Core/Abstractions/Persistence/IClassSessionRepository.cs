@@ -11,4 +11,7 @@ public interface IClassSessionRepository
     Task<IReadOnlyList<ClassSession>> ListByDateAsync(DateOnly sessionDate, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClassSession>> ListBetweenAsync(DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<ClassSession>> ListSubstitutionsAsync(
+        Guid instructorId, DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken);
 }

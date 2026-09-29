@@ -39,9 +39,7 @@ public sealed class ListMonthCalendarUseCase(
         var firstDay = month.Value!.FirstDay;
         var lastDay = month.Value.LastDay;
         var scope = await accessScopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, cancellationToken);
-        var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken))
-            .Where(classGroup => scope.Includes(classGroup.InstructorId))
-            .ToList();
+        var classGroups = await classGroupRepository.ListActiveAsync(cancellationToken);
         var enrollmentPeriods = await enrollmentRepository.ListActiveInPeriodAsync(firstDay, lastDay, cancellationToken);
         var sessions = (await sessionRepository.ListBetweenAsync(firstDay, lastDay, cancellationToken))
             .ToDictionary(session => (session.ClassGroupId, session.Date));
@@ -54,7 +52,10 @@ public sealed class ListMonthCalendarUseCase(
         var days = new List<CalendarDayResponse>();
         for (var date = firstDay; date <= lastDay; date = date.AddDays(1))
         {
-            var dayClassGroups = classGroups.Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)).ToList();
+            var dayClassGroups = classGroups
+                .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)
+                    && SessionRules.IsInScope(scope, classGroup, sessions.GetValueOrDefault((classGroup.Id, date))))
+                .ToList();
             var dayPrivateLessons = privateLessonsByDate[date].ToList();
             if (dayClassGroups.Count == 0 && dayPrivateLessons.Count == 0)
             {

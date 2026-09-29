@@ -19,8 +19,14 @@ export function DaySessionCard({ session, onPress }: DaySessionCardProps) {
   const title = isPrivate
     ? session.studentNames.join(studentNameSeparator)
     : session.classGroupName;
-  const details = [session.instructorFullName, session.location].filter(
-    (detail): detail is string => Boolean(detail),
+  const instructorDetail = session.originalInstructorFullName
+    ? translate("sessions.day.substitute", {
+        substitute: session.instructorFullName,
+        original: session.originalInstructorFullName,
+      })
+    : session.instructorFullName;
+  const details = [instructorDetail, session.location].filter((detail): detail is string =>
+    Boolean(detail),
   );
   return (
     <View className={`flex-row gap-3.5 ${session.isCancelled ? "opacity-60" : ""}`}>

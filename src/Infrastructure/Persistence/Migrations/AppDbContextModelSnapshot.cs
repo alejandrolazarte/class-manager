@@ -729,6 +729,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<TimeOnly?>("RescheduledStartTime")
                         .HasColumnType("time");
 
+                    b.Property<Guid?>("SubstituteInstructorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
@@ -736,10 +739,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClassGroupId");
 
+                    b.HasIndex("SubstituteInstructorId");
+
                     b.HasIndex("TenantId", "Date");
 
                     b.HasIndex("TenantId", "ClassGroupId", "Date")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SubstituteInstructorId", "Date");
 
                     b.ToTable("ClassSessions");
                 });
@@ -1020,6 +1027,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ClassGroupId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
+                        .WithMany()
+                        .HasForeignKey("SubstituteInstructorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
