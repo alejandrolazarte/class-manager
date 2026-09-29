@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace ClassManager.Core.Domain.Authorization;
 
 public static class Permissions
@@ -9,6 +11,7 @@ public static class Permissions
         Members.View,
         Members.Manage,
         Members.ManageBranchOwners,
+        Roles.Manage,
         Brand.CreateBranches,
         Brand.ManageBrandOwners,
         Instructors.View,
@@ -41,6 +44,9 @@ public static class Permissions
     public static IReadOnlyList<string> BrandOnly { get; } =
         [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners];
 
+    public static IReadOnlySet<string> Assignable { get; } =
+        All.Except(BrandOnly).ToFrozenSet(StringComparer.Ordinal);
+
     public static IReadOnlyDictionary<string, string> EveryInstructorPermissionByOwnPermission { get; } =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -63,6 +69,11 @@ public static class Permissions
         public const string View = "members.view";
         public const string Manage = "members.manage";
         public const string ManageBranchOwners = "branchOwners.manage";
+    }
+
+    public static class Roles
+    {
+        public const string Manage = "roles.manage";
     }
 
     public static class Brand

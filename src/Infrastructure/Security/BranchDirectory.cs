@@ -44,8 +44,17 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
             .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(member => member.UserId == userId && (businessId == null || member.TenantId == businessId))
-            .Select(member => new { member.TenantId, member.Role })
+            .Select(member => new { member.TenantId, member.Role, member.CustomRoleId })
             .ToListAsync(cancellationToken);
+        var customRoleIds = memberships
+            .Select(membership => membership.CustomRoleId)
+            .OfType<Guid>()
+            .ToList();
+        var customRoleNames = await context.CustomRoles
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(role => customRoleIds.Contains(role.Id))
+            .ToDictionaryAsync(role => role.Id, role => role.Name, cancellationToken);
         var brandOrganizationIds = await BrandOrganizationIds(userId).ToListAsync(cancellationToken);
         var memberBusinessIds = memberships.Select(membership => membership.TenantId).ToList();
         var businesses = await context.Businesses
@@ -54,16 +63,21 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
             .Where(business => memberBusinessIds.Contains(business.Id) || brandOrganizationIds.Contains(business.OrganizationId))
             .Select(business => new { business.Id, business.Name, business.OrganizationId })
             .ToListAsync(cancellationToken);
-        var rolesByBusinessId = memberships.ToDictionary(membership => membership.TenantId, membership => membership.Role);
+        var membershipsByBusinessId = memberships.ToDictionary(membership => membership.TenantId);
 
         return
         [
-            .. businesses.Select(business => new BranchAccess(
-                business.Id,
-                business.Name,
-                business.OrganizationId,
-                rolesByBusinessId.TryGetValue(business.Id, out var role) ? role : null,
-                brandOrganizationIds.Contains(business.OrganizationId))),
+            .. businesses.Select(business =>
+            {
+                var membership = membershipsByBusinessId.GetValueOrDefault(business.Id);
+                return new BranchAccess(
+                    business.Id,
+                    business.Name,
+                    business.OrganizationId,
+                    membership?.Role,
+                    brandOrganizationIds.Contains(business.OrganizationId),
+                    membership?.CustomRoleId is { } customRoleId ? customRoleNames.GetValueOrDefault(customRoleId) : null);
+            }),
         ];
     }
 

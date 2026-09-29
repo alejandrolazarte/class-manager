@@ -17,6 +17,10 @@ internal sealed class MemberInvitationConfiguration : IEntityTypeConfiguration<M
 
         builder.HasOne<Business>().WithMany().HasForeignKey(invitation => invitation.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Instructor>().WithMany().HasForeignKey(invitation => invitation.InstructorId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<CustomRole>().WithMany().HasForeignKey(invitation => invitation.CustomRoleId).OnDelete(DeleteBehavior.Cascade);
+        builder.ToTable(table => table.HasCheckConstraint(
+            "CK_MemberInvitations_CustomRoleId",
+            "([Role] = 'Custom' AND [CustomRoleId] IS NOT NULL) OR ([Role] <> 'Custom' AND [CustomRoleId] IS NULL)"));
         builder.HasIndex(invitation => invitation.TokenHash).IsUnique();
         builder.HasIndex(invitation => new { invitation.TenantId, invitation.Email });
     }

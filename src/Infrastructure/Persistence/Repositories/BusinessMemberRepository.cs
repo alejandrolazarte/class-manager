@@ -15,6 +15,9 @@ internal sealed class BusinessMemberRepository(AppDbContext context) : IBusiness
     public Task<bool> IsUserMemberAsync(Guid userId, CancellationToken cancellationToken) =>
         context.BusinessMembers.AnyAsync(member => member.UserId == userId, cancellationToken);
 
+    public async Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(Guid customRoleId, CancellationToken cancellationToken) =>
+        await context.BusinessMembers.AsNoTracking().Where(member => member.CustomRoleId == customRoleId).ToListAsync(cancellationToken);
+
     public Task<bool> IsInstructorLinkedAsync(Guid instructorId, Guid? exceptMemberId, CancellationToken cancellationToken) =>
         context.BusinessMembers.AnyAsync(
             member => member.InstructorId == instructorId && member.Id != exceptMemberId,

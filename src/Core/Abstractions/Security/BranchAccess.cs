@@ -8,7 +8,8 @@ public sealed record BranchAccess(
     string BusinessName,
     Guid OrganizationId,
     BusinessRole? BranchRole,
-    bool IsBrandOwner)
+    bool IsBrandOwner,
+    string? CustomRoleName = null)
 {
     public string RoleName => BranchRole?.ToString() ?? nameof(OrganizationRole.BrandOwner);
 }

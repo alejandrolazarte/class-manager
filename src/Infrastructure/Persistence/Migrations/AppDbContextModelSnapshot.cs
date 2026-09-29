@@ -78,6 +78,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CustomRoleId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("InstructorId")
                         .HasColumnType("uniqueidentifier");
 
@@ -94,6 +97,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomRoleId");
+
                     b.HasIndex("InstructorId");
 
                     b.HasIndex("UserId");
@@ -105,7 +110,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("BusinessMembers");
+                    b.ToTable("BusinessMembers", t =>
+                        {
+                            t.HasCheckConstraint("CK_BusinessMembers_CustomRoleId", "([Role] = 'Custom' AND [CustomRoleId] IS NOT NULL) OR ([Role] <> 'Custom' AND [CustomRoleId] IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.MemberInvitation", b =>
@@ -118,6 +126,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CustomRoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -152,6 +163,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomRoleId");
+
                     b.HasIndex("InstructorId");
 
                     b.HasIndex("TokenHash")
@@ -159,7 +172,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId", "Email");
 
-                    b.ToTable("MemberInvitations");
+                    b.ToTable("MemberInvitations", t =>
+                        {
+                            t.HasCheckConstraint("CK_MemberInvitations_CustomRoleId", "([Role] = 'Custom' AND [CustomRoleId] IS NOT NULL) OR ([Role] <> 'Custom' AND [CustomRoleId] IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroup", b =>
@@ -674,6 +690,39 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("PrivateLessonStudents");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Roles.CustomRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CopiedFrom")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("CustomRoles");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Sessions.Attendance", b =>
                 {
                     b.Property<Guid>("Id")
@@ -800,6 +849,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BusinessMember", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Roles.CustomRole", null)
+                        .WithMany()
+                        .HasForeignKey("CustomRoleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
                         .WithMany()
                         .HasForeignKey("InstructorId")
@@ -814,6 +868,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.MemberInvitation", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Roles.CustomRole", null)
+                        .WithMany()
+                        .HasForeignKey("CustomRoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
                         .WithMany()
                         .HasForeignKey("InstructorId")
@@ -992,6 +1051,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Roles.CustomRole", b =>
+                {
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")

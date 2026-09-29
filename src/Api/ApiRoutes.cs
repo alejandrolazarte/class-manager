@@ -50,6 +50,8 @@ public static class ApiRoutes
     public const string Business = "/api/business";
     public const string Me = "/api/me";
     public const string Members = "/api/members";
+    public const string Roles = "/api/roles";
+    public const string RoleById = "/{roleId:guid}";
     public const string MemberById = "/{memberId:guid}";
     public const string InvitationsSegment = "/invitations";
     public const string InvitationById = "/invitations/{invitationId:guid}";

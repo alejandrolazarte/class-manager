@@ -6,13 +6,14 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record InviteMemberCommand(string? Email, BusinessRole? Role, Guid? InstructorId);
+public sealed record InviteMemberCommand(string? Email, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null);
 
 public sealed class InviteMemberUseCase(
     IBusinessRepository businessRepository,
     IBusinessMemberRepository businessMemberRepository,
     IMemberInvitationRepository invitationRepository,
     IInstructorRepository instructorRepository,
+    ICustomRoleRepository customRoleRepository,
     IIdentityService identityService,
     ICurrentMember currentMember,
     ISecretTokenGenerator secretTokenGenerator,
@@ -24,7 +25,6 @@ public sealed class InviteMemberUseCase(
 {
     public const string EmailSubject = "Te invitaron a sumarte al equipo";
 
-    private const string RoleRequiredMessage = "Choose a role.";
     private const string AlreadyMemberMessage = "This person is already part of the team.";
 
     public static string EmailBody(string businessName, string acceptInvitationLink) =>
@@ -35,14 +35,15 @@ public sealed class InviteMemberUseCase(
 
     public async Task<Result<InvitationResponse>> ExecuteAsync(InviteMemberCommand command, CancellationToken cancellationToken)
     {
-        if (command.Role is not { } role)
+        var role = await MemberRules.ResolveRoleAsync(customRoleRepository, command.Role, command.CustomRoleId, cancellationToken);
+        if (role.IsFailure)
         {
-            return Result.Validation<InvitationResponse>(RoleRequiredMessage, fieldName: nameof(InviteMemberCommand.Role));
+            return role.Error!;
         }
 
-        if (!await MemberRules.CanManageRoleAsync(currentMember, role, cancellationToken))
+        if (await MemberRules.CheckCanGiveAsync(currentMember, role.Value!, cancellationToken) is { } roleError)
         {
-            return MemberRules.RoleNotAllowed();
+            return roleError;
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
@@ -54,7 +55,7 @@ public sealed class InviteMemberUseCase(
 
         var now = timeProvider.GetUtcNow();
         var token = secretTokenGenerator.Create();
-        var invitation = MemberInvitation.Create(command.Email, role, command.InstructorId, token.Hash, access.UserId, now);
+        var invitation = MemberInvitation.Create(command.Email, role.Value!, command.InstructorId, token.Hash, access.UserId, now);
         if (invitation.IsFailure)
         {
             return invitation.Error!;

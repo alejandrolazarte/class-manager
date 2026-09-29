@@ -10,6 +10,8 @@ public interface IMemberInvitationRepository
 
     Task<IReadOnlyList<MemberInvitation>> ListPendingAsync(DateTimeOffset now, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<MemberInvitation>> ListPendingByCustomRoleAsync(Guid customRoleId, DateTimeOffset now, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<MemberInvitation>> ListPendingForUpdateByEmailAsync(string email, DateTimeOffset now, CancellationToken cancellationToken);
 
     Task<MemberInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken);

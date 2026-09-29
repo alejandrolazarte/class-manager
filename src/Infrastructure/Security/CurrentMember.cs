@@ -31,7 +31,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
         var branchMember = await context.BusinessMembers
             .AsNoTracking()
             .Where(member => member.UserId == userId)
-            .Select(member => new { member.Role, member.InstructorId })
+            .Select(member => new { member.Role, member.CustomRoleId, member.InstructorId })
             .FirstOrDefaultAsync(cancellationToken);
         var isBrandOwner = await context.Businesses
             .AsNoTracking()
@@ -48,7 +48,18 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
             return null;
         }
 
-        var permissions = isBrandOwner ? SystemRolePermissions.BrandOwner : SystemRolePermissions.Of(branchMember!.Role);
-        return new MemberAccess(userId, businessId, branchMember?.Role, branchMember?.InstructorId, isBrandOwner, permissions);
+        var permissions = isBrandOwner ? SystemRolePermissions.BrandOwner : await BranchPermissionsAsync(branchMember!.Role, branchMember.CustomRoleId, cancellationToken);
+        return new MemberAccess(userId, businessId, branchMember?.Role, branchMember?.InstructorId, isBrandOwner, permissions, branchMember?.CustomRoleId);
+    }
+
+    private async Task<IReadOnlySet<string>> BranchPermissionsAsync(BusinessRole role, Guid? customRoleId, CancellationToken cancellationToken)
+    {
+        if (customRoleId is not { } roleId)
+        {
+            return SystemRolePermissions.Of(role);
+        }
+
+        var customRole = await context.CustomRoles.AsNoTracking().FirstOrDefaultAsync(customRole => customRole.Id == roleId, cancellationToken);
+        return customRole is null ? new HashSet<string>() : MemberRole.Custom(customRole).Permissions;
     }
 }

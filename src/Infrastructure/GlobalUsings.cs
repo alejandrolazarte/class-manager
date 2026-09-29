@@ -8,6 +8,7 @@ global using ClassManager.Core.Domain.Fees;
 global using ClassManager.Core.Domain.Instructors;
 global using ClassManager.Core.Domain.Organizations;
 global using ClassManager.Core.Domain.PrivateLessons;
+global using ClassManager.Core.Domain.Roles;
 global using ClassManager.Core.Domain.Sessions;
 global using ClassManager.Core.Domain.Students;
 global using ClassManager.Tenancy;

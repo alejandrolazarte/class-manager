@@ -13,6 +13,7 @@ public sealed record AcceptInvitationCommand(string? Token, string? FullName, st
 public sealed class AcceptInvitationUseCase(
     IMemberInvitationRepository invitationRepository,
     IBusinessMemberRepository businessMemberRepository,
+    ICustomRoleRepository customRoleRepository,
     IIdentityService identityService,
     ITokenService tokenService,
     ISecretTokenGenerator secretTokenGenerator,
@@ -41,6 +42,12 @@ public sealed class AcceptInvitationUseCase(
         }
 
         tenantScope.Establish(invitation.TenantId);
+        var role = await MemberRules.ResolveRoleAsync(customRoleRepository, invitation.Role, invitation.CustomRoleId, cancellationToken);
+        if (role.IsFailure)
+        {
+            return InvalidInvitation();
+        }
+
         if (invitation.InstructorId is { } instructorId
             && await businessMemberRepository.IsInstructorLinkedAsync(instructorId, null, cancellationToken))
         {
@@ -71,7 +78,7 @@ public sealed class AcceptInvitationUseCase(
             return Result.Conflict<TokenResponse>(AlreadyMemberMessage, MemberErrorCodes.AlreadyMember);
         }
 
-        var member = BusinessMember.Create(invitation.TenantId, userId.Value, invitation.Role, invitation.InstructorId);
+        var member = BusinessMember.Create(invitation.TenantId, userId.Value, role.Value!, invitation.InstructorId);
         if (member.IsFailure)
         {
             return member.Error!;
