@@ -24,6 +24,7 @@ public sealed class ClassSession : ITenantOwned
     public bool IsCancelled { get; private set; }
     public string? CancellationReason { get; private set; }
     public TimeOnly? RescheduledStartTime { get; private set; }
+    public Guid? SubstituteInstructorId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static ClassSession Create(Guid classGroupId, DateOnly date, DateTimeOffset createdAt) =>
@@ -67,6 +68,21 @@ public sealed class ClassSession : ITenantOwned
     public void ClearReschedule() => RescheduledStartTime = null;
 
     public TimeOnly EffectiveStartTime(TimeOnly usualStartTime) => RescheduledStartTime ?? usualStartTime;
+
+    public Result AssignSubstitute(Guid instructorId, Guid usualInstructorId)
+    {
+        if (IsCancelled)
+        {
+            return Result.Conflict(CancelledMessage, SessionErrorCodes.Cancelled);
+        }
+
+        SubstituteInstructorId = instructorId == usualInstructorId ? null : instructorId;
+        return Result.Success();
+    }
+
+    public void ClearSubstitute() => SubstituteInstructorId = null;
+
+    public Guid EffectiveInstructorId(Guid usualInstructorId) => SubstituteInstructorId ?? usualInstructorId;
 
     public void Restore()
     {

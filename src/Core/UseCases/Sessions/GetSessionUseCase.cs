@@ -21,6 +21,9 @@ public sealed record SessionStudentResponse(
 public sealed record SessionDetailsResponse(
     Guid ClassGroupId,
     string ClassGroupName,
+    Guid InstructorId,
+    string InstructorFullName,
+    string? OriginalInstructorFullName,
     DateOnly Date,
     string StartTime,
     string EndTime,
@@ -33,6 +36,7 @@ public sealed record SessionDetailsResponse(
 
 public sealed class GetSessionUseCase(
     IClassGroupRepository classGroupRepository,
+    IInstructorRepository instructorRepository,
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
@@ -48,13 +52,18 @@ public sealed class GetSessionUseCase(
             return classGroup.Error!;
         }
 
+        var session = await sessionRepository.FindForUpdateAsync(command.ClassGroupId, command.Date, cancellationToken);
         var scope = await accessScopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, cancellationToken);
-        if (!scope.Includes(classGroup.Value!.InstructorId))
+        if (!SessionRules.IsInScope(scope, classGroup.Value!, session))
         {
             return SessionRules.ClassGroupNotFound();
         }
 
-        var session = await sessionRepository.FindForUpdateAsync(command.ClassGroupId, command.Date, cancellationToken);
+        var usualInstructor = await instructorRepository.GetByIdAsync(classGroup.Value!.InstructorId, cancellationToken);
+        var substitute = session?.SubstituteInstructorId is { } substituteInstructorId
+            ? await instructorRepository.GetByIdAsync(substituteInstructorId, cancellationToken)
+            : null;
+        var instructor = substitute ?? usualInstructor;
         var statuses = session is null
             ? new Dictionary<Guid, AttendanceStatus>()
             : (await attendanceRepository.ListBySessionAsync(session.Id, cancellationToken))
@@ -68,6 +77,9 @@ public sealed class GetSessionUseCase(
         return new SessionDetailsResponse(
             classGroup.Value.Id,
             classGroup.Value.Name,
+            session?.EffectiveInstructorId(classGroup.Value.InstructorId) ?? classGroup.Value.InstructorId,
+            instructor?.FullName ?? string.Empty,
+            substitute is null ? null : usualInstructor?.FullName,
             command.Date,
             FormatTime(startTime),
             FormatTime(startTime.AddMinutes(classGroup.Value.DurationMinutes)),

@@ -23,7 +23,6 @@ public sealed class RescheduleSessionUseCase(
 {
     private const string InPastMessage = "Past dates can't be rescheduled.";
     private const string StartTimeFormatMessage = "Start time must use the HH:mm format.";
-    private const string InstructorBusyMessage = "The instructor already teaches another class group at that time.";
     private const string ConcurrentUpdateMessage = "The session changed at the same time. Try again.";
 
     public async Task<Result<SessionStatusResponse>> ExecuteAsync(RescheduleSessionCommand command, CancellationToken cancellationToken)
@@ -44,20 +43,20 @@ public sealed class RescheduleSessionUseCase(
             return Result.Validation<SessionStatusResponse>(StartTimeFormatMessage, fieldName: nameof(RescheduleSessionCommand.StartTime));
         }
 
-        var conflict = await FindInstructorConflictAsync(classGroup.Value!, command.Date, startTime, cancellationToken)
-            ?? await InstructorAgendaRules.FindPrivateLessonConflictAsync(
-                privateLessonRepository,
-                classGroup.Value!.InstructorId,
-                [command.Date],
-                ClassSchedule.ForDay(command.Date.DayOfWeek, startTime, classGroup.Value.DurationMinutes),
-                ignoredPrivateLessonId: null,
-                cancellationToken);
+        var session = await sessionRepository.FindForUpdateAsync(command.ClassGroupId, command.Date, cancellationToken);
+        var instructorId = session?.EffectiveInstructorId(classGroup.Value!.InstructorId) ?? classGroup.Value!.InstructorId;
+        var conflict = await SessionRules.FindInstructorConflictAsync(
+            new InstructorAgendaRepositories(classGroupRepository, sessionRepository, privateLessonRepository),
+            instructorId,
+            classGroup.Value!,
+            command.Date,
+            startTime,
+            cancellationToken);
         if (conflict is not null)
         {
             return conflict;
         }
 
-        var session = await sessionRepository.FindForUpdateAsync(command.ClassGroupId, command.Date, cancellationToken);
         if (session is null)
         {
             session = ClassSession.Create(command.ClassGroupId, command.Date, timeProvider.GetUtcNow());
@@ -80,38 +79,5 @@ public sealed class RescheduleSessionUseCase(
         }
 
         return new SessionStatusResponse(session.ClassGroupId, session.Date, session.IsCancelled, session.CancellationReason);
-    }
-
-    private async Task<ResultError?> FindInstructorConflictAsync(
-        ClassGroup classGroup,
-        DateOnly sessionDate,
-        TimeOnly startTime,
-        CancellationToken cancellationToken)
-    {
-        var newTime = ClassSchedule.ForDay(sessionDate.DayOfWeek, startTime, classGroup.DurationMinutes);
-        var sessionsOfDay = (await sessionRepository.ListByDateAsync(sessionDate, cancellationToken))
-            .ToDictionary(session => session.ClassGroupId);
-        var instructorClassGroups = await classGroupRepository.ListActiveByInstructorAsync(classGroup.InstructorId, cancellationToken);
-
-        var overlappingClassGroup = instructorClassGroups
-            .Where(other => other.Id != classGroup.Id && other.Schedule.MeetsOn(sessionDate.DayOfWeek))
-            .FirstOrDefault(other =>
-            {
-                var otherSession = sessionsOfDay.GetValueOrDefault(other.Id);
-                if (otherSession?.IsCancelled == true)
-                {
-                    return false;
-                }
-
-                var otherStartTime = otherSession?.EffectiveStartTime(other.StartTime) ?? other.StartTime;
-                return ClassSchedule.ForDay(sessionDate.DayOfWeek, otherStartTime, other.DurationMinutes).OverlapsWith(newTime);
-            });
-
-        return overlappingClassGroup is null
-            ? null
-            : new ResultError(ClassGroupErrorCodes.InstructorBusy, InstructorBusyMessage, ErrorKind.Conflict)
-            {
-                Details = new Dictionary<string, object?> { [ClassGroupErrorCodes.ConflictingClassGroupIdDetail] = overlappingClassGroup.Id },
-            };
     }
 }

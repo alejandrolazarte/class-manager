@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.Domain.PrivateLessons;
+using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.PrivateLessons;
 using Microsoft.Extensions.Time.Testing;
 
@@ -33,6 +34,9 @@ internal sealed class PrivateLessonUseCaseBuilder
         Sessions
             .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        Sessions
+            .Setup(repository => repository.ListSubstitutionsAsync(It.IsAny<Guid>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         PrivateLessons
             .Setup(repository => repository.ListByInstructorOnDatesAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<DateOnly>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
@@ -40,18 +44,33 @@ internal sealed class PrivateLessonUseCaseBuilder
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
     }
 
-    public void InstructorTeachesGroupAt(Guid instructorId, string startTime) =>
+    public ClassGroup InstructorTeachesGroupAt(Guid instructorId, string startTime)
+    {
+        var classGroup = ClassGroup.Create(
+            "Natación inicial",
+            instructorId,
+            ClassSchedule.Create([TestData.Today.DayOfWeek], startTime, 45).Value!,
+            8,
+            null).Value!;
         ClassGroups
             .Setup(repository => repository.ListActiveByInstructorAsync(instructorId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                ClassGroup.Create(
-                    "Natación inicial",
-                    instructorId,
-                    ClassSchedule.Create([TestData.Today.DayOfWeek], startTime, 45).Value!,
-                    8,
-                    null).Value!,
-            ]);
+            .ReturnsAsync([classGroup]);
+        ClassGroups.Setup(repository => repository.GetByIdAsync(classGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(classGroup);
+        return classGroup;
+    }
+
+    public ClassSession SubstituteTodayIn(ClassGroup classGroup, Guid substituteInstructorId)
+    {
+        var session = ClassSession.Create(classGroup.Id, TestData.Today, TestData.Now);
+        session.AssignSubstitute(substituteInstructorId, classGroup.InstructorId);
+        Sessions
+            .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([session]);
+        Sessions
+            .Setup(repository => repository.ListSubstitutionsAsync(substituteInstructorId, It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([session]);
+        return session;
+    }
 
     public PrivateLesson ExistingLesson(DateOnly date, string startTime = "18:00") =>
         PrivateLesson.Create(
