@@ -25,6 +25,7 @@ public sealed record FamilyBillingResponse(
 
 public sealed record FamilyHomeResponse(
     string BusinessName,
+    string CurrencyCode,
     string ClientFullName,
     IReadOnlyList<FamilyStudentResponse> Students,
     FamilyBillingResponse Billing);

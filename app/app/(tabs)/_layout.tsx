@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { RedirectWhenSignedOut } from "@/features/authentication/components/RedirectWhenSignedOut";
+import { RequireSessionKind } from "@/features/authentication/components/RequireSessionKind";
 import { BusinessProvider } from "@/features/business/BusinessProvider";
 import { useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { MemberProvider } from "@/features/members/MemberProvider";
@@ -72,12 +72,12 @@ function MemberTabs() {
 
 export default function TabsLayout() {
   return (
-    <RedirectWhenSignedOut>
+    <RequireSessionKind kind="team">
       <BusinessProvider>
         <MemberProvider>
           <MemberTabs />
         </MemberProvider>
       </BusinessProvider>
-    </RedirectWhenSignedOut>
+    </RequireSessionKind>
   );
 }

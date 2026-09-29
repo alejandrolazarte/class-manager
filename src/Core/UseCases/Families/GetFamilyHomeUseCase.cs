@@ -104,6 +104,7 @@ public sealed class GetFamilyHomeUseCase(
 
         return new FamilyHomeResponse(
             business.Name,
+            business.CurrencyCode,
             client.FullName,
             studentResponses,
             await BillingAsync(client.Id, today, cancellationToken));

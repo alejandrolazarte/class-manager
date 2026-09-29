@@ -44,6 +44,8 @@ export const routes = {
       : "/settings/roles/new",
   role: (roleKey: string) => `/settings/roles/${roleKey}`,
   acceptInvitation: "/accept-invitation",
+  acceptFamilyInvitation: "/accept-family-invitation",
+  family: "/family",
   branches: "/settings/branches",
   newBranch: "/settings/branches/new",
 } as const;
