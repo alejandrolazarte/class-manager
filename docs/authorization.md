@@ -16,7 +16,7 @@ How the API decides what a signed-in user may do. The full design is in the [rol
 | `BrandOwner` | Every permission in every business of the organization, including giving or taking the `BranchOwner` role |
 | `BranchOwner` | Everything inside the business except the `BranchOwner` role itself, including custom roles |
 | `Coach` | Their own class groups, sessions and private lessons; attendance in them; their students; register clients and students; enroll and unenroll the students they reach in their own class groups (`enrollments.manage.own`). No money, settings or team |
-| `Viewer` | Read everything in the business (money included), change nothing |
+| `Viewer` | Read everything in the business (money, products and orders included), change nothing |
 
 A role that has an `.own` permission without the matching `.all` one needs a linked instructor (`member.instructor_required`).
 
@@ -66,6 +66,19 @@ The system `Coach` role has no money permissions. A custom role can add them:
 - Payments and pack sales store `RecordedByUserId`. A family's payments show who recorded each one (`recordedByUserId`, `recordedByFullName`).
 - Without `payments.view.all`, a member only deletes payments and pack sales they recorded themselves.
 - A family's class balance (`GET /api/clients/{id}/class-balance`) follows the student scope.
+
+## Products and orders
+
+| Operation | Endpoint | Permission |
+|---|---|---|
+| Products with sizes and stock | `GET /api/products` | `products.view` or `orders.manage` (the counter sale needs the catalog) |
+| Create, edit, deactivate | `POST /api/products`, `PUT /api/products/{id}`, `PUT /api/products/{id}/active` | `products.manage` |
+| Load or adjust stock, history | `POST /api/products/{id}/stock`, `GET /api/products/{id}/stock-movements` | `products.manage` / `products.view` |
+| Orders, newest first (`?awaitingPickup=true`, `?clientId=`) | `GET /api/orders` | `orders.view.all` or `orders.view.own` |
+| Counter sale, mark delivered, refund | `POST /api/orders`, `PUT /api/orders/{id}/delivered`, `POST /api/orders/{id}/refunds` | `orders.manage` |
+
+- `orders.view.own` narrows orders to the families the member reaches (the student client scope); orders without a family are only visible with `orders.view.all`. With it, selling to another family returns `403 member.not_yours`, and delivering or refunding its orders returns `404`.
+- The system `Coach` role has no shop permissions; `Viewer` gets `products.view` and `orders.view.all`.
 
 ## Permissions
 

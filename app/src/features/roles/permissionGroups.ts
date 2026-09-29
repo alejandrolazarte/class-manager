@@ -175,6 +175,32 @@ export const permissionGroups: PermissionGroup[] = [
     ],
   },
   {
+    titleKey: "roles.group.shop",
+    items: [
+      {
+        kind: "toggle",
+        labelKey: "roles.permission.productsView",
+        permission: permissions.productsView,
+      },
+      {
+        kind: "toggle",
+        labelKey: "roles.permission.productsManage",
+        permission: permissions.productsManage,
+      },
+      {
+        kind: "scope",
+        labelKey: "roles.permission.ordersView",
+        own: permissions.ordersViewOwn,
+        all: permissions.ordersViewAll,
+      },
+      {
+        kind: "toggle",
+        labelKey: "roles.permission.ordersManage",
+        permission: permissions.ordersManage,
+      },
+    ],
+  },
+  {
     titleKey: "roles.group.data",
     items: [
       {

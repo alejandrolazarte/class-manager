@@ -42,6 +42,8 @@ app.MapSessionEndpoints();
 app.MapPrivateLessonEndpoints();
 app.MapFeeEndpoints();
 app.MapClassPackEndpoints();
+app.MapProductEndpoints();
+app.MapOrderEndpoints();
 app.MapImportExportEndpoints();
 
 app.Run();

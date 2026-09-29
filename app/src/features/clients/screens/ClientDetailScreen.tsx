@@ -37,6 +37,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const { data: client, isPending, isError, refetch } = useClient(clientId);
   const canManageStudents = useCan(permissions.studentsManage);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
+  const canSellAtCounter = useCan(permissions.ordersManage);
 
   if (isPending) {
     return (
@@ -122,6 +123,15 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
         </View>
       ) : null}
       {canManageStudents ? <InviteFamilySection client={client} /> : null}
+      {canSellAtCounter ? (
+        <Button
+          variant="secondary"
+          size="medium"
+          icon="products"
+          label={translate("orders.counterSale.open")}
+          onPress={() => router.push(routes.clientCounterSale(client.id))}
+        />
+      ) : null}
       <SectionTitle title={translate("clients.detail.students")} />
       {client.students.length === 0 ? (
         <AppText variant="body" tone="muted">

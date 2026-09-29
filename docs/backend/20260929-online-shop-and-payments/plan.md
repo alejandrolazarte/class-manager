@@ -1,6 +1,6 @@
 # Plan — Family app, shop and online payments
 
-Status: step 1 done, the rest is a proposal. Steps 1–4 need no payment provider; Stripe Connect comes last.
+Status: steps 1 and 2 done, the rest is a proposal. Steps 1–4 need no payment provider; Stripe Connect comes last.
 
 ## Goal
 
@@ -120,7 +120,7 @@ A family account has no team permissions.
 Each step is usable on its own; steps 1–4 need no payment provider.
 
 1. **Family and adult student accounts — done** ([authorization](../../authorization.md#families-and-adult-students)). Invitation from the family card ("Invitar a la app"), accept screen (`/accept-family-invitation`), sign-in opens the family shell (`/family`), Inicio is read only: students with their next classes (14 days, cancellations, reschedules and substitutes applied), the month's fee or the class balance, and "se paga en la sede". Family and team sessions are separated end to end (kind fixed at sign-in, disjoint policies and endpoints, tests for both directions). Not built yet: opening the family side when the same user is also a team member, e2e for the invitation flow (needs the invitation email in e2e), the branch's theme in the family shell.
-2. **Products and orders at the counter.** Products, variants, stock ledger, counter sales, pickup, refunds. Useful from day one for merchandise.
+2. **Products and orders at the counter — done** ([authorization](../../authorization.md#products-and-orders), [domain model](../domain-model.md#product-and-productvariant-added-with-the-shop)). Ajustes → Productos (sizes as a comma-separated list, stock mode, shown in the app or not, load and adjust stock with its last movements) and Ajustes → Pedidos ("Para retirar" / todos, mark delivered, refund a line). "Venta en mostrador" from Pedidos (products, no family) and from the family card (packs and products): a paid order that credits the classes at once and moves stock. Not built yet: product photos, a lock for two counter sales of the last unit at the same instant (reservations in step 3 will need it), product sales in the monthly totals, cancelling an order (only requested orders can be cancelled, and they arrive with step 3).
 3. **Shop in the family app, pay at the branch.** Packs and products shown in the app, cart, orders that reserve stock, the branch confirms the payment and the app credits classes or moves stock, "Mis pedidos", automatic cancellation after 7 days.
 4. **Notifications.** Email (and later push) to the family when an order is ready to pick up and to the branch when an order is placed.
 5. **Stripe account per branch.** Platform account in test mode, `Payments.Stripe`, onboarding and status in Ajustes → Cobros online, webhook endpoint with signature check and idempotency.

@@ -17,6 +17,8 @@ public interface IClientRepository
 
     Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Client>> ListByIdsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Guid>> ListIdsInScopeAsync(ClientScope scope, CancellationToken cancellationToken);

@@ -32,6 +32,13 @@ erDiagram
     Business ||--o{ ClassPack : sells
     Client ||--o{ ClassPackPurchase : buys
     ClassPack ||--o{ ClassPackPurchase : "sold as"
+    Business ||--o{ Product : sells
+    Product ||--|{ ProductVariant : "comes in"
+    ProductVariant ||--o{ StockMovement : "stock changes by"
+    Business ||--o{ Order : records
+    Client |o--o{ Order : places
+    Order ||--|{ OrderLine : contains
+    OrderLine |o--o| ClassPackPurchase : "credits classes with"
 ```
 
 ### Business (tenant root)
@@ -228,6 +235,47 @@ A pack sold to a family; it is also the payment. Copies name, classes and expiry
 | `Method`, `Notes` | | Same rules as payments |
 
 **Class balance** (computed, not stored): each `Present` attendance of the family's students in a month when the family was on `ClassPacks`, oldest first, uses a class of the pack valid on that date that expires first (packs without expiry last). Attendances left without a pack are unpaid classes; classes left in an expired pack are lost.
+
+### Product and ProductVariant (added with the shop)
+
+Anything a branch sells besides classes: caps, swimsuits, brand merchandise.
+
+| Property | Type | Rules |
+|---|---|---|
+| `Name` | `string` | 2–60 characters, unique per business |
+| `Description` | `string?` | Up to 500 characters |
+| `Price` | `decimal` | VAT included; same rule as payments |
+| `StockMode` | `StockMode` | `Unlimited` (no stock kept), `Tracked` (can't sell more than the stock) or `TrackedWithBackorder` (stock counted, can go below 0) |
+| `IsVisibleInApp` | `bool` | Shown in the family app (step 3) or only at the counter |
+| `IsActive` | `bool` | Inactive products can't be sold |
+
+A product has 1–20 **variants** (sizes or colors, names up to 30 characters, unique per product ignoring case). A product without sizes has one unnamed variant. Removing a size deactivates it, so its history stays.
+
+### StockMovement (added with the shop)
+
+Append-only ledger per variant; the stock is the sum of `Quantity`.
+
+| `Kind` | `Quantity` | Created by |
+|---|---|---|
+| `Restock` | 1–10,000 | Loading stock |
+| `Adjustment` | ±1–10,000, not leaving the stock below 0, with a note | Correcting a count (broken, lost) |
+| `Sale` | −units | Paying an order with tracked products |
+| `Refund` | +units | Refunding units that came back to the shelf |
+
+### Order and OrderLine (added with the shop)
+
+One purchase: at the counter now, from the family app in step 3.
+
+| Property | Type | Rules |
+|---|---|---|
+| `ClientId` | `Guid?` | Required when a line is a class pack; a counter sale of products can have no family |
+| `Channel` | `OrderChannel` | `Counter` or `App` |
+| `Status` | `OrderStatus` | `Requested` → `Paid` → `Delivered`, or `Cancelled`. A counter sale starts `Paid` |
+| `Method`, `PaidOn`, `Notes` | | Same rules as payments |
+
+Lines (1–20) keep a snapshot of name and price. A **class pack line** creates the `ClassPackPurchase` when the order is paid, so the classes are credited at once; that purchase can only be undone by refunding the order (`409 class_pack_purchase.from_order`). A **product line** (variant, 1–99 units) records a `Sale` movement for tracked products; the order **awaits pickup** while it is `Paid` with product lines, until it is marked delivered.
+
+**Refunds**: a product line returns some or all of its units, optionally back to stock. A pack line removes the classes not used yet and refunds their share of the price (the purchase keeps only the used classes, or is removed when none was used).
 
 ## Value objects
 

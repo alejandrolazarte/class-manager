@@ -18,6 +18,10 @@ export default function StudentsLayout() {
         name="clients/[clientId]/sell-pack"
         options={{ title: translate("classPacks.sell.title") }}
       />
+      <Stack.Screen
+        name="clients/[clientId]/counter-sale"
+        options={{ title: translate("orders.counterSale.title") }}
+      />
     </Stack>
   );
 }

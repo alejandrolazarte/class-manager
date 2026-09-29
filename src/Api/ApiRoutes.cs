@@ -37,6 +37,14 @@ public static class ApiRoutes
     public const string ClassPackPurchases = "/api/class-pack-purchases";
     public const string ClassPackPurchaseById = "/{purchaseId:guid}";
     public const string ClassBalance = "/class-balance";
+    public const string Products = "/api/products";
+    public const string ProductById = "/{productId:guid}";
+    public const string Stock = "/stock";
+    public const string StockMovements = "/stock-movements";
+    public const string Orders = "/api/orders";
+    public const string OrderById = "/{orderId:guid}";
+    public const string Delivered = "/delivered";
+    public const string Refunds = "/refunds";
     public const string PaymentsSegment = "/payments";
     public const string Payments = "/api/payments";
     public const string PaymentById = "/{paymentId:guid}";

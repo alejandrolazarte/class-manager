@@ -32,6 +32,8 @@ export function SettingsScreen() {
   const canManageBusiness = useCan(permissions.businessManage);
   const canViewInstructors = useCan(permissions.instructorsView);
   const canViewClassPacks = useCan(permissions.classPacksView);
+  const canViewProducts = useCan(permissions.productsView);
+  const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
   const canImportExport = useCan(permissions.importExportRun);
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
@@ -110,6 +112,30 @@ export function SettingsScreen() {
           label={translate("settings.classPacks")}
           detail={translate("settings.classPacksHint")}
           onPress={() => router.push(routes.classPacks)}
+        />
+      ),
+    },
+    {
+      key: "products",
+      isVisible: canViewProducts,
+      row: (
+        <ListRow
+          icon="products"
+          label={translate("settings.products")}
+          detail={translate("settings.productsHint")}
+          onPress={() => router.push(routes.products)}
+        />
+      ),
+    },
+    {
+      key: "orders",
+      isVisible: canViewOrders,
+      row: (
+        <ListRow
+          icon="orders"
+          label={translate("settings.orders")}
+          detail={translate("settings.ordersHint")}
+          onPress={() => router.push(routes.orders)}
         />
       ),
     },

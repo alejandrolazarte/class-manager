@@ -38,6 +38,8 @@ public static class SystemRolePermissions
         Permissions.Students.ViewAll,
         Permissions.Payments.ViewAll,
         Permissions.ClassPacks.View,
+        Permissions.Products.View,
+        Permissions.Orders.ViewAll,
     }.ToFrozenSet(StringComparer.Ordinal);
 
     public static IReadOnlySet<string> BrandOwner => EveryPermission;

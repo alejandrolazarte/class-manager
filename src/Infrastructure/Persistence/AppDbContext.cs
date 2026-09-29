@@ -26,6 +26,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<ClassPackPurchase> ClassPackPurchases => Set<ClassPackPurchase>();
     public DbSet<PrivateLesson> PrivateLessons => Set<PrivateLesson>();
     public DbSet<PrivateLessonStudent> PrivateLessonStudents => Set<PrivateLessonStudent>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderLine> OrderLines => Set<OrderLine>();
 
     public Guid CurrentTenantId => tenantContext.TenantId;
 

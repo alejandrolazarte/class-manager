@@ -26,6 +26,8 @@ export const viewerPermissions: readonly Permission[] = [
   "students.view.all",
   "payments.view.all",
   "classPacks.view",
+  "products.view",
+  "orders.view.all",
 ];
 
 export function buildCurrentMember(overrides: Partial<CurrentMember> = {}): CurrentMember {

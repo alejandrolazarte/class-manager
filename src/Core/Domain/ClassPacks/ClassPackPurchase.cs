@@ -94,5 +94,11 @@ public sealed class ClassPackPurchase : ITenantOwned
 
     public void DeductTrial(Guid trialLessonId) => TrialLessonId = trialLessonId;
 
+    public void KeepUsedClasses(int usedClasses, decimal refundedAmount)
+    {
+        ClassCount = usedClasses;
+        Price -= refundedAmount;
+    }
+
     public bool IsValidOn(DateOnly date) => ExpiresOn is null || ExpiresOn >= date;
 }
