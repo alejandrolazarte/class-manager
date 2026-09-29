@@ -20,6 +20,7 @@ public static class Permissions
         ClassGroups.ViewAll,
         ClassGroups.Manage,
         Enrollments.View,
+        Enrollments.ManageOwn,
         Enrollments.Manage,
         Sessions.ViewOwn,
         Sessions.ViewAll,
@@ -58,6 +59,7 @@ public static class Permissions
             [PrivateLessons.ManageOwn] = PrivateLessons.ManageAll,
             [Students.ViewOwn] = Students.ViewAll,
             [Payments.ViewOwn] = Payments.ViewAll,
+            [Enrollments.ManageOwn] = Enrollments.Manage,
         };
 
     public static class Business
@@ -100,6 +102,7 @@ public static class Permissions
     public static class Enrollments
     {
         public const string View = "enrollments.view";
+        public const string ManageOwn = "enrollments.manage.own";
         public const string Manage = "enrollments.manage";
     }
 

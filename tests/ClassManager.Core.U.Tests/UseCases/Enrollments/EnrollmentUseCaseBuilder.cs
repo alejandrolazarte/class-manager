@@ -14,6 +14,7 @@ internal sealed class EnrollmentUseCaseBuilder
     public Mock<IEnrollmentRepository> Enrollments { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
+    public Mock<IClientRepository> Clients { get; } = new();
     public ClassGroup ClassGroup { get; } = ClassGroup.Create(
         "Natación inicial", Guid.CreateVersion7(), ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!, 2, null).Value!;
     public StudentSummary Student { get; } = new(
@@ -29,9 +30,18 @@ internal sealed class EnrollmentUseCaseBuilder
     public EnrollStudentCommand ValidCommand() => new(ClassGroup.Id, Student.Id, null);
 
     public EnrollStudentUseCase BuildEnroll() =>
-        new(ClassGroups.Object, Students.Object, Enrollments.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+        new(
+            ClassGroups.Object,
+            Students.Object,
+            Enrollments.Object,
+            UnitOfWork.Object,
+            BusinessCalendar.Object,
+            new FakeTimeProvider(TestData.Now),
+            new EveryAccessScopes(),
+            Clients.Object);
 
-    public EndEnrollmentUseCase BuildEnd() => new(Enrollments.Object, UnitOfWork.Object, BusinessCalendar.Object);
+    public EndEnrollmentUseCase BuildEnd() =>
+        new(Enrollments.Object, ClassGroups.Object, UnitOfWork.Object, BusinessCalendar.Object, new EveryAccessScopes());
 
     public Enrollment ExistingEnrollment(DateOnly startDate) => Enrollment.Create(Student.Id, ClassGroup.Id, startDate, TestData.Now);
 }

@@ -17,6 +17,7 @@ public static class SystemRolePermissions
         Permissions.Instructors.View,
         Permissions.ClassGroups.ViewOwn,
         Permissions.Enrollments.View,
+        Permissions.Enrollments.ManageOwn,
         Permissions.Sessions.ViewOwn,
         Permissions.Attendance.RecordOwn,
         Permissions.PrivateLessons.ViewOwn,
