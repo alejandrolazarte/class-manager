@@ -9,6 +9,29 @@ export const demoFamilyPassword = "demo-family-password";
 const familyFullName = "Ana Pérez";
 const invitationTokenPattern = /accept-family-invitation\?token=([^\s]+)/;
 const restockUnits = 10;
+const beginnersWeekdays = [1, 3, 5];
+const missedWeeksAgo = 2;
+const daysPerWeek = 7;
+const millisecondsPerDay = 86_400_000;
+
+function isoDateOf(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function pastClassDates(firstDate: string, today: string): string[] {
+  const todayWeekday = new Date(`${today}T12:00:00Z`).getUTCDay();
+  const dates: string[] = [];
+  for (
+    let date = new Date(`${firstDate}T12:00:00Z`);
+    isoDateOf(date) < today;
+    date = new Date(date.getTime() + millisecondsPerDay)
+  ) {
+    if ([...beginnersWeekdays, todayWeekday].includes(date.getUTCDay())) {
+      dates.push(isoDateOf(date));
+    }
+  }
+  return dates;
+}
 
 interface Identified {
   id: string;
@@ -107,6 +130,28 @@ export async function seedDemoFamily(
     null,
     { email: demo.email, password: demoPassword },
   );
+
+  const family = await send<{ students: { id: string; fullName: string }[] }>(
+    "GET",
+    `/api/clients/${demo.familyClientId}`,
+    ownerToken,
+  );
+  const missedDay = new Date(
+    new Date(`${demo.today}T12:00:00Z`).getTime() -
+      missedWeeksAgo * daysPerWeek * millisecondsPerDay,
+  );
+  for (const classDate of pastClassDates(`${demo.month}-01`, demo.today)) {
+    for (const student of family.students) {
+      const isMissedClass =
+        student.fullName === "Tomás Pérez" && classDate === isoDateOf(missedDay);
+      await send(
+        "PUT",
+        `/api/class-groups/${demo.beginnersClassGroupId}/sessions/${classDate}/attendance/${student.id}`,
+        ownerToken,
+        { status: isMissedClass ? "Absent" : "Present" },
+      );
+    }
+  }
 
   for (const seed of productSeeds) {
     const product = await send<CreatedProduct>("POST", "/api/products", ownerToken, {

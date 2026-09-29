@@ -60,4 +60,64 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
 
         return [.. rows.Select(row => new ClientAttendedClass(row.ClientId, new AttendedClass(row.Date, row.StudentFullName, row.ClassGroupName)))];
     }
+
+    public async Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(
+        IReadOnlyCollection<Guid> studentIds,
+        DateOnly firstDate,
+        CancellationToken cancellationToken)
+    {
+        if (studentIds.Count == 0)
+        {
+            return [];
+        }
+
+        var groupMarks = await (
+            from attendance in context.Attendances.AsNoTracking()
+            where studentIds.Contains(attendance.StudentId)
+            join session in context.ClassSessions.AsNoTracking() on attendance.ClassSessionId equals session.Id
+            where session.Date >= firstDate
+            select new { attendance.StudentId, session.Date, attendance.Status })
+            .ToListAsync(cancellationToken);
+        var privateLessonMarks = await (
+            from lessonStudent in context.PrivateLessonStudents.AsNoTracking()
+            where studentIds.Contains(lessonStudent.StudentId) && lessonStudent.Status != null
+            join lesson in context.PrivateLessons.AsNoTracking() on lessonStudent.PrivateLessonId equals lesson.Id
+            where lesson.Date >= firstDate && !lesson.IsCancelled
+            select new { lessonStudent.StudentId, lesson.Date, Status = lessonStudent.Status!.Value })
+            .ToListAsync(cancellationToken);
+
+        return
+        [
+            .. groupMarks.Concat(privateLessonMarks)
+                .Select(row => new StudentAttendanceMark(row.StudentId, new AttendanceMark(row.Date, row.Status))),
+        ];
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, int>> CountAttendedClassesByStudentsAsync(
+        IReadOnlyCollection<Guid> studentIds,
+        CancellationToken cancellationToken)
+    {
+        if (studentIds.Count == 0)
+        {
+            return new Dictionary<Guid, int>();
+        }
+
+        var groupCounts = await context.Attendances.AsNoTracking()
+            .Where(attendance => studentIds.Contains(attendance.StudentId) && attendance.Status == AttendanceStatus.Present)
+            .GroupBy(attendance => attendance.StudentId)
+            .Select(group => new { StudentId = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken);
+        var privateLessonCounts = await (
+            from lessonStudent in context.PrivateLessonStudents.AsNoTracking()
+            where studentIds.Contains(lessonStudent.StudentId) && lessonStudent.Status == AttendanceStatus.Present
+            join lesson in context.PrivateLessons.AsNoTracking() on lessonStudent.PrivateLessonId equals lesson.Id
+            where !lesson.IsCancelled
+            group lessonStudent by lessonStudent.StudentId into studentLessons
+            select new { StudentId = studentLessons.Key, Count = studentLessons.Count() })
+            .ToListAsync(cancellationToken);
+
+        return groupCounts.Concat(privateLessonCounts)
+            .GroupBy(count => count.StudentId)
+            .ToDictionary(group => group.Key, group => group.Sum(count => count.Count));
+    }
 }

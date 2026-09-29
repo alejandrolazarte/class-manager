@@ -1,7 +1,9 @@
 import { useRouter } from "expo-router";
+import { View } from "react-native";
 import { BillingTile } from "@/features/family/components/BillingTile";
 import { NextClassHero } from "@/features/family/components/NextClassHero";
 import { ShopPreview } from "@/features/family/components/ShopPreview";
+import { StreakTile } from "@/features/family/components/StreakTile";
 import { StudentChips } from "@/features/family/components/StudentChips";
 import { useSelectedStudent } from "@/features/family/FamilyStudentProvider";
 import { firstNameOf } from "@/features/family/familySchedule";
@@ -70,11 +72,14 @@ export function FamilyHomeScreen() {
           />
         </>
       )}
-      <BillingTile
-        billing={home.billing}
-        currencyCode={home.currencyCode}
-        onBuyClasses={() => router.navigate(routes.familyShop)}
-      />
+      <View className="flex-row gap-3">
+        {student === null ? null : <StreakTile attendance={student.attendance} />}
+        <BillingTile
+          billing={home.billing}
+          currencyCode={home.currencyCode}
+          onBuyClasses={() => router.navigate(routes.familyShop)}
+        />
+      </View>
       {shop === undefined ? null : (
         <ShopPreview
           shop={shop}

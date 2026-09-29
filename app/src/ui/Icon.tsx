@@ -68,6 +68,7 @@ const iconGlyphs = {
   unselected: "radio-button-unchecked",
   noClasses: "event-available",
   photo: "image",
+  streak: "local-fire-department",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {

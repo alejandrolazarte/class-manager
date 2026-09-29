@@ -61,6 +61,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 
 - Five shop products: a T-shirt with sizes and one size sold out, a cap and a bottle with unlimited stock, a hoodie made to order, and a sold-out towel.
 - An app invitation for the Pérez family, accepted through the API. The invitation link only travels by email, so the test starts a small SMTP sink (`e2e/support/smtpSink.ts`) and the screenshots config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
+- Attendance in Natación inicial for every past class of the month: Lucía never misses, Tomás missed the class two weeks ago, so each shows a different streak.
 - Three family orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
 
 The family signs in through the sign-in screen, then the test captures:
