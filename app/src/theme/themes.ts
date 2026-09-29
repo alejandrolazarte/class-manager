@@ -171,76 +171,19 @@ const oceanTheme: ThemeDefinition = {
 const roseTheme: ThemeDefinition = {
   light: {
     ...neutralLightColors,
-    primary: palette.pink700,
+    primary: palette.magenta700,
     "primary-foreground": palette.white,
-    "primary-strong": palette.pink800,
-    "primary-soft": palette.pink100,
-    "primary-soft-foreground": palette.pink800,
+    "primary-strong": palette.magenta800,
+    "primary-soft": palette.magenta100,
+    "primary-soft-foreground": palette.magenta800,
   },
   dark: {
     ...neutralDarkColors,
-    primary: palette.pink300,
+    primary: palette.magenta300,
     "primary-foreground": palette.gray950,
-    "primary-strong": palette.pink200,
-    "primary-soft": palette.pink950,
-    "primary-soft-foreground": palette.pink200,
-  },
-};
-
-const sandTheme: ThemeDefinition = {
-  light: {
-    ...neutralLightColors,
-    primary: palette.orange700,
-    "primary-foreground": palette.white,
-    "primary-strong": palette.orange800,
-    "primary-soft": palette.orange100,
-    "primary-soft-foreground": palette.orange800,
-  },
-  dark: {
-    ...neutralDarkColors,
-    primary: palette.orange300,
-    "primary-foreground": palette.gray950,
-    "primary-strong": palette.orange200,
-    "primary-soft": palette.orange950,
-    "primary-soft-foreground": palette.orange200,
-  },
-};
-
-const coralTheme: ThemeDefinition = {
-  light: {
-    ...neutralLightColors,
-    primary: palette.rose700,
-    "primary-foreground": palette.white,
-    "primary-strong": palette.rose800,
-    "primary-soft": palette.rose100,
-    "primary-soft-foreground": palette.rose800,
-  },
-  dark: {
-    ...neutralDarkColors,
-    primary: palette.rose300,
-    "primary-foreground": palette.gray950,
-    "primary-strong": palette.rose200,
-    "primary-soft": palette.rose950,
-    "primary-soft-foreground": palette.rose200,
-  },
-};
-
-const courtTheme: ThemeDefinition = {
-  light: {
-    ...neutralLightColors,
-    primary: palette.emerald700,
-    "primary-foreground": palette.white,
-    "primary-strong": palette.emerald800,
-    "primary-soft": palette.emerald100,
-    "primary-soft-foreground": palette.emerald800,
-  },
-  dark: {
-    ...neutralDarkColors,
-    primary: palette.emerald300,
-    "primary-foreground": palette.gray950,
-    "primary-strong": palette.emerald200,
-    "primary-soft": palette.emerald950,
-    "primary-soft-foreground": palette.emerald200,
+    "primary-strong": palette.magenta200,
+    "primary-soft": palette.magenta950,
+    "primary-soft-foreground": palette.magenta200,
   },
 };
 
@@ -282,16 +225,33 @@ const indigoTheme: ThemeDefinition = {
   },
 };
 
+const graphiteTheme: ThemeDefinition = {
+  light: {
+    ...neutralLightColors,
+    primary: palette.slate700,
+    "primary-foreground": palette.white,
+    "primary-strong": palette.slate800,
+    "primary-soft": palette.slate100,
+    "primary-soft-foreground": palette.slate800,
+  },
+  dark: {
+    ...neutralDarkColors,
+    primary: palette.slate300,
+    "primary-foreground": palette.gray950,
+    "primary-strong": palette.slate200,
+    "primary-soft": palette.slate800,
+    "primary-soft-foreground": palette.slate200,
+  },
+};
+
 export const themes = {
   aqua: aquaTheme,
   violet: violetTheme,
   ocean: oceanTheme,
   rose: roseTheme,
-  sand: sandTheme,
-  coral: coralTheme,
-  court: courtTheme,
   plum: plumTheme,
   indigo: indigoTheme,
+  graphite: graphiteTheme,
 } as const satisfies ThemeRegistry;
 
 export type BuiltInThemeName = keyof typeof themes;

@@ -31,11 +31,12 @@ The business theme takes **up to two colors**:
 | Color | Used for | Tokens |
 |---|---|---|
 | **Main** (required) | Buttons, selected tab, links, headers, the business icon background | `primary*` (exists today) |
-| **Accent** (optional) | Small highlights only: the eyebrow above titles, the "Hoy" chip, badges, the floating add button | New `accent*` tokens |
+| **Accent** (optional) | Small highlights only, never buttons: the eyebrow above titles, the "Hoy" chip, badges | New `accent*` tokens |
 
 - **Without an accent, `accent*` equals `primary*`.** Built-in themes do the same unless a design gives them one, so screens look as they do today.
 - **The owner chooses which color is the main one.** Many brands have a color that doesn't work as the main UI color (yellow, light green, beige: white text on it is unreadable). The preview shows both options, and the derivation darkens or lightens each color until its text passes WCAG AA, so an unusable choice still becomes legible.
 - **A third color or more is not used in the interface.** More than two colors in a working app makes states (paid, overdue, cancelled) harder to read, since those already use green, amber and red. Extra brand colors belong in the logo, which shows the full brand as it is.
 - Status colors (success, warning, danger) never take brand colors: "paid" must look the same in every business.
+- **A warm brand (red, orange, yellow, green) goes better as the accent** than as the main color: the main color is on every button, and in those hues buttons look like errors, warnings or "paid". Built-in themes follow the same rule.
 
 Adding the accent means a new token family (see "Adding a token" in [theming](frontend/theming.md)), its contrast pairs, and a second nullable column (`Business.AccentColor`). It is a follow-up to the one-color business theme, not part of its first version.

@@ -16,7 +16,7 @@ Follow-up to the Claude Design exploration "Iconos y Rubro". It proposed a **Rub
 - **The app mark and the business icon are different things.** Sign-in, welcome, forgot and reset password run before the app knows the business, so they keep the fixed app mark (`BrandMark`, the `pool` glyph today; a new app icon is being designed separately). Screens after sign-in that represent the business (the business card in Ajustes, the class chip in `StudentClasses`) show the business icon.
 - **The icon is stored as a catalog key** (`swimming`, `yoga`, ...), not as a Material Icons glyph name, so swapping the icon set only touches the app. The API validates the key against its catalog; the app shows the `general` icon for a key it doesn't know (an older app against a newer API).
 - **Defaults:** new businesses get `general`. The migration sets existing businesses to `swimming`, which is what they show today (the only pilot is a swimming school), so nothing changes for them.
-- **Theme names describe colors**, not activities: Rosa, Arena, Coral, Cancha, Ciruela, Índigo join Agua, Violeta and Océano.
+- **Theme names describe colors**, not activities: Rosa, Ciruela, Índigo and Grafito join Agua, Violeta and Océano. No built-in theme is red, orange, yellow or green: those hues mean error, warning and paid.
 - **A business can create its own theme from one color.** The owner picks a brand color; the app derives the rest (light and dark) so every text pair passes WCAG AA. It shows up for every member as an extra theme, **"Colores de <negocio>"**, and is the default for anyone who hasn't chosen a theme. Each user can still pick another one: the business theme is offered, not imposed.
 
 ## Out of scope
@@ -35,16 +35,16 @@ Follow-up to the Claude Design exploration "Iconos y Rubro". It proposed a **Rub
 | `aqua` | Agua | existing |
 | `violet` | Violeta | existing |
 | `ocean` | Océano | existing |
-| `rose` | Rosa | rose / raspberry |
-| `sand` | Arena | burnt orange |
-| `coral` | Coral | coral red |
-| `court` | Cancha | green |
+| `rose` | Rosa | magenta pink |
 | `plum` | Ciruela | plum purple |
 | `indigo` | Índigo | indigo blue |
+| `graphite` | Grafito | slate gray |
+
+Arena (orange), Coral (red) and Cancha (green) were tried and dropped: next to Cancelar, "Vencido" or "Pagado" the owner couldn't tell a normal action from a destructive one or a status from a highlight. A test now keeps the primary hue at least 35° away from the danger, warning and success hues ([theming](../theming.md#primary-colors-never-look-like-a-status)).
 
 - New themes follow `violet` and `ocean`: neutral grays plus their own `primary*` tokens, in light and dark. Values come from the design handoff; missing raw colors go to `palette.ts`.
 - Names as `themes.<id>` in `es.json`.
-- The color picker in Ajustes → Apariencia lays the swatches out in a wrapping grid of three per row; nine don't fit in one row.
+- The color picker in Ajustes → Apariencia lays the swatches out in a wrapping grid of three per row; seven don't fit in one row.
 - [Theming](../theming.md) is updated: the list of built-in themes, and "each user picks" instead of "the owner picks".
 
 ### Tests (write first)
@@ -111,6 +111,7 @@ A separate endpoint (like `PUT /api/business/monthly-fee`) because the icon is s
 ### App
 
 - `deriveThemeFromColor(color)` in `src/theme`: neutral grays (like `violet` and `ocean`) plus the `primary*` tokens built from the color. Light: `primary` is the color darkened until `primary-foreground` (white) on it reaches 4.5:1; `primary-strong` darker, `primary-soft` a pale tint, `primary-soft-foreground` a dark shade. Dark: the mirror (a light `primary` with a dark foreground, a deep `primary-soft`). The result goes through `parseThemeDefinition`; if it still fails, the business theme is not offered and the app keeps the user's theme.
+- **A brand color close to a status hue** (red, orange, yellow or green, per `findStatusHueClashes`) is not refused, since it is the business's brand, but the preview warns that buttons may look like errors or warnings, and suggests using it as the accent once accents exist. The derived theme is still offered.
 - `CurrentBusinessProvider` registers it with `ThemeProvider` as `customThemes={{ business: theme }}` when `themeColor` is set, named "Colores de <negocio>" in the picker.
 - **Default:** a user with no stored theme preference gets `business` when it exists, otherwise `aqua`. A stored choice always wins. Removing the business color falls back to `aqua` for whoever had `business` selected.
 - **Ajustes → Negocio → "Colores del negocio"** (only with `Business.Manage`): a row of suggested colors plus a `#rrggbb` field, a live preview (button, chip, card in light and dark) and **Guardar** / **Quitar**. The preview uses the same derivation, so what the owner sees is what members get.

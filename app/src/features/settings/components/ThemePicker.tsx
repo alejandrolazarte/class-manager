@@ -85,7 +85,10 @@ export function AppearanceSettings() {
                 themeName ? (
                   <ThemeSwatch key={themeName} themeName={themeName} />
                 ) : (
-                  <View key={columnIndex} className="flex-1" />
+                  <View
+                    key={columnIndex}
+                    className="flex-1 border-[1.5px] border-transparent p-2.5"
+                  />
                 ),
               )}
             </View>

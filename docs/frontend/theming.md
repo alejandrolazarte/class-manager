@@ -21,7 +21,7 @@ The design's oklch colors were converted to hex. A few light-mode values were da
 
 ## How it works
 
-- `themes.ts` defines each built-in theme as `{ light, dark }` maps of token → hex. Today: `aqua` (default, Agua), `violet` (Violeta), `ocean` (Océano), `rose` (Rosa), `sand` (Arena), `coral` (Coral), `court` (Cancha), `plum` (Ciruela) and `indigo` (Índigo). Every theme except `aqua` uses neutral grays and only changes the `primary*` tokens. Theme names describe colors, never an activity.
+- `themes.ts` defines each built-in theme as `{ light, dark }` maps of token → hex. Today: `aqua` (default, Agua), `violet` (Violeta), `ocean` (Océano), `rose` (Rosa), `plum` (Ciruela), `indigo` (Índigo) and `graphite` (Grafito). Every theme except `aqua` uses neutral grays and only changes the `primary*` tokens. Theme names describe colors, never an activity.
 - `ThemeProvider` (root layout) merges the built-in themes with optional `customThemes`, resolves the color scheme (`system` by default, or a forced `light` / `dark`), turns the active colors into CSS variables (`--color-primary: 0 118 180`) with NativeWind's [`vars()`](https://www.nativewind.dev/docs/api/vars) and sets them on a root `View`, so Android, iOS and web inherit them. It also feeds the navigation theme, so the tab bar follows the theme.
 - `tailwind.config.js` maps each token to `rgb(var(--color-<token>) / <alpha-value>)` (`bg-surface`, `text-muted-foreground`, `bg-primary/20`) and each font role to a family (`font-strong`, `font-heavy`).
 - `useTheme()` exposes `colors` (hex values for props that are not classes: `placeholderTextColor`, icon colors, shadows), `colorScheme`, `themeName`, `themeNames`, `previewColors(themeName)`, `setThemeName` and `setColorSchemePreference`.
@@ -53,7 +53,13 @@ To change fonts, update the families and assets in `typography.ts` and the `font
 1. Add any missing raw colors to `palette.ts`.
 2. Add an entry to `themes` in `themes.ts` with `light` and `dark` colors. TypeScript fails if a token is missing.
 3. Add its display name as `themes.<name>` in `src/i18n/es.json` (the picker falls back to the theme id).
-4. Run `pnpm test`: `When_any_theme_is_defined` checks WCAG AA contrast (4.5:1) for every text/background pair in `themeContrastPairs`.
+4. Run `pnpm test`: `When_any_theme_is_defined` checks WCAG AA contrast (4.5:1) for every text/background pair in `themeContrastPairs`, and that the primary color is not mistaken for a status color (below).
+
+## Primary colors never look like a status
+
+Red means an error or a destructive action (Cancelar, Eliminar), amber a warning, green paid or present. If the primary color, used on every button and selected item, shares one of those hues, the owner can't tell a normal action from a dangerous one, or "paid" from any other highlight.
+
+`findStatusHueClashes` (`themeStatusHues.ts`) rejects a theme whose `primary` hue is less than 35° from its `danger`, `warning` or `success` hue, in light or dark. Near-gray primaries (saturation below 0.3, like Grafito) are exempt: they carry no hue to confuse. This is why there are no red, orange, yellow or green built-in themes; warm brand colors fit better as an accent (see [branding and plans](../branding-and-plans.md)).
 
 ## Themes created by a business
 
