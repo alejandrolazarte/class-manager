@@ -62,6 +62,18 @@ export function SettingsScreen() {
       ),
     },
     {
+      key: "roles",
+      isVisible: canViewTeam,
+      row: (
+        <ListRow
+          icon="roles"
+          label={translate("settings.roles")}
+          detail={translate("settings.rolesHint")}
+          onPress={() => router.push(routes.roles)}
+        />
+      ),
+    },
+    {
       key: "monthlyFee",
       isVisible: canManageBusiness,
       row: (

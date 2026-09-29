@@ -131,7 +131,11 @@ Brand-level permissions (`organization.manage`, `branches.create`, `brandOwners.
    - **2b — next.** Coaches collect payments: `payments.view.own`, `classPacks.sell` for their students, `RecordedByUserId` on payments and pack sales, monthly fees list narrowed to their students. Also `enrollments.manage.own` (enroll in their own class groups) and resending an invitation.
    - The app shows each role only what it allows, and has the team and accept-invitation screens ([frontend plan](../../frontend/20260928-roles-and-team/plan.md)).
 3. **Branches — done** ([authorization](../../authorization.md#branches)). A brand owner creates branches (`POST /api/organization/branches`) and promotes or demotes brand owners among the members of a branch (`PUT` / `DELETE /api/members/{id}/brand-owner`). Every member lists the branches they can open (`GET /api/me/branches`) and switches with their refresh token (`POST /api/auth/branch`). Refresh tokens remember their branch (`RefreshTokens.TenantId` in the `Security` schema), so a session stays in the chosen branch; sign-in opens the first branch the user is a member of, or the oldest branch of their brand. The app has Ajustes → Sedes (switch, new branch) and the brand owner button in Miembro. After this, DF runs Tenerife, Valencia and Barcelona under one brand.
-4. **Custom roles.** `Roles`, `RolePermissions`, copy, role editor.
+4. **Custom roles — done** ([authorization](../../authorization.md#custom-roles)). `CustomRoles` (name, permission codes, `CopiedFrom`), `roles.manage`, `GET/POST/PUT/DELETE /api/roles`, Ajustes → Roles with copy and a permission editor. Differences from the first design, to keep the change small:
+   - Permissions are one comma-separated column of `CustomRoles` instead of a `RolePermissions` table: a role is read and written whole, and splitting a permission later is still a data migration.
+   - `BusinessMembers` and `MemberInvitations` keep `Role` and add `CustomRoleId`, with `Role = 'Custom'` exactly when `CustomRoleId` is set (check constraint), instead of `SystemRole` / `RoleId`.
+   - No `GET /api/permissions`: the app has the catalog (`permissionGroups.ts`) and a test checks it lists every assignable permission.
+   - New rule: nobody grants permissions they don't have (`role.exceeds_own`), in roles and when inviting or changing a member's role.
 5. **Later, when asked:** shared course catalog from the brand, brand reports with totals only (no personal data), public brand page that routes leads to branches.
 
 ## Tests (write first)

@@ -6,6 +6,7 @@ export interface Branch {
   branchRole: BusinessRole | null;
   isBrandOwner: boolean;
   isCurrent: boolean;
+  customRoleName?: string | null;
 }
 
 export interface CreateBranchRequest {

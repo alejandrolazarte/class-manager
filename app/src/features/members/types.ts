@@ -1,12 +1,15 @@
 import { Permission } from "@/features/members/permissions";
 
-export const businessRoles = ["BranchOwner", "Coach", "Viewer"] as const;
+export const systemRoles = ["BranchOwner", "Coach", "Viewer"] as const;
 
-export type BusinessRole = (typeof businessRoles)[number];
+export type SystemRole = (typeof systemRoles)[number];
+
+export type BusinessRole = SystemRole | "Custom";
 
 export interface CurrentMember {
   businessId: string;
   branchRole: BusinessRole | null;
+  customRoleId?: string | null;
   instructorId: string | null;
   isBrandOwner: boolean;
   permissions: Permission[];
@@ -17,6 +20,7 @@ export interface Member {
   fullName: string;
   email: string;
   role: BusinessRole;
+  customRoleId: string | null;
   instructorId: string | null;
   isCurrentUser: boolean;
   isBrandOwner: boolean;
@@ -26,6 +30,7 @@ export interface Invitation {
   id: string;
   email: string;
   role: BusinessRole;
+  customRoleId: string | null;
   instructorId: string | null;
   expiresAt: string;
 }
@@ -38,10 +43,12 @@ export interface Team {
 export interface InviteMemberRequest {
   email: string;
   role: BusinessRole;
+  customRoleId: string | null;
   instructorId: string | null;
 }
 
 export interface ChangeMemberRoleRequest {
   role: BusinessRole;
+  customRoleId: string | null;
   instructorId: string | null;
 }

@@ -1,12 +1,16 @@
 import { BusinessRole } from "@/features/members/types";
-import { translate, TranslationKey } from "@/i18n/translate";
+import { memberRoleLabel } from "@/features/roles/roleChoices";
+import { Role } from "@/features/roles/types";
+import { translate } from "@/i18n/translate";
 
-export function roleLabel(role: BusinessRole): string {
-  return translate(`roles.${role}` as TranslationKey);
-}
-
-export function roleDescription(role: BusinessRole, coachFullName: string | undefined): string {
-  return role === "Coach" && coachFullName
-    ? translate("roles.coachOf", { coach: coachFullName })
-    : roleLabel(role);
+export function roleDescription(
+  role: BusinessRole,
+  customRoleId: string | null,
+  roles: Role[] | undefined,
+  coachFullName: string | undefined,
+): string {
+  const label = memberRoleLabel(role, customRoleId, roles);
+  return coachFullName
+    ? translate("roles.withCoach", { role: label, coach: coachFullName })
+    : label;
 }

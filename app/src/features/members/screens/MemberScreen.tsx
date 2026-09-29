@@ -8,13 +8,15 @@ import { RoleFields } from "@/features/members/components/RoleFields";
 import { freeInstructors } from "@/features/members/freeInstructors";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
 import { permissions } from "@/features/members/permissions";
-import { BusinessRole, Member, Team } from "@/features/members/types";
+import { Member, Team } from "@/features/members/types";
 import { useTeam } from "@/features/members/useTeam";
 import {
   useChangeMemberRole,
   useRemoveMember,
   useSetBrandOwner,
 } from "@/features/members/useTeamMutations";
+import { findRoleChoice, roleKeyOf } from "@/features/roles/roleChoices";
+import { useRoles } from "@/features/roles/useRoles";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
@@ -42,7 +44,8 @@ function MemberEditor({ member, team }: MemberEditorProps) {
   const brandOwnerMutation = useSetBrandOwner(member.id);
   const canManageBrandOwners = useCan(permissions.brandOwnersManage);
   const [isLastBrandOwner, setIsLastBrandOwner] = useState(false);
-  const [role, setRole] = useState<BusinessRole>(member.role);
+  const { data: roles } = useRoles();
+  const [roleKey, setRoleKey] = useState(roleKeyOf(member.role, member.customRoleId));
   const [instructorId, setInstructorId] = useState<string | null>(member.instructorId);
   const [instructorError, setInstructorError] = useState<string | undefined>();
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
@@ -51,15 +54,20 @@ function MemberEditor({ member, team }: MemberEditorProps) {
 
   const save = async () => {
     setSubmissionFailure(null);
-    if (role === "Coach" && instructorId === null) {
+    const roleChoice = findRoleChoice(roleKey, roles);
+    if (roleChoice === undefined) {
+      return;
+    }
+    if (roleChoice.needsCoach && instructorId === null) {
       setInstructorError(translate("team.invite.coachRequired"));
       return;
     }
     setInstructorError(undefined);
     try {
       await changeRoleMutation.mutateAsync({
-        role,
-        instructorId: role === "Coach" ? instructorId : null,
+        role: roleChoice.role,
+        customRoleId: roleChoice.customRoleId,
+        instructorId: roleChoice.needsCoach ? instructorId : null,
       });
       showToast(translate("team.member.saved"));
       router.back();
@@ -106,10 +114,10 @@ function MemberEditor({ member, team }: MemberEditorProps) {
       onRetry={save}
     >
       <RoleFields
-        role={role}
+        roleKey={roleKey}
         instructorId={instructorId}
         instructors={instructors}
-        onRoleChange={setRole}
+        onRoleChange={setRoleKey}
         onInstructorChange={setInstructorId}
         instructorError={instructorError}
       />

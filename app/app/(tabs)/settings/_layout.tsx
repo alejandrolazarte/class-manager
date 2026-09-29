@@ -35,6 +35,9 @@ export default function SettingsLayout() {
       <Stack.Screen name="team/index" options={{ title: translate("team.title") }} />
       <Stack.Screen name="team/invite" options={{ title: translate("team.invite.title") }} />
       <Stack.Screen name="team/[memberId]" options={{ title: translate("team.title") }} />
+      <Stack.Screen name="roles/index" options={{ title: translate("roles.title") }} />
+      <Stack.Screen name="roles/new" options={{ title: translate("roles.editor.newTitle") }} />
+      <Stack.Screen name="roles/[roleKey]" options={{ title: translate("roles.title") }} />
       <Stack.Screen name="branches/index" options={{ title: translate("branches.title") }} />
       <Stack.Screen name="branches/new" options={{ title: translate("branches.form.title") }} />
     </Stack>
