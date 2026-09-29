@@ -1,9 +1,9 @@
 import { View } from "react-native";
 import { AppText, TextTone, TextVariant } from "@/ui/AppText";
 
-export type AvatarTone = "primarySoft" | "primary" | "muted" | "success" | "danger";
+export type AvatarTone = "primarySoft" | "primary" | "onPrimary" | "muted" | "success" | "danger";
 
-type AvatarSize = "small" | "medium" | "large";
+type AvatarSize = "tiny" | "small" | "medium" | "large";
 
 interface AvatarProps {
   name: string;
@@ -17,6 +17,7 @@ const nameSeparatorPattern = /\s+/;
 const toneClassNames: Record<AvatarTone, string> = {
   primarySoft: "bg-primary-soft",
   primary: "bg-primary",
+  onPrimary: "bg-primary-foreground",
   muted: "bg-muted",
   success: "bg-success-soft",
   danger: "bg-danger-soft",
@@ -25,18 +26,21 @@ const toneClassNames: Record<AvatarTone, string> = {
 const textTones: Record<AvatarTone, TextTone> = {
   primarySoft: "primarySoft",
   primary: "onPrimary",
+  onPrimary: "primary",
   muted: "muted",
   success: "successSoft",
   danger: "dangerSoft",
 };
 
 const sizeClassNames: Record<AvatarSize, string> = {
+  tiny: "h-8 w-8",
   small: "h-10 w-10",
   medium: "h-11 w-11",
   large: "h-[60px] w-[60px]",
 };
 
 const textVariants: Record<AvatarSize, TextVariant> = {
+  tiny: "link",
   small: "link",
   medium: "bodyStrong",
   large: "headline",

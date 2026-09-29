@@ -1,14 +1,15 @@
 import { screen } from "@testing-library/react-native";
-import { getFamilyHome } from "@/features/family/familyApi";
+import { getFamilyHome, getFamilyShop } from "@/features/family/familyApi";
 import { FamilyHomeScreen } from "@/features/family/screens/FamilyHomeScreen";
 import { translateCount } from "@/i18n/translate";
-import { buildFamilyHome } from "@/testing/familyFactory";
-import { renderWithSession } from "@/testing/renderWithSession";
+import { buildFamilyShop, buildFamilyHome } from "@/testing/familyFactory";
+import { renderFamilyScreen } from "@/testing/renderFamilyScreen";
 
 jest.mock("@/features/family/familyApi");
 
 describe("When family pays per class", () => {
   beforeEach(() => {
+    jest.mocked(getFamilyShop).mockResolvedValue(buildFamilyShop());
     jest.mocked(getFamilyHome).mockResolvedValue(
       buildFamilyHome({
         billing: {
@@ -21,7 +22,7 @@ describe("When family pays per class", () => {
   });
 
   it("Then classes left are shown", async () => {
-    await renderWithSession(<FamilyHomeScreen />);
+    await renderFamilyScreen(<FamilyHomeScreen />);
 
     expect(
       await screen.findByText(translateCount("family.classes.available", 5)),

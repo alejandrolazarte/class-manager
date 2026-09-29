@@ -63,6 +63,11 @@ const iconGlyphs = {
   orders: "receipt-long",
   delivered: "inventory",
   refund: "undo",
+  home: "home",
+  selected: "radio-button-checked",
+  unselected: "radio-button-unchecked",
+  noClasses: "event-available",
+  photo: "image",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {

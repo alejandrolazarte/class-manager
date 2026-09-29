@@ -12,6 +12,7 @@ export const e2eEnvironment = {
   jwtSigningKey:
     process.env.E2E_JWT_SIGNING_KEY ?? randomBytes(jwtSigningKeyBytes).toString("base64"),
   authenticationPermitLimit: "10000",
+  smtpPort: Number(process.env.E2E_SMTP_PORT ?? "2525"),
 };
 
 export function requireDatabaseConnectionString(): string {

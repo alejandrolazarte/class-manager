@@ -1,6 +1,6 @@
 # Demo screenshots
 
-`e2e/screenshots/` loads a demo business through the API and captures every main screen of the web build at phone size (Pixel 7). Use it to show the app, review a UI change, or check copy.
+`e2e/screenshots/` loads a demo business through the API and captures every main screen of the web build at phone size (Pixel 7), both the team app and the family app. Use it to show the app, review a UI change, or check copy.
 
 It reuses the e2e setup: the same web build, API start, database and Playwright install. It is **not** part of the e2e suite: it lives outside `e2e/tests/` and has its own config (`playwright.screenshots.config.ts`), so CI never runs it.
 
@@ -54,3 +54,26 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
 
 When a new screen is added, add a row to `screens` in `e2e/screenshots/App_screens.capture.ts` with the path and a text that proves it finished loading. When a built-in theme is added, add it to `themes` in the same file.
+
+## Family app screens
+
+`e2e/screenshots/Family_screens.capture.ts` captures the app that families and students use. On top of the demo business it loads (`demoFamily.ts`):
+
+- Five shop products: a T-shirt with sizes and one size sold out, a cap and a bottle with unlimited stock, a hoodie made to order, and a sold-out towel.
+- An app invitation for the Pérez family, accepted through the API. The invitation link only travels by email, so the test starts a small SMTP sink (`e2e/support/smtpSink.ts`) and the screenshots config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
+- Three family orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
+
+The family signs in through the sign-in screen, then the test captures:
+
+| File | Screen |
+|---|---|
+| `20-familia-inicio` | Home: next class, monthly fee and shop preview |
+| `21-familia-inicio-otro-alumno` | Home after picking the other student |
+| `22-familia-clases` | Week of classes for the selected student |
+| `23-familia-tienda`, `23b-familia-tienda-productos` | Shop: search, categories, packs and product grid |
+| `24-familia-producto` | Product sheet with sizes, a sold-out size and quantity |
+| `25-familia-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |
+| `26-familia-carrito` | Cart: lines, delivery place, payment and total |
+| `27-familia-pedidos`, `28-familia-pedidos-anteriores` | Orders in progress with tracking, and past orders |
+
+Run only these with `pnpm screenshots:no-build Family_screens`.

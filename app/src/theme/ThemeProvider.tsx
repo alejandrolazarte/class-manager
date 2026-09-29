@@ -1,10 +1,9 @@
 import { ThemeProvider as NavigationThemeProvider } from "expo-router";
-import { vars } from "nativewind";
 import { ReactNode, useCallback, useMemo, useState } from "react";
-import { useColorScheme, View } from "react-native";
+import { useColorScheme } from "react-native";
 import { buildNavigationTheme } from "@/theme/buildNavigationTheme";
-import { buildThemeVariables } from "@/theme/buildThemeVariables";
 import { ColorSchemePreference, ThemeContext, ThemeContextValue } from "@/theme/ThemeContext";
+import { ThemeScope } from "@/theme/ThemeScope";
 import { ColorScheme, defaultThemeName, ThemeName, ThemeRegistry, themes } from "@/theme/themes";
 
 interface ThemeProviderProps {
@@ -44,7 +43,6 @@ export function ThemeProvider({
       (registry[candidateThemeName] ?? registry[defaultThemeName]!)[colorScheme],
     [registry, colorScheme],
   );
-  const themeVariablesStyle = useMemo(() => vars(buildThemeVariables(colors)), [colors]);
   const navigationTheme = useMemo(
     () => buildNavigationTheme(colors, colorScheme),
     [colors, colorScheme],
@@ -66,9 +64,7 @@ export function ThemeProvider({
   return (
     <ThemeContext.Provider value={themeContextValue}>
       <NavigationThemeProvider value={navigationTheme}>
-        <View style={themeVariablesStyle} className="flex-1 bg-background">
-          {children}
-        </View>
+        <ThemeScope className="flex-1 bg-background">{children}</ThemeScope>
       </NavigationThemeProvider>
     </ThemeContext.Provider>
   );

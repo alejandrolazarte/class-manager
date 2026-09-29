@@ -1,95 +1,50 @@
-import { View } from "react-native";
-import { FamilyOrder } from "@/features/family/types";
-import { useCancelFamilyOrder, useFamilyOrders } from "@/features/family/useFamilyShop";
+import { useState } from "react";
+import { ScrollView } from "react-native";
+import { FamilyOrderCard } from "@/features/family/components/FamilyOrderCard";
+import {
+  FamilyOrderFilter,
+  familyOrderFilters,
+  isOrderOpen,
+  matchesOrderFilter,
+} from "@/features/family/familyOrderStage";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
-import { formatMoney } from "@/features/fees/money";
-import { formatLongDate } from "@/features/sessions/dates";
+import { useFamilyOrders } from "@/features/family/useFamilyShop";
 import { translate, TranslationKey } from "@/i18n/translate";
-import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
+import { Chip } from "@/ui/Chip";
+import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
-import { useToast } from "@/ui/ToastProvider";
 
-const isoDateLength = 10;
-
-function statusKey(order: FamilyOrder): TranslationKey {
-  if (order.awaitsPickup) {
-    return order.isReady ? "family.orders.status.ready" : "family.orders.status.preparing";
-  }
-  return `family.orders.status.${order.status}` as TranslationKey;
-}
-
-function FamilyOrderCard({ order, currencyCode }: { order: FamilyOrder; currencyCode: string }) {
-  const { showToast } = useToast();
-  const cancelFamilyOrderMutation = useCancelFamilyOrder();
-
-  const cancel = async () => {
-    try {
-      await cancelFamilyOrderMutation.mutateAsync(order.id);
-      showToast(translate("family.orders.cancelled"));
-    } catch {
-      showToast(translate("common.unexpectedError"));
-    }
-  };
-
-  return (
-    <Card className="gap-2 px-4 py-3.5">
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1 gap-0.5">
-          <AppText variant="bodyStrong">{translate(statusKey(order))}</AppText>
-          <AppText variant="caption" tone="subtle">
-            {formatLongDate(order.createdAt.slice(0, isoDateLength))}
-          </AppText>
-        </View>
-        <AppText variant="bodyStrong">{formatMoney(order.total, currencyCode)}</AppText>
-      </View>
-      {order.lines.map((line) => (
-        <AppText key={line.id} variant="body" tone="muted">
-          {line.quantity > 1 ? `${line.quantity} × ${line.name}` : line.name}
-        </AppText>
-      ))}
-      {order.awaitsPickup || order.status === "Requested" ? (
-        <AppText variant="caption" tone="subtle">
-          {order.delivery === "InClass" && order.deliveryClassGroupName !== null
-            ? translate("family.orders.deliveryInClass", {
-                className: order.deliveryClassGroupName,
-              })
-            : translate("family.orders.deliveryPickup")}
-        </AppText>
-      ) : null}
-      {order.status === "Requested" ? (
-        <>
-          <AppText variant="caption" tone="subtle">
-            {translate("family.orders.payBefore", {
-              date: formatLongDate(order.expiresAt.slice(0, isoDateLength)),
-            })}
-          </AppText>
-          <Button
-            size="medium"
-            variant="dangerOutline"
-            label={translate("family.orders.cancel")}
-            onPress={cancel}
-            isLoading={cancelFamilyOrderMutation.isPending}
-          />
-        </>
-      ) : null}
-    </Card>
-  );
-}
+const filterLabels: Record<FamilyOrderFilter, TranslationKey> = {
+  open: "family.orders.filter.open",
+  past: "family.orders.filter.past",
+  all: "family.orders.filter.all",
+};
 
 export function FamilyOrdersScreen() {
   const { data: orders = [], isPending, isError, refetch } = useFamilyOrders();
   const { data: home, isPending: isHomePending } = useFamilyHome();
+  const [chosenFilter, setChosenFilter] = useState<FamilyOrderFilter | null>(null);
+
+  const filter = chosenFilter ?? (orders.some(isOrderOpen) ? "open" : "all");
+  const visibleOrders = orders.filter((order) => matchesOrderFilter(order, filter));
+  const isLoading = isPending || isHomePending;
 
   return (
     <ScrollScreen
-      header={<ScreenHeader navigation="back" title={translate("family.orders.title")} />}
+      header={
+        <ScreenHeader
+          navigation="back"
+          eyebrow={translate("family.shop.title")}
+          title={translate("family.orders.title")}
+        />
+      }
     >
-      {isPending || isHomePending ? <Spinner className="mt-6" /> : null}
+      {isLoading ? <Spinner className="mt-6" /> : null}
       {isError ? (
         <Banner message={translate("family.loadError")}>
           <Button
@@ -100,14 +55,42 @@ export function FamilyOrdersScreen() {
           />
         </Banner>
       ) : null}
-      {!isPending && !isError && orders.length === 0 ? (
-        <AppText variant="body" tone="muted">
-          {translate("family.orders.empty")}
-        </AppText>
+      {!isLoading && !isError && orders.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="-mx-5"
+          contentContainerClassName="gap-2 px-5"
+        >
+          {familyOrderFilters.map((orderFilter) => (
+            <Chip
+              key={orderFilter}
+              label={translate(filterLabels[orderFilter])}
+              count={
+                orderFilter === "all"
+                  ? undefined
+                  : orders.filter((order) => matchesOrderFilter(order, orderFilter)).length
+              }
+              isSelected={filter === orderFilter}
+              onPress={() => setChosenFilter(orderFilter)}
+            />
+          ))}
+        </ScrollView>
+      ) : null}
+      {!isLoading && !isError && visibleOrders.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon="orders"
+            iconTone="disabled-foreground"
+            message={translate(
+              orders.length === 0 ? "family.orders.empty" : "family.orders.emptyFilter",
+            )}
+          />
+        </Card>
       ) : null}
       {home === undefined
         ? null
-        : orders.map((order) => (
+        : visibleOrders.map((order) => (
             <FamilyOrderCard key={order.id} order={order} currencyCode={home.currencyCode} />
           ))}
     </ScrollScreen>
