@@ -29,6 +29,11 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             orders = orders.Where(order => order.ClientId == clientId);
         }
 
+        if (criteria.RequestedOnly)
+        {
+            orders = orders.Where(order => order.Status == OrderStatus.Requested);
+        }
+
         if (criteria.AwaitingPickupOnly)
         {
             orders = orders.Where(order =>
@@ -42,6 +47,15 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
     }
+
+    public Task<int> CountRequestedByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+        context.Orders.CountAsync(order => order.ClientId == clientId && order.Status == OrderStatus.Requested, cancellationToken);
+
+    public async Task<IReadOnlyList<Order>> ListRequestedCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken) =>
+        await context.Orders
+            .Include(order => order.Lines)
+            .Where(order => order.Status == OrderStatus.Requested && order.CreatedAt <= createdBefore)
+            .ToListAsync(cancellationToken);
 
     public Task<bool> IsPurchaseFromOrderAsync(Guid purchaseId, CancellationToken cancellationToken) =>
         context.OrderLines.AsNoTracking().AnyAsync(line => line.ClassPackPurchaseId == purchaseId, cancellationToken);

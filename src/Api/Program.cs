@@ -5,6 +5,7 @@ using ClassManager.Api.Authentication;
 using ClassManager.Api.Cors;
 using ClassManager.Api.Endpoints;
 using ClassManager.Api.ErrorHandling;
+using ClassManager.Api.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddAppCors(builder.Configuration);
 builder.Services.AddAppAuthentication();
 builder.Services.AddInfrastructure();
 builder.Services.AddUseCases();
+builder.Services.AddSingleton<IExpiredOrderCancellationService, ExpiredOrderCancellationService>();
+builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
 var app = builder.Build();

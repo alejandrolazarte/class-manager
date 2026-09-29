@@ -8,4 +8,13 @@ public static class StockRules
             StockMode.Tracked => currentStock >= quantity,
             _ => true,
         };
+
+    public static StockAvailability AvailabilityOf(Product product, int currentStock) =>
+        product.StockMode switch
+        {
+            StockMode.Unlimited => StockAvailability.Available,
+            _ when currentStock > 0 => StockAvailability.Available,
+            StockMode.TrackedWithBackorder => StockAvailability.OnOrder,
+            _ => StockAvailability.SoldOut,
+        };
 }

@@ -13,5 +13,9 @@ public interface IOrderRepository
 
     Task<IReadOnlyList<Order>> ListAsync(OrderSearchCriteria criteria, ClientScope? scope, CancellationToken cancellationToken);
 
+    Task<int> CountRequestedByClientAsync(Guid clientId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Order>> ListRequestedCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken);
+
     Task<bool> IsPurchaseFromOrderAsync(Guid purchaseId, CancellationToken cancellationToken);
 }

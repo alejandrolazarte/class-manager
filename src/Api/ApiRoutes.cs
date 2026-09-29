@@ -45,6 +45,9 @@ public static class ApiRoutes
     public const string OrderById = "/{orderId:guid}";
     public const string Delivered = "/delivered";
     public const string Refunds = "/refunds";
+    public const string Payment = "/payment";
+    public const string FamilyShop = "/shop";
+    public const string FamilyOrders = "/orders";
     public const string PaymentsSegment = "/payments";
     public const string Payments = "/api/payments";
     public const string PaymentById = "/{paymentId:guid}";

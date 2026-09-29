@@ -15,6 +15,9 @@ internal static class OrderTestData
 
     public static OrderLine PackLine() => OrderLine.ForClassPack(ClassPackTestData.Pack(), null).Value!;
 
+    public static Order Requested(DateTimeOffset createdAt, params OrderLine[] lines) =>
+        Order.Request(ClassPackTestData.ClientId, lines, null, createdAt).Value!;
+
     public static Order CounterSale(bool isDelivered, params OrderLine[] lines) =>
         Order.CounterSale(ClassPackTestData.ClientId, lines, PaymentMethod.Cash, TestData.Today, null, isDelivered, TestData.Today, null, TestData.Now).Value!;
 }

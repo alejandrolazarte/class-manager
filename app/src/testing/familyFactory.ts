@@ -1,4 +1,10 @@
-import { FamilyHome, FamilyNextClass, FamilyStudent } from "@/features/family/types";
+import {
+  FamilyHome,
+  FamilyNextClass,
+  FamilyOrder,
+  FamilyShop,
+  FamilyStudent,
+} from "@/features/family/types";
 
 export function buildAccessTokenWithClaims(claims: object): string {
   const payload = btoa(JSON.stringify(claims))
@@ -46,6 +52,50 @@ export function buildFamilyHome(overrides: Partial<FamilyHome> = {}): FamilyHome
       monthlyFee: { month: "2026-09", fee: 60, paid: 0, balance: 60, status: "Unpaid" },
       classes: null,
     },
+    ...overrides,
+  };
+}
+
+export function buildFamilyShop(overrides: Partial<FamilyShop> = {}): FamilyShop {
+  return {
+    currencyCode: "EUR",
+    packs: [{ id: "pack-8", name: "8 clases", classCount: 8, price: 120, validityMonths: 2 }],
+    products: [
+      {
+        id: "product-cap",
+        name: "Gorro de natación",
+        description: null,
+        price: 12,
+        variants: [
+          { id: "variant-s", name: "S", availability: "Available" },
+          { id: "variant-m", name: "M", availability: "SoldOut" },
+        ],
+      },
+    ],
+    ...overrides,
+  };
+}
+
+export function buildFamilyOrder(overrides: Partial<FamilyOrder> = {}): FamilyOrder {
+  return {
+    id: "order-1",
+    status: "Requested",
+    awaitsPickup: false,
+    total: 120,
+    refundedAmount: 0,
+    createdAt: "2026-09-29T10:00:00Z",
+    paidOn: null,
+    expiresAt: "2026-10-06T10:00:00Z",
+    lines: [
+      {
+        id: "line-1",
+        kind: "ClassPack",
+        name: "8 clases",
+        quantity: 1,
+        total: 120,
+        refundedQuantity: 0,
+      },
+    ],
     ...overrides,
   };
 }
