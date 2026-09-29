@@ -81,9 +81,10 @@ export const permissionGroups: PermissionGroup[] = [
         permission: permissions.enrollmentsView,
       },
       {
-        kind: "toggle",
+        kind: "scope",
         labelKey: "roles.permission.enrollmentsManage",
-        permission: permissions.enrollmentsManage,
+        own: permissions.enrollmentsManageOwn,
+        all: permissions.enrollmentsManage,
       },
     ],
   },

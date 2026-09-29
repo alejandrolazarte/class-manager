@@ -1,6 +1,6 @@
 # Authorization: organizations, roles and permissions
 
-How the API decides what a signed-in user may do. The full design, including the parts not built yet (coaches enrolling in their own classes, resending invitations), is in the [roles and permissions plan](backend/20260928-roles-and-permissions/plan.md).
+How the API decides what a signed-in user may do. The full design is in the [roles and permissions plan](backend/20260928-roles-and-permissions/plan.md).
 
 ## Model
 
@@ -15,7 +15,7 @@ How the API decides what a signed-in user may do. The full design, including the
 |---|---|
 | `BrandOwner` | Every permission in every business of the organization, including giving or taking the `BranchOwner` role |
 | `BranchOwner` | Everything inside the business except the `BranchOwner` role itself, including custom roles |
-| `Coach` | Their own class groups, sessions and private lessons; attendance in them; their students; register clients and students. No money, settings or team |
+| `Coach` | Their own class groups, sessions and private lessons; attendance in them; their students; register clients and students; enroll and unenroll the students they reach in their own class groups (`enrollments.manage.own`). No money, settings or team |
 | `Viewer` | Read everything in the business (money included), change nothing |
 
 A role that has an `.own` permission without the matching `.all` one needs a linked instructor (`member.instructor_required`).
@@ -80,13 +80,14 @@ The `role` claim in the token is informational; authorization never reads it.
 | Members and pending invitations | `GET /api/members` | `members.view` |
 | Invite by email (role, optional instructor) | `POST /api/members/invitations` | `members.manage` |
 | Revoke an invitation | `DELETE /api/members/invitations/{id}` | `members.manage` |
+| Resend an invitation (new link, 7 more days) | `POST /api/members/invitations/{id}/resend` | `members.manage` |
 | Change a member's role or instructor | `PUT /api/members/{id}` | `members.manage` |
 | Remove a member | `DELETE /api/members/{id}` | `members.manage` |
 | Accept an invitation | `POST /api/auth/invitations/accept` | anonymous |
 
 - Giving, changing or taking away `BranchOwner` also needs `branchOwners.manage` (brand owners only).
 - Nobody changes or removes their own membership.
-- Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation.
+- Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation. Resending an invitation that was not accepted or revoked (expired ones too) replaces its token, so the previous link stops working, and emails the new one.
 - Accepting creates the account when the email has none (full name and password required). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password.
 
 ## Branches

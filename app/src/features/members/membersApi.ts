@@ -28,6 +28,13 @@ export function revokeInvitation(invitationId: string): Promise<void> {
   return httpClient.delete<void>(`${invitationsPath}/${encodeURIComponent(invitationId)}`);
 }
 
+export function resendInvitation(invitationId: string): Promise<Invitation> {
+  return httpClient.post<Invitation>(
+    `${invitationsPath}/${encodeURIComponent(invitationId)}/resend`,
+    {},
+  );
+}
+
 export function changeMemberRole(
   memberId: string,
   request: ChangeMemberRoleRequest,

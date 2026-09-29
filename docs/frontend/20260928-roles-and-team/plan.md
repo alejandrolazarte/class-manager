@@ -24,7 +24,7 @@ Backend contract: [backend/20260928-roles-and-permissions](../../backend/2026092
 | Formulario de clase particular: coach | Only the member's own coach when they lack `privateLessons.manage.all` |
 | Clases: "Nueva clase" | `classGroups.manage` |
 | Detalle de clase: editar | `classGroups.manage` |
-| Detalle de clase: inscribir, dar de baja | `enrollments.manage` |
+| Detalle de clase: inscribir, dar de baja | `enrollments.manage` or `.own` |
 | Alumnos: "Nuevo alumno", "Agregar alumno" | `students.manage` |
 | Ficha de familia: cuota y pagos | `payments.view.all` or `.own`; each payment shows "Cobró {name}" |
 | Ficha de familia: registrar pago, cambiar cuota | `payments.record` |
@@ -52,7 +52,7 @@ app/
 ### Equipo — `settings/team/index.tsx`
 
 - Members: name, email, role ("Dueño de la sede", "Coach · Marcos Díaz", "Solo lectura"), "Vos" on the current user. Tap → member.
-- Pending invitations: email, role, "Vence el dd/mm", "Revocar".
+- Pending invitations: email, role, "Vence el dd/mm", "Reenviar" (new link, 7 more days), "Revocar".
 - "Invitar" (`members.manage`).
 
 ### Invitar — `settings/team/invite.tsx`
@@ -110,4 +110,3 @@ src/features/members/__tests__/
 - Tests in `src/features/roles/__tests__` and `src/features/members/__tests__/When_member_is_invited_with_a_custom_role`.
 
 ## Out of scope
-- Resending an invitation (revoke and invite again).
