@@ -59,6 +59,10 @@ const iconGlyphs = {
   info: "info-outline",
   download: "file-download",
   upload: "file-upload",
+  products: "shopping-bag",
+  orders: "receipt-long",
+  delivered: "inventory",
+  refund: "undo",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {
