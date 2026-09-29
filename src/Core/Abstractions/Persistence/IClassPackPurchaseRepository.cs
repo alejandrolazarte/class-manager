@@ -14,5 +14,6 @@ public interface IClassPackPurchaseRepository
 
     Task<bool> IsTrialDeductedAsync(Guid trialLessonId, CancellationToken cancellationToken);
 
-    Task<decimal> SumPriceBetweenAsync(DateOnly firstDay, DateOnly lastDay, CancellationToken cancellationToken);
+    Task<decimal> SumPriceBetweenAsync(
+        DateOnly firstDay, DateOnly lastDay, IReadOnlyCollection<Guid>? clientIds, CancellationToken cancellationToken);
 }

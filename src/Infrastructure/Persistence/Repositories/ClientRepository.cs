@@ -53,6 +53,9 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Guid>> ListIdsInScopeAsync(ClientScope scope, CancellationToken cancellationToken) =>
+        await ClientScopeQuery.ClientIdsIn(context, scope).Distinct().ToListAsync(cancellationToken);
+
     public Task<bool> IsInScopeAsync(Guid clientId, ClientScope scope, CancellationToken cancellationToken) =>
         ClientScopeQuery.ClientIdsIn(context, scope).AnyAsync(clientIdInScope => clientIdInScope == clientId, cancellationToken);
 }

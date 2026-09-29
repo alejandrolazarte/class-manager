@@ -314,6 +314,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("PurchasedOn")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("RecordedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
@@ -516,6 +519,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateOnly>("PaidOn")
                         .HasColumnType("date");
+
+                    b.Property<Guid?>("RecordedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");

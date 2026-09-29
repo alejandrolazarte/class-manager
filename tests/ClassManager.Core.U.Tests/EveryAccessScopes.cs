@@ -8,4 +8,7 @@ internal sealed class EveryAccessScopes : IAccessScopes
         Task.FromResult(InstructorScope.EveryInstructor);
 
     public Task<ClientScope?> ForClientsAsync(CancellationToken cancellationToken) => Task.FromResult<ClientScope?>(null);
+
+    public Task<ClientScope?> ForClientsAsync(string everyClientPermission, CancellationToken cancellationToken) =>
+        Task.FromResult<ClientScope?>(null);
 }

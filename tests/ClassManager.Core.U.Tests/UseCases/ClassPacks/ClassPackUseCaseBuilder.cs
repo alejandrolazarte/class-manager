@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Fees;
@@ -56,7 +57,16 @@ internal sealed class ClassPackUseCaseBuilder
         new(Purchases.Object, Attendances.Object, PrivateLessons.Object, FeeSchedule.Object, BusinessCalendar.Object);
 
     public SellClassPackUseCase BuildSell() =>
-        new(Clients.Object, ClassPacks.Object, Purchases.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+        new(
+            Clients.Object,
+            ClassPacks.Object,
+            Purchases.Object,
+            PrivateLessons.Object,
+            UnitOfWork.Object,
+            BusinessCalendar.Object,
+            new FakeTimeProvider(TestData.Now),
+            new EveryAccessScopes(),
+            new Mock<ICurrentMember>().Object);
 
     public CreateClassPackUseCase BuildCreate() =>
         new(ClassPacks.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));

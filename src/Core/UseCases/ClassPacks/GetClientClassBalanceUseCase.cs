@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 
@@ -11,7 +12,8 @@ public sealed class GetClientClassBalanceUseCase(
     IClientRepository clientRepository,
     IClassBalanceService classBalanceService,
     IPrivateLessonRepository privateLessonRepository,
-    IClassPackPurchaseRepository purchaseRepository)
+    IClassPackPurchaseRepository purchaseRepository,
+    IAccessScopes accessScopes)
     : IUseCase<GetClientClassBalanceQuery, ClassBalanceResponse>
 {
     private const string ClientNotFoundMessage = "The client does not exist.";
@@ -19,7 +21,7 @@ public sealed class GetClientClassBalanceUseCase(
     public async Task<Result<ClassBalanceResponse>> ExecuteAsync(GetClientClassBalanceQuery command, CancellationToken cancellationToken)
     {
         var client = await clientRepository.GetByIdAsync(command.ClientId, cancellationToken);
-        if (client is null)
+        if (client is null || !await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [client.Id], cancellationToken))
         {
             return Result.NotFound<ClassBalanceResponse>(ClientNotFoundMessage, ClientErrorCodes.NotFound);
         }

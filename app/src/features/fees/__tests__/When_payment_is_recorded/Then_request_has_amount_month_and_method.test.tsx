@@ -20,6 +20,8 @@ describe("When payment is recorded", () => {
       paidOn: "2026-09-05",
       method: "Transfer",
       notes: null,
+      recordedByUserId: null,
+      recordedByFullName: null,
     });
   });
 

@@ -30,6 +30,7 @@ export const viewerPermissions: readonly Permission[] = [
 export function buildCurrentMember(overrides: Partial<CurrentMember> = {}): CurrentMember {
   return {
     businessId: "business-1",
+    userId: "user-owner",
     branchRole: "BranchOwner",
     instructorId: null,
     isBrandOwner: true,

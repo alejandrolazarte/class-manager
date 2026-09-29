@@ -10,6 +10,7 @@ import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
 import { BillingPlanKind } from "@/features/fees/types";
 import { useDeletePayment, useSetClientBillingPlan } from "@/features/fees/useFeeMutations";
+import { useCanUndoCollection } from "@/features/fees/useCanUndoCollection";
 import { useClientPayments } from "@/features/fees/useFees";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
@@ -39,6 +40,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const { data: payments = [] } = useClientPayments(client.id);
   const canRecordPayments = useCan(permissions.paymentsRecord);
   const canViewClassPacks = useCan(permissions.classPacksView);
+  const canUndoPayment = useCanUndoCollection(permissions.paymentsRecord);
   const setBillingPlanMutation = useSetClientBillingPlan(client.id);
   const deletePaymentMutation = useDeletePayment();
   const [isEditing, setIsEditing] = useState(false);
@@ -156,13 +158,19 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
               <View className="min-w-0 flex-1 gap-px">
                 <AppText variant="bodyStrong">{money(payment.amount)}</AppText>
                 <AppText variant="caption" tone="subtle">
-                  {`${formatBirthDateForDisplay(payment.paidOn)} · ${translate(`fees.methods.${payment.method}` as TranslationKey)}`}
+                  {[
+                    formatBirthDateForDisplay(payment.paidOn),
+                    translate(`fees.methods.${payment.method}` as TranslationKey),
+                    ...(payment.recordedByFullName
+                      ? [translate("fees.client.recordedBy", { name: payment.recordedByFullName })]
+                      : []),
+                  ].join(" · ")}
                 </AppText>
               </View>
               <AppText variant="label" tone="muted">
                 {formatMonth(payment.month)}
               </AppText>
-              {canRecordPayments ? (
+              {canUndoPayment(payment.recordedByUserId) ? (
                 <IconButton
                   icon="delete"
                   tone="subtle-foreground"

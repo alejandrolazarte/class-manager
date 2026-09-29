@@ -35,7 +35,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const router = useRouter();
   const { data: client, isPending, isError, refetch } = useClient(clientId);
   const canManageStudents = useCan(permissions.studentsManage);
-  const canViewPayments = useCan(permissions.paymentsViewAll);
+  const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
 
   if (isPending) {
     return (

@@ -59,6 +59,7 @@ export interface ClassPackUsage {
   status: ClassPackPurchaseStatus;
   classDurationMinutes: number | null;
   materialUrl: string | null;
+  recordedByUserId: string | null;
 }
 
 export interface DeductibleTrial {

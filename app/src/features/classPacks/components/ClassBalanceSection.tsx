@@ -14,6 +14,7 @@ import { AppText, TextTone } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
 import { Card } from "@/ui/Card";
+import { useCanUndoCollection } from "@/features/fees/useCanUndoCollection";
 
 interface ClassBalanceSectionProps {
   clientId: string;
@@ -35,6 +36,7 @@ function usageStatusLabel(usage: ClassPackUsage): string {
 
 export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
   const canSellClassPacks = useCan(permissions.classPacksSell);
+  const canUndoSale = useCanUndoCollection(permissions.classPacksSell);
   const router = useRouter();
   const currencyCode = useBusinessCurrency();
   const { data: balance, isPending } = useClassBalance(clientId);
@@ -101,7 +103,7 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
               </Pressable>
             ) : null}
           </View>
-          {canSellClassPacks ? (
+          {canUndoSale(usage.recordedByUserId) ? (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`${translate("classPacks.balance.deletePurchase")} ${usage.name}`}

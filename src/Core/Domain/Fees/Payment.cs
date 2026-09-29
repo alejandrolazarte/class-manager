@@ -23,6 +23,7 @@ public sealed class Payment : ITenantOwned
     public DateOnly PaidOn { get; private set; }
     public PaymentMethod Method { get; private set; }
     public string? Notes { get; private set; }
+    public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     public BillingMonth BillingMonth => BillingMonth.From(Month);
@@ -35,7 +36,8 @@ public sealed class Payment : ITenantOwned
         PaymentMethod? method,
         string? notes,
         DateOnly today,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        Guid? recordedByUserId = null)
     {
         var amountValidation = MonthlyFee.Validate(amount ?? 0, nameof(Amount));
         if (amountValidation.IsFailure)
@@ -73,6 +75,7 @@ public sealed class Payment : ITenantOwned
             PaidOn = paidOn,
             Method = method.Value,
             Notes = trimmedNotes,
+            RecordedByUserId = recordedByUserId,
             CreatedAt = createdAt.ToUniversalTime(),
         };
     }

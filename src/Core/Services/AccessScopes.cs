@@ -18,7 +18,10 @@ public sealed class AccessScopes(ICurrentMember currentMember) : IAccessScopes
             : InstructorScope.Only(access.InstructorId);
     }
 
-    public async Task<ClientScope?> ForClientsAsync(CancellationToken cancellationToken)
+    public Task<ClientScope?> ForClientsAsync(CancellationToken cancellationToken) =>
+        ForClientsAsync(Permissions.Students.ViewAll, cancellationToken);
+
+    public async Task<ClientScope?> ForClientsAsync(string everyClientPermission, CancellationToken cancellationToken)
     {
         var access = await currentMember.GetAccessAsync(cancellationToken);
         if (access is null)
@@ -26,7 +29,7 @@ public sealed class AccessScopes(ICurrentMember currentMember) : IAccessScopes
             return new ClientScope(null, Guid.Empty);
         }
 
-        return access.HasPermission(Permissions.Students.ViewAll)
+        return access.HasPermission(everyClientPermission)
             ? null
             : new ClientScope(access.InstructorId, access.UserId);
     }

@@ -19,5 +19,7 @@ public interface IClientRepository
 
     Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Guid>> ListIdsInScopeAsync(ClientScope scope, CancellationToken cancellationToken);
+
     Task<bool> IsInScopeAsync(Guid clientId, ClientScope scope, CancellationToken cancellationToken);
 }

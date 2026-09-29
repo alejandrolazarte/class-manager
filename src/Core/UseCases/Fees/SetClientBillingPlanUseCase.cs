@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
@@ -18,7 +19,8 @@ public sealed class SetClientBillingPlanUseCase(
     IFeeScheduleRepository feeScheduleRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IAccessScopes accessScopes)
     : IUseCase<SetClientBillingPlanCommand, ClientBillingResponse>
 {
     private const string ClientNotFoundMessage = "The client does not exist.";
@@ -29,6 +31,11 @@ public sealed class SetClientBillingPlanUseCase(
         if (client is null)
         {
             return Result.NotFound<ClientBillingResponse>(ClientNotFoundMessage, ClientErrorCodes.NotFound);
+        }
+
+        if (!await MoneyRules.CanCollectFromAsync(accessScopes, clientRepository, client.Id, cancellationToken))
+        {
+            return AccessRules.NotYours();
         }
 
         var today = await businessCalendar.TodayAsync(cancellationToken);

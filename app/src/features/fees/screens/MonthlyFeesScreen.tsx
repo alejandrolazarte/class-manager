@@ -9,6 +9,8 @@ import { formatMoney } from "@/features/fees/money";
 import { addMonths, formatMonth, monthOf } from "@/features/fees/months";
 import { ClientFee } from "@/features/fees/types";
 import { useMonthlyFees } from "@/features/fees/useFees";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
@@ -33,6 +35,7 @@ const debtorStatuses = new Set(["Unpaid", "Partial"]);
 export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
   const router = useRouter();
   const business = useCurrentBusiness();
+  const canViewEveryPayment = useCan(permissions.paymentsViewAll);
   const [month, setMonth] = useState(initialMonth ?? monthOf());
   const [filter, setFilter] = useState<FeeFilter>("debtors");
   const { data: monthlyFees, isPending, isError, isRefetching, refetch } = useMonthlyFees(month);
@@ -59,7 +62,7 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
   const header = (
     <View className="gap-4 pb-3">
       <ScreenHeader
-        eyebrow={translate("fees.month.title")}
+        eyebrow={translate(canViewEveryPayment ? "fees.month.title" : "fees.month.ownTitle")}
         title={formatMonth(month)}
         accessory={
           <View className="flex-row gap-1">

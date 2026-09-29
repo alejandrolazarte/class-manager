@@ -33,6 +33,7 @@ public static class Permissions
         Students.ViewOwn,
         Students.ViewAll,
         Students.Manage,
+        Payments.ViewOwn,
         Payments.ViewAll,
         Payments.Record,
         ClassPacks.View,
@@ -56,6 +57,7 @@ public static class Permissions
             [PrivateLessons.ViewOwn] = PrivateLessons.ViewAll,
             [PrivateLessons.ManageOwn] = PrivateLessons.ManageAll,
             [Students.ViewOwn] = Students.ViewAll,
+            [Payments.ViewOwn] = Payments.ViewAll,
         };
 
     public static class Business
@@ -131,6 +133,7 @@ public static class Permissions
 
     public static class Payments
     {
+        public const string ViewOwn = "payments.view.own";
         public const string ViewAll = "payments.view.all";
         public const string Record = "payments.record";
     }

@@ -15,7 +15,7 @@ Backend contract: [backend/20260928-roles-and-permissions](../../backend/2026092
 
 | Where | Shown when |
 |---|---|
-| Tab Cuotas | `payments.view.all` |
+| Tab Cuotas | `payments.view.all` or `.own` ("Cuotas de tus familias") |
 | Hoy: "Nueva clase particular" | `privateLessons.manage.all` or `.own` |
 | Sesión: marcar asistencia | `attendance.record.all` or `.own` |
 | Sesión: cancelar, cambiar horario | `sessions.manage` |
@@ -26,8 +26,9 @@ Backend contract: [backend/20260928-roles-and-permissions](../../backend/2026092
 | Detalle de clase: editar | `classGroups.manage` |
 | Detalle de clase: inscribir, dar de baja | `enrollments.manage` |
 | Alumnos: "Nuevo alumno", "Agregar alumno" | `students.manage` |
-| Ficha de familia: cuota y pagos | `payments.view.all` |
-| Ficha de familia: registrar pago, cambiar cuota, borrar pago | `payments.record` |
+| Ficha de familia: cuota y pagos | `payments.view.all` or `.own`; each payment shows "Cobró {name}" |
+| Ficha de familia: registrar pago, cambiar cuota | `payments.record` |
+| Ficha de familia: borrar pago, borrar venta de pack | `payments.record` / `classPacks.sell`, and `payments.view.all` or recorded by the member |
 | Ficha de familia: saldo de clases | `classPacks.view` |
 | Ficha de familia: vender pack, borrar venta | `classPacks.sell` |
 | Ajustes: negocio, cuota mensual | `business.manage` |

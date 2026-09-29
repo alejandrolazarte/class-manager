@@ -1,7 +1,9 @@
 using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Fees;
@@ -40,7 +42,9 @@ public sealed class ListMonthlyFeesUseCase(
     IFeeScheduleRepository feeScheduleRepository,
     IClassBalanceService classBalanceService,
     IClassPackPurchaseRepository classPackPurchaseRepository,
-    IBusinessCalendarService businessCalendar)
+    IClientRepository clientRepository,
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<ListMonthlyFeesQuery, MonthlyFeesResponse>
 {
     public async Task<Result<MonthlyFeesResponse>> ExecuteAsync(ListMonthlyFeesQuery command, CancellationToken cancellationToken)
@@ -53,8 +57,11 @@ public sealed class ListMonthlyFeesUseCase(
             return month.Error!;
         }
 
+        var scope = await accessScopes.ForClientsAsync(Permissions.Payments.ViewAll, cancellationToken);
+        var clientIdsInScope = scope is null ? null : (await clientRepository.ListIdsInScopeAsync(scope, cancellationToken)).ToHashSet();
         var enrolledStudents = await enrollmentRepository.ListEnrolledInPeriodAsync(month.Value!.FirstDay, month.Value.LastDay, cancellationToken);
         var enrolledClients = enrolledStudents
+            .Where(student => clientIdsInScope is null || clientIdsInScope.Contains(student.ClientId))
             .GroupBy(student => student.ClientId)
             .Select(clientStudents => new EnrolledClient(
                 clientStudents.First(),
@@ -77,7 +84,8 @@ public sealed class ListMonthlyFeesUseCase(
         var classPackClients = await ListClassPackClientsAsync(
             enrolledClients.Where(enrolledClient => planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
             cancellationToken);
-        var classPackSales = await classPackPurchaseRepository.SumPriceBetweenAsync(month.Value.FirstDay, month.Value.LastDay, cancellationToken);
+        var classPackSales = await classPackPurchaseRepository.SumPriceBetweenAsync(
+            month.Value.FirstDay, month.Value.LastDay, clientIdsInScope, cancellationToken);
 
         return new MonthlyFeesResponse(
             month.Value.ToString(),

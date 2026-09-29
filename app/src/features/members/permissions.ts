@@ -26,6 +26,7 @@ export const permissions = {
   studentsViewOwn: "students.view.own",
   studentsViewAll: "students.view.all",
   studentsManage: "students.manage",
+  paymentsViewOwn: "payments.view.own",
   paymentsViewAll: "payments.view.all",
   paymentsRecord: "payments.record",
   classPacksView: "classPacks.view",
@@ -53,6 +54,7 @@ export const everyInstructorPermissionByOwnPermission: Readonly<
   [permissions.privateLessonsViewOwn]: permissions.privateLessonsViewAll,
   [permissions.privateLessonsManageOwn]: permissions.privateLessonsManageAll,
   [permissions.studentsViewOwn]: permissions.studentsViewAll,
+  [permissions.paymentsViewOwn]: permissions.paymentsViewAll,
 };
 
 export function needsCoach(rolePermissions: readonly Permission[]): boolean {

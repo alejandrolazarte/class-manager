@@ -31,6 +31,7 @@ public sealed class ClassPackPurchase : ITenantOwned
     public int? ClassDurationMinutes { get; private set; }
     public string? MaterialUrl { get; private set; }
     public Guid? TrialLessonId { get; private set; }
+    public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static Result<ClassPackPurchase> Sell(
@@ -41,7 +42,8 @@ public sealed class ClassPackPurchase : ITenantOwned
         PaymentMethod? method,
         string? notes,
         DateOnly today,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        Guid? recordedByUserId = null)
     {
         if (!pack.IsActive)
         {
@@ -85,6 +87,7 @@ public sealed class ClassPackPurchase : ITenantOwned
             Notes = trimmedNotes,
             ClassDurationMinutes = pack.ClassDurationMinutes,
             MaterialUrl = pack.MaterialUrl,
+            RecordedByUserId = recordedByUserId,
             CreatedAt = createdAt.ToUniversalTime(),
         };
     }

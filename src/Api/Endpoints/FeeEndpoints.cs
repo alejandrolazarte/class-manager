@@ -18,12 +18,13 @@ internal static class FeeEndpoints
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, RecordPaymentAsync)
             .RequirePermission(Permissions.Payments.Record);
         clients.MapGet(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, ListClientPaymentsAsync)
-            .RequirePermission(Permissions.Payments.ViewAll);
+            .RequirePermission(Permissions.Payments.ViewAll, Permissions.Payments.ViewOwn);
 
         endpoints.MapGroup(ApiRoutes.Payments).MapDelete(ApiRoutes.PaymentById, DeletePaymentAsync)
             .RequirePermission(Permissions.Payments.Record);
 
-        endpoints.MapGroup(ApiRoutes.Fees).MapGet("/", ListMonthlyFeesAsync).RequirePermission(Permissions.Payments.ViewAll);
+        endpoints.MapGroup(ApiRoutes.Fees).MapGet("/", ListMonthlyFeesAsync)
+            .RequirePermission(Permissions.Payments.ViewAll, Permissions.Payments.ViewOwn);
 
         return endpoints;
     }

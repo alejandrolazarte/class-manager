@@ -146,9 +146,10 @@ export const permissionGroups: PermissionGroup[] = [
     titleKey: "roles.group.money",
     items: [
       {
-        kind: "toggle",
+        kind: "scope",
         labelKey: "roles.permission.paymentsView",
-        permission: permissions.paymentsViewAll,
+        own: permissions.paymentsViewOwn,
+        all: permissions.paymentsViewAll,
       },
       {
         kind: "toggle",

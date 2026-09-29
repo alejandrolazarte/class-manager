@@ -12,10 +12,11 @@ public sealed record CurrentMemberResponse(
     Guid? InstructorId,
     bool IsBrandOwner,
     IReadOnlyList<string> Permissions,
-    Guid? CustomRoleId = null)
+    Guid? CustomRoleId = null,
+    Guid? UserId = null)
 {
     public static CurrentMemberResponse From(MemberAccess access) =>
-        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId);
+        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.UserId);
 }
 
 public sealed class GetCurrentMemberUseCase(ICurrentMember currentMember) : IUseCase<GetCurrentMemberQuery, CurrentMemberResponse>
