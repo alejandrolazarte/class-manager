@@ -10,6 +10,7 @@ public sealed record DeleteClassPackPurchaseCommand(Guid PurchaseId);
 public sealed class DeleteClassPackPurchaseUseCase(
     IClassPackPurchaseRepository purchaseRepository,
     IClientRepository clientRepository,
+    IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
     ICurrentMember currentMember)
@@ -27,6 +28,11 @@ public sealed class DeleteClassPackPurchaseUseCase(
             accessScopes, clientRepository, currentMember, purchase.ClientId, purchase.RecordedByUserId, cancellationToken))
         {
             return AccessRules.NotYours();
+        }
+
+        if (await orderRepository.IsPurchaseFromOrderAsync(purchase.Id, cancellationToken))
+        {
+            return ClassPackFailures.PurchaseFromOrder();
         }
 
         purchaseRepository.Remove(purchase);

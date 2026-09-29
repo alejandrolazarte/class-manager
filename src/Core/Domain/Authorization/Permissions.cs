@@ -40,6 +40,11 @@ public static class Permissions
         ClassPacks.View,
         ClassPacks.Manage,
         ClassPacks.Sell,
+        Products.View,
+        Products.Manage,
+        Orders.ViewOwn,
+        Orders.ViewAll,
+        Orders.Manage,
         ImportExport.Run,
     ];
 
@@ -60,6 +65,7 @@ public static class Permissions
             [Students.ViewOwn] = Students.ViewAll,
             [Payments.ViewOwn] = Payments.ViewAll,
             [Enrollments.ManageOwn] = Enrollments.Manage,
+            [Orders.ViewOwn] = Orders.ViewAll,
         };
 
     public static class Business
@@ -146,6 +152,19 @@ public static class Permissions
         public const string View = "classPacks.view";
         public const string Manage = "classPacks.manage";
         public const string Sell = "classPacks.sell";
+    }
+
+    public static class Products
+    {
+        public const string View = "products.view";
+        public const string Manage = "products.manage";
+    }
+
+    public static class Orders
+    {
+        public const string ViewOwn = "orders.view.own";
+        public const string ViewAll = "orders.view.all";
+        public const string Manage = "orders.manage";
     }
 
     public static class ImportExport
