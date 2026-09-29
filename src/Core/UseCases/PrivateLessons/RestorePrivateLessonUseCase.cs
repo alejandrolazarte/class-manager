@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
 
 namespace ClassManager.Core.UseCases.PrivateLessons;
@@ -14,7 +16,8 @@ public sealed class RestorePrivateLessonUseCase(
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
     IUnitOfWork unitOfWork,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<RestorePrivateLessonCommand, PrivateLessonResponse>
 {
     public async Task<Result<PrivateLessonResponse>> ExecuteAsync(RestorePrivateLessonCommand command, CancellationToken cancellationToken)
@@ -23,6 +26,12 @@ public sealed class RestorePrivateLessonUseCase(
         if (lesson is null)
         {
             return PrivateLessonRules.NotFound();
+        }
+
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.PrivateLessons.ManageAll, cancellationToken);
+        if (!scope.Includes(lesson.InstructorId))
+        {
+            return AccessRules.NotYours();
         }
 
         var conflict = await InstructorAgendaRules.FindConflictAsync(

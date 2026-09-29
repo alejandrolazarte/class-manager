@@ -1,6 +1,8 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { StudentListItem } from "@/features/students/components/StudentListItem";
 import { useStudentSearch } from "@/features/students/useStudentSearch";
 import { translate } from "@/i18n/translate";
@@ -16,6 +18,7 @@ import { Spinner } from "@/ui/Spinner";
 
 export function StudentListScreen() {
   const router = useRouter();
+  const canManageStudents = useCan(permissions.studentsManage);
   const [searchText, setSearchText] = useState("");
   const {
     data: students = [],
@@ -32,17 +35,24 @@ export function StudentListScreen() {
       <EmptyState message={translate("students.list.noResults", { search: debouncedSearch })} />
     ) : (
       <EmptyState icon="students" message={translate("students.list.emptyTitle")}>
-        <Button label={translate("students.list.emptyCallToAction")} onPress={openRegisterClient} />
+        {canManageStudents ? (
+          <Button
+            label={translate("students.list.emptyCallToAction")}
+            onPress={openRegisterClient}
+          />
+        ) : null}
       </EmptyState>
     );
 
   return (
     <Screen
       overlay={
-        <FloatingActionButton
-          label={translate("students.list.newStudent")}
-          onPress={openRegisterClient}
-        />
+        canManageStudents ? (
+          <FloatingActionButton
+            label={translate("students.list.newStudent")}
+            onPress={openRegisterClient}
+          />
+        ) : undefined
       }
     >
       <View className="gap-4 pb-4">

@@ -12,6 +12,15 @@ internal sealed class IdentityService(IUserAccountService userAccountService, IP
     public Task<bool> IsEmailRegisteredAsync(string email, CancellationToken cancellationToken) =>
         userAccountService.IsEmailRegisteredAsync(email, cancellationToken);
 
+    public Task<Guid?> FindUserIdByEmailAsync(string email, CancellationToken cancellationToken) =>
+        userAccountService.FindUserIdByEmailAsync(email, cancellationToken);
+
+    public async Task<IReadOnlyList<UserAccount>> ListAccountsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+        [
+            .. (await userAccountService.ListAsync(userIds, cancellationToken))
+                .Select(account => new UserAccount(account.UserId, account.Email, account.FullName)),
+        ];
+
     public async Task<Result<Guid>> CreateOwnerAsync(OwnerAccount account, CancellationToken cancellationToken)
     {
         var creation = await userAccountService.CreateAsync(

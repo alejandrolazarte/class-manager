@@ -48,6 +48,15 @@ public static class ApiRoutes
     public const string ExportAction = "/export";
     public const string Business = "/api/business";
     public const string Me = "/api/me";
+    public const string Members = "/api/members";
+    public const string MemberById = "/{memberId:guid}";
+    public const string InvitationsSegment = "/invitations";
+    public const string InvitationById = "/invitations/{invitationId:guid}";
+    public const string AcceptInvitation = "/invitations/accept";
+    public const string MyBranches = "/api/me/branches";
+    public const string SwitchBranch = "/branch";
+    public const string OrganizationBranches = "/api/organization/branches";
+    public const string BrandOwnerSegment = "/brand-owner";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";
     public const string SignIn = "/sign-in";

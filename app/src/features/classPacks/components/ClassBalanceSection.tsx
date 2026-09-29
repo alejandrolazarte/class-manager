@@ -5,6 +5,8 @@ import { ClassPackUsage } from "@/features/classPacks/types";
 import { useDeleteClassPackPurchase } from "@/features/classPacks/useClassPackMutations";
 import { useClassBalance } from "@/features/classPacks/useClassPacks";
 import { formatMoney } from "@/features/fees/money";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
@@ -32,6 +34,7 @@ function usageStatusLabel(usage: ClassPackUsage): string {
 }
 
 export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
+  const canSellClassPacks = useCan(permissions.classPacksSell);
   const router = useRouter();
   const currencyCode = useBusinessCurrency();
   const { data: balance, isPending } = useClassBalance(clientId);
@@ -98,23 +101,27 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
               </Pressable>
             ) : null}
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`${translate("classPacks.balance.deletePurchase")} ${usage.name}`}
-            onPress={() => deletePurchaseMutation.mutate(usage.id)}
-          >
-            <AppText variant="label" tone="danger">
-              {translate("classPacks.balance.deletePurchase")}
-            </AppText>
-          </Pressable>
+          {canSellClassPacks ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${translate("classPacks.balance.deletePurchase")} ${usage.name}`}
+              onPress={() => deletePurchaseMutation.mutate(usage.id)}
+            >
+              <AppText variant="label" tone="danger">
+                {translate("classPacks.balance.deletePurchase")}
+              </AppText>
+            </Pressable>
+          ) : null}
         </View>
       ))}
-      <Button
-        size="medium"
-        icon="classPacks"
-        label={translate("classPacks.balance.sell")}
-        onPress={() => router.push(routes.sellClassPack(clientId))}
-      />
+      {canSellClassPacks ? (
+        <Button
+          size="medium"
+          icon="classPacks"
+          label={translate("classPacks.balance.sell")}
+          onPress={() => router.push(routes.sellClassPack(clientId))}
+        />
+      ) : null}
     </Card>
   );
 }

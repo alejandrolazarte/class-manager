@@ -6,6 +6,7 @@ public class Result
     public const string NotFoundCode = "not_found";
     public const string ConflictCode = "conflict";
     public const string UnauthorizedCode = "unauthorized";
+    public const string ForbiddenCode = "forbidden";
     public const string LockedCode = "locked";
 
     private protected Result(ResultError? error)
@@ -57,6 +58,9 @@ public class Result
 
     public static Result<T> Unauthorized<T>(string message, string code = UnauthorizedCode) =>
         new(default, new ResultError(code, message, ErrorKind.Unauthorized));
+
+    public static Result<T> Forbidden<T>(string message, string code = ForbiddenCode) =>
+        new(default, new ResultError(code, message, ErrorKind.Forbidden));
 
     public static Result<T> Locked<T>(string message, string code = LockedCode) =>
         new(default, new ResultError(code, message, ErrorKind.Locked));

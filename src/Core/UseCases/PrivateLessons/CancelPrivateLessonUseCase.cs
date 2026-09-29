@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Authorization;
 
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
@@ -13,7 +15,8 @@ public sealed class CancelPrivateLessonUseCase(
     IInstructorRepository instructorRepository,
     IStudentRepository studentRepository,
     IUnitOfWork unitOfWork,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IAccessScopes accessScopes)
     : IUseCase<CancelPrivateLessonCommand, PrivateLessonResponse>
 {
     public async Task<Result<PrivateLessonResponse>> ExecuteAsync(CancelPrivateLessonCommand command, CancellationToken cancellationToken)
@@ -22,6 +25,12 @@ public sealed class CancelPrivateLessonUseCase(
         if (lesson is null)
         {
             return PrivateLessonRules.NotFound();
+        }
+
+        var scope = await accessScopes.ForInstructorsAsync(Permissions.PrivateLessons.ManageAll, cancellationToken);
+        if (!scope.Includes(lesson.InstructorId))
+        {
+            return AccessRules.NotYours();
         }
 
         var cancel = lesson.Cancel(command.Reason);

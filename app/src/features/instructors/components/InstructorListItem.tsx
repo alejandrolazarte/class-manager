@@ -8,14 +8,14 @@ import { Icon } from "@/ui/Icon";
 
 interface InstructorListItemProps {
   instructor: Instructor;
-  onPress: (instructor: Instructor) => void;
+  onPress?: (instructor: Instructor) => void;
 }
 
 export function InstructorListItem({ instructor, onPress }: InstructorListItemProps) {
   return (
     <View className={instructor.isActive ? "" : "opacity-60"}>
       <Card
-        onPress={() => onPress(instructor)}
+        onPress={onPress ? () => onPress(instructor) : undefined}
         accessibilityLabel={instructor.fullName}
         className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
       >
@@ -24,7 +24,7 @@ export function InstructorListItem({ instructor, onPress }: InstructorListItemPr
           {instructor.fullName}
         </AppText>
         {instructor.isActive ? null : <InactiveChip />}
-        <Icon name="next" tone="subtle-foreground" />
+        {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
       </Card>
     </View>
   );

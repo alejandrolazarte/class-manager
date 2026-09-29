@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -17,7 +18,8 @@ public sealed class AddStudentUseCase(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IUnitOfWork unitOfWork,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IAccessScopes accessScopes)
     : IUseCase<AddStudentCommand, StudentResponse>
 {
     private const string ClientNotFoundMessage = "The client does not exist.";
@@ -32,7 +34,7 @@ public sealed class AddStudentUseCase(
         }
 
         var client = await clientRepository.GetByIdAsync(command.ClientId, cancellationToken);
-        if (client is null)
+        if (client is null || !await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [client.Id], cancellationToken))
         {
             return Result.NotFound<StudentResponse>(ClientNotFoundMessage, ClientErrorCodes.NotFound);
         }

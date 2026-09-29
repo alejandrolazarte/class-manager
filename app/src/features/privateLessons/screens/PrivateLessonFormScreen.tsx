@@ -12,6 +12,8 @@ import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
 import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import { getClassBalance } from "@/features/classPacks/classPacksApi";
+import { useCan, useCurrentMember } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { LessonStudentPicker } from "@/features/privateLessons/components/LessonStudentPicker";
 import {
   conflictingDateExtension,
@@ -373,10 +375,14 @@ export function PrivateLessonFormScreen({
 }: PrivateLessonFormScreenProps) {
   const instructorsQuery = useActiveInstructors();
   const lessonQuery = usePrivateLesson(privateLessonId);
+  const canManageEveryLesson = useCan(permissions.privateLessonsManageAll);
+  const { instructorId: ownInstructorId } = useCurrentMember();
   if (instructorsQuery.isPending) {
     return <LoadingScreen />;
   }
-  const instructors = instructorsQuery.data ?? [];
+  const instructors = (instructorsQuery.data ?? []).filter(
+    (instructor) => canManageEveryLesson || instructor.id === ownInstructorId,
+  );
   if (privateLessonId === undefined) {
     return (
       <PrivateLessonEditor initialDate={initialDate ?? todayIsoDate()} instructors={instructors} />

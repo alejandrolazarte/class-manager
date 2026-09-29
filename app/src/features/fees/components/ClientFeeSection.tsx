@@ -11,6 +11,8 @@ import { formatMonth, monthOf } from "@/features/fees/months";
 import { BillingPlanKind } from "@/features/fees/types";
 import { useDeletePayment, useSetClientBillingPlan } from "@/features/fees/useFeeMutations";
 import { useClientPayments } from "@/features/fees/useFees";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -35,6 +37,8 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const business = useCurrentBusiness();
   const { showToast } = useToast();
   const { data: payments = [] } = useClientPayments(client.id);
+  const canRecordPayments = useCan(permissions.paymentsRecord);
+  const canViewClassPacks = useCan(permissions.classPacksView);
   const setBillingPlanMutation = useSetClientBillingPlan(client.id);
   const deletePaymentMutation = useDeletePayment();
   const [isEditing, setIsEditing] = useState(false);
@@ -91,7 +95,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
             </AppText>
           ))}
         </View>
-        {client.billingPlan.kind === "ClassPacks" ? null : (
+        {client.billingPlan.kind === "ClassPacks" || !canRecordPayments ? null : (
           <Button
             size="medium"
             icon="cash"
@@ -131,14 +135,14 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
               isLoading={setBillingPlanMutation.isPending}
             />
           </View>
-        ) : (
+        ) : canRecordPayments ? (
           <Button
             variant="secondary"
             size="medium"
             label={translate("fees.client.changeFee")}
             onPress={() => setIsEditing(true)}
           />
-        )}
+        ) : null}
         <AppText variant="overline" tone="subtle" className="mt-0.5">
           {translate("fees.client.payments")}
         </AppText>
@@ -158,19 +162,21 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
               <AppText variant="label" tone="muted">
                 {formatMonth(payment.month)}
               </AppText>
-              <IconButton
-                icon="delete"
-                tone="subtle-foreground"
-                accessibilityLabel={translate("fees.client.deletePaymentOf", {
-                  amount: money(payment.amount),
-                })}
-                onPress={() => deletePaymentMutation.mutate(payment.id)}
-              />
+              {canRecordPayments ? (
+                <IconButton
+                  icon="delete"
+                  tone="subtle-foreground"
+                  accessibilityLabel={translate("fees.client.deletePaymentOf", {
+                    amount: money(payment.amount),
+                  })}
+                  onPress={() => deletePaymentMutation.mutate(payment.id)}
+                />
+              ) : null}
             </View>
           ))
         )}
       </Card>
-      {client.billingPlan.kind === "ClassPacks" ? (
+      {client.billingPlan.kind === "ClassPacks" && canViewClassPacks ? (
         <ClassBalanceSection clientId={client.id} />
       ) : null}
     </View>

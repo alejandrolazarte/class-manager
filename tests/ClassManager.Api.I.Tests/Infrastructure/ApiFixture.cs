@@ -102,6 +102,16 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
 
     public HttpClient CreateClientFor(Guid businessId, Guid userId) => CreateClientWithToken(CreateAccessToken(businessId, userId: userId));
 
+    public async Task<HttpClient> SeedMemberAsync(Guid businessId, BusinessRole role, Guid? instructorId = null)
+    {
+        var userId = Guid.CreateVersion7();
+        await using var context = CreateDbContext(businessId);
+        context.BusinessMembers.Add(BusinessMember.Create(businessId, userId, role, instructorId).Value!);
+        await context.SaveChangesAsync();
+
+        return CreateClientFor(businessId, userId);
+    }
+
     public async Task<SeededBusiness> SeedBusinessAsync()
     {
         var organization = Organization.Create(BusinessName, BusinessApiFactory.Now).Value!;

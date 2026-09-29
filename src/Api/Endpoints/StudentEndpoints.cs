@@ -12,8 +12,8 @@ internal static class StudentEndpoints
             .RequirePermission(Permissions.Students.Manage);
 
         var students = endpoints.MapGroup(ApiRoutes.Students);
-        students.MapGet(ApiRoutes.StudentById, GetStudentAsync).RequirePermission(Permissions.Students.ViewAll);
-        students.MapGet("/", SearchStudentsAsync).RequirePermission(Permissions.Students.ViewAll);
+        students.MapGet(ApiRoutes.StudentById, GetStudentAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
+        students.MapGet("/", SearchStudentsAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
 
         return endpoints;
     }

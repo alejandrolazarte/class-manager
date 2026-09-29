@@ -11,13 +11,13 @@ internal static class SessionEndpoints
     public static IEndpointRouteBuilder MapSessionEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var sessions = endpoints.MapGroup(ApiRoutes.Sessions);
-        sessions.MapGet("/", ListDaySessionsAsync).RequirePermission(Permissions.Sessions.ViewAll);
-        sessions.MapGet(ApiRoutes.Calendar, ListMonthCalendarAsync).RequirePermission(Permissions.Sessions.ViewAll);
+        sessions.MapGet("/", ListDaySessionsAsync).RequirePermission(Permissions.Sessions.ViewAll, Permissions.Sessions.ViewOwn);
+        sessions.MapGet(ApiRoutes.Calendar, ListMonthCalendarAsync).RequirePermission(Permissions.Sessions.ViewAll, Permissions.Sessions.ViewOwn);
 
         var classGroups = endpoints.MapGroup(ApiRoutes.ClassGroups);
-        classGroups.MapGet(SessionRoute, GetSessionAsync).RequirePermission(Permissions.Sessions.ViewAll);
+        classGroups.MapGet(SessionRoute, GetSessionAsync).RequirePermission(Permissions.Sessions.ViewAll, Permissions.Sessions.ViewOwn);
         classGroups.MapPut(SessionRoute + ApiRoutes.AttendanceByStudent, RecordAttendanceAsync)
-            .RequirePermission(Permissions.Attendance.RecordAll);
+            .RequirePermission(Permissions.Attendance.RecordAll, Permissions.Attendance.RecordOwn);
         classGroups.MapPut(SessionRoute + ApiRoutes.Cancellation, CancelSessionAsync)
             .RequirePermission(Permissions.Sessions.Manage);
         classGroups.MapDelete(SessionRoute + ApiRoutes.Cancellation, RestoreSessionAsync)

@@ -26,6 +26,17 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+export interface AcceptInvitationRequest {
+  token: string;
+  fullName: string;
+  password: string;
+}
+
+export interface SwitchBranchRequest {
+  refreshToken: string;
+  businessId: string;
+}
+
 export interface SignOutRequest {
   refreshToken: string;
 }

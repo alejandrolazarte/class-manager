@@ -20,7 +20,7 @@ interface SettingsListScreenLayoutProps<TItem> {
   renderItem: (item: TItem) => ReactElement;
   emptyMessage: string;
   newItemLabel: string;
-  onNewItem: () => void;
+  onNewItem?: () => void;
 }
 
 export function SettingsListScreenLayout<TItem>({
@@ -37,7 +37,11 @@ export function SettingsListScreenLayout<TItem>({
   onNewItem,
 }: SettingsListScreenLayoutProps<TItem>) {
   return (
-    <Screen overlay={<FloatingActionButton label={newItemLabel} onPress={onNewItem} />}>
+    <Screen
+      overlay={
+        onNewItem ? <FloatingActionButton label={newItemLabel} onPress={onNewItem} /> : undefined
+      }
+    >
       <View className="gap-3.5 pb-3.5">
         <ScreenHeader navigation="back" title={title} />
         {isError ? (
@@ -63,7 +67,7 @@ export function SettingsListScreenLayout<TItem>({
           ListEmptyComponent={
             isError ? null : (
               <EmptyState message={emptyMessage}>
-                <Button label={newItemLabel} onPress={onNewItem} />
+                {onNewItem ? <Button label={newItemLabel} onPress={onNewItem} /> : null}
               </EmptyState>
             )
           }

@@ -6,6 +6,7 @@ public sealed record MemberAccess(
     Guid UserId,
     Guid BusinessId,
     BusinessRole? BranchRole,
+    Guid? InstructorId,
     bool IsBrandOwner,
     IReadOnlySet<string> Permissions)
 {

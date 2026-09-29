@@ -1,5 +1,7 @@
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Authentication;
+using ClassManager.Core.UseCases.Branches;
+using ClassManager.Core.UseCases.Members;
 using ClassManager.Security.Hosting;
 
 namespace ClassManager.Api.Endpoints;
@@ -18,6 +20,8 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.SignOut, SignOutAsync);
         authentication.MapPost(ApiRoutes.PasswordResetRequest, RequestPasswordResetAsync);
         authentication.MapPost(ApiRoutes.PasswordReset, ResetPasswordAsync);
+        authentication.MapPost(ApiRoutes.AcceptInvitation, AcceptInvitationAsync);
+        authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
 
         return endpoints;
     }
@@ -80,5 +84,25 @@ internal static class AuthenticationEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> SwitchBranchAsync(
+        SwitchBranchCommand command,
+        IUseCase<SwitchBranchCommand, TokenResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> AcceptInvitationAsync(
+        AcceptInvitationCommand command,
+        IUseCase<AcceptInvitationCommand, TokenResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
     }
 }

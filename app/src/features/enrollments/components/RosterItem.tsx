@@ -11,7 +11,7 @@ import { IconButton } from "@/ui/IconButton";
 interface RosterItemProps {
   entry: RosterEntry;
   today: string;
-  onUnenroll: (entry: RosterEntry) => void;
+  onUnenroll?: (entry: RosterEntry) => void;
 }
 
 const detailSeparator = " · ";
@@ -42,14 +42,16 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
           </AppText>
         ) : null}
       </View>
-      <IconButton
-        icon="unenroll"
-        tone="subtle-foreground"
-        accessibilityLabel={translate("enrollments.detail.unenrollStudent", {
-          name: entry.studentFullName,
-        })}
-        onPress={() => onUnenroll(entry)}
-      />
+      {onUnenroll ? (
+        <IconButton
+          icon="unenroll"
+          tone="subtle-foreground"
+          accessibilityLabel={translate("enrollments.detail.unenrollStudent", {
+            name: entry.studentFullName,
+          })}
+          onPress={() => onUnenroll(entry)}
+        />
+      ) : null}
     </View>
   );
 }

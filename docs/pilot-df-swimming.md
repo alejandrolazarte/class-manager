@@ -51,7 +51,7 @@ Pools and cities as a list per business ("Piscina Alboraya, Valencia", "Tenerife
 
 ### Later — Franchise layer
 
-Branches as their own businesses under one organization, and brand owners who can act in every branch, come with Phase 2 ([backend plan](backend/20260928-roles-and-permissions/plan.md)). What stays for later: a course catalog shared from the brand, brand reports with totals only, and a public brand page that routes leads to branches.
+Branches as their own businesses under one organization, brand owners who act in every branch, creating branches and switching between them are done in Phase 2 ([backend plan](backend/20260928-roles-and-permissions/plan.md)). What stays for later: a course catalog shared from the brand, brand reports with totals only, and a public brand page that routes leads to branches.
 
 ## Also needed before the pilot starts
 

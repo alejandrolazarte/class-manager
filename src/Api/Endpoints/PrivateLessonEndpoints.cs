@@ -11,16 +11,16 @@ internal static class PrivateLessonEndpoints
     {
         var privateLessons = endpoints.MapGroup(ApiRoutes.PrivateLessons);
 
-        privateLessons.MapPost("/", ScheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll);
-        privateLessons.MapGet(ApiRoutes.PrivateLessonById, GetAsync).RequirePermission(Permissions.PrivateLessons.ViewAll);
-        privateLessons.MapPut(ApiRoutes.PrivateLessonById, RescheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll);
-        privateLessons.MapDelete(ApiRoutes.PrivateLessonById, DeleteAsync).RequirePermission(Permissions.PrivateLessons.ManageAll);
+        privateLessons.MapPost("/", ScheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
+        privateLessons.MapGet(ApiRoutes.PrivateLessonById, GetAsync).RequirePermission(Permissions.PrivateLessons.ViewAll, Permissions.PrivateLessons.ViewOwn);
+        privateLessons.MapPut(ApiRoutes.PrivateLessonById, RescheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
+        privateLessons.MapDelete(ApiRoutes.PrivateLessonById, DeleteAsync).RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
         privateLessons.MapPut(ApiRoutes.PrivateLessonById + ApiRoutes.Cancellation, CancelAsync)
-            .RequirePermission(Permissions.PrivateLessons.ManageAll);
+            .RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
         privateLessons.MapDelete(ApiRoutes.PrivateLessonById + ApiRoutes.Cancellation, RestoreAsync)
-            .RequirePermission(Permissions.PrivateLessons.ManageAll);
+            .RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
         privateLessons.MapPut(ApiRoutes.PrivateLessonById + ApiRoutes.AttendanceByStudent, RecordAttendanceAsync)
-            .RequirePermission(Permissions.Attendance.RecordAll);
+            .RequirePermission(Permissions.Attendance.RecordAll, Permissions.Attendance.RecordOwn);
 
         return endpoints;
     }

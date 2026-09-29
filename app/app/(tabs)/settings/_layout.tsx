@@ -32,6 +32,11 @@ export default function SettingsLayout() {
         options={{ title: translate("classPacks.form.editTitle") }}
       />
       <Stack.Screen name="import-export" options={{ title: translate("importExport.title") }} />
+      <Stack.Screen name="team/index" options={{ title: translate("team.title") }} />
+      <Stack.Screen name="team/invite" options={{ title: translate("team.invite.title") }} />
+      <Stack.Screen name="team/[memberId]" options={{ title: translate("team.title") }} />
+      <Stack.Screen name="branches/index" options={{ title: translate("branches.title") }} />
+      <Stack.Screen name="branches/new" options={{ title: translate("branches.form.title") }} />
     </Stack>
   );
 }

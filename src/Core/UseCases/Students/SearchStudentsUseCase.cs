@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -9,7 +10,8 @@ public sealed record SearchStudentsQuery(string? Search, int? Limit);
 
 public sealed class SearchStudentsUseCase(
     IBusinessRepository businessRepository,
-    IStudentRepository studentRepository)
+    IStudentRepository studentRepository,
+    IAccessScopes accessScopes)
     : IUseCase<SearchStudentsQuery, IReadOnlyList<StudentSummaryResponse>>
 {
     public const int DefaultLimit = 20;
@@ -28,7 +30,8 @@ public sealed class SearchStudentsUseCase(
         var criteria = new StudentSearchCriteria(
             search,
             PhoneNumber.ToNormalizedPrefix(search, business.DefaultCountryCallingCode),
-            Math.Clamp(command.Limit ?? DefaultLimit, MinimumLimit, MaximumLimit));
+            Math.Clamp(command.Limit ?? DefaultLimit, MinimumLimit, MaximumLimit),
+            await accessScopes.ForClientsAsync(cancellationToken));
 
         var students = await studentRepository.SearchAsync(criteria, cancellationToken);
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClassManager.Security.Accounts;
 
@@ -10,6 +11,18 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
 
     public async Task<bool> IsEmailRegisteredAsync(string email, CancellationToken cancellationToken) =>
         await userManager.FindByEmailAsync(email) is not null;
+
+    public async Task<Guid?> FindUserIdByEmailAsync(string email, CancellationToken cancellationToken) =>
+        (await userManager.FindByEmailAsync(email))?.Id;
+
+    public async Task<IReadOnlyList<UserAccountSummary>> ListAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+        userIds.Count == 0
+            ? []
+            : await userManager.Users
+                .AsNoTracking()
+                .Where(user => userIds.Contains(user.Id))
+                .Select(user => new UserAccountSummary(user.Id, user.Email ?? string.Empty, user.FullName))
+                .ToListAsync(cancellationToken);
 
     public async Task<UserAccountCreation> CreateAsync(NewUserAccount account, CancellationToken cancellationToken)
     {

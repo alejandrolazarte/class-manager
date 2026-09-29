@@ -28,10 +28,10 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
         }
 
         var businessId = tenantContext.TenantId;
-        var branchRole = await context.BusinessMembers
+        var branchMember = await context.BusinessMembers
             .AsNoTracking()
             .Where(member => member.UserId == userId)
-            .Select(member => (BusinessRole?)member.Role)
+            .Select(member => new { member.Role, member.InstructorId })
             .FirstOrDefaultAsync(cancellationToken);
         var isBrandOwner = await context.Businesses
             .AsNoTracking()
@@ -43,12 +43,12 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
                 (_, member) => member)
             .AnyAsync(member => member.UserId == userId && member.Role == OrganizationRole.BrandOwner, cancellationToken);
 
-        if (branchRole is null && !isBrandOwner)
+        if (branchMember is null && !isBrandOwner)
         {
             return null;
         }
 
-        var permissions = isBrandOwner ? SystemRolePermissions.BrandOwner : SystemRolePermissions.Of(branchRole!.Value);
-        return new MemberAccess(userId, businessId, branchRole, isBrandOwner, permissions);
+        var permissions = isBrandOwner ? SystemRolePermissions.BrandOwner : SystemRolePermissions.Of(branchMember!.Role);
+        return new MemberAccess(userId, businessId, branchMember?.Role, branchMember?.InstructorId, isBrandOwner, permissions);
     }
 }
