@@ -47,6 +47,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `10-cuotas`, `10b-cuotas-todos` | Month fees, debtors and everyone |
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-profes` | Settings and instructors |
+| `12b-novedades` | Publishing an announcement for families |
 | `14-familia-por-clases` | Family paying per class: classes left and packs |
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
@@ -64,6 +65,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - An app invitation for the Pérez family, accepted through the API. The invitation link only travels by email, so the test starts a small SMTP sink (`e2e/support/smtpSink.ts`) and the screenshots config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
 - Attendance in Natación inicial for every past class of the month: Lucía never misses, Tomás missed the class two weeks ago, so each shows a different streak.
 - A comment from the coach for each student: Lucía's on her last past class, Tomás's on today's class.
+- Two announcements from the school, and next week's Natación inicial class cancelled for a holiday.
 - Three family orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
 
 The family signs in through the sign-in screen, then the test captures:
@@ -72,6 +74,7 @@ The family signs in through the sign-in screen, then the test captures:
 |---|---|
 | `20-familia-inicio` | Home: next class, streak, monthly fee, coach comment and shop preview |
 | `21-familia-inicio-otro-alumno` | Home after picking the other student |
+| `21b-familia-novedades` | News: announcements, ready order, coach comments and the cancelled class, grouped by day |
 | `22-familia-clases` | Week of classes for the selected student |
 | `23-familia-tienda`, `23b-familia-tienda-productos` | Shop: search, categories, packs and product grid |
 | `24-familia-producto` | Product sheet with sizes, a sold-out size and quantity |

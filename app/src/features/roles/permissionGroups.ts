@@ -208,6 +208,11 @@ export const permissionGroups: PermissionGroup[] = [
         labelKey: "roles.permission.importExportRun",
         permission: permissions.importExportRun,
       },
+      {
+        kind: "toggle",
+        labelKey: "roles.permission.announcementsManage",
+        permission: permissions.announcementsManage,
+      },
     ],
   },
 ];

@@ -8,7 +8,7 @@ public sealed class Then_returns_conflict
     public void Then_returns_conflict_Run()
     {
         var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
-        session.Cancel("Feriado");
+        session.Cancel("Feriado", TestData.Now);
 
         var result = session.AssignSubstitute(Guid.CreateVersion7(), Guid.CreateVersion7());
 

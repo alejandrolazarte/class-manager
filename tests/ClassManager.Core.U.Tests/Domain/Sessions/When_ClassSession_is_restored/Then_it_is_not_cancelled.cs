@@ -8,7 +8,7 @@ public sealed class Then_it_is_not_cancelled
     public void Then_it_is_not_cancelled_Run()
     {
         var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
-        session.Cancel("Feriado");
+        session.Cancel("Feriado", TestData.Now);
 
         session.Restore();
 

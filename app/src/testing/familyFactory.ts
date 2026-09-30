@@ -1,6 +1,8 @@
 import {
   FamilyAttendance,
   FamilyHome,
+  FamilyNews,
+  FamilyNewsItem,
   FamilyNextClass,
   FamilyOrder,
   FamilyShop,
@@ -119,6 +121,31 @@ export function buildFamilyOrder(overrides: Partial<FamilyOrder> = {}): FamilyOr
     delivery: "Pickup",
     deliveryClassGroupName: null,
     isReady: false,
+    ...overrides,
+  };
+}
+
+export function buildFamilyNewsItem(overrides: Partial<FamilyNewsItem> = {}): FamilyNewsItem {
+  return {
+    id: "news-1",
+    kind: "Announcement",
+    occurredAt: "2026-09-29T10:00:00Z",
+    isUnread: true,
+    title: "Lunes 12 cerrado",
+    body: "Feriado. Las clases se recuperan durante la semana.",
+    studentFullNames: [],
+    className: null,
+    instructorFullName: null,
+    classDate: null,
+    orderId: null,
+    ...overrides,
+  };
+}
+
+export function buildFamilyNews(overrides: Partial<FamilyNews> = {}): FamilyNews {
+  return {
+    items: [buildFamilyNewsItem()],
+    unreadCount: 1,
     ...overrides,
   };
 }

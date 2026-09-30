@@ -2,6 +2,7 @@ import { httpClient } from "@/api/httpClient";
 import {
   FamilyHome,
   FamilyInvitation,
+  FamilyNews,
   FamilyDelivery,
   FamilyOrder,
   FamilyShop,
@@ -15,6 +16,8 @@ const appInvitationSegment = "app-invitation";
 const shopPath = `${familyPath}/shop`;
 const ordersPath = `${familyPath}/orders`;
 const cancellationSegment = "cancellation";
+const newsPath = `${familyPath}/news`;
+const seenSegment = "seen";
 
 export function getFamilyHome(): Promise<FamilyHome> {
   return httpClient.get<FamilyHome>(familyPath);
@@ -50,4 +53,12 @@ export function cancelFamilyOrder(orderId: string): Promise<FamilyOrder> {
     `${ordersPath}/${encodeURIComponent(orderId)}/${cancellationSegment}`,
     {},
   );
+}
+
+export function getFamilyNews(): Promise<FamilyNews> {
+  return httpClient.get<FamilyNews>(newsPath);
+}
+
+export function markFamilyNewsSeen(): Promise<void> {
+  return httpClient.put<void>(`${newsPath}/${seenSegment}`, {});
 }

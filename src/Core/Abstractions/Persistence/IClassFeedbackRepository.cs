@@ -13,4 +13,7 @@ public interface IClassFeedbackRepository
     Task<IReadOnlyList<ClassFeedback>> ListBySessionAsync(Guid classSessionId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<StudentFeedback>> ListLatestByStudentsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<StudentFeedback>> ListUpdatedSinceAsync(
+        IReadOnlyCollection<Guid> studentIds, DateTimeOffset since, CancellationToken cancellationToken);
 }

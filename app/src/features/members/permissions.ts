@@ -39,6 +39,7 @@ export const permissions = {
   ordersViewAll: "orders.view.all",
   ordersManage: "orders.manage",
   importExportRun: "importExport.run",
+  announcementsManage: "announcements.manage",
 } as const;
 
 export type Permission = (typeof permissions)[keyof typeof permissions];

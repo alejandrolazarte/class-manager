@@ -46,6 +46,7 @@ public static class Permissions
         Orders.ViewAll,
         Orders.Manage,
         ImportExport.Run,
+        Announcements.Manage,
     ];
 
     public static IReadOnlyList<string> BrandOnly { get; } =
@@ -170,5 +171,10 @@ public static class Permissions
     public static class ImportExport
     {
         public const string Run = "importExport.run";
+    }
+
+    public static class Announcements
+    {
+        public const string Manage = "announcements.manage";
     }
 }

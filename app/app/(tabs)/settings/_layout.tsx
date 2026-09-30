@@ -40,6 +40,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="orders/index" options={{ title: translate("orders.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
       <Stack.Screen name="import-export" options={{ title: translate("importExport.title") }} />
+      <Stack.Screen name="announcements" options={{ title: translate("announcements.title") }} />
       <Stack.Screen name="team/index" options={{ title: translate("team.title") }} />
       <Stack.Screen name="team/invite" options={{ title: translate("team.invite.title") }} />
       <Stack.Screen name="team/[memberId]" options={{ title: translate("team.title") }} />

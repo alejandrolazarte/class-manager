@@ -1,4 +1,5 @@
 global using ClassManager.Core.Abstractions.Persistence;
+global using ClassManager.Core.Domain.Announcements;
 global using ClassManager.Core.Domain.Businesses;
 global using ClassManager.Core.Domain.ClassGroups;
 global using ClassManager.Core.Domain.ClassPacks;

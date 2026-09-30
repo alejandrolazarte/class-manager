@@ -55,6 +55,14 @@ test("App screens", async ({ page, request }) => {
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, "02b-comentario-del-profe.png") });
 
+  await page.goto("/settings/announcements");
+  await page.getByLabel("Título").fill("Lunes 12 de octubre cerrado");
+  await page
+    .getByLabel("Detalle (opcional)")
+    .fill("Feriado. Las clases de ese día se pueden recuperar durante la semana.");
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "12b-novedades.png") });
+
   await page.goto(`/fees?month=${demo.month}`);
   await page.getByRole("button", { name: "Todos" }).click();
   await page.waitForTimeout(settleMilliseconds);

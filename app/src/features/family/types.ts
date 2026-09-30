@@ -152,3 +152,24 @@ export interface PlaceFamilyOrderLine {
   productVariantId: string | null;
   quantity: number;
 }
+
+export type FamilyNewsKind = "Announcement" | "OrderReady" | "CoachFeedback" | "ClassCancelled";
+
+export interface FamilyNewsItem {
+  id: string;
+  kind: FamilyNewsKind;
+  occurredAt: string;
+  isUnread: boolean;
+  title: string | null;
+  body: string | null;
+  studentFullNames: string[];
+  className: string | null;
+  instructorFullName: string | null;
+  classDate: string | null;
+  orderId: string | null;
+}
+
+export interface FamilyNews {
+  items: FamilyNewsItem[];
+  unreadCount: number;
+}
