@@ -284,6 +284,22 @@ Gmail sends from the account's own address and allows about 500 emails per day, 
 
 Without `Email__Smtp__Host` the API doesn't send anything: it logs a warning, and the email body at `Debug` level, which is how local development gets the link (`appsettings.Development.example.json` turns that on).
 
+## Push notifications
+
+Families can turn on notifications in **Ajustes → Notificaciones** of the web app. They then get a notification on that device when the school publishes an announcement, cancels one of their classes, a coach leaves a comment, or an order is ready. The notification opens the matching screen of the app.
+
+The API signs these with a VAPID key pair (Web Push, RFC 8292) and encrypts them itself (RFC 8291), with no third-party service. Generate the keys once and keep them: changing them makes every existing subscription stop working until each family turns notifications on again.
+
+```powershell
+npx web-push generate-vapid-keys
+az containerapp secret set --name $containerApp --resource-group $resourceGroup --secrets "vapid-private-key=<Private Key>"
+az containerapp update --name $containerApp --resource-group $resourceGroup `
+  --set-env-vars "WebPush__Vapid__Subject=mailto:$gmailAddress" "WebPush__Vapid__PublicKey=<Public Key>" `
+  "WebPush__Vapid__PrivateKey=secretref:vapid-private-key"
+```
+
+Without these settings the API sends nothing and the app hides the option. On iPhone, notifications only work when the family opens the app from the home screen (Compartir → Agregar a inicio, iOS 16.4 or later); the app explains this when the browser can't show them. Subscriptions that the push service reports as gone are deleted automatically.
+
 ## Automatic deploys
 
 | On | What happens |

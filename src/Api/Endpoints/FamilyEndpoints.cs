@@ -19,6 +19,9 @@ internal static class FamilyEndpoints
         family.MapPut(ApiRoutes.StudentAbsence, NotifyAbsenceAsync);
         family.MapDelete(ApiRoutes.StudentAbsence, WithdrawAbsenceAsync);
         family.MapGet(ApiRoutes.StudentMakeups, GetFamilyMakeupsAsync);
+        family.MapGet(ApiRoutes.PushKey, GetFamilyPushKeyAsync);
+        family.MapPut(ApiRoutes.PushSubscription, SavePushSubscriptionAsync);
+        family.MapDelete(ApiRoutes.PushSubscription, RemovePushSubscriptionAsync);
         family.MapPut(ApiRoutes.StudentMakeup, BookMakeupAsync);
         family.MapDelete(ApiRoutes.StudentMakeup, CancelMakeupAsync);
 
@@ -75,6 +78,35 @@ internal static class FamilyEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new WithdrawAbsenceCommand(studentId, classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> GetFamilyPushKeyAsync(
+        IUseCase<GetFamilyPushKeyQuery, FamilyPushKeyResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetFamilyPushKeyQuery(), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> SavePushSubscriptionAsync(
+        SavePushSubscriptionCommand command,
+        IUseCase<SavePushSubscriptionCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RemovePushSubscriptionAsync(
+        string? endpoint,
+        IUseCase<RemovePushSubscriptionCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RemovePushSubscriptionCommand(endpoint), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }

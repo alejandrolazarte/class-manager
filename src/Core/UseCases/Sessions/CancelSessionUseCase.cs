@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Sessions;
@@ -15,6 +16,7 @@ public sealed class CancelSessionUseCase(
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
     IUnitOfWork unitOfWork,
+    IFamilyNotificationService familyNotifications,
     TimeProvider timeProvider)
     : IUseCase<CancelSessionCommand, SessionStatusResponse>
 {
@@ -55,6 +57,7 @@ public sealed class CancelSessionUseCase(
             return Result.Conflict<SessionStatusResponse>(ConcurrentUpdateMessage, SessionErrorCodes.ConcurrentUpdate);
         }
 
+        await familyNotifications.ClassCancelledAsync(session, cancellationToken);
         return new SessionStatusResponse(session.ClassGroupId, session.Date, session.IsCancelled, session.CancellationReason);
     }
 }

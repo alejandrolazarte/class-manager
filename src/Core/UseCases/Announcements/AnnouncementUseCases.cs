@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Announcements;
@@ -22,7 +23,10 @@ public static class AnnouncementErrorCodes
 }
 
 public sealed class CreateAnnouncementUseCase(
-    IAnnouncementRepository announcementRepository, IUnitOfWork unitOfWork, TimeProvider timeProvider)
+    IAnnouncementRepository announcementRepository,
+    IUnitOfWork unitOfWork,
+    IFamilyNotificationService familyNotifications,
+    TimeProvider timeProvider)
     : IUseCase<CreateAnnouncementCommand, AnnouncementResponse>
 {
     public async Task<Result<AnnouncementResponse>> ExecuteAsync(CreateAnnouncementCommand command, CancellationToken cancellationToken)
@@ -35,6 +39,7 @@ public sealed class CreateAnnouncementUseCase(
 
         announcementRepository.Add(announcement.Value!);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await familyNotifications.AnnouncementPublishedAsync(announcement.Value!, cancellationToken);
         return AnnouncementResponse.From(announcement.Value!);
     }
 }

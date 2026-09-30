@@ -1072,5 +1072,11 @@
   "family.medals.FourWeekStreak": "Racha de 4 semanas",
   "family.medals.LeveledUp": "Subió de nivel",
   "family.medals.PerfectMonth": "Mes perfecto",
-  "family.medals.HundredClasses": "100 clases"
+  "family.medals.HundredClasses": "100 clases",
+  "family.notifications.title": "Notificaciones",
+  "family.notifications.toggle": "Avisarme de novedades",
+  "family.notifications.hint": "Te avisamos en este dispositivo cuando hay un anuncio, se suspende una clase, el profe deja un comentario o tu pedido está listo.",
+  "family.notifications.blocked": "Las notificaciones están bloqueadas para esta app. Habilitalas desde la configuración del navegador.",
+  "family.notifications.unsupported": "Este navegador no puede mostrar notificaciones. En iPhone, agregá la app a la pantalla de inicio (Compartir → Agregar a inicio) y abrila desde ahí.",
+  "family.notifications.notAllowed": "No se activaron: el navegador no dio permiso."
 }

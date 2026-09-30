@@ -37,6 +37,9 @@ export default defineConfig({
         Authentication__Jwt__SigningKey: e2eEnvironment.jwtSigningKey,
         Authentication__RateLimit__PermitLimit: e2eEnvironment.authenticationPermitLimit,
         Cors__AllowedOrigins__0: e2eEnvironment.webUrl,
+        WebPush__Vapid__Subject: e2eEnvironment.vapidSubject,
+        WebPush__Vapid__PublicKey: e2eEnvironment.vapidKeys.publicKey,
+        WebPush__Vapid__PrivateKey: e2eEnvironment.vapidKeys.privateKey,
       },
     },
     {

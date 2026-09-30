@@ -1,5 +1,7 @@
 import { View } from "react-native";
 import { useSession } from "@/features/authentication/useSession";
+import { NotificationSettings } from "@/features/family/components/NotificationSettings";
+import { stopFamilyNotifications } from "@/features/family/push/useFamilyNotifications";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
 import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
 import { translate } from "@/i18n/translate";
@@ -28,6 +30,9 @@ export function FamilySettingsScreen() {
           </View>
         </Card>
       )}
+      <Card className="p-4">
+        <NotificationSettings />
+      </Card>
       <Card>
         <AppearanceSettings />
       </Card>
@@ -36,7 +41,10 @@ export function FamilySettingsScreen() {
         size="medium"
         icon="signOut"
         label={translate("settings.signOut")}
-        onPress={signOut}
+        onPress={async () => {
+          await stopFamilyNotifications().catch(() => undefined);
+          await signOut();
+        }}
       />
     </ScrollScreen>
   );

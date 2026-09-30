@@ -12,7 +12,12 @@ const scrollDistancePixels = 2000;
 const darkColorScheme = "dark";
 const colorScheme = process.env.SCREENSHOTS_COLOR_SCHEME === darkColorScheme ? "dark" : "light";
 
-test.use({ locale: "es-AR", timezoneId: demoTimeZoneId, colorScheme });
+test.use({
+  locale: "es-AR",
+  timezoneId: demoTimeZoneId,
+  colorScheme,
+  permissions: ["notifications"],
+});
 
 const smtpSink = new SmtpSink();
 
@@ -53,7 +58,14 @@ async function scrollToBottom(page: Page): Promise<void> {
   await page.mouse.wheel(0, scrollDistancePixels);
 }
 
+async function askForNotificationsLikeAFreshBrowser(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    Object.defineProperty(Notification, "permission", { get: () => "default" });
+  });
+}
+
 test("Family screens", async ({ page, request }) => {
+  await askForNotificationsLikeAFreshBrowser(page);
   const demo = await seedDemoBusiness(request);
   const family = await seedDemoFamily(request, demo, smtpSink);
   mkdirSync(outputDirectory, { recursive: true });
@@ -123,6 +135,6 @@ test("Family screens", async ({ page, request }) => {
   await capture(page, "28c-familia-logros-medallas");
 
   await page.goto("/family/settings");
-  await page.getByText("Apariencia").first().waitFor();
+  await page.getByRole("switch", { name: "Avisarme de novedades" }).waitFor();
   await capture(page, "29-familia-ajustes");
 });

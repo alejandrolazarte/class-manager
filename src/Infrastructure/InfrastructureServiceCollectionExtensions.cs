@@ -7,6 +7,7 @@ using ClassManager.Infrastructure.Notifications;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Persistence.Repositories;
 using ClassManager.Infrastructure.Security;
+using ClassManager.Infrastructure.WebPush;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
@@ -26,6 +27,7 @@ public static class InfrastructureServiceCollectionExtensions
     private const string MissingConnectionStringMessage = "Connection string 'BusinessDatabase' is not configured.";
 
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan WebPushTimeout = TimeSpan.FromSeconds(10);
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
@@ -61,6 +63,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAbsenceNoticeRepository, AbsenceNoticeRepository>();
         services.AddScoped<IMakeupBookingRepository, MakeupBookingRepository>();
         services.AddScoped<IAchievementLevelRepository, AchievementLevelRepository>();
+        services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IFeeScheduleRepository, FeeScheduleRepository>();
         services.AddScoped<IClassPackRepository, ClassPackRepository>();
@@ -73,7 +76,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IOrderNotificationService, OrderNotificationService>();
         services.AddScoped<IPrivateLessonRepository, PrivateLessonRepository>();
 
-        return services.AddEmail().AddSecurity();
+        return services.AddEmail().AddWebPush().AddSecurity();
     }
 
     private static IServiceCollection AddEmail(this IServiceCollection services)
@@ -86,6 +89,20 @@ public static class InfrastructureServiceCollectionExtensions
             serviceProvider.GetRequiredService<IOptions<SmtpOptions>>().Value.IsConfigured
                 ? serviceProvider.GetRequiredService<SmtpEmailSender>()
                 : serviceProvider.GetRequiredService<LoggingEmailSender>());
+
+        return services;
+    }
+
+    private static IServiceCollection AddWebPush(this IServiceCollection services)
+    {
+        services.AddOptions<VapidOptions>().BindConfiguration(VapidOptions.SectionName);
+        services.AddSingleton<FamilyPushOutbox>();
+        services.AddSingleton<IWebPushKeyProvider, WebPushKeyProvider>();
+        services.AddHttpClient<IWebPushSender, WebPushSender>(client => client.Timeout = WebPushTimeout);
+        services.AddScoped<FamilyPushPublisher>();
+        services.AddScoped(serviceProvider => new FamilyPushDispatcher(
+            serviceProvider.GetRequiredService<AppDbContext>(), serviceProvider.GetRequiredService<IWebPushSender>()));
+        services.AddScoped<IFamilyNotificationService, FamilyNotificationService>();
 
         return services;
     }
