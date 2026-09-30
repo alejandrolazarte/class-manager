@@ -25,6 +25,7 @@ import { View } from "react-native";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
+import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
 
@@ -47,6 +48,9 @@ export function BusinessSettingsScreen() {
     currencyCode: business.currencyCode,
     defaultCountryCallingCode: business.defaultCountryCallingCode,
   }));
+  const [noticedAbsencesKeepStreak, setNoticedAbsencesKeepStreak] = useState(
+    business.noticedAbsencesKeepStreak,
+  );
   const form = useForm<BusinessSettingsFormValues>({
     resolver: zodResolver(businessSettingsSchema),
     defaultValues: { name: business.name },
@@ -77,6 +81,7 @@ export function BusinessSettingsScreen() {
         timeZoneId,
         currencyCode: regionalSettings.currencyCode,
         defaultCountryCallingCode: regionalSettings.defaultCountryCallingCode,
+        noticedAbsencesKeepStreak,
       });
       showToast(translate("businessSettings.saved"));
       router.back();
@@ -136,6 +141,20 @@ export function BusinessSettingsScreen() {
             {translate("businessSettings.currencyChangeNotice")}
           </AppText>
         )}
+      </View>
+      <View className="gap-2">
+        <ToggleSwitch
+          label={translate("businessSettings.noticedAbsencesKeepStreak")}
+          value={noticedAbsencesKeepStreak}
+          onValueChange={setNoticedAbsencesKeepStreak}
+        />
+        <AppText variant="caption" tone="muted">
+          {translate(
+            noticedAbsencesKeepStreak
+              ? "businessSettings.noticedAbsencesKeepStreakHint"
+              : "businessSettings.noticedAbsencesBreakStreakHint",
+          )}
+        </AppText>
       </View>
       <Button
         label={translate("common.save")}

@@ -11,6 +11,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<bool>(
+                name: "NoticedAbsencesKeepStreak",
+                table: "Businesses",
+                type: "bit",
+                nullable: false,
+                defaultValue: true);
+
             migrationBuilder.CreateTable(
                 name: "AbsenceNotices",
                 columns: table => new
@@ -19,6 +26,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClassSessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    KeepsStreak = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },
                 constraints: table =>
@@ -71,6 +79,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AbsenceNotices");
+
+            migrationBuilder.DropColumn(
+                name: "NoticedAbsencesKeepStreak",
+                table: "Businesses");
         }
     }
 }

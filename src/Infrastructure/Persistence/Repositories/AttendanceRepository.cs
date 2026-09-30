@@ -64,6 +64,7 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
     public async Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(
         IReadOnlyCollection<Guid> studentIds,
         DateOnly firstDate,
+        DateOnly today,
         CancellationToken cancellationToken)
     {
         if (studentIds.Count == 0)
@@ -76,7 +77,7 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
             where studentIds.Contains(notice.StudentId)
             join session in context.ClassSessions.AsNoTracking() on notice.ClassSessionId equals session.Id
             where session.Date >= firstDate && !session.IsCancelled
-            select new { notice.StudentId, notice.ClassSessionId, session.Date })
+            select new { notice.StudentId, notice.ClassSessionId, notice.KeepsStreak, session.Date })
             .ToListAsync(cancellationToken))
             .ToDictionary(notice => (notice.StudentId, notice.ClassSessionId));
         var groupMarks = await (
@@ -99,11 +100,12 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
         [
             .. groupMarks.Select(row => new StudentAttendanceMark(
                 row.StudentId,
-                new AttendanceMark(row.Date, row.Status, IsExcused: notices.ContainsKey((row.StudentId, row.ClassSessionId))))),
+                new AttendanceMark(row.Date, row.Status, IsExcused: notices.TryGetValue((row.StudentId, row.ClassSessionId), out var notice) && notice.KeepsStreak))),
             .. notices.Values
                 .Where(notice => !recordedSessions.Contains((notice.StudentId, notice.ClassSessionId)))
+                .Where(notice => notice.KeepsStreak || notice.Date < today)
                 .Select(notice => new StudentAttendanceMark(
-                    notice.StudentId, new AttendanceMark(notice.Date, AttendanceStatus.Absent, IsExcused: true))),
+                    notice.StudentId, new AttendanceMark(notice.Date, AttendanceStatus.Absent, IsExcused: notice.KeepsStreak))),
             .. privateLessonMarks.Select(row => new StudentAttendanceMark(row.StudentId, new AttendanceMark(row.Date, row.Status))),
         ];
     }

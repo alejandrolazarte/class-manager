@@ -77,6 +77,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<bool>("NoticedAbsencesKeepStreak")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1111,6 +1114,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("KeepsStreak")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uniqueidentifier");

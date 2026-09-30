@@ -61,7 +61,7 @@ public sealed class GetFamilyHomeUseCase(
 
         var studentIds = students.Select(student => student.Id).ToList();
         var attendanceMarks = (await attendanceRepository.ListMarksByStudentsAsync(
-                studentIds, AttendanceStreaks.FirstDayToLoad(today), cancellationToken))
+                studentIds, AttendanceStreaks.FirstDayToLoad(today), today, cancellationToken))
             .ToLookup(studentMark => studentMark.StudentId, studentMark => studentMark.Mark);
         var attendedClasses = await attendanceRepository.CountAttendedClassesByStudentsAsync(studentIds, cancellationToken);
         var notifiedAbsences = (await absenceNoticeRepository.ListByStudentsBetweenAsync(studentIds, today, lastDate, cancellationToken))

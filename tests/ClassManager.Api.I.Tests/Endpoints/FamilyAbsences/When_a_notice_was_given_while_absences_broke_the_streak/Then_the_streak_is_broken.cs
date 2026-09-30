@@ -1,13 +1,12 @@
 using ClassManager.Core.Domain.Sessions;
-using Microsoft.EntityFrameworkCore;
 
-namespace ClassManager.Api.I.Tests.Endpoints.FamilyAbsences.When_a_class_was_missed_with_notice;
+namespace ClassManager.Api.I.Tests.Endpoints.FamilyAbsences.When_a_notice_was_given_while_absences_broke_the_streak;
 
 [Collection(SqlServerCollectionDefinition.Name)]
-public sealed class Then_the_streak_keeps_going(ApiFixture fixture)
+public sealed class Then_the_streak_is_broken(ApiFixture fixture)
 {
     [Fact]
-    public async Task Then_the_streak_keeps_going_Run()
+    public async Task Then_the_streak_is_broken_Run()
     {
         var scenario = await fixture.SeedFamilyScenarioAsync();
         var owner = scenario.Coaches.Business.HttpClient;
@@ -18,16 +17,16 @@ public sealed class Then_the_streak_keeps_going(ApiFixture fixture)
         await owner.EnrollAsync(weekly.Id, studentId, today.AddDays(-21));
         (await owner.PutAttendanceAsync(weekly.Id, today.AddDays(-21), studentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
         (await owner.PutAttendanceAsync(weekly.Id, today.AddDays(-14), studentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
-        (await owner.PutAttendanceAsync(weekly.Id, today.AddDays(-7), studentId, AttendanceStatus.Absent)).EnsureSuccessStatusCode();
         await using (var context = fixture.CreateDbContext(scenario.Coaches.Business.Business.Id))
         {
-            var missedSession = await context.ClassSessions.SingleAsync(session => session.ClassGroupId == weekly.Id && session.Date == today.AddDays(-7));
-            context.AbsenceNotices.Add(AbsenceNotice.Create(missedSession.Id, studentId, keepsStreak: true, BusinessApiFactory.Now.AddDays(-8)));
+            var missedSession = ClassSession.Create(weekly.Id, today.AddDays(-7), BusinessApiFactory.Now.AddDays(-8));
+            context.ClassSessions.Add(missedSession);
+            context.AbsenceNotices.Add(AbsenceNotice.Create(missedSession.Id, studentId, keepsStreak: false, BusinessApiFactory.Now.AddDays(-8)));
             await context.SaveChangesAsync();
         }
 
         var home = await scenario.Family.GetFamilyHomeAsync();
 
-        home!.Students.Single().Attendance.StreakWeeks.ShouldBe(2);
+        home!.Students.Single().Attendance.StreakWeeks.ShouldBe(0);
     }
 }

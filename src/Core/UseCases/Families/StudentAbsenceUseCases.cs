@@ -82,6 +82,7 @@ public sealed class NotifyAbsenceUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAbsenceNoticeRepository absenceNoticeRepository,
+    IBusinessRepository businessRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider)
@@ -111,7 +112,8 @@ public sealed class NotifyAbsenceUseCase(
             return true;
         }
 
-        absenceNoticeRepository.Add(AbsenceNotice.Create(session.Id, command.StudentId, now));
+        var keepsStreak = (await businessRepository.GetCurrentAsync(cancellationToken))?.NoticedAbsencesKeepStreak ?? true;
+        absenceNoticeRepository.Add(AbsenceNotice.Create(session.Id, command.StudentId, keepsStreak, now));
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);

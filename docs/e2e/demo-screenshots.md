@@ -48,6 +48,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-profes` | Settings and instructors |
 | `12b-novedades` | Publishing an announcement for families |
+| `12c-ajustes-negocio` | Business settings, including whether noticed absences keep the streak |
 | `14-familia-por-clases` | Family paying per class: classes left and packs |
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |

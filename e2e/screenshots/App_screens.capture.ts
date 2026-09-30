@@ -63,6 +63,11 @@ test("App screens", async ({ page, request }) => {
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, "12b-novedades.png") });
 
+  await page.goto("/settings/business");
+  await page.getByRole("switch", { name: "Faltar con aviso no corta la racha" }).waitFor();
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "12c-ajustes-negocio.png") });
+
   await page.goto(`/fees?month=${demo.month}`);
   await page.getByRole("button", { name: "Todos" }).click();
   await page.waitForTimeout(settleMilliseconds);
