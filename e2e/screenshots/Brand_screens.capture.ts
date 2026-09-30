@@ -67,7 +67,7 @@ test("Brand screens", async ({ browser, page, request }) => {
   mkdirSync(outputDirectory, { recursive: true });
 
   await signIn(page, demo.email, demoPassword);
-  await expect(page).toHaveURL(/\/students/);
+  await expect(page).toHaveURL(/\/today/);
   await page.goto("/settings/brand");
   await page.getByText("¡Qué bueno verte!").waitFor();
   await waitForBrandWelcomeToClose(page);

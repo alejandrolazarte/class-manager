@@ -17,7 +17,6 @@ import { SearchInput } from "@/ui/SearchInput";
 import { Spinner } from "@/ui/Spinner";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
-import { TeamNotificationBell } from "@/features/teamNotifications/components/TeamNotificationBell";
 
 export function StudentListScreen() {
   const router = useRouter();
@@ -64,7 +63,6 @@ export function StudentListScreen() {
           leading={<CurrentBrandLogo />}
           eyebrow={brandName}
           title={translate("students.list.title")}
-          accessory={<TeamNotificationBell />}
         />
         <View className="gap-4 px-5">
           <SearchInput
