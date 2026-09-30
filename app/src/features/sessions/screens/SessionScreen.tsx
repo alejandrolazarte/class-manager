@@ -135,7 +135,10 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const markAllPresent = () =>
     Promise.all(
       session.students
-        .filter((student) => statusOf(student.studentId, student.status) === null)
+        .filter(
+          (student) =>
+            statusOf(student.studentId, student.status) === null && !student.absenceNotified,
+        )
         .map((student) => changeStatus(student.studentId, "Present")),
     );
 

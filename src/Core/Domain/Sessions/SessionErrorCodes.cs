@@ -10,4 +10,5 @@ public static class SessionErrorCodes
     public const string ConcurrentUpdate = "session.concurrent_update";
     public const string StudentNotEnrolled = "attendance.student_not_enrolled";
     public const string FeedbackRequired = "feedback.required";
+    public const string ClassStarted = "absence.class_started";
 }

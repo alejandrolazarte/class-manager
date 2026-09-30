@@ -30,6 +30,7 @@ export interface SessionStudent {
   birthDate: string | null;
   status: AttendanceStatus | null;
   feedback: string | null;
+  absenceNotified: boolean;
 }
 
 export interface SessionDetails {

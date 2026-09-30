@@ -4,5 +4,6 @@ public enum WeekAttendance
 {
     Attended,
     Missed,
+    Excused,
     NoClasses,
 }

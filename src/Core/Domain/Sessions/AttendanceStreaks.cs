@@ -23,7 +23,7 @@ public static class AttendanceStreaks
         for (var weekStart = currentWeek; weekStart >= currentWeek.AddDays(-LookBackWeeks * DaysPerWeek); weekStart = weekStart.AddDays(-DaysPerWeek))
         {
             var attendance = AttendanceIn(weekStart);
-            if (weekStart == currentWeek && attendance == WeekAttendance.NoClasses)
+            if (attendance == WeekAttendance.Excused || (weekStart == currentWeek && attendance == WeekAttendance.NoClasses))
             {
                 continue;
             }
@@ -49,12 +49,17 @@ public static class AttendanceStreaks
 
     private static WeekAttendance StatusOf(IEnumerable<AttendanceMark> weekMarks)
     {
-        var statuses = weekMarks.Select(mark => mark.Status).ToList();
-        if (statuses.Contains(AttendanceStatus.Absent))
+        var marks = weekMarks.ToList();
+        if (marks.Any(mark => mark.Status == AttendanceStatus.Absent && !mark.IsExcused))
         {
             return WeekAttendance.Missed;
         }
 
-        return statuses.Contains(AttendanceStatus.Present) ? WeekAttendance.Attended : WeekAttendance.NoClasses;
+        if (marks.Any(mark => mark.Status == AttendanceStatus.Present))
+        {
+            return WeekAttendance.Attended;
+        }
+
+        return marks.Count > 0 ? WeekAttendance.Excused : WeekAttendance.NoClasses;
     }
 }

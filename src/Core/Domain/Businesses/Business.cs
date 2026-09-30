@@ -96,7 +96,9 @@ public sealed partial class Business
 
     public TimeZoneInfo FindTimeZone() => TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
 
-    public DateOnly TodayAt(DateTimeOffset now) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, FindTimeZone()).DateTime);
+    public DateOnly TodayAt(DateTimeOffset now) => DateOnly.FromDateTime(LocalTimeAt(now));
+
+    public DateTime LocalTimeAt(DateTimeOffset now) => TimeZoneInfo.ConvertTime(now, FindTimeZone()).DateTime;
 
     private static string? NormalizeCurrencyCode(string? currencyCode) => currencyCode?.Trim().ToUpperInvariant();
 

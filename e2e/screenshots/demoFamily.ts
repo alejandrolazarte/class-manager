@@ -100,6 +100,22 @@ const productSeeds: ProductSeed[] = [
 
 export interface DemoFamily {
   email: string;
+  absenceDate: string;
+}
+
+function nextClassDateAfter(today: string, skippedDate: string): string {
+  const todayWeekday = new Date(`${today}T12:00:00Z`).getUTCDay();
+  for (let daysAhead = 1; ; daysAhead++) {
+    const date = new Date(
+      new Date(`${today}T12:00:00Z`).getTime() + daysAhead * millisecondsPerDay,
+    );
+    if (
+      [...beginnersWeekdays, todayWeekday].includes(date.getUTCDay()) &&
+      isoDateOf(date) !== skippedDate
+    ) {
+      return isoDateOf(date);
+    }
+  }
 }
 
 export async function seedDemoFamily(
@@ -277,5 +293,14 @@ export async function seedDemoFamily(
   await send("PUT", `/api/family/orders/${cancelledOrder.id}/cancellation`, familyToken, {});
   await placeOrder([{ classPackId: packId, productVariantId: null, quantity: 1 }], null, null);
 
-  return { email };
+  const absenceDate = nextClassDateAfter(demo.today, nextWeekClass);
+  const tomas = family.students.find((student) => student.fullName === "Tomás Pérez")!;
+  await send(
+    "PUT",
+    `/api/family/students/${tomas.id}/absences/${demo.beginnersClassGroupId}/${absenceDate}`,
+    familyToken,
+    {},
+  );
+
+  return { email, absenceDate };
 }

@@ -24,6 +24,12 @@ test.afterAll(async () => {
   await smtpSink.stop();
 });
 
+function weekEndOf(isoDate: string): string {
+  const date = new Date(`${isoDate}T12:00:00Z`);
+  const daysToSunday = (7 - date.getUTCDay()) % 7;
+  return new Date(date.getTime() + daysToSunday * 86_400_000).toISOString().slice(0, 10);
+}
+
 async function capture(page: Page, fileName: string): Promise<void> {
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
@@ -59,6 +65,21 @@ test("Family screens", async ({ page, request }) => {
   await page.goto("/family/classes");
   await page.getByText("Hoy,", { exact: false }).first().waitFor();
   await capture(page, "22-familia-clases");
+
+  const absenceDay = new Date(`${family.absenceDate}T12:00:00Z`);
+  const shortWeekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  if (family.absenceDate > weekEndOf(demo.today)) {
+    await page.getByRole("button", { name: "Semana siguiente" }).click();
+  }
+  await page.getByRole("button", { name: "Tomás" }).click();
+  await page
+    .getByRole("button", {
+      name: `${shortWeekdays[absenceDay.getUTCDay()]} ${absenceDay.getUTCDate()}`,
+      exact: true,
+    })
+    .click();
+  await page.getByText("No va", { exact: true }).first().waitFor();
+  await capture(page, "22b-familia-clases-no-voy");
 
   await page.goto("/family/shop");
   await page.getByText("Productos").first().waitFor();

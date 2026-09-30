@@ -11,7 +11,9 @@ public sealed record FamilyNextClassResponse(
     string? InstructorFullName,
     string? Location,
     bool IsPrivateLesson,
-    bool IsCancelled);
+    bool IsCancelled,
+    Guid? ClassGroupId,
+    bool AbsenceNotified);
 
 public sealed record FamilyAttendanceResponse(
     int StreakWeeks,

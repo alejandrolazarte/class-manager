@@ -71,13 +71,22 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
             return [];
         }
 
+        var notices = (await (
+            from notice in context.AbsenceNotices.AsNoTracking()
+            where studentIds.Contains(notice.StudentId)
+            join session in context.ClassSessions.AsNoTracking() on notice.ClassSessionId equals session.Id
+            where session.Date >= firstDate && !session.IsCancelled
+            select new { notice.StudentId, notice.ClassSessionId, session.Date })
+            .ToListAsync(cancellationToken))
+            .ToDictionary(notice => (notice.StudentId, notice.ClassSessionId));
         var groupMarks = await (
             from attendance in context.Attendances.AsNoTracking()
             where studentIds.Contains(attendance.StudentId)
             join session in context.ClassSessions.AsNoTracking() on attendance.ClassSessionId equals session.Id
             where session.Date >= firstDate
-            select new { attendance.StudentId, session.Date, attendance.Status })
+            select new { attendance.StudentId, attendance.ClassSessionId, session.Date, attendance.Status })
             .ToListAsync(cancellationToken);
+        var recordedSessions = groupMarks.Select(mark => (mark.StudentId, mark.ClassSessionId)).ToHashSet();
         var privateLessonMarks = await (
             from lessonStudent in context.PrivateLessonStudents.AsNoTracking()
             where studentIds.Contains(lessonStudent.StudentId) && lessonStudent.Status != null
@@ -88,8 +97,14 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
 
         return
         [
-            .. groupMarks.Concat(privateLessonMarks)
-                .Select(row => new StudentAttendanceMark(row.StudentId, new AttendanceMark(row.Date, row.Status))),
+            .. groupMarks.Select(row => new StudentAttendanceMark(
+                row.StudentId,
+                new AttendanceMark(row.Date, row.Status, IsExcused: notices.ContainsKey((row.StudentId, row.ClassSessionId))))),
+            .. notices.Values
+                .Where(notice => !recordedSessions.Contains((notice.StudentId, notice.ClassSessionId)))
+                .Select(notice => new StudentAttendanceMark(
+                    notice.StudentId, new AttendanceMark(notice.Date, AttendanceStatus.Absent, IsExcused: true))),
+            .. privateLessonMarks.Select(row => new StudentAttendanceMark(row.StudentId, new AttendanceMark(row.Date, row.Status))),
         ];
     }
 

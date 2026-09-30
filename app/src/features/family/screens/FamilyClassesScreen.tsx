@@ -126,6 +126,7 @@ export function FamilyClassesScreen() {
         dayClasses.map((scheduledClass) => (
           <ScheduledClassCard
             key={`${scheduledClass.date}-${scheduledClass.startTime}-${scheduledClass.name}`}
+            studentId={student.id}
             scheduledClass={scheduledClass}
             isToday={selectedDate === today}
           />

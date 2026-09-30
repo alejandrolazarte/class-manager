@@ -12,4 +12,12 @@ public sealed class BusinessCalendarService(IBusinessRepository businessReposito
 
         return business?.TodayAt(now) ?? DateOnly.FromDateTime(now.UtcDateTime);
     }
+
+    public async Task<DateTime> LocalNowAsync(CancellationToken cancellationToken)
+    {
+        var now = timeProvider.GetUtcNow();
+        var business = await businessRepository.GetCurrentAsync(cancellationToken);
+
+        return business?.LocalTimeAt(now) ?? now.UtcDateTime;
+    }
 }
