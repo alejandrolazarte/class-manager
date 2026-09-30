@@ -2,9 +2,12 @@ import { useRouter } from "expo-router";
 import { View } from "react-native";
 import { useHasOtherAccountKind } from "@/features/authentication/useAccounts";
 import { useSession } from "@/features/authentication/useSession";
-import { NotificationSettings } from "@/features/family/components/NotificationSettings";
-import { stopFamilyNotifications } from "@/features/family/push/useFamilyNotifications";
+import {
+  stopFamilyNotifications,
+  useFamilyNotifications,
+} from "@/features/family/push/useFamilyNotifications";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
+import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
 import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
@@ -21,6 +24,7 @@ export function FamilySettingsScreen() {
   const { signOut } = useSession();
   const { data: home } = useFamilyHome();
   const hasTeamAccount = useHasOtherAccountKind("family");
+  const notifications = useFamilyNotifications();
   return (
     <ScrollScreen header={<ScreenHeader title={translate("settings.title")} />}>
       {home === undefined ? null : (
@@ -47,7 +51,10 @@ export function FamilySettingsScreen() {
         </Card>
       ) : null}
       <Card className="p-4">
-        <NotificationSettings />
+        <NotificationSettings
+          notifications={notifications}
+          hint={translate("family.notifications.hint")}
+        />
       </Card>
       <Card>
         <AppearanceSettings />

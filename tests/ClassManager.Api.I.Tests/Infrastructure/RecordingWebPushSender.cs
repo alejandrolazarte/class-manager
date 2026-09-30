@@ -21,7 +21,7 @@ internal sealed class RecordingWebPushSender : IWebPushSender
 
     public void Expire(string endpoint) => _expiredEndpoints[endpoint] = true;
 
-    public async Task<FamilyPushMessage> WaitForPushToAsync(string endpoint)
+    public async Task<PushMessage> WaitForPushToAsync(string endpoint)
     {
         var deadline = DateTimeOffset.UtcNow + WaitTimeout;
         while (DateTimeOffset.UtcNow < deadline)
@@ -29,7 +29,7 @@ internal sealed class RecordingWebPushSender : IWebPushSender
             var sent = _sent.Where(push => push.Endpoint == endpoint).Select(push => push.Payload).LastOrDefault();
             if (sent is not null)
             {
-                return JsonSerializer.Deserialize<FamilyPushMessage>(sent, PayloadOptions)!;
+                return JsonSerializer.Deserialize<PushMessage>(sent, PayloadOptions)!;
             }
 
             await Task.Delay(PollInterval);

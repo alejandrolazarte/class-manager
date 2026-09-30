@@ -1,0 +1,20 @@
+namespace ClassManager.Api.I.Tests.Endpoints.TeamNotifications.When_family_places_an_order;
+
+[Collection(SqlServerCollectionDefinition.Name)]
+public sealed class Then_the_owner_is_notified(ApiFixture fixture)
+{
+    [Fact]
+    public async Task Then_the_owner_is_notified_Run()
+    {
+        var scenario = await fixture.SeedFamilyScenarioAsync();
+        var owner = scenario.Coaches.Business.HttpClient;
+        var product = await owner.RestockAsync(await owner.CreateProductAsync(), 2);
+
+        (await scenario.Family.PostFamilyOrderForClassAsync(
+            scenario.Coaches.CoachClassGroup.Id, FamilyShopRequests.ProductLine(product.Variants[0].Id, 1))).EnsureSuccessStatusCode();
+
+        var notification = (await owner.GetTeamNotificationsAsync())!.Items.Single();
+        notification.Title.ShouldStartWith("Nuevo pedido de");
+        notification.Url.ShouldBe("/settings/orders");
+    }
+}

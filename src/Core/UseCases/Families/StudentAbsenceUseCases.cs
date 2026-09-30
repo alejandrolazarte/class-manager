@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -78,6 +79,7 @@ public sealed class NotifyAbsenceUseCase(
     IBusinessRepository businessRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
+    ITeamNotificationService teamNotifications,
     TimeProvider timeProvider)
     : IUseCase<NotifyAbsenceCommand, bool>
 {
@@ -116,6 +118,7 @@ public sealed class NotifyAbsenceUseCase(
             return Result.Conflict<bool>(ConcurrentUpdateMessage, SessionErrorCodes.ConcurrentUpdate);
         }
 
+        await teamNotifications.AbsenceNotifiedAsync(command.StudentId, target.Value!.ClassGroup, session, cancellationToken);
         return true;
     }
 }

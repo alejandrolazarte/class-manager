@@ -1,17 +1,23 @@
 import { View } from "react-native";
-import { useFamilyNotifications } from "@/features/family/push/useFamilyNotifications";
+import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
-export function NotificationSettings() {
-  const { status, isOn, isPending, toggle } = useFamilyNotifications();
+interface NotificationSettingsProps {
+  notifications: PushNotifications;
+  hint: string;
+}
+
+export function NotificationSettings({ notifications, hint }: NotificationSettingsProps) {
+  const { status, isOn, isPending, toggle } = notifications;
   if (status === "unavailable") {
     return null;
   }
   return (
-    <View className="gap-2">
+    <Card className="gap-2 p-4" testID="notification-settings">
       <View className="flex-row items-center gap-2">
         <Icon name="notifications" tone="primary" />
         <AppText variant="bodyStrong">{translate("family.notifications.title")}</AppText>
@@ -24,14 +30,14 @@ export function NotificationSettings() {
         />
       ) : null}
       <AppText variant="caption" tone="muted">
-        {translate(
-          status === "supported"
-            ? "family.notifications.hint"
-            : status === "blocked"
-              ? "family.notifications.blocked"
-              : "family.notifications.unsupported",
-        )}
+        {status === "supported"
+          ? hint
+          : translate(
+              status === "blocked"
+                ? "family.notifications.blocked"
+                : "family.notifications.unsupported",
+            )}
       </AppText>
-    </View>
+    </Card>
   );
 }

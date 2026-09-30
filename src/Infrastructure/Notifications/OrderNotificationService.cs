@@ -12,7 +12,8 @@ internal sealed partial class OrderNotificationService(
     AppDbContext context,
     IIdentityService identityService,
     IEmailSender emailSender,
-    FamilyPushPublisher pushPublisher,
+    PushPublisher pushPublisher,
+    TeamNotifier teamNotifier,
     ILogger<OrderNotificationService> logger)
     : IOrderNotificationService
 {
@@ -28,10 +29,16 @@ internal sealed partial class OrderNotificationService(
         var lines = LinesOf(order, business.CurrencyCode);
         var total = OrderEmails.Amount(order.Total, business.CurrencyCode);
         var delivery = order.HasProducts ? OrderEmails.DeliveryForBranch(await DeliveryClassNameAsync(order, cancellationToken)) : string.Empty;
-        foreach (var email in await StaffEmailsAsync(business, cancellationToken))
+        var staffUserIds = await StaffUserIdsAsync(business, cancellationToken);
+        foreach (var email in await EmailsOfAsync(staffUserIds, cancellationToken))
         {
             await SendAsync(OrderEmails.Placed(email, client.FullName, lines, total, delivery), cancellationToken);
         }
+
+        await teamNotifier.NotifyAsync(
+            staffUserIds,
+            new PushMessage(TeamNotificationTexts.OrderPlacedTitle(client.FullName), total, TeamNotificationTexts.OrdersUrl),
+            cancellationToken);
     }
 
     public async Task OrderPaidAsync(Order order, CancellationToken cancellationToken)
@@ -105,7 +112,7 @@ internal sealed partial class OrderNotificationService(
     {
         if (order.ClientId is { } clientId)
         {
-            pushPublisher.Publish([clientId], new FamilyPushMessage(FamilyPushTexts.OrderReadyTitle, whereToGetIt, FamilyPushTexts.OrdersUrl));
+            pushPublisher.PublishToFamilies([clientId], new PushMessage(FamilyPushTexts.OrderReadyTitle, whereToGetIt, FamilyPushTexts.OrdersUrl));
         }
     }
 
@@ -150,7 +157,7 @@ internal sealed partial class OrderNotificationService(
         return clientEmail is null ? [] : [clientEmail];
     }
 
-    private async Task<IReadOnlyList<string>> StaffEmailsAsync(Business business, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<Guid>> StaffUserIdsAsync(Business business, CancellationToken cancellationToken)
     {
         var members = await context.BusinessMembers.AsNoTracking().ToListAsync(cancellationToken);
         var customRoles = await context.CustomRoles.AsNoTracking().ToDictionaryAsync(role => role.Id, cancellationToken);
@@ -162,10 +169,13 @@ internal sealed partial class OrderNotificationService(
             .Where(member => member.OrganizationId == business.OrganizationId && member.Role == OrganizationRole.BrandOwner)
             .Select(member => member.UserId)
             .ToListAsync(cancellationToken));
-        return userIds.Count == 0
+        return userIds;
+    }
+
+    private async Task<IReadOnlyList<string>> EmailsOfAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+        userIds.Count == 0
             ? []
             : [.. (await identityService.ListAccountsAsync(userIds, cancellationToken)).Select(account => account.Email).Distinct()];
-    }
 
     private static IReadOnlySet<string> PermissionsOf(BusinessMember member, Dictionary<Guid, CustomRole> customRoles) =>
         member.CustomRoleId is { } customRoleId

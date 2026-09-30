@@ -15,6 +15,6 @@ public sealed class Then_the_family_gets_a_push(ApiFixture fixture)
             scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate, scenario.Coaches.CoachStudentId, "Muy buena patada")).EnsureSuccessStatusCode();
 
         var push = await fixture.ApiFactory.PushSender.WaitForPushToAsync(endpoint);
-        push.ShouldBe(new FamilyPushMessage($"{CoachScenario.CoachFullName} comentó la clase de Tomás", "Muy buena patada", "/family/news"));
+        push.ShouldBe(new PushMessage($"{CoachScenario.CoachFullName} comentó la clase de Tomás", "Muy buena patada", "/family/news"));
     }
 }

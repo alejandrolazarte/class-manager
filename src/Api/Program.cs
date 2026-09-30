@@ -19,7 +19,7 @@ builder.Services.AddInfrastructure();
 builder.Services.AddUseCases();
 builder.Services.AddSingleton<IExpiredOrderCancellationService, ExpiredOrderCancellationService>();
 builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();
-builder.Services.AddHostedService<FamilyPushWorker>();
+builder.Services.AddHostedService<PushWorker>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
 var app = builder.Build();
@@ -40,6 +40,7 @@ app.MapMemberEndpoints();
 app.MapRoleEndpoints();
 app.MapClientEndpoints();
 app.MapFamilyEndpoints();
+app.MapTeamNotificationEndpoints();
 app.MapAnnouncementEndpoints();
 app.MapStudentEndpoints();
 app.MapInstructorEndpoints();

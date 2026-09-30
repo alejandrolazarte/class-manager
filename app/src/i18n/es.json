@@ -1136,5 +1136,8 @@
   "brand.settings.showWelcome": "Ver pantalla de bienvenida",
   "brand.settings.reset": "Restablecer",
   "brand.settings.save": "Guardar marca",
-  "brand.settings.saved": "Marca guardada · ya la ven tus alumnos"
+  "brand.settings.saved": "Marca guardada · ya la ven tus alumnos",
+  "teamNotifications.title": "Avisos",
+  "teamNotifications.empty": "Todavía no hay avisos",
+  "teamNotifications.hint": "Te avisamos en este dispositivo cuando un alumno avisa que no viene a tu clase, alguien reserva una recuperación o entra un pedido."
 }
