@@ -35,6 +35,7 @@ public sealed partial class Business
     public string TimeZoneId { get; private set; } = string.Empty;
     public string CurrencyCode { get; private set; } = string.Empty;
     public string DefaultCountryCallingCode { get; private set; } = string.Empty;
+    public bool NoticedAbsencesKeepStreak { get; private set; } = true;
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static Result<Business> Create(
@@ -76,7 +77,8 @@ public sealed partial class Business
         };
     }
 
-    public Result UpdateSettings(string? name, string? timeZoneId, string? currencyCode, string? defaultCountryCallingCode)
+    public Result UpdateSettings(
+        string? name, string? timeZoneId, string? currencyCode, string? defaultCountryCallingCode, bool? noticedAbsencesKeepStreak = null)
     {
         var trimmedName = name?.Trim() ?? string.Empty;
         var normalizedCurrencyCode = NormalizeCurrencyCode(currencyCode);
@@ -91,12 +93,15 @@ public sealed partial class Business
         TimeZoneId = timeZoneId!;
         CurrencyCode = normalizedCurrencyCode!;
         DefaultCountryCallingCode = defaultCountryCallingCode!;
+        NoticedAbsencesKeepStreak = noticedAbsencesKeepStreak ?? NoticedAbsencesKeepStreak;
         return Result.Success();
     }
 
     public TimeZoneInfo FindTimeZone() => TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
 
-    public DateOnly TodayAt(DateTimeOffset now) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, FindTimeZone()).DateTime);
+    public DateOnly TodayAt(DateTimeOffset now) => DateOnly.FromDateTime(LocalTimeAt(now));
+
+    public DateTime LocalTimeAt(DateTimeOffset now) => TimeZoneInfo.ConvertTime(now, FindTimeZone()).DateTime;
 
     private static string? NormalizeCurrencyCode(string? currencyCode) => currencyCode?.Trim().ToUpperInvariant();
 

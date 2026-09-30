@@ -21,6 +21,7 @@ public sealed class Then_settings_of_token_business_are_returned(ApiFixture fixt
             business.Business.TimeZoneId,
             business.Business.CurrencyCode,
             business.Business.DefaultCountryCallingCode,
+            NoticedAbsencesKeepStreak: true,
             DefaultMonthlyFee: null,
             settings.DefaultMonthlyFeeChanges));
     }

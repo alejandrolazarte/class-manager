@@ -16,6 +16,8 @@ internal static class FamilyEndpoints
         family.MapPut(ApiRoutes.FamilyOrders + ApiRoutes.OrderById + ApiRoutes.Cancellation, CancelFamilyOrderAsync);
         family.MapGet(ApiRoutes.FamilyNews, GetFamilyNewsAsync);
         family.MapPut(ApiRoutes.FamilyNews + ApiRoutes.Seen, MarkFamilyNewsSeenAsync);
+        family.MapPut(ApiRoutes.StudentAbsence, NotifyAbsenceAsync);
+        family.MapDelete(ApiRoutes.StudentAbsence, WithdrawAbsenceAsync);
 
         endpoints.MapPost(ApiRoutes.Clients + ApiRoutes.ClientById + ApiRoutes.AppInvitation, InviteFamilyAsync)
             .RequirePermission(Permissions.Students.Manage);
@@ -46,6 +48,30 @@ internal static class FamilyEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new MarkFamilyNewsSeenCommand(), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> NotifyAbsenceAsync(
+        Guid studentId,
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<NotifyAbsenceCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new NotifyAbsenceCommand(studentId, classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> WithdrawAbsenceAsync(
+        Guid studentId,
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<WithdrawAbsenceCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new WithdrawAbsenceCommand(studentId, classGroupId, sessionDate), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }

@@ -23,6 +23,7 @@ public sealed class GetFamilyHomeUseCase(
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
     IClassFeedbackRepository feedbackRepository,
+    IAbsenceNoticeRepository absenceNoticeRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
     IFeeScheduleRepository feeScheduleRepository,
@@ -60,9 +61,11 @@ public sealed class GetFamilyHomeUseCase(
 
         var studentIds = students.Select(student => student.Id).ToList();
         var attendanceMarks = (await attendanceRepository.ListMarksByStudentsAsync(
-                studentIds, AttendanceStreaks.FirstDayToLoad(today), cancellationToken))
+                studentIds, AttendanceStreaks.FirstDayToLoad(today), today, cancellationToken))
             .ToLookup(studentMark => studentMark.StudentId, studentMark => studentMark.Mark);
         var attendedClasses = await attendanceRepository.CountAttendedClassesByStudentsAsync(studentIds, cancellationToken);
+        var notifiedAbsences = (await absenceNoticeRepository.ListByStudentsBetweenAsync(studentIds, today, lastDate, cancellationToken))
+            .ToHashSet();
         var latestFeedbacks = (await feedbackRepository.ListLatestByStudentsAsync(studentIds, cancellationToken))
             .ToDictionary(feedback => feedback.StudentId);
 
@@ -86,7 +89,12 @@ public sealed class GetFamilyHomeUseCase(
                         continue;
                     }
 
-                    nextClasses.Add(GroupClass(classGroup, sessions.GetValueOrDefault((classGroup.Id, date)), date, instructorNames));
+                    nextClasses.Add(GroupClass(
+                        classGroup,
+                        sessions.GetValueOrDefault((classGroup.Id, date)),
+                        date,
+                        instructorNames,
+                        notifiedAbsences.Contains(new NotifiedAbsence(student.Id, classGroup.Id, date))));
                 }
             }
 
@@ -100,7 +108,9 @@ public sealed class GetFamilyHomeUseCase(
                     instructorNames.GetValueOrDefault(lesson.InstructorId),
                     lesson.Location,
                     IsPrivateLesson: true,
-                    lesson.IsCancelled)));
+                    lesson.IsCancelled,
+                    ClassGroupId: null,
+                    AbsenceNotified: false)));
 
             studentResponses.Add(new FamilyStudentResponse(
                 student.Id,
@@ -132,7 +142,8 @@ public sealed class GetFamilyHomeUseCase(
         ClassGroup classGroup,
         Domain.Sessions.ClassSession? session,
         DateOnly date,
-        IReadOnlyDictionary<Guid, string> instructorNames)
+        IReadOnlyDictionary<Guid, string> instructorNames,
+        bool absenceNotified)
     {
         var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
         var instructorId = session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId;
@@ -144,7 +155,9 @@ public sealed class GetFamilyHomeUseCase(
             instructorNames.GetValueOrDefault(instructorId),
             classGroup.Location,
             IsPrivateLesson: false,
-            session?.IsCancelled ?? false);
+            session?.IsCancelled ?? false,
+            classGroup.Id,
+            absenceNotified);
     }
 
     private static FamilyAttendanceResponse Attendance(IReadOnlyCollection<AttendanceMark> marks, int attendedClasses, DateOnly today)

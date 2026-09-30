@@ -9,6 +9,8 @@ export interface FamilyNextClass {
   location: string | null;
   isPrivateLesson: boolean;
   isCancelled: boolean;
+  classGroupId: string | null;
+  absenceNotified: boolean;
 }
 
 export type WeekAttendance = "Attended" | "Missed" | "NoClasses";

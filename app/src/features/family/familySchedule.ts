@@ -30,6 +30,18 @@ function hasEnded(nextClass: FamilyNextClass, now: Date): boolean {
   );
 }
 
+export function hasStarted(nextClass: FamilyNextClass, now: Date = new Date()): boolean {
+  return (
+    nextClass.date < todayIsoDate(now) ||
+    (nextClass.date === todayIsoDate(now) &&
+      minutesOfDay(nextClass.startTime) <= minutesOfDayNow(now))
+  );
+}
+
+export function canNotifyAbsence(nextClass: FamilyNextClass, now: Date = new Date()): boolean {
+  return nextClass.classGroupId !== null && !nextClass.isCancelled && !hasStarted(nextClass, now);
+}
+
 export function nextClassOf(
   student: FamilyStudent,
   now: Date = new Date(),

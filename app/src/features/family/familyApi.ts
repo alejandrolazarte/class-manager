@@ -62,3 +62,33 @@ export function getFamilyNews(): Promise<FamilyNews> {
 export function markFamilyNewsSeen(): Promise<void> {
   return httpClient.put<void>(`${newsPath}/${seenSegment}`, {});
 }
+
+const studentsSegment = "students";
+const absencesSegment = "absences";
+
+function absencePath(studentId: string, classGroupId: string, sessionDate: string): string {
+  return [
+    familyPath,
+    studentsSegment,
+    encodeURIComponent(studentId),
+    absencesSegment,
+    encodeURIComponent(classGroupId),
+    sessionDate,
+  ].join("/");
+}
+
+export function notifyAbsence(
+  studentId: string,
+  classGroupId: string,
+  sessionDate: string,
+): Promise<void> {
+  return httpClient.put<void>(absencePath(studentId, classGroupId, sessionDate), {});
+}
+
+export function withdrawAbsence(
+  studentId: string,
+  classGroupId: string,
+  sessionDate: string,
+): Promise<void> {
+  return httpClient.delete<void>(absencePath(studentId, classGroupId, sessionDate));
+}

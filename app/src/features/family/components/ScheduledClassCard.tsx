@@ -1,37 +1,60 @@
 import { View } from "react-native";
-import { classDetails } from "@/features/family/familySchedule";
+import { canNotifyAbsence, classDetails } from "@/features/family/familySchedule";
 import { FamilyNextClass } from "@/features/family/types";
+import { useAbsenceNotice } from "@/features/family/useAbsenceNotice";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
-import { StatusPill } from "@/ui/StatusPill";
+import { StatusPill, StatusTone } from "@/ui/StatusPill";
 
 interface ScheduledClassCardProps {
+  studentId: string;
   scheduledClass: FamilyNextClass;
   isToday: boolean;
 }
 
-export function ScheduledClassCard({ scheduledClass, isToday }: ScheduledClassCardProps) {
-  const { isCancelled } = scheduledClass;
+function statusOf(scheduledClass: FamilyNextClass, isToday: boolean): [string, StatusTone] {
+  if (scheduledClass.isCancelled) {
+    return [translate("family.student.cancelled"), "danger"];
+  }
+  if (scheduledClass.absenceNotified) {
+    return [translate("family.absence.status"), "danger"];
+  }
+  return [translate(isToday ? "family.day.today" : "family.schedule.upcoming"), "primary"];
+}
+
+export function ScheduledClassCard({
+  studentId,
+  scheduledClass,
+  isToday,
+}: ScheduledClassCardProps) {
+  const { toggleAbsence, isPending } = useAbsenceNotice();
+  const { isCancelled, absenceNotified } = scheduledClass;
+  const [statusLabel, statusTone] = statusOf(scheduledClass, isToday);
+  const isDimmed = isCancelled || absenceNotified;
   return (
-    <Card className={`flex-row items-center gap-3 px-4 py-3.5 ${isCancelled ? "opacity-70" : ""}`}>
-      <View className={`w-1 self-stretch rounded-sm ${isCancelled ? "bg-danger" : "bg-primary"}`} />
-      <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="title">{`${scheduledClass.startTime}–${scheduledClass.endTime}`}</AppText>
-        <AppText variant="body" tone="muted">
-          {classDetails(scheduledClass)}
-        </AppText>
+    <Card className={`gap-3 px-4 py-3.5 ${isDimmed ? "opacity-80" : ""}`}>
+      <View className="flex-row items-center gap-3">
+        <View className={`w-1 self-stretch rounded-sm ${isDimmed ? "bg-danger" : "bg-primary"}`} />
+        <View className="min-w-0 flex-1 gap-0.5">
+          <AppText variant="title">{`${scheduledClass.startTime}–${scheduledClass.endTime}`}</AppText>
+          <AppText variant="body" tone="muted">
+            {classDetails(scheduledClass)}
+          </AppText>
+        </View>
+        <StatusPill label={statusLabel} tone={statusTone} />
       </View>
-      <StatusPill
-        label={translate(
-          isCancelled
-            ? "family.student.cancelled"
-            : isToday
-              ? "family.day.today"
-              : "family.schedule.upcoming",
-        )}
-        tone={isCancelled ? "danger" : "primary"}
-      />
+      {canNotifyAbsence(scheduledClass) ? (
+        <Button
+          size="medium"
+          variant="secondary"
+          icon={absenceNotified ? "refund" : "cancelled"}
+          label={translate(absenceNotified ? "family.absence.going" : "family.absence.notify")}
+          isLoading={isPending}
+          onPress={() => toggleAbsence(studentId, scheduledClass)}
+        />
+      ) : null}
     </Card>
   );
 }

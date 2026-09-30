@@ -17,7 +17,7 @@ public interface IAttendanceRepository
     Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(
-        IReadOnlyCollection<Guid> studentIds, DateOnly firstDate, CancellationToken cancellationToken);
+        IReadOnlyCollection<Guid> studentIds, DateOnly firstDate, DateOnly today, CancellationToken cancellationToken);
 
     Task<IReadOnlyDictionary<Guid, int>> CountAttendedClassesByStudentsAsync(
         IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);

@@ -13,7 +13,10 @@ import { Avatar, AvatarTone } from "@/ui/Avatar";
 import { useElevationStyle } from "@/ui/elevation";
 import { Icon, IconName } from "@/ui/Icon";
 
-type AttendanceRowStudent = Omit<SessionStudent, "feedback"> & { feedback?: string | null };
+type AttendanceRowStudent = Omit<SessionStudent, "feedback" | "absenceNotified"> & {
+  feedback?: string | null;
+  absenceNotified?: boolean;
+};
 
 interface AttendanceRowProps {
   student: AttendanceRowStudent;
@@ -158,6 +161,11 @@ export function AttendanceRow({
                 ? statusLabel
                 : translate("students.list.responsible", { name: student.clientFullName })}
             </AppText>
+            {student.absenceNotified ? (
+              <AppText variant="caption" tone="warning" className="font-label">
+                {translate("sessions.attendance.absenceNotified")}
+              </AppText>
+            ) : null}
             {onOpenFeedback === undefined ? null : (
               <Pressable
                 accessibilityRole="button"

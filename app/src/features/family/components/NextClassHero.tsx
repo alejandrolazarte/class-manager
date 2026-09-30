@@ -1,11 +1,13 @@
 import { Pressable, View } from "react-native";
 import {
+  canNotifyAbsence,
   classDetails,
   countdownLabel,
   nextClassOf,
   relativeDayLabel,
 } from "@/features/family/familySchedule";
 import { FamilyStudent } from "@/features/family/types";
+import { useAbsenceNotice } from "@/features/family/useAbsenceNotice";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Card } from "@/ui/Card";
@@ -19,6 +21,7 @@ interface NextClassHeroProps {
 
 export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
   const floatingStyle = useElevationStyle("floating");
+  const { toggleAbsence, isPending } = useAbsenceNotice();
   const nextClass = nextClassOf(student);
   if (nextClass === null) {
     return (
@@ -32,7 +35,9 @@ export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
       </Card>
     );
   }
-  const countdown = countdownLabel(nextClass);
+  const countdown = nextClass.absenceNotified
+    ? translate("family.absence.notified")
+    : countdownLabel(nextClass);
   return (
     <View style={floatingStyle} className="gap-3.5 rounded-3xl bg-primary p-[18px]">
       <View className="flex-row items-center justify-between gap-2">
@@ -55,16 +60,42 @@ export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
           {classDetails(nextClass)}
         </AppText>
       </View>
-      <Pressable
-        accessibilityRole="button"
-        onPress={onSeeWeek}
-        className="h-11 flex-row items-center justify-center gap-1.5 rounded-[14px] bg-surface active:opacity-80"
-      >
-        <Icon name="classes" size="medium" tone="primary-strong" />
-        <AppText variant="bodyStrong" tone="primary">
-          {translate("family.nextClass.seeWeek")}
-        </AppText>
-      </Pressable>
+      <View className="flex-row gap-2">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={translate("family.nextClass.seeWeek")}
+          onPress={onSeeWeek}
+          className="h-11 flex-1 flex-row items-center justify-center gap-1.5 rounded-[14px] bg-surface active:opacity-80"
+        >
+          <Icon name="classes" size="medium" tone="primary-strong" />
+          <AppText variant="bodyStrong" tone="primary">
+            {translate("family.nextClass.seeWeek")}
+          </AppText>
+        </Pressable>
+        {canNotifyAbsence(nextClass) ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={translate(
+              nextClass.absenceNotified ? "family.absence.undo" : "family.absence.notGoing",
+            )}
+            accessibilityState={{ busy: isPending }}
+            disabled={isPending}
+            onPress={() => toggleAbsence(student.id, nextClass)}
+            className="h-11 flex-1 flex-row items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] border-primary-foreground/50 active:opacity-80"
+          >
+            <Icon
+              name={nextClass.absenceNotified ? "refund" : "cancelled"}
+              size="medium"
+              tone="primary-foreground"
+            />
+            <AppText variant="bodyStrong" tone="onPrimary">
+              {translate(
+                nextClass.absenceNotified ? "family.absence.undo" : "family.absence.notGoing",
+              )}
+            </AppText>
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
