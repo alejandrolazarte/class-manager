@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { e2eEnvironment } from "../support/environment";
 import { SmtpSink } from "../support/smtpSink";
 import { demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
-import { demoFamilyPassword, seedDemoFamily } from "./demoFamily";
+import { demoFamilyPassword, seedDemoFamily, weekEndOf } from "./demoFamily";
 
 const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
 const settleMilliseconds = 800;
@@ -24,10 +24,22 @@ test.afterAll(async () => {
   await smtpSink.stop();
 });
 
-function weekEndOf(isoDate: string): string {
-  const date = new Date(`${isoDate}T12:00:00Z`);
-  const daysToSunday = (7 - date.getUTCDay()) % 7;
-  return new Date(date.getTime() + daysToSunday * 86_400_000).toISOString().slice(0, 10);
+const shortWeekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+async function openClassesDay(page: Page, isoDate: string, today: string): Promise<void> {
+  await page.goto("/family/classes");
+  await page.getByText("Hoy,", { exact: false }).first().waitFor();
+  if (isoDate > weekEndOf(today)) {
+    await page.getByRole("button", { name: "Semana siguiente" }).click();
+  }
+  await page.getByRole("button", { name: "Tomás" }).click();
+  const day = new Date(`${isoDate}T12:00:00Z`);
+  await page
+    .getByRole("button", {
+      name: `${shortWeekdays[day.getUTCDay()]} ${day.getUTCDate()}`,
+      exact: true,
+    })
+    .click();
 }
 
 async function capture(page: Page, fileName: string): Promise<void> {
@@ -66,20 +78,16 @@ test("Family screens", async ({ page, request }) => {
   await page.getByText("Hoy,", { exact: false }).first().waitFor();
   await capture(page, "22-familia-clases");
 
-  const absenceDay = new Date(`${family.absenceDate}T12:00:00Z`);
-  const shortWeekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-  if (family.absenceDate > weekEndOf(demo.today)) {
-    await page.getByRole("button", { name: "Semana siguiente" }).click();
-  }
-  await page.getByRole("button", { name: "Tomás" }).click();
-  await page
-    .getByRole("button", {
-      name: `${shortWeekdays[absenceDay.getUTCDay()]} ${absenceDay.getUTCDate()}`,
-      exact: true,
-    })
-    .click();
+  await openClassesDay(page, family.absenceDate, demo.today);
   await page.getByText("No va", { exact: true }).first().waitFor();
   await capture(page, "22b-familia-clases-no-voy");
+
+  await openClassesDay(page, family.makeupDate, demo.today);
+  await page.getByText("Recuperación", { exact: true }).first().waitFor();
+  await capture(page, "22c-familia-clase-de-recuperacion");
+  await scrollToBottom(page);
+  await page.getByText("Recuperar clases").first().waitFor();
+  await capture(page, "22d-familia-recuperar-clases");
 
   await page.goto("/family/shop");
   await page.getByText("Productos").first().waitFor();

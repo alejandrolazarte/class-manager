@@ -24,6 +24,7 @@ public sealed class GetFamilyHomeUseCase(
     IAttendanceRepository attendanceRepository,
     IClassFeedbackRepository feedbackRepository,
     IAbsenceNoticeRepository absenceNoticeRepository,
+    IMakeupBookingRepository makeupBookingRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
     IFeeScheduleRepository feeScheduleRepository,
@@ -66,6 +67,8 @@ public sealed class GetFamilyHomeUseCase(
         var attendedClasses = await attendanceRepository.CountAttendedClassesByStudentsAsync(studentIds, cancellationToken);
         var notifiedAbsences = (await absenceNoticeRepository.ListByStudentsBetweenAsync(studentIds, today, lastDate, cancellationToken))
             .ToHashSet();
+        var bookedMakeups = (await makeupBookingRepository.ListByStudentsBetweenAsync(studentIds, today, lastDate, cancellationToken))
+            .ToLookup(booking => booking.StudentId);
         var latestFeedbacks = (await feedbackRepository.ListLatestByStudentsAsync(studentIds, cancellationToken))
             .ToDictionary(feedback => feedback.StudentId);
 
@@ -94,7 +97,23 @@ public sealed class GetFamilyHomeUseCase(
                         sessions.GetValueOrDefault((classGroup.Id, date)),
                         date,
                         instructorNames,
-                        notifiedAbsences.Contains(new NotifiedAbsence(student.Id, classGroup.Id, date))));
+                        notifiedAbsences.Contains(new NotifiedAbsence(student.Id, classGroup.Id, date)),
+                        isMakeup: false));
+                }
+            }
+
+            foreach (var booking in bookedMakeups[student.Id])
+            {
+                var classGroup = await classGroupRepository.GetByIdAsync(booking.ClassGroupId, cancellationToken);
+                if (classGroup is not null)
+                {
+                    nextClasses.Add(GroupClass(
+                        classGroup,
+                        sessions.GetValueOrDefault((classGroup.Id, booking.Date)),
+                        booking.Date,
+                        instructorNames,
+                        absenceNotified: false,
+                        isMakeup: true));
                 }
             }
 
@@ -110,7 +129,8 @@ public sealed class GetFamilyHomeUseCase(
                     IsPrivateLesson: true,
                     lesson.IsCancelled,
                     ClassGroupId: null,
-                    AbsenceNotified: false)));
+                    AbsenceNotified: false,
+                    IsMakeup: false)));
 
             studentResponses.Add(new FamilyStudentResponse(
                 student.Id,
@@ -143,7 +163,8 @@ public sealed class GetFamilyHomeUseCase(
         Domain.Sessions.ClassSession? session,
         DateOnly date,
         IReadOnlyDictionary<Guid, string> instructorNames,
-        bool absenceNotified)
+        bool absenceNotified,
+        bool isMakeup)
     {
         var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
         var instructorId = session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId;
@@ -157,7 +178,8 @@ public sealed class GetFamilyHomeUseCase(
             IsPrivateLesson: false,
             session?.IsCancelled ?? false,
             classGroup.Id,
-            absenceNotified);
+            absenceNotified,
+            isMakeup);
     }
 
     private static FamilyAttendanceResponse Attendance(IReadOnlyCollection<AttendanceMark> marks, int attendedClasses, DateOnly today)

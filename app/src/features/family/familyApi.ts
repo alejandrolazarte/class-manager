@@ -2,6 +2,7 @@ import { httpClient } from "@/api/httpClient";
 import {
   FamilyHome,
   FamilyInvitation,
+  FamilyMakeups,
   FamilyNews,
   FamilyDelivery,
   FamilyOrder,
@@ -91,4 +92,34 @@ export function withdrawAbsence(
   sessionDate: string,
 ): Promise<void> {
   return httpClient.delete<void>(absencePath(studentId, classGroupId, sessionDate));
+}
+
+const makeupsSegment = "makeups";
+
+function makeupsPath(studentId: string): string {
+  return [familyPath, studentsSegment, encodeURIComponent(studentId), makeupsSegment].join("/");
+}
+
+function makeupPath(studentId: string, classGroupId: string, sessionDate: string): string {
+  return [makeupsPath(studentId), encodeURIComponent(classGroupId), sessionDate].join("/");
+}
+
+export function getFamilyMakeups(studentId: string): Promise<FamilyMakeups> {
+  return httpClient.get<FamilyMakeups>(makeupsPath(studentId));
+}
+
+export function bookMakeup(
+  studentId: string,
+  classGroupId: string,
+  sessionDate: string,
+): Promise<void> {
+  return httpClient.put<void>(makeupPath(studentId, classGroupId, sessionDate), {});
+}
+
+export function cancelMakeup(
+  studentId: string,
+  classGroupId: string,
+  sessionDate: string,
+): Promise<void> {
+  return httpClient.delete<void>(makeupPath(studentId, classGroupId, sessionDate));
 }

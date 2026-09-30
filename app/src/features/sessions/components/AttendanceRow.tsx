@@ -13,9 +13,10 @@ import { Avatar, AvatarTone } from "@/ui/Avatar";
 import { useElevationStyle } from "@/ui/elevation";
 import { Icon, IconName } from "@/ui/Icon";
 
-type AttendanceRowStudent = Omit<SessionStudent, "feedback" | "absenceNotified"> & {
+type AttendanceRowStudent = Omit<SessionStudent, "feedback" | "absenceNotified" | "isMakeup"> & {
   feedback?: string | null;
   absenceNotified?: boolean;
+  isMakeup?: boolean;
 };
 
 interface AttendanceRowProps {
@@ -164,6 +165,11 @@ export function AttendanceRow({
             {student.absenceNotified ? (
               <AppText variant="caption" tone="warning" className="font-label">
                 {translate("sessions.attendance.absenceNotified")}
+              </AppText>
+            ) : null}
+            {student.isMakeup ? (
+              <AppText variant="caption" tone="primary" className="font-label">
+                {translate("sessions.attendance.makeup")}
               </AppText>
             ) : null}
             {onOpenFeedback === undefined ? null : (

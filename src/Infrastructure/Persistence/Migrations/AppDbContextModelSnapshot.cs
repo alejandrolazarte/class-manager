@@ -1262,6 +1262,37 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("ClassSessions");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Sessions.MakeupBooking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClassSessionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassSessionId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TenantId", "StudentId");
+
+                    b.HasIndex("TenantId", "ClassSessionId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("MakeupBookings");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Students.Student", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1747,6 +1778,27 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("SubstituteInstructorId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Sessions.MakeupBooking", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Sessions.ClassSession", null)
+                        .WithMany()
+                        .HasForeignKey("ClassSessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()

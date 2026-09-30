@@ -79,6 +79,8 @@ The family signs in through the sign-in screen, then the test captures:
 | `21b-familia-novedades` | News: announcements, ready order, coach comments and the cancelled class, grouped by day |
 | `22-familia-clases` | Week of classes for the selected student |
 | `22b-familia-clases-no-voy` | A class the family said the student won't attend, with "Voy a ir igual" |
+| `22c-familia-clase-de-recuperacion` | A booked makeup class in the family schedule |
+| `22d-familia-recuperar-clases` | Classes to make up, with open slots to book |
 | `23-familia-tienda`, `23b-familia-tienda-productos` | Shop: search, categories, packs and product grid |
 | `24-familia-producto` | Product sheet with sizes, a sold-out size and quantity |
 | `25-familia-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |

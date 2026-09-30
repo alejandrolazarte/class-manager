@@ -47,4 +47,6 @@ public sealed class Enrollment : ITenantOwned
     }
 
     public bool IsCurrentOn(DateOnly date) => EndDate is null || EndDate >= date;
+
+    public bool IsActiveOn(DateOnly date) => StartDate <= date && IsCurrentOn(date);
 }

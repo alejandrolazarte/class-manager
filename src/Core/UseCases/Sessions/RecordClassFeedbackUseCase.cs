@@ -14,6 +14,7 @@ public sealed record RecordClassFeedbackCommand(Guid ClassGroupId, DateOnly Date
 public sealed class RecordClassFeedbackUseCase(
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
+    IMakeupBookingRepository makeupBookingRepository,
     IClassSessionRepository sessionRepository,
     IClassFeedbackRepository feedbackRepository,
     IUnitOfWork unitOfWork,
@@ -47,8 +48,8 @@ public sealed class RecordClassFeedbackUseCase(
             return Result.Validation<bool>(InFutureMessage, SessionErrorCodes.InFuture, nameof(RecordClassFeedbackCommand.Date));
         }
 
-        var roster = await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
-        if (roster.All(entry => entry.StudentId != command.StudentId))
+        if (!await SessionRules.IsInClassAsync(
+            enrollmentRepository, makeupBookingRepository, command.ClassGroupId, command.Date, session, command.StudentId, cancellationToken))
         {
             return Result.Validation<bool>(
                 StudentNotEnrolledMessage, SessionErrorCodes.StudentNotEnrolled, nameof(RecordClassFeedbackCommand.StudentId));

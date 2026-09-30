@@ -31,6 +31,7 @@ export interface SessionStudent {
   status: AttendanceStatus | null;
   feedback: string | null;
   absenceNotified: boolean;
+  isMakeup: boolean;
 }
 
 export interface SessionDetails {

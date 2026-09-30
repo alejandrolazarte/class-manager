@@ -13,7 +13,8 @@ public sealed record FamilyNextClassResponse(
     bool IsPrivateLesson,
     bool IsCancelled,
     Guid? ClassGroupId,
-    bool AbsenceNotified);
+    bool AbsenceNotified,
+    bool IsMakeup);
 
 public sealed record FamilyAttendanceResponse(
     int StreakWeeks,

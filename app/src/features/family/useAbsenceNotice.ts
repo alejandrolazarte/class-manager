@@ -1,12 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isApiError } from "@/api/httpClient";
 import { notifyAbsence, withdrawAbsence } from "@/features/family/familyApi";
+import { familyErrorCodes } from "@/features/family/familyErrorCodes";
 import { familyQueryKeys } from "@/features/family/familyQueryKeys";
 import { FamilyNextClass } from "@/features/family/types";
-import { translate } from "@/i18n/translate";
+import { translate, TranslationKey } from "@/i18n/translate";
 import { useToast } from "@/ui/ToastProvider";
 
-const classStartedCode = "absence.class_started";
+function errorMessageOf(error: unknown): TranslationKey {
+  if (isApiError(error) && error.hasCode(familyErrorCodes.classStarted)) {
+    return "family.absence.tooLate";
+  }
+  return isApiError(error) && error.hasCode(familyErrorCodes.makeupCreditInUse)
+    ? "family.absence.usedForMakeup"
+    : "common.unexpectedError";
+}
 
 interface AbsenceVariables {
   studentId: string;
@@ -31,14 +39,7 @@ export function useAbsenceNotice() {
       );
       return queryClient.invalidateQueries({ queryKey: familyQueryKeys.all });
     },
-    onError: (error) =>
-      showToast(
-        translate(
-          isApiError(error) && error.hasCode(classStartedCode)
-            ? "family.absence.tooLate"
-            : "common.unexpectedError",
-        ),
-      ),
+    onError: (error) => showToast(translate(errorMessageOf(error))),
   });
   return {
     toggleAbsence: (studentId: string, nextClass: FamilyNextClass) =>

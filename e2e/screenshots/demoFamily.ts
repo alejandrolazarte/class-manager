@@ -101,6 +101,19 @@ const productSeeds: ProductSeed[] = [
 export interface DemoFamily {
   email: string;
   absenceDate: string;
+  makeupDate: string;
+}
+
+interface MakeupSlot {
+  classGroupId: string;
+  date: string;
+  spotsLeft: number;
+}
+
+export function weekEndOf(isoDate: string): string {
+  const date = new Date(`${isoDate}T12:00:00Z`);
+  const daysToSunday = (daysPerWeek - date.getUTCDay()) % daysPerWeek;
+  return isoDateOf(new Date(date.getTime() + daysToSunday * millisecondsPerDay));
 }
 
 function nextClassDateAfter(today: string, skippedDate: string): string {
@@ -302,5 +315,21 @@ export async function seedDemoFamily(
     {},
   );
 
-  return { email, absenceDate };
+  const { slots } = await send<{ slots: MakeupSlot[] }>(
+    "GET",
+    `/api/family/students/${tomas.id}/makeups`,
+    familyToken,
+  );
+  const openSlots = slots.filter((slot) => slot.spotsLeft > 0);
+  const makeupSlot =
+    openSlots.find((slot) => slot.date > demo.today && slot.date <= weekEndOf(demo.today)) ??
+    openSlots[0]!;
+  await send(
+    "PUT",
+    `/api/family/students/${tomas.id}/makeups/${makeupSlot.classGroupId}/${makeupSlot.date}`,
+    familyToken,
+    {},
+  );
+
+  return { email, absenceDate, makeupDate: makeupSlot.date };
 }
