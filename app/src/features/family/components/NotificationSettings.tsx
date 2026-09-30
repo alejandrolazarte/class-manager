@@ -2,6 +2,7 @@ import { View } from "react-native";
 import { useFamilyNotifications } from "@/features/family/push/useFamilyNotifications";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
@@ -11,7 +12,7 @@ export function NotificationSettings() {
     return null;
   }
   return (
-    <View className="gap-2">
+    <Card className="gap-2 p-4" testID="notification-settings">
       <View className="flex-row items-center gap-2">
         <Icon name="notifications" tone="primary" />
         <AppText variant="bodyStrong">{translate("family.notifications.title")}</AppText>
@@ -32,6 +33,6 @@ export function NotificationSettings() {
               : "family.notifications.unsupported",
         )}
       </AppText>
-    </View>
+    </Card>
   );
 }
