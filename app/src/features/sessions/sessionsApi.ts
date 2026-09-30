@@ -11,6 +11,7 @@ const calendarSegment = "calendar";
 const classGroupsPath = "/api/class-groups";
 const sessionsSegment = "sessions";
 const attendanceSegment = "attendance";
+const feedbackSegment = "feedback";
 const cancellationSegment = "cancellation";
 const scheduleSegment = "schedule";
 const substituteSegment = "substitute";
@@ -40,6 +41,18 @@ export function recordAttendance(
   return httpClient.put<void>(
     `${sessionPath(classGroupId, sessionDate)}/${attendanceSegment}/${encodeURIComponent(studentId)}`,
     { status },
+  );
+}
+
+export function recordFeedback(
+  classGroupId: string,
+  sessionDate: string,
+  studentId: string,
+  text: string | null,
+): Promise<void> {
+  return httpClient.put<void>(
+    `${sessionPath(classGroupId, sessionDate)}/${feedbackSegment}/${encodeURIComponent(studentId)}`,
+    { text },
   );
 }
 

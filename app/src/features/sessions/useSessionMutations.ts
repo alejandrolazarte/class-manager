@@ -4,6 +4,7 @@ import {
   assignSubstitute,
   cancelSession,
   recordAttendance,
+  recordFeedback,
   removeSubstitute,
   rescheduleSession,
   restoreSession,
@@ -14,6 +15,32 @@ import { AttendanceStatus, SessionDetails } from "@/features/sessions/types";
 interface RecordAttendanceVariables {
   studentId: string;
   status: AttendanceStatus | null;
+}
+
+interface RecordFeedbackVariables {
+  studentId: string;
+  text: string | null;
+}
+
+export function useRecordFeedback(classGroupId: string, sessionDate: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ studentId, text }: RecordFeedbackVariables) =>
+      recordFeedback(classGroupId, sessionDate, studentId, text),
+    onSuccess: (_, { studentId, text }) =>
+      queryClient.setQueryData<SessionDetails>(
+        sessionQueryKeys.session(classGroupId, sessionDate),
+        (session) =>
+          session && {
+            ...session,
+            students: session.students.map((student) =>
+              student.studentId === studentId
+                ? { ...student, feedback: text?.trim() ? text.trim() : null }
+                : student,
+            ),
+          },
+      ),
+  });
 }
 
 export function useRecordAttendance(classGroupId: string, sessionDate: string) {

@@ -16,7 +16,8 @@ public sealed record SessionStudentResponse(
     string StudentFullName,
     string ClientFullName,
     DateOnly? BirthDate,
-    AttendanceStatus? Status);
+    AttendanceStatus? Status,
+    string? Feedback);
 
 public sealed record SessionDetailsResponse(
     Guid ClassGroupId,
@@ -40,6 +41,7 @@ public sealed class GetSessionUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
+    IClassFeedbackRepository feedbackRepository,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes)
     : IUseCase<GetSessionQuery, SessionDetailsResponse>
@@ -68,6 +70,10 @@ public sealed class GetSessionUseCase(
             ? new Dictionary<Guid, AttendanceStatus>()
             : (await attendanceRepository.ListBySessionAsync(session.Id, cancellationToken))
                 .ToDictionary(attendance => attendance.StudentId, attendance => attendance.Status);
+        var feedbacks = session is null
+            ? new Dictionary<Guid, string>()
+            : (await feedbackRepository.ListBySessionAsync(session.Id, cancellationToken))
+                .ToDictionary(feedback => feedback.StudentId, feedback => feedback.Text);
         var roster = await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var isCancelled = session?.IsCancelled ?? false;
@@ -94,7 +100,8 @@ public sealed class GetSessionUseCase(
                     entry.StudentFullName,
                     entry.ClientFullName,
                     entry.BirthDate,
-                    statuses.TryGetValue(entry.StudentId, out var status) ? status : null)),
+                    statuses.TryGetValue(entry.StudentId, out var status) ? status : null,
+                    feedbacks.GetValueOrDefault(entry.StudentId))),
             ]);
     }
 

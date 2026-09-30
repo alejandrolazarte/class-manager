@@ -99,6 +99,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<DeletePrivateLessonCommand, DeletedPrivateLessonResponse>, DeletePrivateLessonUseCase>();
         services.AddScoped<IUseCase<GetSessionQuery, SessionDetailsResponse>, GetSessionUseCase>();
         services.AddScoped<IUseCase<RecordAttendanceCommand, RecordAttendanceResponse>, RecordAttendanceUseCase>();
+        services.AddScoped<IUseCase<RecordClassFeedbackCommand, bool>, RecordClassFeedbackUseCase>();
         services.AddScoped<IUseCase<CancelSessionCommand, SessionStatusResponse>, CancelSessionUseCase>();
         services.AddScoped<IUseCase<RestoreSessionCommand, SessionStatusResponse>, RestoreSessionUseCase>();
         services.AddScoped<IUseCase<RescheduleSessionCommand, SessionStatusResponse>, RescheduleSessionUseCase>();

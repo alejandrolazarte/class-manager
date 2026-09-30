@@ -49,6 +49,7 @@ export function buildFamilyStudent(overrides: Partial<FamilyStudent> = {}): Fami
     fullName: "Tomás Pérez",
     nextClasses: [buildFamilyNextClass()],
     attendance: buildFamilyAttendance(),
+    latestFeedback: null,
     ...overrides,
   };
 }

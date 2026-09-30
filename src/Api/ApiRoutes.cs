@@ -26,6 +26,8 @@ public static class ApiRoutes
     public const string SessionByDate = "/{sessionDate}";
     public const string Attendance = "/attendance";
     public const string AttendanceByStudent = "/attendance/{studentId:guid}";
+    public const string Feedback = "/feedback";
+    public const string FeedbackByStudent = "/feedback/{studentId:guid}";
     public const string Cancellation = "/cancellation";
     public const string Schedule = "/schedule";
     public const string Substitute = "/substitute";

@@ -69,6 +69,7 @@ const iconGlyphs = {
   noClasses: "event-available",
   photo: "image",
   streak: "local-fire-department",
+  comment: "chat-bubble-outline",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {

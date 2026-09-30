@@ -22,6 +22,7 @@ public sealed class GetFamilyHomeUseCase(
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
+    IClassFeedbackRepository feedbackRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
     IFeeScheduleRepository feeScheduleRepository,
@@ -62,6 +63,8 @@ public sealed class GetFamilyHomeUseCase(
                 studentIds, AttendanceStreaks.FirstDayToLoad(today), cancellationToken))
             .ToLookup(studentMark => studentMark.StudentId, studentMark => studentMark.Mark);
         var attendedClasses = await attendanceRepository.CountAttendedClassesByStudentsAsync(studentIds, cancellationToken);
+        var latestFeedbacks = (await feedbackRepository.ListLatestByStudentsAsync(studentIds, cancellationToken))
+            .ToDictionary(feedback => feedback.StudentId);
 
         var studentResponses = new List<FamilyStudentResponse>();
         foreach (var student in students.OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase))
@@ -108,7 +111,10 @@ public sealed class GetFamilyHomeUseCase(
                         .ThenBy(nextClass => nextClass.StartTime, StringComparer.Ordinal)
                         .Take(NextClassLimit),
                 ],
-                Attendance(attendanceMarks[student.Id].ToList(), attendedClasses.GetValueOrDefault(student.Id), today)));
+                Attendance(attendanceMarks[student.Id].ToList(), attendedClasses.GetValueOrDefault(student.Id), today),
+                latestFeedbacks.TryGetValue(student.Id, out var feedback)
+                    ? new FamilyFeedbackResponse(feedback.Date, feedback.ClassGroupName, instructorNames.GetValueOrDefault(feedback.InstructorId), feedback.Text)
+                    : null));
         }
 
         return new FamilyHomeResponse(

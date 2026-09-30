@@ -36,6 +36,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 |---|---|
 | `01-hoy` | Today's classes with present counts |
 | `02-asistencia` | Attendance of Natación inicial |
+| `02b-comentario-del-profe` | Comment sheet a coach fills in for a student after class |
 | `03-clases-semana` | Weekly classes |
 | `04-clase-alumnos` | Class roster |
 | `05-clase-editar` | Class form |
@@ -62,13 +63,14 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - Five shop products: a T-shirt with sizes and one size sold out, a cap and a bottle with unlimited stock, a hoodie made to order, and a sold-out towel.
 - An app invitation for the Pérez family, accepted through the API. The invitation link only travels by email, so the test starts a small SMTP sink (`e2e/support/smtpSink.ts`) and the screenshots config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
 - Attendance in Natación inicial for every past class of the month: Lucía never misses, Tomás missed the class two weeks ago, so each shows a different streak.
+- A comment from the coach for each student: Lucía's on her last past class, Tomás's on today's class.
 - Three family orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
 
 The family signs in through the sign-in screen, then the test captures:
 
 | File | Screen |
 |---|---|
-| `20-familia-inicio` | Home: next class, monthly fee and shop preview |
+| `20-familia-inicio` | Home: next class, streak, monthly fee, coach comment and shop preview |
 | `21-familia-inicio-otro-alumno` | Home after picking the other student |
 | `22-familia-clases` | Week of classes for the selected student |
 | `23-familia-tienda`, `23b-familia-tienda-productos` | Shop: search, categories, packs and product grid |
