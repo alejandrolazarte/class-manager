@@ -29,6 +29,7 @@ export interface SessionStudent {
   clientFullName: string;
   birthDate: string | null;
   status: AttendanceStatus | null;
+  feedback: string | null;
 }
 
 export interface SessionDetails {

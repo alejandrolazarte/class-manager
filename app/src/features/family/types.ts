@@ -25,11 +25,19 @@ export interface FamilyAttendance {
   recentWeeks: FamilyAttendanceWeek[];
 }
 
+export interface FamilyFeedback {
+  date: string;
+  className: string;
+  instructorFullName: string | null;
+  text: string;
+}
+
 export interface FamilyStudent {
   id: string;
   fullName: string;
   nextClasses: FamilyNextClass[];
   attendance: FamilyAttendance;
+  latestFeedback: FamilyFeedback | null;
 }
 
 export interface FamilyMonthlyFee {

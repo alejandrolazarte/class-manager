@@ -4,6 +4,7 @@ import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
+import { FeedbackSheet } from "@/features/sessions/components/FeedbackSheet";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
 import { ClassDeliveriesCard } from "@/features/orders/components/ClassDeliveriesCard";
 import { SubstitutePanel } from "@/features/sessions/components/SubstitutePanel";
@@ -12,6 +13,7 @@ import { AttendanceStatus } from "@/features/sessions/types";
 import { useSessionDetails } from "@/features/sessions/useSessionDetails";
 import {
   useRecordAttendance,
+  useRecordFeedback,
   useRemoveSubstitute,
   useRestoreSession,
   useRestoreSessionSchedule,
@@ -76,6 +78,8 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const removeSubstituteMutation = useRemoveSubstitute(classGroupId, sessionDate);
   const [pendingStatuses, setPendingStatuses] = useState<PendingStatuses>({});
   const [hasSaveFailed, setHasSaveFailed] = useState(false);
+  const recordFeedbackMutation = useRecordFeedback(classGroupId, sessionDate);
+  const [feedbackStudentId, setFeedbackStudentId] = useState<string | null>(null);
 
   if (isPending) {
     return (
@@ -143,6 +147,22 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const removeSubstitute = async () => {
     await removeSubstituteMutation.mutateAsync();
     showToast(translate("sessions.substitute.removed"));
+  };
+
+  const feedbackStudent = session.students.find(
+    (student) => student.studentId === feedbackStudentId,
+  );
+  const saveFeedback = async (text: string | null) => {
+    if (feedbackStudent === undefined) {
+      return;
+    }
+    try {
+      await recordFeedbackMutation.mutateAsync({ studentId: feedbackStudent.studentId, text });
+      setFeedbackStudentId(null);
+      showToast(translate(text === null ? "sessions.feedback.removed" : "sessions.feedback.saved"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
   };
 
   return (
@@ -288,6 +308,11 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
               status={statusOf(student.studentId, student.status)}
               disabled={!canRecordAttendance || !session.canTakeAttendance}
               onChangeStatus={(status) => changeStatus(student.studentId, status)}
+              onOpenFeedback={
+                canRecordAttendance && session.canTakeAttendance
+                  ? () => setFeedbackStudentId(student.studentId)
+                  : undefined
+              }
             />
           ))}
         </View>
@@ -319,6 +344,15 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
             hasAttendance={presentCount + absentCount > 0}
           />
         </Card>
+      )}
+      {feedbackStudent === undefined ? null : (
+        <FeedbackSheet
+          key={feedbackStudent.studentId}
+          student={feedbackStudent}
+          isSaving={recordFeedbackMutation.isPending}
+          onClose={() => setFeedbackStudentId(null)}
+          onSave={saveFeedback}
+        />
       )}
     </ScrollScreen>
   );

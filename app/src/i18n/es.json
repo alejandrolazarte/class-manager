@@ -943,5 +943,19 @@
   "family.streak.weeks.one": "1 semana",
   "family.streak.weeks.other": "{count} semanas",
   "family.streak.since": "Sin faltar desde {month}",
-  "family.streak.start": "Venís esta semana y arrancás una racha"
+  "family.streak.start": "Venís esta semana y arrancás una racha",
+  "sessions.feedback.open": "Comentar",
+  "sessions.feedback.edit": "Ver comentario",
+  "sessions.feedback.openFor": "Comentario para {name}",
+  "sessions.feedback.title": "Comentario para {name}",
+  "sessions.feedback.hint": "La familia lo ve en la app.",
+  "sessions.feedback.label": "Qué tal le fue en la clase",
+  "sessions.feedback.placeholder": "Hoy mantuvo la postura en todo el circuito…",
+  "sessions.feedback.save": "Guardar comentario",
+  "sessions.feedback.remove": "Borrar comentario",
+  "sessions.feedback.saved": "Comentario guardado",
+  "sessions.feedback.removed": "Comentario borrado",
+  "family.feedback.title": "{instructor} dejó un comentario",
+  "family.feedback.titleWithoutInstructor": "Comentario de la clase",
+  "family.feedback.meta": "{date} · {className}"
 }

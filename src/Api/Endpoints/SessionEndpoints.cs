@@ -18,6 +18,8 @@ internal static class SessionEndpoints
         classGroups.MapGet(SessionRoute, GetSessionAsync).RequirePermission(Permissions.Sessions.ViewAll, Permissions.Sessions.ViewOwn);
         classGroups.MapPut(SessionRoute + ApiRoutes.AttendanceByStudent, RecordAttendanceAsync)
             .RequirePermission(Permissions.Attendance.RecordAll, Permissions.Attendance.RecordOwn);
+        classGroups.MapPut(SessionRoute + ApiRoutes.FeedbackByStudent, RecordClassFeedbackAsync)
+            .RequirePermission(Permissions.Attendance.RecordAll, Permissions.Attendance.RecordOwn);
         classGroups.MapPut(SessionRoute + ApiRoutes.Cancellation, CancelSessionAsync)
             .RequirePermission(Permissions.Sessions.Manage);
         classGroups.MapDelete(SessionRoute + ApiRoutes.Cancellation, RestoreSessionAsync)
@@ -74,6 +76,20 @@ internal static class SessionEndpoints
         CancellationToken cancellationToken)
     {
         var command = new RecordAttendanceCommand(classGroupId, sessionDate, studentId, request.Status);
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RecordClassFeedbackAsync(
+        Guid classGroupId,
+        DateOnly sessionDate,
+        Guid studentId,
+        RecordClassFeedbackRequest request,
+        IUseCase<RecordClassFeedbackCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var command = new RecordClassFeedbackCommand(classGroupId, sessionDate, studentId, request.Text);
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());

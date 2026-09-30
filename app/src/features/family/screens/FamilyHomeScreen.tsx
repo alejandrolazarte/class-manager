@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { View } from "react-native";
 import { BillingTile } from "@/features/family/components/BillingTile";
+import { FeedbackCard } from "@/features/family/components/FeedbackCard";
 import { NextClassHero } from "@/features/family/components/NextClassHero";
 import { ShopPreview } from "@/features/family/components/ShopPreview";
 import { StreakTile } from "@/features/family/components/StreakTile";
@@ -80,6 +81,7 @@ export function FamilyHomeScreen() {
           onBuyClasses={() => router.navigate(routes.familyShop)}
         />
       </View>
+      {student?.latestFeedback ? <FeedbackCard feedback={student.latestFeedback} /> : null}
       {shop === undefined ? null : (
         <ShopPreview
           shop={shop}

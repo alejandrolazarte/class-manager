@@ -13,12 +13,15 @@ import { Avatar, AvatarTone } from "@/ui/Avatar";
 import { useElevationStyle } from "@/ui/elevation";
 import { Icon, IconName } from "@/ui/Icon";
 
+type AttendanceRowStudent = Omit<SessionStudent, "feedback"> & { feedback?: string | null };
+
 interface AttendanceRowProps {
-  student: SessionStudent;
+  student: AttendanceRowStudent;
   status: AttendanceStatus | null;
   disabled: boolean;
   isSwipeEnabled?: boolean;
   onChangeStatus: (status: AttendanceStatus | null) => void;
+  onOpenFeedback?: () => void;
 }
 
 interface MarkButtonProps {
@@ -67,6 +70,7 @@ export function AttendanceRow({
   disabled,
   isSwipeEnabled = true,
   onChangeStatus,
+  onOpenFeedback,
 }: AttendanceRowProps) {
   const elevationStyle = useElevationStyle();
   const [horizontalOffset] = useState(() => new Animated.Value(0));
@@ -154,6 +158,24 @@ export function AttendanceRow({
                 ? statusLabel
                 : translate("students.list.responsible", { name: student.clientFullName })}
             </AppText>
+            {onOpenFeedback === undefined ? null : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={translate("sessions.feedback.openFor", {
+                  name: student.studentFullName,
+                })}
+                onPress={onOpenFeedback}
+                hitSlop={8}
+                className="flex-row items-center gap-1 self-start active:opacity-70"
+              >
+                <Icon name="comment" size="small" tone="primary" />
+                <AppText variant="link" tone="primary" numberOfLines={1} className="flex-shrink">
+                  {student.feedback
+                    ? translate("sessions.feedback.edit")
+                    : translate("sessions.feedback.open")}
+                </AppText>
+              </Pressable>
+            )}
           </View>
           <MarkButton
             icon="present"

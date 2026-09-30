@@ -19,11 +19,14 @@ public sealed record FamilyAttendanceResponse(
     int AttendedClasses,
     IReadOnlyList<AttendanceWeek> RecentWeeks);
 
+public sealed record FamilyFeedbackResponse(DateOnly Date, string ClassName, string? InstructorFullName, string Text);
+
 public sealed record FamilyStudentResponse(
     Guid Id,
     string FullName,
     IReadOnlyList<FamilyNextClassResponse> NextClasses,
-    FamilyAttendanceResponse Attendance);
+    FamilyAttendanceResponse Attendance,
+    FamilyFeedbackResponse? LatestFeedback);
 
 public sealed record FamilyMonthlyFeeResponse(string Month, decimal? Fee, decimal Paid, decimal Balance, FeeStatus Status);
 

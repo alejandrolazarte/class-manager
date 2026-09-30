@@ -153,6 +153,29 @@ export async function seedDemoFamily(
     }
   }
 
+  const lastPastClass = pastClassDates(`${demo.month}-01`, demo.today).at(-1) ?? demo.today;
+  const feedbackSeeds: [studentFullName: string, classDate: string, text: string][] = [
+    [
+      "Lucía Pérez",
+      lastPastClass,
+      "Hoy mantuvo la postura en todo el circuito. Próximo objetivo: coordinar brazos y respiración.",
+    ],
+    [
+      "Tomás Pérez",
+      demo.today,
+      "Muy buen ritmo en la serie larga. La semana que viene probamos la salida desde el borde.",
+    ],
+  ];
+  for (const [studentFullName, classDate, text] of feedbackSeeds) {
+    const student = family.students.find((candidate) => candidate.fullName === studentFullName)!;
+    await send(
+      "PUT",
+      `/api/class-groups/${demo.beginnersClassGroupId}/sessions/${classDate}/feedback/${student.id}`,
+      ownerToken,
+      { text },
+    );
+  }
+
   for (const seed of productSeeds) {
     const product = await send<CreatedProduct>("POST", "/api/products", ownerToken, {
       name: seed.name,

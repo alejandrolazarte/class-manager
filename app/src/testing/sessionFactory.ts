@@ -9,6 +9,7 @@ export function buildSessionStudent(overrides: Partial<SessionStudent> = {}): Se
     clientFullName: "Ana Pérez",
     birthDate: null,
     status: null,
+    feedback: null,
     ...overrides,
   };
 }

@@ -11,6 +11,13 @@ public static class SessionRequests
     public static string SessionPath(Guid classGroupId, DateOnly sessionDate) =>
         $"{ApiRoutes.ClassGroups}/{classGroupId}{ApiRoutes.SessionsSegment}/{sessionDate.ToString(IsoDateFormat, CultureInfo.InvariantCulture)}";
 
+    public static Task<HttpResponseMessage> PutFeedbackAsync(
+        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, Guid studentId, string? text) =>
+        httpClient.PutAsJsonAsync(
+            $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Feedback}/{studentId}",
+            new RecordClassFeedbackRequest(text),
+            ApiRequests.JsonOptions);
+
     public static Task<HttpResponseMessage> PutAttendanceAsync(
         this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, Guid studentId, AttendanceStatus? status) =>
         httpClient.PutAsJsonAsync(

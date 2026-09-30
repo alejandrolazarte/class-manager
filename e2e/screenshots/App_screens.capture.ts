@@ -47,6 +47,14 @@ test("App screens", async ({ page, request }) => {
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
 
+  await page.goto(`/today/${demo.beginnersClassGroupId}/${demo.today}`);
+  await page.getByRole("button", { name: "Comentario para Tomás Pérez" }).click();
+  await page
+    .getByLabel("Qué tal le fue en la clase")
+    .fill("Muy buen ritmo en la serie larga. La semana que viene probamos la salida.");
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "02b-comentario-del-profe.png") });
+
   await page.goto(`/fees?month=${demo.month}`);
   await page.getByRole("button", { name: "Todos" }).click();
   await page.waitForTimeout(settleMilliseconds);
