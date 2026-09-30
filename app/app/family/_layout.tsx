@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { RequireSessionKind } from "@/features/authentication/components/RequireSessionKind";
+import { BrandProvider } from "@/features/brand/BrandProvider";
 import { FamilyCartProvider, useFamilyCart } from "@/features/family/FamilyCartProvider";
 import { FamilyStudentProvider } from "@/features/family/FamilyStudentProvider";
 import {
@@ -36,11 +37,13 @@ function FamilyTabs() {
 export default function FamilyLayout() {
   return (
     <RequireSessionKind kind="family">
-      <FamilyStudentProvider>
-        <FamilyCartProvider>
-          <FamilyTabs />
-        </FamilyCartProvider>
-      </FamilyStudentProvider>
+      <BrandProvider audience="family">
+        <FamilyStudentProvider>
+          <FamilyCartProvider>
+            <FamilyTabs />
+          </FamilyCartProvider>
+        </FamilyStudentProvider>
+      </BrandProvider>
     </RequireSessionKind>
   );
 }

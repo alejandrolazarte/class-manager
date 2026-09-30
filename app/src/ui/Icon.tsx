@@ -79,6 +79,7 @@ const iconGlyphs = {
   verified: "verified",
   militaryTech: "military-tech",
   locked: "lock-outline",
+  welcome: "play-circle-outline",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {

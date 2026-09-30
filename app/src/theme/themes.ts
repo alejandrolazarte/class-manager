@@ -11,7 +11,7 @@ export type ThemeName = string;
 
 export type ThemeRegistry = Readonly<Record<ThemeName, ThemeDefinition>>;
 
-const neutralLightColors = {
+export const neutralLightColors = {
   background: palette.gray50,
   foreground: palette.gray900,
   surface: palette.white,
@@ -38,7 +38,7 @@ const neutralLightColors = {
   shadow: palette.gray900,
 } as const;
 
-const neutralDarkColors = {
+export const neutralDarkColors = {
   background: palette.gray950,
   foreground: palette.gray100,
   surface: palette.gray900,
@@ -82,6 +82,9 @@ const aquaTheme: ThemeDefinition = {
     "primary-strong": palette.lagoon700,
     "primary-soft": palette.lagoon100,
     "primary-soft-foreground": palette.lagoon800,
+    accent: palette.lagoon600,
+    "accent-soft": palette.lagoon100,
+    "accent-soft-foreground": palette.lagoon800,
     danger: palette.coral600,
     "danger-foreground": palette.white,
     "danger-soft": palette.coral100,
@@ -113,6 +116,9 @@ const aquaTheme: ThemeDefinition = {
     "primary-strong": palette.lagoon300,
     "primary-soft": palette.lagoon900,
     "primary-soft-foreground": palette.lagoon200,
+    accent: palette.lagoon400,
+    "accent-soft": palette.lagoon900,
+    "accent-soft-foreground": palette.lagoon200,
     danger: palette.coral400,
     "danger-foreground": palette.lagoon975,
     "danger-soft": palette.coral900,
@@ -138,6 +144,9 @@ const violetTheme: ThemeDefinition = {
     "primary-strong": palette.violet800,
     "primary-soft": palette.violet100,
     "primary-soft-foreground": palette.violet800,
+    accent: palette.violet600,
+    "accent-soft": palette.violet100,
+    "accent-soft-foreground": palette.violet800,
   },
   dark: {
     ...neutralDarkColors,
@@ -146,6 +155,9 @@ const violetTheme: ThemeDefinition = {
     "primary-strong": palette.violet200,
     "primary-soft": palette.violet950,
     "primary-soft-foreground": palette.violet200,
+    accent: palette.violet300,
+    "accent-soft": palette.violet950,
+    "accent-soft-foreground": palette.violet200,
   },
 };
 
@@ -157,6 +169,9 @@ const oceanTheme: ThemeDefinition = {
     "primary-strong": palette.sky800,
     "primary-soft": palette.sky100,
     "primary-soft-foreground": palette.sky800,
+    accent: palette.sky700,
+    "accent-soft": palette.sky100,
+    "accent-soft-foreground": palette.sky800,
   },
   dark: {
     ...neutralDarkColors,
@@ -165,6 +180,9 @@ const oceanTheme: ThemeDefinition = {
     "primary-strong": palette.sky200,
     "primary-soft": palette.sky950,
     "primary-soft-foreground": palette.sky200,
+    accent: palette.sky300,
+    "accent-soft": palette.sky950,
+    "accent-soft-foreground": palette.sky200,
   },
 };
 
@@ -176,6 +194,9 @@ const roseTheme: ThemeDefinition = {
     "primary-strong": palette.magenta800,
     "primary-soft": palette.magenta100,
     "primary-soft-foreground": palette.magenta800,
+    accent: palette.magenta700,
+    "accent-soft": palette.magenta100,
+    "accent-soft-foreground": palette.magenta800,
   },
   dark: {
     ...neutralDarkColors,
@@ -184,6 +205,9 @@ const roseTheme: ThemeDefinition = {
     "primary-strong": palette.magenta200,
     "primary-soft": palette.magenta950,
     "primary-soft-foreground": palette.magenta200,
+    accent: palette.magenta300,
+    "accent-soft": palette.magenta950,
+    "accent-soft-foreground": palette.magenta200,
   },
 };
 
@@ -195,6 +219,9 @@ const plumTheme: ThemeDefinition = {
     "primary-strong": palette.fuchsia800,
     "primary-soft": palette.fuchsia100,
     "primary-soft-foreground": palette.fuchsia800,
+    accent: palette.fuchsia700,
+    "accent-soft": palette.fuchsia100,
+    "accent-soft-foreground": palette.fuchsia800,
   },
   dark: {
     ...neutralDarkColors,
@@ -203,6 +230,9 @@ const plumTheme: ThemeDefinition = {
     "primary-strong": palette.fuchsia200,
     "primary-soft": palette.fuchsia950,
     "primary-soft-foreground": palette.fuchsia200,
+    accent: palette.fuchsia300,
+    "accent-soft": palette.fuchsia950,
+    "accent-soft-foreground": palette.fuchsia200,
   },
 };
 
@@ -214,6 +244,9 @@ const indigoTheme: ThemeDefinition = {
     "primary-strong": palette.indigo800,
     "primary-soft": palette.indigo100,
     "primary-soft-foreground": palette.indigo800,
+    accent: palette.indigo600,
+    "accent-soft": palette.indigo100,
+    "accent-soft-foreground": palette.indigo800,
   },
   dark: {
     ...neutralDarkColors,
@@ -222,6 +255,9 @@ const indigoTheme: ThemeDefinition = {
     "primary-strong": palette.indigo200,
     "primary-soft": palette.indigo950,
     "primary-soft-foreground": palette.indigo200,
+    accent: palette.indigo300,
+    "accent-soft": palette.indigo950,
+    "accent-soft-foreground": palette.indigo200,
   },
 };
 
@@ -233,6 +269,9 @@ const graphiteTheme: ThemeDefinition = {
     "primary-strong": palette.slate800,
     "primary-soft": palette.slate100,
     "primary-soft-foreground": palette.slate800,
+    accent: palette.slate700,
+    "accent-soft": palette.slate100,
+    "accent-soft-foreground": palette.slate800,
   },
   dark: {
     ...neutralDarkColors,
@@ -241,6 +280,9 @@ const graphiteTheme: ThemeDefinition = {
     "primary-strong": palette.slate200,
     "primary-soft": palette.slate800,
     "primary-soft-foreground": palette.slate200,
+    accent: palette.slate300,
+    "accent-soft": palette.slate800,
+    "accent-soft-foreground": palette.slate200,
   },
 };
 
@@ -257,3 +299,5 @@ export const themes = {
 export type BuiltInThemeName = keyof typeof themes;
 
 export const defaultThemeName: BuiltInThemeName = "aqua";
+
+export const brandThemeName = "business";

@@ -75,10 +75,47 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("Announcements");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BrandLogo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique();
+
+                    b.ToTable("BrandLogos");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.Business", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccentColor")
+                        .HasMaxLength(7)
+                        .HasColumnType("nchar(7)")
+                        .IsFixedLength();
+
+                    b.Property<string>("BrandName")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -98,6 +135,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
+                    b.Property<bool>("LocksTheme")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LogoUpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -113,6 +156,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("ThemeColor")
+                        .HasMaxLength(7)
+                        .HasColumnType("nchar(7)")
+                        .IsFixedLength();
 
                     b.Property<string>("TimeZoneId")
                         .IsRequired()
@@ -1411,6 +1459,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Announcements.Announcement", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BrandLogo", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()

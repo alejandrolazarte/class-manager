@@ -2,7 +2,7 @@
 
 Date: 2026-09-28
 
-Product decisions on what a business can brand, and which parts could be paid. Pricing itself is still an [open decision](mvp-plan.md#open-decisions); this only records where branding fits. The technical plan is [themes, business theme and business icon](frontend/20260928-themes-and-business-icon/plan.md).
+Product decisions on what a business can brand, and which parts could be paid. Pricing itself is still an [open decision](mvp-plan.md#open-decisions); this only records where branding fits. The technical plans are [themes, business theme and business icon](frontend/20260928-themes-and-business-icon/plan.md) and [brand: logo, brand theme and welcome screen](frontend/20260930-brand/plan.md).
 
 ## What each user sees
 
@@ -18,9 +18,11 @@ Product decisions on what a business can brand, and which parts could be paid. P
 | Business icon from the catalog | Free | Same |
 | Business theme from its brand colors, default for the team | Paid ("Marca propia" or part of a Pro plan) | Studios and chains with an established brand value it, and they are the ones that pay the most |
 | Lock the business theme for members | Paid | Studios with a brand want coaches (and, later, students) to see it; an independent instructor doesn't need it |
-| Custom logo instead of the catalog icon | Paid, later | Waits for something students see (a payment receipt) |
+| Custom logo instead of the catalog icon | Paid, later | Students now see it (welcome screen and Inicio in the family app) |
 
 **When a business stops paying:** the colors stay stored but are no longer applied; everyone falls back to `aqua` or the theme they chose. Nothing breaks, and paying again brings the theme back.
+
+**Status (2026-09-30):** logo, brand theme with accent, lock and welcome screen are built and, during the pilot, available to every business without a paid gate ([brand plan](frontend/20260930-brand/plan.md)).
 
 **Timing:** while only the owner and coaches use the app, a business theme is nice to have, not a need. It becomes a strong selling point once students see something branded (receipts, a student portal, emails). Until then it can be free during the pilot as a hook, announced as part of the paid plan later.
 
@@ -39,4 +41,4 @@ The business theme takes **up to two colors**:
 - Status colors (success, warning, danger) never take brand colors: "paid" must look the same in every business.
 - **A warm brand (red, orange, yellow, green) goes better as the accent** than as the main color: the main color is on every button, and in those hues buttons look like errors, warnings or "paid". Built-in themes follow the same rule.
 
-Adding the accent means a new token family (see "Adding a token" in [theming](frontend/theming.md)), its contrast pairs, and a second nullable column (`Business.AccentColor`). It is a follow-up to the one-color business theme, not part of its first version.
+The accent is a token family (`accent`, `accent-soft`, `accent-soft-foreground`, see [theming](frontend/theming.md)) stored as `Business.AccentColor`.

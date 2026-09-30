@@ -19,6 +19,8 @@ import { Icon } from "@/ui/Icon";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { useCurrentBrand } from "@/features/brand/BrandProvider";
+import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 
 interface SettingsRow {
   key: string;
@@ -42,7 +44,20 @@ export function SettingsScreen() {
   const { data: branches = [] } = useBranches();
   const hasFamilyAccount = useHasOtherAccountKind("team");
   const currentBranchName = branches.find((branch) => branch.isCurrent)?.name ?? business.name;
+  const currentBrand = useCurrentBrand();
   const rows: SettingsRow[] = [
+    {
+      key: "brand",
+      isVisible: canManageBusiness,
+      row: (
+        <ListRow
+          icon="palette"
+          label={translate("settings.brand")}
+          detail={translate("settings.brandHint")}
+          onPress={() => router.push(routes.brandSettings)}
+        />
+      ),
+    },
     {
       key: "accounts",
       isVisible: hasFamilyAccount,
@@ -199,7 +214,7 @@ export function SettingsScreen() {
         accessibilityLabel={canManageBusiness ? translate("settings.business") : undefined}
         className="flex-row items-center gap-3.5 p-4"
       >
-        <BrandMark size="small" />
+        {currentBrand?.brand ? <CurrentBrandLogo /> : <BrandMark size="small" />}
         <View className="min-w-0 flex-1 gap-0.5">
           <AppText variant="bodyStrong" className="text-base">
             {business.name}

@@ -1,7 +1,7 @@
 import { Pressable, View } from "react-native";
 import { hasTranslation, translate, TranslationKey } from "@/i18n/translate";
 import { ColorSchemePreference } from "@/theme/ThemeContext";
-import { ThemeName } from "@/theme/themes";
+import { brandThemeName, ThemeName } from "@/theme/themes";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 import { SegmentedControl } from "@/ui/SegmentedControl";
@@ -25,6 +25,12 @@ function toSwatchRows(themeNames: readonly ThemeName[]): (ThemeName | null)[][] 
     rows.push(row);
   }
   return rows;
+}
+
+function brandFirst(themeNames: readonly ThemeName[]): ThemeName[] {
+  return [...themeNames].sort(
+    (first, second) => Number(second === brandThemeName) - Number(first === brandThemeName),
+  );
 }
 
 function themeDisplayName(themeName: ThemeName): string {
@@ -62,7 +68,7 @@ function ThemeSwatch({ themeName }: { themeName: ThemeName }) {
 }
 
 export function AppearanceSettings() {
-  const { themeNames, colorSchemePreference, setColorSchemePreference } = useTheme();
+  const { themeNames, isThemeLocked, colorSchemePreference, setColorSchemePreference } = useTheme();
   return (
     <View className="gap-3.5 px-4 py-3.5">
       <View className="gap-2">
@@ -76,10 +82,17 @@ export function AppearanceSettings() {
           onChange={setColorSchemePreference}
         />
       </View>
-      {themeNames.length > 1 ? (
+      {isThemeLocked ? (
+        <View className="gap-1">
+          <AppText variant="bodyStrong">{translate("settings.colors")}</AppText>
+          <AppText variant="caption" tone="muted">
+            {translate("settings.colorsLockedByBrand")}
+          </AppText>
+        </View>
+      ) : themeNames.length > 1 ? (
         <View className="gap-2">
           <AppText variant="bodyStrong">{translate("settings.colors")}</AppText>
-          {toSwatchRows(themeNames).map((row) => (
+          {toSwatchRows(brandFirst(themeNames)).map((row) => (
             <View key={row.join()} className="flex-row gap-2">
               {row.map((themeName, columnIndex) =>
                 themeName ? (

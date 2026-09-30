@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { RequireSessionKind } from "@/features/authentication/components/RequireSessionKind";
+import { BrandProvider } from "@/features/brand/BrandProvider";
 import { BusinessProvider } from "@/features/business/BusinessProvider";
 import { useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { MemberProvider } from "@/features/members/MemberProvider";
@@ -32,7 +33,9 @@ export default function TabsLayout() {
     <RequireSessionKind kind="team">
       <BusinessProvider>
         <MemberProvider>
-          <MemberTabs />
+          <BrandProvider audience="team">
+            <MemberTabs />
+          </BrandProvider>
         </MemberProvider>
       </BusinessProvider>
     </RequireSessionKind>

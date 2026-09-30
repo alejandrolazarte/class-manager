@@ -1,6 +1,8 @@
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import { Pressable, View } from "react-native";
+import { useCurrentBrand } from "@/features/brand/BrandProvider";
+import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { BillingTile } from "@/features/family/components/BillingTile";
 import { FeedbackCard } from "@/features/family/components/FeedbackCard";
 import { NewsBell } from "@/features/family/components/NewsBell";
@@ -29,6 +31,7 @@ const homeAnnouncementLimit = 2;
 
 export function FamilyHomeScreen() {
   const router = useRouter();
+  const brandName = useCurrentBrand()?.brand?.displayName;
   const { data: home, isPending, isError, refetch } = useFamilyHome();
   const { data: shop, refetch: refetchShop } = useFamilyShop();
   const { data: news, refetch: refetchNews } = useFamilyNews();
@@ -70,7 +73,8 @@ export function FamilyHomeScreen() {
     <ScrollScreen
       header={
         <ScreenHeader
-          eyebrow={home.businessName}
+          leading={<CurrentBrandLogo />}
+          eyebrow={brandName ?? home.businessName}
           title={translate("family.greeting", { name: firstNameOf(home.clientFullName) })}
           accessory={
             news === undefined ? undefined : (

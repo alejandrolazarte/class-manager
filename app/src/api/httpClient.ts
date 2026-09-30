@@ -134,6 +134,9 @@ export const httpClient = {
   postForm<TResponse>(path: string, form: FormData): Promise<TResponse> {
     return send<TResponse>(buildUrl(path), { method: "POST", body: form }, authenticatedRequest);
   },
+  putForm<TResponse>(path: string, form: FormData): Promise<TResponse> {
+    return send<TResponse>(buildUrl(path), { method: "PUT", body: form }, authenticatedRequest);
+  },
   put<TResponse>(path: string, body: unknown): Promise<TResponse> {
     return send<TResponse>(
       buildUrl(path),

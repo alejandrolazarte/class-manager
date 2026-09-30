@@ -4,7 +4,8 @@ import { parseThemePreferences, serializeThemePreferences } from "@/theme/themeP
 import { useTheme } from "@/theme/useTheme";
 
 export function PersistedThemePreferences() {
-  const { themeName, colorSchemePreference, setThemeName, setColorSchemePreference } = useTheme();
+  const { chosenThemeName, colorSchemePreference, setThemeName, setColorSchemePreference } =
+    useTheme();
   const hasRestored = useRef(false);
 
   useEffect(() => {
@@ -32,9 +33,9 @@ export function PersistedThemePreferences() {
       return;
     }
     themePreferenceStorage
-      .write(serializeThemePreferences({ themeName, colorSchemePreference }))
+      .write(serializeThemePreferences({ themeName: chosenThemeName, colorSchemePreference }))
       .catch(() => undefined);
-  }, [themeName, colorSchemePreference]);
+  }, [chosenThemeName, colorSchemePreference]);
 
   return null;
 }

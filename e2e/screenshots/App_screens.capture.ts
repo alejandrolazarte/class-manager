@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
+import { waitForBrandWelcomeToClose } from "./brandWelcome";
 
 const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
 const settleMilliseconds = 800;
@@ -44,6 +45,7 @@ test("App screens", async ({ page, request }) => {
     await page.goto(path);
     await page.getByText(visibleText, { exact: false }).first().waitFor();
     await page.waitForTimeout(settleMilliseconds);
+    await waitForBrandWelcomeToClose(page);
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
 
@@ -53,6 +55,7 @@ test("App screens", async ({ page, request }) => {
     .getByLabel("Qué tal le fue en la clase")
     .fill("Muy buen ritmo en la serie larga. La semana que viene probamos la salida.");
   await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "02b-comentario-del-profe.png") });
 
   await page.goto("/settings/announcements");
@@ -61,26 +64,31 @@ test("App screens", async ({ page, request }) => {
     .getByLabel("Detalle (opcional)")
     .fill("Feriado. Las clases de ese día se pueden recuperar durante la semana.");
   await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "12b-novedades.png") });
 
   await page.goto("/settings/business");
   await page.getByText("Moneda").first().waitFor();
   await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "12c-ajustes-negocio.png") });
 
   await page.goto("/settings/achievements");
   await page.getByRole("switch", { name: "Faltar con aviso no corta la racha" }).waitFor();
   await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "12d-logros-y-asistencia.png") });
 
   await page.goto(`/fees?month=${demo.month}`);
   await page.getByRole("button", { name: "Todos" }).click();
   await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "10b-cuotas-todos.png") });
 
   await page.goto("/settings");
   await page.getByRole("button", { name: "Grafito", exact: true }).scrollIntoViewIfNeeded();
   await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "18-colores.png") });
 
   const themes: [fileName: string, themeName: string][] = [
@@ -99,6 +107,7 @@ test("App screens", async ({ page, request }) => {
     await page.goto("/today");
     await page.getByText("presentes", { exact: false }).first().waitFor();
     await page.waitForTimeout(settleMilliseconds);
+    await waitForBrandWelcomeToClose(page);
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
 });
