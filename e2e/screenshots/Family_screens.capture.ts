@@ -52,6 +52,10 @@ test("Family screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Tomás" }).click();
   await capture(page, "21-familia-inicio-otro-alumno");
 
+  await page.getByRole("button", { name: /^Novedades/ }).click();
+  await page.getByText("Lunes 12 de octubre cerrado").first().waitFor();
+  await capture(page, "21b-familia-novedades");
+
   await page.goto("/family/classes");
   await page.getByText("Hoy,", { exact: false }).first().waitFor();
   await capture(page, "22-familia-clases");

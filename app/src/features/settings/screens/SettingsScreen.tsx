@@ -35,6 +35,7 @@ export function SettingsScreen() {
   const canViewProducts = useCan(permissions.productsView);
   const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
   const canImportExport = useCan(permissions.importExportRun);
+  const canManageAnnouncements = useCan(permissions.announcementsManage);
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
   const { data: branches = [] } = useBranches();
@@ -136,6 +137,18 @@ export function SettingsScreen() {
           label={translate("settings.orders")}
           detail={translate("settings.ordersHint")}
           onPress={() => router.push(routes.orders)}
+        />
+      ),
+    },
+    {
+      key: "announcements",
+      isVisible: canManageAnnouncements,
+      row: (
+        <ListRow
+          icon="announcement"
+          label={translate("settings.announcements")}
+          detail={translate("settings.announcementsHint")}
+          onPress={() => router.push(routes.announcements)}
         />
       ),
     },

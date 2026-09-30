@@ -40,7 +40,7 @@ public sealed class CancelSessionUseCase(
             return Result.Conflict<SessionStatusResponse>(HasAttendanceMessage, SessionErrorCodes.HasAttendance);
         }
 
-        var cancel = session.Cancel(command.Reason);
+        var cancel = session.Cancel(command.Reason, timeProvider.GetUtcNow());
         if (cancel.IsFailure)
         {
             return cancel.Error!;

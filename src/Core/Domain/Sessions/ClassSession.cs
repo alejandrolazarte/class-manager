@@ -23,6 +23,7 @@ public sealed class ClassSession : ITenantOwned
     public DateOnly Date { get; private set; }
     public bool IsCancelled { get; private set; }
     public string? CancellationReason { get; private set; }
+    public DateTimeOffset? CancelledAt { get; private set; }
     public TimeOnly? RescheduledStartTime { get; private set; }
     public Guid? SubstituteInstructorId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
@@ -36,7 +37,7 @@ public sealed class ClassSession : ITenantOwned
             CreatedAt = createdAt.ToUniversalTime(),
         };
 
-    public Result Cancel(string? reason)
+    public Result Cancel(string? reason, DateTimeOffset cancelledAt)
     {
         var trimmedReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
         if (trimmedReason?.Length > CancellationReasonMaxLength)
@@ -46,6 +47,7 @@ public sealed class ClassSession : ITenantOwned
 
         IsCancelled = true;
         CancellationReason = trimmedReason;
+        CancelledAt = cancelledAt.ToUniversalTime();
         return Result.Success();
     }
 
@@ -88,5 +90,6 @@ public sealed class ClassSession : ITenantOwned
     {
         IsCancelled = false;
         CancellationReason = null;
+        CancelledAt = null;
     }
 }

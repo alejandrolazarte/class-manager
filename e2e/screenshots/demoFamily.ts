@@ -176,6 +176,29 @@ export async function seedDemoFamily(
     );
   }
 
+  const announcements: [title: string, body: string][] = [
+    [
+      "Muestra de fin de año",
+      "Sábado 13 de diciembre en la pileta grande. Anotá a tu familia en la recepción.",
+    ],
+    [
+      "Lunes 12 de octubre cerrado",
+      "Feriado. Las clases de ese día se pueden recuperar durante la semana.",
+    ],
+  ];
+  for (const [title, body] of announcements) {
+    await send("POST", "/api/announcements", ownerToken, { title, body });
+  }
+  const nextWeekClass = isoDateOf(
+    new Date(new Date(`${demo.today}T12:00:00Z`).getTime() + daysPerWeek * millisecondsPerDay),
+  );
+  await send(
+    "PUT",
+    `/api/class-groups/${demo.beginnersClassGroupId}/sessions/${nextWeekClass}/cancellation`,
+    ownerToken,
+    { reason: "Feriado" },
+  );
+
   for (const seed of productSeeds) {
     const product = await send<CreatedProduct>("POST", "/api/products", ownerToken, {
       name: seed.name,

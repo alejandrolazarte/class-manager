@@ -1,7 +1,10 @@
 import { useRouter } from "expo-router";
-import { View } from "react-native";
+import { useCallback } from "react";
+import { Pressable, View } from "react-native";
 import { BillingTile } from "@/features/family/components/BillingTile";
 import { FeedbackCard } from "@/features/family/components/FeedbackCard";
+import { NewsBell } from "@/features/family/components/NewsBell";
+import { NewsCard } from "@/features/family/components/NewsCard";
 import { NextClassHero } from "@/features/family/components/NextClassHero";
 import { ShopPreview } from "@/features/family/components/ShopPreview";
 import { StreakTile } from "@/features/family/components/StreakTile";
@@ -9,7 +12,9 @@ import { StudentChips } from "@/features/family/components/StudentChips";
 import { useSelectedStudent } from "@/features/family/FamilyStudentProvider";
 import { firstNameOf } from "@/features/family/familySchedule";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
+import { useFamilyNews } from "@/features/family/useFamilyNews";
 import { useFamilyShop } from "@/features/family/useFamilyShop";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
@@ -17,12 +22,26 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { SectionTitle } from "@/ui/SectionTitle";
 import { Spinner } from "@/ui/Spinner";
+
+const homeAnnouncementLimit = 2;
 
 export function FamilyHomeScreen() {
   const router = useRouter();
   const { data: home, isPending, isError, refetch } = useFamilyHome();
-  const { data: shop } = useFamilyShop();
+  const { data: shop, refetch: refetchShop } = useFamilyShop();
+  const { data: news, refetch: refetchNews } = useFamilyNews();
+  useRefetchOnFocus(
+    useCallback(() => {
+      refetch();
+      refetchShop();
+      refetchNews();
+    }, [refetch, refetchShop, refetchNews]),
+  );
+  const announcements = (news?.items ?? [])
+    .filter((item) => item.kind === "Announcement")
+    .slice(0, homeAnnouncementLimit);
   const { student, selectStudent } = useSelectedStudent(home?.students ?? []);
 
   if (isPending) {
@@ -53,6 +72,14 @@ export function FamilyHomeScreen() {
         <ScreenHeader
           eyebrow={home.businessName}
           title={translate("family.greeting", { name: firstNameOf(home.clientFullName) })}
+          accessory={
+            news === undefined ? undefined : (
+              <NewsBell
+                unreadCount={news.unreadCount}
+                onPress={() => router.navigate(routes.familyNews)}
+              />
+            )
+          }
         />
       }
     >
@@ -82,6 +109,25 @@ export function FamilyHomeScreen() {
         />
       </View>
       {student?.latestFeedback ? <FeedbackCard feedback={student.latestFeedback} /> : null}
+      {announcements.length === 0 ? null : (
+        <View className="gap-3">
+          <View className="flex-row items-baseline justify-between">
+            <SectionTitle title={translate("family.news.homeTitle")} />
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.navigate(routes.familyNews)}
+              className="active:opacity-70"
+            >
+              <AppText variant="link" tone="primary">
+                {translate("family.news.seeAll")}
+              </AppText>
+            </Pressable>
+          </View>
+          {announcements.map((item) => (
+            <NewsCard key={item.id} item={item} />
+          ))}
+        </View>
+      )}
       {shop === undefined ? null : (
         <ShopPreview
           shop={shop}

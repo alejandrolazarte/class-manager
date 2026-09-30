@@ -18,6 +18,22 @@ internal sealed class ClassFeedbackRepository(AppDbContext context) : IClassFeed
 
     public async Task<IReadOnlyList<StudentFeedback>> ListLatestByStudentsAsync(
         IReadOnlyCollection<Guid> studentIds,
+        CancellationToken cancellationToken) =>
+        [
+            .. (await ListAsync(studentIds, since: null, cancellationToken))
+                .GroupBy(feedback => feedback.StudentId)
+                .Select(group => group.OrderByDescending(feedback => feedback.Date).ThenByDescending(feedback => feedback.UpdatedAt).First()),
+        ];
+
+    public Task<IReadOnlyList<StudentFeedback>> ListUpdatedSinceAsync(
+        IReadOnlyCollection<Guid> studentIds,
+        DateTimeOffset since,
+        CancellationToken cancellationToken) =>
+        ListAsync(studentIds, since, cancellationToken);
+
+    private async Task<IReadOnlyList<StudentFeedback>> ListAsync(
+        IReadOnlyCollection<Guid> studentIds,
+        DateTimeOffset? since,
         CancellationToken cancellationToken)
     {
         if (studentIds.Count == 0)
@@ -27,18 +43,12 @@ internal sealed class ClassFeedbackRepository(AppDbContext context) : IClassFeed
 
         var rows = await (
             from feedback in context.ClassFeedbacks.AsNoTracking()
-            where studentIds.Contains(feedback.StudentId)
+            where studentIds.Contains(feedback.StudentId) && (since == null || feedback.UpdatedAt >= since)
             join session in context.ClassSessions.AsNoTracking() on feedback.ClassSessionId equals session.Id
             join classGroup in context.ClassGroups.AsNoTracking() on session.ClassGroupId equals classGroup.Id
             select new { feedback.StudentId, session.Date, ClassGroupName = classGroup.Name, feedback.InstructorId, feedback.Text, feedback.UpdatedAt })
             .ToListAsync(cancellationToken);
 
-        return
-        [
-            .. rows
-                .GroupBy(row => row.StudentId)
-                .Select(group => group.OrderByDescending(row => row.Date).ThenByDescending(row => row.UpdatedAt).First())
-                .Select(row => new StudentFeedback(row.StudentId, row.Date, row.ClassGroupName, row.InstructorId, row.Text)),
-        ];
+        return [.. rows.Select(row => new StudentFeedback(row.StudentId, row.Date, row.ClassGroupName, row.InstructorId, row.Text, row.UpdatedAt))];
     }
 }

@@ -7,6 +7,9 @@ internal sealed class ClientAccountRepository(AppDbContext context) : IClientAcc
     public Task<ClientAccount?> FindByUserAsync(Guid userId, CancellationToken cancellationToken) =>
         context.ClientAccounts.AsNoTracking().FirstOrDefaultAsync(account => account.UserId == userId, cancellationToken);
 
+    public Task<ClientAccount?> FindByUserForUpdateAsync(Guid userId, CancellationToken cancellationToken) =>
+        context.ClientAccounts.FirstOrDefaultAsync(account => account.UserId == userId, cancellationToken);
+
     public Task<bool> HasAccountAsync(Guid clientId, CancellationToken cancellationToken) =>
         context.ClientAccounts.AnyAsync(account => account.ClientId == clientId, cancellationToken);
 }

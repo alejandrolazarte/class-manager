@@ -61,7 +61,7 @@ internal sealed class SessionUseCaseBuilder
     public ClassSession CancelledSession()
     {
         var session = ClassSession.Create(ClassGroup.Id, TestData.Today, TestData.Now);
-        session.Cancel("Feriado");
+        session.Cancel("Feriado", TestData.Now);
         Sessions.Setup(repository => repository.FindForUpdateAsync(ClassGroup.Id, TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(session);
         return session;
     }

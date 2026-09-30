@@ -12,7 +12,7 @@ public sealed class Then_it_is_counted_as_cancelled_and_not_pending
         var builder = new SessionUseCaseBuilder();
         var cancelledDate = TestData.Today.AddDays(-7);
         var cancelledSession = ClassSession.Create(builder.ClassGroup.Id, cancelledDate, TestData.Now);
-        cancelledSession.Cancel("Feriado");
+        cancelledSession.Cancel("Feriado", TestData.Now);
         builder.SetupMonthCalendar(
             [new ClassGroupEnrollmentPeriod(builder.ClassGroup.Id, TestData.Today.AddDays(-30), null)],
             [cancelledSession],

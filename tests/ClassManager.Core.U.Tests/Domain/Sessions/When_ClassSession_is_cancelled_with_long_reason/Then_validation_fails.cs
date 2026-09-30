@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
 
-        var cancel = session.Cancel(new string('x', ClassSession.CancellationReasonMaxLength + 1));
+        var cancel = session.Cancel(new string('x', ClassSession.CancellationReasonMaxLength + 1), TestData.Now);
 
         cancel.Error!.FieldName.ShouldBe(nameof(ClassSession.CancellationReason));
     }

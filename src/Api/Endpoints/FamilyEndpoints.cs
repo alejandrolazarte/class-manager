@@ -14,6 +14,8 @@ internal static class FamilyEndpoints
         family.MapGet(ApiRoutes.FamilyOrders, ListFamilyOrdersAsync);
         family.MapPost(ApiRoutes.FamilyOrders, PlaceFamilyOrderAsync);
         family.MapPut(ApiRoutes.FamilyOrders + ApiRoutes.OrderById + ApiRoutes.Cancellation, CancelFamilyOrderAsync);
+        family.MapGet(ApiRoutes.FamilyNews, GetFamilyNewsAsync);
+        family.MapPut(ApiRoutes.FamilyNews + ApiRoutes.Seen, MarkFamilyNewsSeenAsync);
 
         endpoints.MapPost(ApiRoutes.Clients + ApiRoutes.ClientById + ApiRoutes.AppInvitation, InviteFamilyAsync)
             .RequirePermission(Permissions.Students.Manage);
@@ -28,6 +30,24 @@ internal static class FamilyEndpoints
         var result = await useCase.ExecuteAsync(new GetFamilyHomeQuery(), cancellationToken);
 
         return result.ToOkResult();
+    }
+
+    private static async Task<IResult> GetFamilyNewsAsync(
+        IUseCase<GetFamilyNewsQuery, FamilyNewsResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetFamilyNewsQuery(), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> MarkFamilyNewsSeenAsync(
+        IUseCase<MarkFamilyNewsSeenCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new MarkFamilyNewsSeenCommand(), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
     }
 
     private static async Task<IResult> GetFamilyShopAsync(

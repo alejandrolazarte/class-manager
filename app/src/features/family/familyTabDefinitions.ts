@@ -16,4 +16,4 @@ export const familyTabDefinitions: readonly FamilyTabDefinition[] = [
 
 export const familyShopTabName = "shop";
 
-export const familyHiddenRouteNames: readonly string[] = ["orders"];
+export const familyHiddenRouteNames: readonly string[] = ["orders", "news"];

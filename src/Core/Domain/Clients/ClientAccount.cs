@@ -13,6 +13,7 @@ public sealed class ClientAccount : ITenantOwned
     public Guid ClientId { get; private set; }
     public Guid UserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? NewsSeenAt { get; private set; }
 
     public static ClientAccount Create(Guid clientId, Guid userId, DateTimeOffset createdAt) =>
         new()
@@ -22,4 +23,6 @@ public sealed class ClientAccount : ITenantOwned
             UserId = userId,
             CreatedAt = createdAt.ToUniversalTime(),
         };
+
+    public void MarkNewsSeen(DateTimeOffset seenAt) => NewsSeenAt = seenAt.ToUniversalTime();
 }

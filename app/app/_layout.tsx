@@ -4,6 +4,7 @@ import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { refetchWhenAppReturns } from "@/api/appFocus";
 import { SessionProvider } from "@/features/authentication/SessionProvider";
 import { useSession } from "@/features/authentication/useSession";
 import { PersistedThemePreferences } from "@/theme/PersistedThemePreferences";
@@ -13,6 +14,7 @@ import { fontAssets } from "@/theme/typography";
 import { ToastProvider } from "@/ui/ToastProvider";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+refetchWhenAppReturns();
 
 function RootNavigator() {
   const { session } = useSession();
