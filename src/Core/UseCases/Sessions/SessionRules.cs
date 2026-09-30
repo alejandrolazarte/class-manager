@@ -32,6 +32,25 @@ internal static class SessionRules
             : Result.Validation<ClassGroup>(NotScheduledMessage, SessionErrorCodes.NotScheduled, nameof(ClassSession.Date));
     }
 
+    public static async Task<bool> IsInClassAsync(
+        IEnrollmentRepository enrollmentRepository,
+        IMakeupBookingRepository makeupBookingRepository,
+        Guid classGroupId,
+        DateOnly date,
+        ClassSession? session,
+        Guid studentId,
+        CancellationToken cancellationToken)
+    {
+        var roster = await enrollmentRepository.ListRosterOnAsync(classGroupId, date, cancellationToken);
+        if (roster.Any(entry => entry.StudentId == studentId))
+        {
+            return true;
+        }
+
+        return session is not null
+            && (await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken)).Any(student => student.StudentId == studentId);
+    }
+
     public static bool IsInScope(InstructorScope scope, ClassGroup classGroup, ClassSession? session) =>
         scope.Includes(classGroup.InstructorId)
         || (session?.SubstituteInstructorId is { } substituteInstructorId && scope.Includes(substituteInstructorId));

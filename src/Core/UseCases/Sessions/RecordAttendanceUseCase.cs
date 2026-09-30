@@ -16,6 +16,7 @@ public sealed record RecordAttendanceResponse(Guid StudentId, AttendanceStatus? 
 public sealed class RecordAttendanceUseCase(
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
+    IMakeupBookingRepository makeupBookingRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
     IUnitOfWork unitOfWork,
@@ -49,8 +50,8 @@ public sealed class RecordAttendanceUseCase(
             return Result.Validation<RecordAttendanceResponse>(InFutureMessage, SessionErrorCodes.InFuture, nameof(RecordAttendanceCommand.Date));
         }
 
-        var roster = await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
-        if (roster.All(entry => entry.StudentId != command.StudentId))
+        if (!await SessionRules.IsInClassAsync(
+            enrollmentRepository, makeupBookingRepository, command.ClassGroupId, command.Date, session, command.StudentId, cancellationToken))
         {
             return Result.Validation<RecordAttendanceResponse>(
                 StudentNotEnrolledMessage, SessionErrorCodes.StudentNotEnrolled, nameof(RecordAttendanceCommand.StudentId));

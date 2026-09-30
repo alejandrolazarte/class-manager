@@ -39,7 +39,16 @@ export function hasStarted(nextClass: FamilyNextClass, now: Date = new Date()): 
 }
 
 export function canNotifyAbsence(nextClass: FamilyNextClass, now: Date = new Date()): boolean {
-  return nextClass.classGroupId !== null && !nextClass.isCancelled && !hasStarted(nextClass, now);
+  return (
+    nextClass.classGroupId !== null &&
+    !nextClass.isMakeup &&
+    !nextClass.isCancelled &&
+    !hasStarted(nextClass, now)
+  );
+}
+
+export function canCancelMakeup(nextClass: FamilyNextClass, now: Date = new Date()): boolean {
+  return nextClass.isMakeup && !nextClass.isCancelled && !hasStarted(nextClass, now);
 }
 
 export function nextClassOf(
@@ -58,6 +67,14 @@ export function classesOn(student: FamilyStudent, isoDate: string): FamilyNextCl
 
 export function shortDayLabel(isoDate: string): string {
   return `${weekdayShortLabel(weekdayOf(parseIsoDate(isoDate)))} ${dayOfMonth(isoDate)}`;
+}
+
+export function dayAndMonthLabel(isoDate: string): string {
+  const date = parseIsoDate(isoDate);
+  return translate("family.makeup.dayAndMonth", {
+    day: date.getDate(),
+    month: translate(`months.${date.getMonth() + 1}` as TranslationKey),
+  });
 }
 
 export function relativeDayLabel(isoDate: string, today: string = todayIsoDate()): string {

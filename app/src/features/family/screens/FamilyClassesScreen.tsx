@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { MakeupSection } from "@/features/family/components/MakeupSection";
 import { ScheduledClassCard } from "@/features/family/components/ScheduledClassCard";
 import { StudentChips } from "@/features/family/components/StudentChips";
 import { WeekStrip } from "@/features/family/components/WeekStrip";
@@ -132,6 +133,7 @@ export function FamilyClassesScreen() {
           />
         ))
       )}
+      <MakeupSection studentId={student.id} days={days} />
     </ScrollScreen>
   );
 }

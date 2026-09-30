@@ -18,7 +18,8 @@ public sealed record SessionStudentResponse(
     DateOnly? BirthDate,
     AttendanceStatus? Status,
     string? Feedback,
-    bool AbsenceNotified);
+    bool AbsenceNotified,
+    bool IsMakeup);
 
 public sealed record SessionDetailsResponse(
     Guid ClassGroupId,
@@ -44,6 +45,7 @@ public sealed class GetSessionUseCase(
     IAttendanceRepository attendanceRepository,
     IClassFeedbackRepository feedbackRepository,
     IAbsenceNoticeRepository absenceNoticeRepository,
+    IMakeupBookingRepository makeupBookingRepository,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes)
     : IUseCase<GetSessionQuery, SessionDetailsResponse>
@@ -80,6 +82,9 @@ public sealed class GetSessionUseCase(
             ? new HashSet<Guid>()
             : await absenceNoticeRepository.ListStudentIdsBySessionAsync(session.Id, cancellationToken);
         var roster = await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
+        var makeupStudents = session is null
+            ? []
+            : await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var isCancelled = session?.IsCancelled ?? false;
         var usualStartTime = classGroup.Value!.StartTime;
@@ -107,7 +112,17 @@ public sealed class GetSessionUseCase(
                     entry.BirthDate,
                     statuses.TryGetValue(entry.StudentId, out var status) ? status : null,
                     feedbacks.GetValueOrDefault(entry.StudentId),
-                    notifiedStudentIds.Contains(entry.StudentId))),
+                    notifiedStudentIds.Contains(entry.StudentId),
+                    IsMakeup: false)),
+                .. makeupStudents.Select(student => new SessionStudentResponse(
+                    student.StudentId,
+                    student.StudentFullName,
+                    student.ClientFullName,
+                    student.BirthDate,
+                    statuses.TryGetValue(student.StudentId, out var status) ? status : null,
+                    feedbacks.GetValueOrDefault(student.StudentId),
+                    AbsenceNotified: false,
+                    IsMakeup: true)),
             ]);
     }
 

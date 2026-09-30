@@ -43,6 +43,7 @@ public sealed class ListDaySessionsUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
+    IMakeupBookingRepository makeupBookingRepository,
     IPrivateLessonRepository privateLessonRepository,
     IStudentRepository studentRepository,
     IBusinessCalendarService businessCalendar,
@@ -66,8 +67,9 @@ public sealed class ListDaySessionsUseCase(
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
         var enrolledCounts = await enrollmentRepository.CountActiveOnByClassGroupAsync(date, cancellationToken);
-        var attendanceCounts = await attendanceRepository.CountBySessionsAsync(
-            [.. sessions.Values.Select(session => session.Id)], cancellationToken);
+        IReadOnlyCollection<Guid> sessionIds = [.. sessions.Values.Select(session => session.Id)];
+        var attendanceCounts = await attendanceRepository.CountBySessionsAsync(sessionIds, cancellationToken);
+        var makeupCounts = await makeupBookingRepository.CountBySessionsAsync(sessionIds, cancellationToken);
 
         var privateLessons = (await privateLessonRepository.ListBetweenAsync(date, date, cancellationToken))
             .Where(lesson => scope.Includes(lesson.InstructorId))
@@ -124,7 +126,7 @@ public sealed class ListDaySessionsUseCase(
                     classGroup.Location,
                     session?.IsCancelled ?? false,
                     session?.CancellationReason,
-                    enrolledCounts.GetValueOrDefault(classGroup.Id),
+                    enrolledCounts.GetValueOrDefault(classGroup.Id) + (session is null ? 0 : makeupCounts.GetValueOrDefault(session.Id)),
                     attendanceCount.Present,
                     attendanceCount.Absent,
                     [],

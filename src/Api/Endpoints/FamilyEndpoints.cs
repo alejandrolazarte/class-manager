@@ -18,6 +18,9 @@ internal static class FamilyEndpoints
         family.MapPut(ApiRoutes.FamilyNews + ApiRoutes.Seen, MarkFamilyNewsSeenAsync);
         family.MapPut(ApiRoutes.StudentAbsence, NotifyAbsenceAsync);
         family.MapDelete(ApiRoutes.StudentAbsence, WithdrawAbsenceAsync);
+        family.MapGet(ApiRoutes.StudentMakeups, GetFamilyMakeupsAsync);
+        family.MapPut(ApiRoutes.StudentMakeup, BookMakeupAsync);
+        family.MapDelete(ApiRoutes.StudentMakeup, CancelMakeupAsync);
 
         endpoints.MapPost(ApiRoutes.Clients + ApiRoutes.ClientById + ApiRoutes.AppInvitation, InviteFamilyAsync)
             .RequirePermission(Permissions.Students.Manage);
@@ -72,6 +75,40 @@ internal static class FamilyEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new WithdrawAbsenceCommand(studentId, classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> GetFamilyMakeupsAsync(
+        Guid studentId,
+        IUseCase<GetFamilyMakeupsQuery, FamilyMakeupsResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetFamilyMakeupsQuery(studentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> BookMakeupAsync(
+        Guid studentId,
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<BookMakeupCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new BookMakeupCommand(studentId, classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> CancelMakeupAsync(
+        Guid studentId,
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<CancelMakeupCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new CancelMakeupCommand(studentId, classGroupId, sessionDate), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }

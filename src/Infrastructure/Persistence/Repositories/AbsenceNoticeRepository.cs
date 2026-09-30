@@ -18,6 +18,17 @@ internal sealed class AbsenceNoticeRepository(AppDbContext context) : IAbsenceNo
             .ToListAsync(cancellationToken))
             .ToHashSet();
 
+    public async Task<IReadOnlyDictionary<Guid, int>> CountBySessionsAsync(
+        IReadOnlyCollection<Guid> classSessionIds,
+        CancellationToken cancellationToken) =>
+        classSessionIds.Count == 0
+            ? new Dictionary<Guid, int>()
+            : await context.AbsenceNotices.AsNoTracking()
+                .Where(notice => classSessionIds.Contains(notice.ClassSessionId))
+                .GroupBy(notice => notice.ClassSessionId)
+                .Select(group => new { ClassSessionId = group.Key, Count = group.Count() })
+                .ToDictionaryAsync(group => group.ClassSessionId, group => group.Count, cancellationToken);
+
     public async Task<IReadOnlyList<NotifiedAbsence>> ListByStudentsBetweenAsync(
         IReadOnlyCollection<Guid> studentIds,
         DateOnly firstDate,

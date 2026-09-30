@@ -1,6 +1,8 @@
 import {
   FamilyAttendance,
   FamilyHome,
+  FamilyMakeups,
+  FamilyMakeupSlot,
   FamilyNews,
   FamilyNewsItem,
   FamilyNextClass,
@@ -33,6 +35,30 @@ export function buildFamilyNextClass(overrides: Partial<FamilyNextClass> = {}): 
     isCancelled: false,
     classGroupId: "class-group-1",
     absenceNotified: false,
+    isMakeup: false,
+    ...overrides,
+  };
+}
+
+export function buildFamilyMakeupSlot(overrides: Partial<FamilyMakeupSlot> = {}): FamilyMakeupSlot {
+  return {
+    classGroupId: "class-group-2",
+    name: "Natación avanzada",
+    date: "2026-09-29",
+    startTime: "19:00",
+    endTime: "19:45",
+    instructorFullName: "Marcos Díaz",
+    location: null,
+    spotsLeft: 3,
+    isBooked: false,
+    ...overrides,
+  };
+}
+
+export function buildFamilyMakeups(overrides: Partial<FamilyMakeups> = {}): FamilyMakeups {
+  return {
+    credits: [{ missedOn: "2026-09-22", reason: "Notice", expiresOn: "2026-10-22" }],
+    slots: [buildFamilyMakeupSlot()],
     ...overrides,
   };
 }

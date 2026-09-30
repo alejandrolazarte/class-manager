@@ -3,8 +3,8 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.Makeups;
 using ClassManager.Core.Domain.Sessions;
-using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.UseCases.Families;
@@ -17,7 +17,6 @@ internal sealed record AbsenceTarget(ClassGroup ClassGroup, ClassSession? Sessio
 
 internal static class AbsenceRules
 {
-    private const string StudentNotFoundMessage = "The student is not part of this family.";
     private const string StudentNotEnrolledMessage = "The student isn't enrolled in this class on that date.";
     private const string CancelledMessage = "The class is cancelled on that date.";
     private const string ClassStartedMessage = "The class already started.";
@@ -34,16 +33,10 @@ internal static class AbsenceRules
         IBusinessCalendarService businessCalendar,
         CancellationToken cancellationToken)
     {
-        var access = await familyAccess.GetAsync(cancellationToken);
-        if (access is null)
+        var studentError = await FamilyStudentRules.FindOwnStudentErrorAsync(familyAccess, studentRepository, studentId, cancellationToken);
+        if (studentError is not null)
         {
-            return FamilyFailures.NoAccess();
-        }
-
-        var students = await studentRepository.ListByClientAsync(access.ClientId, cancellationToken);
-        if (students.All(student => student.Id != studentId))
-        {
-            return Result.NotFound<AbsenceTarget>(StudentNotFoundMessage, StudentErrorCodes.NotFound);
+            return studentError;
         }
 
         var classGroup = await SessionRules.FindScheduledClassGroupAsync(classGroupRepository, classGroupId, date, cancellationToken);
@@ -131,31 +124,53 @@ public sealed class WithdrawAbsenceUseCase(
     IFamilyAccess familyAccess,
     IStudentRepository studentRepository,
     IClassGroupRepository classGroupRepository,
-    IEnrollmentRepository enrollmentRepository,
-    IClassSessionRepository sessionRepository,
-    IAbsenceNoticeRepository absenceNoticeRepository,
+    MakeupRepositories makeupRepositories,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar)
     : IUseCase<WithdrawAbsenceCommand, bool>
 {
+    private const string CreditInUseMessage = "This absence was already used to book a makeup class. Cancel that class first.";
+
     public async Task<Result<bool>> ExecuteAsync(WithdrawAbsenceCommand command, CancellationToken cancellationToken)
     {
         var target = await AbsenceRules.FindAsync(
             command.StudentId, command.ClassGroupId, command.Date, familyAccess, studentRepository,
-            classGroupRepository, enrollmentRepository, sessionRepository, businessCalendar, cancellationToken);
+            classGroupRepository, makeupRepositories.Enrollments, makeupRepositories.Sessions, businessCalendar, cancellationToken);
         if (target.IsFailure)
         {
             return target.Error!;
         }
 
         var session = target.Value!.Session;
-        var notice = session is null ? null : await absenceNoticeRepository.FindForUpdateAsync(session.Id, command.StudentId, cancellationToken);
-        if (notice is not null)
+        var notice = session is null ? null : await makeupRepositories.Notices.FindForUpdateAsync(session.Id, command.StudentId, cancellationToken);
+        if (notice is null)
         {
-            absenceNoticeRepository.Remove(notice);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return true;
         }
 
+        if (await UsesNoticeForMakeupAsync(command, cancellationToken))
+        {
+            return Result.Conflict<bool>(CreditInUseMessage, SessionErrorCodes.MakeupCreditInUse);
+        }
+
+        makeupRepositories.Notices.Remove(notice);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    private async Task<bool> UsesNoticeForMakeupAsync(WithdrawAbsenceCommand command, CancellationToken cancellationToken)
+    {
+        var today = await businessCalendar.TodayAsync(cancellationToken);
+        var missedClasses = await MakeupRules.ListMissedClassesAsync(makeupRepositories, command.StudentId, today, cancellationToken);
+        var bookedDates = await MakeupRules.ListBookedDatesAsync(makeupRepositories, command.StudentId, today, cancellationToken);
+        IReadOnlyCollection<MakeupSource> withNotice = [.. missedClasses.Select(missed => missed.Source)];
+        IReadOnlyCollection<MakeupSource> withoutNotice =
+        [
+            .. missedClasses
+                .Where(missed => missed.ClassGroupId != command.ClassGroupId || missed.Source.MissedOn != command.Date)
+                .Select(missed => missed.Source),
+        ];
+        return MakeupCredits.Calculate(withoutNotice, bookedDates, today).UncoveredBookings
+            > MakeupCredits.Calculate(withNotice, bookedDates, today).UncoveredBookings;
     }
 }

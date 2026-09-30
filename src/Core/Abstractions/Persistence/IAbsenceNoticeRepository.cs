@@ -12,6 +12,8 @@ public interface IAbsenceNoticeRepository
 
     Task<IReadOnlySet<Guid>> ListStudentIdsBySessionAsync(Guid classSessionId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyDictionary<Guid, int>> CountBySessionsAsync(IReadOnlyCollection<Guid> classSessionIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<NotifiedAbsence>> ListByStudentsBetweenAsync(
         IReadOnlyCollection<Guid> studentIds, DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken);
 }

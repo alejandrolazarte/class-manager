@@ -11,4 +11,8 @@ public static class SessionErrorCodes
     public const string StudentNotEnrolled = "attendance.student_not_enrolled";
     public const string FeedbackRequired = "feedback.required";
     public const string ClassStarted = "absence.class_started";
+    public const string MakeupNoCredit = "makeup.no_credit";
+    public const string MakeupFull = "makeup.full";
+    public const string MakeupCreditInUse = "makeup.credit_in_use";
+    public const string MakeupAlreadyInClass = "makeup.already_in_class";
 }

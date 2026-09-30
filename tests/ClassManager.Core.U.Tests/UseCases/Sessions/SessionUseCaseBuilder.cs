@@ -15,6 +15,7 @@ internal sealed class SessionUseCaseBuilder
     public Mock<IEnrollmentRepository> Enrollments { get; } = new();
     public Mock<IClassSessionRepository> Sessions { get; } = new();
     public Mock<IAttendanceRepository> Attendances { get; } = new();
+    public Mock<IMakeupBookingRepository> MakeupBookings { get; } = new();
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
@@ -50,6 +51,12 @@ internal sealed class SessionUseCaseBuilder
             .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         ClassGroups.Setup(repository => repository.GetByIdAsync(ClassGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(ClassGroup);
+        MakeupBookings
+            .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int>());
+        MakeupBookings
+            .Setup(repository => repository.ListStudentsBySessionAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         Enrollments
             .Setup(repository => repository.ListRosterOnAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -67,7 +74,7 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public RecordAttendanceUseCase BuildRecord() =>
-        new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
+        new(ClassGroups.Object, Enrollments.Object, MakeupBookings.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
 
     public CancelSessionUseCase BuildCancel() =>
         new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
@@ -99,5 +106,5 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public ListDaySessionsUseCase BuildListDay() =>
-        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, Students.Object, BusinessCalendar.Object, new EveryAccessScopes());
+        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, MakeupBookings.Object, PrivateLessons.Object, Students.Object, BusinessCalendar.Object, new EveryAccessScopes());
 }

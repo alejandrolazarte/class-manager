@@ -11,6 +11,32 @@ export interface FamilyNextClass {
   isCancelled: boolean;
   classGroupId: string | null;
   absenceNotified: boolean;
+  isMakeup: boolean;
+}
+
+export type MakeupReason = "Notice" | "Cancelled";
+
+export interface FamilyMakeupCredit {
+  missedOn: string;
+  reason: MakeupReason;
+  expiresOn: string;
+}
+
+export interface FamilyMakeupSlot {
+  classGroupId: string;
+  name: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  instructorFullName: string | null;
+  location: string | null;
+  spotsLeft: number;
+  isBooked: boolean;
+}
+
+export interface FamilyMakeups {
+  credits: FamilyMakeupCredit[];
+  slots: FamilyMakeupSlot[];
 }
 
 export type WeekAttendance = "Attended" | "Missed" | "NoClasses";

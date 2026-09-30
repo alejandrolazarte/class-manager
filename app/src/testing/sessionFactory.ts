@@ -11,6 +11,7 @@ export function buildSessionStudent(overrides: Partial<SessionStudent> = {}): Se
     status: null,
     feedback: null,
     absenceNotified: false,
+    isMakeup: false,
     ...overrides,
   };
 }
