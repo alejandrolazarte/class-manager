@@ -46,9 +46,7 @@ export function FamilySettingsScreen() {
           />
         </Card>
       ) : null}
-      <Card className="p-4">
-        <NotificationSettings />
-      </Card>
+      <NotificationSettings />
       <Card>
         <AppearanceSettings />
       </Card>
