@@ -2,10 +2,10 @@ using ClassManager.Infrastructure.WebPush;
 
 namespace ClassManager.Api.Notifications;
 
-internal sealed partial class FamilyPushWorker(
-    FamilyPushOutbox queue,
+internal sealed partial class PushWorker(
+    PushOutbox queue,
     IServiceScopeFactory scopeFactory,
-    ILogger<FamilyPushWorker> logger)
+    ILogger<PushWorker> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -16,7 +16,7 @@ internal sealed partial class FamilyPushWorker(
             {
                 await using var scope = scopeFactory.CreateAsyncScope();
                 scope.ServiceProvider.GetRequiredService<ITenantScope>().Establish(push.TenantId);
-                await scope.ServiceProvider.GetRequiredService<FamilyPushDispatcher>().DispatchAsync(push, stoppingToken);
+                await scope.ServiceProvider.GetRequiredService<PushDispatcher>().DispatchAsync(push, stoppingToken);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
@@ -25,6 +25,6 @@ internal sealed partial class FamilyPushWorker(
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Sending family push notifications of business {BusinessId} failed")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Sending push notifications of business {BusinessId} failed")]
     private static partial void LogFailed(ILogger logger, Exception exception, Guid businessId);
 }

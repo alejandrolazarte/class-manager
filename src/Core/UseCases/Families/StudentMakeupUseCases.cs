@@ -1,4 +1,5 @@
 using System.Globalization;
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -100,6 +101,7 @@ public sealed class BookMakeupUseCase(
     MakeupRepositories makeupRepositories,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
+    ITeamNotificationService teamNotifications,
     TimeProvider timeProvider)
     : IUseCase<BookMakeupCommand, bool>
 {
@@ -185,6 +187,7 @@ public sealed class BookMakeupUseCase(
             return Result.Conflict<bool>(ConcurrentUpdateMessage, SessionErrorCodes.ConcurrentUpdate);
         }
 
+        await teamNotifications.MakeupBookedAsync(command.StudentId, classGroup.Value, session, cancellationToken);
         return true;
     }
 }

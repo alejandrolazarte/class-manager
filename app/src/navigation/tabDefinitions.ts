@@ -10,7 +10,7 @@ export interface TabDefinition {
 }
 
 export const tabDefinitions: readonly TabDefinition[] = [
-  { name: "today", titleKey: "tabs.today", icon: "today" },
+  { name: "today", titleKey: "tabs.today", icon: "home" },
   { name: "classes", titleKey: "tabs.classes", icon: "classes" },
   { name: "students", titleKey: "tabs.students", icon: "students" },
   {

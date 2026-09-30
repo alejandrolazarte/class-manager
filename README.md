@@ -102,3 +102,5 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes chosen by each user, a theme created by the business from its color, and a business icon
 - [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, brand colors with accent, theme lock, welcome screen, and where students and the team see the brand
+- [Team notifications](docs/backend/20261001-team-notifications/plan.md) — avisos for coaches and owners (no voy, makeups, new orders), who gets each one, and web push for the team
+- [Team home](docs/frontend/20261001-team-home/plan.md) — Inicio replaces Hoy for the team: greeting, next class, tiles and the full day agenda

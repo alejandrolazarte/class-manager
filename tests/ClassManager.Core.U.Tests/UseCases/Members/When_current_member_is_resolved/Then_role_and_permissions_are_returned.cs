@@ -16,7 +16,12 @@ public sealed class Then_role_and_permissions_are_returned
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), businessId, BusinessRole.BranchOwner, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
 
-        var response = await new GetCurrentMemberUseCase(currentMember.Object).ExecuteAsync(new GetCurrentMemberQuery(), CancellationToken.None);
+        var identityService = new Mock<IIdentityService>();
+        identityService
+            .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var response = await new GetCurrentMemberUseCase(currentMember.Object, identityService.Object).ExecuteAsync(new GetCurrentMemberQuery(), CancellationToken.None);
 
         response.Value.ShouldBe(
             new CurrentMemberResponse(businessId, BusinessRole.BranchOwner, null, IsBrandOwner: true, [.. Permissions.All.Order(StringComparer.Ordinal)]),

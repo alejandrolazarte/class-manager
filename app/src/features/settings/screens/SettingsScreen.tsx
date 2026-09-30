@@ -9,6 +9,11 @@ import { formatMoney } from "@/features/fees/money";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
+import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
+import {
+  stopTeamPushNotifications,
+  useTeamPushNotifications,
+} from "@/features/teamNotifications/useTeamNotifications";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
@@ -32,6 +37,7 @@ export function SettingsScreen() {
   const router = useRouter();
   const business = useCurrentBusiness();
   const { signOut } = useSession();
+  const pushNotifications = useTeamPushNotifications();
   const canManageBusiness = useCan(permissions.businessManage);
   const canViewInstructors = useCan(permissions.instructorsView);
   const canViewClassPacks = useCan(permissions.classPacksView);
@@ -235,6 +241,10 @@ export function SettingsScreen() {
           ))}
         </Card>
       ) : null}
+      <NotificationSettings
+        notifications={pushNotifications}
+        hint={translate("teamNotifications.hint")}
+      />
       <Card>
         <AppearanceSettings />
       </Card>
@@ -243,7 +253,10 @@ export function SettingsScreen() {
         size="medium"
         icon="signOut"
         label={translate("settings.signOut")}
-        onPress={signOut}
+        onPress={async () => {
+          await stopTeamPushNotifications().catch(() => undefined);
+          await signOut();
+        }}
       />
     </ScrollScreen>
   );

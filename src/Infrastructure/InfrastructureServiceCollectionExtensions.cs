@@ -65,6 +65,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IMakeupBookingRepository, MakeupBookingRepository>();
         services.AddScoped<IAchievementLevelRepository, AchievementLevelRepository>();
         services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
+        services.AddScoped<IMemberPushSubscriptionRepository, MemberPushSubscriptionRepository>();
+        services.AddScoped<ITeamNotificationRepository, TeamNotificationRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IFeeScheduleRepository, FeeScheduleRepository>();
         services.AddScoped<IClassPackRepository, ClassPackRepository>();
@@ -97,13 +99,15 @@ public static class InfrastructureServiceCollectionExtensions
     private static IServiceCollection AddWebPush(this IServiceCollection services)
     {
         services.AddOptions<VapidOptions>().BindConfiguration(VapidOptions.SectionName);
-        services.AddSingleton<FamilyPushOutbox>();
+        services.AddSingleton<PushOutbox>();
         services.AddSingleton<IWebPushKeyProvider, WebPushKeyProvider>();
         services.AddHttpClient<IWebPushSender, WebPushSender>(client => client.Timeout = WebPushTimeout);
-        services.AddScoped<FamilyPushPublisher>();
-        services.AddScoped(serviceProvider => new FamilyPushDispatcher(
+        services.AddScoped<PushPublisher>();
+        services.AddScoped(serviceProvider => new PushDispatcher(
             serviceProvider.GetRequiredService<AppDbContext>(), serviceProvider.GetRequiredService<IWebPushSender>()));
         services.AddScoped<IFamilyNotificationService, FamilyNotificationService>();
+        services.AddScoped<TeamNotifier>();
+        services.AddScoped<ITeamNotificationService, TeamNotificationService>();
 
         return services;
     }

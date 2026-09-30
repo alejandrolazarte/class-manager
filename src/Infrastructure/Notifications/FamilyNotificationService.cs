@@ -4,14 +4,14 @@ using ClassManager.Infrastructure.WebPush;
 
 namespace ClassManager.Infrastructure.Notifications;
 
-internal sealed class FamilyNotificationService(AppDbContext context, FamilyPushPublisher publisher, TimeProvider timeProvider)
+internal sealed class FamilyNotificationService(AppDbContext context, PushPublisher publisher, TimeProvider timeProvider)
     : IFamilyNotificationService
 {
     public Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken)
     {
-        publisher.Publish(
+        publisher.PublishToFamilies(
             clientIds: null,
-            new FamilyPushMessage(announcement.Title, FamilyPushTexts.Shorten(announcement.Body ?? string.Empty), FamilyPushTexts.NewsUrl));
+            new PushMessage(announcement.Title, FamilyPushTexts.Shorten(announcement.Body ?? string.Empty), FamilyPushTexts.NewsUrl));
         return Task.CompletedTask;
     }
 
@@ -35,9 +35,9 @@ internal sealed class FamilyNotificationService(AppDbContext context, FamilyPush
             select student.ClientId)
             .Distinct()
             .ToListAsync(cancellationToken);
-        publisher.Publish(
+        publisher.PublishToFamilies(
             clientIds,
-            new FamilyPushMessage(
+            new PushMessage(
                 FamilyPushTexts.ClassCancelledTitle(classGroup.Name),
                 FamilyPushTexts.ClassCancelledBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), session.CancellationReason),
                 FamilyPushTexts.NewsUrl));
@@ -56,9 +56,9 @@ internal sealed class FamilyNotificationService(AppDbContext context, FamilyPush
             .Where(instructor => instructor.Id == feedback.InstructorId)
             .Select(instructor => instructor.FullName)
             .FirstOrDefaultAsync(cancellationToken);
-        publisher.Publish(
+        publisher.PublishToFamilies(
             [student.ClientId],
-            new FamilyPushMessage(
+            new PushMessage(
                 FamilyPushTexts.FeedbackTitle(instructorFullName, student.FullName),
                 FamilyPushTexts.Shorten(feedback.Text),
                 FamilyPushTexts.NewsUrl));

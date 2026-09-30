@@ -14,6 +14,6 @@ public sealed class Then_subscribed_families_get_a_push(ApiFixture fixture)
         (await scenario.Coaches.Business.HttpClient.PostAnnouncementAsync("Lunes cerrado", "Feriado")).EnsureSuccessStatusCode();
 
         var push = await fixture.ApiFactory.PushSender.WaitForPushToAsync(endpoint);
-        push.ShouldBe(new FamilyPushMessage("Lunes cerrado", "Feriado", "/family/news"));
+        push.ShouldBe(new PushMessage("Lunes cerrado", "Feriado", "/family/news"));
     }
 }

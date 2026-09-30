@@ -5,6 +5,8 @@ public static class ApiRoutes
     public const string Health = "/health";
     public const string Clients = "/api/clients";
     public const string Family = "/api/family";
+    public const string Team = "/api/team";
+    public const string Notifications = "/notifications";
     public const string FamilyNews = "/news";
     public const string FamilyStudents = "/students";
     public const string Absences = "/absences";
