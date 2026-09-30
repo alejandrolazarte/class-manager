@@ -24,6 +24,7 @@ The design's oklch colors were converted to hex. A few light-mode values were da
 - `themes.ts` defines each built-in theme as `{ light, dark }` maps of token → hex. Today: `aqua` (default, Agua), `violet` (Violeta), `ocean` (Océano), `rose` (Rosa), `plum` (Ciruela), `indigo` (Índigo) and `graphite` (Grafito). Every theme except `aqua` uses neutral grays and only changes the `primary*` tokens. Theme names describe colors, never an activity.
 - `ThemeProvider` (root layout) merges the built-in themes with optional `customThemes`, resolves the color scheme (`system` by default, or a forced `light` / `dark`), turns the active colors into CSS variables (`--color-primary: 0 118 180`) with NativeWind's [`vars()`](https://www.nativewind.dev/docs/api/vars) and sets them on a root `View`, so Android, iOS and web inherit them. It also feeds the navigation theme, so the tab bar follows the theme.
 - `tailwind.config.js` maps each token to `rgb(var(--color-<token>) / <alpha-value>)` (`bg-surface`, `text-muted-foreground`, `bg-primary/20`) and each font role to a family (`font-strong`, `font-heavy`).
+- `accent*` tokens are for small highlights (the eyebrow above titles, chips), never for buttons. Built-in themes set them to their `primary*` values.
 - `useTheme()` exposes `colors` (hex values for props that are not classes: `placeholderTextColor`, icon colors, shadows), `colorScheme`, `themeName`, `themeNames`, `previewColors(themeName)`, `setThemeName` and `setColorSchemePreference`.
 - `useElevationStyle()` (`src/ui/elevation.ts`) builds card and floating shadows from the `shadow` / `primary` tokens and drops card shadows in dark mode.
 - `PersistedThemePreferences` (root layout) restores and saves the chosen theme and color scheme (`expo-secure-store` on native, `localStorage` on web). **Ajustes → Apariencia / Colores** lets each user pick them for their own device, in a grid of three swatches per row.
@@ -60,6 +61,16 @@ To change fonts, update the families and assets in `typography.ts` and the `font
 Red means an error or a destructive action (Cancelar, Eliminar), amber a warning, green paid or present. If the primary color, used on every button and selected item, shares one of those hues, the owner can't tell a normal action from a dangerous one, or "paid" from any other highlight.
 
 `findStatusHueClashes` (`themeStatusHues.ts`) rejects a theme whose `primary` hue is less than 35° from its `danger`, `warning` or `success` hue, in light or dark. Near-gray primaries (saturation below 0.3, like Grafito) are exempt: they carry no hue to confuse. This is why there are no red, orange, yellow or green built-in themes; warm brand colors fit better as an accent (see [branding and plans](../branding-and-plans.md)).
+
+## The brand theme
+
+A business sets its main color and an optional accent in **Ajustes → Marca** ([brand plan](20260930-brand/plan.md)). `BrandProvider` (team and family layouts) reads them from the API, builds the theme with `deriveBrandTheme` (neutral grays plus `primary*` and `accent*` derived so every pair passes AA) and registers it with `setBrandTheme` under the name `business`:
+
+- A user who never chose a theme gets it; a stored choice (`chosenThemeName`) wins.
+- When the business locks its brand, `isThemeLocked` is true, the brand theme wins over any choice and the picker only explains it.
+- Signing out or removing the colors unregisters it; the user's choice or `aqua` applies again.
+
+`ThemePreviewScope` applies another set of colors (and the matching `useTheme().colors`) to a subtree; Ajustes → Marca uses it for the live preview and the welcome preview.
 
 ## Themes created by a business
 

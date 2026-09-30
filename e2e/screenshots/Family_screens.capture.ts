@@ -5,6 +5,7 @@ import { e2eEnvironment } from "../support/environment";
 import { SmtpSink } from "../support/smtpSink";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
 import { inviteOwnerAsFamily, demoFamilyPassword, seedDemoFamily, weekEndOf } from "./demoFamily";
+import { waitForBrandWelcomeToClose } from "./brandWelcome";
 
 const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
 const settleMilliseconds = 800;
@@ -49,6 +50,7 @@ async function openClassesDay(page: Page, isoDate: string, today: string): Promi
 
 async function capture(page: Page, fileName: string): Promise<void> {
   await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
 }
 

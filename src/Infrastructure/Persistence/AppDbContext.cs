@@ -7,6 +7,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<OrganizationMember> OrganizationMembers => Set<OrganizationMember>();
     public DbSet<Business> Businesses => Set<Business>();
+    public DbSet<BrandLogo> BrandLogos => Set<BrandLogo>();
     public DbSet<BusinessMember> BusinessMembers => Set<BusinessMember>();
     public DbSet<MemberInvitation> MemberInvitations => Set<MemberInvitation>();
     public DbSet<CustomRole> CustomRoles => Set<CustomRole>();

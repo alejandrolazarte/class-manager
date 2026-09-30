@@ -15,12 +15,16 @@ public sealed partial class Business
     public const int TimeZoneIdMaxLength = 64;
     public const int CurrencyCodeLength = 3;
     public const int DefaultCountryCallingCodeMaxLength = 3;
+    public const int BrandColorLength = 7;
 
     private const string NameLengthMessage = "Name must be between 2 and 120 characters.";
     private const string SlugFormatMessage = "Slug must be 3 to 80 lowercase letters, digits or hyphens.";
     private const string TimeZoneIdUnknownMessage = "Time zone id is not a known IANA time zone.";
     private const string CurrencyCodeUnknownMessage = "Currency code is not a known ISO 4217 code.";
     private const string DefaultCountryCallingCodeFormatMessage = "Default country calling code must be 1 to 3 digits.";
+    private const string BrandNameLengthMessage = "Brand name must be between 2 and 120 characters.";
+    private const string BrandColorFormatMessage = "Brand colors must be # followed by 6 hexadecimal digits.";
+    private const string LockWithoutThemeColorMessage = "Choose a main color before locking the brand theme.";
 
     private static readonly Lazy<FrozenSet<string>> KnownCurrencyCodes = new(LoadKnownCurrencyCodes);
 
@@ -36,6 +40,12 @@ public sealed partial class Business
     public string CurrencyCode { get; private set; } = string.Empty;
     public string DefaultCountryCallingCode { get; private set; } = string.Empty;
     public bool NoticedAbsencesKeepStreak { get; private set; } = true;
+    public string? BrandName { get; private set; }
+    public string? ThemeColor { get; private set; }
+    public string? AccentColor { get; private set; }
+    public bool LocksTheme { get; private set; }
+    public DateTimeOffset? LogoUpdatedAt { get; private set; }
+    public string BrandDisplayName => BrandName ?? Name;
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static Result<Business> Create(
@@ -95,6 +105,40 @@ public sealed partial class Business
         return Result.Success();
     }
 
+    public Result UpdateBrand(string? brandName, string? themeColor, string? accentColor, bool locksTheme)
+    {
+        var trimmedBrandName = string.IsNullOrWhiteSpace(brandName) ? null : brandName.Trim();
+        if (trimmedBrandName is { Length: < NameMinLength or > NameMaxLength })
+        {
+            return Result.Failure(ValidationError(BrandNameLengthMessage, nameof(BrandName)));
+        }
+
+        if (!IsBrandColor(themeColor))
+        {
+            return Result.Failure(ValidationError(BrandColorFormatMessage, nameof(ThemeColor)));
+        }
+
+        if (!IsBrandColor(accentColor))
+        {
+            return Result.Failure(ValidationError(BrandColorFormatMessage, nameof(AccentColor)));
+        }
+
+        if (locksTheme && themeColor is null)
+        {
+            return Result.Failure(ValidationError(LockWithoutThemeColorMessage, nameof(LocksTheme)));
+        }
+
+        BrandName = trimmedBrandName;
+        ThemeColor = themeColor?.ToLowerInvariant();
+        AccentColor = accentColor?.ToLowerInvariant();
+        LocksTheme = locksTheme;
+        return Result.Success();
+    }
+
+    public void ChangeLogo(DateTimeOffset updatedAt) => LogoUpdatedAt = updatedAt.ToUniversalTime();
+
+    public void RemoveLogo() => LogoUpdatedAt = null;
+
     public void ChangeNoticedAbsencesKeepStreak(bool keepsStreak) => NoticedAbsencesKeepStreak = keepsStreak;
 
     public TimeZoneInfo FindTimeZone() => TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
@@ -132,6 +176,8 @@ public sealed partial class Business
         return null;
     }
 
+    private static bool IsBrandColor(string? color) => color is null || BrandColorPattern().IsMatch(color);
+
     private static ResultError ValidationError(string message, string fieldName) =>
         new(Result.ValidationCode, message, ErrorKind.Validation) { FieldName = fieldName };
 
@@ -143,6 +189,9 @@ public sealed partial class Business
 
     [GeneratedRegex("^[a-z0-9-]{3,80}$")]
     private static partial Regex SlugPattern();
+
+    [GeneratedRegex("^#[0-9a-fA-F]{6}$")]
+    private static partial Regex BrandColorPattern();
 
     [GeneratedRegex("^[1-9][0-9]{0,2}$")]
     private static partial Regex CountryCallingCodePattern();

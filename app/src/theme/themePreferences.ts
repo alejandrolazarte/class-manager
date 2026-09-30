@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ColorSchemePreference } from "@/theme/ThemeContext";
-import { ThemeName } from "@/theme/themes";
+import { defaultThemeName, ThemeName } from "@/theme/themes";
 
 export const themePreferenceStorageKey = "class-manager.theme-preferences";
 
@@ -10,13 +10,14 @@ export interface ThemePreferenceStorage {
 }
 
 export interface ThemePreferences {
-  themeName: ThemeName;
+  themeName: ThemeName | null;
   colorSchemePreference: ColorSchemePreference;
 }
 
 const themePreferencesSchema = z.object({
-  themeName: z.string(),
+  themeName: z.string().nullable(),
   colorSchemePreference: z.enum(["light", "dark", "system"]),
+  isThemeChosen: z.boolean().optional(),
 });
 
 export function parseThemePreferences(
@@ -27,12 +28,20 @@ export function parseThemePreferences(
   }
   try {
     const parsed = themePreferencesSchema.safeParse(JSON.parse(serializedPreferences));
-    return parsed.success ? parsed.data : null;
+    if (!parsed.success) {
+      return null;
+    }
+    const { themeName, colorSchemePreference, isThemeChosen } = parsed.data;
+    const wasSavedWithoutChoosing = isThemeChosen === undefined && themeName === defaultThemeName;
+    return {
+      themeName: wasSavedWithoutChoosing ? null : themeName,
+      colorSchemePreference,
+    };
   } catch {
     return null;
   }
 }
 
 export function serializeThemePreferences(preferences: ThemePreferences): string {
-  return JSON.stringify(preferences);
+  return JSON.stringify({ ...preferences, isThemeChosen: preferences.themeName !== null });
 }

@@ -101,3 +101,4 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Family app, shop and online payments plan](docs/backend/20260929-online-shop-and-payments/plan.md) — family and adult student accounts, products and stock, orders paid at the branch, then Stripe Connect per branch (steps 1–4 built, the rest is a proposal)
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes chosen by each user, a theme created by the business from its color, and a business icon
+- [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, brand colors with accent, theme lock, welcome screen, and where students and the team see the brand

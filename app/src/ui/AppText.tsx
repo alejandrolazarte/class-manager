@@ -27,6 +27,8 @@ export const textToneClassNames = {
   disabled: "text-disabled-foreground",
   primary: "text-primary",
   primarySoft: "text-primary-soft-foreground",
+  accent: "text-accent",
+  accentSoft: "text-accent-soft-foreground",
   onPrimary: "text-primary-foreground",
   danger: "text-danger",
   onDanger: "text-danger-foreground",

@@ -47,7 +47,7 @@ export function ScreenHeader({
         {leading}
         <View className="min-w-0 flex-1 gap-0.5">
           {eyebrow ? (
-            <AppText variant="eyebrow" tone="primary">
+            <AppText variant="eyebrow" tone="accent">
               {eyebrow}
             </AppText>
           ) : null}
