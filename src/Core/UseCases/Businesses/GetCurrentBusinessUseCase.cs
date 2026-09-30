@@ -14,7 +14,6 @@ public sealed record BusinessResponse(
     string TimeZoneId,
     string CurrencyCode,
     string DefaultCountryCallingCode,
-    bool NoticedAbsencesKeepStreak,
     decimal? DefaultMonthlyFee,
     IReadOnlyList<MonthlyFeeChangeResponse> DefaultMonthlyFeeChanges)
 {
@@ -24,7 +23,6 @@ public sealed record BusinessResponse(
             business.TimeZoneId,
             business.CurrencyCode,
             business.DefaultCountryCallingCode,
-            business.NoticedAbsencesKeepStreak,
             FeeTimeline.DefaultFeeIn(feeChanges, BillingMonth.From(today)),
             MonthlyFeeChangeResponse.From(feeChanges));
 }

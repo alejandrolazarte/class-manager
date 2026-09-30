@@ -6,6 +6,10 @@ export default function SettingsLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ title: translate("settings.title") }} />
       <Stack.Screen name="business" options={{ title: translate("businessSettings.title") }} />
+      <Stack.Screen
+        name="achievements"
+        options={{ title: translate("achievements.settings.title") }}
+      />
       <Stack.Screen name="monthly-fee" options={{ title: translate("fees.defaultFee.title") }} />
       <Stack.Screen
         name="instructors/index"

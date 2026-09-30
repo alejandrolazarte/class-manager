@@ -44,7 +44,26 @@ public static class AttendanceStreaks
             .Select(weekStart => new AttendanceWeek(weekStart, AttendanceIn(weekStart)))
             .ToList();
 
-        return new AttendanceStreak(weeks, since, recentWeeks);
+        return new AttendanceStreak(weeks, since, recentWeeks, BestWeeks(AttendanceIn, currentWeek));
+    }
+
+    private static int BestWeeks(Func<DateOnly, WeekAttendance> attendanceIn, DateOnly currentWeek)
+    {
+        var best = 0;
+        var run = 0;
+        for (var weekStart = currentWeek.AddDays(-LookBackWeeks * DaysPerWeek); weekStart <= currentWeek; weekStart = weekStart.AddDays(DaysPerWeek))
+        {
+            var attendance = attendanceIn(weekStart);
+            if (attendance == WeekAttendance.Excused || (weekStart == currentWeek && attendance == WeekAttendance.NoClasses))
+            {
+                continue;
+            }
+
+            run = attendance == WeekAttendance.Attended ? run + 1 : 0;
+            best = Math.Max(best, run);
+        }
+
+        return best;
     }
 
     private static WeekAttendance StatusOf(IEnumerable<AttendanceMark> weekMarks)

@@ -8,18 +8,16 @@ public sealed record UpdateBusinessSettingsCommand(
     string? Name,
     string? TimeZoneId,
     string? CurrencyCode,
-    string? DefaultCountryCallingCode,
-    bool? NoticedAbsencesKeepStreak = null);
+    string? DefaultCountryCallingCode);
 
 public sealed record UpdateBusinessSettingsResponse(
     string Name,
     string TimeZoneId,
     string CurrencyCode,
-    string DefaultCountryCallingCode,
-    bool NoticedAbsencesKeepStreak)
+    string DefaultCountryCallingCode)
 {
     public static UpdateBusinessSettingsResponse From(Business business) =>
-        new(business.Name, business.TimeZoneId, business.CurrencyCode, business.DefaultCountryCallingCode, business.NoticedAbsencesKeepStreak);
+        new(business.Name, business.TimeZoneId, business.CurrencyCode, business.DefaultCountryCallingCode);
 }
 
 public sealed class UpdateBusinessSettingsUseCase(
@@ -35,7 +33,7 @@ public sealed class UpdateBusinessSettingsUseCase(
             return Result.Unauthorized<UpdateBusinessSettingsResponse>(BusinessErrorCodes.CurrentBusinessNotFoundMessage, BusinessErrorCodes.CurrentBusinessNotFound);
         }
 
-        var update = business.UpdateSettings(command.Name, command.TimeZoneId, command.CurrencyCode, command.DefaultCountryCallingCode, command.NoticedAbsencesKeepStreak);
+        var update = business.UpdateSettings(command.Name, command.TimeZoneId, command.CurrencyCode, command.DefaultCountryCallingCode);
         if (update.IsFailure)
         {
             return update.Error!;

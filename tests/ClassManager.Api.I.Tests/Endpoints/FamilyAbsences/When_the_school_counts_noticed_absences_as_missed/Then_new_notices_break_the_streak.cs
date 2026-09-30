@@ -10,7 +10,7 @@ public sealed class Then_new_notices_break_the_streak(ApiFixture fixture)
     {
         var scenario = await fixture.SeedFamilyScenarioAsync();
         var business = scenario.Coaches.Business;
-        (await business.HttpClient.PutBusinessAsync(SettingsRequests.SettingsOf(business, noticedAbsencesKeepStreak: false)))
+        (await business.HttpClient.PutAchievementSettingsAsync(AchievementRequests.SettingsWith(noticedAbsencesKeepStreak: false)))
             .EnsureSuccessStatusCode();
 
         (await scenario.Family.PutAbsenceAsync(

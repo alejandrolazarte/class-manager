@@ -13,7 +13,7 @@ public sealed class Then_the_notice_keeps_the_rule_it_was_given_with(ApiFixture 
         (await scenario.Family.PutAbsenceAsync(
             scenario.Coaches.CoachStudentId, scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate)).EnsureSuccessStatusCode();
 
-        (await business.HttpClient.PutBusinessAsync(SettingsRequests.SettingsOf(business, noticedAbsencesKeepStreak: false)))
+        (await business.HttpClient.PutAchievementSettingsAsync(AchievementRequests.SettingsWith(noticedAbsencesKeepStreak: false)))
             .EnsureSuccessStatusCode();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);

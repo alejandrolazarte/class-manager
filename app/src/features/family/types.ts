@@ -46,11 +46,22 @@ export interface FamilyAttendanceWeek {
   attendance: WeekAttendance;
 }
 
+export type Medal =
+  "FirstClass" | "TenClasses" | "FourWeekStreak" | "LeveledUp" | "PerfectMonth" | "HundredClasses";
+
+export interface FamilyLevel {
+  name: string;
+  requiredClasses: number;
+}
+
 export interface FamilyAttendance {
   streakWeeks: number;
   streakSince: string | null;
   attendedClasses: number;
   recentWeeks: FamilyAttendanceWeek[];
+  bestStreakWeeks: number;
+  level: number;
+  medals: Medal[];
 }
 
 export interface FamilyFeedback {
@@ -93,6 +104,7 @@ export interface FamilyHome {
   clientFullName: string;
   students: FamilyStudent[];
   billing: FamilyBilling;
+  levels: FamilyLevel[];
 }
 
 export interface InviteFamilyRequest {

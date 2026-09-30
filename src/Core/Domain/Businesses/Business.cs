@@ -77,8 +77,7 @@ public sealed partial class Business
         };
     }
 
-    public Result UpdateSettings(
-        string? name, string? timeZoneId, string? currencyCode, string? defaultCountryCallingCode, bool? noticedAbsencesKeepStreak = null)
+    public Result UpdateSettings(string? name, string? timeZoneId, string? currencyCode, string? defaultCountryCallingCode)
     {
         var trimmedName = name?.Trim() ?? string.Empty;
         var normalizedCurrencyCode = NormalizeCurrencyCode(currencyCode);
@@ -93,9 +92,10 @@ public sealed partial class Business
         TimeZoneId = timeZoneId!;
         CurrencyCode = normalizedCurrencyCode!;
         DefaultCountryCallingCode = defaultCountryCallingCode!;
-        NoticedAbsencesKeepStreak = noticedAbsencesKeepStreak ?? NoticedAbsencesKeepStreak;
         return Result.Success();
     }
+
+    public void ChangeNoticedAbsencesKeepStreak(bool keepsStreak) => NoticedAbsencesKeepStreak = keepsStreak;
 
     public TimeZoneInfo FindTimeZone() => TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
 

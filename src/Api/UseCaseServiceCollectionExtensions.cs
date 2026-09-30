@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
+using ClassManager.Core.UseCases.Achievements;
 using ClassManager.Core.UseCases.Announcements;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Branches;
@@ -161,6 +162,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<DeletePaymentCommand, PaymentResponse>, DeletePaymentUseCase>();
         services.AddScoped<IUseCase<ListMonthlyFeesQuery, MonthlyFeesResponse>, ListMonthlyFeesUseCase>();
         services.AddScoped<IUseCase<UpdateBusinessSettingsCommand, UpdateBusinessSettingsResponse>, UpdateBusinessSettingsUseCase>();
+        services.AddScoped<IUseCase<GetAchievementSettingsQuery, AchievementSettingsResponse>, GetAchievementSettingsUseCase>();
+        services.AddScoped<IUseCase<UpdateAchievementSettingsCommand, AchievementSettingsResponse>, UpdateAchievementSettingsUseCase>();
 
         return services;
     }

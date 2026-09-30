@@ -42,6 +42,7 @@ public static class ApiRoutes
     public const string Schedule = "/schedule";
     public const string Substitute = "/substitute";
     public const string MonthlyFee = "/monthly-fee";
+    public const string Achievements = "/achievements";
     public const string BillingPlan = "/billing-plan";
     public const string ClassPacks = "/api/class-packs";
     public const string ClassPackById = "/{classPackId:guid}";

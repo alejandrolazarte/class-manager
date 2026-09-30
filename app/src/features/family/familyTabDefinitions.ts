@@ -11,6 +11,7 @@ export const familyTabDefinitions: readonly FamilyTabDefinition[] = [
   { name: "index", titleKey: "family.tabs.home", icon: "home" },
   { name: "classes", titleKey: "family.tabs.classes", icon: "classes" },
   { name: "shop", titleKey: "family.tabs.shop", icon: "products" },
+  { name: "progress", titleKey: "family.tabs.progress", icon: "achievements" },
   { name: "settings", titleKey: "settings.title", icon: "settings" },
 ];
 

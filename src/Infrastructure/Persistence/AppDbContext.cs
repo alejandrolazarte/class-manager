@@ -23,6 +23,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<AbsenceNotice> AbsenceNotices => Set<AbsenceNotice>();
     public DbSet<MakeupBooking> MakeupBookings => Set<MakeupBooking>();
+    public DbSet<AchievementLevel> AchievementLevels => Set<AchievementLevel>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<DefaultMonthlyFeeChange> DefaultMonthlyFeeChanges => Set<DefaultMonthlyFeeChange>();
     public DbSet<ClientBillingPlanChange> ClientBillingPlanChanges => Set<ClientBillingPlanChange>();
