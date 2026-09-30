@@ -20,13 +20,14 @@ public sealed class BusinessMember : ITenantOwned
     public Guid? CustomRoleId { get; private set; }
     public Guid? InstructorId { get; private set; }
 
-    public static BusinessMember CreateBranchOwner(Guid businessId, Guid userId) =>
+    public static BusinessMember CreateBranchOwner(Guid businessId, Guid userId, Guid? instructorId = null) =>
         new()
         {
             Id = Guid.CreateVersion7(),
             TenantId = businessId,
             UserId = userId,
             Role = BusinessRole.BranchOwner,
+            InstructorId = instructorId,
         };
 
     public static Result<BusinessMember> Create(Guid businessId, Guid userId, MemberRole role, Guid? instructorId)
