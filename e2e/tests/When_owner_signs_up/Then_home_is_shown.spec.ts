@@ -1,7 +1,7 @@
 import { expect, test } from "../../support/fixtures";
 import { ownerPassword, uniqueOwnerEmail } from "../../support/businessApi";
 
-test("Then students list is shown", async ({ page }) => {
+test("Then home is shown", async ({ page }) => {
   await page.goto("/sign-up");
   await page.getByLabel("Nombre y apellido").fill("Valeria Sosa");
   await page.getByLabel("Email").fill(uniqueOwnerEmail());
@@ -10,6 +10,6 @@ test("Then students list is shown", async ({ page }) => {
   await page.getByLabel("Nombre del negocio").fill("Panadería Valeria");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
-  await expect(page).toHaveURL(/\/students/);
-  await expect(page.getByText("Todavía no tenés alumnos")).toBeVisible();
+  await expect(page).toHaveURL(/\/today/);
+  await expect(page.getByText("Hola, Valeria")).toBeVisible();
 });

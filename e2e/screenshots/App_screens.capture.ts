@@ -19,7 +19,7 @@ test("App screens", async ({ page, request }) => {
   await page.getByLabel("Email").fill(demo.email);
   await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
   await page.getByRole("button", { name: "Ingresar" }).click();
-  await expect(page).toHaveURL(/\/students/);
+  await expect(page).toHaveURL(/\/today/);
 
   const screens: [fileName: string, path: string, visibleText: string][] = [
     ["01-hoy", "/today", "presentes"],

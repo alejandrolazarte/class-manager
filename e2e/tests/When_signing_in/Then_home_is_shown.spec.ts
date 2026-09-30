@@ -1,10 +1,10 @@
 import { expect, signIn, test } from "../../support/fixtures";
 import { signUpBusiness } from "../../support/businessApi";
 
-test("Then students list is shown", async ({ page, request }) => {
+test("Then home is shown", async ({ page, request }) => {
   const account = await signUpBusiness(request);
 
   await signIn(page, account);
 
-  await expect(page.getByText("Todavía no tenés alumnos")).toBeVisible();
+  await expect(page.getByText("Próxima clase")).toBeVisible();
 });

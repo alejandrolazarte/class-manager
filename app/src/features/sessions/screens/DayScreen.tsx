@@ -4,8 +4,14 @@ import { FlatList, Pressable, View } from "react-native";
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
 import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import { weekdayOf } from "@/features/classGroups/weekdays";
+import { useCurrentBrand } from "@/features/brand/BrandProvider";
+import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { firstNameOf } from "@/features/family/familySchedule";
+import { HomeTile } from "@/features/home/components/HomeTile";
+import { NextSessionHero } from "@/features/home/components/NextSessionHero";
+import { currentTimeLabel, nextSessionOf } from "@/features/home/nextSession";
+import { useCan, useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { DaySessionCard } from "@/features/sessions/components/DaySessionCard";
 import { MonthCalendarGrid } from "@/features/sessions/components/MonthCalendarGrid";
@@ -20,6 +26,8 @@ import {
 import { DaySession } from "@/features/sessions/types";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
 import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";
+import { TeamNotificationBell } from "@/features/teamNotifications/components/TeamNotificationBell";
+import { useTeamNotifications } from "@/features/teamNotifications/useTeamNotifications";
 import { addMonths, formatMonth } from "@/features/fees/months";
 import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
@@ -53,6 +61,8 @@ export function DayScreen({ initialDate }: DayScreenProps) {
     permissions.privateLessonsManageOwn,
   );
   const business = useCurrentBusiness();
+  const member = useCurrentMember();
+  const brandName = useCurrentBrand()?.brand?.displayName ?? business.name;
   const today = todayIsoDate();
   const [sessionDate, setSessionDate] = useState(initialDate ?? today);
   const {
@@ -62,6 +72,12 @@ export function DayScreen({ initialDate }: DayScreenProps) {
     isRefetching,
     refetch,
   } = useDaySessions(sessionDate);
+  const { data: todaySessions = [] } = useDaySessions(today);
+  const { data: notifications } = useTeamNotifications();
+  const timeNow = currentTimeLabel();
+  const nextSession = nextSessionOf(todaySessions, timeNow);
+  const activeTodaySessions = todaySessions.filter((session) => !session.isCancelled);
+  const unreadNotices = notifications?.unreadCount ?? 0;
   const { data: classGroups = [] } = useActiveClassGroups();
   const hasClassesOn = (isoDate: string) =>
     classesOfDay(classGroups, weekdayOf(parseIsoDate(isoDate))).length > 0;
@@ -85,7 +101,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
         ? translate("sessions.day.tomorrow")
         : sessionDate === addDays(today, -1)
           ? translate("sessions.day.yesterday")
-          : business.name;
+          : translate("home.agenda");
   const expectedStudentCount = sessions
     .filter((session) => !session.isCancelled)
     .reduce((total, session) => total + session.enrolledCount, 0);
@@ -100,49 +116,94 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   const header = (
     <View className="gap-[18px] pb-3">
       <ScreenHeader
-        eyebrow={eyebrow}
-        title={formatLongDate(sessionDate)}
-        accessory={
-          <View className="flex-row gap-1">
-            <IconButton
-              variant="outlined"
-              icon={isMonthView ? "weekView" : "monthView"}
-              tone="primary"
-              accessibilityLabel={translate(
-                isMonthView ? "sessions.calendar.hide" : "sessions.calendar.show",
-              )}
-              onPress={toggleMonthView}
-            />
-            {isMonthView ? (
-              <>
-                <StepArrow
-                  direction="previous"
-                  label={translate("sessions.calendar.previousMonth")}
-                  onPress={() => setCalendarMonth(addMonths(calendarMonth, -1))}
-                />
-                <StepArrow
-                  direction="next"
-                  label={translate("sessions.calendar.nextMonth")}
-                  onPress={() => setCalendarMonth(addMonths(calendarMonth, 1))}
-                />
-              </>
-            ) : (
-              <>
-                <StepArrow
-                  direction="previous"
-                  label={translate("sessions.day.previous")}
-                  onPress={() => setSessionDate(addDays(sessionDate, -1))}
-                />
-                <StepArrow
-                  direction="next"
-                  label={translate("sessions.day.next")}
-                  onPress={() => setSessionDate(addDays(sessionDate, 1))}
-                />
-              </>
-            )}
-          </View>
+        leading={<CurrentBrandLogo />}
+        eyebrow={brandName}
+        title={
+          member.fullName
+            ? translate("home.greeting", { name: firstNameOf(member.fullName) })
+            : translate("home.title")
         }
+        accessory={<TeamNotificationBell />}
       />
+      <View className="gap-3 px-5">
+        <NextSessionHero
+          session={nextSession}
+          isNow={nextSession !== null && nextSession.startTime <= timeNow}
+          onOpen={() => (nextSession === null ? undefined : router.push(sessionRoute(nextSession)))}
+        />
+        <View className="flex-row gap-3">
+          <HomeTile
+            icon="today"
+            iconTone="primary"
+            title={translate("home.today.title")}
+            value={translateCount("sessions.day.classCount", activeTodaySessions.length)}
+            caption={translateCount(
+              "sessions.day.studentCount",
+              activeTodaySessions.reduce((total, session) => total + session.enrolledCount, 0),
+            )}
+          />
+          <HomeTile
+            icon="notifications"
+            iconTone="warning"
+            title={translate("home.notices.title")}
+            value={
+              unreadNotices > 0
+                ? translateCount("home.notices.unread", unreadNotices)
+                : translate("home.notices.none")
+            }
+            caption={translate("home.notices.caption")}
+            onPress={() => router.push(routes.teamNotifications)}
+          />
+        </View>
+      </View>
+      <View className="flex-row items-center justify-between gap-3 px-5 pt-1">
+        <View className="min-w-0 flex-1 gap-0.5">
+          <AppText variant="eyebrow" tone="accent">
+            {eyebrow}
+          </AppText>
+          <AppText variant="title" accessibilityRole="header">
+            {formatLongDate(sessionDate)}
+          </AppText>
+        </View>
+        <View className="flex-row gap-1">
+          <IconButton
+            variant="outlined"
+            icon={isMonthView ? "weekView" : "monthView"}
+            tone="primary"
+            accessibilityLabel={translate(
+              isMonthView ? "sessions.calendar.hide" : "sessions.calendar.show",
+            )}
+            onPress={toggleMonthView}
+          />
+          {isMonthView ? (
+            <>
+              <StepArrow
+                direction="previous"
+                label={translate("sessions.calendar.previousMonth")}
+                onPress={() => setCalendarMonth(addMonths(calendarMonth, -1))}
+              />
+              <StepArrow
+                direction="next"
+                label={translate("sessions.calendar.nextMonth")}
+                onPress={() => setCalendarMonth(addMonths(calendarMonth, 1))}
+              />
+            </>
+          ) : (
+            <>
+              <StepArrow
+                direction="previous"
+                label={translate("sessions.day.previous")}
+                onPress={() => setSessionDate(addDays(sessionDate, -1))}
+              />
+              <StepArrow
+                direction="next"
+                label={translate("sessions.day.next")}
+                onPress={() => setSessionDate(addDays(sessionDate, 1))}
+              />
+            </>
+          )}
+        </View>
+      </View>
       <View className="gap-[18px] px-5">
         {isMonthView ? (
           <View className="gap-2">
