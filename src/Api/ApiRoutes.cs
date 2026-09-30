@@ -10,6 +10,8 @@ public static class ApiRoutes
     public const string Absences = "/absences";
     public const string StudentAbsence = "/students/{studentId:guid}/absences/{classGroupId:guid}/{sessionDate}";
     public const string Makeups = "/makeups";
+    public const string PushSubscription = "/push-subscription";
+    public const string PushKey = "/push-key";
     public const string StudentMakeups = "/students/{studentId:guid}/makeups";
     public const string StudentMakeup = "/students/{studentId:guid}/makeups/{classGroupId:guid}/{sessionDate}";
     public const string Seen = "/seen";

@@ -111,6 +111,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<MarkFamilyNewsSeenCommand, bool>, MarkFamilyNewsSeenUseCase>();
         services.AddScoped<IUseCase<NotifyAbsenceCommand, bool>, NotifyAbsenceUseCase>();
         services.AddScoped<MakeupRepositories>();
+        services.AddScoped<IUseCase<GetFamilyPushKeyQuery, FamilyPushKeyResponse>, GetFamilyPushKeyUseCase>();
+        services.AddScoped<IUseCase<SavePushSubscriptionCommand, bool>, SavePushSubscriptionUseCase>();
+        services.AddScoped<IUseCase<RemovePushSubscriptionCommand, bool>, RemovePushSubscriptionUseCase>();
         services.AddScoped<IUseCase<GetFamilyMakeupsQuery, FamilyMakeupsResponse>, GetFamilyMakeupsUseCase>();
         services.AddScoped<IUseCase<BookMakeupCommand, bool>, BookMakeupUseCase>();
         services.AddScoped<IUseCase<CancelMakeupCommand, bool>, CancelMakeupUseCase>();

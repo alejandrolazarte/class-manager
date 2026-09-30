@@ -1,8 +1,10 @@
 import { httpClient } from "@/api/httpClient";
+import { BrowserPushSubscription } from "@/features/family/push/browserPush";
 import {
   FamilyHome,
   FamilyInvitation,
   FamilyMakeups,
+  FamilyPushKey,
   FamilyNews,
   FamilyDelivery,
   FamilyOrder,
@@ -122,4 +124,21 @@ export function cancelMakeup(
   sessionDate: string,
 ): Promise<void> {
   return httpClient.delete<void>(makeupPath(studentId, classGroupId, sessionDate));
+}
+
+const pushKeyPath = `${familyPath}/push-key`;
+const pushSubscriptionPath = `${familyPath}/push-subscription`;
+
+export function getPushKey(): Promise<FamilyPushKey> {
+  return httpClient.get<FamilyPushKey>(pushKeyPath);
+}
+
+export function savePushSubscription(subscription: BrowserPushSubscription): Promise<void> {
+  return httpClient.put<void>(pushSubscriptionPath, subscription);
+}
+
+export function removePushSubscription(endpoint: string): Promise<void> {
+  return httpClient.delete<void>(
+    `${pushSubscriptionPath}?endpoint=${encodeURIComponent(endpoint)}`,
+  );
 }

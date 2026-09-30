@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Infrastructure.Persistence;
+using ClassManager.Infrastructure.WebPush;
 using Microsoft.Extensions.Logging;
 
 namespace ClassManager.Infrastructure.Notifications;
@@ -11,6 +12,7 @@ internal sealed partial class OrderNotificationService(
     AppDbContext context,
     IIdentityService identityService,
     IEmailSender emailSender,
+    FamilyPushPublisher pushPublisher,
     ILogger<OrderNotificationService> logger)
     : IOrderNotificationService
 {
@@ -48,6 +50,11 @@ internal sealed partial class OrderNotificationService(
         var nextStep = !order.HasProducts ? OrderEmails.ClassesCredited
             : order.IsReady ? await WhereToGetItAsync(order, business, cancellationToken)
             : OrderEmails.WillNotifyWhenReady;
+        if (order.HasProducts && order.IsReady)
+        {
+            PushReady(order, nextStep);
+        }
+
         foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
         {
             await SendAsync(OrderEmails.Paid(email, business.Name, LinesOf(order, business.CurrencyCode), nextStep), cancellationToken);
@@ -63,6 +70,7 @@ internal sealed partial class OrderNotificationService(
         }
 
         var whereToGetIt = await WhereToGetItAsync(order, business, cancellationToken);
+        PushReady(order, whereToGetIt);
         foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
         {
             await SendAsync(OrderEmails.Ready(email, business.Name, LinesOf(order, business.CurrencyCode), whereToGetIt), cancellationToken);
@@ -92,6 +100,14 @@ internal sealed partial class OrderNotificationService(
             '\n',
             order.Lines.Select(line =>
                 $"- {(line.Quantity > 1 ? $"{line.Quantity} × " : string.Empty)}{line.Name}: {OrderEmails.Amount(line.Total, currencyCode)}"));
+
+    private void PushReady(Order order, string whereToGetIt)
+    {
+        if (order.ClientId is { } clientId)
+        {
+            pushPublisher.Publish([clientId], new FamilyPushMessage(FamilyPushTexts.OrderReadyTitle, whereToGetIt, FamilyPushTexts.OrdersUrl));
+        }
+    }
 
     private Task<Business?> CurrentBusinessAsync(CancellationToken cancellationToken) =>
         context.Businesses.AsNoTracking().FirstOrDefaultAsync(business => business.Id == context.CurrentTenantId, cancellationToken);

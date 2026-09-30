@@ -14,6 +14,10 @@ export interface FamilyNextClass {
   isMakeup: boolean;
 }
 
+export interface FamilyPushKey {
+  publicKey: string | null;
+}
+
 export type MakeupReason = "Notice" | "Cancelled";
 
 export interface FamilyMakeupCredit {

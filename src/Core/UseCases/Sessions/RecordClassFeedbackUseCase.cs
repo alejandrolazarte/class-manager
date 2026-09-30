@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -19,6 +20,7 @@ public sealed class RecordClassFeedbackUseCase(
     IClassFeedbackRepository feedbackRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
+    IFamilyNotificationService familyNotifications,
     TimeProvider timeProvider,
     IAccessScopes accessScopes)
     : IUseCase<RecordClassFeedbackCommand, bool>
@@ -69,6 +71,7 @@ public sealed class RecordClassFeedbackUseCase(
 
         var instructorId = session.EffectiveInstructorId(classGroup.Value!.InstructorId);
         var feedback = await feedbackRepository.FindForUpdateAsync(session.Id, command.StudentId, cancellationToken);
+        ClassFeedback? createdFeedback = null;
         if (string.IsNullOrWhiteSpace(command.Text))
         {
             if (feedback is not null)
@@ -84,7 +87,8 @@ public sealed class RecordClassFeedbackUseCase(
                 return created.Error!;
             }
 
-            feedbackRepository.Add(created.Value!);
+            createdFeedback = created.Value!;
+            feedbackRepository.Add(createdFeedback);
         }
         else
         {
@@ -102,6 +106,11 @@ public sealed class RecordClassFeedbackUseCase(
         catch (UniqueConstraintViolationException)
         {
             return Result.Conflict<bool>(ConcurrentUpdateMessage, SessionErrorCodes.ConcurrentUpdate);
+        }
+
+        if (createdFeedback is not null)
+        {
+            await familyNotifications.FeedbackLeftAsync(createdFeedback, cancellationToken);
         }
 
         return true;

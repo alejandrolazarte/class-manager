@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Infrastructure.WebPush;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Tokens;
 using Microsoft.AspNetCore.Hosting;
@@ -19,7 +20,13 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
 
     public static readonly DateTimeOffset Now = new(2026, 9, 24, 12, 0, 0, TimeSpan.Zero);
 
+    private static readonly VapidKeys TestVapidKeys = VapidKeys.Generate();
+
+    public static string VapidPublicKey => TestVapidKeys.PublicKey;
+
     public RecordingEmailSender EmailSender { get; } = new();
+
+    internal RecordingWebPushSender PushSender { get; } = new();
 
     public BusinessApiFactory(string databaseConnectionString)
         : this(databaseConnectionString, new FakeTimeProvider(Now))
@@ -32,6 +39,9 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
             $"{ConnectionStringsSection}:{InfrastructureServiceCollectionExtensions.DatabaseConnectionStringName}",
             databaseConnectionString);
         builder.UseSetting($"{JwtOptions.SectionName}:{nameof(JwtOptions.SigningKey)}", TestSigningKey);
+        builder.UseSetting($"{VapidOptions.SectionName}:{nameof(VapidOptions.Subject)}", "mailto:tests@example.com");
+        builder.UseSetting($"{VapidOptions.SectionName}:{nameof(VapidOptions.PublicKey)}", TestVapidKeys.PublicKey);
+        builder.UseSetting($"{VapidOptions.SectionName}:{nameof(VapidOptions.PrivateKey)}", TestVapidKeys.PrivateKey);
         builder.UseSetting(
             $"{AuthenticationRateLimitOptions.SectionName}:{nameof(AuthenticationRateLimitOptions.PermitLimit)}",
             TestAuthenticationPermitLimit.ToString(System.Globalization.CultureInfo.InvariantCulture));
@@ -39,6 +49,7 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
         {
             services.Replace(ServiceDescriptor.Singleton(timeProvider));
             services.Replace(ServiceDescriptor.Singleton<IEmailSender>(EmailSender));
+            services.Replace(ServiceDescriptor.Singleton<IWebPushSender>(PushSender));
         });
     }
 }
