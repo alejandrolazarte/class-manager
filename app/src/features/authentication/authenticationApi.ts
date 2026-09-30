@@ -1,5 +1,6 @@
-import { anonymousHttpClient } from "@/api/httpClient";
+import { anonymousHttpClient, httpClient } from "@/api/httpClient";
 import {
+  Account,
   AcceptFamilyInvitationRequest,
   AcceptInvitationRequest,
   PasswordResetRequest,
@@ -22,6 +23,7 @@ const authenticationPaths = {
   acceptInvitation: "/api/auth/invitations/accept",
   acceptFamilyInvitation: "/api/auth/family-invitations/accept",
   switchBranch: "/api/auth/branch",
+  accounts: "/api/me/accounts",
 } as const;
 
 export function signUp(request: SignUpRequest): Promise<TokenResponse> {
@@ -59,6 +61,10 @@ export function acceptFamilyInvitation(
 
 export function switchBranch(request: SwitchBranchRequest): Promise<TokenResponse> {
   return anonymousHttpClient.post<TokenResponse>(authenticationPaths.switchBranch, request);
+}
+
+export function listAccounts(): Promise<Account[]> {
+  return httpClient.get<Account[]>(authenticationPaths.accounts);
 }
 
 export function requestPasswordReset(request: PasswordResetRequest): Promise<void> {

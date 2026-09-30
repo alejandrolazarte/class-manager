@@ -22,9 +22,9 @@ internal sealed class TokenService(ITokenIssuer tokenIssuer) : ITokenService
             : ToIssuedTokens(tokens);
     }
 
-    public async Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, CancellationToken cancellationToken)
+    public async Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, string? kind, CancellationToken cancellationToken)
     {
-        var tokens = await tokenIssuer.RefreshAsync(refreshToken, businessId, cancellationToken);
+        var tokens = await tokenIssuer.SwitchAsync(refreshToken, businessId, kind, cancellationToken);
 
         return tokens is null
             ? Result.Unauthorized<IssuedTokens>(AuthenticationErrorCodes.InvalidRefreshTokenMessage, AuthenticationErrorCodes.InvalidRefreshToken)

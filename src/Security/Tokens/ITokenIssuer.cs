@@ -12,5 +12,7 @@ public interface ITokenIssuer
     /// </summary>
     Task<IssuedTokenPair?> RefreshAsync(string refreshToken, Guid? tenantId, CancellationToken cancellationToken);
 
+    Task<IssuedTokenPair?> SwitchAsync(string refreshToken, Guid tenantId, string? kind, CancellationToken cancellationToken);
+
     Task RevokeAsync(string refreshToken, CancellationToken cancellationToken);
 }

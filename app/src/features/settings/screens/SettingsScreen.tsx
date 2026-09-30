@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { Fragment, ReactElement } from "react";
 import { View } from "react-native";
+import { useHasOtherAccountKind } from "@/features/authentication/useAccounts";
 import { useSession } from "@/features/authentication/useSession";
 import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
@@ -39,8 +40,21 @@ export function SettingsScreen() {
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
   const { data: branches = [] } = useBranches();
+  const hasFamilyAccount = useHasOtherAccountKind("team");
   const currentBranchName = branches.find((branch) => branch.isCurrent)?.name ?? business.name;
   const rows: SettingsRow[] = [
+    {
+      key: "accounts",
+      isVisible: hasFamilyAccount,
+      row: (
+        <ListRow
+          icon="home"
+          label={translate("accounts.switch")}
+          detail={translate("accounts.switchHint")}
+          onPress={() => router.push(routes.chooseAccount)}
+        />
+      ),
+    },
     {
       key: "branches",
       isVisible: canCreateBranches || branches.length > 1,

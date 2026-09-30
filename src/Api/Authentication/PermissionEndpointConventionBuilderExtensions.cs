@@ -10,6 +10,10 @@ internal static class PermissionEndpointConventionBuilderExtensions
         where TBuilder : IEndpointConventionBuilder =>
         builder.RequireAuthorization(AuthorizationPolicies.Family);
 
+    public static TBuilder RequireAnyAccount<TBuilder>(this TBuilder builder)
+        where TBuilder : IEndpointConventionBuilder =>
+        builder.RequireAuthorization(AuthorizationPolicies.AnyAccount);
+
     public static TBuilder RequireMember<TBuilder>(this TBuilder builder)
         where TBuilder : IEndpointConventionBuilder =>
         builder.RequireAuthorization(AuthorizationPolicies.Member);

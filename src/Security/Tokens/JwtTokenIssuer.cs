@@ -31,7 +31,13 @@ internal sealed class JwtTokenIssuer(
         return new IssuedTokenPair(accessToken.Token, accessToken.ExpiresAt, refreshTokenValue, refreshToken.ExpiresAt, subject.Kind);
     }
 
-    public async Task<IssuedTokenPair?> RefreshAsync(string refreshToken, Guid? tenantId, CancellationToken cancellationToken)
+    public Task<IssuedTokenPair?> RefreshAsync(string refreshToken, Guid? tenantId, CancellationToken cancellationToken) =>
+        RotateAsync(refreshToken, tenantId, kind: null, cancellationToken);
+
+    public Task<IssuedTokenPair?> SwitchAsync(string refreshToken, Guid tenantId, string? kind, CancellationToken cancellationToken) =>
+        RotateAsync(refreshToken, tenantId, kind, cancellationToken);
+
+    private async Task<IssuedTokenPair?> RotateAsync(string refreshToken, Guid? tenantId, string? kind, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         var tokenHash = Hash(refreshToken);
@@ -54,7 +60,7 @@ internal sealed class JwtTokenIssuer(
             return null;
         }
 
-        var subject = await FindTokenSubjectAsync(storedToken.UserId, tenantId ?? storedToken.TenantId, storedToken.Kind, cancellationToken);
+        var subject = await FindTokenSubjectAsync(storedToken.UserId, tenantId ?? storedToken.TenantId, kind ?? storedToken.Kind, cancellationToken);
         if (subject is null)
         {
             return null;

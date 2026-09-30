@@ -333,3 +333,34 @@ export async function seedDemoFamily(
 
   return { email, absenceDate, makeupDate: makeupSlot.date };
 }
+
+export async function inviteOwnerAsFamily(
+  request: APIRequestContext,
+  demo: DemoBusiness,
+  smtpSink: SmtpSink,
+): Promise<void> {
+  const signIn = await request.post(`${e2eEnvironment.apiUrl}/api/auth/sign-in`, {
+    data: { email: demo.email, password: demoPassword },
+  });
+  expect(signIn.ok(), "the demo owner signs in").toBeTruthy();
+  const { accessToken } = (await signIn.json()) as { accessToken: string };
+  const invitation = await request.post(
+    `${e2eEnvironment.apiUrl}/api/clients/${demo.familyClientId}/app-invitation`,
+    { data: { email: demo.email }, headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+  expect(invitation.ok(), "the owner is invited as a family").toBeTruthy();
+  const email = await smtpSink.waitForEmailTo(demo.email);
+  const token = invitationTokenPattern.exec(email.body)?.[1];
+  expect(token, "the invitation email has the accept link").toBeTruthy();
+  const accepted = await request.post(
+    `${e2eEnvironment.apiUrl}/api/auth/family-invitations/accept`,
+    {
+      data: {
+        token: decodeURIComponent(token!),
+        fullName: familyFullName,
+        password: demoPassword,
+      },
+    },
+  );
+  expect(accepted.ok(), "the owner accepts the family invitation").toBeTruthy();
+}

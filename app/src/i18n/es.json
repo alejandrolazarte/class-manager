@@ -1078,5 +1078,15 @@
   "family.notifications.hint": "Te avisamos en este dispositivo cuando hay un anuncio, se suspende una clase, el profe deja un comentario o tu pedido está listo.",
   "family.notifications.blocked": "Las notificaciones están bloqueadas para esta app. Habilitalas desde la configuración del navegador.",
   "family.notifications.unsupported": "Este navegador no puede mostrar notificaciones. En iPhone, agregá la app a la pantalla de inicio (Compartir → Agregar a inicio) y abrila desde ahí.",
-  "family.notifications.notAllowed": "No se activaron: el navegador no dio permiso."
+  "family.notifications.notAllowed": "No se activaron: el navegador no dio permiso.",
+  "accounts.chooseTitle": "¿Cómo querés entrar?",
+  "accounts.chooseSubtitle": "Tu mail tiene acceso como equipo y como familia. Podés cambiar cuando quieras desde Ajustes.",
+  "accounts.switch": "Cambiar de cuenta",
+  "accounts.switchHint": "Entrar como equipo o como familia",
+  "accounts.asTeam": "Equipo de {name}",
+  "accounts.asFamily": "Familia en {name}",
+  "accounts.teamHint": "Como equipo: clases, alumnos y cuotas",
+  "accounts.familyHint": "Como familia: clases, tienda y logros de tus hijos",
+  "accounts.current": "Actual",
+  "accounts.switchFailed": "No pudimos cambiar de cuenta. Probá de nuevo."
 }

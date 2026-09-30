@@ -7,4 +7,6 @@ public interface IFamilyDirectory
     Task<FamilyLink?> FindDefaultAsync(Guid userId, CancellationToken cancellationToken);
 
     Task<FamilyLink?> FindAsync(Guid userId, Guid businessId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<FamilyLink>> ListAsync(Guid userId, CancellationToken cancellationToken);
 }

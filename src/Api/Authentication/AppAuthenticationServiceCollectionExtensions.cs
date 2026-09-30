@@ -18,7 +18,8 @@ internal static class AppAuthenticationServiceCollectionExtensions
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
             .AddPolicy(
                 AuthorizationPolicies.Family,
-                policy => policy.RequireAuthenticatedUser().AddRequirements(new FamilyRequirement()));
+                policy => policy.RequireAuthenticatedUser().AddRequirements(new FamilyRequirement()))
+            .AddPolicy(AuthorizationPolicies.AnyAccount, policy => policy.RequireAuthenticatedUser());
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddScoped<IAuthorizationHandler, FamilyAuthorizationHandler>();

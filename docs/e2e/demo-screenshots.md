@@ -90,5 +90,6 @@ The family signs in through the sign-in screen, then the test captures:
 | `28b-familia-logros` | Achievements: level, progress to the next one and level path |
 | `28c-familia-logros-medallas` | Achievements: medals and the last 12 weeks |
 | `29-familia-ajustes` | Settings: account, notifications, appearance and sign out |
+| `30-elegir-cuenta` | Choosing between the team and the family account when the same email has both |
 
 Run only these with `pnpm screenshots:no-build Family_screens`.

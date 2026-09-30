@@ -1,3 +1,5 @@
+import { SessionKind } from "@/features/authentication/sessionKind";
+
 export interface SignUpRequest {
   ownerFullName: string;
   email: string;
@@ -41,6 +43,14 @@ export interface AcceptFamilyInvitationRequest {
 export interface SwitchBranchRequest {
   refreshToken: string;
   businessId: string;
+  kind?: SessionKind;
+}
+
+export interface Account {
+  businessId: string;
+  businessName: string;
+  kind: SessionKind;
+  isCurrent: boolean;
 }
 
 export interface SignOutRequest {
