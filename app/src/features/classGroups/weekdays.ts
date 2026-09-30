@@ -25,6 +25,10 @@ export function weekdayShortLabel(weekday: Weekday): string {
   return translate(`weekdays.short.${weekday}` as TranslationKey);
 }
 
+export function weekdayLetter(weekday: Weekday): string {
+  return translate(`weekdays.letter.${weekday}` as TranslationKey);
+}
+
 export function weekdayLongLabel(weekday: Weekday): string {
   return translate(`weekdays.long.${weekday}` as TranslationKey);
 }

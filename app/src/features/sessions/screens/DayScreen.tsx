@@ -1,13 +1,22 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
+import { classesOfDay } from "@/features/classGroups/classesOfDay";
+import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
+import { weekdayOf } from "@/features/classGroups/weekdays";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { DaySessionCard } from "@/features/sessions/components/DaySessionCard";
 import { MonthCalendarGrid } from "@/features/sessions/components/MonthCalendarGrid";
 import { WeekStrip } from "@/features/sessions/components/WeekStrip";
-import { addDays, formatLongDate, monthOfDate, todayIsoDate } from "@/features/sessions/dates";
+import {
+  addDays,
+  formatLongDate,
+  monthOfDate,
+  parseIsoDate,
+  todayIsoDate,
+} from "@/features/sessions/dates";
 import { DaySession } from "@/features/sessions/types";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
 import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";
@@ -53,6 +62,9 @@ export function DayScreen({ initialDate }: DayScreenProps) {
     isRefetching,
     refetch,
   } = useDaySessions(sessionDate);
+  const { data: classGroups = [] } = useActiveClassGroups();
+  const hasClassesOn = (isoDate: string) =>
+    classesOfDay(classGroups, weekdayOf(parseIsoDate(isoDate))).length > 0;
   const [isMonthView, setIsMonthView] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => monthOfDate(sessionDate));
   const { data: monthCalendar } = useMonthCalendar(calendarMonth, isMonthView);
@@ -146,7 +158,12 @@ export function DayScreen({ initialDate }: DayScreenProps) {
             />
           </View>
         ) : (
-          <WeekStrip selectedDate={sessionDate} today={today} onSelectDate={setSessionDate} />
+          <WeekStrip
+            selectedDate={sessionDate}
+            today={today}
+            hasClassesOn={hasClassesOn}
+            onSelectDate={setSessionDate}
+          />
         )}
         <View className="min-h-6 flex-row items-center justify-between">
           <AppText variant="bodyStrong" tone="muted" className="font-label">
