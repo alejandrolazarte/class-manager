@@ -8,7 +8,7 @@ public interface ITokenService
 
     Task<Result<IssuedTokens>> RefreshAsync(string refreshToken, CancellationToken cancellationToken);
 
-    Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, CancellationToken cancellationToken);
+    Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, string? kind, CancellationToken cancellationToken);
 
     Task RevokeAsync(string refreshToken, CancellationToken cancellationToken);
 }

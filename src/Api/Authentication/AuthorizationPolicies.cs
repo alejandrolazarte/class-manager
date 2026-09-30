@@ -5,6 +5,7 @@ internal static class AuthorizationPolicies
     public const string PermissionPrefix = "permission:";
     public const string Member = PermissionPrefix;
     public const string Family = "family";
+    public const string AnyAccount = "any-account";
 
     private const char PermissionSeparator = ',';
 

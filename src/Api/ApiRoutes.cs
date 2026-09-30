@@ -91,6 +91,7 @@ public static class ApiRoutes
     public const string AcceptInvitation = "/invitations/accept";
     public const string AcceptFamilyInvitation = "/family-invitations/accept";
     public const string MyBranches = "/api/me/branches";
+    public const string MyAccounts = "/api/me/accounts";
     public const string SwitchBranch = "/branch";
     public const string OrganizationBranches = "/api/organization/branches";
     public const string BrandOwnerSegment = "/brand-owner";

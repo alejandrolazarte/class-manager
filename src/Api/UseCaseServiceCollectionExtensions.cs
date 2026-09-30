@@ -54,6 +54,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<GetImportTemplateQuery, ExportFile>, GetImportTemplateUseCase>();
         services.AddScoped<IUseCase<ExportQuery, ExportFile>, ExportUseCase>();
         services.AddScoped<IUseCase<SignInCommand, TokenResponse>, SignInUseCase>();
+        services.AddScoped<IUseCase<ListAccountsQuery, IReadOnlyList<AccountResponse>>, ListAccountsUseCase>();
         services.AddScoped<IUseCase<RefreshSessionCommand, TokenResponse>, RefreshSessionUseCase>();
         services.AddScoped<IUseCase<SignOutCommand, SignOutResponse>, SignOutUseCase>();
         services.AddScoped<IUseCase<ResetPasswordCommand, ResetPasswordResponse>, ResetPasswordUseCase>();

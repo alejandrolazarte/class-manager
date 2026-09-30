@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Branches;
@@ -24,6 +26,7 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.AcceptInvitation, AcceptInvitationAsync);
         authentication.MapPost(ApiRoutes.AcceptFamilyInvitation, AcceptFamilyInvitationAsync);
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
+        endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
 
         return endpoints;
     }
@@ -86,6 +89,16 @@ internal static class AuthenticationEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> ListAccountsAsync(
+        ClaimsPrincipal user,
+        IUseCase<ListAccountsQuery, IReadOnlyList<AccountResponse>> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ListAccountsQuery(SessionKindClaim.Of(user)), cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> SwitchBranchAsync(

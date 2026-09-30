@@ -11,6 +11,15 @@ internal sealed class FamilyDirectory(AppDbContext context) : IFamilyDirectory
     public Task<FamilyLink?> FindAsync(Guid userId, Guid businessId, CancellationToken cancellationToken) =>
         FirstAsync(userId, businessId, cancellationToken);
 
+    public async Task<IReadOnlyList<FamilyLink>> ListAsync(Guid userId, CancellationToken cancellationToken) =>
+        await (
+            from account in context.ClientAccounts.IgnoreQueryFilters().AsNoTracking()
+            where account.UserId == userId
+            join business in context.Businesses.AsNoTracking() on account.TenantId equals business.Id
+            orderby business.Name
+            select new FamilyLink(account.TenantId, business.Name, account.ClientId))
+            .ToListAsync(cancellationToken);
+
     private async Task<FamilyLink?> FirstAsync(Guid userId, Guid? businessId, CancellationToken cancellationToken)
     {
         var accountLink = await context.ClientAccounts

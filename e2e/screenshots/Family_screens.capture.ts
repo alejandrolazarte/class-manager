@@ -3,8 +3,8 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { e2eEnvironment } from "../support/environment";
 import { SmtpSink } from "../support/smtpSink";
-import { demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
-import { demoFamilyPassword, seedDemoFamily, weekEndOf } from "./demoFamily";
+import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
+import { inviteOwnerAsFamily, demoFamilyPassword, seedDemoFamily, weekEndOf } from "./demoFamily";
 
 const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
 const settleMilliseconds = 800;
@@ -137,4 +137,22 @@ test("Family screens", async ({ page, request }) => {
   await page.goto("/family/settings");
   await page.getByRole("switch", { name: "Avisarme de novedades" }).waitFor();
   await capture(page, "29-familia-ajustes");
+});
+
+test("Account chooser", async ({ page, request }) => {
+  const demo = await seedDemoBusiness(request);
+  await inviteOwnerAsFamily(request, demo, smtpSink);
+  mkdirSync(outputDirectory, { recursive: true });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(demo.email);
+  await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
+  await page.getByRole("button", { name: "Ingresar" }).click();
+  await expect(page).toHaveURL(/\/choose-account/);
+  await page.getByText("¿Cómo querés entrar?").first().waitFor();
+  await capture(page, "30-elegir-cuenta");
+
+  await page.getByRole("button", { name: /^Familia en/ }).click();
+  await expect(page).toHaveURL(/\/family/);
+  await page.getByText("Próxima clase").first().waitFor();
 });

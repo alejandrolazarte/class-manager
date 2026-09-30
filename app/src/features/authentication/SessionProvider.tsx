@@ -6,6 +6,7 @@ import {
   acceptInvitation as acceptInvitationRequest,
   refreshSession,
   signIn as signInRequest,
+  listAccounts,
   signOut as signOutRequest,
   signUp as signUpRequest,
   switchBranch as switchBranchRequest,
@@ -21,7 +22,13 @@ import {
 } from "@/features/authentication/types";
 
 export type SessionStartReason =
-  "signUp" | "signIn" | "invitation" | "familyInvitation" | "branchSwitch" | "restore";
+  | "signUp"
+  | "signIn"
+  | "invitation"
+  | "familyInvitation"
+  | "branchSwitch"
+  | "accountSwitch"
+  | "restore";
 
 export type SessionState =
   | { status: "restoring" }
@@ -31,6 +38,7 @@ export type SessionState =
       startedBy: SessionStartReason;
       kind: SessionKind;
       ownerFullName?: string;
+      mustChooseAccount?: boolean;
     };
 
 export interface SessionContextValue {
@@ -40,6 +48,8 @@ export interface SessionContextValue {
   acceptInvitation: (request: AcceptInvitationRequest) => Promise<void>;
   acceptFamilyInvitation: (request: AcceptFamilyInvitationRequest) => Promise<void>;
   switchBranch: (businessId: string) => Promise<void>;
+  switchAccount: (businessId: string, kind: SessionKind) => Promise<void>;
+  confirmAccount: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -51,6 +61,15 @@ class MissingRefreshTokenError extends Error {
 }
 
 const signedOutSession: SessionState = { status: "signedOut" };
+
+async function hasTeamAndFamilyAccounts(): Promise<boolean> {
+  const accounts = await listAccounts().catch(() => undefined);
+  return (
+    accounts !== undefined &&
+    accounts.some((account) => account.kind === "team") &&
+    accounts.some((account) => account.kind === "family")
+  );
+}
 
 export const SessionContext = createContext<SessionContextValue | null>(null);
 
@@ -106,21 +125,29 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, [queryClient]);
 
   const startSession = useCallback(
-    async (tokens: TokenResponse, startedBy: SessionStartReason, ownerFullName?: string) => {
+    async (
+      tokens: TokenResponse,
+      startedBy: SessionStartReason,
+      ownerFullName?: string,
+      askForAccount: boolean = false,
+    ) => {
       authenticationSession.startSession(tokens.accessToken);
       await refreshTokenStorage.write(tokens.refreshToken);
+      const mustChooseAccount = askForAccount && (await hasTeamAndFamilyAccounts());
       setSession({
         status: "signedIn",
         startedBy,
         kind: sessionKindOf(tokens.accessToken),
         ownerFullName,
+        mustChooseAccount,
       });
     },
     [],
   );
 
   const signIn = useCallback(
-    async (request: SignInRequest) => startSession(await signInRequest(request), "signIn"),
+    async (request: SignInRequest) =>
+      startSession(await signInRequest(request), "signIn", undefined, true),
     [startSession],
   );
 
@@ -142,17 +169,39 @@ export function SessionProvider({ children }: PropsWithChildren) {
     [startSession],
   );
 
-  const switchBranch = useCallback(
-    async (businessId: string) => {
+  const switchTo = useCallback(
+    async (businessId: string, kind: SessionKind | undefined, startedBy: SessionStartReason) => {
       const storedRefreshToken = await refreshTokenStorage.read();
       if (storedRefreshToken === null) {
         throw new MissingRefreshTokenError();
       }
-      const tokens = await switchBranchRequest({ refreshToken: storedRefreshToken, businessId });
-      await startSession(tokens, "branchSwitch");
+      const tokens = await switchBranchRequest(
+        kind === undefined
+          ? { refreshToken: storedRefreshToken, businessId }
+          : { refreshToken: storedRefreshToken, businessId, kind },
+      );
+      await startSession(tokens, startedBy);
       await queryClient.resetQueries();
     },
     [queryClient, startSession],
+  );
+
+  const switchBranch = useCallback(
+    (businessId: string) => switchTo(businessId, undefined, "branchSwitch"),
+    [switchTo],
+  );
+
+  const switchAccount = useCallback(
+    (businessId: string, kind: SessionKind) => switchTo(businessId, kind, "accountSwitch"),
+    [switchTo],
+  );
+
+  const confirmAccount = useCallback(
+    () =>
+      setSession((current) =>
+        current.status === "signedIn" ? { ...current, mustChooseAccount: false } : current,
+      ),
+    [],
   );
 
   const signOut = useCallback(async () => {
@@ -171,9 +220,21 @@ export function SessionProvider({ children }: PropsWithChildren) {
       acceptInvitation,
       acceptFamilyInvitation,
       switchBranch,
+      switchAccount,
+      confirmAccount,
       signOut,
     }),
-    [session, signIn, signUp, acceptInvitation, acceptFamilyInvitation, switchBranch, signOut],
+    [
+      session,
+      signIn,
+      signUp,
+      acceptInvitation,
+      acceptFamilyInvitation,
+      switchBranch,
+      switchAccount,
+      confirmAccount,
+      signOut,
+    ],
   );
 
   return <SessionContext.Provider value={contextValue}>{children}</SessionContext.Provider>;
