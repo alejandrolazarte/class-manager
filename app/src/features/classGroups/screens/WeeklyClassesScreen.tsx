@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { FlatList, Pressable, ScrollView, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { ClassGroupCard } from "@/features/classGroups/components/ClassGroupCard";
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
 import { Weekday } from "@/features/classGroups/types";
@@ -15,47 +15,20 @@ import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
-import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { DayStrip } from "@/ui/DayStrip";
 import { EmptyState } from "@/ui/EmptyState";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
 
-interface DayFilterChipProps {
-  weekday: Weekday;
-  classCount: number;
-  isSelected: boolean;
-  onPress: () => void;
-}
-
-function DayFilterChip({ weekday, classCount, isSelected, onPress }: DayFilterChipProps) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={weekdayLongLabel(weekday)}
-      accessibilityState={{ selected: isSelected }}
-      onPress={onPress}
-      className={`h-10 min-w-12 flex-row items-center justify-center gap-1.5 rounded-full px-3.5 ${isSelected ? "bg-primary" : "border-[1.5px] border-border bg-surface"}`}
-    >
-      <AppText variant="link" tone={isSelected ? "onPrimary" : "default"}>
-        {weekdayShortLabel(weekday)}
-      </AppText>
-      {isSelected || classCount === 0 ? null : (
-        <AppText variant="footnote" tone="subtle" className="font-strong text-[11px]">
-          {classCount}
-        </AppText>
-      )}
-    </Pressable>
-  );
-}
-
 export function WeeklyClassesScreen() {
   const router = useRouter();
   const canManageClassGroups = useCan(permissions.classGroupsManage);
-  const [selectedWeekday, setSelectedWeekday] = useState<Weekday>(() => weekdayOf(new Date()));
+  const [todayWeekday] = useState<Weekday>(() => weekdayOf(new Date()));
+  const [selectedWeekday, setSelectedWeekday] = useState<Weekday>(todayWeekday);
   const {
     data: classGroups = [],
     isPending,
@@ -93,21 +66,19 @@ export function WeeklyClassesScreen() {
         title={translate("classGroups.week.title")}
       />
       {isPending ? null : (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerClassName="gap-1.5 px-5"
-        >
-          {weekOrder.map((weekday) => (
-            <DayFilterChip
-              key={weekday}
-              weekday={weekday}
-              classCount={classesOfDay(classGroups, weekday).length}
-              isSelected={weekday === selectedWeekday}
-              onPress={() => setSelectedWeekday(weekday)}
-            />
-          ))}
-        </ScrollView>
+        <View className="px-5">
+          <DayStrip
+            days={weekOrder.map((weekday) => ({
+              key: weekday,
+              label: weekdayShortLabel(weekday),
+              accessibilityLabel: weekdayLongLabel(weekday),
+              hasClasses: classesOfDay(classGroups, weekday).length > 0,
+              isToday: weekday === todayWeekday,
+            }))}
+            selectedKeys={[selectedWeekday]}
+            onSelect={(weekday) => setSelectedWeekday(weekday as Weekday)}
+          />
+        </View>
       )}
       {isError ? (
         <View className="px-5">

@@ -5,7 +5,7 @@ The app supports several visual themes, each in light and dark, without touching
 1. **Palette** (`app/src/theme/palette.ts`) — raw colors. Only themes use it.
 2. **Semantic tokens** (`app/src/theme/themeColorTokens.ts`) — colors named by intent: `background`, `surface`, `foreground`, `muted-foreground`, `primary`, `primary-foreground`, `danger`, `success-foreground`, `warning-soft`, `inverse`, `shadow`, ... Every theme defines every token (enforced by the `ThemeColors` type).
 3. **Typography** (`app/src/theme/typography.ts`) — font roles (`text`, `label`, `strong`, `heavy`) mapped to font families (Nunito 600/700/800/900 today) and loaded in the root layout with `expo-font`.
-4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `BrandMark`. Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes.
+4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `BrandMark`. Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes.
 
 ## Visual language
 
