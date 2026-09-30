@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Achievements;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
@@ -25,6 +26,7 @@ public sealed class GetFamilyHomeUseCase(
     IClassFeedbackRepository feedbackRepository,
     IAbsenceNoticeRepository absenceNoticeRepository,
     IMakeupBookingRepository makeupBookingRepository,
+    IAchievementLevelRepository levelRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
     IFeeScheduleRepository feeScheduleRepository,
@@ -60,6 +62,7 @@ public sealed class GetFamilyHomeUseCase(
             .Where(lesson => lesson.Students.Any(lessonStudent => students.Any(student => student.Id == lessonStudent.StudentId)))
             .ToList();
 
+        var levels = await levelRepository.ListAsync(cancellationToken);
         var studentIds = students.Select(student => student.Id).ToList();
         var attendanceMarks = (await attendanceRepository.ListMarksByStudentsAsync(
                 studentIds, AttendanceStreaks.FirstDayToLoad(today), today, cancellationToken))
@@ -141,7 +144,7 @@ public sealed class GetFamilyHomeUseCase(
                         .ThenBy(nextClass => nextClass.StartTime, StringComparer.Ordinal)
                         .Take(NextClassLimit),
                 ],
-                Attendance(attendanceMarks[student.Id].ToList(), attendedClasses.GetValueOrDefault(student.Id), today),
+                Attendance(attendanceMarks[student.Id].ToList(), attendedClasses.GetValueOrDefault(student.Id), levels, today),
                 latestFeedbacks.TryGetValue(student.Id, out var feedback)
                     ? new FamilyFeedbackResponse(feedback.Date, feedback.ClassGroupName, instructorNames.GetValueOrDefault(feedback.InstructorId), feedback.Text)
                     : null));
@@ -152,7 +155,8 @@ public sealed class GetFamilyHomeUseCase(
             business.CurrencyCode,
             client.FullName,
             studentResponses,
-            await BillingAsync(client.Id, today, cancellationToken));
+            await BillingAsync(client.Id, today, cancellationToken),
+            levels);
     }
 
     private const string PrivateLessonName = "Clase particular";
@@ -182,10 +186,22 @@ public sealed class GetFamilyHomeUseCase(
             isMakeup);
     }
 
-    private static FamilyAttendanceResponse Attendance(IReadOnlyCollection<AttendanceMark> marks, int attendedClasses, DateOnly today)
+    private static FamilyAttendanceResponse Attendance(
+        IReadOnlyCollection<AttendanceMark> marks,
+        int attendedClasses,
+        IReadOnlyList<LevelDefinition> levels,
+        DateOnly today)
     {
         var streak = AttendanceStreaks.Calculate(marks, today);
-        return new FamilyAttendanceResponse(streak.Weeks, streak.Since, attendedClasses, streak.RecentWeeks);
+        var level = LevelLadder.LevelFor(levels, attendedClasses);
+        return new FamilyAttendanceResponse(
+            streak.Weeks,
+            streak.Since,
+            attendedClasses,
+            streak.RecentWeeks,
+            streak.BestWeeks,
+            level,
+            Medals.Earned(new MedalProgress(attendedClasses, level, streak.BestWeeks), marks, today));
     }
 
     private async Task<FamilyBillingResponse> BillingAsync(Guid clientId, DateOnly today, CancellationToken cancellationToken)

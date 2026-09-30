@@ -60,6 +60,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
         services.AddScoped<IAbsenceNoticeRepository, AbsenceNoticeRepository>();
         services.AddScoped<IMakeupBookingRepository, MakeupBookingRepository>();
+        services.AddScoped<IAchievementLevelRepository, AchievementLevelRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IFeeScheduleRepository, FeeScheduleRepository>();
         services.AddScoped<IClassPackRepository, ClassPackRepository>();

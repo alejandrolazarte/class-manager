@@ -27,6 +27,7 @@ export const routes = {
     email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
   settings: "/settings",
   businessSettings: "/settings/business",
+  achievementSettings: "/settings/achievements",
   defaultMonthlyFee: "/settings/monthly-fee",
   instructors: "/settings/instructors",
   newInstructor: "/settings/instructors/new",

@@ -5,7 +5,6 @@ export interface Business {
   timeZoneId: string;
   currencyCode: string;
   defaultCountryCallingCode: string;
-  noticedAbsencesKeepStreak: boolean;
   defaultMonthlyFee: number | null;
   defaultMonthlyFeeChanges: MonthlyFeeChange[];
 }
@@ -15,7 +14,6 @@ export interface UpdateBusinessSettingsRequest {
   timeZoneId: string;
   currencyCode: string;
   defaultCountryCallingCode: string;
-  noticedAbsencesKeepStreak: boolean;
 }
 
 export type UpdateBusinessSettingsResponse = Omit<

@@ -116,6 +116,12 @@ test("Family screens", async ({ page, request }) => {
   await page.getByText("Cancelado").first().waitFor();
   await capture(page, "28-familia-pedidos-anteriores");
 
+  await page.goto("/family/progress");
+  await page.getByText("Camino de niveles").first().waitFor();
+  await capture(page, "28b-familia-logros");
+  await scrollToBottom(page);
+  await capture(page, "28c-familia-logros-medallas");
+
   await page.goto("/family/settings");
   await page.getByText("Apariencia").first().waitFor();
   await capture(page, "29-familia-ajustes");

@@ -1,3 +1,4 @@
+using ClassManager.Core.Domain.Achievements;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
 
@@ -20,7 +21,10 @@ public sealed record FamilyAttendanceResponse(
     int StreakWeeks,
     DateOnly? StreakSince,
     int AttendedClasses,
-    IReadOnlyList<AttendanceWeek> RecentWeeks);
+    IReadOnlyList<AttendanceWeek> RecentWeeks,
+    int BestStreakWeeks,
+    int Level,
+    IReadOnlyList<Medal> Medals);
 
 public sealed record FamilyFeedbackResponse(DateOnly Date, string ClassName, string? InstructorFullName, string Text);
 
@@ -45,6 +49,7 @@ public sealed record FamilyHomeResponse(
     string CurrencyCode,
     string ClientFullName,
     IReadOnlyList<FamilyStudentResponse> Students,
-    FamilyBillingResponse Billing);
+    FamilyBillingResponse Billing,
+    IReadOnlyList<LevelDefinition> Levels);
 
 public sealed record FamilyInvitationResponse(Guid Id, string Email, DateTimeOffset ExpiresAt);

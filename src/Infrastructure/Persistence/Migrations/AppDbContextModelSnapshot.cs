@@ -22,6 +22,32 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Achievements.AchievementLevel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequiredClasses")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Position");
+
+                    b.ToTable("AchievementLevels");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Announcements.Announcement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1329,6 +1355,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Achievements.AchievementLevel", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Announcements.Announcement", b =>

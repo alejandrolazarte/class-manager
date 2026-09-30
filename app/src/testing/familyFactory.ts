@@ -69,6 +69,9 @@ export function buildFamilyAttendance(overrides: Partial<FamilyAttendance> = {})
     streakSince: null,
     attendedClasses: 0,
     recentWeeks: [],
+    bestStreakWeeks: 0,
+    level: 1,
+    medals: [],
     ...overrides,
   };
 }
@@ -95,6 +98,10 @@ export function buildFamilyHome(overrides: Partial<FamilyHome> = {}): FamilyHome
       monthlyFee: { month: "2026-09", fee: 60, paid: 0, balance: 60, status: "Unpaid" },
       classes: null,
     },
+    levels: [
+      { name: "Inicial", requiredClasses: 0 },
+      { name: "Base", requiredClasses: 10 },
+    ],
     ...overrides,
   };
 }

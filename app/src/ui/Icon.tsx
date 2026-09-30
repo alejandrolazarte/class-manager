@@ -72,6 +72,13 @@ const iconGlyphs = {
   comment: "chat-bubble-outline",
   notifications: "notifications",
   announcement: "campaign",
+  achievements: "emoji-events",
+  flag: "flag",
+  firstMilestone: "looks-one",
+  trendingUp: "trending-up",
+  verified: "verified",
+  militaryTech: "military-tech",
+  locked: "lock-outline",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {

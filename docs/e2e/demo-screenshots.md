@@ -48,7 +48,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-profes` | Settings and instructors |
 | `12b-novedades` | Publishing an announcement for families |
-| `12c-ajustes-negocio` | Business settings, including whether noticed absences keep the streak |
+| `12c-ajustes-negocio` | Business settings |
+| `12d-logros-y-asistencia` | Levels for students and whether noticed absences keep the streak |
 | `14-familia-por-clases` | Family paying per class: classes left and packs |
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
@@ -86,6 +87,8 @@ The family signs in through the sign-in screen, then the test captures:
 | `25-familia-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |
 | `26-familia-carrito` | Cart: lines, delivery place, payment and total |
 | `27-familia-pedidos`, `28-familia-pedidos-anteriores` | Orders in progress with tracking, and past orders |
+| `28b-familia-logros` | Achievements: level, progress to the next one and level path |
+| `28c-familia-logros-medallas` | Achievements: medals and the last 12 weeks |
 | `29-familia-ajustes` | Settings: account, appearance and sign out |
 
 Run only these with `pnpm screenshots:no-build Family_screens`.

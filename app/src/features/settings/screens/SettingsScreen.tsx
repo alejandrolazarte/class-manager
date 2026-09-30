@@ -141,6 +141,18 @@ export function SettingsScreen() {
       ),
     },
     {
+      key: "achievements",
+      isVisible: canManageBusiness,
+      row: (
+        <ListRow
+          icon="achievements"
+          label={translate("settings.achievements")}
+          detail={translate("settings.achievementsHint")}
+          onPress={() => router.push(routes.achievementSettings)}
+        />
+      ),
+    },
+    {
       key: "announcements",
       isVisible: canManageAnnouncements,
       row: (
