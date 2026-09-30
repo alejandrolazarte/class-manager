@@ -6,6 +6,7 @@ import { WeekStrip } from "@/features/family/components/WeekStrip";
 import { useSelectedStudent } from "@/features/family/FamilyStudentProvider";
 import { classesOn, monthTitle, shortDayLabel } from "@/features/family/familySchedule";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { addDays, todayIsoDate, weekOf } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -25,6 +26,7 @@ const lastWeekOffset = 2;
 export function FamilyClassesScreen() {
   const today = todayIsoDate();
   const { data: home, isPending, isError, refetch } = useFamilyHome();
+  useRefetchOnFocus(refetch);
   const { student, selectStudent } = useSelectedStudent(home?.students ?? []);
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState(today);

@@ -10,6 +10,7 @@ import {
 } from "@/features/family/familyNewsPresentation";
 import { FamilyNewsItem } from "@/features/family/types";
 import { useFamilyNews, useMarkFamilyNewsSeen } from "@/features/family/useFamilyNews";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
@@ -24,6 +25,7 @@ import { Spinner } from "@/ui/Spinner";
 export function FamilyNewsScreen() {
   const router = useRouter();
   const { data: news, isPending, isError, refetch } = useFamilyNews();
+  useRefetchOnFocus(refetch);
   const { mutate: markSeen } = useMarkFamilyNewsSeen();
   const hasUnread = (news?.unreadCount ?? 0) > 0;
 

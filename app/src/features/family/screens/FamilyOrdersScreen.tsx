@@ -9,6 +9,7 @@ import {
 } from "@/features/family/familyOrderStage";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
 import { useFamilyOrders } from "@/features/family/useFamilyShop";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -27,6 +28,7 @@ const filterLabels: Record<FamilyOrderFilter, TranslationKey> = {
 
 export function FamilyOrdersScreen() {
   const { data: orders = [], isPending, isError, refetch } = useFamilyOrders();
+  useRefetchOnFocus(refetch);
   const { data: home, isPending: isHomePending } = useFamilyHome();
   const [chosenFilter, setChosenFilter] = useState<FamilyOrderFilter | null>(null);
 

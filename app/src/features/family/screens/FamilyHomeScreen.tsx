@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { useCallback } from "react";
 import { Pressable, View } from "react-native";
 import { BillingTile } from "@/features/family/components/BillingTile";
 import { FeedbackCard } from "@/features/family/components/FeedbackCard";
@@ -13,6 +14,7 @@ import { firstNameOf } from "@/features/family/familySchedule";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
 import { useFamilyNews } from "@/features/family/useFamilyNews";
 import { useFamilyShop } from "@/features/family/useFamilyShop";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
@@ -28,8 +30,15 @@ const homeAnnouncementLimit = 2;
 export function FamilyHomeScreen() {
   const router = useRouter();
   const { data: home, isPending, isError, refetch } = useFamilyHome();
-  const { data: shop } = useFamilyShop();
-  const { data: news } = useFamilyNews();
+  const { data: shop, refetch: refetchShop } = useFamilyShop();
+  const { data: news, refetch: refetchNews } = useFamilyNews();
+  useRefetchOnFocus(
+    useCallback(() => {
+      refetch();
+      refetchShop();
+      refetchNews();
+    }, [refetch, refetchShop, refetchNews]),
+  );
   const announcements = (news?.items ?? [])
     .filter((item) => item.kind === "Announcement")
     .slice(0, homeAnnouncementLimit);

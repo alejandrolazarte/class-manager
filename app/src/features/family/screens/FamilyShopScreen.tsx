@@ -10,6 +10,7 @@ import { useFamilyCart } from "@/features/family/FamilyCartProvider";
 import { cartTotal } from "@/features/family/familyCart";
 import { FamilyShopProduct } from "@/features/family/types";
 import { useFamilyShop } from "@/features/family/useFamilyShop";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { formatMoney } from "@/features/fees/money";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
@@ -67,6 +68,7 @@ export function FamilyShopScreen() {
   const router = useRouter();
   const { productId } = useLocalSearchParams<{ productId?: string }>();
   const { data: shop, isPending, isError, refetch } = useFamilyShop();
+  useRefetchOnFocus(refetch);
   const { cart, units, setUnits, addUnits } = useFamilyCart();
   const [searchText, setSearchText] = useState("");
   const [category, setCategory] = useState<ShopCategory>("all");
