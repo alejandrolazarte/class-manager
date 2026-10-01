@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { ClientDetails } from "@/features/clients/types";
 import { inviteFamily } from "@/features/family/familyApi";
+import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
@@ -12,8 +13,6 @@ import { useToast } from "@/ui/ToastProvider";
 interface InviteFamilySectionProps {
   client: ClientDetails;
 }
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function InviteFamilySection({ client }: InviteFamilySectionProps) {
   const { showToast } = useToast();
@@ -26,7 +25,7 @@ export function InviteFamilySection({ client }: InviteFamilySectionProps) {
   const send = async () => {
     setHasFailed(false);
     const trimmedEmail = email.trim();
-    if (!emailPattern.test(trimmedEmail)) {
+    if (!emailAddressPattern.test(trimmedEmail)) {
       setEmailError(translate("family.invite.emailInvalid"));
       return;
     }
