@@ -14,7 +14,7 @@ describe("When next day is pressed", () => {
 
   it("Then sessions of that day are requested", async () => {
     await renderWithProviders(<DayScreen initialDate={sessionDate} />);
-    await screen.findByText("Natación inicial", { exact: false });
+    await screen.findByRole("button", { name: "18:00 Natación inicial" });
 
     await fireEvent.press(screen.getByRole("button", { name: translate("sessions.day.next") }));
 
