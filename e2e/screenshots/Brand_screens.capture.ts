@@ -71,7 +71,7 @@ test("Brand screens", async ({ browser, page, request }) => {
   await page.goto("/settings/brand");
   await page.getByText("¡Qué bueno verte!").waitFor();
   await waitForBrandWelcomeToClose(page);
-  await page.getByText("Color principal").first().waitFor();
+  await page.getByText("Color principal").filter({ visible: true }).first().waitFor();
   await capture(page, "40-marca-vacia");
 
   const fileChooserPromise = page.waitForEvent("filechooser");
@@ -118,7 +118,7 @@ test("Brand screens", async ({ browser, page, request }) => {
   await familyPage.waitForTimeout(settleMilliseconds / 2);
   await familyPage.screenshot({ path: join(outputDirectory, "47-familia-bienvenida.png") });
   await waitForBrandWelcomeToClose(familyPage);
-  await familyPage.getByText("Próxima clase").first().waitFor();
+  await familyPage.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
   await capture(familyPage, "48-familia-inicio-con-marca");
   await familyContext.close();
 });

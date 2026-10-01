@@ -161,7 +161,7 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
           <Button
             variant="secondary"
             label={translate("classGroups.form.addInstructor")}
-            onPress={() => router.push(routes.newInstructor)}
+            onPress={() => router.push(routes.classesNewInstructor)}
           />
         </Banner>
       ) : null}
@@ -202,6 +202,7 @@ export function ClassGroupFormScreen({ classGroupId, initialWeekday }: ClassGrou
   if (classGroup === undefined) {
     return (
       <SettingsItemState
+        navigation="close"
         isPending={classGroupsQuery.isPending}
         isError={classGroupsQuery.isError}
         notFoundMessage={translate("classGroups.form.notFound")}

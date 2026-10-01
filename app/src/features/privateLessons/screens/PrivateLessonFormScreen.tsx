@@ -391,6 +391,7 @@ export function PrivateLessonFormScreen({
   if (lessonQuery.data === undefined) {
     return (
       <SettingsItemState
+        navigation="close"
         isPending={lessonQuery.isPending}
         isError={lessonQuery.isError}
         notFoundMessage={translate("privateLessons.notFound")}

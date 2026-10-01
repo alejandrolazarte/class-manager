@@ -56,7 +56,7 @@ export function RegisterClientScreen() {
         ? translate("clients.register.successPlural")
         : translate("clients.register.success"),
     );
-    router.replace(routes.clientDetail(registeredClient.id));
+    router.replace(routes.clientDetail("students", registeredClient.id));
   };
 
   const handleRegistrationError = (registrationError: unknown) => {
@@ -125,7 +125,9 @@ export function RegisterClientScreen() {
           <Button
             variant="secondary"
             label={translate("clients.register.openClient")}
-            onPress={() => router.push(routes.clientDetail(submissionFailure.existingClientId))}
+            onPress={() =>
+              router.push(routes.clientDetail("students", submissionFailure.existingClientId))
+            }
           />
         </Banner>
       ) : null}

@@ -7,7 +7,8 @@ import { OrderCard } from "@/features/orders/components/OrderCard";
 import { OrderFilter, orderFilters } from "@/features/orders/types";
 import { useOrders } from "@/features/orders/useOrders";
 import { translate, TranslationKey } from "@/i18n/translate";
-import { routes } from "@/navigation/routes";
+import { orderTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -18,6 +19,7 @@ import { ScreenHeader } from "@/ui/ScreenHeader";
 
 export function OrderListScreen() {
   const router = useRouter();
+  const orderTab = useCurrentTab(orderTabs);
   const canManageOrders = useCan(permissions.ordersManage);
   const [filter, setFilter] = useState<OrderFilter>("all");
   const { data: orders = [], isPending, isError, refetch } = useOrders(null, filter);
@@ -28,7 +30,7 @@ export function OrderListScreen() {
         <Button
           icon="add"
           label={translate("orders.counterSale.open")}
-          onPress={() => router.push(routes.newCounterSale)}
+          onPress={() => router.push(routes.newCounterSale(orderTab))}
         />
       ) : null}
       <View className="flex-row flex-wrap gap-2">

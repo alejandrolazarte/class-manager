@@ -32,7 +32,11 @@ test("App screens", async ({ page, request }) => {
     ["08-familia", `/students/clients/${demo.familyClientId}`, "Natación inicial"],
     ["09-nuevo-alumno", "/students/new", "¿Quién viene a clase?"],
     ["10-cuotas", `/fees?month=${demo.month}`, "Cobrado"],
-    ["11-registrar-pago", `/fees/${demo.debtorClientId}/pay?month=${demo.month}`, "Forma de pago"],
+    [
+      "11-registrar-pago",
+      `/fees/clients/${demo.debtorClientId}/pay?month=${demo.month}`,
+      "Forma de pago",
+    ],
     ["12-ajustes", "/settings", "Cuota mensual"],
     ["13-profes", "/settings/instructors", "Martín Díaz"],
     ["14-familia-por-clases", `/students/clients/${demo.classPackClientId}`, "Quedan"],
@@ -43,7 +47,12 @@ test("App screens", async ({ page, request }) => {
 
   for (const [fileName, path, visibleText] of screens) {
     await page.goto(path);
-    await page.getByText(visibleText, { exact: false }).first().waitFor();
+    await page
+      .getByText(visibleText, { exact: false })
+      .filter({ visible: true })
+      .filter({ visible: true })
+      .first()
+      .waitFor();
     await page.waitForTimeout(settleMilliseconds);
     await waitForBrandWelcomeToClose(page);
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
@@ -68,7 +77,7 @@ test("App screens", async ({ page, request }) => {
   await page.screenshot({ path: join(outputDirectory, "12b-novedades.png") });
 
   await page.goto("/settings/business");
-  await page.getByText("Moneda").first().waitFor();
+  await page.getByText("Moneda").filter({ visible: true }).first().waitFor();
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "12c-ajustes-negocio.png") });
@@ -105,7 +114,12 @@ test("App screens", async ({ page, request }) => {
     await page.goto("/settings");
     await page.getByRole("button", { name: themeName, exact: true }).click();
     await page.goto("/today");
-    await page.getByText("presentes", { exact: false }).first().waitFor();
+    await page
+      .getByText("Próxima clase")
+      .filter({ visible: true })
+      .filter({ visible: true })
+      .first()
+      .waitFor();
     await page.waitForTimeout(settleMilliseconds);
     await waitForBrandWelcomeToClose(page);
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });

@@ -25,7 +25,8 @@ import { useToast } from "@/ui/ToastProvider";
 import { Card } from "@/ui/Card";
 import { IconButton } from "@/ui/IconButton";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { routes } from "@/navigation/routes";
+import { clientTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 
 const billingPlanKinds: readonly BillingPlanKind[] = ["BusinessFee", "CustomFee", "ClassPacks"];
 
@@ -35,6 +36,7 @@ interface ClientFeeSectionProps {
 
 export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const router = useRouter();
+  const clientTab = useCurrentTab(clientTabs);
   const business = useCurrentBusiness();
   const { showToast } = useToast();
   const { data: payments = [] } = useClientPayments(client.id);
@@ -102,7 +104,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
             size="medium"
             icon="cash"
             label={translate("fees.client.recordPayment")}
-            onPress={() => router.push(routes.recordPayment(client.id, currentMonth))}
+            onPress={() => router.push(routes.recordPayment(clientTab, client.id, currentMonth))}
           />
         )}
         {isEditing ? (

@@ -218,6 +218,7 @@ export function RoleEditorScreen({ roleKey, copyFromRoleKey }: RoleEditorScreenP
   if (isWaitingForRole || (roleKey !== undefined && isSystemRole(roleKey))) {
     return (
       <SettingsItemState
+        navigation="close"
         isPending={rolesQuery.isPending}
         isError={rolesQuery.isError}
         notFoundMessage={translate("roles.notFound")}

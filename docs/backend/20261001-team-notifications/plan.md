@@ -35,6 +35,6 @@ All require a team session (`RequireMember`) and only return the caller's own av
 
 ## App
 
-- The bell sits in the Alumnos header (the team app's landing screen) and opens **Avisos** (`/settings/notifications`); opening the list marks them as seen and tapping an aviso opens the session or the orders list.
+- The bell sits in the Inicio header (the team app's landing screen) and opens **Avisos** (`/today/notifications`, inside the Inicio stack so back returns to Inicio); opening the list marks them as seen and tapping an aviso opens the session or the orders list.
 - **Ajustes** gets the same notifications card as the family app to turn push on or off on this device; signing out unsubscribes the device.
 - The family and team apps share `usePushNotifications` and `NotificationSettings`; each passes its own API channel.

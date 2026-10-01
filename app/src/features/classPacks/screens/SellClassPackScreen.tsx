@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import {
   SellClassPackFormValues,
   sellClassPackSchema,
@@ -21,7 +23,8 @@ import {
   formatBirthDateForDisplay,
 } from "@/features/students/birthDateFormatting";
 import { translate, translateCount } from "@/i18n/translate";
-import { routes } from "@/navigation/routes";
+import { clientTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -39,6 +42,8 @@ interface SellClassPackScreenProps {
 
 export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
   const router = useRouter();
+  const clientTab = useCurrentTab(clientTabs);
+  const canManageClassPacks = useCan(permissions.classPacksManage);
   const { showToast } = useToast();
   const currencyCode = useBusinessCurrency();
   const { data: classPacks = [], isPending } = useClassPacks(false);
@@ -91,11 +96,13 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
         header={<ScreenHeader navigation="close" title={translate("classPacks.sell.title")} />}
       >
         <Banner tone="warning" message={translate("classPacks.sell.noPacks")}>
-          <Button
-            variant="secondary"
-            label={translate("classPacks.sell.createPacks")}
-            onPress={() => router.push(routes.classPacks)}
-          />
+          {canManageClassPacks ? (
+            <Button
+              variant="secondary"
+              label={translate("classPacks.sell.createPacks")}
+              onPress={() => router.push(routes.clientNewClassPack(clientTab, clientId))}
+            />
+          ) : null}
         </Banner>
       </ScrollScreen>
     );

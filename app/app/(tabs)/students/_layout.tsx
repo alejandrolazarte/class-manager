@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
 import { translate } from "@/i18n/translate";
 
+export const unstable_settings = { initialRouteName: "index" };
+
 export default function StudentsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -21,6 +23,14 @@ export default function StudentsLayout() {
       <Stack.Screen
         name="clients/[clientId]/counter-sale"
         options={{ title: translate("orders.counterSale.title") }}
+      />
+      <Stack.Screen
+        name="clients/[clientId]/pay"
+        options={{ title: translate("fees.payment.title") }}
+      />
+      <Stack.Screen
+        name="clients/[clientId]/new-class-pack"
+        options={{ title: translate("classPacks.form.newTitle") }}
       />
     </Stack>
   );

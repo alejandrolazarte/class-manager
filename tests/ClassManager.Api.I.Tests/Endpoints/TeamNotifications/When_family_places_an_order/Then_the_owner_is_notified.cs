@@ -15,6 +15,6 @@ public sealed class Then_the_owner_is_notified(ApiFixture fixture)
 
         var notification = (await owner.GetTeamNotificationsAsync())!.Items.Single();
         notification.Title.ShouldStartWith("Nuevo pedido de");
-        notification.Url.ShouldBe("/settings/orders");
+        notification.Url.ShouldBe("/today/orders");
     }
 }

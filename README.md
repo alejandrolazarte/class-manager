@@ -91,6 +91,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Local development](docs/backend/local-development.md) — migrations, JWT signing key, demo seed data and owner
 - [Running the Expo app](docs/frontend/running-the-app.md) — configuration and frontend tests
 - [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, AppText, Icon and the lint rules that keep screens on the theme
+- [Navigation](docs/frontend/navigation.md) — screens stay in their tab, shared screens per tab, ✕ for forms and ← for navigation, and the tests that enforce it
 - [Roslyn analyzers](docs/analyzers.md) — test layout and architecture rules enforced by the build
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package
 - [Authorization](docs/authorization.md) — organizations, brand and branch roles, and the permission every endpoint requires

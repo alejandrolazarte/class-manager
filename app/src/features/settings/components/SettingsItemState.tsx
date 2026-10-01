@@ -2,7 +2,7 @@ import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { ScrollScreen } from "@/ui/Screen";
-import { ScreenHeader } from "@/ui/ScreenHeader";
+import { HeaderNavigation, ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
 
 interface SettingsItemStateProps {
@@ -10,6 +10,7 @@ interface SettingsItemStateProps {
   isError: boolean;
   notFoundMessage: string;
   onRetry: () => void;
+  navigation?: HeaderNavigation;
 }
 
 export function SettingsItemState({
@@ -17,9 +18,10 @@ export function SettingsItemState({
   isError,
   notFoundMessage,
   onRetry,
+  navigation = "back",
 }: SettingsItemStateProps) {
   return (
-    <ScrollScreen header={<ScreenHeader navigation="back" title="" />}>
+    <ScrollScreen header={<ScreenHeader navigation={navigation} title="" />}>
       {isPending ? (
         <Spinner size="large" className="mt-6" />
       ) : isError ? (

@@ -86,7 +86,7 @@ export function StudentListScreen() {
             <View className="px-5 pb-2.5">
               <StudentListItem
                 student={student}
-                onPress={() => router.push(routes.clientDetail(student.clientId))}
+                onPress={() => router.push(routes.clientDetail("students", student.clientId))}
               />
             </View>
           )}
