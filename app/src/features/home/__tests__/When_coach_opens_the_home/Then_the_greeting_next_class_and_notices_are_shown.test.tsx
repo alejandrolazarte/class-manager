@@ -11,16 +11,20 @@ import { buildTeamNotifications } from "@/testing/teamNotificationFactory";
 jest.mock("@/features/sessions/sessionsApi");
 jest.mock("@/features/classGroups/classGroupsApi");
 jest.mock("@/features/teamNotifications/teamNotificationsApi");
+jest.mock("@/features/home/nextSession", () => ({
+  ...jest.requireActual("@/features/home/nextSession"),
+  currentTimeLabel: () => "10:00",
+}));
 
-const lateClass = buildDaySession({
+const eveningClass = buildDaySession({
   classGroupName: "Natación nocturna",
-  startTime: "23:58",
-  endTime: "23:59",
+  startTime: "18:00",
+  endTime: "18:45",
 });
 
 describe("When coach opens the home", () => {
   beforeEach(() => {
-    jest.mocked(listDaySessions).mockResolvedValue([lateClass]);
+    jest.mocked(listDaySessions).mockResolvedValue([eveningClass]);
     jest.mocked(getTeamNotifications).mockResolvedValue(buildTeamNotifications({ unreadCount: 2 }));
   });
 
@@ -32,7 +36,7 @@ describe("When coach opens the home", () => {
     expect(
       await screen.findByText(translate("home.greeting", { name: "Laura" })),
     ).toBeOnTheScreen();
-    expect(await screen.findByText("23:58–23:59")).toBeOnTheScreen();
+    expect(await screen.findByText("18:00–18:45")).toBeOnTheScreen();
     expect(
       screen.getByRole("button", { name: translate("home.nextSession.takeAttendance") }),
     ).toBeOnTheScreen();
