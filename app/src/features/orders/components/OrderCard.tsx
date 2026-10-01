@@ -4,6 +4,7 @@ import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider
 import { formatMoney } from "@/features/fees/money";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
+import { refundableLinesOf } from "@/features/orders/refunds";
 import { orderClientLabel, orderStatusLabel } from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
 import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useOrderMutations";
@@ -27,6 +28,7 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
   const markOrderDeliveredMutation = useMarkOrderDelivered();
   const markOrderReadyMutation = useMarkOrderReady();
   const [isRefunding, setIsRefunding] = useState(false);
+  const hasRefundableLines = refundableLinesOf(order).length > 0;
 
   const markDelivered = async () => {
     try {
@@ -111,16 +113,20 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
               isLoading={markOrderDeliveredMutation.isPending}
             />
           ) : null}
-          <Button
-            size="medium"
-            variant="ghost"
-            icon="refund"
-            label={translate(isRefunding ? "common.close" : "orders.refund.open")}
-            onPress={() => setIsRefunding(!isRefunding)}
-          />
+          {hasRefundableLines ? (
+            <Button
+              size="medium"
+              variant="ghost"
+              icon="refund"
+              label={translate(isRefunding ? "common.close" : "orders.refund.open")}
+              onPress={() => setIsRefunding(!isRefunding)}
+            />
+          ) : null}
         </View>
       ) : null}
-      {isRefunding ? <RefundPanel order={order} onDone={() => setIsRefunding(false)} /> : null}
+      {isRefunding && hasRefundableLines ? (
+        <RefundPanel order={order} onDone={() => setIsRefunding(false)} />
+      ) : null}
     </Card>
   );
 }

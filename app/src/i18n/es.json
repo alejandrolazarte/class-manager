@@ -820,7 +820,6 @@
   "orders.refund.confirm": "Registrar devolución",
   "orders.refund.saved": "Devolución registrada",
   "orders.refund.failed": "No se pudo registrar la devolución. Revisá la cantidad o si quedan clases sin usar.",
-  "orders.refund.nothingLeft": "Ya no queda nada para devolver.",
   "orders.refund.refunded": "devuelto {amount}",
   "orders.counterSale.open": "Venta en mostrador",
   "orders.counterSale.title": "Venta en mostrador",
