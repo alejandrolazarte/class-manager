@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react-native";
+import { todayIsoDate } from "@/features/sessions/dates";
 import { DayScreen } from "@/features/sessions/screens/DayScreen";
 import { listDaySessions } from "@/features/sessions/sessionsApi";
 import { getTeamNotifications } from "@/features/teamNotifications/teamNotificationsApi";
@@ -11,24 +12,25 @@ import { buildTeamNotifications } from "@/testing/teamNotificationFactory";
 jest.mock("@/features/sessions/sessionsApi");
 jest.mock("@/features/classGroups/classGroupsApi");
 jest.mock("@/features/teamNotifications/teamNotificationsApi");
-jest.mock("@/features/home/nextSession", () => ({
-  ...jest.requireActual("@/features/home/nextSession"),
+jest.mock("@/features/home/agenda", () => ({
+  ...jest.requireActual("@/features/home/agenda"),
   currentTimeLabel: () => "10:00",
 }));
 
-const eveningClass = buildDaySession({
-  classGroupName: "Natación nocturna",
-  startTime: "18:00",
-  endTime: "18:45",
-});
-
 describe("When coach opens the home", () => {
   beforeEach(() => {
-    jest.mocked(listDaySessions).mockResolvedValue([eveningClass]);
-    jest.mocked(getTeamNotifications).mockResolvedValue(buildTeamNotifications({ unreadCount: 2 }));
+    jest.mocked(listDaySessions).mockResolvedValue([
+      buildDaySession({
+        date: todayIsoDate(),
+        classGroupName: "Natación nocturna",
+        startTime: "18:00",
+        endTime: "18:45",
+      }),
+    ]);
+    jest.mocked(getTeamNotifications).mockResolvedValue(buildTeamNotifications());
   });
 
-  it("Then the greeting, next class and notices are shown", async () => {
+  it("Then the greeting and the next class are shown", async () => {
     await renderWithProviders(<DayScreen />, {
       member: buildCurrentMember({ fullName: "Laura Gómez" }),
     });
@@ -36,10 +38,11 @@ describe("When coach opens the home", () => {
     expect(
       await screen.findByText(translate("home.greeting", { name: "Laura" })),
     ).toBeOnTheScreen();
-    expect(await screen.findByText("18:00–18:45")).toBeOnTheScreen();
     expect(
-      screen.getByRole("button", { name: translate("home.nextSession.takeAttendance") }),
+      await screen.findByRole("button", {
+        name: `${translate("home.banner.next")}: 18:00 · Natación nocturna`,
+      }),
     ).toBeOnTheScreen();
-    expect(await screen.findByText("2 nuevos")).toBeOnTheScreen();
+    expect(screen.getByText(`${translate("home.banner.next")} · en 8 h`)).toBeOnTheScreen();
   });
 });

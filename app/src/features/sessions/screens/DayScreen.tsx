@@ -1,24 +1,28 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { FlatList, Pressable, View } from "react-native";
-import { classesOfDay } from "@/features/classGroups/classesOfDay";
-import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
-import { weekdayOf } from "@/features/classGroups/weekdays";
+import { Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { classesOfDay } from "@/features/classGroups/classesOfDay";
+import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
+import { weekdayOf, weekdayShortLabel } from "@/features/classGroups/weekdays";
 import { firstNameOf } from "@/features/family/familySchedule";
-import { HomeTile } from "@/features/home/components/HomeTile";
-import { NextSessionHero } from "@/features/home/components/NextSessionHero";
-import { currentTimeLabel, nextSessionOf } from "@/features/home/nextSession";
+import { addMonths, formatMonth } from "@/features/fees/months";
+import {
+  currentTimeLabel,
+  relativeDayLabel,
+  sessionTimingOf,
+  todayHighlightOf,
+} from "@/features/home/agenda";
+import { TodayBanner } from "@/features/home/components/TodayBanner";
 import { useCan, useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { DaySessionCard } from "@/features/sessions/components/DaySessionCard";
-import { MonthCalendarGrid } from "@/features/sessions/components/MonthCalendarGrid";
-import { WeekStrip } from "@/features/sessions/components/WeekStrip";
+import { AgendaCalendar, AgendaView } from "@/features/sessions/components/AgendaCalendar";
+import { AgendaSessionCard } from "@/features/sessions/components/AgendaSessionCard";
 import {
   addDays,
-  formatLongDate,
+  dayOfMonth,
   monthOfDate,
   parseIsoDate,
   todayIsoDate,
@@ -27,31 +31,45 @@ import { DaySession } from "@/features/sessions/types";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
 import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";
 import { TeamNotificationBell } from "@/features/teamNotifications/components/TeamNotificationBell";
-import { useTeamNotifications } from "@/features/teamNotifications/useTeamNotifications";
-import { addMonths, formatMonth } from "@/features/fees/months";
-import { translate, translateCount } from "@/i18n/translate";
+import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { EmptyState } from "@/ui/EmptyState";
+import { Card } from "@/ui/Card";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
-import { IconButton } from "@/ui/IconButton";
+import { Icon } from "@/ui/Icon";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { SegmentedControl } from "@/ui/SegmentedControl";
 import { Spinner } from "@/ui/Spinner";
-import { StepArrow } from "@/ui/StepArrow";
 
 interface DayScreenProps {
   initialDate?: string;
 }
 
 const summarySeparator = " · ";
+const studentNameSeparator = ", ";
+const daysPerWeek = 7;
+const shortMonthLength = 3;
 
 function sessionRoute(session: DaySession): string {
   return session.kind === "Private"
     ? routes.privateLesson(session.privateLessonId ?? "")
     : routes.session(session.classGroupId ?? "", session.date);
+}
+
+function sessionTitle(session: DaySession): string {
+  return session.kind === "Private"
+    ? session.studentNames.join(studentNameSeparator)
+    : session.classGroupName;
+}
+
+function shortDateLabel(isoDate: string): string {
+  const monthName = translate(
+    `months.${parseIsoDate(isoDate).getMonth() + 1}` as TranslationKey,
+  ).slice(0, shortMonthLength);
+  return `${weekdayShortLabel(weekdayOf(parseIsoDate(isoDate)))} ${dayOfMonth(isoDate)} ${monthName}`;
 }
 
 export function DayScreen({ initialDate }: DayScreenProps) {
@@ -64,44 +82,45 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   const member = useCurrentMember();
   const brandName = useCurrentBrand()?.brand?.displayName ?? business.name;
   const today = todayIsoDate();
+  const timeNow = currentTimeLabel();
   const [sessionDate, setSessionDate] = useState(initialDate ?? today);
+  const [view, setView] = useState<AgendaView>("day");
+  const [calendarMonth, setCalendarMonth] = useState(() => monthOfDate(sessionDate));
   const {
     data: sessions = [],
     isPending,
     isError,
+    isPlaceholderData,
     isRefetching,
     refetch,
   } = useDaySessions(sessionDate);
   const { data: todaySessions = [] } = useDaySessions(today);
-  const { data: notifications } = useTeamNotifications();
-  const timeNow = currentTimeLabel();
-  const nextSession = nextSessionOf(todaySessions, timeNow);
-  const activeTodaySessions = todaySessions.filter((session) => !session.isCancelled);
-  const unreadNotices = notifications?.unreadCount ?? 0;
   const { data: classGroups = [] } = useActiveClassGroups();
+  const isMonthView = view === "month";
+  const { data: monthCalendar } = useMonthCalendar(calendarMonth, isMonthView);
   const hasClassesOn = (isoDate: string) =>
     classesOfDay(classGroups, weekdayOf(parseIsoDate(isoDate))).length > 0;
-  const [isMonthView, setIsMonthView] = useState(false);
-  const [calendarMonth, setCalendarMonth] = useState(() => monthOfDate(sessionDate));
-  const { data: monthCalendar } = useMonthCalendar(calendarMonth, isMonthView);
 
-  const toggleMonthView = () => {
+  const openSession = (session: DaySession) => router.push(sessionRoute(session));
+  const openNewPrivateLesson = () => router.push(routes.newPrivateLesson(sessionDate));
+  const changeView = (nextView: AgendaView) => {
     setCalendarMonth(monthOfDate(sessionDate));
-    setIsMonthView(!isMonthView);
+    setView(nextView);
   };
-  const selectCalendarDate = (isoDate: string) => {
+  const selectDate = (isoDate: string) => {
     setSessionDate(isoDate);
-    setIsMonthView(false);
+    setView("day");
+  };
+  const step = (direction: number) =>
+    isMonthView
+      ? setCalendarMonth(addMonths(calendarMonth, direction))
+      : setSessionDate(addDays(sessionDate, direction * daysPerWeek));
+  const goToToday = () => {
+    setSessionDate(today);
+    setCalendarMonth(monthOfDate(today));
+    setView("day");
   };
 
-  const eyebrow =
-    sessionDate === today
-      ? translate("sessions.day.title")
-      : sessionDate === addDays(today, 1)
-        ? translate("sessions.day.tomorrow")
-        : sessionDate === addDays(today, -1)
-          ? translate("sessions.day.yesterday")
-          : translate("home.agenda");
   const expectedStudentCount = sessions
     .filter((session) => !session.isCancelled)
     .reduce((total, session) => total + session.enrolledCount, 0);
@@ -112,183 +131,141 @@ export function DayScreen({ initialDate }: DayScreenProps) {
           translateCount("sessions.day.classCount", sessions.length),
           translateCount("sessions.day.studentCount", expectedStudentCount),
         ].join(summarySeparator);
-
-  const header = (
-    <View className="gap-[18px] pb-3">
-      <ScreenHeader
-        leading={<CurrentBrandLogo />}
-        eyebrow={brandName}
-        title={
-          member.fullName
-            ? translate("home.greeting", { name: firstNameOf(member.fullName) })
-            : translate("home.title")
-        }
-        accessory={<TeamNotificationBell />}
-      />
-      <View className="gap-3 px-5">
-        <NextSessionHero
-          session={nextSession}
-          isNow={nextSession !== null && nextSession.startTime <= timeNow}
-          onOpen={() => (nextSession === null ? undefined : router.push(sessionRoute(nextSession)))}
-        />
-        <View className="flex-row gap-3">
-          <HomeTile
-            icon="today"
-            iconTone="primary"
-            title={translate("home.today.title")}
-            value={translateCount("sessions.day.classCount", activeTodaySessions.length)}
-            caption={translateCount(
-              "sessions.day.studentCount",
-              activeTodaySessions.reduce((total, session) => total + session.enrolledCount, 0),
-            )}
-          />
-          <HomeTile
-            icon="notifications"
-            iconTone="warning"
-            title={translate("home.notices.title")}
-            value={
-              unreadNotices > 0
-                ? translateCount("home.notices.unread", unreadNotices)
-                : translate("home.notices.none")
-            }
-            caption={translate("home.notices.caption")}
-            onPress={() => router.push(routes.teamNotifications)}
-          />
-        </View>
-      </View>
-      <View className="flex-row items-center justify-between gap-3 px-5 pt-1">
-        <View className="min-w-0 flex-1 gap-0.5">
-          <AppText variant="eyebrow" tone="accent">
-            {eyebrow}
-          </AppText>
-          <AppText variant="title" accessibilityRole="header">
-            {formatLongDate(sessionDate)}
-          </AppText>
-        </View>
-        <View className="flex-row gap-1">
-          <IconButton
-            variant="outlined"
-            icon={isMonthView ? "weekView" : "monthView"}
-            tone="primary"
-            accessibilityLabel={translate(
-              isMonthView ? "sessions.calendar.hide" : "sessions.calendar.show",
-            )}
-            onPress={toggleMonthView}
-          />
-          {isMonthView ? (
-            <>
-              <StepArrow
-                direction="previous"
-                label={translate("sessions.calendar.previousMonth")}
-                onPress={() => setCalendarMonth(addMonths(calendarMonth, -1))}
-              />
-              <StepArrow
-                direction="next"
-                label={translate("sessions.calendar.nextMonth")}
-                onPress={() => setCalendarMonth(addMonths(calendarMonth, 1))}
-              />
-            </>
-          ) : (
-            <>
-              <StepArrow
-                direction="previous"
-                label={translate("sessions.day.previous")}
-                onPress={() => setSessionDate(addDays(sessionDate, -1))}
-              />
-              <StepArrow
-                direction="next"
-                label={translate("sessions.day.next")}
-                onPress={() => setSessionDate(addDays(sessionDate, 1))}
-              />
-            </>
-          )}
-        </View>
-      </View>
-      <View className="gap-[18px] px-5">
-        {isMonthView ? (
-          <View className="gap-2">
-            <AppText variant="heading" className="text-center">
-              {formatMonth(calendarMonth)}
-            </AppText>
-            <MonthCalendarGrid
-              month={calendarMonth}
-              days={monthCalendar?.days ?? []}
-              selectedDate={sessionDate}
-              today={today}
-              onSelectDate={selectCalendarDate}
-            />
-          </View>
-        ) : (
-          <WeekStrip
-            selectedDate={sessionDate}
-            today={today}
-            hasClassesOn={hasClassesOn}
-            onSelectDate={setSessionDate}
-          />
-        )}
-        <View className="min-h-6 flex-row items-center justify-between">
-          <AppText variant="bodyStrong" tone="muted" className="font-label">
-            {isPending ? "" : summary}
-          </AppText>
-          {sessionDate === today ? null : (
-            <Pressable accessibilityRole="button" onPress={() => setSessionDate(today)}>
-              <AppText variant="link" tone="primary">
-                {translate("sessions.day.backToToday")}
-              </AppText>
-            </Pressable>
-          )}
-        </View>
-        {isError ? (
-          <Banner message={translate("common.unexpectedError")}>
-            <Button
-              variant="secondary"
-              size="medium"
-              label={translate("common.retry")}
-              onPress={() => refetch()}
-            />
-          </Banner>
-        ) : null}
-      </View>
-    </View>
-  );
+  const isShowingToday = sessionDate === today && !isMonthView;
 
   return (
     <Screen
       overlay={
-        canScheduleLessons ? (
+        canScheduleLessons && sessions.length > 0 ? (
           <FloatingActionButton
             label={translate("privateLessons.new")}
-            onPress={() => router.push(routes.newPrivateLesson(sessionDate))}
+            onPress={openNewPrivateLesson}
           />
         ) : undefined
       }
     >
-      {isPending ? (
-        <View>
-          {header}
-          <Spinner className="mt-6" />
-        </View>
-      ) : (
-        <FlatList
-          data={sessions}
-          keyExtractor={(session) => session.privateLessonId ?? session.classGroupId ?? ""}
-          ListHeaderComponent={header}
-          renderItem={({ item: session }) => (
-            <View className="px-5 pb-3">
-              <DaySessionCard
-                session={session}
-                onPress={() => router.push(sessionRoute(session))}
+      <ScrollView
+        contentContainerClassName="w-full max-w-2xl self-center pb-28"
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />}
+      >
+        <View className="gap-3.5 pb-3">
+          <ScreenHeader
+            leading={<CurrentBrandLogo />}
+            eyebrow={brandName}
+            title={
+              member.fullName
+                ? translate("home.greeting", { name: firstNameOf(member.fullName) })
+                : translate("home.title")
+            }
+            accessory={<TeamNotificationBell />}
+          />
+          <View className="gap-3 px-5">
+            <TodayBanner
+              highlight={todayHighlightOf(todaySessions, today, timeNow)}
+              timeNow={timeNow}
+              titleOf={sessionTitle}
+              onOpen={openSession}
+            />
+            <View className="mt-1.5 h-12 flex-row items-center justify-between gap-3">
+              <View className="min-w-0 flex-1">
+                <AppText variant="eyebrow" tone="accent" numberOfLines={1}>
+                  {isMonthView
+                    ? translate("home.view.calendar")
+                    : relativeDayLabel(sessionDate, today)}
+                </AppText>
+                <AppText variant="headline" accessibilityRole="header" numberOfLines={1}>
+                  {isMonthView ? formatMonth(calendarMonth) : shortDateLabel(sessionDate)}
+                </AppText>
+              </View>
+              <SegmentedControl
+                isCompact
+                options={[
+                  { value: "day", label: translate("home.view.day") },
+                  { value: "month", label: translate("home.view.month") },
+                ]}
+                selectedValue={view}
+                onChange={changeView}
               />
             </View>
-          )}
-          ListEmptyComponent={
-            isError ? null : <EmptyState icon="brand" message={translate("sessions.day.empty")} />
-          }
-          refreshing={isRefetching}
-          onRefresh={() => refetch()}
-          contentContainerClassName="w-full max-w-2xl self-center pb-28"
-        />
-      )}
+            <AgendaCalendar
+              view={view}
+              selectedDate={sessionDate}
+              today={today}
+              month={calendarMonth}
+              monthDays={monthCalendar?.days ?? []}
+              hasClassesOn={hasClassesOn}
+              onSelectDate={selectDate}
+              onPrevious={() => step(-1)}
+              onNext={() => step(1)}
+            />
+            <View className="h-7 flex-row items-center justify-between">
+              <AppText variant="bodyStrong" tone="muted" className="font-strong">
+                {isPending ? "" : summary}
+              </AppText>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={translate("sessions.day.backToToday")}
+                accessibilityElementsHidden={isShowingToday}
+                importantForAccessibility={isShowingToday ? "no-hide-descendants" : "auto"}
+                disabled={isShowingToday}
+                onPress={goToToday}
+                className={`h-7 flex-row items-center gap-1 rounded-full bg-primary-soft px-3 ${isShowingToday ? "opacity-0" : ""}`}
+              >
+                <Icon name="today" size="small" tone="primary-soft-foreground" />
+                <AppText variant="badge" tone="primarySoft">
+                  {translate("home.backToToday")}
+                </AppText>
+              </Pressable>
+            </View>
+            {isError ? (
+              <Banner message={translate("common.unexpectedError")}>
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  label={translate("common.retry")}
+                  onPress={() => refetch()}
+                />
+              </Banner>
+            ) : null}
+          </View>
+        </View>
+        <View className={`min-h-[276px] gap-3 px-5 ${isPlaceholderData ? "opacity-50" : ""}`}>
+          {isPending ? <Spinner className="mt-6" /> : null}
+          {!isPending && !isError && sessions.length === 0 ? (
+            <Card className="h-[84px] flex-row items-center gap-3 px-4">
+              <View className="h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <Icon name="noClasses" tone="muted-foreground" />
+              </View>
+              <View className="min-w-0 flex-1">
+                <AppText variant="bodyStrong">{translate("home.free.title")}</AppText>
+                <AppText variant="caption" tone="subtle">
+                  {translate("home.free.body")}
+                </AppText>
+              </View>
+              {canScheduleLessons ? (
+                <Button
+                  size="medium"
+                  icon="add"
+                  label={translate("home.free.addPrivate")}
+                  accessibilityLabel={translate("privateLessons.new")}
+                  onPress={openNewPrivateLesson}
+                />
+              ) : null}
+            </Card>
+          ) : null}
+          {sessions.map((session) => (
+            <AgendaSessionCard
+              key={session.privateLessonId ?? session.classGroupId ?? session.startTime}
+              session={session}
+              title={sessionTitle(session)}
+              timing={sessionTimingOf(session, today, timeNow)}
+              timeNow={timeNow}
+              isToday={session.date === today}
+              onPress={() => openSession(session)}
+            />
+          ))}
+        </View>
+      </ScrollView>
     </Screen>
   );
 }

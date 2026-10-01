@@ -15,12 +15,9 @@ import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
 import { Spinner } from "@/ui/Spinner";
-import { useCurrentBrand } from "@/features/brand/BrandProvider";
-import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 
 export function StudentListScreen() {
   const router = useRouter();
-  const brandName = useCurrentBrand()?.brand?.displayName;
   const canManageStudents = useCan(permissions.studentsManage);
   const [searchText, setSearchText] = useState("");
   const {
@@ -59,11 +56,7 @@ export function StudentListScreen() {
       }
     >
       <View className="gap-4 pb-4">
-        <ScreenHeader
-          leading={<CurrentBrandLogo />}
-          eyebrow={brandName}
-          title={translate("students.list.title")}
-        />
+        <ScreenHeader title={translate("students.list.title")} />
         <View className="gap-4 px-5">
           <SearchInput
             value={searchText}

@@ -7,17 +7,19 @@ import { buildDaySession, sessionDate } from "@/testing/sessionFactory";
 
 jest.mock("@/features/sessions/sessionsApi");
 
-describe("When next day is pressed", () => {
+describe("When next week is pressed", () => {
   beforeEach(() => {
     jest.mocked(listDaySessions).mockResolvedValue([buildDaySession()]);
   });
 
-  it("Then sessions of that day are requested", async () => {
+  it("Then the same day next week is requested", async () => {
     await renderWithProviders(<DayScreen initialDate={sessionDate} />);
     await screen.findByRole("button", { name: "18:00 Natación inicial" });
 
-    await fireEvent.press(screen.getByRole("button", { name: translate("sessions.day.next") }));
+    await fireEvent.press(
+      screen.getByRole("button", { name: translate("sessions.calendar.nextWeek") }),
+    );
 
-    await waitFor(() => expect(listDaySessions).toHaveBeenLastCalledWith("2026-09-30"));
+    await waitFor(() => expect(listDaySessions).toHaveBeenLastCalledWith("2026-10-06"));
   });
 });

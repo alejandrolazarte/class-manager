@@ -22,7 +22,7 @@ test("App screens", async ({ page, request }) => {
   await expect(page).toHaveURL(/\/today/);
 
   const screens: [fileName: string, path: string, visibleText: string][] = [
-    ["01-hoy", "/today", "presentes"],
+    ["01-inicio", "/today", "Próxima clase"],
     ["02-asistencia", `/today/${demo.beginnersClassGroupId}/${demo.today}`, "Vino"],
     ["03-clases-semana", "/classes", "lugares"],
     ["04-clase-alumnos", `/classes/${demo.beginnersClassGroupId}`, "Inscribir alumno"],

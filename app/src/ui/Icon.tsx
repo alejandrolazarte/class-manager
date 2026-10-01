@@ -80,6 +80,9 @@ const iconGlyphs = {
   militaryTech: "military-tech",
   locked: "lock-outline",
   welcome: "play-circle-outline",
+  live: "sensors",
+  attendance: "fact-check",
+  dayDone: "check-circle-outline",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {
