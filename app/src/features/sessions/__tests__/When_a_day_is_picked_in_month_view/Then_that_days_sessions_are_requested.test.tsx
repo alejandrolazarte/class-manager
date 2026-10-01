@@ -19,14 +19,12 @@ describe("When a day is picked in month view", () => {
   it("Then that days sessions are requested", async () => {
     await renderWithProviders(<DayScreen initialDate={sessionDate} />);
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("sessions.calendar.show") }),
+      await screen.findByRole("button", { name: translate("home.view.month") }),
     );
 
     await fireEvent.press(await screen.findByRole("button", { name: "Jueves 10 · 2 clases" }));
 
     await waitFor(() => expect(listDaySessions).toHaveBeenLastCalledWith("2026-09-10"));
-    expect(
-      screen.getByRole("button", { name: translate("sessions.calendar.show") }),
-    ).toBeOnTheScreen();
+    expect(screen.getByRole("button", { name: translate("home.view.day") })).toBeSelected();
   });
 });

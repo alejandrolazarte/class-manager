@@ -23,7 +23,7 @@ describe("When month view is opened", () => {
     await renderWithProviders(<DayScreen initialDate={sessionDate} />);
 
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("sessions.calendar.show") }),
+      await screen.findByRole("button", { name: translate("home.view.month") }),
     );
 
     await waitFor(() => expect(getMonthCalendar).toHaveBeenCalledWith("2026-09"));
