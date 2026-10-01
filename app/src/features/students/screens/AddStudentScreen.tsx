@@ -14,7 +14,8 @@ import {
 } from "@/features/students/studentSchema";
 import { useAddStudent } from "@/features/students/useAddStudent";
 import { translate } from "@/i18n/translate";
-import { routes } from "@/navigation/routes";
+import { clientTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
@@ -35,6 +36,7 @@ interface AddStudentScreenProps {
 
 export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
   const router = useRouter();
+  const clientTab = useCurrentTab(clientTabs);
   const { showToast } = useToast();
   const addStudentMutation = useAddStudent(clientId);
   const { data: client } = useClient(clientId);
@@ -72,7 +74,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
     try {
       await addStudentMutation.mutateAsync(toNewStudentRequest(formValues));
       showToast(translate("students.add.success"));
-      router.replace(routes.clientDetail(clientId));
+      router.replace(routes.clientDetail(clientTab, clientId));
     } catch (addError) {
       handleAddError(addError);
     }

@@ -5,7 +5,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { IconButton } from "@/ui/IconButton";
 
-type HeaderNavigation = "back" | "close";
+export type HeaderNavigation = "back" | "close";
 
 interface ScreenHeaderProps {
   title: string;

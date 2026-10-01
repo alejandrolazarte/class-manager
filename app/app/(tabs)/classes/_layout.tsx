@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
 import { translate } from "@/i18n/translate";
 
+export const unstable_settings = { initialRouteName: "index" };
+
 export default function ClassesLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -17,6 +19,10 @@ export default function ClassesLayout() {
       <Stack.Screen
         name="[classGroupId]/enroll"
         options={{ title: translate("enrollments.enroll.title") }}
+      />
+      <Stack.Screen
+        name="instructors/new"
+        options={{ title: translate("instructors.form.newTitle") }}
       />
     </Stack>
   );

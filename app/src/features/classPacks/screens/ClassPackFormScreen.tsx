@@ -210,6 +210,7 @@ export function ClassPackFormScreen({ classPackId }: ClassPackFormScreenProps) {
   if (classPack === undefined) {
     return (
       <SettingsItemState
+        navigation="close"
         isPending={classPacksQuery.isPending}
         isError={classPacksQuery.isError}
         notFoundMessage={translate("classPacks.form.notFound")}

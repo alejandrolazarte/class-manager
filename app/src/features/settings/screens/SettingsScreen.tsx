@@ -171,7 +171,7 @@ export function SettingsScreen() {
           icon="orders"
           label={translate("settings.orders")}
           detail={translate("settings.ordersHint")}
-          onPress={() => router.push(routes.orders)}
+          onPress={() => router.push(routes.orders("settings"))}
         />
       ),
     },

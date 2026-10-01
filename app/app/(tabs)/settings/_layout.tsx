@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
 import { translate } from "@/i18n/translate";
 
+export const unstable_settings = { initialRouteName: "index" };
+
 export default function SettingsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>

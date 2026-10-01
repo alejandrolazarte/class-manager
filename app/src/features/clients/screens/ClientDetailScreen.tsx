@@ -13,7 +13,8 @@ import { permissions } from "@/features/members/permissions";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { translate } from "@/i18n/translate";
-import { routes } from "@/navigation/routes";
+import { clientTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
@@ -34,6 +35,7 @@ interface ClientDetailScreenProps {
 
 export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const router = useRouter();
+  const clientTab = useCurrentTab(clientTabs);
   const { data: client, isPending, isError, refetch } = useClient(clientId);
   const canManageStudents = useCan(permissions.studentsManage);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
@@ -129,7 +131,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           size="medium"
           icon="products"
           label={translate("orders.counterSale.open")}
-          onPress={() => router.push(routes.clientCounterSale(client.id))}
+          onPress={() => router.push(routes.clientCounterSale(clientTab, client.id))}
         />
       ) : null}
       <SectionTitle title={translate("clients.detail.students")} />
@@ -168,7 +170,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           size="medium"
           icon="add"
           label={translate("clients.detail.addStudent")}
-          onPress={() => router.push(routes.addStudent(client.id))}
+          onPress={() => router.push(routes.addStudent(clientTab, client.id))}
         />
       ) : null}
       {canViewPayments ? <ClientFeeSection client={client} /> : null}

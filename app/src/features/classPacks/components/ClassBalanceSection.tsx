@@ -9,7 +9,8 @@ import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { translate, translateCount } from "@/i18n/translate";
-import { routes } from "@/navigation/routes";
+import { clientTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
@@ -38,6 +39,7 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
   const canSellClassPacks = useCan(permissions.classPacksSell);
   const canUndoSale = useCanUndoCollection(permissions.classPacksSell);
   const router = useRouter();
+  const clientTab = useCurrentTab(clientTabs);
   const currencyCode = useBusinessCurrency();
   const { data: balance, isPending } = useClassBalance(clientId);
   const deletePurchaseMutation = useDeleteClassPackPurchase();
@@ -121,7 +123,7 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
           size="medium"
           icon="classPacks"
           label={translate("classPacks.balance.sell")}
-          onPress={() => router.push(routes.sellClassPack(clientId))}
+          onPress={() => router.push(routes.sellClassPack(clientTab, clientId))}
         />
       ) : null}
     </Card>

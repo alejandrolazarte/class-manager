@@ -4,7 +4,7 @@ namespace ClassManager.Infrastructure.Notifications;
 
 internal static class TeamNotificationTexts
 {
-    public const string OrdersUrl = "/settings/orders";
+    public const string OrdersUrl = "/today/orders";
 
     private const char NameSeparator = ' ';
     private const string TimeFormat = "HH:mm";

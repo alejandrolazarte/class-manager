@@ -86,7 +86,7 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
               variant="outline"
               size="medium"
               label={translate("fees.month.setDefaultFee")}
-              onPress={() => router.push(routes.defaultMonthlyFee)}
+              onPress={() => router.push(routes.feesDefaultMonthlyFee)}
             />
           </Banner>
         ) : null}
@@ -136,7 +136,7 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
             <View className="px-5 pb-2.5">
               <ClientFeeRow
                 clientFee={clientFee}
-                onPress={() => router.push(routes.recordPayment(clientFee.clientId, month))}
+                onPress={() => router.push(routes.recordPayment("fees", clientFee.clientId, month))}
               />
             </View>
           )}
@@ -159,7 +159,9 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
                   <ClassPackClientRow
                     key={classPackClient.clientId}
                     classPackClient={classPackClient}
-                    onPress={() => router.push(routes.clientDetail(classPackClient.clientId))}
+                    onPress={() =>
+                      router.push(routes.clientDetail("fees", classPackClient.clientId))
+                    }
                   />
                 ))}
               </View>

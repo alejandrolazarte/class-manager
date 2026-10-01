@@ -1,3 +1,9 @@
+export const clientTabs = ["students", "fees"] as const;
+export type ClientTab = (typeof clientTabs)[number];
+
+export const orderTabs = ["settings", "today"] as const;
+export type OrderTab = (typeof orderTabs)[number];
+
 export const routes = {
   today: "/today",
   session: (classGroupId: string, sessionDate: string) => `/today/${classGroupId}/${sessionDate}`,
@@ -12,13 +18,17 @@ export const routes = {
   enrollStudent: (classGroupId: string) => `/classes/${classGroupId}/enroll`,
   students: "/students",
   registerClient: "/students/new",
-  clientDetail: (clientId: string) => `/students/clients/${clientId}`,
-  addStudent: (clientId: string) => `/students/clients/${clientId}/new-student`,
-  sellClassPack: (clientId: string) => `/students/clients/${clientId}/sell-pack`,
-  clientCounterSale: (clientId: string) => `/students/clients/${clientId}/counter-sale`,
+  clientDetail: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}`,
+  addStudent: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/new-student`,
+  sellClassPack: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/sell-pack`,
+  clientCounterSale: (tab: ClientTab, clientId: string) =>
+    `/${tab}/clients/${clientId}/counter-sale`,
+  clientNewClassPack: (tab: ClientTab, clientId: string) =>
+    `/${tab}/clients/${clientId}/new-class-pack`,
+  recordPayment: (tab: ClientTab, clientId: string, month: string) =>
+    `/${tab}/clients/${clientId}/pay?month=${encodeURIComponent(month)}`,
   fees: "/fees",
-  recordPayment: (clientId: string, month: string) =>
-    `/fees/${clientId}/pay?month=${encodeURIComponent(month)}`,
+  feesDefaultMonthlyFee: "/fees/monthly-fee",
   welcome: "/welcome",
   signIn: "/sign-in",
   signUp: "/sign-up",
@@ -34,6 +44,7 @@ export const routes = {
   defaultMonthlyFee: "/settings/monthly-fee",
   instructors: "/settings/instructors",
   newInstructor: "/settings/instructors/new",
+  classesNewInstructor: "/classes/instructors/new",
   instructor: (instructorId: string) => `/settings/instructors/${instructorId}`,
   classPacks: "/settings/class-packs",
   newClassPack: "/settings/class-packs/new",
@@ -41,8 +52,8 @@ export const routes = {
   products: "/settings/products",
   newProduct: "/settings/products/new",
   product: (productId: string) => `/settings/products/${productId}`,
-  orders: "/settings/orders",
-  newCounterSale: "/settings/orders/new",
+  orders: (tab: OrderTab) => `/${tab}/orders`,
+  newCounterSale: (tab: OrderTab) => `/${tab}/orders/new`,
   importExport: "/settings/import-export",
   announcements: "/settings/announcements",
   team: "/settings/team",

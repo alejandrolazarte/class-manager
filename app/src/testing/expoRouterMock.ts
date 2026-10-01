@@ -11,9 +11,12 @@ export const routerMock = {
 
 export const searchParametersMock: { current: Record<string, string> } = { current: {} };
 
+export const segmentsMock: { current: string[] } = { current: [] };
+
 export function resetExpoRouterMock(): void {
   Object.values(routerMock).forEach((mockFunction) => mockFunction.mockClear());
   searchParametersMock.current = {};
+  segmentsMock.current = [];
 }
 
 export function RedirectMock({ href }: { href: unknown }): null {

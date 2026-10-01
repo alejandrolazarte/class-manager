@@ -5,7 +5,7 @@ import { clearTestQueryClients } from "./src/testing/testQueryClients";
 process.env.EXPO_PUBLIC_API_BASE_URL = "http://api.test";
 
 jest.mock("expo-router", () => {
-  const { routerMock, searchParametersMock, RedirectMock } = jest.requireActual(
+  const { routerMock, searchParametersMock, segmentsMock, RedirectMock } = jest.requireActual(
     "./src/testing/expoRouterMock",
   );
   return {
@@ -21,6 +21,7 @@ jest.mock("expo-router", () => {
     useRouter: () => routerMock,
     router: routerMock,
     useLocalSearchParams: () => searchParametersMock.current,
+    useSegments: () => segmentsMock.current,
     useFocusEffect: jest.fn(),
     Stack: { Screen: () => null },
   };

@@ -164,6 +164,7 @@ export function InstructorFormScreen({ instructorId }: InstructorFormScreenProps
   if (instructor === undefined) {
     return (
       <SettingsItemState
+        navigation="close"
         isPending={instructorsQuery.isPending}
         isError={instructorsQuery.isError}
         notFoundMessage={translate("instructors.form.notFound")}

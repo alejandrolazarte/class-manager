@@ -34,7 +34,7 @@ const shortWeekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 async function openClassesDay(page: Page, isoDate: string, today: string): Promise<void> {
   await page.goto("/family/classes");
-  await page.getByText("Hoy,", { exact: false }).first().waitFor();
+  await page.getByText("Hoy,", { exact: false }).filter({ visible: true }).first().waitFor();
   if (isoDate > weekEndOf(today)) {
     await page.getByRole("button", { name: "Semana siguiente" }).click();
   }
@@ -78,39 +78,39 @@ test("Family screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Ingresar" }).click();
   await expect(page).toHaveURL(/\/family/);
 
-  await page.getByText("Próxima clase").first().waitFor();
+  await page.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
   await capture(page, "20-familia-inicio");
 
   await page.getByRole("button", { name: "Tomás" }).click();
   await capture(page, "21-familia-inicio-otro-alumno");
 
   await page.getByRole("button", { name: /^Novedades/ }).click();
-  await page.getByText("Lunes 12 de octubre cerrado").first().waitFor();
+  await page.getByText("Lunes 12 de octubre cerrado").filter({ visible: true }).first().waitFor();
   await capture(page, "21b-familia-novedades");
 
   await page.goto("/family/classes");
-  await page.getByText("Hoy,", { exact: false }).first().waitFor();
+  await page.getByText("Hoy,", { exact: false }).filter({ visible: true }).first().waitFor();
   await capture(page, "22-familia-clases");
 
   await openClassesDay(page, family.absenceDate, demo.today);
-  await page.getByText("No va", { exact: true }).first().waitFor();
+  await page.getByText("No va", { exact: true }).filter({ visible: true }).first().waitFor();
   await capture(page, "22b-familia-clases-no-voy");
 
   await openClassesDay(page, family.makeupDate, demo.today);
-  await page.getByText("Recuperación", { exact: true }).first().waitFor();
+  await page.getByText("Recuperación", { exact: true }).filter({ visible: true }).first().waitFor();
   await capture(page, "22c-familia-clase-de-recuperacion");
   await scrollToBottom(page);
-  await page.getByText("Recuperar clases").first().waitFor();
+  await page.getByText("Recuperar clases").filter({ visible: true }).first().waitFor();
   await capture(page, "22d-familia-recuperar-clases");
 
   await page.goto("/family/shop");
-  await page.getByText("Productos").first().waitFor();
+  await page.getByText("Productos").filter({ visible: true }).first().waitFor();
   await capture(page, "23-familia-tienda");
   await scrollToBottom(page);
   await capture(page, "23b-familia-tienda-productos");
 
   await page.getByRole("button", { name: "Remera del club" }).click();
-  await page.getByText("Talle").first().waitFor();
+  await page.getByText("Talle").filter({ visible: true }).first().waitFor();
   await capture(page, "24-familia-producto");
 
   await page.getByRole("button", { name: "M", exact: true }).click();
@@ -123,15 +123,15 @@ test("Family screens", async ({ page, request }) => {
   await capture(page, "26-familia-carrito");
 
   await page.goto("/family/orders");
-  await page.getByText("Listo para entregar").first().waitFor();
+  await page.getByText("Listo para entregar").filter({ visible: true }).first().waitFor();
   await capture(page, "27-familia-pedidos");
 
   await page.getByRole("button", { name: /Anteriores/ }).click();
-  await page.getByText("Cancelado").first().waitFor();
+  await page.getByText("Cancelado").filter({ visible: true }).first().waitFor();
   await capture(page, "28-familia-pedidos-anteriores");
 
   await page.goto("/family/progress");
-  await page.getByText("Camino de niveles").first().waitFor();
+  await page.getByText("Camino de niveles").filter({ visible: true }).first().waitFor();
   await capture(page, "28b-familia-logros");
   await scrollToBottom(page);
   await capture(page, "28c-familia-logros-medallas");
@@ -151,10 +151,10 @@ test("Account chooser", async ({ page, request }) => {
   await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
   await page.getByRole("button", { name: "Ingresar" }).click();
   await expect(page).toHaveURL(/\/choose-account/);
-  await page.getByText("¿Cómo querés entrar?").first().waitFor();
+  await page.getByText("¿Cómo querés entrar?").filter({ visible: true }).first().waitFor();
   await capture(page, "30-elegir-cuenta");
 
   await page.getByRole("button", { name: /^Familia en/ }).click();
   await expect(page).toHaveURL(/\/family/);
-  await page.getByText("Próxima clase").first().waitFor();
+  await page.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
 });

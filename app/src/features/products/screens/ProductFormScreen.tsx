@@ -202,6 +202,7 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
   if (product === undefined) {
     return (
       <SettingsItemState
+        navigation="close"
         isPending={productsQuery.isPending}
         isError={productsQuery.isError}
         notFoundMessage={translate("products.form.notFound")}

@@ -187,6 +187,7 @@ export function MemberScreen({ memberId }: MemberScreenProps) {
   if (teamQuery.data === undefined || member === undefined) {
     return (
       <SettingsItemState
+        navigation="close"
         isPending={teamQuery.isPending}
         isError={teamQuery.isError}
         notFoundMessage={translate("team.member.notFound")}
