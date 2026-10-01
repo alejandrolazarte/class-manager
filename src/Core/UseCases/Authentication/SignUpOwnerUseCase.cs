@@ -78,8 +78,9 @@ public sealed class SignUpOwnerUseCase(
         organizationRepository.Add(organization.Value);
         organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(organization.Value.Id, userId.Value));
         businessRepository.Add(business.Value);
-        businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Value.Id, userId.Value));
-        instructorRepository.Add(Instructor.Create(account.Value.FullName).Value!);
+        var ownerInstructor = Instructor.Create(account.Value.FullName).Value!;
+        instructorRepository.Add(ownerInstructor);
+        businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Value.Id, userId.Value, ownerInstructor.Id));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var tokens = await tokenService.IssueAsync(
