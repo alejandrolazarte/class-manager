@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { refundableLinesOf, remainingUnits } from "@/features/orders/refunds";
 import { Order, OrderLine } from "@/features/orders/types";
 import { useRefundOrder } from "@/features/orders/useOrderMutations";
 import { translate } from "@/i18n/translate";
@@ -18,14 +19,10 @@ interface RefundPanelProps {
 
 const wholeNumberPattern = /^\d+$/;
 
-function remainingUnits(line: OrderLine): number {
-  return line.quantity - line.refundedQuantity;
-}
-
 export function RefundPanel({ order, onDone }: RefundPanelProps) {
   const { showToast } = useToast();
   const refundOrderMutation = useRefundOrder();
-  const refundableLines = order.lines.filter((line) => remainingUnits(line) > 0);
+  const refundableLines = refundableLinesOf(order);
   const [lineId, setLineId] = useState(refundableLines[0]?.id ?? "");
   const [quantityText, setQuantityText] = useState(
     String(refundableLines[0] ? remainingUnits(refundableLines[0]) : ""),
@@ -67,14 +64,6 @@ export function RefundPanel({ order, onDone }: RefundPanelProps) {
       setHasFailed(true);
     }
   };
-
-  if (refundableLines.length === 0) {
-    return (
-      <AppText variant="caption" tone="subtle">
-        {translate("orders.refund.nothingLeft")}
-      </AppText>
-    );
-  }
 
   return (
     <View className="gap-2.5">
