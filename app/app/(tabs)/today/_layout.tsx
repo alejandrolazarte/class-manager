@@ -10,6 +10,10 @@ export default function TodayLayout() {
         options={{ title: translate("sessions.session.title") }}
       />
       <Stack.Screen
+        name="notifications"
+        options={{ title: translate("teamNotifications.title") }}
+      />
+      <Stack.Screen
         name="private/new"
         options={{ title: translate("privateLessons.form.newTitle") }}
       />
