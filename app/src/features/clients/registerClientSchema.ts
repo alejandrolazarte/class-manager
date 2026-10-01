@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { emailAddressSchema } from "@/forms/emailAddress";
 import { countDigits } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientRequest } from "@/features/clients/types";
 import {
@@ -46,9 +47,10 @@ const clientFieldsSchema = z.object({
     ),
   email: z.union([
     z.literal(""),
-    z
-      .email(translate("clients.validation.emailInvalid"))
-      .max(clientLimits.emailMaximumLength, translate("clients.validation.emailInvalid")),
+    emailAddressSchema(translate("clients.validation.emailInvalid")).max(
+      clientLimits.emailMaximumLength,
+      translate("clients.validation.emailInvalid"),
+    ),
   ]),
   notes: z
     .string()

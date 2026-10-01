@@ -11,12 +11,12 @@ import { findRoleChoice } from "@/features/roles/roleChoices";
 import { useRoles } from "@/features/roles/useRoles";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
+import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const defaultRoleKey = "Coach";
 
 export function InviteMemberScreen() {
@@ -37,7 +37,7 @@ export function InviteMemberScreen() {
   const invite = async () => {
     setSubmissionFailure(null);
     const trimmedEmail = email.trim();
-    const isEmailValid = emailPattern.test(trimmedEmail);
+    const isEmailValid = emailAddressPattern.test(trimmedEmail);
     const roleChoice = findRoleChoice(roleKey, roles);
     const isCoachMissing = roleChoice?.needsCoach === true && instructorId === null;
     setEmailError(isEmailValid ? undefined : translate("team.invite.emailInvalid"));

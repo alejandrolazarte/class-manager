@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { emailAddressSchema } from "@/forms/emailAddress";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 import { SignUpRequest } from "@/features/authentication/types";
 import { CountryCode, getCountryPreset } from "@/features/business/countryPresets";
@@ -17,12 +18,10 @@ export const signUpSchema = z.object({
       authenticationLimits.fullNameMaximumLength,
       translate("authentication.validation.fullNameTooLong"),
     ),
-  email: z
-    .email(translate("authentication.validation.emailInvalid"))
-    .max(
-      authenticationLimits.emailMaximumLength,
-      translate("authentication.validation.emailInvalid"),
-    ),
+  email: emailAddressSchema(translate("authentication.validation.emailInvalid")).max(
+    authenticationLimits.emailMaximumLength,
+    translate("authentication.validation.emailInvalid"),
+  ),
   password: z
     .string()
     .min(

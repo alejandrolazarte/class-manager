@@ -1,15 +1,14 @@
 import { z } from "zod";
+import { emailAddressSchema } from "@/forms/emailAddress";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 import { SignInRequest } from "@/features/authentication/types";
 import { translate } from "@/i18n/translate";
 
 export const signInSchema = z.object({
-  email: z
-    .email(translate("authentication.validation.emailInvalid"))
-    .max(
-      authenticationLimits.emailMaximumLength,
-      translate("authentication.validation.emailInvalid"),
-    ),
+  email: emailAddressSchema(translate("authentication.validation.emailInvalid")).max(
+    authenticationLimits.emailMaximumLength,
+    translate("authentication.validation.emailInvalid"),
+  ),
   password: z.string().min(1, translate("authentication.validation.passwordRequired")),
 });
 
