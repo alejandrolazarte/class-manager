@@ -1,5 +1,5 @@
 import { Weekday } from "@/features/classGroups/types";
-import { weekdayLetter, weekdayLongLabel, weekOrder } from "@/features/classGroups/weekdays";
+import { weekdayLongLabel, weekdayShortLabel, weekOrder } from "@/features/classGroups/weekdays";
 import { DayStrip } from "@/ui/DayStrip";
 
 interface WeekdayChipsProps {
@@ -12,7 +12,7 @@ export function WeekdayChips({ selectedWeekdays, onToggleWeekday }: WeekdayChips
     <DayStrip
       days={weekOrder.map((weekday) => ({
         key: weekday,
-        label: weekdayLetter(weekday),
+        label: weekdayShortLabel(weekday),
         accessibilityLabel: weekdayLongLabel(weekday),
       }))}
       selectedKeys={selectedWeekdays}

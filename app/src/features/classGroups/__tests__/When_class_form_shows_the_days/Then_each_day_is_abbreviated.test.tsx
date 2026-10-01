@@ -12,13 +12,13 @@ describe("When class form shows the days", () => {
     jest.mocked(listActiveInstructors).mockResolvedValue([buildInstructor()]);
   });
 
-  it("Then each day is a single letter", async () => {
+  it("Then each day is abbreviated", async () => {
     await renderWithProviders(<ClassGroupFormScreen />);
     const wednesday = await screen.findByRole("button", { name: "Miércoles" });
 
     await fireEvent.press(wednesday);
 
-    expect(screen.getByText("X")).toBeOnTheScreen();
+    expect(screen.getByText("Mié")).toBeOnTheScreen();
     expect(wednesday).toBeSelected();
   });
 });

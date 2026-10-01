@@ -1,8 +1,8 @@
 import { Pressable, View } from "react-native";
 import {
-  weekdayLetter,
   weekdayLongLabel,
   weekdayOf,
+  weekdayShortLabel,
   weekOrder,
 } from "@/features/classGroups/weekdays";
 import {
@@ -176,7 +176,7 @@ export function AgendaCalendar({
             tone="subtle"
             className="flex-1 pb-0.5 text-center font-label"
           >
-            {weekdayLetter(weekday)}
+            {weekdayShortLabel(weekday)}
           </AppText>
         ))}
       </View>

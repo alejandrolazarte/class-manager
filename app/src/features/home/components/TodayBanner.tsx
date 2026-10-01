@@ -27,7 +27,7 @@ export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBanner
           <Icon name="live" tone="primary-foreground" />
         </View>
         <View className="min-w-0 flex-1">
-          <AppText variant="overline" tone="onPrimary" className="opacity-85">
+          <AppText variant="overline" tone="onPrimary" className="opacity-85" numberOfLines={1}>
             {translate("home.banner.live", { end: session.endTime })}
           </AppText>
           <AppText variant="bodyStrong" tone="onPrimary" numberOfLines={1}>
@@ -64,7 +64,7 @@ export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBanner
           <Icon name="schedule" tone="primary-soft-foreground" />
         </View>
         <View className="min-w-0 flex-1">
-          <AppText variant="overline" tone="subtle">
+          <AppText variant="overline" tone="subtle" numberOfLines={1}>
             {`${translate("home.banner.next")} · ${startsInLabel(session.startTime, timeNow)}`}
           </AppText>
           <AppText variant="bodyStrong" numberOfLines={1}>
