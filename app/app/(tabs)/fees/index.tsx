@@ -1,7 +1,14 @@
 import { useLocalSearchParams } from "expo-router";
-import { MonthlyFeesScreen } from "@/features/fees/screens/MonthlyFeesScreen";
+import { CollectionsScreen, CollectionsView } from "@/features/fees/screens/CollectionsScreen";
 
-export default function MonthlyFeesRoute() {
-  const { month } = useLocalSearchParams<{ month?: string }>();
-  return <MonthlyFeesScreen initialMonth={month} />;
+const ordersView: CollectionsView = "orders";
+
+export default function CollectionsRoute() {
+  const { month, view } = useLocalSearchParams<{ month?: string; view?: string }>();
+  return (
+    <CollectionsScreen
+      initialMonth={month}
+      initialView={view === ordersView ? ordersView : "fees"}
+    />
+  );
 }

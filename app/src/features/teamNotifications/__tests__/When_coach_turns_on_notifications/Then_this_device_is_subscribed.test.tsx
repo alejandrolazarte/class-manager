@@ -34,6 +34,9 @@ describe("When coach turns on notifications", () => {
 
   it("Then this device is subscribed", async () => {
     await renderWithProviders(<SettingsScreen />);
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("family.notifications.title") }),
+    );
 
     await fireEvent.press(
       await screen.findByRole("switch", { name: translate("family.notifications.toggle") }),

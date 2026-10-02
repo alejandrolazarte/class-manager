@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { FlatList, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { ClassPackClientRow } from "@/features/fees/components/ClassPackClientRow";
@@ -26,13 +26,14 @@ import { StepArrow } from "@/ui/StepArrow";
 
 interface MonthlyFeesScreenProps {
   initialMonth?: string;
+  viewSwitcher?: ReactNode;
 }
 
 type FeeFilter = "debtors" | "all";
 
 const debtorStatuses = new Set(["Unpaid", "Partial"]);
 
-export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
+export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScreenProps) {
   const router = useRouter();
   const business = useCurrentBusiness();
   const canViewEveryPayment = useCan(permissions.paymentsViewAll);
@@ -80,6 +81,7 @@ export function MonthlyFeesScreen({ initialMonth }: MonthlyFeesScreenProps) {
         }
       />
       <View className="gap-4 px-5">
+        {viewSwitcher}
         {business.defaultMonthlyFee === null ? (
           <Banner tone="warning" message={translate("fees.month.noDefaultFee")}>
             <Button

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { orderQueryKeys } from "@/features/orders/orderQueryKeys";
 import { listClassDeliveries, listDeliveryClasses, listOrders } from "@/features/orders/ordersApi";
-import { OrderFilter } from "@/features/orders/types";
+import { Order, OrderFilter } from "@/features/orders/types";
 
 export function useOrders(clientId: string | null, filter: OrderFilter) {
   return useQuery({
@@ -24,4 +24,24 @@ export function useDeliveryClasses(clientId: string | undefined) {
     queryFn: () => listDeliveryClasses(clientId ?? ""),
     enabled: clientId !== undefined,
   });
+}
+
+export interface PendingOrders {
+  requested: Order[];
+  awaitingPickup: Order[];
+  count: number;
+}
+
+export function usePendingOrders({ enabled = true } = {}): PendingOrders {
+  const { data: requested = [] } = useQuery({
+    queryKey: orderQueryKeys.list(null, "requested"),
+    queryFn: () => listOrders(null, "requested"),
+    enabled,
+  });
+  const { data: awaitingPickup = [] } = useQuery({
+    queryKey: orderQueryKeys.list(null, "awaitingPickup"),
+    queryFn: () => listOrders(null, "awaitingPickup"),
+    enabled,
+  });
+  return { requested, awaitingPickup, count: requested.length + awaitingPickup.length };
 }

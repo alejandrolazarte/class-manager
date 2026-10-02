@@ -8,6 +8,7 @@ export default function FeesLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ title: translate("fees.month.title") }} />
       <Stack.Screen name="monthly-fee" options={{ title: translate("fees.defaultFee.title") }} />
+      <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
       <Stack.Screen
         name="clients/[clientId]/index"
         options={{ title: translate("clients.detail.title") }}

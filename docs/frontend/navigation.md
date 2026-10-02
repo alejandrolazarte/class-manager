@@ -1,6 +1,6 @@
 # Navigation
 
-The team app has five tabs (Inicio, Clases, Alumnos, Cuotas, Ajustes), each with its own stack. Two rules keep "back" predictable.
+The team app has five tabs (Inicio, Clases, Alumnos, Cobros, Ajustes), each with its own stack. Two rules keep "back" predictable.
 
 ## 1. A screen never leaves its tab
 
@@ -8,7 +8,7 @@ Opening a screen that lives in another tab's stack switches tabs, and back then 
 
 - **Shared screens** are registered in every tab that opens them, with the route file re-exporting the same screen component. Examples:
   - the family subtree `clients/[clientId]/…` (detail, new student, sell pack, counter sale, payment, new class pack) lives under both `/students` and `/fees`;
-  - Pedidos lives under `/settings/orders` and `/today/orders` (the order aviso opens the Inicio one);
+  - Pedidos is the second view of Cobros (`/fees?view=orders`), and also lives under `/today/orders` (the order aviso opens the Inicio one) and `/settings/orders` (for members who see orders but not Cobros); the counter sale lives under each of them (`/fees/orders/new`, …);
   - the new-instructor form lives under `/settings/instructors/new` and `/classes/instructors/new`;
   - the default monthly fee form lives under `/settings/monthly-fee` and `/fees/monthly-fee`.
 - **Tab-aware routes**: shared screens build their links with the tab they were opened from (`routes.clientDetail(tab, clientId)`, `routes.orders(tab)`), using `useCurrentTab(clientTabs)` / `useCurrentTab(orderTabs)` from `src/navigation/useCurrentTab.ts`.

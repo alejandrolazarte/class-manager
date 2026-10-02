@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
@@ -94,7 +94,13 @@ test("App screens", async ({ page, request }) => {
   await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "10b-cuotas-todos.png") });
 
-  await page.goto("/settings");
+  await page.goto("/fees?view=orders");
+  await page.getByText("Por cobrar en pedidos").filter({ visible: true }).first().waitFor();
+  await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
+  await page.screenshot({ path: join(outputDirectory, "10c-cobros-pedidos.png") });
+
+  await openAppearance(page);
   await page.getByRole("button", { name: "Grafito", exact: true }).scrollIntoViewIfNeeded();
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);
@@ -111,7 +117,7 @@ test("App screens", async ({ page, request }) => {
   ];
 
   for (const [fileName, themeName] of themes) {
-    await page.goto("/settings");
+    await openAppearance(page);
     await page.getByRole("button", { name: themeName, exact: true }).click();
     await page.goto("/today");
     await page
@@ -125,3 +131,8 @@ test("App screens", async ({ page, request }) => {
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
 });
+
+async function openAppearance(page: Page): Promise<void> {
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Apariencia" }).click();
+}
