@@ -3,17 +3,14 @@
     <RootNamespace>ClassManager.Infrastructure</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MailKit" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/Core.csproj" />
+    <ProjectReference Include="../Notifications.Delivery/Notifications.Delivery.csproj" />
     <ProjectReference Include="../Security/Security.csproj" />
     <ProjectReference Include="../Tenancy.AspNetCore/Tenancy.AspNetCore.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Email/Templates/*.html" LogicalName="ClassManager.Infrastructure.Email.Templates.%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">

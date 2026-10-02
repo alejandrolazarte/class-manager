@@ -19,9 +19,12 @@ src/Security/        ← reusable auth library: Identity accounts, JWT + refresh
 src/Tenancy/         ← reusable tenancy abstractions: ITenantOwned, ITenantContext (no dependencies, ARCH004)
 src/Tenancy.AspNetCore/ ← tenant query filters, stamping interceptor, claims tenant context (ARCH004)
 src/ImportExport/    ← reusable import/export engine: CSV, column matching, limits (no dependencies, ARCH005)
+src/Notifications/   ← reusable email and web push building blocks: email content, branded HTML layout, VAPID, push encryption (no dependencies, ARCH006)
+src/Notifications.Delivery/ ← SMTP (MailKit) and web push senders, DI extensions (ARCH006)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
 tests/ClassManager.Api.I.Tests/   ← integration tests: endpoints and persistence (Testcontainers)
 tests/ClassManager.ImportExport.U.Tests/ ← unit tests: import/export engine
+tests/ClassManager.Notifications.U.Tests/ ← unit tests: email rendering and web push
 app/                 ← Expo app (mobile + web)
 e2e/                 ← Playwright e2e tests: web build + real API + SQL Server (critical flows only)
 docs/                ← decisions and runbooks

@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.WebPush;
+using ClassManager.Notifications.WebPush;
 using Microsoft.Extensions.Logging;
 
 namespace ClassManager.Infrastructure.Notifications;

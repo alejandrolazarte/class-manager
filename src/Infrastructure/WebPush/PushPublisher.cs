@@ -1,3 +1,4 @@
+using ClassManager.Notifications.WebPush;
 using Microsoft.Extensions.Options;
 
 namespace ClassManager.Infrastructure.WebPush;

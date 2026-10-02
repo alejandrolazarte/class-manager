@@ -1,6 +1,6 @@
-namespace ClassManager.Infrastructure.WebPush;
+using ClassManager.Notifications.WebPush;
 
-public sealed record PushMessage(string Title, string Body, string Url);
+namespace ClassManager.Infrastructure.WebPush;
 
 public abstract record PushJob(Guid TenantId, PushMessage Message);
 

@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Notifications.Email;
 
 namespace ClassManager.Core.UseCases.Members;
 

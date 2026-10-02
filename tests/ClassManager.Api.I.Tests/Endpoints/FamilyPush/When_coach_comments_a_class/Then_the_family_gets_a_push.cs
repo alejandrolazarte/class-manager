@@ -1,5 +1,3 @@
-using ClassManager.Infrastructure.WebPush;
-
 namespace ClassManager.Api.I.Tests.Endpoints.FamilyPush.When_coach_comments_a_class;
 
 [Collection(SqlServerCollectionDefinition.Name)]

@@ -1,5 +1,3 @@
-using ClassManager.Infrastructure.WebPush;
-
 namespace ClassManager.Api.I.Tests.Endpoints.FamilyPush.When_school_publishes_an_announcement;
 
 [Collection(SqlServerCollectionDefinition.Name)]

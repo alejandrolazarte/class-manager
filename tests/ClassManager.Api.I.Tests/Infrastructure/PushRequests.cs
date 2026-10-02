@@ -1,7 +1,6 @@
 using System.Buffers.Text;
 using System.Security.Cryptography;
 using ClassManager.Core.UseCases.Families;
-using ClassManager.Infrastructure.WebPush;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 

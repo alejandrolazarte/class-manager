@@ -86,4 +86,12 @@ internal static class DiagnosticDescriptors
         category: ArchitectureCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor NotificationsMustNotDependOnApplication = new(
+        id: "ARCH006",
+        title: "Notifications must not depend on the application",
+        messageFormat: "Notifications cannot use '{0}'; keep emails and web push free of business concepts and decide recipients and texts in the application",
+        category: ArchitectureCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

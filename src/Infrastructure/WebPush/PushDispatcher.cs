@@ -1,6 +1,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using ClassManager.Infrastructure.Persistence;
+using ClassManager.Notifications.WebPush;
 
 namespace ClassManager.Infrastructure.WebPush;
 

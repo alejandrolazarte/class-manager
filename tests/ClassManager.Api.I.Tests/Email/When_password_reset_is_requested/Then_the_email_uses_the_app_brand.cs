@@ -16,6 +16,6 @@ public sealed class Then_the_email_uses_the_app_brand(ApiFixture fixture)
 
         var sentEmail = fixture.ApiFactory.EmailTransport.SentTo(ownerCommand.Email!)[^1];
         sentEmail.FromName.ShouldBeNull();
-        sentEmail.HtmlBody.ShouldContain(EmailBrand.AppDisplayName);
+        sentEmail.HtmlBody.ShouldContain(BrandedEmailSender.AppDisplayName);
     }
 }
