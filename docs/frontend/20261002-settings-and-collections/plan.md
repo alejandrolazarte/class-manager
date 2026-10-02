@@ -12,12 +12,13 @@ Now: the business card, then groups with an overline title, rows with a tinted i
 
 | Group (tile tone) | Rows | Value on the right |
 |---|---|---|
-| Negocio (primary) | Marca, Sedes, Cuota mensual | "Personalizada" when there are brand colors or a logo; current branch or count; the fee or "Sin definir" |
-| Personas (success) | Equipo, Roles, Profes, Logros y asistencia, Novedades | — |
-| Tienda (warning) | Packs de clases, Productos, Pedidos (only for members who see orders but not Cobros) | Active packs and products |
-| Tu teléfono (neutral) | Apariencia, Notificaciones, Importar y exportar | Light/dark/system; "Activadas", "Desactivadas", "Bloqueadas" or "No disponibles" |
-| Cuenta (danger) | Cambiar de cuenta, Cerrar sesión | — |
+| Negocio (main color) | Marca, Sedes, Cuota mensual | "Personalizada" when there are brand colors or a logo; current branch or count; the fee or "Sin definir" |
+| Personas (accent) | Equipo, Roles, Profes, Logros y asistencia, Novedades | — |
+| Tienda (main color) | Packs de clases, Productos, Pedidos (only for members who see orders but not Cobros) | Active packs and products |
+| Tu teléfono (gray) | Apariencia, Notificaciones, Importar y exportar | Light/dark/system; "Activadas", "Desactivadas", "Bloqueadas" or "No disponibles" |
+| Cuenta (gray; red only for Cerrar sesión) | Cambiar de cuenta, Cerrar sesión | — |
 
+- **Icon tiles use the business theme, not the design's green and amber.** The design gives Personas and Tienda green and amber tiles, which are the status colors (paid, pending). Status colors never take brand colors ([branding and plans](../../branding-and-plans.md)), so those groups would ignore the owner's theme and borrow the meaning of "paid" and "pending". Tiles use the main color, the accent (equal to the main color when the brand has none) and gray; red only marks Cerrar sesión, the destructive action. A test checks that no settings tile uses the success or warning colors.
 - **Apariencia** and **Notificaciones** open a bottom sheet with the same controls as before (light/dark/system, color themes or the brand lock, the push switch and its hint).
 - Every row keeps the permission it had. A group with no visible rows is not shown.
 - The design merges "Equipo y roles" in one row. Team and roles stay as two rows because the team screen doesn't link to roles, so merging them would hide the roles screen.

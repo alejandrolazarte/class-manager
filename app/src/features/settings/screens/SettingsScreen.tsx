@@ -46,6 +46,8 @@ interface SettingsItem {
   isDestructive?: boolean;
 }
 
+const destructiveTone: SettingsRowTone = "danger";
+
 interface SettingsGroup {
   titleKey: TranslationKey;
   tone: SettingsRowTone;
@@ -141,7 +143,7 @@ export function SettingsScreen() {
     },
     {
       titleKey: "settings.group.people",
-      tone: "success",
+      tone: "accent",
       items: [
         {
           key: "team",
@@ -182,7 +184,7 @@ export function SettingsScreen() {
     },
     {
       titleKey: "settings.group.shop",
-      tone: "warning",
+      tone: "primary",
       items: [
         {
           key: "classPacks",
@@ -240,7 +242,7 @@ export function SettingsScreen() {
     },
     {
       titleKey: "settings.group.account",
-      tone: "danger",
+      tone: "neutral",
       items: [
         {
           key: "accounts",
@@ -294,7 +296,7 @@ export function SettingsScreen() {
                 {index > 0 ? <ListDivider /> : null}
                 <SettingsRow
                   icon={item.icon}
-                  tone={group.tone}
+                  tone={item.isDestructive ? destructiveTone : group.tone}
                   label={item.label}
                   value={item.value}
                   onPress={item.onPress}

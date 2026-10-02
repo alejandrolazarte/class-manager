@@ -3,20 +3,18 @@ import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { AppText } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
 
-export type SettingsRowTone = "primary" | "success" | "warning" | "neutral" | "danger";
+export type SettingsRowTone = "primary" | "accent" | "neutral" | "danger";
 
 const tileClassNames: Record<SettingsRowTone, string> = {
   primary: "bg-primary-soft",
-  success: "bg-success-soft",
-  warning: "bg-warning-soft",
+  accent: "bg-accent-soft",
   neutral: "bg-muted",
   danger: "bg-danger-soft",
 };
 
 const tileIconTones: Record<SettingsRowTone, ThemeColorToken> = {
   primary: "primary-soft-foreground",
-  success: "success-soft-foreground",
-  warning: "warning-soft-foreground",
+  accent: "accent-soft-foreground",
   neutral: "muted-foreground",
   danger: "danger-soft-foreground",
 };
