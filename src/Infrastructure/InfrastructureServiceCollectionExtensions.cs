@@ -86,12 +86,14 @@ public static class InfrastructureServiceCollectionExtensions
     {
         services.AddOptions<SmtpOptions>().BindConfiguration(SmtpOptions.SectionName);
         services.AddSingleton<IWebAppLinks, WebAppLinks>();
-        services.AddSingleton<SmtpEmailSender>();
-        services.AddSingleton<LoggingEmailSender>();
-        services.AddSingleton<IEmailSender>(serviceProvider =>
+        services.AddSingleton<SmtpEmailTransport>();
+        services.AddSingleton<LoggingEmailTransport>();
+        services.AddSingleton<IEmailTransport>(serviceProvider =>
             serviceProvider.GetRequiredService<IOptions<SmtpOptions>>().Value.IsConfigured
-                ? serviceProvider.GetRequiredService<SmtpEmailSender>()
-                : serviceProvider.GetRequiredService<LoggingEmailSender>());
+                ? serviceProvider.GetRequiredService<SmtpEmailTransport>()
+                : serviceProvider.GetRequiredService<LoggingEmailTransport>());
+        services.AddScoped<EmailBrandReader>();
+        services.AddScoped<IEmailSender, BrandedEmailSender>();
 
         return services;
     }

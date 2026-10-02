@@ -32,11 +32,16 @@ public sealed class InviteFamilyUseCase(
     private const string ClientNotFoundMessage = "The client does not exist.";
     private const string EmailRequiredMessage = "Write the email of the person who will use the app.";
 
-    public static string EmailBody(string businessName, string acceptInvitationLink) =>
-        "Hola,\n\n" +
-        $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Abrí este link para crear tu cuenta:\n\n" +
-        $"{acceptInvitationLink}\n\n" +
-        "El link sirve una sola vez y vence en 7 días.";
+    public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
+        new(
+            "Invitación a la app",
+            EmailSubject,
+            $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Tocá el botón para crear tu cuenta.",
+            "Si no esperabas esta invitación, podés ignorar este mail.")
+        {
+            Action = new EmailAction("Crear mi cuenta", acceptInvitationLink, ShowsLinkFallback: true),
+            Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
+        };
 
     public async Task<Result<FamilyInvitationResponse>> ExecuteAsync(InviteFamilyCommand command, CancellationToken cancellationToken)
     {
@@ -75,8 +80,8 @@ public sealed class InviteFamilyUseCase(
         invitationRepository.Add(invitation.Value!);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var body = EmailBody(business.Name, webAppLinks.AcceptFamilyInvitation(token.Value));
-        await emailSender.SendAsync(new EmailMessage(invitation.Value!.Email, EmailSubject, body), cancellationToken);
+        var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptFamilyInvitation(token.Value));
+        await emailSender.SendAsync(new EmailMessage(invitation.Value!.Email, EmailSubject, content, business.Id), cancellationToken);
 
         return new FamilyInvitationResponse(invitation.Value.Id, invitation.Value.Email, invitation.Value.ExpiresAt);
     }

@@ -13,7 +13,7 @@ public sealed class Then_tokens_are_issued_for_the_business(ApiFixture fixture)
         var email = MemberRequests.UniqueInviteeEmail();
         await business.HttpClient.InviteAsync(email, BusinessRole.Coach, instructor.Id);
         using var anonymousClient = fixture.ApiFactory.CreateClient();
-        await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email));
+        await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email));
 
         var tokens = await anonymousClient.SignInAsync(email, MemberRequests.InviteePassword);
 

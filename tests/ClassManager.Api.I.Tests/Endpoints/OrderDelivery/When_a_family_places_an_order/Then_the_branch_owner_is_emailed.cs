@@ -17,13 +17,13 @@ public sealed class Then_the_branch_owner_is_emailed(ApiFixture fixture)
         var classPack = await owner.CreateClassPackAsync();
         var familyEmail = FamilyRequests.UniqueFamilyEmail();
         (await owner.PostFamilyInvitationAsync(client.Id, familyEmail)).EnsureSuccessStatusCode();
-        using var accepted = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailSender.FamilyInvitationTokenSentTo(familyEmail));
+        using var accepted = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailTransport.FamilyInvitationTokenSentTo(familyEmail));
         var familyTokens = (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
         using var family = fixture.CreateClientWithToken(familyTokens.AccessToken);
 
         await family.PlaceFamilyOrderAsync(FamilyShopRequests.PackLine(classPack.Id));
 
-        var placedEmail = fixture.ApiFactory.EmailSender.SentTo(ownerCommand.Email!)[^1];
+        var placedEmail = fixture.ApiFactory.EmailTransport.SentTo(ownerCommand.Email!)[^1];
         placedEmail.Subject.ShouldBe($"Nuevo pedido de {ApiRequests.ClientFullName}");
         placedEmail.TextBody.ShouldContain(ClassPackRequests.PackName);
     }

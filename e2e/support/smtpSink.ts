@@ -9,6 +9,10 @@ const recipientPattern = /^RCPT TO:\s*<([^>]+)>/i;
 const quotedPrintableSoftBreakPattern = /=\r\n/g;
 const quotedPrintableBytePattern = /=([0-9A-F]{2})/gi;
 const transferEncodingPattern = /^content-transfer-encoding:\s*(\S+)/im;
+const multipartBoundaryPattern =
+  /^content-type:\s*multipart\/[^;]+;[\s\S]*?boundary="?([^";\r\n]+)"?/im;
+const boundaryDelimiter = "--";
+const leadingLineBreakPattern = /^\r\n/;
 
 export interface ReceivedEmail {
   to: string[];
@@ -24,10 +28,22 @@ function decodeQuotedPrintable(encodedBody: string): string {
   return Buffer.from(bytes, "latin1").toString("utf8");
 }
 
+function decodeParts(encodedBody: string, boundary: string): string {
+  return encodedBody
+    .split(`${boundaryDelimiter}${boundary}`)
+    .slice(1, -1)
+    .map((part) => decodeBody(part.replace(leadingLineBreakPattern, "")))
+    .join(lineBreak);
+}
+
 function decodeBody(message: string): string {
   const separatorIndex = message.indexOf(headerBodySeparator);
   const headers = message.slice(0, separatorIndex);
   const encodedBody = message.slice(separatorIndex + headerBodySeparator.length);
+  const boundary = multipartBoundaryPattern.exec(headers)?.[1];
+  if (boundary !== undefined) {
+    return decodeParts(encodedBody, boundary);
+  }
   const transferEncoding = transferEncodingPattern.exec(headers)?.[1]?.toLowerCase();
   if (transferEncoding === "quoted-printable") {
     return decodeQuotedPrintable(encodedBody);

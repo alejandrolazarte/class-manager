@@ -17,7 +17,7 @@ public sealed class Then_accepted_member_has_the_role(ApiFixture fixture)
         }
 
         using var anonymous = fixture.ApiFactory.CreateClient();
-        await anonymous.AcceptInvitationAsync(fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email));
+        await anonymous.AcceptInvitationAsync(fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email));
 
         var team = await business.HttpClient.GetTeamAsync();
         team.Members.ShouldContain(member => member.Email == email && member.CustomRoleId == role.Id);

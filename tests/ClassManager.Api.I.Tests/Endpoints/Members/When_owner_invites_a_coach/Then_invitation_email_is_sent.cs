@@ -14,6 +14,6 @@ public sealed class Then_invitation_email_is_sent(ApiFixture fixture)
 
         await business.HttpClient.InviteAsync(email, BusinessRole.Coach, instructor.Id);
 
-        fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email).ShouldNotBeNullOrEmpty();
+        fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email).ShouldNotBeNullOrEmpty();
     }
 }

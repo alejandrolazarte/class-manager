@@ -1,4 +1,4 @@
-using ClassManager.Core.Abstractions.Email;
+using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.WebPush;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Tokens;
@@ -24,7 +24,7 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
 
     public static string VapidPublicKey => TestVapidKeys.PublicKey;
 
-    public RecordingEmailSender EmailSender { get; } = new();
+    public RecordingEmailTransport EmailTransport { get; } = new();
 
     internal RecordingWebPushSender PushSender { get; } = new();
 
@@ -48,7 +48,7 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
         builder.ConfigureTestServices(services =>
         {
             services.Replace(ServiceDescriptor.Singleton(timeProvider));
-            services.Replace(ServiceDescriptor.Singleton<IEmailSender>(EmailSender));
+            services.Replace(ServiceDescriptor.Singleton<IEmailTransport>(EmailTransport));
             services.Replace(ServiceDescriptor.Singleton<IWebPushSender>(PushSender));
         });
     }

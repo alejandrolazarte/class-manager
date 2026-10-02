@@ -1,14 +1,13 @@
-using ClassManager.Core.Abstractions.Email;
 using Microsoft.Extensions.Logging;
 
 namespace ClassManager.Infrastructure.Email;
 
-internal sealed partial class LoggingEmailSender(ILogger<LoggingEmailSender> logger) : IEmailSender
+internal sealed partial class LoggingEmailTransport(ILogger<LoggingEmailTransport> logger) : IEmailTransport
 {
-    public Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
+    public Task SendAsync(OutgoingEmail email, CancellationToken cancellationToken)
     {
-        LogNotSent(logger, message.To, message.Subject);
-        LogBody(logger, message.TextBody);
+        LogNotSent(logger, email.To, email.Subject);
+        LogBody(logger, email.TextBody);
         return Task.CompletedTask;
     }
 

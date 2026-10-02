@@ -27,11 +27,16 @@ public sealed class InviteMemberUseCase(
 
     private const string AlreadyMemberMessage = "This person is already part of the team.";
 
-    public static string EmailBody(string businessName, string acceptInvitationLink) =>
-        "Hola,\n\n" +
-        $"Te invitaron a sumarte al equipo de {businessName}. Abrí este link para aceptar:\n\n" +
-        $"{acceptInvitationLink}\n\n" +
-        "El link sirve una sola vez y vence en 7 días.";
+    public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
+        new(
+            "Invitación al equipo",
+            EmailSubject,
+            $"Te invitaron a sumarte al equipo de {businessName}. Tocá el botón para aceptar.",
+            "Si no esperabas esta invitación, podés ignorar este mail.")
+        {
+            Action = new EmailAction("Aceptar invitación", acceptInvitationLink, ShowsLinkFallback: true),
+            Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
+        };
 
     public async Task<Result<InvitationResponse>> ExecuteAsync(InviteMemberCommand command, CancellationToken cancellationToken)
     {
@@ -82,8 +87,8 @@ public sealed class InviteMemberUseCase(
         invitationRepository.Add(invitation.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var body = EmailBody(business.Name, webAppLinks.AcceptInvitation(token.Value));
-        await emailSender.SendAsync(new EmailMessage(invitation.Value.Email, EmailSubject, body), cancellationToken);
+        var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptInvitation(token.Value));
+        await emailSender.SendAsync(new EmailMessage(invitation.Value.Email, EmailSubject, content, business.Id), cancellationToken);
 
         return InvitationResponse.From(invitation.Value);
     }

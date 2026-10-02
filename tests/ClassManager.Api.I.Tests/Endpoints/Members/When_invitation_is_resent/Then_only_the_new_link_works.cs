@@ -11,7 +11,7 @@ public sealed class Then_only_the_new_link_works(ApiFixture fixture)
         var business = await fixture.SeedBusinessAsync();
         var email = MemberRequests.UniqueInviteeEmail();
         var invitation = await business.HttpClient.InviteAsync(email, BusinessRole.Viewer);
-        var firstToken = fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email);
+        var firstToken = fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email);
 
         using (var resendResponse = await business.HttpClient.PostAsync(
             new Uri($"{MemberRequests.InvitationsRoute}/{invitation.Id}{ApiRoutes.Resend}", UriKind.Relative), null))
@@ -25,6 +25,6 @@ public sealed class Then_only_the_new_link_works(ApiFixture fixture)
             oldLinkResponse.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
 
-        await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email));
+        await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email));
     }
 }

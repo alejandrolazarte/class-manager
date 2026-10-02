@@ -65,11 +65,11 @@ public static class AuthenticationRequests
     public static Task<HttpResponseMessage> PostPasswordResetRequestAsync(this HttpClient httpClient, string email) =>
         httpClient.PostAsJsonAsync(PasswordResetRequestRoute, new RequestPasswordResetCommand(email), ApiRequests.JsonOptions);
 
-    public static async Task<string> RequestPasswordResetLinkAsync(this HttpClient httpClient, RecordingEmailSender emailSender, string email)
+    public static async Task<string> RequestPasswordResetLinkAsync(this HttpClient httpClient, RecordingEmailTransport emailTransport, string email)
     {
         using var response = await httpClient.PostPasswordResetRequestAsync(email);
         response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
-        var body = emailSender.SentTo(email)[^1].TextBody;
+        var body = emailTransport.SentTo(email)[^1].TextBody;
         return body.Split('\n').Single(line => line.StartsWith(WebAppResetPasswordUrl, StringComparison.Ordinal));
     }
 

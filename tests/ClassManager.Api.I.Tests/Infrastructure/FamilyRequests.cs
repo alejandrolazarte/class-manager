@@ -17,9 +17,9 @@ public static class FamilyRequests
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.AppInvitation}", new InviteFamilyRequest(email), ApiRequests.JsonOptions);
 
-    public static string FamilyInvitationTokenSentTo(this RecordingEmailSender emailSender, string email)
+    public static string FamilyInvitationTokenSentTo(this RecordingEmailTransport emailTransport, string email)
     {
-        var body = emailSender.SentTo(email)[^1].TextBody;
+        var body = emailTransport.SentTo(email)[^1].TextBody;
         var link = body.Split('\n').Single(line => line.StartsWith(WebAppAcceptFamilyInvitationUrl, StringComparison.Ordinal));
         return Uri.UnescapeDataString(link[WebAppAcceptFamilyInvitationUrl.Length..]);
     }
@@ -44,7 +44,7 @@ public static class FamilyRequests
         }
 
         using var anonymous = fixture.ApiFactory.CreateClient();
-        using var accepted = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailSender.FamilyInvitationTokenSentTo(email));
+        using var accepted = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailTransport.FamilyInvitationTokenSentTo(email));
         accepted.StatusCode.ShouldBe(HttpStatusCode.OK);
         var tokens = (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
 

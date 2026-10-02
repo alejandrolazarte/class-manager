@@ -9,7 +9,7 @@ public sealed class Then_second_attempt_fails(ApiFixture fixture)
         var scenario = await fixture.SeedFamilyScenarioAsync();
         using var anonymous = fixture.ApiFactory.CreateClient();
 
-        using var response = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailSender.FamilyInvitationTokenSentTo(scenario.Email));
+        using var response = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailTransport.FamilyInvitationTokenSentTo(scenario.Email));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }

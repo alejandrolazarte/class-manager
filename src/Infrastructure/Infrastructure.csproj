@@ -13,6 +13,9 @@
     <ProjectReference Include="../Tenancy.AspNetCore/Tenancy.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Email/Templates/*.html" LogicalName="ClassManager.Infrastructure.Email.Templates.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>ClassManager.Api.I.Tests</_Parameter1>
     </AssemblyAttribute>

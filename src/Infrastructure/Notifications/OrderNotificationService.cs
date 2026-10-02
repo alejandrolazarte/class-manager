@@ -12,6 +12,7 @@ internal sealed partial class OrderNotificationService(
     AppDbContext context,
     IIdentityService identityService,
     IEmailSender emailSender,
+    IWebAppLinks webAppLinks,
     PushPublisher pushPublisher,
     TeamNotifier teamNotifier,
     ILogger<OrderNotificationService> logger)
@@ -26,13 +27,12 @@ internal sealed partial class OrderNotificationService(
             return;
         }
 
-        var lines = LinesOf(order, business.CurrencyCode);
         var total = OrderEmails.Amount(order.Total, business.CurrencyCode);
-        var delivery = order.HasProducts ? OrderEmails.DeliveryForBranch(await DeliveryClassNameAsync(order, cancellationToken)) : string.Empty;
+        var delivery = order.HasProducts ? OrderEmails.DeliveryForBranch(await DeliveryClassNameAsync(order, cancellationToken)) : null;
         var staffUserIds = await StaffUserIdsAsync(business, cancellationToken);
         foreach (var email in await EmailsOfAsync(staffUserIds, cancellationToken))
         {
-            await SendAsync(OrderEmails.Placed(email, client.FullName, lines, total, delivery), cancellationToken);
+            await SendAsync(OrderEmails.Placed(EmailContextOf(order, business, email), client.FullName, delivery, webAppLinks.TeamOrders()), cancellationToken);
         }
 
         await teamNotifier.NotifyAsync(
@@ -64,7 +64,9 @@ internal sealed partial class OrderNotificationService(
 
         foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
         {
-            await SendAsync(OrderEmails.Paid(email, business.Name, LinesOf(order, business.CurrencyCode), nextStep), cancellationToken);
+            await SendAsync(
+                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.FamilyOrders()),
+                cancellationToken);
         }
     }
 
@@ -80,7 +82,7 @@ internal sealed partial class OrderNotificationService(
         PushReady(order, whereToGetIt);
         foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
         {
-            await SendAsync(OrderEmails.Ready(email, business.Name, LinesOf(order, business.CurrencyCode), whereToGetIt), cancellationToken);
+            await SendAsync(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.FamilyOrders()), cancellationToken);
         }
     }
 
@@ -92,21 +94,23 @@ internal sealed partial class OrderNotificationService(
             return;
         }
 
-        var lines = LinesOf(order, business.CurrencyCode);
         foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
         {
+            var emailContext = EmailContextOf(order, business, email);
             var message = reason == OrderCancellationReason.Unpaid
-                ? OrderEmails.CancelledUnpaid(email, business.Name, lines)
-                : OrderEmails.CancelledByBranch(email, business.Name, lines);
+                ? OrderEmails.CancelledUnpaid(emailContext, webAppLinks.FamilyOrders())
+                : OrderEmails.CancelledByBranch(emailContext, webAppLinks.FamilyOrders());
             await SendAsync(message, cancellationToken);
         }
     }
 
-    private static string LinesOf(Order order, string currencyCode) =>
-        string.Join(
-            '\n',
-            order.Lines.Select(line =>
-                $"- {(line.Quantity > 1 ? $"{line.Quantity} × " : string.Empty)}{line.Name}: {OrderEmails.Amount(line.Total, currencyCode)}"));
+    private static OrderEmailContext EmailContextOf(Order order, Business business, string to) =>
+        new(
+            to,
+            business.Id,
+            business.BrandDisplayName,
+            [.. order.Lines.Select(line => OrderEmails.Line(line.Quantity, line.Name, line.Total, business.CurrencyCode))],
+            OrderEmails.Amount(order.Total, business.CurrencyCode));
 
     private void PushReady(Order order, string whereToGetIt)
     {

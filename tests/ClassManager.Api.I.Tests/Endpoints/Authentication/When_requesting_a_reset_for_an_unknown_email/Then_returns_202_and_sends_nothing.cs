@@ -12,6 +12,6 @@ public sealed class Then_returns_202_and_sends_nothing(ApiFixture fixture)
         using var response = await client.PostPasswordResetRequestAsync(unknownEmail);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
-        fixture.ApiFactory.EmailSender.SentTo(unknownEmail).ShouldBeEmpty();
+        fixture.ApiFactory.EmailTransport.SentTo(unknownEmail).ShouldBeEmpty();
     }
 }

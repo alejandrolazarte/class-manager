@@ -44,8 +44,8 @@ public sealed class ResendInvitationUseCase(
         invitation.Renew(token.Hash, timeProvider.GetUtcNow());
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var body = InviteMemberUseCase.EmailBody(business.Name, webAppLinks.AcceptInvitation(token.Value));
-        await emailSender.SendAsync(new EmailMessage(invitation.Email, InviteMemberUseCase.EmailSubject, body), cancellationToken);
+        var content = InviteMemberUseCase.EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptInvitation(token.Value));
+        await emailSender.SendAsync(new EmailMessage(invitation.Email, InviteMemberUseCase.EmailSubject, content, business.Id), cancellationToken);
 
         return InvitationResponse.From(invitation);
     }
