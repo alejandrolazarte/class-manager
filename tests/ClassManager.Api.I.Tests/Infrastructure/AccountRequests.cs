@@ -27,7 +27,7 @@ public static class AccountRequests
         var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
         var familyId = fees!.Clients.Single(client => client.StudentNames.Contains(CoachScenario.CoachStudentFullName)).ClientId;
         (await coaches.Business.HttpClient.PostFamilyInvitationAsync(familyId, email)).EnsureSuccessStatusCode();
-        (await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailSender.FamilyInvitationTokenSentTo(email))).EnsureSuccessStatusCode();
+        (await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailTransport.FamilyInvitationTokenSentTo(email))).EnsureSuccessStatusCode();
 
         var ownerTokens = await anonymous.SignInAsync(email);
         var family = new FamilyScenario(coaches, familyId, email, ownerTokens, fixture.CreateClientWithToken(ownerTokens.AccessToken));

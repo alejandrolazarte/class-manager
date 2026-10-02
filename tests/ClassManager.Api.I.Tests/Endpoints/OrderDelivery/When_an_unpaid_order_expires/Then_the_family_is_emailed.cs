@@ -22,7 +22,7 @@ public sealed class Then_the_family_is_emailed(ApiFixture fixture)
 
         await fixture.ApiFactory.Services.GetRequiredService<IExpiredOrderCancellationService>().CancelExpiredOrdersAsync(CancellationToken.None);
 
-        var cancelledEmail = fixture.ApiFactory.EmailSender.SentTo(scenario.Email)[^1];
+        var cancelledEmail = fixture.ApiFactory.EmailTransport.SentTo(scenario.Email)[^1];
         cancelledEmail.Subject.ShouldBe("Se canceló tu pedido");
         cancelledEmail.TextBody.ShouldContain("7 días");
     }

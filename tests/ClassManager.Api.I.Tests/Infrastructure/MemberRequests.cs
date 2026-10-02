@@ -32,9 +32,9 @@ public static class MemberRequests
         return (await response.Content.ReadFromJsonAsync<InvitationResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static string InvitationTokenSentTo(this RecordingEmailSender emailSender, string email)
+    public static string InvitationTokenSentTo(this RecordingEmailTransport emailTransport, string email)
     {
-        var body = emailSender.SentTo(email)[^1].TextBody;
+        var body = emailTransport.SentTo(email)[^1].TextBody;
         var link = body.Split('\n').Single(line => line.StartsWith(WebAppAcceptInvitationUrl, StringComparison.Ordinal));
         return Uri.UnescapeDataString(link[WebAppAcceptInvitationUrl.Length..]);
     }

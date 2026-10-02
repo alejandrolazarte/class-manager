@@ -18,6 +18,7 @@ export function buildProduct(overrides: Partial<Product> = {}): Product {
 export function buildOrder(overrides: Partial<Order> = {}): Order {
   return {
     id: "0192f0c4-0000-7000-8000-00000000d001",
+    number: 1043,
     clientId: null,
     clientFullName: null,
     channel: "Counter",

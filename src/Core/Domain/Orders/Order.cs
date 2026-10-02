@@ -25,6 +25,7 @@ public sealed class Order : ITenantOwned
     private const string AlreadyReadyMessage = "This order is already marked ready.";
     private const string NotRequestedMessage = "Only orders waiting for payment can be paid or cancelled.";
     private const int RefundDecimals = 2;
+    private const string AlreadyNumberedMessage = "The order already has a number.";
 
     private readonly List<OrderLine> _lines = [];
 
@@ -34,6 +35,7 @@ public sealed class Order : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public int Number { get; private set; }
     public Guid? ClientId { get; private set; }
     public OrderChannel Channel { get; private set; }
     public OrderStatus Status { get; private set; }
@@ -95,6 +97,16 @@ public sealed class Order : ITenantOwned
 
     public static Result<Order> Request(Guid clientId, IReadOnlyList<OrderLine> lines, Guid? requestedByUserId, DateTimeOffset createdAt) =>
         Create(clientId, OrderChannel.App, lines, null, requestedByUserId, createdAt);
+
+    public void AssignNumber(int number)
+    {
+        if (Number != 0)
+        {
+            throw new InvalidOperationException(AlreadyNumberedMessage);
+        }
+
+        Number = number;
+    }
 
     public Result ConfirmPayment(PaymentMethod? method, DateOnly paidOn, DateOnly today, Guid? recordedByUserId)
     {

@@ -12,7 +12,7 @@ public sealed class Then_tokens_are_for_a_branch_of_their_brand(ApiFixture fixtu
         var email = MemberRequests.UniqueInviteeEmail();
         await business.HttpClient.InviteAsync(email, BusinessRole.Viewer);
         using var anonymousClient = fixture.ApiFactory.CreateClient();
-        await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email));
+        await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email));
         var invitedMember = (await business.HttpClient.GetTeamAsync()).Members.Single(member => member.Email == email);
         using (var promoteResponse = await business.HttpClient.PutBrandOwnerAsync(invitedMember.Id))
         {

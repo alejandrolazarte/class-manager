@@ -30,6 +30,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasOne<Business>().WithMany().HasForeignKey(order => order.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Client>().WithMany().HasForeignKey(order => order.ClientId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(order => new { order.TenantId, order.Number }).IsUnique();
         builder.HasIndex(order => new { order.TenantId, order.CreatedAt });
         builder.HasIndex(order => new { order.TenantId, order.ClientId });
         builder.HasIndex(order => new { order.TenantId, order.Status });

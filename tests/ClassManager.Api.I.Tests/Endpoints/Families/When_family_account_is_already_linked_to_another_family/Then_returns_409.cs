@@ -16,7 +16,7 @@ public sealed class Then_returns_409(ApiFixture fixture)
         }
 
         using var anonymous = fixture.ApiFactory.CreateClient();
-        using var response = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailSender.FamilyInvitationTokenSentTo(firstFamily.Email));
+        using var response = await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailTransport.FamilyInvitationTokenSentTo(firstFamily.Email));
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
     }

@@ -17,7 +17,7 @@ public sealed class Then_returns_400(ApiFixture fixture)
         }
 
         using var anonymousClient = fixture.ApiFactory.CreateClient();
-        using var response = await anonymousClient.PostAcceptInvitationAsync(fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email));
+        using var response = await anonymousClient.PostAcceptInvitationAsync(fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }

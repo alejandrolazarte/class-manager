@@ -14,7 +14,7 @@ public sealed class Then_they_are_a_coach_linked_to_the_instructor(ApiFixture fi
         await business.HttpClient.InviteAsync(email, BusinessRole.Coach, instructor.Id);
         using var anonymousClient = fixture.ApiFactory.CreateClient();
 
-        var tokens = await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailSender.InvitationTokenSentTo(email));
+        var tokens = await anonymousClient.AcceptInvitationAsync(fixture.ApiFactory.EmailTransport.InvitationTokenSentTo(email));
 
         using var coachClient = fixture.CreateClientWithToken(tokens.AccessToken);
         var member = await coachClient.GetCurrentMemberAsync();

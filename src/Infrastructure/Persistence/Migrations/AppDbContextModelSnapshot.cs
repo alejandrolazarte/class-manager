@@ -146,6 +146,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<int>("NextOrderNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
                     b.Property<bool>("NoticedAbsencesKeepStreak")
                         .HasColumnType("bit");
 
@@ -917,6 +922,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
                     b.Property<DateOnly?>("PaidOn")
                         .HasColumnType("date");
 
@@ -943,6 +951,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ClientId");
 
                     b.HasIndex("TenantId", "CreatedAt");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique();
 
                     b.HasIndex("TenantId", "Status");
 

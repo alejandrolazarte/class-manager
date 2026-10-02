@@ -14,7 +14,7 @@ public sealed class Then_returns_400(ApiFixture fixture)
         using var client = fixture.ApiFactory.CreateClient();
         var command = AuthenticationRequests.SignUpCommand();
         await client.SignUpAsync(command);
-        var token = AuthenticationRequests.TokenOf(await client.RequestPasswordResetLinkAsync(fixture.ApiFactory.EmailSender, command.Email!));
+        var token = AuthenticationRequests.TokenOf(await client.RequestPasswordResetLinkAsync(fixture.ApiFactory.EmailTransport, command.Email!));
         using var firstResponse = await client.PostPasswordResetAsync(token, FirstNewPassword);
 
         using var secondResponse = await client.PostPasswordResetAsync(token, SecondNewPassword);

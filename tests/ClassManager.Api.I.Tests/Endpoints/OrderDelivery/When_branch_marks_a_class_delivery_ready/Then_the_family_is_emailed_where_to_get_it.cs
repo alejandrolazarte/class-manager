@@ -21,7 +21,7 @@ public sealed class Then_the_family_is_emailed_where_to_get_it(ApiFixture fixtur
         using var response = await owner.PutOrderReadyAsync(orderId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var readyEmail = fixture.ApiFactory.EmailSender.SentTo(scenario.Email)[^1];
+        var readyEmail = fixture.ApiFactory.EmailTransport.SentTo(scenario.Email)[^1];
         readyEmail.Subject.ShouldBe("Tu pedido está listo");
         readyEmail.TextBody.ShouldContain(CoachScenario.CoachClassGroupName);
     }

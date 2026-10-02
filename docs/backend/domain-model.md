@@ -272,6 +272,7 @@ One purchase: at the counter now, from the family app in step 3.
 
 | Property | Type | Rules |
 |---|---|---|
+| `Number` | `int` | Visible order number, consecutive **per business** starting at 1 (`n.º 1043`), unique per tenant. Counter sales and app orders share the sequence. Shown in the order lists, emails and team notifications; URLs and the API keep using `Id` |
 | `ClientId` | `Guid?` | Required when a line is a class pack; a counter sale of products can have no family |
 | `Channel` | `OrderChannel` | `Counter` or `App` |
 | `Status` | `OrderStatus` | `Requested` → `Paid` → `Delivered`, or `Requested` → `Cancelled`. A counter sale starts `Paid`; a family's order starts `Requested` |
@@ -282,6 +283,8 @@ Lines (1–20) keep a snapshot of name and price. A **class pack line** creates 
 An order with products is delivered by **pickup** at the branch or **in class** (`DeliveryClassGroupId`: a class group one of the family's students is enrolled in; the coach of that class sees it and hands it over). `ReadyAt` records when the branch marked it ready to hand over.
 
 A **requested** order reserves its tracked units. The branch confirms the payment (which credits the packs) or cancels it; the family can cancel it too. An order still unpaid 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
+
+**Numbering**: the number is taken inside the transaction that creates the order, with a single atomic `UPDATE Businesses SET NextOrderNumber = NextOrderNumber + 1 OUTPUT deleted.NextOrderNumber` (`IOrderNumbers`). The row lock lasts until the commit, so two orders created at the same time never get the same number, and a rolled-back order gives its number back. The unique index `(TenantId, Number)` is the safety net. The migration `AddOrderNumbers` numbered the orders that already existed, by creation date within each business.
 
 **Refunds**: a product line returns some or all of its units, optionally back to stock. A pack line removes the classes not used yet and refunds their share of the price (the purchase keeps only the used classes, or is removed when none was used).
 
