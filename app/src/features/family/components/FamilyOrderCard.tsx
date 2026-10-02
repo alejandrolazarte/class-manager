@@ -136,6 +136,7 @@ export function FamilyOrderCard({
           <StatusPill label={translate(orderStageLabels[stage])} tone={orderStageTones[stage]} />
           <AppText variant="caption" tone="subtle">
             {translate("family.orders.placedOn", {
+              number: order.number,
               date: inlineDate(order.createdAt),
             })}
           </AppText>

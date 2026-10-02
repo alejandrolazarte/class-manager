@@ -75,6 +75,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IStockMovementRepository, StockMovementRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IStockLock, StockLock>();
+        services.AddScoped<IOrderNumbers, OrderNumbers>();
         services.AddScoped<IExpiredOrderDirectory, ExpiredOrderDirectory>();
         services.AddScoped<IOrderNotificationService, OrderNotificationService>();
         services.AddScoped<IPrivateLessonRepository, PrivateLessonRepository>();

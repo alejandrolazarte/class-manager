@@ -37,7 +37,7 @@ internal sealed partial class OrderNotificationService(
 
         await teamNotifier.NotifyAsync(
             staffUserIds,
-            new PushMessage(TeamNotificationTexts.OrderPlacedTitle(client.FullName), total, TeamNotificationTexts.OrdersUrl),
+            new PushMessage(TeamNotificationTexts.OrderPlacedTitle(OrderEmails.NumberOf(order.Number), client.FullName), total, TeamNotificationTexts.OrdersUrl),
             cancellationToken);
     }
 
@@ -107,6 +107,7 @@ internal sealed partial class OrderNotificationService(
     private static OrderEmailContext EmailContextOf(Order order, Business business, string to) =>
         new(
             to,
+            order.Number,
             business.Id,
             business.BrandDisplayName,
             [.. order.Lines.Select(line => OrderEmails.Line(line.Quantity, line.Name, line.Total, business.CurrencyCode))],

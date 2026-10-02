@@ -21,7 +21,7 @@ internal static class TeamNotificationTexts
     public static string ClassBody(string classGroupName, DateOnly date, TimeOnly startTime) =>
         $"{classGroupName} · {Weekdays[(int)date.DayOfWeek]} {date.Day}/{date.Month} {startTime.ToString(TimeFormat, CultureInfo.InvariantCulture)}";
 
-    public static string OrderPlacedTitle(string clientFullName) => $"Nuevo pedido de {clientFullName}";
+    public static string OrderPlacedTitle(string orderNumber, string clientFullName) => $"Nuevo pedido {orderNumber} de {clientFullName}";
 
     private static string FirstNameOf(string fullName) =>
         fullName.Split(NameSeparator, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? fullName;

@@ -25,6 +25,7 @@ public sealed record FamilyOrderLineResponse(Guid Id, OrderLineKind Kind, string
 
 public sealed record FamilyOrderResponse(
     Guid Id,
+    int Number,
     OrderStatus Status,
     bool AwaitsPickup,
     decimal Total,
@@ -40,6 +41,7 @@ public sealed record FamilyOrderResponse(
     public static FamilyOrderResponse From(Order order, string? deliveryClassGroupName) =>
         new(
             order.Id,
+            order.Number,
             order.Status,
             order.AwaitsPickup,
             order.Total,

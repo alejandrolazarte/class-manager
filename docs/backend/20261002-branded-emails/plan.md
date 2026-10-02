@@ -18,7 +18,7 @@ Emails were plain text built by string concatenation in C# (`EmailBody(...)` in 
 | New order (team) | `OrderNotificationService.OrderPlacedAsync` | Business | Items and total, "Entrega" note, button "Abrir pedidos" |
 | Payment confirmed, order ready, order cancelled (unpaid or by the branch) (family) | `OrderNotificationService` | Business | Items and total, note, button "Ver pedido en la app" |
 
-The design's "Pedido n.º 1043" eyebrow is not used: orders have no visible number yet.
+Order emails show the order number: "Pedido n.º 1043" above the title for families, "Nuevo pedido · n.º 1043" and the subject "Nuevo pedido n.º 1043 de …" for the team (see [domain model](../domain-model.md#order-and-orderline-added-with-the-shop)).
 
 ## Decisions
 

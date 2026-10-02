@@ -173,6 +173,7 @@ export interface FamilyOrderLine {
 
 export interface FamilyOrder {
   id: string;
+  number: number;
   status: FamilyOrderStatus;
   awaitsPickup: boolean;
   total: number;

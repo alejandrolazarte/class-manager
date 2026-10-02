@@ -17,6 +17,7 @@ public sealed record OrderLineResponse(
 
 public sealed record OrderResponse(
     Guid Id,
+    int Number,
     Guid? ClientId,
     string? ClientFullName,
     OrderChannel Channel,
@@ -39,6 +40,7 @@ public sealed record OrderResponse(
     public static OrderResponse From(Order order, Client? client, string? deliveryClassGroupName) =>
         new(
             order.Id,
+            order.Number,
             order.ClientId,
             client?.FullName,
             order.Channel,

@@ -136,6 +136,7 @@ export function buildFamilyShop(overrides: Partial<FamilyShop> = {}): FamilyShop
 export function buildFamilyOrder(overrides: Partial<FamilyOrder> = {}): FamilyOrder {
   return {
     id: "order-1",
+    number: 1043,
     status: "Requested",
     awaitsPickup: false,
     total: 120,

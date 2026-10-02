@@ -61,6 +61,7 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
           <AppText variant="bodyStrong">{orderClientLabel(order)}</AppText>
           <AppText variant="caption" tone="subtle">
             {[
+              translate("orders.number", { number: order.number }),
               formatLongDate(order.paidOn ?? order.createdAt.slice(0, isoDateLength)),
               order.channel === "App" ? translate("orders.fromApp") : null,
               orderStatusLabel(order),

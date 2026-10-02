@@ -14,7 +14,7 @@ public sealed class Then_the_owner_is_notified(ApiFixture fixture)
             scenario.Coaches.CoachClassGroup.Id, FamilyShopRequests.ProductLine(product.Variants[0].Id, 1))).EnsureSuccessStatusCode();
 
         var notification = (await owner.GetTeamNotificationsAsync())!.Items.Single();
-        notification.Title.ShouldStartWith("Nuevo pedido de");
+        notification.Title.ShouldStartWith("Nuevo pedido n.º 1 de");
         notification.Url.ShouldBe("/today/orders");
     }
 }

@@ -31,6 +31,7 @@ export interface OrderLine {
 
 export interface Order {
   id: string;
+  number: number;
   clientId: string | null;
   clientFullName: string | null;
   channel: "Counter" | "App";

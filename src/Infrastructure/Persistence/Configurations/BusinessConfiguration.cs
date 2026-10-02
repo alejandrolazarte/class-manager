@@ -5,12 +5,15 @@ namespace ClassManager.Infrastructure.Persistence.Configurations;
 internal sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
 {
     public const string RetiredDefaultMonthlyFeeColumn = "DefaultMonthlyFee";
+    public const string NextOrderNumberColumn = "NextOrderNumber";
+    public const int FirstOrderNumber = 1;
 
     public void Configure(EntityTypeBuilder<Business> builder)
     {
         builder.HasKey(business => business.Id);
         builder.Property<decimal?>(RetiredDefaultMonthlyFeeColumn).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Property(business => business.Id).ValueGeneratedNever();
+        builder.Property<int>(NextOrderNumberColumn).HasDefaultValue(FirstOrderNumber);
         builder.Property(business => business.Name).HasMaxLength(Business.NameMaxLength).IsRequired();
         builder.Property(business => business.Slug).HasMaxLength(Business.SlugMaxLength).IsRequired();
         builder.Property(business => business.TimeZoneId).HasMaxLength(Business.TimeZoneIdMaxLength).IsRequired();

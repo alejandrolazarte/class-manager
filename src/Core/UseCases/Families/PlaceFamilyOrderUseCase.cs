@@ -22,6 +22,7 @@ public sealed class PlaceFamilyOrderUseCase(
     IProductRepository productRepository,
     IStockMovementRepository stockMovementRepository,
     IStockLock stockLock,
+    IOrderNumbers orderNumbers,
     IOrderRepository orderRepository,
     IClassGroupRepository classGroupRepository,
     IStudentRepository studentRepository,
@@ -84,6 +85,7 @@ public sealed class PlaceFamilyOrderUseCase(
             stockMovementRepository.Add(StockMovement.Reserve(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access.UserId, now));
         }
 
+        order.Value.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));
         orderRepository.Add(order.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

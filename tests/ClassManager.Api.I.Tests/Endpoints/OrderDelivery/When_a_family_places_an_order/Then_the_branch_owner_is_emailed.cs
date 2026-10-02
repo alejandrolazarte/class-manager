@@ -24,7 +24,7 @@ public sealed class Then_the_branch_owner_is_emailed(ApiFixture fixture)
         await family.PlaceFamilyOrderAsync(FamilyShopRequests.PackLine(classPack.Id));
 
         var placedEmail = fixture.ApiFactory.EmailTransport.SentTo(ownerCommand.Email!)[^1];
-        placedEmail.Subject.ShouldBe($"Nuevo pedido de {ApiRequests.ClientFullName}");
+        placedEmail.Subject.ShouldBe($"Nuevo pedido n.º 1 de {ApiRequests.ClientFullName}");
         placedEmail.TextBody.ShouldContain(ClassPackRequests.PackName);
     }
 }

@@ -5,7 +5,7 @@ namespace ClassManager.Infrastructure.Notifications;
 
 internal static class OrderEmails
 {
-    public const string PlacedSubjectPrefix = "Nuevo pedido de ";
+    public const string NumberPrefix = "n.º ";
     public const string PaidSubject = "Recibimos tu pago";
     public const string ReadySubject = "Tu pedido está listo";
     public const string CancelledSubject = "Se canceló tu pedido";
@@ -13,8 +13,8 @@ internal static class OrderEmails
     public const string ClassesCredited = "Las clases ya están cargadas en tu cuenta.";
     public const string WillNotifyWhenReady = "Te avisamos cuando los productos estén listos para entregar.";
 
-    private const string FamilyEyebrow = "Tu pedido";
-    private const string TeamEyebrow = "Nuevo pedido";
+    private const string FamilyEyebrowPrefix = "Pedido ";
+    private const string TeamEyebrowPrefix = "Nuevo pedido · ";
     private const string DeliveryLabel = "Entrega";
     private const string FamilyAction = "Ver pedido en la app";
     private const string TeamAction = "Abrir pedidos";
@@ -27,9 +27,9 @@ internal static class OrderEmails
     public static EmailMessage Placed(OrderEmailContext order, string familyName, string? delivery, string teamOrdersLink) =>
         new(
             order.To,
-            PlacedSubjectPrefix + familyName,
+            PlacedSubject(order.Number, familyName),
             new EmailContent(
-                TeamEyebrow,
+                TeamEyebrowPrefix + NumberOf(order.Number),
                 $"{familyName} hizo un pedido desde la app",
                 "Se paga en la sede. Cuando lo cobres, confirmá el pago en Pedidos.",
                 $"Recibís este mail porque gestionás los pedidos de {order.BusinessName}.")
@@ -73,6 +73,10 @@ internal static class OrderEmails
             new EmailNote("Si tenés dudas, consultá en la sede."),
             familyOrdersLink);
 
+    public static string PlacedSubject(int orderNumber, string familyName) => $"Nuevo pedido {NumberOf(orderNumber)} de {familyName}";
+
+    public static string NumberOf(int orderNumber) => NumberPrefix + orderNumber.ToString(CultureInfo.InvariantCulture);
+
     public static EmailLine Line(int quantity, string name, decimal total, string currencyCode) =>
         new(quantity > 1 ? quantity + QuantitySeparator + name : name, Amount(total, currencyCode));
 
@@ -90,7 +94,7 @@ internal static class OrderEmails
         new(
             order.To,
             subject,
-            new EmailContent(FamilyEyebrow, subject, intro, FamilyFooter)
+            new EmailContent(FamilyEyebrowPrefix + NumberOf(order.Number), subject, intro, FamilyFooter)
             {
                 Lines = order.Lines,
                 Total = order.Total,
@@ -100,4 +104,4 @@ internal static class OrderEmails
             order.BusinessId);
 }
 
-internal sealed record OrderEmailContext(string To, Guid BusinessId, string BusinessName, IReadOnlyList<EmailLine> Lines, string Total);
+internal sealed record OrderEmailContext(string To, int Number, Guid BusinessId, string BusinessName, IReadOnlyList<EmailLine> Lines, string Total);
