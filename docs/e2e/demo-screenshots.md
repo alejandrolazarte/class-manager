@@ -45,6 +45,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `08-familia` | Family card with students, classes, fee and payments |
 | `09-nuevo-alumno` | Register form with "¿Quién viene a clase?" |
 | `10-cuotas`, `10b-cuotas-todos` | Month fees, debtors and everyone |
+| `10c-cobros-pedidos` | Cobros on Pedidos: orders summary, filters and order cards |
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-profes` | Settings and instructors |
 | `12b-novedades` | Publishing an announcement for families |

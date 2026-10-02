@@ -7,6 +7,7 @@ export interface TabDefinition {
   titleKey: TranslationKey;
   icon: IconName;
   anyOfPermissions?: readonly Permission[];
+  showsPendingOrders?: boolean;
 }
 
 export const tabDefinitions: readonly TabDefinition[] = [
@@ -18,6 +19,7 @@ export const tabDefinitions: readonly TabDefinition[] = [
     titleKey: "tabs.fees",
     icon: "fees",
     anyOfPermissions: [permissions.paymentsViewAll, permissions.paymentsViewOwn],
+    showsPendingOrders: true,
   },
   { name: "settings", titleKey: "tabs.settings", icon: "settings" },
 ];

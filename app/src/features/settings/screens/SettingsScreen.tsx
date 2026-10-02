@@ -1,218 +1,270 @@
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-import { Fragment, ReactElement } from "react";
+import { Fragment, useState } from "react";
 import { View } from "react-native";
 import { useHasOtherAccountKind } from "@/features/authentication/useAccounts";
 import { useSession } from "@/features/authentication/useSession";
+import { useCurrentBrand } from "@/features/brand/BrandProvider";
+import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatMoney } from "@/features/fees/money";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
 import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
+import { PushNotifications } from "@/features/notifications/usePushNotifications";
+import { useProducts } from "@/features/products/useProducts";
+import { SettingsRow, SettingsRowTone } from "@/features/settings/components/SettingsRow";
+import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
 import {
   stopTeamPushNotifications,
   useTeamPushNotifications,
 } from "@/features/teamNotifications/useTeamNotifications";
-import { translate } from "@/i18n/translate";
+import { translate, TranslationKey } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { ColorSchemePreference } from "@/theme/ThemeContext";
+import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
+import { BottomSheet } from "@/ui/BottomSheet";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
-import { ListDivider, ListRow } from "@/ui/ListRow";
+import { Icon, IconName } from "@/ui/Icon";
+import { ListDivider } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { useCurrentBrand } from "@/features/brand/BrandProvider";
-import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
+import { SectionTitle } from "@/ui/SectionTitle";
 
-interface SettingsRow {
+interface SettingsItem {
   key: string;
   isVisible: boolean;
-  row: ReactElement;
+  icon: IconName;
+  label: string;
+  value?: string;
+  onPress: () => void;
+  isDestructive?: boolean;
+}
+
+interface SettingsGroup {
+  titleKey: TranslationKey;
+  tone: SettingsRowTone;
+  items: SettingsItem[];
+}
+
+type OpenSheet = "appearance" | "notifications" | null;
+
+const colorSchemeLabelKeys: Record<ColorSchemePreference, TranslationKey> = {
+  system: "settings.appearance.system",
+  light: "settings.appearance.light",
+  dark: "settings.appearance.dark",
+};
+
+function notificationsValue(notifications: PushNotifications): string {
+  if (notifications.status === "supported") {
+    return translate(notifications.isOn ? "settings.notificationsOn" : "settings.notificationsOff");
+  }
+  return translate(
+    notifications.status === "blocked"
+      ? "settings.notificationsBlocked"
+      : "settings.notificationsUnsupported",
+  );
+}
+
+function countValue(count: number | undefined): string | undefined {
+  return count === undefined || count === 0 ? undefined : String(count);
 }
 
 export function SettingsScreen() {
   const router = useRouter();
   const business = useCurrentBusiness();
   const { signOut } = useSession();
+  const { colorSchemePreference } = useTheme();
   const pushNotifications = useTeamPushNotifications();
+  const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
   const canManageBusiness = useCan(permissions.businessManage);
   const canViewInstructors = useCan(permissions.instructorsView);
   const canViewClassPacks = useCan(permissions.classPacksView);
   const canViewProducts = useCan(permissions.productsView);
   const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
+  const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
   const canImportExport = useCan(permissions.importExportRun);
   const canManageAnnouncements = useCan(permissions.announcementsManage);
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
   const { data: branches = [] } = useBranches();
+  const { data: classPacks } = useClassPacks(false, { enabled: canViewClassPacks });
+  const { data: products } = useProducts(false, { enabled: canViewProducts });
   const hasFamilyAccount = useHasOtherAccountKind("team");
   const currentBranchName = branches.find((branch) => branch.isCurrent)?.name ?? business.name;
   const currentBrand = useCurrentBrand();
-  const rows: SettingsRow[] = [
+  const hasCustomBrand =
+    currentBrand?.brand?.themeColor != null || currentBrand?.brand?.logoUpdatedAt != null;
+  const signOutOfThisDevice = async () => {
+    await stopTeamPushNotifications().catch(() => undefined);
+    await signOut();
+  };
+
+  const groups: SettingsGroup[] = [
     {
-      key: "brand",
-      isVisible: canManageBusiness,
-      row: (
-        <ListRow
-          icon="palette"
-          label={translate("settings.brand")}
-          detail={translate("settings.brandHint")}
-          onPress={() => router.push(routes.brandSettings)}
-        />
-      ),
-    },
-    {
-      key: "accounts",
-      isVisible: hasFamilyAccount,
-      row: (
-        <ListRow
-          icon="home"
-          label={translate("accounts.switch")}
-          detail={translate("accounts.switchHint")}
-          onPress={() => router.push(routes.chooseAccount)}
-        />
-      ),
-    },
-    {
-      key: "branches",
-      isVisible: canCreateBranches || branches.length > 1,
-      row: (
-        <ListRow
-          icon="business"
-          label={translate("settings.branches")}
-          detail={branches.length > 1 ? currentBranchName : translate("settings.branchesHint")}
-          onPress={() => router.push(routes.branches)}
-        />
-      ),
-    },
-    {
-      key: "team",
-      isVisible: canViewTeam,
-      row: (
-        <ListRow
-          icon="students"
-          label={translate("settings.team")}
-          detail={translate("settings.teamHint")}
-          onPress={() => router.push(routes.team)}
-        />
-      ),
-    },
-    {
-      key: "roles",
-      isVisible: canViewTeam,
-      row: (
-        <ListRow
-          icon="roles"
-          label={translate("settings.roles")}
-          detail={translate("settings.rolesHint")}
-          onPress={() => router.push(routes.roles)}
-        />
-      ),
-    },
-    {
-      key: "monthlyFee",
-      isVisible: canManageBusiness,
-      row: (
-        <ListRow
-          icon="monthlyFee"
-          label={translate("settings.monthlyFee")}
-          detail={
+      titleKey: "settings.group.business",
+      tone: "primary",
+      items: [
+        {
+          key: "brand",
+          isVisible: canManageBusiness,
+          icon: "palette",
+          label: translate("settings.brand"),
+          value: hasCustomBrand ? translate("settings.brandCustom") : undefined,
+          onPress: () => router.push(routes.brandSettings),
+        },
+        {
+          key: "branches",
+          isVisible: canCreateBranches || branches.length > 1,
+          icon: "business",
+          label: translate("settings.branches"),
+          value: branches.length > 1 ? currentBranchName : countValue(branches.length),
+          onPress: () => router.push(routes.branches),
+        },
+        {
+          key: "monthlyFee",
+          isVisible: canManageBusiness,
+          icon: "monthlyFee",
+          label: translate("settings.monthlyFee"),
+          value:
             business.defaultMonthlyFee === null
               ? translate("settings.monthlyFeeMissing")
-              : formatMoney(business.defaultMonthlyFee, business.currencyCode)
-          }
-          onPress={() => router.push(routes.defaultMonthlyFee)}
-        />
-      ),
+              : formatMoney(business.defaultMonthlyFee, business.currencyCode),
+          onPress: () => router.push(routes.defaultMonthlyFee),
+        },
+      ],
     },
     {
-      key: "instructors",
-      isVisible: canViewInstructors,
-      row: (
-        <ListRow
-          icon="instructors"
-          label={translate("settings.instructors")}
-          onPress={() => router.push(routes.instructors)}
-        />
-      ),
+      titleKey: "settings.group.people",
+      tone: "success",
+      items: [
+        {
+          key: "team",
+          isVisible: canViewTeam,
+          icon: "students",
+          label: translate("settings.team"),
+          onPress: () => router.push(routes.team),
+        },
+        {
+          key: "roles",
+          isVisible: canViewTeam,
+          icon: "roles",
+          label: translate("settings.roles"),
+          onPress: () => router.push(routes.roles),
+        },
+        {
+          key: "instructors",
+          isVisible: canViewInstructors,
+          icon: "instructors",
+          label: translate("settings.instructors"),
+          onPress: () => router.push(routes.instructors),
+        },
+        {
+          key: "achievements",
+          isVisible: canManageBusiness,
+          icon: "achievements",
+          label: translate("settings.achievements"),
+          onPress: () => router.push(routes.achievementSettings),
+        },
+        {
+          key: "announcements",
+          isVisible: canManageAnnouncements,
+          icon: "announcement",
+          label: translate("settings.announcements"),
+          onPress: () => router.push(routes.announcements),
+        },
+      ],
     },
     {
-      key: "classPacks",
-      isVisible: canViewClassPacks,
-      row: (
-        <ListRow
-          icon="classPacks"
-          label={translate("settings.classPacks")}
-          detail={translate("settings.classPacksHint")}
-          onPress={() => router.push(routes.classPacks)}
-        />
-      ),
+      titleKey: "settings.group.shop",
+      tone: "warning",
+      items: [
+        {
+          key: "classPacks",
+          isVisible: canViewClassPacks,
+          icon: "classPacks",
+          label: translate("settings.classPacks"),
+          value: countValue(classPacks?.length),
+          onPress: () => router.push(routes.classPacks),
+        },
+        {
+          key: "products",
+          isVisible: canViewProducts,
+          icon: "products",
+          label: translate("settings.products"),
+          value: countValue(products?.length),
+          onPress: () => router.push(routes.products),
+        },
+        {
+          key: "orders",
+          isVisible: canViewOrders && !canViewPayments,
+          icon: "orders",
+          label: translate("settings.orders"),
+          onPress: () => router.push(routes.orders("settings")),
+        },
+      ],
     },
     {
-      key: "products",
-      isVisible: canViewProducts,
-      row: (
-        <ListRow
-          icon="products"
-          label={translate("settings.products")}
-          detail={translate("settings.productsHint")}
-          onPress={() => router.push(routes.products)}
-        />
-      ),
+      titleKey: "settings.group.device",
+      tone: "neutral",
+      items: [
+        {
+          key: "appearance",
+          isVisible: true,
+          icon: "appearance",
+          label: translate("settings.appearance"),
+          value: translate(colorSchemeLabelKeys[colorSchemePreference]),
+          onPress: () => setOpenSheet("appearance"),
+        },
+        {
+          key: "notifications",
+          isVisible: pushNotifications.status !== "unavailable",
+          icon: "notifications",
+          label: translate("family.notifications.title"),
+          value: notificationsValue(pushNotifications),
+          onPress: () => setOpenSheet("notifications"),
+        },
+        {
+          key: "importExport",
+          isVisible: canImportExport,
+          icon: "importExport",
+          label: translate("settings.importExport"),
+          onPress: () => router.push(routes.importExport),
+        },
+      ],
     },
     {
-      key: "orders",
-      isVisible: canViewOrders,
-      row: (
-        <ListRow
-          icon="orders"
-          label={translate("settings.orders")}
-          detail={translate("settings.ordersHint")}
-          onPress={() => router.push(routes.orders("settings"))}
-        />
-      ),
-    },
-    {
-      key: "achievements",
-      isVisible: canManageBusiness,
-      row: (
-        <ListRow
-          icon="achievements"
-          label={translate("settings.achievements")}
-          detail={translate("settings.achievementsHint")}
-          onPress={() => router.push(routes.achievementSettings)}
-        />
-      ),
-    },
-    {
-      key: "announcements",
-      isVisible: canManageAnnouncements,
-      row: (
-        <ListRow
-          icon="announcement"
-          label={translate("settings.announcements")}
-          detail={translate("settings.announcementsHint")}
-          onPress={() => router.push(routes.announcements)}
-        />
-      ),
-    },
-    {
-      key: "importExport",
-      isVisible: canImportExport,
-      row: (
-        <ListRow
-          icon="importExport"
-          label={translate("settings.importExport")}
-          detail={translate("settings.importExportHint")}
-          onPress={() => router.push(routes.importExport)}
-        />
-      ),
+      titleKey: "settings.group.account",
+      tone: "danger",
+      items: [
+        {
+          key: "accounts",
+          isVisible: hasFamilyAccount,
+          icon: "home",
+          label: translate("accounts.switch"),
+          onPress: () => router.push(routes.chooseAccount),
+        },
+        {
+          key: "signOut",
+          isVisible: true,
+          icon: "signOut",
+          label: translate("settings.signOut"),
+          onPress: signOutOfThisDevice,
+          isDestructive: true,
+        },
+      ],
     },
   ];
-  const visibleRows = rows.filter((settingsRow) => settingsRow.isVisible);
+  const visibleGroups = groups
+    .map((group) => ({ ...group, items: group.items.filter((item) => item.isVisible) }))
+    .filter((group) => group.items.length > 0);
+  const appVersion = Constants.expoConfig?.version;
+
   return (
     <ScrollScreen header={<ScreenHeader title={translate("settings.title")} />}>
       <Card
@@ -231,33 +283,50 @@ export function SettingsScreen() {
         </View>
         {canManageBusiness ? <Icon name="next" tone="subtle-foreground" /> : null}
       </Card>
-      {visibleRows.length > 0 ? (
-        <Card>
-          {visibleRows.map((settingsRow, index) => (
-            <Fragment key={settingsRow.key}>
-              {index > 0 ? <ListDivider /> : null}
-              {settingsRow.row}
-            </Fragment>
-          ))}
-        </Card>
+      {visibleGroups.map((group) => (
+        <View key={group.titleKey} className="gap-1.5">
+          <View className="px-1">
+            <SectionTitle title={translate(group.titleKey)} isOverline />
+          </View>
+          <Card>
+            {group.items.map((item, index) => (
+              <Fragment key={item.key}>
+                {index > 0 ? <ListDivider /> : null}
+                <SettingsRow
+                  icon={item.icon}
+                  tone={group.tone}
+                  label={item.label}
+                  value={item.value}
+                  onPress={item.onPress}
+                  isDestructive={item.isDestructive}
+                />
+              </Fragment>
+            ))}
+          </Card>
+        </View>
+      ))}
+      {appVersion ? (
+        <AppText variant="caption" tone="subtle" className="text-center">
+          {translate("settings.version", { version: appVersion })}
+        </AppText>
       ) : null}
-      <NotificationSettings
-        notifications={pushNotifications}
-        hint={translate("teamNotifications.hint")}
-      />
-      <Card>
-        <AppearanceSettings />
-      </Card>
-      <Button
-        variant="dangerOutline"
-        size="medium"
-        icon="signOut"
-        label={translate("settings.signOut")}
-        onPress={async () => {
-          await stopTeamPushNotifications().catch(() => undefined);
-          await signOut();
-        }}
-      />
+      {openSheet === "appearance" ? (
+        <BottomSheet onClose={() => setOpenSheet(null)}>
+          <Card>
+            <AppearanceSettings />
+          </Card>
+          <Button label={translate("common.done")} onPress={() => setOpenSheet(null)} />
+        </BottomSheet>
+      ) : null}
+      {openSheet === "notifications" ? (
+        <BottomSheet onClose={() => setOpenSheet(null)}>
+          <NotificationSettings
+            notifications={pushNotifications}
+            hint={translate("teamNotifications.hint")}
+          />
+          <Button label={translate("common.done")} onPress={() => setOpenSheet(null)} />
+        </BottomSheet>
+      ) : null}
     </ScrollScreen>
   );
 }

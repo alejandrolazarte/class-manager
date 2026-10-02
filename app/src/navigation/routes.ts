@@ -1,7 +1,7 @@
 export const clientTabs = ["students", "fees"] as const;
 export type ClientTab = (typeof clientTabs)[number];
 
-export const orderTabs = ["settings", "today"] as const;
+export const orderTabs = ["settings", "today", "fees"] as const;
 export type OrderTab = (typeof orderTabs)[number];
 
 export const routes = {
