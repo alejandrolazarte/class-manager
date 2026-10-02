@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using ClassManager.Infrastructure.Email;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 

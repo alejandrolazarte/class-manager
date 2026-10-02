@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Notifications.Email;
 
 namespace ClassManager.Core.UseCases.Families;
 

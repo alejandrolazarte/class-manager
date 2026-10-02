@@ -1,5 +1,3 @@
-using ClassManager.Infrastructure.Email;
-using ClassManager.Infrastructure.WebPush;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Tokens;
 using Microsoft.AspNetCore.Hosting;

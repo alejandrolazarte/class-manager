@@ -1,6 +1,5 @@
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.UseCases.Brands;
-using ClassManager.Infrastructure.Email;
 
 namespace ClassManager.Api.I.Tests.Email.When_business_has_a_brand_color;
 

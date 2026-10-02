@@ -8,6 +8,8 @@ using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Persistence.Repositories;
 using ClassManager.Infrastructure.Security;
 using ClassManager.Infrastructure.WebPush;
+using ClassManager.Notifications.Delivery.Hosting;
+using ClassManager.Notifications.WebPush;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
@@ -15,7 +17,6 @@ using ClassManager.Tenancy.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace ClassManager.Infrastructure;
 
@@ -27,7 +28,6 @@ public static class InfrastructureServiceCollectionExtensions
     private const string MissingConnectionStringMessage = "Connection string 'BusinessDatabase' is not configured.";
 
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
-    private static readonly TimeSpan WebPushTimeout = TimeSpan.FromSeconds(10);
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
@@ -85,14 +85,8 @@ public static class InfrastructureServiceCollectionExtensions
 
     private static IServiceCollection AddEmail(this IServiceCollection services)
     {
-        services.AddOptions<SmtpOptions>().BindConfiguration(SmtpOptions.SectionName);
+        services.AddEmailTransport();
         services.AddSingleton<IWebAppLinks, WebAppLinks>();
-        services.AddSingleton<SmtpEmailTransport>();
-        services.AddSingleton<LoggingEmailTransport>();
-        services.AddSingleton<IEmailTransport>(serviceProvider =>
-            serviceProvider.GetRequiredService<IOptions<SmtpOptions>>().Value.IsConfigured
-                ? serviceProvider.GetRequiredService<SmtpEmailTransport>()
-                : serviceProvider.GetRequiredService<LoggingEmailTransport>());
         services.AddScoped<EmailBrandReader>();
         services.AddScoped<IEmailSender, BrandedEmailSender>();
 
@@ -101,10 +95,9 @@ public static class InfrastructureServiceCollectionExtensions
 
     private static IServiceCollection AddWebPush(this IServiceCollection services)
     {
-        services.AddOptions<VapidOptions>().BindConfiguration(VapidOptions.SectionName);
+        services.AddWebPushSender();
         services.AddSingleton<PushOutbox>();
         services.AddSingleton<IWebPushKeyProvider, WebPushKeyProvider>();
-        services.AddHttpClient<IWebPushSender, WebPushSender>(client => client.Timeout = WebPushTimeout);
         services.AddScoped<PushPublisher>();
         services.AddScoped(serviceProvider => new PushDispatcher(
             serviceProvider.GetRequiredService<AppDbContext>(), serviceProvider.GetRequiredService<IWebPushSender>()));

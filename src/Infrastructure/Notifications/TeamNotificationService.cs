@@ -1,6 +1,6 @@
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Infrastructure.Persistence;
-using ClassManager.Infrastructure.WebPush;
+using ClassManager.Notifications.WebPush;
 
 namespace ClassManager.Infrastructure.Notifications;
 

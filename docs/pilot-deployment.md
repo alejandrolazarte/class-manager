@@ -265,7 +265,7 @@ The API URL is baked into the APK at build time, so changing the API host means 
 
 ## Email
 
-The API sends email (today, only "¿Olvidaste tu contraseña?" links) through SMTP. The pilot uses a Gmail account; any SMTP provider works by changing the same settings, and another kind of provider only needs a new `IEmailSender` in `src/Infrastructure/Email`.
+The API sends email (today, only "¿Olvidaste tu contraseña?" links) through SMTP. The pilot uses a Gmail account; any SMTP provider works by changing the same settings, and another kind of provider only needs a new `IEmailTransport` (see [notifications library](notifications.md)).
 
 1. Create a Gmail account for the app (for example `classmanager.app@gmail.com`).
 2. In that account: **Security → 2-Step Verification** on, then **App passwords** (<https://myaccount.google.com/apppasswords>) → create one named `class-manager`. Copy the 16 letters.

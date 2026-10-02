@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
-using ClassManager.Infrastructure.WebPush;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 

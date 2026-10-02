@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../ImportExport/ImportExport.csproj" />
+    <ProjectReference Include="../Notifications/Notifications.csproj" />
     <ProjectReference Include="../Tenancy/Tenancy.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
+using ClassManager.Notifications.Email;
 
 namespace ClassManager.Core.UseCases.Authentication;
 

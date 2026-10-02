@@ -1,5 +1,6 @@
 using System.Globalization;
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Notifications.Email;
 
 namespace ClassManager.Infrastructure.Notifications;
 

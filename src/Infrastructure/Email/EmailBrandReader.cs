@@ -1,21 +1,22 @@
 using ClassManager.Infrastructure.Persistence;
+using ClassManager.Notifications.Email;
 
 namespace ClassManager.Infrastructure.Email;
 
 internal sealed class EmailBrandReader(AppDbContext context)
 {
-    public async Task<EmailBrand> ReadAsync(Guid? businessId, CancellationToken cancellationToken)
+    public async Task<EmailBrand?> ReadAsync(Guid? businessId, CancellationToken cancellationToken)
     {
         if (businessId is not { } id)
         {
-            return EmailBrand.App;
+            return null;
         }
 
         var business = await context.Businesses.AsNoTracking().IgnoreQueryFilters()
             .FirstOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
         if (business is null)
         {
-            return EmailBrand.App;
+            return null;
         }
 
         var logo = business.LogoUpdatedAt is null
@@ -24,6 +25,6 @@ internal sealed class EmailBrandReader(AppDbContext context)
                 .Where(candidate => candidate.TenantId == id)
                 .Select(candidate => new EmailInlineImage(EmailBrand.LogoContentId, candidate.Content, candidate.ContentType))
                 .FirstOrDefaultAsync(cancellationToken);
-        return new EmailBrand(business.BrandDisplayName, business.ThemeColor, business.AccentColor, logo, IsBusiness: true);
+        return new EmailBrand(business.BrandDisplayName, business.ThemeColor, business.AccentColor, logo);
     }
 }
