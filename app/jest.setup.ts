@@ -5,9 +5,8 @@ import { clearTestQueryClients } from "./src/testing/testQueryClients";
 process.env.EXPO_PUBLIC_API_BASE_URL = "http://api.test";
 
 jest.mock("expo-router", () => {
-  const { routerMock, searchParametersMock, segmentsMock, RedirectMock } = jest.requireActual(
-    "./src/testing/expoRouterMock",
-  );
+  const { routerMock, navigationMock, searchParametersMock, segmentsMock, RedirectMock } =
+    jest.requireActual("./src/testing/expoRouterMock");
   return {
     DarkTheme: jest.requireActual("expo-router/build/react-navigation/native/theming/DarkTheme")
       .DarkTheme,
@@ -19,6 +18,7 @@ jest.mock("expo-router", () => {
     ).ThemeProvider,
     Redirect: RedirectMock,
     useRouter: () => routerMock,
+    useNavigation: () => navigationMock,
     router: routerMock,
     useLocalSearchParams: () => searchParametersMock.current,
     useSegments: () => segmentsMock.current,
