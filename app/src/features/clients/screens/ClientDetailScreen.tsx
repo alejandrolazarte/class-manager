@@ -173,9 +173,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           return (
             <Card key={student.id} className="gap-2.5 px-4 py-3.5">
               <View className="gap-0.5">
-                <AppText variant="heading" className="text-base">
-                  {student.fullName}
-                </AppText>
+                <AppText variant="bodyStrong">{student.fullName}</AppText>
                 {student.birthDate && ageLabel ? (
                   <AppText variant="caption" tone="muted">
                     {`${formatBirthDateForDisplay(student.birthDate)} · ${ageLabel}`}

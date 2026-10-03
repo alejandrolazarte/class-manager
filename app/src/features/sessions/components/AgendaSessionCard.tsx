@@ -119,7 +119,7 @@ export function AgendaSessionCard({
     >
       <View className={`w-1 self-stretch rounded-sm ${statusBarClassNames[status]}`} />
       <View className="w-[52px]">
-        <AppText variant="bodyStrong" className="font-heavy text-[17px]">
+        <AppText variant="heading" className="font-heavy">
           {session.startTime}
         </AppText>
         <AppText variant="footnote" tone="subtle" className="font-label">

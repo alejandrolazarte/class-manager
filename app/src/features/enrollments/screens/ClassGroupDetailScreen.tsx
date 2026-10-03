@@ -107,7 +107,7 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
     >
       <Card className="gap-3 p-4">
         <View className="flex-row items-baseline justify-between">
-          <AppText variant="title" tone="primary">
+          <AppText variant="headline" tone="primary">
             {translate("enrollments.detail.spots", {
               enrolled: enrolledCount,
               capacity: classGroup.capacity,

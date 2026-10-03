@@ -93,7 +93,63 @@ const noRawColors = {
   },
 };
 
+const typeScaleSizeNames = Object.keys(require("../tailwind.config.js").theme.fontSize);
+const fontSizeClassPattern = new RegExp(
+  `^(text-(xs|sm|base|lg|xl|[2-9]xl|\\[\\d[^\\]]*\\]|${typeScaleSizeNames.join("|")})|leading-.+)$`,
+);
+const fontSizeStyleProperties = ["fontSize", "lineHeight"];
+
+function findRawFontSize(text) {
+  return text
+    .trim()
+    .split(/\s+/)
+    .find((className) => fontSizeClassPattern.test(withoutVariants(className)));
+}
+
+function propertyName(property) {
+  return property.key.type === "Identifier" ? property.key.name : property.key.value;
+}
+
+const noRawFontSizes = {
+  meta: {
+    type: "problem",
+    docs: {
+      description: "Text sizes come from the type scale: use an AppText variant.",
+    },
+    messages: {
+      rawFontSize:
+        '"{{rawFontSize}}" bypasses the type scale. Use an AppText variant (see docs/frontend/theming.md).',
+    },
+    schema: [],
+  },
+  create(context) {
+    function check(node, text) {
+      const rawFontSize = typeof text === "string" ? findRawFontSize(text) : undefined;
+      if (rawFontSize) {
+        context.report({ node, messageId: "rawFontSize", data: { rawFontSize } });
+      }
+    }
+    return {
+      Literal: (node) => check(node, node.value),
+      TemplateElement: (node) => check(node, node.value.cooked),
+      Property: (node) => {
+        if (
+          fontSizeStyleProperties.includes(propertyName(node)) &&
+          node.value.type === "Literal" &&
+          typeof node.value.value === "number"
+        ) {
+          context.report({
+            node,
+            messageId: "rawFontSize",
+            data: { rawFontSize: `${propertyName(node)}: ${node.value.value}` },
+          });
+        }
+      },
+    };
+  },
+};
+
 module.exports = {
   meta: { name: "theme" },
-  rules: { "no-raw-colors": noRawColors },
+  rules: { "no-raw-colors": noRawColors, "no-raw-font-sizes": noRawFontSizes },
 };

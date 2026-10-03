@@ -113,7 +113,6 @@ function DayCell({
       <AppText
         variant="bodyStrong"
         tone={isSelected ? "onPrimary" : hasCancellation ? "dangerSoft" : "default"}
-        className="font-strong text-base"
       >
         {dayOfMonth(isoDate)}
       </AppText>

@@ -1,7 +1,7 @@
 import { TextInput, View } from "react-native";
 import { currencySymbol } from "@/features/fees/money";
 import { useTheme } from "@/theme/useTheme";
-import { AppText } from "@/ui/AppText";
+import { AppText, textVariantClassNames } from "@/ui/AppText";
 import { useElevationStyle } from "@/ui/elevation";
 
 interface AmountFieldProps {
@@ -42,7 +42,7 @@ export function AmountField({
           onChangeText={onChangeText}
           onBlur={onBlur}
           placeholderTextColor={colors["subtle-foreground"]}
-          className="min-w-[120px] max-w-[220px] text-center font-heavy text-[40px] text-foreground"
+          className={`min-w-[120px] max-w-[220px] text-center ${textVariantClassNames.amount} text-foreground`}
         />
       </View>
       {errorMessage ? (

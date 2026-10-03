@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { TextInput, TextInputProps, View } from "react-native";
 import { useTheme } from "@/theme/useTheme";
-import { AppText } from "@/ui/AppText";
+import { AppText, textVariantClassNames } from "@/ui/AppText";
 
 type TextFieldSurface = "surface" | "background";
 
@@ -52,7 +52,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
           accessibilityLabel={label}
           multiline={multiline}
           placeholderTextColor={colors["subtle-foreground"]}
-          className={`min-w-0 flex-1 rounded-2xl border-[1.5px] px-3.5 font-label text-base text-foreground ${fieldSurfaceClassNames[fieldSurface]} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[52px]"}`}
+          className={`min-w-0 flex-1 rounded-2xl border-[1.5px] px-3.5 ${textVariantClassNames.input} text-foreground ${fieldSurfaceClassNames[fieldSurface]} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[52px]"}`}
           textAlignVertical={multiline ? "top" : "center"}
           {...textInputProps}
         />

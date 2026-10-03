@@ -49,11 +49,7 @@ export function AuthenticationScreenLayout({
                   {eyebrow}
                 </AppText>
               ) : null}
-              <AppText
-                variant="display"
-                className="text-[28px] leading-8"
-                accessibilityRole="header"
-              >
+              <AppText variant="display" accessibilityRole="header">
                 {title}
               </AppText>
             </View>

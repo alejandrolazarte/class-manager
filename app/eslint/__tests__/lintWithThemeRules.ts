@@ -11,7 +11,7 @@ export function lintWithThemeRules(sourceCode: string): Linter.LintMessage[] {
         files: ["**/*.tsx"],
         languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
         plugins: { theme: themeRulesPlugin },
-        rules: { "theme/no-raw-colors": "error" },
+        rules: { "theme/no-raw-colors": "error", "theme/no-raw-font-sizes": "error" },
       },
     ],
     "screen.tsx",

@@ -1,9 +1,9 @@
 import { lintWithThemeRules } from "../lintWithThemeRules";
 
-describe("When class name uses theme tokens", () => {
+describe("When style takes its font size from the type scale", () => {
   it("Then it is allowed", () => {
     const messages = lintWithThemeRules(
-      'const row = <View className="border-b border-border-subtle bg-surface text-primary-foreground bg-danger/40" />;',
+      "const labelStyle = { fontSize: typeScale.small.fontSize, lineHeight: typeScale.small.lineHeight };",
     );
 
     expect(messages).toEqual([]);
