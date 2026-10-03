@@ -228,7 +228,7 @@ Use the domain Cloudflare actually assigned if `class-manager` was taken.
 
 ## 10. Installing the app on phones (PWA)
 
-The web app from step 9 is also an installable app (a Progressive Web App). Instructors install it from the browser: no APK, no "allow installs from unknown sources", no store. It updates itself: every push to `main` rebuilds Pages, and the next time the app opens it loads the new version.
+The web app from step 9 is also an installable app (a Progressive Web App). Instructors install it from the browser: no APK, no "allow installs from unknown sources", no store. It updates itself: every push to `main` rebuilds Pages, and the next time the app opens it loads the new version. An installed app is rarely closed, though: phones keep it in the background, and coming back to it doesn't reload the page. So whenever the app becomes visible again (and every 15 minutes while it stays open) it fetches `index.html` without cache and compares its `entry-<hash>.js` bundle with the one it is running. When they differ it shows a "new version" banner whose **Actualizar** button reloads the page. It asks instead of reloading on its own so a half-filled form is never lost (`app/src/features/appUpdate/`).
 
 **Android (Chrome):** open `https://<pages domain>`, then **⋮ → Install app** (or the "Install" banner Chrome shows). The app appears in the launcher with its icon and opens full screen.
 
