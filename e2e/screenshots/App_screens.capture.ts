@@ -96,7 +96,11 @@ test("App screens", async ({ page, request }) => {
   await page.screenshot({ path: join(outputDirectory, "10b-cuotas-todos.png") });
 
   await page.goto("/fees?view=orders");
-  await page.getByText("Por cobrar en pedidos").filter({ visible: true }).first().waitFor();
+  await page
+    .getByText(/para entregar$/)
+    .filter({ visible: true })
+    .first()
+    .waitFor();
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "10c-cobros-pedidos.png") });
