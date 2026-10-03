@@ -13,9 +13,12 @@ internal static class BrandEndpoints
     {
         endpoints.MapGet(ApiRoutes.Business + ApiRoutes.Brand, GetBrandAsync).RequirePermission(Permissions.Business.View);
         endpoints.MapGet(ApiRoutes.Business + ApiRoutes.BrandLogo, GetBrandLogoAsync).RequirePermission(Permissions.Business.View);
-        endpoints.MapPut(ApiRoutes.Business + ApiRoutes.Brand, UpdateBrandAsync).RequirePermission(Permissions.Business.Manage);
+        endpoints.MapPut(ApiRoutes.Business + ApiRoutes.Brand, UpdateBrandAsync)
+            .RequirePermission(Permissions.Business.Manage)
+            .RequireFeature(Features.Brand);
         endpoints.MapPut(ApiRoutes.Business + ApiRoutes.BrandLogo, SetBrandLogoAsync)
             .RequirePermission(Permissions.Business.Manage)
+            .RequireFeature(Features.Brand)
             .DisableAntiforgery()
             .WithFormOptions(multipartBodyLengthLimit: LogoUploadLimitInBytes);
         endpoints.MapDelete(ApiRoutes.Business + ApiRoutes.BrandLogo, RemoveBrandLogoAsync).RequirePermission(Permissions.Business.Manage);

@@ -15,10 +15,15 @@ import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
 import { Spinner } from "@/ui/Spinner";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
 
 export function StudentListScreen() {
   const router = useRouter();
-  const canManageStudents = useCan(permissions.studentsManage);
+  const isAtStudentLimit = useIsAtLimit(featureCodes.students);
+  const hasStudentPermission = useCan(permissions.studentsManage);
+  const canManageStudents = hasStudentPermission && !isAtStudentLimit;
   const [searchText, setSearchText] = useState("");
   const {
     data: students = [],
@@ -63,6 +68,9 @@ export function StudentListScreen() {
             onChangeText={setSearchText}
             placeholder={translate("students.list.searchPlaceholder")}
           />
+          {hasStudentPermission && isAtStudentLimit ? (
+            <LockedFeatureNotice message={translate("subscriptions.locked.students")} />
+          ) : null}
           {isError ? (
             <Banner message={translate("common.unexpectedError")}>
               <Button

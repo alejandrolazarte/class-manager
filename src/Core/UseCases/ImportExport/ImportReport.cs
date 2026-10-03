@@ -6,4 +6,5 @@ public sealed record ImportReport(
     string Module,
     IReadOnlyList<MappedHeader> Columns,
     ImportSummary Summary,
-    IReadOnlyList<ImportRowResult> Rows);
+    IReadOnlyList<ImportRowResult> Rows,
+    ImportPlanLimit? PlanLimit = null);

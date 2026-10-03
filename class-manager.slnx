@@ -7,6 +7,7 @@
     <Project Path="src/Infrastructure/Infrastructure.csproj" />
     <Project Path="src/Notifications.Delivery/Notifications.Delivery.csproj" />
     <Project Path="src/Notifications/Notifications.csproj" />
+    <Project Path="src/Records/Records.csproj" />
     <Project Path="src/Security/Security.csproj" />
     <Project Path="src/Storage.AzureBlob/Storage.AzureBlob.csproj" />
     <Project Path="src/Storage/Storage.csproj" />

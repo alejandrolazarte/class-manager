@@ -20,6 +20,9 @@ import { Spinner } from "@/ui/Spinner";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { TitleWithPills } from "@/ui/TitleWithPills";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useAllowsAnother } from "@/features/subscriptions/useSubscription";
 
 function branchRoleDescription(branch: Branch): string {
   if (branch.isBrandOwner) {
@@ -35,8 +38,13 @@ export function BranchesScreen() {
   const router = useRouter();
   const { showToast } = useToast();
   const { switchBranch } = useSession();
-  const canCreateBranches = useCan(permissions.branchesCreate);
   const branchesQuery = useBranches();
+  const isWithinBranchLimit = useAllowsAnother(
+    featureCodes.branches,
+    branchesQuery.data?.length ?? 0,
+  );
+  const hasBranchPermission = useCan(permissions.branchesCreate);
+  const canCreateBranches = hasBranchPermission && isWithinBranchLimit;
   const [switchingBranchId, setSwitchingBranchId] = useState<string | null>(null);
   const [hasSwitchFailed, setHasSwitchFailed] = useState(false);
 
@@ -70,6 +78,9 @@ export function BranchesScreen() {
         ) : undefined
       }
     >
+      {hasBranchPermission && branchesQuery.data && !isWithinBranchLimit ? (
+        <LockedFeatureNotice message={translate("subscriptions.locked.branches")} />
+      ) : null}
       {hasSwitchFailed ? <Banner message={translate("branches.switchFailed")} /> : null}
       {branchesQuery.isPending ? <Spinner className="mt-6" /> : null}
       {branchesQuery.isError ? (

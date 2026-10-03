@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, ReactNode } from "react";
 import { FlatList, View } from "react-native";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
@@ -23,6 +23,7 @@ interface SettingsListScreenLayoutProps<TItem> {
   emptyIcon: IconName;
   newItemLabel: string;
   onNewItem?: () => void;
+  notice?: ReactNode;
 }
 
 export function SettingsListScreenLayout<TItem>({
@@ -38,6 +39,7 @@ export function SettingsListScreenLayout<TItem>({
   emptyIcon,
   newItemLabel,
   onNewItem,
+  notice,
 }: SettingsListScreenLayoutProps<TItem>) {
   return (
     <Screen
@@ -47,6 +49,7 @@ export function SettingsListScreenLayout<TItem>({
     >
       <View className="gap-3.5 pb-3.5">
         <ScreenHeader navigation="back" title={title} />
+        {notice ? <View className="px-5">{notice}</View> : null}
         {isError ? (
           <View className="px-5">
             <Banner message={translate("common.unexpectedError")}>

@@ -1,10 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
-using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.UseCases.Businesses;
-using ClassManager.Core.UseCases.Subscriptions;
-using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Branches;
 
@@ -16,7 +13,6 @@ public sealed record CreateBranchCommand(
 
 public sealed class CreateBranchUseCase(
     IBusinessRepository businessRepository,
-    IFeatureAccess featureAccess,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
     : IUseCase<CreateBranchCommand, BranchResponse>
@@ -27,13 +23,6 @@ public sealed class CreateBranchUseCase(
         if (currentBusiness is null)
         {
             return Result.Unauthorized<BranchResponse>(BusinessErrorCodes.CurrentBusinessNotFoundMessage, BusinessErrorCodes.CurrentBusinessNotFound);
-        }
-
-        var features = await featureAccess.GetCurrentAsync(cancellationToken);
-        var branchCount = await businessRepository.CountInOrganizationAsync(currentBusiness.OrganizationId, cancellationToken);
-        if (!features.AllowsAnother(Features.Branches, branchCount))
-        {
-            return FeatureErrors.LimitReached(Features.Branches);
         }
 
         var slug = await BusinessSlugAllocator.FindAvailableAsync(businessRepository, command.Name, cancellationToken);

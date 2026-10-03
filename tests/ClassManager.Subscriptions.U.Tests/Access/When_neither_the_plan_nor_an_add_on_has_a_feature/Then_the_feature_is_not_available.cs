@@ -7,7 +7,7 @@ public sealed class Then_the_feature_is_not_available
     [Fact]
     public void Then_the_feature_is_not_available_Run()
     {
-        var features = Combine([Included(IncludedFeatureCode)], [AddOn(AddOnFeatureCode, Today)]);
+        var features = Combine([Included(IncludedFeatureCode)], [AddOn(AddOnFeatureCode)]);
 
         features.Has(MissingFeatureCode).ShouldBeFalse();
     }

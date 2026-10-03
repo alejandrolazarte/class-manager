@@ -22,6 +22,7 @@ internal static class AppAuthenticationServiceCollectionExtensions
             .AddPolicy(AuthorizationPolicies.AnyAccount, policy => policy.RequireAuthenticatedUser());
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, PlanAwareAuthorizationResultHandler>();
         services.AddScoped<IAuthorizationHandler, FamilyAuthorizationHandler>();
         services.AddScoped<ICurrentUser, ClaimsCurrentUser>();
 

@@ -1,6 +1,6 @@
 # Backend plan — Subscriptions, plans and features
 
-Status: steps 1–3 partly built (library, persistence, a 30-day `Free` trial at sign-up, read-only brands once their subscription ends, import/export and custom roles gated, branch limit); see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
+Status: steps 1–4 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks); step 5 (operator script) is next; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
 
 ## Goal
 
@@ -32,7 +32,7 @@ Four is enough: fewer and `Lite` and `Pro` merge into one plan that is either to
 
 ### `Free` is a trial, and an ended subscription makes the brand read-only
 
-- A brand that never pays still costs storage and support, so `Free` is not forever: it lasts `Plan.DurationInDays` (30), and sign-up sets the subscription's `EndsOn` to the last day. 30 rather than 15 because the business runs on monthly fees: a month is enough to collect one full round of them, which is what convinces an owner. Changing the length is an update of the plan row, no deploy.
+- A brand that never pays still costs storage and support, so `Free` is not forever: it lasts `Plan.DurationInDays` (30), and sign-up sets the subscription's `ExpiredOn` to the last day. 30 rather than 15 because the business runs on monthly fees: a month is enough to collect one full round of them, which is what convinces an owner. Changing the length is an update of the plan row, no deploy.
 - **No active subscription means read-only.** Every change (any authenticated request that isn't `GET`, `HEAD` or `OPTIONS`) answers `403 subscription.inactive` until the operator gives the brand `Lite`, `Pro` or `Enterprise`. Reads keep working, so the owner still sees students, classes and payments and nothing is lost.
 - The same rule covers a paid plan that stops being paid: the operator ends the subscription and the brand turns read-only. There is no automatic fallback to `Free` after a trial or a paid plan ends.
 - Anonymous endpoints (sign-in, refresh, sign-out, branch switch, invitations) keep working, and an endpoint can opt out with `.AllowInactiveSubscription()`.
@@ -43,7 +43,7 @@ Four is enough: fewer and `Lite` and `Pro` merge into one plan that is either to
 
 - `Plan.ListPrice` is what the app shows before subscribing ("desde …").
 - `Subscription.Price` is what this brand actually pays, copied from the list price when the subscription is created and editable afterwards. Changing a list price never changes what existing customers pay.
-- That is how the pilot instructor gets **`Enterprise` at 0**: a normal subscription with `Price = 0` and a `Note` ("Pilot, DF Swimming"). No special case in code, and later it becomes a discount or an end date (`EndsOn`) without a migration.
+- That is how the pilot instructor gets **`Enterprise` at 0**: a normal subscription with `Price = 0` and a `Note` ("Pilot, DF Swimming"). No special case in code, and later it becomes a discount or an expiry (`ExpiredOn`) without a migration.
 - Every price has a currency (`ARS`, `EUR`, `USD`): the pilot is in Spain and the target market is Argentina.
 
 ### Features, and an add-on is a feature with a price
@@ -53,15 +53,27 @@ Add-ons are not a separate concept: an add-on is a **feature that can also be bo
 - `Feature` is a catalog entry (`import-export`, `brand`, `shop`, …).
 - `PlanFeature` says which features a plan includes, and, for counted features, the limit (`Limit = 3` branches; `null` is unlimited).
 - A feature with `IsAddOn = true` has an `AddOnListPrice`, and a brand on a plan that doesn't include it can still get it through `SubscriptionFeature`. A feature that is not an add-on has no price: the only way to get it is a plan that includes it.
-- `SubscriptionFeature` is **what the brand has on top of its plan**: a bought add-on with its agreed price, or a feature granted by hand at 0 (for example, to let a customer try `shop` for a month, with `EndsOn`). It can also raise a limit (`Limit = 5` branches).
-- **Effective features = the plan's features ∪ the subscription's active features**, the larger limit winning. Included features are not copied into each subscription, so improving a plan improves it for everyone on it. Grandfathering an old plan, if it's ever needed, is a new plan code.
+- `SubscriptionFeature` is **what the brand has on top of its plan**: a bought add-on with its agreed price, or a feature granted by hand at 0 (for example, to let a customer try `shop` for a month, with `ExpiredOn`). It can also change a limit, up or down (`Limit = 5` branches, or 100 students for an Enterprise brand that agreed to them).
+- **Effective features = the plan's features, overridden by the subscription's active features.** The current `SubscriptionFeature` of a feature replaces the plan's limit, whether higher or lower. There is never more than one current row per feature (see [Current records](#current-records)), so changing a limit means deleting the current row and creating the new one: it applies at once, without depending on which value is larger. Included features are not copied into each subscription, so improving a plan improves it for everyone on it. Grandfathering an old plan, if it's ever needed, is a new plan code.
 
 ### Features are checked like permissions, and both must pass
 
 - **Features live in code, plans live in data** — the same split as permissions and roles. The catalog is a constants class (`Features`) because endpoints and use cases reference the codes; which plan includes what, and the prices, are rows, so they change without a deploy.
 - A request needs **the permission (who you are in the branch) and the feature (what the brand pays for)**. The brand owner on `Free` can't import; a coach on `Enterprise` still can't see money.
-- Endpoints declare it next to the permission: `.RequirePermission(Permissions.ImportExport.Run).RequireFeature(Features.ImportExport)`.
-- Limits are checked in the use case (`creating a branch when the brand already has as many as its limit`) through `IFeatureAccess`, and fail with `403 feature.limit_reached`.
+- **Nothing is checked in the use cases.** Three central places cover every endpoint:
+
+| What | Where | Answer |
+|---|---|---|
+| Subscription ended | `UseActiveSubscriptionForChanges` middleware: every authenticated change | `403 subscription.inactive` |
+| On/off features | `FeatureGatedPermissions` (Core) maps action permissions to the feature that unlocks them (`products.manage` → `shop`, `classPacks.sell` → `class-packs`, `importExport.run` → `import-export`, …). `PermissionAuthorizationHandler` refuses a permission the role has but the plan lacks | `403 feature.not_in_plan` |
+| Endpoints whose permission is shared with free actions | `.RequireFeature(...)`: brand changes (`business.manage` also edits settings) and the family app (`/api/family`, family invitations) | `403 feature.not_in_plan` |
+| Counted limits | `FeatureLimitSaveChangesInterceptor`: before saving, counts the added `Student`, `MemberInvitation` (not for branch owners) and `Business` rows and the existing ones (`SubscriptionLimits` in Infrastructure); every path that creates them is covered, imports included | `403 feature.limit_reached` (`FeatureLimitReachedException`, `FeatureLimitExceptionHandler`) |
+
+- Every endpoint already declares a permission, so a new action endpoint is gated as soon as its permission is in the table. A test checks every gate names a known permission and feature, and another that every `RequireFeature` code is in the catalog.
+- **The front prevents the normal case; the interceptor is the safety net.** `GET /api/me` returns `used` for counted features, and the app locks "Nuevo alumno", "Invitar" and "Nueva sede" at the limit. The interceptor only answers in races (two devices adding the last seat), with stale screens or direct API calls. The import preview is the one place the front can't know in advance, so it reports `planLimit` (`{ featureCode, remaining }`) and the import refuses with `feature.limit_reached` before saving.
+- **Unlimited is `null`.** Enterprise has no limit on students, branches or team, and the interceptor doesn't even count them. An add-on with `Limit = null` lifts a plan's limit for one brand, and an add-on with a number sets one, even on Enterprise.
+- Read rules that depend on the plan stay in the read use case: without `brand`, `GET /api/business/brand` drops the colors, the lock and the logo, so the theme stops applying while the data stays.
+- The app mirrors the table (`featureGatedPermissions.ts`): `useCan` is plan-aware, so buttons for actions the plan lacks disappear everywhere `useCan` is used; `useRoleCan` keeps the role-only check for entries that should open a lock notice instead (Importar y exportar).
 - **Gates block actions, not reads.** Creating, editing, importing and exporting need the feature; listing what already exists doesn't, so a brand that drops to a smaller plan still sees its data. Deleting a custom role stays allowed too, so a downgraded brand can clean up.
 - A missing feature returns `403` with the code `feature.not_in_plan` (and `feature.limit_reached` for limits) and the feature code in `feature`, never the permission's code, so the app can offer an upgrade instead of acting as if the button didn't exist.
 - Effective features are read once per request, like permissions, so a plan change applies on the next request.
@@ -106,14 +118,14 @@ erDiagram
     }
     Subscription {
         Guid Id PK
-        Guid SubscriberId "the organization; one open-ended per organization"
+        Guid SubscriberId "the organization; one current per organization"
         string PlanCode
         decimal Price "the real price"
         string Currency
-        date StartsOn
-        date EndsOn "nullable: open-ended; set when it ends"
         string Note "why this price"
-        DateTimeOffset CreatedAt
+        DateTimeOffset CreatedOn "applies from"
+        DateTimeOffset DeletedOn "nullable: null = current"
+        date ExpiredOn "nullable: agreed end, inclusive"
     }
     SubscriptionFeature {
         Guid Id PK
@@ -122,12 +134,22 @@ erDiagram
         decimal Price "0 when granted"
         string Currency
         int Limit "nullable"
-        date StartsOn
-        date EndsOn "nullable"
+        DateTimeOffset CreatedOn "applies from"
+        DateTimeOffset DeletedOn "nullable: null = current"
+        date ExpiredOn "nullable: agreed end, inclusive"
     }
 ```
 
-- A plan change closes the current subscription (`EndsOn`) and opens a new one, so the history of who paid what stays. A filtered unique index keeps one active subscription per organization.
+### Current records
+
+Subscriptions and subscription features follow the repository's [current record convention](../../../CLAUDE.md#records-that-change-over-time): both implement `ICreatedOn`, `IDeletedOn` and `IExpiredOn` from `src/Records`, and queries use `WhereCurrent()`.
+
+- `CreatedOn` (date and time) is when the row applies from; it applies as soon as it is saved.
+- `DeletedOn` (date and time, `null` = current) is set when another row replaces it. Rows are never physically deleted, so the history of who paid what, and which limits a brand had, stays.
+- A unique index filtered on `DeletedOn IS NULL` lets the database guarantee one current subscription per organization and one current feature per subscription and feature code.
+- `ExpiredOn` (date, inclusive) is the agreed business end, such as the 30-day trial; it is not the same as being replaced.
+- **Current** is `DeletedOn IS NULL`; **active** is current and `ExpiredOn` empty or not past. An expired trial is still the current subscription, so the app knows it was the `Free` trial that ended without looking for "the last one".
+- A plan change calls `Delete(now)` on the current subscription and creates the new one in the same save; a feature change does the same on the current feature. Add-ons belong to a subscription, so a new plan starts without them unless the operator adds them again.
 - None of these tables are tenant-owned: like `Organizations`, they sit above the branches and are never filtered by `TenantId`.
 - `Feature` rows mirror the `Features` class; a test fails when a code exists in one and not the other.
 
@@ -192,7 +214,7 @@ What stays in the app:
 
 | Library (`Subscriptions`, no dependencies) | Library (`Subscriptions.AspNetCore`) | App |
 |---|---|---|
-| `Plan`, `Feature`, `PlanFeature`, `Subscription`, `SubscriptionFeature`; `EffectiveFeatures` (union, larger limit wins, dates); `IFeatureAccess`, `ISubscriberResolver`; `FeatureErrorCodes` | `ApplySubscriptionsModel()` (tables in schema `billing`) and `ISubscriptionsDbContext`; `FeatureAccess` (once per request; no active subscription means inactive, with no features); `UseActiveSubscriptionForChanges()` middleware; `RequireFeature(...)` endpoint filter; `AddSubscriptions<TDbContext, TSubscriberResolver>()` | `Features` and `PlanCodes` in `Core`; plan rows and prices (`SubscriptionCatalogSeed`); `OrganizationSubscriberResolver` (tenant → organization); the subscription at sign-up; limit checks in use cases; `GET /api/me` and the app screens |
+| `Plan`, `Feature`, `PlanFeature`, `Subscription`, `SubscriptionFeature`; `EffectiveFeatures` (plan overridden by the current add-ons); `IFeatureAccess`, `ISubscriberResolver`; `FeatureErrorCodes` | `ApplySubscriptionsModel()` (tables in schema `billing`) and `ISubscriptionsDbContext`; `FeatureAccess` (once per request; no active subscription means inactive, with no features); `UseActiveSubscriptionForChanges()` middleware; `RequireFeature(...)` endpoint filter; `AddSubscriptions<TDbContext, TSubscriberResolver>()` | `Features` and `PlanCodes` in `Core`; plan rows and prices (`SubscriptionCatalogSeed`); `OrganizationSubscriberResolver` (tenant → organization); the subscription at sign-up; limit checks in use cases; `GET /api/me` and the app screens |
 
 - **The app's `AppDbContext` holds the tables**, applying the library's model like it applies the tenant query filters, instead of a `SubscriptionsDbContext` of its own. One migration history, the foreign key from `Subscriptions.SubscriberId` to `Organizations` (added by the app, since the library doesn't know organizations), and sign-up writes the subscription in the same transaction. `Security` has its own context because of Identity; this library has no such reason.
 - **`Core` references `Subscriptions`**, the same as it references `Tenancy` and `Notifications`: the project has no dependencies, and use cases need `IFeatureAccess` for limits. `Core` never references `Subscriptions.AspNetCore`.
@@ -209,9 +231,15 @@ No endpoint changes a subscription in the MVP: there is no platform administrato
 
 ## In the app
 
-- `useFeature(code)` next to `useCan(...)`, fed by `GET /api/me`.
-- **Permissions hide, features lock.** A button the member's role doesn't allow is hidden; a feature the plan doesn't include is shown with a lock and "Disponible en Pro", which only the brand owner can act on.
-- Ajustes → Plan (brand owner only): current plan, price, what it includes, usage of counted features (`Alumnos 24 / 30`), and "Escribinos para cambiar de plan" until self-service exists.
+Built in `app/src/features/subscriptions`:
+
+- `useSubscription()`, `useFeature(code)` and `useAllowsAnother(code, count)` next to `useCan(...)`, fed by `subscription` in `GET /api/me`.
+- **Permissions hide, features lock.** A button the member's role doesn't allow is hidden; a feature the plan doesn't include shows a lock notice with "Ver planes": Importar y exportar, creating or copying custom roles, and a new branch past the limit.
+- **Trial:** Inicio shows the days left with "Ver planes".
+- **Ended:** `SubscriptionGate` (in the team tabs layout) replaces the app with "Tu prueba gratis terminó" / "Tu plan terminó", the plans and the contact; "Ver mis datos" opens the app read-only, and Inicio keeps a notice. A mutation refused with `subscription.inactive` or `feature.*` reloads `GET /api/me`, so a subscription that ends while the app is open shows the gate.
+- **Ajustes → Plan** (also under Inicio, so it never leaves the tab): current plan and status, the real price for brand owners (`GET /api/organization/subscription`), what it includes, every plan from `GET /api/plans`, and the contact.
+- The contact opens `EXPO_PUBLIC_PLANS_CONTACT_URL` (for example a WhatsApp link); without it the screens say "escribinos" as text.
+- Ajustes → Plan shows usage of counted features ("Alumnos: 24 de 30", "Sedes: 2 · sin límite").
 - Sign-up shows nothing about plans: everyone starts the `Free` trial. The app shows the days left, and once it ends, a screen to choose a plan instead of errors on every change.
 
 ## Migration
@@ -223,17 +251,16 @@ No endpoint changes a subscription in the MVP: there is no platform administrato
 
 ## Steps
 
-1. ✅ `src/Subscriptions` + ARCH007 + unit tests of effective features (union, larger limit, expired add-on ignored).
+1. ✅ `src/Subscriptions` + ARCH007 + unit tests of effective features (the current add-on overrides the plan, replaced and expired add-ons ignored).
 2. ✅ `Subscriptions.AspNetCore`: model, migration with the seed, `RequireFeature`, `FeatureAccess`; sign-up creates the `Free` subscription; existing organizations get `Enterprise` at 0; a branch of brand A never reads brand B's subscription.
    - ✅ `Free` lasts 30 days; an ended subscription makes the brand read-only (`403 subscription.inactive`).
 3. Gate the features in the table:
-   - ✅ `import-export` (import and export), `custom-roles` (create and edit), `branches` limit. Tests: a brand without the feature gets `403 feature.not_in_plan`, an add-on unlocks it, the limit blocks the next branch and an add-on raises it.
-   - Next: `students` and `team` limits (adding students in every entry point: client form, student form, import; inviting members), and `class-packs`, `family-app`, `shop`, `brand`, together with step 4 so the app shows locks instead of errors.
-4. `features` in `GET /api/me`, `GET /api/organization/subscription`, `GET /api/plans`; app: `useFeature`, locks and Ajustes → Plan.
+   - ✅ Every feature in the table: permission gates, `RequireFeature` for brand and family app, and the students, team and branches limits in the interceptor; usage in `/api/me`, locks in the app, and the import preview's room left.
+4. ✅ `subscription` in `GET /api/me`, `GET /api/organization/subscription` (brand-only `subscription.view`), `GET /api/plans`; app: hooks, trial notice, ended gate, locks and Ajustes → Plan.
 5. `scripts/set-subscription.cs` and a runbook in `docs/`.
 
 ## Later, not in the MVP
 
-- Online billing (Mercado Pago / Stripe subscriptions): webhooks set `EndsOn`, and a `Status` column (`PastDue`, grace period) arrives with them; until then `EndsOn` alone says whether a subscription is active.
+- Online billing (Mercado Pago / Stripe subscriptions): webhooks set `ExpiredOn` or replace the subscription, and a `Status` column (`PastDue`, grace period) arrives with them; until then `DeletedOn` and `ExpiredOn` say whether a subscription is active.
 - A trial with `Pro` features instead of `Free` limits, if conversions ask for it: the sign-up plan setting and `DurationInDays` already allow it.
 - Yearly billing (`BillingPeriod = Yearly`), coupons, and a platform admin screen.

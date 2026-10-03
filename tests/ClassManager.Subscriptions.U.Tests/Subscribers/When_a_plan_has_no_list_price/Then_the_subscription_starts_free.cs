@@ -9,7 +9,7 @@ public sealed class Then_the_subscription_starts_free
     {
         var plan = Plan.Create(PlanCode, displayOrder: 4, listPrice: null, Currency, BillingPeriod.Monthly);
 
-        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Today, Now);
+        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Now);
 
         subscription.Price.ShouldBe(0m);
     }

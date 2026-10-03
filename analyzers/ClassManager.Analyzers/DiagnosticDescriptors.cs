@@ -110,4 +110,12 @@ internal static class DiagnosticDescriptors
         category: ArchitectureCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor RecordsMustNotDependOnApplication = new(
+        id: "ARCH009",
+        title: "Records must not depend on the application",
+        messageFormat: "Records cannot use '{0}'; keep the record conventions free of business concepts",
+        category: ArchitectureCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

@@ -216,6 +216,7 @@ In Cloudflare: **Compute → Workers & Pages → Create**. The create screen def
 | Environment variable `NODE_VERSION` | `22` |
 | Environment variable `EXPO_PUBLIC_API_BASE_URL` | `https://<api host>` |
 | Environment variable `FILES_BASE_URL` | `https://<storage account>.blob.core.windows.net` (photos, see [storage](storage.md)) |
+| Environment variable `EXPO_PUBLIC_PLANS_CONTACT_URL` (optional) | Where "Quiero cambiar de plan" opens, for example `https://wa.me/<number>`; without it the plan screens show "escribinos" as text |
 
 Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and Pages does not publish folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. It then runs `scripts/writeWebHeaders.js`, which writes `dist/_headers` with the [Content Security Policy](frontend/content-security-policy.md) in report-only mode, allowing requests only to the API in `EXPO_PUBLIC_API_BASE_URL`. Pages serves `index.html` for any path, which is what the single-page web build needs.
 

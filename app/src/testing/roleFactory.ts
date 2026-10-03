@@ -10,7 +10,12 @@ export function buildSystemRoles(): Role[] {
       name: null,
       permissions: everyPermission.filter(
         (permission) =>
-          !["branchOwners.manage", "branches.create", "brandOwners.manage"].includes(permission),
+          ![
+            "branchOwners.manage",
+            "branches.create",
+            "brandOwners.manage",
+            "subscription.view",
+          ].includes(permission),
       ),
       copiedFrom: null,
       memberCount: 1,

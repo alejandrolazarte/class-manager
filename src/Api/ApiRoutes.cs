@@ -107,6 +107,8 @@ public static class ApiRoutes
     public const string MyAccounts = "/api/me/accounts";
     public const string SwitchBranch = "/branch";
     public const string OrganizationBranches = "/api/organization/branches";
+    public const string OrganizationSubscription = "/api/organization/subscription";
+    public const string Plans = "/api/plans";
     public const string BrandOwnerSegment = "/brand-owner";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";

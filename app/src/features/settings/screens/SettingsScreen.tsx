@@ -10,7 +10,7 @@ import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatMoney } from "@/features/fees/money";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { useProducts } from "@/features/products/useProducts";
 import {
@@ -33,6 +33,8 @@ import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { planLabel } from "@/features/subscriptions/subscriptionLabels";
+import { useSubscription } from "@/features/subscriptions/useSubscription";
 
 function countValue(count: number | undefined): string | undefined {
   return count === undefined || count === 0 ? undefined : String(count);
@@ -51,10 +53,11 @@ export function SettingsScreen() {
   const canViewProducts = useCan(permissions.productsView);
   const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
-  const canImportExport = useCan(permissions.importExportRun);
+  const canImportExport = useRoleCan(permissions.importExportRun);
   const canManageAnnouncements = useCan(permissions.announcementsManage);
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
+  const subscription = useSubscription();
   const { data: branches = [] } = useBranches();
   const { data: classPacks } = useClassPacks(false, { enabled: canViewClassPacks });
   const { data: products } = useProducts(false, { enabled: canViewProducts });
@@ -80,6 +83,14 @@ export function SettingsScreen() {
           label: translate("settings.brand"),
           value: hasCustomBrand ? translate("settings.brandCustom") : undefined,
           onPress: () => router.push(routes.brandSettings),
+        },
+        {
+          key: "plan",
+          isVisible: true,
+          icon: "plan",
+          label: translate("settings.plan"),
+          value: planLabel(subscription.planCode),
+          onPress: () => router.push(routes.plan("settings")),
         },
         {
           key: "branches",

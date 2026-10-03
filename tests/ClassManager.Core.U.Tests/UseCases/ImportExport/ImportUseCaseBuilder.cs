@@ -6,6 +6,7 @@ using ClassManager.Core.UseCases.ImportExport.Instructors;
 using ClassManager.ImportExport;
 using ClassManager.ImportExport.Parsing;
 using ClassManager.ImportExport.Tabular.Csv;
+using ClassManager.Subscriptions.Access;
 using Microsoft.Extensions.Time.Testing;
 
 namespace ClassManager.Core.U.Tests.UseCases.ImportExport;
@@ -30,9 +31,9 @@ internal sealed class ImportUseCaseBuilder
 
     public InstructorImportModule InstructorModule => new(Instructors.Object);
 
-    public PreviewImportUseCase PreviewUseCase => new([InstructorModule], Parser);
+    public PreviewImportUseCase PreviewUseCase => new([InstructorModule], Parser, Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>());
 
-    public ImportFileUseCase ImportUseCase => new([InstructorModule], Parser, UnitOfWork.Object);
+    public ImportFileUseCase ImportUseCase => new([InstructorModule], Parser, UnitOfWork.Object, Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>());
 
     public ExportUseCase ExportUseCase => new([InstructorModule], new CsvTabularWriter(), new FakeTimeProvider(TestData.Now));
 

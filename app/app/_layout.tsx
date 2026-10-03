@@ -1,5 +1,5 @@
 import "@/global.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { refetchWhenAppReturns } from "@/api/appFocus";
 import { AppUpdateBanner } from "@/features/appUpdate/AppUpdateBanner";
 import { SessionProvider } from "@/features/authentication/SessionProvider";
 import { useSession } from "@/features/authentication/useSession";
+import { createAppQueryClient } from "@/features/subscriptions/appQueryClient";
 import { PersistedThemePreferences } from "@/theme/PersistedThemePreferences";
 import { ThemedStatusBar } from "@/theme/ThemedStatusBar";
 import { ThemeProvider } from "@/theme/ThemeProvider";
@@ -37,7 +38,7 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(createAppQueryClient);
   return (
     <SafeAreaProvider>
       <ThemeProvider>

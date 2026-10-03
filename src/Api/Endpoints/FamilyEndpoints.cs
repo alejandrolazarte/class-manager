@@ -8,7 +8,7 @@ internal static class FamilyEndpoints
 {
     public static IEndpointRouteBuilder MapFamilyEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var family = endpoints.MapGroup(ApiRoutes.Family).RequireFamily();
+        var family = endpoints.MapGroup(ApiRoutes.Family).RequireFamily().RequireFeature(Features.FamilyApp);
         family.MapGet("/", GetFamilyHomeAsync);
         family.MapGet(ApiRoutes.FamilyShop, GetFamilyShopAsync);
         family.MapGet(ApiRoutes.FamilyOrders, ListFamilyOrdersAsync);
@@ -29,7 +29,8 @@ internal static class FamilyEndpoints
         family.MapDelete(ApiRoutes.StudentPackClass, CancelPackClassAsync);
 
         endpoints.MapPost(ApiRoutes.Clients + ApiRoutes.ClientById + ApiRoutes.AppInvitation, InviteFamilyAsync)
-            .RequirePermission(Permissions.Students.Manage);
+            .RequirePermission(Permissions.Students.Manage)
+            .RequireFeature(Features.FamilyApp);
 
         return endpoints;
     }

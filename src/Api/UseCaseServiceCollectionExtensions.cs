@@ -26,6 +26,7 @@ using ClassManager.Core.UseCases.Products;
 using ClassManager.Core.UseCases.Roles;
 using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
+using ClassManager.Core.UseCases.Subscriptions;
 using ClassManager.Core.UseCases.TeamNotifications;
 using ClassManager.ImportExport.Parsing;
 using ClassManager.ImportExport.Tabular;
@@ -70,6 +71,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RemoveBrandLogoCommand, BrandResponse>, RemoveBrandLogoUseCase>();
         services.AddScoped<IUseCase<GetBrandLogoQuery, BrandLogoFile>, GetBrandLogoUseCase>();
         services.AddScoped<IUseCase<GetCurrentMemberQuery, CurrentMemberResponse>, GetCurrentMemberUseCase>();
+        services.AddScoped<IUseCase<ListPlansQuery, IReadOnlyList<PlanResponse>>, ListPlansUseCase>();
+        services.AddScoped<IUseCase<GetOrganizationSubscriptionQuery, OrganizationSubscriptionResponse>, GetOrganizationSubscriptionUseCase>();
         services.AddScoped<IUseCase<GetTeamQuery, TeamResponse>, GetTeamUseCase>();
         services.AddScoped<IUseCase<InviteMemberCommand, InvitationResponse>, InviteMemberUseCase>();
         services.AddScoped<IUseCase<RevokeInvitationCommand, RevokedInvitationResponse>, RevokeInvitationUseCase>();

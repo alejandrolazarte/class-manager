@@ -4,6 +4,9 @@ export type ClientTab = (typeof clientTabs)[number];
 export const orderTabs = ["settings", "today", "fees"] as const;
 export type OrderTab = (typeof orderTabs)[number];
 
+export const planTabs = ["settings", "today", "students"] as const;
+export type PlanTab = (typeof planTabs)[number];
+
 export const collectionsViews = ["fees", "orders"] as const;
 export type CollectionsView = (typeof collectionsViews)[number];
 
@@ -57,6 +60,7 @@ export const routes = {
   newProduct: "/settings/products/new",
   product: (productId: string) => `/settings/products/${productId}`,
   orders: (tab: OrderTab) => `/${tab}/orders`,
+  plan: (tab: PlanTab) => `/${tab}/plan`,
   newCounterSale: (tab: OrderTab) => `/${tab}/orders/new`,
   importExport: "/settings/import-export",
   announcements: "/settings/announcements",

@@ -23,6 +23,8 @@ public sealed class InstructorImportModule(IInstructorRepository instructorRepos
 
     public string Name => ModuleName;
 
+    public string? CountedFeatureCode => null;
+
     public IReadOnlyList<ImportColumn> Columns { get; } = [FullNameColumn];
 
     public async Task<Result<ImportPlan>> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken)

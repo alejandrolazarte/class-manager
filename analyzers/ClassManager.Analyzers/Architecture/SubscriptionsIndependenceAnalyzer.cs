@@ -19,7 +19,8 @@ public sealed class SubscriptionsIndependenceAnalyzer : LibraryIndependenceAnaly
         "ClassManager.Security",
         "ClassManager.Tenancy",
         "ClassManager.ImportExport",
-        "ClassManager.Notifications");
+        "ClassManager.Notifications",
+        "ClassManager.Storage");
 
     protected override DiagnosticDescriptor Descriptor => DiagnosticDescriptors.SubscriptionsMustNotDependOnApplication;
 

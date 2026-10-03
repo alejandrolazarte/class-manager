@@ -2,4 +2,7 @@
   <PropertyGroup>
     <RootNamespace>ClassManager.Subscriptions</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Records/Records.csproj" />
+  </ItemGroup>
 </Project>

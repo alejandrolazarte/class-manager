@@ -27,6 +27,9 @@ import { Spinner } from "@/ui/Spinner";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { TitleWithPills } from "@/ui/TitleWithPills";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
 
 const isoDateLength = 10;
 
@@ -125,7 +128,9 @@ function InvitationCard({
 export function TeamScreen() {
   const router = useRouter();
   const { showToast } = useToast();
-  const canManageMembers = useCan(permissions.membersManage);
+  const isAtTeamLimit = useIsAtLimit(featureCodes.team);
+  const hasMemberPermission = useCan(permissions.membersManage);
+  const canManageMembers = hasMemberPermission && !isAtTeamLimit;
   const teamQuery = useTeam();
   const { data: roles } = useRoles();
   const instructorsQuery = useInstructorsIncludingInactive();
@@ -160,6 +165,9 @@ export function TeamScreen() {
         ) : undefined
       }
     >
+      {hasMemberPermission && isAtTeamLimit ? (
+        <LockedFeatureNotice message={translate("subscriptions.locked.team")} />
+      ) : null}
       {teamQuery.isPending ? <Spinner className="mt-6" /> : null}
       {teamQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>

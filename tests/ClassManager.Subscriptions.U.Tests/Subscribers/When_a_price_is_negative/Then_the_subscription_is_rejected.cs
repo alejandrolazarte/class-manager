@@ -8,6 +8,6 @@ public sealed class Then_the_subscription_is_rejected
     public void Then_the_subscription_is_rejected_Run()
     {
         Should.Throw<ArgumentOutOfRangeException>(() =>
-            Subscription.Start(SubscriberId, PlanCode, price: -1m, Currency, Today, note: null, Now));
+            Subscription.Start(SubscriberId, PlanCode, price: -1m, Currency, note: null, Now));
     }
 }

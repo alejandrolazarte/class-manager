@@ -1,3 +1,4 @@
+using ClassManager.Records;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 
@@ -7,10 +8,11 @@ public sealed class EffectiveFeatures
 {
     private readonly Dictionary<string, EffectiveFeature> _featuresByCode;
 
-    private EffectiveFeatures(string planCode, bool isActive, Dictionary<string, EffectiveFeature> featuresByCode)
+    private EffectiveFeatures(string planCode, bool isActive, DateOnly? expiredOn, Dictionary<string, EffectiveFeature> featuresByCode)
     {
         PlanCode = planCode;
         IsActive = isActive;
+        ExpiredOn = expiredOn;
         _featuresByCode = featuresByCode;
     }
 
@@ -18,34 +20,38 @@ public sealed class EffectiveFeatures
 
     public bool IsActive { get; }
 
+    public DateOnly? ExpiredOn { get; }
+
     public IReadOnlyCollection<EffectiveFeature> All => _featuresByCode.Values;
 
     public static EffectiveFeatures Combine(
         string planCode,
         IEnumerable<PlanFeature> planFeatures,
         IEnumerable<SubscriptionFeature> subscriptionFeatures,
-        DateOnly today)
+        DateOnly today,
+        DateOnly? expiredOn = null)
     {
         ArgumentNullException.ThrowIfNull(planFeatures);
         ArgumentNullException.ThrowIfNull(subscriptionFeatures);
 
-        var featuresByCode = new Dictionary<string, EffectiveFeature>(StringComparer.Ordinal);
-        var grants = planFeatures
-            .Select(planFeature => new EffectiveFeature(planFeature.FeatureCode, planFeature.Limit))
-            .Concat(subscriptionFeatures
-                .Where(subscriptionFeature => subscriptionFeature.IsActiveOn(today))
-                .Select(subscriptionFeature => new EffectiveFeature(subscriptionFeature.FeatureCode, subscriptionFeature.Limit)));
+        var featuresByCode = planFeatures.ToDictionary(
+            planFeature => planFeature.FeatureCode,
+            planFeature => new EffectiveFeature(planFeature.FeatureCode, planFeature.Limit),
+            StringComparer.Ordinal);
+        var currentOverrides = subscriptionFeatures
+            .Where(subscriptionFeature => subscriptionFeature.IsActiveOn(today))
+            .OrderBy(subscriptionFeature => subscriptionFeature.CreatedOn);
 
-        foreach (var grant in grants)
+        foreach (var subscriptionFeature in currentOverrides)
         {
-            featuresByCode[grant.Code] = featuresByCode.TryGetValue(grant.Code, out var existing) ? Larger(existing, grant) : grant;
+            featuresByCode[subscriptionFeature.FeatureCode] = new EffectiveFeature(subscriptionFeature.FeatureCode, subscriptionFeature.Limit);
         }
 
-        return new EffectiveFeatures(planCode, isActive: true, featuresByCode);
+        return new EffectiveFeatures(planCode, isActive: true, expiredOn, featuresByCode);
     }
 
-    public static EffectiveFeatures Inactive(string lastPlanCode) =>
-        new(lastPlanCode, isActive: false, new Dictionary<string, EffectiveFeature>(StringComparer.Ordinal));
+    public static EffectiveFeatures Inactive(string lastPlanCode, DateOnly? expiredOn = null) =>
+        new(lastPlanCode, isActive: false, expiredOn, new Dictionary<string, EffectiveFeature>(StringComparer.Ordinal));
 
     public bool Has(string featureCode) => _featuresByCode.ContainsKey(featureCode);
 
@@ -54,9 +60,4 @@ public sealed class EffectiveFeatures
 
     public bool AllowsAnother(string featureCode, int currentCount) =>
         _featuresByCode.TryGetValue(featureCode, out var feature) && (feature.IsUnlimited || currentCount < feature.Limit);
-
-    private static EffectiveFeature Larger(EffectiveFeature first, EffectiveFeature second) =>
-        first.IsUnlimited || second.IsUnlimited
-            ? first with { Limit = null }
-            : first with { Limit = Math.Max(first.Limit!.Value, second.Limit!.Value) };
 }

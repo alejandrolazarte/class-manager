@@ -1,6 +1,6 @@
+using ClassManager.Records;
 using ClassManager.Subscriptions.Access;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
-using ClassManager.Subscriptions.Subscribers;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassManager.Subscriptions.AspNetCore.Access;
@@ -23,9 +23,13 @@ internal sealed class FeatureAccess(
             return EffectiveFeatures.Inactive(string.Empty);
         }
 
-        if (await ActiveSubscriptionAsync(subscriberId, today, cancellationToken) is not { } subscription)
+        var subscription = await context.Subscriptions
+            .AsNoTracking()
+            .WhereCurrent()
+            .FirstOrDefaultAsync(candidate => candidate.SubscriberId == subscriberId, cancellationToken);
+        if (subscription is null || !subscription.IsActiveOn(today))
         {
-            return EffectiveFeatures.Inactive(await LastPlanCodeAsync(subscriberId, cancellationToken) ?? string.Empty);
+            return EffectiveFeatures.Inactive(subscription?.PlanCode ?? string.Empty, subscription?.ExpiredOn);
         }
 
         var planFeatures = await context.PlanFeatures
@@ -34,28 +38,10 @@ internal sealed class FeatureAccess(
             .ToListAsync(cancellationToken);
         var subscriptionFeatures = await context.SubscriptionFeatures
             .AsNoTracking()
+            .WhereCurrent()
             .Where(subscriptionFeature => subscriptionFeature.SubscriptionId == subscription.Id)
             .ToListAsync(cancellationToken);
 
-        return EffectiveFeatures.Combine(subscription.PlanCode, planFeatures, subscriptionFeatures, today);
+        return EffectiveFeatures.Combine(subscription.PlanCode, planFeatures, subscriptionFeatures, today, subscription.ExpiredOn);
     }
-
-    private Task<Subscription?> ActiveSubscriptionAsync(Guid subscriberId, DateOnly today, CancellationToken cancellationToken) =>
-        context.Subscriptions
-            .AsNoTracking()
-            .Where(subscription => subscription.SubscriberId == subscriberId
-                && subscription.StartsOn <= today
-                && (subscription.EndsOn == null || subscription.EndsOn >= today))
-            .OrderByDescending(subscription => subscription.StartsOn)
-            .ThenByDescending(subscription => subscription.CreatedAt)
-            .FirstOrDefaultAsync(cancellationToken);
-
-    private Task<string?> LastPlanCodeAsync(Guid subscriberId, CancellationToken cancellationToken) =>
-        context.Subscriptions
-            .AsNoTracking()
-            .Where(subscription => subscription.SubscriberId == subscriberId)
-            .OrderByDescending(subscription => subscription.StartsOn)
-            .ThenByDescending(subscription => subscription.CreatedAt)
-            .Select(subscription => subscription.PlanCode)
-            .FirstOrDefaultAsync(cancellationToken);
 }

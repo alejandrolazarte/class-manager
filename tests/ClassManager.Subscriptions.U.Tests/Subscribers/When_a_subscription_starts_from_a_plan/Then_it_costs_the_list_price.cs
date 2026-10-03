@@ -11,7 +11,7 @@ public sealed class Then_it_costs_the_list_price
     {
         var plan = Plan.Create(PlanCode, displayOrder: 3, ListPrice, Currency, BillingPeriod.Monthly);
 
-        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Today, Now);
+        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Now);
 
         subscription.Price.ShouldBe(ListPrice);
     }

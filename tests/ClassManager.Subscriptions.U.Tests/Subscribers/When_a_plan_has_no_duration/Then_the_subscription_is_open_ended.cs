@@ -9,8 +9,8 @@ public sealed class Then_the_subscription_is_open_ended
     {
         var plan = Plan.Create(PlanCode, displayOrder: 3, 19m, Currency, BillingPeriod.Monthly);
 
-        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Today, Now);
+        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Now);
 
-        subscription.EndsOn.ShouldBeNull();
+        subscription.ExpiredOn.ShouldBeNull();
     }
 }
