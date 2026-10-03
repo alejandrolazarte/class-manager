@@ -22,6 +22,9 @@ flowchart LR
     Phone[Android / iOS app<br/>EAS Build] --> Api
     Browser[Web app<br/>Cloudflare Pages] --> Api
     Api[API .NET 10<br/>Azure Container Apps] -->|managed identity| Sql[(Azure SQL Database<br/>free offer)]
+    Api -->|connection string| Blob[(Azure Blob Storage<br/>photos)]
+    Browser -.photos.-> Blob
+    Phone -.photos.-> Blob
     Ghcr[GitHub Container Registry<br/>ghcr.io] -.image.-> Api
 ```
 
@@ -29,6 +32,7 @@ flowchart LR
 |---|---|---|
 | Database | Azure SQL Database, free offer (serverless) | 100,000 vCore-seconds, 32 GB data and 32 GB backups per database per month, up to 10 databases per subscription, no expiry |
 | API | Azure Container Apps, consumption plan | 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per subscription per month; nothing is billed while scaled to zero |
+| Photos | Azure Blob Storage, hot LRS | Not free, but cents per month at pilot scale; see [storage](storage.md) |
 | Container image | GitHub Container Registry (`ghcr.io`), private package | Included in the GitHub plan's Packages storage; avoids Azure Container Registry, which has no free tier |
 | Web app | Cloudflare Pages | 500 builds per month, 1 concurrent build |
 | Mobile builds | Expo EAS, free plan | 15 Android + 15 iOS builds per month |

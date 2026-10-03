@@ -110,7 +110,16 @@ export function buildFamilyHome(overrides: Partial<FamilyHome> = {}): FamilyHome
 export function buildFamilyShop(overrides: Partial<FamilyShop> = {}): FamilyShop {
   return {
     currencyCode: "EUR",
-    packs: [{ id: "pack-8", name: "8 clases", classCount: 8, price: 120, validityMonths: 2 }],
+    packs: [
+      {
+        id: "pack-8",
+        name: "8 clases",
+        classCount: 8,
+        price: 120,
+        validityMonths: 2,
+        images: [],
+      },
+    ],
     products: [
       {
         id: "product-cap",
@@ -121,6 +130,7 @@ export function buildFamilyShop(overrides: Partial<FamilyShop> = {}): FamilyShop
           { id: "variant-s", name: "S", availability: "Available" },
           { id: "variant-m", name: "M", availability: "SoldOut" },
         ],
+        images: [],
       },
     ],
     deliveryClasses: [

@@ -1,4 +1,6 @@
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Core.UseCases.Images;
 
 namespace ClassManager.Core.UseCases.Products;
 
@@ -12,9 +14,13 @@ public sealed record ProductResponse(
     StockMode StockMode,
     bool IsVisibleInApp,
     bool IsActive,
-    IReadOnlyList<ProductVariantResponse> Variants)
+    IReadOnlyList<ProductVariantResponse> Variants,
+    IReadOnlyList<CatalogImageResponse> Images)
 {
-    public static ProductResponse From(Product product, IReadOnlyDictionary<Guid, int> stockByVariant) =>
+    public static ProductResponse From(
+        Product product,
+        IReadOnlyDictionary<Guid, int> stockByVariant,
+        IDocumentStorageService documentStorage) =>
         new(
             product.Id,
             product.Name,
@@ -31,5 +37,6 @@ public sealed record ProductResponse(
                         variant.Id,
                         variant.Name,
                         product.TracksStock ? stockByVariant.GetValueOrDefault(variant.Id) : null)),
-            ]);
+            ],
+            CatalogImageResponse.ListFrom(product.ImagesInOrder, documentStorage));
 }

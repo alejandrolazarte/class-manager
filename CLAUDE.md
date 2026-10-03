@@ -21,12 +21,16 @@ src/Tenancy.AspNetCore/ ← tenant query filters, stamping interceptor, claims t
 src/ImportExport/    ← reusable import/export engine: CSV, column matching, limits (no dependencies, ARCH005)
 src/Notifications/   ← reusable email and web push building blocks: email content, branded HTML layout, VAPID, push encryption (no dependencies, ARCH006)
 src/Notifications.Delivery/ ← SMTP (MailKit) and web push senders, DI extensions (ARCH006)
+src/Storage/        ← reusable file storage abstraction and image format detection (no dependencies, ARCH008)
+src/Storage.AzureBlob/ ← Azure Blob Storage implementation, DI extensions (ARCH008)
 src/Subscriptions/   ← reusable plans, features, add-ons and effective features of a subscriber (no dependencies, ARCH007)
 src/Subscriptions.AspNetCore/ ← EF model for the billing schema, per-request feature access, RequireFeature endpoint filter (ARCH007)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
 tests/ClassManager.Api.I.Tests/   ← integration tests: endpoints and persistence (Testcontainers)
 tests/ClassManager.ImportExport.U.Tests/ ← unit tests: import/export engine
 tests/ClassManager.Notifications.U.Tests/ ← unit tests: email rendering and web push
+tests/ClassManager.Storage.U.Tests/ ← unit tests: image formats and file paths
+tests/ClassManager.Storage.I.Tests/ ← integration tests: Azure Blob Storage against Azurite (Testcontainers)
 tests/ClassManager.Subscriptions.U.Tests/ ← unit tests: plans, subscriptions and effective features
 app/                 ← Expo app (mobile + web)
 e2e/                 ← Playwright e2e tests: web build + real API + SQL Server (critical flows only)
@@ -95,7 +99,7 @@ cd e2e; pnpm typecheck; pnpm format:check; pnpm test                     # e2e j
 
 Line endings are LF everywhere (`.editorconfig` and `.gitattributes`). Constants and `static readonly` fields are PascalCase; other private fields use `_camelCase`. Naming violations (`IDE1006`) and unnecessary `using` directives (`IDE0005`) break the build and `dotnet format --verify-no-changes`; `dotnet format class-manager.slnx` removes unused usings. Don't disable a lint rule to get green: fix the code, or raise the rule in the PR.
 
-Integration tests start SQL Server through Testcontainers, which talks to Podman via the `\\.\pipe\docker_engine` pipe. The Podman machine must be running (`podman machine start`).
+Integration tests start SQL Server and Azurite (Blob Storage emulator) through Testcontainers, which talks to Podman via the `\\.\pipe\docker_engine` pipe. The Podman machine must be running (`podman machine start`).
 
 ## Multi-tenancy
 

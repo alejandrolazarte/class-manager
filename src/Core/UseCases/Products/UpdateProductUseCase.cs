@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
 
@@ -27,7 +28,8 @@ public sealed record UpdateProductCommand(
 public sealed class UpdateProductUseCase(
     IProductRepository productRepository,
     IStockMovementRepository stockMovementRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IDocumentStorageService documentStorage)
     : IUseCase<UpdateProductCommand, ProductResponse>
 {
     public async Task<Result<ProductResponse>> ExecuteAsync(UpdateProductCommand command, CancellationToken cancellationToken)
@@ -60,6 +62,6 @@ public sealed class UpdateProductUseCase(
         }
 
         var stockByVariant = await stockMovementRepository.StockByVariantAsync([.. product.Variants.Select(variant => variant.Id)], cancellationToken);
-        return ProductResponse.From(product, stockByVariant);
+        return ProductResponse.From(product, stockByVariant, documentStorage);
     }
 }

@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
+import { CatalogThumbnail } from "@/features/catalogImages/components/CatalogThumbnail";
 import { ClassPack } from "@/features/classPacks/types";
 import { formatMoney } from "@/features/fees/money";
 import { InactiveChip } from "@/features/settings/components/InactiveChip";
@@ -29,9 +30,10 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
         accessibilityLabel={classPack.name}
         className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
       >
-        <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
-          <Icon name="classPacks" tone="primary-soft-foreground" />
-        </View>
+        <CatalogThumbnail
+          imageUrl={classPack.images[0]?.url ?? null}
+          placeholderIcon="classPacks"
+        />
         <View className="flex-1 gap-1">
           <AppText variant="bodyStrong">{classPack.name}</AppText>
           <AppText variant="caption" tone="subtle">

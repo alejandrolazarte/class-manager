@@ -5,6 +5,7 @@ global using ClassManager.Core.Domain.Businesses;
 global using ClassManager.Core.Domain.ClassGroups;
 global using ClassManager.Core.Domain.ClassPacks;
 global using ClassManager.Core.Domain.Clients;
+global using ClassManager.Core.Domain.Documents;
 global using ClassManager.Core.Domain.Enrollments;
 global using ClassManager.Core.Domain.Fees;
 global using ClassManager.Core.Domain.Instructors;

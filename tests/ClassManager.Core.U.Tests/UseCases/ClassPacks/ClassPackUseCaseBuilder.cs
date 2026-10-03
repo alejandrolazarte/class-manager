@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Fees;
@@ -78,5 +79,5 @@ internal sealed class ClassPackUseCaseBuilder
             new Mock<ICurrentMember>().Object);
 
     public CreateClassPackUseCase BuildCreate() =>
-        new(ClassPacks.Object, ClassGroups.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
+        new(ClassPacks.Object, ClassGroups.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now), new Mock<IDocumentStorageService>().Object);
 }

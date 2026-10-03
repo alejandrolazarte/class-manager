@@ -1,8 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  applyCatalogImageDraft,
+  CatalogImageDraft,
+} from "@/features/catalogImages/catalogImageDraft";
+import { CatalogImage } from "@/features/catalogImages/types";
 import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import {
+  addClassPackImage,
   createClassPack,
   deleteClassPackPurchase,
+  removeClassPackImage,
+  reorderClassPackImages,
   sellClassPack,
   setClassPackActive,
   updateClassPack,
@@ -32,6 +40,27 @@ export function useSaveClassPack() {
     }) =>
       classPackId === undefined ? createClassPack(request) : updateClassPack(classPackId, request),
     onSuccess: invalidate,
+  });
+}
+
+export function useApplyClassPackImages() {
+  const invalidate = useInvalidateClassPacksAndFees();
+  return useMutation({
+    mutationFn: ({
+      classPackId,
+      draft,
+      savedImages,
+    }: {
+      classPackId: string;
+      draft: CatalogImageDraft;
+      savedImages: CatalogImage[];
+    }) =>
+      applyCatalogImageDraft(draft, classPackId, savedImages, {
+        add: addClassPackImage,
+        remove: removeClassPackImage,
+        reorder: reorderClassPackImages,
+      }),
+    onSettled: invalidate,
   });
 }
 

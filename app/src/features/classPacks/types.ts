@@ -1,3 +1,4 @@
+import { CatalogImage } from "@/features/catalogImages/types";
 import { PaymentMethod } from "@/features/fees/types";
 
 export interface ClassPack {
@@ -10,6 +11,7 @@ export interface ClassPack {
   classDurationMinutes: number | null;
   materialUrl: string | null;
   classGroupIds: string[];
+  images: CatalogImage[];
 }
 
 export interface SaveClassPackRequest {

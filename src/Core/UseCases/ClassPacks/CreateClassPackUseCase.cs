@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
 
@@ -17,7 +18,8 @@ public sealed class CreateClassPackUseCase(
     IClassPackRepository classPackRepository,
     IClassGroupRepository classGroupRepository,
     IUnitOfWork unitOfWork,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IDocumentStorageService documentStorage)
     : IUseCase<CreateClassPackCommand, ClassPackResponse>
 {
     public async Task<Result<ClassPackResponse>> ExecuteAsync(CreateClassPackCommand command, CancellationToken cancellationToken)
@@ -56,6 +58,6 @@ public sealed class CreateClassPackUseCase(
             return ClassPackFailures.NameTaken();
         }
 
-        return ClassPackResponse.From(classPack.Value);
+        return ClassPackResponse.From(classPack.Value, documentStorage);
     }
 }

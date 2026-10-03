@@ -1,6 +1,7 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.ClassPacks;
+using ClassManager.Core.UseCases.Images;
 
 namespace ClassManager.Api.Endpoints;
 
@@ -13,6 +14,13 @@ internal static class ClassPackEndpoints
         classPacks.MapPost("/", CreateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
         classPacks.MapPut(ApiRoutes.ClassPackById, UpdateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
         classPacks.MapPut(ApiRoutes.ClassPackById + ApiRoutes.Active, SetClassPackActiveAsync).RequirePermission(Permissions.ClassPacks.Manage);
+        classPacks.MapPost(ApiRoutes.ClassPackById + ApiRoutes.Images, AddClassPackImageAsync)
+            .RequirePermission(Permissions.ClassPacks.Manage)
+            .AcceptsImageUpload();
+        classPacks.MapDelete(ApiRoutes.ClassPackById + ApiRoutes.ImageById, RemoveClassPackImageAsync)
+            .RequirePermission(Permissions.ClassPacks.Manage);
+        classPacks.MapPut(ApiRoutes.ClassPackById + ApiRoutes.ImagesOrder, ReorderClassPackImagesAsync)
+            .RequirePermission(Permissions.ClassPacks.Manage);
 
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.ClassPackPurchasesSegment, SellClassPackAsync)
@@ -98,5 +106,39 @@ internal static class ClassPackEndpoints
         var result = await useCase.ExecuteAsync(new DeleteClassPackPurchaseCommand(purchaseId), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> AddClassPackImageAsync(
+        Guid classPackId,
+        IFormFile file,
+        IUseCase<AddClassPackImageCommand, ClassPackResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var content = await ImageUploads.ReadAsync(file, cancellationToken);
+        var result = await useCase.ExecuteAsync(new AddClassPackImageCommand(classPackId, content), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> RemoveClassPackImageAsync(
+        Guid classPackId,
+        Guid documentId,
+        IUseCase<RemoveClassPackImageCommand, ClassPackResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RemoveClassPackImageCommand(classPackId, documentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> ReorderClassPackImagesAsync(
+        Guid classPackId,
+        ReorderImagesRequest request,
+        IUseCase<ReorderClassPackImagesCommand, ClassPackResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ReorderClassPackImagesCommand(classPackId, request.DocumentIds), cancellationToken);
+
+        return result.ToOkResult();
     }
 }
