@@ -30,7 +30,10 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
         accessibilityLabel={classPack.name}
         className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
       >
-        <CatalogThumbnail imageUrl={classPack.imageUrl} placeholderIcon="classPacks" />
+        <CatalogThumbnail
+          imageUrl={classPack.images[0]?.url ?? null}
+          placeholderIcon="classPacks"
+        />
         <View className="flex-1 gap-1">
           <AppText variant="bodyStrong">{classPack.name}</AppText>
           <AppText variant="caption" tone="subtle">

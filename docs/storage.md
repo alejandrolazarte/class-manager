@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 
-Product and class pack photos are files in **Azure Blob Storage**. The database keeps only each photo's public URL (`Products.ImageUrl`, `ClassPacks.ImageUrl`). The browser and the phone download the photo straight from Blob Storage, so photos never go through the API or the database.
+Product and class pack photos are files in **Azure Blob Storage**. The database keeps one `Documents` row per file (path, content type, size, visibility), never the file itself, and link tables say which product or pack each photo belongs to and in which order. The browser and the phone download public photos straight from Blob Storage, so photos never go through the API or the database.
 
 `src/Storage` and `src/Storage.AzureBlob` are a reusable library like [tenancy](tenancy.md), [notifications](notifications.md) and [import and export](import-export.md). They save, serve and delete files and recognize image formats. They know nothing about products, packs or businesses. ARCH008 keeps them free of `ClassManager.Core`, `Infrastructure`, `Api`, `Security`, `Tenancy`, `ImportExport`, `Notifications` and `Subscriptions` (see [analyzers](analyzers.md)).
 
@@ -16,7 +16,7 @@ Product and class pack photos are files in **Azure Blob Storage**. The database 
 
 Prices change; check the Azure Blob Storage and Cloudflare R2 pricing pages before relying on them.
 
-At pilot scale both are almost free. For example, 500 photos of 300 KB are about 150 MB, which costs well under one cent a month on either service. **Decision: Azure Blob Storage**, because the hosting is already on Azure and the setup is simpler. If downloads ever make egress the main cost, write a `Storage.S3` adapter for R2 that implements `IFileStorage` (see [Changing provider](#changing-provider)). Nothing else would change.
+At pilot scale both are almost free. For example, 500 photos of 300 KB are about 150 MB, which costs well under one cent a month on either service. **Decision: Azure Blob Storage**, because the hosting is already on Azure and the setup is simpler. If downloads ever make egress the main cost, write a `Storage.S3` adapter for R2 that implements `IFileStorage` (see [Changing provider](#changing-provider)). Nothing else would change, because the database stores paths, not URLs.
 
 ## Contents
 
@@ -24,8 +24,9 @@ At pilot scale both are almost free. For example, 500 photos of 300 KB are about
 
 | Type | Purpose |
 |---|---|
-| `Files/IFileStorage` | `SaveAsync(FileToStore)` returns the file's public URL. `DeleteAsync(Uri)` deletes it and returns `false` when the URL is not in this storage or the file is already gone |
-| `Files/FileToStore` | Path, content and content type of a file to save |
+| `Files/IFileStorage` | `SaveAsync(FileToStore)`, `DeleteAsync(path, visibility)` (returns `false` when the file is already gone) and `PublicUrlOf(path)` |
+| `Files/FileToStore` | Path, content, content type and visibility of a file to save |
+| `Files/FileVisibility` | `Public` (anyone with the URL can read it) or `Private` (only the API can read it) |
 | `Files/FilePath` | `Combine(segments)` joins path segments with `/` and rejects empty, `.`, `..` and segments containing a slash |
 | `Images/ImageFormat` | Detects PNG, JPEG and WebP from the file's first bytes (never trusts the name or the declared type). Also used by the brand logo |
 
@@ -33,35 +34,54 @@ At pilot scale both are almost free. For example, 500 photos of 300 KB are about
 
 | Type | Purpose |
 |---|---|
-| `AzureBlobFileStorage` | Saves blobs with their content type and `Cache-Control: public, max-age=31536000, immutable`. The first save creates the container if it is missing, with anonymous read access to blobs (not to the container listing) |
-| `BlobStorageOptions` | `FileStorage:ContainerName` (default `public-files`) and `FileStorage:CacheControl` |
+| `AzureBlobFileStorage` | One container per visibility. Public files get `Cache-Control: public, max-age=31536000, immutable`; private ones `private, no-store`. The first save creates the container if it is missing: the public one with anonymous read access to blobs (not to the container listing), the private one without anonymous access |
+| `BlobStorageOptions` | `FileStorage:PublicContainerName` (default `public-files`), `FileStorage:PrivateContainerName` (default `private-files`) and `FileStorage:CacheControl` |
 | `FileStorageServiceCollectionExtensions` | `AddAzureBlobFileStorage()` reads the `FileStorage` connection string. It fails when the storage is first used without one, not at startup, so the API and the e2e tests run without storage until a photo is uploaded |
 
 ## What stays in the app
 
 | In `Core` | In `Infrastructure` |
 |---|---|
-| `CatalogImage` (format check, 5 MB limit, error codes `image.unsupported` and `image.too_large`), `ImageUrl` on `Product` and `ClassPack`, the set and remove use cases, `ICatalogImageService` | `CatalogImageService`: builds the path, saves through `IFileStorage`, and logs (does not throw) when a delete fails |
+| `Document` (path, content type, size, `Visibility`), `ProductImage` and `ClassPackImage` (owner, document, position), `CatalogImage` (format check, 5 MB limit), `CatalogImageGallery` (add, remove, reorder), `ICatalogImageService` (plan limit, store, save, clean up), `IDocumentStorageService` | `DocumentStorageService`: builds the path, saves through `IFileStorage`, turns a public document into its URL, and logs (does not throw) when a delete fails. EF configuration of `Documents`, `ProductImages` and `ClassPackImages` |
 
-Paths are `<tenantId>/<products|class-packs>/<ownerId>/<new id>.<extension>`. Each upload gets a new file name, so a browser never shows a cached old photo, and the long cache header is safe.
+### Model
 
-Flow of `PUT /api/products/{id}/image` (same for `/api/class-packs/{id}/image`):
+```mermaid
+erDiagram
+    Product ||--o{ ProductImage : "photos, ordered"
+    ClassPack ||--o{ ClassPackImage : "photos, ordered"
+    ProductImage }o--|| Document : file
+    ClassPackImage }o--|| Document : file
+```
 
-1. Load the product. Tenant query filters return 404 for another business's product.
-2. Check that the file is PNG, JPG or WebP and at most 5 MB (400 otherwise).
-3. Upload the new file, save its URL, then delete the previous file.
-4. If saving to the database fails, delete the file just uploaded, so it is not left orphaned.
+- **One table for every file, link tables per owner.** `Documents` describes files; `ProductImages` and `ClassPackImages` link them with real foreign keys and a `Position`. A generic `OwnerType` + `OwnerId` column would have no foreign key, so the database could not stop orphaned or wrong links. A new kind of owner (a class photo, a student certificate) is one more link table.
+- **The path is stored, not the URL.** URLs are built when answering (`PublicUrlOf`). Moving to a CDN or another provider changes configuration, not data, and private documents can get signed links later without a migration.
+- **Visibility.** Shop photos are `Public`. `Private` exists so private documents (medical certificates, IDs) can use the same table and storage later: they go to the private container, and serving them needs short-lived signed links (SAS), which are not built yet. `PublicUrlOf` refuses private documents.
+- **Paths** are `<tenantId>/<products|class-packs>/<ownerId>/<documentId>.<extension>`. Each upload gets a new name, so the long cache header is safe.
+- **Plan limit.** The number of photos per product or pack is the `catalog-photos` feature: 1 on `Free`, 5 on the other plans, and an add-on can raise it ([subscriptions plan](backend/20261003-subscriptions/plan.md)). Like every limit, it blocks adding past it, never existing photos.
 
-`DELETE .../image` clears the URL and deletes the file. Both endpoints need the same permission as editing the product or pack.
+### Endpoints
 
-**Photos are public.** Anyone with a URL can open it. URLs contain random ids and can't be guessed or listed, and shop photos are meant to be seen by families. Don't use this storage for private documents (medical certificates, IDs); those need a private container and short-lived SAS links.
+Same for `/api/class-packs/{id}`, with the permissions to edit the product or the pack:
+
+| Endpoint | What it does |
+|---|---|
+| `POST /api/products/{id}/images` | Adds a photo at the end. 400 `image.unsupported` or `image.too_large`, 403 `feature.limit_reached` |
+| `DELETE /api/products/{id}/images/{documentId}` | Removes the link, the `Documents` row and the file. 404 `image.not_found` if the photo is not this product's |
+| `PUT /api/products/{id}/images/order` | `{ "documentIds": [...] }` with every photo exactly once; the first is the main photo. 400 `image.order_mismatch` otherwise |
+
+Responses carry `images: [{ id, url }]` in order. Adding uploads the file first and then saves the rows; if saving fails, the file just uploaded is deleted. Tenant query filters make another business's product, pack or document a 404.
+
+The app keeps photo changes in the form and sends them when the user taps Guardar: removals, then additions in order, then the order if it changed. If the plan limit stops an addition, the product is saved and a message says some photos were not uploaded.
+
+**Public photos can be opened by anyone with the URL.** URLs contain random ids and can't be guessed or listed, and shop photos are meant to be seen by families.
 
 ## Configuration
 
 | Setting | Value |
 |---|---|
 | `ConnectionStrings:FileStorage` | Storage account connection string (secret) |
-| `FileStorage:ContainerName` | Optional, default `public-files` |
+| `FileStorage:PublicContainerName`, `FileStorage:PrivateContainerName` | Optional, defaults `public-files` and `private-files` |
 | `FILES_BASE_URL` (web build) | Optional. The blob endpoint, for example `https://<account>.blob.core.windows.net`. `app/scripts/writeWebHeaders.js` adds its origin to `img-src` in the [Content Security Policy](frontend/content-security-policy.md) |
 
 ### Local development
@@ -84,7 +104,7 @@ az containerapp secret set --name <api app> --resource-group <group> --secrets f
 az containerapp update --name <api app> --resource-group <group> --set-env-vars ConnectionStrings__FileStorage=secretref:file-storage
 ```
 
-New storage accounts block anonymous access by default. `--allow-blob-public-access true` turns it on for the account. The container itself is created by the API with blob-level (read-only) access. Then set `FILES_BASE_URL` in Cloudflare Pages to `https://<account>.blob.core.windows.net`.
+New storage accounts block anonymous access by default. `--allow-blob-public-access true` turns it on for the account; it only applies to containers created with public access, so `private-files` stays private. The API creates both containers on first use. Then set `FILES_BASE_URL` in Cloudflare Pages to `https://<account>.blob.core.windows.net`.
 
 Costs to watch: storage used and egress, both in the Azure cost analysis of the storage account. Orphaned files only appear when a delete fails (see the `could not be deleted and stays orphaned` warning in the logs). They cost almost nothing and can be removed by hand.
 
@@ -93,9 +113,9 @@ Costs to watch: storage used and egress, both in the Azure cost analysis of the 
 | Project | What it covers |
 |---|---|
 | `tests/ClassManager.Storage.U.Tests` | Image format detection and path rules |
-| `tests/ClassManager.Storage.I.Tests` | `AzureBlobFileStorage` against Azurite in Testcontainers: anonymous download, content type, cache header, paths with spaces, delete, URLs of another container, missing connection string |
-| `tests/ClassManager.Core.U.Tests` | `CatalogImage` validation, replacing and removing images, deleting the new file when saving fails |
-| `tests/ClassManager.Api.I.Tests` | Endpoints against SQL Server and Azurite: upload, replace, remove, invalid and oversized files, permissions, business B can't change business A's photos, and photos in the family shop |
+| `tests/ClassManager.Storage.I.Tests` | `AzureBlobFileStorage` against Azurite in Testcontainers: public download, content type, cache header, paths with spaces, private files not readable anonymously and not in the public container, delete, missing connection string |
+| `tests/ClassManager.Core.U.Tests` | `CatalogImage` validation, removing and reordering photos, the plan limit, deleting the new file when saving fails |
+| `tests/ClassManager.Api.I.Tests` | Endpoints against SQL Server and Azurite: add, order, reorder, remove (row and file), invalid and oversized files, permissions, the `Free` limit and the add-on, business B can't add or remove business A's photos, photos in the family shop, and tenant filters on `Documents`, `ProductImages` and `ClassPackImages` |
 
 `ApiFixture` starts Azurite next to SQL Server and passes its connection string to the API. Both containers are started with Podman (see [CLAUDE.md](../CLAUDE.md)).
 
@@ -104,4 +124,4 @@ Costs to watch: storage used and egress, both in the Azure cost analysis of the 
 1. Add `src/Storage.<Provider>` with a class that implements `IFileStorage`, and a `Add<Provider>FileStorage()` extension.
 2. Copy the tests in `tests/ClassManager.Storage.I.Tests` against that provider's emulator (MinIO for S3 and R2).
 3. Replace `AddAzureBlobFileStorage()` in `InfrastructureServiceCollectionExtensions`.
-4. Copy existing files and update the URLs in `Products.ImageUrl` and `ClassPacks.ImageUrl` with a one-off script.
+4. Copy the existing files keeping their paths. The database stores paths, so no row changes.

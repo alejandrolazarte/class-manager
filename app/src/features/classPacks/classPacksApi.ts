@@ -12,7 +12,8 @@ const classPacksPath = "/api/class-packs";
 const clientsPath = "/api/clients";
 const classPackPurchasesPath = "/api/class-pack-purchases";
 const activeSegment = "active";
-const imageSegment = "image";
+const imagesSegment = "images";
+const imagesOrderSegment = "images/order";
 const purchasesSegment = "class-pack-purchases";
 const classBalanceSegment = "class-balance";
 const includeInactiveParameters = { includeInactive: "true" };
@@ -48,15 +49,26 @@ export function setClassPackActive(classPackId: string, isActive: boolean): Prom
   });
 }
 
-export function uploadClassPackImage(classPackId: string, file: PickedFile): Promise<ClassPack> {
-  return httpClient.putForm<ClassPack>(
-    `${classPackPath(classPackId)}/${imageSegment}`,
+export function addClassPackImage(classPackId: string, file: PickedFile): Promise<ClassPack> {
+  return httpClient.postForm<ClassPack>(
+    `${classPackPath(classPackId)}/${imagesSegment}`,
     toFileForm(file),
   );
 }
 
-export function removeClassPackImage(classPackId: string): Promise<ClassPack> {
-  return httpClient.delete<ClassPack>(`${classPackPath(classPackId)}/${imageSegment}`);
+export function removeClassPackImage(classPackId: string, imageId: string): Promise<ClassPack> {
+  return httpClient.delete<ClassPack>(
+    `${classPackPath(classPackId)}/${imagesSegment}/${encodeURIComponent(imageId)}`,
+  );
+}
+
+export function reorderClassPackImages(
+  classPackId: string,
+  imageIds: string[],
+): Promise<ClassPack> {
+  return httpClient.put<ClassPack>(`${classPackPath(classPackId)}/${imagesOrderSegment}`, {
+    documentIds: imageIds,
+  });
 }
 
 export function sellClassPack(

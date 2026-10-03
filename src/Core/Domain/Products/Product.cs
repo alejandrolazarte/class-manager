@@ -1,11 +1,12 @@
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Documents;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Images;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Products;
 
-public sealed class Product : ITenantOwned, IHasCatalogImage
+public sealed class Product : ITenantOwned, IHasCatalogImages
 {
     public const int NameMinLength = 2;
     public const int NameMaxLength = 60;
@@ -22,6 +23,7 @@ public sealed class Product : ITenantOwned, IHasCatalogImage
     private const string VariantUnknownMessage = "A size or variant does not belong to this product.";
 
     private readonly List<ProductVariant> _variants = [];
+    private readonly List<ProductImage> _images = [];
 
     private Product()
     {
@@ -34,9 +36,11 @@ public sealed class Product : ITenantOwned, IHasCatalogImage
     public decimal Price { get; private set; }
     public StockMode StockMode { get; private set; }
     public bool IsVisibleInApp { get; private set; }
-    public string? ImageUrl { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public IReadOnlyList<ProductImage> Images => _images;
+    public IReadOnlyList<Document> ImagesInOrder => CatalogImageGallery.InOrder(_images);
+    public int ImageCount => _images.Count;
     public IReadOnlyList<ProductVariant> Variants => _variants;
 
     public bool TracksStock => StockMode != StockMode.Unlimited;
@@ -111,9 +115,11 @@ public sealed class Product : ITenantOwned, IHasCatalogImage
     public string SaleNameOf(ProductVariant variant) =>
         string.IsNullOrEmpty(variant.Name) ? Name : $"{Name} · {variant.Name}";
 
-    public void ChangeImage(Uri imageUrl) => ImageUrl = imageUrl.AbsoluteUri;
+    public void AddImage(Document document) => _images.Add(ProductImage.Create(Id, document, _images.Count));
 
-    public void RemoveImage() => ImageUrl = null;
+    public Document? RemoveImage(Guid documentId) => CatalogImageGallery.Remove(_images, documentId);
+
+    public Result ReorderImages(IReadOnlyList<Guid>? documentIds) => CatalogImageGallery.Reorder(_images, documentIds);
 
     public void Activate() => IsActive = true;
 

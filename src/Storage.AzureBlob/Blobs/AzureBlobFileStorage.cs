@@ -1,72 +1,42 @@
-using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using ClassManager.Storage.Files;
 
 namespace ClassManager.Storage.AzureBlob.Blobs;
 
-internal sealed class AzureBlobFileStorage(BlobContainerClient containerClient, string cacheControl) : IFileStorage, IDisposable
+internal sealed class AzureBlobFileStorage(BlobContainer publicContainer, BlobContainer privateContainer, string cacheControl)
+    : IFileStorage, IDisposable
 {
-    private readonly SemaphoreSlim _containerCreation = new(1, 1);
-    private bool _containerExists;
+    private const string PrivateCacheControl = "private, no-store";
 
-    public async Task<Uri> SaveAsync(FileToStore file, CancellationToken cancellationToken)
+    public async Task SaveAsync(FileToStore file, CancellationToken cancellationToken)
     {
-        await EnsureContainerExistsAsync(cancellationToken);
-        var blobClient = containerClient.GetBlobClient(file.Path);
+        var container = ContainerFor(file.Visibility);
+        await container.EnsureExistsAsync(cancellationToken);
         var uploadOptions = new BlobUploadOptions
         {
-            HttpHeaders = new BlobHttpHeaders { ContentType = file.ContentType, CacheControl = cacheControl },
+            HttpHeaders = new BlobHttpHeaders
+            {
+                ContentType = file.ContentType,
+                CacheControl = file.Visibility == FileVisibility.Public ? cacheControl : PrivateCacheControl,
+            },
         };
-        await blobClient.UploadAsync(BinaryData.FromBytes(file.Content), uploadOptions, cancellationToken);
-
-        return blobClient.Uri;
+        await container.Client.GetBlobClient(file.Path).UploadAsync(BinaryData.FromBytes(file.Content), uploadOptions, cancellationToken);
     }
 
-    public async Task<bool> DeleteAsync(Uri fileUrl, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(string path, FileVisibility visibility, CancellationToken cancellationToken)
     {
-        var path = PathOf(fileUrl);
-        if (path is null)
-        {
-            return false;
-        }
-
-        var response = await containerClient.GetBlobClient(path).DeleteIfExistsAsync(cancellationToken: cancellationToken);
+        var response = await ContainerFor(visibility).Client.GetBlobClient(path).DeleteIfExistsAsync(cancellationToken: cancellationToken);
         return response.Value;
     }
 
-    public void Dispose() => _containerCreation.Dispose();
+    public Uri PublicUrlOf(string path) => publicContainer.Client.GetBlobClient(path).Uri;
 
-    private string? PathOf(Uri fileUrl)
+    public void Dispose()
     {
-        var containerPrefix = containerClient.Uri.AbsoluteUri.TrimEnd(FilePath.Separator) + FilePath.Separator;
-        var fileAddress = fileUrl.AbsoluteUri;
-        if (!fileAddress.StartsWith(containerPrefix, StringComparison.Ordinal) || fileAddress.Length == containerPrefix.Length)
-        {
-            return null;
-        }
-
-        return Uri.UnescapeDataString(fileAddress[containerPrefix.Length..]);
+        publicContainer.Dispose();
+        privateContainer.Dispose();
     }
 
-    private async Task EnsureContainerExistsAsync(CancellationToken cancellationToken)
-    {
-        if (_containerExists)
-        {
-            return;
-        }
-
-        await _containerCreation.WaitAsync(cancellationToken);
-        try
-        {
-            if (!_containerExists)
-            {
-                await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
-                _containerExists = true;
-            }
-        }
-        finally
-        {
-            _containerCreation.Release();
-        }
-    }
+    private BlobContainer ContainerFor(FileVisibility visibility) =>
+        visibility == FileVisibility.Public ? publicContainer : privateContainer;
 }

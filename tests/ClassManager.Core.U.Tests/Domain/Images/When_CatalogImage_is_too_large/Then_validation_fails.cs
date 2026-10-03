@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         byte[] oversizedImage = [.. CatalogImageSamples.Png, .. new byte[CatalogImage.MaximumSizeInBytes]];
 
-        var image = CatalogImage.Create(oversizedImage);
+        var image = CatalogImage.Validate(oversizedImage);
 
         image.Error!.Code.ShouldBe(ImageErrorCodes.TooLarge);
     }

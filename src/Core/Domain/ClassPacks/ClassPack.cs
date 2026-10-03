@@ -1,12 +1,13 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.Documents;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Images;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.ClassPacks;
 
-public sealed class ClassPack : ITenantOwned, IHasCatalogImage
+public sealed class ClassPack : ITenantOwned, IHasCatalogImages
 {
     public const int NameMinLength = 2;
     public const int NameMaxLength = 60;
@@ -23,6 +24,7 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImage
     private const string MaterialUrlMessage = "The material link must be an https address of at most 500 characters.";
 
     private readonly List<ClassPackClassGroup> _classGroups = [];
+    private readonly List<ClassPackImage> _images = [];
 
     private ClassPack()
     {
@@ -36,9 +38,11 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImage
     public int? ValidityMonths { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
     public string? MaterialUrl { get; private set; }
-    public string? ImageUrl { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public IReadOnlyList<ClassPackImage> Images => _images;
+    public IReadOnlyList<Document> ImagesInOrder => CatalogImageGallery.InOrder(_images);
+    public int ImageCount => _images.Count;
     public IReadOnlyList<ClassPackClassGroup> ClassGroups => _classGroups;
     public IReadOnlyList<Guid> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
 
@@ -120,9 +124,11 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImage
 
     public bool CoversClassGroup(Guid classGroupId) => _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId);
 
-    public void ChangeImage(Uri imageUrl) => ImageUrl = imageUrl.AbsoluteUri;
+    public void AddImage(Document document) => _images.Add(ClassPackImage.Create(Id, document, _images.Count));
 
-    public void RemoveImage() => ImageUrl = null;
+    public Document? RemoveImage(Guid documentId) => CatalogImageGallery.Remove(_images, documentId);
+
+    public Result ReorderImages(IReadOnlyList<Guid>? documentIds) => CatalogImageGallery.Reorder(_images, documentIds);
 
     public void Activate() => IsActive = true;
 

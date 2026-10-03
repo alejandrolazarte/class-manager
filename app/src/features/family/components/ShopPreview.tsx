@@ -42,7 +42,7 @@ export function ShopPreview({ shop, onSeeAll, onOpenProduct }: ShopPreviewProps)
             accessibilityLabel={product.name}
             onPress={() => onOpenProduct(product.id)}
           >
-            <ProductPhoto imageUrl={product.imageUrl} heightClassName="h-[120px]" />
+            <ProductPhoto imageUrl={product.images[0]?.url ?? null} heightClassName="h-[120px]" />
             <View className="gap-0.5 px-3 pb-3 pt-2.5">
               <AppText variant="bodyStrong" numberOfLines={1}>
                 {product.name}

@@ -25,7 +25,7 @@ export function ProductListItem({ product, onPress }: ProductListItemProps) {
         accessibilityLabel={product.name}
         className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
       >
-        <CatalogThumbnail imageUrl={product.imageUrl} placeholderIcon="products" />
+        <CatalogThumbnail imageUrl={product.images[0]?.url ?? null} placeholderIcon="products" />
         <View className="flex-1 gap-1">
           <AppText variant="bodyStrong">{product.name}</AppText>
           <AppText variant="caption" tone="subtle">

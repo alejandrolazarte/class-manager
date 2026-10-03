@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { pickCatalogImage } from "@/features/catalogImages/pickCatalogImage";
-import { createProduct, uploadProductImage } from "@/features/products/productsApi";
+import { createProduct, addProductImage } from "@/features/products/productsApi";
 import { ProductFormScreen } from "@/features/products/screens/ProductFormScreen";
 import { translate } from "@/i18n/translate";
 import { buildPickedImage } from "@/testing/catalogImageFactory";
@@ -17,7 +17,7 @@ describe("When product photo cannot be uploaded", () => {
   beforeEach(() => {
     jest.mocked(pickCatalogImage).mockResolvedValue(buildPickedImage());
     jest.mocked(createProduct).mockResolvedValue(buildProduct());
-    jest.mocked(uploadProductImage).mockRejectedValue(new Error("network"));
+    jest.mocked(addProductImage).mockRejectedValue(new Error("network"));
   });
 
   it("Then the product is saved with a warning", async () => {
@@ -25,7 +25,7 @@ describe("When product photo cannot be uploaded", () => {
 
     await fireEvent.changeText(screen.getByLabelText(translate("products.form.name")), "Malla");
     await fireEvent.changeText(screen.getByLabelText(translate("products.form.price")), "35");
-    await fireEvent.press(screen.getByRole("button", { name: translate("catalogImages.upload") }));
+    await fireEvent.press(screen.getByRole("button", { name: translate("catalogImages.add") }));
     await screen.findByTestId("catalog-image");
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 

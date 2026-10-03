@@ -3,14 +3,16 @@ import {
   applyCatalogImageDraft,
   CatalogImageDraft,
 } from "@/features/catalogImages/catalogImageDraft";
+import { CatalogImage } from "@/features/catalogImages/types";
 import { productQueryKeys } from "@/features/products/productQueryKeys";
 import {
+  addProductImage,
   createProduct,
   recordStockMovement,
   removeProductImage,
+  reorderProductImages,
   setProductActive,
   updateProduct,
-  uploadProductImage,
 } from "@/features/products/productsApi";
 import { RecordStockMovementRequest, SaveProductRequest } from "@/features/products/types";
 
@@ -28,21 +30,22 @@ export function useSaveProduct() {
   });
 }
 
-export function useApplyProductImage() {
+export function useApplyProductImages() {
   const invalidate = useInvalidateProducts();
   return useMutation({
     mutationFn: ({
       productId,
       draft,
-      hadImage,
+      savedImages,
     }: {
       productId: string;
       draft: CatalogImageDraft;
-      hadImage: boolean;
+      savedImages: CatalogImage[];
     }) =>
-      applyCatalogImageDraft(draft, productId, hadImage, {
-        upload: uploadProductImage,
+      applyCatalogImageDraft(draft, productId, savedImages, {
+        add: addProductImage,
         remove: removeProductImage,
+        reorder: reorderProductImages,
       }),
     onSettled: invalidate,
   });

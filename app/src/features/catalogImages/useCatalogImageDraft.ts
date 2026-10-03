@@ -1,26 +1,26 @@
-import { useState } from "react";
-import {
-  CatalogImageDraft,
-  previewUriOf,
-  unchangedCatalogImage,
-} from "@/features/catalogImages/catalogImageDraft";
+import { useRef, useState } from "react";
+import { CatalogImageDraft, draftFrom } from "@/features/catalogImages/catalogImageDraft";
 import {
   catalogImageMaximumSizeInBytes,
   pickCatalogImage,
 } from "@/features/catalogImages/pickCatalogImage";
+import { CatalogImage } from "@/features/catalogImages/types";
 import { translate } from "@/i18n/translate";
 
 export interface CatalogImageDraftState {
   draft: CatalogImageDraft;
-  previewUri: string | null;
   errorMessage: string | null;
   pick: () => Promise<void>;
-  remove: () => void;
+  remove: (key: string) => void;
+  makeMain: (key: string) => void;
 }
 
-export function useCatalogImageDraft(currentImageUrl: string | null): CatalogImageDraftState {
-  const [draft, setDraft] = useState<CatalogImageDraft>(unchangedCatalogImage);
+const newImageKeyPrefix = "new-";
+
+export function useCatalogImageDraft(savedImages: CatalogImage[]): CatalogImageDraftState {
+  const [draft, setDraft] = useState<CatalogImageDraft>(() => draftFrom(savedImages));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const nextNewImageNumber = useRef(0);
 
   const pick = async () => {
     setErrorMessage(null);
@@ -32,13 +32,33 @@ export function useCatalogImageDraft(currentImageUrl: string | null): CatalogIma
       setErrorMessage(translate("catalogImages.tooLarge"));
       return;
     }
-    setDraft({ kind: "replaced", file });
+    nextNewImageNumber.current += 1;
+    const key = `${newImageKeyPrefix}${nextNewImageNumber.current}`;
+    setDraft((current) => ({ ...current, items: [...current.items, { kind: "new", key, file }] }));
   };
 
-  const remove = () => {
+  const remove = (key: string) => {
     setErrorMessage(null);
-    setDraft({ kind: "removed" });
+    setDraft((current) => {
+      const removedItem = current.items.find((item) => item.key === key);
+      return {
+        items: current.items.filter((item) => item.key !== key),
+        removedIds:
+          removedItem?.kind === "stored"
+            ? [...current.removedIds, removedItem.image.id]
+            : current.removedIds,
+      };
+    });
   };
 
-  return { draft, previewUri: previewUriOf(draft, currentImageUrl), errorMessage, pick, remove };
+  const makeMain = (key: string) => {
+    setDraft((current) => {
+      const mainItem = current.items.find((item) => item.key === key);
+      return mainItem === undefined
+        ? current
+        : { ...current, items: [mainItem, ...current.items.filter((item) => item.key !== key)] };
+    });
+  };
+
+  return { draft, errorMessage, pick, remove, makeMain };
 }

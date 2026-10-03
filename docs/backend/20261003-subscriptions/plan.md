@@ -166,6 +166,7 @@ The daily core — students, families, class groups, enrollments, attendance, mo
 | `family-app` (family accounts, avisos) | | | | ✓ | ✓ | yes |
 | `shop` (products and orders) | | | | ✓ | ✓ | yes |
 | `brand` (brand theme, logo, theme lock) | | | | ✓ | ✓ | yes |
+| `catalog-photos` (photos per product or class pack, see [storage](../../storage.md)) | yes | 1 | 5 | 5 | 5 | yes, raises the limit |
 | Future paid features (online payments, reports, …) | | | | | | yes, priced |
 
 ## Library or part of Core?

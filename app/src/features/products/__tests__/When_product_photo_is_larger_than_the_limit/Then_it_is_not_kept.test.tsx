@@ -24,7 +24,7 @@ describe("When product photo is larger than the limit", () => {
   it("Then it is not kept", async () => {
     await renderWithProviders(<ProductFormScreen />);
 
-    await fireEvent.press(screen.getByRole("button", { name: translate("catalogImages.upload") }));
+    await fireEvent.press(screen.getByRole("button", { name: translate("catalogImages.add") }));
 
     expect(await screen.findByText(translate("catalogImages.tooLarge"))).toBeTruthy();
     expect(screen.queryByTestId("catalog-image")).toBeNull();

@@ -117,7 +117,7 @@ export function buildFamilyShop(overrides: Partial<FamilyShop> = {}): FamilyShop
         classCount: 8,
         price: 120,
         validityMonths: 2,
-        imageUrl: null,
+        images: [],
       },
     ],
     products: [
@@ -130,7 +130,7 @@ export function buildFamilyShop(overrides: Partial<FamilyShop> = {}): FamilyShop
           { id: "variant-s", name: "S", availability: "Available" },
           { id: "variant-m", name: "M", availability: "SoldOut" },
         ],
-        imageUrl: null,
+        images: [],
       },
     ],
     deliveryClasses: [

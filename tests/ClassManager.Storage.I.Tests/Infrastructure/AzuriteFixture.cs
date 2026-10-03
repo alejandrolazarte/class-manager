@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using ClassManager.Storage.AzureBlob.Blobs;
 using ClassManager.Storage.AzureBlob.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,17 +30,20 @@ public sealed class AzuriteFixture : IAsyncLifetime
         await _container.DisposeAsync();
     }
 
-    public IFileStorage CreateStorage(string? connectionString = null)
+    public StorageUnderTest CreateStorage(string? connectionString = null)
     {
+        var privateContainerName = $"private-{Guid.NewGuid():N}";
         var settings = new Dictionary<string, string?>
         {
             [$"{ConnectionStringsSection}:{BlobStorageOptions.ConnectionStringName}"] = connectionString ?? _container.GetConnectionString(),
-            [$"{BlobStorageOptions.SectionName}:{nameof(BlobStorageOptions.ContainerName)}"] = $"files-{Guid.NewGuid():N}",
+            [$"{BlobStorageOptions.SectionName}:{nameof(BlobStorageOptions.PublicContainerName)}"] = $"public-{Guid.NewGuid():N}",
+            [$"{BlobStorageOptions.SectionName}:{nameof(BlobStorageOptions.PrivateContainerName)}"] = privateContainerName,
         };
         var services = new ServiceCollection()
             .AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection(settings).Build())
             .AddAzureBlobFileStorage();
+        var files = services.BuildServiceProvider().GetRequiredService<IFileStorage>();
 
-        return services.BuildServiceProvider().GetRequiredService<IFileStorage>();
+        return new StorageUnderTest(files, new BlobServiceClient(_container.GetConnectionString()), privateContainerName);
     }
 }

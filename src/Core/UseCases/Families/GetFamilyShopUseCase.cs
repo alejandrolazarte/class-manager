@@ -1,8 +1,10 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Core.UseCases.Images;
 using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.Families;
@@ -18,7 +20,8 @@ public sealed class GetFamilyShopUseCase(
     IStudentRepository studentRepository,
     IEnrollmentRepository enrollmentRepository,
     IClassGroupRepository classGroupRepository,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IDocumentStorageService documentStorage)
     : IUseCase<GetFamilyShopQuery, FamilyShopResponse>
 {
     public async Task<Result<FamilyShopResponse>> ExecuteAsync(GetFamilyShopQuery command, CancellationToken cancellationToken)
@@ -43,7 +46,7 @@ public sealed class GetFamilyShopUseCase(
 
         return new FamilyShopResponse(
             business.CurrencyCode,
-            [.. packs.Select(pack => new FamilyShopPackResponse(pack.Id, pack.Name, pack.ClassCount, pack.Price, pack.ValidityMonths, pack.ImageUrl))],
+            [.. packs.Select(pack => new FamilyShopPackResponse(pack.Id, pack.Name, pack.ClassCount, pack.Price, pack.ValidityMonths, CatalogImageResponse.ListFrom(pack.ImagesInOrder, documentStorage)))],
             [
                 .. products.Select(product => new FamilyShopProductResponse(
                     product.Id,
@@ -59,7 +62,7 @@ public sealed class GetFamilyShopUseCase(
                                 variant.Name,
                                 StockRules.AvailabilityOf(product, stockByVariant.GetValueOrDefault(variant.Id)))),
                     ],
-                    product.ImageUrl)),
+                    CatalogImageResponse.ListFrom(product.ImagesInOrder, documentStorage))),
             ],
             deliveryClasses);
     }

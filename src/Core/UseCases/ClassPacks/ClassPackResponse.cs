@@ -1,4 +1,6 @@
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Domain.ClassPacks;
+using ClassManager.Core.UseCases.Images;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
@@ -12,9 +14,9 @@ public sealed record ClassPackResponse(
     int? ClassDurationMinutes,
     string? MaterialUrl,
     IReadOnlyList<Guid> ClassGroupIds,
-    string? ImageUrl)
+    IReadOnlyList<CatalogImageResponse> Images)
 {
-    public static ClassPackResponse From(ClassPack classPack) =>
+    public static ClassPackResponse From(ClassPack classPack, IDocumentStorageService documentStorage) =>
         new(
             classPack.Id,
             classPack.Name,
@@ -25,5 +27,5 @@ public sealed record ClassPackResponse(
             classPack.ClassDurationMinutes,
             classPack.MaterialUrl,
             classPack.ClassGroupIds,
-            classPack.ImageUrl);
+            CatalogImageResponse.ListFrom(classPack.ImagesInOrder, documentStorage));
 }

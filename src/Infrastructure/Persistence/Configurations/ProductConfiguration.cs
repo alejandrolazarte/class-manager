@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.Images;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ClassManager.Infrastructure.Persistence.Configurations;
@@ -15,14 +14,21 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(product => product.Description).HasMaxLength(Product.DescriptionMaxLength);
         builder.Property(product => product.Price).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Property(product => product.StockMode).HasConversion<string>().HasMaxLength(StockModeMaxLength);
-        builder.Property(product => product.ImageUrl).HasMaxLength(CatalogImage.UrlMaxLength);
         builder.Ignore(product => product.TracksStock);
+        builder.Ignore(product => product.ImagesInOrder);
+        builder.Ignore(product => product.ImageCount);
 
         builder.HasMany(product => product.Variants)
             .WithOne()
             .HasForeignKey(variant => variant.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
         builder.Navigation(product => product.Variants).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(product => product.Images)
+            .WithOne()
+            .HasForeignKey(image => image.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(product => product.Images).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
 
         builder.HasOne<Business>().WithMany().HasForeignKey(product => product.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(product => new { product.TenantId, product.Name }).IsUnique();

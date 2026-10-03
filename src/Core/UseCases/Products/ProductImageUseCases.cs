@@ -1,60 +1,92 @@
+using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
-using ClassManager.Core.Domain.Images;
-using ClassManager.Core.UseCases.Images;
+using ClassManager.Core.Domain.Documents;
+using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record SetProductImageCommand(Guid ProductId, byte[] Content);
+public sealed record AddProductImageCommand(Guid ProductId, byte[] Content);
 
-public sealed record RemoveProductImageCommand(Guid ProductId);
+public sealed record RemoveProductImageCommand(Guid ProductId, Guid DocumentId);
 
-public sealed class SetProductImageUseCase(
+public sealed record ReorderProductImagesCommand(Guid ProductId, IReadOnlyList<Guid>? DocumentIds);
+
+public sealed class AddProductImageUseCase(
     IProductRepository productRepository,
     IStockMovementRepository stockMovementRepository,
-    ICatalogImageService catalogImageService,
-    IUnitOfWork unitOfWork)
-    : IUseCase<SetProductImageCommand, ProductResponse>
+    IDocumentStorageService documentStorage,
+    ICatalogImageService catalogImageService)
+    : IUseCase<AddProductImageCommand, ProductResponse>
 {
-    public async Task<Result<ProductResponse>> ExecuteAsync(SetProductImageCommand command, CancellationToken cancellationToken)
-    {
-        var product = await productRepository.GetForUpdateAsync(command.ProductId, cancellationToken);
-        if (product is null)
-        {
-            return ProductFailures.NotFound();
-        }
-
-        var change = await CatalogImageChanges.ReplaceAsync(
-            product, CatalogImageOwner.Product, command.Content, catalogImageService, unitOfWork, cancellationToken);
-        if (change.IsFailure)
-        {
-            return change.Error!;
-        }
-
-        var stockByVariant = await stockMovementRepository.StockByVariantAsync([.. product.Variants.Select(variant => variant.Id)], cancellationToken);
-        return ProductResponse.From(product, stockByVariant);
-    }
+    public Task<Result<ProductResponse>> ExecuteAsync(AddProductImageCommand command, CancellationToken cancellationToken) =>
+        ProductImageEditing.ChangeAsync(
+            productRepository,
+            stockMovementRepository,
+            documentStorage,
+            command.ProductId,
+            product => catalogImageService.AddAsync(product, DocumentOwner.Product, command.Content, cancellationToken),
+            cancellationToken);
 }
 
 public sealed class RemoveProductImageUseCase(
     IProductRepository productRepository,
     IStockMovementRepository stockMovementRepository,
-    ICatalogImageService catalogImageService,
-    IUnitOfWork unitOfWork)
+    IDocumentStorageService documentStorage,
+    ICatalogImageService catalogImageService)
     : IUseCase<RemoveProductImageCommand, ProductResponse>
 {
-    public async Task<Result<ProductResponse>> ExecuteAsync(RemoveProductImageCommand command, CancellationToken cancellationToken)
+    public Task<Result<ProductResponse>> ExecuteAsync(RemoveProductImageCommand command, CancellationToken cancellationToken) =>
+        ProductImageEditing.ChangeAsync(
+            productRepository,
+            stockMovementRepository,
+            documentStorage,
+            command.ProductId,
+            product => catalogImageService.RemoveAsync(product, command.DocumentId, cancellationToken),
+            cancellationToken);
+}
+
+public sealed class ReorderProductImagesUseCase(
+    IProductRepository productRepository,
+    IStockMovementRepository stockMovementRepository,
+    IDocumentStorageService documentStorage,
+    ICatalogImageService catalogImageService)
+    : IUseCase<ReorderProductImagesCommand, ProductResponse>
+{
+    public Task<Result<ProductResponse>> ExecuteAsync(ReorderProductImagesCommand command, CancellationToken cancellationToken) =>
+        ProductImageEditing.ChangeAsync(
+            productRepository,
+            stockMovementRepository,
+            documentStorage,
+            command.ProductId,
+            product => catalogImageService.ReorderAsync(product, command.DocumentIds, cancellationToken),
+            cancellationToken);
+}
+
+internal static class ProductImageEditing
+{
+    public static async Task<Result<ProductResponse>> ChangeAsync(
+        IProductRepository productRepository,
+        IStockMovementRepository stockMovementRepository,
+        IDocumentStorageService documentStorage,
+        Guid productId,
+        Func<Product, Task<Result>> change,
+        CancellationToken cancellationToken)
     {
-        var product = await productRepository.GetForUpdateAsync(command.ProductId, cancellationToken);
+        var product = await productRepository.GetForUpdateAsync(productId, cancellationToken);
         if (product is null)
         {
             return ProductFailures.NotFound();
         }
 
-        await CatalogImageChanges.RemoveAsync(product, catalogImageService, unitOfWork, cancellationToken);
+        var result = await change(product);
+        if (result.IsFailure)
+        {
+            return result.Error!;
+        }
 
         var stockByVariant = await stockMovementRepository.StockByVariantAsync([.. product.Variants.Select(variant => variant.Id)], cancellationToken);
-        return ProductResponse.From(product, stockByVariant);
+        return ProductResponse.From(product, stockByVariant, documentStorage);
     }
 }

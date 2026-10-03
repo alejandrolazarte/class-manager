@@ -10,7 +10,8 @@ import {
 const productsPath = "/api/products";
 const activeSegment = "active";
 const stockSegment = "stock";
-const imageSegment = "image";
+const imagesSegment = "images";
+const imagesOrderSegment = "images/order";
 const stockMovementsSegment = "stock-movements";
 const includeInactiveParameters = { includeInactive: "true" };
 
@@ -36,12 +37,23 @@ export function setProductActive(productId: string, isActive: boolean): Promise<
   return httpClient.put<Product>(`${productPath(productId)}/${activeSegment}`, { isActive });
 }
 
-export function uploadProductImage(productId: string, file: PickedFile): Promise<Product> {
-  return httpClient.putForm<Product>(`${productPath(productId)}/${imageSegment}`, toFileForm(file));
+export function addProductImage(productId: string, file: PickedFile): Promise<Product> {
+  return httpClient.postForm<Product>(
+    `${productPath(productId)}/${imagesSegment}`,
+    toFileForm(file),
+  );
 }
 
-export function removeProductImage(productId: string): Promise<Product> {
-  return httpClient.delete<Product>(`${productPath(productId)}/${imageSegment}`);
+export function removeProductImage(productId: string, imageId: string): Promise<Product> {
+  return httpClient.delete<Product>(
+    `${productPath(productId)}/${imagesSegment}/${encodeURIComponent(imageId)}`,
+  );
+}
+
+export function reorderProductImages(productId: string, imageIds: string[]): Promise<Product> {
+  return httpClient.put<Product>(`${productPath(productId)}/${imagesOrderSegment}`, {
+    documentIds: imageIds,
+  });
 }
 
 export function recordStockMovement(

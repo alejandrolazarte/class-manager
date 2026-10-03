@@ -18,6 +18,7 @@ interface PackCardProps {
 const detailSeparator = " · ";
 
 export function PackCard({ pack, currencyCode, isInCart, onToggle }: PackCardProps) {
+  const mainImage = pack.images[0];
   const actionLabel = translate(isInCart ? "family.shop.removePack" : "family.shop.addPack");
   const details = [
     formatMoney(pack.price, currencyCode),
@@ -30,11 +31,11 @@ export function PackCard({ pack, currencyCode, isInCart, onToggle }: PackCardPro
   ];
   return (
     <Card className="w-[172px] gap-2 p-3.5">
-      {pack.imageUrl === null ? (
+      {mainImage === undefined ? (
         <Icon name="classPacks" tone="primary" />
       ) : (
         <CatalogImage
-          imageUri={pack.imageUrl}
+          imageUri={mainImage.url}
           placeholderIcon="classPacks"
           className="h-[96px] w-full rounded-2xl"
         />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
+import { catalogImageSaveMessageKey } from "@/features/catalogImages/catalogImageSaveMessage";
 import { CatalogImageField } from "@/features/catalogImages/components/CatalogImageField";
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
 import { StockPanel } from "@/features/products/components/StockPanel";
@@ -17,7 +18,7 @@ import {
 } from "@/features/products/productSchema";
 import { Product, stockModes } from "@/features/products/types";
 import {
-  useApplyProductImage,
+  useApplyProductImages,
   useSaveProduct,
   useSetProductActive,
 } from "@/features/products/useProductMutations";
@@ -56,8 +57,8 @@ function ProductEditor({ product }: ProductEditorProps) {
   const { showToast } = useToast();
   const saveProductMutation = useSaveProduct();
   const setProductActiveMutation = useSetProductActive();
-  const applyProductImageMutation = useApplyProductImage();
-  const image = useCatalogImageDraft(product?.imageUrl ?? null);
+  const applyProductImagesMutation = useApplyProductImages();
+  const images = useCatalogImageDraft(product?.images ?? []);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -72,10 +73,12 @@ function ProductEditor({ product }: ProductEditorProps) {
         productId: product?.id,
         request: toSaveProductRequest(formValues, product),
       });
-      const isImageSaved = await saveImage(savedProduct.id);
-      showToast(
-        translate(isImageSaved ? "products.form.saved" : "catalogImages.savedWithoutPhoto"),
-      );
+      const imagesOutcome = await applyProductImagesMutation.mutateAsync({
+        productId: savedProduct.id,
+        draft: images.draft,
+        savedImages: savedProduct.images,
+      });
+      showToast(translate(catalogImageSaveMessageKey(imagesOutcome, "products.form.saved")));
       router.back();
     } catch (saveError) {
       if (isApiError(saveError) && saveError.hasCode(productErrorCodes.nameTaken)) {
@@ -94,19 +97,6 @@ function ProductEditor({ product }: ProductEditorProps) {
       }
     }
   });
-
-  const saveImage = async (productId: string): Promise<boolean> => {
-    try {
-      await applyProductImageMutation.mutateAsync({
-        productId,
-        draft: image.draft,
-        hadImage: product?.imageUrl != null,
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  };
 
   const toggleActive = async () => {
     if (product === undefined) {
@@ -159,7 +149,7 @@ function ProductEditor({ product }: ProductEditorProps) {
         placeholderKey: "products.form.variantsPlaceholder",
       })}
       {renderField({ name: "description", labelKey: "products.form.description" })}
-      <CatalogImageField image={image} placeholderIcon="products" />
+      <CatalogImageField images={images} placeholderIcon="products" />
       <Controller
         control={form.control}
         name="stockMode"
@@ -199,7 +189,7 @@ function ProductEditor({ product }: ProductEditorProps) {
         <Button
           label={translate("common.save")}
           onPress={save}
-          isLoading={saveProductMutation.isPending || applyProductImageMutation.isPending}
+          isLoading={saveProductMutation.isPending || applyProductImagesMutation.isPending}
         />
         {product ? (
           <Button

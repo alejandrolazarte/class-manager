@@ -1,3 +1,4 @@
+import { CatalogImage } from "@/features/catalogImages/types";
 export type StockMode = "Unlimited" | "Tracked" | "TrackedWithBackorder";
 
 export const stockModes: readonly StockMode[] = ["Tracked", "TrackedWithBackorder", "Unlimited"];
@@ -17,7 +18,7 @@ export interface Product {
   isVisibleInApp: boolean;
   isActive: boolean;
   variants: ProductVariant[];
-  imageUrl: string | null;
+  images: CatalogImage[];
 }
 
 export interface VariantChange {

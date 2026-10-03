@@ -1,56 +1,84 @@
+using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
-using ClassManager.Core.Domain.Images;
-using ClassManager.Core.UseCases.Images;
+using ClassManager.Core.Domain.ClassPacks;
+using ClassManager.Core.Domain.Documents;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record SetClassPackImageCommand(Guid ClassPackId, byte[] Content);
+public sealed record AddClassPackImageCommand(Guid ClassPackId, byte[] Content);
 
-public sealed record RemoveClassPackImageCommand(Guid ClassPackId);
+public sealed record RemoveClassPackImageCommand(Guid ClassPackId, Guid DocumentId);
 
-public sealed class SetClassPackImageUseCase(
+public sealed record ReorderClassPackImagesCommand(Guid ClassPackId, IReadOnlyList<Guid>? DocumentIds);
+
+public sealed class AddClassPackImageUseCase(
     IClassPackRepository classPackRepository,
-    ICatalogImageService catalogImageService,
-    IUnitOfWork unitOfWork)
-    : IUseCase<SetClassPackImageCommand, ClassPackResponse>
+    IDocumentStorageService documentStorage,
+    ICatalogImageService catalogImageService)
+    : IUseCase<AddClassPackImageCommand, ClassPackResponse>
 {
-    public async Task<Result<ClassPackResponse>> ExecuteAsync(SetClassPackImageCommand command, CancellationToken cancellationToken)
-    {
-        var classPack = await classPackRepository.GetForUpdateAsync(command.ClassPackId, cancellationToken);
-        if (classPack is null)
-        {
-            return ClassPackFailures.NotFound();
-        }
-
-        var change = await CatalogImageChanges.ReplaceAsync(
-            classPack, CatalogImageOwner.ClassPack, command.Content, catalogImageService, unitOfWork, cancellationToken);
-        if (change.IsFailure)
-        {
-            return change.Error!;
-        }
-
-        return ClassPackResponse.From(classPack);
-    }
+    public Task<Result<ClassPackResponse>> ExecuteAsync(AddClassPackImageCommand command, CancellationToken cancellationToken) =>
+        ClassPackImageEditing.ChangeAsync(
+            classPackRepository,
+            documentStorage,
+            command.ClassPackId,
+            classPack => catalogImageService.AddAsync(classPack, DocumentOwner.ClassPack, command.Content, cancellationToken),
+            cancellationToken);
 }
 
 public sealed class RemoveClassPackImageUseCase(
     IClassPackRepository classPackRepository,
-    ICatalogImageService catalogImageService,
-    IUnitOfWork unitOfWork)
+    IDocumentStorageService documentStorage,
+    ICatalogImageService catalogImageService)
     : IUseCase<RemoveClassPackImageCommand, ClassPackResponse>
 {
-    public async Task<Result<ClassPackResponse>> ExecuteAsync(RemoveClassPackImageCommand command, CancellationToken cancellationToken)
+    public Task<Result<ClassPackResponse>> ExecuteAsync(RemoveClassPackImageCommand command, CancellationToken cancellationToken) =>
+        ClassPackImageEditing.ChangeAsync(
+            classPackRepository,
+            documentStorage,
+            command.ClassPackId,
+            classPack => catalogImageService.RemoveAsync(classPack, command.DocumentId, cancellationToken),
+            cancellationToken);
+}
+
+public sealed class ReorderClassPackImagesUseCase(
+    IClassPackRepository classPackRepository,
+    IDocumentStorageService documentStorage,
+    ICatalogImageService catalogImageService)
+    : IUseCase<ReorderClassPackImagesCommand, ClassPackResponse>
+{
+    public Task<Result<ClassPackResponse>> ExecuteAsync(ReorderClassPackImagesCommand command, CancellationToken cancellationToken) =>
+        ClassPackImageEditing.ChangeAsync(
+            classPackRepository,
+            documentStorage,
+            command.ClassPackId,
+            classPack => catalogImageService.ReorderAsync(classPack, command.DocumentIds, cancellationToken),
+            cancellationToken);
+}
+
+internal static class ClassPackImageEditing
+{
+    public static async Task<Result<ClassPackResponse>> ChangeAsync(
+        IClassPackRepository classPackRepository,
+        IDocumentStorageService documentStorage,
+        Guid classPackId,
+        Func<ClassPack, Task<Result>> change,
+        CancellationToken cancellationToken)
     {
-        var classPack = await classPackRepository.GetForUpdateAsync(command.ClassPackId, cancellationToken);
+        var classPack = await classPackRepository.GetForUpdateAsync(classPackId, cancellationToken);
         if (classPack is null)
         {
             return ClassPackFailures.NotFound();
         }
 
-        await CatalogImageChanges.RemoveAsync(classPack, catalogImageService, unitOfWork, cancellationToken);
+        var result = await change(classPack);
+        if (result.IsFailure)
+        {
+            return result.Error!;
+        }
 
-        return ClassPackResponse.From(classPack);
+        return ClassPackResponse.From(classPack, documentStorage);
     }
 }

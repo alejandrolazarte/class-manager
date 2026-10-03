@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Products;
@@ -8,7 +9,8 @@ public sealed record SetProductActiveCommand(Guid ProductId, bool IsActive);
 public sealed class SetProductActiveUseCase(
     IProductRepository productRepository,
     IStockMovementRepository stockMovementRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IDocumentStorageService documentStorage)
     : IUseCase<SetProductActiveCommand, ProductResponse>
 {
     public async Task<Result<ProductResponse>> ExecuteAsync(SetProductActiveCommand command, CancellationToken cancellationToken)
@@ -31,6 +33,6 @@ public sealed class SetProductActiveUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var stockByVariant = await stockMovementRepository.StockByVariantAsync([.. product.Variants.Select(variant => variant.Id)], cancellationToken);
-        return ProductResponse.From(product, stockByVariant);
+        return ProductResponse.From(product, stockByVariant, documentStorage);
     }
 }

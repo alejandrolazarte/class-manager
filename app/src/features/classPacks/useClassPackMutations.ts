@@ -3,15 +3,17 @@ import {
   applyCatalogImageDraft,
   CatalogImageDraft,
 } from "@/features/catalogImages/catalogImageDraft";
+import { CatalogImage } from "@/features/catalogImages/types";
 import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import {
+  addClassPackImage,
   createClassPack,
   deleteClassPackPurchase,
   removeClassPackImage,
+  reorderClassPackImages,
   sellClassPack,
   setClassPackActive,
   updateClassPack,
-  uploadClassPackImage,
 } from "@/features/classPacks/classPacksApi";
 import { SaveClassPackRequest, SellClassPackRequest } from "@/features/classPacks/types";
 import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
@@ -41,21 +43,22 @@ export function useSaveClassPack() {
   });
 }
 
-export function useApplyClassPackImage() {
+export function useApplyClassPackImages() {
   const invalidate = useInvalidateClassPacksAndFees();
   return useMutation({
     mutationFn: ({
       classPackId,
       draft,
-      hadImage,
+      savedImages,
     }: {
       classPackId: string;
       draft: CatalogImageDraft;
-      hadImage: boolean;
+      savedImages: CatalogImage[];
     }) =>
-      applyCatalogImageDraft(draft, classPackId, hadImage, {
-        upload: uploadClassPackImage,
+      applyCatalogImageDraft(draft, classPackId, savedImages, {
+        add: addClassPackImage,
         remove: removeClassPackImage,
+        reorder: reorderClassPackImages,
       }),
     onSettled: invalidate,
   });

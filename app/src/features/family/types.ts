@@ -1,3 +1,4 @@
+import { CatalogImage } from "@/features/catalogImages/types";
 import { FeeStatus } from "@/features/fees/types";
 
 export interface FamilyNextClass {
@@ -135,7 +136,7 @@ export interface FamilyShopPack {
   classCount: number;
   price: number;
   validityMonths: number | null;
-  imageUrl: string | null;
+  images: CatalogImage[];
 }
 
 export interface FamilyShopVariant {
@@ -150,7 +151,7 @@ export interface FamilyShopProduct {
   description: string | null;
   price: number;
   variants: FamilyShopVariant[];
-  imageUrl: string | null;
+  images: CatalogImage[];
 }
 
 export type DeliveryMethod = "Pickup" | "InClass";

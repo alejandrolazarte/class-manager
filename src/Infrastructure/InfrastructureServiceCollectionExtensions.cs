@@ -119,7 +119,8 @@ public static class InfrastructureServiceCollectionExtensions
     private static IServiceCollection AddCatalogImages(this IServiceCollection services)
     {
         services.AddAzureBlobFileStorage();
-        services.AddScoped<ICatalogImageService, CatalogImageService>();
+        services.AddScoped<IDocumentRepository, DocumentRepository>();
+        services.AddScoped<IDocumentStorageService, DocumentStorageService>();
 
         return services;
     }

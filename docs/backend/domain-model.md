@@ -220,7 +220,6 @@ An item of the business's catalog: "Clase suelta" (1 class), "4 clases", "8 clas
 | `ClassCount` | `int` | 1–100 |
 | `Price` | `decimal` | Same rule as payments |
 | `ValidityMonths` | `int?` | 1–24; `null` means the classes never expire |
-| `ImageUrl` | `string?` | Public URL of the photo in Blob Storage, up to 500 characters; set and removed through its own endpoint (see [storage](../storage.md)) |
 | `IsActive` | `bool` | Inactive packs can't be sold |
 
 ### ClassPackPurchase (added in M6)
@@ -248,8 +247,9 @@ Anything a branch sells besides classes: caps, swimsuits, brand merchandise.
 | `Price` | `decimal` | VAT included; same rule as payments |
 | `StockMode` | `StockMode` | `Unlimited` (no stock kept), `Tracked` (can't sell more than the stock) or `TrackedWithBackorder` (stock counted, can go below 0) |
 | `IsVisibleInApp` | `bool` | Shown in the family app (step 3) or only at the counter |
-| `ImageUrl` | `string?` | Public URL of the photo in Blob Storage, up to 500 characters; set and removed through its own endpoint (see [storage](../storage.md)) |
 | `IsActive` | `bool` | Inactive products can't be sold |
+
+A product and a class pack have an ordered list of **photos** (`ProductImage`, `ClassPackImage`: owner, `DocumentId`, `Position`); the first is the main photo. How many is a plan limit (`catalog-photos`). See [Document](#document-added-with-catalog-photos).
 
 A product has 1–20 **variants** (sizes or colors, names up to 30 characters, unique per product ignoring case). A product without sizes has one unnamed variant. Removing a size deactivates it, so its history stays.
 
@@ -347,3 +347,17 @@ Core/Abstractions/Persistence/
   IBusinessMemberRepository.cs
   IUnitOfWork.cs         → Task SaveChangesAsync(CancellationToken)
 ```
+
+### Document (added with catalog photos)
+
+A file stored in Blob Storage. Rows keep the path, never the file. See [storage](../storage.md).
+
+| Property | Type | Rules |
+|---|---|---|
+| `Path` | `string` | `<tenantId>/<products\|class-packs>/<ownerId>/<documentId>.<extension>`, up to 300 characters |
+| `ContentType` | `string` | Detected from the file's first bytes |
+| `SizeInBytes` | `long` | For storage usage per business |
+| `Visibility` | `DocumentVisibility` | `Public` (shop photos, served by URL) or `Private` (not used yet; would be served with short-lived signed links) |
+| `CreatedAt` | `DateTimeOffset` | |
+
+Owners point to documents through link tables with real foreign keys (`ProductImages`, `ClassPackImages`), not through a generic owner type and id. A new kind of owner is a new link table.

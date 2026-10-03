@@ -7,10 +7,9 @@ public sealed class Then_false_is_returned(AzuriteFixture fixture)
     public async Task Then_false_is_returned_Run()
     {
         var storage = fixture.CreateStorage();
-        var fileUrl = await storage.SaveAsync(FileSamples.PngAt("photo.png"), CancellationToken.None);
-        var missingFileUrl = new Uri(fileUrl, "missing.png");
+        await storage.Files.SaveAsync(FileSamples.PublicPngAt("photo.png"), CancellationToken.None);
 
-        var deleted = await storage.DeleteAsync(missingFileUrl, CancellationToken.None);
+        var deleted = await storage.Files.DeleteAsync("missing.png", FileVisibility.Public, CancellationToken.None);
 
         deleted.ShouldBeFalse();
     }

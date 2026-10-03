@@ -11,7 +11,7 @@ export function buildProduct(overrides: Partial<Product> = {}): Product {
     isVisibleInApp: true,
     isActive: true,
     variants: [{ id: "0192f0c4-0000-7000-8000-00000000b0a1", name: "", stock: 3 }],
-    imageUrl: null,
+    images: [],
     ...overrides,
   };
 }

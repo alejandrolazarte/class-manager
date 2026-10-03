@@ -14,6 +14,7 @@ internal static class SubscriptionCatalogSeed
     private const decimal FamilyAppPrice = 5m;
     private const decimal ShopPrice = 5m;
     private const decimal BrandPrice = 5m;
+    private const decimal ExtraCatalogPhotosPrice = 3m;
 
     private const int FreeStudents = 30;
     private const int LiteStudents = 150;
@@ -22,6 +23,8 @@ internal static class SubscriptionCatalogSeed
     private const int FreeTeam = 0;
     private const int LiteTeam = 2;
     private const int ProTeam = 10;
+    private const int FreeCatalogPhotos = 1;
+    private const int PaidCatalogPhotos = 5;
 
     public static ModelBuilder SeedSubscriptionCatalog(this ModelBuilder modelBuilder)
     {
@@ -40,17 +43,20 @@ internal static class SubscriptionCatalogSeed
             Feature.Create(Features.CustomRoles, isCounted: false),
             Feature.CreateAddOn(Features.FamilyApp, isCounted: false, FamilyAppPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.Shop, isCounted: false, ShopPrice, ListPriceCurrency),
-            Feature.CreateAddOn(Features.Brand, isCounted: false, BrandPrice, ListPriceCurrency));
+            Feature.CreateAddOn(Features.Brand, isCounted: false, BrandPrice, ListPriceCurrency),
+            Feature.CreateAddOn(Features.CatalogPhotos, isCounted: true, ExtraCatalogPhotosPrice, ListPriceCurrency));
 
         modelBuilder.Entity<PlanFeature>().HasData(
             PlanFeature.Create(PlanCodes.Free, Features.Students, FreeStudents),
             PlanFeature.Create(PlanCodes.Free, Features.Branches, SingleBranch),
             PlanFeature.Create(PlanCodes.Free, Features.Team, FreeTeam),
+            PlanFeature.Create(PlanCodes.Free, Features.CatalogPhotos, FreeCatalogPhotos),
             PlanFeature.Create(PlanCodes.Lite, Features.Students, LiteStudents),
             PlanFeature.Create(PlanCodes.Lite, Features.Branches, SingleBranch),
             PlanFeature.Create(PlanCodes.Lite, Features.Team, LiteTeam),
             PlanFeature.Create(PlanCodes.Lite, Features.ClassPacks),
             PlanFeature.Create(PlanCodes.Lite, Features.ImportExport),
+            PlanFeature.Create(PlanCodes.Lite, Features.CatalogPhotos, PaidCatalogPhotos),
             PlanFeature.Create(PlanCodes.Pro, Features.Students),
             PlanFeature.Create(PlanCodes.Pro, Features.Branches, ProBranches),
             PlanFeature.Create(PlanCodes.Pro, Features.Team, ProTeam),
@@ -60,6 +66,7 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Pro, Features.FamilyApp),
             PlanFeature.Create(PlanCodes.Pro, Features.Shop),
             PlanFeature.Create(PlanCodes.Pro, Features.Brand),
+            PlanFeature.Create(PlanCodes.Pro, Features.CatalogPhotos, PaidCatalogPhotos),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Students),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Branches),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Team),
@@ -68,7 +75,8 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Enterprise, Features.CustomRoles),
             PlanFeature.Create(PlanCodes.Enterprise, Features.FamilyApp),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Shop),
-            PlanFeature.Create(PlanCodes.Enterprise, Features.Brand));
+            PlanFeature.Create(PlanCodes.Enterprise, Features.Brand),
+            PlanFeature.Create(PlanCodes.Enterprise, Features.CatalogPhotos, PaidCatalogPhotos));
 
         return modelBuilder;
     }

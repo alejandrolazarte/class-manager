@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var image = CatalogImage.Create(CatalogImageSamples.PlainText);
+        var image = CatalogImage.Validate(CatalogImageSamples.PlainText);
 
         image.Error!.Code.ShouldBe(ImageErrorCodes.Unsupported);
     }

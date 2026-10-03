@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using ClassManager.Storage.AzureBlob.Blobs;
 using ClassManager.Storage.Files;
 using Microsoft.Extensions.Configuration;
@@ -9,8 +10,6 @@ namespace ClassManager.Storage.AzureBlob.Hosting;
 
 public static class FileStorageServiceCollectionExtensions
 {
-    private const string MissingConnectionStringMessage = "Connection string 'FileStorage' is not configured.";
-
     public static IServiceCollection AddAzureBlobFileStorage(this IServiceCollection services)
     {
         services.AddOptions<BlobStorageOptions>().BindConfiguration(BlobStorageOptions.SectionName);
@@ -21,11 +20,14 @@ public static class FileStorageServiceCollectionExtensions
             var connectionString = configuration.GetConnectionString(BlobStorageOptions.ConnectionStringName);
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                throw new InvalidOperationException(MissingConnectionStringMessage);
+                return new UnconfiguredFileStorage();
             }
 
-            var containerClient = new BlobServiceClient(connectionString).GetBlobContainerClient(options.ContainerName);
-            return new AzureBlobFileStorage(containerClient, options.CacheControl);
+            var serviceClient = new BlobServiceClient(connectionString);
+            return new AzureBlobFileStorage(
+                new BlobContainer(serviceClient.GetBlobContainerClient(options.PublicContainerName), PublicAccessType.Blob),
+                new BlobContainer(serviceClient.GetBlobContainerClient(options.PrivateContainerName), PublicAccessType.None),
+                options.CacheControl);
         });
 
         return services;

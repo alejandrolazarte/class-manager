@@ -1,6 +1,5 @@
 import { PickedFile } from "@/api/fileForm";
-
-export const catalogImageUrl = "https://files.example.com/public-files/business/products/cap.png";
+import { CatalogImage } from "@/features/catalogImages/types";
 
 export function buildPickedImage(overrides: Partial<PickedFile> = {}): PickedFile {
   return {
@@ -10,4 +9,11 @@ export function buildPickedImage(overrides: Partial<PickedFile> = {}): PickedFil
     size: 120_000,
     ...overrides,
   };
+}
+
+export function buildCatalogImages(count: number): CatalogImage[] {
+  return Array.from({ length: count }, (_, index) => ({
+    id: `image-${index + 1}`,
+    url: `https://files.example.com/public-files/business/products/image-${index + 1}.png`,
+  }));
 }

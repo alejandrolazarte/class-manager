@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
+import { catalogImageSaveMessageKey } from "@/features/catalogImages/catalogImageSaveMessage";
 import { CatalogImageField } from "@/features/catalogImages/components/CatalogImageField";
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
 import { classPackErrorCodes } from "@/features/classPacks/classPackErrorCodes";
@@ -16,7 +17,7 @@ import {
 } from "@/features/classPacks/classPackSchema";
 import { ClassPack } from "@/features/classPacks/types";
 import {
-  useApplyClassPackImage,
+  useApplyClassPackImages,
   useSaveClassPack,
   useSetClassPackActive,
 } from "@/features/classPacks/useClassPackMutations";
@@ -56,8 +57,8 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
   const { showToast } = useToast();
   const saveClassPackMutation = useSaveClassPack();
   const setClassPackActiveMutation = useSetClassPackActive();
-  const applyClassPackImageMutation = useApplyClassPackImage();
-  const image = useCatalogImageDraft(classPack?.imageUrl ?? null);
+  const applyClassPackImagesMutation = useApplyClassPackImages();
+  const images = useCatalogImageDraft(classPack?.images ?? []);
   const { data: classGroups = [] } = useActiveClassGroups();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const form = useForm<ClassPackFormValues>({
@@ -73,10 +74,12 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         classPackId: classPack?.id,
         request: toSaveClassPackRequest(formValues),
       });
-      const isImageSaved = await saveImage(savedClassPack.id);
-      showToast(
-        translate(isImageSaved ? "classPacks.form.saved" : "catalogImages.savedWithoutPhoto"),
-      );
+      const imagesOutcome = await applyClassPackImagesMutation.mutateAsync({
+        classPackId: savedClassPack.id,
+        draft: images.draft,
+        savedImages: savedClassPack.images,
+      });
+      showToast(translate(catalogImageSaveMessageKey(imagesOutcome, "classPacks.form.saved")));
       router.back();
     } catch (saveError) {
       if (isApiError(saveError) && saveError.hasCode(classPackErrorCodes.nameTaken)) {
@@ -95,19 +98,6 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
       }
     }
   });
-
-  const saveImage = async (classPackId: string): Promise<boolean> => {
-    try {
-      await applyClassPackImageMutation.mutateAsync({
-        classPackId,
-        draft: image.draft,
-        hadImage: classPack?.imageUrl != null,
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  };
 
   const toggleActive = async () => {
     if (classPack === undefined) {
@@ -241,12 +231,12 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         placeholderKey: "classPacks.form.materialUrlPlaceholder",
         keyboardType: "url",
       })}
-      <CatalogImageField image={image} placeholderIcon="classPacks" />
+      <CatalogImageField images={images} placeholderIcon="classPacks" />
       <View className="gap-3">
         <Button
           label={translate("common.save")}
           onPress={save}
-          isLoading={saveClassPackMutation.isPending || applyClassPackImageMutation.isPending}
+          isLoading={saveClassPackMutation.isPending || applyClassPackImagesMutation.isPending}
         />
         {classPack ? (
           <Button

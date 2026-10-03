@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
 
@@ -17,7 +18,8 @@ public sealed class RecordStockMovementUseCase(
     IStockMovementRepository stockMovementRepository,
     IUnitOfWork unitOfWork,
     ICurrentMember currentMember,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IDocumentStorageService documentStorage)
     : IUseCase<RecordStockMovementCommand, ProductResponse>
 {
     public async Task<Result<ProductResponse>> ExecuteAsync(RecordStockMovementCommand command, CancellationToken cancellationToken)
@@ -54,6 +56,6 @@ public sealed class RecordStockMovementUseCase(
         stockMovementRepository.Add(movement.Value!);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ProductResponse.From(product, await stockMovementRepository.StockByVariantAsync(variantIds, cancellationToken));
+        return ProductResponse.From(product, await stockMovementRepository.StockByVariantAsync(variantIds, cancellationToken), documentStorage);
     }
 }

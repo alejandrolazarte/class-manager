@@ -345,10 +345,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -397,6 +393,30 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ClassGroupId");
 
                     b.ToTable("ClassPackClassGroups");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackImage", b =>
+                {
+                    b.Property<Guid>("ClassPackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClassPackId", "DocumentId");
+
+                    b.HasIndex("DocumentId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ClassPackImages");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchase", b =>
@@ -604,6 +624,42 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ClientId");
 
                     b.ToTable("ClientInvitations");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Documents.Document", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<long>("SizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Enrollments.Enrollment", b =>
@@ -1197,10 +1253,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -1230,6 +1282,30 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Products.ProductImage", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProductId", "DocumentId");
+
+                    b.HasIndex("DocumentId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Products.ProductVariant", b =>
@@ -1686,6 +1762,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             Currency = "USD",
                             IsAddOn = true,
                             IsCounted = false
+                        },
+                        new
+                        {
+                            Code = "catalog-photos",
+                            AddOnListPrice = 3m,
+                            Currency = "USD",
+                            IsAddOn = true,
+                            IsCounted = true
                         });
                 });
 
@@ -1805,6 +1889,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
+                            PlanCode = "free",
+                            FeatureCode = "catalog-photos",
+                            Limit = 1
+                        },
+                        new
+                        {
                             PlanCode = "lite",
                             FeatureCode = "students",
                             Limit = 150
@@ -1830,6 +1920,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             PlanCode = "lite",
                             FeatureCode = "import-export"
+                        },
+                        new
+                        {
+                            PlanCode = "lite",
+                            FeatureCode = "catalog-photos",
+                            Limit = 5
                         },
                         new
                         {
@@ -1880,6 +1976,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
+                            PlanCode = "pro",
+                            FeatureCode = "catalog-photos",
+                            Limit = 5
+                        },
+                        new
+                        {
                             PlanCode = "enterprise",
                             FeatureCode = "students"
                         },
@@ -1922,6 +2024,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             PlanCode = "enterprise",
                             FeatureCode = "brand"
+                        },
+                        new
+                        {
+                            PlanCode = "enterprise",
+                            FeatureCode = "catalog-photos",
+                            Limit = 5
                         });
                 });
 
@@ -2134,6 +2242,29 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackImage", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.ClassPacks.ClassPack", null)
+                        .WithMany("Images")
+                        .HasForeignKey("ClassPackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchase", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.ClassPacks.ClassPack", null)
@@ -2192,6 +2323,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Documents.Document", b =>
+                {
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -2407,6 +2547,29 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Products.ProductImage", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Products.Product", null)
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Document");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Products.ProductVariant", b =>
@@ -2647,6 +2810,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
                 {
                     b.Navigation("ClassGroups");
+
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Orders.Order", b =>
@@ -2661,6 +2826,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Products.Product", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("Variants");
                 });
 #pragma warning restore 612, 618

@@ -62,7 +62,9 @@ public static class ApiRoutes
     public const string Products = "/api/products";
     public const string ProductById = "/{productId:guid}";
     public const string Stock = "/stock";
-    public const string Image = "/image";
+    public const string Images = "/images";
+    public const string ImageById = "/images/{documentId:guid}";
+    public const string ImagesOrder = "/images/order";
     public const string StockMovements = "/stock-movements";
     public const string Orders = "/api/orders";
     public const string OrderById = "/{orderId:guid}";
