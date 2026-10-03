@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react-native";
+import { fireEvent, screen } from "@testing-library/react-native";
 import { getFamilyHome, getPushKey } from "@/features/family/familyApi";
 import { browserPushSupport } from "@/features/family/push/browserPush";
 import { FamilySettingsScreen } from "@/features/family/screens/FamilySettingsScreen";
@@ -18,6 +18,9 @@ describe("When the browser cannot show notifications", () => {
 
   it("Then how to turn them on is explained", async () => {
     await renderFamilyScreen(<FamilySettingsScreen />);
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("family.notifications.title") }),
+    );
 
     expect(
       await screen.findByText(translate("family.notifications.unsupported")),

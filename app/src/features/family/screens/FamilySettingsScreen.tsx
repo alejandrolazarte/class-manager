@@ -1,4 +1,6 @@
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
 import { useHasOtherAccountKind } from "@/features/authentication/useAccounts";
 import { useSession } from "@/features/authentication/useSession";
@@ -7,15 +9,19 @@ import {
   useFamilyNotifications,
 } from "@/features/family/push/useFamilyNotifications";
 import { useFamilyHome } from "@/features/family/useFamilyHome";
-import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
-import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
+import {
+  colorSchemeValue,
+  DeviceSettingsSheet,
+  DeviceSettingsSheetKind,
+  notificationsValue,
+} from "@/features/settings/components/DeviceSettingsSheet";
+import { SettingsGroup, SettingsGroupList } from "@/features/settings/components/SettingsGroupList";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
-import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
-import { ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 
@@ -23,8 +29,62 @@ export function FamilySettingsScreen() {
   const router = useRouter();
   const { signOut } = useSession();
   const { data: home } = useFamilyHome();
+  const { colorSchemePreference } = useTheme();
   const hasTeamAccount = useHasOtherAccountKind("family");
   const notifications = useFamilyNotifications();
+  const [openSheet, setOpenSheet] = useState<DeviceSettingsSheetKind | null>(null);
+  const signOutOfThisDevice = async () => {
+    await stopFamilyNotifications().catch(() => undefined);
+    await signOut();
+  };
+
+  const groups: SettingsGroup[] = [
+    {
+      titleKey: "settings.group.device",
+      tone: "neutral",
+      items: [
+        {
+          key: "appearance",
+          isVisible: true,
+          icon: "appearance",
+          label: translate("settings.appearance"),
+          value: colorSchemeValue(colorSchemePreference),
+          onPress: () => setOpenSheet("appearance"),
+        },
+        {
+          key: "notifications",
+          isVisible: notifications.status !== "unavailable",
+          icon: "notifications",
+          label: translate("family.notifications.title"),
+          value: notificationsValue(notifications),
+          onPress: () => setOpenSheet("notifications"),
+        },
+      ],
+    },
+    {
+      titleKey: "settings.group.account",
+      tone: "neutral",
+      items: [
+        {
+          key: "accounts",
+          isVisible: hasTeamAccount,
+          icon: "business",
+          label: translate("accounts.switch"),
+          onPress: () => router.push(routes.chooseAccount),
+        },
+        {
+          key: "signOut",
+          isVisible: true,
+          icon: "signOut",
+          label: translate("settings.signOut"),
+          onPress: signOutOfThisDevice,
+          isDestructive: true,
+        },
+      ],
+    },
+  ];
+  const appVersion = Constants.expoConfig?.version;
+
   return (
     <ScrollScreen header={<ScreenHeader title={translate("settings.title")} />}>
       {home === undefined ? null : (
@@ -40,34 +100,17 @@ export function FamilySettingsScreen() {
           </View>
         </Card>
       )}
-      {hasTeamAccount ? (
-        <Card>
-          <ListRow
-            icon="business"
-            label={translate("accounts.switch")}
-            detail={translate("accounts.switchHint")}
-            onPress={() => router.push(routes.chooseAccount)}
-          />
-        </Card>
+      <SettingsGroupList groups={groups} />
+      {appVersion ? (
+        <AppText variant="caption" tone="subtle" className="text-center">
+          {translate("settings.version", { version: appVersion })}
+        </AppText>
       ) : null}
-      <Card className="p-4">
-        <NotificationSettings
-          notifications={notifications}
-          hint={translate("family.notifications.hint")}
-        />
-      </Card>
-      <Card>
-        <AppearanceSettings />
-      </Card>
-      <Button
-        variant="dangerOutline"
-        size="medium"
-        icon="signOut"
-        label={translate("settings.signOut")}
-        onPress={async () => {
-          await stopFamilyNotifications().catch(() => undefined);
-          await signOut();
-        }}
+      <DeviceSettingsSheet
+        kind={openSheet}
+        notifications={notifications}
+        notificationsHint={translate("family.notifications.hint")}
+        onClose={() => setOpenSheet(null)}
       />
     </ScrollScreen>
   );

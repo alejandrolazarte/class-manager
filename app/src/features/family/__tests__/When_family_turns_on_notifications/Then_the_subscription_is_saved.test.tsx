@@ -31,6 +31,9 @@ describe("When family turns on notifications", () => {
 
   it("Then the subscription is saved", async () => {
     await renderFamilyScreen(<FamilySettingsScreen />);
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("family.notifications.title") }),
+    );
 
     await fireEvent.press(
       await screen.findByRole("switch", { name: translate("family.notifications.toggle") }),

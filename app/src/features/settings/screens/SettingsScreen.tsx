@@ -1,6 +1,6 @@
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import { useHasOtherAccountKind } from "@/features/authentication/useAccounts";
 import { useSession } from "@/features/authentication/useSession";
@@ -12,66 +12,27 @@ import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatMoney } from "@/features/fees/money";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
-import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import { useProducts } from "@/features/products/useProducts";
-import { SettingsRow, SettingsRowTone } from "@/features/settings/components/SettingsRow";
-import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
+import {
+  colorSchemeValue,
+  DeviceSettingsSheet,
+  DeviceSettingsSheetKind,
+  notificationsValue,
+} from "@/features/settings/components/DeviceSettingsSheet";
+import { SettingsGroup, SettingsGroupList } from "@/features/settings/components/SettingsGroupList";
 import {
   stopTeamPushNotifications,
   useTeamPushNotifications,
 } from "@/features/teamNotifications/useTeamNotifications";
-import { translate, TranslationKey } from "@/i18n/translate";
+import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
-import { ColorSchemePreference } from "@/theme/ThemeContext";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
-import { BottomSheet } from "@/ui/BottomSheet";
 import { BrandMark } from "@/ui/BrandMark";
-import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
-import { Icon, IconName } from "@/ui/Icon";
-import { ListDivider } from "@/ui/ListRow";
+import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { SectionTitle } from "@/ui/SectionTitle";
-
-interface SettingsItem {
-  key: string;
-  isVisible: boolean;
-  icon: IconName;
-  label: string;
-  value?: string;
-  onPress: () => void;
-  isDestructive?: boolean;
-}
-
-const destructiveTone: SettingsRowTone = "danger";
-
-interface SettingsGroup {
-  titleKey: TranslationKey;
-  tone: SettingsRowTone;
-  items: SettingsItem[];
-}
-
-type OpenSheet = "appearance" | "notifications" | null;
-
-const colorSchemeLabelKeys: Record<ColorSchemePreference, TranslationKey> = {
-  system: "settings.appearance.system",
-  light: "settings.appearance.light",
-  dark: "settings.appearance.dark",
-};
-
-function notificationsValue(notifications: PushNotifications): string {
-  if (notifications.status === "supported") {
-    return translate(notifications.isOn ? "settings.notificationsOn" : "settings.notificationsOff");
-  }
-  return translate(
-    notifications.status === "blocked"
-      ? "settings.notificationsBlocked"
-      : "settings.notificationsUnsupported",
-  );
-}
 
 function countValue(count: number | undefined): string | undefined {
   return count === undefined || count === 0 ? undefined : String(count);
@@ -83,7 +44,7 @@ export function SettingsScreen() {
   const { signOut } = useSession();
   const { colorSchemePreference } = useTheme();
   const pushNotifications = useTeamPushNotifications();
-  const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
+  const [openSheet, setOpenSheet] = useState<DeviceSettingsSheetKind | null>(null);
   const canManageBusiness = useCan(permissions.businessManage);
   const canViewInstructors = useCan(permissions.instructorsView);
   const canViewClassPacks = useCan(permissions.classPacksView);
@@ -220,7 +181,7 @@ export function SettingsScreen() {
           isVisible: true,
           icon: "appearance",
           label: translate("settings.appearance"),
-          value: translate(colorSchemeLabelKeys[colorSchemePreference]),
+          value: colorSchemeValue(colorSchemePreference),
           onPress: () => setOpenSheet("appearance"),
         },
         {
@@ -262,9 +223,6 @@ export function SettingsScreen() {
       ],
     },
   ];
-  const visibleGroups = groups
-    .map((group) => ({ ...group, items: group.items.filter((item) => item.isVisible) }))
-    .filter((group) => group.items.length > 0);
   const appVersion = Constants.expoConfig?.version;
 
   return (
@@ -285,50 +243,18 @@ export function SettingsScreen() {
         </View>
         {canManageBusiness ? <Icon name="next" tone="subtle-foreground" /> : null}
       </Card>
-      {visibleGroups.map((group) => (
-        <View key={group.titleKey} className="gap-1.5">
-          <View className="px-1">
-            <SectionTitle title={translate(group.titleKey)} isOverline />
-          </View>
-          <Card>
-            {group.items.map((item, index) => (
-              <Fragment key={item.key}>
-                {index > 0 ? <ListDivider /> : null}
-                <SettingsRow
-                  icon={item.icon}
-                  tone={item.isDestructive ? destructiveTone : group.tone}
-                  label={item.label}
-                  value={item.value}
-                  onPress={item.onPress}
-                  isDestructive={item.isDestructive}
-                />
-              </Fragment>
-            ))}
-          </Card>
-        </View>
-      ))}
+      <SettingsGroupList groups={groups} />
       {appVersion ? (
         <AppText variant="caption" tone="subtle" className="text-center">
           {translate("settings.version", { version: appVersion })}
         </AppText>
       ) : null}
-      {openSheet === "appearance" ? (
-        <BottomSheet onClose={() => setOpenSheet(null)}>
-          <Card>
-            <AppearanceSettings />
-          </Card>
-          <Button label={translate("common.done")} onPress={() => setOpenSheet(null)} />
-        </BottomSheet>
-      ) : null}
-      {openSheet === "notifications" ? (
-        <BottomSheet onClose={() => setOpenSheet(null)}>
-          <NotificationSettings
-            notifications={pushNotifications}
-            hint={translate("teamNotifications.hint")}
-          />
-          <Button label={translate("common.done")} onPress={() => setOpenSheet(null)} />
-        </BottomSheet>
-      ) : null}
+      <DeviceSettingsSheet
+        kind={openSheet}
+        notifications={pushNotifications}
+        notificationsHint={translate("teamNotifications.hint")}
+        onClose={() => setOpenSheet(null)}
+      />
     </ScrollScreen>
   );
 }
