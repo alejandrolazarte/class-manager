@@ -1,3 +1,4 @@
+using ClassManager.Records;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 

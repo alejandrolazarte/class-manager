@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Records;
 
 namespace ClassManager.Core.UseCases.Subscriptions;
 

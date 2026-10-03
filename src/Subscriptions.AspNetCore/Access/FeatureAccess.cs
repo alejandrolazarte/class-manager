@@ -1,3 +1,4 @@
+using ClassManager.Records;
 using ClassManager.Subscriptions.Access;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,8 @@ internal sealed class FeatureAccess(
 
         var subscription = await context.Subscriptions
             .AsNoTracking()
-            .FirstOrDefaultAsync(candidate => candidate.SubscriberId == subscriberId && candidate.DeletedOn == null, cancellationToken);
+            .WhereCurrent()
+            .FirstOrDefaultAsync(candidate => candidate.SubscriberId == subscriberId, cancellationToken);
         if (subscription is null || !subscription.IsActiveOn(today))
         {
             return EffectiveFeatures.Inactive(subscription?.PlanCode ?? string.Empty, subscription?.ExpiredOn);
@@ -36,7 +38,8 @@ internal sealed class FeatureAccess(
             .ToListAsync(cancellationToken);
         var subscriptionFeatures = await context.SubscriptionFeatures
             .AsNoTracking()
-            .Where(subscriptionFeature => subscriptionFeature.SubscriptionId == subscription.Id && subscriptionFeature.DeletedOn == null)
+            .WhereCurrent()
+            .Where(subscriptionFeature => subscriptionFeature.SubscriptionId == subscription.Id)
             .ToListAsync(cancellationToken);
 
         return EffectiveFeatures.Combine(subscription.PlanCode, planFeatures, subscriptionFeatures, today, subscription.ExpiredOn);

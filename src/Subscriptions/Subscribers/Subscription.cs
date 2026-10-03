@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Subscriptions.Catalog;
 
 namespace ClassManager.Subscriptions.Subscribers;
 
-public sealed class Subscription
+public sealed class Subscription : ICreatedOn, IDeletedOn, IExpiredOn
 {
     private Subscription()
     {
@@ -18,15 +19,13 @@ public sealed class Subscription
     public DateTimeOffset? DeletedOn { get; private set; }
     public DateOnly? ExpiredOn { get; private set; }
 
-    public bool IsCurrent => DeletedOn is null;
-
     public static Subscription StartAtListPrice(Guid subscriberId, Plan plan, DateTimeOffset createdOn)
     {
         ArgumentNullException.ThrowIfNull(plan);
         var subscription = Start(subscriberId, plan.Code, plan.ListPrice ?? 0m, plan.Currency, note: null, createdOn);
         if (plan.DurationInDays is { } durationInDays)
         {
-            subscription.Expire(subscription.StartDate.AddDays(durationInDays - 1));
+            subscription.Expire(subscription.CreatedDate().AddDays(durationInDays - 1));
         }
 
         return subscription;
@@ -58,11 +57,9 @@ public sealed class Subscription
         };
     }
 
-    public DateOnly StartDate => DateOnly.FromDateTime(CreatedOn.UtcDateTime);
-
     public void Expire(DateOnly expiredOn)
     {
-        if (expiredOn < StartDate)
+        if (expiredOn < this.CreatedDate())
         {
             throw new ArgumentOutOfRangeException(nameof(expiredOn), "A subscription can't expire before it starts.");
         }
@@ -70,15 +67,5 @@ public sealed class Subscription
         ExpiredOn = expiredOn;
     }
 
-    public void Delete(DateTimeOffset deletedOn)
-    {
-        if (DeletedOn is not null)
-        {
-            throw new InvalidOperationException("The subscription was already replaced.");
-        }
-
-        DeletedOn = deletedOn.ToUniversalTime();
-    }
-
-    public bool IsActiveOn(DateOnly date) => IsCurrent && StartDate <= date && (ExpiredOn is null || date <= ExpiredOn);
+    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
 }

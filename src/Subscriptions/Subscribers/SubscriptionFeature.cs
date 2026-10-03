@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Subscriptions.Catalog;
 
 namespace ClassManager.Subscriptions.Subscribers;
 
-public sealed class SubscriptionFeature
+public sealed class SubscriptionFeature : ICreatedOn, IDeletedOn, IExpiredOn
 {
     private SubscriptionFeature()
     {
@@ -17,8 +18,6 @@ public sealed class SubscriptionFeature
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset? DeletedOn { get; private set; }
     public DateOnly? ExpiredOn { get; private set; }
-
-    public bool IsCurrent => DeletedOn is null;
 
     public static SubscriptionFeature Create(
         Guid subscriptionId,
@@ -47,15 +46,5 @@ public sealed class SubscriptionFeature
         };
     }
 
-    public void Delete(DateTimeOffset deletedOn)
-    {
-        if (DeletedOn is not null)
-        {
-            throw new InvalidOperationException("The feature was already replaced.");
-        }
-
-        DeletedOn = deletedOn.ToUniversalTime();
-    }
-
-    public bool IsActiveOn(DateOnly date) => IsCurrent && (ExpiredOn is null || date <= ExpiredOn);
+    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
 }

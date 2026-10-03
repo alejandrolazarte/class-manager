@@ -23,6 +23,7 @@ src/Notifications/   ← reusable email and web push building blocks: email cont
 src/Notifications.Delivery/ ← SMTP (MailKit) and web push senders, DI extensions (ARCH006)
 src/Storage/        ← reusable file storage abstraction and image format detection (no dependencies, ARCH008)
 src/Storage.AzureBlob/ ← Azure Blob Storage implementation, DI extensions (ARCH008)
+src/Records/         ← record conventions: ICreatedOn, IDeletedOn, IExpiredOn and their rules (no dependencies, ARCH009)
 src/Subscriptions/   ← reusable plans, features, add-ons and effective features of a subscriber (no dependencies, ARCH007)
 src/Subscriptions.AspNetCore/ ← EF model for the billing schema, per-request feature access, RequireFeature endpoint filter (ARCH007)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
@@ -130,9 +131,10 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - One main assertion per test (supporting asserts allowed)
 
 ### Records that change over time
-- A record that is replaced instead of edited (a subscription, an add-on) uses three columns: `CreatedOn` (date and time it applies from), `DeletedOn` (date and time another record replaced it; `null` = current) and, when there is an agreed end, `ExpiredOn` (date, inclusive).
-- Never delete such rows physically and never add an `IsDeleted` flag: `DeletedOn IS NULL` is the filter, and a unique index filtered on `[DeletedOn] IS NULL` guarantees one current record.
-- Replacing is one save: `Delete(now)` on the current record and add the new one. Current = `DeletedOn` is null; active = current and `ExpiredOn` empty or not past.
+- A record that is replaced instead of edited (a subscription, an add-on) implements the interfaces in `src/Records`: `ICreatedOn` (`CreatedOn`, date and time it applies from), `IDeletedOn` (`DeletedOn`, date and time another record replaced it, `null` = current, and `Delete(now)`) and, when there is an agreed end, `IExpiredOn` (`ExpiredOn`, date, inclusive).
+- Never delete such rows physically and never add an `IsDeleted` flag. Query with `WhereCurrent()` and decide with `IsCurrent()` / `IsActiveOn(date)` from `RecordExtensions`; don't rewrite the rule per entity.
+- Replacing is one save: `Delete(now)` on the current record and add the new one. Active = current, created on or before the date, and `ExpiredOn` empty or not past.
+- Enforced by tests: a column named `CreatedOn`, `DeletedOn` or `ExpiredOn` requires its interface, and every `IDeletedOn` entity needs a unique index filtered on `[DeletedOn] IS NULL`.
 - Business dates with their own meaning (a fee that applies from a month) are not this convention and keep their names.
 
 ### Empty states

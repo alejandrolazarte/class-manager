@@ -11,7 +11,7 @@ public sealed class Then_it_is_no_longer_active
 
         subscription.Delete(Now);
 
-        subscription.IsCurrent.ShouldBeFalse();
+        subscription.IsCurrent().ShouldBeFalse();
         subscription.IsActiveOn(Today).ShouldBeFalse();
     }
 }

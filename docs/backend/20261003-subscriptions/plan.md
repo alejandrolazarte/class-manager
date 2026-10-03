@@ -142,7 +142,7 @@ erDiagram
 
 ### Current records
 
-Subscriptions and subscription features follow the repository's [current record convention](../../../CLAUDE.md#records-that-change-over-time):
+Subscriptions and subscription features follow the repository's [current record convention](../../../CLAUDE.md#records-that-change-over-time): both implement `ICreatedOn`, `IDeletedOn` and `IExpiredOn` from `src/Records`, and queries use `WhereCurrent()`.
 
 - `CreatedOn` (date and time) is when the row applies from; it applies as soon as it is saved.
 - `DeletedOn` (date and time, `null` = current) is set when another row replaces it. Rows are never physically deleted, so the history of who paid what, and which limits a brand had, stays.

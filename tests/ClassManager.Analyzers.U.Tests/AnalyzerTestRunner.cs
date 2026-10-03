@@ -19,6 +19,7 @@ internal static class AnalyzerTestRunner
     public const string SubscriptionsAssemblyName = "Subscriptions";
     public const string SubscriptionsIntegrationAssemblyName = "Subscriptions.AspNetCore";
     public const string StorageAssemblyName = "Storage";
+    public const string RecordsAssemblyName = "Records";
     public const string StorageAzureBlobAssemblyName = "Storage.AzureBlob";
 
     private const string XunitStubFilePath = "/stubs/Xunit.cs";

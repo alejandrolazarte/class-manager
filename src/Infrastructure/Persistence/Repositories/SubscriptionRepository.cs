@@ -1,4 +1,5 @@
 using ClassManager.Infrastructure.Subscriptions;
+using ClassManager.Records;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.Extensions.Configuration;
@@ -23,5 +24,6 @@ internal sealed class SubscriptionRepository(AppDbContext context, IConfiguratio
     public Task<Subscription?> GetCurrentAsync(Guid subscriberId, CancellationToken cancellationToken) =>
         context.Subscriptions
             .AsNoTracking()
-            .FirstOrDefaultAsync(subscription => subscription.SubscriberId == subscriberId && subscription.DeletedOn == null, cancellationToken);
+            .WhereCurrent()
+            .FirstOrDefaultAsync(subscription => subscription.SubscriberId == subscriberId, cancellationToken);
 }

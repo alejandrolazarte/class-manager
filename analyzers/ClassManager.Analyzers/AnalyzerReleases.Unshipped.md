@@ -18,3 +18,4 @@ ARCH005 | Architecture | Error | ImportExportIndependenceAnalyzer
 ARCH006 | Architecture | Error | NotificationsIndependenceAnalyzer
 ARCH007 | Architecture | Error | SubscriptionsIndependenceAnalyzer
 ARCH008 | Architecture | Error | StorageIndependenceAnalyzer
+ARCH009 | Architecture | Error | RecordsIndependenceAnalyzer
