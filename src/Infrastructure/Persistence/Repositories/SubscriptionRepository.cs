@@ -13,4 +13,18 @@ internal sealed class SubscriptionRepository(AppDbContext context, IConfiguratio
             : context.Plans.AsNoTracking().SingleAsync(plan => plan.IsDefault, cancellationToken);
 
     public void Add(Subscription subscription) => context.Subscriptions.Add(subscription);
+
+    public async Task<IReadOnlyList<Plan>> ListActivePlansAsync(CancellationToken cancellationToken) =>
+        await context.Plans.AsNoTracking().Where(plan => plan.IsActive).OrderBy(plan => plan.DisplayOrder).ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<PlanFeature>> ListPlanFeaturesAsync(CancellationToken cancellationToken) =>
+        await context.PlanFeatures.AsNoTracking().ToListAsync(cancellationToken);
+
+    public Task<Subscription?> GetLatestAsync(Guid subscriberId, DateOnly today, CancellationToken cancellationToken) =>
+        context.Subscriptions
+            .AsNoTracking()
+            .Where(subscription => subscription.SubscriberId == subscriberId && subscription.StartsOn <= today)
+            .OrderByDescending(subscription => subscription.StartsOn)
+            .ThenByDescending(subscription => subscription.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
 }

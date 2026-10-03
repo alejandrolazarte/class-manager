@@ -1,0 +1,36 @@
+using ClassManager.Subscriptions.Access;
+using ClassManager.Subscriptions.Catalog;
+
+namespace ClassManager.Core.UseCases.Subscriptions;
+
+public sealed record FeatureLimitResponse(string Code, int? Limit);
+
+public sealed record CurrentSubscriptionResponse(
+    string PlanCode,
+    bool IsActive,
+    DateOnly? EndsOn,
+    IReadOnlyList<FeatureLimitResponse> Features)
+{
+    public static CurrentSubscriptionResponse From(EffectiveFeatures features) =>
+        new(
+            features.PlanCode,
+            features.IsActive,
+            features.EndsOn,
+            [.. features.All.OrderBy(feature => feature.Code, StringComparer.Ordinal).Select(feature => new FeatureLimitResponse(feature.Code, feature.Limit))]);
+}
+
+public sealed record PlanResponse(
+    string Code,
+    decimal? ListPrice,
+    string Currency,
+    BillingPeriod BillingPeriod,
+    int? DurationInDays,
+    IReadOnlyList<FeatureLimitResponse> Features);
+
+public sealed record OrganizationSubscriptionResponse(
+    string PlanCode,
+    decimal Price,
+    string Currency,
+    DateOnly StartsOn,
+    DateOnly? EndsOn,
+    bool IsActive);

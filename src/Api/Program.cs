@@ -52,6 +52,7 @@ app.MapBusinessEndpoints();
 app.MapBrandEndpoints();
 app.MapMemberEndpoints();
 app.MapRoleEndpoints();
+app.MapSubscriptionEndpoints();
 app.MapClientEndpoints();
 app.MapFamilyEndpoints();
 app.MapTeamNotificationEndpoints();

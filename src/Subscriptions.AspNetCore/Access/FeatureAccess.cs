@@ -25,7 +25,8 @@ internal sealed class FeatureAccess(
 
         if (await ActiveSubscriptionAsync(subscriberId, today, cancellationToken) is not { } subscription)
         {
-            return EffectiveFeatures.Inactive(await LastPlanCodeAsync(subscriberId, cancellationToken) ?? string.Empty);
+            var lastSubscription = await LastSubscriptionAsync(subscriberId, cancellationToken);
+            return EffectiveFeatures.Inactive(lastSubscription?.PlanCode ?? string.Empty, lastSubscription?.EndsOn);
         }
 
         var planFeatures = await context.PlanFeatures
@@ -37,7 +38,7 @@ internal sealed class FeatureAccess(
             .Where(subscriptionFeature => subscriptionFeature.SubscriptionId == subscription.Id)
             .ToListAsync(cancellationToken);
 
-        return EffectiveFeatures.Combine(subscription.PlanCode, planFeatures, subscriptionFeatures, today);
+        return EffectiveFeatures.Combine(subscription.PlanCode, planFeatures, subscriptionFeatures, today, subscription.EndsOn);
     }
 
     private Task<Subscription?> ActiveSubscriptionAsync(Guid subscriberId, DateOnly today, CancellationToken cancellationToken) =>
@@ -50,12 +51,11 @@ internal sealed class FeatureAccess(
             .ThenByDescending(subscription => subscription.CreatedAt)
             .FirstOrDefaultAsync(cancellationToken);
 
-    private Task<string?> LastPlanCodeAsync(Guid subscriberId, CancellationToken cancellationToken) =>
+    private Task<Subscription?> LastSubscriptionAsync(Guid subscriberId, CancellationToken cancellationToken) =>
         context.Subscriptions
             .AsNoTracking()
             .Where(subscription => subscription.SubscriberId == subscriberId)
             .OrderByDescending(subscription => subscription.StartsOn)
             .ThenByDescending(subscription => subscription.CreatedAt)
-            .Select(subscription => subscription.PlanCode)
             .FirstOrDefaultAsync(cancellationToken);
 }

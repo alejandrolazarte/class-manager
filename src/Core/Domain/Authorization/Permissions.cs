@@ -14,6 +14,7 @@ public static class Permissions
         Roles.Manage,
         Brand.CreateBranches,
         Brand.ManageBrandOwners,
+        Brand.ViewSubscription,
         Instructors.View,
         Instructors.Manage,
         ClassGroups.ViewOwn,
@@ -50,7 +51,7 @@ public static class Permissions
     ];
 
     public static IReadOnlyList<string> BrandOnly { get; } =
-        [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners];
+        [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners, Brand.ViewSubscription];
 
     public static IReadOnlySet<string> Assignable { get; } =
         All.Except(BrandOnly).ToFrozenSet(StringComparer.Ordinal);
@@ -91,6 +92,7 @@ public static class Permissions
     {
         public const string CreateBranches = "branches.create";
         public const string ManageBrandOwners = "brandOwners.manage";
+        public const string ViewSubscription = "subscription.view";
     }
 
     public static class Instructors

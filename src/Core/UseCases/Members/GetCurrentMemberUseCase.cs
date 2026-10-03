@@ -1,6 +1,8 @@
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.UseCases.Subscriptions;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Members;
 
@@ -14,13 +16,14 @@ public sealed record CurrentMemberResponse(
     IReadOnlyList<string> Permissions,
     Guid? CustomRoleId = null,
     Guid? UserId = null,
-    string? FullName = null)
+    string? FullName = null,
+    CurrentSubscriptionResponse? Subscription = null)
 {
-    public static CurrentMemberResponse From(MemberAccess access, string? fullName = null) =>
-        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.UserId, fullName);
+    public static CurrentMemberResponse From(MemberAccess access, string? fullName = null, CurrentSubscriptionResponse? subscription = null) =>
+        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.UserId, fullName, subscription);
 }
 
-public sealed class GetCurrentMemberUseCase(ICurrentMember currentMember, IIdentityService identityService)
+public sealed class GetCurrentMemberUseCase(ICurrentMember currentMember, IIdentityService identityService, IFeatureAccess featureAccess)
     : IUseCase<GetCurrentMemberQuery, CurrentMemberResponse>
 {
     public async Task<Result<CurrentMemberResponse>> ExecuteAsync(GetCurrentMemberQuery command, CancellationToken cancellationToken)
@@ -32,6 +35,7 @@ public sealed class GetCurrentMemberUseCase(ICurrentMember currentMember, IIdent
         }
 
         var accounts = await identityService.ListAccountsAsync([access.UserId], cancellationToken);
-        return CurrentMemberResponse.From(access, accounts.Count > 0 ? accounts[0].FullName : null);
+        var features = await featureAccess.GetCurrentAsync(cancellationToken);
+        return CurrentMemberResponse.From(access, accounts.Count > 0 ? accounts[0].FullName : null, CurrentSubscriptionResponse.From(features));
     }
 }
