@@ -102,6 +102,7 @@ export interface DemoFamily {
   email: string;
   absenceDate: string;
   makeupDate: string;
+  packClassDate: string;
 }
 
 interface MakeupSlot {
@@ -331,7 +332,38 @@ export async function seedDemoFamily(
     {},
   );
 
-  return { email, absenceDate, makeupDate: makeupSlot.date };
+  const aquagymPack = await send<{ id: string }>("POST", "/api/class-packs", ownerToken, {
+    name: "Pack Aquagym",
+    classCount: 4,
+    price: 26000,
+    validityMonths: 1,
+    classGroupIds: [demo.aquagymClassGroupId],
+  });
+  await send("POST", `/api/clients/${demo.familyClientId}/class-pack-purchases`, ownerToken, {
+    classPackId: aquagymPack.id,
+    price: 26000,
+    purchasedOn: demo.today,
+    method: "Transfer",
+    notes: null,
+  });
+  const lucia = family.students.find((student) => student.fullName === "Lucía Pérez")!;
+  const packClasses = await send<{ slots: MakeupSlot[] }>(
+    "GET",
+    `/api/family/students/${lucia.id}/pack-classes`,
+    familyToken,
+  );
+  const packSlot =
+    packClasses.slots.find(
+      (slot) => slot.date > demo.today && slot.date <= weekEndOf(demo.today),
+    ) ?? packClasses.slots[0]!;
+  await send(
+    "PUT",
+    `/api/family/students/${lucia.id}/pack-classes/${packSlot.classGroupId}/${packSlot.date}`,
+    familyToken,
+    {},
+  );
+
+  return { email, absenceDate, makeupDate: makeupSlot.date, packClassDate: packSlot.date };
 }
 
 export async function inviteOwnerAsFamily(
