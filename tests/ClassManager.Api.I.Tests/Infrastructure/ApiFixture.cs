@@ -135,6 +135,27 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         await context.SaveChangesAsync();
     }
 
+    public async Task EndSubscriptionAsync(Guid businessId)
+    {
+        const int DaysSinceItStarted = 40;
+        var today = DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime);
+        await using var context = CreateDbContext(businessId);
+        var organizationId = await context.Businesses.Where(business => business.Id == businessId).Select(business => business.OrganizationId).SingleAsync();
+        context.Subscriptions.RemoveRange(context.Subscriptions.Where(subscription => subscription.SubscriberId == organizationId));
+        await context.SaveChangesAsync();
+        var endedSubscription = Subscription.Start(
+            organizationId,
+            PlanCodes.Free,
+            price: 0m,
+            CurrencyCode,
+            today.AddDays(-DaysSinceItStarted),
+            note: null,
+            BusinessApiFactory.Now);
+        endedSubscription.End(today.AddDays(-1));
+        context.Subscriptions.Add(endedSubscription);
+        await context.SaveChangesAsync();
+    }
+
     public async Task AddFeatureAsync(SeededBusiness business, string featureCode, int? limit = null)
     {
         await using var context = CreateDbContext(business.Business.Id);

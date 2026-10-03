@@ -15,6 +15,7 @@ internal static class SubscriptionCatalogSeed
     private const decimal ShopPrice = 5m;
     private const decimal BrandPrice = 5m;
 
+    private const int FreeTrialDays = 30;
     private const int FreeStudents = 30;
     private const int LiteStudents = 150;
     private const int SingleBranch = 1;
@@ -26,7 +27,7 @@ internal static class SubscriptionCatalogSeed
     public static ModelBuilder SeedSubscriptionCatalog(this ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Plan>().HasData(
-            Plan.Create(PlanCodes.Free, displayOrder: 1, 0m, ListPriceCurrency, BillingPeriod.Monthly, isDefault: true),
+            Plan.Create(PlanCodes.Free, displayOrder: 1, 0m, ListPriceCurrency, BillingPeriod.Monthly, isDefault: true, FreeTrialDays),
             Plan.Create(PlanCodes.Lite, displayOrder: 2, LitePrice, ListPriceCurrency, BillingPeriod.Monthly),
             Plan.Create(PlanCodes.Pro, displayOrder: 3, ProPrice, ListPriceCurrency, BillingPeriod.Monthly),
             Plan.Create(PlanCodes.Enterprise, displayOrder: 4, listPrice: null, ListPriceCurrency, BillingPeriod.Monthly));

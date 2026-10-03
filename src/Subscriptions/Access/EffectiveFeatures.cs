@@ -7,13 +7,16 @@ public sealed class EffectiveFeatures
 {
     private readonly Dictionary<string, EffectiveFeature> _featuresByCode;
 
-    private EffectiveFeatures(string planCode, Dictionary<string, EffectiveFeature> featuresByCode)
+    private EffectiveFeatures(string planCode, bool isActive, Dictionary<string, EffectiveFeature> featuresByCode)
     {
         PlanCode = planCode;
+        IsActive = isActive;
         _featuresByCode = featuresByCode;
     }
 
     public string PlanCode { get; }
+
+    public bool IsActive { get; }
 
     public IReadOnlyCollection<EffectiveFeature> All => _featuresByCode.Values;
 
@@ -38,8 +41,11 @@ public sealed class EffectiveFeatures
             featuresByCode[grant.Code] = featuresByCode.TryGetValue(grant.Code, out var existing) ? Larger(existing, grant) : grant;
         }
 
-        return new EffectiveFeatures(planCode, featuresByCode);
+        return new EffectiveFeatures(planCode, isActive: true, featuresByCode);
     }
+
+    public static EffectiveFeatures Inactive(string lastPlanCode) =>
+        new(lastPlanCode, isActive: false, new Dictionary<string, EffectiveFeature>(StringComparer.Ordinal));
 
     public bool Has(string featureCode) => _featuresByCode.ContainsKey(featureCode);
 

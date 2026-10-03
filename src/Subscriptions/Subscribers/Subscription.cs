@@ -21,7 +21,13 @@ public sealed class Subscription
     public static Subscription StartAtListPrice(Guid subscriberId, Plan plan, DateOnly startsOn, DateTimeOffset createdAt)
     {
         ArgumentNullException.ThrowIfNull(plan);
-        return Start(subscriberId, plan.Code, plan.ListPrice ?? 0m, plan.Currency, startsOn, note: null, createdAt);
+        var subscription = Start(subscriberId, plan.Code, plan.ListPrice ?? 0m, plan.Currency, startsOn, note: null, createdAt);
+        if (plan.DurationInDays is { } durationInDays)
+        {
+            subscription.End(startsOn.AddDays(durationInDays - 1));
+        }
+
+        return subscription;
     }
 
     public static Subscription Start(
