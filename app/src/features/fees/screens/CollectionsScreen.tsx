@@ -6,9 +6,8 @@ import { permissions } from "@/features/members/permissions";
 import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
 import { usePendingOrders } from "@/features/orders/useOrders";
 import { translate } from "@/i18n/translate";
+import { CollectionsView } from "@/navigation/routes";
 import { SegmentedControl } from "@/ui/SegmentedControl";
-
-export type CollectionsView = "fees" | "orders";
 
 interface CollectionsScreenProps {
   initialMonth?: string;

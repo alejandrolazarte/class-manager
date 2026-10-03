@@ -1,5 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
-import { CollectionsScreen, CollectionsView } from "@/features/fees/screens/CollectionsScreen";
+import { CollectionsScreen } from "@/features/fees/screens/CollectionsScreen";
+import { CollectionsView } from "@/navigation/routes";
 
 const ordersView: CollectionsView = "orders";
 

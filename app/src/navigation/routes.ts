@@ -4,6 +4,9 @@ export type ClientTab = (typeof clientTabs)[number];
 export const orderTabs = ["settings", "today", "fees"] as const;
 export type OrderTab = (typeof orderTabs)[number];
 
+export const collectionsViews = ["fees", "orders"] as const;
+export type CollectionsView = (typeof collectionsViews)[number];
+
 export const routes = {
   today: "/today",
   session: (classGroupId: string, sessionDate: string) => `/today/${classGroupId}/${sessionDate}`,
@@ -28,6 +31,7 @@ export const routes = {
   recordPayment: (tab: ClientTab, clientId: string, month: string) =>
     `/${tab}/clients/${clientId}/pay?month=${encodeURIComponent(month)}`,
   fees: "/fees",
+  collections: (view: CollectionsView) => `/fees?view=${view}`,
   feesDefaultMonthlyFee: "/fees/monthly-fee",
   welcome: "/welcome",
   signIn: "/sign-in",
