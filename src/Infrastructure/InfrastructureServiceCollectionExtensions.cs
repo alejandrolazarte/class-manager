@@ -7,12 +7,14 @@ using ClassManager.Infrastructure.Notifications;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Persistence.Repositories;
 using ClassManager.Infrastructure.Security;
+using ClassManager.Infrastructure.Subscriptions;
 using ClassManager.Infrastructure.WebPush;
 using ClassManager.Notifications.Delivery.Hosting;
 using ClassManager.Notifications.WebPush;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
+using ClassManager.Subscriptions.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.Extensions.Configuration;
@@ -44,6 +46,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddSubscriptions<AppDbContext, OrganizationSubscriberResolver>();
         services.AddScoped<IOrganizationMemberRepository, OrganizationMemberRepository>();
         services.AddScoped<IBusinessRepository, BusinessRepository>();
         services.AddScoped<IBrandLogoRepository, BrandLogoRepository>();

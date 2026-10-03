@@ -5,6 +5,8 @@ using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.Domain.Organizations;
 using ClassManager.Core.UseCases.Authentication;
+using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy;
 using Microsoft.Extensions.Time.Testing;
 
@@ -18,6 +20,8 @@ internal sealed class SignUpOwnerUseCaseBuilder
     public Business? AddedBusiness { get; private set; }
     public BusinessMember? AddedMember { get; private set; }
     public Instructor? AddedInstructor { get; private set; }
+    public Subscription? AddedSubscription { get; private set; }
+    public Plan DefaultPlan { get; } = Plan.Create("free", displayOrder: 1, 0m, "USD", BillingPeriod.Monthly, isDefault: true);
 
     public Mock<IIdentityService> Identity { get; } = new();
     public Mock<ITokenService> Tokens { get; } = new();
@@ -26,6 +30,7 @@ internal sealed class SignUpOwnerUseCaseBuilder
     public Mock<IBusinessRepository> Businesses { get; } = new();
     public Mock<IBusinessMemberRepository> BusinessMembers { get; } = new();
     public Mock<IInstructorRepository> Instructors { get; } = new();
+    public Mock<ISubscriptionRepository> Subscriptions { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IUnitOfWorkTransaction> Transaction { get; } = new();
     public Mock<ITenantScope> TenantScope { get; } = new();
@@ -59,6 +64,12 @@ internal sealed class SignUpOwnerUseCaseBuilder
         Instructors
             .Setup(repository => repository.Add(It.IsAny<Instructor>()))
             .Callback<Instructor>(instructor => AddedInstructor = instructor);
+        Subscriptions
+            .Setup(repository => repository.GetDefaultPlanAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DefaultPlan);
+        Subscriptions
+            .Setup(repository => repository.Add(It.IsAny<Subscription>()))
+            .Callback<Subscription>(subscription => AddedSubscription = subscription);
         UnitOfWork
             .Setup(unitOfWork => unitOfWork.BeginTransactionAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Transaction.Object);
@@ -83,6 +94,7 @@ internal sealed class SignUpOwnerUseCaseBuilder
             Businesses.Object,
             BusinessMembers.Object,
             Instructors.Object,
+            Subscriptions.Object,
             UnitOfWork.Object,
             TenantScope.Object,
             new FakeTimeProvider(TestData.Now));

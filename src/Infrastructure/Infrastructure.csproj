@@ -10,6 +10,7 @@
     <ProjectReference Include="../Core/Core.csproj" />
     <ProjectReference Include="../Notifications.Delivery/Notifications.Delivery.csproj" />
     <ProjectReference Include="../Security/Security.csproj" />
+    <ProjectReference Include="../Subscriptions.AspNetCore/Subscriptions.AspNetCore.csproj" />
     <ProjectReference Include="../Tenancy.AspNetCore/Tenancy.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>

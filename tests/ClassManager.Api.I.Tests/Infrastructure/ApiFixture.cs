@@ -1,9 +1,11 @@
 using System.Net.Http.Headers;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Organizations;
+using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
+using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,7 +118,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         return CreateClientFor(businessId, userId);
     }
 
-    public async Task<SeededBusiness> SeedBusinessAsync()
+    public async Task<SeededBusiness> SeedBusinessAsync(string planCode = PlanCodes.Enterprise)
     {
         var organization = Organization.Create(BusinessName, BusinessApiFactory.Now).Value!;
         var ownerUserId = Guid.CreateVersion7();
@@ -134,6 +136,14 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerUserId));
         context.Businesses.Add(business);
         context.BusinessMembers.Add(BusinessMember.CreateBranchOwner(business.Id, ownerUserId));
+        context.Subscriptions.Add(Subscription.Start(
+            organization.Id,
+            planCode,
+            price: 0m,
+            CurrencyCode,
+            DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime),
+            note: null,
+            BusinessApiFactory.Now));
         await context.SaveChangesAsync();
 
         return new SeededBusiness(business, CreateClientFor(business.Id, ownerUserId), ownerUserId);

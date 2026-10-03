@@ -6,6 +6,7 @@ using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.Domain.Organizations;
 using ClassManager.Core.UseCases.Businesses;
+using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Authentication;
@@ -27,6 +28,7 @@ public sealed class SignUpOwnerUseCase(
     IBusinessRepository businessRepository,
     IBusinessMemberRepository businessMemberRepository,
     IInstructorRepository instructorRepository,
+    ISubscriptionRepository subscriptionRepository,
     IUnitOfWork unitOfWork,
     ITenantScope tenantScope,
     TimeProvider timeProvider)
@@ -81,6 +83,8 @@ public sealed class SignUpOwnerUseCase(
         var ownerInstructor = Instructor.Create(account.Value.FullName).Value!;
         instructorRepository.Add(ownerInstructor);
         businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Value.Id, userId.Value, ownerInstructor.Id));
+        var defaultPlan = await subscriptionRepository.GetDefaultPlanAsync(cancellationToken);
+        subscriptionRepository.Add(Subscription.StartAtListPrice(organization.Value.Id, defaultPlan, DateOnly.FromDateTime(now.UtcDateTime), now));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var tokens = await tokenService.IssueAsync(
