@@ -34,14 +34,11 @@ export function StudentListScreen() {
     debouncedSearch.length > 0 ? (
       <EmptyState message={translate("students.list.noResults", { search: debouncedSearch })} />
     ) : (
-      <EmptyState icon="students" message={translate("students.list.emptyTitle")}>
-        {canManageStudents ? (
-          <Button
-            label={translate("students.list.emptyCallToAction")}
-            onPress={openRegisterClient}
-          />
-        ) : null}
-      </EmptyState>
+      <EmptyState
+        icon="students"
+        message={translate("students.list.emptyTitle")}
+        createActionLabel={canManageStudents ? translate("students.list.newStudent") : undefined}
+      />
     );
 
   return (

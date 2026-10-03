@@ -41,14 +41,13 @@ export function WeeklyClassesScreen() {
 
   const emptyState =
     classGroups.length === 0 ? (
-      <EmptyState icon="classes" message={translate("classGroups.week.emptyTitle")}>
-        {canManageClassGroups ? (
-          <Button
-            label={translate("classGroups.week.emptyCallToAction")}
-            onPress={openNewClassGroup}
-          />
-        ) : null}
-      </EmptyState>
+      <EmptyState
+        icon="classes"
+        message={translate("classGroups.week.emptyTitle")}
+        createActionLabel={
+          canManageClassGroups ? translate("classGroups.week.newClassGroup") : undefined
+        }
+      />
     ) : (
       <EmptyState
         message={translate("classGroups.week.noClassesOnDay", {

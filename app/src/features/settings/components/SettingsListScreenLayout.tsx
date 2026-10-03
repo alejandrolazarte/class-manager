@@ -66,9 +66,10 @@ export function SettingsListScreenLayout<TItem>({
           renderItem={({ item }) => <View className="px-5 pb-3.5">{renderItem(item)}</View>}
           ListEmptyComponent={
             isError ? null : (
-              <EmptyState message={emptyMessage}>
-                {onNewItem ? <Button label={newItemLabel} onPress={onNewItem} /> : null}
-              </EmptyState>
+              <EmptyState
+                message={emptyMessage}
+                createActionLabel={onNewItem ? newItemLabel : undefined}
+              />
             )
           }
           refreshing={isRefetching}

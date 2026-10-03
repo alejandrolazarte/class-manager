@@ -136,7 +136,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   return (
     <Screen
       overlay={
-        canScheduleLessons && sessions.length > 0 ? (
+        canScheduleLessons ? (
           <FloatingActionButton
             label={translate("privateLessons.new")}
             onPress={openNewPrivateLesson}
@@ -242,15 +242,6 @@ export function DayScreen({ initialDate }: DayScreenProps) {
                   {translate("home.free.body")}
                 </AppText>
               </View>
-              {canScheduleLessons ? (
-                <Button
-                  size="medium"
-                  icon="add"
-                  label={translate("home.free.addPrivate")}
-                  accessibilityLabel={translate("privateLessons.new")}
-                  onPress={openNewPrivateLesson}
-                />
-              ) : null}
             </Card>
           ) : null}
           {sessions.map((session) => (
