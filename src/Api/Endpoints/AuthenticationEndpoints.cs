@@ -25,6 +25,8 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.PasswordReset, ResetPasswordAsync);
         authentication.MapPost(ApiRoutes.AcceptInvitation, AcceptInvitationAsync);
         authentication.MapPost(ApiRoutes.AcceptFamilyInvitation, AcceptFamilyInvitationAsync);
+        authentication.MapPost(ApiRoutes.CheckInvitation, CheckInvitationAsync);
+        authentication.MapPost(ApiRoutes.CheckFamilyInvitation, CheckFamilyInvitationAsync);
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
 
@@ -129,5 +131,25 @@ internal static class AuthenticationEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToOkResult();
+    }
+
+    private static async Task<IResult> CheckInvitationAsync(
+        CheckInvitationCommand command,
+        IUseCase<CheckInvitationCommand, CheckInvitationResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> CheckFamilyInvitationAsync(
+        CheckFamilyInvitationCommand command,
+        IUseCase<CheckFamilyInvitationCommand, CheckFamilyInvitationResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
     }
 }

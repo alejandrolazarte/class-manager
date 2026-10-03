@@ -3,6 +3,7 @@ import {
   Account,
   AcceptFamilyInvitationRequest,
   AcceptInvitationRequest,
+  CheckInvitationRequest,
   PasswordResetRequest,
   RefreshSessionRequest,
   ResetPasswordRequest,
@@ -22,6 +23,8 @@ const authenticationPaths = {
   passwordResetRequest: "/api/auth/password-reset-request",
   acceptInvitation: "/api/auth/invitations/accept",
   acceptFamilyInvitation: "/api/auth/family-invitations/accept",
+  checkInvitation: "/api/auth/invitations/check",
+  checkFamilyInvitation: "/api/auth/family-invitations/check",
   switchBranch: "/api/auth/branch",
   accounts: "/api/me/accounts",
 } as const;
@@ -48,6 +51,14 @@ export function resetPassword(request: ResetPasswordRequest): Promise<void> {
 
 export function acceptInvitation(request: AcceptInvitationRequest): Promise<TokenResponse> {
   return anonymousHttpClient.post<TokenResponse>(authenticationPaths.acceptInvitation, request);
+}
+
+export function checkInvitation(request: CheckInvitationRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.checkInvitation, request);
+}
+
+export function checkFamilyInvitation(request: CheckInvitationRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.checkFamilyInvitation, request);
 }
 
 export function acceptFamilyInvitation(
