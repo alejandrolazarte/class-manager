@@ -50,6 +50,7 @@ export function WeeklyClassesScreen() {
       />
     ) : (
       <EmptyState
+        icon="noClasses"
         message={translate("classGroups.week.noClassesOnDay", {
           day: weekdayLongLabel(selectedWeekday).toLowerCase(),
         })}

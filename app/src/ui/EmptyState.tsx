@@ -6,7 +6,7 @@ import { Icon, IconName } from "@/ui/Icon";
 
 interface EmptyStateProps {
   message: string;
-  icon?: IconName;
+  icon: IconName;
   iconTone?: ThemeColorToken;
   createActionLabel?: string;
 }
@@ -19,7 +19,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <View className="items-center gap-3 px-5 py-9">
-      {icon ? <Icon name={icon} size="huge" tone={iconTone} /> : null}
+      <Icon name={icon} size="huge" tone={iconTone} />
       <AppText variant="bodyStrong" tone="muted" className="text-center font-label">
         {message}
       </AppText>

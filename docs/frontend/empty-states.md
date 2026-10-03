@@ -14,6 +14,7 @@ Considered and rejected: a centered button on the empty state and no floating bu
 
 - Keep the floating action button visible when the list is empty. Never show it only when the list has items (`items.length > 0 ? <FloatingActionButton …/> : undefined`).
 - `EmptyState` takes no children, so it cannot hold a button. Pass `createActionLabel` with the floating button's label and it adds "Tocá {action} para empezar." Leave it out when the member cannot create (no permission), so the hint never points to a button that is not there.
+- Every `EmptyState` has an icon (`icon` is required), so all empty screens look alike: the icon of the section for an empty list (`classes`, `students`, `classPacks`, `products`, `instructors`…), `search` for a search with no results, `noClasses` for a day without classes. `SettingsListScreenLayout` asks for it as `emptyIcon`.
 - Empty states for a filter or a search ("No hay clases el lunes", "No encontramos alumnos para…") don't need the hint: the list is not empty, the filter is.
 
 ```tsx
@@ -26,7 +27,7 @@ Considered and rejected: a centered button on the empty state and no floating bu
 
 ## Enforced by
 
-- The type of `EmptyState`: it has no `children`, so a button inside it does not compile.
+- The type of `EmptyState`: it has no `children`, so a button inside it does not compile, and `icon` is required, so an empty state without an icon does not compile either.
 - `app/src/ui/__tests__/When_a_list_is_empty/`:
   - `Then_the_empty_state_has_no_buttons` fails if any component closes an `</EmptyState>` tag (content inside it);
   - `Then_the_floating_button_stays_visible` fails if a `FloatingActionButton` is shown only when a list has items (`.length > 0 ? <FloatingActionButton`).

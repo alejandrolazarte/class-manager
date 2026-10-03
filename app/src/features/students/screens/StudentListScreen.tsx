@@ -32,7 +32,10 @@ export function StudentListScreen() {
 
   const emptyState =
     debouncedSearch.length > 0 ? (
-      <EmptyState message={translate("students.list.noResults", { search: debouncedSearch })} />
+      <EmptyState
+        icon="search"
+        message={translate("students.list.noResults", { search: debouncedSearch })}
+      />
     ) : (
       <EmptyState
         icon="students"

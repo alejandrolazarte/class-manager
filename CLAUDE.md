@@ -123,7 +123,7 @@ Integration tests start SQL Server through Testcontainers, which talks to Podman
 - One main assertion per test (supporting asserts allowed)
 
 ### Empty states
-- The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).
+- The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).
 
 ### Documentation
 - Operational, security or infrastructure decisions go in a Markdown file under `docs/`, linked from `README.md`.

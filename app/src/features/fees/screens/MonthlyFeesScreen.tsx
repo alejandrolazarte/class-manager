@@ -150,7 +150,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
                 message={translate("fees.month.nobodyOwes")}
               />
             ) : (
-              <EmptyState message={translate("fees.month.empty")} />
+              <EmptyState icon="fees" message={translate("fees.month.empty")} />
             )
           }
           ListFooterComponent={

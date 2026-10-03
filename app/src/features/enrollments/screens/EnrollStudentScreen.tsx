@@ -137,7 +137,9 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
               </Pressable>
             );
           }}
-          ListEmptyComponent={<EmptyState message={translate("enrollments.enroll.noStudents")} />}
+          ListEmptyComponent={
+            <EmptyState icon="students" message={translate("enrollments.enroll.noStudents")} />
+          }
         />
       )}
     </Screen>
