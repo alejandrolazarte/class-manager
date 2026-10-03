@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
@@ -29,7 +30,8 @@ public sealed record UpdateClassPackCommand(
 public sealed class UpdateClassPackUseCase(
     IClassPackRepository classPackRepository,
     IClassGroupRepository classGroupRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IDocumentStorageService documentStorage)
     : IUseCase<UpdateClassPackCommand, ClassPackResponse>
 {
     public async Task<Result<ClassPackResponse>> ExecuteAsync(UpdateClassPackCommand command, CancellationToken cancellationToken)
@@ -74,6 +76,6 @@ public sealed class UpdateClassPackUseCase(
             return ClassPackFailures.NameTaken();
         }
 
-        return ClassPackResponse.From(classPack);
+        return ClassPackResponse.From(classPack, documentStorage);
     }
 }

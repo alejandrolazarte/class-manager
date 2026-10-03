@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
-import { ProductPhoto } from "@/features/family/components/ProductPhoto";
+import { ProductPhotoCarousel } from "@/features/family/components/ProductPhotoCarousel";
 import { maximumUnitsPerItem } from "@/features/family/familyCart";
 import { QuantityStepper } from "@/features/family/components/QuantityStepper";
 import { FamilyShopProduct } from "@/features/family/types";
@@ -38,7 +38,7 @@ export function ProductSheet({ product, currencyCode, onClose, onAdd }: ProductS
       onClose={onClose}
       header={
         <View>
-          <ProductPhoto heightClassName="h-[220px]" />
+          <ProductPhotoCarousel images={product.images} heightClassName="h-[220px]" />
           <View className="absolute right-3 top-3 rounded-full bg-surface">
             <IconButton
               icon="close"

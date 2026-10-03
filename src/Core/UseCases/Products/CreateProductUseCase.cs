@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
 
@@ -12,7 +13,11 @@ public sealed record CreateProductCommand(
     bool IsVisibleInApp,
     IReadOnlyList<VariantChange>? Variants);
 
-public sealed class CreateProductUseCase(IProductRepository productRepository, IUnitOfWork unitOfWork, TimeProvider timeProvider)
+public sealed class CreateProductUseCase(
+    IProductRepository productRepository,
+    IUnitOfWork unitOfWork,
+    TimeProvider timeProvider,
+    IDocumentStorageService documentStorage)
     : IUseCase<CreateProductCommand, ProductResponse>
 {
     private static readonly IReadOnlyList<VariantChange> SingleVariant = [new(null, string.Empty)];
@@ -42,6 +47,6 @@ public sealed class CreateProductUseCase(IProductRepository productRepository, I
             return ProductFailures.NameTaken();
         }
 
-        return ProductResponse.From(product.Value, new Dictionary<Guid, int>());
+        return ProductResponse.From(product.Value, new Dictionary<Guid, int>(), documentStorage);
     }
 }

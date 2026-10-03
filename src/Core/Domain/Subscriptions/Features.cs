@@ -11,6 +11,7 @@ public static class Features
     public const string FamilyApp = "family-app";
     public const string Shop = "shop";
     public const string Brand = "brand";
+    public const string CatalogPhotos = "catalog-photos";
 
     public static IReadOnlyList<string> All { get; } =
     [
@@ -23,7 +24,8 @@ public static class Features
         FamilyApp,
         Shop,
         Brand,
+        CatalogPhotos,
     ];
 
-    public static IReadOnlyList<string> Counted { get; } = [Students, Branches, Team];
+    public static IReadOnlyList<string> Counted { get; } = [Students, Branches, Team, CatalogPhotos];
 }

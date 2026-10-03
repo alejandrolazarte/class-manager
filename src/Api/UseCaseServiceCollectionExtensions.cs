@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Fees;
+using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
@@ -41,6 +42,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
+        services.AddScoped<ICatalogImageService, CatalogImageService>();
         services.AddScoped<IAccessScopes, AccessScopes>();
         services.AddSingleton<CsvTabularReader>();
         services.AddSingleton(new XlsxTabularReader());
@@ -157,6 +159,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<CreateClassPackCommand, ClassPackResponse>, CreateClassPackUseCase>();
         services.AddScoped<IUseCase<UpdateClassPackCommand, ClassPackResponse>, UpdateClassPackUseCase>();
         services.AddScoped<IUseCase<SetClassPackActiveCommand, ClassPackResponse>, SetClassPackActiveUseCase>();
+        services.AddScoped<IUseCase<AddClassPackImageCommand, ClassPackResponse>, AddClassPackImageUseCase>();
+        services.AddScoped<IUseCase<RemoveClassPackImageCommand, ClassPackResponse>, RemoveClassPackImageUseCase>();
+        services.AddScoped<IUseCase<ReorderClassPackImagesCommand, ClassPackResponse>, ReorderClassPackImagesUseCase>();
         services.AddScoped<IUseCase<SellClassPackCommand, ClassPackPurchaseResponse>, SellClassPackUseCase>();
         services.AddScoped<IUseCase<DeleteClassPackPurchaseCommand, ClassPackPurchaseResponse>, DeleteClassPackPurchaseUseCase>();
         services.AddScoped<IUseCase<GetClientClassBalanceQuery, ClassBalanceResponse>, GetClientClassBalanceUseCase>();
@@ -164,6 +169,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<CreateProductCommand, ProductResponse>, CreateProductUseCase>();
         services.AddScoped<IUseCase<UpdateProductCommand, ProductResponse>, UpdateProductUseCase>();
         services.AddScoped<IUseCase<SetProductActiveCommand, ProductResponse>, SetProductActiveUseCase>();
+        services.AddScoped<IUseCase<AddProductImageCommand, ProductResponse>, AddProductImageUseCase>();
+        services.AddScoped<IUseCase<RemoveProductImageCommand, ProductResponse>, RemoveProductImageUseCase>();
+        services.AddScoped<IUseCase<ReorderProductImagesCommand, ProductResponse>, ReorderProductImagesUseCase>();
         services.AddScoped<IUseCase<RecordStockMovementCommand, ProductResponse>, RecordStockMovementUseCase>();
         services.AddScoped<IUseCase<ListStockMovementsQuery, IReadOnlyList<StockMovementResponse>>, ListStockMovementsUseCase>();
         services.AddScoped<IUseCase<ListOrdersQuery, IReadOnlyList<OrderResponse>>, ListOrdersUseCase>();

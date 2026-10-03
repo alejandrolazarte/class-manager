@@ -27,7 +27,11 @@ export function ShopProductCard({ product, currencyCode, isInCart, onOpen }: Sho
   const soldOut = isSoldOut(product);
   return (
     <Card className="flex-1" accessibilityLabel={product.name} onPress={onOpen}>
-      <ProductPhoto heightClassName="h-[150px]" isDimmed={soldOut} />
+      <ProductPhoto
+        imageUrl={product.images[0]?.url ?? null}
+        heightClassName="h-[150px]"
+        isDimmed={soldOut}
+      />
       {soldOut || isOnOrder(product) ? (
         <View className="absolute left-2.5 top-2.5">
           <StatusPill

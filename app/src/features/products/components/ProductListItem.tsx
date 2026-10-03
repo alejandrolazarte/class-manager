@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
+import { CatalogThumbnail } from "@/features/catalogImages/components/CatalogThumbnail";
 import { formatMoney } from "@/features/fees/money";
 import { stockSummary } from "@/features/products/stockLabels";
 import { Product } from "@/features/products/types";
@@ -24,9 +25,7 @@ export function ProductListItem({ product, onPress }: ProductListItemProps) {
         accessibilityLabel={product.name}
         className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
       >
-        <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
-          <Icon name="products" tone="primary-soft-foreground" />
-        </View>
+        <CatalogThumbnail imageUrl={product.images[0]?.url ?? null} placeholderIcon="products" />
         <View className="flex-1 gap-1">
           <AppText variant="bodyStrong">{product.name}</AppText>
           <AppText variant="caption" tone="subtle">

@@ -36,12 +36,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<DefaultMonthlyFeeChange> DefaultMonthlyFeeChanges => Set<DefaultMonthlyFeeChange>();
     public DbSet<ClientBillingPlanChange> ClientBillingPlanChanges => Set<ClientBillingPlanChange>();
     public DbSet<ClassPack> ClassPacks => Set<ClassPack>();
+    public DbSet<ClassPackImage> ClassPackImages => Set<ClassPackImage>();
     public DbSet<ClassPackPurchase> ClassPackPurchases => Set<ClassPackPurchase>();
     public DbSet<ClassPackClassGroup> ClassPackClassGroups => Set<ClassPackClassGroup>();
     public DbSet<PrivateLesson> PrivateLessons => Set<PrivateLesson>();
     public DbSet<PrivateLessonStudent> PrivateLessonStudents => Set<PrivateLessonStudent>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+    public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+    public DbSet<Document> Documents => Set<Document>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();

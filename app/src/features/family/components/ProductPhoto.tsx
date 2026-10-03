@@ -1,17 +1,18 @@
-import { View } from "react-native";
-import { Icon } from "@/ui/Icon";
+import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
 
 interface ProductPhotoProps {
+  imageUrl: string | null;
   heightClassName: string;
   isDimmed?: boolean;
 }
 
-export function ProductPhoto({ heightClassName, isDimmed = false }: ProductPhotoProps) {
+export function ProductPhoto({ imageUrl, heightClassName, isDimmed = false }: ProductPhotoProps) {
   return (
-    <View
-      className={`w-full items-center justify-center bg-muted ${heightClassName} ${isDimmed ? "opacity-50" : ""}`}
-    >
-      <Icon name="products" size="huge" tone="border-strong" />
-    </View>
+    <CatalogImage
+      imageUri={imageUrl}
+      placeholderIcon="products"
+      className={`w-full ${heightClassName}`}
+      isDimmed={isDimmed}
+    />
   );
 }

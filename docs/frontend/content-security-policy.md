@@ -17,7 +17,7 @@ It is deployed in **report-only** mode: the browser only reports what it would b
 | `default-src` | `'self'` | Anything not listed below only from the app's own domain. |
 | `script-src` | `'self'` | Only the app's own script files. No inline scripts and no `eval`. |
 | `style-src` | `'self' 'unsafe-inline'` | `react-native-web` injects `<style>` tags at runtime. |
-| `img-src` | `'self' data: blob:` | The business logo is fetched from the API and shown as a `data:` image. |
+| `img-src` | `'self' data: blob:` + the files origin | The business logo is fetched from the API and shown as a `data:` image. Product and class pack photos come from Blob Storage; its origin is taken from `FILES_BASE_URL` when set (see [storage](../storage.md)). |
 | `font-src` | `'self' data:` | Nunito and the icon fonts are bundled with the app. |
 | `connect-src` | `'self'` + the API origin | The app only talks to its API. A stolen token can't be sent anywhere else. |
 | `worker-src`, `manifest-src` | `'self'` | The service worker and the PWA manifest. |

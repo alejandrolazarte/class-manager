@@ -102,4 +102,12 @@ internal static class DiagnosticDescriptors
         category: ArchitectureCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor StorageMustNotDependOnApplication = new(
+        id: "ARCH008",
+        title: "Storage must not depend on the application",
+        messageFormat: "Storage cannot use '{0}'; keep file storage free of business concepts and decide paths and owners in the application",
+        category: ArchitectureCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

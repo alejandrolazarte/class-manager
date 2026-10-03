@@ -7,12 +7,14 @@ using ClassManager.Core.UseCases.Students;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
+using ClassManager.Storage.AzureBlob.Blobs;
 using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
+using Testcontainers.Azurite;
 using Testcontainers.MsSql;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
@@ -27,19 +29,28 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     private const string SeededStudentsClientName = "Familia sembrada";
     private const string SeededStudentsPhoneNumber = "11 4000-1000";
     private const string SqlServerImage = "mcr.microsoft.com/mssql/server:2022-latest";
+    private const string AzuriteImage = "mcr.microsoft.com/azure-storage/azurite:3.37.0";
+    private const string SkipApiVersionCheckFlag = "--skipApiVersionCheck";
+    private const string ConnectionStringsSection = "ConnectionStrings";
     private const string BusinessName = "Test business";
     private const string TestOwnerEmail = "owner@test.local";
 
     private readonly MsSqlContainer _container = new MsSqlBuilder(SqlServerImage).Build();
+    private readonly AzuriteContainer _storageContainer = new AzuriteBuilder(AzuriteImage)
+        .WithInMemoryPersistence()
+        .WithCommand(SkipApiVersionCheckFlag)
+        .Build();
     private BusinessApiFactory? _apiFactory;
 
     public string ConnectionString => _container.GetConnectionString();
+
+    public HttpClient AnonymousClient { get; } = new();
 
     public BusinessApiFactory ApiFactory => _apiFactory ?? throw new InvalidOperationException(nameof(InitializeAsync));
 
     public async Task InitializeAsync()
     {
-        await _container.StartAsync();
+        await Task.WhenAll(_container.StartAsync(), _storageContainer.StartAsync());
         await using (var context = CreateDbContext(Guid.Empty))
         {
             await context.Database.MigrateAsync();
@@ -50,12 +61,24 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             await securityContext.Database.MigrateAsync();
         }
 
-        _apiFactory = new BusinessApiFactory(ConnectionString);
+        var storageSettings = new Dictionary<string, string>
+        {
+            [$"{ConnectionStringsSection}:{BlobStorageOptions.ConnectionStringName}"] = _storageContainer.GetConnectionString(),
+        };
+        _apiFactory = new BusinessApiFactory(ConnectionString, new FakeTimeProvider(BusinessApiFactory.Now), storageSettings);
     }
 
-    public Task DisposeAsync() => _container.DisposeAsync().AsTask();
+    public async Task DisposeAsync()
+    {
+        await _container.DisposeAsync();
+        await _storageContainer.DisposeAsync();
+    }
 
-    public void Dispose() => _apiFactory?.Dispose();
+    public void Dispose()
+    {
+        _apiFactory?.Dispose();
+        AnonymousClient.Dispose();
+    }
 
     public AppDbContext CreateDbContext(Guid businessId)
     {
