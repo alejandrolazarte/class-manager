@@ -1,4 +1,6 @@
 {
+  "appUpdate.available": "Hay una nueva versión de la app.",
+  "appUpdate.reload": "Actualizar",
   "common.retry": "Reintentar",
   "common.change": "Cambiar",
   "common.networkError": "No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.",

@@ -5,6 +5,7 @@ import { SplashScreen, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { refetchWhenAppReturns } from "@/api/appFocus";
+import { AppUpdateBanner } from "@/features/appUpdate/AppUpdateBanner";
 import { SessionProvider } from "@/features/authentication/SessionProvider";
 import { useSession } from "@/features/authentication/useSession";
 import { PersistedThemePreferences } from "@/theme/PersistedThemePreferences";
@@ -46,6 +47,7 @@ export default function RootLayout() {
               <PersistedThemePreferences />
               <ThemedStatusBar />
               <RootNavigator />
+              <AppUpdateBanner />
             </ToastProvider>
           </SessionProvider>
         </QueryClientProvider>
