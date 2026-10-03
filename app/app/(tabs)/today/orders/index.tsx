@@ -1,5 +1,5 @@
-import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
+import { NotifiedOrdersScreen } from "@/features/orders/screens/NotifiedOrdersScreen";
 
 export default function OrdersRoute() {
-  return <OrderListScreen />;
+  return <NotifiedOrdersScreen />;
 }

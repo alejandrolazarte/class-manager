@@ -19,6 +19,7 @@ const sourceAliasImportPattern = /from\s+"@\/([^"]+)"/g;
 const routeUsagePattern = /\broutes\.(\w+)(?:\(\s*"(\w+)")?/g;
 const dynamicSegmentPattern = /^\[.+\]$/;
 const pathSeparatorPattern = /[/?]/;
+const querySeparator = "?";
 
 type RouteKey = keyof typeof routes;
 
@@ -111,7 +112,7 @@ export function targetTabOf(path: string): string {
 }
 
 export function isTabRoot(path: string): boolean {
-  return path === `/${targetTabOf(path)}`;
+  return path.split(querySeparator)[0] === `/${targetTabOf(path)}`;
 }
 
 function toScreenSegments(routeFile: string): string[] {
