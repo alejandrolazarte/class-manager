@@ -23,7 +23,11 @@ public sealed record CurrentMemberResponse(
         new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.UserId, fullName, subscription);
 }
 
-public sealed class GetCurrentMemberUseCase(ICurrentMember currentMember, IIdentityService identityService, IFeatureAccess featureAccess)
+public sealed class GetCurrentMemberUseCase(
+    ICurrentMember currentMember,
+    IIdentityService identityService,
+    IFeatureAccess featureAccess,
+    IFeatureUsage featureUsage)
     : IUseCase<GetCurrentMemberQuery, CurrentMemberResponse>
 {
     public async Task<Result<CurrentMemberResponse>> ExecuteAsync(GetCurrentMemberQuery command, CancellationToken cancellationToken)
@@ -36,6 +40,15 @@ public sealed class GetCurrentMemberUseCase(ICurrentMember currentMember, IIdent
 
         var accounts = await identityService.ListAccountsAsync([access.UserId], cancellationToken);
         var features = await featureAccess.GetCurrentAsync(cancellationToken);
-        return CurrentMemberResponse.From(access, accounts.Count > 0 ? accounts[0].FullName : null, CurrentSubscriptionResponse.From(features));
+        var usageByFeatureCode = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var featureCode in featureUsage.CountedFeatureCodes.Where(features.Has))
+        {
+            usageByFeatureCode[featureCode] = await featureUsage.CountAsync(featureCode, cancellationToken);
+        }
+
+        return CurrentMemberResponse.From(
+            access,
+            accounts.Count > 0 ? accounts[0].FullName : null,
+            CurrentSubscriptionResponse.From(features, usageByFeatureCode));
     }
 }

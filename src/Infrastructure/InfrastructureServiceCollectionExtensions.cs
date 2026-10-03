@@ -15,6 +15,7 @@ using ClassManager.Security.Hosting;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
 using ClassManager.Subscriptions.AspNetCore.Hosting;
+using ClassManager.Subscriptions.AspNetCore.Limits;
 using ClassManager.Tenancy.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.Extensions.Configuration;
@@ -41,13 +42,15 @@ public static class InfrastructureServiceCollectionExtensions
                 ?? throw new InvalidOperationException(MissingConnectionStringMessage);
             options
                 .UseSqlServer(connectionString)
-                .AddInterceptors(serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>());
+                .AddInterceptors(
+                    serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>(),
+                    serviceProvider.GetRequiredService<FeatureLimitSaveChangesInterceptor<AppDbContext>>());
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
-        services.AddSubscriptions<AppDbContext, OrganizationSubscriberResolver>();
+        services.AddSubscriptions<AppDbContext, OrganizationSubscriberResolver>(SubscriptionLimits.Configure);
         services.AddScoped<IOrganizationMemberRepository, OrganizationMemberRepository>();
         services.AddScoped<IBusinessRepository, BusinessRepository>();
         services.AddScoped<IBrandLogoRepository, BrandLogoRepository>();

@@ -27,7 +27,7 @@ public sealed class Then_role_and_permissions_are_returned
             .Setup(access => access.GetCurrentAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(EffectiveFeatures.Inactive(string.Empty));
 
-        var response = await new GetCurrentMemberUseCase(currentMember.Object, identityService.Object, featureAccess.Object).ExecuteAsync(new GetCurrentMemberQuery(), CancellationToken.None);
+        var response = await new GetCurrentMemberUseCase(currentMember.Object, identityService.Object, featureAccess.Object, Mock.Of<IFeatureUsage>(usage => usage.CountedFeatureCodes == Array.Empty<string>())).ExecuteAsync(new GetCurrentMemberQuery(), CancellationToken.None);
 
         response.Value.ShouldBe(
             new CurrentMemberResponse(businessId, BusinessRole.BranchOwner, null, IsBrandOwner: true, [.. Permissions.All.Order(StringComparer.Ordinal)]),

@@ -1,7 +1,9 @@
 using System.Net.Http.Headers;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Organizations;
+using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Subscriptions;
+using ClassManager.Core.UseCases.Students;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
@@ -22,6 +24,8 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     public const string DefaultCountryCallingCode = "54";
     public const string BearerScheme = "Bearer";
 
+    private const string SeededStudentsClientName = "Familia sembrada";
+    private const string SeededStudentsPhoneNumber = "11 4000-1000";
     private const string SqlServerImage = "mcr.microsoft.com/mssql/server:2022-latest";
     private const string BusinessName = "Test business";
     private const string TestOwnerEmail = "owner@test.local";
@@ -153,6 +157,22 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             BusinessApiFactory.Now);
         endedSubscription.End(today.AddDays(-1));
         context.Subscriptions.Add(endedSubscription);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task SeedStudentsAsync(SeededBusiness business, int studentCount)
+    {
+        var client = await business.HttpClient.RegisterClientAsync(
+            fullName: SeededStudentsClientName,
+            phoneNumber: SeededStudentsPhoneNumber,
+            students: [new NewStudent("Alumno 1", null, null)]);
+        var today = DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime);
+        await using var context = CreateDbContext(business.Business.Id);
+        for (var studentNumber = 2; studentNumber <= studentCount; studentNumber++)
+        {
+            context.Students.Add(Student.Create(client.Id, $"Alumno {studentNumber}", null, null, today, BusinessApiFactory.Now).Value!);
+        }
+
         await context.SaveChangesAsync();
     }
 

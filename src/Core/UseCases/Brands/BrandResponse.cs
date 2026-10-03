@@ -18,4 +18,7 @@ public sealed record BrandResponse(
             business.AccentColor,
             business.LocksTheme,
             business.LogoUpdatedAt);
+
+    public BrandResponse WithoutPaidBranding() =>
+        this with { ThemeColor = null, AccentColor = null, LocksTheme = false, LogoUpdatedAt = null };
 }

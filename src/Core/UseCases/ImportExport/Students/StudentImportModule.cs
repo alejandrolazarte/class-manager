@@ -4,6 +4,7 @@ using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
+using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.ImportExport.Columns;
 using ClassManager.ImportExport.Parsing;
 
@@ -32,6 +33,8 @@ public sealed class StudentImportModule(
     private const string ContactMismatchMessage = "This phone belongs to a family with another Responsable. Check the phone or the Responsable.";
 
     public string Name => ModuleName;
+
+    public string? CountedFeatureCode => Features.Students;
 
     public IReadOnlyList<ImportColumn> Columns { get; } =
     [

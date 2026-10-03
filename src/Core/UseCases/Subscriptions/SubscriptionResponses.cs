@@ -3,7 +3,7 @@ using ClassManager.Subscriptions.Catalog;
 
 namespace ClassManager.Core.UseCases.Subscriptions;
 
-public sealed record FeatureLimitResponse(string Code, int? Limit);
+public sealed record FeatureLimitResponse(string Code, int? Limit, int? Used = null);
 
 public sealed record CurrentSubscriptionResponse(
     string PlanCode,
@@ -11,12 +11,17 @@ public sealed record CurrentSubscriptionResponse(
     DateOnly? EndsOn,
     IReadOnlyList<FeatureLimitResponse> Features)
 {
-    public static CurrentSubscriptionResponse From(EffectiveFeatures features) =>
+    public static CurrentSubscriptionResponse From(EffectiveFeatures features, IReadOnlyDictionary<string, int>? usageByFeatureCode = null) =>
         new(
             features.PlanCode,
             features.IsActive,
             features.EndsOn,
-            [.. features.All.OrderBy(feature => feature.Code, StringComparer.Ordinal).Select(feature => new FeatureLimitResponse(feature.Code, feature.Limit))]);
+            [.. features.All
+                .OrderBy(feature => feature.Code, StringComparer.Ordinal)
+                .Select(feature => new FeatureLimitResponse(
+                    feature.Code,
+                    feature.Limit,
+                    usageByFeatureCode is not null && usageByFeatureCode.TryGetValue(feature.Code, out var used) ? used : null))]);
 }
 
 public sealed record PlanResponse(

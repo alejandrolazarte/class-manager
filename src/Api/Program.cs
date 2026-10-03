@@ -8,10 +8,12 @@ using ClassManager.Api.ErrorHandling;
 using ClassManager.Api.Notifications;
 using ClassManager.Api.Orders;
 using ClassManager.Api.SecurityHeaders;
+using ClassManager.Subscriptions.AspNetCore.Limits;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<FeatureLimitExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddAppCors(builder.Configuration);

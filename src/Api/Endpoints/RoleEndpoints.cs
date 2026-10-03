@@ -10,8 +10,8 @@ internal static class RoleEndpoints
     {
         var roles = endpoints.MapGroup(ApiRoutes.Roles);
         roles.MapGet("/", ListAsync).RequirePermission(Permissions.Members.View);
-        roles.MapPost("/", CreateAsync).RequirePermission(Permissions.Roles.Manage).RequireFeature(Features.CustomRoles);
-        roles.MapPut(ApiRoutes.RoleById, UpdateAsync).RequirePermission(Permissions.Roles.Manage).RequireFeature(Features.CustomRoles);
+        roles.MapPost("/", CreateAsync).RequirePermission(Permissions.Roles.Manage);
+        roles.MapPut(ApiRoutes.RoleById, UpdateAsync).RequirePermission(Permissions.Roles.Manage);
         roles.MapDelete(ApiRoutes.RoleById, DeleteAsync).RequirePermission(Permissions.Roles.Manage);
 
         return endpoints;

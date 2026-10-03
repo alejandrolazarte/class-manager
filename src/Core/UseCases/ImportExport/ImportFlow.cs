@@ -22,6 +22,7 @@ internal static class ImportFlow
         IImportParser parser,
         string moduleName,
         Stream file,
+        PlanLimitCheck planLimitCheck,
         CancellationToken cancellationToken)
     {
         var module = FindModule(modules, moduleName);
@@ -50,8 +51,32 @@ internal static class ImportFlow
             .OrderBy(row => row.Line)
             .ToList();
 
-        var report = new ImportReport(module.Value.Name, parsed.Import.Mapping.Headers, ImportSummary.From(rows), rows);
+        var summary = ImportSummary.From(rows);
+        var planLimit = await PlanLimitAsync(module.Value.CountedFeatureCode, summary.Valid, planLimitCheck, cancellationToken);
+        var report = new ImportReport(module.Value.Name, parsed.Import.Mapping.Headers, summary, rows, planLimit);
         return (report, plan.Value);
+    }
+
+    private static async Task<ImportPlanLimit?> PlanLimitAsync(
+        string? countedFeatureCode,
+        int newRecordCount,
+        PlanLimitCheck planLimitCheck,
+        CancellationToken cancellationToken)
+    {
+        if (countedFeatureCode is null || newRecordCount == 0)
+        {
+            return null;
+        }
+
+        var features = await planLimitCheck.FeatureAccess.GetCurrentAsync(cancellationToken);
+        if (!features.IsActive || features.LimitOf(countedFeatureCode) is not { } limit)
+        {
+            return null;
+        }
+
+        var used = await planLimitCheck.FeatureUsage.CountAsync(countedFeatureCode, cancellationToken);
+        var remaining = Math.Max(0, limit - used);
+        return newRecordCount > remaining ? new ImportPlanLimit(countedFeatureCode, remaining) : null;
     }
 
     public static ImportCellError DuplicateInFile(string key) =>
