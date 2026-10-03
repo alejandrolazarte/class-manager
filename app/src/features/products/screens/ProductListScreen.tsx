@@ -26,6 +26,7 @@ export function ProductListScreen() {
           onPress={canManageProducts ? () => router.push(routes.product(product.id)) : undefined}
         />
       )}
+      emptyIcon="products"
       emptyMessage={translate("products.list.empty")}
       newItemLabel={translate("products.list.newProduct")}
       onNewItem={canManageProducts ? () => router.push(routes.newProduct) : undefined}

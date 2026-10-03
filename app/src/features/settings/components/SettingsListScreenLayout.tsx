@@ -5,6 +5,7 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { EmptyState } from "@/ui/EmptyState";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
+import { IconName } from "@/ui/Icon";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
@@ -19,6 +20,7 @@ interface SettingsListScreenLayoutProps<TItem> {
   keyExtractor: (item: TItem) => string;
   renderItem: (item: TItem) => ReactElement;
   emptyMessage: string;
+  emptyIcon: IconName;
   newItemLabel: string;
   onNewItem?: () => void;
 }
@@ -33,6 +35,7 @@ export function SettingsListScreenLayout<TItem>({
   keyExtractor,
   renderItem,
   emptyMessage,
+  emptyIcon,
   newItemLabel,
   onNewItem,
 }: SettingsListScreenLayoutProps<TItem>) {
@@ -66,9 +69,11 @@ export function SettingsListScreenLayout<TItem>({
           renderItem={({ item }) => <View className="px-5 pb-3.5">{renderItem(item)}</View>}
           ListEmptyComponent={
             isError ? null : (
-              <EmptyState message={emptyMessage}>
-                {onNewItem ? <Button label={newItemLabel} onPress={onNewItem} /> : null}
-              </EmptyState>
+              <EmptyState
+                icon={emptyIcon}
+                message={emptyMessage}
+                createActionLabel={onNewItem ? newItemLabel : undefined}
+              />
             )
           }
           refreshing={isRefetching}

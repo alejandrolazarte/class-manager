@@ -23,7 +23,11 @@ describe("When the day has no classes", () => {
     await renderWithProviders(<DayScreen initialDate={sessionDate} />);
 
     expect(await screen.findByText(translate("home.free.title"))).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole("button", { name: translate("privateLessons.new") }));
+    const privateLessonButtons = screen.getAllByRole("button", {
+      name: translate("privateLessons.new"),
+    });
+    expect(privateLessonButtons).toHaveLength(1);
+    await fireEvent.press(privateLessonButtons[0]);
 
     expect(routerMock.push).toHaveBeenCalledWith(routes.newPrivateLesson(sessionDate));
   });

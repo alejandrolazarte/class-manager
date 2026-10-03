@@ -34,6 +34,7 @@ export function InstructorListScreen() {
           }
         />
       )}
+      emptyIcon="instructors"
       emptyMessage={translate("instructors.list.empty")}
       newItemLabel={translate("instructors.list.newInstructor")}
       onNewItem={canManageInstructors ? () => router.push(routes.newInstructor) : undefined}

@@ -28,6 +28,7 @@ export function ClassPackListScreen() {
           }
         />
       )}
+      emptyIcon="classPacks"
       emptyMessage={translate("classPacks.list.empty")}
       newItemLabel={translate("classPacks.list.newPack")}
       onNewItem={canManageClassPacks ? () => router.push(routes.newClassPack) : undefined}
