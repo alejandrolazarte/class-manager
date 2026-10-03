@@ -37,7 +37,6 @@ export function buildMonthlyFees(
     totalDue: clients.reduce((total, client) => total + (client.fee ?? 0), 0),
     totalPaid: clients.reduce((total, client) => total + client.paid, 0),
     clients,
-    classPackSales: 0,
     classPackClients,
   };
 }

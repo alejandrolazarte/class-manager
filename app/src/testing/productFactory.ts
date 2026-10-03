@@ -1,4 +1,4 @@
-import { Order } from "@/features/orders/types";
+import { Order, OrderSummary } from "@/features/orders/types";
 import { Product } from "@/features/products/types";
 
 export function buildProduct(overrides: Partial<Product> = {}): Product {
@@ -49,6 +49,16 @@ export function buildOrder(overrides: Partial<Order> = {}): Order {
         classPackPurchaseId: null,
       },
     ],
+    ...overrides,
+  };
+}
+
+export function buildOrderSummary(overrides: Partial<OrderSummary> = {}): OrderSummary {
+  return {
+    month: "2026-09",
+    collected: 0,
+    unpaid: 0,
+    classPackSales: 0,
     ...overrides,
   };
 }

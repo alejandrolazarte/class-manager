@@ -10,6 +10,7 @@ internal static class OrderEndpoints
     {
         var orders = endpoints.MapGroup(ApiRoutes.Orders);
         orders.MapGet("/", ListOrdersAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
+        orders.MapGet(ApiRoutes.OrderSummary, GetOrderSummaryAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
         orders.MapPost("/", CreateCounterSaleAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Payment, ConfirmOrderPaymentAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Ready, MarkOrderReadyAsync).RequirePermission(Permissions.Orders.Manage);
@@ -89,6 +90,16 @@ internal static class OrderEndpoints
     {
         var result = await useCase.ExecuteAsync(
             new ListOrdersQuery(clientId, awaitingPickup ?? false, requested ?? false), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> GetOrderSummaryAsync(
+        string? month,
+        IUseCase<GetOrderSummaryQuery, OrderSummaryResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetOrderSummaryQuery(month), cancellationToken);
 
         return result.ToOkResult();
     }

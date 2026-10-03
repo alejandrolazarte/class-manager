@@ -22,7 +22,6 @@ internal sealed class FeeUseCaseBuilder
     public Mock<IEnrollmentRepository> Enrollments { get; } = new();
     public Mock<IPaymentRepository> Payments { get; } = new();
     public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
-    public Mock<IClassPackPurchaseRepository> ClassPackPurchases { get; } = new();
     public Mock<IClassBalanceService> ClassBalances { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
@@ -44,10 +43,6 @@ internal sealed class FeeUseCaseBuilder
         ActAs(SystemRolePermissions.BrandOwner);
         AccessScopes.Setup(scopes => scopes.ForClientsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((ClientScope?)null);
         Clients.Setup(repository => repository.IsInScopeAsync(It.IsAny<Guid>(), It.IsAny<ClientScope>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        ClassPackPurchases
-            .Setup(repository => repository.SumPriceBetweenAsync(
-                It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<IReadOnlyCollection<Guid>?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(0m);
         AddDefaultFeeChange(SinceAlways, DefaultFee);
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Business);
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
@@ -110,7 +105,6 @@ internal sealed class FeeUseCaseBuilder
             Payments.Object,
             FeeSchedule.Object,
             ClassBalances.Object,
-            ClassPackPurchases.Object,
             Clients.Object,
             BusinessCalendar.Object,
             AccessScopes.Object);

@@ -4,13 +4,12 @@ import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
 import { monthOf } from "@/features/fees/months";
-import { useMonthlyFees } from "@/features/fees/useFees";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { OrderCard } from "@/features/orders/components/OrderCard";
-import { PendingOrdersSummaryCard } from "@/features/orders/components/PendingOrdersSummaryCard";
+import { OrderSummaryCard } from "@/features/orders/components/OrderSummaryCard";
 import { OrderFilter, orderFilters } from "@/features/orders/types";
-import { useOrders, usePendingOrders } from "@/features/orders/useOrders";
+import { useOrders, useOrderSummary, usePendingOrders } from "@/features/orders/useOrders";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { orderTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -37,7 +36,7 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
   const [filter, setFilter] = useState<OrderFilter>("all");
   const { data: orders = [], isPending, isError, refetch } = useOrders(null, filter);
   const pendingOrders = usePendingOrders({ enabled: isInCollections });
-  const { data: monthlyFees } = useMonthlyFees(month, { enabled: isInCollections });
+  const { data: orderSummary } = useOrderSummary(month, { enabled: isInCollections });
   const openCounterSale = () => router.push(routes.newCounterSale(orderTab));
 
   return (
@@ -60,11 +59,10 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
       }
     >
       {viewSwitcher}
-      {isInCollections ? (
-        <PendingOrdersSummaryCard
+      {isInCollections && orderSummary ? (
+        <OrderSummaryCard
+          orderSummary={orderSummary}
           pendingOrders={pendingOrders}
-          month={month}
-          classPackSales={monthlyFees?.classPackSales ?? 0}
           money={(amount) => formatMoney(amount, business.currencyCode)}
         />
       ) : null}

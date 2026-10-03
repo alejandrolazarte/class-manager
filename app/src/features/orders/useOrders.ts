@@ -1,12 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { orderQueryKeys } from "@/features/orders/orderQueryKeys";
-import { listClassDeliveries, listDeliveryClasses, listOrders } from "@/features/orders/ordersApi";
+import {
+  getOrderSummary,
+  listClassDeliveries,
+  listDeliveryClasses,
+  listOrders,
+} from "@/features/orders/ordersApi";
 import { Order, OrderFilter } from "@/features/orders/types";
 
 export function useOrders(clientId: string | null, filter: OrderFilter) {
   return useQuery({
     queryKey: orderQueryKeys.list(clientId, filter),
     queryFn: () => listOrders(clientId, filter),
+  });
+}
+
+export function useOrderSummary(month: string, { enabled = true } = {}) {
+  return useQuery({
+    queryKey: orderQueryKeys.summary(month),
+    queryFn: () => getOrderSummary(month),
+    enabled,
   });
 }
 
