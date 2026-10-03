@@ -46,6 +46,8 @@ Every endpoint except `/api/auth/*` and `/health` requires a JWT whose `tenant_i
 
 ## Setup steps
 
+Status: done; the hosting is live. The exact commands that were run are in the [pilot deployment runbook](pilot-deployment.md).
+
 Commands use the Azure CLI (`az`). Names are suggestions; `<region>` is decided when the hosting is created (see [Region](#region)).
 
 ### Region
@@ -138,12 +140,12 @@ Flow (`.github/workflows/deploy.yml`): PR merged to `main` → CI green → push
 
 ## Security checklist
 
-- [ ] No passwords: Entra-only SQL server + managed identity.
-- [ ] No secrets in the repository or in GitHub; registry token and JWT signing key live in Container Apps secrets.
-- [ ] JWT signing key: at least 32 random bytes, used only by this environment (never the local user-secrets key).
-- [ ] HTTPS only (Container Apps default).
-- [ ] CORS limited to the Pages domain.
-- [ ] Budget alert active.
+- [x] No passwords: Entra-only SQL server + managed identity.
+- [x] No secrets in the repository or in GitHub; registry token and JWT signing key live in Container Apps secrets.
+- [x] JWT signing key: at least 32 random bytes, used only by this environment (never the local user-secrets key).
+- [x] HTTPS only (Container Apps default).
+- [x] CORS limited to the Pages domain.
+- [x] Budget alert active.
 
 ## Costs to watch
 

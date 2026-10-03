@@ -66,7 +66,7 @@ Every entity except `Business` is tenant-owned and gets its isolation test.
 
 ## Milestones
 
-Status: M1 to M5 done (backend and frontend), plus rescheduling one session on the same day ([plan](backend/20260926-reschedule-session/plan.md)) and a substitute instructor for one session ([plan](backend/20260929-session-substitutes/plan.md)). Next: pilot with one or two real instructors.
+Status: M1 to M8 done (backend and frontend), plus rescheduling one session on the same day ([plan](backend/20260926-reschedule-session/plan.md)), a substitute instructor for one session ([plan](backend/20260929-session-substitutes/plan.md)), import and export ([plan](backend/20260929-import-export/plan.md)) and the family app with the shop paid at the branch ([plan](backend/20260929-online-shop-and-payments/plan.md), steps 1–4). The app is deployed for the pilot ([pilot deployment](pilot-deployment.md)). Next: online payments and the [pilot plan](pilot-df-swimming.md)'s Phase 3, driven by pilot feedback.
 
 Each milestone gets a backend plan and a frontend plan under `docs/backend/<date>-<name>/plan.md` and `docs/frontend/<date>-<name>/plan.md` before code is written.
 

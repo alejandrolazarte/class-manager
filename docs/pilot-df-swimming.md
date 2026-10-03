@@ -12,13 +12,13 @@ The first pilot is the **owner** of DF Swimming Team, a Spanish network of affil
 
 ## Already covered
 
-Families with children or adult students, weekly group classes, enrollments, attendance, monthly fees, **class packs with balance and expiry** (M6), several instructors, euros and Spain, and the Hoy calendar.
+Families with children or adult students, weekly group classes, enrollments, attendance, monthly fees, **class packs with balance and expiry** (M6), several instructors, euros and Spain, the Inicio agenda and month calendar, **private lessons and trial classes** (Phase 1), **coach accounts, roles and branches** (Phase 2), import and export of students and coaches, and the family app with a shop paid at the branch.
 
 ## Phases
 
 ### Phase 1 — Private lessons (before the pilot)
 
-[Backend plan](backend/20260928-private-lessons/plan.md).
+Status: done (backend and app). [Backend plan](backend/20260928-private-lessons/plan.md).
 
 - Schedule a private lesson: one to four students, coach, date, time, duration and place. It shows on Hoy and on the month calendar next to group classes.
 - Marking a student as present uses a class from their family's pack, with the same balance rules as group classes.
@@ -28,6 +28,8 @@ Families with children or adult students, weekly group classes, enrollments, att
 Outside the app during the pilot: Timify for public booking, WordPress and WhatsApp for leads, payments collected as today and recorded in the app.
 
 ### Phase 2 — Coaches see their own agenda (early in the pilot)
+
+Status: done (backend and app), except the coach filter on Inicio and the calendar for the owner.
 
 [Backend plan](backend/20260928-roles-and-permissions/plan.md): permissions per endpoint, the brand as an organization with one business per branch (Tenerife, Valencia, Barcelona), system roles (`BrandOwner`, `BranchOwner`, `Coach`, `Viewer`) and custom roles per branch.
 
@@ -55,7 +57,7 @@ Branches as their own businesses under one organization, brand owners who act in
 
 ## Also needed before the pilot starts
 
-- Deploy ([pilot deployment](pilot-deployment.md)).
+- ~~Deploy~~: done ([pilot deployment](pilot-deployment.md)): API on Azure Container Apps, web app on Cloudflare Pages, installed on phones as a PWA.
 - ~~"Forgot password"~~: done, by email through a Gmail account ([email](pilot-deployment.md#email)).
-- Import current students from a spreadsheet (CSV), or load them with a script.
+- ~~Import current students from a spreadsheet~~: done, CSV or XLSX from Ajustes → Importar y exportar ([import and export](import-export.md)).
 - Error reporting and a WhatsApp feedback button in Ajustes.

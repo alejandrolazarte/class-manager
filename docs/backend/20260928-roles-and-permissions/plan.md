@@ -161,7 +161,9 @@ When_business_reads_roles/Then_other_business_roles_are_not_visible   (tenant is
 When_member_is_given_a_role_of_another_business/Then_request_fails    (tenant isolation)
 ```
 
-## App (frontend plan to follow)
+## App
+
+Status: done ([frontend plan](../../frontend/20260928-roles-and-team/plan.md)).
 
 - Session loads `GET /api/me`; a `useCan(permission)` hook hides tabs, buttons and screens.
 - Branch switcher in the header when the user has more than one branch.
@@ -175,4 +177,4 @@ When_member_is_given_a_role_of_another_business/Then_request_fails    (tenant is
 | Decision | Proposal |
 |---|---|
 | A branch that the brand owner must not see (an independent partner) | Not supported: a brand owner sees every branch of the brand. A fully independent partner uses their own organization |
-| Family accounts (`Client` role, linked to `ClientId`) | Out of scope; `BusinessMembers` leaves room for it |
+| Family accounts (`Client` role, linked to `ClientId`) | Decided: built as `ClientAccounts` in the [shop plan](../20260929-online-shop-and-payments/plan.md), separate from `BusinessMembers` |

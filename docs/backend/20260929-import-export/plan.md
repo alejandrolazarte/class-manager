@@ -140,13 +140,13 @@ IFormFile ─► Api ─► ImportFileUseCase(module, stream)
 
 Preview and import share the same validation code; the only difference is the last step.
 
-## Frontend (sketch, separate plan)
+## Frontend (sketch, done in the [frontend plan](../../frontend/20260929-import-export/plan.md))
 
 In Ajustes → "Importar datos": pick Alumnos or Profesores → "Descargar plantilla" / "Elegir archivo (CSV)" → preview screen with counts and the rows with errors (line, column, message) → "Importar N filas" → result. In the students and coaches lists, an "Exportar" action that downloads or shares the CSV. Uses `expo-document-picker` and, on mobile, `expo-sharing`.
 
 ## Out of scope (later phases)
 
-XLSX, manual column mapping, updating existing records, importing classes/enrollments/fees, background jobs for big files, import history and undo, AI mapping, OCR from a photo (it would produce the same `StudentImportRow` and reuse the same validation).
+Manual column mapping, updating existing records, importing classes/enrollments/fees, background jobs for big files, import history and undo, AI mapping, OCR from a photo (it would produce the same `StudentImportRow` and reuse the same validation).
 
 ## Tests
 

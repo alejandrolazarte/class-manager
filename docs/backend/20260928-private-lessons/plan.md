@@ -86,7 +86,9 @@ Unit: every rule above, the weekly repeat (all or none on conflict), balance all
 
 Integration: schedule and mark a private lesson and see a class used; the day list and month calendar include private lessons; a coach conflict with a group class returns 409; tenant isolation for the three new tables.
 
-## App (frontend plan to follow)
+## App
+
+Status: done.
 
 - Hoy: a "Nueva clase particular" action. Private lessons show in the day list with a person icon and the student names, and open the same attendance screen.
 - Family card: the pack shows duration, classes left and the material link. Selling a pack right after a trial offers to count it.
