@@ -19,6 +19,7 @@ import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
+import { TitleWithPills } from "@/ui/TitleWithPills";
 
 function branchRoleDescription(branch: Branch): string {
   if (branch.isBrandOwner) {
@@ -89,15 +90,16 @@ export function BranchesScreen() {
           className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
         >
           <View className="min-w-0 flex-1 gap-0.5">
-            <AppText variant="bodyStrong">{branch.name}</AppText>
+            <TitleWithPills title={branch.name}>
+              {branch.isCurrent ? (
+                <StatusPill label={translate("branches.current")} tone="primary" isSmall />
+              ) : null}
+            </TitleWithPills>
             <AppText variant="caption" tone="subtle">
               {branchRoleDescription(branch)}
             </AppText>
           </View>
           {switchingBranchId === branch.businessId ? <Spinner /> : null}
-          {branch.isCurrent ? (
-            <StatusPill label={translate("branches.current")} tone="primary" isSmall />
-          ) : null}
         </Card>
       ))}
     </ScrollScreen>

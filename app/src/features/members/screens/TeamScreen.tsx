@@ -26,6 +26,7 @@ import { SectionTitle } from "@/ui/SectionTitle";
 import { Spinner } from "@/ui/Spinner";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
+import { TitleWithPills } from "@/ui/TitleWithPills";
 
 const isoDateLength = 10;
 
@@ -45,7 +46,14 @@ function MemberCard({ member, roles, coachFullName, onPress }: MemberCardProps) 
     >
       <Avatar name={member.fullName} />
       <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="bodyStrong">{member.fullName}</AppText>
+        <TitleWithPills title={member.fullName}>
+          {member.isBrandOwner ? (
+            <StatusPill label={translate("team.brandOwner")} tone="neutral" isSmall />
+          ) : null}
+          {member.isCurrentUser ? (
+            <StatusPill label={translate("team.you")} tone="primary" isSmall />
+          ) : null}
+        </TitleWithPills>
         <AppText variant="caption" tone="subtle">
           {member.email}
         </AppText>
@@ -53,12 +61,6 @@ function MemberCard({ member, roles, coachFullName, onPress }: MemberCardProps) 
           {roleDescription(member.role, member.customRoleId, roles, coachFullName)}
         </AppText>
       </View>
-      {member.isBrandOwner ? (
-        <StatusPill label={translate("team.brandOwner")} tone="neutral" isSmall />
-      ) : null}
-      {member.isCurrentUser ? (
-        <StatusPill label={translate("team.you")} tone="primary" isSmall />
-      ) : null}
       {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
     </Card>
   );

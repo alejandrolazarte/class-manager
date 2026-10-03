@@ -73,6 +73,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RevokeInvitationCommand, RevokedInvitationResponse>, RevokeInvitationUseCase>();
         services.AddScoped<IUseCase<ResendInvitationCommand, InvitationResponse>, ResendInvitationUseCase>();
         services.AddScoped<IUseCase<AcceptInvitationCommand, TokenResponse>, AcceptInvitationUseCase>();
+        services.AddScoped<IUseCase<CheckInvitationCommand, CheckInvitationResponse>, CheckInvitationUseCase>();
         services.AddScoped<IUseCase<ChangeMemberRoleCommand, MemberResponse>, ChangeMemberRoleUseCase>();
         services.AddScoped<IUseCase<RemoveMemberCommand, RemovedMemberResponse>, RemoveMemberUseCase>();
         services.AddScoped<IUseCase<ListBranchesQuery, IReadOnlyList<BranchResponse>>, ListBranchesUseCase>();
@@ -140,6 +141,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<DeleteAnnouncementCommand, bool>, DeleteAnnouncementUseCase>();
         services.AddScoped<IUseCase<InviteFamilyCommand, FamilyInvitationResponse>, InviteFamilyUseCase>();
         services.AddScoped<IUseCase<AcceptFamilyInvitationCommand, TokenResponse>, AcceptFamilyInvitationUseCase>();
+        services.AddScoped<IUseCase<CheckFamilyInvitationCommand, CheckFamilyInvitationResponse>, CheckFamilyInvitationUseCase>();
         services.AddScoped<IUseCase<ListRolesQuery, IReadOnlyList<RoleResponse>>, ListRolesUseCase>();
         services.AddScoped<IUseCase<CreateRoleCommand, RoleResponse>, CreateRoleUseCase>();
         services.AddScoped<IUseCase<UpdateRoleCommand, RoleResponse>, UpdateRoleUseCase>();
