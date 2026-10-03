@@ -1,4 +1,5 @@
 import { Permission } from "@/features/members/permissions";
+import { CurrentSubscription } from "@/features/subscriptions/types";
 
 export const systemRoles = ["BranchOwner", "Coach", "Viewer"] as const;
 
@@ -15,6 +16,7 @@ export interface CurrentMember {
   instructorId: string | null;
   isBrandOwner: boolean;
   permissions: Permission[];
+  subscription?: CurrentSubscription | null;
 }
 
 export interface Member {

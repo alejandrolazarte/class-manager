@@ -79,6 +79,7 @@ const iconGlyphs = {
   verified: "verified",
   militaryTech: "military-tech",
   locked: "lock-outline",
+  plan: "workspace-premium",
   welcome: "play-circle-outline",
   live: "sensors",
   attendance: "fact-check",

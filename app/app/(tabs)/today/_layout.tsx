@@ -15,6 +15,7 @@ export default function TodayLayout() {
         name="notifications"
         options={{ title: translate("teamNotifications.title") }}
       />
+      <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />
       <Stack.Screen name="orders/index" options={{ title: translate("orders.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
       <Stack.Screen

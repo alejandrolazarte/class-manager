@@ -43,6 +43,7 @@ import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SegmentedControl } from "@/ui/SegmentedControl";
 import { Spinner } from "@/ui/Spinner";
+import { SubscriptionNotice } from "@/features/subscriptions/components/SubscriptionNotice";
 
 interface DayScreenProps {
   initialDate?: string;
@@ -160,6 +161,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
             accessory={<TeamNotificationBell />}
           />
           <View className="gap-3 px-5">
+            <SubscriptionNotice />
             <TodayBanner
               highlight={todayHighlightOf(todaySessions, today, timeNow)}
               timeNow={timeNow}

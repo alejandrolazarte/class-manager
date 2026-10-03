@@ -17,6 +17,9 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { Spinner } from "@/ui/Spinner";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useFeature } from "@/features/subscriptions/useSubscription";
 
 interface RoleCardProps {
   role: Role;
@@ -44,7 +47,8 @@ function RoleCard({ role, onPress }: RoleCardProps) {
 
 export function RolesScreen() {
   const router = useRouter();
-  const canManageRoles = useCan(permissions.rolesManage);
+  const hasCustomRoles = useFeature(featureCodes.customRoles);
+  const canManageRoles = useCan(permissions.rolesManage) && hasCustomRoles;
   const rolesQuery = useRoles();
   const systemRoles = (rolesQuery.data ?? []).filter((role) => role.systemRole !== null);
   const customRoles = (rolesQuery.data ?? []).filter((role) => role.systemRole === null);
@@ -63,6 +67,9 @@ export function RolesScreen() {
         ) : undefined
       }
     >
+      {!hasCustomRoles ? (
+        <LockedFeatureNotice message={translate("subscriptions.locked.customRoles")} />
+      ) : null}
       {rolesQuery.isPending ? <Spinner className="mt-6" /> : null}
       {rolesQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>

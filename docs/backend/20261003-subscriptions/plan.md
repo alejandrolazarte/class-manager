@@ -1,6 +1,6 @@
 # Backend plan — Subscriptions, plans and features
 
-Status: steps 1–3 partly built (library, persistence, a 30-day `Free` trial at sign-up, read-only brands once their subscription ends, import/export and custom roles gated, branch limit); see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
+Status: steps 1, 2 and 4 built, step 3 partly (import/export, custom roles and the branch limit gated; a 30-day `Free` trial; read-only brands once their subscription ends; the app shows the trial, the plans and the locks); see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
 
 ## Goal
 
@@ -208,9 +208,15 @@ No endpoint changes a subscription in the MVP: there is no platform administrato
 
 ## In the app
 
-- `useFeature(code)` next to `useCan(...)`, fed by `GET /api/me`.
-- **Permissions hide, features lock.** A button the member's role doesn't allow is hidden; a feature the plan doesn't include is shown with a lock and "Disponible en Pro", which only the brand owner can act on.
-- Ajustes → Plan (brand owner only): current plan, price, what it includes, usage of counted features (`Alumnos 24 / 30`), and "Escribinos para cambiar de plan" until self-service exists.
+Built in `app/src/features/subscriptions`:
+
+- `useSubscription()`, `useFeature(code)` and `useAllowsAnother(code, count)` next to `useCan(...)`, fed by `subscription` in `GET /api/me`.
+- **Permissions hide, features lock.** A button the member's role doesn't allow is hidden; a feature the plan doesn't include shows a lock notice with "Ver planes": Importar y exportar, creating or copying custom roles, and a new branch past the limit.
+- **Trial:** Inicio shows the days left with "Ver planes".
+- **Ended:** `SubscriptionGate` (in the team tabs layout) replaces the app with "Tu prueba gratis terminó" / "Tu plan terminó", the plans and the contact; "Ver mis datos" opens the app read-only, and Inicio keeps a notice. A mutation refused with `subscription.inactive` or `feature.*` reloads `GET /api/me`, so a subscription that ends while the app is open shows the gate.
+- **Ajustes → Plan** (also under Inicio, so it never leaves the tab): current plan and status, the real price for brand owners (`GET /api/organization/subscription`), what it includes, every plan from `GET /api/plans`, and the contact.
+- The contact opens `EXPO_PUBLIC_PLANS_CONTACT_URL` (for example a WhatsApp link); without it the screens say "escribinos" as text.
+- Usage of counted features (`Alumnos 24 / 30`) comes with the students and team limits.
 - Sign-up shows nothing about plans: everyone starts the `Free` trial. The app shows the days left, and once it ends, a screen to choose a plan instead of errors on every change.
 
 ## Migration
@@ -228,7 +234,7 @@ No endpoint changes a subscription in the MVP: there is no platform administrato
 3. Gate the features in the table:
    - ✅ `import-export` (import and export), `custom-roles` (create and edit), `branches` limit. Tests: a brand without the feature gets `403 feature.not_in_plan`, an add-on unlocks it, the limit blocks the next branch and an add-on raises it.
    - Next: `students` and `team` limits (adding students in every entry point: client form, student form, import; inviting members), and `class-packs`, `family-app`, `shop`, `brand`, together with step 4 so the app shows locks instead of errors.
-4. `features` in `GET /api/me`, `GET /api/organization/subscription`, `GET /api/plans`; app: `useFeature`, locks and Ajustes → Plan.
+4. ✅ `subscription` in `GET /api/me`, `GET /api/organization/subscription` (brand-only `subscription.view`), `GET /api/plans`; app: hooks, trial notice, ended gate, locks and Ajustes → Plan.
 5. `scripts/set-subscription.cs` and a runbook in `docs/`.
 
 ## Later, not in the MVP

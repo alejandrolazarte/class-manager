@@ -17,6 +17,8 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useFeature } from "@/features/subscriptions/useSubscription";
 
 interface RoleScreenProps {
   roleKey: string;
@@ -25,6 +27,7 @@ interface RoleScreenProps {
 export function RoleScreen({ roleKey }: RoleScreenProps) {
   const router = useRouter();
   const canManageRoles = useCan(permissions.rolesManage);
+  const hasCustomRoles = useFeature(featureCodes.customRoles);
   const rolesQuery = useRoles();
   const role = rolesQuery.data?.find((candidate) => roleKeyOfRole(candidate) === roleKey);
   if (role === undefined) {
@@ -67,7 +70,7 @@ export function RoleScreen({ roleKey }: RoleScreenProps) {
         </AppText>
       ) : null}
       <PermissionSummary granted={role.permissions} />
-      {canManageRoles ? (
+      {canManageRoles && hasCustomRoles ? (
         <Button
           variant="outline"
           label={translate("roles.copy")}

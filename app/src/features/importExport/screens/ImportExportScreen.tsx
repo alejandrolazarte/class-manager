@@ -21,6 +21,9 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { SegmentedControl, SegmentedOption } from "@/ui/SegmentedControl";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useFeature } from "@/features/subscriptions/useSubscription";
 
 const moduleOptions: readonly SegmentedOption<ImportModule>[] = [
   { value: "students", label: translate("importExport.module.students") },
@@ -32,7 +35,7 @@ interface PreviewedFile {
   report: ImportReport;
 }
 
-export function ImportExportScreen() {
+function ImportExportWorkspace() {
   const [module, setModule] = useState<ImportModule>("students");
   const [previewedFile, setPreviewedFile] = useState<PreviewedFile | null>(null);
   const [importedRowCount, setImportedRowCount] = useState<number | null>(null);
@@ -143,4 +146,18 @@ export function ImportExportScreen() {
       </Card>
     </ScrollScreen>
   );
+}
+
+export function ImportExportScreen() {
+  const hasImportExport = useFeature(featureCodes.importExport);
+  if (!hasImportExport) {
+    return (
+      <ScrollScreen
+        header={<ScreenHeader navigation="back" title={translate("importExport.title")} />}
+      >
+        <LockedFeatureNotice message={translate("subscriptions.locked.importExport")} />
+      </ScrollScreen>
+    );
+  }
+  return <ImportExportWorkspace />;
 }
