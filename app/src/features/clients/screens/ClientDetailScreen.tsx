@@ -4,6 +4,7 @@ import {
   formatPhoneNumberForDisplay,
   toDialableDigits,
 } from "@/features/clients/phoneNumberFormatting";
+import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
 import { InviteFamilySection } from "@/features/family/components/InviteFamilySection";
@@ -28,6 +29,17 @@ import { SectionTitle } from "@/ui/SectionTitle";
 const telephoneScheme = "tel:";
 const emailScheme = "mailto:";
 const whatsAppBaseUrl = "https://wa.me/";
+
+function normalizedName(fullName: string): string {
+  return fullName.trim().toLocaleLowerCase();
+}
+
+function isClientTheOnlyStudent(client: ClientDetails): boolean {
+  return (
+    client.students.length === 1 &&
+    normalizedName(client.students[0].fullName) === normalizedName(client.fullName)
+  );
+}
 
 interface ClientDetailScreenProps {
   clientId: string;
@@ -63,13 +75,15 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
     );
   }
 
+  const clientIsTheOnlyStudent = isClientTheOnlyStudent(client);
+
   return (
     <ScrollScreen
       header={
         <ScreenHeader
           navigation="back"
           leading={<Avatar name={client.fullName} tone="primary" size="large" />}
-          eyebrow={translate("clients.detail.title")}
+          eyebrow={clientIsTheOnlyStudent ? undefined : translate("clients.detail.title")}
           title={client.fullName}
           subtitle={formatPhoneNumberForDisplay(client.phoneNumber)}
         />
@@ -134,8 +148,22 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           onPress={() => router.push(routes.clientCounterSale(clientTab, client.id))}
         />
       ) : null}
-      <SectionTitle title={translate("clients.detail.students")} />
-      {client.students.length === 0 ? (
+      {clientIsTheOnlyStudent ? (
+        <>
+          <SectionTitle title={translate("clients.detail.classes")} />
+          <Card className="gap-2.5 px-4 py-3.5">
+            {client.students[0].notes ? (
+              <AppText variant="caption" tone="subtle">
+                {client.students[0].notes}
+              </AppText>
+            ) : null}
+            <StudentClasses studentId={client.students[0].id} />
+          </Card>
+        </>
+      ) : (
+        <SectionTitle title={translate("clients.detail.students")} />
+      )}
+      {clientIsTheOnlyStudent ? null : client.students.length === 0 ? (
         <AppText variant="body" tone="muted">
           {translate("clients.detail.noStudents")}
         </AppText>
@@ -169,7 +197,9 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           variant="dashed"
           size="medium"
           icon="add"
-          label={translate("clients.detail.addStudent")}
+          label={translate(
+            clientIsTheOnlyStudent ? "clients.detail.addOtherPerson" : "clients.detail.addStudent",
+          )}
           onPress={() => router.push(routes.addStudent(clientTab, client.id))}
         />
       ) : null}

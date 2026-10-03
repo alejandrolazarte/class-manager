@@ -73,7 +73,8 @@ public sealed class InviteFamilyUseCase(
             return invitation.Error!;
         }
 
-        foreach (var previousInvitation in await invitationRepository.ListPendingForUpdateByClientAsync(client.Id, now, cancellationToken))
+        var pendingInvitations = await invitationRepository.ListPendingForUpdateByClientAsync(client.Id, now, cancellationToken);
+        foreach (var previousInvitation in pendingInvitations.Where(pending => IsSameEmail(pending.Email, invitation.Value!.Email)))
         {
             previousInvitation.Revoke(now);
         }
@@ -86,4 +87,7 @@ public sealed class InviteFamilyUseCase(
 
         return new FamilyInvitationResponse(invitation.Value.Id, invitation.Value.Email, invitation.Value.ExpiresAt);
     }
+
+    private static bool IsSameEmail(string pendingEmail, string invitedEmail) =>
+        string.Equals(pendingEmail, invitedEmail, StringComparison.OrdinalIgnoreCase);
 }

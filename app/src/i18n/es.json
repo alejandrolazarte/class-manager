@@ -56,6 +56,8 @@
   "clients.detail.students": "Alumnos",
   "clients.detail.noStudents": "Todavía no tiene alumnos",
   "clients.detail.addStudent": "Agregar alumno",
+  "clients.detail.addOtherPerson": "Agregar hijo/a u otra persona",
+  "clients.detail.classes": "Clases",
   "students.list.title": "Alumnos",
   "students.list.searchPlaceholder": "Buscar por alumno, responsable o teléfono",
   "students.list.emptyTitle": "Todavía no tenés alumnos",
