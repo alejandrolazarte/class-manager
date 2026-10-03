@@ -1,5 +1,5 @@
 import { TextInput, View } from "react-native";
-import { AppText } from "@/ui/AppText";
+import { AppText, textVariantClassNames } from "@/ui/AppText";
 import { IconButton } from "@/ui/IconButton";
 
 interface NumberStepperProps {
@@ -52,7 +52,7 @@ export function NumberStepper({
           value={value}
           onChangeText={onChange}
           onBlur={onBlur}
-          className="min-w-0 flex-1 text-center font-heavy text-[17px] text-foreground"
+          className={`min-w-0 flex-1 text-center ${textVariantClassNames.input} text-foreground`}
         />
         <IconButton
           icon="add"

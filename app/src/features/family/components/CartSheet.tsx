@@ -183,8 +183,8 @@ export function CartSheet({ shop, onClose, onSeeOrders }: CartSheetProps) {
         </View>
       </View>
       <View className="flex-row justify-between px-0.5 py-1">
-        <AppText variant="title">{translate("family.cart.total")}</AppText>
-        <AppText variant="title">{total}</AppText>
+        <AppText variant="headline">{translate("family.cart.total")}</AppText>
+        <AppText variant="headline">{total}</AppText>
       </View>
       {orderProblem ? (
         <Banner tone="warning" message={translate(orderProblemMessages[orderProblem])} />

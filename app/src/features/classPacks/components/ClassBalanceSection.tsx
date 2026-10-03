@@ -54,7 +54,7 @@ export function ClassBalanceSection({ clientId }: ClassBalanceSectionProps) {
       <AppText variant="overline" tone="subtle">
         {translate("classPacks.balance.title")}
       </AppText>
-      <AppText variant="title" tone={availableTone}>
+      <AppText variant="headline" tone={availableTone}>
         {translateCount("classPacks.balance.available", balance.availableClasses)}
       </AppText>
       {balance.unpaidClasses > 0 ? (

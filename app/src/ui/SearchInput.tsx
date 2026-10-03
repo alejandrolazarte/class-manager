@@ -1,5 +1,6 @@
 import { TextInput, View } from "react-native";
 import { useTheme } from "@/theme/useTheme";
+import { textVariantClassNames } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
 
 interface SearchInputProps {
@@ -29,7 +30,7 @@ export function SearchInput({
         autoCorrect={false}
         clearButtonMode="while-editing"
         placeholderTextColor={colors["subtle-foreground"]}
-        className="h-full min-w-0 flex-1 font-text text-[15px] text-foreground"
+        className={`h-full min-w-0 flex-1 ${textVariantClassNames.input} text-foreground`}
       />
     </View>
   );

@@ -91,7 +91,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
 - [Local development](docs/backend/local-development.md) — migrations, JWT signing key, demo seed data and owner
 - [Running the Expo app](docs/frontend/running-the-app.md) — configuration and frontend tests
-- [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, AppText, Icon and the lint rules that keep screens on the theme
+- [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, the type scale, AppText, Icon and the lint rules that keep screens on the theme
 - [Navigation](docs/frontend/navigation.md) — screens stay in their tab, shared screens per tab, ✕ for forms and ← for navigation, and the tests that enforce it
 - [Content Security Policy](docs/frontend/content-security-policy.md) — the web app's report-only policy, what it allows and why, how it was tested, and how to enforce it
 - [Empty states](docs/frontend/empty-states.md) — an empty list keeps the floating "New…" button as its only create action, and the tests that enforce it

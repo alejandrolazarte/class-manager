@@ -15,7 +15,7 @@ The default theme, `aqua`, comes from the Claude Design handoff "Brazada App" (f
 - Nunito for all text: 900 for screen titles and amounts, 800 for names and buttons, 700 for labels, 600 for body copy.
 - Material Icons (`@expo/vector-icons/MaterialIcons`) behind semantic names.
 - Large radii: 16px inputs and buttons, 18–20px cards, 24px highlight cards, pills for chips and status.
-- Screens have their own header (`ScreenHeader`): optional back / close button, a small primary "eyebrow", a 26px title and an optional subtitle. Native stack headers are hidden; the `Stack.Screen` titles stay for the web document title.
+- Screens have their own header (`ScreenHeader`): optional back / close button, a small primary "eyebrow", a 26px title (`display`) and an optional subtitle. Native stack headers are hidden; the `Stack.Screen` titles stay for the web document title.
 
 The design's oklch colors were converted to hex. A few light-mode values were darkened slightly so every text pair reaches WCAG AA (4.5:1).
 
@@ -31,10 +31,31 @@ The design's oklch colors were converted to hex. A few light-mode values were da
 
 ## Typography
 
+Every text size comes from one type scale, `typeScale` in `typography.ts`. Each step is a font size with its line height:
+
+| Step | Size / line height | Variants |
+|---|---|---|
+| `hero` | 32 / 36 | `hero`, `amount` |
+| `display` | 26 / 30 | `display` |
+| `title` | 20 / 24 | `headline` |
+| `large` | 17 / 22 | `heading`, `lead`, `button`, `input` |
+| `body` | 15 / 21 | `body`, `bodyStrong` |
+| `caption` | 13 / 17 | `link`, `eyebrow`, `label`, `caption` |
+| `small` | 12 / 16 | `footnote`, `badge`, `overline` |
+| `micro` | 11 / 14 | `counter` (numbers in small badges) |
+
+Steps are at least 2px apart from `caption` up: two texts that differ by one pixel don't read as a hierarchy, they look like a mistake. `small` and `micro` only go in compact spots (badges, footnotes) where the next step does not fit.
+
+`tailwind.config.js` replaces Tailwind's font sizes with these steps (`text-body`, `text-large`, ...), so `text-base`, `text-xl` and the rest don't exist. `When_tailwind_config_is_loaded` fails until both lists match.
+
 `AppText` replaces `Text`. It takes:
 
-- `variant` — size, weight and tracking preset: `hero`, `display`, `headline`, `amount`, `title`, `heading`, `lead`, `body`, `bodyStrong`, `button`, `link`, `eyebrow`, `label`, `caption`, `footnote`, `badge`, `overline`.
+- `variant` — font role, size step and tracking: `hero`, `amount`, `display`, `headline`, `heading`, `lead`, `button`, `input`, `body`, `bodyStrong`, `link`, `eyebrow`, `label`, `caption`, `footnote`, `badge`, `overline`, `counter`.
 - `tone` — theme color: `default`, `muted`, `subtle`, `disabled`, `primary`, `primarySoft`, `onPrimary`, `danger`, `warning`, `success`, `onSuccess`, `inverse`, ...
+
+Text inputs use the same variants through `textVariantClassNames` (`input` for `TextField`, `SearchInput` and `NumberStepper`, `amount` for `AmountField`), so typed text matches across forms. Styles that are not classes (the tab bar) read `typeScale` directly.
+
+The same element always uses the same variant: row and card names `bodyStrong`, the line under them `caption`, the identity card at the top of Ajustes or an account `heading`, sheet titles and totals `headline`. Screens may change the weight (`font-heavy`) or the color, never the size: when a new size is really needed, add a variant to `AppText`.
 
 To change fonts, update the families and assets in `typography.ts` and the `fontFamilies` list in `tailwind.config.js`; `When_tailwind_config_is_loaded` fails until both match.
 
@@ -47,6 +68,7 @@ To change fonts, update the families and assets in `typography.ts` and the `font
 `app/eslint/themeRules.js` and `eslint.config.js` make the build fail when app code (outside `src/theme/`) bypasses the system:
 
 - `theme/no-raw-colors` — palette classes (`bg-gray-50`, `text-red-600`, `bg-white`) and literal colors (`#7c3aed`, `rgb(...)`).
+- `theme/no-raw-font-sizes` — size and line-height classes (`text-base`, `text-[17px]`, `text-large`, `leading-4`) and numeric `fontSize` / `lineHeight` styles outside `AppText.tsx`; use an `AppText` variant, or `typeScale` for styles that are not classes.
 - `no-restricted-imports` — `Text` and `ActivityIndicator` from `react-native` and anything from `@expo/vector-icons` outside `src/ui/`; use `AppText`, `Spinner` and `Icon`.
 
 ## Adding a built-in theme

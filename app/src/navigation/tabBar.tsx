@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import { ComponentProps } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fontFamilies } from "@/theme/typography";
+import { fontFamilies, typeScale } from "@/theme/typography";
 import { useTheme } from "@/theme/useTheme";
 import { Icon, IconName } from "@/ui/Icon";
 
@@ -14,9 +14,7 @@ type TabScreenOptions = Exclude<
 const tabBarContentHeight = 66;
 const tabBarTopPadding = 10;
 const tabBarMinimumBottomPadding = 12;
-const tabLabelFontSize = 12;
 const tabLabelTopMargin = 4;
-const tabBadgeFontSize = 11;
 
 export function TabIcon({ icon, isFocused }: { icon: IconName; isFocused: boolean }) {
   return (
@@ -49,14 +47,14 @@ export function useTabBarScreenOptions(): TabScreenOptions {
     },
     tabBarLabelStyle: {
       fontFamily: fontFamilies.strong,
-      fontSize: tabLabelFontSize,
+      fontSize: typeScale.small.fontSize,
       marginTop: tabLabelTopMargin,
     },
     tabBarBadgeStyle: {
       backgroundColor: colors.danger,
       color: colors["danger-foreground"],
       fontFamily: fontFamilies.strong,
-      fontSize: tabBadgeFontSize,
+      fontSize: typeScale.micro.fontSize,
     },
   };
 }

@@ -75,9 +75,7 @@ export function ChooseAccountScreen() {
               <Icon name={account.kind === "family" ? "home" : "business"} tone="primary" />
             </View>
             <View className="min-w-0 flex-1 gap-0.5">
-              <AppText variant="bodyStrong" className="text-base">
-                {account.businessName}
-              </AppText>
+              <AppText variant="heading">{account.businessName}</AppText>
               <AppText variant="caption" tone="subtle">
                 {translate(account.kind === "family" ? "accounts.familyHint" : "accounts.teamHint")}
               </AppText>

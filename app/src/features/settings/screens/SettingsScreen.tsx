@@ -245,9 +245,7 @@ export function SettingsScreen() {
       >
         {currentBrand?.brand ? <CurrentBrandLogo /> : <BrandMark size="small" />}
         <View className="min-w-0 flex-1 gap-0.5">
-          <AppText variant="bodyStrong" className="text-base">
-            {business.name}
-          </AppText>
+          <AppText variant="heading">{business.name}</AppText>
           <AppText variant="caption" tone="subtle">
             {translate("settings.businessSummary", { currency: business.currencyCode })}
           </AppText>

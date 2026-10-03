@@ -26,15 +26,15 @@ export function ClassGroupCard({ classGroup, onPress }: ClassGroupCardProps) {
     >
       <View className="flex-row items-start gap-3.5">
         <View className="h-[52px] w-[52px] items-center justify-center rounded-2xl bg-primary-soft">
-          <AppText variant="bodyStrong" tone="primarySoft" className="font-heavy leading-4">
+          <AppText variant="bodyStrong" tone="primarySoft" className="font-heavy">
             {classGroup.startTime}
           </AppText>
-          <AppText variant="footnote" tone="primarySoft" className="font-label text-[10.5px]">
+          <AppText variant="footnote" tone="primarySoft" className="font-label">
             {translate("classGroups.card.duration", { minutes: classGroup.durationMinutes })}
           </AppText>
         </View>
         <View className="min-w-0 flex-1 gap-[3px]">
-          <TitleWithPills title={classGroup.name} variant="heading" testID="class-group-name">
+          <TitleWithPills title={classGroup.name} testID="class-group-name">
             {classGroup.enrolledCount >= classGroup.capacity ? (
               <StatusPill label={translate("classGroups.card.full")} tone="warning" isSmall />
             ) : null}

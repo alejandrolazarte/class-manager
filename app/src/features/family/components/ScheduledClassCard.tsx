@@ -56,7 +56,7 @@ export function ScheduledClassCard({
           className={`w-1 self-stretch rounded-sm ${isDimmed ? "bg-danger" : isBooked ? "bg-warning" : "bg-primary"}`}
         />
         <View className="min-w-0 flex-1 gap-0.5">
-          <AppText variant="title">{`${scheduledClass.startTime}–${scheduledClass.endTime}`}</AppText>
+          <AppText variant="headline">{`${scheduledClass.startTime}–${scheduledClass.endTime}`}</AppText>
           <AppText variant="body" tone="muted">
             {classDetails(scheduledClass)}
           </AppText>

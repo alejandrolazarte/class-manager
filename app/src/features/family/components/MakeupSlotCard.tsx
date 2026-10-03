@@ -33,7 +33,7 @@ export function MakeupSlotCard({
   return (
     <Card className="flex-row items-center gap-3 px-4 py-3.5">
       <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="title">
+        <AppText variant="headline">
           {`${shortDayLabel(slot.date)} · ${slot.startTime}–${slot.endTime}`}
         </AppText>
         <AppText variant="body" tone="muted">

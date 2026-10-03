@@ -79,7 +79,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
       <Card className="gap-3 p-4">
         <View className="gap-0.5">
-          <AppText variant="title">
+          <AppText variant="headline">
             {describeBillingPlan(
               client.billingPlan,
               business.defaultMonthlyFee,

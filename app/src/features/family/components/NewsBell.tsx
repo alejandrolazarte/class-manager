@@ -26,7 +26,7 @@ export function NewsBell({ unreadCount, onPress }: NewsBellProps) {
       <Icon name="notifications" />
       {unreadCount > 0 ? (
         <View className="absolute right-1.5 top-1.5 h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-surface bg-danger px-0.5">
-          <AppText variant="badge" tone="onDanger" className="text-[10px] leading-3">
+          <AppText variant="counter" tone="onDanger">
             {unreadCount}
           </AppText>
         </View>

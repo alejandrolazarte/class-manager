@@ -18,3 +18,14 @@ export const fontAssets = {
   [fontFamilies.strong]: Nunito_800ExtraBold,
   [fontFamilies.heavy]: Nunito_900Black,
 };
+
+export const typeScale = {
+  micro: { fontSize: 11, lineHeight: 14 },
+  small: { fontSize: 12, lineHeight: 16 },
+  caption: { fontSize: 13, lineHeight: 17 },
+  body: { fontSize: 15, lineHeight: 21 },
+  large: { fontSize: 17, lineHeight: 22 },
+  title: { fontSize: 20, lineHeight: 24 },
+  display: { fontSize: 26, lineHeight: 30 },
+  hero: { fontSize: 32, lineHeight: 36 },
+} as const;

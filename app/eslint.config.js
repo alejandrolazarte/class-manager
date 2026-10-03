@@ -35,6 +35,14 @@ module.exports = defineConfig([
   },
   {
     files: appSourceFiles,
+    ignores: ["src/theme/**", "src/ui/AppText.tsx", ...testFiles],
+    plugins: { theme: themeRules },
+    rules: {
+      "theme/no-raw-font-sizes": "error",
+    },
+  },
+  {
+    files: appSourceFiles,
     ignores: ["src/ui/**", ...testFiles],
     rules: {
       "no-restricted-imports": [

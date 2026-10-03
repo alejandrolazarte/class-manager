@@ -91,9 +91,7 @@ export function FamilySettingsScreen() {
         <Card className="flex-row items-center gap-3.5 p-4">
           <Avatar name={home.clientFullName} />
           <View className="min-w-0 flex-1 gap-0.5">
-            <AppText variant="bodyStrong" className="text-base">
-              {home.clientFullName}
-            </AppText>
+            <AppText variant="heading">{home.clientFullName}</AppText>
             <AppText variant="caption" tone="subtle">
               {home.businessName}
             </AppText>

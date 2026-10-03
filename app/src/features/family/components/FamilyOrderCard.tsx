@@ -169,11 +169,7 @@ export function FamilyOrderCard({
           className={`flex-row items-start gap-2 rounded-[14px] px-3 py-2.5 ${noticeClassNames[notice.tone]}`}
         >
           <Icon name={notice.icon} size="medium" tone={noticeIconTones[notice.tone]} />
-          <AppText
-            variant="label"
-            tone={noticeTextTones[notice.tone]}
-            className="flex-1 leading-[17px]"
-          >
+          <AppText variant="label" tone={noticeTextTones[notice.tone]} className="flex-1">
             {notice.message}
           </AppText>
         </View>

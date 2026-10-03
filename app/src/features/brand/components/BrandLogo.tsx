@@ -19,8 +19,8 @@ const sizeClassNames: Record<BrandLogoSize, string> = {
 };
 
 const initialsVariants: Record<BrandLogoSize, TextVariant> = {
-  small: "title",
-  medium: "headline",
+  small: "headline",
+  medium: "display",
   large: "hero",
 };
 
