@@ -8,6 +8,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
+import { TitleWithPills } from "@/ui/TitleWithPills";
 
 interface ProductListItemProps {
   product: Product;
@@ -27,8 +28,10 @@ export function ProductListItem({ product, onPress }: ProductListItemProps) {
         <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
           <Icon name="products" tone="primary-soft-foreground" />
         </View>
-        <View className="flex-1 gap-1">
-          <AppText variant="bodyStrong">{product.name}</AppText>
+        <View className="min-w-0 flex-1 gap-1">
+          <TitleWithPills title={product.name}>
+            {product.isActive ? null : <InactiveChip />}
+          </TitleWithPills>
           <AppText variant="caption" tone="subtle">
             {[
               formatMoney(product.price, currencyCode),
@@ -42,7 +45,6 @@ export function ProductListItem({ product, onPress }: ProductListItemProps) {
               .join(" · ")}
           </AppText>
         </View>
-        {product.isActive ? null : <InactiveChip />}
         {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
       </Card>
     </View>

@@ -1,6 +1,7 @@
 const { defineConfig } = require("eslint/config");
 const expoConfig = require("eslint-config-expo/flat");
 const prettierConfig = require("eslint-config-prettier/flat");
+const layoutRules = require("./eslint/layoutRules");
 const themeRules = require("./eslint/themeRules");
 
 const appSourceFiles = ["src/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"];
@@ -31,6 +32,14 @@ module.exports = defineConfig([
     plugins: { theme: themeRules },
     rules: {
       "theme/no-raw-colors": "error",
+    },
+  },
+  {
+    files: appSourceFiles,
+    ignores: testFiles,
+    plugins: { layout: layoutRules },
+    rules: {
+      "layout/pills-in-title": "error",
     },
   },
   {

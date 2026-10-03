@@ -5,7 +5,7 @@ The app supports several visual themes, each in light and dark, without touching
 1. **Palette** (`app/src/theme/palette.ts`) — raw colors. Only themes use it.
 2. **Semantic tokens** (`app/src/theme/themeColorTokens.ts`) — colors named by intent: `background`, `surface`, `foreground`, `muted-foreground`, `primary`, `primary-foreground`, `danger`, `success-foreground`, `warning-soft`, `inverse`, `shadow`, ... Every theme defines every token (enforced by the `ThemeColors` type).
 3. **Typography** (`app/src/theme/typography.ts`) — font roles (`text`, `label`, `strong`, `heavy`) mapped to font families (Nunito 600/700/800/900 today) and loaded in the root layout with `expo-font`.
-4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `BrandMark`. Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes.
+4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `TitleWithPills`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `BrandMark`. Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes.
 
 ## Visual language
 
@@ -48,6 +48,7 @@ To change fonts, update the families and assets in `typography.ts` and the `font
 
 - `theme/no-raw-colors` — palette classes (`bg-gray-50`, `text-red-600`, `bg-white`) and literal colors (`#7c3aed`, `rgb(...)`).
 - `no-restricted-imports` — `Text` and `ActivityIndicator` from `react-native` and anything from `@expo/vector-icons` outside `src/ui/`; use `AppText`, `Spinner` and `Icon`.
+- `layout/pills-in-title` (`app/eslint/layoutRules.js`) — a small pill (`StatusPill isSmall`, `InactiveChip`) tags a title, so it goes inside `TitleWithPills` (or an `absolute` overlay, like the sold-out badge on a photo). Placed beside a card's text column, it takes width from the text: a long name or email ends up wrapped word by word. `TitleWithPills` puts the pills after the title in a wrapping row, so they move to the next line instead. A regular-size `StatusPill` that shows the row's value on the right (fee status, order stage) is allowed there.
 
 ## Adding a built-in theme
 

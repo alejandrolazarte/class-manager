@@ -7,6 +7,7 @@ import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
+import { TitleWithPills } from "@/ui/TitleWithPills";
 
 interface ClassPackListItemProps {
   classPack: ClassPack;
@@ -32,8 +33,10 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
         <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
           <Icon name="classPacks" tone="primary-soft-foreground" />
         </View>
-        <View className="flex-1 gap-1">
-          <AppText variant="bodyStrong">{classPack.name}</AppText>
+        <View className="min-w-0 flex-1 gap-1">
+          <TitleWithPills title={classPack.name}>
+            {classPack.isActive ? null : <InactiveChip />}
+          </TitleWithPills>
           <AppText variant="caption" tone="subtle">
             {[
               summary,
@@ -46,7 +49,6 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
               .join(" · ")}
           </AppText>
         </View>
-        {classPack.isActive ? null : <InactiveChip />}
         {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
       </Card>
     </View>
