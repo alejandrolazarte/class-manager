@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/react-native";
 import { listOrders } from "@/features/orders/ordersApi";
 import { NotifiedOrdersScreen } from "@/features/orders/screens/NotifiedOrdersScreen";
 import { routes } from "@/navigation/routes";
-import { routerMock } from "@/testing/expoRouterMock";
+import { navigationMock, routerMock } from "@/testing/expoRouterMock";
 import { buildCurrentMember } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
@@ -19,7 +19,7 @@ describe("When order notification is opened by collector", () => {
     await waitFor(() =>
       expect(routerMock.navigate).toHaveBeenCalledWith(routes.collections("orders")),
     );
-    expect(routerMock.dismiss).toHaveBeenCalled();
+    expect(navigationMock.reset).toHaveBeenCalledWith({ index: 0, routes: [{ name: "index" }] });
     expect(routerMock.replace).not.toHaveBeenCalled();
   });
 });
