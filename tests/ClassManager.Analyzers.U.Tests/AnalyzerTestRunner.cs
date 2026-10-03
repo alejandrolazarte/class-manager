@@ -16,6 +16,8 @@ internal static class AnalyzerTestRunner
     public const string ImportExportAssemblyName = "ImportExport";
     public const string NotificationsAssemblyName = "Notifications";
     public const string NotificationsDeliveryAssemblyName = "Notifications.Delivery";
+    public const string SubscriptionsAssemblyName = "Subscriptions";
+    public const string SubscriptionsIntegrationAssemblyName = "Subscriptions.AspNetCore";
 
     private const string XunitStubFilePath = "/stubs/Xunit.cs";
     private const string XunitStubSource = """
