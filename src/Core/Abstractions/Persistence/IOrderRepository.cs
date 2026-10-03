@@ -19,5 +19,5 @@ public interface IOrderRepository
 
     Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(Guid classGroupId, CancellationToken cancellationToken);
 
-    Task<bool> IsPurchaseFromOrderAsync(Guid purchaseId, CancellationToken cancellationToken);
+    Task<Order?> GetForUpdateByPurchaseAsync(Guid purchaseId, CancellationToken cancellationToken);
 }

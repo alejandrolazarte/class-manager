@@ -1,7 +1,9 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.UseCases.Fees;
+using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
@@ -11,6 +13,7 @@ public sealed class DeleteClassPackPurchaseUseCase(
     IClassPackPurchaseRepository purchaseRepository,
     IClientRepository clientRepository,
     IOrderRepository orderRepository,
+    IClassBalanceService classBalanceService,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
     ICurrentMember currentMember)
@@ -30,12 +33,21 @@ public sealed class DeleteClassPackPurchaseUseCase(
             return AccessRules.NotYours();
         }
 
-        if (await orderRepository.IsPurchaseFromOrderAsync(purchase.Id, cancellationToken))
+        var order = await orderRepository.GetForUpdateByPurchaseAsync(purchase.Id, cancellationToken);
+        if (order is null)
         {
-            return ClassPackFailures.PurchaseFromOrder();
+            purchaseRepository.Remove(purchase);
+        }
+        else
+        {
+            var line = order.Lines.First(line => line.ClassPackPurchaseId == purchase.Id);
+            var refund = await OrderRefunds.RefundClassesAsync(order, line, purchaseRepository, classBalanceService, cancellationToken);
+            if (refund.IsFailure)
+            {
+                return refund.Error!;
+            }
         }
 
-        purchaseRepository.Remove(purchase);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ClassPackPurchaseResponse.From(purchase);

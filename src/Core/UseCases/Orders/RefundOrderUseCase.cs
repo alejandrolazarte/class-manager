@@ -55,7 +55,7 @@ public sealed class RefundOrderUseCase(
             }
 
             var refund = line.Kind == OrderLineKind.ClassPack
-                ? await RefundClassesAsync(order, line, cancellationToken)
+                ? await OrderRefunds.RefundClassesAsync(order, line, purchaseRepository, classBalanceService, cancellationToken)
                 : await RefundProductAsync(order, line, refundLine, access?.UserId, now, cancellationToken);
             if (refund.IsFailure)
             {
@@ -66,37 +66,6 @@ public sealed class RefundOrderUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return await OrderResponses.OfAsync(order, clientRepository, classGroupRepository, cancellationToken);
-    }
-
-    private async Task<Result> RefundClassesAsync(Order order, OrderLine line, CancellationToken cancellationToken)
-    {
-        var purchase = line.ClassPackPurchaseId is { } purchaseId ? await purchaseRepository.GetForUpdateAsync(purchaseId, cancellationToken) : null;
-        if (purchase is null)
-        {
-            return order.RefundUnusedClasses(line, 0, 0);
-        }
-
-        var balances = await classBalanceService.CalculateAsync([purchase.ClientId], cancellationToken);
-        var usedClasses = balances[purchase.ClientId].Purchases
-            .First(usage => usage.Purchase.Id == purchase.Id)
-            .UsedClasses;
-        var refund = order.RefundUnusedClasses(line, purchase.ClassCount, purchase.ClassCount - usedClasses);
-        if (refund.IsFailure)
-        {
-            return refund;
-        }
-
-        if (usedClasses == 0)
-        {
-            line.LinkPurchase(null);
-            purchaseRepository.Remove(purchase);
-        }
-        else
-        {
-            purchase.KeepUsedClasses(usedClasses, refund.Value);
-        }
-
-        return Result.Success();
     }
 
     private async Task<Result> RefundProductAsync(

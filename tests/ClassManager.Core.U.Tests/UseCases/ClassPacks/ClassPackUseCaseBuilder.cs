@@ -17,6 +17,8 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IAttendanceRepository> Attendances { get; } = new();
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
+    public Mock<IOrderNumbers> OrderNumbers { get; } = new();
+    public Mock<IOrderRepository> Orders { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public ClassPack Pack { get; } = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!;
@@ -28,6 +30,10 @@ internal sealed class ClassPackUseCaseBuilder
     public ClassPackUseCaseBuilder()
     {
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
+        UnitOfWork
+            .Setup(unitOfWork => unitOfWork.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Mock<IUnitOfWorkTransaction>().Object);
+        OrderNumbers.Setup(numbers => numbers.TakeNextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         ClassPacks.Setup(repository => repository.GetByIdAsync(Pack.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Pack);
         Purchases
             .Setup(repository => repository.ListByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
@@ -62,6 +68,8 @@ internal sealed class ClassPackUseCaseBuilder
             ClassPacks.Object,
             Purchases.Object,
             PrivateLessons.Object,
+            OrderNumbers.Object,
+            Orders.Object,
             UnitOfWork.Object,
             BusinessCalendar.Object,
             new FakeTimeProvider(TestData.Now),

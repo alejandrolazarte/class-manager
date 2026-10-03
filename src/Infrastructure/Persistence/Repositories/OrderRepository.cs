@@ -66,6 +66,7 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             .OrderBy(order => order.CreatedAt)
             .ToListAsync(cancellationToken);
 
-    public Task<bool> IsPurchaseFromOrderAsync(Guid purchaseId, CancellationToken cancellationToken) =>
-        context.OrderLines.AsNoTracking().AnyAsync(line => line.ClassPackPurchaseId == purchaseId, cancellationToken);
+    public Task<Order?> GetForUpdateByPurchaseAsync(Guid purchaseId, CancellationToken cancellationToken) =>
+        context.Orders.Include(order => order.Lines)
+            .FirstOrDefaultAsync(order => order.Lines.Any(line => line.ClassPackPurchaseId == purchaseId), cancellationToken);
 }

@@ -395,7 +395,7 @@
   "classPacks.balance.usedUp": "Terminado",
   "classPacks.balance.unpaidTitle": "Clases sin pagar",
   "classPacks.balance.sell": "Vender pack",
-  "classPacks.balance.deletePurchase": "Borrar",
+  "classPacks.balance.deletePurchase": "Anular",
   "classPacks.form.notFound": "Este pack ya no existe",
   "common.back": "Volver",
   "common.close": "Cerrar",
