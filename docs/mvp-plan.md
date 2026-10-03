@@ -149,4 +149,4 @@ Plan in [backend](backend/20260928-roles-and-permissions/plan.md), Phase 2 of th
 | Fee per client or per student | M5 | Decided: per client, with a default on the business and an optional override per client |
 | Reusing scheduling code from salon-manager | M2 | Weekly schedule and time off exist there; copy what M2 needs, extract to the template only when both apps prove it's the same |
 | Class packs vs make-up classes first | After the pilot | Decided: class packs first (M6), asked by the pilot instructor |
-| Pricing model | Before public launch | Free plan limits (for example number of students); branding candidates for a paid plan in [branding and plans](branding-and-plans.md) |
+| Pricing model | Before public launch | Proposed in the [subscriptions plan](backend/20261003-subscriptions/plan.md): one subscription per brand, plans `Free`, `Lite`, `Pro`, `Enterprise`, features and add-ons; prices and limits still to set. Branding candidates in [branding and plans](branding-and-plans.md) |
