@@ -151,6 +151,8 @@ $apiHost = az containerapp show --name $containerApp --resource-group $resourceG
 
 The connection string has no password: the app signs in to SQL with its managed identity. `ConnectRetry*` covers the few seconds the free database takes to resume after a pause.
 
+`ASPNETCORE_ENVIRONMENT` is left unset, so the container runs as **Production** (ASP.NET Core's default). This is the only deployed environment. It matters for security: the OpenAPI document (the full list of endpoints) is served only under `Development`, so it is never exposed in Azure. To regenerate it for a security scan, run the API locally, where it listens on `/openapi/v1.json`.
+
 ## 6. Database users
 
 Open the database in the portal: **SQL databases → ClassManager → Query editor**, sign in with your Entra account, and run:
