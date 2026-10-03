@@ -1,4 +1,5 @@
 import { View } from "react-native";
+import { monthName } from "@/features/fees/months";
 import { PendingOrders } from "@/features/orders/useOrders";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -6,10 +7,17 @@ import { Card } from "@/ui/Card";
 
 interface PendingOrdersSummaryCardProps {
   pendingOrders: PendingOrders;
+  month: string;
+  classPackSales: number;
   money: (amount: number) => string;
 }
 
-export function PendingOrdersSummaryCard({ pendingOrders, money }: PendingOrdersSummaryCardProps) {
+export function PendingOrdersSummaryCard({
+  pendingOrders,
+  month,
+  classPackSales,
+  money,
+}: PendingOrdersSummaryCardProps) {
   const unpaidTotal = pendingOrders.requested.reduce((total, order) => total + order.total, 0);
   return (
     <Card className="gap-2.5 p-4">
@@ -30,6 +38,14 @@ export function PendingOrdersSummaryCard({ pendingOrders, money }: PendingOrders
           {translate("collections.toHandOverCount", { count: pendingOrders.awaitingPickup.length })}
         </AppText>
       </View>
+      {classPackSales > 0 ? (
+        <AppText variant="label" tone="subtle">
+          {translate("collections.classPackSales", {
+            month: monthName(month),
+            amount: money(classPackSales),
+          })}
+        </AppText>
+      ) : null}
     </Card>
   );
 }

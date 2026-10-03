@@ -3,6 +3,8 @@ import { ReactNode, useState } from "react";
 import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
+import { monthOf } from "@/features/fees/months";
+import { useMonthlyFees } from "@/features/fees/useFees";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { OrderCard } from "@/features/orders/components/OrderCard";
@@ -23,9 +25,10 @@ import { ScreenHeader } from "@/ui/ScreenHeader";
 
 interface OrderListScreenProps {
   viewSwitcher?: ReactNode;
+  month?: string;
 }
 
-export function OrderListScreen({ viewSwitcher }: OrderListScreenProps) {
+export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListScreenProps) {
   const router = useRouter();
   const business = useCurrentBusiness();
   const orderTab = useCurrentTab(orderTabs);
@@ -34,6 +37,7 @@ export function OrderListScreen({ viewSwitcher }: OrderListScreenProps) {
   const [filter, setFilter] = useState<OrderFilter>("all");
   const { data: orders = [], isPending, isError, refetch } = useOrders(null, filter);
   const pendingOrders = usePendingOrders({ enabled: isInCollections });
+  const { data: monthlyFees } = useMonthlyFees(month, { enabled: isInCollections });
   const openCounterSale = () => router.push(routes.newCounterSale(orderTab));
 
   return (
@@ -59,6 +63,8 @@ export function OrderListScreen({ viewSwitcher }: OrderListScreenProps) {
       {isInCollections ? (
         <PendingOrdersSummaryCard
           pendingOrders={pendingOrders}
+          month={month}
+          classPackSales={monthlyFees?.classPackSales ?? 0}
           money={(amount) => formatMoney(amount, business.currencyCode)}
         />
       ) : null}

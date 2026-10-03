@@ -13,7 +13,6 @@ import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
-import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { EmptyState } from "@/ui/EmptyState";
@@ -99,13 +98,6 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
             owedAmount={debtors.reduce((total, debtor) => total + debtor.balance, 0)}
             money={money}
           />
-        ) : null}
-        {monthlyFees && monthlyFees.classPackSales > 0 ? (
-          <AppText variant="label" tone="muted">
-            {translate("fees.month.classPackSales", {
-              amount: money(monthlyFees.classPackSales),
-            })}
-          </AppText>
         ) : null}
         <SegmentedControl options={filterOptions} selectedValue={filter} onChange={setFilter} />
         {isError ? (

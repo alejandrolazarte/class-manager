@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { monthOf } from "@/features/fees/months";
 import { MonthlyFeesScreen } from "@/features/fees/screens/MonthlyFeesScreen";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
@@ -42,7 +43,7 @@ export function CollectionsScreen({ initialMonth, initialView = "fees" }: Collec
   );
 
   return view === "orders" ? (
-    <OrderListScreen viewSwitcher={viewSwitcher} />
+    <OrderListScreen viewSwitcher={viewSwitcher} month={initialMonth ?? monthOf()} />
   ) : (
     <MonthlyFeesScreen initialMonth={initialMonth} viewSwitcher={viewSwitcher} />
   );
