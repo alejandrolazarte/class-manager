@@ -93,6 +93,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Running the Expo app](docs/frontend/running-the-app.md) — configuration and frontend tests
 - [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, AppText, Icon and the lint rules that keep screens on the theme
 - [Navigation](docs/frontend/navigation.md) — screens stay in their tab, shared screens per tab, ✕ for forms and ← for navigation, and the tests that enforce it
+- [Content Security Policy](docs/frontend/content-security-policy.md) — the web app's report-only policy, what it allows and why, how it was tested, and how to enforce it
 - [Empty states](docs/frontend/empty-states.md) — an empty list keeps the floating "New…" button as its only create action, and the tests that enforce it
 - [Roslyn analyzers](docs/analyzers.md) — test layout and architecture rules enforced by the build
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package

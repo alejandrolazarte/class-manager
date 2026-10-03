@@ -11,7 +11,8 @@ Step-by-step commands to put class-manager online for the pilot, following the [
 | API image | `src/Api/Containerfile` (non-root, port 8080). CI builds it on every pull request |
 | Migrations | `scripts/migrate-database.mjs` applies `AppDbContext` and `SecurityDbContext` to the database in `MIGRATIONS_CONNECTION_STRING` |
 | Deploy pipeline | `.github/workflows/deploy.yml`, runs after CI passes on `main`; skipped until the `AZURE_CLIENT_ID` variable exists |
-| Installable web app (PWA) | `app/public/`: `index.html` template, `manifest.webmanifest`, icons and `service-worker.js`, copied into `dist/` by `expo export` |
+| Installable web app (PWA) | `app/public/`: `index.html` template, `manifest.webmanifest`, icons, `service-worker.js` and `register-service-worker.js`, copied into `dist/` by `expo export` |
+| Web security headers | `app/scripts/writeWebHeaders.js` writes `dist/_headers` with a report-only Content Security Policy ([details](frontend/content-security-policy.md)) |
 | Android pilot build | `app/eas.json`, profile `pilot`: an APK installed from a link (optional, see step 11) |
 
 ## Before starting
@@ -215,7 +216,7 @@ In Cloudflare: **Compute → Workers & Pages → Create**. The create screen def
 | Environment variable `NODE_VERSION` | `22` |
 | Environment variable `EXPO_PUBLIC_API_BASE_URL` | `https://<api host>` |
 
-Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and Pages does not publish folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. Pages serves `index.html` for any path, which is what the single-page web build needs.
+Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and Pages does not publish folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. It then runs `scripts/writeWebHeaders.js`, which writes `dist/_headers` with the [Content Security Policy](frontend/content-security-policy.md) in report-only mode, allowing requests only to the API in `EXPO_PUBLIC_API_BASE_URL`. Pages serves `index.html` for any path, which is what the single-page web build needs.
 
 Then allow the Pages domain in the API's CORS list:
 
@@ -240,7 +241,8 @@ What makes it installable, all under `app/public/` (Expo copies the folder into 
 
 | File | Why |
 |---|---|
-| `index.html` | Replaces Expo's default HTML template: Spanish `lang`, `theme-color`, the manifest link, the Apple home-screen tags, and the service worker registration |
+| `index.html` | Replaces Expo's default HTML template: Spanish `lang`, `theme-color`, the manifest link, the Apple home-screen tags, and the script that registers the service worker |
+| `register-service-worker.js` | Registers the service worker; a file instead of an inline script so the Content Security Policy can forbid inline scripts |
 | `manifest.webmanifest` | Name, icons, colors and `display: standalone` (full screen, no browser bar) |
 | `icons/` | 192 and 512 px icons for Android (the 512 one also as `maskable`) and the 180 px `apple-touch-icon` for iPhone, resized from `assets/images/icon.png` |
 | `service-worker.js` | Only handles page navigations: always asks the network first, so a deploy is never hidden behind a stale copy. API calls, scripts and images are not intercepted. It caches the page only as an offline fallback |

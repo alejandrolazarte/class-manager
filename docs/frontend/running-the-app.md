@@ -34,7 +34,7 @@ Sign up from the app (it creates the owner and the business), or sign in with th
 Session handling:
 
 - The access token lives in memory only (`src/api/authenticationSession.ts`).
-- The refresh token is persisted by `src/features/authentication/sessionStorage.ts`: `expo-secure-store` on Android and iOS, `localStorage` on web (`sessionStorage.web.ts`). On web any injected script can read it; that is accepted because access tokens are short-lived and refresh tokens rotate.
+- The refresh token is persisted by `src/features/authentication/sessionStorage.ts`: `expo-secure-store` on Android and iOS, `localStorage` on web (`sessionStorage.web.ts`). On web any injected script can read it; that is accepted because access tokens are short-lived, refresh tokens rotate, and the [Content Security Policy](content-security-policy.md) keeps injected scripts from running and from sending data anywhere but the API. Moving it to an `HttpOnly` cookie waits for a custom domain (see that doc).
 - `httpClient` sends `Authorization: Bearer <accessToken>`. On `401` it refreshes once (concurrent `401`s share one refresh) and retries; if the refresh is rejected the session ends and the app goes back to sign in.
 - Sign out revokes the refresh token (best effort), clears storage and the TanStack Query cache.
 

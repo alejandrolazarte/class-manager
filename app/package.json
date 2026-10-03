@@ -9,7 +9,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "export:web": "expo export --platform web && node scripts/relocateNodeModulesAssets.js dist",
+    "export:web": "expo export --platform web && node scripts/relocateNodeModulesAssets.js dist && node scripts/writeWebHeaders.js dist",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "lint": "eslint . --max-warnings 0",
