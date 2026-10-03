@@ -12,7 +12,8 @@ internal static class ImportExportEndpoints
     public static IEndpointRouteBuilder MapImportExportEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var modules = endpoints.MapGroup(ApiRoutes.ImportExport + ApiRoutes.ImportModule)
-            .RequirePermission(Permissions.ImportExport.Run);
+            .RequirePermission(Permissions.ImportExport.Run)
+            .RequireFeature(Features.ImportExport);
 
         modules.MapGet(ApiRoutes.SchemaAction, GetSchemaAsync);
         modules.MapGet(ApiRoutes.TemplateAction, GetTemplateAsync);

@@ -47,6 +47,7 @@ internal sealed class FeatureAccess(
                 && subscription.StartsOn <= today
                 && (subscription.EndsOn == null || subscription.EndsOn >= today))
             .OrderByDescending(subscription => subscription.StartsOn)
+            .ThenByDescending(subscription => subscription.CreatedAt)
             .FirstOrDefaultAsync(cancellationToken);
 
     private Task<string?> DefaultPlanCodeAsync(CancellationToken cancellationToken) =>

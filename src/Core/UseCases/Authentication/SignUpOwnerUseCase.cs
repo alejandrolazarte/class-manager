@@ -83,8 +83,8 @@ public sealed class SignUpOwnerUseCase(
         var ownerInstructor = Instructor.Create(account.Value.FullName).Value!;
         instructorRepository.Add(ownerInstructor);
         businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Value.Id, userId.Value, ownerInstructor.Id));
-        var defaultPlan = await subscriptionRepository.GetDefaultPlanAsync(cancellationToken);
-        subscriptionRepository.Add(Subscription.StartAtListPrice(organization.Value.Id, defaultPlan, DateOnly.FromDateTime(now.UtcDateTime), now));
+        var signUpPlan = await subscriptionRepository.GetSignUpPlanAsync(cancellationToken);
+        subscriptionRepository.Add(Subscription.StartAtListPrice(organization.Value.Id, signUpPlan, DateOnly.FromDateTime(now.UtcDateTime), now));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var tokens = await tokenService.IssueAsync(

@@ -5,7 +5,7 @@ namespace ClassManager.Core.Abstractions.Persistence;
 
 public interface ISubscriptionRepository
 {
-    Task<Plan> GetDefaultPlanAsync(CancellationToken cancellationToken);
+    Task<Plan> GetSignUpPlanAsync(CancellationToken cancellationToken);
 
     void Add(Subscription subscription);
 }

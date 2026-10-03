@@ -118,6 +118,41 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         return CreateClientFor(businessId, userId);
     }
 
+    public async Task ChangePlanAsync(Guid businessId, string planCode)
+    {
+        await using var context = CreateDbContext(businessId);
+        var organizationId = await context.Businesses.Where(business => business.Id == businessId).Select(business => business.OrganizationId).SingleAsync();
+        context.Subscriptions.RemoveRange(context.Subscriptions.Where(subscription => subscription.SubscriberId == organizationId));
+        await context.SaveChangesAsync();
+        context.Subscriptions.Add(Subscription.Start(
+            organizationId,
+            planCode,
+            price: 0m,
+            CurrencyCode,
+            DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime),
+            note: null,
+            BusinessApiFactory.Now));
+        await context.SaveChangesAsync();
+    }
+
+    public async Task AddFeatureAsync(SeededBusiness business, string featureCode, int? limit = null)
+    {
+        await using var context = CreateDbContext(business.Business.Id);
+        var subscriptionId = await context.Subscriptions
+            .Where(subscription => subscription.SubscriberId == business.Business.OrganizationId && subscription.EndsOn == null)
+            .Select(subscription => subscription.Id)
+            .SingleAsync();
+        context.SubscriptionFeatures.Add(SubscriptionFeature.Create(
+            subscriptionId,
+            featureCode,
+            price: 0m,
+            CurrencyCode,
+            limit,
+            DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime),
+            endsOn: null));
+        await context.SaveChangesAsync();
+    }
+
     public async Task<SeededBusiness> SeedBusinessAsync(string planCode = PlanCodes.Enterprise)
     {
         var organization = Organization.Create(BusinessName, BusinessApiFactory.Now).Value!;

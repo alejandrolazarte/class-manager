@@ -21,7 +21,7 @@ internal sealed class SignUpOwnerUseCaseBuilder
     public BusinessMember? AddedMember { get; private set; }
     public Instructor? AddedInstructor { get; private set; }
     public Subscription? AddedSubscription { get; private set; }
-    public Plan DefaultPlan { get; } = Plan.Create("free", displayOrder: 1, 0m, "USD", BillingPeriod.Monthly, isDefault: true);
+    public Plan SignUpPlan { get; } = Plan.Create("free", displayOrder: 1, 0m, "USD", BillingPeriod.Monthly, isDefault: true);
 
     public Mock<IIdentityService> Identity { get; } = new();
     public Mock<ITokenService> Tokens { get; } = new();
@@ -65,8 +65,8 @@ internal sealed class SignUpOwnerUseCaseBuilder
             .Setup(repository => repository.Add(It.IsAny<Instructor>()))
             .Callback<Instructor>(instructor => AddedInstructor = instructor);
         Subscriptions
-            .Setup(repository => repository.GetDefaultPlanAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(DefaultPlan);
+            .Setup(repository => repository.GetSignUpPlanAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SignUpPlan);
         Subscriptions
             .Setup(repository => repository.Add(It.IsAny<Subscription>()))
             .Callback<Subscription>(subscription => AddedSubscription = subscription);
