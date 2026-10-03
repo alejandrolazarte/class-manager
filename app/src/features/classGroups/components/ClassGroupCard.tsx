@@ -5,6 +5,7 @@ import { AppText } from "@/ui/AppText";
 import { Card } from "@/ui/Card";
 import { ProgressBar } from "@/ui/ProgressBar";
 import { StatusPill } from "@/ui/StatusPill";
+import { TitleWithPills } from "@/ui/TitleWithPills";
 
 interface ClassGroupCardProps {
   classGroup: ClassGroup;
@@ -33,14 +34,11 @@ export function ClassGroupCard({ classGroup, onPress }: ClassGroupCardProps) {
           </AppText>
         </View>
         <View className="min-w-0 flex-1 gap-[3px]">
-          <View className="flex-row flex-wrap items-center gap-2">
-            <AppText variant="heading" testID="class-group-name">
-              {classGroup.name}
-            </AppText>
+          <TitleWithPills title={classGroup.name} variant="heading" testID="class-group-name">
             {classGroup.enrolledCount >= classGroup.capacity ? (
               <StatusPill label={translate("classGroups.card.full")} tone="warning" isSmall />
             ) : null}
-          </View>
+          </TitleWithPills>
           <AppText variant="caption" tone="muted">
             {details.join(detailSeparator)}
           </AppText>
