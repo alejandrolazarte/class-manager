@@ -7,6 +7,7 @@ using ClassManager.Api.Endpoints;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Api.Notifications;
 using ClassManager.Api.Orders;
+using ClassManager.Api.SecurityHeaders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,9 +23,21 @@ builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();
 builder.Services.AddHostedService<PushWorker>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOpenApi();
+}
+
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+app.UseSecurityHeaders();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi().RequireAuthorization(AuthorizationPolicies.AnyAccount);
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(AppCorsServiceCollectionExtensions.AppPolicyName);
