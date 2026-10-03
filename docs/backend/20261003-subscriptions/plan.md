@@ -1,6 +1,6 @@
 # Backend plan — Subscriptions, plans and features
 
-Status: steps 1–3 partly built (library, persistence, sign-up on `Free`, import/export and custom roles gated, branch limit); see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
+Status: steps 1–3 partly built (library, persistence, a 30-day `Free` trial at sign-up, read-only brands once their subscription ends, import/export and custom roles gated, branch limit); see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
 
 ## Goal
 
@@ -23,12 +23,21 @@ Status: steps 1–3 partly built (library, persistence, sign-up on `Free`, impor
 
 | Plan | Who it is for | Price shown |
 |---|---|---|
-| `Free` | Every new sign-up, forever, with limits | 0 |
+| `Free` | A **30-day trial** for every new sign-up, with limits | 0 |
 | `Lite` | One instructor or a small studio | Placeholder |
 | `Pro` | A studio with a team, a shop and its own brand | Placeholder |
 | `Enterprise` | Brands with several branches; agreed by hand | "Consultar" (no list price) |
 
 Four is enough: fewer and `Lite` and `Pro` merge into one plan that is either too cheap for studios or too expensive for instructors; more and the plan screen needs a comparison table nobody reads. Plan codes are stable identifiers (`free`, `lite`, `pro`, `enterprise`); the display name is UI copy.
+
+### `Free` is a trial, and an ended subscription makes the brand read-only
+
+- A brand that never pays still costs storage and support, so `Free` is not forever: it lasts `Plan.DurationInDays` (30), and sign-up sets the subscription's `EndsOn` to the last day. 30 rather than 15 because the business runs on monthly fees: a month is enough to collect one full round of them, which is what convinces an owner. Changing the length is an update of the plan row, no deploy.
+- **No active subscription means read-only.** Every change (any authenticated request that isn't `GET`, `HEAD` or `OPTIONS`) answers `403 subscription.inactive` until the operator gives the brand `Lite`, `Pro` or `Enterprise`. Reads keep working, so the owner still sees students, classes and payments and nothing is lost.
+- The same rule covers a paid plan that stops being paid: the operator ends the subscription and the brand turns read-only. There is no automatic fallback to `Free` after a trial or a paid plan ends.
+- Anonymous endpoints (sign-in, refresh, sign-out, branch switch, invitations) keep working, and an endpoint can opt out with `.AllowInactiveSubscription()`.
+- The check is a middleware after authorization (`UseActiveSubscriptionForChanges`), so a member without the permission still gets the permission's `403` first.
+- Downgrading (for example `Enterprise` to `Lite`) is a new active subscription: the brand keeps writing, only the actions the smaller plan doesn't include are refused, and existing data stays.
 
 ### The plan's price is a list price; the subscription holds the real one
 
@@ -59,7 +68,7 @@ Add-ons are not a separate concept: an add-on is a **feature that can also be bo
 
 ### Downgrades never delete data
 
-- When a subscription ends or drops to a smaller plan, the brand falls back to `Free` (or to the new plan). Nothing is deleted: brand colors stay stored and stop applying ([branding and plans](../../branding-and-plans.md)), extra branches stay readable, imports stop.
+- When a brand drops to a smaller plan, nothing is deleted: brand colors stay stored and stop applying ([branding and plans](../../branding-and-plans.md)), extra branches stay readable, imports stop.
 - A limit blocks **creating** past it, never existing data: a brand with 4 branches that drops to a 1-branch plan keeps all 4 and can't create a fifth.
 
 ## Model
@@ -182,7 +191,7 @@ What stays in the app:
 
 | Library (`Subscriptions`, no dependencies) | Library (`Subscriptions.AspNetCore`) | App |
 |---|---|---|
-| `Plan`, `Feature`, `PlanFeature`, `Subscription`, `SubscriptionFeature`; `EffectiveFeatures` (union, larger limit wins, dates); `IFeatureAccess`, `ISubscriberResolver`; `FeatureErrorCodes` | `ApplySubscriptionsModel()` (tables in schema `billing`) and `ISubscriptionsDbContext`; `FeatureAccess` (once per request, falls back to the default plan); `RequireFeature(...)` endpoint filter; `AddSubscriptions<TDbContext, TSubscriberResolver>()` | `Features` and `PlanCodes` in `Core`; plan rows and prices (`SubscriptionCatalogSeed`); `OrganizationSubscriberResolver` (tenant → organization); the subscription at sign-up; limit checks in use cases; `GET /api/me` and the app screens |
+| `Plan`, `Feature`, `PlanFeature`, `Subscription`, `SubscriptionFeature`; `EffectiveFeatures` (union, larger limit wins, dates); `IFeatureAccess`, `ISubscriberResolver`; `FeatureErrorCodes` | `ApplySubscriptionsModel()` (tables in schema `billing`) and `ISubscriptionsDbContext`; `FeatureAccess` (once per request; no active subscription means inactive, with no features); `UseActiveSubscriptionForChanges()` middleware; `RequireFeature(...)` endpoint filter; `AddSubscriptions<TDbContext, TSubscriberResolver>()` | `Features` and `PlanCodes` in `Core`; plan rows and prices (`SubscriptionCatalogSeed`); `OrganizationSubscriberResolver` (tenant → organization); the subscription at sign-up; limit checks in use cases; `GET /api/me` and the app screens |
 
 - **The app's `AppDbContext` holds the tables**, applying the library's model like it applies the tenant query filters, instead of a `SubscriptionsDbContext` of its own. One migration history, the foreign key from `Subscriptions.SubscriberId` to `Organizations` (added by the app, since the library doesn't know organizations), and sign-up writes the subscription in the same transaction. `Security` has its own context because of Identity; this library has no such reason.
 - **`Core` references `Subscriptions`**, the same as it references `Tenancy` and `Notifications`: the project has no dependencies, and use cases need `IFeatureAccess` for limits. `Core` never references `Subscriptions.AspNetCore`.
@@ -202,19 +211,20 @@ No endpoint changes a subscription in the MVP: there is no platform administrato
 - `useFeature(code)` next to `useCan(...)`, fed by `GET /api/me`.
 - **Permissions hide, features lock.** A button the member's role doesn't allow is hidden; a feature the plan doesn't include is shown with a lock and "Disponible en Pro", which only the brand owner can act on.
 - Ajustes → Plan (brand owner only): current plan, price, what it includes, usage of counted features (`Alumnos 24 / 30`), and "Escribinos para cambiar de plan" until self-service exists.
-- Sign-up shows nothing about plans: everyone starts on `Free`.
+- Sign-up shows nothing about plans: everyone starts the `Free` trial. The app shows the days left, and once it ends, a screen to choose a plan instead of errors on every change.
 
 ## Migration
 
 - Create the `billing` schema, the five tables, the `Feature` rows and the four plans with their features.
 - Every **existing** organization gets `Enterprise` at 0 with the note "Pilot": today that is DF Swimming, and the pilot keeps everything it already uses (brand, shop, family app, three branches).
-- New sign-ups get the default plan (`Free`) from then on. The setting `Subscriptions:SignUpPlan` overrides it with another plan code: the e2e tests use `enterprise` so their flows don't depend on plan limits, and a launch promotion could use it too. Leave it unset in production unless that is the intent.
+- New sign-ups get the default plan (`Free`, 30 days) from then on. `AddPlanDuration` gives `Free` its 30 days and ends the `Free` subscriptions created before it 30 days after they started. The setting `Subscriptions:SignUpPlan` overrides it with another plan code: the e2e tests use `enterprise` so their flows don't depend on plan limits, and a launch promotion could use it too. Leave it unset in production unless that is the intent.
 - `scripts/seed-demo-business.cs` gives the demo brand `Enterprise` at 0.
 
 ## Steps
 
 1. ✅ `src/Subscriptions` + ARCH007 + unit tests of effective features (union, larger limit, expired add-on ignored).
 2. ✅ `Subscriptions.AspNetCore`: model, migration with the seed, `RequireFeature`, `FeatureAccess`; sign-up creates the `Free` subscription; existing organizations get `Enterprise` at 0; a branch of brand A never reads brand B's subscription.
+   - ✅ `Free` lasts 30 days; an ended subscription makes the brand read-only (`403 subscription.inactive`).
 3. Gate the features in the table:
    - ✅ `import-export` (import and export), `custom-roles` (create and edit), `branches` limit. Tests: a brand without the feature gets `403 feature.not_in_plan`, an add-on unlocks it, the limit blocks the next branch and an add-on raises it.
    - Next: `students` and `team` limits (adding students in every entry point: client form, student form, import; inviting members), and `class-packs`, `family-app`, `shop`, `brand`, together with step 4 so the app shows locks instead of errors.
@@ -224,5 +234,5 @@ No endpoint changes a subscription in the MVP: there is no platform administrato
 ## Later, not in the MVP
 
 - Online billing (Mercado Pago / Stripe subscriptions): webhooks set `EndsOn`, and a `Status` column (`PastDue`, grace period) arrives with them; until then `EndsOn` alone says whether a subscription is active.
-- Trials (`Pro` for 14 days at sign-up): a subscription with `EndsOn` that falls back to `Free`.
+- A trial with `Pro` features instead of `Free` limits, if conversions ask for it: the sign-up plan setting and `DurationInDays` already allow it.
 - Yearly billing (`BillingPeriod = Yearly`), coupons, and a platform admin screen.

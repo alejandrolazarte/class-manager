@@ -43,6 +43,7 @@ app.UseStatusCodePages();
 app.UseCors(AppCorsServiceCollectionExtensions.AppPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseActiveSubscriptionForChanges();
 app.UseRateLimiter();
 
 app.MapHealthChecks(ApiRoutes.Health).AllowAnonymous();
