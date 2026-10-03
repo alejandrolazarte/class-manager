@@ -10,7 +10,7 @@ const daysLeft = 5;
 
 describe("When the trial has days left", () => {
   it("Then the days left are shown", async () => {
-    const subscription = buildSubscription({ endsOn: addDays(todayIsoDate(), daysLeft - 1) });
+    const subscription = buildSubscription({ expiredOn: addDays(todayIsoDate(), daysLeft - 1) });
 
     await renderWithProviders(<SubscriptionNotice />, {
       member: buildCurrentMember({ subscription }),

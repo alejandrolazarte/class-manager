@@ -7,7 +7,7 @@ public sealed class Then_the_add_on_limit_applies
     [Fact]
     public void Then_the_add_on_limit_applies_Run()
     {
-        var features = Combine([Included(CountedFeatureCode)], [AddOn(CountedFeatureCode, Today, limit: PlanLimit)]);
+        var features = Combine([Included(CountedFeatureCode)], [AddOn(CountedFeatureCode, PlanLimit)]);
 
         features.LimitOf(CountedFeatureCode).ShouldBe(PlanLimit);
     }

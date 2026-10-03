@@ -9,7 +9,7 @@ public sealed class Then_it_replaces_the_plan_limit
     [Fact]
     public void Then_it_replaces_the_plan_limit_Run()
     {
-        var features = Combine([Included(CountedFeatureCode, PlanLimit)], [AddOn(CountedFeatureCode, Today, limit: LowerLimit)]);
+        var features = Combine([Included(CountedFeatureCode, PlanLimit)], [AddOn(CountedFeatureCode, LowerLimit)]);
 
         features.LimitOf(CountedFeatureCode).ShouldBe(LowerLimit);
     }

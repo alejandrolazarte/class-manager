@@ -129,6 +129,12 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - Isolated tests: unit tests use in-memory fakes; database tests use Testcontainers, never a shared dev database
 - One main assertion per test (supporting asserts allowed)
 
+### Records that change over time
+- A record that is replaced instead of edited (a subscription, an add-on) uses three columns: `CreatedOn` (date and time it applies from), `DeletedOn` (date and time another record replaced it; `null` = current) and, when there is an agreed end, `ExpiredOn` (date, inclusive).
+- Never delete such rows physically and never add an `IsDeleted` flag: `DeletedOn IS NULL` is the filter, and a unique index filtered on `[DeletedOn] IS NULL` guarantees one current record.
+- Replacing is one save: `Delete(now)` on the current record and add the new one. Current = `DeletedOn` is null; active = current and `ExpiredOn` empty or not past.
+- Business dates with their own meaning (a fee that applies from a month) are not this convention and keep their names.
+
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).
 

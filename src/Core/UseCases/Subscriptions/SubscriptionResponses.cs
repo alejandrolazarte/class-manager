@@ -8,14 +8,14 @@ public sealed record FeatureLimitResponse(string Code, int? Limit, int? Used = n
 public sealed record CurrentSubscriptionResponse(
     string PlanCode,
     bool IsActive,
-    DateOnly? EndsOn,
+    DateOnly? ExpiredOn,
     IReadOnlyList<FeatureLimitResponse> Features)
 {
     public static CurrentSubscriptionResponse From(EffectiveFeatures features, IReadOnlyDictionary<string, int>? usageByFeatureCode = null) =>
         new(
             features.PlanCode,
             features.IsActive,
-            features.EndsOn,
+            features.ExpiredOn,
             [.. features.All
                 .OrderBy(feature => feature.Code, StringComparer.Ordinal)
                 .Select(feature => new FeatureLimitResponse(
@@ -36,6 +36,6 @@ public sealed record OrganizationSubscriptionResponse(
     string PlanCode,
     decimal Price,
     string Currency,
-    DateOnly StartsOn,
-    DateOnly? EndsOn,
+    DateTimeOffset CreatedOn,
+    DateOnly? ExpiredOn,
     bool IsActive);

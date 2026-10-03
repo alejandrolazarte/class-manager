@@ -18,6 +18,6 @@ public sealed class Then_the_free_trial_ends_after_thirty_days(ApiFixture fixtur
         await using var context = fixture.CreateDbContext(Guid.Empty);
         var organizationId = await context.Organizations.Where(organization => organization.Name == businessName).Select(organization => organization.Id).SingleAsync();
         var subscription = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId);
-        subscription.EndsOn.ShouldBe(DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime).AddDays(TrialDays - 1));
+        subscription.ExpiredOn.ShouldBe(DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime).AddDays(TrialDays - 1));
     }
 }

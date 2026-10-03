@@ -14,9 +14,11 @@ public sealed class SubscriptionFeature
     public decimal Price { get; private set; }
     public string Currency { get; private set; } = string.Empty;
     public int? Limit { get; private set; }
-    public DateOnly StartsOn { get; private set; }
-    public DateOnly? EndsOn { get; private set; }
-    public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset CreatedOn { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateOnly? ExpiredOn { get; private set; }
+
+    public bool IsCurrent => DeletedOn is null;
 
     public static SubscriptionFeature Create(
         Guid subscriptionId,
@@ -24,13 +26,12 @@ public sealed class SubscriptionFeature
         decimal price,
         string currency,
         int? limit,
-        DateOnly startsOn,
-        DateOnly? endsOn,
-        DateTimeOffset createdAt)
+        DateOnly? expiredOn,
+        DateTimeOffset createdOn)
     {
-        if (endsOn < startsOn)
+        if (expiredOn < DateOnly.FromDateTime(createdOn.UtcDateTime))
         {
-            throw new ArgumentOutOfRangeException(nameof(endsOn), "A feature can't end before it starts.");
+            throw new ArgumentOutOfRangeException(nameof(expiredOn), "A feature can't expire before it is created.");
         }
 
         return new SubscriptionFeature
@@ -41,11 +42,20 @@ public sealed class SubscriptionFeature
             Price = CatalogRules.RequirePrice(price, nameof(price)),
             Currency = CatalogRules.RequireCurrency(currency, nameof(currency)),
             Limit = CatalogRules.RequireLimit(limit, nameof(limit)),
-            StartsOn = startsOn,
-            EndsOn = endsOn,
-            CreatedAt = createdAt.ToUniversalTime(),
+            ExpiredOn = expiredOn,
+            CreatedOn = createdOn.ToUniversalTime(),
         };
     }
 
-    public bool IsActiveOn(DateOnly date) => StartsOn <= date && (EndsOn is null || date <= EndsOn);
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        if (DeletedOn is not null)
+        {
+            throw new InvalidOperationException("The feature was already replaced.");
+        }
+
+        DeletedOn = deletedOn.ToUniversalTime();
+    }
+
+    public bool IsActiveOn(DateOnly date) => IsCurrent && (ExpiredOn is null || date <= ExpiredOn);
 }

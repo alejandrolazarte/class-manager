@@ -17,7 +17,11 @@ describe("When the subscription has ended", () => {
   });
 
   it("Then the app asks to choose a plan", async () => {
-    const subscription = buildSubscription({ isActive: false, endsOn: "2026-09-30", features: [] });
+    const subscription = buildSubscription({
+      isActive: false,
+      expiredOn: "2026-09-30",
+      features: [],
+    });
 
     await renderWithProviders(
       <SubscriptionGate>

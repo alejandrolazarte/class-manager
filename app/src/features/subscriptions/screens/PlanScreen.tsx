@@ -22,16 +22,16 @@ import { SectionTitle } from "@/ui/SectionTitle";
 
 function statusLabel(subscription: CurrentSubscription): string {
   if (!subscription.isActive) {
-    return subscription.endsOn === null
+    return subscription.expiredOn === null
       ? translate("subscriptions.status.ended")
-      : translate("subscriptions.status.endedOn", { date: formatLongDate(subscription.endsOn) });
+      : translate("subscriptions.status.endedOn", { date: formatLongDate(subscription.expiredOn) });
   }
-  if (isTrial(subscription) && subscription.endsOn !== null) {
-    return translateCount("subscriptions.trialDaysLeft", daysLeftOf(subscription.endsOn));
+  if (isTrial(subscription) && subscription.expiredOn !== null) {
+    return translateCount("subscriptions.trialDaysLeft", daysLeftOf(subscription.expiredOn));
   }
-  if (subscription.endsOn !== null) {
+  if (subscription.expiredOn !== null) {
     return translate("subscriptions.status.activeUntil", {
-      date: formatLongDate(subscription.endsOn),
+      date: formatLongDate(subscription.expiredOn),
     });
   }
   return translate("subscriptions.status.active");

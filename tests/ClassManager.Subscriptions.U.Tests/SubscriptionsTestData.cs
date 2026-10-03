@@ -20,11 +20,10 @@ internal static class SubscriptionsTestData
 
     public static SubscriptionFeature AddOn(
         string featureCode,
-        DateOnly startsOn,
-        DateOnly? endsOn = null,
         int? limit = null,
-        DateTimeOffset? createdAt = null) =>
-        SubscriptionFeature.Create(SubscriptionId, featureCode, AddOnPrice, Currency, limit, startsOn, endsOn, createdAt ?? Now);
+        DateOnly? expiredOn = null,
+        DateTimeOffset? createdOn = null) =>
+        SubscriptionFeature.Create(SubscriptionId, featureCode, AddOnPrice, Currency, limit, expiredOn, createdOn ?? Now);
 
     public static EffectiveFeatures Combine(IEnumerable<PlanFeature> planFeatures, IEnumerable<SubscriptionFeature> subscriptionFeatures) =>
         EffectiveFeatures.Combine(PlanCode, planFeatures, subscriptionFeatures, Today);

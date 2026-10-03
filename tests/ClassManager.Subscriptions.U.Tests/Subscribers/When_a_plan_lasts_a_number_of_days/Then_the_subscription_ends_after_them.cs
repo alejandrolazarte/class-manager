@@ -11,7 +11,7 @@ public sealed class Then_the_subscription_ends_after_them
     {
         var plan = Plan.Create(PlanCode, displayOrder: 1, 0m, Currency, BillingPeriod.Monthly, durationInDays: TrialDays);
 
-        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Today, Now);
+        var subscription = Subscription.StartAtListPrice(SubscriberId, plan, Now);
 
         subscription.IsActiveOn(Today.AddDays(TrialDays - 1)).ShouldBeTrue();
         subscription.IsActiveOn(Today.AddDays(TrialDays)).ShouldBeFalse();

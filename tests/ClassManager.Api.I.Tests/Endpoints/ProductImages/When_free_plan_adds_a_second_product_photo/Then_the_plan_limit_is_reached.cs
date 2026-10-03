@@ -10,6 +10,7 @@ public sealed class Then_the_plan_limit_is_reached(ApiFixture fixture)
     public async Task Then_the_plan_limit_is_reached_Run()
     {
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
+        await fixture.AddFeatureAsync(business, Features.Shop);
         var product = await business.HttpClient.CreateProductAsync();
         await business.HttpClient.AddProductImageAsync(product.Id);
 

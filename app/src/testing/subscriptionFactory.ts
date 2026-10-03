@@ -6,7 +6,7 @@ export function buildSubscription(
   return {
     planCode: "free",
     isActive: true,
-    endsOn: null,
+    expiredOn: null,
     features: [
       { code: "students", limit: 30 },
       { code: "branches", limit: 1 },

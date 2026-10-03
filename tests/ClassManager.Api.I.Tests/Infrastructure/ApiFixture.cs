@@ -149,16 +149,9 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     {
         await using var context = CreateDbContext(businessId);
         var organizationId = await context.Businesses.Where(business => business.Id == businessId).Select(business => business.OrganizationId).SingleAsync();
-        context.Subscriptions.RemoveRange(context.Subscriptions.Where(subscription => subscription.SubscriberId == organizationId));
-        await context.SaveChangesAsync();
-        context.Subscriptions.Add(Subscription.Start(
-            organizationId,
-            planCode,
-            price: 0m,
-            CurrencyCode,
-            DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime),
-            note: null,
-            BusinessApiFactory.Now));
+        var current = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId && subscription.DeletedOn == null);
+        current.Delete(BusinessApiFactory.Now);
+        context.Subscriptions.Add(Subscription.Start(organizationId, planCode, price: 0m, CurrencyCode, note: null, BusinessApiFactory.Now));
         await context.SaveChangesAsync();
     }
 
@@ -168,18 +161,17 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         var today = DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime);
         await using var context = CreateDbContext(businessId);
         var organizationId = await context.Businesses.Where(business => business.Id == businessId).Select(business => business.OrganizationId).SingleAsync();
-        context.Subscriptions.RemoveRange(context.Subscriptions.Where(subscription => subscription.SubscriberId == organizationId));
-        await context.SaveChangesAsync();
-        var endedSubscription = Subscription.Start(
+        var current = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId && subscription.DeletedOn == null);
+        current.Delete(BusinessApiFactory.Now);
+        var expiredSubscription = Subscription.Start(
             organizationId,
             PlanCodes.Free,
             price: 0m,
             CurrencyCode,
-            today.AddDays(-DaysSinceItStarted),
             note: null,
-            BusinessApiFactory.Now);
-        endedSubscription.End(today.AddDays(-1));
-        context.Subscriptions.Add(endedSubscription);
+            BusinessApiFactory.Now.AddDays(-DaysSinceItStarted));
+        expiredSubscription.Expire(today.AddDays(-1));
+        context.Subscriptions.Add(expiredSubscription);
         await context.SaveChangesAsync();
     }
 
@@ -203,7 +195,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     {
         await using var context = CreateDbContext(business.Business.Id);
         var subscriptionId = await context.Subscriptions
-            .Where(subscription => subscription.SubscriberId == business.Business.OrganizationId && subscription.EndsOn == null)
+            .Where(subscription => subscription.SubscriberId == business.Business.OrganizationId && subscription.DeletedOn == null)
             .Select(subscription => subscription.Id)
             .SingleAsync();
         context.SubscriptionFeatures.Add(SubscriptionFeature.Create(
@@ -212,8 +204,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             price: 0m,
             CurrencyCode,
             limit,
-            DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime),
-            endsOn: null,
+            expiredOn: null,
             BusinessApiFactory.Now));
         await context.SaveChangesAsync();
     }
@@ -241,7 +232,6 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             planCode,
             price: 0m,
             CurrencyCode,
-            DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime),
             note: null,
             BusinessApiFactory.Now));
         await context.SaveChangesAsync();

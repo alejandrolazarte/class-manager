@@ -23,7 +23,7 @@ public sealed class GetOrganizationSubscriptionUseCase(
         }
 
         var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
-        var subscription = await subscriptionRepository.GetLatestAsync(business.OrganizationId, today, cancellationToken);
+        var subscription = await subscriptionRepository.GetCurrentAsync(business.OrganizationId, cancellationToken);
         if (subscription is null)
         {
             return Result.NotFound<OrganizationSubscriptionResponse>(SubscriptionNotFoundMessage);
@@ -33,8 +33,8 @@ public sealed class GetOrganizationSubscriptionUseCase(
             subscription.PlanCode,
             subscription.Price,
             subscription.Currency,
-            subscription.StartsOn,
-            subscription.EndsOn,
+            subscription.CreatedOn,
+            subscription.ExpiredOn,
             subscription.IsActiveOn(today));
     }
 }

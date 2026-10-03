@@ -13,18 +13,20 @@ public sealed class Subscription
     public string PlanCode { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
     public string Currency { get; private set; } = string.Empty;
-    public DateOnly StartsOn { get; private set; }
-    public DateOnly? EndsOn { get; private set; }
     public string? Note { get; private set; }
-    public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset CreatedOn { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateOnly? ExpiredOn { get; private set; }
 
-    public static Subscription StartAtListPrice(Guid subscriberId, Plan plan, DateOnly startsOn, DateTimeOffset createdAt)
+    public bool IsCurrent => DeletedOn is null;
+
+    public static Subscription StartAtListPrice(Guid subscriberId, Plan plan, DateTimeOffset createdOn)
     {
         ArgumentNullException.ThrowIfNull(plan);
-        var subscription = Start(subscriberId, plan.Code, plan.ListPrice ?? 0m, plan.Currency, startsOn, note: null, createdAt);
+        var subscription = Start(subscriberId, plan.Code, plan.ListPrice ?? 0m, plan.Currency, note: null, createdOn);
         if (plan.DurationInDays is { } durationInDays)
         {
-            subscription.End(startsOn.AddDays(durationInDays - 1));
+            subscription.Expire(subscription.StartDate.AddDays(durationInDays - 1));
         }
 
         return subscription;
@@ -35,9 +37,8 @@ public sealed class Subscription
         string planCode,
         decimal price,
         string currency,
-        DateOnly startsOn,
         string? note,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdOn)
     {
         var trimmedNote = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         if (trimmedNote is { Length: > CatalogRules.NoteMaxLength })
@@ -52,21 +53,32 @@ public sealed class Subscription
             PlanCode = CatalogRules.RequireCode(planCode, nameof(planCode)),
             Price = CatalogRules.RequirePrice(price, nameof(price)),
             Currency = CatalogRules.RequireCurrency(currency, nameof(currency)),
-            StartsOn = startsOn,
             Note = trimmedNote,
-            CreatedAt = createdAt.ToUniversalTime(),
+            CreatedOn = createdOn.ToUniversalTime(),
         };
     }
 
-    public void End(DateOnly endsOn)
+    public DateOnly StartDate => DateOnly.FromDateTime(CreatedOn.UtcDateTime);
+
+    public void Expire(DateOnly expiredOn)
     {
-        if (endsOn < StartsOn)
+        if (expiredOn < StartDate)
         {
-            throw new ArgumentOutOfRangeException(nameof(endsOn), "A subscription can't end before it starts.");
+            throw new ArgumentOutOfRangeException(nameof(expiredOn), "A subscription can't expire before it starts.");
         }
 
-        EndsOn = endsOn;
+        ExpiredOn = expiredOn;
     }
 
-    public bool IsActiveOn(DateOnly date) => StartsOn <= date && (EndsOn is null || date <= EndsOn);
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        if (DeletedOn is not null)
+        {
+            throw new InvalidOperationException("The subscription was already replaced.");
+        }
+
+        DeletedOn = deletedOn.ToUniversalTime();
+    }
+
+    public bool IsActiveOn(DateOnly date) => IsCurrent && StartDate <= date && (ExpiredOn is null || date <= ExpiredOn);
 }

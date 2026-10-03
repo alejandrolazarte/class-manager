@@ -7,7 +7,7 @@ public sealed class Then_the_add_on_feature_is_available
     [Fact]
     public void Then_the_add_on_feature_is_available_Run()
     {
-        var features = Combine([Included(IncludedFeatureCode)], [AddOn(AddOnFeatureCode, Today.AddMonths(-1), Today)]);
+        var features = Combine([Included(IncludedFeatureCode)], [AddOn(AddOnFeatureCode, expiredOn: Today)]);
 
         features.Has(AddOnFeatureCode).ShouldBeTrue();
     }

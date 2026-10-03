@@ -7,7 +7,7 @@ export interface FeatureLimit {
 export interface CurrentSubscription {
   planCode: string;
   isActive: boolean;
-  endsOn: string | null;
+  expiredOn: string | null;
   features: FeatureLimit[];
 }
 
@@ -24,7 +24,7 @@ export interface OrganizationSubscription {
   planCode: string;
   price: number;
   currency: string;
-  startsOn: string;
-  endsOn: string | null;
+  createdOn: string;
+  expiredOn: string | null;
   isActive: boolean;
 }

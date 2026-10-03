@@ -18,14 +18,14 @@ describe("When the plan screen opens", () => {
       planCode: "lite",
       price: agreedPrice,
       currency: "USD",
-      startsOn: "2026-10-01",
-      endsOn: null,
+      createdOn: "2026-10-01T12:00:00Z",
+      expiredOn: null,
       isActive: true,
     });
   });
 
   it("Then the price and the plans are shown", async () => {
-    const subscription = buildSubscription({ planCode: "lite", endsOn: null });
+    const subscription = buildSubscription({ planCode: "lite", expiredOn: null });
 
     await renderWithProviders(<PlanScreen />, { member: buildCurrentMember({ subscription }) });
 

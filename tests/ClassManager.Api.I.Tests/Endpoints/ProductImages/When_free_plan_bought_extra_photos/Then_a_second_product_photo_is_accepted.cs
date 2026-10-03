@@ -9,6 +9,7 @@ public sealed class Then_a_second_product_photo_is_accepted(ApiFixture fixture)
     public async Task Then_a_second_product_photo_is_accepted_Run()
     {
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
+        await fixture.AddFeatureAsync(business, Features.Shop);
         await fixture.AddFeatureAsync(business, Features.CatalogPhotos, limit: 10);
         var product = await business.HttpClient.CreateProductAsync();
         await business.HttpClient.AddProductImageAsync(product.Id);

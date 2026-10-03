@@ -10,7 +10,7 @@ import { CurrentSubscription } from "@/features/subscriptions/types";
 const unrestrictedSubscription: CurrentSubscription = {
   planCode: planCodes.enterprise,
   isActive: true,
-  endsOn: null,
+  expiredOn: null,
   features: [],
 };
 
@@ -45,12 +45,12 @@ export function useIsAtLimit(featureCode: FeatureCode): boolean {
   );
 }
 
-export function daysLeftOf(endsOn: string, today: string = todayIsoDate()): number {
-  return daysBetween(today, endsOn) + 1;
+export function daysLeftOf(expiredOn: string, today: string = todayIsoDate()): number {
+  return daysBetween(today, expiredOn) + 1;
 }
 
 export function isTrial(subscription: CurrentSubscription): boolean {
-  return subscription.planCode === planCodes.free && subscription.endsOn !== null;
+  return subscription.planCode === planCodes.free && subscription.expiredOn !== null;
 }
 
 export function usePlans() {

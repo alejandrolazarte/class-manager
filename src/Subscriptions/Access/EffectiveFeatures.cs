@@ -7,11 +7,11 @@ public sealed class EffectiveFeatures
 {
     private readonly Dictionary<string, EffectiveFeature> _featuresByCode;
 
-    private EffectiveFeatures(string planCode, bool isActive, DateOnly? endsOn, Dictionary<string, EffectiveFeature> featuresByCode)
+    private EffectiveFeatures(string planCode, bool isActive, DateOnly? expiredOn, Dictionary<string, EffectiveFeature> featuresByCode)
     {
         PlanCode = planCode;
         IsActive = isActive;
-        EndsOn = endsOn;
+        ExpiredOn = expiredOn;
         _featuresByCode = featuresByCode;
     }
 
@@ -19,7 +19,7 @@ public sealed class EffectiveFeatures
 
     public bool IsActive { get; }
 
-    public DateOnly? EndsOn { get; }
+    public DateOnly? ExpiredOn { get; }
 
     public IReadOnlyCollection<EffectiveFeature> All => _featuresByCode.Values;
 
@@ -28,7 +28,7 @@ public sealed class EffectiveFeatures
         IEnumerable<PlanFeature> planFeatures,
         IEnumerable<SubscriptionFeature> subscriptionFeatures,
         DateOnly today,
-        DateOnly? endsOn = null)
+        DateOnly? expiredOn = null)
     {
         ArgumentNullException.ThrowIfNull(planFeatures);
         ArgumentNullException.ThrowIfNull(subscriptionFeatures);
@@ -37,21 +37,20 @@ public sealed class EffectiveFeatures
             planFeature => planFeature.FeatureCode,
             planFeature => new EffectiveFeature(planFeature.FeatureCode, planFeature.Limit),
             StringComparer.Ordinal);
-        var overridesInOrder = subscriptionFeatures
+        var currentOverrides = subscriptionFeatures
             .Where(subscriptionFeature => subscriptionFeature.IsActiveOn(today))
-            .OrderBy(subscriptionFeature => subscriptionFeature.StartsOn)
-            .ThenBy(subscriptionFeature => subscriptionFeature.CreatedAt);
+            .OrderBy(subscriptionFeature => subscriptionFeature.CreatedOn);
 
-        foreach (var subscriptionFeature in overridesInOrder)
+        foreach (var subscriptionFeature in currentOverrides)
         {
             featuresByCode[subscriptionFeature.FeatureCode] = new EffectiveFeature(subscriptionFeature.FeatureCode, subscriptionFeature.Limit);
         }
 
-        return new EffectiveFeatures(planCode, isActive: true, endsOn, featuresByCode);
+        return new EffectiveFeatures(planCode, isActive: true, expiredOn, featuresByCode);
     }
 
-    public static EffectiveFeatures Inactive(string lastPlanCode, DateOnly? endedOn = null) =>
-        new(lastPlanCode, isActive: false, endedOn, new Dictionary<string, EffectiveFeature>(StringComparer.Ordinal));
+    public static EffectiveFeatures Inactive(string lastPlanCode, DateOnly? expiredOn = null) =>
+        new(lastPlanCode, isActive: false, expiredOn, new Dictionary<string, EffectiveFeature>(StringComparer.Ordinal));
 
     public bool Has(string featureCode) => _featuresByCode.ContainsKey(featureCode);
 

@@ -15,7 +15,7 @@ public sealed class Then_the_member_sees_it_inactive(ApiFixture fixture)
 
         member.Subscription!.IsActive.ShouldBeFalse();
         member.Subscription.PlanCode.ShouldBe(PlanCodes.Free);
-        member.Subscription.EndsOn.ShouldBe(DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime).AddDays(-1));
+        member.Subscription.ExpiredOn.ShouldBe(DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime).AddDays(-1));
         member.Subscription.Features.ShouldBeEmpty();
     }
 }

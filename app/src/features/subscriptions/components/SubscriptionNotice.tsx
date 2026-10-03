@@ -35,12 +35,12 @@ export function SubscriptionNotice() {
       </Banner>
     );
   }
-  if (isTrial(subscription) && subscription.endsOn !== null) {
+  if (isTrial(subscription) && subscription.expiredOn !== null) {
     return (
       <Banner
         tone="info"
         icon="plan"
-        message={translateCount("subscriptions.trialDaysLeft", daysLeftOf(subscription.endsOn))}
+        message={translateCount("subscriptions.trialDaysLeft", daysLeftOf(subscription.expiredOn))}
       >
         {seePlans}
       </Banner>

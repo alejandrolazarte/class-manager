@@ -7,7 +7,7 @@ public sealed class Then_the_plan_limit_is_lifted
     [Fact]
     public void Then_the_plan_limit_is_lifted_Run()
     {
-        var features = Combine([Included(CountedFeatureCode, PlanLimit)], [AddOn(CountedFeatureCode, Today, limit: null)]);
+        var features = Combine([Included(CountedFeatureCode, PlanLimit)], [AddOn(CountedFeatureCode)]);
 
         features.LimitOf(CountedFeatureCode).ShouldBeNull();
     }

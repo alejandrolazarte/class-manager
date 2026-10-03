@@ -17,7 +17,11 @@ describe("When the owner chooses to see their data", () => {
   });
 
   it("Then the app opens read only", async () => {
-    const subscription = buildSubscription({ isActive: false, endsOn: "2026-09-30", features: [] });
+    const subscription = buildSubscription({
+      isActive: false,
+      expiredOn: "2026-09-30",
+      features: [],
+    });
     await renderWithProviders(
       <SubscriptionGate>
         <Text>{appContent}</Text>
