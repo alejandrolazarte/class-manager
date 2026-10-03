@@ -9,6 +9,7 @@ import {
 } from "@/features/classPacks/classPacksApi";
 import { SaveClassPackRequest, SellClassPackRequest } from "@/features/classPacks/types";
 import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
+import { orderQueryKeys } from "@/features/orders/orderQueryKeys";
 
 function useInvalidateClassPacksAndFees() {
   const queryClient = useQueryClient();
@@ -43,8 +44,18 @@ export function useSetClassPackActive() {
   });
 }
 
+function useInvalidateClassPackSales() {
+  const queryClient = useQueryClient();
+  const invalidateClassPacksAndFees = useInvalidateClassPacksAndFees();
+  return () =>
+    Promise.all([
+      invalidateClassPacksAndFees(),
+      queryClient.invalidateQueries({ queryKey: orderQueryKeys.all }),
+    ]);
+}
+
 export function useSellClassPack(clientId: string) {
-  const invalidate = useInvalidateClassPacksAndFees();
+  const invalidate = useInvalidateClassPackSales();
   return useMutation({
     mutationFn: (request: SellClassPackRequest) => sellClassPack(clientId, request),
     onSuccess: invalidate,
@@ -52,7 +63,7 @@ export function useSellClassPack(clientId: string) {
 }
 
 export function useDeleteClassPackPurchase() {
-  const invalidate = useInvalidateClassPacksAndFees();
+  const invalidate = useInvalidateClassPackSales();
   return useMutation({
     mutationFn: (purchaseId: string) => deleteClassPackPurchase(purchaseId),
     onSuccess: invalidate,

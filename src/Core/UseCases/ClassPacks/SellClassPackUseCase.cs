@@ -5,6 +5,7 @@ using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Orders;
 using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
@@ -34,6 +35,8 @@ public sealed class SellClassPackUseCase(
     IClassPackRepository classPackRepository,
     IClassPackPurchaseRepository purchaseRepository,
     IPrivateLessonRepository privateLessonRepository,
+    IOrderNumbers orderNumbers,
+    IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider,
@@ -69,6 +72,7 @@ public sealed class SellClassPackUseCase(
         }
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
+        var now = timeProvider.GetUtcNow();
         var access = await currentMember.GetAccessAsync(cancellationToken);
         var purchase = ClassPackPurchase.Sell(
             client.Id,
@@ -78,7 +82,7 @@ public sealed class SellClassPackUseCase(
             command.Method,
             command.Notes,
             today,
-            timeProvider.GetUtcNow(),
+            now,
             access?.UserId);
         if (purchase.IsFailure)
         {
@@ -89,26 +93,59 @@ public sealed class SellClassPackUseCase(
         {
             if (!await IsDeductibleTrialAsync(client.Id, command.TrialLessonId.Value, cancellationToken))
             {
-                return Result.Validation<ClassPackPurchaseResponse>(
-                    TrialNotDeductibleMessage, ClassPackErrorCodes.TrialNotDeductible, nameof(SellClassPackCommand.TrialLessonId));
+                return TrialNotDeductible();
             }
 
             purchase.Value!.DeductTrial(command.TrialLessonId.Value);
         }
 
-        purchaseRepository.Add(purchase.Value!);
+        var order = OrderOf(purchase.Value!, classPack, today);
+        if (order.IsFailure)
+        {
+            return order.Error!;
+        }
+
         try
         {
+            await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+            purchaseRepository.Add(purchase.Value!);
+            order.Value!.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));
+            orderRepository.Add(order.Value);
             await unitOfWork.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
         }
         catch (UniqueConstraintViolationException)
         {
-            return Result.Validation<ClassPackPurchaseResponse>(
-                TrialNotDeductibleMessage, ClassPackErrorCodes.TrialNotDeductible, nameof(SellClassPackCommand.TrialLessonId));
+            return TrialNotDeductible();
         }
 
         return ClassPackPurchaseResponse.From(purchase.Value!);
     }
+
+    private static Result<Order> OrderOf(ClassPackPurchase purchase, ClassPack classPack, DateOnly today)
+    {
+        var line = OrderLine.ForClassPack(classPack, purchase.Price);
+        if (line.IsFailure)
+        {
+            return line.Error!;
+        }
+
+        line.Value!.LinkPurchase(purchase.Id);
+        return Order.CounterSale(
+            purchase.ClientId,
+            [line.Value],
+            purchase.Method,
+            purchase.PurchasedOn,
+            purchase.Notes,
+            isDelivered: false,
+            today,
+            purchase.RecordedByUserId,
+            purchase.CreatedAt);
+    }
+
+    private static Result<ClassPackPurchaseResponse> TrialNotDeductible() =>
+        Result.Validation<ClassPackPurchaseResponse>(
+            TrialNotDeductibleMessage, ClassPackErrorCodes.TrialNotDeductible, nameof(SellClassPackCommand.TrialLessonId));
 
     private async Task<bool> IsDeductibleTrialAsync(Guid clientId, Guid trialLessonId, CancellationToken cancellationToken)
     {
