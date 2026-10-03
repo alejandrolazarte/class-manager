@@ -1,3 +1,4 @@
+import { PickedFile, toFileForm } from "@/api/fileForm";
 import { httpClient } from "@/api/httpClient";
 import {
   Product,
@@ -9,6 +10,7 @@ import {
 const productsPath = "/api/products";
 const activeSegment = "active";
 const stockSegment = "stock";
+const imageSegment = "image";
 const stockMovementsSegment = "stock-movements";
 const includeInactiveParameters = { includeInactive: "true" };
 
@@ -32,6 +34,14 @@ export function updateProduct(productId: string, request: SaveProductRequest): P
 
 export function setProductActive(productId: string, isActive: boolean): Promise<Product> {
   return httpClient.put<Product>(`${productPath(productId)}/${activeSegment}`, { isActive });
+}
+
+export function uploadProductImage(productId: string, file: PickedFile): Promise<Product> {
+  return httpClient.putForm<Product>(`${productPath(productId)}/${imageSegment}`, toFileForm(file));
+}
+
+export function removeProductImage(productId: string): Promise<Product> {
+  return httpClient.delete<Product>(`${productPath(productId)}/${imageSegment}`);
 }
 
 export function recordStockMovement(

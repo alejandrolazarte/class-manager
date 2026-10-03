@@ -135,6 +135,7 @@ export interface FamilyShopPack {
   classCount: number;
   price: number;
   validityMonths: number | null;
+  imageUrl: string | null;
 }
 
 export interface FamilyShopVariant {
@@ -149,6 +150,7 @@ export interface FamilyShopProduct {
   description: string | null;
   price: number;
   variants: FamilyShopVariant[];
+  imageUrl: string | null;
 }
 
 export type DeliveryMethod = "Pickup" | "InClass";

@@ -1,12 +1,14 @@
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Notifications;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Persistence.Repositories;
 using ClassManager.Infrastructure.Security;
+using ClassManager.Infrastructure.Storage;
 using ClassManager.Infrastructure.Subscriptions;
 using ClassManager.Infrastructure.WebPush;
 using ClassManager.Notifications.Delivery.Hosting;
@@ -14,6 +16,7 @@ using ClassManager.Notifications.WebPush;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
+using ClassManager.Storage.AzureBlob.Hosting;
 using ClassManager.Subscriptions.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Persistence;
@@ -85,7 +88,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IOrderNotificationService, OrderNotificationService>();
         services.AddScoped<IPrivateLessonRepository, PrivateLessonRepository>();
 
-        return services.AddEmail().AddWebPush().AddSecurity();
+        return services.AddEmail().AddWebPush().AddCatalogImages().AddSecurity();
     }
 
     private static IServiceCollection AddEmail(this IServiceCollection services)
@@ -109,6 +112,14 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IFamilyNotificationService, FamilyNotificationService>();
         services.AddScoped<TeamNotifier>();
         services.AddScoped<ITeamNotificationService, TeamNotificationService>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddCatalogImages(this IServiceCollection services)
+    {
+        services.AddAzureBlobFileStorage();
+        services.AddScoped<ICatalogImageService, CatalogImageService>();
 
         return services;
     }

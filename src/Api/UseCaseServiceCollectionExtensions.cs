@@ -154,6 +154,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<CreateClassPackCommand, ClassPackResponse>, CreateClassPackUseCase>();
         services.AddScoped<IUseCase<UpdateClassPackCommand, ClassPackResponse>, UpdateClassPackUseCase>();
         services.AddScoped<IUseCase<SetClassPackActiveCommand, ClassPackResponse>, SetClassPackActiveUseCase>();
+        services.AddScoped<IUseCase<SetClassPackImageCommand, ClassPackResponse>, SetClassPackImageUseCase>();
+        services.AddScoped<IUseCase<RemoveClassPackImageCommand, ClassPackResponse>, RemoveClassPackImageUseCase>();
         services.AddScoped<IUseCase<SellClassPackCommand, ClassPackPurchaseResponse>, SellClassPackUseCase>();
         services.AddScoped<IUseCase<DeleteClassPackPurchaseCommand, ClassPackPurchaseResponse>, DeleteClassPackPurchaseUseCase>();
         services.AddScoped<IUseCase<GetClientClassBalanceQuery, ClassBalanceResponse>, GetClientClassBalanceUseCase>();
@@ -161,6 +163,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<CreateProductCommand, ProductResponse>, CreateProductUseCase>();
         services.AddScoped<IUseCase<UpdateProductCommand, ProductResponse>, UpdateProductUseCase>();
         services.AddScoped<IUseCase<SetProductActiveCommand, ProductResponse>, SetProductActiveUseCase>();
+        services.AddScoped<IUseCase<SetProductImageCommand, ProductResponse>, SetProductImageUseCase>();
+        services.AddScoped<IUseCase<RemoveProductImageCommand, ProductResponse>, RemoveProductImageUseCase>();
         services.AddScoped<IUseCase<RecordStockMovementCommand, ProductResponse>, RecordStockMovementUseCase>();
         services.AddScoped<IUseCase<ListStockMovementsQuery, IReadOnlyList<StockMovementResponse>>, ListStockMovementsUseCase>();
         services.AddScoped<IUseCase<ListOrdersQuery, IReadOnlyList<OrderResponse>>, ListOrdersUseCase>();

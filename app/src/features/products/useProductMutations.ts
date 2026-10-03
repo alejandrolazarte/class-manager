@@ -1,10 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  applyCatalogImageDraft,
+  CatalogImageDraft,
+} from "@/features/catalogImages/catalogImageDraft";
 import { productQueryKeys } from "@/features/products/productQueryKeys";
 import {
   createProduct,
   recordStockMovement,
+  removeProductImage,
   setProductActive,
   updateProduct,
+  uploadProductImage,
 } from "@/features/products/productsApi";
 import { RecordStockMovementRequest, SaveProductRequest } from "@/features/products/types";
 
@@ -19,6 +25,26 @@ export function useSaveProduct() {
     mutationFn: ({ productId, request }: { productId?: string; request: SaveProductRequest }) =>
       productId === undefined ? createProduct(request) : updateProduct(productId, request),
     onSuccess: invalidate,
+  });
+}
+
+export function useApplyProductImage() {
+  const invalidate = useInvalidateProducts();
+  return useMutation({
+    mutationFn: ({
+      productId,
+      draft,
+      hadImage,
+    }: {
+      productId: string;
+      draft: CatalogImageDraft;
+      hadImage: boolean;
+    }) =>
+      applyCatalogImageDraft(draft, productId, hadImage, {
+        upload: uploadProductImage,
+        remove: removeProductImage,
+      }),
+    onSettled: invalidate,
   });
 }
 

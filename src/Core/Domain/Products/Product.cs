@@ -1,10 +1,11 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Images;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Products;
 
-public sealed class Product : ITenantOwned
+public sealed class Product : ITenantOwned, IHasCatalogImage
 {
     public const int NameMinLength = 2;
     public const int NameMaxLength = 60;
@@ -33,6 +34,7 @@ public sealed class Product : ITenantOwned
     public decimal Price { get; private set; }
     public StockMode StockMode { get; private set; }
     public bool IsVisibleInApp { get; private set; }
+    public string? ImageUrl { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public IReadOnlyList<ProductVariant> Variants => _variants;
@@ -108,6 +110,10 @@ public sealed class Product : ITenantOwned
 
     public string SaleNameOf(ProductVariant variant) =>
         string.IsNullOrEmpty(variant.Name) ? Name : $"{Name} · {variant.Name}";
+
+    public void ChangeImage(Uri imageUrl) => ImageUrl = imageUrl.AbsoluteUri;
+
+    public void RemoveImage() => ImageUrl = null;
 
     public void Activate() => IsActive = true;
 

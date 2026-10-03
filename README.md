@@ -100,6 +100,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Authorization](docs/authorization.md) — organizations, brand and branch roles, and the permission every endpoint requires
 - [Tenancy library](docs/tenancy.md) — what `src/Tenancy` and `src/Tenancy.AspNetCore` contain and how the app plugs into them
 - [Notifications library](docs/notifications.md) — `src/Notifications` and `src/Notifications.Delivery`: email content and branded HTML layout, SMTP, VAPID and web push encryption, and what stays in the app
+- [Storage library and catalog images](docs/storage.md) — `src/Storage` and `src/Storage.AzureBlob`: product and class pack photos in Azure Blob Storage with only the URL in the database, cost comparison with Cloudflare R2, Azurite for development and tests
 - [Import and export library](docs/import-export.md) — the import/export engine in `src/ImportExport` and `src/ImportExport.Xlsx`: XLSX and CSV reading, header matching, limits and why exports are XLSX
 - [Import and export plan](docs/backend/20260929-import-export/plan.md) — students and coaches from and to a spreadsheet
 - [Session substitutes plan](docs/backend/20260929-session-substitutes/plan.md) — another instructor teaches one date of a class

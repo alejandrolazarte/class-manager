@@ -13,6 +13,10 @@ internal static class ProductEndpoints
         products.MapPost("/", CreateProductAsync).RequirePermission(Permissions.Products.Manage);
         products.MapPut(ApiRoutes.ProductById, UpdateProductAsync).RequirePermission(Permissions.Products.Manage);
         products.MapPut(ApiRoutes.ProductById + ApiRoutes.Active, SetProductActiveAsync).RequirePermission(Permissions.Products.Manage);
+        products.MapPut(ApiRoutes.ProductById + ApiRoutes.Image, SetProductImageAsync)
+            .RequirePermission(Permissions.Products.Manage)
+            .AcceptsImageUpload();
+        products.MapDelete(ApiRoutes.ProductById + ApiRoutes.Image, RemoveProductImageAsync).RequirePermission(Permissions.Products.Manage);
         products.MapPost(ApiRoutes.ProductById + ApiRoutes.Stock, RecordStockMovementAsync).RequirePermission(Permissions.Products.Manage);
         products.MapGet(ApiRoutes.ProductById + ApiRoutes.StockMovements, ListStockMovementsAsync).RequirePermission(Permissions.Products.View);
 
@@ -57,6 +61,28 @@ internal static class ProductEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new SetProductActiveCommand(productId, request.IsActive), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> SetProductImageAsync(
+        Guid productId,
+        IFormFile file,
+        IUseCase<SetProductImageCommand, ProductResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var content = await ImageUploads.ReadAsync(file, cancellationToken);
+        var result = await useCase.ExecuteAsync(new SetProductImageCommand(productId, content), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> RemoveProductImageAsync(
+        Guid productId,
+        IUseCase<RemoveProductImageCommand, ProductResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RemoveProductImageCommand(productId), cancellationToken);
 
         return result.ToOkResult();
     }

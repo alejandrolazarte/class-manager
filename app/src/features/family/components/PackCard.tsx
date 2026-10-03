@@ -1,4 +1,5 @@
 import { View } from "react-native";
+import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
 import { FamilyShopPack } from "@/features/family/types";
 import { formatMoney } from "@/features/fees/money";
 import { translate, translateCount } from "@/i18n/translate";
@@ -29,7 +30,15 @@ export function PackCard({ pack, currencyCode, isInCart, onToggle }: PackCardPro
   ];
   return (
     <Card className="w-[172px] gap-2 p-3.5">
-      <Icon name="classPacks" tone="primary" />
+      {pack.imageUrl === null ? (
+        <Icon name="classPacks" tone="primary" />
+      ) : (
+        <CatalogImage
+          imageUri={pack.imageUrl}
+          placeholderIcon="classPacks"
+          className="h-[96px] w-full rounded-2xl"
+        />
+      )}
       <AppText variant="headline">{pack.name}</AppText>
       <AppText variant="caption" tone="muted" className="flex-1">
         {details.filter(Boolean).join(detailSeparator)}

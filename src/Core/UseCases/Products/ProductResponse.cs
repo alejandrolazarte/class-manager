@@ -12,7 +12,8 @@ public sealed record ProductResponse(
     StockMode StockMode,
     bool IsVisibleInApp,
     bool IsActive,
-    IReadOnlyList<ProductVariantResponse> Variants)
+    IReadOnlyList<ProductVariantResponse> Variants,
+    string? ImageUrl)
 {
     public static ProductResponse From(Product product, IReadOnlyDictionary<Guid, int> stockByVariant) =>
         new(
@@ -31,5 +32,6 @@ public sealed record ProductResponse(
                         variant.Id,
                         variant.Name,
                         product.TracksStock ? stockByVariant.GetValueOrDefault(variant.Id) : null)),
-            ]);
+            ],
+            product.ImageUrl);
 }

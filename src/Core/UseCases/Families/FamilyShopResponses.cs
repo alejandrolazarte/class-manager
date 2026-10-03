@@ -4,7 +4,7 @@ using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.Families;
 
-public sealed record FamilyShopPackResponse(Guid Id, string Name, int ClassCount, decimal Price, int? ValidityMonths);
+public sealed record FamilyShopPackResponse(Guid Id, string Name, int ClassCount, decimal Price, int? ValidityMonths, string? ImageUrl);
 
 public sealed record FamilyShopVariantResponse(Guid Id, string Name, StockAvailability Availability);
 
@@ -13,7 +13,8 @@ public sealed record FamilyShopProductResponse(
     string Name,
     string? Description,
     decimal Price,
-    IReadOnlyList<FamilyShopVariantResponse> Variants);
+    IReadOnlyList<FamilyShopVariantResponse> Variants,
+    string? ImageUrl);
 
 public sealed record FamilyShopResponse(
     string CurrencyCode,

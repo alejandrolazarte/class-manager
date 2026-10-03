@@ -38,7 +38,7 @@ export function ProductSheet({ product, currencyCode, onClose, onAdd }: ProductS
       onClose={onClose}
       header={
         <View>
-          <ProductPhoto heightClassName="h-[220px]" />
+          <ProductPhoto imageUrl={product.imageUrl} heightClassName="h-[220px]" />
           <View className="absolute right-3 top-3 rounded-full bg-surface">
             <IconButton
               icon="close"

@@ -13,6 +13,10 @@ internal static class ClassPackEndpoints
         classPacks.MapPost("/", CreateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
         classPacks.MapPut(ApiRoutes.ClassPackById, UpdateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
         classPacks.MapPut(ApiRoutes.ClassPackById + ApiRoutes.Active, SetClassPackActiveAsync).RequirePermission(Permissions.ClassPacks.Manage);
+        classPacks.MapPut(ApiRoutes.ClassPackById + ApiRoutes.Image, SetClassPackImageAsync)
+            .RequirePermission(Permissions.ClassPacks.Manage)
+            .AcceptsImageUpload();
+        classPacks.MapDelete(ApiRoutes.ClassPackById + ApiRoutes.Image, RemoveClassPackImageAsync).RequirePermission(Permissions.ClassPacks.Manage);
 
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.ClassPackPurchasesSegment, SellClassPackAsync)
@@ -98,5 +102,27 @@ internal static class ClassPackEndpoints
         var result = await useCase.ExecuteAsync(new DeleteClassPackPurchaseCommand(purchaseId), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> SetClassPackImageAsync(
+        Guid classPackId,
+        IFormFile file,
+        IUseCase<SetClassPackImageCommand, ClassPackResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var content = await ImageUploads.ReadAsync(file, cancellationToken);
+        var result = await useCase.ExecuteAsync(new SetClassPackImageCommand(classPackId, content), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> RemoveClassPackImageAsync(
+        Guid classPackId,
+        IUseCase<RemoveClassPackImageCommand, ClassPackResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RemoveClassPackImageCommand(classPackId), cancellationToken);
+
+        return result.ToOkResult();
     }
 }

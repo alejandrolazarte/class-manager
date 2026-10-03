@@ -220,6 +220,7 @@ An item of the business's catalog: "Clase suelta" (1 class), "4 clases", "8 clas
 | `ClassCount` | `int` | 1–100 |
 | `Price` | `decimal` | Same rule as payments |
 | `ValidityMonths` | `int?` | 1–24; `null` means the classes never expire |
+| `ImageUrl` | `string?` | Public URL of the photo in Blob Storage, up to 500 characters; set and removed through its own endpoint (see [storage](../storage.md)) |
 | `IsActive` | `bool` | Inactive packs can't be sold |
 
 ### ClassPackPurchase (added in M6)
@@ -247,6 +248,7 @@ Anything a branch sells besides classes: caps, swimsuits, brand merchandise.
 | `Price` | `decimal` | VAT included; same rule as payments |
 | `StockMode` | `StockMode` | `Unlimited` (no stock kept), `Tracked` (can't sell more than the stock) or `TrackedWithBackorder` (stock counted, can go below 0) |
 | `IsVisibleInApp` | `bool` | Shown in the family app (step 3) or only at the counter |
+| `ImageUrl` | `string?` | Public URL of the photo in Blob Storage, up to 500 characters; set and removed through its own endpoint (see [storage](../storage.md)) |
 | `IsActive` | `bool` | Inactive products can't be sold |
 
 A product has 1–20 **variants** (sizes or colors, names up to 30 characters, unique per product ignoring case). A product without sizes has one unnamed variant. Removing a size deactivates it, so its history stays.

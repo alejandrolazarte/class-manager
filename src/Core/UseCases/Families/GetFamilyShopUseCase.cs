@@ -43,7 +43,7 @@ public sealed class GetFamilyShopUseCase(
 
         return new FamilyShopResponse(
             business.CurrencyCode,
-            [.. packs.Select(pack => new FamilyShopPackResponse(pack.Id, pack.Name, pack.ClassCount, pack.Price, pack.ValidityMonths))],
+            [.. packs.Select(pack => new FamilyShopPackResponse(pack.Id, pack.Name, pack.ClassCount, pack.Price, pack.ValidityMonths, pack.ImageUrl))],
             [
                 .. products.Select(product => new FamilyShopProductResponse(
                     product.Id,
@@ -58,7 +58,8 @@ public sealed class GetFamilyShopUseCase(
                                 variant.Id,
                                 variant.Name,
                                 StockRules.AvailabilityOf(product, stockByVariant.GetValueOrDefault(variant.Id)))),
-                    ])),
+                    ],
+                    product.ImageUrl)),
             ],
             deliveryClasses);
     }

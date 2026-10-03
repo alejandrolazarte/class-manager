@@ -1,12 +1,7 @@
 import { getDocumentAsync } from "expo-document-picker";
+import { PickedFile } from "@/api/fileForm";
 
-export interface PickedLogoFile {
-  name: string;
-  uri: string;
-  mimeType?: string;
-  size?: number;
-  webFile?: File;
-}
+export type PickedLogoFile = PickedFile;
 
 export const logoMaximumSizeInBytes = 512 * 1024;
 

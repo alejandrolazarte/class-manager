@@ -1,3 +1,4 @@
+import { PickedFile, toFileForm } from "@/api/fileForm";
 import { httpClient } from "@/api/httpClient";
 import {
   ClassBalance,
@@ -11,6 +12,7 @@ const classPacksPath = "/api/class-packs";
 const clientsPath = "/api/clients";
 const classPackPurchasesPath = "/api/class-pack-purchases";
 const activeSegment = "active";
+const imageSegment = "image";
 const purchasesSegment = "class-pack-purchases";
 const classBalanceSegment = "class-balance";
 const includeInactiveParameters = { includeInactive: "true" };
@@ -44,6 +46,17 @@ export function setClassPackActive(classPackId: string, isActive: boolean): Prom
   return httpClient.put<ClassPack>(`${classPackPath(classPackId)}/${activeSegment}`, {
     isActive,
   });
+}
+
+export function uploadClassPackImage(classPackId: string, file: PickedFile): Promise<ClassPack> {
+  return httpClient.putForm<ClassPack>(
+    `${classPackPath(classPackId)}/${imageSegment}`,
+    toFileForm(file),
+  );
+}
+
+export function removeClassPackImage(classPackId: string): Promise<ClassPack> {
+  return httpClient.delete<ClassPack>(`${classPackPath(classPackId)}/${imageSegment}`);
 }
 
 export function sellClassPack(

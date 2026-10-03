@@ -1,3 +1,4 @@
+using ClassManager.Core.Domain.Images;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ClassManager.Infrastructure.Persistence.Configurations;
@@ -14,6 +15,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(product => product.Description).HasMaxLength(Product.DescriptionMaxLength);
         builder.Property(product => product.Price).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Property(product => product.StockMode).HasConversion<string>().HasMaxLength(StockModeMaxLength);
+        builder.Property(product => product.ImageUrl).HasMaxLength(CatalogImage.UrlMaxLength);
         builder.Ignore(product => product.TracksStock);
 
         builder.HasMany(product => product.Variants)

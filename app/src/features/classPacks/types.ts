@@ -10,6 +10,7 @@ export interface ClassPack {
   classDurationMinutes: number | null;
   materialUrl: string | null;
   classGroupIds: string[];
+  imageUrl: string | null;
 }
 
 export interface SaveClassPackRequest {

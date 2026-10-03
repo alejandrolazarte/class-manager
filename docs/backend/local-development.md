@@ -95,3 +95,7 @@ Owner only endpoints use the `OwnerOnly` authorization policy (`role` claim `Own
 ## Globalization
 
 `Api.csproj` must not enable `InvariantGlobalization`: `Microsoft.Data.SqlClient` refuses to connect in invariant mode ("Globalization Invariant Mode is not supported").
+
+## Photos (Blob Storage)
+
+Product and class pack photos need the Azurite emulator and the `FileStorage` connection string. Without them, everything else works and only uploading a photo fails. Setup: [storage](../storage.md#local-development).

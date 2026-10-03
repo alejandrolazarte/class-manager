@@ -1,11 +1,12 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Images;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.ClassPacks;
 
-public sealed class ClassPack : ITenantOwned
+public sealed class ClassPack : ITenantOwned, IHasCatalogImage
 {
     public const int NameMinLength = 2;
     public const int NameMaxLength = 60;
@@ -35,6 +36,7 @@ public sealed class ClassPack : ITenantOwned
     public int? ValidityMonths { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
     public string? MaterialUrl { get; private set; }
+    public string? ImageUrl { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public IReadOnlyList<ClassPackClassGroup> ClassGroups => _classGroups;
@@ -117,6 +119,10 @@ public sealed class ClassPack : ITenantOwned
     }
 
     public bool CoversClassGroup(Guid classGroupId) => _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId);
+
+    public void ChangeImage(Uri imageUrl) => ImageUrl = imageUrl.AbsoluteUri;
+
+    public void RemoveImage() => ImageUrl = null;
 
     public void Activate() => IsActive = true;
 

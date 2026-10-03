@@ -17,6 +17,7 @@ export interface Product {
   isVisibleInApp: boolean;
   isActive: boolean;
   variants: ProductVariant[];
+  imageUrl: string | null;
 }
 
 export interface VariantChange {

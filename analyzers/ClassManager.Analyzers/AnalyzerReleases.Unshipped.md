@@ -17,3 +17,4 @@ ARCH004 | Architecture | Error | TenancyIndependenceAnalyzer
 ARCH005 | Architecture | Error | ImportExportIndependenceAnalyzer
 ARCH006 | Architecture | Error | NotificationsIndependenceAnalyzer
 ARCH007 | Architecture | Error | SubscriptionsIndependenceAnalyzer
+ARCH008 | Architecture | Error | StorageIndependenceAnalyzer

@@ -11,7 +11,8 @@ public sealed record ClassPackResponse(
     bool IsActive,
     int? ClassDurationMinutes,
     string? MaterialUrl,
-    IReadOnlyList<Guid> ClassGroupIds)
+    IReadOnlyList<Guid> ClassGroupIds,
+    string? ImageUrl)
 {
     public static ClassPackResponse From(ClassPack classPack) =>
         new(
@@ -23,5 +24,6 @@ public sealed record ClassPackResponse(
             classPack.IsActive,
             classPack.ClassDurationMinutes,
             classPack.MaterialUrl,
-            classPack.ClassGroupIds);
+            classPack.ClassGroupIds,
+            classPack.ImageUrl);
 }
