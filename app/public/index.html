@@ -36,12 +36,6 @@
   <body>
     <noscript>Necesitás habilitar JavaScript para usar esta app.</noscript>
     <div id="root"></div>
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/service-worker.js");
-        });
-      }
-    </script>
+    <script src="/register-service-worker.js"></script>
   </body>
 </html>
