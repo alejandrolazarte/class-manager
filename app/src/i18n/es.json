@@ -544,6 +544,7 @@
   "classPacks.form.classDuration": "Duración de cada clase",
   "classPacks.form.classGroups": "Clases donde se puede usar",
   "classPacks.form.classGroupsHint": "Los alumnos con este pack reservan su lugar en estas clases desde la app.",
+  "classPacks.form.classGroupsNoneHint": "Si no elegís ninguna clase, el alumno no puede reservar desde la app: lo tenés que inscribir vos en una clase fija para que sepa qué días venir.",
   "classPacks.form.noFixedDuration": "Sin fijar",
   "classPacks.form.materialUrl": "Link al material (opcional)",
   "classPacks.form.materialUrlPlaceholder": "https://… (PDF, video, Drive)",

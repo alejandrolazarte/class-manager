@@ -204,7 +204,11 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
                 })}
               </View>
               <AppText variant="caption" tone="muted">
-                {translate("classPacks.form.classGroupsHint")}
+                {translate(
+                  field.value.length === 0
+                    ? "classPacks.form.classGroupsNoneHint"
+                    : "classPacks.form.classGroupsHint",
+                )}
               </AppText>
             </View>
           )}
