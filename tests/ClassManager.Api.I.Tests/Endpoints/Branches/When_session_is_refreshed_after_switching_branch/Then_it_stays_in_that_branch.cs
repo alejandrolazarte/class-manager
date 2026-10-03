@@ -1,3 +1,5 @@
+using ClassManager.Core.Domain.Subscriptions;
+
 namespace ClassManager.Api.I.Tests.Endpoints.Branches.When_session_is_refreshed_after_switching_branch;
 
 [Collection(SqlServerCollectionDefinition.Name)]
@@ -9,6 +11,7 @@ public sealed class Then_it_stays_in_that_branch(ApiFixture fixture)
         using var client = fixture.ApiFactory.CreateClient();
         var tokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
+        await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
         var branch = await ownerClient.CreateBranchAsync("DF Barcelona");
         var switchedTokens = await client.SwitchBranchAsync(tokens.RefreshToken, branch.BusinessId);
 

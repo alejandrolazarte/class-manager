@@ -94,4 +94,12 @@ internal static class DiagnosticDescriptors
         category: ArchitectureCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor SubscriptionsMustNotDependOnApplication = new(
+        id: "ARCH007",
+        title: "Subscriptions must not depend on the application",
+        messageFormat: "Subscriptions cannot use '{0}'; keep plans and features free of business concepts and resolve the subscriber in the application",
+        category: ArchitectureCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

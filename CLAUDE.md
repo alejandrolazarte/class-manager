@@ -21,10 +21,13 @@ src/Tenancy.AspNetCore/ ← tenant query filters, stamping interceptor, claims t
 src/ImportExport/    ← reusable import/export engine: CSV, column matching, limits (no dependencies, ARCH005)
 src/Notifications/   ← reusable email and web push building blocks: email content, branded HTML layout, VAPID, push encryption (no dependencies, ARCH006)
 src/Notifications.Delivery/ ← SMTP (MailKit) and web push senders, DI extensions (ARCH006)
+src/Subscriptions/   ← reusable plans, features, add-ons and effective features of a subscriber (no dependencies, ARCH007)
+src/Subscriptions.AspNetCore/ ← EF model for the billing schema, per-request feature access, RequireFeature endpoint filter (ARCH007)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
 tests/ClassManager.Api.I.Tests/   ← integration tests: endpoints and persistence (Testcontainers)
 tests/ClassManager.ImportExport.U.Tests/ ← unit tests: import/export engine
 tests/ClassManager.Notifications.U.Tests/ ← unit tests: email rendering and web push
+tests/ClassManager.Subscriptions.U.Tests/ ← unit tests: plans, subscriptions and effective features
 app/                 ← Expo app (mobile + web)
 e2e/                 ← Playwright e2e tests: web build + real API + SQL Server (critical flows only)
 docs/                ← decisions and runbooks

@@ -11,4 +11,6 @@ public interface IBusinessRepository
     Task<Business?> GetCurrentForUpdateAsync(CancellationToken cancellationToken);
 
     Task<bool> IsSlugTakenAsync(string slug, CancellationToken cancellationToken);
+
+    Task<int> CountInOrganizationAsync(Guid organizationId, CancellationToken cancellationToken);
 }

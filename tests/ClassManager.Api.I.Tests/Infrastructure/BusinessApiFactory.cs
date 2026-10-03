@@ -9,7 +9,10 @@ using Microsoft.Extensions.Time.Testing;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed class BusinessApiFactory(string databaseConnectionString, TimeProvider timeProvider) : WebApplicationFactory<Program>
+public sealed class BusinessApiFactory(
+    string databaseConnectionString,
+    TimeProvider timeProvider,
+    IReadOnlyDictionary<string, string>? extraSettings = null) : WebApplicationFactory<Program>
 {
     public const string TestSigningKey = "integration-tests-signing-key-with-more-than-32-bytes";
     public const int TestAuthenticationPermitLimit = 10_000;
@@ -43,6 +46,11 @@ public sealed class BusinessApiFactory(string databaseConnectionString, TimeProv
         builder.UseSetting(
             $"{AuthenticationRateLimitOptions.SectionName}:{nameof(AuthenticationRateLimitOptions.PermitLimit)}",
             TestAuthenticationPermitLimit.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        foreach (var (settingName, settingValue) in extraSettings ?? new Dictionary<string, string>())
+        {
+            builder.UseSetting(settingName, settingValue);
+        }
+
         builder.ConfigureTestServices(services =>
         {
             services.Replace(ServiceDescriptor.Singleton(timeProvider));

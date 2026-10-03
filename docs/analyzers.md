@@ -19,6 +19,7 @@ Rules in `CLAUDE.md` depend on someone reading them; these are enforced by the c
 | ARCH004 | Assemblies `Tenancy` and `Tenancy.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api` or `ClassManager.Security`: the tenancy library must stay reusable (see [tenancy.md](tenancy.md)) |
 | ARCH005 | Assemblies `ImportExport` and `ImportExport.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api`, `ClassManager.Security` or `ClassManager.Tenancy`: the import and export engine must stay free of business concepts (see [import-export.md](import-export.md)) |
 | ARCH006 | Assemblies `Notifications` and `Notifications.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api`, `ClassManager.Security`, `ClassManager.Tenancy` or `ClassManager.ImportExport`: emails and web push must stay free of business concepts (see [notifications.md](notifications.md)) |
+| ARCH007 | Assemblies `Subscriptions` and `Subscriptions.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api`, `ClassManager.Security`, `ClassManager.Tenancy`, `ClassManager.ImportExport` or `ClassManager.Notifications`: plans and features must stay free of business concepts, and the app resolves who the subscriber is (see [subscriptions plan](backend/20261003-subscriptions/plan.md)) |
 
 Test helpers (fixtures, factories, builders) have no test methods, so the TEST rules don't apply to them.
 

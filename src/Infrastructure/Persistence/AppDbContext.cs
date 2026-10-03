@@ -1,8 +1,11 @@
+using ClassManager.Subscriptions.AspNetCore.Persistence;
+using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 
 namespace ClassManager.Infrastructure.Persistence;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext) : DbContext(options), ITenantDbContext
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext) : DbContext(options), ITenantDbContext, ISubscriptionsDbContext
 {
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<OrganizationMember> OrganizationMembers => Set<OrganizationMember>();
@@ -42,6 +45,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
+    public DbSet<Plan> Plans => Set<Plan>();
+    public DbSet<Feature> Features => Set<Feature>();
+    public DbSet<PlanFeature> PlanFeatures => Set<PlanFeature>();
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+    public DbSet<SubscriptionFeature> SubscriptionFeatures => Set<SubscriptionFeature>();
 
     public Guid CurrentTenantId => tenantContext.TenantId;
 
@@ -50,6 +58,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AppDbContext).Assembly,
             configurationType => configurationType.Namespace == typeof(Configurations.BusinessConfiguration).Namespace);
+        modelBuilder.ApplySubscriptionsModel();
+        modelBuilder.Entity<Subscription>().HasOne<Organization>().WithMany().HasForeignKey(subscription => subscription.SubscriberId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.SeedSubscriptionCatalog();
         modelBuilder.ApplyTenantQueryFilters(this);
     }
 }

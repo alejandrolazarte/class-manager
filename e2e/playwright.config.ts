@@ -34,6 +34,7 @@ export default defineConfig({
         ASPNETCORE_ENVIRONMENT: "Development",
         ASPNETCORE_URLS: e2eEnvironment.apiUrl,
         ConnectionStrings__BusinessDatabase: requireDatabaseConnectionString(),
+        Subscriptions__SignUpPlan: "enterprise",
         Authentication__Jwt__SigningKey: e2eEnvironment.jwtSigningKey,
         Authentication__RateLimit__PermitLimit: e2eEnvironment.authenticationPermitLimit,
         Cors__AllowedOrigins__0: e2eEnvironment.webUrl,

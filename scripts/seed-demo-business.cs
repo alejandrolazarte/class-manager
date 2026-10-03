@@ -15,6 +15,7 @@ const string DemoOwnerFullName = "Demo owner";
 
 var demoOrganizationId = Guid.Parse("0192f0c3-0000-7000-8000-000000000001");
 var demoBrandOwnerMembershipId = Guid.Parse("0192f0c4-0000-7000-8000-000000000001");
+var demoSubscriptionId = Guid.Parse("0192f0c5-0000-7000-8000-000000000001");
 var demoBusinessId = Guid.Parse("0192f0c0-0000-7000-8000-000000000001");
 var demoOwnerId = Guid.Parse("0192f0c1-0000-7000-8000-000000000001");
 var demoOwnerMembershipId = Guid.Parse("0192f0c2-0000-7000-8000-000000000001");
@@ -42,6 +43,14 @@ await ExecuteAsync(
         INSERT INTO Organizations (Id, Name, CreatedAt) VALUES (@Id, N'Demo business', SYSDATETIMEOFFSET());
     """,
     ("@Id", demoOrganizationId));
+
+await ExecuteAsync(
+    """
+    IF NOT EXISTS (SELECT 1 FROM billing.Subscriptions WHERE SubscriberId = @OrganizationId)
+        INSERT INTO billing.Subscriptions (Id, SubscriberId, PlanCode, Price, Currency, StartsOn, EndsOn, Note, CreatedAt)
+        VALUES (@Id, @OrganizationId, N'enterprise', 0, N'USD', CAST(SYSUTCDATETIME() AS date), NULL, N'Demo', SYSDATETIMEOFFSET());
+    """,
+    ("@Id", demoSubscriptionId), ("@OrganizationId", demoOrganizationId));
 
 await ExecuteAsync(
     """
