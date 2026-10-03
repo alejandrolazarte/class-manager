@@ -30,6 +30,12 @@ public static class FamilyRequests
             new AcceptFamilyInvitationCommand(token, FamilyFullName, FamilyPassword),
             ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PostCheckFamilyInvitationAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.CheckFamilyInvitation,
+            new CheckFamilyInvitationCommand(token),
+            ApiRequests.JsonOptions);
+
     public static async Task<FamilyScenario> SeedFamilyScenarioAsync(this ApiFixture fixture) =>
         await fixture.InviteFamilyOfAsync(await fixture.SeedCoachScenarioAsync(), CoachScenario.CoachStudentFullName);
 

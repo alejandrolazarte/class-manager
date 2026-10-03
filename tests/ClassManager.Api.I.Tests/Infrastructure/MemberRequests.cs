@@ -12,6 +12,7 @@ public static class MemberRequests
 
     public const string InvitationsRoute = ApiRoutes.Members + ApiRoutes.InvitationsSegment;
     public const string AcceptInvitationRoute = ApiRoutes.Authentication + ApiRoutes.AcceptInvitation;
+    public const string CheckInvitationRoute = ApiRoutes.Authentication + ApiRoutes.CheckInvitation;
 
     public static string UniqueInviteeEmail() => $"coach-{Guid.NewGuid():N}@example.com";
 
@@ -44,6 +45,9 @@ public static class MemberRequests
             AcceptInvitationRoute,
             new AcceptInvitationCommand(token, InviteeFullName, InviteePassword),
             ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostCheckInvitationAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(CheckInvitationRoute, new CheckInvitationCommand(token), ApiRequests.JsonOptions);
 
     public static async Task<TokenResponse> AcceptInvitationAsync(this HttpClient httpClient, string token)
     {

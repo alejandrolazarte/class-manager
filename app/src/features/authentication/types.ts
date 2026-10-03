@@ -40,6 +40,10 @@ export interface AcceptFamilyInvitationRequest {
   password: string;
 }
 
+export interface CheckInvitationRequest {
+  token: string;
+}
+
 export interface SwitchBranchRequest {
   refreshToken: string;
   businessId: string;

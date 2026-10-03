@@ -1,7 +1,8 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getFieldErrors } from "@/api/problemDetails";
 import { isApiError, isNetworkError } from "@/api/httpClient";
+import { checkInvitation } from "@/features/authentication/authenticationApi";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
 import { useSession } from "@/features/authentication/useSession";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
@@ -12,6 +13,7 @@ import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
+import { Spinner } from "@/ui/Spinner";
 import { TextField } from "@/ui/TextField";
 
 type AcceptInvitationFailure = "invalidLink" | "coachTaken" | "network" | "unexpected";
@@ -34,6 +36,36 @@ export function AcceptInvitationScreen() {
   const [failure, setFailure] = useState<AcceptInvitationFailure | null>(
     token ? null : "invalidLink",
   );
+
+  const [isChecking, setIsChecking] = useState(Boolean(token));
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+    let isCurrent = true;
+    const verifyLink = async () => {
+      try {
+        await checkInvitation({ token });
+      } catch (checkError) {
+        if (
+          isCurrent &&
+          isApiError(checkError) &&
+          checkError.hasCode(memberErrorCodes.invalidInvitation)
+        ) {
+          setFailure("invalidLink");
+        }
+      } finally {
+        if (isCurrent) {
+          setIsChecking(false);
+        }
+      }
+    };
+    void verifyLink();
+    return () => {
+      isCurrent = false;
+    };
+  }, [token]);
 
   const handleAcceptError = (acceptError: unknown) => {
     if (isNetworkError(acceptError)) {
@@ -102,7 +134,8 @@ export function AcceptInvitationScreen() {
         </Banner>
       ) : null}
       {failure === "unexpected" ? <Banner message={translate("common.unexpectedError")} /> : null}
-      {token && failure !== "invalidLink" ? (
+      {isChecking ? <Spinner className="my-4" /> : null}
+      {token && !isChecking && failure !== "invalidLink" ? (
         <>
           <AppText variant="body" tone="muted">
             {translate("invitation.subtitle")}

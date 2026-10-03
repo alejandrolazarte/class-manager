@@ -1,7 +1,8 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { getFieldErrors } from "@/api/problemDetails";
+import { checkFamilyInvitation } from "@/features/authentication/authenticationApi";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
 import { useSession } from "@/features/authentication/useSession";
 import { familyErrorCodes } from "@/features/family/familyErrorCodes";
@@ -12,6 +13,7 @@ import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
+import { Spinner } from "@/ui/Spinner";
 import { TextField } from "@/ui/TextField";
 
 type AcceptFamilyInvitationFailure = "invalidLink" | "alreadyLinked" | "network" | "unexpected";
@@ -34,6 +36,36 @@ export function AcceptFamilyInvitationScreen() {
   const [failure, setFailure] = useState<AcceptFamilyInvitationFailure | null>(
     token ? null : "invalidLink",
   );
+
+  const [isChecking, setIsChecking] = useState(Boolean(token));
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+    let isCurrent = true;
+    const verifyLink = async () => {
+      try {
+        await checkFamilyInvitation({ token });
+      } catch (checkError) {
+        if (
+          isCurrent &&
+          isApiError(checkError) &&
+          checkError.hasCode(familyErrorCodes.invalidInvitation)
+        ) {
+          setFailure("invalidLink");
+        }
+      } finally {
+        if (isCurrent) {
+          setIsChecking(false);
+        }
+      }
+    };
+    void verifyLink();
+    return () => {
+      isCurrent = false;
+    };
+  }, [token]);
 
   const handleAcceptError = (acceptError: unknown) => {
     if (isNetworkError(acceptError)) {
@@ -104,7 +136,8 @@ export function AcceptFamilyInvitationScreen() {
         </Banner>
       ) : null}
       {failure === "unexpected" ? <Banner message={translate("common.unexpectedError")} /> : null}
-      {token && failure !== "invalidLink" ? (
+      {isChecking ? <Spinner className="my-4" /> : null}
+      {token && !isChecking && failure !== "invalidLink" ? (
         <>
           <AppText variant="body" tone="muted">
             {translate("familyInvitation.subtitle")}
