@@ -15,7 +15,7 @@
     "screenshots:no-build": "playwright test --config playwright.screenshots.config.ts"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.63.0",
     "@types/node": "^22.20.4",
     "prettier": "^3.9.9",
     "serve": "^14.2.6",

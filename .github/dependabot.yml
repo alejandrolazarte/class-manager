@@ -10,6 +10,10 @@ updates:
     groups:
       nuget-minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # Analyzers must target a Roslyn no newer than the compiler in the .NET SDK that loads them.
+      - dependency-name: Microsoft.CodeAnalysis.*
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: npm
     directory: /app
@@ -45,6 +49,10 @@ updates:
     groups:
       e2e-minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # Matches the Node major the e2e suite runs on (CI uses node-version 22).
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /
