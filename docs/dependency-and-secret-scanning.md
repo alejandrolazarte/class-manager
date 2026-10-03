@@ -8,7 +8,7 @@ How the repository finds vulnerable packages and leaked secrets. The repository 
 |---|---|---|---|
 | Dependabot alerts | NuGet and npm packages with a known vulnerability | Free | Repository settings |
 | Dependabot security updates | Opens a PR that upgrades the vulnerable package | Free | Repository settings |
-| Dependabot version updates | Weekly PRs that keep packages current | Free | `.github/dependabot.yml` |
+| Dependabot version updates | Monthly PRs that keep packages current | Free | `.github/dependabot.yml` |
 | Push protection for yourself | Blocks a push from the owner's account that contains a known secret | Free | Personal settings |
 | gitleaks | Secrets anywhere in the history, on demand | Free | `.gitleaks.toml`, run locally |
 | Repository secret scanning (Secret Protection) | Secrets in the history and in every push, from any account | Paid per committer | Not enabled |
@@ -24,12 +24,14 @@ In GitHub: **repository → Settings → Code security**, enable:
 - **Dependabot alerts**: an email and an entry in the Security tab when a dependency has a known vulnerability.
 - **Dependabot security updates**: a PR that upgrades the vulnerable package. It goes through the normal review like any other PR, so `main` still only changes through reviewed pull requests.
 
+To keep email low, set **profile → Settings → Notifications → Dependabot alerts** to a weekly email digest (or web only); the alerts stay in the repository's Security tab.
+
 ### Version updates
 
-`.github/dependabot.yml` opens version update PRs every Monday:
+`.github/dependabot.yml` opens version update PRs once a month, so they arrive in one batch instead of a stream of notifications:
 
-- **NuGet** from the root (`Directory.Packages.props`), **pnpm** for `app/` and `e2e/`, and **GitHub Actions** monthly.
-- Minor and patch updates are grouped into one PR per ecosystem, so a week produces a handful of PRs, not one per package.
+- **NuGet** from the root (`Directory.Packages.props`), **pnpm** for `app/` and `e2e/`, and **GitHub Actions**.
+- Minor and patch updates are grouped into one PR per ecosystem, so a month produces about four PRs, not one per package.
 - **Expo SDK packages are excluded from minor and major updates** (`expo`, `expo-*`, `@expo/*`, `react`, `react-dom`, `react-native`, `react-native-*`). The Expo SDK pins their versions together; moving one alone breaks the app. Upgrade the SDK on purpose with `pnpm expo install --fix` after reading the SDK release notes. Patch updates still arrive.
 - GitHub Actions updates only bump `actions/*` versions, which the allowed-actions rule already permits ([GitHub protection](github-protection.md)).
 

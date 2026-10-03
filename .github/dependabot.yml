@@ -1,12 +1,11 @@
 # Dependency updates. Security updates are enabled in the repository settings;
-# this file adds weekly version updates. See docs/dependency-and-secret-scanning.md.
+# this file adds monthly version updates. See docs/dependency-and-secret-scanning.md.
 version: 2
 updates:
   - package-ecosystem: nuget
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     open-pull-requests-limit: 5
     groups:
       nuget-minor-and-patch:
@@ -15,8 +14,7 @@ updates:
   - package-ecosystem: npm
     directory: /app
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     open-pull-requests-limit: 5
     groups:
       app-minor-and-patch:
@@ -41,8 +39,7 @@ updates:
   - package-ecosystem: npm
     directory: /e2e
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     open-pull-requests-limit: 3
     groups:
       e2e-minor-and-patch:
