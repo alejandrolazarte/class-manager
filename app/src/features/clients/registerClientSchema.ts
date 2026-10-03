@@ -56,6 +56,7 @@ const clientFieldsSchema = z.object({
     .string()
     .max(clientLimits.notesMaximumLength, translate("clients.validation.notesTooLong")),
   clientAttends: z.boolean(),
+  sendAppInvitation: z.boolean(),
   additionalStudents: z.array(studentFormSchema),
 });
 
@@ -102,6 +103,7 @@ export const emptyRegisterClientFormValues: RegisterClientFormValues = {
   email: "",
   notes: "",
   clientAttends: true,
+  sendAppInvitation: true,
   additionalStudents: [],
 };
 
@@ -144,6 +146,11 @@ function toStudentRequests(formValues: RegisterClientFormValues): NewStudentRequ
     ? [{ fullName: formValues.fullName.trim(), birthDate: null, notes: null }]
     : [];
   return [...clientAsStudent, ...formValues.additionalStudents.map(toNewStudentRequest)];
+}
+
+export function toAppInvitationEmail(formValues: RegisterClientFormValues): string | null {
+  const email = formValues.email.trim();
+  return formValues.sendAppInvitation && email.length > 0 ? email : null;
 }
 
 export function toRegisterClientRequest(

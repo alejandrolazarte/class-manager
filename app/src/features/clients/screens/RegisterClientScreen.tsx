@@ -14,12 +14,14 @@ import {
   emptyRegisterClientFormValues,
   RegisterClientFormValues,
   registerClientSchema,
+  toAppInvitationEmail,
   toRegisterClientFieldName,
   toRegisterClientRequest,
 } from "@/features/clients/registerClientSchema";
 import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { useRegisterClient } from "@/features/clients/useRegisterClient";
+import { inviteFamily } from "@/features/family/familyApi";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
@@ -50,11 +52,41 @@ export function RegisterClientScreen() {
     submissionFailure?.kind === "phoneNumberTaken" ? submissionFailure.existingClientId : undefined;
   const { data: existingClient } = useClient(existingClientId);
 
-  const navigateAfterRegistration = (registeredClient: ClientDetails) => {
+  const registrationSuccessMessage = (
+    registeredClient: ClientDetails,
+    isAppInvitationSent: boolean,
+  ): string => {
+    const hasSeveralStudents = registeredClient.students.length > singleStudent;
+    if (isAppInvitationSent) {
+      return hasSeveralStudents
+        ? translate("clients.register.successPluralWithInvitation")
+        : translate("clients.register.successWithInvitation");
+    }
+    return hasSeveralStudents
+      ? translate("clients.register.successPlural")
+      : translate("clients.register.success");
+  };
+
+  const sendAppInvitation = async (
+    registeredClient: ClientDetails,
+    appInvitationEmail: string,
+  ): Promise<string> => {
+    try {
+      await inviteFamily(registeredClient.id, { email: appInvitationEmail });
+      return registrationSuccessMessage(registeredClient, true);
+    } catch {
+      return translate("clients.register.invitationFailed");
+    }
+  };
+
+  const navigateAfterRegistration = async (
+    registeredClient: ClientDetails,
+    appInvitationEmail: string | null,
+  ) => {
     showToast(
-      registeredClient.students.length > singleStudent
-        ? translate("clients.register.successPlural")
-        : translate("clients.register.success"),
+      appInvitationEmail === null
+        ? registrationSuccessMessage(registeredClient, false)
+        : await sendAppInvitation(registeredClient, appInvitationEmail),
     );
     router.replace(routes.clientDetail("students", registeredClient.id));
   };
@@ -99,14 +131,16 @@ export function RegisterClientScreen() {
 
   const submit = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
+    let registeredClient: ClientDetails;
     try {
-      const registeredClient = await registerClientMutation.mutateAsync(
+      registeredClient = await registerClientMutation.mutateAsync(
         toRegisterClientRequest(formValues),
       );
-      navigateAfterRegistration(registeredClient);
     } catch (registrationError) {
       handleRegistrationError(registrationError);
+      return;
     }
+    await navigateAfterRegistration(registeredClient, toAppInvitationEmail(formValues));
   });
 
   return (
@@ -140,7 +174,7 @@ export function RegisterClientScreen() {
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
       <View>
-        <ClientForm form={form} onSubmit={submit} isSubmitting={registerClientMutation.isPending} />
+        <ClientForm form={form} onSubmit={submit} isSubmitting={form.formState.isSubmitting} />
       </View>
     </ScrollScreen>
   );

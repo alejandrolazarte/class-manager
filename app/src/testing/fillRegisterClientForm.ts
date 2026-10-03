@@ -34,3 +34,16 @@ export async function addAdditionalStudent(fullName: string, birthDate = ""): Pr
 export async function submitRegisterClientForm(): Promise<void> {
   await fireEvent.press(screen.getByRole("button", { name: translate("clients.register.submit") }));
 }
+
+export async function fillRegisterClientEmail(email: string): Promise<void> {
+  await fireEvent.changeText(screen.getByLabelText(translate("clients.register.email")), email);
+}
+
+export async function setSendAppInvitation(sendAppInvitation: boolean): Promise<void> {
+  const sendAppInvitationSwitch = screen.getByRole("switch", {
+    name: translate("clients.register.sendAppInvitation"),
+  });
+  if (Boolean(sendAppInvitationSwitch.props.accessibilityState?.checked) !== sendAppInvitation) {
+    await fireEvent.press(sendAppInvitationSwitch);
+  }
+}
