@@ -6,6 +6,7 @@ import { buildClassPack } from "@/testing/classPackFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/classPacks/classPacksApi");
+jest.mock("@/features/classGroups/classGroupsApi");
 
 describe("When class pack is created", () => {
   beforeEach(() => {
@@ -35,6 +36,7 @@ describe("When class pack is created", () => {
         validityMonths: 2,
         classDurationMinutes: null,
         materialUrl: null,
+        classGroupIds: [],
       }),
     );
   });

@@ -8,4 +8,5 @@ export const familyErrorCodes = {
   makeupNoCredit: "makeup.no_credit",
   makeupFull: "makeup.full",
   makeupCreditInUse: "makeup.credit_in_use",
+  packNoClasses: "pack_booking.no_classes",
 } as const;

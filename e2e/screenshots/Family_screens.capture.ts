@@ -32,13 +32,18 @@ test.afterAll(async () => {
 
 const shortWeekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-async function openClassesDay(page: Page, isoDate: string, today: string): Promise<void> {
+async function openClassesDay(
+  page: Page,
+  isoDate: string,
+  today: string,
+  studentName = "Tomás",
+): Promise<void> {
   await page.goto("/family/classes");
   await page.getByText("Hoy,", { exact: false }).filter({ visible: true }).first().waitFor();
   if (isoDate > weekEndOf(today)) {
     await page.getByRole("button", { name: "Semana siguiente" }).click();
   }
-  await page.getByRole("button", { name: "Tomás" }).click();
+  await page.getByRole("button", { name: studentName }).click();
   const day = new Date(`${isoDate}T12:00:00Z`);
   await page
     .getByRole("button", {
@@ -102,6 +107,11 @@ test("Family screens", async ({ page, request }) => {
   await scrollToBottom(page);
   await page.getByText("Recuperar clases").filter({ visible: true }).first().waitFor();
   await capture(page, "22d-familia-recuperar-clases");
+
+  await openClassesDay(page, family.packClassDate, demo.today, "Lucía");
+  await page.getByText("Reservada", { exact: true }).filter({ visible: true }).first().waitFor();
+  await capture(page, "22e-familia-clase-del-pack");
+  await page.getByText("Reservar clases del pack").filter({ visible: true }).first().waitFor();
 
   await page.goto("/family/shop");
   await page.getByText("Productos").filter({ visible: true }).first().waitFor();

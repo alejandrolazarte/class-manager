@@ -18,6 +18,8 @@ internal static class TeamNotificationTexts
 
     public static string MakeupTitle(string studentFullName) => $"{FirstNameOf(studentFullName)} viene a recuperar";
 
+    public static string PackClassTitle(string studentFullName) => $"{FirstNameOf(studentFullName)} reservó una clase del pack";
+
     public static string ClassBody(string classGroupName, DateOnly date, TimeOnly startTime) =>
         $"{classGroupName} · {Weekdays[(int)date.DayOfWeek]} {date.Day}/{date.Month} {startTime.ToString(TimeFormat, CultureInfo.InvariantCulture)}";
 

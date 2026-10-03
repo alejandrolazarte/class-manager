@@ -14,5 +14,12 @@ internal sealed class ClassPackConfiguration : IEntityTypeConfiguration<ClassPac
 
         builder.HasOne<Business>().WithMany().HasForeignKey(classPack => classPack.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(classPack => new { classPack.TenantId, classPack.Name }).IsUnique();
+        builder.Ignore(classPack => classPack.ClassGroupIds);
+
+        builder.HasMany(classPack => classPack.ClassGroups)
+            .WithOne()
+            .HasForeignKey(classGroup => classGroup.ClassPackId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(classPack => classPack.ClassGroups).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
     }
 }

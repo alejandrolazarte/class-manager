@@ -69,6 +69,7 @@ export const classPackSchema = z.object({
       (materialUrl) => materialUrl.length === 0 || httpsUrlPattern.test(materialUrl),
       translate("classPacks.validation.materialUrlInvalid"),
     ),
+  classGroupIds: z.array(z.string()),
 });
 
 export type ClassPackFormValues = z.input<typeof classPackSchema>;
@@ -80,6 +81,7 @@ export const classPackFieldNames = [
   "validityMonths",
   "classDurationMinutes",
   "materialUrl",
+  "classGroupIds",
 ] as const satisfies readonly (keyof ClassPackFormValues)[];
 
 export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValues {
@@ -92,6 +94,7 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
       ? String(classPack.classDurationMinutes)
       : "",
     materialUrl: classPack?.materialUrl ?? "",
+    classGroupIds: classPack?.classGroupIds ?? [],
   };
 }
 
@@ -105,5 +108,6 @@ export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveCla
     classDurationMinutes:
       formValues.classDurationMinutes.length === 0 ? null : Number(formValues.classDurationMinutes),
     materialUrl: formValues.materialUrl.trim().length === 0 ? null : formValues.materialUrl.trim(),
+    classGroupIds: formValues.classGroupIds,
   };
 }

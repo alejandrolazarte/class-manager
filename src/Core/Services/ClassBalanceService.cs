@@ -38,7 +38,7 @@ public sealed class ClassBalanceService(
                 var classesPaidPerClass = attendedClasses
                     .Where(attended => attended.ClientId == clientId)
                     .Select(attended => attended.AttendedClass)
-                    .Where(attended => FeeTimeline.PlanIn(clientPlanChanges, BillingMonth.From(attended.Date)).PaysPerClass)
+                    .Where(attended => attended.IsPackBooking || FeeTimeline.PlanIn(clientPlanChanges, BillingMonth.From(attended.Date)).PaysPerClass)
                     .ToList();
                 return ClassBalance.Calculate([.. purchases.Where(purchase => purchase.ClientId == clientId)], classesPaidPerClass, today);
             });

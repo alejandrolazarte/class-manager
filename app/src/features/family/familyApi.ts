@@ -4,6 +4,7 @@ import {
   FamilyHome,
   FamilyInvitation,
   FamilyMakeups,
+  FamilyPackClasses,
   FamilyPushKey,
   FamilyNews,
   FamilyDelivery,
@@ -124,6 +125,36 @@ export function cancelMakeup(
   sessionDate: string,
 ): Promise<void> {
   return httpClient.delete<void>(makeupPath(studentId, classGroupId, sessionDate));
+}
+
+const packClassesSegment = "pack-classes";
+
+function packClassesPath(studentId: string): string {
+  return [familyPath, studentsSegment, encodeURIComponent(studentId), packClassesSegment].join("/");
+}
+
+function packClassPath(studentId: string, classGroupId: string, sessionDate: string): string {
+  return [packClassesPath(studentId), encodeURIComponent(classGroupId), sessionDate].join("/");
+}
+
+export function getFamilyPackClasses(studentId: string): Promise<FamilyPackClasses> {
+  return httpClient.get<FamilyPackClasses>(packClassesPath(studentId));
+}
+
+export function bookPackClass(
+  studentId: string,
+  classGroupId: string,
+  sessionDate: string,
+): Promise<void> {
+  return httpClient.put<void>(packClassPath(studentId, classGroupId, sessionDate), {});
+}
+
+export function cancelPackClass(
+  studentId: string,
+  classGroupId: string,
+  sessionDate: string,
+): Promise<void> {
+  return httpClient.delete<void>(packClassPath(studentId, classGroupId, sessionDate));
 }
 
 const pushKeyPath = `${familyPath}/push-key`;

@@ -15,4 +15,5 @@ public static class SessionErrorCodes
     public const string MakeupFull = "makeup.full";
     public const string MakeupCreditInUse = "makeup.credit_in_use";
     public const string MakeupAlreadyInClass = "makeup.already_in_class";
+    public const string PackNoClasses = "pack_booking.no_classes";
 }

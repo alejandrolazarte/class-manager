@@ -54,6 +54,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `14-familia-por-clases` | Family paying per class: classes left and packs |
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
+| `16b-pack-nuevo` | New class pack form, with the classes where the pack can be booked |
 | `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
 | `18-colores` | Color picker in Ajustes |
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
@@ -70,6 +71,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - A comment from the coach for each student: Lucía's on her last past class, Tomás's on today's class.
 - Two announcements from the school, and next week's Natación inicial class cancelled for a holiday.
 - A "No voy" notice for Tomás on his next class after today (skipping the cancelled one).
+- A "Pack Aquagym" of 4 classes valid for Aquagym, sold to the Pérez family, with one Aquagym class booked for Lucía this week.
 - Three family orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
 
 The family signs in through the sign-in screen, then the test captures:
@@ -83,6 +85,7 @@ The family signs in through the sign-in screen, then the test captures:
 | `22b-familia-clases-no-voy` | A class the family said the student won't attend, with "Voy a ir igual" |
 | `22c-familia-clase-de-recuperacion` | A booked makeup class in the family schedule |
 | `22d-familia-recuperar-clases` | Classes to make up, with open slots to book |
+| `22e-familia-clase-del-pack` | Lucía's booked Aquagym class from her pack, with "Reservar clases del pack": classes left and open dates |
 | `23-familia-tienda`, `23b-familia-tienda-productos` | Shop: search, categories, packs and product grid |
 | `24-familia-producto` | Product sheet with sizes, a sold-out size and quantity |
 | `25-familia-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |

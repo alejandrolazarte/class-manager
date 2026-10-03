@@ -12,6 +12,7 @@ export interface FamilyNextClass {
   classGroupId: string | null;
   absenceNotified: boolean;
   isMakeup: boolean;
+  isPackBooking: boolean;
 }
 
 export interface FamilyPushKey {
@@ -40,6 +41,11 @@ export interface FamilyMakeupSlot {
 
 export interface FamilyMakeups {
   credits: FamilyMakeupCredit[];
+  slots: FamilyMakeupSlot[];
+}
+
+export interface FamilyPackClasses {
+  classesLeft: number;
   slots: FamilyMakeupSlot[];
 }
 

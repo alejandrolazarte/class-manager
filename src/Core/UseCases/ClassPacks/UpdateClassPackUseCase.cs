@@ -9,10 +9,11 @@ public sealed record UpdateClassPackRequest(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    string? MaterialUrl = null)
+    string? MaterialUrl = null,
+    IReadOnlyList<Guid>? ClassGroupIds = null)
 {
     public UpdateClassPackCommand ToCommand(Guid classPackId) =>
-        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, MaterialUrl);
+        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, MaterialUrl, ClassGroupIds);
 }
 
 public sealed record UpdateClassPackCommand(
@@ -22,9 +23,13 @@ public sealed record UpdateClassPackCommand(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    string? MaterialUrl = null);
+    string? MaterialUrl = null,
+    IReadOnlyList<Guid>? ClassGroupIds = null);
 
-public sealed class UpdateClassPackUseCase(IClassPackRepository classPackRepository, IUnitOfWork unitOfWork)
+public sealed class UpdateClassPackUseCase(
+    IClassPackRepository classPackRepository,
+    IClassGroupRepository classGroupRepository,
+    IUnitOfWork unitOfWork)
     : IUseCase<UpdateClassPackCommand, ClassPackResponse>
 {
     public async Task<Result<ClassPackResponse>> ExecuteAsync(UpdateClassPackCommand command, CancellationToken cancellationToken)
@@ -45,6 +50,13 @@ public sealed class UpdateClassPackUseCase(IClassPackRepository classPackReposit
         if (lessons.IsFailure)
         {
             return lessons.Error!;
+        }
+
+        var coverage = await ClassPackClassGroups.CoverAsync(
+            classPack, command.ClassGroupIds, nameof(UpdateClassPackCommand.ClassGroupIds), classGroupRepository, cancellationToken);
+        if (coverage.IsFailure)
+        {
+            return coverage.Error!;
         }
 
         var packWithSameName = await classPackRepository.FindByNameAsync(classPack.Name, cancellationToken);

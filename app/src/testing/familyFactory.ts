@@ -36,6 +36,7 @@ export function buildFamilyNextClass(overrides: Partial<FamilyNextClass> = {}): 
     classGroupId: "class-group-1",
     absenceNotified: false,
     isMakeup: false,
+    isPackBooking: false,
     ...overrides,
   };
 }

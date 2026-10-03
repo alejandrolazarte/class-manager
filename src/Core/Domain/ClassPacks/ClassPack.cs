@@ -21,6 +21,8 @@ public sealed class ClassPack : ITenantOwned
     private const string ClassDurationMessage = "Class duration must be between 15 and 240 minutes, in steps of 5.";
     private const string MaterialUrlMessage = "The material link must be an https address of at most 500 characters.";
 
+    private readonly List<ClassPackClassGroup> _classGroups = [];
+
     private ClassPack()
     {
     }
@@ -35,6 +37,8 @@ public sealed class ClassPack : ITenantOwned
     public string? MaterialUrl { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public IReadOnlyList<ClassPackClassGroup> ClassGroups => _classGroups;
+    public IReadOnlyList<Guid> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
 
     public static Result<ClassPack> Create(string? name, int? classCount, decimal? price, int? validityMonths, DateTimeOffset createdAt)
     {
@@ -101,6 +105,18 @@ public sealed class ClassPack : ITenantOwned
         MaterialUrl = trimmedUrl;
         return Result.Success();
     }
+
+    public void CoverClassGroups(IEnumerable<Guid> classGroupIds)
+    {
+        var requestedIds = classGroupIds.ToHashSet();
+        _classGroups.RemoveAll(classGroup => !requestedIds.Contains(classGroup.ClassGroupId));
+        foreach (var classGroupId in requestedIds.Where(classGroupId => !CoversClassGroup(classGroupId)))
+        {
+            _classGroups.Add(ClassPackClassGroup.Create(Id, classGroupId));
+        }
+    }
+
+    public bool CoversClassGroup(Guid classGroupId) => _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId);
 
     public void Activate() => IsActive = true;
 

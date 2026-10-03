@@ -10,7 +10,8 @@ public sealed record ClassPackResponse(
     int? ValidityMonths,
     bool IsActive,
     int? ClassDurationMinutes,
-    string? MaterialUrl)
+    string? MaterialUrl,
+    IReadOnlyList<Guid> ClassGroupIds)
 {
     public static ClassPackResponse From(ClassPack classPack) =>
         new(
@@ -21,5 +22,6 @@ public sealed record ClassPackResponse(
             classPack.ValidityMonths,
             classPack.IsActive,
             classPack.ClassDurationMinutes,
-            classPack.MaterialUrl);
+            classPack.MaterialUrl,
+            classPack.ClassGroupIds);
 }

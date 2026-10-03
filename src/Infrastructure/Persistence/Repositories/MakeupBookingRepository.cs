@@ -11,14 +11,14 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
             booking => booking.ClassSessionId == classSessionId && booking.StudentId == studentId,
             cancellationToken);
 
-    public async Task<IReadOnlyList<MakeupStudent>> ListStudentsBySessionAsync(Guid classSessionId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(Guid classSessionId, CancellationToken cancellationToken) =>
         await (
             from booking in context.MakeupBookings.AsNoTracking()
             where booking.ClassSessionId == classSessionId
             join student in context.Students.AsNoTracking() on booking.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
             orderby student.FullName
-            select new MakeupStudent(student.Id, student.FullName, student.BirthDate, client.FullName))
+            select new BookedStudent(student.Id, student.FullName, student.BirthDate, client.FullName))
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyDictionary<Guid, int>> CountBySessionsAsync(
@@ -32,7 +32,7 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
                 .Select(group => new { ClassSessionId = group.Key, Count = group.Count() })
                 .ToDictionaryAsync(group => group.ClassSessionId, group => group.Count, cancellationToken);
 
-    public async Task<IReadOnlyList<BookedMakeup>> ListByStudentsBetweenAsync(
+    public async Task<IReadOnlyList<BookedClass>> ListByStudentsBetweenAsync(
         IReadOnlyCollection<Guid> studentIds,
         DateOnly firstDate,
         DateOnly lastDate,
@@ -48,7 +48,7 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
             where studentIds.Contains(booking.StudentId)
             join session in context.ClassSessions.AsNoTracking() on booking.ClassSessionId equals session.Id
             where session.Date >= firstDate && session.Date <= lastDate
-            select new BookedMakeup(booking.StudentId, session.ClassGroupId, session.Date, session.IsCancelled))
+            select new BookedClass(booking.StudentId, session.ClassGroupId, session.Date, session.IsCancelled))
             .ToListAsync(cancellationToken);
     }
 }

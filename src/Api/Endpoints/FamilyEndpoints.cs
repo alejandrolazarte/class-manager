@@ -24,6 +24,9 @@ internal static class FamilyEndpoints
         family.MapDelete(ApiRoutes.PushSubscription, RemovePushSubscriptionAsync);
         family.MapPut(ApiRoutes.StudentMakeup, BookMakeupAsync);
         family.MapDelete(ApiRoutes.StudentMakeup, CancelMakeupAsync);
+        family.MapGet(ApiRoutes.StudentPackClasses, GetFamilyPackClassesAsync);
+        family.MapPut(ApiRoutes.StudentPackClass, BookPackClassAsync);
+        family.MapDelete(ApiRoutes.StudentPackClass, CancelPackClassAsync);
 
         endpoints.MapPost(ApiRoutes.Clients + ApiRoutes.ClientById + ApiRoutes.AppInvitation, InviteFamilyAsync)
             .RequirePermission(Permissions.Students.Manage);
@@ -141,6 +144,40 @@ internal static class FamilyEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new CancelMakeupCommand(studentId, classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> GetFamilyPackClassesAsync(
+        Guid studentId,
+        IUseCase<GetFamilyPackClassesQuery, FamilyPackClassesResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetFamilyPackClassesQuery(studentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> BookPackClassAsync(
+        Guid studentId,
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<BookPackClassCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new BookPackClassCommand(studentId, classGroupId, sessionDate), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> CancelPackClassAsync(
+        Guid studentId,
+        Guid classGroupId,
+        DateOnly sessionDate,
+        IUseCase<CancelPackClassCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new CancelPackClassCommand(studentId, classGroupId, sessionDate), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }

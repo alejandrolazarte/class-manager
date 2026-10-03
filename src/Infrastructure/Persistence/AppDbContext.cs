@@ -24,6 +24,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<AbsenceNotice> AbsenceNotices => Set<AbsenceNotice>();
     public DbSet<MakeupBooking> MakeupBookings => Set<MakeupBooking>();
+    public DbSet<PackBooking> PackBookings => Set<PackBooking>();
     public DbSet<AchievementLevel> AchievementLevels => Set<AchievementLevel>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<MemberPushSubscription> MemberPushSubscriptions => Set<MemberPushSubscription>();
@@ -33,6 +34,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<ClientBillingPlanChange> ClientBillingPlanChanges => Set<ClientBillingPlanChange>();
     public DbSet<ClassPack> ClassPacks => Set<ClassPack>();
     public DbSet<ClassPackPurchase> ClassPackPurchases => Set<ClassPackPurchase>();
+    public DbSet<ClassPackClassGroup> ClassPackClassGroups => Set<ClassPackClassGroup>();
     public DbSet<PrivateLesson> PrivateLessons => Set<PrivateLesson>();
     public DbSet<PrivateLessonStudent> PrivateLessonStudents => Set<PrivateLessonStudent>();
     public DbSet<Product> Products => Set<Product>();

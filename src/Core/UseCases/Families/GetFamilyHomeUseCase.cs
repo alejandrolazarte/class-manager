@@ -26,6 +26,7 @@ public sealed class GetFamilyHomeUseCase(
     IClassFeedbackRepository feedbackRepository,
     IAbsenceNoticeRepository absenceNoticeRepository,
     IMakeupBookingRepository makeupBookingRepository,
+    IPackBookingRepository packBookingRepository,
     IAchievementLevelRepository levelRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
@@ -72,6 +73,8 @@ public sealed class GetFamilyHomeUseCase(
             .ToHashSet();
         var bookedMakeups = (await makeupBookingRepository.ListByStudentsBetweenAsync(studentIds, today, lastDate, cancellationToken))
             .ToLookup(booking => booking.StudentId);
+        var bookedPackClasses = (await packBookingRepository.ListByStudentsBetweenAsync(studentIds, today, lastDate, cancellationToken))
+            .ToLookup(booking => booking.StudentId);
         var latestFeedbacks = (await feedbackRepository.ListLatestByStudentsAsync(studentIds, cancellationToken))
             .ToDictionary(feedback => feedback.StudentId);
 
@@ -117,6 +120,22 @@ public sealed class GetFamilyHomeUseCase(
                         instructorNames,
                         absenceNotified: false,
                         isMakeup: true));
+                }
+            }
+
+            foreach (var booking in bookedPackClasses[student.Id])
+            {
+                var classGroup = await classGroupRepository.GetByIdAsync(booking.ClassGroupId, cancellationToken);
+                if (classGroup is not null)
+                {
+                    nextClasses.Add(GroupClass(
+                        classGroup,
+                        sessions.GetValueOrDefault((classGroup.Id, booking.Date)),
+                        booking.Date,
+                        instructorNames,
+                        absenceNotified: false,
+                        isMakeup: false) with
+                    { IsPackBooking = true });
                 }
             }
 

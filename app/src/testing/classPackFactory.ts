@@ -10,6 +10,7 @@ export function buildClassPack(overrides: Partial<ClassPack> = {}): ClassPack {
     isActive: true,
     classDurationMinutes: null,
     materialUrl: null,
+    classGroupIds: [],
     ...overrides,
   };
 }

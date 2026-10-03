@@ -20,6 +20,7 @@ export interface DemoBusiness {
   today: string;
   month: string;
   beginnersClassGroupId: string;
+  aquagymClassGroupId: string;
   familyClientId: string;
   debtorClientId: string;
   classPackClientId: string;
@@ -249,6 +250,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     today,
     month,
     beginnersClassGroupId: beginners.id,
+    aquagymClassGroupId: aquagym.id,
     familyClientId: ana.id,
     debtorClientId: diego.id,
     classPackClientId: paula.id,

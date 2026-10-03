@@ -7,4 +7,5 @@ export const familyQueryKeys = {
   pushKey: () => [...familyQueryKeys.all, "push-key"] as const,
   pushSubscription: () => [...familyQueryKeys.all, "push-subscription"] as const,
   makeups: (studentId: string) => [...familyQueryKeys.all, "makeups", studentId] as const,
+  packClasses: (studentId: string) => [...familyQueryKeys.all, "pack-classes", studentId] as const,
 };

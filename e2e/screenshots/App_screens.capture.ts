@@ -42,6 +42,7 @@ test("App screens", async ({ page, request }) => {
     ["14-familia-por-clases", `/students/clients/${demo.classPackClientId}`, "Quedan"],
     ["15-vender-pack", `/students/clients/${demo.classPackClientId}/sell-pack`, "Forma de pago"],
     ["16-packs", "/settings/class-packs", "8 clases"],
+    ["16b-pack-nuevo", "/settings/class-packs/new", "Clases donde se puede usar"],
     ["17-cuota-mensual", "/settings/monthly-fee", "Cambios de cuota"],
   ];
 

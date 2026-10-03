@@ -16,6 +16,7 @@ public sealed class RecordClassFeedbackUseCase(
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
     IMakeupBookingRepository makeupBookingRepository,
+    IPackBookingRepository packBookingRepository,
     IClassSessionRepository sessionRepository,
     IClassFeedbackRepository feedbackRepository,
     IUnitOfWork unitOfWork,
@@ -51,7 +52,7 @@ public sealed class RecordClassFeedbackUseCase(
         }
 
         if (!await SessionRules.IsInClassAsync(
-            enrollmentRepository, makeupBookingRepository, command.ClassGroupId, command.Date, session, command.StudentId, cancellationToken))
+            enrollmentRepository, makeupBookingRepository, packBookingRepository, command.ClassGroupId, command.Date, session, command.StudentId, cancellationToken))
         {
             return Result.Validation<bool>(
                 StudentNotEnrolledMessage, SessionErrorCodes.StudentNotEnrolled, nameof(RecordClassFeedbackCommand.StudentId));

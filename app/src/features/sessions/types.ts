@@ -32,6 +32,7 @@ export interface SessionStudent {
   feedback: string | null;
   absenceNotified: boolean;
   isMakeup: boolean;
+  isPackBooking: boolean;
 }
 
 export interface SessionDetails {

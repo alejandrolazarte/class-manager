@@ -10,9 +10,14 @@ public sealed record CreateClassPackCommand(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    string? MaterialUrl = null);
+    string? MaterialUrl = null,
+    IReadOnlyList<Guid>? ClassGroupIds = null);
 
-public sealed class CreateClassPackUseCase(IClassPackRepository classPackRepository, IUnitOfWork unitOfWork, TimeProvider timeProvider)
+public sealed class CreateClassPackUseCase(
+    IClassPackRepository classPackRepository,
+    IClassGroupRepository classGroupRepository,
+    IUnitOfWork unitOfWork,
+    TimeProvider timeProvider)
     : IUseCase<CreateClassPackCommand, ClassPackResponse>
 {
     public async Task<Result<ClassPackResponse>> ExecuteAsync(CreateClassPackCommand command, CancellationToken cancellationToken)
@@ -27,6 +32,13 @@ public sealed class CreateClassPackUseCase(IClassPackRepository classPackReposit
         if (lessons.IsFailure)
         {
             return lessons.Error!;
+        }
+
+        var coverage = await ClassPackClassGroups.CoverAsync(
+            classPack.Value, command.ClassGroupIds, nameof(CreateClassPackCommand.ClassGroupIds), classGroupRepository, cancellationToken);
+        if (coverage.IsFailure)
+        {
+            return coverage.Error!;
         }
 
         if (await classPackRepository.FindByNameAsync(classPack.Value!.Name, cancellationToken) is not null)

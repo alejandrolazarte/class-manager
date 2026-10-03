@@ -9,6 +9,7 @@ export interface ClassPack {
   isActive: boolean;
   classDurationMinutes: number | null;
   materialUrl: string | null;
+  classGroupIds: string[];
 }
 
 export interface SaveClassPackRequest {
@@ -18,6 +19,7 @@ export interface SaveClassPackRequest {
   validityMonths: number | null;
   classDurationMinutes: number | null;
   materialUrl: string | null;
+  classGroupIds: string[];
 }
 
 export interface ClassPackPurchase {
