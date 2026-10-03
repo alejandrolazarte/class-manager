@@ -19,8 +19,11 @@ export function NotifiedOrdersScreen() {
     if (!canViewPayments) {
       return;
     }
-    router.navigate(routes.collections("orders"));
-    navigation.reset({ index: 0, routes: [{ name: homeScreenName }] });
+    const leaveForCollections = setTimeout(() => {
+      navigation.reset({ index: 0, routes: [{ name: homeScreenName }] });
+      router.navigate(routes.collections("orders"));
+    });
+    return () => clearTimeout(leaveForCollections);
   }, [canViewPayments, navigation, router]);
 
   return canViewPayments ? <LoadingScreen /> : <OrderListScreen />;
