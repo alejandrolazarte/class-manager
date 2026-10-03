@@ -104,7 +104,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Import and export plan](docs/backend/20260929-import-export/plan.md) — students and coaches from and to a spreadsheet
 - [Session substitutes plan](docs/backend/20260929-session-substitutes/plan.md) — another instructor teaches one date of a class
 - [Family app, shop and online payments plan](docs/backend/20260929-online-shop-and-payments/plan.md) — family and adult student accounts, products and stock, orders paid at the branch, then Stripe Connect per branch (steps 1–4 built, the rest is a proposal)
-- [Subscriptions plan](docs/backend/20261003-subscriptions/plan.md) — one subscription per brand, plans Free (30-day trial, read-only once it ends)/Lite/Pro/Enterprise, features and add-ons checked like permissions, and the `Subscriptions` library (steps 1–3 partly built)
+- [Subscriptions plan](docs/backend/20261003-subscriptions/plan.md) — one subscription per brand, plans Free (30-day trial, read-only once it ends)/Lite/Pro/Enterprise, features and add-ons checked like permissions, and the `Subscriptions` library, enforced centrally (steps 1–4 built)
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes chosen by each user, a theme created by the business from its color, and a business icon
 - [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, brand colors with accent, theme lock, welcome screen, and where students and the team see the brand

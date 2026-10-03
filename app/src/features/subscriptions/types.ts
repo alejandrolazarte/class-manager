@@ -1,6 +1,7 @@
 export interface FeatureLimit {
   code: string;
   limit: number | null;
+  used?: number | null;
 }
 
 export interface CurrentSubscription {

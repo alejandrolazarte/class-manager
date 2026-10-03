@@ -34,6 +34,17 @@ export function useAllowsAnother(featureCode: FeatureCode, currentCount: number)
   return feature !== undefined && (feature.limit === null || currentCount < feature.limit);
 }
 
+export function useIsAtLimit(featureCode: FeatureCode): boolean {
+  const { subscription } = useCurrentMember();
+  const feature = subscription?.features.find((candidate) => candidate.code === featureCode);
+  return (
+    feature !== undefined &&
+    feature.limit !== null &&
+    feature.used != null &&
+    feature.used >= feature.limit
+  );
+}
+
 export function daysLeftOf(endsOn: string, today: string = todayIsoDate()): number {
   return daysBetween(today, endsOn) + 1;
 }

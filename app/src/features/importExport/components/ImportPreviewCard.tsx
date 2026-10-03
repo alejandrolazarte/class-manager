@@ -90,7 +90,15 @@ export function ImportPreviewCard({
           ) : null}
         </View>
       ) : null}
-      {report.summary.valid > 0 ? (
+      {report.planLimit ? (
+        <Banner
+          tone="warning"
+          icon="locked"
+          message={translateCount("importExport.planLimit", report.planLimit.remaining, {
+            rows: report.summary.valid,
+          })}
+        />
+      ) : report.summary.valid > 0 ? (
         <Button
           icon="upload"
           label={translateCount("importExport.preview.import", report.summary.valid)}

@@ -1,6 +1,6 @@
 # Backend plan — Subscriptions, plans and features
 
-Status: steps 1, 2 and 4 built, step 3 partly (import/export, custom roles and the branch limit gated; a 30-day `Free` trial; read-only brands once their subscription ends; the app shows the trial, the plans and the locks); see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
+Status: steps 1–4 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks); step 5 (operator script) is next; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
 
 ## Goal
 
@@ -60,8 +60,20 @@ Add-ons are not a separate concept: an add-on is a **feature that can also be bo
 
 - **Features live in code, plans live in data** — the same split as permissions and roles. The catalog is a constants class (`Features`) because endpoints and use cases reference the codes; which plan includes what, and the prices, are rows, so they change without a deploy.
 - A request needs **the permission (who you are in the branch) and the feature (what the brand pays for)**. The brand owner on `Free` can't import; a coach on `Enterprise` still can't see money.
-- Endpoints declare it next to the permission: `.RequirePermission(Permissions.ImportExport.Run).RequireFeature(Features.ImportExport)`.
-- Limits are checked in the use case (`creating a branch when the brand already has as many as its limit`) through `IFeatureAccess`, and fail with `403 feature.limit_reached`.
+- **Nothing is checked in the use cases.** Three central places cover every endpoint:
+
+| What | Where | Answer |
+|---|---|---|
+| Subscription ended | `UseActiveSubscriptionForChanges` middleware: every authenticated change | `403 subscription.inactive` |
+| On/off features | `FeatureGatedPermissions` (Core) maps action permissions to the feature that unlocks them (`products.manage` → `shop`, `classPacks.sell` → `class-packs`, `importExport.run` → `import-export`, …). `PermissionAuthorizationHandler` refuses a permission the role has but the plan lacks | `403 feature.not_in_plan` |
+| Endpoints whose permission is shared with free actions | `.RequireFeature(...)`: brand changes (`business.manage` also edits settings) and the family app (`/api/family`, family invitations) | `403 feature.not_in_plan` |
+| Counted limits | `FeatureLimitSaveChangesInterceptor`: before saving, counts the added `Student`, `MemberInvitation` (not for branch owners) and `Business` rows and the existing ones (`SubscriptionLimits` in Infrastructure); every path that creates them is covered, imports included | `403 feature.limit_reached` (`FeatureLimitReachedException`, `FeatureLimitExceptionHandler`) |
+
+- Every endpoint already declares a permission, so a new action endpoint is gated as soon as its permission is in the table. A test checks every gate names a known permission and feature, and another that every `RequireFeature` code is in the catalog.
+- **The front prevents the normal case; the interceptor is the safety net.** `GET /api/me` returns `used` for counted features, and the app locks "Nuevo alumno", "Invitar" and "Nueva sede" at the limit. The interceptor only answers in races (two devices adding the last seat), with stale screens or direct API calls. The import preview is the one place the front can't know in advance, so it reports `planLimit` (`{ featureCode, remaining }`) and the import refuses with `feature.limit_reached` before saving.
+- **Unlimited is `null`.** Enterprise has no limit on students, branches or team, and the interceptor doesn't even count them. An add-on with `Limit = null` lifts a plan's limit for one brand (the larger limit wins, and `null` is the largest).
+- Read rules that depend on the plan stay in the read use case: without `brand`, `GET /api/business/brand` drops the colors, the lock and the logo, so the theme stops applying while the data stays.
+- The app mirrors the table (`featureGatedPermissions.ts`): `useCan` is plan-aware, so buttons for actions the plan lacks disappear everywhere `useCan` is used; `useRoleCan` keeps the role-only check for entries that should open a lock notice instead (Importar y exportar).
 - **Gates block actions, not reads.** Creating, editing, importing and exporting need the feature; listing what already exists doesn't, so a brand that drops to a smaller plan still sees its data. Deleting a custom role stays allowed too, so a downgraded brand can clean up.
 - A missing feature returns `403` with the code `feature.not_in_plan` (and `feature.limit_reached` for limits) and the feature code in `feature`, never the permission's code, so the app can offer an upgrade instead of acting as if the button didn't exist.
 - Effective features are read once per request, like permissions, so a plan change applies on the next request.
@@ -216,7 +228,7 @@ Built in `app/src/features/subscriptions`:
 - **Ended:** `SubscriptionGate` (in the team tabs layout) replaces the app with "Tu prueba gratis terminó" / "Tu plan terminó", the plans and the contact; "Ver mis datos" opens the app read-only, and Inicio keeps a notice. A mutation refused with `subscription.inactive` or `feature.*` reloads `GET /api/me`, so a subscription that ends while the app is open shows the gate.
 - **Ajustes → Plan** (also under Inicio, so it never leaves the tab): current plan and status, the real price for brand owners (`GET /api/organization/subscription`), what it includes, every plan from `GET /api/plans`, and the contact.
 - The contact opens `EXPO_PUBLIC_PLANS_CONTACT_URL` (for example a WhatsApp link); without it the screens say "escribinos" as text.
-- Usage of counted features (`Alumnos 24 / 30`) comes with the students and team limits.
+- Ajustes → Plan shows usage of counted features ("Alumnos: 24 de 30", "Sedes: 2 · sin límite").
 - Sign-up shows nothing about plans: everyone starts the `Free` trial. The app shows the days left, and once it ends, a screen to choose a plan instead of errors on every change.
 
 ## Migration
@@ -232,8 +244,7 @@ Built in `app/src/features/subscriptions`:
 2. ✅ `Subscriptions.AspNetCore`: model, migration with the seed, `RequireFeature`, `FeatureAccess`; sign-up creates the `Free` subscription; existing organizations get `Enterprise` at 0; a branch of brand A never reads brand B's subscription.
    - ✅ `Free` lasts 30 days; an ended subscription makes the brand read-only (`403 subscription.inactive`).
 3. Gate the features in the table:
-   - ✅ `import-export` (import and export), `custom-roles` (create and edit), `branches` limit. Tests: a brand without the feature gets `403 feature.not_in_plan`, an add-on unlocks it, the limit blocks the next branch and an add-on raises it.
-   - Next: `students` and `team` limits (adding students in every entry point: client form, student form, import; inviting members), and `class-packs`, `family-app`, `shop`, `brand`, together with step 4 so the app shows locks instead of errors.
+   - ✅ Every feature in the table: permission gates, `RequireFeature` for brand and family app, and the students, team and branches limits in the interceptor; usage in `/api/me`, locks in the app, and the import preview's room left.
 4. ✅ `subscription` in `GET /api/me`, `GET /api/organization/subscription` (brand-only `subscription.view`), `GET /api/plans`; app: hooks, trial notice, ended gate, locks and Ajustes → Plan.
 5. `scripts/set-subscription.cs` and a runbook in `docs/`.
 

@@ -1250,5 +1250,14 @@
   "subscriptions.feature.brand": "Marca propia",
   "settings.plan": "Plan",
   "subscriptions.readOnlyTrial": "Tu prueba gratis terminó: podés ver tus datos, pero no cargar cambios.",
-  "subscriptions.featureUnlimited": "{feature}: sin límite"
+  "subscriptions.featureUnlimited": "{feature}: sin límite",
+  "subscriptions.featureUsed": "{feature}: {used} de {limit}",
+  "subscriptions.featureUsedUnlimited": "{feature}: {used} · sin límite",
+  "subscriptions.locked.students": "Llegaste al máximo de alumnos de tu plan.",
+  "subscriptions.locked.team": "Llegaste al máximo de miembros del equipo de tu plan.",
+  "subscriptions.locked.shop": "La tienda está incluida desde el plan Pro.",
+  "subscriptions.locked.classPacks": "Los packs de clases están incluidos desde el plan Lite.",
+  "subscriptions.locked.brand": "La marca propia está incluida desde el plan Pro.",
+  "importExport.planLimit.one": "Tu plan permite 1 alumno más: este archivo tiene {rows} para importar.",
+  "importExport.planLimit.other": "Tu plan permite {count} alumnos más: este archivo tiene {rows} para importar."
 }

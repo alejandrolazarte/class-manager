@@ -10,6 +10,18 @@ import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
 
 function featureDescription(feature: FeatureLimit): string {
+  if (feature.used != null) {
+    return feature.limit === null
+      ? translate("subscriptions.featureUsedUnlimited", {
+          feature: featureLabel(feature.code),
+          used: feature.used,
+        })
+      : translate("subscriptions.featureUsed", {
+          feature: featureLabel(feature.code),
+          used: feature.used,
+          limit: feature.limit,
+        });
+  }
   if (feature.limit === null) {
     return countedFeatureCodes.includes(feature.code)
       ? translate("subscriptions.featureUnlimited", { feature: featureLabel(feature.code) })

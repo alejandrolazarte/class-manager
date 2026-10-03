@@ -6,13 +6,22 @@ import { useProducts } from "@/features/products/useProducts";
 import { SettingsListScreenLayout } from "@/features/settings/components/SettingsListScreenLayout";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useFeature } from "@/features/subscriptions/useSubscription";
 
 export function ProductListScreen() {
+  const hasFeature = useFeature(featureCodes.shop);
   const router = useRouter();
   const canManageProducts = useCan(permissions.productsManage);
   const { data: products = [], isPending, isError, isRefetching, refetch } = useProducts(true);
   return (
     <SettingsListScreenLayout
+      notice={
+        hasFeature ? undefined : (
+          <LockedFeatureNotice message={translate("subscriptions.locked.shop")} />
+        )
+      }
       title={translate("products.list.title")}
       items={products}
       isPending={isPending}

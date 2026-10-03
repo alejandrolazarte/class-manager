@@ -4,7 +4,7 @@ export type ClientTab = (typeof clientTabs)[number];
 export const orderTabs = ["settings", "today", "fees"] as const;
 export type OrderTab = (typeof orderTabs)[number];
 
-export const planTabs = ["settings", "today"] as const;
+export const planTabs = ["settings", "today", "students"] as const;
 export type PlanTab = (typeof planTabs)[number];
 
 export const collectionsViews = ["fees", "orders"] as const;

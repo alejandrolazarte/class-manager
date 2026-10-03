@@ -10,7 +10,7 @@ import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatMoney } from "@/features/fees/money";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { useProducts } from "@/features/products/useProducts";
 import {
@@ -53,7 +53,7 @@ export function SettingsScreen() {
   const canViewProducts = useCan(permissions.productsView);
   const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
-  const canImportExport = useCan(permissions.importExportRun);
+  const canImportExport = useRoleCan(permissions.importExportRun);
   const canManageAnnouncements = useCan(permissions.announcementsManage);
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);

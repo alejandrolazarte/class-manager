@@ -32,6 +32,11 @@ import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useFeature } from "@/features/subscriptions/useSubscription";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 
 const hexColorPattern = /^#[0-9a-f]{6}$/i;
 
@@ -72,7 +77,17 @@ function logoErrorMessage(uploadError: unknown): string {
 
 export function BrandSettingsScreen() {
   const currentBrand = useCurrentBrand();
+  const hasBrand = useFeature(featureCodes.brand);
   const brand = currentBrand?.brand ?? null;
+  if (!hasBrand) {
+    return (
+      <ScrollScreen
+        header={<ScreenHeader navigation="close" title={translate("brand.settings.title")} />}
+      >
+        <LockedFeatureNotice message={translate("subscriptions.locked.brand")} />
+      </ScrollScreen>
+    );
+  }
   return brand === null ? (
     <LoadingScreen />
   ) : (

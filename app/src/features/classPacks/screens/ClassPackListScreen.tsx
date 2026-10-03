@@ -6,13 +6,22 @@ import { permissions } from "@/features/members/permissions";
 import { SettingsListScreenLayout } from "@/features/settings/components/SettingsListScreenLayout";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
+import { useFeature } from "@/features/subscriptions/useSubscription";
 
 export function ClassPackListScreen() {
+  const hasFeature = useFeature(featureCodes.classPacks);
   const router = useRouter();
   const canManageClassPacks = useCan(permissions.classPacksManage);
   const { data: classPacks = [], isPending, isError, isRefetching, refetch } = useClassPacks(true);
   return (
     <SettingsListScreenLayout
+      notice={
+        hasFeature ? undefined : (
+          <LockedFeatureNotice message={translate("subscriptions.locked.classPacks")} />
+        )
+      }
       title={translate("classPacks.list.title")}
       items={classPacks}
       isPending={isPending}

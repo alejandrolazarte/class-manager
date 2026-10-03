@@ -47,4 +47,10 @@ export interface ImportReport {
   columns: MappedHeader[];
   summary: ImportSummary;
   rows: ImportRowResult[];
+  planLimit?: ImportPlanLimit | null;
+}
+
+export interface ImportPlanLimit {
+  featureCode: string;
+  remaining: number;
 }
