@@ -190,7 +190,8 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             CurrencyCode,
             limit,
             DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime),
-            endsOn: null));
+            endsOn: null,
+            BusinessApiFactory.Now));
         await context.SaveChangesAsync();
     }
 

@@ -16,6 +16,7 @@ public sealed class SubscriptionFeature
     public int? Limit { get; private set; }
     public DateOnly StartsOn { get; private set; }
     public DateOnly? EndsOn { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
 
     public static SubscriptionFeature Create(
         Guid subscriptionId,
@@ -24,7 +25,8 @@ public sealed class SubscriptionFeature
         string currency,
         int? limit,
         DateOnly startsOn,
-        DateOnly? endsOn)
+        DateOnly? endsOn,
+        DateTimeOffset createdAt)
     {
         if (endsOn < startsOn)
         {
@@ -41,6 +43,7 @@ public sealed class SubscriptionFeature
             Limit = CatalogRules.RequireLimit(limit, nameof(limit)),
             StartsOn = startsOn,
             EndsOn = endsOn,
+            CreatedAt = createdAt.ToUniversalTime(),
         };
     }
 

@@ -33,16 +33,18 @@ public sealed class EffectiveFeatures
         ArgumentNullException.ThrowIfNull(planFeatures);
         ArgumentNullException.ThrowIfNull(subscriptionFeatures);
 
-        var featuresByCode = new Dictionary<string, EffectiveFeature>(StringComparer.Ordinal);
-        var grants = planFeatures
-            .Select(planFeature => new EffectiveFeature(planFeature.FeatureCode, planFeature.Limit))
-            .Concat(subscriptionFeatures
-                .Where(subscriptionFeature => subscriptionFeature.IsActiveOn(today))
-                .Select(subscriptionFeature => new EffectiveFeature(subscriptionFeature.FeatureCode, subscriptionFeature.Limit)));
+        var featuresByCode = planFeatures.ToDictionary(
+            planFeature => planFeature.FeatureCode,
+            planFeature => new EffectiveFeature(planFeature.FeatureCode, planFeature.Limit),
+            StringComparer.Ordinal);
+        var overridesInOrder = subscriptionFeatures
+            .Where(subscriptionFeature => subscriptionFeature.IsActiveOn(today))
+            .OrderBy(subscriptionFeature => subscriptionFeature.StartsOn)
+            .ThenBy(subscriptionFeature => subscriptionFeature.CreatedAt);
 
-        foreach (var grant in grants)
+        foreach (var subscriptionFeature in overridesInOrder)
         {
-            featuresByCode[grant.Code] = featuresByCode.TryGetValue(grant.Code, out var existing) ? Larger(existing, grant) : grant;
+            featuresByCode[subscriptionFeature.FeatureCode] = new EffectiveFeature(subscriptionFeature.FeatureCode, subscriptionFeature.Limit);
         }
 
         return new EffectiveFeatures(planCode, isActive: true, endsOn, featuresByCode);
@@ -58,9 +60,4 @@ public sealed class EffectiveFeatures
 
     public bool AllowsAnother(string featureCode, int currentCount) =>
         _featuresByCode.TryGetValue(featureCode, out var feature) && (feature.IsUnlimited || currentCount < feature.Limit);
-
-    private static EffectiveFeature Larger(EffectiveFeature first, EffectiveFeature second) =>
-        first.IsUnlimited || second.IsUnlimited
-            ? first with { Limit = null }
-            : first with { Limit = Math.Max(first.Limit!.Value, second.Limit!.Value) };
 }
