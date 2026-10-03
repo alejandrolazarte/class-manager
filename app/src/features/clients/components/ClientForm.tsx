@@ -1,14 +1,15 @@
-import { useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { AttendeesSection } from "@/features/clients/components/AttendeesSection";
 import { formatPhoneNumberAsTyped } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientFormValues } from "@/features/clients/registerClientSchema";
+import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
 interface ClientFormProps {
   form: UseFormReturn<RegisterClientFormValues>;
@@ -17,9 +18,8 @@ interface ClientFormProps {
 }
 
 export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
-  const { control, formState } = form;
-  const [areMoreDetailsExpanded, setAreMoreDetailsExpanded] = useState(false);
-  const isEmailVisible = areMoreDetailsExpanded || formState.errors.email !== undefined;
+  const { control, formState, watch } = form;
+  const isAppInvitationOffered = emailAddressPattern.test(watch("email").trim());
   const isSubmitBlockedByErrors = formState.isSubmitted && !formState.isValid;
 
   return (
@@ -60,6 +60,40 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
         />
         <Controller
           control={control}
+          name="email"
+          render={({ field, fieldState }) => (
+            <TextField
+              label={translate("clients.register.email")}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              errorMessage={fieldState.error?.message}
+            />
+          )}
+        />
+        {isAppInvitationOffered ? (
+          <View className="gap-1.5">
+            <Controller
+              control={control}
+              name="sendAppInvitation"
+              render={({ field }) => (
+                <ToggleSwitch
+                  label={translate("clients.register.sendAppInvitation")}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+            <AppText variant="caption" tone="subtle">
+              {translate("clients.register.sendAppInvitationHint")}
+            </AppText>
+          </View>
+        ) : null}
+        <Controller
+          control={control}
           name="notes"
           render={({ field, fieldState }) => (
             <TextField
@@ -72,30 +106,6 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
             />
           )}
         />
-        {isEmailVisible ? (
-          <Controller
-            control={control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={translate("clients.register.email")}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                errorMessage={fieldState.error?.message}
-              />
-            )}
-          />
-        ) : (
-          <Pressable accessibilityRole="button" onPress={() => setAreMoreDetailsExpanded(true)}>
-            <AppText tone="primary" variant="link">
-              {translate("clients.register.moreDetails")}
-            </AppText>
-          </Pressable>
-        )}
       </View>
       <AttendeesSection form={form} />
       <Button
