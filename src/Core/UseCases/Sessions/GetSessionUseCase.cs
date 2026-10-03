@@ -19,7 +19,8 @@ public sealed record SessionStudentResponse(
     AttendanceStatus? Status,
     string? Feedback,
     bool AbsenceNotified,
-    bool IsMakeup);
+    bool IsMakeup,
+    bool IsPackBooking = false);
 
 public sealed record SessionDetailsResponse(
     Guid ClassGroupId,
@@ -46,6 +47,7 @@ public sealed class GetSessionUseCase(
     IClassFeedbackRepository feedbackRepository,
     IAbsenceNoticeRepository absenceNoticeRepository,
     IMakeupBookingRepository makeupBookingRepository,
+    IPackBookingRepository packBookingRepository,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes)
     : IUseCase<GetSessionQuery, SessionDetailsResponse>
@@ -85,6 +87,9 @@ public sealed class GetSessionUseCase(
         var makeupStudents = session is null
             ? []
             : await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
+        var packStudents = session is null
+            ? []
+            : await packBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var isCancelled = session?.IsCancelled ?? false;
         var usualStartTime = classGroup.Value!.StartTime;
@@ -123,6 +128,16 @@ public sealed class GetSessionUseCase(
                     feedbacks.GetValueOrDefault(student.StudentId),
                     AbsenceNotified: false,
                     IsMakeup: true)),
+                .. packStudents.Select(student => new SessionStudentResponse(
+                    student.StudentId,
+                    student.StudentFullName,
+                    student.ClientFullName,
+                    student.BirthDate,
+                    statuses.TryGetValue(student.StudentId, out var status) ? status : null,
+                    feedbacks.GetValueOrDefault(student.StudentId),
+                    AbsenceNotified: false,
+                    IsMakeup: false,
+                    IsPackBooking: true)),
             ]);
     }
 

@@ -17,6 +17,7 @@ internal sealed class SessionUseCaseBuilder
     public Mock<IClassSessionRepository> Sessions { get; } = new();
     public Mock<IAttendanceRepository> Attendances { get; } = new();
     public Mock<IMakeupBookingRepository> MakeupBookings { get; } = new();
+    public Mock<IPackBookingRepository> PackBookings { get; } = new();
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
@@ -55,6 +56,12 @@ internal sealed class SessionUseCaseBuilder
         MakeupBookings
             .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<Guid, int>());
+        PackBookings
+            .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int>());
+        PackBookings
+            .Setup(repository => repository.ListStudentsBySessionAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         MakeupBookings
             .Setup(repository => repository.ListStudentsBySessionAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
@@ -75,7 +82,7 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public RecordAttendanceUseCase BuildRecord() =>
-        new(ClassGroups.Object, Enrollments.Object, MakeupBookings.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
+        new(ClassGroups.Object, Enrollments.Object, MakeupBookings.Object, PackBookings.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
 
     public CancelSessionUseCase BuildCancel() =>
         new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new Mock<IFamilyNotificationService>().Object, new FakeTimeProvider(TestData.Now));
@@ -107,5 +114,5 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public ListDaySessionsUseCase BuildListDay() =>
-        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, MakeupBookings.Object, PrivateLessons.Object, Students.Object, BusinessCalendar.Object, new EveryAccessScopes());
+        new(ClassGroups.Object, Instructors.Object, Enrollments.Object, Sessions.Object, Attendances.Object, MakeupBookings.Object, PackBookings.Object, PrivateLessons.Object, Students.Object, BusinessCalendar.Object, new EveryAccessScopes());
 }

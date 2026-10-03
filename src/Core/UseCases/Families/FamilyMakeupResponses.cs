@@ -4,7 +4,7 @@ namespace ClassManager.Core.UseCases.Families;
 
 public sealed record FamilyMakeupCreditResponse(DateOnly MissedOn, MakeupReason Reason, DateOnly ExpiresOn);
 
-public sealed record FamilyMakeupSlotResponse(
+public sealed record FamilyClassSlotResponse(
     Guid ClassGroupId,
     string Name,
     DateOnly Date,
@@ -17,4 +17,8 @@ public sealed record FamilyMakeupSlotResponse(
 
 public sealed record FamilyMakeupsResponse(
     IReadOnlyList<FamilyMakeupCreditResponse> Credits,
-    IReadOnlyList<FamilyMakeupSlotResponse> Slots);
+    IReadOnlyList<FamilyClassSlotResponse> Slots);
+
+public sealed record FamilyPackClassesResponse(
+    int ClassesLeft,
+    IReadOnlyList<FamilyClassSlotResponse> Slots);

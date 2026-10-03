@@ -1,10 +1,8 @@
-using System.Globalization;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
-using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Makeups;
 using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.Sessions;
@@ -40,58 +38,25 @@ public sealed class GetFamilyMakeupsUseCase(
         var missedClasses = await MakeupRules.ListMissedClassesAsync(makeupRepositories, command.StudentId, today, cancellationToken);
         var bookedDates = await MakeupRules.ListBookedDatesAsync(makeupRepositories, command.StudentId, today, cancellationToken);
         var balance = MakeupCredits.Calculate([.. missedClasses.Select(missed => missed.Source)], bookedDates, today);
-
-        var sessions = (await makeupRepositories.Sessions.ListBetweenAsync(today, lastDate, cancellationToken))
-            .ToDictionary(session => (session.ClassGroupId, session.Date));
-        IReadOnlyCollection<Guid> sessionIds = [.. sessions.Values.Select(session => session.Id)];
-        var noticeCounts = await makeupRepositories.Notices.CountBySessionsAsync(sessionIds, cancellationToken);
-        var makeupCounts = await makeupRepositories.Bookings.CountBySessionsAsync(sessionIds, cancellationToken);
         var booked = (await makeupRepositories.Bookings.ListByStudentsBetweenAsync([command.StudentId], today, lastDate, cancellationToken))
             .Select(booking => (booking.ClassGroupId, booking.Date))
             .ToHashSet();
-        var enrollments = await makeupRepositories.Enrollments.ListCurrentByStudentAsync(command.StudentId, today, cancellationToken);
-        var classGroups = await classGroupRepository.ListActiveAsync(cancellationToken);
-        var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
-
-        var slots = new List<FamilyMakeupSlotResponse>();
-        for (var date = today; date <= lastDate; date = date.AddDays(1))
-        {
-            var enrolledCounts = await makeupRepositories.Enrollments.CountActiveOnByClassGroupAsync(date, cancellationToken);
-            foreach (var classGroup in classGroups.Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)))
-            {
-                var session = sessions.GetValueOrDefault((classGroup.Id, date));
-                if (session?.IsCancelled == true
-                    || MakeupRules.HasStarted(classGroup, session, date, localNow)
-                    || enrollments.Any(enrollment => enrollment.ClassGroupId == classGroup.Id && enrollment.IsActiveOn(date)))
-                {
-                    continue;
-                }
-
-                var spotsLeft = classGroup.Capacity
-                    - enrolledCounts.GetValueOrDefault(classGroup.Id)
-                    + (session is null ? 0 : noticeCounts.GetValueOrDefault(session.Id))
-                    - (session is null ? 0 : makeupCounts.GetValueOrDefault(session.Id));
-                var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
-                slots.Add(new FamilyMakeupSlotResponse(
-                    classGroup.Id,
-                    classGroup.Name,
-                    date,
-                    Format(startTime),
-                    Format(startTime.AddMinutes(classGroup.DurationMinutes)),
-                    instructorNames.GetValueOrDefault(session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId),
-                    classGroup.Location,
-                    Math.Max(spotsLeft, 0),
-                    booked.Contains((classGroup.Id, date))));
-            }
-        }
+        var slots = await OpenClassSlots.ListAsync(
+            command.StudentId, _ => true, classGroupRepository, instructorRepository, makeupRepositories, today, localNow, cancellationToken);
 
         return new FamilyMakeupsResponse(
             [.. balance.Available.Select(credit => new FamilyMakeupCreditResponse(credit.MissedOn, credit.Reason, credit.ExpiresOn))],
-            [.. slots.OrderBy(slot => slot.Date).ThenBy(slot => slot.StartTime, StringComparer.Ordinal)]);
+            [.. slots.Select(slot => new FamilyClassSlotResponse(
+                slot.ClassGroupId,
+                slot.Name,
+                slot.Date,
+                slot.StartTime,
+                slot.EndTime,
+                slot.InstructorFullName,
+                slot.Location,
+                slot.SpotsLeft,
+                booked.Contains((slot.ClassGroupId, slot.Date))))]);
     }
-
-    private static string Format(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);
 }
 
 public sealed class BookMakeupUseCase(
@@ -163,9 +128,7 @@ public sealed class BookMakeupUseCase(
             return Result.Conflict<bool>(NoCreditMessage, SessionErrorCodes.MakeupNoCredit);
         }
 
-        var notices = session is null ? 0 : (await makeupRepositories.Notices.CountBySessionsAsync([session.Id], cancellationToken)).GetValueOrDefault(session.Id);
-        var makeups = session is null ? 0 : (await makeupRepositories.Bookings.CountBySessionsAsync([session.Id], cancellationToken)).GetValueOrDefault(session.Id);
-        if (classGroup.Value.Capacity - roster.Count + notices - makeups <= 0)
+        if (await OpenClassSlots.SpotsLeftAsync(classGroup.Value, roster.Count, session, makeupRepositories, cancellationToken) <= 0)
         {
             return Result.Conflict<bool>(FullMessage, SessionErrorCodes.MakeupFull);
         }

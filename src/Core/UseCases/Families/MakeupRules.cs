@@ -10,6 +10,7 @@ internal sealed record MissedClass(Guid ClassGroupId, MakeupSource Source);
 public sealed record MakeupRepositories(
     IAbsenceNoticeRepository Notices,
     IMakeupBookingRepository Bookings,
+    IPackBookingRepository PackBookings,
     IClassSessionRepository Sessions,
     IEnrollmentRepository Enrollments);
 

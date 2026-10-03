@@ -50,15 +50,18 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
 
         var rows = await (
             from attendance in context.Attendances.AsNoTracking()
-            where attendance.Status == AttendanceStatus.Present
+            let isPackBooking = context.PackBookings.Any(booking =>
+                booking.ClassSessionId == attendance.ClassSessionId && booking.StudentId == attendance.StudentId)
+            where attendance.Status == AttendanceStatus.Present || isPackBooking
             join student in context.Students.AsNoTracking() on attendance.StudentId equals student.Id
             where clientIds.Contains(student.ClientId)
             join session in context.ClassSessions.AsNoTracking() on attendance.ClassSessionId equals session.Id
             join classGroup in context.ClassGroups.AsNoTracking() on session.ClassGroupId equals classGroup.Id
-            select new { student.ClientId, session.Date, StudentFullName = student.FullName, ClassGroupName = classGroup.Name })
+            select new { student.ClientId, session.Date, StudentFullName = student.FullName, ClassGroupName = classGroup.Name, IsPackBooking = isPackBooking })
             .ToListAsync(cancellationToken);
 
-        return [.. rows.Select(row => new ClientAttendedClass(row.ClientId, new AttendedClass(row.Date, row.StudentFullName, row.ClassGroupName)))];
+        return [.. rows.Select(row => new ClientAttendedClass(
+            row.ClientId, new AttendedClass(row.Date, row.StudentFullName, row.ClassGroupName, IsPackBooking: row.IsPackBooking)))];
     }
 
     public async Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(

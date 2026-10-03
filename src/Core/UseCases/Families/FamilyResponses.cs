@@ -15,7 +15,8 @@ public sealed record FamilyNextClassResponse(
     bool IsCancelled,
     Guid? ClassGroupId,
     bool AbsenceNotified,
-    bool IsMakeup);
+    bool IsMakeup,
+    bool IsPackBooking = false);
 
 public sealed record FamilyAttendanceResponse(
     int StreakWeeks,

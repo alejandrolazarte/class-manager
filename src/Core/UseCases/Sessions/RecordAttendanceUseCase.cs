@@ -17,6 +17,7 @@ public sealed class RecordAttendanceUseCase(
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
     IMakeupBookingRepository makeupBookingRepository,
+    IPackBookingRepository packBookingRepository,
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
     IUnitOfWork unitOfWork,
@@ -51,7 +52,7 @@ public sealed class RecordAttendanceUseCase(
         }
 
         if (!await SessionRules.IsInClassAsync(
-            enrollmentRepository, makeupBookingRepository, command.ClassGroupId, command.Date, session, command.StudentId, cancellationToken))
+            enrollmentRepository, makeupBookingRepository, packBookingRepository, command.ClassGroupId, command.Date, session, command.StudentId, cancellationToken))
         {
             return Result.Validation<RecordAttendanceResponse>(
                 StudentNotEnrolledMessage, SessionErrorCodes.StudentNotEnrolled, nameof(RecordAttendanceCommand.StudentId));

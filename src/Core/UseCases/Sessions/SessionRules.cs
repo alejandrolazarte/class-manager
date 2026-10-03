@@ -35,6 +35,7 @@ internal static class SessionRules
     public static async Task<bool> IsInClassAsync(
         IEnrollmentRepository enrollmentRepository,
         IMakeupBookingRepository makeupBookingRepository,
+        IPackBookingRepository packBookingRepository,
         Guid classGroupId,
         DateOnly date,
         ClassSession? session,
@@ -48,7 +49,8 @@ internal static class SessionRules
         }
 
         return session is not null
-            && (await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken)).Any(student => student.StudentId == studentId);
+            && ((await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken)).Any(student => student.StudentId == studentId)
+                || await packBookingRepository.FindForUpdateAsync(session.Id, studentId, cancellationToken) is not null);
     }
 
     public static bool IsInScope(InstructorScope scope, ClassGroup classGroup, ClassSession? session) =>

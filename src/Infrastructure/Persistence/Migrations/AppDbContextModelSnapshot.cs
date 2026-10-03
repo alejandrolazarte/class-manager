@@ -375,6 +375,26 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("ClassPacks");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackClassGroup", b =>
+                {
+                    b.Property<Guid>("ClassPackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClassGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClassPackId", "ClassGroupId");
+
+                    b.HasIndex("ClassGroupId");
+
+                    b.HasIndex("TenantId", "ClassGroupId");
+
+                    b.ToTable("ClassPackClassGroups");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchase", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1500,6 +1520,37 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("MakeupBookings");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Sessions.PackBooking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClassSessionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassSessionId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TenantId", "StudentId");
+
+                    b.HasIndex("TenantId", "ClassSessionId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("PackBookings");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Students.Student", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1629,6 +1680,27 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackClassGroup", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.ClassGroups.ClassGroup", null)
+                        .WithMany()
+                        .HasForeignKey("ClassGroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.ClassPacks.ClassPack", null)
+                        .WithMany("ClassGroups")
+                        .HasForeignKey("ClassPackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -2065,6 +2137,27 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Sessions.PackBooking", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Sessions.ClassSession", null)
+                        .WithMany()
+                        .HasForeignKey("ClassSessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Students.Student", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
@@ -2078,6 +2171,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
+                {
+                    b.Navigation("ClassGroups");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Orders.Order", b =>

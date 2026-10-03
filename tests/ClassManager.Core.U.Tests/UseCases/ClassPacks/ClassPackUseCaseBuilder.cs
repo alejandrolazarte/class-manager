@@ -14,6 +14,7 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IClassPackRepository> ClassPacks { get; } = new();
     public Mock<IClassPackPurchaseRepository> Purchases { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
+    public Mock<IClassGroupRepository> ClassGroups { get; } = new();
     public Mock<IAttendanceRepository> Attendances { get; } = new();
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
@@ -69,5 +70,5 @@ internal sealed class ClassPackUseCaseBuilder
             new Mock<ICurrentMember>().Object);
 
     public CreateClassPackUseCase BuildCreate() =>
-        new(ClassPacks.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
+        new(ClassPacks.Object, ClassGroups.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
 }

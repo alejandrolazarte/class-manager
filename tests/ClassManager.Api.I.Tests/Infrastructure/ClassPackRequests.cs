@@ -8,12 +8,21 @@ public static class ClassPackRequests
     public const string PackName = "4 clases";
 
     public static Task<HttpResponseMessage> PostClassPackAsync(
-        this HttpClient httpClient, string name = PackName, int classCount = 4, decimal price = 80m, int? validityMonths = 1) =>
-        httpClient.PostAsJsonAsync(ApiRoutes.ClassPacks, new CreateClassPackCommand(name, classCount, price, validityMonths), ApiRequests.JsonOptions);
+        this HttpClient httpClient,
+        string name = PackName,
+        int classCount = 4,
+        decimal price = 80m,
+        int? validityMonths = 1,
+        IReadOnlyList<Guid>? classGroupIds = null) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.ClassPacks,
+            new CreateClassPackCommand(name, classCount, price, validityMonths, ClassGroupIds: classGroupIds),
+            ApiRequests.JsonOptions);
 
-    public static async Task<ClassPackResponse> CreateClassPackAsync(this HttpClient httpClient, string name = PackName)
+    public static async Task<ClassPackResponse> CreateClassPackAsync(
+        this HttpClient httpClient, string name = PackName, int classCount = 4, IReadOnlyList<Guid>? classGroupIds = null)
     {
-        using var response = await httpClient.PostClassPackAsync(name);
+        using var response = await httpClient.PostClassPackAsync(name, classCount, classGroupIds: classGroupIds);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
     }

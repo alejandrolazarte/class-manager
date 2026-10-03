@@ -44,6 +44,7 @@ public sealed class ListDaySessionsUseCase(
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
     IMakeupBookingRepository makeupBookingRepository,
+    IPackBookingRepository packBookingRepository,
     IPrivateLessonRepository privateLessonRepository,
     IStudentRepository studentRepository,
     IBusinessCalendarService businessCalendar,
@@ -70,6 +71,7 @@ public sealed class ListDaySessionsUseCase(
         IReadOnlyCollection<Guid> sessionIds = [.. sessions.Values.Select(session => session.Id)];
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(sessionIds, cancellationToken);
         var makeupCounts = await makeupBookingRepository.CountBySessionsAsync(sessionIds, cancellationToken);
+        var packBookingCounts = await packBookingRepository.CountBySessionsAsync(sessionIds, cancellationToken);
 
         var privateLessons = (await privateLessonRepository.ListBetweenAsync(date, date, cancellationToken))
             .Where(lesson => scope.Includes(lesson.InstructorId))
@@ -126,7 +128,8 @@ public sealed class ListDaySessionsUseCase(
                     classGroup.Location,
                     session?.IsCancelled ?? false,
                     session?.CancellationReason,
-                    enrolledCounts.GetValueOrDefault(classGroup.Id) + (session is null ? 0 : makeupCounts.GetValueOrDefault(session.Id)),
+                    enrolledCounts.GetValueOrDefault(classGroup.Id)
+                        + (session is null ? 0 : makeupCounts.GetValueOrDefault(session.Id) + packBookingCounts.GetValueOrDefault(session.Id)),
                     attendanceCount.Present,
                     attendanceCount.Absent,
                     [],

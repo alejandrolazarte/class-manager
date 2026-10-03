@@ -12,6 +12,9 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     public Task MakeupBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
         NotifyInstructorAsync(studentId, classGroup, session, TeamNotificationTexts.MakeupTitle, cancellationToken);
 
+    public Task PackClassBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
+        NotifyInstructorAsync(studentId, classGroup, session, TeamNotificationTexts.PackClassTitle, cancellationToken);
+
     private async Task NotifyInstructorAsync(
         Guid studentId,
         ClassGroup classGroup,

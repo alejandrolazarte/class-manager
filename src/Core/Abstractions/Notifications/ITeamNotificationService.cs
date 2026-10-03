@@ -8,4 +8,6 @@ public interface ITeamNotificationService
     Task AbsenceNotifiedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken);
 
     Task MakeupBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken);
+
+    Task PackClassBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken);
 }

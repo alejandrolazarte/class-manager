@@ -1,0 +1,25 @@
+using ClassManager.Tenancy;
+
+namespace ClassManager.Core.Domain.Sessions;
+
+public sealed class PackBooking : ITenantOwned
+{
+    private PackBooking()
+    {
+    }
+
+    public Guid Id { get; private set; }
+    public Guid TenantId { get; private set; }
+    public Guid ClassSessionId { get; private set; }
+    public Guid StudentId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    public static PackBooking Create(Guid classSessionId, Guid studentId, DateTimeOffset createdAt) =>
+        new()
+        {
+            Id = Guid.CreateVersion7(),
+            ClassSessionId = classSessionId,
+            StudentId = studentId,
+            CreatedAt = createdAt.ToUniversalTime(),
+        };
+}
