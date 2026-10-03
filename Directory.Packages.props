@@ -21,7 +21,6 @@
 
   <ItemGroup Label="Security">
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
-    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens"             Version="8.23.0" />
   </ItemGroup>
 
   <ItemGroup Label="Analyzers">
