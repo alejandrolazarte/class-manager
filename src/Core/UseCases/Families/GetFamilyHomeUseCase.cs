@@ -134,7 +134,8 @@ public sealed class GetFamilyHomeUseCase(
                         booking.Date,
                         instructorNames,
                         absenceNotified: false,
-                        isMakeup: false) with { IsPackBooking = true });
+                        isMakeup: false) with
+                    { IsPackBooking = true });
                 }
             }
 
