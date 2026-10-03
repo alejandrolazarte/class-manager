@@ -33,7 +33,6 @@ public sealed record MonthlyFeesResponse(
     decimal TotalDue,
     decimal TotalPaid,
     IReadOnlyList<ClientFeeResponse> Clients,
-    decimal ClassPackSales,
     IReadOnlyList<ClassPackClientResponse> ClassPackClients);
 
 public sealed class ListMonthlyFeesUseCase(
@@ -41,7 +40,6 @@ public sealed class ListMonthlyFeesUseCase(
     IPaymentRepository paymentRepository,
     IFeeScheduleRepository feeScheduleRepository,
     IClassBalanceService classBalanceService,
-    IClassPackPurchaseRepository classPackPurchaseRepository,
     IClientRepository clientRepository,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes)
@@ -84,15 +82,12 @@ public sealed class ListMonthlyFeesUseCase(
         var classPackClients = await ListClassPackClientsAsync(
             enrolledClients.Where(enrolledClient => planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
             cancellationToken);
-        var classPackSales = await classPackPurchaseRepository.SumPriceBetweenAsync(
-            month.Value.FirstDay, month.Value.LastDay, clientIdsInScope, cancellationToken);
 
         return new MonthlyFeesResponse(
             month.Value.ToString(),
             monthlyClients.Sum(client => client.Fee ?? 0),
             monthlyClients.Sum(client => client.Paid),
             monthlyClients,
-            classPackSales,
             classPackClients);
     }
 

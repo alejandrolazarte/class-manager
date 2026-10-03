@@ -11,8 +11,13 @@ export function addMonths(month: string, months: number): string {
   return monthOf(new Date(year ?? 0, (monthNumber ?? 1) - 1 + months, 1));
 }
 
+export function monthName(month: string): string {
+  const [, monthNumber] = month.split(monthSeparator).map(Number);
+  return translate(`months.${monthNumber ?? 1}` as TranslationKey);
+}
+
 export function formatMonth(month: string): string {
-  const [year, monthNumber] = month.split(monthSeparator).map(Number);
-  const monthName = translate(`months.${monthNumber ?? 1}` as TranslationKey);
-  return `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} ${year}`;
+  const [year] = month.split(monthSeparator).map(Number);
+  const name = monthName(month);
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${year}`;
 }

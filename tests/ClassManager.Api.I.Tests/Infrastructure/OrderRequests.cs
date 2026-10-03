@@ -28,6 +28,10 @@ public static class OrderRequests
         (await httpClient.GetFromJsonAsync<List<OrderResponse>>(
             new Uri($"{ApiRoutes.Orders}?awaitingPickup={awaitingPickup}", UriKind.Relative), ApiRequests.JsonOptions))!;
 
+    public static async Task<OrderSummaryResponse> GetOrderSummaryAsync(this HttpClient httpClient, string month = FeeRequests.CurrentMonth) =>
+        (await httpClient.GetFromJsonAsync<OrderSummaryResponse>(
+            new Uri($"{ApiRoutes.Orders}{ApiRoutes.OrderSummary}?month={month}", UriKind.Relative), ApiRequests.JsonOptions))!;
+
     public static Task<HttpResponseMessage> PutDeliveredAsync(this HttpClient httpClient, Guid orderId) =>
         httpClient.PutAsync(new Uri($"{ApiRoutes.Orders}/{orderId}{ApiRoutes.Delivered}", UriKind.Relative), null);
 

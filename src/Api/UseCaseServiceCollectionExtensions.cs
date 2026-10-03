@@ -164,6 +164,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IUseCase<RecordStockMovementCommand, ProductResponse>, RecordStockMovementUseCase>();
         services.AddScoped<IUseCase<ListStockMovementsQuery, IReadOnlyList<StockMovementResponse>>, ListStockMovementsUseCase>();
         services.AddScoped<IUseCase<ListOrdersQuery, IReadOnlyList<OrderResponse>>, ListOrdersUseCase>();
+        services.AddScoped<IUseCase<GetOrderSummaryQuery, OrderSummaryResponse>, GetOrderSummaryUseCase>();
         services.AddScoped<IUseCase<CreateCounterSaleCommand, OrderResponse>, CreateCounterSaleUseCase>();
         services.AddScoped<IUseCase<MarkOrderDeliveredCommand, OrderResponse>, MarkOrderDeliveredUseCase>();
         services.AddScoped<IUseCase<RefundOrderCommand, OrderResponse>, RefundOrderUseCase>();

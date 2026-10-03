@@ -3,12 +3,13 @@ import { ReactNode, useState } from "react";
 import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
+import { monthOf } from "@/features/fees/months";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { OrderCard } from "@/features/orders/components/OrderCard";
-import { PendingOrdersSummaryCard } from "@/features/orders/components/PendingOrdersSummaryCard";
+import { OrderSummaryCard } from "@/features/orders/components/OrderSummaryCard";
 import { OrderFilter, orderFilters } from "@/features/orders/types";
-import { useOrders, usePendingOrders } from "@/features/orders/useOrders";
+import { useOrders, useOrderSummary, usePendingOrders } from "@/features/orders/useOrders";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { orderTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -23,9 +24,10 @@ import { ScreenHeader } from "@/ui/ScreenHeader";
 
 interface OrderListScreenProps {
   viewSwitcher?: ReactNode;
+  month?: string;
 }
 
-export function OrderListScreen({ viewSwitcher }: OrderListScreenProps) {
+export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListScreenProps) {
   const router = useRouter();
   const business = useCurrentBusiness();
   const orderTab = useCurrentTab(orderTabs);
@@ -34,6 +36,7 @@ export function OrderListScreen({ viewSwitcher }: OrderListScreenProps) {
   const [filter, setFilter] = useState<OrderFilter>("all");
   const { data: orders = [], isPending, isError, refetch } = useOrders(null, filter);
   const pendingOrders = usePendingOrders({ enabled: isInCollections });
+  const { data: orderSummary } = useOrderSummary(month, { enabled: isInCollections });
   const openCounterSale = () => router.push(routes.newCounterSale(orderTab));
 
   return (
@@ -56,8 +59,9 @@ export function OrderListScreen({ viewSwitcher }: OrderListScreenProps) {
       }
     >
       {viewSwitcher}
-      {isInCollections ? (
-        <PendingOrdersSummaryCard
+      {isInCollections && orderSummary ? (
+        <OrderSummaryCard
+          orderSummary={orderSummary}
           pendingOrders={pendingOrders}
           money={(amount) => formatMoney(amount, business.currencyCode)}
         />

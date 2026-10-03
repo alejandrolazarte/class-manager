@@ -6,10 +6,12 @@ import {
   CreateCounterSaleRequest,
   Order,
   OrderFilter,
+  OrderSummary,
   RefundLine,
 } from "@/features/orders/types";
 
 const ordersPath = "/api/orders";
+const summaryPath = `${ordersPath}/summary`;
 const deliveredSegment = "delivered";
 const refundsSegment = "refunds";
 const paymentSegment = "payment";
@@ -32,6 +34,10 @@ export function listOrders(clientId: string | null, filter: OrderFilter): Promis
     queryParameters.clientId = clientId;
   }
   return httpClient.get<Order[]>(ordersPath, queryParameters);
+}
+
+export function getOrderSummary(month: string): Promise<OrderSummary> {
+  return httpClient.get<OrderSummary>(summaryPath, { month });
 }
 
 export function createCounterSale(request: CreateCounterSaleRequest): Promise<Order> {

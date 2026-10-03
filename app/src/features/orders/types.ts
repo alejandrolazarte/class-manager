@@ -52,6 +52,13 @@ export interface Order {
   readyAt: string | null;
 }
 
+export interface OrderSummary {
+  month: string;
+  collected: number;
+  unpaid: number;
+  classPackSales: number;
+}
+
 export interface CounterSaleLine {
   classPackId: string | null;
   productVariantId: string | null;

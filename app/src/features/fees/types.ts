@@ -27,7 +27,6 @@ export interface MonthlyFees {
   totalDue: number;
   totalPaid: number;
   clients: ClientFee[];
-  classPackSales: number;
   classPackClients: ClassPackClient[];
 }
 

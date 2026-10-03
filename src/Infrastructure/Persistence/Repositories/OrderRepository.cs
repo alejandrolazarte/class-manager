@@ -48,6 +48,25 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Order>> ListPaidBetweenOrRequestedAsync(
+        DateOnly firstDay, DateOnly lastDay, ClientScope? scope, CancellationToken cancellationToken)
+    {
+        var orders = context.Orders.AsNoTracking();
+        if (scope is not null)
+        {
+            var clientIdsInScope = ClientScopeQuery.ClientIdsIn(context, scope);
+            orders = orders.Where(order => order.ClientId != null && clientIdsInScope.Contains(order.ClientId.Value));
+        }
+
+        return await orders
+            .Where(order => order.Status == OrderStatus.Requested
+                || ((order.Status == OrderStatus.Paid || order.Status == OrderStatus.Delivered)
+                    && order.PaidOn >= firstDay && order.PaidOn <= lastDay))
+            .Include(order => order.Lines)
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<int> CountRequestedByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
         context.Orders.CountAsync(order => order.ClientId == clientId && order.Status == OrderStatus.Requested, cancellationToken);
 
