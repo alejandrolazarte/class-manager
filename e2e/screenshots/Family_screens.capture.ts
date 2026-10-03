@@ -137,8 +137,17 @@ test("Family screens", async ({ page, request }) => {
   await capture(page, "28c-familia-logros-medallas");
 
   await page.goto("/family/settings");
-  await page.getByRole("switch", { name: "Avisarme de novedades" }).waitFor();
+  await page.getByRole("button", { name: "Notificaciones" }).waitFor();
   await capture(page, "29-familia-ajustes");
+
+  await page.getByRole("button", { name: "Notificaciones" }).click();
+  await page.getByRole("switch", { name: "Avisarme de novedades" }).waitFor();
+  await capture(page, "29b-familia-ajustes-notificaciones");
+  await page.getByRole("button", { name: "Listo" }).click();
+
+  await page.getByRole("button", { name: "Apariencia" }).click();
+  await page.getByText("Colores").filter({ visible: true }).first().waitFor();
+  await capture(page, "29c-familia-ajustes-apariencia");
 });
 
 test("Account chooser", async ({ page, request }) => {

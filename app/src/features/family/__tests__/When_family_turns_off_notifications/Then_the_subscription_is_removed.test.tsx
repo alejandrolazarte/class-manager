@@ -31,6 +31,9 @@ describe("When family turns off notifications", () => {
 
   it("Then the subscription is removed", async () => {
     await renderFamilyScreen(<FamilySettingsScreen />);
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("family.notifications.title") }),
+    );
 
     const toggle = await screen.findByRole("switch", {
       name: translate("family.notifications.toggle"),

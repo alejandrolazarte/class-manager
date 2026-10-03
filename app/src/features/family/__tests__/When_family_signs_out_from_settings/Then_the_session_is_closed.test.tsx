@@ -25,10 +25,9 @@ describe("When family signs out from settings", () => {
   it("Then the session is closed", async () => {
     await renderFamilyScreen(<FamilySettingsScreen />);
 
-    expect(
-      await screen.findByRole("button", { name: translate("settings.appearance.dark") }),
-    ).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole("button", { name: translate("settings.signOut") }));
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("settings.signOut") }),
+    );
 
     await waitFor(() =>
       expect(signOut).toHaveBeenCalledWith({ refreshToken: familyTokens.refreshToken }),
