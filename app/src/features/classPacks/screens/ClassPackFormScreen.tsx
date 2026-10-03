@@ -24,6 +24,7 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { commonDurationsInMinutes } from "@/features/classGroups/classGroupSchema";
+import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
@@ -41,7 +42,7 @@ interface ClassPackEditorProps {
 }
 
 interface ClassPackFieldOptions {
-  name: keyof ClassPackFormValues;
+  name: Exclude<keyof ClassPackFormValues, "classGroupIds">;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
   keyboardType?: "default" | "number-pad" | "decimal-pad" | "url";
@@ -52,6 +53,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
   const { showToast } = useToast();
   const saveClassPackMutation = useSaveClassPack();
   const setClassPackActiveMutation = useSetClassPackActive();
+  const { data: classGroups = [] } = useActiveClassGroups();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const form = useForm<ClassPackFormValues>({
     resolver: zodResolver(classPackSchema),
@@ -173,6 +175,41 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           </View>
         )}
       />
+      {classGroups.length > 0 ? (
+        <Controller
+          control={form.control}
+          name="classGroupIds"
+          render={({ field }) => (
+            <View className="gap-2">
+              <AppText variant="label" tone="muted">
+                {translate("classPacks.form.classGroups")}
+              </AppText>
+              <View className="flex-row flex-wrap gap-2">
+                {classGroups.map((classGroup) => {
+                  const isSelected = field.value.includes(classGroup.id);
+                  return (
+                    <Chip
+                      key={classGroup.id}
+                      label={classGroup.name}
+                      isSelected={isSelected}
+                      onPress={() =>
+                        field.onChange(
+                          isSelected
+                            ? field.value.filter((classGroupId) => classGroupId !== classGroup.id)
+                            : [...field.value, classGroup.id],
+                        )
+                      }
+                    />
+                  );
+                })}
+              </View>
+              <AppText variant="caption" tone="muted">
+                {translate("classPacks.form.classGroupsHint")}
+              </AppText>
+            </View>
+          )}
+        />
+      ) : null}
       {renderField({
         name: "materialUrl",
         labelKey: "classPacks.form.materialUrl",

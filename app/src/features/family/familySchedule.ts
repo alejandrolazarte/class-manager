@@ -42,6 +42,7 @@ export function canNotifyAbsence(nextClass: FamilyNextClass, now: Date = new Dat
   return (
     nextClass.classGroupId !== null &&
     !nextClass.isMakeup &&
+    !nextClass.isPackBooking &&
     !nextClass.isCancelled &&
     !hasStarted(nextClass, now)
   );
@@ -49,6 +50,10 @@ export function canNotifyAbsence(nextClass: FamilyNextClass, now: Date = new Dat
 
 export function canCancelMakeup(nextClass: FamilyNextClass, now: Date = new Date()): boolean {
   return nextClass.isMakeup && !nextClass.isCancelled && !hasStarted(nextClass, now);
+}
+
+export function canCancelPackClass(nextClass: FamilyNextClass, now: Date = new Date()): boolean {
+  return nextClass.isPackBooking && !nextClass.isCancelled && !hasStarted(nextClass, now);
 }
 
 export function nextClassOf(
