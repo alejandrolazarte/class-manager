@@ -1,0 +1,9 @@
+# Secret scanning rules for gitleaks. See docs/dependency-and-secret-scanning.md.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public example keys from RFC 8291 appendix A, used as a web push test vector"
+paths = [
+  '''tests/ClassManager\.(Notifications\.U|Api\.I)\.Tests/WebPush/When_a_message_is_encrypted_with_the_rfc_8291_example/''',
+]
