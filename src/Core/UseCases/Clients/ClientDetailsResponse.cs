@@ -15,13 +15,15 @@ public sealed record ClientDetailsResponse(
     DateTimeOffset CreatedAt,
     BillingPlanResponse BillingPlan,
     IReadOnlyList<BillingPlanChangeResponse> BillingPlanChanges,
-    IReadOnlyList<StudentResponse> Students)
+    IReadOnlyList<StudentResponse> Students,
+    StudentAppAccessResponse AppAccess)
 {
     public static ClientDetailsResponse From(
         Client client,
         IEnumerable<Student> students,
         IReadOnlyCollection<ClientBillingPlanChange> billingPlanChanges,
-        DateOnly today) =>
+        DateOnly today,
+        StudentAppAccessResponse appAccess) =>
         new(
             client.Id,
             client.FullName,
@@ -31,5 +33,6 @@ public sealed record ClientDetailsResponse(
             client.CreatedAt,
             BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, BillingMonth.From(today))),
             BillingPlanChangeResponse.From(billingPlanChanges),
-            [.. students.OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase).Select(StudentResponse.From)]);
+            [.. students.OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase).Select(StudentResponse.From)],
+            appAccess);
 }

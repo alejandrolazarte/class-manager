@@ -26,6 +26,7 @@ Student app users are a different kind of user from the team, kept apart from ev
 
 - A **student account** (`ClientAccounts`: `ClientId`, `UserId`) belongs to whoever pays: a parent or an adult who takes the classes. Children never sign in. A user has at most one student account per branch (`student.already_linked` otherwise); several users can share a client.
 - The branch invites from the student card (`POST /api/clients/{id}/app-invitation`, `students.manage` and the same client scope as the rest of the team; the email defaults to the client's). The link (`/accept-student-invitation?token=`) is single-use, valid 7 days and hashed, like team invitations; inviting again revokes the previous one. Accepting (`POST /api/auth/student-app-invitations/accept`, anonymous) creates the account when the email has none.
+- The student card reads the app access from `GET /api/clients/{id}`: `appAccess.status` is `Active` once a student account exists, `Invited` (with `invitedEmail`) while an invitation is pending, and `NotInvited` otherwise.
 - **The session kind is fixed at sign-in.** Tokens carry a `kind` claim (`team` or `student`; no claim means `team`) and the refresh token stores it, so refreshing or switching branch can never turn a student session into a team one, or the other way. Sign-in opens the team session when the user is a team member and the student session otherwise (a coach who is also a student reaches the student side once a switch exists; not built yet).
 - **Two disjoint authorization paths.** Team endpoints (`permission:` policies) reject any token whose kind is not `team`. Student endpoints, all under `/api/student-app`, use their own `student` policy: the token kind must be `student` and the user must have a `ClientAccounts` row in the token's branch (read from the database on every request, like `ICurrentMember`). Two tests enforce it: every endpoint is anonymous, a permission or `student`, and `student` only appears under `/api/student-app` and covers everything there.
 - Student use cases never reuse team use cases and never take a client id from the request: they read it from `IStudentAppAccess`.
@@ -33,6 +34,7 @@ Student app users are a different kind of user from the team, kept apart from ev
 | Operation | Endpoint | Who |
 |---|---|---|
 | Invite a client to the student app | `POST /api/clients/{id}/app-invitation` `{ email? }` | `students.manage` |
+| Edit a client's name, phone, email and notes (same client scope; another client's phone is `409 client.phone_number_taken`) | `PUT /api/clients/{id}` | `students.manage` |
 | Accept the invitation | `POST /api/auth/student-app-invitations/accept` | anonymous |
 | Home: students with next classes (14 days, cancellations, reschedules and substitutes applied), the month's fee or the class balance | `GET /api/student-app` | student |
 | Shop: active class packs and active products shown in the app, with availability (`Available`, `OnOrder`, `SoldOut`; never the stock count) | `GET /api/student-app/shop` | student |

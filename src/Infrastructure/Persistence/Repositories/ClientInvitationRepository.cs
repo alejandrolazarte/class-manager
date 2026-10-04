@@ -15,6 +15,16 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
                 && invitation.ExpiresAt > now)
             .ToListAsync(cancellationToken);
 
+    public Task<ClientInvitation?> FindLatestPendingByClientAsync(Guid clientId, DateTimeOffset now, CancellationToken cancellationToken) =>
+        context.ClientInvitations
+            .AsNoTracking()
+            .Where(invitation => invitation.ClientId == clientId
+                && invitation.AcceptedAt == null
+                && invitation.RevokedAt == null
+                && invitation.ExpiresAt > now)
+            .OrderByDescending(invitation => invitation.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+
     public Task<ClientInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         context.ClientInvitations
             .IgnoreQueryFilters()

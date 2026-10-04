@@ -11,6 +11,7 @@ internal static class ClientEndpoints
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
 
         clients.MapPost("/", RegisterClientAsync).RequirePermission(Permissions.Students.Manage);
+        clients.MapPut(ApiRoutes.ClientById, UpdateClientAsync).RequirePermission(Permissions.Students.Manage);
         clients.MapGet(ApiRoutes.ClientById, GetClientAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
         clients.MapGet("/", SearchClientsAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
 
@@ -33,6 +34,17 @@ internal static class ClientEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetClientQuery(clientId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> UpdateClientAsync(
+        Guid clientId,
+        UpdateClientRequest request,
+        IUseCase<UpdateClientCommand, ClientResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(request.ToCommand(clientId), cancellationToken);
 
         return result.ToOkResult();
     }
