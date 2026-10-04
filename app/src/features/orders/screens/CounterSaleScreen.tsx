@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { useEffect, useState } from "react";
+import { BackHandler, Pressable, View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
@@ -175,6 +175,17 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
   };
 
   const goBack = () => (step === 2 ? setStep(1) : router.back());
+
+  useEffect(() => {
+    if (step === 1) {
+      return undefined;
+    }
+    const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+      setStep(1);
+      return true;
+    });
+    return () => subscription.remove();
+  }, [step]);
 
   const sell = async () => {
     setIsOutOfStock(false);
