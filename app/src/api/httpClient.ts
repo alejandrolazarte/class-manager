@@ -10,6 +10,7 @@ const noContentStatus = 204;
 const unauthorizedStatus = 401;
 const authorizationHeader = "Authorization";
 const bearerScheme = "Bearer";
+const requestTimeoutMilliseconds = 30_000;
 
 type QueryParameters = Record<string, string | number | undefined>;
 
@@ -56,9 +57,14 @@ async function fetchWithHeaders(
   accessToken: string | null,
 ): Promise<Response> {
   const isFormBody = requestInit.body instanceof FormData;
+  const timeoutController = new AbortController();
+  const timeout = isFormBody
+    ? undefined
+    : setTimeout(() => timeoutController.abort(), requestTimeoutMilliseconds);
   try {
     return await fetch(url, {
       ...requestInit,
+      signal: timeoutController.signal,
       headers: {
         Accept: jsonContentType,
         ...(isFormBody ? {} : { "Content-Type": jsonContentType }),
@@ -69,6 +75,8 @@ async function fetchWithHeaders(
     });
   } catch (fetchError) {
     throw new NetworkError(fetchError);
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

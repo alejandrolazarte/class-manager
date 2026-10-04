@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
-import { isApiError } from "@/api/httpClient";
+import { isApiError, isNetworkError } from "@/api/httpClient";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
 import { QuantityStepper } from "@/features/studentApp/components/QuantityStepper";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
@@ -25,11 +25,12 @@ import { FullScreenPage } from "@/ui/FullScreenPage";
 import { Icon } from "@/ui/Icon";
 import { OptionCard } from "@/ui/OptionCard";
 
-type OrderProblem = "outOfStock" | "tooManyOpenOrders" | "unexpected";
+type OrderProblem = "outOfStock" | "tooManyOpenOrders" | "noAnswer" | "unexpected";
 
 const orderProblemMessages: Record<OrderProblem, TranslationKey> = {
   outOfStock: "student.shop.outOfStock",
   tooManyOpenOrders: "student.shop.tooManyOpenOrders",
+  noAnswer: "student.shop.noAnswer",
   unexpected: "common.unexpectedError",
 };
 
@@ -39,6 +40,9 @@ function orderProblemOf(orderError: unknown): OrderProblem {
   }
   if (isApiError(orderError) && orderError.hasCode(studentAppErrorCodes.tooManyOpenOrders)) {
     return "tooManyOpenOrders";
+  }
+  if (isNetworkError(orderError)) {
+    return "noAnswer";
   }
   return "unexpected";
 }
@@ -192,7 +196,15 @@ export function CartPage({ shop, onClose, onSeeOrders }: CartPageProps) {
               <AppText variant="display">{total}</AppText>
             </View>
             {orderProblem ? (
-              <Banner tone="warning" message={translate(orderProblemMessages[orderProblem])} />
+              <Banner tone="warning" message={translate(orderProblemMessages[orderProblem])}>
+                {orderProblem === "noAnswer" ? (
+                  <Button
+                    variant="secondary"
+                    label={translate("student.cart.seeOrders")}
+                    onPress={onSeeOrders}
+                  />
+                ) : null}
+              </Banner>
             ) : null}
             <Button
               icon="business"

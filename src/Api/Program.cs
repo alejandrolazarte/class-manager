@@ -23,6 +23,7 @@ builder.Services.AddUseCases();
 builder.Services.AddSingleton<IExpiredOrderCancellationService, ExpiredOrderCancellationService>();
 builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();
 builder.Services.AddHostedService<PushWorker>();
+builder.Services.AddHostedService<EmailWorker>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
 if (builder.Environment.IsDevelopment())
