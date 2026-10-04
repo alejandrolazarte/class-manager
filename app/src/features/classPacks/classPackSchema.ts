@@ -12,6 +12,7 @@ export const classPackLimits = {
   minimumValidityMonths: 1,
   maximumValidityMonths: 24,
   materialUrlMaximumLength: 500,
+  descriptionMaximumLength: 500,
 } as const;
 
 const httpsUrlPattern = /^https:\/\/\S+$/i;
@@ -33,6 +34,13 @@ export const classPackSchema = z.object({
     .trim()
     .min(classPackLimits.nameMinimumLength, translate("classPacks.validation.nameInvalid"))
     .max(classPackLimits.nameMaximumLength, translate("classPacks.validation.nameInvalid")),
+  description: z
+    .string()
+    .trim()
+    .max(
+      classPackLimits.descriptionMaximumLength,
+      translate("classPacks.validation.descriptionTooLong"),
+    ),
   classCount: z
     .string()
     .refine(
@@ -76,6 +84,7 @@ export type ClassPackFormValues = z.input<typeof classPackSchema>;
 
 export const classPackFieldNames = [
   "name",
+  "description",
   "classCount",
   "price",
   "validityMonths",
@@ -87,6 +96,7 @@ export const classPackFieldNames = [
 export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValues {
   return {
     name: classPack?.name ?? "",
+    description: classPack?.description ?? "",
     classCount: classPack ? String(classPack.classCount) : "",
     price: classPack ? String(classPack.price).replace(".", ",") : "",
     validityMonths: classPack?.validityMonths ? String(classPack.validityMonths) : "",
@@ -100,8 +110,10 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
 
 export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveClassPackRequest {
   const validityMonths = formValues.validityMonths.trim();
+  const description = formValues.description.trim();
   return {
     name: formValues.name.trim(),
+    description: description.length === 0 ? null : description,
     classCount: Number(formValues.classCount.trim()),
     price: parseAmount(formValues.price) ?? 0,
     validityMonths: validityMonths.length === 0 ? null : Number(validityMonths),

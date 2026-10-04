@@ -58,6 +58,11 @@ export function PackDetailPage({
             {price}
           </AppText>
         </View>
+        {pack.description ? (
+          <AppText variant="body" tone="muted">
+            {pack.description}
+          </AppText>
+        ) : null}
         <AppText variant="label" tone="muted">
           {packDetails(pack, currencyCode)}
         </AppText>

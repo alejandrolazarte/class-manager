@@ -49,6 +49,7 @@ interface ProductFieldOptions {
   name: "name" | "description" | "price" | "variantNames";
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
+  isMultiline?: boolean;
   keyboardType?: "default" | "decimal-pad";
 }
 
@@ -113,7 +114,13 @@ function ProductEditor({ product }: ProductEditorProps) {
     }
   };
 
-  const renderField = ({ name, labelKey, placeholderKey, keyboardType }: ProductFieldOptions) => (
+  const renderField = ({
+    name,
+    labelKey,
+    placeholderKey,
+    isMultiline = false,
+    keyboardType,
+  }: ProductFieldOptions) => (
     <Controller
       control={form.control}
       name={name}
@@ -122,6 +129,7 @@ function ProductEditor({ product }: ProductEditorProps) {
           label={translate(labelKey)}
           placeholder={placeholderKey ? translate(placeholderKey) : undefined}
           keyboardType={keyboardType}
+          multiline={isMultiline}
           value={field.value}
           onChangeText={field.onChange}
           onBlur={field.onBlur}
@@ -148,7 +156,11 @@ function ProductEditor({ product }: ProductEditorProps) {
         labelKey: "products.form.variants",
         placeholderKey: "products.form.variantsPlaceholder",
       })}
-      {renderField({ name: "description", labelKey: "products.form.description" })}
+      {renderField({
+        name: "description",
+        labelKey: "products.form.description",
+        isMultiline: true,
+      })}
       <CatalogImageField images={images} placeholderIcon="products" />
       <Controller
         control={form.control}

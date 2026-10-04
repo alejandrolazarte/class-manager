@@ -11,10 +11,11 @@ public sealed record UpdateClassPackRequest(
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
     string? MaterialUrl = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null)
+    IReadOnlyList<Guid>? ClassGroupIds = null,
+    string? Description = null)
 {
     public UpdateClassPackCommand ToCommand(Guid classPackId) =>
-        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, MaterialUrl, ClassGroupIds);
+        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, MaterialUrl, ClassGroupIds, Description);
 }
 
 public sealed record UpdateClassPackCommand(
@@ -25,7 +26,8 @@ public sealed record UpdateClassPackCommand(
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
     string? MaterialUrl = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null);
+    IReadOnlyList<Guid>? ClassGroupIds = null,
+    string? Description = null);
 
 public sealed class UpdateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -52,6 +54,12 @@ public sealed class UpdateClassPackUseCase(
         if (lessons.IsFailure)
         {
             return lessons.Error!;
+        }
+
+        var description = classPack.Describe(command.Description);
+        if (description.IsFailure)
+        {
+            return description.Error!;
         }
 
         var coverage = await ClassPackClassGroups.CoverAsync(
