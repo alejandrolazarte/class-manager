@@ -7,6 +7,7 @@ namespace ClassManager.Core.UseCases.ClassPacks;
 public sealed record ClassPackResponse(
     Guid Id,
     string Name,
+    string? Description,
     int ClassCount,
     decimal Price,
     int? ValidityMonths,
@@ -20,6 +21,7 @@ public sealed record ClassPackResponse(
         new(
             classPack.Id,
             classPack.Name,
+            classPack.Description,
             classPack.ClassCount,
             classPack.Price,
             classPack.ValidityMonths,

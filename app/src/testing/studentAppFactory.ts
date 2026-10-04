@@ -122,6 +122,7 @@ export function buildStudentAppShop(overrides: Partial<StudentAppShop> = {}): St
       {
         id: "pack-8",
         name: "8 clases",
+        description: null,
         classCount: 8,
         price: 120,
         validityMonths: 2,

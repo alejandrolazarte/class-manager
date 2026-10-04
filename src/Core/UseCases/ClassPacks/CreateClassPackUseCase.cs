@@ -12,7 +12,8 @@ public sealed record CreateClassPackCommand(
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
     string? MaterialUrl = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null);
+    IReadOnlyList<Guid>? ClassGroupIds = null,
+    string? Description = null);
 
 public sealed class CreateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -34,6 +35,12 @@ public sealed class CreateClassPackUseCase(
         if (lessons.IsFailure)
         {
             return lessons.Error!;
+        }
+
+        var description = classPack.Value.Describe(command.Description);
+        if (description.IsFailure)
+        {
+            return description.Error!;
         }
 
         var coverage = await ClassPackClassGroups.CoverAsync(

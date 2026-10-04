@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261004011323_RenameFamilyAppToStudentApp")]
+    [Migration("20261004093622_RenameFamilyAppToStudentApp")]
     partial class RenameFamilyAppToStudentApp
     {
         /// <inheritdoc />
@@ -347,6 +347,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");

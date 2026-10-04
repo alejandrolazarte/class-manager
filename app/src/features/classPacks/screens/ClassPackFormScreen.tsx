@@ -49,6 +49,7 @@ interface ClassPackFieldOptions {
   name: Exclude<keyof ClassPackFormValues, "classGroupIds">;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
+  isMultiline?: boolean;
   keyboardType?: "default" | "number-pad" | "decimal-pad" | "url";
 }
 
@@ -114,7 +115,13 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
     }
   };
 
-  const renderField = ({ name, labelKey, placeholderKey, keyboardType }: ClassPackFieldOptions) => (
+  const renderField = ({
+    name,
+    labelKey,
+    placeholderKey,
+    isMultiline = false,
+    keyboardType,
+  }: ClassPackFieldOptions) => (
     <Controller
       control={form.control}
       name={name}
@@ -123,6 +130,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           label={translate(labelKey)}
           placeholder={placeholderKey ? translate(placeholderKey) : undefined}
           keyboardType={keyboardType}
+          multiline={isMultiline}
           autoCapitalize={keyboardType === "url" ? "none" : undefined}
           value={field.value}
           onChangeText={field.onChange}
@@ -143,6 +151,12 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         name: "name",
         labelKey: "classPacks.form.name",
         placeholderKey: "classPacks.form.namePlaceholder",
+      })}
+      {renderField({
+        name: "description",
+        labelKey: "classPacks.form.description",
+        placeholderKey: "classPacks.form.descriptionPlaceholder",
+        isMultiline: true,
       })}
       {renderField({
         name: "classCount",

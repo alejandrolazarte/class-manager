@@ -4,6 +4,7 @@ import { PaymentMethod } from "@/features/fees/types";
 export interface ClassPack {
   id: string;
   name: string;
+  description: string | null;
   classCount: number;
   price: number;
   validityMonths: number | null;
@@ -16,6 +17,7 @@ export interface ClassPack {
 
 export interface SaveClassPackRequest {
   name: string;
+  description: string | null;
   classCount: number;
   price: number;
   validityMonths: number | null;

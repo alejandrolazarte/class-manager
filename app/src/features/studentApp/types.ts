@@ -133,6 +133,7 @@ export type StockAvailability = "Available" | "OnOrder" | "SoldOut";
 export interface StudentAppShopPack {
   id: string;
   name: string;
+  description: string | null;
   classCount: number;
   price: number;
   validityMonths: number | null;

@@ -59,6 +59,11 @@ export function withUnits(cart: StudentAppCart, itemId: string, units: number): 
 export interface StudentAppCartItem {
   itemId: string;
   name: string;
+  title: string;
+  sizeName: string | null;
+  classCount: number | null;
+  imageUrl: string | null;
+  unitPrice: number;
   units: number;
   total: number;
   isPack: boolean;
@@ -77,6 +82,11 @@ export function cartItems(shop: StudentAppShop, cart: StudentAppCart): StudentAp
     .map((pack) => ({
       itemId: pack.id,
       name: pack.name,
+      title: pack.name,
+      sizeName: null,
+      classCount: pack.classCount,
+      imageUrl: pack.images[0]?.url ?? null,
+      unitPrice: pack.price,
       units: 1,
       total: pack.price,
       isPack: true,
@@ -87,6 +97,11 @@ export function cartItems(shop: StudentAppShop, cart: StudentAppCart): StudentAp
       .map((variant) => ({
         itemId: variant.id,
         name: variantName(product, variant),
+        title: product.name,
+        sizeName: variant.name.length === 0 ? null : variant.name,
+        classCount: null,
+        imageUrl: product.images[0]?.url ?? null,
+        unitPrice: product.price,
         units: cart[variant.id] ?? 0,
         total: product.price * (cart[variant.id] ?? 0),
         isPack: false,

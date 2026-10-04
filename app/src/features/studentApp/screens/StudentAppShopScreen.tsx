@@ -2,13 +2,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { CartBar } from "@/features/studentApp/components/CartBar";
-import { CartSheet } from "@/features/studentApp/components/CartSheet";
+import { CartPage } from "@/features/studentApp/components/CartPage";
 import { PackCard } from "@/features/studentApp/components/PackCard";
-import { ProductSheet } from "@/features/studentApp/components/ProductSheet";
+import { PackDetailPage } from "@/features/studentApp/components/PackDetailPage";
+import { ProductDetailPage } from "@/features/studentApp/components/ProductDetailPage";
 import { ShopProductCard } from "@/features/studentApp/components/ShopProductCard";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
 import { cartTotal } from "@/features/studentApp/studentAppCart";
-import { StudentAppShopProduct } from "@/features/studentApp/types";
+import { StudentAppShopPack, StudentAppShopProduct } from "@/features/studentApp/types";
 import { useStudentAppShop } from "@/features/studentApp/useStudentAppShop";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { formatMoney } from "@/features/fees/money";
@@ -73,6 +74,7 @@ export function StudentAppShopScreen() {
   const [searchText, setSearchText] = useState("");
   const [category, setCategory] = useState<ShopCategory>("all");
   const [openProductId, setOpenProductId] = useState<string | null>(null);
+  const [openPackId, setOpenPackId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const closeProduct = () => {
@@ -117,6 +119,9 @@ export function StudentAppShopScreen() {
   const showsProducts = category !== "packs" && products.length > 0;
   const shownProductId = openProductId ?? productId ?? null;
   const openProduct = shop.products.find((product) => product.id === shownProductId);
+  const openPack = shop.packs.find((pack) => pack.id === openPackId);
+  const isPackInCart = (pack: StudentAppShopPack) => (cart[pack.id] ?? 0) > 0;
+  const togglePack = (pack: StudentAppShopPack) => setUnits(pack.id, isPackInCart(pack) ? 0 : 1);
   const isProductInCart = (product: StudentAppShopProduct) =>
     product.variants.some((variant) => (cart[variant.id] ?? 0) > 0);
 
@@ -125,7 +130,7 @@ export function StudentAppShopScreen() {
       header={header}
       hasFloatingAction={units > 0}
       overlay={
-        units > 0 && !isCartOpen && openProduct === undefined ? (
+        units > 0 && !isCartOpen && openProduct === undefined && openPack === undefined ? (
           <CartBar
             units={units}
             totalLabel={formatMoney(cartTotal(shop, cart), shop.currencyCode)}
@@ -173,18 +178,16 @@ export function StudentAppShopScreen() {
             className="-mx-5"
             contentContainerClassName="gap-3 px-5 pb-1.5"
           >
-            {packs.map((pack) => {
-              const isInCart = (cart[pack.id] ?? 0) > 0;
-              return (
-                <PackCard
-                  key={pack.id}
-                  pack={pack}
-                  currencyCode={shop.currencyCode}
-                  isInCart={isInCart}
-                  onToggle={() => setUnits(pack.id, isInCart ? 0 : 1)}
-                />
-              );
-            })}
+            {packs.map((pack) => (
+              <PackCard
+                key={pack.id}
+                pack={pack}
+                currencyCode={shop.currencyCode}
+                isInCart={isPackInCart(pack)}
+                onOpen={() => setOpenPackId(pack.id)}
+                onToggle={() => togglePack(pack)}
+              />
+            ))}
           </ScrollView>
         </>
       ) : null}
@@ -211,7 +214,7 @@ export function StudentAppShopScreen() {
         <EmptyState icon="search" message={translate("student.shop.noResults")} />
       ) : null}
       {openProduct === undefined ? null : (
-        <ProductSheet
+        <ProductDetailPage
           key={openProduct.id}
           product={openProduct}
           currencyCode={shop.currencyCode}
@@ -222,8 +225,21 @@ export function StudentAppShopScreen() {
           }}
         />
       )}
+      {openPack === undefined ? null : (
+        <PackDetailPage
+          key={openPack.id}
+          pack={openPack}
+          currencyCode={shop.currencyCode}
+          isInCart={isPackInCart(openPack)}
+          onClose={() => setOpenPackId(null)}
+          onToggle={() => {
+            togglePack(openPack);
+            setOpenPackId(null);
+          }}
+        />
+      )}
       {isCartOpen ? (
-        <CartSheet
+        <CartPage
           shop={shop}
           onClose={() => setIsCartOpen(false)}
           onSeeOrders={() => {

@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { ProductPhoto } from "@/features/studentApp/components/ProductPhoto";
+import { ProductPhotoCarousel } from "@/features/studentApp/components/ProductPhotoCarousel";
 import { StudentAppShopProduct } from "@/features/studentApp/types";
 import { formatMoney } from "@/features/fees/money";
 import { translate } from "@/i18n/translate";
@@ -27,9 +27,9 @@ export function ShopProductCard({ product, currencyCode, isInCart, onOpen }: Sho
   const soldOut = isSoldOut(product);
   return (
     <Card className="flex-1" accessibilityLabel={product.name} onPress={onOpen}>
-      <ProductPhoto
-        imageUrl={product.images[0]?.url ?? null}
-        heightClassName="h-[150px]"
+      <ProductPhotoCarousel
+        images={product.images}
+        sizeClassName="aspect-square"
         isDimmed={soldOut}
       />
       {soldOut || isOnOrder(product) ? (

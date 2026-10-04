@@ -4,6 +4,7 @@ export function buildClassPack(overrides: Partial<ClassPack> = {}): ClassPack {
   return {
     id: "0192f0c4-0000-7000-8000-00000000c1a5",
     name: "8 clases",
+    description: null,
     classCount: 8,
     price: 160,
     validityMonths: 2,

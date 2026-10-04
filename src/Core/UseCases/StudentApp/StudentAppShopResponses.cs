@@ -5,7 +5,7 @@ using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record StudentAppShopPackResponse(Guid Id, string Name, int ClassCount, decimal Price, int? ValidityMonths, IReadOnlyList<CatalogImageResponse> Images);
+public sealed record StudentAppShopPackResponse(Guid Id, string Name, string? Description, int ClassCount, decimal Price, int? ValidityMonths, IReadOnlyList<CatalogImageResponse> Images);
 
 public sealed record StudentAppShopVariantResponse(Guid Id, string Name, StockAvailability Availability);
 
