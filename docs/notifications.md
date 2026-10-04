@@ -34,6 +34,8 @@ Date: 2026-10-02
 |---|---|
 | `IEmailSender`, `EmailMessage` (content + `BusinessId`), `IWebAppLinks`, the texts of invitation and password emails | `BrandedEmailSender` (reads the business brand, renders, hands the email to the transport), `EmailBrandReader`, `WebAppLinks`, `OrderEmails`, push jobs, outbox, dispatcher, subscriptions and who gets each notification |
 
+Order emails (placed, paid, ready, cancelled) and every push go through an in-memory outbox (`EmailOutbox`, `PushOutbox`) and are sent by background workers in the API (`EmailWorker`, `PushWorker`). The request that places or updates an order never waits for SMTP or a push service: a slow or stuck mail server only delays the email, and failures are logged (`Email not sent: {Subject}`). Invitation and password emails are still sent inline, because their screens report whether the email went out. The outbox lives in memory, so a restart loses what was still queued.
+
 The rule of thumb: the library decides **how** an email or push is built and delivered; the app decides **who** gets it, **what** it says and **which brand** it carries.
 
 ## When emails are sent
