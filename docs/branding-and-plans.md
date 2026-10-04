@@ -18,7 +18,7 @@ Product decisions on what a business can brand, and which parts could be paid. P
 | Business icon from the catalog | Free | Same |
 | Business theme from its brand colors, default for the team | Paid ("Marca propia" or part of a Pro plan) | Studios and chains with an established brand value it, and they are the ones that pay the most |
 | Lock the business theme for members | Paid | Studios with a brand want coaches (and, later, students) to see it; an independent instructor doesn't need it |
-| Custom logo instead of the catalog icon | Paid, later | Students now see it (welcome screen and Inicio in the family app) |
+| Custom logo instead of the catalog icon | Paid, later | Students now see it (welcome screen and Inicio in the student app) |
 
 **When a business stops paying:** the colors stay stored but are no longer applied; everyone falls back to `aqua` or the theme they chose. Nothing breaks, and paying again brings the theme back.
 

@@ -1,6 +1,6 @@
 import { httpClient } from "@/api/httpClient";
 import { PaymentMethod } from "@/features/fees/types";
-import { DeliveryClass } from "@/features/family/types";
+import { DeliveryClass } from "@/features/studentApp/types";
 import {
   ClassDelivery,
   CreateCounterSaleRequest,

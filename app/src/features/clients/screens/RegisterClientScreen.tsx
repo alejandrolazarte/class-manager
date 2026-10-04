@@ -21,7 +21,7 @@ import {
 import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { useRegisterClient } from "@/features/clients/useRegisterClient";
-import { inviteFamily } from "@/features/family/familyApi";
+import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
@@ -72,7 +72,7 @@ export function RegisterClientScreen() {
     appInvitationEmail: string,
   ): Promise<string> => {
     try {
-      await inviteFamily(registeredClient.id, { email: appInvitationEmail });
+      await inviteStudentApp(registeredClient.id, { email: appInvitationEmail });
       return registrationSuccessMessage(registeredClient, true);
     } catch {
       return translate("clients.register.invitationFailed");

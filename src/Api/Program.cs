@@ -56,7 +56,7 @@ app.MapMemberEndpoints();
 app.MapRoleEndpoints();
 app.MapSubscriptionEndpoints();
 app.MapClientEndpoints();
-app.MapFamilyEndpoints();
+app.MapStudentAppEndpoints();
 app.MapTeamNotificationEndpoints();
 app.MapAnnouncementEndpoints();
 app.MapStudentEndpoints();

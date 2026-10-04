@@ -23,8 +23,8 @@ internal static class BrandEndpoints
             .WithFormOptions(multipartBodyLengthLimit: LogoUploadLimitInBytes);
         endpoints.MapDelete(ApiRoutes.Business + ApiRoutes.BrandLogo, RemoveBrandLogoAsync).RequirePermission(Permissions.Business.Manage);
 
-        endpoints.MapGet(ApiRoutes.Family + ApiRoutes.Brand, GetBrandAsync).RequireFamily();
-        endpoints.MapGet(ApiRoutes.Family + ApiRoutes.BrandLogo, GetBrandLogoAsync).RequireFamily();
+        endpoints.MapGet(ApiRoutes.StudentApp + ApiRoutes.Brand, GetBrandAsync).RequireStudent();
+        endpoints.MapGet(ApiRoutes.StudentApp + ApiRoutes.BrandLogo, GetBrandLogoAsync).RequireStudent();
 
         return endpoints;
     }

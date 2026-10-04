@@ -174,7 +174,7 @@ Unique `(TenantId, ClassSessionId, StudentId)`. Attendance can only be taken for
 
 ### Payment (added in M5)
 
-Money received from a client for a month. The fee is per client (a family pays one fee).
+Money received from a client for a month. The fee is per client (a client pays one fee).
 
 | Property | Type | Rules |
 |---|---|---|
@@ -201,7 +201,7 @@ The business's default fee from a month on. The fee of a month is the change wit
 
 ### ClientBillingPlanChange (added in M6)
 
-How a family pays from a month on. No change means `BusinessFee`. Replaced `Client.MonthlyFee`.
+How a client pays from a month on. No change means `BusinessFee`. Replaced `Client.MonthlyFee`.
 
 | Property | Type | Rules |
 |---|---|---|
@@ -224,7 +224,7 @@ An item of the business's catalog: "Clase suelta" (1 class), "4 clases", "8 clas
 
 ### ClassPackPurchase (added in M6)
 
-A pack sold to a family; it is also the payment. Copies name, classes and expiry from the catalog so later edits don't change it.
+A pack sold to a client; it is also the payment. Copies name, classes and expiry from the catalog so later edits don't change it.
 
 | Property | Type | Rules |
 |---|---|---|
@@ -234,7 +234,7 @@ A pack sold to a family; it is also the payment. Copies name, classes and expiry
 | `ExpiresOn` | `DateOnly?` | `PurchasedOn` + validity − 1 day; `null` without validity |
 | `Method`, `Notes` | | Same rules as payments |
 
-**Class balance** (computed, not stored): each `Present` attendance of the family's students in a month when the family was on `ClassPacks`, oldest first, uses a class of the pack valid on that date that expires first (packs without expiry last). Attendances left without a pack are unpaid classes; classes left in an expired pack are lost.
+**Class balance** (computed, not stored): each `Present` attendance of the client's students in a month when the client was on `ClassPacks`, oldest first, uses a class of the pack valid on that date that expires first (packs without expiry last). Attendances left without a pack are unpaid classes; classes left in an expired pack are lost.
 
 ### Product and ProductVariant (added with the shop)
 
@@ -246,7 +246,7 @@ Anything a branch sells besides classes: caps, swimsuits, brand merchandise.
 | `Description` | `string?` | Up to 500 characters |
 | `Price` | `decimal` | VAT included; same rule as payments |
 | `StockMode` | `StockMode` | `Unlimited` (no stock kept), `Tracked` (can't sell more than the stock) or `TrackedWithBackorder` (stock counted, can go below 0) |
-| `IsVisibleInApp` | `bool` | Shown in the family app (step 3) or only at the counter |
+| `IsVisibleInApp` | `bool` | Shown in the client app (step 3) or only at the counter |
 | `IsActive` | `bool` | Inactive products can't be sold |
 
 A product and a class pack have an ordered list of **photos** (`ProductImage`, `ClassPackImage`: owner, `DocumentId`, `Position`); the first is the main photo. How many is a plan limit (`catalog-photos`). See [Document](#document-added-with-catalog-photos).
@@ -263,28 +263,28 @@ Append-only ledger per variant; the stock is the sum of `Quantity`.
 | `Adjustment` | ±1–10,000, not leaving the stock below 0, with a note | Correcting a count (broken, lost) |
 | `Sale` | −units | Paying an order with tracked products |
 | `Refund` | +units | Refunding units that came back to the shelf |
-| `Reservation` | −units | A family's order waiting for payment; it stays as the sale once paid |
+| `Reservation` | −units | A client's order waiting for payment; it stays as the sale once paid |
 | `Cancellation` | +units | Releasing a reservation when the order is cancelled |
 
-Checking and taking stock (counter sales and family orders) runs in a transaction under a SQL Server application lock per variant (`sp_getapplock`, resource `stock:<variant id>`, taken in id order, 10 s timeout), so two sales can't both take the last unit.
+Checking and taking stock (counter sales and client orders) runs in a transaction under a SQL Server application lock per variant (`sp_getapplock`, resource `stock:<variant id>`, taken in id order, 10 s timeout), so two sales can't both take the last unit.
 
 ### Order and OrderLine (added with the shop)
 
-One purchase: at the counter now, from the family app in step 3.
+One purchase: at the counter now, from the client app in step 3.
 
 | Property | Type | Rules |
 |---|---|---|
 | `Number` | `int` | Visible order number, consecutive **per business** starting at 1 (`n.º 1043`), unique per tenant. Counter sales and app orders share the sequence. Shown in the order lists, emails and team notifications; URLs and the API keep using `Id` |
-| `ClientId` | `Guid?` | Required when a line is a class pack; a counter sale of products can have no family |
+| `ClientId` | `Guid?` | Required when a line is a class pack; a counter sale of products can have no client |
 | `Channel` | `OrderChannel` | `Counter` or `App` |
-| `Status` | `OrderStatus` | `Requested` → `Paid` → `Delivered`, or `Requested` → `Cancelled`. A counter sale starts `Paid`; a family's order starts `Requested` |
+| `Status` | `OrderStatus` | `Requested` → `Paid` → `Delivered`, or `Requested` → `Cancelled`. A counter sale starts `Paid`; a client's order starts `Requested` |
 | `Method`, `PaidOn`, `Notes` | | Same rules as payments |
 
 Lines (1–20) keep a snapshot of name and price. A **class pack line** creates the `ClassPackPurchase` when the order is paid, so the classes are credited at once; that purchase can only be undone by refunding the order (`409 class_pack_purchase.from_order`). A **product line** (variant, 1–99 units) records a `Sale` movement for tracked products; the order **awaits pickup** while it is `Paid` with product lines, until it is marked delivered.
 
-An order with products is delivered by **pickup** at the branch or **in class** (`DeliveryClassGroupId`: a class group one of the family's students is enrolled in; the coach of that class sees it and hands it over). `ReadyAt` records when the branch marked it ready to hand over.
+An order with products is delivered by **pickup** at the branch or **in class** (`DeliveryClassGroupId`: a class group one of the client's students is enrolled in; the coach of that class sees it and hands it over). `ReadyAt` records when the branch marked it ready to hand over.
 
-A **requested** order reserves its tracked units. The branch confirms the payment (which credits the packs) or cancels it; the family can cancel it too. An order still unpaid 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
+A **requested** order reserves its tracked units. The branch confirms the payment (which credits the packs) or cancels it; the client can cancel it too. An order still unpaid 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
 
 **Numbering**: the number is taken inside the transaction that creates the order, with a single atomic `UPDATE Businesses SET NextOrderNumber = NextOrderNumber + 1 OUTPUT deleted.NextOrderNumber` (`IOrderNumbers`). The row lock lasts until the commit, so two orders created at the same time never get the same number, and a rolled-back order gives its number back. The unique index `(TenantId, Number)` is the safety net. The migration `AddOrderNumbers` numbered the orders that already existed, by creation date within each business.
 

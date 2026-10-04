@@ -15,7 +15,7 @@ describe("When app opens with a brand", () => {
   });
 
   it("Then the welcome shows it", async () => {
-    await renderWithSession(<BrandProvider audience="family">{null}</BrandProvider>);
+    await renderWithSession(<BrandProvider audience="student">{null}</BrandProvider>);
 
     expect(await screen.findByText(brand.displayName)).toBeTruthy();
     expect(screen.getByText(translate("brand.welcome.message"))).toBeTruthy();

@@ -10,7 +10,7 @@ interface RequireSessionKindProps extends PropsWithChildren {
 }
 
 export function homeRouteOf(kind: SessionKind): string {
-  return kind === "family" ? routes.family : routes.today;
+  return kind === "student" ? routes.studentApp : routes.today;
 }
 
 export function RequireSessionKind({ kind, children }: RequireSessionKindProps) {

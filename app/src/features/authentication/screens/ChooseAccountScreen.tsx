@@ -16,7 +16,7 @@ import { Spinner } from "@/ui/Spinner";
 import { StatusPill } from "@/ui/StatusPill";
 
 function accountLabel(account: Account): string {
-  return translate(account.kind === "family" ? "accounts.asFamily" : "accounts.asTeam", {
+  return translate(account.kind === "student" ? "accounts.asStudent" : "accounts.asTeam", {
     name: account.businessName,
   });
 }
@@ -72,12 +72,14 @@ export function ChooseAccountScreen() {
             className="flex-row items-center gap-3.5 p-4"
           >
             <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
-              <Icon name={account.kind === "family" ? "home" : "business"} tone="primary" />
+              <Icon name={account.kind === "student" ? "home" : "business"} tone="primary" />
             </View>
             <View className="min-w-0 flex-1 gap-0.5">
               <AppText variant="heading">{account.businessName}</AppText>
               <AppText variant="caption" tone="subtle">
-                {translate(account.kind === "family" ? "accounts.familyHint" : "accounts.teamHint")}
+                {translate(
+                  account.kind === "student" ? "accounts.studentHint" : "accounts.teamHint",
+                )}
               </AppText>
             </View>
             {switchingKey === key ? (

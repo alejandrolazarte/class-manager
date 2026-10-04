@@ -74,7 +74,7 @@ Responses carry `images: [{ id, url }]` in order. Adding uploads the file first 
 
 The app keeps photo changes in the form and sends them when the user taps Guardar: removals, then additions in order, then the order if it changed. If the plan limit stops an addition, the product is saved and a message says some photos were not uploaded.
 
-**Public photos can be opened by anyone with the URL.** URLs contain random ids and can't be guessed or listed, and shop photos are meant to be seen by families.
+**Public photos can be opened by anyone with the URL.** URLs contain random ids and can't be guessed or listed, and shop photos are meant to be seen by students.
 
 ## Configuration
 
@@ -115,7 +115,7 @@ Costs to watch: storage used and egress, both in the Azure cost analysis of the 
 | `tests/ClassManager.Storage.U.Tests` | Image format detection and path rules |
 | `tests/ClassManager.Storage.I.Tests` | `AzureBlobFileStorage` against Azurite in Testcontainers: public download, content type, cache header, paths with spaces, private files not readable anonymously and not in the public container, delete, missing connection string |
 | `tests/ClassManager.Core.U.Tests` | `CatalogImage` validation, removing and reordering photos, the plan limit, deleting the new file when saving fails |
-| `tests/ClassManager.Api.I.Tests` | Endpoints against SQL Server and Azurite: add, order, reorder, remove (row and file), invalid and oversized files, permissions, the `Free` limit and the add-on, business B can't add or remove business A's photos, photos in the family shop, and tenant filters on `Documents`, `ProductImages` and `ClassPackImages` |
+| `tests/ClassManager.Api.I.Tests` | Endpoints against SQL Server and Azurite: add, order, reorder, remove (row and file), invalid and oversized files, permissions, the `Free` limit and the add-on, business B can't add or remove business A's photos, photos in the student shop, and tenant filters on `Documents`, `ProductImages` and `ClassPackImages` |
 
 `ApiFixture` starts Azurite next to SQL Server and passes its connection string to the API. Both containers are started with Podman (see [CLAUDE.md](../CLAUDE.md)).
 

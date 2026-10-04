@@ -9,11 +9,11 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
     public async Task Then_it_is_not_returned_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        var otherFamily = await fixture.SeedFamilyScenarioAsync();
-        await otherFamily.NoticeAndBookOtherClassAsync();
+        var otherStudent = await fixture.SeedStudentAppScenarioAsync();
+        await otherStudent.NoticeAndBookOtherClassAsync();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
 
-        (await context.MakeupBookings.AnyAsync(booking => booking.StudentId == otherFamily.Coaches.CoachStudentId)).ShouldBeFalse();
+        (await context.MakeupBookings.AnyAsync(booking => booking.StudentId == otherStudent.Coaches.CoachStudentId)).ShouldBeFalse();
     }
 }

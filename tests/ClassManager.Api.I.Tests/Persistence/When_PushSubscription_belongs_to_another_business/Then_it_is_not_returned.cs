@@ -9,8 +9,8 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
     public async Task Then_it_is_not_returned_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        var otherFamily = await fixture.SeedFamilyScenarioAsync();
-        var endpoint = await otherFamily.SubscribeAsync();
+        var otherStudent = await fixture.SeedStudentAppScenarioAsync();
+        var endpoint = await otherStudent.SubscribeAsync();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
 

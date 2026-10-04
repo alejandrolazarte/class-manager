@@ -8,12 +8,12 @@ public sealed class Then_the_summary_adds_them_up(ApiFixture fixture)
     [Fact]
     public async Task Then_the_summary_adds_them_up_Run()
     {
-        var scenario = await fixture.SeedFamilyScenarioAsync();
+        var scenario = await fixture.SeedStudentAppScenarioAsync();
         var owner = scenario.Coaches.Business.HttpClient;
         var product = await owner.RestockAsync(await owner.CreateProductAsync(), 5);
         var classPack = await owner.CreateClassPackAsync();
-        await owner.SellAtCounterAsync(scenario.FamilyId, [OrderRequests.PackLine(classPack.Id), OrderRequests.ProductLine(product.Variants[0].Id, 1)]);
-        await scenario.Family.PlaceFamilyOrderAsync(FamilyShopRequests.ProductLine(product.Variants[0].Id, 2));
+        await owner.SellAtCounterAsync(scenario.ClientId, [OrderRequests.PackLine(classPack.Id), OrderRequests.ProductLine(product.Variants[0].Id, 1)]);
+        await scenario.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.ProductLine(product.Variants[0].Id, 2));
 
         var summary = await owner.GetOrderSummaryAsync();
 

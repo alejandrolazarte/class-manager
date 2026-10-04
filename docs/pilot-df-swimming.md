@@ -12,7 +12,7 @@ The first pilot is the **owner** of DF Swimming Team, a Spanish network of affil
 
 ## Already covered
 
-Families with children or adult students, weekly group classes, enrollments, attendance, monthly fees, **class packs with balance and expiry** (M6), several instructors, euros and Spain, the Inicio agenda and month calendar, **private lessons and trial classes** (Phase 1), **coach accounts, roles and branches** (Phase 2), import and export of students and coaches, and the family app with a shop paid at the branch.
+Parents of children and adult students, weekly group classes, enrollments, attendance, monthly fees, **class packs with balance and expiry** (M6), several instructors, euros and Spain, the Inicio agenda and month calendar, **private lessons and trial classes** (Phase 1), **coach accounts, roles and branches** (Phase 2), import and export of students and coaches, and the student app with a shop paid at the branch.
 
 ## Phases
 
@@ -21,7 +21,7 @@ Families with children or adult students, weekly group classes, enrollments, att
 Status: done (backend and app). [Backend plan](backend/20260928-private-lessons/plan.md).
 
 - Schedule a private lesson: one to four students, coach, date, time, duration and place. It shows on Hoy and on the month calendar next to group classes.
-- Marking a student as present uses a class from their family's pack, with the same balance rules as group classes.
+- Marking a student as present uses a class from their client's pack, with the same balance rules as group classes.
 - Packs gain a **class duration** and an optional **material link** (PDF or video hosted elsewhere, for *ADG De Autor*), so "ADG De Autor = 10 × 45 min" is a catalog item.
 - **Trial class**: a private lesson marked as a trial, free or paid. When the student buys a course, the paid trial can count as its first class.
 

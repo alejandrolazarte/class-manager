@@ -24,8 +24,8 @@ public static class BrandRequests
     public static Task<BrandResponse?> GetBrandAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<BrandResponse>(new Uri(BusinessBrandPath, UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<BrandResponse?> GetFamilyBrandAsync(this HttpClient httpClient) =>
-        httpClient.GetFromJsonAsync<BrandResponse>(new Uri(ApiRoutes.Family + ApiRoutes.Brand, UriKind.Relative), ApiRequests.JsonOptions);
+    public static Task<BrandResponse?> GetStudentAppBrandAsync(this HttpClient httpClient) =>
+        httpClient.GetFromJsonAsync<BrandResponse>(new Uri(ApiRoutes.StudentApp + ApiRoutes.Brand, UriKind.Relative), ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutBrandLogoAsync(this HttpClient httpClient, byte[] content)
     {
@@ -42,6 +42,6 @@ public static class BrandRequests
     public static Task<HttpResponseMessage> GetBrandLogoAsync(this HttpClient httpClient) =>
         httpClient.GetAsync(new Uri(BusinessBrandLogoPath, UriKind.Relative));
 
-    public static Task<HttpResponseMessage> GetFamilyBrandLogoAsync(this HttpClient httpClient) =>
-        httpClient.GetAsync(new Uri(ApiRoutes.Family + ApiRoutes.BrandLogo, UriKind.Relative));
+    public static Task<HttpResponseMessage> GetStudentAppBrandLogoAsync(this HttpClient httpClient) =>
+        httpClient.GetAsync(new Uri(ApiRoutes.StudentApp + ApiRoutes.BrandLogo, UriKind.Relative));
 }

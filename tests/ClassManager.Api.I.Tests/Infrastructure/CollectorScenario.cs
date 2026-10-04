@@ -4,7 +4,7 @@ using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed record CollectorScenario(CoachScenario Coaches, HttpClient Collector, Guid CollectorFamilyId, Guid OtherFamilyId);
+public sealed record CollectorScenario(CoachScenario Coaches, HttpClient Collector, Guid CollectorClientId, Guid OtherClientId);
 
 public static class CollectorScenarioRequests
 {
@@ -25,8 +25,8 @@ public static class CollectorScenarioRequests
         return new CollectorScenario(
             coaches,
             collector,
-            FamilyOf(fees!, CoachScenario.OtherStudentFullName),
-            FamilyOf(fees!, CoachScenario.CoachStudentFullName));
+            ClientOf(fees!, CoachScenario.OtherStudentFullName),
+            ClientOf(fees!, CoachScenario.CoachStudentFullName));
     }
 
     public static Task<List<PaymentResponse>?> GetClientPaymentsAsync(this HttpClient httpClient, Guid clientId) =>
@@ -36,6 +36,6 @@ public static class CollectorScenarioRequests
     public static Task<HttpResponseMessage> DeletePaymentAsync(this HttpClient httpClient, Guid paymentId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Payments}/{paymentId}", UriKind.Relative));
 
-    private static Guid FamilyOf(MonthlyFeesResponse fees, string studentFullName) =>
+    private static Guid ClientOf(MonthlyFeesResponse fees, string studentFullName) =>
         fees.Clients.Single(client => client.StudentNames.Contains(studentFullName)).ClientId;
 }

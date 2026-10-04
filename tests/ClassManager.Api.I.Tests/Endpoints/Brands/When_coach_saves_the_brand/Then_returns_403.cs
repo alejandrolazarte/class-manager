@@ -6,7 +6,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_403_Run()
     {
-        var scenario = await fixture.SeedFamilyScenarioAsync();
+        var scenario = await fixture.SeedStudentAppScenarioAsync();
 
         using var response = await scenario.Coaches.Coach.PutBrandAsync(BrandRequests.DeltaBrand());
 

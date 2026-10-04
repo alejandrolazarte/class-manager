@@ -5,7 +5,7 @@ import { e2eEnvironment } from "../support/environment";
 import { SmtpSink } from "../support/smtpSink";
 import { waitForBrandWelcomeToClose } from "./brandWelcome";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
-import { demoFamilyPassword, seedDemoFamily } from "./demoFamily";
+import { demoStudentAppPassword, seedDemoStudentApp } from "./demoStudentApp";
 
 const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
 const settleMilliseconds = 800;
@@ -62,7 +62,7 @@ async function signIn(page: Page, email: string, password: string): Promise<void
 
 test("Brand screens", async ({ browser, page, request }) => {
   const demo = await seedDemoBusiness(request);
-  const family = await seedDemoFamily(request, demo, smtpSink);
+  const student = await seedDemoStudentApp(request, demo, smtpSink);
   const logo = await renderLogo(browser);
   mkdirSync(outputDirectory, { recursive: true });
 
@@ -110,15 +110,15 @@ test("Brand screens", async ({ browser, page, request }) => {
   await waitForBrandWelcomeToClose(page);
   await capture(page, "46-equipo-alumnos-con-marca");
 
-  const familyContext = await browser.newContext({ colorScheme, locale: "es-AR" });
-  const familyPage = await familyContext.newPage();
-  await signIn(familyPage, family.email, demoFamilyPassword);
-  await expect(familyPage).toHaveURL(/\/family/);
-  await familyPage.getByText("¡Qué bueno verte!").waitFor();
-  await familyPage.waitForTimeout(settleMilliseconds / 2);
-  await familyPage.screenshot({ path: join(outputDirectory, "47-familia-bienvenida.png") });
-  await waitForBrandWelcomeToClose(familyPage);
-  await familyPage.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
-  await capture(familyPage, "48-familia-inicio-con-marca");
-  await familyContext.close();
+  const studentAppContext = await browser.newContext({ colorScheme, locale: "es-AR" });
+  const studentAppPage = await studentAppContext.newPage();
+  await signIn(studentAppPage, student.email, demoStudentAppPassword);
+  await expect(studentAppPage).toHaveURL(/\/student-app/);
+  await studentAppPage.getByText("¡Qué bueno verte!").waitFor();
+  await studentAppPage.waitForTimeout(settleMilliseconds / 2);
+  await studentAppPage.screenshot({ path: join(outputDirectory, "47-alumno-bienvenida.png") });
+  await waitForBrandWelcomeToClose(studentAppPage);
+  await studentAppPage.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
+  await capture(studentAppPage, "48-alumno-inicio-con-marca");
+  await studentAppContext.close();
 });

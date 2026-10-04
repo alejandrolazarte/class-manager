@@ -20,11 +20,11 @@ export function NotificationSettings({ notifications, hint }: NotificationSettin
     <Card className="gap-2 p-4" testID="notification-settings">
       <View className="flex-row items-center gap-2">
         <Icon name="notifications" tone="primary" />
-        <AppText variant="bodyStrong">{translate("family.notifications.title")}</AppText>
+        <AppText variant="bodyStrong">{translate("student.notifications.title")}</AppText>
       </View>
       {status === "supported" ? (
         <ToggleSwitch
-          label={translate("family.notifications.toggle")}
+          label={translate("student.notifications.toggle")}
           value={isOn}
           onValueChange={(turnOn) => (isPending ? undefined : toggle(turnOn))}
         />
@@ -34,8 +34,8 @@ export function NotificationSettings({ notifications, hint }: NotificationSettin
           ? hint
           : translate(
               status === "blocked"
-                ? "family.notifications.blocked"
-                : "family.notifications.unsupported",
+                ? "student.notifications.blocked"
+                : "student.notifications.unsupported",
             )}
       </AppText>
     </Card>

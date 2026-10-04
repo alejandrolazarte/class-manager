@@ -292,9 +292,9 @@ Without `Email__Smtp__Host` the API doesn't send anything: it logs a warning, an
 
 ## Push notifications
 
-Families can turn on notifications in **Ajustes → Notificaciones** of the web app. They then get a notification on that device when the school publishes an announcement, cancels one of their classes, a coach leaves a comment, or an order is ready. The notification opens the matching screen of the app.
+Students can turn on notifications in **Ajustes → Notificaciones** of the web app. They then get a notification on that device when the school publishes an announcement, cancels one of their classes, a coach leaves a comment, or an order is ready. The notification opens the matching screen of the app.
 
-The API signs these with a VAPID key pair (Web Push, RFC 8292) and encrypts them itself (RFC 8291), with no third-party service. Generate the keys once and keep them: changing them makes every existing subscription stop working until each family turns notifications on again.
+The API signs these with a VAPID key pair (Web Push, RFC 8292) and encrypts them itself (RFC 8291), with no third-party service. Generate the keys once and keep them: changing them makes every existing subscription stop working until each student turns notifications on again.
 
 ```powershell
 npx web-push generate-vapid-keys
@@ -304,7 +304,7 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
   "WebPush__Vapid__PrivateKey=secretref:vapid-private-key"
 ```
 
-Without these settings the API sends nothing and the app hides the option. On iPhone, notifications only work when the family opens the app from the home screen (Compartir → Agregar a inicio, iOS 16.4 or later); the app explains this when the browser can't show them. Subscriptions that the push service reports as gone are deleted automatically.
+Without these settings the API sends nothing and the app hides the option. On iPhone, notifications only work when the student opens the app from the home screen (Compartir → Agregar a inicio, iOS 16.4 or later); the app explains this when the browser can't show them. Subscriptions that the push service reports as gone are deleted automatically.
 
 ## Automatic deploys
 

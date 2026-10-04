@@ -8,7 +8,7 @@ public sealed class Order : ITenantOwned
 {
     public const int NotesMaxLength = 200;
     public const int MaximumLineCount = 20;
-    public const int MaximumOpenRequestsPerFamily = 5;
+    public const int MaximumOpenRequestsPerClient = 5;
 
     public static readonly TimeSpan RequestLifetime = TimeSpan.FromDays(7);
 
@@ -16,7 +16,7 @@ public sealed class Order : ITenantOwned
     private const string MethodRequiredMessage = "Choose a payment method.";
     private const string PaidOnInFutureMessage = "The sale date can't be in the future.";
     private const string NotesLengthMessage = "Notes must be at most 200 characters.";
-    private const string ClientRequiredMessage = "Choose the family to credit the classes to.";
+    private const string ClientRequiredMessage = "Choose the client to credit the classes to.";
     private const string NotAwaitingPickupMessage = "This order has nothing waiting to be picked up.";
     private const string NotRefundableMessage = "Only paid orders can be refunded.";
     private const string NothingToRefundMessage = "There are no unused classes left to refund.";

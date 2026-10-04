@@ -38,7 +38,7 @@ Anything else in the console that mentions Content Security Policy is new and wo
 On 2026-10-03, with the policy **enforced** (not report-only) on the e2e web server and a local collector for violation reports:
 
 - the e2e suite (`e2e/tests`) passed;
-- the screenshot tour of every team, brand and family screen (`e2e/screenshots`) passed, including forms that are submitted;
+- the screenshot tour of every team, brand and student screen (`e2e/screenshots`) passed, including forms that are submitted;
 - the service worker registered;
 - the only violation reported was Zod's check above.
 

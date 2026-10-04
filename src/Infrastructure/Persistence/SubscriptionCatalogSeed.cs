@@ -11,7 +11,7 @@ internal static class SubscriptionCatalogSeed
     private const decimal ProPrice = 19m;
     private const decimal ExtraBranchPrice = 10m;
     private const decimal ImportExportPrice = 3m;
-    private const decimal FamilyAppPrice = 5m;
+    private const decimal StudentAppPrice = 5m;
     private const decimal ShopPrice = 5m;
     private const decimal BrandPrice = 5m;
     private const decimal ExtraCatalogPhotosPrice = 3m;
@@ -42,7 +42,7 @@ internal static class SubscriptionCatalogSeed
             Feature.Create(Features.ClassPacks, isCounted: false),
             Feature.CreateAddOn(Features.ImportExport, isCounted: false, ImportExportPrice, ListPriceCurrency),
             Feature.Create(Features.CustomRoles, isCounted: false),
-            Feature.CreateAddOn(Features.FamilyApp, isCounted: false, FamilyAppPrice, ListPriceCurrency),
+            Feature.CreateAddOn(Features.StudentApp, isCounted: false, StudentAppPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.Shop, isCounted: false, ShopPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.Brand, isCounted: false, BrandPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.CatalogPhotos, isCounted: true, ExtraCatalogPhotosPrice, ListPriceCurrency));
@@ -64,7 +64,7 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Pro, Features.ClassPacks),
             PlanFeature.Create(PlanCodes.Pro, Features.ImportExport),
             PlanFeature.Create(PlanCodes.Pro, Features.CustomRoles),
-            PlanFeature.Create(PlanCodes.Pro, Features.FamilyApp),
+            PlanFeature.Create(PlanCodes.Pro, Features.StudentApp),
             PlanFeature.Create(PlanCodes.Pro, Features.Shop),
             PlanFeature.Create(PlanCodes.Pro, Features.Brand),
             PlanFeature.Create(PlanCodes.Pro, Features.CatalogPhotos, PaidCatalogPhotos),
@@ -74,7 +74,7 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Enterprise, Features.ClassPacks),
             PlanFeature.Create(PlanCodes.Enterprise, Features.ImportExport),
             PlanFeature.Create(PlanCodes.Enterprise, Features.CustomRoles),
-            PlanFeature.Create(PlanCodes.Enterprise, Features.FamilyApp),
+            PlanFeature.Create(PlanCodes.Enterprise, Features.StudentApp),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Shop),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Brand),
             PlanFeature.Create(PlanCodes.Enterprise, Features.CatalogPhotos, PaidCatalogPhotos));

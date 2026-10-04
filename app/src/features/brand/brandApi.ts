@@ -6,7 +6,7 @@ import { Brand, BrandAudience, UpdateBrandRequest } from "@/features/brand/types
 
 const brandPaths: Record<BrandAudience, string> = {
   team: "/api/business/brand",
-  family: "/api/family/brand",
+  student: "/api/student-app/brand",
 };
 const logoSegment = "logo";
 

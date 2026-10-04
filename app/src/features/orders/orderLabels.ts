@@ -12,5 +12,5 @@ export function orderStatusLabel(order: Order): string {
 }
 
 export function orderClientLabel(order: Order): string {
-  return order.clientFullName ?? translate("orders.noFamily");
+  return order.clientFullName ?? translate("orders.noClient");
 }

@@ -7,7 +7,7 @@ import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider"
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
 import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import { weekdayOf, weekdayShortLabel } from "@/features/classGroups/weekdays";
-import { firstNameOf } from "@/features/family/familySchedule";
+import { firstNameOf } from "@/features/studentApp/studentAppSchedule";
 import { addMonths, formatMonth } from "@/features/fees/months";
 import {
   currentTimeLabel,

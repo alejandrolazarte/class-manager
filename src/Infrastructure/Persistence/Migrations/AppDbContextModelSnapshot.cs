@@ -1745,7 +1745,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Code = "family-app",
+                            Code = "student-app",
                             AddOnListPrice = 5m,
                             Currency = "USD",
                             IsAddOn = true,
@@ -1970,7 +1970,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "pro",
-                            FeatureCode = "family-app"
+                            FeatureCode = "student-app"
                         },
                         new
                         {
@@ -2021,7 +2021,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "enterprise",
-                            FeatureCode = "family-app"
+                            FeatureCode = "student-app"
                         },
                         new
                         {

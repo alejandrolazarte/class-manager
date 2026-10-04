@@ -16,7 +16,7 @@ describe("When team has unread notifications", () => {
     await renderWithProviders(<TeamNotificationBell />);
 
     expect(
-      await screen.findByRole("button", { name: translateCount("family.news.bell", 3) }),
+      await screen.findByRole("button", { name: translateCount("student.news.bell", 3) }),
     ).toBeOnTheScreen();
   });
 });

@@ -106,7 +106,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
   const queryClient = useQueryClient();
   const isTrial = useWatch({ control, name: "isTrial" });
 
-  const applyFamilyPackDuration = async (student: LessonStudent) => {
+  const applyStudentAppPackDuration = async (student: LessonStudent) => {
     if (
       isEditing ||
       form.getValues("students").length > 1 ||
@@ -188,7 +188,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
           <LessonStudentPicker
             students={field.value}
             onChange={field.onChange}
-            onStudentAdded={applyFamilyPackDuration}
+            onStudentAdded={applyStudentAppPackDuration}
             errorMessage={fieldState.error?.message}
             isReadOnly={isEditing}
           />

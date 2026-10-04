@@ -26,7 +26,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     public const string DefaultCountryCallingCode = "54";
     public const string BearerScheme = "Bearer";
 
-    private const string SeededStudentsClientName = "Familia sembrada";
+    private const string SeededStudentsClientName = "Cliente sembrado";
     private const string SeededStudentsPhoneNumber = "11 4000-1000";
     private const string SqlServerImage = "mcr.microsoft.com/mssql/server:2022-latest";
     private const string AzuriteImage = "mcr.microsoft.com/azure-storage/azurite:3.37.0";

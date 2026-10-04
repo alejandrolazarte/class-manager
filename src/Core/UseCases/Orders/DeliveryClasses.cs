@@ -8,7 +8,7 @@ public sealed record DeliveryClassResponse(Guid ClassGroupId, string ClassGroupN
 
 internal static class DeliveryClasses
 {
-    private const string ClassNotValidMessage = "Choose a class one of the family's students attends.";
+    private const string ClassNotValidMessage = "Choose a class one of the client's students attends.";
 
     public static async Task<IReadOnlyList<DeliveryClassResponse>> ListAsync(
         Guid clientId,

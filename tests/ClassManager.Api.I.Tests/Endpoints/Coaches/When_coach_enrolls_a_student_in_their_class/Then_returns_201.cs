@@ -9,9 +9,9 @@ public sealed class Then_returns_201(ApiFixture fixture)
     public async Task Then_returns_201_Run()
     {
         var scenario = await fixture.SeedCoachScenarioAsync();
-        var family = await scenario.Coach.RegisterClientAsync(phoneNumber: "11 4455-6677", students: [new NewStudent("Juana Ruiz", null, null)]);
+        var client = await scenario.Coach.RegisterClientAsync(phoneNumber: "11 4455-6677", students: [new NewStudent("Juana Ruiz", null, null)]);
 
-        using var response = await scenario.Coach.PostEnrollmentAsync(scenario.CoachClassGroup.Id, family.Students[0].Id);
+        using var response = await scenario.Coach.PostEnrollmentAsync(scenario.CoachClassGroup.Id, client.Students[0].Id);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
     }

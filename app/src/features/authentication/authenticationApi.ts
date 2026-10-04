@@ -1,7 +1,7 @@
 import { anonymousHttpClient, httpClient } from "@/api/httpClient";
 import {
   Account,
-  AcceptFamilyInvitationRequest,
+  AcceptStudentAppInvitationRequest,
   AcceptInvitationRequest,
   CheckInvitationRequest,
   PasswordResetRequest,
@@ -22,9 +22,9 @@ const authenticationPaths = {
   passwordReset: "/api/auth/password-reset",
   passwordResetRequest: "/api/auth/password-reset-request",
   acceptInvitation: "/api/auth/invitations/accept",
-  acceptFamilyInvitation: "/api/auth/family-invitations/accept",
+  acceptStudentAppInvitation: "/api/auth/student-app-invitations/accept",
   checkInvitation: "/api/auth/invitations/check",
-  checkFamilyInvitation: "/api/auth/family-invitations/check",
+  checkStudentAppInvitation: "/api/auth/student-app-invitations/check",
   switchBranch: "/api/auth/branch",
   accounts: "/api/me/accounts",
 } as const;
@@ -57,15 +57,15 @@ export function checkInvitation(request: CheckInvitationRequest): Promise<void> 
   return anonymousHttpClient.post<void>(authenticationPaths.checkInvitation, request);
 }
 
-export function checkFamilyInvitation(request: CheckInvitationRequest): Promise<void> {
-  return anonymousHttpClient.post<void>(authenticationPaths.checkFamilyInvitation, request);
+export function checkStudentAppInvitation(request: CheckInvitationRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.checkStudentAppInvitation, request);
 }
 
-export function acceptFamilyInvitation(
-  request: AcceptFamilyInvitationRequest,
+export function acceptStudentAppInvitation(
+  request: AcceptStudentAppInvitationRequest,
 ): Promise<TokenResponse> {
   return anonymousHttpClient.post<TokenResponse>(
-    authenticationPaths.acceptFamilyInvitation,
+    authenticationPaths.acceptStudentAppInvitation,
     request,
   );
 }

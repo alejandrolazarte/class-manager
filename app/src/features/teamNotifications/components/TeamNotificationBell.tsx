@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { NewsBell } from "@/features/family/components/NewsBell";
+import { NewsBell } from "@/features/studentApp/components/NewsBell";
 import { useTeamNotifications } from "@/features/teamNotifications/useTeamNotifications";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { routes } from "@/navigation/routes";

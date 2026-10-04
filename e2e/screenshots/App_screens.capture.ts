@@ -29,7 +29,7 @@ test("App screens", async ({ page, request }) => {
     ["05-clase-editar", `/classes/${demo.beginnersClassGroupId}/edit`, "Nombre de la clase"],
     ["06-inscribir", `/classes/${demo.beginnersClassGroupId}/enroll`, "Ya inscripto"],
     ["07-alumnos", "/students", "Tomás Pérez"],
-    ["08-familia", `/students/clients/${demo.familyClientId}`, "Natación inicial"],
+    ["08-alumno", `/students/clients/${demo.studentAppClientId}`, "Natación inicial"],
     ["09-nuevo-alumno", "/students/new", "¿Quién viene a clase?"],
     ["10-cuotas", `/fees?month=${demo.month}`, "Cobrado"],
     [
@@ -39,7 +39,7 @@ test("App screens", async ({ page, request }) => {
     ],
     ["12-ajustes", "/settings", "Cuota mensual"],
     ["13-profes", "/settings/instructors", "Martín Díaz"],
-    ["14-familia-por-clases", `/students/clients/${demo.classPackClientId}`, "Quedan"],
+    ["14-alumno-por-clases", `/students/clients/${demo.classPackClientId}`, "Quedan"],
     ["15-vender-pack", `/students/clients/${demo.classPackClientId}/sell-pack`, "Forma de pago"],
     ["16-packs", "/settings/class-packs", "8 clases"],
     ["16b-pack-nuevo", "/settings/class-packs/new", "Clases donde se puede usar"],

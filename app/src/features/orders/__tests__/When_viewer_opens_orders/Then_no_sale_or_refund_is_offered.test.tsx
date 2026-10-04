@@ -16,7 +16,7 @@ describe("When viewer opens orders", () => {
   it("Then no sale or refund is offered", async () => {
     await renderWithProviders(<OrderListScreen />, { member: buildViewer() });
 
-    await screen.findByText(translate("orders.noFamily"));
+    await screen.findByText(translate("orders.noClient"));
     expect(screen.queryByRole("button", { name: translate("orders.counterSale.open") })).toBeNull();
     expect(screen.queryByRole("button", { name: translate("orders.refund.open") })).toBeNull();
   });

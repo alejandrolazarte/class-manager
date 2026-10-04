@@ -1,6 +1,6 @@
-export type SessionKind = "team" | "family";
+export type SessionKind = "team" | "student";
 
-const familyKind: SessionKind = "family";
+const studentKind: SessionKind = "student";
 const defaultKind: SessionKind = "team";
 const tokenSegmentSeparator = ".";
 const payloadSegmentIndex = 1;
@@ -43,7 +43,7 @@ export function sessionKindOf(accessToken: string): SessionKind {
   }
   try {
     const claims = JSON.parse(decodedPayload) as { kind?: unknown };
-    return claims.kind === familyKind ? familyKind : defaultKind;
+    return claims.kind === studentKind ? studentKind : defaultKind;
   } catch {
     return defaultKind;
   }

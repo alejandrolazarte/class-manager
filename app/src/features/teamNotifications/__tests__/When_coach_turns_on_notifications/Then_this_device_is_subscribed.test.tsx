@@ -4,7 +4,7 @@ import {
   browserPushSupport,
   currentBrowserSubscription,
   subscribeBrowser,
-} from "@/features/family/push/browserPush";
+} from "@/features/studentApp/push/browserPush";
 import { SettingsScreen } from "@/features/settings/screens/SettingsScreen";
 import {
   getTeamPushKey,
@@ -14,7 +14,7 @@ import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/branches/branchesApi");
-jest.mock("@/features/family/push/browserPush");
+jest.mock("@/features/studentApp/push/browserPush");
 jest.mock("@/features/teamNotifications/teamNotificationsApi");
 jest.mock("@/features/authentication/useSession", () => ({
   useSession: () => ({ signOut: jest.fn() }),
@@ -35,11 +35,11 @@ describe("When coach turns on notifications", () => {
   it("Then this device is subscribed", async () => {
     await renderWithProviders(<SettingsScreen />);
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("family.notifications.title") }),
+      await screen.findByRole("button", { name: translate("student.notifications.title") }),
     );
 
     await fireEvent.press(
-      await screen.findByRole("switch", { name: translate("family.notifications.toggle") }),
+      await screen.findByRole("switch", { name: translate("student.notifications.toggle") }),
     );
 
     await waitFor(() => expect(saveTeamPushSubscription).toHaveBeenCalledWith(subscription));

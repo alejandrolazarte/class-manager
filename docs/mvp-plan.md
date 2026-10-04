@@ -66,7 +66,7 @@ Every entity except `Business` is tenant-owned and gets its isolation test.
 
 ## Milestones
 
-Status: M1 to M8 done (backend and frontend), plus rescheduling one session on the same day ([plan](backend/20260926-reschedule-session/plan.md)), a substitute instructor for one session ([plan](backend/20260929-session-substitutes/plan.md)), import and export ([plan](backend/20260929-import-export/plan.md)) and the family app with the shop paid at the branch ([plan](backend/20260929-online-shop-and-payments/plan.md), steps 1–4). The app is deployed for the pilot ([pilot deployment](pilot-deployment.md)). Next: online payments and the [pilot plan](pilot-df-swimming.md)'s Phase 3, driven by pilot feedback.
+Status: M1 to M8 done (backend and frontend), plus rescheduling one session on the same day ([plan](backend/20260926-reschedule-session/plan.md)), a substitute instructor for one session ([plan](backend/20260929-session-substitutes/plan.md)), import and export ([plan](backend/20260929-import-export/plan.md)) and the student app with the shop paid at the branch ([plan](backend/20260929-online-shop-and-payments/plan.md), steps 1–4). The app is deployed for the pilot ([pilot deployment](pilot-deployment.md)). Next: online payments and the [pilot plan](pilot-df-swimming.md)'s Phase 3, driven by pilot feedback.
 
 Each milestone gets a backend plan and a frontend plan under `docs/backend/<date>-<name>/plan.md` and `docs/frontend/<date>-<name>/plan.md` before code is written.
 
@@ -115,14 +115,14 @@ After M5: pilot with one or two real instructors ([hosting plan](hosting-plan.md
 Plans in [backend](backend/20260927-fee-history-and-class-packs/plan.md) and [frontend](frontend/20260927-fee-history-and-class-packs/plan.md). Asked by the pilot instructor.
 
 - Fee changes apply from a month on; past months keep their fee.
-- Each family pays a monthly fee or per class; a catalog of class packs (single class, 4 classes, 8 classes for 2 months).
-- Selling a pack records the payment; attending uses a class; the family shows classes left and unpaid.
+- Each student pays a monthly fee or per class; a catalog of class packs (single class, 4 classes, 8 classes for 2 months).
+- Selling a pack records the payment; attending uses a class; the student shows classes left and unpaid.
 
 ### M7 — Private lessons
 
 Plan in [backend](backend/20260928-private-lessons/plan.md), part of the [DF Swimming pilot plan](pilot-df-swimming.md).
 
-- One-off lessons for one to four students, optionally repeated weekly, that use classes from the family's pack.
+- One-off lessons for one to four students, optionally repeated weekly, that use classes from the student's pack.
 - Packs with class duration and a material link; trial classes.
 
 ### M8 — Organizations, branches, roles and permissions

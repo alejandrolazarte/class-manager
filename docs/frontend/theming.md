@@ -86,7 +86,7 @@ Red means an error or a destructive action (Cancelar, Eliminar), amber a warning
 
 ## The brand theme
 
-A business sets its main color and an optional accent in **Ajustes → Marca** ([brand plan](20260930-brand/plan.md)). `BrandProvider` (team and family layouts) reads them from the API, builds the theme with `deriveBrandTheme` (neutral grays plus `primary*` and `accent*` derived so every pair passes AA) and registers it with `setBrandTheme` under the name `business`:
+A business sets its main color and an optional accent in **Ajustes → Marca** ([brand plan](20260930-brand/plan.md)). `BrandProvider` (team and student layouts) reads them from the API, builds the theme with `deriveBrandTheme` (neutral grays plus `primary*` and `accent*` derived so every pair passes AA) and registers it with `setBrandTheme` under the name `business`:
 
 - A user who never chose a theme gets it; a stored choice (`chosenThemeName`) wins.
 - When the business locks its brand, `isThemeLocked` is true, the brand theme wins over any choice and the picker only explains it.

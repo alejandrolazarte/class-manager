@@ -11,7 +11,7 @@ public sealed record AccountResponse(Guid BusinessId, string BusinessName, strin
 
 public sealed class ListAccountsUseCase(
     IBranchDirectory branchDirectory,
-    IFamilyDirectory familyDirectory,
+    IStudentAppDirectory studentAppDirectory,
     ICurrentUser currentUser,
     ITenantContext tenantContext)
     : IUseCase<ListAccountsQuery, IReadOnlyList<AccountResponse>>
@@ -23,10 +23,10 @@ public sealed class ListAccountsUseCase(
             return Result.Unauthorized<IReadOnlyList<AccountResponse>>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
 
-        var currentKind = AccountKinds.IsFamily(command.CurrentKind) ? AccountKinds.Family : AccountKinds.Team;
+        var currentKind = AccountKinds.IsStudent(command.CurrentKind) ? AccountKinds.Student : AccountKinds.Team;
         bool IsCurrent(Guid businessId, string kind) => businessId == tenantContext.TenantId && kind == currentKind;
         var branches = await branchDirectory.ListAsync(userId, cancellationToken);
-        var families = await familyDirectory.ListAsync(userId, cancellationToken);
+        var students = await studentAppDirectory.ListAsync(userId, cancellationToken);
 
         return Result.Success<IReadOnlyList<AccountResponse>>(
         [
@@ -34,10 +34,10 @@ public sealed class ListAccountsUseCase(
                 .OrderBy(branch => branch.BusinessName, StringComparer.CurrentCultureIgnoreCase)
                 .Select(branch => new AccountResponse(
                     branch.BusinessId, branch.BusinessName, AccountKinds.Team, IsCurrent(branch.BusinessId, AccountKinds.Team))),
-            .. families
-                .OrderBy(family => family.BusinessName, StringComparer.CurrentCultureIgnoreCase)
-                .Select(family => new AccountResponse(
-                    family.BusinessId, family.BusinessName, AccountKinds.Family, IsCurrent(family.BusinessId, AccountKinds.Family))),
+            .. students
+                .OrderBy(student => student.BusinessName, StringComparer.CurrentCultureIgnoreCase)
+                .Select(student => new AccountResponse(
+                    student.BusinessId, student.BusinessName, AccountKinds.Student, IsCurrent(student.BusinessId, AccountKinds.Student))),
         ]);
     }
 }
