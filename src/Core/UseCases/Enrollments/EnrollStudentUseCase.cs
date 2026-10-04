@@ -14,7 +14,7 @@ public sealed record EnrollStudentRequest(Guid? StudentId, DateOnly? StartDate)
     public EnrollStudentCommand ToCommand(Guid classGroupId) => new(classGroupId, StudentId, StartDate);
 }
 
-public sealed record EnrollStudentCommand(Guid ClassGroupId, Guid? StudentId, DateOnly? StartDate);
+public sealed record EnrollStudentCommand(Guid ClassGroupId, Guid? StudentId, DateOnly? StartDate) : ICommand;
 
 public sealed class EnrollStudentUseCase(
     IClassGroupRepository classGroupRepository,

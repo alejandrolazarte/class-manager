@@ -12,7 +12,7 @@ using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GetStudentAppHomeQuery;
+public sealed record GetStudentAppHomeQuery : IQuery;
 
 public sealed class GetStudentAppHomeUseCase(
     IStudentAppAccess studentAppAccess,

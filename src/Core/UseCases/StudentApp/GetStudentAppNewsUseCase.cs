@@ -6,7 +6,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GetStudentAppNewsQuery;
+public sealed record GetStudentAppNewsQuery : IQuery;
 
 public sealed class GetStudentAppNewsUseCase(
     IStudentAppAccess studentAppAccess,

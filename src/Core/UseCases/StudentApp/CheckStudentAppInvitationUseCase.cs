@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record CheckStudentAppInvitationCommand(string? Token);
+public sealed record CheckStudentAppInvitationCommand(string? Token) : ICommand;
 
 public sealed record CheckStudentAppInvitationResponse;
 

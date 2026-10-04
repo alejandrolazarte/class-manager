@@ -7,7 +7,7 @@ using ClassManager.Notifications.Email;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record InviteMemberCommand(string? Email, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null);
+public sealed record InviteMemberCommand(string? Email, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null) : ICommand;
 
 public sealed class InviteMemberUseCase(
     IBusinessRepository businessRepository,

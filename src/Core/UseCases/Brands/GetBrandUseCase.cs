@@ -5,7 +5,7 @@ using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Brands;
 
-public sealed record GetBrandQuery;
+public sealed record GetBrandQuery : IQuery;
 
 public sealed class GetBrandUseCase(IBusinessRepository businessRepository, IFeatureAccess featureAccess) : IUseCase<GetBrandQuery, BrandResponse>
 {

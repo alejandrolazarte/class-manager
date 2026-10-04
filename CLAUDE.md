@@ -123,6 +123,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - SOLID: one responsibility per class, depend on abstractions
 - Every new service has its interface `I<Name>Service`
 - `Core` never references `Infrastructure` or ASP.NET
+- Every use case input implements `ICommand` (changes data, runs in a transaction) or `IQuery` (only reads, no tracking), and every use case is registered with `AddUseCase`. Cross-cutting code goes in a behavior, not in each use case. See [docs/backend/use-case-behaviors.md](docs/backend/use-case-behaviors.md).
 
 ### Testing (TDD)
 - **Test first**: the test fails (RED) before writing the implementation

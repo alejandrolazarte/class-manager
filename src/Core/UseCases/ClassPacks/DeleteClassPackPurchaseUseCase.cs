@@ -7,7 +7,7 @@ using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record DeleteClassPackPurchaseCommand(Guid PurchaseId);
+public sealed record DeleteClassPackPurchaseCommand(Guid PurchaseId) : ICommand;
 
 public sealed class DeleteClassPackPurchaseUseCase(
     IClassPackPurchaseRepository purchaseRepository,

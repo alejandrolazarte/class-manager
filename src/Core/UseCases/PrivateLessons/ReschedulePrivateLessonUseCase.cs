@@ -18,7 +18,7 @@ public sealed record ReschedulePrivateLessonRequest(
     bool IsTrial = false,
     decimal? TrialPrice = null);
 
-public sealed record ReschedulePrivateLessonCommand(Guid PrivateLessonId, ReschedulePrivateLessonRequest Details);
+public sealed record ReschedulePrivateLessonCommand(Guid PrivateLessonId, ReschedulePrivateLessonRequest Details) : ICommand;
 
 public sealed class ReschedulePrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,

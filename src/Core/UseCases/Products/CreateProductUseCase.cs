@@ -11,7 +11,7 @@ public sealed record CreateProductCommand(
     decimal? Price,
     StockMode? StockMode,
     bool IsVisibleInApp,
-    IReadOnlyList<VariantChange>? Variants);
+    IReadOnlyList<VariantChange>? Variants) : ICommand;
 
 public sealed class CreateProductUseCase(
     IProductRepository productRepository,

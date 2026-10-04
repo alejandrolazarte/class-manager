@@ -12,7 +12,7 @@ public sealed record RecordPaymentRequest(decimal? Amount, string? Month, DateOn
     public RecordPaymentCommand ToCommand(Guid clientId) => new(clientId, Amount, Month, PaidOn, Method, Notes);
 }
 
-public sealed record RecordPaymentCommand(Guid ClientId, decimal? Amount, string? Month, DateOnly? PaidOn, PaymentMethod? Method, string? Notes);
+public sealed record RecordPaymentCommand(Guid ClientId, decimal? Amount, string? Month, DateOnly? PaidOn, PaymentMethod? Method, string? Notes) : ICommand;
 
 public sealed class RecordPaymentUseCase(
     IClientRepository clientRepository,

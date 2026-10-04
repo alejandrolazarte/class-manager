@@ -7,7 +7,7 @@ using ClassManager.Core.Domain.ClassGroups;
 
 namespace ClassManager.Core.UseCases.Enrollments;
 
-public sealed record ListClassRosterQuery(Guid ClassGroupId);
+public sealed record ListClassRosterQuery(Guid ClassGroupId) : IQuery;
 
 public sealed class ListClassRosterUseCase(
     IClassGroupRepository classGroupRepository,

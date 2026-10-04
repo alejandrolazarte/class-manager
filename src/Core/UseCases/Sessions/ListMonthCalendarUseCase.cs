@@ -7,7 +7,7 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record ListMonthCalendarQuery(string? Month);
+public sealed record ListMonthCalendarQuery(string? Month) : IQuery;
 
 public sealed record CalendarDayResponse(DateOnly Date, int ClassCount, int CancelledCount, int PendingAttendanceCount);
 

@@ -8,7 +8,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record AssignSubstituteRequest(Guid? InstructorId);
 
-public sealed record AssignSubstituteCommand(Guid ClassGroupId, DateOnly Date, Guid? InstructorId);
+public sealed record AssignSubstituteCommand(Guid ClassGroupId, DateOnly Date, Guid? InstructorId) : ICommand;
 
 public sealed class AssignSubstituteUseCase(
     IClassGroupRepository classGroupRepository,

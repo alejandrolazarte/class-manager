@@ -7,11 +7,11 @@ using ClassManager.Core.Domain.Documents;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record AddClassPackImageCommand(Guid ClassPackId, byte[] Content);
+public sealed record AddClassPackImageCommand(Guid ClassPackId, byte[] Content) : ICommand;
 
-public sealed record RemoveClassPackImageCommand(Guid ClassPackId, Guid DocumentId);
+public sealed record RemoveClassPackImageCommand(Guid ClassPackId, Guid DocumentId) : ICommand;
 
-public sealed record ReorderClassPackImagesCommand(Guid ClassPackId, IReadOnlyList<Guid>? DocumentIds);
+public sealed record ReorderClassPackImagesCommand(Guid ClassPackId, IReadOnlyList<Guid>? DocumentIds) : ICommand;
 
 public sealed class AddClassPackImageUseCase(
     IClassPackRepository classPackRepository,

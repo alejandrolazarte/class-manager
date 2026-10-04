@@ -9,7 +9,7 @@ using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record GetSessionQuery(Guid ClassGroupId, DateOnly Date);
+public sealed record GetSessionQuery(Guid ClassGroupId, DateOnly Date) : IQuery;
 
 public sealed record SessionStudentResponse(
     Guid StudentId,

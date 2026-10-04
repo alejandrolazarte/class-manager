@@ -23,7 +23,7 @@ public sealed record UpdateProductCommand(
     decimal? Price,
     StockMode? StockMode,
     bool IsVisibleInApp,
-    IReadOnlyList<VariantChange>? Variants);
+    IReadOnlyList<VariantChange>? Variants) : ICommand;
 
 public sealed class UpdateProductUseCase(
     IProductRepository productRepository,

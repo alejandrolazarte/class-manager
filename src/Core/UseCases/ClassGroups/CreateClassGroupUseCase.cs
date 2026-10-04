@@ -6,7 +6,7 @@ using ClassManager.Core.UseCases.PrivateLessons;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
-public sealed record CreateClassGroupCommand(ClassGroupDetails Details);
+public sealed record CreateClassGroupCommand(ClassGroupDetails Details) : ICommand;
 
 public sealed class CreateClassGroupUseCase(
     IInstructorRepository instructorRepository,

@@ -7,7 +7,7 @@ using ClassManager.Core.UseCases.Businesses;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record SetDefaultMonthlyFeeCommand(decimal? Amount, string? EffectiveFrom);
+public sealed record SetDefaultMonthlyFeeCommand(decimal? Amount, string? EffectiveFrom) : ICommand;
 
 public sealed class SetDefaultMonthlyFeeUseCase(
     IBusinessRepository businessRepository,

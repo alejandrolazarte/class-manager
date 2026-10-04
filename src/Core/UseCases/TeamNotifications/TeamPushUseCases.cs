@@ -7,13 +7,13 @@ using ClassManager.Core.UseCases.Members;
 
 namespace ClassManager.Core.UseCases.TeamNotifications;
 
-public sealed record GetTeamPushKeyQuery;
+public sealed record GetTeamPushKeyQuery : IQuery;
 
 public sealed record TeamPushKeyResponse(string? PublicKey);
 
-public sealed record SaveTeamPushSubscriptionCommand(string? Endpoint, string? P256dh, string? Auth);
+public sealed record SaveTeamPushSubscriptionCommand(string? Endpoint, string? P256dh, string? Auth) : ICommand;
 
-public sealed record RemoveTeamPushSubscriptionCommand(string? Endpoint);
+public sealed record RemoveTeamPushSubscriptionCommand(string? Endpoint) : ICommand;
 
 public sealed class GetTeamPushKeyUseCase(ICurrentMember currentMember, IWebPushKeyProvider keyProvider)
     : IUseCase<GetTeamPushKeyQuery, TeamPushKeyResponse>

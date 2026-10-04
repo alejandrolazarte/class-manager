@@ -7,7 +7,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record CancelSessionRequest(string? Reason);
 
-public sealed record CancelSessionCommand(Guid ClassGroupId, DateOnly Date, string? Reason);
+public sealed record CancelSessionCommand(Guid ClassGroupId, DateOnly Date, string? Reason) : ICommand;
 
 public sealed record SessionStatusResponse(Guid ClassGroupId, DateOnly Date, bool IsCancelled, string? CancellationReason);
 

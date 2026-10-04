@@ -14,7 +14,7 @@ public sealed record StudentAppOrderLine(Guid? ClassPackId, Guid? ProductVariant
 public sealed record PlaceStudentAppOrderCommand(
     IReadOnlyList<StudentAppOrderLine>? Lines,
     DeliveryMethod? Delivery = null,
-    Guid? DeliveryClassGroupId = null);
+    Guid? DeliveryClassGroupId = null) : ICommand;
 
 public sealed class PlaceStudentAppOrderUseCase(
     IStudentAppAccess studentAppAccess,

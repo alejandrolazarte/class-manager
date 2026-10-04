@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Authorization;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record ListOrdersQuery(Guid? ClientId, bool AwaitingPickupOnly, bool RequestedOnly = false);
+public sealed record ListOrdersQuery(Guid? ClientId, bool AwaitingPickupOnly, bool RequestedOnly = false) : IQuery;
 
 public sealed class ListOrdersUseCase(
     IOrderRepository orderRepository,

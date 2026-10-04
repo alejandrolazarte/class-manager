@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record RestoreSessionScheduleCommand(Guid ClassGroupId, DateOnly Date);
+public sealed record RestoreSessionScheduleCommand(Guid ClassGroupId, DateOnly Date) : ICommand;
 
 public sealed class RestoreSessionScheduleUseCase(IClassSessionRepository sessionRepository, IUnitOfWork unitOfWork)
     : IUseCase<RestoreSessionScheduleCommand, SessionStatusResponse>

@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record ListProductsQuery(bool IncludeInactive);
+public sealed record ListProductsQuery(bool IncludeInactive) : IQuery;
 
 public sealed class ListProductsUseCase(
     IProductRepository productRepository,

@@ -7,7 +7,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record ListDeliveryClassesQuery(Guid ClientId);
+public sealed record ListDeliveryClassesQuery(Guid ClientId) : IQuery;
 
 public sealed class ListDeliveryClassesUseCase(
     IClientRepository clientRepository,

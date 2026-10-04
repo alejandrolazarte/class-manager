@@ -5,11 +5,11 @@ using ClassManager.Core.Domain.Announcements;
 
 namespace ClassManager.Core.UseCases.Announcements;
 
-public sealed record CreateAnnouncementCommand(string? Title, string? Body);
+public sealed record CreateAnnouncementCommand(string? Title, string? Body) : ICommand;
 
-public sealed record DeleteAnnouncementCommand(Guid AnnouncementId);
+public sealed record DeleteAnnouncementCommand(Guid AnnouncementId) : ICommand;
 
-public sealed record ListAnnouncementsQuery;
+public sealed record ListAnnouncementsQuery : IQuery;
 
 public sealed record AnnouncementResponse(Guid Id, string Title, string? Body, DateTimeOffset PublishedAt)
 {

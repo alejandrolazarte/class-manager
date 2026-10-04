@@ -6,7 +6,7 @@ using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record GetCurrentMemberQuery;
+public sealed record GetCurrentMemberQuery : IQuery;
 
 public sealed record CurrentMemberResponse(
     Guid BusinessId,

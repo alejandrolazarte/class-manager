@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Students;
 
 namespace ClassManager.Core.UseCases.Students;
 
-public sealed record GetStudentQuery(Guid StudentId);
+public sealed record GetStudentQuery(Guid StudentId) : IQuery;
 
 public sealed class GetStudentUseCase(
     IStudentRepository studentRepository,

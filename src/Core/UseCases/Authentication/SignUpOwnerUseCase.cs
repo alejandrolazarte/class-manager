@@ -18,7 +18,7 @@ public sealed record SignUpOwnerCommand(
     string? BusinessName,
     string? TimeZoneId,
     string? CurrencyCode,
-    string? DefaultCountryCallingCode);
+    string? DefaultCountryCallingCode) : ICommand;
 
 public sealed class SignUpOwnerUseCase(
     IIdentityService identityService,

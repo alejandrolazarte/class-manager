@@ -4,7 +4,7 @@ using ClassManager.ImportExport.Tabular;
 
 namespace ClassManager.Core.UseCases.ImportExport;
 
-public sealed record ExportQuery(string Module);
+public sealed record ExportQuery(string Module) : IQuery;
 
 public sealed class ExportUseCase(IEnumerable<IImportModule> modules, ITabularWriter writer, TimeProvider timeProvider)
     : IUseCase<ExportQuery, ExportFile>

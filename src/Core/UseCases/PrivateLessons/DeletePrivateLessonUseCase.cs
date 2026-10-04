@@ -7,7 +7,7 @@ using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
-public sealed record DeletePrivateLessonCommand(Guid PrivateLessonId);
+public sealed record DeletePrivateLessonCommand(Guid PrivateLessonId) : ICommand;
 
 public sealed record DeletedPrivateLessonResponse(Guid Id);
 

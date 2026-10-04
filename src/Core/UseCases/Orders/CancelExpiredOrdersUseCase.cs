@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record CancelExpiredOrdersCommand;
+public sealed record CancelExpiredOrdersCommand : ICommand;
 
 public sealed class CancelExpiredOrdersUseCase(
     IOrderRepository orderRepository,

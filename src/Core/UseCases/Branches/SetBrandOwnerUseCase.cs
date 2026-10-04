@@ -6,7 +6,7 @@ using ClassManager.Core.UseCases.Members;
 
 namespace ClassManager.Core.UseCases.Branches;
 
-public sealed record SetBrandOwnerCommand(Guid MemberId, bool IsBrandOwner);
+public sealed record SetBrandOwnerCommand(Guid MemberId, bool IsBrandOwner) : ICommand;
 
 public sealed record BrandOwnerResponse(Guid MemberId, bool IsBrandOwner);
 

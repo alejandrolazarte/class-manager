@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record CheckInvitationCommand(string? Token);
+public sealed record CheckInvitationCommand(string? Token) : ICommand;
 
 public sealed record CheckInvitationResponse;
 

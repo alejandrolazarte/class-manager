@@ -5,7 +5,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Branches;
 
-public sealed record ListBranchesQuery;
+public sealed record ListBranchesQuery : IQuery;
 
 public sealed class ListBranchesUseCase(IBranchDirectory branchDirectory, ICurrentUser currentUser, ITenantContext tenantContext)
     : IUseCase<ListBranchesQuery, IReadOnlyList<BranchResponse>>

@@ -9,7 +9,7 @@ public sealed record CreateBranchCommand(
     string? Name,
     string? TimeZoneId,
     string? CurrencyCode,
-    string? DefaultCountryCallingCode);
+    string? DefaultCountryCallingCode) : ICommand;
 
 public sealed class CreateBranchUseCase(
     IBusinessRepository businessRepository,

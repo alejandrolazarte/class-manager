@@ -8,7 +8,7 @@ public sealed record UpdateInstructorRequest(string? FullName)
     public UpdateInstructorCommand ToCommand(Guid instructorId) => new(instructorId, FullName);
 }
 
-public sealed record UpdateInstructorCommand(Guid InstructorId, string? FullName);
+public sealed record UpdateInstructorCommand(Guid InstructorId, string? FullName) : ICommand;
 
 public sealed class UpdateInstructorUseCase(IInstructorRepository instructorRepository, IUnitOfWork unitOfWork)
     : IUseCase<UpdateInstructorCommand, InstructorResponse>

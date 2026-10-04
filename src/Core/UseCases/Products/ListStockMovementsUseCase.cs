@@ -4,7 +4,7 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record ListStockMovementsQuery(Guid ProductId);
+public sealed record ListStockMovementsQuery(Guid ProductId) : IQuery;
 
 public sealed record StockMovementResponse(
     Guid Id,

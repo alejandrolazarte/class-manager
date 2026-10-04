@@ -4,7 +4,7 @@ using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.ImportExport;
 
-public sealed record PreviewImportCommand(string Module, Stream File);
+public sealed record PreviewImportCommand(string Module, Stream File) : ICommand;
 
 public sealed class PreviewImportUseCase(
     IEnumerable<IImportModule> modules,

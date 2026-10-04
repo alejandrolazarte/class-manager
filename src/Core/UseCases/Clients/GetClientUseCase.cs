@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.Clients;
 
-public sealed record GetClientQuery(Guid ClientId);
+public sealed record GetClientQuery(Guid ClientId) : IQuery;
 
 public sealed class GetClientUseCase(
     IClientRepository clientRepository,

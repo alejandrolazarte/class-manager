@@ -27,7 +27,7 @@ public sealed record UpdateClassPackCommand(
     int? ClassDurationMinutes = null,
     string? MaterialUrl = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
-    string? Description = null);
+    string? Description = null) : ICommand;
 
 public sealed class UpdateClassPackUseCase(
     IClassPackRepository classPackRepository,

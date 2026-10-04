@@ -3,7 +3,7 @@ using ClassManager.ImportExport.Columns;
 
 namespace ClassManager.Core.UseCases.ImportExport;
 
-public sealed record GetImportSchemaQuery(string Module);
+public sealed record GetImportSchemaQuery(string Module) : IQuery;
 
 public sealed record ImportSchemaResponse(string Module, IReadOnlyList<ImportColumn> Columns);
 

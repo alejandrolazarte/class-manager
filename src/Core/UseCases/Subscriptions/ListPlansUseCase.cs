@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Subscriptions;
 
-public sealed record ListPlansQuery;
+public sealed record ListPlansQuery : IQuery;
 
 public sealed class ListPlansUseCase(ISubscriptionRepository subscriptionRepository)
     : IUseCase<ListPlansQuery, IReadOnlyList<PlanResponse>>

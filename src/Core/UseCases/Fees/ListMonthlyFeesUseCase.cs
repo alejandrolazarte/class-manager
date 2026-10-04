@@ -8,7 +8,7 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record ListMonthlyFeesQuery(string? Month);
+public sealed record ListMonthlyFeesQuery(string? Month) : IQuery;
 
 public sealed record ClientFeeResponse(
     Guid ClientId,

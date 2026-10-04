@@ -4,7 +4,7 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Roles;
 
-public sealed record ListRolesQuery;
+public sealed record ListRolesQuery : IQuery;
 
 public sealed class ListRolesUseCase(ICustomRoleRepository customRoleRepository, IBusinessMemberRepository businessMemberRepository)
     : IUseCase<ListRolesQuery, IReadOnlyList<RoleResponse>>

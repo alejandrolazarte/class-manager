@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record GetClientClassBalanceQuery(Guid ClientId);
+public sealed record GetClientClassBalanceQuery(Guid ClientId) : IQuery;
 
 public sealed class GetClientClassBalanceUseCase(
     IClientRepository clientRepository,

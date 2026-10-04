@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record RemoveSubstituteCommand(Guid ClassGroupId, DateOnly Date);
+public sealed record RemoveSubstituteCommand(Guid ClassGroupId, DateOnly Date) : ICommand;
 
 public sealed class RemoveSubstituteUseCase(IClassSessionRepository sessionRepository, IUnitOfWork unitOfWork)
     : IUseCase<RemoveSubstituteCommand, SessionStatusResponse>

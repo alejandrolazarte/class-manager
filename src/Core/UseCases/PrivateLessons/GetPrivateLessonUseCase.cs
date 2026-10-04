@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Authorization;
 
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
-public sealed record GetPrivateLessonQuery(Guid PrivateLessonId);
+public sealed record GetPrivateLessonQuery(Guid PrivateLessonId) : IQuery;
 
 public sealed class GetPrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,

@@ -12,7 +12,7 @@ public sealed record SetClientBillingPlanRequest(BillingPlanKind? Kind, decimal?
     public SetClientBillingPlanCommand ToCommand(Guid clientId) => new(clientId, Kind, CustomFee, EffectiveFrom);
 }
 
-public sealed record SetClientBillingPlanCommand(Guid ClientId, BillingPlanKind? Kind, decimal? CustomFee, string? EffectiveFrom);
+public sealed record SetClientBillingPlanCommand(Guid ClientId, BillingPlanKind? Kind, decimal? CustomFee, string? EffectiveFrom) : ICommand;
 
 public sealed class SetClientBillingPlanUseCase(
     IClientRepository clientRepository,

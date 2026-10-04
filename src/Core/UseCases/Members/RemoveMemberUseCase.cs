@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record RemoveMemberCommand(Guid MemberId);
+public sealed record RemoveMemberCommand(Guid MemberId) : ICommand;
 
 public sealed record RemovedMemberResponse(Guid Id);
 

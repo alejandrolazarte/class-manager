@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record ListClientPaymentsQuery(Guid ClientId);
+public sealed record ListClientPaymentsQuery(Guid ClientId) : IQuery;
 
 public sealed class ListClientPaymentsUseCase(
     IClientRepository clientRepository,

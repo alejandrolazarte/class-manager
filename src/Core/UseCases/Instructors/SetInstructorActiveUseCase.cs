@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record SetInstructorActiveCommand(Guid InstructorId, bool IsActive);
+public sealed record SetInstructorActiveCommand(Guid InstructorId, bool IsActive) : ICommand;
 
 public sealed class SetInstructorActiveUseCase(
     IInstructorRepository instructorRepository,
