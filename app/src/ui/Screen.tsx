@@ -24,12 +24,14 @@ export function Screen({ header, overlay, children }: ScreenProps) {
 
 interface ScrollScreenProps extends ScreenProps {
   hasFloatingAction?: boolean;
+  footer?: ReactNode;
 }
 
 export function ScrollScreen({
   header,
   overlay,
   hasFloatingAction = false,
+  footer,
   children,
 }: ScrollScreenProps) {
   return (
@@ -42,6 +44,11 @@ export function ScrollScreen({
         {header}
         <View className="gap-4 px-5">{children}</View>
       </ScrollView>
+      {footer ? <View className="w-full max-w-2xl self-center">{footer}</View> : null}
     </Screen>
   );
+}
+
+export function ScreenFooter({ children }: PropsWithChildren) {
+  return <View className="border-t border-border bg-background px-5 pb-4 pt-3">{children}</View>;
 }

@@ -20,6 +20,8 @@ describe("When viewer opens a client", () => {
 
     expect(await screen.findByText(translate("fees.client.noPayments"))).toBeOnTheScreen();
     expect(screen.queryByText(translate("fees.client.recordPayment"))).toBeNull();
-    expect(screen.queryByText(translate("fees.client.changeFee"))).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: translate("fees.client.changePlanAccessibility") }),
+    ).toBeNull();
   });
 });

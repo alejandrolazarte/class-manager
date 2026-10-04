@@ -4,7 +4,7 @@ import { AppText } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 
-type BannerTone = "error" | "warning" | "info";
+type BannerTone = "error" | "warning" | "info" | "success";
 
 interface BannerProps extends PropsWithChildren {
   message: string;
@@ -16,18 +16,21 @@ const toneClassNames: Record<BannerTone, string> = {
   error: "bg-danger-soft",
   warning: "bg-warning-soft",
   info: "bg-muted",
+  success: "bg-success-soft",
 };
 
 const defaultIcons: Record<BannerTone, IconName> = {
   error: "error",
   warning: "warning",
   info: "notYet",
+  success: "verified",
 };
 
 const iconTones: Record<BannerTone, ThemeColorToken> = {
   error: "danger",
   warning: "warning",
   info: "muted-foreground",
+  success: "success",
 };
 
 export function Banner({ message, tone = "error", icon, children }: BannerProps) {

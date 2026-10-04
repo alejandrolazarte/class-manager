@@ -5,8 +5,9 @@ import { ClientDetailScreen } from "@/features/clients/screens/ClientDetailScree
 import { listStudentEnrollments } from "@/features/enrollments/enrollmentsApi";
 import { listClientPayments } from "@/features/fees/feesApi";
 import { translate } from "@/i18n/translate";
+import { buildClassBalance } from "@/testing/classPackFactory";
 import { buildClient } from "@/testing/clientFactory";
-import { buildCoach } from "@/testing/memberFactory";
+import { segmentsMock } from "@/testing/expoRouterMock";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/clients/clientsApi");
@@ -14,23 +15,21 @@ jest.mock("@/features/enrollments/enrollmentsApi");
 jest.mock("@/features/fees/feesApi");
 jest.mock("@/features/classPacks/classPacksApi");
 
-const client = buildClient({ billingPlan: { kind: "ClassPacks", customFee: null } });
+const client = buildClient();
 
-describe("When coach opens a client", () => {
+describe("When client is opened from fees", () => {
   beforeEach(() => {
+    segmentsMock.current = ["(tabs)", "fees", "clients", "[clientId]"];
     jest.mocked(getClient).mockResolvedValue(client);
     jest.mocked(listStudentEnrollments).mockResolvedValue([]);
+    jest.mocked(listClientPayments).mockResolvedValue([]);
+    jest.mocked(getClassBalance).mockResolvedValue(buildClassBalance());
   });
 
-  it("Then fees and packs are hidden", async () => {
-    await renderWithProviders(<ClientDetailScreen clientId={client.id} />, {
-      member: buildCoach(),
-    });
+  it("Then the billing tab is selected", async () => {
+    await renderWithProviders(<ClientDetailScreen clientId={client.id} />);
 
-    expect(await screen.findByText(client.fullName)).toBeOnTheScreen();
-    expect(screen.getByText(translate("clients.detail.addStudent"))).toBeOnTheScreen();
-    expect(screen.queryByRole("tab", { name: translate("fees.client.title") })).toBeNull();
-    expect(listClientPayments).not.toHaveBeenCalled();
-    expect(getClassBalance).not.toHaveBeenCalled();
+    expect(await screen.findByRole("tab", { name: translate("fees.client.title") })).toBeSelected();
+    expect(await screen.findByText(translate("fees.client.recordPayment"))).toBeOnTheScreen();
   });
 });

@@ -84,6 +84,14 @@ const iconGlyphs = {
   live: "sensors",
   attendance: "fact-check",
   dayDone: "check-circle-outline",
+  forward: "arrow-forward",
+  email: "mail",
+  studentApp: "smartphone",
+  findPerson: "person-search",
+  handOver: "inventory-2",
+  recurringFee: "event-repeat",
+  fieldError: "error",
+  fieldValid: "check-circle",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {

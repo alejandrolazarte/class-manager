@@ -10,10 +10,25 @@ export interface Client {
   createdAt: string;
 }
 
+export type StudentAppAccessStatus = "NotInvited" | "Invited" | "Active";
+
+export interface StudentAppAccess {
+  status: StudentAppAccessStatus;
+  invitedEmail: string | null;
+}
+
 export interface ClientDetails extends Client {
   billingPlan: BillingPlan;
   billingPlanChanges: BillingPlanChange[];
   students: Student[];
+  appAccess: StudentAppAccess;
+}
+
+export interface UpdateClientRequest {
+  fullName: string;
+  phoneNumber: string;
+  email: string | null;
+  notes: string | null;
 }
 
 export interface RegisterClientRequest {

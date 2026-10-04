@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { TextInput, TextInputProps, View } from "react-native";
+import { translate } from "@/i18n/translate";
 import { useTheme } from "@/theme/useTheme";
 import { AppText, textVariantClassNames } from "@/ui/AppText";
 
@@ -12,6 +13,7 @@ interface TextFieldProps extends TextInputProps {
   isHintSatisfied?: boolean;
   prefix?: string;
   fieldSurface?: TextFieldSurface;
+  isRequired?: boolean;
 }
 
 const fieldSurfaceClassNames: Record<TextFieldSurface, string> = {
@@ -27,6 +29,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     isHintSatisfied = false,
     prefix,
     fieldSurface = "surface",
+    isRequired = false,
     multiline,
     ...textInputProps
   },
@@ -37,7 +40,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
   return (
     <View className="gap-1.5">
       <AppText variant="label" tone="muted">
-        {label}
+        {isRequired ? translate("common.requiredLabel", { label }) : label}
       </AppText>
       <View className="flex-row gap-2">
         {prefix ? (

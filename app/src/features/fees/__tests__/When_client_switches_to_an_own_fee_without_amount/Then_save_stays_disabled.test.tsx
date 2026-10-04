@@ -1,8 +1,6 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react-native";
+import { fireEvent, screen } from "@testing-library/react-native";
 import { getClassBalance } from "@/features/classPacks/classPacksApi";
 import { getClient } from "@/features/clients/clientsApi";
-import { setClientBillingPlan } from "@/features/fees/feesApi";
-import { monthOf } from "@/features/fees/months";
 import { ClientBillingPlanScreen } from "@/features/fees/screens/ClientBillingPlanScreen";
 import { translate } from "@/i18n/translate";
 import { buildClassBalance } from "@/testing/classPackFactory";
@@ -15,30 +13,19 @@ jest.mock("@/features/classPacks/classPacksApi");
 
 const client = buildClient();
 
-describe("When client switches to class packs", () => {
+describe("When client switches to an own fee without amount", () => {
   beforeEach(() => {
     jest.mocked(getClient).mockResolvedValue(client);
     jest.mocked(getClassBalance).mockResolvedValue(buildClassBalance({ purchases: [] }));
-    jest.mocked(setClientBillingPlan).mockResolvedValue({
-      billingPlan: { kind: "ClassPacks", customFee: null },
-      billingPlanChanges: [{ effectiveFrom: monthOf(), kind: "ClassPacks", customFee: null }],
-    });
   });
 
-  it("Then class packs plan is sent", async () => {
+  it("Then save stays disabled", async () => {
     await renderWithProviders(<ClientBillingPlanScreen clientId={client.id} />);
 
     await fireEvent.press(
-      await screen.findByRole("radio", { name: translate("fees.plan.ClassPacks") }),
+      await screen.findByRole("radio", { name: translate("fees.plan.CustomFee") }),
     );
-    await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
-    await waitFor(() =>
-      expect(setClientBillingPlan).toHaveBeenCalledWith(client.id, {
-        kind: "ClassPacks",
-        customFee: null,
-        effectiveFrom: monthOf(),
-      }),
-    );
+    expect(screen.getByRole("button", { name: translate("common.save") })).toBeDisabled();
   });
 });

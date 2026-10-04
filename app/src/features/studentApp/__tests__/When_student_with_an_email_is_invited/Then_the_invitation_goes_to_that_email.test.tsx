@@ -7,32 +7,26 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/studentApp/studentAppApi");
 
-const client = buildClient({ email: null });
+const client = buildClient({ email: "ana@example.com" });
 
-describe("When student is invited", () => {
+describe("When student with an email is invited", () => {
   beforeEach(() => {
     jest.mocked(inviteStudentApp).mockResolvedValue({
       id: "invitation-1",
-      email: "ana.nueva@example.com",
+      email: "ana@example.com",
       expiresAt: "2026-10-06T12:00:00Z",
     });
   });
 
-  it("Then request has the email", async () => {
+  it("Then the invitation goes to that email", async () => {
     await renderWithProviders(<InviteStudentAppSection client={client} />);
+
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("student.app.inviteAccessibility") }),
     );
-    await fireEvent.changeText(
-      screen.getByLabelText(translate("student.invite.email")),
-      "ana.nueva@example.com",
-    );
-
-    await fireEvent.press(screen.getByRole("button", { name: translate("student.invite.send") }));
 
     await waitFor(() =>
-      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, { email: "ana.nueva@example.com" }),
+      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, { email: "ana@example.com" }),
     );
-    expect(await screen.findByText(translate("student.invite.sent"))).toBeOnTheScreen();
   });
 });

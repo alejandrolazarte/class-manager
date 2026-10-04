@@ -27,7 +27,7 @@ const serverStudentsFieldName = "students";
 const clientFieldNames = ["fullName", "phoneNumber", "email", "notes"] as const;
 const studentFieldNames = ["fullName", "birthDate", "notes"] as const;
 
-const clientFieldsSchema = z.object({
+export const clientContactSchema = z.object({
   fullName: z
     .string()
     .trim()
@@ -55,6 +55,9 @@ const clientFieldsSchema = z.object({
   notes: z
     .string()
     .max(clientLimits.notesMaximumLength, translate("clients.validation.notesTooLong")),
+});
+
+const clientFieldsSchema = clientContactSchema.extend({
   clientAttends: z.boolean(),
   sendAppInvitation: z.boolean(),
   additionalStudents: z.array(studentFormSchema),
