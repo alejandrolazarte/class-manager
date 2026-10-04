@@ -142,7 +142,7 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
         <View className="ml-auto flex-row flex-wrap items-center justify-end">
           {canManage && order.status === "Requested" ? (
             <OrderAction
-              label={translate("orders.collect")}
+              label={translate(openPanel === "payment" ? "common.close" : "orders.collect")}
               isExpanded={openPanel === "payment"}
               onPress={() => togglePanel("payment")}
             />
