@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record ListClassDeliveriesQuery(Guid ClassGroupId);
+public sealed record ListClassDeliveriesQuery(Guid ClassGroupId) : IQuery;
 
 public sealed class ListClassDeliveriesUseCase(
     IClassGroupRepository classGroupRepository,

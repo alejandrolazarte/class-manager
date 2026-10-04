@@ -89,6 +89,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Hosting plan](docs/hosting-plan.md) — free Azure setup for a pilot, limits and costs to watch
 - [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Cloudflare Pages, the installable web app (PWA) and the Android APK
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
+- [Use case behaviors](docs/backend/use-case-behaviors.md) — the pipeline around every use case: commands run in a transaction, queries don't track, and how to add a behavior
 - [Local development](docs/backend/local-development.md) — migrations, JWT signing key, demo seed data and owner
 - [Running the Expo app](docs/frontend/running-the-app.md) — configuration and frontend tests
 - [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, the type scale, AppText, Icon and the lint rules that keep screens on the theme

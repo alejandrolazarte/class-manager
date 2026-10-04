@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record SignOutCommand(string? RefreshToken);
+public sealed record SignOutCommand(string? RefreshToken) : ICommand;
 
 public sealed record SignOutResponse;
 

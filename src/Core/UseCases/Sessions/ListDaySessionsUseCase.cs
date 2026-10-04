@@ -9,7 +9,7 @@ using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record ListDaySessionsQuery(DateOnly? Date);
+public sealed record ListDaySessionsQuery(DateOnly? Date) : IQuery;
 
 public enum SessionKind
 {

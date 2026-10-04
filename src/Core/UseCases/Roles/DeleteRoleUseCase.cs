@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Roles;
 
-public sealed record DeleteRoleCommand(Guid RoleId);
+public sealed record DeleteRoleCommand(Guid RoleId) : ICommand;
 
 public sealed class DeleteRoleUseCase(
     ICustomRoleRepository customRoleRepository,

@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Authorization;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
-public sealed record GetClassGroupQuery(Guid ClassGroupId);
+public sealed record GetClassGroupQuery(Guid ClassGroupId) : IQuery;
 
 public sealed class GetClassGroupUseCase(
     IInstructorRepository instructorRepository,

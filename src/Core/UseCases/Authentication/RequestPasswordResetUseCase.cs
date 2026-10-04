@@ -5,7 +5,7 @@ using ClassManager.Notifications.Email;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record RequestPasswordResetCommand(string? Email);
+public sealed record RequestPasswordResetCommand(string? Email) : ICommand;
 
 public sealed record RequestPasswordResetResponse;
 

@@ -6,9 +6,9 @@ using ClassManager.Core.UseCases.Members;
 
 namespace ClassManager.Core.UseCases.TeamNotifications;
 
-public sealed record GetTeamNotificationsQuery;
+public sealed record GetTeamNotificationsQuery : IQuery;
 
-public sealed record MarkTeamNotificationsSeenCommand;
+public sealed record MarkTeamNotificationsSeenCommand : ICommand;
 
 public sealed record TeamNotificationResponse(Guid Id, string Title, string Body, string Url, DateTimeOffset CreatedAt, bool IsUnread)
 {

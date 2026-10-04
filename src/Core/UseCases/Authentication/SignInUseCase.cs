@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record SignInCommand(string? Email, string? Password);
+public sealed record SignInCommand(string? Email, string? Password) : ICommand;
 
 public sealed class SignInUseCase(
     IIdentityService identityService,

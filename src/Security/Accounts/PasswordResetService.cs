@@ -4,6 +4,7 @@ using System.Text;
 using ClassManager.Security.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 
 namespace ClassManager.Security.Accounts;
@@ -64,7 +65,7 @@ internal sealed class PasswordResetService(
             return PasswordReset.InvalidPassword(passwordProblem);
         }
 
-        await using var transaction = await securityContext.Database.BeginTransactionAsync(cancellationToken);
+        await using var ownTransaction = await BeginTransactionUnlessOneIsOpenAsync(cancellationToken);
         var usedTokenCount = await securityContext.PasswordResetTokens
             .Where(resetToken => resetToken.UserId == user.Id && resetToken.UsedAt == null)
             .ExecuteUpdateAsync(setters => setters.SetProperty(resetToken => resetToken.UsedAt, now), cancellationToken);
@@ -80,10 +81,18 @@ internal sealed class PasswordResetService(
         await securityContext.RefreshTokens
             .Where(refreshToken => refreshToken.UserId == user.Id && refreshToken.RevokedAt == null)
             .ExecuteUpdateAsync(setters => setters.SetProperty(refreshToken => refreshToken.RevokedAt, now), cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        if (ownTransaction is not null)
+        {
+            await ownTransaction.CommitAsync(cancellationToken);
+        }
 
         return PasswordReset.Succeeded;
     }
+
+    private async Task<IDbContextTransaction?> BeginTransactionUnlessOneIsOpenAsync(CancellationToken cancellationToken) =>
+        securityContext.Database.CurrentTransaction is null
+            ? await securityContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
 
     private async Task<string?> FindPasswordProblemAsync(ApplicationUser user, string newPassword)
     {

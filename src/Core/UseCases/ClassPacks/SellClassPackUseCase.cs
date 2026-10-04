@@ -28,7 +28,7 @@ public sealed record SellClassPackCommand(
     DateOnly? PurchasedOn,
     PaymentMethod? Method,
     string? Notes,
-    Guid? TrialLessonId = null);
+    Guid? TrialLessonId = null) : ICommand;
 
 public sealed class SellClassPackUseCase(
     IClientRepository clientRepository,

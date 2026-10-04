@@ -11,7 +11,7 @@ public sealed record AddStudentCommand(
     Guid ClientId,
     string? FullName,
     DateOnly? BirthDate,
-    string? Notes);
+    string? Notes) : ICommand;
 
 public sealed class AddStudentUseCase(
     IBusinessRepository businessRepository,

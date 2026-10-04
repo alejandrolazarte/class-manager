@@ -8,7 +8,7 @@ using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record GetOrderSummaryQuery(string? Month);
+public sealed record GetOrderSummaryQuery(string? Month) : IQuery;
 
 public sealed record OrderSummaryResponse(string Month, decimal Collected, decimal Unpaid, decimal ClassPackSales);
 

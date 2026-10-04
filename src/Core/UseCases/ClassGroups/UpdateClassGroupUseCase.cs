@@ -6,7 +6,7 @@ using ClassManager.Core.UseCases.PrivateLessons;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
-public sealed record UpdateClassGroupCommand(Guid ClassGroupId, ClassGroupDetails Details);
+public sealed record UpdateClassGroupCommand(Guid ClassGroupId, ClassGroupDetails Details) : ICommand;
 
 public sealed class UpdateClassGroupUseCase(
     IInstructorRepository instructorRepository,

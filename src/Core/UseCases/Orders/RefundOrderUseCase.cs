@@ -14,7 +14,7 @@ public sealed record RefundOrderRequest(IReadOnlyList<RefundLine>? Lines)
     public RefundOrderCommand ToCommand(Guid orderId) => new(orderId, Lines);
 }
 
-public sealed record RefundOrderCommand(Guid OrderId, IReadOnlyList<RefundLine>? Lines);
+public sealed record RefundOrderCommand(Guid OrderId, IReadOnlyList<RefundLine>? Lines) : ICommand;
 
 public sealed class RefundOrderUseCase(
     IOrderRepository orderRepository,

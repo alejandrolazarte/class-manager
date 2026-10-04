@@ -6,13 +6,13 @@ using ClassManager.Core.Domain.Notifications;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GetStudentAppPushKeyQuery;
+public sealed record GetStudentAppPushKeyQuery : IQuery;
 
 public sealed record StudentAppPushKeyResponse(string? PublicKey);
 
-public sealed record SavePushSubscriptionCommand(string? Endpoint, string? P256dh, string? Auth);
+public sealed record SavePushSubscriptionCommand(string? Endpoint, string? P256dh, string? Auth) : ICommand;
 
-public sealed record RemovePushSubscriptionCommand(string? Endpoint);
+public sealed record RemovePushSubscriptionCommand(string? Endpoint) : ICommand;
 
 public sealed class GetStudentAppPushKeyUseCase(IStudentAppAccess studentAppAccess, IWebPushKeyProvider keyProvider)
     : IUseCase<GetStudentAppPushKeyQuery, StudentAppPushKeyResponse>

@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record MarkOrderDeliveredCommand(Guid OrderId);
+public sealed record MarkOrderDeliveredCommand(Guid OrderId) : ICommand;
 
 public sealed class MarkOrderDeliveredUseCase(
     IOrderRepository orderRepository,

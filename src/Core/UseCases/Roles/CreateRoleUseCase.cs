@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Roles;
 
 namespace ClassManager.Core.UseCases.Roles;
 
-public sealed record CreateRoleCommand(string? Name, IReadOnlyList<string>? Permissions, string? CopiedFrom);
+public sealed record CreateRoleCommand(string? Name, IReadOnlyList<string>? Permissions, string? CopiedFrom) : ICommand;
 
 public sealed class CreateRoleUseCase(
     ICustomRoleRepository customRoleRepository,

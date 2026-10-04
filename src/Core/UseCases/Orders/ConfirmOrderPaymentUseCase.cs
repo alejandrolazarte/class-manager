@@ -12,7 +12,7 @@ public sealed record ConfirmOrderPaymentRequest(PaymentMethod? Method, DateOnly?
     public ConfirmOrderPaymentCommand ToCommand(Guid orderId) => new(orderId, Method, PaidOn, IsReady);
 }
 
-public sealed record ConfirmOrderPaymentCommand(Guid OrderId, PaymentMethod? Method, DateOnly? PaidOn, bool IsReady = false);
+public sealed record ConfirmOrderPaymentCommand(Guid OrderId, PaymentMethod? Method, DateOnly? PaidOn, bool IsReady = false) : ICommand;
 
 public sealed class ConfirmOrderPaymentUseCase(
     IOrderRepository orderRepository,

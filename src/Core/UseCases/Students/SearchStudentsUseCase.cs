@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.Students;
 
-public sealed record SearchStudentsQuery(string? Search, int? Limit);
+public sealed record SearchStudentsQuery(string? Search, int? Limit) : IQuery;
 
 public sealed class SearchStudentsUseCase(
     IBusinessRepository businessRepository,

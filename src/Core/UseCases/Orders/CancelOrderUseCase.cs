@@ -5,7 +5,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record CancelOrderCommand(Guid OrderId);
+public sealed record CancelOrderCommand(Guid OrderId) : ICommand;
 
 public sealed class CancelOrderUseCase(
     IOrderRepository orderRepository,

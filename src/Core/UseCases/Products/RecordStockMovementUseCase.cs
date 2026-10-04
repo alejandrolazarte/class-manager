@@ -11,7 +11,7 @@ public sealed record RecordStockMovementRequest(Guid? VariantId, StockMovementKi
     public RecordStockMovementCommand ToCommand(Guid productId) => new(productId, VariantId, Kind, Quantity, Note);
 }
 
-public sealed record RecordStockMovementCommand(Guid ProductId, Guid? VariantId, StockMovementKind? Kind, int? Quantity, string? Note);
+public sealed record RecordStockMovementCommand(Guid ProductId, Guid? VariantId, StockMovementKind? Kind, int? Quantity, string? Note) : ICommand;
 
 public sealed class RecordStockMovementUseCase(
     IProductRepository productRepository,

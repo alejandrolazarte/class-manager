@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record ListInstructorsQuery(bool IncludeInactive);
+public sealed record ListInstructorsQuery(bool IncludeInactive) : IQuery;
 
 public sealed class ListInstructorsUseCase(IInstructorRepository instructorRepository)
     : IUseCase<ListInstructorsQuery, IReadOnlyList<InstructorResponse>>

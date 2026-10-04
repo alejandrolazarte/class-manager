@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record SetProductActiveCommand(Guid ProductId, bool IsActive);
+public sealed record SetProductActiveCommand(Guid ProductId, bool IsActive) : ICommand;
 
 public sealed class SetProductActiveUseCase(
     IProductRepository productRepository,

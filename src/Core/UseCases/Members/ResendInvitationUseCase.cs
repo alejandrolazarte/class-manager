@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record ResendInvitationCommand(Guid InvitationId);
+public sealed record ResendInvitationCommand(Guid InvitationId) : ICommand;
 
 public sealed class ResendInvitationUseCase(
     IBusinessRepository businessRepository,

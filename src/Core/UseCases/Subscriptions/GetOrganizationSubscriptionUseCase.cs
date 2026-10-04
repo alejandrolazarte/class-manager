@@ -5,7 +5,7 @@ using ClassManager.Records;
 
 namespace ClassManager.Core.UseCases.Subscriptions;
 
-public sealed record GetOrganizationSubscriptionQuery;
+public sealed record GetOrganizationSubscriptionQuery : IQuery;
 
 public sealed class GetOrganizationSubscriptionUseCase(
     IBusinessRepository businessRepository,

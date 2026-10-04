@@ -10,9 +10,9 @@ using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record NotifyAbsenceCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date);
+public sealed record NotifyAbsenceCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
 
-public sealed record WithdrawAbsenceCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date);
+public sealed record WithdrawAbsenceCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
 
 internal sealed record AbsenceTarget(ClassGroup ClassGroup, ClassSession? Session);
 

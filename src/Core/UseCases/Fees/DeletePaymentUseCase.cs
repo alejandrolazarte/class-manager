@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record DeletePaymentCommand(Guid PaymentId);
+public sealed record DeletePaymentCommand(Guid PaymentId) : ICommand;
 
 public sealed class DeletePaymentUseCase(
     IPaymentRepository paymentRepository,

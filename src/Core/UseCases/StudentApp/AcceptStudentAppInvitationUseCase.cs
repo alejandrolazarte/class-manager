@@ -8,7 +8,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record AcceptStudentAppInvitationCommand(string? Token, string? FullName, string? Password);
+public sealed record AcceptStudentAppInvitationCommand(string? Token, string? FullName, string? Password) : ICommand;
 
 public sealed class AcceptStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,

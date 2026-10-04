@@ -8,7 +8,7 @@ using ClassManager.Core.Domain.Students;
 
 namespace ClassManager.Core.UseCases.Enrollments;
 
-public sealed record ListStudentEnrollmentsQuery(Guid StudentId);
+public sealed record ListStudentEnrollmentsQuery(Guid StudentId) : IQuery;
 
 public sealed record StudentEnrollmentResponse(
     Guid EnrollmentId,

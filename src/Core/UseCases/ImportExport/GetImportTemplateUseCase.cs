@@ -3,7 +3,7 @@ using ClassManager.ImportExport.Tabular;
 
 namespace ClassManager.Core.UseCases.ImportExport;
 
-public sealed record GetImportTemplateQuery(string Module);
+public sealed record GetImportTemplateQuery(string Module) : IQuery;
 
 public sealed class GetImportTemplateUseCase(IEnumerable<IImportModule> modules, ITabularWriter writer)
     : IUseCase<GetImportTemplateQuery, ExportFile>

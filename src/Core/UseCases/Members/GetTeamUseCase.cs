@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record GetTeamQuery;
+public sealed record GetTeamQuery : IQuery;
 
 public sealed class GetTeamUseCase(
     IBusinessRepository businessRepository,

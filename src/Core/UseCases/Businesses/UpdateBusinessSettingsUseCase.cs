@@ -8,7 +8,7 @@ public sealed record UpdateBusinessSettingsCommand(
     string? Name,
     string? TimeZoneId,
     string? CurrencyCode,
-    string? DefaultCountryCallingCode);
+    string? DefaultCountryCallingCode) : ICommand;
 
 public sealed record UpdateBusinessSettingsResponse(
     string Name,

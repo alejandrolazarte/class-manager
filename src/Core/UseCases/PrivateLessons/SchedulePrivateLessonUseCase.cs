@@ -20,7 +20,7 @@ public sealed record SchedulePrivateLessonCommand(
     string? Notes,
     int? RepeatWeeks,
     bool IsTrial = false,
-    decimal? TrialPrice = null);
+    decimal? TrialPrice = null) : ICommand;
 
 public sealed class SchedulePrivateLessonUseCase(
     IInstructorRepository instructorRepository,

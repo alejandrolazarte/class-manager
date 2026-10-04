@@ -7,11 +7,11 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record AddProductImageCommand(Guid ProductId, byte[] Content);
+public sealed record AddProductImageCommand(Guid ProductId, byte[] Content) : ICommand;
 
-public sealed record RemoveProductImageCommand(Guid ProductId, Guid DocumentId);
+public sealed record RemoveProductImageCommand(Guid ProductId, Guid DocumentId) : ICommand;
 
-public sealed record ReorderProductImagesCommand(Guid ProductId, IReadOnlyList<Guid>? DocumentIds);
+public sealed record ReorderProductImagesCommand(Guid ProductId, IReadOnlyList<Guid>? DocumentIds) : ICommand;
 
 public sealed class AddProductImageUseCase(
     IProductRepository productRepository,

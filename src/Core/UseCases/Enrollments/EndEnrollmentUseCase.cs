@@ -12,7 +12,7 @@ public sealed record EndEnrollmentRequest(DateOnly? EndDate)
     public EndEnrollmentCommand ToCommand(Guid enrollmentId) => new(enrollmentId, EndDate);
 }
 
-public sealed record EndEnrollmentCommand(Guid EnrollmentId, DateOnly? EndDate);
+public sealed record EndEnrollmentCommand(Guid EnrollmentId, DateOnly? EndDate) : ICommand;
 
 public sealed record EndEnrollmentResponse(Guid EnrollmentId, bool WasRemoved);
 

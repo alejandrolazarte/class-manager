@@ -7,7 +7,7 @@ using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.UseCases.Businesses;
 
-public sealed record GetCurrentBusinessQuery;
+public sealed record GetCurrentBusinessQuery : IQuery;
 
 public sealed record BusinessResponse(
     string Name,

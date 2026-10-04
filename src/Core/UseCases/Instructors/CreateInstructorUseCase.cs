@@ -4,7 +4,7 @@ using ClassManager.Core.Domain.Instructors;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record CreateInstructorCommand(string? FullName);
+public sealed record CreateInstructorCommand(string? FullName) : ICommand;
 
 public sealed class CreateInstructorUseCase(IInstructorRepository instructorRepository, IUnitOfWork unitOfWork)
     : IUseCase<CreateInstructorCommand, InstructorResponse>

@@ -9,7 +9,7 @@ using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GetStudentAppShopQuery;
+public sealed record GetStudentAppShopQuery : IQuery;
 
 public sealed class GetStudentAppShopUseCase(
     IStudentAppAccess studentAppAccess,

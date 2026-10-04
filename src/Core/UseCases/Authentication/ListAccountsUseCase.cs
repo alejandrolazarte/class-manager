@@ -5,7 +5,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record ListAccountsQuery(string? CurrentKind);
+public sealed record ListAccountsQuery(string? CurrentKind) : IQuery;
 
 public sealed record AccountResponse(Guid BusinessId, string BusinessName, string Kind, bool IsCurrent);
 

@@ -13,7 +13,7 @@ public sealed record CreateClassPackCommand(
     int? ClassDurationMinutes = null,
     string? MaterialUrl = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
-    string? Description = null);
+    string? Description = null) : ICommand;
 
 public sealed class CreateClassPackUseCase(
     IClassPackRepository classPackRepository,

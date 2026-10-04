@@ -7,7 +7,7 @@ namespace ClassManager.Core.UseCases.Members;
 
 public sealed record ChangeMemberRoleRequest(BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null);
 
-public sealed record ChangeMemberRoleCommand(Guid MemberId, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null);
+public sealed record ChangeMemberRoleCommand(Guid MemberId, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null) : ICommand;
 
 public sealed class ChangeMemberRoleUseCase(
     IBusinessRepository businessRepository,

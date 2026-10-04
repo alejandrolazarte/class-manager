@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record RevokeInvitationCommand(Guid InvitationId);
+public sealed record RevokeInvitationCommand(Guid InvitationId) : ICommand;
 
 public sealed record RevokedInvitationResponse(Guid Id);
 

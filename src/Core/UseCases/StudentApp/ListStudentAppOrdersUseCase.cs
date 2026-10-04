@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record ListStudentAppOrdersQuery;
+public sealed record ListStudentAppOrdersQuery : IQuery;
 
 public sealed class ListStudentAppOrdersUseCase(IStudentAppAccess studentAppAccess, IOrderRepository orderRepository, IClassGroupRepository classGroupRepository)
     : IUseCase<ListStudentAppOrdersQuery, IReadOnlyList<StudentAppOrderResponse>>

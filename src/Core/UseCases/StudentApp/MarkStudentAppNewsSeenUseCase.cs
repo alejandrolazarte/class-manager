@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record MarkStudentAppNewsSeenCommand;
+public sealed record MarkStudentAppNewsSeenCommand : ICommand;
 
 public sealed class MarkStudentAppNewsSeenUseCase(
     IStudentAppAccess studentAppAccess,

@@ -10,7 +10,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record RecordClassFeedbackRequest(string? Text);
 
-public sealed record RecordClassFeedbackCommand(Guid ClassGroupId, DateOnly Date, Guid StudentId, string? Text);
+public sealed record RecordClassFeedbackCommand(Guid ClassGroupId, DateOnly Date, Guid StudentId, string? Text) : ICommand;
 
 public sealed class RecordClassFeedbackUseCase(
     IClassGroupRepository classGroupRepository,

@@ -4,11 +4,11 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Brands;
 
-public sealed record SetBrandLogoCommand(byte[] Content);
+public sealed record SetBrandLogoCommand(byte[] Content) : ICommand;
 
-public sealed record RemoveBrandLogoCommand;
+public sealed record RemoveBrandLogoCommand : ICommand;
 
-public sealed record GetBrandLogoQuery;
+public sealed record GetBrandLogoQuery : IQuery;
 
 public sealed record BrandLogoFile(byte[] Content, string ContentType, DateTimeOffset UpdatedAt);
 

@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Brands;
 
-public sealed record UpdateBrandCommand(string? BrandName, string? ThemeColor, string? AccentColor, bool LocksTheme);
+public sealed record UpdateBrandCommand(string? BrandName, string? ThemeColor, string? AccentColor, bool LocksTheme) : ICommand;
 
 public sealed class UpdateBrandUseCase(IBusinessRepository businessRepository, IUnitOfWork unitOfWork)
     : IUseCase<UpdateBrandCommand, BrandResponse>

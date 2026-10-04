@@ -11,7 +11,7 @@ public sealed record ChooseOrderDeliveryRequest(DeliveryMethod? Delivery, Guid? 
     public ChooseOrderDeliveryCommand ToCommand(Guid orderId) => new(orderId, Delivery, ClassGroupId);
 }
 
-public sealed record ChooseOrderDeliveryCommand(Guid OrderId, DeliveryMethod? Delivery, Guid? ClassGroupId);
+public sealed record ChooseOrderDeliveryCommand(Guid OrderId, DeliveryMethod? Delivery, Guid? ClassGroupId) : ICommand;
 
 public sealed class ChooseOrderDeliveryUseCase(
     IOrderRepository orderRepository,

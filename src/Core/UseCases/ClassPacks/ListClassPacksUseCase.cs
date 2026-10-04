@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record ListClassPacksQuery(bool IncludeInactive);
+public sealed record ListClassPacksQuery(bool IncludeInactive) : IQuery;
 
 public sealed class ListClassPacksUseCase(IClassPackRepository classPackRepository, IDocumentStorageService documentStorage)
     : IUseCase<ListClassPacksQuery, IReadOnlyList<ClassPackResponse>>

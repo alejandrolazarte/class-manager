@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record ResetPasswordCommand(string? Token, string? NewPassword);
+public sealed record ResetPasswordCommand(string? Token, string? NewPassword) : ICommand;
 
 public sealed record ResetPasswordResponse;
 

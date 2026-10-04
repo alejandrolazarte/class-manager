@@ -20,7 +20,7 @@ public sealed record CreateCounterSaleCommand(
     string? Notes,
     bool IsDelivered,
     DeliveryMethod? Delivery = null,
-    Guid? DeliveryClassGroupId = null);
+    Guid? DeliveryClassGroupId = null) : ICommand;
 
 public sealed class CreateCounterSaleUseCase(
     IClientRepository clientRepository,

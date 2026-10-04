@@ -5,9 +5,9 @@ using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Achievements;
 
-public sealed record GetAchievementSettingsQuery;
+public sealed record GetAchievementSettingsQuery : IQuery;
 
-public sealed record UpdateAchievementSettingsCommand(bool NoticedAbsencesKeepStreak, IReadOnlyList<LevelDefinition> Levels);
+public sealed record UpdateAchievementSettingsCommand(bool NoticedAbsencesKeepStreak, IReadOnlyList<LevelDefinition> Levels) : ICommand;
 
 public sealed record AchievementSettingsResponse(bool NoticedAbsencesKeepStreak, IReadOnlyList<LevelDefinition> Levels);
 

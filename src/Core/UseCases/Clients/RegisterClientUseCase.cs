@@ -13,7 +13,7 @@ public sealed record RegisterClientCommand(
     string? PhoneNumber,
     string? Email,
     string? Notes,
-    IReadOnlyList<NewStudent>? Students);
+    IReadOnlyList<NewStudent>? Students) : ICommand;
 
 public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,

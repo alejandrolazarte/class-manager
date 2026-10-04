@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Authorization;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
-public sealed record ListClassGroupsQuery(bool IncludeInactive);
+public sealed record ListClassGroupsQuery(bool IncludeInactive) : IQuery;
 
 public sealed class ListClassGroupsUseCase(
     IInstructorRepository instructorRepository,

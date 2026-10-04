@@ -10,11 +10,11 @@ using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GetStudentAppPackClassesQuery(Guid StudentId);
+public sealed record GetStudentAppPackClassesQuery(Guid StudentId) : IQuery;
 
-public sealed record BookPackClassCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date);
+public sealed record BookPackClassCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
 
-public sealed record CancelPackClassCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date);
+public sealed record CancelPackClassCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
 
 public sealed record PackCreditRepositories(
     IStudentRepository Students,

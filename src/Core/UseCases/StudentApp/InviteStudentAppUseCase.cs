@@ -13,7 +13,7 @@ public sealed record InviteStudentAppRequest(string? Email)
     public InviteStudentAppCommand ToCommand(Guid clientId) => new(clientId, Email);
 }
 
-public sealed record InviteStudentAppCommand(Guid ClientId, string? Email);
+public sealed record InviteStudentAppCommand(Guid ClientId, string? Email) : ICommand;
 
 public sealed class InviteStudentAppUseCase(
     IClientRepository clientRepository,
