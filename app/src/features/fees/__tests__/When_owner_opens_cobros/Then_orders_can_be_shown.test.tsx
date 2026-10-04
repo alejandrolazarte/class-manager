@@ -20,7 +20,7 @@ describe("When owner opens cobros", () => {
     await renderWithProviders(<CollectionsScreen initialMonth={feeMonth} />);
 
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("collections.orders") }),
+      await screen.findByRole("tab", { name: translate("collections.orders") }),
     );
 
     expect(await screen.findByText(/n\.º 1042/)).toBeOnTheScreen();

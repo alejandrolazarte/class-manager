@@ -15,11 +15,11 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { Chip } from "@/ui/Chip";
 import { EmptyState } from "@/ui/EmptyState";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { SegmentedControl } from "@/ui/SegmentedControl";
 import { Spinner } from "@/ui/Spinner";
 import { StepArrow } from "@/ui/StepArrow";
 
@@ -99,7 +99,17 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
             money={money}
           />
         ) : null}
-        <SegmentedControl options={filterOptions} selectedValue={filter} onChange={setFilter} />
+        <View className="flex-row flex-wrap gap-2">
+          {filterOptions.map((filterOption) => (
+            <Chip
+              key={filterOption.value}
+              label={filterOption.label}
+              accessibilityLabel={filterOption.accessibilityLabel}
+              isSelected={filter === filterOption.value}
+              onPress={() => setFilter(filterOption.value)}
+            />
+          ))}
+        </View>
         {isError ? (
           <Banner message={translate("common.unexpectedError")}>
             <Button
