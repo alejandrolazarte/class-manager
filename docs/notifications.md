@@ -2,7 +2,7 @@
 
 Date: 2026-10-02
 
-`src/Notifications` and `src/Notifications.Delivery` send emails and web push messages for any app. They know email layouts, brands, SMTP, VAPID and push encryption, never businesses, orders or families, so they can be reused like the [tenancy](tenancy.md), [security](security.md) and [import and export](import-export.md) libraries. ARCH006 keeps them free of `ClassManager.Core`, `Infrastructure`, `Api`, `Security`, `Tenancy` and `ImportExport` (see [analyzers](analyzers.md)).
+`src/Notifications` and `src/Notifications.Delivery` send emails and web push messages for any app. They know email layouts, brands, SMTP, VAPID and push encryption, never businesses, orders or students, so they can be reused like the [tenancy](tenancy.md), [security](security.md) and [import and export](import-export.md) libraries. ARCH006 keeps them free of `ClassManager.Core`, `Infrastructure`, `Api`, `Security`, `Tenancy` and `ImportExport` (see [analyzers](analyzers.md)).
 
 ## Contents
 

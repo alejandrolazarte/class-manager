@@ -29,8 +29,8 @@ public sealed class StudentImportModule(
     private const string ExportDateFormat = "dd/MM/yyyy";
     private const string InternationalPrefix = "+";
     private const string CountryCodeSeparator = " ";
-    private const string AlreadyRegisteredMessage = "The family already has a student with this name.";
-    private const string ContactMismatchMessage = "This phone belongs to a family with another Responsable. Check the phone or the Responsable.";
+    private const string AlreadyRegisteredMessage = "The client already has a student with this name.";
+    private const string ContactMismatchMessage = "This phone belongs to a client with another Responsable. Check the phone or the Responsable.";
 
     public string Name => ModuleName;
 
@@ -82,8 +82,8 @@ public sealed class StudentImportModule(
         }
 
         var now = timeProvider.GetUtcNow();
-        var families = await LoadExistingFamiliesAsync(rows, business.DefaultCountryCallingCode, cancellationToken);
-        var context = new StudentImportContext(business.DefaultCountryCallingCode, business.TodayAt(now), now, families);
+        var clients = await LoadExistingClientsAsync(rows, business.DefaultCountryCallingCode, cancellationToken);
+        var context = new StudentImportContext(business.DefaultCountryCallingCode, business.TodayAt(now), now, clients);
         var results = rows.Select(context.Plan).ToList();
 
         return new ImportPlan(results, () => AddValidRows(context));
@@ -128,7 +128,7 @@ public sealed class StudentImportModule(
             : phoneNumber.Value;
     }
 
-    private async Task<Dictionary<PhoneNumber, StudentImportFamily>> LoadExistingFamiliesAsync(
+    private async Task<Dictionary<PhoneNumber, StudentImportClient>> LoadExistingClientsAsync(
         IReadOnlyList<ImportRow> rows,
         string defaultCountryCallingCode,
         CancellationToken cancellationToken)
@@ -145,7 +145,7 @@ public sealed class StudentImportModule(
 
         return clients.ToDictionary(
             client => client.PhoneNumber,
-            client => new StudentImportFamily(
+            client => new StudentImportClient(
                 client,
                 isNew: false,
                 students.Where(student => student.ClientId == client.Id).Select(student => student.FullName)));
@@ -153,9 +153,9 @@ public sealed class StudentImportModule(
 
     private void AddValidRows(StudentImportContext context)
     {
-        foreach (var family in context.NewFamilies)
+        foreach (var client in context.NewClients)
         {
-            clientRepository.Add(family.Client);
+            clientRepository.Add(client.Client);
         }
 
         foreach (var student in context.NewStudents)
@@ -168,9 +168,9 @@ public sealed class StudentImportModule(
         string defaultCountryCallingCode,
         DateOnly today,
         DateTimeOffset now,
-        Dictionary<PhoneNumber, StudentImportFamily> familiesByPhoneNumber)
+        Dictionary<PhoneNumber, StudentImportClient> clientsByPhoneNumber)
     {
-        public List<StudentImportFamily> NewFamilies { get; } = [];
+        public List<StudentImportClient> NewClients { get; } = [];
 
         public List<Student> NewStudents { get; } = [];
 
@@ -183,13 +183,13 @@ public sealed class StudentImportModule(
             }
 
             var explicitContactName = row.GetText(ContactNameKey);
-            var family = familiesByPhoneNumber.GetValueOrDefault(phoneNumber.Value!);
-            if (family is not null && explicitContactName is not null && !family.HasContactName(explicitContactName))
+            var importClient = clientsByPhoneNumber.GetValueOrDefault(phoneNumber.Value!);
+            if (importClient is not null && explicitContactName is not null && !importClient.HasContactName(explicitContactName))
             {
                 return ImportRowResult.Error(row.LineNumber, new ImportCellError(ContactNameKey, ImportUseCaseErrorCodes.ContactMismatch, ContactMismatchMessage));
             }
 
-            if (family is null)
+            if (importClient is null)
             {
                 var client = Client.Create(
                     explicitContactName ?? row.GetText(StudentNameKey),
@@ -202,11 +202,11 @@ public sealed class StudentImportModule(
                     return Error(row, ClientFieldKey(client.Error!.FieldName, explicitContactName), client.Error);
                 }
 
-                family = new StudentImportFamily(client.Value!, isNew: true, []);
+                importClient = new StudentImportClient(client.Value!, isNew: true, []);
             }
 
             var student = Student.Create(
-                family.Client.Id,
+                importClient.Client.Id,
                 row.GetText(StudentNameKey),
                 row.GetDate(BirthDateKey),
                 row.GetText(StudentNotesKey),
@@ -217,24 +217,24 @@ public sealed class StudentImportModule(
                 return Error(row, StudentFieldKey(student.Error!.FieldName), student.Error);
             }
 
-            if (family.HasPlannedStudent(student.Value!.FullName))
+            if (importClient.HasPlannedStudent(student.Value!.FullName))
             {
                 return ImportRowResult.Error(row.LineNumber, ImportFlow.DuplicateInFile(StudentNameKey));
             }
 
-            if (family.HasExistingStudent(student.Value.FullName))
+            if (importClient.HasExistingStudent(student.Value.FullName))
             {
                 return ImportRowResult.Skipped(
                     row.LineNumber,
                     new ImportCellError(StudentNameKey, StudentErrorCodes.AlreadyRegistered, AlreadyRegisteredMessage));
             }
 
-            if (family.IsNew && familiesByPhoneNumber.TryAdd(phoneNumber.Value!, family))
+            if (importClient.IsNew && clientsByPhoneNumber.TryAdd(phoneNumber.Value!, importClient))
             {
-                NewFamilies.Add(family);
+                NewClients.Add(importClient);
             }
 
-            family.PlanStudent(student.Value.FullName);
+            importClient.PlanStudent(student.Value.FullName);
             NewStudents.Add(student.Value);
             return ImportRowResult.Valid(row.LineNumber);
         }
@@ -257,7 +257,7 @@ public sealed class StudentImportModule(
         };
     }
 
-    private sealed class StudentImportFamily(Client client, bool isNew, IEnumerable<string> existingStudentNames)
+    private sealed class StudentImportClient(Client client, bool isNew, IEnumerable<string> existingStudentNames)
     {
         private readonly HashSet<string> _existingStudentNames = new(existingStudentNames, StringComparer.CurrentCultureIgnoreCase);
         private readonly HashSet<string> _plannedStudentNames = new(StringComparer.CurrentCultureIgnoreCase);

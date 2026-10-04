@@ -112,7 +112,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<PushPublisher>();
         services.AddScoped(serviceProvider => new PushDispatcher(
             serviceProvider.GetRequiredService<AppDbContext>(), serviceProvider.GetRequiredService<IWebPushSender>()));
-        services.AddScoped<IFamilyNotificationService, FamilyNotificationService>();
+        services.AddScoped<IStudentAppNotificationService, StudentAppNotificationService>();
         services.AddScoped<TeamNotifier>();
         services.AddScoped<ITeamNotificationService, TeamNotificationService>();
 
@@ -143,8 +143,8 @@ public static class InfrastructureServiceCollectionExtensions
         });
 
         services.AddScoped<ITokenSubjectResolver, BusinessTokenSubjectResolver>();
-        services.AddScoped<IFamilyDirectory, FamilyDirectory>();
-        services.AddScoped<IFamilyAccess, CurrentFamily>();
+        services.AddScoped<IStudentAppDirectory, StudentAppDirectory>();
+        services.AddScoped<IStudentAppAccess, CurrentStudentApp>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ICurrentMember, CurrentMember>();

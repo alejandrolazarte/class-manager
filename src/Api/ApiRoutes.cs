@@ -4,11 +4,11 @@ public static class ApiRoutes
 {
     public const string Health = "/health";
     public const string Clients = "/api/clients";
-    public const string Family = "/api/family";
+    public const string StudentApp = "/api/student-app";
     public const string Team = "/api/team";
     public const string Notifications = "/notifications";
-    public const string FamilyNews = "/news";
-    public const string FamilyStudents = "/students";
+    public const string StudentAppNews = "/news";
+    public const string AccountStudents = "/students";
     public const string Absences = "/absences";
     public const string StudentAbsence = "/students/{studentId:guid}/absences/{classGroupId:guid}/{sessionDate}";
     public const string Makeups = "/makeups";
@@ -76,8 +76,8 @@ public static class ApiRoutes
     public const string Delivery = "/delivery";
     public const string DeliveryClasses = "/delivery-classes";
     public const string Deliveries = "/deliveries";
-    public const string FamilyShop = "/shop";
-    public const string FamilyOrders = "/orders";
+    public const string StudentAppShop = "/shop";
+    public const string StudentAppOrders = "/orders";
     public const string PaymentsSegment = "/payments";
     public const string Payments = "/api/payments";
     public const string PaymentById = "/{paymentId:guid}";
@@ -100,9 +100,9 @@ public static class ApiRoutes
     public const string InvitationsSegment = "/invitations";
     public const string InvitationById = "/invitations/{invitationId:guid}";
     public const string AcceptInvitation = "/invitations/accept";
-    public const string AcceptFamilyInvitation = "/family-invitations/accept";
+    public const string AcceptStudentAppInvitation = "/student-app-invitations/accept";
     public const string CheckInvitation = "/invitations/check";
-    public const string CheckFamilyInvitation = "/family-invitations/check";
+    public const string CheckStudentAppInvitation = "/student-app-invitations/check";
     public const string MyBranches = "/api/me/branches";
     public const string MyAccounts = "/api/me/accounts";
     public const string SwitchBranch = "/branch";

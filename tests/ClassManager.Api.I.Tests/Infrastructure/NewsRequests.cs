@@ -1,6 +1,6 @@
 using ClassManager.Core.UseCases.Announcements;
-using ClassManager.Core.UseCases.Families;
 using ClassManager.Core.UseCases.Sessions;
+using ClassManager.Core.UseCases.StudentApp;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
@@ -23,12 +23,12 @@ public static class NewsRequests
     public static Task<List<AnnouncementResponse>?> ListAnnouncementsAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<List<AnnouncementResponse>>(new Uri(ApiRoutes.Announcements, UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<FamilyNewsResponse?> GetFamilyNewsAsync(this HttpClient httpClient) =>
-        httpClient.GetFromJsonAsync<FamilyNewsResponse>(
-            new Uri(ApiRoutes.Family + ApiRoutes.FamilyNews, UriKind.Relative), ApiRequests.JsonOptions);
+    public static Task<StudentAppNewsResponse?> GetStudentAppNewsAsync(this HttpClient httpClient) =>
+        httpClient.GetFromJsonAsync<StudentAppNewsResponse>(
+            new Uri(ApiRoutes.StudentApp + ApiRoutes.StudentAppNews, UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PutFamilyNewsSeenAsync(this HttpClient httpClient) =>
-        httpClient.PutAsJsonAsync(ApiRoutes.Family + ApiRoutes.FamilyNews + ApiRoutes.Seen, new { }, ApiRequests.JsonOptions);
+    public static Task<HttpResponseMessage> PutStudentAppNewsSeenAsync(this HttpClient httpClient) =>
+        httpClient.PutAsJsonAsync(ApiRoutes.StudentApp + ApiRoutes.StudentAppNews + ApiRoutes.Seen, new { }, ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutSessionCancellationAsync(
         this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, string reason) =>

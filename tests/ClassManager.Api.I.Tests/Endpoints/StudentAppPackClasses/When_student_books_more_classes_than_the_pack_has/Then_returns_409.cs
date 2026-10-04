@@ -1,0 +1,20 @@
+using ClassManager.Core.Domain.Sessions;
+
+namespace ClassManager.Api.I.Tests.Endpoints.StudentAppPackClasses.When_student_books_more_classes_than_the_pack_has;
+
+[Collection(SqlServerCollectionDefinition.Name)]
+public sealed class Then_returns_409(ApiFixture fixture)
+{
+    [Fact]
+    public async Task Then_returns_409_Run()
+    {
+        var scenario = await fixture.SeedPackStudentAppScenarioAsync(classCount: 1);
+        await scenario.BookPackClassAsync();
+
+        using var response = await scenario.Student.PutPackClassAsync(
+            scenario.StudentId, scenario.PackClassGroupId, CoachScenario.ClassDate.AddDays(7));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await response.Content.ReadAsStringAsync()).ShouldContain(SessionErrorCodes.PackNoClasses);
+    }
+}

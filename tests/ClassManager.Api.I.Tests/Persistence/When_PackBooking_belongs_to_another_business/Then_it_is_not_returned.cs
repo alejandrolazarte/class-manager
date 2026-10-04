@@ -9,7 +9,7 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
     public async Task Then_it_is_not_returned_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        var otherScenario = await fixture.SeedPackFamilyScenarioAsync();
+        var otherScenario = await fixture.SeedPackStudentAppScenarioAsync();
         await otherScenario.BookPackClassAsync();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);

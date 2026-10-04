@@ -24,12 +24,12 @@ public sealed class PushDispatcher
     public Task DispatchAsync(PushJob push, CancellationToken cancellationToken) =>
         push switch
         {
-            FamilyPush familyPush => DispatchToFamiliesAsync(familyPush, cancellationToken),
+            StudentAppPush studentAppPush => DispatchToStudentsAsync(studentAppPush, cancellationToken),
             TeamPush teamPush => DispatchToMembersAsync(teamPush, cancellationToken),
             _ => Task.CompletedTask,
         };
 
-    private async Task DispatchToFamiliesAsync(FamilyPush push, CancellationToken cancellationToken)
+    private async Task DispatchToStudentsAsync(StudentAppPush push, CancellationToken cancellationToken)
     {
         var query = _context.PushSubscriptions.AsQueryable();
         if (push.ClientIds is { } clientIds)

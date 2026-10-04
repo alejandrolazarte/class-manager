@@ -9,10 +9,10 @@ public sealed class Then_owner_sees_who_recorded_it(ApiFixture fixture)
         var scenario = await fixture.SeedCollectorScenarioAsync();
         var collectorUserId = (await scenario.Collector.GetCurrentMemberAsync()).UserId;
 
-        using var response = await scenario.Collector.PostPaymentAsync(scenario.CollectorFamilyId);
+        using var response = await scenario.Collector.PostPaymentAsync(scenario.CollectorClientId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var payments = await scenario.Coaches.Business.HttpClient.GetClientPaymentsAsync(scenario.CollectorFamilyId);
+        var payments = await scenario.Coaches.Business.HttpClient.GetClientPaymentsAsync(scenario.CollectorClientId);
         payments!.Single().RecordedByUserId.ShouldBe(collectorUserId);
     }
 }

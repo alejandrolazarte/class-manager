@@ -7,7 +7,7 @@ describe("When tailwind config is loaded", () => {
     const configuredFontFamilies = tailwindConfig.theme.extend.fontFamily;
 
     const expectedFontFamilies = Object.fromEntries(
-      Object.entries(fontFamilies).map(([role, family]) => [role, [family]]),
+      Object.entries(fontFamilies).map(([role, student]) => [role, [student]]),
     );
     expect(configuredFontFamilies).toEqual(expectedFontFamilies);
   });

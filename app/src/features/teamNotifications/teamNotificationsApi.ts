@@ -1,5 +1,5 @@
 import { httpClient } from "@/api/httpClient";
-import { BrowserPushSubscription } from "@/features/family/push/browserPush";
+import { BrowserPushSubscription } from "@/features/studentApp/push/browserPush";
 import { TeamNotifications, TeamPushKey } from "@/features/teamNotifications/types";
 
 const teamPath = "/api/team";

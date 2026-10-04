@@ -14,24 +14,24 @@ internal static class OrderEmails
     public const string ClassesCredited = "Las clases ya están cargadas en tu cuenta.";
     public const string WillNotifyWhenReady = "Te avisamos cuando los productos estén listos para entregar.";
 
-    private const string FamilyEyebrowPrefix = "Pedido ";
+    private const string StudentAppEyebrowPrefix = "Pedido ";
     private const string TeamEyebrowPrefix = "Nuevo pedido · ";
     private const string DeliveryLabel = "Entrega";
-    private const string FamilyAction = "Ver pedido en la app";
+    private const string StudentAppAction = "Ver pedido en la app";
     private const string TeamAction = "Abrir pedidos";
-    private const string FamilyFooter = "Recibís este mail porque hiciste un pedido en la app.";
+    private const string StudentAppFooter = "Recibís este mail porque hiciste un pedido en la app.";
     private const string AmountFormat = "N2";
     private const string QuantitySeparator = " × ";
 
     private static readonly CultureInfo SpanishCulture = CultureInfo.GetCultureInfo("es-ES");
 
-    public static EmailMessage Placed(OrderEmailContext order, string familyName, string? delivery, string teamOrdersLink) =>
+    public static EmailMessage Placed(OrderEmailContext order, string clientName, string? delivery, string teamOrdersLink) =>
         new(
             order.To,
-            PlacedSubject(order.Number, familyName),
+            PlacedSubject(order.Number, clientName),
             new EmailContent(
                 TeamEyebrowPrefix + NumberOf(order.Number),
-                $"{familyName} hizo un pedido desde la app",
+                $"{clientName} hizo un pedido desde la app",
                 "Se paga en la sede. Cuando lo cobres, confirmá el pago en Pedidos.",
                 $"Recibís este mail porque gestionás los pedidos de {order.BusinessName}.")
             {
@@ -42,39 +42,39 @@ internal static class OrderEmails
             },
             order.BusinessId);
 
-    public static EmailMessage Paid(OrderEmailContext order, string nextStep, bool hasProducts, string familyOrdersLink) =>
-        ForFamily(
+    public static EmailMessage Paid(OrderEmailContext order, string nextStep, bool hasProducts, string studentAppOrdersLink) =>
+        ForStudentApp(
             order,
             PaidSubject,
             $"{order.BusinessName} confirmó el pago de tu pedido.",
             new EmailNote(nextStep, hasProducts ? DeliveryLabel : null),
-            familyOrdersLink);
+            studentAppOrdersLink);
 
-    public static EmailMessage Ready(OrderEmailContext order, string whereToGetIt, string familyOrdersLink) =>
-        ForFamily(
+    public static EmailMessage Ready(OrderEmailContext order, string whereToGetIt, string studentAppOrdersLink) =>
+        ForStudentApp(
             order,
             ReadySubject,
             $"Tu pedido de {order.BusinessName} ya está listo para entregar.",
             new EmailNote(whereToGetIt, DeliveryLabel),
-            familyOrdersLink);
+            studentAppOrdersLink);
 
-    public static EmailMessage CancelledUnpaid(OrderEmailContext order, string familyOrdersLink) =>
-        ForFamily(
+    public static EmailMessage CancelledUnpaid(OrderEmailContext order, string studentAppOrdersLink) =>
+        ForStudentApp(
             order,
             CancelledSubject,
             $"Tu pedido de {order.BusinessName} se canceló porque no se pagó en 7 días.",
             new EmailNote("Si todavía lo querés, podés pedirlo de nuevo desde la app."),
-            familyOrdersLink);
+            studentAppOrdersLink);
 
-    public static EmailMessage CancelledByBranch(OrderEmailContext order, string familyOrdersLink) =>
-        ForFamily(
+    public static EmailMessage CancelledByBranch(OrderEmailContext order, string studentAppOrdersLink) =>
+        ForStudentApp(
             order,
             CancelledSubject,
             $"{order.BusinessName} canceló tu pedido.",
             new EmailNote("Si tenés dudas, consultá en la sede."),
-            familyOrdersLink);
+            studentAppOrdersLink);
 
-    public static string PlacedSubject(int orderNumber, string familyName) => $"Nuevo pedido {NumberOf(orderNumber)} de {familyName}";
+    public static string PlacedSubject(int orderNumber, string clientName) => $"Nuevo pedido {NumberOf(orderNumber)} de {clientName}";
 
     public static string NumberOf(int orderNumber) => NumberPrefix + orderNumber.ToString(CultureInfo.InvariantCulture);
 
@@ -91,16 +91,16 @@ internal static class OrderEmails
     public static string DeliveryForBranch(string? classGroupName) =>
         classGroupName is null ? "Retiro en la sede." : $"En la clase {classGroupName}.";
 
-    private static EmailMessage ForFamily(OrderEmailContext order, string subject, string intro, EmailNote note, string familyOrdersLink) =>
+    private static EmailMessage ForStudentApp(OrderEmailContext order, string subject, string intro, EmailNote note, string studentAppOrdersLink) =>
         new(
             order.To,
             subject,
-            new EmailContent(FamilyEyebrowPrefix + NumberOf(order.Number), subject, intro, FamilyFooter)
+            new EmailContent(StudentAppEyebrowPrefix + NumberOf(order.Number), subject, intro, StudentAppFooter)
             {
                 Lines = order.Lines,
                 Total = order.Total,
                 Note = note,
-                Action = new EmailAction(FamilyAction, familyOrdersLink),
+                Action = new EmailAction(StudentAppAction, studentAppOrdersLink),
             },
             order.BusinessId);
 }

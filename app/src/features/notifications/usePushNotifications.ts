@@ -6,7 +6,7 @@ import {
   currentBrowserSubscription,
   subscribeBrowser,
   unsubscribeBrowser,
-} from "@/features/family/push/browserPush";
+} from "@/features/studentApp/push/browserPush";
 import { translate } from "@/i18n/translate";
 import { useToast } from "@/ui/ToastProvider";
 
@@ -63,7 +63,7 @@ export function usePushNotifications(channel: PushChannel): PushNotifications {
     },
     onSuccess: (isOn, turnOn) => {
       if (turnOn && !isOn) {
-        showToast(translate("family.notifications.notAllowed"));
+        showToast(translate("student.notifications.notAllowed"));
       }
       return queryClient.invalidateQueries({ queryKey: channel.subscriptionQueryKey });
     },

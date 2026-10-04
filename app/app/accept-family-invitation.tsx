@@ -1,5 +1,5 @@
-import { AcceptFamilyInvitationScreen } from "@/features/family/screens/AcceptFamilyInvitationScreen";
+import { AcceptStudentAppInvitationScreen } from "@/features/studentApp/screens/AcceptStudentAppInvitationScreen";
 
-export default function AcceptFamilyInvitationRoute() {
-  return <AcceptFamilyInvitationScreen />;
+export default function LegacyAcceptInvitationRoute() {
+  return <AcceptStudentAppInvitationScreen />;
 }

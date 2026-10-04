@@ -69,7 +69,7 @@ module.exports = {
     extend: {
       colors: themeColors,
       fontFamily: Object.fromEntries(
-        Object.entries(fontFamilies).map(([role, family]) => [role, [family]]),
+        Object.entries(fontFamilies).map(([role, student]) => [role, [student]]),
       ),
     },
   },

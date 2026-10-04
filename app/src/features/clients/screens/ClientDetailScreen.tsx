@@ -7,7 +7,7 @@ import {
 import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
-import { InviteFamilySection } from "@/features/family/components/InviteFamilySection";
+import { InviteStudentAppSection } from "@/features/studentApp/components/InviteStudentAppSection";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
@@ -138,7 +138,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           ) : null}
         </View>
       ) : null}
-      {canManageStudents ? <InviteFamilySection client={client} /> : null}
+      {canManageStudents ? <InviteStudentAppSection client={client} /> : null}
       {canSellAtCounter ? (
         <Button
           variant="secondary"

@@ -1,6 +1,6 @@
 using System.Buffers.Text;
 using System.Security.Cryptography;
-using ClassManager.Core.UseCases.Families;
+using ClassManager.Core.UseCases.StudentApp;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
@@ -8,7 +8,7 @@ public static class PushRequests
 {
     private const int AuthSecretLength = 16;
 
-    private static string SubscriptionPath => ApiRoutes.Family + ApiRoutes.PushSubscription;
+    private static string SubscriptionPath => ApiRoutes.StudentApp + ApiRoutes.PushSubscription;
 
     public static SavePushSubscriptionCommand NewSubscription()
     {
@@ -25,13 +25,13 @@ public static class PushRequests
     public static Task<HttpResponseMessage> DeletePushSubscriptionAsync(this HttpClient httpClient, string endpoint) =>
         httpClient.DeleteAsync(new Uri($"{SubscriptionPath}?endpoint={Uri.EscapeDataString(endpoint)}", UriKind.Relative));
 
-    public static Task<FamilyPushKeyResponse?> GetPushKeyAsync(this HttpClient httpClient) =>
-        httpClient.GetFromJsonAsync<FamilyPushKeyResponse>(new Uri(ApiRoutes.Family + ApiRoutes.PushKey, UriKind.Relative), ApiRequests.JsonOptions);
+    public static Task<StudentAppPushKeyResponse?> GetPushKeyAsync(this HttpClient httpClient) =>
+        httpClient.GetFromJsonAsync<StudentAppPushKeyResponse>(new Uri(ApiRoutes.StudentApp + ApiRoutes.PushKey, UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static async Task<string> SubscribeAsync(this FamilyScenario scenario)
+    public static async Task<string> SubscribeAsync(this StudentAppScenario scenario)
     {
         var subscription = NewSubscription();
-        (await scenario.Family.PutPushSubscriptionAsync(subscription)).EnsureSuccessStatusCode();
+        (await scenario.Student.PutPushSubscriptionAsync(subscription)).EnsureSuccessStatusCode();
         return subscription.Endpoint!;
     }
 }

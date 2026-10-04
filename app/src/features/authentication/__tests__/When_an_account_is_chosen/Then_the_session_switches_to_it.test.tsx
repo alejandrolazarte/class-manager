@@ -19,17 +19,17 @@ jest.mock("@/features/authentication/useSession", () => ({
   }),
 }));
 
-const familyAccount = buildAccount({
+const studentAccount = buildAccount({
   businessId: "business-school",
   businessName: "Escuela Brazada",
-  kind: "family",
+  kind: "student",
   isCurrent: false,
 });
 
 describe("When an account is chosen", () => {
   beforeEach(() => {
     mockSwitchAccount.mockReset().mockResolvedValue(undefined);
-    jest.mocked(listAccounts).mockResolvedValue([buildAccount(), familyAccount]);
+    jest.mocked(listAccounts).mockResolvedValue([buildAccount(), studentAccount]);
   });
 
   it("Then the session switches to it", async () => {
@@ -37,11 +37,11 @@ describe("When an account is chosen", () => {
 
     await fireEvent.press(
       await screen.findByRole("button", {
-        name: translate("accounts.asFamily", { name: familyAccount.businessName }),
+        name: translate("accounts.asStudent", { name: studentAccount.businessName }),
       }),
     );
 
-    await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith(routes.family));
-    expect(mockSwitchAccount).toHaveBeenCalledWith("business-school", "family");
+    await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith(routes.studentApp));
+    expect(mockSwitchAccount).toHaveBeenCalledWith("business-school", "student");
   });
 });

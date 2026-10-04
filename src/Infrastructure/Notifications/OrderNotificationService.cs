@@ -63,10 +63,10 @@ internal sealed partial class OrderNotificationService(
             PushReady(order, nextStep);
         }
 
-        foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
+        foreach (var email in await ClientEmailsAsync(order, cancellationToken))
         {
             await SendAsync(
-                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.FamilyOrders()),
+                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.StudentAppOrders()),
                 cancellationToken);
         }
     }
@@ -81,9 +81,9 @@ internal sealed partial class OrderNotificationService(
 
         var whereToGetIt = await WhereToGetItAsync(order, business, cancellationToken);
         PushReady(order, whereToGetIt);
-        foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
+        foreach (var email in await ClientEmailsAsync(order, cancellationToken))
         {
-            await SendAsync(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.FamilyOrders()), cancellationToken);
+            await SendAsync(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.StudentAppOrders()), cancellationToken);
         }
     }
 
@@ -95,12 +95,12 @@ internal sealed partial class OrderNotificationService(
             return;
         }
 
-        foreach (var email in await FamilyEmailsAsync(order, cancellationToken))
+        foreach (var email in await ClientEmailsAsync(order, cancellationToken))
         {
             var emailContext = EmailContextOf(order, business, email);
             var message = reason == OrderCancellationReason.Unpaid
-                ? OrderEmails.CancelledUnpaid(emailContext, webAppLinks.FamilyOrders())
-                : OrderEmails.CancelledByBranch(emailContext, webAppLinks.FamilyOrders());
+                ? OrderEmails.CancelledUnpaid(emailContext, webAppLinks.StudentAppOrders())
+                : OrderEmails.CancelledByBranch(emailContext, webAppLinks.StudentAppOrders());
             await SendAsync(message, cancellationToken);
         }
     }
@@ -118,7 +118,7 @@ internal sealed partial class OrderNotificationService(
     {
         if (order.ClientId is { } clientId)
         {
-            pushPublisher.PublishToFamilies([clientId], new PushMessage(FamilyPushTexts.OrderReadyTitle, whereToGetIt, FamilyPushTexts.OrdersUrl));
+            pushPublisher.PublishToStudents([clientId], new PushMessage(StudentAppPushTexts.OrderReadyTitle, whereToGetIt, StudentAppPushTexts.OrdersUrl));
         }
     }
 
@@ -143,7 +143,7 @@ internal sealed partial class OrderNotificationService(
             ? OrderEmails.InClass(classGroupName)
             : OrderEmails.PickupAt(business.Name);
 
-    private async Task<IReadOnlyList<string>> FamilyEmailsAsync(Order order, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<string>> ClientEmailsAsync(Order order, CancellationToken cancellationToken)
     {
         if (order.ClientId is not { } clientId)
         {

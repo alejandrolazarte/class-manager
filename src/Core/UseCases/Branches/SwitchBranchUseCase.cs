@@ -12,7 +12,7 @@ public sealed class SwitchBranchUseCase(ITokenService tokenService) : IUseCase<S
     {
         if (string.IsNullOrWhiteSpace(command.RefreshToken)
             || command.BusinessId is not { } businessId
-            || (command.Kind is not null && !AccountKinds.IsTeam(command.Kind) && !AccountKinds.IsFamily(command.Kind)))
+            || (command.Kind is not null && !AccountKinds.IsTeam(command.Kind) && !AccountKinds.IsStudent(command.Kind)))
         {
             return Unavailable();
         }

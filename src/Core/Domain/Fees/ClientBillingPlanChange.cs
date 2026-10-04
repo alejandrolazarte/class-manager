@@ -5,8 +5,8 @@ namespace ClassManager.Core.Domain.Fees;
 
 public sealed class ClientBillingPlanChange : ITenantOwned
 {
-    private const string KindRequiredMessage = "Choose how the family pays.";
-    private const string CustomFeeRequiredMessage = "Enter the family's monthly fee.";
+    private const string KindRequiredMessage = "Choose how the client pays.";
+    private const string CustomFeeRequiredMessage = "Enter the client's monthly fee.";
 
     private ClientBillingPlanChange()
     {

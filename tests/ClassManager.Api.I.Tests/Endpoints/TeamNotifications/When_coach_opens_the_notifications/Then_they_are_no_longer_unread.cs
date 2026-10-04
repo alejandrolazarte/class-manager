@@ -6,8 +6,8 @@ public sealed class Then_they_are_no_longer_unread(ApiFixture fixture)
     [Fact]
     public async Task Then_they_are_no_longer_unread_Run()
     {
-        var scenario = await fixture.SeedFamilyScenarioAsync();
-        (await scenario.Family.PutAbsenceAsync(
+        var scenario = await fixture.SeedStudentAppScenarioAsync();
+        (await scenario.Student.PutAbsenceAsync(
             scenario.Coaches.CoachStudentId, scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate.AddDays(7))).EnsureSuccessStatusCode();
 
         using var response = await scenario.Coaches.Coach.PutTeamNotificationsSeenAsync();

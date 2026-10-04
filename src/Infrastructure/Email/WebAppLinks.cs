@@ -8,8 +8,8 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public const string WebAppUrlSetting = "WebApp:Url";
     public const string ResetPasswordPath = "/reset-password?token=";
     public const string AcceptInvitationPath = "/accept-invitation?token=";
-    public const string AcceptFamilyInvitationPath = "/accept-family-invitation?token=";
-    public const string FamilyOrdersPath = "/family/orders";
+    public const string AcceptStudentAppInvitationPath = "/accept-student-invitation?token=";
+    public const string StudentAppOrdersPath = "/student-app/orders";
     public const string TeamOrdersPath = "/today/orders";
 
     private const string MissingWebAppUrlMessage = "Set " + WebAppUrlSetting + " to the web app address.";
@@ -20,10 +20,10 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public string AcceptInvitation(string token) =>
         WebAppUrl() + AcceptInvitationPath + Uri.EscapeDataString(token);
 
-    public string AcceptFamilyInvitation(string token) =>
-        WebAppUrl() + AcceptFamilyInvitationPath + Uri.EscapeDataString(token);
+    public string AcceptStudentAppInvitation(string token) =>
+        WebAppUrl() + AcceptStudentAppInvitationPath + Uri.EscapeDataString(token);
 
-    public string FamilyOrders() => WebAppUrl() + FamilyOrdersPath;
+    public string StudentAppOrders() => WebAppUrl() + StudentAppOrdersPath;
 
     public string TeamOrders() => WebAppUrl() + TeamOrdersPath;
 

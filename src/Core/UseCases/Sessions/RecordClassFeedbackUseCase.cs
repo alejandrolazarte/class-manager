@@ -21,7 +21,7 @@ public sealed class RecordClassFeedbackUseCase(
     IClassFeedbackRepository feedbackRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    IFamilyNotificationService familyNotifications,
+    IStudentAppNotificationService studentAppNotifications,
     TimeProvider timeProvider,
     IAccessScopes accessScopes)
     : IUseCase<RecordClassFeedbackCommand, bool>
@@ -111,7 +111,7 @@ public sealed class RecordClassFeedbackUseCase(
 
         if (createdFeedback is not null)
         {
-            await familyNotifications.FeedbackLeftAsync(createdFeedback, cancellationToken);
+            await studentAppNotifications.FeedbackLeftAsync(createdFeedback, cancellationToken);
         }
 
         return true;

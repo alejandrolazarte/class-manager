@@ -13,8 +13,8 @@ internal sealed class SignInUseCaseBuilder
     public Mock<IIdentityService> Identity { get; } = new();
     public Mock<ITokenService> Tokens { get; } = new();
     public Mock<IBranchDirectory> Branches { get; } = new();
-    public Mock<IFamilyDirectory> Families { get; } = new();
-    public FamilyLink Family { get; } = new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7());
+    public Mock<IStudentAppDirectory> StudentApp { get; } = new();
+    public StudentAppLink Student { get; } = new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7());
 
     public SignInUseCaseBuilder()
     {
@@ -34,8 +34,8 @@ internal sealed class SignInUseCaseBuilder
     public void WithoutBranch() =>
         Branches.Setup(directory => directory.FindDefaultAsync(UserId, It.IsAny<CancellationToken>())).ReturnsAsync((BranchAccess?)null);
 
-    public void WithFamily() =>
-        Families.Setup(directory => directory.FindDefaultAsync(UserId, It.IsAny<CancellationToken>())).ReturnsAsync(Family);
+    public void WithStudentAccount() =>
+        StudentApp.Setup(directory => directory.FindDefaultAsync(UserId, It.IsAny<CancellationToken>())).ReturnsAsync(Student);
 
-    public SignInUseCase Build() => new(Identity.Object, Tokens.Object, Branches.Object, Families.Object);
+    public SignInUseCase Build() => new(Identity.Object, Tokens.Object, Branches.Object, StudentApp.Object);
 }

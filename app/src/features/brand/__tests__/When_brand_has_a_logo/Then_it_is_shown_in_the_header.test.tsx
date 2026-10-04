@@ -15,7 +15,7 @@ describe("When brand has a logo", () => {
 
   it("Then it is shown in the header", async () => {
     await renderWithSession(
-      <BrandProvider audience="family">
+      <BrandProvider audience="student">
         <CurrentBrandLogo />
       </BrandProvider>,
     );

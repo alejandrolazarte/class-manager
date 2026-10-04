@@ -61,7 +61,7 @@ export function SettingsScreen() {
   const { data: branches = [] } = useBranches();
   const { data: classPacks } = useClassPacks(false, { enabled: canViewClassPacks });
   const { data: products } = useProducts(false, { enabled: canViewProducts });
-  const hasFamilyAccount = useHasOtherAccountKind("team");
+  const hasStudentAccount = useHasOtherAccountKind("team");
   const currentBranchName = branches.find((branch) => branch.isCurrent)?.name ?? business.name;
   const currentBrand = useCurrentBrand();
   const hasCustomBrand =
@@ -199,7 +199,7 @@ export function SettingsScreen() {
           key: "notifications",
           isVisible: pushNotifications.status !== "unavailable",
           icon: "notifications",
-          label: translate("family.notifications.title"),
+          label: translate("student.notifications.title"),
           value: notificationsValue(pushNotifications),
           onPress: () => setOpenSheet("notifications"),
         },
@@ -218,7 +218,7 @@ export function SettingsScreen() {
       items: [
         {
           key: "accounts",
-          isVisible: hasFamilyAccount,
+          isVisible: hasStudentAccount,
           icon: "home",
           label: translate("accounts.switch"),
           onPress: () => router.push(routes.chooseAccount),

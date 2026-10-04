@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import { authenticationSession } from "@/api/authenticationSession";
 import {
-  acceptFamilyInvitation as acceptFamilyInvitationRequest,
+  acceptStudentAppInvitation as acceptStudentAppInvitationRequest,
   acceptInvitation as acceptInvitationRequest,
   refreshSession,
   signIn as signInRequest,
@@ -14,7 +14,7 @@ import {
 import { SessionKind, sessionKindOf } from "@/features/authentication/sessionKind";
 import { refreshTokenStorage } from "@/features/authentication/sessionStorage";
 import {
-  AcceptFamilyInvitationRequest,
+  AcceptStudentAppInvitationRequest,
   AcceptInvitationRequest,
   SignInRequest,
   SignUpRequest,
@@ -25,7 +25,7 @@ export type SessionStartReason =
   | "signUp"
   | "signIn"
   | "invitation"
-  | "familyInvitation"
+  | "studentAppInvitation"
   | "branchSwitch"
   | "accountSwitch"
   | "restore";
@@ -46,7 +46,7 @@ export interface SessionContextValue {
   signIn: (request: SignInRequest) => Promise<void>;
   signUp: (request: SignUpRequest) => Promise<void>;
   acceptInvitation: (request: AcceptInvitationRequest) => Promise<void>;
-  acceptFamilyInvitation: (request: AcceptFamilyInvitationRequest) => Promise<void>;
+  acceptStudentAppInvitation: (request: AcceptStudentAppInvitationRequest) => Promise<void>;
   switchBranch: (businessId: string) => Promise<void>;
   switchAccount: (businessId: string, kind: SessionKind) => Promise<void>;
   confirmAccount: () => void;
@@ -62,12 +62,12 @@ class MissingRefreshTokenError extends Error {
 
 const signedOutSession: SessionState = { status: "signedOut" };
 
-async function hasTeamAndFamilyAccounts(): Promise<boolean> {
+async function hasTeamAndStudentAccounts(): Promise<boolean> {
   const accounts = await listAccounts().catch(() => undefined);
   return (
     accounts !== undefined &&
     accounts.some((account) => account.kind === "team") &&
-    accounts.some((account) => account.kind === "family")
+    accounts.some((account) => account.kind === "student")
   );
 }
 
@@ -133,7 +133,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     ) => {
       authenticationSession.startSession(tokens.accessToken);
       await refreshTokenStorage.write(tokens.refreshToken);
-      const mustChooseAccount = askForAccount && (await hasTeamAndFamilyAccounts());
+      const mustChooseAccount = askForAccount && (await hasTeamAndStudentAccounts());
       setSession({
         status: "signedIn",
         startedBy,
@@ -163,9 +163,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
     [startSession],
   );
 
-  const acceptFamilyInvitation = useCallback(
-    async (request: AcceptFamilyInvitationRequest) =>
-      startSession(await acceptFamilyInvitationRequest(request), "familyInvitation"),
+  const acceptStudentAppInvitation = useCallback(
+    async (request: AcceptStudentAppInvitationRequest) =>
+      startSession(await acceptStudentAppInvitationRequest(request), "studentAppInvitation"),
     [startSession],
   );
 
@@ -218,7 +218,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       signIn,
       signUp,
       acceptInvitation,
-      acceptFamilyInvitation,
+      acceptStudentAppInvitation,
       switchBranch,
       switchAccount,
       confirmAccount,
@@ -229,7 +229,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       signIn,
       signUp,
       acceptInvitation,
-      acceptFamilyInvitation,
+      acceptStudentAppInvitation,
       switchBranch,
       switchAccount,
       confirmAccount,

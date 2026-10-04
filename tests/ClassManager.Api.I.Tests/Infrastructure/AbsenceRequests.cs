@@ -7,7 +7,7 @@ public static class AbsenceRequests
     private const string IsoDateFormat = "yyyy-MM-dd";
 
     public static string AbsencePath(Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
-        $"{ApiRoutes.Family}{ApiRoutes.FamilyStudents}/{studentId}{ApiRoutes.Absences}/{classGroupId}/{sessionDate.ToString(IsoDateFormat, CultureInfo.InvariantCulture)}";
+        $"{ApiRoutes.StudentApp}{ApiRoutes.AccountStudents}/{studentId}{ApiRoutes.Absences}/{classGroupId}/{sessionDate.ToString(IsoDateFormat, CultureInfo.InvariantCulture)}";
 
     public static Task<HttpResponseMessage> PutAbsenceAsync(this HttpClient httpClient, Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
         httpClient.PutAsJsonAsync(AbsencePath(studentId, classGroupId, sessionDate), new { }, ApiRequests.JsonOptions);

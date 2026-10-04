@@ -25,7 +25,7 @@ public static class AnnouncementErrorCodes
 public sealed class CreateAnnouncementUseCase(
     IAnnouncementRepository announcementRepository,
     IUnitOfWork unitOfWork,
-    IFamilyNotificationService familyNotifications,
+    IStudentAppNotificationService studentAppNotifications,
     TimeProvider timeProvider)
     : IUseCase<CreateAnnouncementCommand, AnnouncementResponse>
 {
@@ -39,7 +39,7 @@ public sealed class CreateAnnouncementUseCase(
 
         announcementRepository.Add(announcement.Value!);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await familyNotifications.AnnouncementPublishedAsync(announcement.Value!, cancellationToken);
+        await studentAppNotifications.AnnouncementPublishedAsync(announcement.Value!, cancellationToken);
         return AnnouncementResponse.From(announcement.Value!);
     }
 }

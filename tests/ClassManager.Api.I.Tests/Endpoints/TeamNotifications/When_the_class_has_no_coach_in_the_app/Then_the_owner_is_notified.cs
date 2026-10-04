@@ -6,7 +6,7 @@ public sealed class Then_the_owner_is_notified(ApiFixture fixture)
     [Fact]
     public async Task Then_the_owner_is_notified_Run()
     {
-        var scenario = await fixture.SeedFamilyScenarioAsync();
+        var scenario = await fixture.SeedStudentAppScenarioAsync();
 
         await scenario.NoticeAndBookOtherClassAsync();
 

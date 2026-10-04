@@ -34,7 +34,7 @@ export interface AcceptInvitationRequest {
   password: string;
 }
 
-export interface AcceptFamilyInvitationRequest {
+export interface AcceptStudentAppInvitationRequest {
   token: string;
   fullName: string;
   password: string;

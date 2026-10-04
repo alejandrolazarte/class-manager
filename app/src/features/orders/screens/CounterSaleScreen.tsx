@@ -8,7 +8,7 @@ import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPic
 import { formatMoney } from "@/features/fees/money";
 import { PaymentMethod } from "@/features/fees/types";
 import { counterSaleLines, counterSaleTotal, maximumUnitsOf } from "@/features/orders/counterSale";
-import { DeliveryPicker } from "@/features/family/components/DeliveryPicker";
+import { DeliveryPicker } from "@/features/studentApp/components/DeliveryPicker";
 import { useCreateCounterSale } from "@/features/orders/useOrderMutations";
 import { useDeliveryClasses } from "@/features/orders/useOrders";
 import { productErrorCodes } from "@/features/products/productErrorCodes";

@@ -36,7 +36,7 @@ export function ClassDeliveriesCard({ classGroupId }: ClassDeliveriesCardProps) 
         <View key={delivery.orderId} className="flex-row items-center justify-between gap-3">
           <View className="flex-1 gap-0.5">
             <AppText variant="bodyStrong">
-              {delivery.clientFullName ?? translate("sessions.deliveries.noFamily")}
+              {delivery.clientFullName ?? translate("sessions.deliveries.noClient")}
             </AppText>
             <AppText variant="caption" tone="subtle">
               {delivery.lines

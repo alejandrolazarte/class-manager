@@ -23,7 +23,7 @@ describe("When order notification is opened without payments", () => {
   it("Then orders stay in today", async () => {
     await renderWithProviders(<NotifiedOrdersScreen />, { member: ordersOnlyMember });
 
-    await screen.findByText(translate("orders.noFamily"));
+    await screen.findByText(translate("orders.noClient"));
     expect(routerMock.replace).not.toHaveBeenCalled();
   });
 });

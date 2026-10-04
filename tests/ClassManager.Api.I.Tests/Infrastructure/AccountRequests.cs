@@ -3,7 +3,7 @@ using ClassManager.Core.UseCases.Branches;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed record OwnerAndFamily(FamilyScenario Family, Guid OwnBusinessId, string OwnBusinessName, string Email, TokenResponse OwnerTokens);
+public sealed record OwnerAndStudent(StudentAppScenario Student, Guid OwnBusinessId, string OwnBusinessName, string Email, TokenResponse OwnerTokens);
 
 public static class AccountRequests
 {
@@ -15,7 +15,7 @@ public static class AccountRequests
     public static Task<HttpResponseMessage> PostSwitchAccountAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string kind) =>
         httpClient.PostAsJsonAsync(SwitchRoute, new SwitchBranchCommand(refreshToken, businessId, kind), ApiRequests.JsonOptions);
 
-    public static async Task<OwnerAndFamily> SeedOwnerWhoIsAlsoFamilyAsync(this ApiFixture fixture)
+    public static async Task<OwnerAndStudent> SeedOwnerWhoIsAlsoStudentAsync(this ApiFixture fixture)
     {
         var coaches = await fixture.SeedCoachScenarioAsync();
         var email = AuthenticationRequests.UniqueEmail();
@@ -25,12 +25,12 @@ public static class AccountRequests
         var ownBusiness = (await ownerClient.ListBranchesAsync()).Single();
 
         var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
-        var familyId = fees!.Clients.Single(client => client.StudentNames.Contains(CoachScenario.CoachStudentFullName)).ClientId;
-        (await coaches.Business.HttpClient.PostFamilyInvitationAsync(familyId, email)).EnsureSuccessStatusCode();
-        (await anonymous.PostAcceptFamilyInvitationAsync(fixture.ApiFactory.EmailTransport.FamilyInvitationTokenSentTo(email))).EnsureSuccessStatusCode();
+        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(CoachScenario.CoachStudentFullName)).ClientId;
+        (await coaches.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email)).EnsureSuccessStatusCode();
+        (await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email))).EnsureSuccessStatusCode();
 
         var ownerTokens = await anonymous.SignInAsync(email);
-        var family = new FamilyScenario(coaches, familyId, email, ownerTokens, fixture.CreateClientWithToken(ownerTokens.AccessToken));
-        return new OwnerAndFamily(family, ownBusiness.BusinessId, ownBusiness.Name, email, ownerTokens);
+        var student = new StudentAppScenario(coaches, clientId, email, ownerTokens, fixture.CreateClientWithToken(ownerTokens.AccessToken));
+        return new OwnerAndStudent(student, ownBusiness.BusinessId, ownBusiness.Name, email, ownerTokens);
     }
 }

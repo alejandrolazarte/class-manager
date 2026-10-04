@@ -16,7 +16,7 @@ public sealed class CancelSessionUseCase(
     IClassSessionRepository sessionRepository,
     IAttendanceRepository attendanceRepository,
     IUnitOfWork unitOfWork,
-    IFamilyNotificationService familyNotifications,
+    IStudentAppNotificationService studentAppNotifications,
     TimeProvider timeProvider)
     : IUseCase<CancelSessionCommand, SessionStatusResponse>
 {
@@ -57,7 +57,7 @@ public sealed class CancelSessionUseCase(
             return Result.Conflict<SessionStatusResponse>(ConcurrentUpdateMessage, SessionErrorCodes.ConcurrentUpdate);
         }
 
-        await familyNotifications.ClassCancelledAsync(session, cancellationToken);
+        await studentAppNotifications.ClassCancelledAsync(session, cancellationToken);
         return new SessionStatusResponse(session.ClassGroupId, session.Date, session.IsCancelled, session.CancellationReason);
     }
 }

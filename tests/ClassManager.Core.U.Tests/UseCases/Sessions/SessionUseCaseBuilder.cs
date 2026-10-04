@@ -85,7 +85,7 @@ internal sealed class SessionUseCaseBuilder
         new(ClassGroups.Object, Enrollments.Object, MakeupBookings.Object, PackBookings.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
 
     public CancelSessionUseCase BuildCancel() =>
-        new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new Mock<IFamilyNotificationService>().Object, new FakeTimeProvider(TestData.Now));
+        new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new Mock<IStudentAppNotificationService>().Object, new FakeTimeProvider(TestData.Now));
 
     public RescheduleSessionUseCase BuildReschedule() =>
         new(ClassGroups.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));

@@ -21,7 +21,7 @@ export interface DemoBusiness {
   month: string;
   beginnersClassGroupId: string;
   aquagymClassGroupId: string;
-  familyClientId: string;
+  studentAppClientId: string;
   debtorClientId: string;
   classPackClientId: string;
 }
@@ -133,7 +133,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     "Pileta grande",
   );
 
-  const registerFamily = (
+  const registerStudentApp = (
     fullName: string,
     phoneNumber: string,
     notes: string | null,
@@ -146,17 +146,17 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
       notes,
       students,
     });
-  const ana = await registerFamily("Ana Pérez", "11 2233-4455", "Paga por transferencia", [
+  const ana = await registerStudentApp("Ana Pérez", "11 2233-4455", "Paga por transferencia", [
     { fullName: "Tomás Pérez", birthDate: "2018-03-14", notes: "Le cuesta meter la cabeza" },
     { fullName: "Lucía Pérez", birthDate: "2020-07-02", notes: null },
   ]);
-  const carla = await registerFamily("Carla Gómez", "11 4455-6677", null, [
+  const carla = await registerStudentApp("Carla Gómez", "11 4455-6677", null, [
     { fullName: "Carla Gómez", birthDate: null, notes: "Rehabilitación de rodilla" },
   ]);
-  const diego = await registerFamily("Diego Fernández", "11 5566-7788", null, [
+  const diego = await registerStudentApp("Diego Fernández", "11 5566-7788", null, [
     { fullName: "Valentina Fernández", birthDate: "2014-11-20", notes: "Compite en torneos" },
   ]);
-  const sofia = await registerFamily(
+  const sofia = await registerStudentApp(
     "Sofía Martínez",
     "11 6677-8899",
     "Dos hijos, cuota especial",
@@ -165,10 +165,10 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
       { fullName: "Mateo Martínez", birthDate: "2019-01-25", notes: null },
     ],
   );
-  const jorge = await registerFamily("Jorge Ramírez", "11 7788-9900", null, [
+  const jorge = await registerStudentApp("Jorge Ramírez", "11 7788-9900", null, [
     { fullName: "Jorge Ramírez", birthDate: null, notes: null },
   ]);
-  const paula = await registerFamily("Paula Suárez", "11 8899-0011", null, [
+  const paula = await registerStudentApp("Paula Suárez", "11 8899-0011", null, [
     { fullName: "Emma Suárez", birthDate: "2017-09-30", notes: null },
   ]);
 
@@ -251,7 +251,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     month,
     beginnersClassGroupId: beginners.id,
     aquagymClassGroupId: aquagym.id,
-    familyClientId: ana.id,
+    studentAppClientId: ana.id,
     debtorClientId: diego.id,
     classPackClientId: paula.id,
   };

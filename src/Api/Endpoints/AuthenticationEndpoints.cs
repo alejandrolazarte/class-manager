@@ -3,8 +3,8 @@ using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Branches;
-using ClassManager.Core.UseCases.Families;
 using ClassManager.Core.UseCases.Members;
+using ClassManager.Core.UseCases.StudentApp;
 using ClassManager.Security.Hosting;
 
 namespace ClassManager.Api.Endpoints;
@@ -24,9 +24,9 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.PasswordResetRequest, RequestPasswordResetAsync);
         authentication.MapPost(ApiRoutes.PasswordReset, ResetPasswordAsync);
         authentication.MapPost(ApiRoutes.AcceptInvitation, AcceptInvitationAsync);
-        authentication.MapPost(ApiRoutes.AcceptFamilyInvitation, AcceptFamilyInvitationAsync);
+        authentication.MapPost(ApiRoutes.AcceptStudentAppInvitation, AcceptStudentAppInvitationAsync);
         authentication.MapPost(ApiRoutes.CheckInvitation, CheckInvitationAsync);
-        authentication.MapPost(ApiRoutes.CheckFamilyInvitation, CheckFamilyInvitationAsync);
+        authentication.MapPost(ApiRoutes.CheckStudentAppInvitation, CheckStudentAppInvitationAsync);
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
 
@@ -113,9 +113,9 @@ internal static class AuthenticationEndpoints
         return result.ToOkResult();
     }
 
-    private static async Task<IResult> AcceptFamilyInvitationAsync(
-        AcceptFamilyInvitationCommand command,
-        IUseCase<AcceptFamilyInvitationCommand, TokenResponse> useCase,
+    private static async Task<IResult> AcceptStudentAppInvitationAsync(
+        AcceptStudentAppInvitationCommand command,
+        IUseCase<AcceptStudentAppInvitationCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
@@ -143,9 +143,9 @@ internal static class AuthenticationEndpoints
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }
 
-    private static async Task<IResult> CheckFamilyInvitationAsync(
-        CheckFamilyInvitationCommand command,
-        IUseCase<CheckFamilyInvitationCommand, CheckFamilyInvitationResponse> useCase,
+    private static async Task<IResult> CheckStudentAppInvitationAsync(
+        CheckStudentAppInvitationCommand command,
+        IUseCase<CheckStudentAppInvitationCommand, CheckStudentAppInvitationResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);

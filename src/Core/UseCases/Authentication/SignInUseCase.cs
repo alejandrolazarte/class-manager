@@ -9,7 +9,7 @@ public sealed class SignInUseCase(
     IIdentityService identityService,
     ITokenService tokenService,
     IBranchDirectory branchDirectory,
-    IFamilyDirectory familyDirectory)
+    IStudentAppDirectory studentAppDirectory)
     : IUseCase<SignInCommand, TokenResponse>
 {
     public const string InvalidCredentialsMessage = "Wrong email or password.";
@@ -41,14 +41,14 @@ public sealed class SignInUseCase(
                 cancellationToken));
         }
 
-        var family = await familyDirectory.FindDefaultAsync(verification.UserId, cancellationToken);
-        if (family is null)
+        var student = await studentAppDirectory.FindDefaultAsync(verification.UserId, cancellationToken);
+        if (student is null)
         {
             return InvalidCredentials();
         }
 
         return TokenResponse.From(await tokenService.IssueAsync(
-            new SessionUser(verification.UserId, verification.Email, family.BusinessId, AccountKinds.FamilyRoleName, AccountKinds.Family),
+            new SessionUser(verification.UserId, verification.Email, student.BusinessId, AccountKinds.StudentRoleName, AccountKinds.Student),
             cancellationToken));
     }
 

@@ -14,7 +14,7 @@ export const featureCodes = {
   classPacks: "class-packs",
   importExport: "import-export",
   customRoles: "custom-roles",
-  familyApp: "family-app",
+  studentApp: "student-app",
   shop: "shop",
   brand: "brand",
 } as const;

@@ -8,7 +8,7 @@ public sealed class Then_the_owner_account_is_opened(ApiFixture fixture)
     [Fact]
     public async Task Then_the_owner_account_is_opened_Run()
     {
-        var seeded = await fixture.SeedOwnerWhoIsAlsoFamilyAsync();
+        var seeded = await fixture.SeedOwnerWhoIsAlsoStudentAsync();
         using var client = fixture.CreateClientWithToken(seeded.OwnerTokens.AccessToken);
 
         seeded.OwnerTokens.Kind.ShouldBe(AccountKinds.Team);

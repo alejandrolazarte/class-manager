@@ -7,7 +7,7 @@ The team app has five tabs (Inicio, Clases, Alumnos, Cobros, Ajustes), each with
 Opening a screen that lives in another tab's stack switches tabs, and back then stays in that other tab (for example, Avisos opened from Inicio used to return to Ajustes). So every screen a tab opens is registered in that tab's stack:
 
 - **Shared screens** are registered in every tab that opens them, with the route file re-exporting the same screen component. Examples:
-  - the family subtree `clients/[clientId]/…` (detail, new student, sell pack, counter sale, payment, new class pack) lives under both `/students` and `/fees`;
+  - the client subtree `clients/[clientId]/…` (detail, new student, sell pack, counter sale, payment, new class pack) lives under both `/students` and `/fees`;
   - Pedidos is the second view of Cobros (`/fees?view=orders`), and also lives under `/today/orders` (the order aviso opens the Inicio one) and `/settings/orders` (for members who see orders but not Cobros); the counter sale lives under each of them (`/fees/orders/new`, …);
   - the new-instructor form lives under `/settings/instructors/new` and `/classes/instructors/new`;
   - the default monthly fee form lives under `/settings/monthly-fee` and `/fees/monthly-fee`.

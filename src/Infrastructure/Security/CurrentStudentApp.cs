@@ -1,0 +1,38 @@
+using ClassManager.Core.Abstractions.Security;
+using ClassManager.Infrastructure.Persistence;
+
+namespace ClassManager.Infrastructure.Security;
+
+internal sealed class CurrentStudentApp(AppDbContext context, ICurrentUser currentUser, ITenantContext tenantContext) : IStudentAppAccess
+{
+    private StudentAppAccess? _resolvedAccess;
+    private bool _isResolved;
+
+    public async Task<StudentAppAccess?> GetAsync(CancellationToken cancellationToken)
+    {
+        if (!_isResolved)
+        {
+            _resolvedAccess = await ResolveAsync(cancellationToken);
+            _isResolved = true;
+        }
+
+        return _resolvedAccess;
+    }
+
+    private async Task<StudentAppAccess?> ResolveAsync(CancellationToken cancellationToken)
+    {
+        if (currentUser.UserId is not { } userId)
+        {
+            return null;
+        }
+
+        var businessId = tenantContext.TenantId;
+        var clientId = await context.ClientAccounts
+            .AsNoTracking()
+            .Where(account => account.UserId == userId)
+            .Select(account => (Guid?)account.ClientId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return clientId is { } linkedClientId ? new StudentAppAccess(userId, businessId, linkedClientId) : null;
+    }
+}

@@ -18,7 +18,7 @@ internal sealed record OrderDraft(IReadOnlyList<OrderLine> Lines, IReadOnlyDicti
 internal enum OrderAudience
 {
     Team,
-    Family,
+    Student,
 }
 
 internal static class OrderDrafts
@@ -113,7 +113,7 @@ internal static class OrderDrafts
                 return pack.IsActive ? OrderLine.ForClassPack(pack, unitPrice) : ProductFailures.NotSold();
             case { ProductVariantId: { } variantId, ClassPackId: null }:
                 var product = products.FirstOrDefault(candidate => candidate.FindVariant(variantId) is not null);
-                if (product is null || (audience == OrderAudience.Family && !product.IsVisibleInApp))
+                if (product is null || (audience == OrderAudience.Student && !product.IsVisibleInApp))
                 {
                     return ProductFailures.VariantNotFound();
                 }

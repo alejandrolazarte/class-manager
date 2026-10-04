@@ -1,6 +1,6 @@
 import { View } from "react-native";
-import { localDateOf } from "@/features/family/familyNewsPresentation";
-import { shortDayLabel } from "@/features/family/familySchedule";
+import { localDateOf } from "@/features/studentApp/studentAppNewsPresentation";
+import { shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { TeamNotification } from "@/features/teamNotifications/types";
 import { addDays, todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
@@ -16,7 +16,7 @@ function whenLabel(createdAt: string, today: string = todayIsoDate()): string {
     const created = new Date(createdAt);
     return `${String(created.getHours()).padStart(timeDigits, "0")}:${String(created.getMinutes()).padStart(timeDigits, "0")}`;
   }
-  return date === addDays(today, -1) ? translate("family.news.yesterday") : shortDayLabel(date);
+  return date === addDays(today, -1) ? translate("student.news.yesterday") : shortDayLabel(date);
 }
 
 interface TeamNotificationCardProps {
@@ -45,7 +45,7 @@ export function TeamNotificationCard({ notification, onPress }: TeamNotification
       </View>
       {notification.isUnread ? (
         <View
-          accessibilityLabel={translate("family.news.unread")}
+          accessibilityLabel={translate("student.news.unread")}
           className="absolute right-4 top-[18px] h-2.5 w-2.5 rounded-full bg-primary"
         />
       ) : null}

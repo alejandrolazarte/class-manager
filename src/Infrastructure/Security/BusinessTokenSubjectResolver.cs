@@ -3,11 +3,11 @@ using ClassManager.Security.Tokens;
 
 namespace ClassManager.Infrastructure.Security;
 
-internal sealed class BusinessTokenSubjectResolver(IBranchDirectory branchDirectory, IFamilyDirectory familyDirectory) : ITokenSubjectResolver
+internal sealed class BusinessTokenSubjectResolver(IBranchDirectory branchDirectory, IStudentAppDirectory studentAppDirectory) : ITokenSubjectResolver
 {
     public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, string? kind, CancellationToken cancellationToken) =>
-        AccountKinds.IsFamily(kind)
-            ? await ResolveFamilyAsync(userId, email, tenantId, cancellationToken)
+        AccountKinds.IsStudent(kind)
+            ? await ResolveStudentAsync(userId, email, tenantId, cancellationToken)
             : await ResolveTeamAsync(userId, email, tenantId, cancellationToken);
 
     private async Task<TokenSubject?> ResolveTeamAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken)
@@ -19,14 +19,14 @@ internal sealed class BusinessTokenSubjectResolver(IBranchDirectory branchDirect
         return branch is null ? null : new TokenSubject(userId, email, branch.BusinessId, branch.RoleName, AccountKinds.Team);
     }
 
-    private async Task<TokenSubject?> ResolveFamilyAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken)
+    private async Task<TokenSubject?> ResolveStudentAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken)
     {
-        var family = tenantId is { } businessId
-            ? await familyDirectory.FindAsync(userId, businessId, cancellationToken)
-            : await familyDirectory.FindDefaultAsync(userId, cancellationToken);
+        var student = tenantId is { } businessId
+            ? await studentAppDirectory.FindAsync(userId, businessId, cancellationToken)
+            : await studentAppDirectory.FindDefaultAsync(userId, cancellationToken);
 
-        return family is null
+        return student is null
             ? null
-            : new TokenSubject(userId, email, family.BusinessId, AccountKinds.FamilyRoleName, AccountKinds.Family);
+            : new TokenSubject(userId, email, student.BusinessId, AccountKinds.StudentRoleName, AccountKinds.Student);
     }
 }

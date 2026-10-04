@@ -1,11 +1,11 @@
 import { sessionKindOf } from "@/features/authentication/sessionKind";
-import { buildAccessTokenWithClaims } from "@/testing/familyFactory";
+import { buildAccessTokenWithClaims } from "@/testing/studentAppFactory";
 
 const tokenWithPayload = buildAccessTokenWithClaims;
 
 describe("When access token is read", () => {
   it("Then session kind comes from the kind claim", () => {
-    expect(sessionKindOf(tokenWithPayload({ kind: "family" }))).toBe("family");
+    expect(sessionKindOf(tokenWithPayload({ kind: "student" }))).toBe("student");
     expect(sessionKindOf(tokenWithPayload({ kind: "team" }))).toBe("team");
   });
 

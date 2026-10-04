@@ -6,9 +6,9 @@ public interface IWebAppLinks
 
     string AcceptInvitation(string token);
 
-    string AcceptFamilyInvitation(string token);
+    string AcceptStudentAppInvitation(string token);
 
-    string FamilyOrders();
+    string StudentAppOrders();
 
     string TeamOrders();
 }

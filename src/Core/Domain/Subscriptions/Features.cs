@@ -8,7 +8,7 @@ public static class Features
     public const string ClassPacks = "class-packs";
     public const string ImportExport = "import-export";
     public const string CustomRoles = "custom-roles";
-    public const string FamilyApp = "family-app";
+    public const string StudentApp = "student-app";
     public const string Shop = "shop";
     public const string Brand = "brand";
     public const string CatalogPhotos = "catalog-photos";
@@ -21,7 +21,7 @@ public static class Features
         ClassPacks,
         ImportExport,
         CustomRoles,
-        FamilyApp,
+        StudentApp,
         Shop,
         Brand,
         CatalogPhotos,
