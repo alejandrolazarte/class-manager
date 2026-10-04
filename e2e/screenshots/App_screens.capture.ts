@@ -71,7 +71,7 @@ test("App screens", async ({ page, request }) => {
   await page.goto("/settings/announcements");
   await page.getByLabel("Título").fill("Lunes 12 de octubre cerrado");
   await page
-    .getByLabel("Detalle (opcional)")
+    .getByLabel("Detalle")
     .fill("Feriado. Las clases de ese día se pueden recuperar durante la semana.");
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);

@@ -5,6 +5,7 @@ import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Chip } from "@/ui/Chip";
 import { IconName } from "@/ui/Icon";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface PaymentMethodPickerProps {
   value: PaymentMethod;
@@ -23,7 +24,7 @@ export function PaymentMethodPicker({ value, onChange, label }: PaymentMethodPic
   return (
     <View className="gap-2">
       <AppText variant="label" tone="muted">
-        {translate("common.requiredLabel", { label: label ?? translate("fees.payment.method") })}
+        {withRequiredMark(label ?? translate("fees.payment.method"))}
       </AppText>
       <View className="flex-row flex-wrap gap-2">
         {paymentMethods.map((method) => (

@@ -34,6 +34,8 @@ import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
 
@@ -50,6 +52,7 @@ interface ProductFieldOptions {
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
   isMultiline?: boolean;
+  isRequired?: boolean;
   keyboardType?: "default" | "decimal-pad";
 }
 
@@ -66,6 +69,7 @@ function ProductEditor({ product }: ProductEditorProps) {
     defaultValues: toProductFormValues(product),
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["name", "price"]);
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -119,6 +123,7 @@ function ProductEditor({ product }: ProductEditorProps) {
     labelKey,
     placeholderKey,
     isMultiline = false,
+    isRequired = false,
     keyboardType,
   }: ProductFieldOptions) => (
     <Controller
@@ -127,6 +132,7 @@ function ProductEditor({ product }: ProductEditorProps) {
       render={({ field, fieldState }) => (
         <TextField
           label={translate(labelKey)}
+          isRequired={isRequired}
           placeholder={placeholderKey ? translate(placeholderKey) : undefined}
           keyboardType={keyboardType}
           multiline={isMultiline}
@@ -145,12 +151,19 @@ function ProductEditor({ product }: ProductEditorProps) {
       submissionFailure={submissionFailure}
       onRetry={save}
     >
+      <RequiredFieldsLegend />
       {renderField({
         name: "name",
         labelKey: "products.form.name",
         placeholderKey: "products.form.namePlaceholder",
+        isRequired: true,
       })}
-      {renderField({ name: "price", labelKey: "products.form.price", keyboardType: "decimal-pad" })}
+      {renderField({
+        name: "price",
+        labelKey: "products.form.price",
+        keyboardType: "decimal-pad",
+        isRequired: true,
+      })}
       {renderField({
         name: "variantNames",
         labelKey: "products.form.variants",
@@ -168,7 +181,7 @@ function ProductEditor({ product }: ProductEditorProps) {
         render={({ field }) => (
           <View className="gap-2">
             <AppText variant="label" tone="muted">
-              {translate("products.form.stockMode")}
+              {withRequiredMark(translate("products.form.stockMode"))}
             </AppText>
             <View className="flex-row flex-wrap gap-2">
               {stockModes.map((stockMode) => (
@@ -201,6 +214,7 @@ function ProductEditor({ product }: ProductEditorProps) {
         <Button
           label={translate("common.save")}
           onPress={save}
+          disabled={!areRequiredFieldsFilled}
           isLoading={saveProductMutation.isPending || applyProductImagesMutation.isPending}
         />
         {product ? (

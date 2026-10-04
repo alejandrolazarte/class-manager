@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { resetPassword } from "@/features/authentication/authenticationApi";
 import { authenticationErrorCodes } from "@/features/authentication/authenticationErrorCodes";
@@ -20,6 +20,9 @@ import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
 import { useToast } from "@/ui/ToastProvider";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 
 const badRequestStatus = 400;
 
@@ -35,6 +38,8 @@ export function ResetPasswordScreen() {
     defaultValues: { newPassword: "" },
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["newPassword"]);
+  const newPassword = useWatch({ control: form.control, name: "newPassword" });
 
   const handleResetError = (resetError: unknown) => {
     if (isNetworkError(resetError)) {
@@ -97,12 +102,16 @@ export function ResetPasswordScreen() {
       {failure === "unexpected" ? <Banner message={translate("common.unexpectedError")} /> : null}
       {token && failure !== "invalidLink" ? (
         <>
+          <RequiredFieldsLegend />
           <Controller
             control={form.control}
             name="newPassword"
             render={({ field, fieldState }) => (
               <PasswordField
                 label={translate("authentication.resetPassword.newPassword")}
+                isRequired
+                hint={translate("authentication.signUp.passwordHint")}
+                isHintSatisfied={newPassword.length >= authenticationLimits.passwordMinimumLength}
                 autoComplete="new-password"
                 value={field.value}
                 onChangeText={field.onChange}
@@ -115,6 +124,7 @@ export function ResetPasswordScreen() {
           <Button
             label={translate("authentication.resetPassword.submit")}
             onPress={submit}
+            disabled={!areRequiredFieldsFilled}
             isLoading={form.formState.isSubmitting}
           />
         </>

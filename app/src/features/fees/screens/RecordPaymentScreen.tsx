@@ -27,6 +27,8 @@ import { Button } from "@/ui/Button";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 interface RecordPaymentScreenProps {
   clientId: string;
@@ -55,6 +57,7 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
     },
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["amount", "paidOn"]);
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -89,12 +92,14 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
       submissionFailure={submissionFailure}
       onRetry={save}
     >
+      <RequiredFieldsLegend />
       <Controller
         control={form.control}
         name="amount"
         render={({ field, fieldState }) => (
           <AmountField
             label={translate("fees.payment.amount")}
+            isRequired
             currencyCode={currencyCode}
             value={field.value}
             onChangeText={field.onChange}
@@ -116,6 +121,7 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
         render={({ field, fieldState }) => (
           <TextField
             label={translate("fees.payment.paidOn")}
+            isRequired
             keyboardType="number-pad"
             value={field.value}
             onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
@@ -140,6 +146,7 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
       <Button
         label={translate("fees.payment.submit")}
         onPress={save}
+        disabled={!areRequiredFieldsFilled}
         isLoading={recordPaymentMutation.isPending}
       />
     </SettingsFormScreenLayout>

@@ -10,6 +10,7 @@ import {
 import { translate } from "@/i18n/translate";
 import { Chip } from "@/ui/Chip";
 import { AppText } from "@/ui/AppText";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface CountryPickerProps {
   selection: CountrySelection;
@@ -24,7 +25,7 @@ export function CountryPicker({ selection, onSelectionChange }: CountryPickerPro
   return (
     <View className="gap-2">
       <AppText variant="label" tone="muted">
-        {translate("business.country")}
+        {withRequiredMark(translate("business.country"))}
       </AppText>
       <View className="flex-row flex-wrap gap-2">
         {countryPresets.map((countryPreset) => (

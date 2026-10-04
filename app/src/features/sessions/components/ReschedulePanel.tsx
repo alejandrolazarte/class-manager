@@ -13,6 +13,7 @@ import { Button } from "@/ui/Button";
 import { ListRow } from "@/ui/ListRow";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { isFilled } from "@/forms/requiredFields";
 
 interface ReschedulePanelProps {
   classGroupId: string;
@@ -87,6 +88,7 @@ export function ReschedulePanel({
           {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
           <TextField
             label={translate("sessions.reschedule.startTime")}
+            isRequired
             placeholder={translate("classGroups.form.startTimePlaceholder")}
             keyboardType="number-pad"
             fieldSurface="background"
@@ -97,6 +99,7 @@ export function ReschedulePanel({
             size="medium"
             label={translate("sessions.reschedule.confirm")}
             onPress={confirm}
+            disabled={!isFilled(startTime)}
             isLoading={rescheduleSessionMutation.isPending}
           />
         </View>

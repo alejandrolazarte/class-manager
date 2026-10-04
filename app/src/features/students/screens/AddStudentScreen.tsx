@@ -24,6 +24,8 @@ import { Card } from "@/ui/Card";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { useClient } from "@/features/clients/useClient";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 const studentFieldNames = ["fullName", "birthDate", "notes"] as const;
@@ -46,6 +48,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
     defaultValues: emptyStudentFormValues,
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName"]);
 
   const handleAddError = (addError: unknown) => {
     if (isNetworkError(addError)) {
@@ -98,6 +101,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       {submissionFailure === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
+      <RequiredFieldsLegend />
       <Card className="gap-3 p-4">
         <AppText variant="link" tone="primary">
           {translate("students.add.studentCard")}
@@ -112,6 +116,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       <Button
         label={translate("students.add.submit")}
         onPress={submit}
+        disabled={!areRequiredFieldsFilled}
         isLoading={addStudentMutation.isPending}
       />
     </ScrollScreen>

@@ -51,6 +51,8 @@ import { NumberStepper } from "@/ui/NumberStepper";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
 const singleInstructorCount = 1;
@@ -71,7 +73,7 @@ type CoachConflict = { date: string | undefined };
 function FieldLabel({ label }: { label: string }) {
   return (
     <AppText variant="label" tone="muted">
-      {label}
+      {withRequiredMark(label)}
     </AppText>
   );
 }
@@ -105,6 +107,13 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
   const { control } = form;
   const queryClient = useQueryClient();
   const isTrial = useWatch({ control, name: "isTrial" });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(control, [
+    "students",
+    "instructorId",
+    "date",
+    "startTime",
+    "durationMinutes",
+  ]);
 
   const applyStudentAppPackDuration = async (student: LessonStudent) => {
     if (
@@ -181,6 +190,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
           }
         />
       ) : null}
+      <RequiredFieldsLegend />
       <Controller
         control={control}
         name="students"
@@ -222,6 +232,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
             render={({ field, fieldState }) => (
               <TextField
                 label={translate("privateLessons.form.date")}
+                isRequired
                 placeholder={translate("privateLessons.form.datePlaceholder")}
                 keyboardType="number-pad"
                 value={field.value}
@@ -239,6 +250,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
             render={({ field, fieldState }) => (
               <TextField
                 label={translate("privateLessons.form.startTime")}
+                isRequired
                 placeholder={translate("classGroups.form.startTimePlaceholder")}
                 keyboardType="number-pad"
                 value={field.value}
@@ -363,6 +375,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
       <Button
         label={translate("common.save")}
         onPress={save}
+        disabled={!areRequiredFieldsFilled}
         isLoading={scheduleMutation.isPending || rescheduleMutation.isPending}
       />
     </SettingsFormScreenLayout>

@@ -20,6 +20,8 @@ import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { isFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
 
@@ -72,20 +74,20 @@ export function NewBranchScreen() {
       submissionFailure={submissionFailure}
       onRetry={create}
     >
+      <RequiredFieldsLegend />
       <TextField
         label={translate("branches.form.name")}
+        isRequired
+        hint={translate("branches.form.nameHint")}
         autoCapitalize="words"
         value={name}
         onChangeText={setName}
         errorMessage={nameError}
       />
-      <AppText variant="caption" tone="subtle">
-        {translate("branches.form.nameHint")}
-      </AppText>
       <CountryPicker selection={countrySelection} onSelectionChange={selectCountry} />
       <View className="gap-2">
         <AppText variant="label" tone="muted">
-          {translate("businessSettings.currency")}
+          {withRequiredMark(translate("businessSettings.currency"))}
         </AppText>
         <View className="flex-row flex-wrap gap-2">
           {currencyOptions(countryPreset.currencyCode, currencyCode).map((currencyOption) => (
@@ -101,6 +103,7 @@ export function NewBranchScreen() {
       <Button
         label={translate("branches.form.submit")}
         onPress={create}
+        disabled={!isFilled(name)}
         isLoading={createBranchMutation.isPending}
       />
     </SettingsFormScreenLayout>

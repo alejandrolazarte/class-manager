@@ -31,6 +31,8 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
 
@@ -54,6 +56,7 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
     defaultValues: toInstructorFormValues(instructor),
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName"]);
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -120,12 +123,14 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
           message={translateCount("instructors.form.hasActiveClassGroups", activeClassGroupCount)}
         />
       ) : null}
+      <RequiredFieldsLegend />
       <Controller
         control={form.control}
         name="fullName"
         render={({ field, fieldState }) => (
           <TextField
             label={translate("instructors.form.fullName")}
+            isRequired
             autoCapitalize="words"
             autoComplete="name"
             value={field.value}
@@ -139,6 +144,7 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
         <Button
           label={translate("common.save")}
           onPress={save}
+          disabled={!areRequiredFieldsFilled}
           isLoading={saveInstructorMutation.isPending}
         />
         {instructor ? (

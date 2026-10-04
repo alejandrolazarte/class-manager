@@ -10,6 +10,8 @@ import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { areFilled } from "@/forms/requiredFields";
 
 interface ClientFormProps {
   form: UseFormReturn<RegisterClientFormValues>;
@@ -21,9 +23,14 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
   const { control, formState, watch } = form;
   const isAppInvitationOffered = emailAddressPattern.test(watch("email").trim());
   const isSubmitBlockedByErrors = formState.isSubmitted && !formState.isValid;
+  const additionalStudents = watch("additionalStudents");
+  const areRequiredFieldsFilled =
+    areFilled([watch("fullName"), watch("phoneNumber")]) &&
+    areFilled(additionalStudents.map((additionalStudent) => additionalStudent.fullName));
 
   return (
     <View className="gap-[18px]">
+      <RequiredFieldsLegend />
       <View className="gap-3">
         <SectionTitle title={translate("clients.register.contactSection")} isOverline />
         <Controller
@@ -32,6 +39,7 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
           render={({ field, fieldState }) => (
             <TextField
               label={translate("clients.register.fullName")}
+              isRequired
               autoFocus
               autoCapitalize="words"
               autoComplete="name"
@@ -49,6 +57,7 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
           render={({ field, fieldState }) => (
             <TextField
               label={translate("clients.register.phoneNumber")}
+              isRequired
               keyboardType="phone-pad"
               autoComplete="tel"
               value={field.value}
@@ -112,7 +121,7 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
         label={translate("clients.register.submit")}
         onPress={onSubmit}
         isLoading={isSubmitting}
-        disabled={isSubmitBlockedByErrors}
+        disabled={!areRequiredFieldsFilled || isSubmitBlockedByErrors}
       />
     </View>
   );

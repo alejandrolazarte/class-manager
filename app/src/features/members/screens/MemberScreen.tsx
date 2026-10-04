@@ -25,6 +25,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 interface MemberScreenProps {
   memberId: string;
@@ -51,6 +52,8 @@ function MemberEditor({ member, team }: MemberEditorProps) {
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const instructors = freeInstructors(instructorsQuery.data ?? [], team, member.instructorId);
+  const isCoachMissing =
+    findRoleChoice(roleKey, roles)?.needsCoach === true && instructorId === null;
 
   const save = async () => {
     setSubmissionFailure(null);
@@ -113,6 +116,7 @@ function MemberEditor({ member, team }: MemberEditorProps) {
       submissionFailure={submissionFailure}
       onRetry={save}
     >
+      <RequiredFieldsLegend />
       <RoleFields
         roleKey={roleKey}
         instructorId={instructorId}
@@ -124,6 +128,7 @@ function MemberEditor({ member, team }: MemberEditorProps) {
       <Button
         label={translate("common.save")}
         onPress={save}
+        disabled={isCoachMissing}
         isLoading={changeRoleMutation.isPending}
       />
       {canManageBrandOwners ? (

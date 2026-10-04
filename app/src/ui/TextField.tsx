@@ -1,8 +1,9 @@
 import { forwardRef } from "react";
 import { TextInput, TextInputProps, View } from "react-native";
-import { translate } from "@/i18n/translate";
 import { useTheme } from "@/theme/useTheme";
 import { AppText, textVariantClassNames } from "@/ui/AppText";
+import { Icon } from "@/ui/Icon";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 type TextFieldSurface = "surface" | "background";
 
@@ -40,7 +41,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
   return (
     <View className="gap-1.5">
       <AppText variant="label" tone="muted">
-        {isRequired ? translate("common.requiredLabel", { label }) : label}
+        {withRequiredMark(label, isRequired)}
       </AppText>
       <View className="flex-row gap-2">
         {prefix ? (
@@ -61,13 +62,23 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         />
       </View>
       {hasError ? (
-        <AppText variant="label" tone="danger" accessibilityRole="alert">
-          {errorMessage}
-        </AppText>
+        <View className="flex-row items-center gap-1">
+          <Icon name="fieldError" size="small" tone="danger" />
+          <AppText variant="label" tone="danger" accessibilityRole="alert" className="flex-1">
+            {errorMessage}
+          </AppText>
+        </View>
       ) : hint ? (
-        <AppText variant="caption" tone={isHintSatisfied ? "success" : "subtle"}>
-          {hint}
-        </AppText>
+        <View className="flex-row items-center gap-1">
+          {isHintSatisfied ? <Icon name="fieldValid" size="small" tone="success" /> : null}
+          <AppText
+            variant="caption"
+            tone={isHintSatisfied ? "success" : "subtle"}
+            className="flex-1"
+          >
+            {hint}
+          </AppText>
+        </View>
       ) : null}
     </View>
   );

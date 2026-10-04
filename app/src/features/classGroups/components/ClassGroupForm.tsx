@@ -13,6 +13,7 @@ import { Chip } from "@/ui/Chip";
 import { NumberStepper } from "@/ui/NumberStepper";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface ClassGroupFormProps {
   form: UseFormReturn<ClassGroupFormValues>;
@@ -30,7 +31,7 @@ function FieldError({ message }: { message?: string }) {
 function FieldLabel({ label }: { label: string }) {
   return (
     <AppText variant="label" tone="muted">
-      {label}
+      {withRequiredMark(label)}
     </AppText>
   );
 }
@@ -39,12 +40,14 @@ export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
   const { control } = form;
   return (
     <View className="gap-[18px]">
+      <RequiredFieldsLegend />
       <Controller
         control={control}
         name="name"
         render={({ field, fieldState }) => (
           <TextField
             label={translate("classGroups.form.name")}
+            isRequired
             placeholder={translate("classGroups.form.namePlaceholder")}
             autoCapitalize="sentences"
             value={field.value}
@@ -82,6 +85,7 @@ export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
             render={({ field, fieldState }) => (
               <TextField
                 label={translate("classGroups.form.startTime")}
+                isRequired
                 placeholder={translate("classGroups.form.startTimePlaceholder")}
                 keyboardType="number-pad"
                 value={field.value}
@@ -99,6 +103,7 @@ export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
             render={({ field, fieldState }) => (
               <NumberStepper
                 label={translate("classGroups.form.capacity")}
+                isRequired
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}

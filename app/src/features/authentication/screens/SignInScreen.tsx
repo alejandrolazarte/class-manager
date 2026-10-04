@@ -22,6 +22,8 @@ import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 
@@ -37,6 +39,7 @@ export function SignInScreen() {
     defaultValues: { email: prefilledEmail ?? "", password: "" },
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, signInFieldNames);
 
   const handleSignInError = (signInError: unknown) => {
     if (isNetworkError(signInError)) {
@@ -93,12 +96,14 @@ export function SignInScreen() {
       {signInFailure === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
+      <RequiredFieldsLegend />
       <Controller
         control={form.control}
         name="email"
         render={({ field, fieldState }) => (
           <TextField
             label={translate("authentication.signIn.email")}
+            isRequired
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -115,6 +120,7 @@ export function SignInScreen() {
         render={({ field, fieldState }) => (
           <PasswordField
             label={translate("authentication.signIn.password")}
+            isRequired
             autoComplete="current-password"
             value={field.value}
             onChangeText={field.onChange}
@@ -127,6 +133,7 @@ export function SignInScreen() {
       <Button
         label={translate("authentication.signIn.submit")}
         onPress={submit}
+        disabled={!areRequiredFieldsFilled}
         isLoading={form.formState.isSubmitting}
       />
       <Pressable

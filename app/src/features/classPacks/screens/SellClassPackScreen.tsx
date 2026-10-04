@@ -35,6 +35,8 @@ import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface SellClassPackScreenProps {
   clientId: string;
@@ -63,6 +65,11 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
   });
   const selectedClassPackId = useWatch({ control: form.control, name: "classPackId" });
   const selectedTrialLessonId = useWatch({ control: form.control, name: "trialLessonId" });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, [
+    "classPackId",
+    "price",
+    "purchasedOn",
+  ]);
   const { data: balance } = useClassBalance(clientId);
   const deductibleTrials = balance?.deductibleTrials ?? [];
 
@@ -114,13 +121,14 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
       submissionFailure={submissionFailure}
       onRetry={sell}
     >
+      <RequiredFieldsLegend />
       <Controller
         control={form.control}
         name="classPackId"
         render={({ field }) => (
           <View className="gap-2">
             <AppText variant="label" tone="muted">
-              {translate("classPacks.sell.pack")}
+              {withRequiredMark(translate("classPacks.sell.pack"))}
             </AppText>
             <View className="flex-row flex-wrap gap-2">
               {classPacks.map((classPack) => (
@@ -183,6 +191,7 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
         render={({ field, fieldState }) => (
           <TextField
             label={translate("classPacks.sell.price")}
+            isRequired
             keyboardType="decimal-pad"
             value={field.value}
             onChangeText={field.onChange}
@@ -204,6 +213,7 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
         render={({ field, fieldState }) => (
           <TextField
             label={translate("classPacks.sell.purchasedOn")}
+            isRequired
             keyboardType="number-pad"
             value={field.value}
             onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
@@ -228,7 +238,7 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
       <Button
         label={translate("classPacks.sell.submit")}
         onPress={sell}
-        disabled={selectedClassPackId.length === 0}
+        disabled={!areRequiredFieldsFilled}
         isLoading={sellClassPackMutation.isPending}
       />
     </SettingsFormScreenLayout>

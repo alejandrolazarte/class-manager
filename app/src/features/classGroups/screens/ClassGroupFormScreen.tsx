@@ -36,6 +36,7 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { useToast } from "@/ui/ToastProvider";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 const singleInstructorCount = 1;
@@ -72,6 +73,14 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
     }),
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, [
+    "name",
+    "weekdays",
+    "startTime",
+    "durationMinutes",
+    "capacity",
+    "instructorId",
+  ]);
   const otherClassGroup = allClassGroups.find(
     (candidate) => candidate.id === busyConflict?.otherClassGroupId,
   );
@@ -170,6 +179,7 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
         <Button
           label={translate("common.save")}
           onPress={save}
+          disabled={!areRequiredFieldsFilled}
           isLoading={saveClassGroupMutation.isPending}
         />
         {classGroup ? (

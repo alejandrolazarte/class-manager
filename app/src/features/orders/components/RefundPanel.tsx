@@ -11,6 +11,7 @@ import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
+import { isFilled } from "@/forms/requiredFields";
 
 interface RefundPanelProps {
   order: Order;
@@ -81,6 +82,7 @@ export function RefundPanel({ order, onDone }: RefundPanelProps) {
         <>
           <TextField
             label={translate("orders.refund.quantity")}
+            isRequired
             keyboardType="number-pad"
             value={quantityText}
             onChangeText={setQuantityText}
@@ -102,6 +104,7 @@ export function RefundPanel({ order, onDone }: RefundPanelProps) {
         variant="dangerOutline"
         label={translate("orders.refund.confirm")}
         onPress={confirm}
+        disabled={selectedLine?.kind === "Product" && !isFilled(quantityText)}
         isLoading={refundOrderMutation.isPending}
       />
     </View>

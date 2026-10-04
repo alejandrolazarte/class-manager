@@ -5,6 +5,7 @@ import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
 import { buildCoach } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 jest.mock("@/features/instructors/instructorsApi");
 jest.mock("@/features/privateLessons/privateLessonsApi");
@@ -23,7 +24,9 @@ describe("When coach schedules a private lesson", () => {
       member: buildCoach(coachInstructor.id),
     });
 
-    expect(await screen.findByText(translate("privateLessons.form.coach"))).toBeOnTheScreen();
+    expect(
+      await screen.findByText(withRequiredMark(translate("privateLessons.form.coach"))),
+    ).toBeOnTheScreen();
     expect(screen.getByText(coachInstructor.fullName)).toBeOnTheScreen();
     expect(screen.queryByText(otherInstructor.fullName)).toBeNull();
   });

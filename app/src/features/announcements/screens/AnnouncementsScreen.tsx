@@ -20,6 +20,7 @@ import { SectionTitle } from "@/ui/SectionTitle";
 import { Spinner } from "@/ui/Spinner";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 const titleMaxLength = 80;
 const bodyMaxLength = 500;
@@ -94,8 +95,10 @@ export function AnnouncementsScreen() {
     >
       <Card className="gap-3 p-4">
         <SectionTitle title={translate("announcements.newTitle")} />
+        <RequiredFieldsLegend />
         <TextField
           label={translate("announcements.form.title")}
+          isRequired
           placeholder={translate("announcements.form.titlePlaceholder")}
           value={title}
           onChangeText={setTitle}
