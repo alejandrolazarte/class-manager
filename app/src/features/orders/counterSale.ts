@@ -1,6 +1,8 @@
 import { ClassPack } from "@/features/classPacks/types";
 import { CounterSaleLine } from "@/features/orders/types";
 import { Product, ProductVariant } from "@/features/products/types";
+import { groupDeliveryClasses } from "@/features/studentApp/deliveryClassGroups";
+import { DeliveryClass } from "@/features/studentApp/types";
 import { translate, translateCount } from "@/i18n/translate";
 
 export const maximumUnitsPerLine = 99;
@@ -122,4 +124,18 @@ export function withoutPacks(
 ): UnitsByItem {
   const packKeys = new Set(items.filter((item) => item.kind === "pack").map((item) => item.key));
   return Object.fromEntries(Object.entries(unitsByItem).filter(([key]) => !packKeys.has(key)));
+}
+
+export interface DeliveryClassOption {
+  classGroupId: string;
+  hint: string;
+}
+
+export function deliveryClassOptions(
+  deliveryClasses: readonly DeliveryClass[],
+): DeliveryClassOption[] {
+  return groupDeliveryClasses(deliveryClasses).map((group) => ({
+    classGroupId: group.classGroupId,
+    hint: `${group.classGroupName} · ${group.studentNames.join(", ")}`,
+  }));
 }

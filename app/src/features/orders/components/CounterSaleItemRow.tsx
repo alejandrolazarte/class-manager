@@ -26,6 +26,32 @@ export function CounterSaleItemRow({
   const currencyCode = useBusinessCurrency();
   const price = formatMoney(item.price, currencyCode);
   const isUnavailable = isLocked || item.maximumUnits === 0;
+  const stepper = (
+    <View className="self-start rounded-xl border-[1.5px] border-border">
+      <QuantityStepper
+        units={units}
+        minimum={0}
+        maximum={item.maximumUnits}
+        onChange={onChangeUnits}
+        decreaseIcon={units <= 1 ? "delete" : "remove"}
+        decreaseLabel={translate("orders.counterSale.decrease", { name: item.name })}
+        increaseLabel={translate("orders.counterSale.increase", { name: item.name })}
+      />
+    </View>
+  );
+  const trailing =
+    units === 0 ? (
+      <IconButton
+        icon="add"
+        variant="outlined"
+        tone="primary"
+        accessibilityLabel={translate("orders.counterSale.add", { name: item.name })}
+        disabled={isUnavailable}
+        onPress={() => onChangeUnits(1)}
+      />
+    ) : showsLineTotal ? null : (
+      stepper
+    );
   return (
     <View
       className={`flex-row items-center gap-3 rounded-[20px] border-[1.5px] border-border bg-surface p-2.5 ${isUnavailable && units === 0 ? "opacity-50" : ""}`}
@@ -34,45 +60,25 @@ export function CounterSaleItemRow({
         imageUri={item.imageUrl}
         placeholderIcon={item.kind === "pack" ? "classPacks" : "products"}
         placeholderIconSize="large"
-        className="h-14 w-14 rounded-[14px]"
+        className={`${showsLineTotal ? "h-[76px] w-[76px]" : "h-14 w-14"} self-start rounded-[14px]`}
       />
-      <View className="min-w-0 flex-1 gap-0.5">
+      <View className="min-w-0 flex-1 gap-1.5">
         <View className="flex-row items-start justify-between gap-2">
-          <AppText variant="bodyStrong" className="min-w-0 flex-1">
-            {item.name}
-          </AppText>
+          <View className="min-w-0 flex-1 gap-0.5">
+            <AppText variant="bodyStrong">{item.name}</AppText>
+            <AppText variant="caption" tone="subtle">
+              {[price, item.detail].filter(Boolean).join(" · ")}
+            </AppText>
+          </View>
           {showsLineTotal ? (
             <AppText variant="bodyStrong" className="font-heavy">
               {formatMoney(item.price * units, currencyCode)}
             </AppText>
           ) : null}
         </View>
-        <AppText variant="caption" tone="subtle">
-          {[price, item.detail].filter(Boolean).join(" · ")}
-        </AppText>
+        {showsLineTotal && units > 0 ? stepper : null}
       </View>
-      {units === 0 ? (
-        <IconButton
-          icon="add"
-          variant="outlined"
-          tone="primary"
-          accessibilityLabel={translate("orders.counterSale.add", { name: item.name })}
-          disabled={isUnavailable}
-          onPress={() => onChangeUnits(1)}
-        />
-      ) : (
-        <View className="rounded-xl border-[1.5px] border-border">
-          <QuantityStepper
-            units={units}
-            minimum={0}
-            maximum={item.maximumUnits}
-            onChange={onChangeUnits}
-            decreaseIcon={units <= 1 ? "delete" : "remove"}
-            decreaseLabel={translate("orders.counterSale.decrease", { name: item.name })}
-            increaseLabel={translate("orders.counterSale.increase", { name: item.name })}
-          />
-        </View>
-      )}
+      {trailing}
     </View>
   );
 }

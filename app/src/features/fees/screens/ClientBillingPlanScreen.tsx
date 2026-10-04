@@ -6,7 +6,7 @@ import { useClassBalance } from "@/features/classPacks/useClassPacks";
 import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
-import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
+import { currencySymbol, formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
 import { monthOf } from "@/features/fees/months";
 import { BillingPlanKind } from "@/features/fees/types";
 import { useSetClientBillingPlan } from "@/features/fees/useFeeMutations";
@@ -113,7 +113,7 @@ function BillingPlanEditor({ client }: BillingPlanEditorProps) {
         <TextField
           label={translate("fees.client.ownFeeAmount")}
           isRequired
-          prefix={business.currencyCode}
+          prefix={currencySymbol(business.currencyCode)}
           keyboardType="decimal-pad"
           value={amountText}
           onChangeText={setAmountText}

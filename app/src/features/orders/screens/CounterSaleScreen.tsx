@@ -21,6 +21,7 @@ import {
   counterSaleItems,
   counterSaleLines,
   counterSaleTotal,
+  deliveryClassOptions,
   UnitsByItem,
   unitsOf,
   withoutPacks,
@@ -330,11 +331,11 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
                 isSelected={deliveryClassGroupId === null}
                 onPress={() => setDeliveryClassGroupId(null)}
               />
-              {deliveryClasses.map((deliveryClass) => (
+              {deliveryClassOptions(deliveryClasses).map((deliveryClass) => (
                 <OptionCard
-                  key={`${deliveryClass.classGroupId}-${deliveryClass.studentFullName}`}
+                  key={deliveryClass.classGroupId}
                   label={translate("orders.counterSale.inClass")}
-                  hint={`${deliveryClass.classGroupName} · ${deliveryClass.studentFullName}`}
+                  hint={deliveryClass.hint}
                   isSelected={deliveryClassGroupId === deliveryClass.classGroupId}
                   onPress={() => setDeliveryClassGroupId(deliveryClass.classGroupId)}
                 />

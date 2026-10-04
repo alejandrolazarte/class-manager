@@ -132,41 +132,43 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
           {deliveryLabel}
         </AppText>
       ) : null}
-      <View className="flex-row flex-wrap items-center gap-x-1 gap-y-1">
-        <View className="flex-1 flex-row flex-wrap items-center gap-1.5">
+      <View className="flex-row flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <View className="flex-row flex-wrap items-center gap-1.5">
           <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
           {order.awaitsPickup && order.readyAt !== null ? (
             <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />
           ) : null}
         </View>
-        {canManage && order.status === "Requested" ? (
-          <OrderAction
-            label={translate("orders.collect")}
-            isExpanded={openPanel === "payment"}
-            onPress={() => togglePanel("payment")}
-          />
-        ) : null}
-        {canManage && isSettled && order.awaitsPickup && order.readyAt === null ? (
-          <OrderAction
-            label={translate("orders.markReady")}
-            onPress={markReady}
-            isLoading={markOrderReadyMutation.isPending}
-          />
-        ) : null}
-        {canManage && isSettled && order.awaitsPickup ? (
-          <OrderAction
-            label={translate("orders.markDelivered")}
-            onPress={markDelivered}
-            isLoading={markOrderDeliveredMutation.isPending}
-          />
-        ) : null}
-        {canManage && isSettled && hasRefundableLines ? (
-          <OrderAction
-            label={translate(openPanel === "refund" ? "common.close" : "orders.refund.open")}
-            isExpanded={openPanel === "refund"}
-            onPress={() => togglePanel("refund")}
-          />
-        ) : null}
+        <View className="ml-auto flex-row flex-wrap items-center justify-end">
+          {canManage && order.status === "Requested" ? (
+            <OrderAction
+              label={translate("orders.collect")}
+              isExpanded={openPanel === "payment"}
+              onPress={() => togglePanel("payment")}
+            />
+          ) : null}
+          {canManage && isSettled && order.awaitsPickup && order.readyAt === null ? (
+            <OrderAction
+              label={translate("orders.markReady")}
+              onPress={markReady}
+              isLoading={markOrderReadyMutation.isPending}
+            />
+          ) : null}
+          {canManage && isSettled && order.awaitsPickup ? (
+            <OrderAction
+              label={translate("orders.markDelivered")}
+              onPress={markDelivered}
+              isLoading={markOrderDeliveredMutation.isPending}
+            />
+          ) : null}
+          {canManage && isSettled && hasRefundableLines ? (
+            <OrderAction
+              label={translate(openPanel === "refund" ? "common.close" : "orders.refund.open")}
+              isExpanded={openPanel === "refund"}
+              onPress={() => togglePanel("refund")}
+            />
+          ) : null}
+        </View>
       </View>
       {canManage && order.status === "Requested" && openPanel === "payment" ? (
         <PaymentPanel order={order} />

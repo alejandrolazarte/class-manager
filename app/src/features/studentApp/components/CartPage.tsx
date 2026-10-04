@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
 import { QuantityStepper } from "@/features/studentApp/components/QuantityStepper";
+import { groupDeliveryClasses } from "@/features/studentApp/deliveryClassGroups";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
 import {
   cartItems,
@@ -223,12 +224,12 @@ export function CartPage({ shop, onClose, onSeeOrders }: CartPageProps) {
                 isSelected={deliveryClassGroupId === null}
                 onPress={() => setDeliveryClassGroupId(null)}
               />
-              {shop.deliveryClasses.map((deliveryClass) => (
+              {groupDeliveryClasses(shop.deliveryClasses).map((deliveryClass) => (
                 <OptionCard
-                  key={`${deliveryClass.classGroupId}-${deliveryClass.studentFullName}`}
+                  key={deliveryClass.classGroupId}
                   label={translate("delivery.inClass", {
                     className: deliveryClass.classGroupName,
-                    student: deliveryClass.studentFullName,
+                    student: deliveryClass.studentNames.join(", "),
                   })}
                   hint={translate("student.cart.inClassHint")}
                   isSelected={deliveryClassGroupId === deliveryClass.classGroupId}
