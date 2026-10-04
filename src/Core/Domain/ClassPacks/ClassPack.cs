@@ -16,12 +16,14 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
     public const int MinimumValidityMonths = 1;
     public const int MaximumValidityMonths = 24;
     public const int MaterialUrlMaxLength = 500;
+    public const int DescriptionMaxLength = 500;
 
     private const string NameLengthMessage = "The name must be between 2 and 60 characters.";
     private const string ClassCountRangeMessage = "The number of classes must be between 1 and 100.";
     private const string ValidityRangeMessage = "The validity must be between 1 and 24 months.";
     private const string ClassDurationMessage = "Class duration must be between 15 and 240 minutes, in steps of 5.";
     private const string MaterialUrlMessage = "The material link must be an https address of at most 500 characters.";
+    private const string DescriptionLengthMessage = "The description must be at most 500 characters.";
 
     private readonly List<ClassPackClassGroup> _classGroups = [];
     private readonly List<ClassPackImage> _images = [];
@@ -33,6 +35,7 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
     public int ClassCount { get; private set; }
     public decimal Price { get; private set; }
     public int? ValidityMonths { get; private set; }
@@ -109,6 +112,18 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
 
         ClassDurationMinutes = classDurationMinutes;
         MaterialUrl = trimmedUrl;
+        return Result.Success();
+    }
+
+    public Result Describe(string? description)
+    {
+        var trimmedDescription = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        if (trimmedDescription?.Length > DescriptionMaxLength)
+        {
+            return Result.Validation(DescriptionLengthMessage, fieldName: nameof(Description));
+        }
+
+        Description = trimmedDescription;
         return Result.Success();
     }
 

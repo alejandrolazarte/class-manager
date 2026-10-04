@@ -2,13 +2,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { CartBar } from "@/features/family/components/CartBar";
-import { CartSheet } from "@/features/family/components/CartSheet";
+import { CartPage } from "@/features/family/components/CartPage";
 import { PackCard } from "@/features/family/components/PackCard";
-import { ProductSheet } from "@/features/family/components/ProductSheet";
+import { PackDetailPage } from "@/features/family/components/PackDetailPage";
+import { ProductDetailPage } from "@/features/family/components/ProductDetailPage";
 import { ShopProductCard } from "@/features/family/components/ShopProductCard";
 import { useFamilyCart } from "@/features/family/FamilyCartProvider";
 import { cartTotal } from "@/features/family/familyCart";
-import { FamilyShopProduct } from "@/features/family/types";
+import { FamilyShopPack, FamilyShopProduct } from "@/features/family/types";
 import { useFamilyShop } from "@/features/family/useFamilyShop";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { formatMoney } from "@/features/fees/money";
@@ -73,6 +74,7 @@ export function FamilyShopScreen() {
   const [searchText, setSearchText] = useState("");
   const [category, setCategory] = useState<ShopCategory>("all");
   const [openProductId, setOpenProductId] = useState<string | null>(null);
+  const [openPackId, setOpenPackId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const closeProduct = () => {
@@ -117,6 +119,9 @@ export function FamilyShopScreen() {
   const showsProducts = category !== "packs" && products.length > 0;
   const shownProductId = openProductId ?? productId ?? null;
   const openProduct = shop.products.find((product) => product.id === shownProductId);
+  const openPack = shop.packs.find((pack) => pack.id === openPackId);
+  const isPackInCart = (pack: FamilyShopPack) => (cart[pack.id] ?? 0) > 0;
+  const togglePack = (pack: FamilyShopPack) => setUnits(pack.id, isPackInCart(pack) ? 0 : 1);
   const isProductInCart = (product: FamilyShopProduct) =>
     product.variants.some((variant) => (cart[variant.id] ?? 0) > 0);
 
@@ -125,7 +130,7 @@ export function FamilyShopScreen() {
       header={header}
       hasFloatingAction={units > 0}
       overlay={
-        units > 0 && !isCartOpen && openProduct === undefined ? (
+        units > 0 && !isCartOpen && openProduct === undefined && openPack === undefined ? (
           <CartBar
             units={units}
             totalLabel={formatMoney(cartTotal(shop, cart), shop.currencyCode)}
@@ -173,18 +178,16 @@ export function FamilyShopScreen() {
             className="-mx-5"
             contentContainerClassName="gap-3 px-5 pb-1.5"
           >
-            {packs.map((pack) => {
-              const isInCart = (cart[pack.id] ?? 0) > 0;
-              return (
-                <PackCard
-                  key={pack.id}
-                  pack={pack}
-                  currencyCode={shop.currencyCode}
-                  isInCart={isInCart}
-                  onToggle={() => setUnits(pack.id, isInCart ? 0 : 1)}
-                />
-              );
-            })}
+            {packs.map((pack) => (
+              <PackCard
+                key={pack.id}
+                pack={pack}
+                currencyCode={shop.currencyCode}
+                isInCart={isPackInCart(pack)}
+                onOpen={() => setOpenPackId(pack.id)}
+                onToggle={() => togglePack(pack)}
+              />
+            ))}
           </ScrollView>
         </>
       ) : null}
@@ -211,7 +214,7 @@ export function FamilyShopScreen() {
         <EmptyState icon="search" message={translate("family.shop.noResults")} />
       ) : null}
       {openProduct === undefined ? null : (
-        <ProductSheet
+        <ProductDetailPage
           key={openProduct.id}
           product={openProduct}
           currencyCode={shop.currencyCode}
@@ -222,8 +225,21 @@ export function FamilyShopScreen() {
           }}
         />
       )}
+      {openPack === undefined ? null : (
+        <PackDetailPage
+          key={openPack.id}
+          pack={openPack}
+          currencyCode={shop.currencyCode}
+          isInCart={isPackInCart(openPack)}
+          onClose={() => setOpenPackId(null)}
+          onToggle={() => {
+            togglePack(openPack);
+            setOpenPackId(null);
+          }}
+        />
+      )}
       {isCartOpen ? (
-        <CartSheet
+        <CartPage
           shop={shop}
           onClose={() => setIsCartOpen(false)}
           onSeeOrders={() => {

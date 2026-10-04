@@ -9,6 +9,7 @@ internal sealed class ClassPackConfiguration : IEntityTypeConfiguration<ClassPac
         builder.HasKey(classPack => classPack.Id);
         builder.Property(classPack => classPack.Id).ValueGeneratedNever();
         builder.Property(classPack => classPack.Name).HasMaxLength(ClassPack.NameMaxLength).IsRequired();
+        builder.Property(classPack => classPack.Description).HasMaxLength(ClassPack.DescriptionMaxLength);
         builder.Property(classPack => classPack.Price).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Property(classPack => classPack.MaterialUrl).HasMaxLength(ClassPack.MaterialUrlMaxLength);
 

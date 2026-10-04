@@ -46,7 +46,7 @@ public sealed class GetFamilyShopUseCase(
 
         return new FamilyShopResponse(
             business.CurrencyCode,
-            [.. packs.Select(pack => new FamilyShopPackResponse(pack.Id, pack.Name, pack.ClassCount, pack.Price, pack.ValidityMonths, CatalogImageResponse.ListFrom(pack.ImagesInOrder, documentStorage)))],
+            [.. packs.Select(pack => new FamilyShopPackResponse(pack.Id, pack.Name, pack.Description, pack.ClassCount, pack.Price, pack.ValidityMonths, CatalogImageResponse.ListFrom(pack.ImagesInOrder, documentStorage)))],
             [
                 .. products.Select(product => new FamilyShopProductResponse(
                     product.Id,
