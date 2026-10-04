@@ -38,6 +38,13 @@ Order emails (placed, paid, ready, cancelled) and every push go through an in-me
 
 The rule of thumb: the library decides **how** an email or push is built and delivered; the app decides **who** gets it, **what** it says and **which brand** it carries.
 
+## When emails are sent
+
+This is how emails are sent today. It reflects the current needs and can change when they do; the best option will be weighed then.
+
+- **Emails that are one more notice** (orders: placed, paid, ready, cancelled) are sent in the background, so a slow mail server never holds up the screen. If one is lost, the same event still reaches people through the in-app notifications, a push or the order status in the app. Failures are logged (`Email not sent: {Subject}`).
+- **Emails that are the only channel** (team and student invitations, password reset) are sent within the request, so the screen knows whether the email went out and the user can send it again.
+
 ## Using it in another app
 
 1. Reference `Notifications.Delivery` (it brings `Notifications`).
