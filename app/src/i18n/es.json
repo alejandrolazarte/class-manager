@@ -893,7 +893,6 @@
   "student.shop.order": "Pedir · {total}",
   "student.shop.outOfStock": "Ya no queda stock de algo que elegiste. Revisá las cantidades.",
   "student.shop.tooManyOpenOrders": "Tenés 5 pedidos sin pagar. Pagá o cancelá alguno antes de pedir otro.",
-  "student.shop.noAnswer": "No recibimos respuesta. Puede que el pedido se haya hecho: revisá Mis pedidos antes de volver a pedir.",
   "student.orders.title": "Mis pedidos",
   "student.orders.empty": "Todavía no hiciste pedidos",
   "student.orders.status.Requested": "Pendiente de pago",
