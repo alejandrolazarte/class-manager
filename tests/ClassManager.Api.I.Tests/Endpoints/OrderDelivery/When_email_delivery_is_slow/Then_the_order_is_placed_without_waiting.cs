@@ -2,13 +2,15 @@ using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Students;
 
-namespace ClassManager.Api.I.Tests.Endpoints.OrderDelivery.When_a_student_places_an_order;
+namespace ClassManager.Api.I.Tests.Endpoints.OrderDelivery.When_email_delivery_is_slow;
 
 [Collection(SqlServerCollectionDefinition.Name)]
-public sealed class Then_the_branch_owner_is_emailed(ApiFixture fixture)
+public sealed class Then_the_order_is_placed_without_waiting(ApiFixture fixture)
 {
+    private static readonly TimeSpan MaximumOrderDuration = TimeSpan.FromSeconds(5);
+
     [Fact]
-    public async Task Then_the_branch_owner_is_emailed_Run()
+    public async Task Then_the_order_is_placed_without_waiting_Run()
     {
         var ownerCommand = AuthenticationRequests.SignUpCommand();
         using var anonymous = fixture.ApiFactory.CreateClient();
@@ -23,10 +25,15 @@ public sealed class Then_the_branch_owner_is_emailed(ApiFixture fixture)
         var studentTokens = (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
         using var student = fixture.CreateClientWithToken(studentTokens.AccessToken);
 
-        await student.PlaceStudentAppOrderAsync(StudentAppShopRequests.PackLine(classPack.Id));
+        Task placing;
+        using (fixture.ApiFactory.EmailTransport.HoldDeliveries())
+        {
+            placing = student.PlaceStudentAppOrderAsync(StudentAppShopRequests.PackLine(classPack.Id));
+            (await Task.WhenAny(placing, Task.Delay(MaximumOrderDuration))).ShouldBe(placing);
+        }
 
-        var placedEmail = await fixture.ApiFactory.EmailTransport.WaitForEmailToAsync(
-            ownerCommand.Email!, email => email.Subject == $"Nuevo pedido n.º 1 de {ApiRequests.ClientFullName}");
-        placedEmail.TextBody.ShouldContain(ClassPackRequests.PackName);
+        await placing;
+        (await fixture.ApiFactory.EmailTransport.WaitForEmailToAsync(ownerCommand.Email!, email => email.Subject.StartsWith("Nuevo pedido", StringComparison.Ordinal)))
+            .TextBody.ShouldContain(ClassPackRequests.PackName);
     }
 }

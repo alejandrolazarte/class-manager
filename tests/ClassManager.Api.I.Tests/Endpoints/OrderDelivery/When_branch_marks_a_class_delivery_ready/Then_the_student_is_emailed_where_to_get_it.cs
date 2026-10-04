@@ -21,8 +21,7 @@ public sealed class Then_the_student_is_emailed_where_to_get_it(ApiFixture fixtu
         using var response = await owner.PutOrderReadyAsync(orderId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var readyEmail = fixture.ApiFactory.EmailTransport.SentTo(scenario.Email)[^1];
-        readyEmail.Subject.ShouldBe("Tu pedido está listo");
+        var readyEmail = await fixture.ApiFactory.EmailTransport.WaitForEmailToAsync(scenario.Email, email => email.Subject == "Tu pedido está listo");
         readyEmail.TextBody.ShouldContain(CoachScenario.CoachClassGroupName);
     }
 }

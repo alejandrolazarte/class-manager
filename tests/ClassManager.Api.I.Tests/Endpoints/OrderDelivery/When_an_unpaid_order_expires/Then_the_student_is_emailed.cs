@@ -22,8 +22,7 @@ public sealed class Then_the_student_is_emailed(ApiFixture fixture)
 
         await fixture.ApiFactory.Services.GetRequiredService<IExpiredOrderCancellationService>().CancelExpiredOrdersAsync(CancellationToken.None);
 
-        var cancelledEmail = fixture.ApiFactory.EmailTransport.SentTo(scenario.Email)[^1];
-        cancelledEmail.Subject.ShouldBe("Se canceló tu pedido");
+        var cancelledEmail = await fixture.ApiFactory.EmailTransport.WaitForEmailToAsync(scenario.Email, email => email.Subject == "Se canceló tu pedido");
         cancelledEmail.TextBody.ShouldContain("7 días");
     }
 }

@@ -2,21 +2,20 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Authorization;
+using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.WebPush;
 using ClassManager.Notifications.WebPush;
-using Microsoft.Extensions.Logging;
 
 namespace ClassManager.Infrastructure.Notifications;
 
-internal sealed partial class OrderNotificationService(
+internal sealed class OrderNotificationService(
     AppDbContext context,
     IIdentityService identityService,
-    IEmailSender emailSender,
+    EmailOutbox emailOutbox,
     IWebAppLinks webAppLinks,
     PushPublisher pushPublisher,
-    TeamNotifier teamNotifier,
-    ILogger<OrderNotificationService> logger)
+    TeamNotifier teamNotifier)
     : IOrderNotificationService
 {
     public async Task OrderPlacedAsync(Order order, CancellationToken cancellationToken)
@@ -33,7 +32,7 @@ internal sealed partial class OrderNotificationService(
         var staffUserIds = await StaffUserIdsAsync(business, cancellationToken);
         foreach (var email in await EmailsOfAsync(staffUserIds, cancellationToken))
         {
-            await SendAsync(OrderEmails.Placed(EmailContextOf(order, business, email), client.FullName, delivery, webAppLinks.TeamOrders()), cancellationToken);
+            Send(OrderEmails.Placed(EmailContextOf(order, business, email), client.FullName, delivery, webAppLinks.TeamOrders()));
         }
 
         await teamNotifier.NotifyAsync(
@@ -65,9 +64,8 @@ internal sealed partial class OrderNotificationService(
 
         foreach (var email in await ClientEmailsAsync(order, cancellationToken))
         {
-            await SendAsync(
-                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.StudentAppOrders()),
-                cancellationToken);
+            Send(
+                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.StudentAppOrders()));
         }
     }
 
@@ -83,7 +81,7 @@ internal sealed partial class OrderNotificationService(
         PushReady(order, whereToGetIt);
         foreach (var email in await ClientEmailsAsync(order, cancellationToken))
         {
-            await SendAsync(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.StudentAppOrders()), cancellationToken);
+            Send(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.StudentAppOrders()));
         }
     }
 
@@ -101,7 +99,7 @@ internal sealed partial class OrderNotificationService(
             var message = reason == OrderCancellationReason.Unpaid
                 ? OrderEmails.CancelledUnpaid(emailContext, webAppLinks.StudentAppOrders())
                 : OrderEmails.CancelledByBranch(emailContext, webAppLinks.StudentAppOrders());
-            await SendAsync(message, cancellationToken);
+            Send(message);
         }
     }
 
@@ -188,18 +186,5 @@ internal sealed partial class OrderNotificationService(
             ? customRoles.TryGetValue(customRoleId, out var customRole) ? MemberRole.Custom(customRole).Permissions : new HashSet<string>()
             : SystemRolePermissions.Of(member.Role);
 
-    private async Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await emailSender.SendAsync(message, cancellationToken);
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            LogNotSent(logger, exception, message.Subject);
-        }
-    }
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Order email not sent: {Subject}")]
-    private static partial void LogNotSent(ILogger logger, Exception exception, string subject);
+    private void Send(EmailMessage message) => emailOutbox.Enqueue(message);
 }

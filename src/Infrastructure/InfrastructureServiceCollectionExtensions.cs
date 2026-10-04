@@ -100,6 +100,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IWebAppLinks, WebAppLinks>();
         services.AddScoped<EmailBrandReader>();
         services.AddScoped<IEmailSender, BrandedEmailSender>();
+        services.AddSingleton<EmailOutbox>();
 
         return services;
     }
