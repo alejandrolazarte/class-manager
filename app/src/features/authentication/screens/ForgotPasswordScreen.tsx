@@ -17,7 +17,6 @@ import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
-import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 type ForgotPasswordFailure = "network" | "unexpected";
@@ -77,14 +76,12 @@ export function ForgotPasswordScreen() {
           {failure === "unexpected" ? (
             <Banner message={translate("common.unexpectedError")} />
           ) : null}
-          <RequiredFieldsLegend />
           <Controller
             control={form.control}
             name="email"
             render={({ field, fieldState }) => (
               <TextField
                 label={translate("authentication.forgotPassword.email")}
-                isRequired
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"

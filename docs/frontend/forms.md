@@ -19,6 +19,7 @@ Every form tells the user what it needs before they press the button, and the ma
   - forms on plain state: `isFilled(value)` or `areFilled([...values])`.
   "Filled" means non-blank text, a non-empty list or a set value. Format rules (a valid email, a minimum length, a valid date) still run on blur and on press, and show the error under the field.
 - Disabled buttons are grey (`bg-border` and the `disabled` text tone), not a faded primary. A loading button keeps its color and shows the spinner.
+- Sign-in, forgot password and reset password don't mark fields or show the legend: everyone knows those screens from other apps, and with one or two fields the marks are noise. Their button still stays grey until the fields are filled. Sign-up does mark them: it asks for more and in two steps.
 - Fields that are only sometimes required stay unmarked and keep their validation on press. Example: accepting an invitation needs a name and a password only when the email has no account yet, which the form cannot know.
 - Errors and satisfied hints carry an icon (error or check) next to the text, so they don't depend on color alone.
 

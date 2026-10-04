@@ -20,7 +20,6 @@ import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
 import { useToast } from "@/ui/ToastProvider";
-import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 
@@ -102,14 +101,12 @@ export function ResetPasswordScreen() {
       {failure === "unexpected" ? <Banner message={translate("common.unexpectedError")} /> : null}
       {token && failure !== "invalidLink" ? (
         <>
-          <RequiredFieldsLegend />
           <Controller
             control={form.control}
             name="newPassword"
             render={({ field, fieldState }) => (
               <PasswordField
                 label={translate("authentication.resetPassword.newPassword")}
-                isRequired
                 hint={translate("authentication.signUp.passwordHint")}
                 isHintSatisfied={newPassword.length >= authenticationLimits.passwordMinimumLength}
                 autoComplete="new-password"
