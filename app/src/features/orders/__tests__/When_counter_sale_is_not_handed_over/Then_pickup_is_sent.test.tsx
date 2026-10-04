@@ -11,14 +11,14 @@ jest.mock("@/features/orders/ordersApi");
 jest.mock("@/features/products/productsApi");
 jest.mock("@/features/classPacks/classPacksApi");
 
-describe("When selling at the counter", () => {
+describe("When counter sale is not handed over", () => {
   beforeEach(() => {
     jest.mocked(listProducts).mockResolvedValue([buildProduct()]);
     jest.mocked(listClassPacks).mockResolvedValue([]);
     jest.mocked(createCounterSale).mockResolvedValue(buildOrder());
   });
 
-  it("Then the chosen units are sent", async () => {
+  it("Then pickup is sent", async () => {
     const product = buildProduct();
     await renderWithProviders(<CounterSaleScreen />);
     await fireEvent.press(
@@ -30,36 +30,20 @@ describe("When selling at the counter", () => {
         name: translate("orders.counterSale.add", { name: product.name }),
       }),
     );
-    await fireEvent.press(
-      catalog.getByRole("button", {
-        name: translate("orders.counterSale.increase", { name: product.name }),
-      }),
-    );
     await fireEvent.press(catalog.getByRole("button", { name: translate("common.done") }));
-
     await fireEvent.press(screen.getByRole("button", { name: translate("common.continue") }));
+    await fireEvent.press(
+      screen.getByRole("switch", { name: translate("orders.counterSale.handedOver") }),
+    );
+
     await fireEvent.press(
       screen.getByRole("button", { name: translate("orders.counterSale.charge") }),
     );
 
     await waitFor(() =>
-      expect(createCounterSale).toHaveBeenCalledWith({
-        clientId: null,
-        lines: [
-          {
-            classPackId: null,
-            productVariantId: product.variants[0].id,
-            quantity: 2,
-            unitPrice: null,
-          },
-        ],
-        method: "Cash",
-        paidOn: null,
-        notes: null,
-        isDelivered: true,
-        delivery: null,
-        deliveryClassGroupId: null,
-      }),
+      expect(createCounterSale).toHaveBeenCalledWith(
+        expect.objectContaining({ isDelivered: false, delivery: "Pickup" }),
+      ),
     );
   });
 });

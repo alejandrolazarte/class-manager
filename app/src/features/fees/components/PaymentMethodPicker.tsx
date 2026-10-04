@@ -9,6 +9,7 @@ import { IconName } from "@/ui/Icon";
 interface PaymentMethodPickerProps {
   value: PaymentMethod;
   onChange: (method: PaymentMethod) => void;
+  label?: string;
 }
 
 const methodIcons: Record<PaymentMethod, IconName> = {
@@ -18,11 +19,11 @@ const methodIcons: Record<PaymentMethod, IconName> = {
   Other: "otherMethod",
 };
 
-export function PaymentMethodPicker({ value, onChange }: PaymentMethodPickerProps) {
+export function PaymentMethodPicker({ value, onChange, label }: PaymentMethodPickerProps) {
   return (
     <View className="gap-2">
       <AppText variant="label" tone="muted">
-        {translate("fees.payment.method")}
+        {translate("common.requiredLabel", { label: label ?? translate("fees.payment.method") })}
       </AppText>
       <View className="flex-row flex-wrap gap-2">
         {paymentMethods.map((method) => (

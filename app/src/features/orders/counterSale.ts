@@ -1,62 +1,125 @@
 import { ClassPack } from "@/features/classPacks/types";
 import { CounterSaleLine } from "@/features/orders/types";
 import { Product, ProductVariant } from "@/features/products/types";
+import { translate, translateCount } from "@/i18n/translate";
 
 export const maximumUnitsPerLine = 99;
 
-const decimalRadix = 10;
+export type CounterSaleItemKind = "pack" | "product";
 
-export function quantityOf(quantityText: string | undefined): number {
-  const quantity = Number.parseInt(quantityText ?? "", decimalRadix);
-  return Number.isNaN(quantity) || quantity < 0 ? 0 : quantity;
+export interface CounterSaleItem {
+  key: string;
+  kind: CounterSaleItemKind;
+  name: string;
+  price: number;
+  detail: string;
+  imageUrl: string | null;
+  maximumUnits: number;
 }
+
+export type UnitsByItem = Readonly<Record<string, number>>;
 
 export function maximumUnitsOf(product: Product, variant: ProductVariant): number {
-  return product.stockMode === "Tracked"
-    ? Math.max(0, Math.min(maximumUnitsPerLine, variant.stock ?? 0))
-    : maximumUnitsPerLine;
+  if (product.stockMode !== "Tracked") {
+    return maximumUnitsPerLine;
+  }
+  return Math.max(0, Math.min(maximumUnitsPerLine, variant.stock ?? 0));
 }
 
-export function counterSaleLines(
-  classPackIds: readonly string[],
-  quantitiesByVariant: Readonly<Record<string, string>>,
-): CounterSaleLine[] {
+function variantStockDetail(product: Product, variant: ProductVariant): string | null {
+  if (product.stockMode === "Unlimited") {
+    return null;
+  }
+  const stock = variant.stock ?? 0;
+  if (stock > 0) {
+    return translateCount("orders.counterSale.stockLeft", stock);
+  }
+  return translate(
+    product.stockMode === "TrackedWithBackorder"
+      ? "products.stock.onOrder"
+      : "products.stock.soldOut",
+  );
+}
+
+function productItemName(product: Product, variant: ProductVariant): string {
+  return product.variants.length > 1 && variant.name.length > 0
+    ? `${product.name} · ${variant.name}`
+    : product.name;
+}
+
+export function counterSaleItems(
+  classPacks: readonly ClassPack[],
+  products: readonly Product[],
+): CounterSaleItem[] {
   return [
-    ...classPackIds.map((classPackId) => ({
-      classPackId,
-      productVariantId: null,
-      quantity: null,
-      unitPrice: null,
+    ...classPacks.map((classPack) => ({
+      key: classPack.id,
+      kind: "pack" as const,
+      name: classPack.name,
+      price: classPack.price,
+      detail: translateCount("student.shop.classCount", classPack.classCount),
+      imageUrl: classPack.images[0]?.url ?? null,
+      maximumUnits: 1,
     })),
-    ...Object.entries(quantitiesByVariant)
-      .filter(([, quantityText]) => quantityOf(quantityText) > 0)
-      .map(([productVariantId, quantityText]) => ({
-        classPackId: null,
-        productVariantId,
-        quantity: quantityOf(quantityText),
-        unitPrice: null,
+    ...products.flatMap((product) =>
+      product.variants.map((variant) => ({
+        key: variant.id,
+        kind: "product" as const,
+        name: productItemName(product, variant),
+        price: product.price,
+        detail: variantStockDetail(product, variant) ?? "",
+        imageUrl: product.images[0]?.url ?? null,
+        maximumUnits: maximumUnitsOf(product, variant),
       })),
+    ),
   ];
 }
 
-export function counterSaleTotal(
-  classPacks: readonly ClassPack[],
-  products: readonly Product[],
-  classPackIds: readonly string[],
-  quantitiesByVariant: Readonly<Record<string, string>>,
+export function unitsOf(unitsByItem: UnitsByItem, item: CounterSaleItem): number {
+  return unitsByItem[item.key] ?? 0;
+}
+
+export function chosenItems(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+): CounterSaleItem[] {
+  return items.filter((item) => unitsOf(unitsByItem, item) > 0);
+}
+
+export function counterSaleUnitCount(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
 ): number {
-  const packsTotal = classPacks
-    .filter((classPack) => classPackIds.includes(classPack.id))
-    .reduce((total, classPack) => total + classPack.price, 0);
-  const productsTotal = products.reduce(
-    (total, product) =>
-      total +
-      product.variants.reduce(
-        (variantTotal, variant) =>
-          variantTotal + product.price * quantityOf(quantitiesByVariant[variant.id]),
-        0,
-      ),
-    0,
+  return items.reduce((count, item) => count + unitsOf(unitsByItem, item), 0);
+}
+
+export function counterSaleTotal(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+): number {
+  return items.reduce((total, item) => total + item.price * unitsOf(unitsByItem, item), 0);
+}
+
+export function counterSaleLines(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+): CounterSaleLine[] {
+  return chosenItems(items, unitsByItem).map((item) =>
+    item.kind === "pack"
+      ? { classPackId: item.key, productVariantId: null, quantity: null, unitPrice: null }
+      : {
+          classPackId: null,
+          productVariantId: item.key,
+          quantity: unitsOf(unitsByItem, item),
+          unitPrice: null,
+        },
   );
-  return packsTotal + productsTotal;
+}
+
+export function withoutPacks(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+): UnitsByItem {
+  const packKeys = new Set(items.filter((item) => item.kind === "pack").map((item) => item.key));
+  return Object.fromEntries(Object.entries(unitsByItem).filter(([key]) => !packKeys.has(key)));
 }
