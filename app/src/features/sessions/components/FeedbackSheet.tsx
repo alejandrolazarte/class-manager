@@ -30,6 +30,7 @@ export function FeedbackSheet({ student, isSaving, onSave, onClose }: FeedbackSh
       </View>
       <TextField
         label={translate("sessions.feedback.label")}
+        isRequired
         placeholder={translate("sessions.feedback.placeholder")}
         value={text}
         onChangeText={setText}

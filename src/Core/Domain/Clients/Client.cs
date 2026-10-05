@@ -35,36 +35,62 @@ public sealed class Client : ITenantOwned
         string? notes,
         DateTimeOffset createdAt)
     {
-        var trimmedFullName = fullName?.Trim() ?? string.Empty;
-        if (trimmedFullName.Length is < FullNameMinLength or > FullNameMaxLength)
+        var details = ValidDetails(fullName, email, notes);
+        if (details.IsFailure)
         {
-            return Result.Validation<Client>(FullNameLengthMessage, fieldName: nameof(FullName));
-        }
-
-        var trimmedEmail = TrimToNull(email);
-        if (trimmedEmail is not null && !IsValidEmail(trimmedEmail))
-        {
-            return Result.Validation<Client>(EmailFormatMessage, fieldName: nameof(Email));
-        }
-
-        var trimmedNotes = TrimToNull(notes);
-        if (trimmedNotes?.Length > NotesMaxLength)
-        {
-            return Result.Validation<Client>(NotesLengthMessage, fieldName: nameof(Notes));
+            return details.Error!;
         }
 
         return new Client
         {
             Id = Guid.CreateVersion7(),
-            FullName = trimmedFullName,
+            FullName = details.Value!.FullName,
             PhoneNumber = phoneNumber,
-            Email = trimmedEmail,
-            Notes = trimmedNotes,
+            Email = details.Value.Email,
+            Notes = details.Value.Notes,
             CreatedAt = createdAt.ToUniversalTime(),
         };
     }
 
+    public Result Update(string? fullName, PhoneNumber phoneNumber, string? email, string? notes)
+    {
+        var details = ValidDetails(fullName, email, notes);
+        if (details.IsFailure)
+        {
+            return Result.Failure(details.Error!);
+        }
+
+        FullName = details.Value!.FullName;
+        PhoneNumber = phoneNumber;
+        Email = details.Value.Email;
+        Notes = details.Value.Notes;
+        return Result.Success();
+    }
+
     public void RecordRegisteredBy(Guid userId) => RegisteredByUserId = userId;
+
+    private static Result<ValidatedDetails> ValidDetails(string? fullName, string? email, string? notes)
+    {
+        var trimmedFullName = fullName?.Trim() ?? string.Empty;
+        if (trimmedFullName.Length is < FullNameMinLength or > FullNameMaxLength)
+        {
+            return Result.Validation<ValidatedDetails>(FullNameLengthMessage, fieldName: nameof(FullName));
+        }
+
+        var trimmedEmail = TrimToNull(email);
+        if (trimmedEmail is not null && !IsValidEmail(trimmedEmail))
+        {
+            return Result.Validation<ValidatedDetails>(EmailFormatMessage, fieldName: nameof(Email));
+        }
+
+        var trimmedNotes = TrimToNull(notes);
+        if (trimmedNotes?.Length > NotesMaxLength)
+        {
+            return Result.Validation<ValidatedDetails>(NotesLengthMessage, fieldName: nameof(Notes));
+        }
+
+        return new ValidatedDetails(trimmedFullName, trimmedEmail, trimmedNotes);
+    }
 
     private static string? TrimToNull(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -73,4 +99,6 @@ public sealed class Client : ITenantOwned
         email.Length <= EmailMaxLength
         && MailAddress.TryCreate(email, out var mailAddress)
         && string.Equals(mailAddress.Address, email, StringComparison.OrdinalIgnoreCase);
+
+    private sealed record ValidatedDetails(string FullName, string? Email, string? Notes);
 }

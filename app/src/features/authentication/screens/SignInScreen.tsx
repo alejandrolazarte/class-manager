@@ -22,6 +22,7 @@ import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 
@@ -37,6 +38,7 @@ export function SignInScreen() {
     defaultValues: { email: prefilledEmail ?? "", password: "" },
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, signInFieldNames);
 
   const handleSignInError = (signInError: unknown) => {
     if (isNetworkError(signInError)) {
@@ -127,6 +129,7 @@ export function SignInScreen() {
       <Button
         label={translate("authentication.signIn.submit")}
         onPress={submit}
+        disabled={!areRequiredFieldsFilled}
         isLoading={form.formState.isSubmitting}
       />
       <Pressable

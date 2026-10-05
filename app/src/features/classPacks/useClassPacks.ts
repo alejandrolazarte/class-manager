@@ -10,9 +10,10 @@ export function useClassPacks(includeInactive: boolean, { enabled = true } = {})
   });
 }
 
-export function useClassBalance(clientId: string) {
+export function useClassBalance(clientId: string | undefined) {
   return useQuery({
-    queryKey: classPackQueryKeys.balance(clientId),
-    queryFn: () => getClassBalance(clientId),
+    queryKey: classPackQueryKeys.balance(clientId ?? ""),
+    queryFn: () => getClassBalance(clientId ?? ""),
+    enabled: clientId !== undefined && clientId.length > 0,
   });
 }

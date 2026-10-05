@@ -89,6 +89,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<SetBrandOwnerCommand, BrandOwnerResponse, SetBrandOwnerUseCase>();
         services.AddUseCase<RegisterClientCommand, ClientDetailsResponse, RegisterClientUseCase>();
         services.AddUseCase<GetClientQuery, ClientDetailsResponse, GetClientUseCase>();
+        services.AddUseCase<UpdateClientCommand, ClientResponse, UpdateClientUseCase>();
         services.AddUseCase<SearchClientsQuery, IReadOnlyList<ClientResponse>, SearchClientsUseCase>();
         services.AddUseCase<AddStudentCommand, StudentResponse, AddStudentUseCase>();
         services.AddUseCase<GetStudentQuery, StudentSummaryResponse, GetStudentUseCase>();

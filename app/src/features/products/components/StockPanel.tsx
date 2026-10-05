@@ -12,6 +12,7 @@ import { Card } from "@/ui/Card";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { isFilled } from "@/forms/requiredFields";
 
 interface StockPanelProps {
   product: Product;
@@ -91,6 +92,7 @@ export function StockPanel({ product }: StockPanelProps) {
         label={translate(
           kind === "Restock" ? "products.stock.quantity" : "products.stock.adjustment",
         )}
+        isRequired
         keyboardType={kind === "Restock" ? "number-pad" : "default"}
         value={quantityText}
         onChangeText={setQuantityText}
@@ -99,6 +101,7 @@ export function StockPanel({ product }: StockPanelProps) {
         label={translate(
           kind === "Restock" ? "products.stock.noteOptional" : "products.stock.note",
         )}
+        isRequired={kind !== "Restock"}
         value={note}
         onChangeText={setNote}
       />
@@ -107,6 +110,7 @@ export function StockPanel({ product }: StockPanelProps) {
         size="medium"
         label={translate(kind === "Restock" ? "products.stock.load" : "products.stock.adjust")}
         onPress={submit}
+        disabled={!isFilled(quantityText) || (kind !== "Restock" && !isFilled(note))}
         isLoading={recordStockMovementMutation.isPending}
       />
       {movements.length > 0 ? (

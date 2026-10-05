@@ -26,6 +26,9 @@ export const routes = {
   registerClient: "/students/new",
   clientDetail: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}`,
   addStudent: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/new-student`,
+  editClient: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/edit`,
+  clientBillingPlan: (tab: ClientTab, clientId: string) =>
+    `/${tab}/clients/${clientId}/billing-plan`,
   sellClassPack: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/sell-pack`,
   clientCounterSale: (tab: ClientTab, clientId: string) =>
     `/${tab}/clients/${clientId}/counter-sale`,

@@ -27,6 +27,10 @@ import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { StepProgress } from "@/ui/StepProgress";
+import { emailAddressPattern } from "@/forms/emailAddress";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 
@@ -37,18 +41,12 @@ type SignUpStep = 1 | 2;
 
 const signUpStepCount = 2;
 const accountStepFieldNames = ["ownerFullName", "email", "password"] as const;
+const businessStepFieldNames = ["businessName"] as const;
+const startedStepFill = 0.15;
+const completedStepFill = 1;
 
-function StepProgress({ step }: { step: SignUpStep }) {
-  return (
-    <View className="flex-row gap-1.5">
-      {[1, 2].map((stepNumber) => (
-        <View
-          key={stepNumber}
-          className={`h-1.5 flex-1 rounded-full ${stepNumber <= step ? "bg-primary" : "bg-muted"}`}
-        />
-      ))}
-    </View>
-  );
+function stepFill(completedFields: number, fieldCount: number): number {
+  return startedStepFill + ((completedStepFill - startedStepFill) * completedFields) / fieldCount;
 }
 
 export function SignUpScreen() {
@@ -70,11 +68,22 @@ export function SignUpScreen() {
     },
     mode: "onTouched",
   });
-  const [countryCode, timeZoneId, password] = useWatch({
+  const [countryCode, timeZoneId, ownerFullName, email, password, businessName] = useWatch({
     control: form.control,
-    name: ["countryCode", "timeZoneId", "password"],
+    name: ["countryCode", "timeZoneId", "ownerFullName", "email", "password", "businessName"],
   });
   const hasLongEnoughPassword = password.length >= authenticationLimits.passwordMinimumLength;
+  const isAccountStepFilled = useRequiredFieldsFilled(form.control, accountStepFieldNames);
+  const isBusinessStepFilled = useRequiredFieldsFilled(form.control, businessStepFieldNames);
+  const completedAccountFields = [
+    ownerFullName.trim().length > 0,
+    emailAddressPattern.test(email.trim()),
+    hasLongEnoughPassword,
+  ].filter(Boolean).length;
+  const segmentFills =
+    step === 1
+      ? [stepFill(completedAccountFields, accountStepFieldNames.length), 0]
+      : [completedStepFill, stepFill(businessName.trim().length > 0 ? 1 : 0, 1)];
 
   const continueToBusinessStep = async () => {
     if (await form.trigger(accountStepFieldNames)) {
@@ -123,7 +132,7 @@ export function SignUpScreen() {
           : "authentication.signUp.businessSection",
       )}
       onBack={() => (step === 2 ? setStep(1) : router.replace(routes.welcome))}
-      progress={<StepProgress step={step} />}
+      progress={<StepProgress segmentFills={segmentFills} />}
     >
       {signUpFailure?.kind === "emailTaken" ? (
         <Banner tone="warning" message={translate("authentication.signUp.emailTaken")}>
@@ -144,6 +153,7 @@ export function SignUpScreen() {
       {signUpFailure?.kind === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
+      <RequiredFieldsLegend />
       {step === 1 ? (
         <View className="gap-4">
           <Controller
@@ -152,6 +162,8 @@ export function SignUpScreen() {
             render={({ field, fieldState }) => (
               <TextField
                 label={translate("authentication.signUp.ownerFullName")}
+                isRequired
+                placeholder={translate("authentication.signUp.ownerFullNamePlaceholder")}
                 autoCapitalize="words"
                 autoComplete="name"
                 value={field.value}
@@ -167,6 +179,8 @@ export function SignUpScreen() {
             render={({ field, fieldState }) => (
               <TextField
                 label={translate("authentication.signUp.email")}
+                isRequired
+                placeholder={translate("authentication.signUp.emailPlaceholder")}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -183,6 +197,7 @@ export function SignUpScreen() {
             render={({ field, fieldState }) => (
               <PasswordField
                 label={translate("authentication.signUp.password")}
+                isRequired
                 hint={translate("authentication.signUp.passwordHint")}
                 isHintSatisfied={hasLongEnoughPassword}
                 autoComplete="new-password"
@@ -193,7 +208,12 @@ export function SignUpScreen() {
               />
             )}
           />
-          <Button label={translate("common.continue")} onPress={continueToBusinessStep} />
+          <Button
+            label={translate("common.continue")}
+            trailingIcon="forward"
+            onPress={continueToBusinessStep}
+            disabled={!isAccountStepFilled}
+          />
         </View>
       ) : (
         <View className="gap-4">
@@ -203,6 +223,8 @@ export function SignUpScreen() {
             render={({ field, fieldState }) => (
               <TextField
                 label={translate("authentication.signUp.businessName")}
+                isRequired
+                placeholder={translate("authentication.signUp.businessNamePlaceholder")}
                 autoCapitalize="words"
                 value={field.value}
                 onChangeText={field.onChange}
@@ -223,6 +245,7 @@ export function SignUpScreen() {
           <Button
             label={translate("authentication.signUp.submit")}
             onPress={submit}
+            disabled={!isBusinessStepFilled}
             isLoading={form.formState.isSubmitting}
           />
         </View>

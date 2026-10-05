@@ -18,6 +18,8 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { isFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 const nameMinLength = 2;
 const nameMaxLength = 60;
@@ -147,8 +149,10 @@ function RoleEditor({ role, copiedFrom }: RoleEditorProps) {
       onRetry={save}
     >
       {conflict ? <Banner tone="warning" message={translate(conflictMessages[conflict])} /> : null}
+      <RequiredFieldsLegend />
       <TextField
         label={translate("roles.editor.name")}
+        isRequired
         placeholder={translate("roles.editor.namePlaceholder")}
         value={name}
         onChangeText={setName}
@@ -159,6 +163,7 @@ function RoleEditor({ role, copiedFrom }: RoleEditorProps) {
       <Button
         label={translate("common.save")}
         onPress={save}
+        disabled={!isFilled(name) || selected.length === 0}
         isLoading={createMutation.isPending || updateMutation.isPending}
       />
       {role?.id ? (

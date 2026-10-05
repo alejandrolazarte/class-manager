@@ -6,6 +6,7 @@ import { useRoles } from "@/features/roles/useRoles";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Chip } from "@/ui/Chip";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface RoleFieldsProps {
   roleKey: string;
@@ -32,7 +33,7 @@ export function RoleFields({
     <View className="gap-4">
       <View className="gap-2">
         <AppText variant="label" tone="muted">
-          {translate("team.invite.role")}
+          {withRequiredMark(translate("team.invite.role"))}
         </AppText>
         <View className="flex-row flex-wrap gap-2">
           {choices.map((choice) => (
@@ -48,7 +49,7 @@ export function RoleFields({
       {selectedChoice?.needsCoach ? (
         <View className="gap-2">
           <AppText variant="label" tone="muted">
-            {translate("team.invite.coach")}
+            {withRequiredMark(translate("team.invite.coach"))}
           </AppText>
           <AppText variant="caption" tone="subtle">
             {translate("team.invite.coachHint")}

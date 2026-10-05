@@ -34,6 +34,8 @@ import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
 
@@ -50,6 +52,7 @@ interface ClassPackFieldOptions {
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
   isMultiline?: boolean;
+  isRequired?: boolean;
   keyboardType?: "default" | "number-pad" | "decimal-pad" | "url";
 }
 
@@ -67,6 +70,11 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
     defaultValues: toClassPackFormValues(classPack),
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, [
+    "name",
+    "classCount",
+    "price",
+  ]);
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -120,6 +128,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
     labelKey,
     placeholderKey,
     isMultiline = false,
+    isRequired = false,
     keyboardType,
   }: ClassPackFieldOptions) => (
     <Controller
@@ -128,6 +137,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
       render={({ field, fieldState }) => (
         <TextField
           label={translate(labelKey)}
+          isRequired={isRequired}
           placeholder={placeholderKey ? translate(placeholderKey) : undefined}
           keyboardType={keyboardType}
           multiline={isMultiline}
@@ -147,10 +157,12 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
       submissionFailure={submissionFailure}
       onRetry={save}
     >
+      <RequiredFieldsLegend />
       {renderField({
         name: "name",
         labelKey: "classPacks.form.name",
         placeholderKey: "classPacks.form.namePlaceholder",
+        isRequired: true,
       })}
       {renderField({
         name: "description",
@@ -162,11 +174,13 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         name: "classCount",
         labelKey: "classPacks.form.classCount",
         keyboardType: "number-pad",
+        isRequired: true,
       })}
       {renderField({
         name: "price",
         labelKey: "classPacks.form.price",
         keyboardType: "decimal-pad",
+        isRequired: true,
       })}
       {renderField({
         name: "validityMonths",
@@ -250,6 +264,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         <Button
           label={translate("common.save")}
           onPress={save}
+          disabled={!areRequiredFieldsFilled}
           isLoading={saveClassPackMutation.isPending || applyClassPackImagesMutation.isPending}
         />
         {classPack ? (

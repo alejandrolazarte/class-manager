@@ -15,6 +15,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: IconName;
+  trailingIcon?: IconName;
   disabled?: boolean;
   isLoading?: boolean;
   accessibilityLabel?: string;
@@ -46,6 +47,16 @@ const contentTones: Record<ButtonVariant, TextTone> = {
   ghost: "primary",
 };
 
+const disabledContainerClassNames: Record<ButtonVariant, string> = {
+  primary: "bg-border",
+  secondary: "border-[1.5px] border-border bg-surface",
+  outline: "border-[1.5px] border-border bg-transparent",
+  danger: "bg-border",
+  dangerOutline: "border-[1.5px] border-border bg-surface",
+  dashed: "border-[1.5px] border-dashed border-border bg-transparent",
+  ghost: "bg-transparent",
+};
+
 const contentColorTokens: Record<ButtonVariant, ThemeColorToken> = {
   primary: "primary-foreground",
   secondary: "primary",
@@ -62,12 +73,20 @@ export function Button({
   variant = "primary",
   size = "large",
   icon,
+  trailingIcon,
   disabled = false,
   isLoading = false,
   accessibilityLabel,
   testID,
 }: ButtonProps) {
   const isInactive = disabled || isLoading;
+  const isDisabled = disabled && !isLoading;
+  const containerClassName = isDisabled
+    ? disabledContainerClassNames[variant]
+    : `${containerClassNames[variant]} ${isLoading ? "opacity-70" : ""}`;
+  const contentColorToken: ThemeColorToken = isDisabled
+    ? "disabled-foreground"
+    : contentColorTokens[variant];
   return (
     <Pressable
       accessibilityRole="button"
@@ -76,16 +95,20 @@ export function Button({
       accessibilityState={{ disabled: isInactive, busy: isLoading }}
       disabled={isInactive}
       onPress={onPress}
-      className={`flex-row items-center justify-center gap-2 ${sizeClassNames[size]} ${containerClassNames[variant]} ${isInactive ? "opacity-50" : ""}`}
+      className={`flex-row items-center justify-center gap-2 ${sizeClassNames[size]} ${containerClassName}`}
     >
       {isLoading ? (
-        <Spinner tone={contentColorTokens[variant]} testID="button-spinner" />
+        <Spinner tone={contentColorToken} testID="button-spinner" />
       ) : icon ? (
-        <Icon name={icon} size="medium" tone={contentColorTokens[variant]} />
+        <Icon name={icon} size="medium" tone={contentColorToken} />
       ) : null}
-      <AppText variant={size === "large" ? "button" : "bodyStrong"} tone={contentTones[variant]}>
+      <AppText
+        variant={size === "large" ? "button" : "bodyStrong"}
+        tone={isDisabled ? "disabled" : contentTones[variant]}
+      >
         {label}
       </AppText>
+      {trailingIcon ? <Icon name={trailingIcon} size="medium" tone={contentColorToken} /> : null}
     </Pressable>
   );
 }

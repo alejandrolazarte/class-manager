@@ -1,6 +1,7 @@
 import { TextInput, View } from "react-native";
 import { AppText, textVariantClassNames } from "@/ui/AppText";
 import { IconButton } from "@/ui/IconButton";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface NumberStepperProps {
   label: string;
@@ -12,6 +13,7 @@ interface NumberStepperProps {
   decreaseLabel: string;
   increaseLabel: string;
   errorMessage?: string;
+  isRequired?: boolean;
 }
 
 const decimalRadix = 10;
@@ -26,6 +28,7 @@ export function NumberStepper({
   decreaseLabel,
   increaseLabel,
   errorMessage,
+  isRequired = false,
 }: NumberStepperProps) {
   const parsedValue = Number.parseInt(value, decimalRadix);
   const currentValue = Number.isNaN(parsedValue) ? minimum : parsedValue;
@@ -34,7 +37,7 @@ export function NumberStepper({
   return (
     <View className="gap-1.5">
       <AppText variant="label" tone="muted">
-        {label}
+        {withRequiredMark(label, isRequired)}
       </AppText>
       <View
         className={`h-[52px] flex-row items-center justify-between rounded-2xl border-[1.5px] bg-surface px-1 ${errorMessage ? "border-danger" : "border-border"}`}

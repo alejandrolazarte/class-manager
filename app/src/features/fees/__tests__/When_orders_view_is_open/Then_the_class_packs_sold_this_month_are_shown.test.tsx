@@ -25,7 +25,7 @@ describe("When orders view is open", () => {
     await renderWithProviders(<CollectionsScreen initialMonth={feeMonth} />);
 
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("collections.orders") }),
+      await screen.findByRole("tab", { name: translate("collections.orders") }),
     );
 
     expect(

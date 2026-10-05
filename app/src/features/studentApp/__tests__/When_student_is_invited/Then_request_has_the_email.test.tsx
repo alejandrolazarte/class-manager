@@ -7,7 +7,7 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/studentApp/studentAppApi");
 
-const client = buildClient({ email: "ana@example.com" });
+const client = buildClient({ email: null });
 
 describe("When student is invited", () => {
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe("When student is invited", () => {
   it("Then request has the email", async () => {
     await renderWithProviders(<InviteStudentAppSection client={client} />);
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("student.invite.open") }),
+      await screen.findByRole("button", { name: translate("student.app.inviteAccessibility") }),
     );
     await fireEvent.changeText(
       screen.getByLabelText(translate("student.invite.email")),

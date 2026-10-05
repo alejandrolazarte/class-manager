@@ -15,11 +15,11 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { Chip } from "@/ui/Chip";
 import { EmptyState } from "@/ui/EmptyState";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { SegmentedControl } from "@/ui/SegmentedControl";
 import { Spinner } from "@/ui/Spinner";
 import { StepArrow } from "@/ui/StepArrow";
 
@@ -99,7 +99,17 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
             money={money}
           />
         ) : null}
-        <SegmentedControl options={filterOptions} selectedValue={filter} onChange={setFilter} />
+        <View className="flex-row flex-wrap gap-2">
+          {filterOptions.map((filterOption) => (
+            <Chip
+              key={filterOption.value}
+              label={filterOption.label}
+              accessibilityLabel={filterOption.accessibilityLabel}
+              isSelected={filter === filterOption.value}
+              onPress={() => setFilter(filterOption.value)}
+            />
+          ))}
+        </View>
         {isError ? (
           <Banner message={translate("common.unexpectedError")}>
             <Button
@@ -116,56 +126,49 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
 
   return (
     <Screen>
-      {isPending ? (
-        <View>
-          {header}
-          <Spinner className="mt-6" />
-        </View>
-      ) : (
-        <FlatList
-          data={clients}
-          keyExtractor={(clientFee) => clientFee.clientId}
-          ListHeaderComponent={header}
-          renderItem={({ item: clientFee }) => (
-            <View className="px-5 pb-2.5">
-              <ClientFeeRow
-                clientFee={clientFee}
-                onPress={() => router.push(routes.recordPayment("fees", clientFee.clientId, month))}
-              />
+      <FlatList
+        data={isPending ? [] : clients}
+        keyExtractor={(clientFee) => clientFee.clientId}
+        ListHeaderComponent={header}
+        renderItem={({ item: clientFee }) => (
+          <View className="px-5 pb-2.5">
+            <ClientFeeRow
+              clientFee={clientFee}
+              onPress={() => router.push(routes.recordPayment("fees", clientFee.clientId, month))}
+            />
+          </View>
+        )}
+        ListEmptyComponent={
+          isPending ? (
+            <Spinner className="mt-6" />
+          ) : isError || classPackClients.length > 0 ? null : filter === "debtors" ? (
+            <EmptyState
+              icon="celebration"
+              iconTone="success"
+              message={translate("fees.month.nobodyOwes")}
+            />
+          ) : (
+            <EmptyState icon="fees" message={translate("fees.month.empty")} />
+          )
+        }
+        ListFooterComponent={
+          classPackClients.length > 0 ? (
+            <View className="gap-2.5 px-5 pt-4">
+              <SectionTitle title={translate("fees.month.classPacksTitle")} isOverline />
+              {classPackClients.map((classPackClient) => (
+                <ClassPackClientRow
+                  key={classPackClient.clientId}
+                  classPackClient={classPackClient}
+                  onPress={() => router.push(routes.clientDetail("fees", classPackClient.clientId))}
+                />
+              ))}
             </View>
-          )}
-          ListEmptyComponent={
-            isError || classPackClients.length > 0 ? null : filter === "debtors" ? (
-              <EmptyState
-                icon="celebration"
-                iconTone="success"
-                message={translate("fees.month.nobodyOwes")}
-              />
-            ) : (
-              <EmptyState icon="fees" message={translate("fees.month.empty")} />
-            )
-          }
-          ListFooterComponent={
-            classPackClients.length > 0 ? (
-              <View className="gap-2.5 px-5 pt-4">
-                <SectionTitle title={translate("fees.month.classPacksTitle")} isOverline />
-                {classPackClients.map((classPackClient) => (
-                  <ClassPackClientRow
-                    key={classPackClient.clientId}
-                    classPackClient={classPackClient}
-                    onPress={() =>
-                      router.push(routes.clientDetail("fees", classPackClient.clientId))
-                    }
-                  />
-                ))}
-              </View>
-            ) : null
-          }
-          refreshing={isRefetching}
-          onRefresh={() => refetch()}
-          contentContainerClassName="w-full max-w-2xl self-center pb-8"
-        />
-      )}
+          ) : null
+        }
+        refreshing={isRefetching}
+        onRefresh={() => refetch()}
+        contentContainerClassName="w-full max-w-2xl self-center pb-8"
+      />
     </Screen>
   );
 }

@@ -33,6 +33,12 @@ public static class ApiRequests
             new RegisterClientCommand(fullName, phoneNumber, null, null, students),
             JsonOptions);
 
+    public static Task<HttpResponseMessage> PutClientAsync(
+        this HttpClient httpClient,
+        Guid clientId,
+        UpdateClientRequest request) =>
+        httpClient.PutAsJsonAsync($"{ApiRoutes.Clients}/{clientId}", request, JsonOptions);
+
     public static Task<HttpResponseMessage> PostStudentAsync(
         this HttpClient httpClient,
         Guid clientId,

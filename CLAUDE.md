@@ -141,5 +141,8 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).
 
+### Forms
+- Required fields carry `isRequired` (or `withRequiredMark` for choices), the form shows `RequiredFieldsLegend` at the top (except sign-in and the password screens, which users already know), and the main button stays disabled (grey) until every required field is filled (`useRequiredFieldsFilled`, `isFilled`). Never write "(opcional)" in a label. See [docs/frontend/forms.md](docs/frontend/forms.md).
+
 ### Documentation
 - Operational, security or infrastructure decisions go in a Markdown file under `docs/`, linked from `README.md`.

@@ -29,6 +29,7 @@ export function LevelRow({ number, level, isFirst, canRemove, onChange, onRemove
       <View className="min-w-0 flex-1">
         <TextField
           label={translate("achievements.settings.nameLabel")}
+          isRequired
           accessibilityLabel={translate("achievements.settings.levelName", { number })}
           value={level.name}
           autoCapitalize="words"
@@ -38,6 +39,7 @@ export function LevelRow({ number, level, isFirst, canRemove, onChange, onRemove
       <View className="w-24">
         <TextField
           label={translate("achievements.settings.classesLabel")}
+          isRequired
           accessibilityLabel={translate("achievements.settings.levelClasses", { number })}
           value={level.requiredClasses}
           keyboardType="number-pad"

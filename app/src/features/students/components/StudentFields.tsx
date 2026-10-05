@@ -36,6 +36,7 @@ export function StudentFields<TFormValues extends FieldValues>({
         render={({ field, fieldState }) => (
           <TextField
             label={translate("students.fields.fullName")}
+            isRequired
             fieldSurface={fieldSurface}
             autoFocus={autoFocus}
             autoCapitalize="words"

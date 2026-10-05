@@ -12,8 +12,11 @@ public sealed class GetClientUseCase(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IFeeScheduleRepository feeScheduleRepository,
+    IClientAccountRepository clientAccountRepository,
+    IClientInvitationRepository invitationRepository,
     IBusinessCalendarService businessCalendar,
-    IAccessScopes accessScopes)
+    IAccessScopes accessScopes,
+    TimeProvider timeProvider)
     : IUseCase<GetClientQuery, ClientDetailsResponse>
 {
     private const string NotFoundMessage = "The client does not exist.";
@@ -29,7 +32,11 @@ public sealed class GetClientUseCase(
         var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var billingPlanChanges = await feeScheduleRepository.ListClientPlanChangesAsync([client.Id], cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
+        var hasAccount = await clientAccountRepository.HasAccountAsync(client.Id, cancellationToken);
+        var pendingInvitation = hasAccount
+            ? null
+            : await invitationRepository.FindLatestPendingByClientAsync(client.Id, timeProvider.GetUtcNow(), cancellationToken);
 
-        return ClientDetailsResponse.From(client, students, billingPlanChanges, today);
+        return ClientDetailsResponse.From(client, students, billingPlanChanges, today, StudentAppAccessResponse.From(hasAccount, pendingInvitation));
     }
 }

@@ -8,6 +8,7 @@ import { Avatar } from "@/ui/Avatar";
 import { Card } from "@/ui/Card";
 import { IconButton } from "@/ui/IconButton";
 import { SearchInput } from "@/ui/SearchInput";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface LessonStudentPickerProps {
   students: LessonStudent[];
@@ -38,7 +39,7 @@ export function LessonStudentPicker({
   return (
     <View className="gap-2">
       <AppText variant="label" tone="muted">
-        {translate("privateLessons.form.students")}
+        {withRequiredMark(translate("privateLessons.form.students"))}
       </AppText>
       {students.map((student) => (
         <View

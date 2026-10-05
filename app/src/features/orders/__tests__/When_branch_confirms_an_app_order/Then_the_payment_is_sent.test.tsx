@@ -24,10 +24,9 @@ describe("When branch confirms an app order", () => {
 
   it("Then the payment is sent", async () => {
     await renderWithProviders(<OrderListScreen />);
+    await fireEvent.press(await screen.findByRole("button", { name: translate("orders.collect") }));
 
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("fees.methods.Card") }),
-    );
+    await fireEvent.press(screen.getByRole("button", { name: translate("fees.methods.Card") }));
     await fireEvent.press(screen.getByRole("button", { name: translate("orders.confirmPayment") }));
 
     await waitFor(() =>

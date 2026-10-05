@@ -3,6 +3,7 @@ import { currencySymbol } from "@/features/fees/money";
 import { useTheme } from "@/theme/useTheme";
 import { AppText, textVariantClassNames } from "@/ui/AppText";
 import { useElevationStyle } from "@/ui/elevation";
+import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface AmountFieldProps {
   label: string;
@@ -11,6 +12,7 @@ interface AmountFieldProps {
   onChangeText: (value: string) => void;
   onBlur?: () => void;
   errorMessage?: string;
+  isRequired?: boolean;
 }
 
 export function AmountField({
@@ -20,6 +22,7 @@ export function AmountField({
   onChangeText,
   onBlur,
   errorMessage,
+  isRequired = false,
 }: AmountFieldProps) {
   const { colors } = useTheme();
   const elevationStyle = useElevationStyle();
@@ -29,7 +32,7 @@ export function AmountField({
       className={`items-center gap-1.5 rounded-3xl border-[1.5px] bg-surface p-[18px] ${errorMessage ? "border-danger" : "border-transparent"}`}
     >
       <AppText variant="label" tone="muted">
-        {label}
+        {withRequiredMark(label, isRequired)}
       </AppText>
       <View className="flex-row items-center justify-center gap-1">
         <AppText variant="amount" tone="subtle">

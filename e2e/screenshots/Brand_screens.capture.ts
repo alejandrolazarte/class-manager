@@ -86,7 +86,7 @@ test("Brand screens", async ({ browser, page, request }) => {
   await page.getByText("Logo actualizado").waitFor();
   await page.getByLabel("Nombre que ven los alumnos").fill(brandName);
   await page.getByRole("button", { name: `Color principal ${mainColor}` }).click();
-  await page.getByRole("button", { name: `Acento (opcional) ${accentColor}` }).click();
+  await page.getByRole("button", { name: `Acento ${accentColor}` }).click();
   await capture(page, "41-marca-logo-y-colores");
   await page.getByRole("switch", { name: "Usar siempre mi marca" }).click();
   await page.getByRole("button", { name: "Guardar marca" }).click();

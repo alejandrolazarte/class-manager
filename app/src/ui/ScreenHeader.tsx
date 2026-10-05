@@ -11,6 +11,7 @@ interface ScreenHeaderProps {
   title: string;
   eyebrow?: string;
   subtitle?: string;
+  caption?: string;
   navigation?: HeaderNavigation;
   onNavigate?: () => void;
   navigationAction?: ReactNode;
@@ -22,6 +23,7 @@ export function ScreenHeader({
   title,
   eyebrow,
   subtitle,
+  caption,
   navigation,
   onNavigate,
   navigationAction,
@@ -59,6 +61,11 @@ export function ScreenHeader({
           {subtitle ? (
             <AppText variant="body" tone="muted" className="mt-0.5">
               {subtitle}
+            </AppText>
+          ) : null}
+          {caption ? (
+            <AppText variant="caption" tone="muted">
+              {caption}
             </AppText>
           ) : null}
         </View>

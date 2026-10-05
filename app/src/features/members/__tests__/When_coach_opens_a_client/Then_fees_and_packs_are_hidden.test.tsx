@@ -29,7 +29,7 @@ describe("When coach opens a client", () => {
 
     expect(await screen.findByText(client.fullName)).toBeOnTheScreen();
     expect(screen.getByText(translate("clients.detail.addStudent"))).toBeOnTheScreen();
-    expect(screen.queryByText(translate("fees.client.changeFee"))).toBeNull();
+    expect(screen.queryByRole("tab", { name: translate("fees.client.title") })).toBeNull();
     expect(listClientPayments).not.toHaveBeenCalled();
     expect(getClassBalance).not.toHaveBeenCalled();
   });

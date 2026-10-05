@@ -16,6 +16,8 @@ import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { isFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 const defaultRoleKey = "Coach";
 
@@ -33,6 +35,8 @@ export function InviteMemberScreen() {
   const [instructorError, setInstructorError] = useState<string | undefined>();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const instructors = freeInstructors(instructorsQuery.data ?? [], teamQuery.data);
+  const needsCoach = findRoleChoice(roleKey, roles)?.needsCoach === true;
+  const areRequiredFieldsFilled = isFilled(email) && (!needsCoach || instructorId !== null);
 
   const invite = async () => {
     setSubmissionFailure(null);
@@ -73,8 +77,10 @@ export function InviteMemberScreen() {
       submissionFailure={submissionFailure}
       onRetry={invite}
     >
+      <RequiredFieldsLegend />
       <TextField
         label={translate("team.invite.email")}
+        isRequired
         keyboardType="email-address"
         autoCapitalize="none"
         autoComplete="email"
@@ -93,6 +99,7 @@ export function InviteMemberScreen() {
       <Button
         label={translate("team.invite.submit")}
         onPress={invite}
+        disabled={!areRequiredFieldsFilled}
         isLoading={inviteMutation.isPending}
       />
     </SettingsFormScreenLayout>

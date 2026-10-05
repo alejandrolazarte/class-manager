@@ -9,6 +9,7 @@ interface PasswordFieldProps extends Omit<TextInputProps, "secureTextEntry"> {
   errorMessage?: string;
   hint?: string;
   isHintSatisfied?: boolean;
+  isRequired?: boolean;
 }
 
 export function PasswordField(passwordFieldProps: PasswordFieldProps) {

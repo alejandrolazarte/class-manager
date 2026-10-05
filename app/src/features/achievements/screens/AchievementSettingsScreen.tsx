@@ -18,6 +18,8 @@ import { SectionTitle } from "@/ui/SectionTitle";
 import { Spinner } from "@/ui/Spinner";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
+import { areFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
 const emptyLevel: LevelDraft = { name: "", requiredClasses: "" };
 
@@ -93,6 +95,7 @@ function AchievementSettingsForm({ settings }: { settings: AchievementSettings }
       <AppText variant="body" tone="muted">
         {translate("achievements.settings.levelsHint")}
       </AppText>
+      <RequiredFieldsLegend />
       <Card className="gap-3 p-4">
         {levels.map((level, index) => (
           <LevelRow
@@ -123,6 +126,7 @@ function AchievementSettingsForm({ settings }: { settings: AchievementSettings }
       <Button
         label={translate("common.save")}
         onPress={save}
+        disabled={!areFilled(levels.flatMap((level) => [level.name, level.requiredClasses]))}
         isLoading={updateMutation.isPending}
       />
     </SettingsFormScreenLayout>

@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
 import { QuantityStepper } from "@/features/studentApp/components/QuantityStepper";
+import { groupDeliveryClasses } from "@/features/studentApp/deliveryClassGroups";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
 import {
   cartItems,
@@ -24,6 +25,7 @@ import { EmptyState } from "@/ui/EmptyState";
 import { FullScreenPage } from "@/ui/FullScreenPage";
 import { Icon } from "@/ui/Icon";
 import { OptionCard } from "@/ui/OptionCard";
+import { TotalBar } from "@/ui/TotalBar";
 
 type OrderProblem = "outOfStock" | "tooManyOpenOrders" | "unexpected";
 
@@ -184,23 +186,18 @@ export function CartPage({ shop, onClose, onSeeOrders }: CartPageProps) {
       }
       footer={
         hasItems ? (
-          <View className="gap-2.5 rounded-t-3xl border-t border-border bg-surface px-5 pb-4 pt-3.5">
-            <View className="flex-row items-baseline justify-between">
-              <AppText variant="bodyStrong" tone="muted">
-                {translate("student.cart.total")}
-              </AppText>
-              <AppText variant="display">{total}</AppText>
-            </View>
+          <TotalBar total={total}>
             {orderProblem ? (
               <Banner tone="warning" message={translate(orderProblemMessages[orderProblem])} />
             ) : null}
             <Button
-              icon="business"
-              label={translate("student.shop.order", { total })}
+              icon="products"
+              label={translate("student.shop.order")}
+              accessibilityLabel={`${translate("student.shop.order")} ${total}`}
               onPress={placeOrder}
               isLoading={placeStudentAppOrderMutation.isPending}
             />
-          </View>
+          </TotalBar>
         ) : null
       }
     >
@@ -227,12 +224,12 @@ export function CartPage({ shop, onClose, onSeeOrders }: CartPageProps) {
                 isSelected={deliveryClassGroupId === null}
                 onPress={() => setDeliveryClassGroupId(null)}
               />
-              {shop.deliveryClasses.map((deliveryClass) => (
+              {groupDeliveryClasses(shop.deliveryClasses).map((deliveryClass) => (
                 <OptionCard
-                  key={`${deliveryClass.classGroupId}-${deliveryClass.studentFullName}`}
+                  key={deliveryClass.classGroupId}
                   label={translate("delivery.inClass", {
                     className: deliveryClass.classGroupName,
-                    student: deliveryClass.studentFullName,
+                    student: deliveryClass.studentNames.join(", "),
                   })}
                   hint={translate("student.cart.inClassHint")}
                   isSelected={deliveryClassGroupId === deliveryClass.classGroupId}
@@ -255,9 +252,6 @@ export function CartPage({ shop, onClose, onSeeOrders }: CartPageProps) {
               </View>
             </View>
           </View>
-          <AppText variant="footnote" tone="subtle" className="text-center">
-            {translate("student.shop.payAtSchool")}
-          </AppText>
         </View>
       ) : (
         <EmptyState

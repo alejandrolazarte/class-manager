@@ -1,4 +1,5 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react-native";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react-native";
+import { listClassPacks } from "@/features/classPacks/classPacksApi";
 import { createCounterSale } from "@/features/orders/ordersApi";
 import { CounterSaleScreen } from "@/features/orders/screens/CounterSaleScreen";
 import { listProducts } from "@/features/products/productsApi";
@@ -8,23 +9,38 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/orders/ordersApi");
 jest.mock("@/features/products/productsApi");
+jest.mock("@/features/classPacks/classPacksApi");
 
 describe("When selling at the counter", () => {
   beforeEach(() => {
     jest.mocked(listProducts).mockResolvedValue([buildProduct()]);
+    jest.mocked(listClassPacks).mockResolvedValue([]);
     jest.mocked(createCounterSale).mockResolvedValue(buildOrder());
   });
 
   it("Then the chosen units are sent", async () => {
     const product = buildProduct();
     await renderWithProviders(<CounterSaleScreen />);
-
-    const increase = await screen.findByLabelText(
-      translate("orders.counterSale.increase", { name: product.name }),
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("orders.counterSale.addItems") }),
     );
-    await fireEvent.press(increase);
-    await fireEvent.press(increase);
-    await fireEvent.press(screen.getByRole("button", { name: /Cobrar/ }));
+    const catalog = within(screen.getByTestId("counter-sale-catalog"));
+    await fireEvent.press(
+      await catalog.findByRole("button", {
+        name: translate("orders.counterSale.add", { name: product.name }),
+      }),
+    );
+    await fireEvent.press(
+      catalog.getByRole("button", {
+        name: translate("orders.counterSale.increase", { name: product.name }),
+      }),
+    );
+    await fireEvent.press(catalog.getByRole("button", { name: translate("common.done") }));
+
+    await fireEvent.press(screen.getByRole("button", { name: translate("common.continue") }));
+    await fireEvent.press(
+      screen.getByRole("button", { name: translate("orders.counterSale.charge") }),
+    );
 
     await waitFor(() =>
       expect(createCounterSale).toHaveBeenCalledWith({

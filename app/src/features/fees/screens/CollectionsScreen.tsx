@@ -7,7 +7,8 @@ import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
 import { usePendingOrders } from "@/features/orders/useOrders";
 import { translate } from "@/i18n/translate";
 import { CollectionsView } from "@/navigation/routes";
-import { SegmentedControl } from "@/ui/SegmentedControl";
+import { View } from "react-native";
+import { Tabs } from "@/ui/Tabs";
 
 interface CollectionsScreenProps {
   initialMonth?: string;
@@ -24,21 +25,24 @@ export function CollectionsScreen({ initialMonth, initialView = "fees" }: Collec
   }
 
   const viewSwitcher = (
-    <SegmentedControl
-      options={[
-        { value: "fees" as const, label: translate("collections.fees") },
-        {
-          value: "orders" as const,
-          label:
-            pendingOrders.count > 0
-              ? translate("collections.ordersWithCount", { count: pendingOrders.count })
-              : translate("collections.orders"),
-          accessibilityLabel: translate("collections.orders"),
-        },
-      ]}
-      selectedValue={view}
-      onChange={setView}
-    />
+    <View className="-mx-5">
+      <Tabs
+        options={[
+          { value: "fees" as const, label: translate("collections.fees"), icon: "recurringFee" },
+          {
+            value: "orders" as const,
+            label:
+              pendingOrders.count > 0
+                ? translate("collections.ordersWithCount", { count: pendingOrders.count })
+                : translate("collections.orders"),
+            accessibilityLabel: translate("collections.orders"),
+            icon: "products",
+          },
+        ]}
+        selectedValue={view}
+        onChange={setView}
+      />
+    </View>
   );
 
   return view === "orders" ? (

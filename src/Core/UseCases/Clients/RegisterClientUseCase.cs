@@ -84,7 +84,7 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(winnerClient?.Id);
         }
 
-        return ClientDetailsResponse.From(client.Value, students.Value!, [], business.TodayAt(timeProvider.GetUtcNow()));
+        return ClientDetailsResponse.From(client.Value, students.Value!, [], business.TodayAt(timeProvider.GetUtcNow()), StudentAppAccessResponse.NotInvited);
     }
 
     private static Result<IReadOnlyList<Student>> CreateStudents(

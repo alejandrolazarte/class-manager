@@ -17,6 +17,7 @@ import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 type ForgotPasswordFailure = "network" | "unexpected";
 
@@ -30,6 +31,7 @@ export function ForgotPasswordScreen() {
     defaultValues: { email: prefilledEmail ?? "" },
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["email"]);
 
   const submit = form.handleSubmit(async (formValues) => {
     setFailure(null);
@@ -94,6 +96,7 @@ export function ForgotPasswordScreen() {
           <Button
             label={translate("authentication.forgotPassword.submit")}
             onPress={submit}
+            disabled={!areRequiredFieldsFilled}
             isLoading={form.formState.isSubmitting}
           />
         </>

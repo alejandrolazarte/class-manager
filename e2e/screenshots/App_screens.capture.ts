@@ -39,7 +39,7 @@ test("App screens", async ({ page, request }) => {
     ],
     ["12-ajustes", "/settings", "Cuota mensual"],
     ["13-profes", "/settings/instructors", "Martín Díaz"],
-    ["14-alumno-por-clases", `/students/clients/${demo.classPackClientId}`, "Quedan"],
+    ["14-alumno-por-clases", `/fees/clients/${demo.classPackClientId}`, "Quedan"],
     ["15-vender-pack", `/students/clients/${demo.classPackClientId}/sell-pack`, "Forma de pago"],
     ["16-packs", "/settings/class-packs", "8 clases"],
     ["16b-pack-nuevo", "/settings/class-packs/new", "Clases donde se puede usar"],
@@ -71,7 +71,7 @@ test("App screens", async ({ page, request }) => {
   await page.goto("/settings/announcements");
   await page.getByLabel("Título").fill("Lunes 12 de octubre cerrado");
   await page
-    .getByLabel("Detalle (opcional)")
+    .getByLabel("Detalle")
     .fill("Feriado. Las clases de ese día se pueden recuperar durante la semana.");
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);

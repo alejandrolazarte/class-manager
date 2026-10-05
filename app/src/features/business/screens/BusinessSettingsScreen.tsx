@@ -27,6 +27,8 @@ import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
+import { useRequiredFieldsFilled } from "@/forms/requiredFields";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
 
@@ -52,6 +54,7 @@ export function BusinessSettingsScreen() {
     defaultValues: { name: business.name },
     mode: "onTouched",
   });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["name"]);
 
   const selectCountry = (countrySelection: CountrySelection) => {
     const countryPreset = getCountryPreset(countrySelection.countryCode);
@@ -97,12 +100,14 @@ export function BusinessSettingsScreen() {
       submissionFailure={submissionFailure}
       onRetry={save}
     >
+      <RequiredFieldsLegend />
       <Controller
         control={form.control}
         name="name"
         render={({ field, fieldState }) => (
           <TextField
             label={translate("businessSettings.name")}
+            isRequired
             autoCapitalize="words"
             value={field.value}
             onChangeText={field.onChange}
@@ -117,7 +122,7 @@ export function BusinessSettingsScreen() {
       />
       <View className="gap-2">
         <AppText variant="label" tone="muted">
-          {translate("businessSettings.currency")}
+          {withRequiredMark(translate("businessSettings.currency"))}
         </AppText>
         <View className="flex-row flex-wrap gap-2">
           {currencyOptions(countryCurrencyCode, regionalSettings.currencyCode).map(
@@ -140,6 +145,7 @@ export function BusinessSettingsScreen() {
       <Button
         label={translate("common.save")}
         onPress={save}
+        disabled={!areRequiredFieldsFilled}
         isLoading={updateBusinessSettingsMutation.isPending}
       />
     </SettingsFormScreenLayout>
