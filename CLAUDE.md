@@ -105,7 +105,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 ## Multi-tenancy
 
 - Every tenant-owned table has a `TenantId` column (the business), even when it could be derived through a relationship.
-- Tenant isolation is enforced centrally (EF Core global query filters from `src/Tenancy.AspNetCore`, driven by the `tenant_id` claim of the authenticated user), never by remembering to filter in each query. See [docs/tenancy.md](docs/tenancy.md).
+- Tenant isolation is enforced centrally (EF Core global query filters from `src/Tenancy.AspNetCore`, driven by the `tenant_id` claim of the authenticated user), never by remembering to filter in each query. A query that must read across tenants uses `IgnoreTenantFilter()`; `IgnoreQueryFilters()` without filter names is forbidden (ARCH010) because it also shows soft deleted rows. See [docs/tenancy.md](docs/tenancy.md).
 - Every new tenant-owned entity needs a test proving that business A cannot read business B's data.
 
 ## Code conventions

@@ -38,6 +38,7 @@ internal static class AnalyzerTestRunner
             public static class EntityFrameworkQueryableExtensions
             {
                 public static System.Linq.IQueryable<T> IgnoreQueryFilters<T>(this System.Linq.IQueryable<T> source) where T : class => source;
+                public static System.Linq.IQueryable<T> IgnoreQueryFilters<T>(this System.Linq.IQueryable<T> source, System.Collections.Generic.IReadOnlyCollection<string> filterKeys) where T : class => source;
             }
         }
         """;

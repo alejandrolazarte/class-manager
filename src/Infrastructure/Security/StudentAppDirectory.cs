@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Infrastructure.Persistence;
+using ClassManager.Tenancy.AspNetCore.Persistence;
 
 namespace ClassManager.Infrastructure.Security;
 
@@ -13,7 +14,7 @@ internal sealed class StudentAppDirectory(AppDbContext context) : IStudentAppDir
 
     public async Task<IReadOnlyList<StudentAppLink>> ListAsync(Guid userId, CancellationToken cancellationToken) =>
         await (
-            from account in context.ClientAccounts.IgnoreQueryFilters().AsNoTracking()
+            from account in context.ClientAccounts.IgnoreTenantFilter().AsNoTracking()
             where account.UserId == userId
             join business in context.Businesses.AsNoTracking() on account.TenantId equals business.Id
             orderby business.Name
@@ -23,7 +24,7 @@ internal sealed class StudentAppDirectory(AppDbContext context) : IStudentAppDir
     private async Task<StudentAppLink?> FirstAsync(Guid userId, Guid? businessId, CancellationToken cancellationToken)
     {
         var accountLink = await context.ClientAccounts
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .AsNoTracking()
             .Where(account => account.UserId == userId && (businessId == null || account.TenantId == businessId))
             .OrderBy(account => account.CreatedAt)

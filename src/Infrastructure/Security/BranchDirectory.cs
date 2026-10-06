@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Infrastructure.Persistence;
+using ClassManager.Tenancy.AspNetCore.Persistence;
 
 namespace ClassManager.Infrastructure.Security;
 
@@ -8,7 +9,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
     public async Task<BranchAccess?> FindDefaultAsync(Guid userId, CancellationToken cancellationToken)
     {
         var firstMembership = await context.BusinessMembers
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .AsNoTracking()
             .Where(member => member.UserId == userId)
             .OrderBy(member => member.Id)
@@ -41,7 +42,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
     private async Task<IReadOnlyList<BranchAccess>> ListWhereAsync(Guid userId, Guid? businessId, CancellationToken cancellationToken)
     {
         var memberships = await context.BusinessMembers
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .AsNoTracking()
             .Where(member => member.UserId == userId && (businessId == null || member.TenantId == businessId))
             .Select(member => new { member.TenantId, member.Role, member.CustomRoleId })
@@ -51,7 +52,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
             .OfType<Guid>()
             .ToList();
         var customRoleNames = await context.CustomRoles
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .AsNoTracking()
             .Where(role => customRoleIds.Contains(role.Id))
             .ToDictionaryAsync(role => role.Id, role => role.Name, cancellationToken);

@@ -1,3 +1,4 @@
+using ClassManager.Tenancy.AspNetCore.Persistence;
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class MemberInvitationRepository(AppDbContext context) : IMemberInvitationRepository
@@ -28,7 +29,7 @@ internal sealed class MemberInvitationRepository(AppDbContext context) : IMember
 
     public Task<MemberInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         context.MemberInvitations
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .FirstOrDefaultAsync(invitation => invitation.TokenHash == tokenHash, cancellationToken);
 
     private static IQueryable<MemberInvitation> PendingAt(IQueryable<MemberInvitation> invitations, DateTimeOffset now) =>

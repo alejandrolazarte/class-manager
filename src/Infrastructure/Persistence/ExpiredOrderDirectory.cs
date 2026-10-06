@@ -1,3 +1,4 @@
+using ClassManager.Tenancy.AspNetCore.Persistence;
 namespace ClassManager.Infrastructure.Persistence;
 
 internal sealed class ExpiredOrderDirectory(AppDbContext context) : IExpiredOrderDirectory
@@ -5,7 +6,7 @@ internal sealed class ExpiredOrderDirectory(AppDbContext context) : IExpiredOrde
     public async Task<IReadOnlyList<Guid>> ListBusinessesWithRequestsCreatedBeforeAsync(
         DateTimeOffset createdBefore, CancellationToken cancellationToken) =>
         await context.Orders.AsNoTracking()
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .Where(order => order.Status == OrderStatus.Requested && order.CreatedAt <= createdBefore)
             .Select(order => order.TenantId)
             .Distinct()

@@ -9,7 +9,7 @@ Date: 2026-09-24
 | Project | Depends on | Contents |
 |---|---|---|
 | `Tenancy` | nothing | `ITenantOwned`, `ITenantContext`, `ITenantScope`, `TenantNotResolvedException`, `TenantClaimTypes` (`tenant_id`) |
-| `Tenancy.AspNetCore` | `Tenancy`, EF Core, ASP.NET Core | `ApplyTenantQueryFilters` (global query filter named `Tenant` for every `ITenantOwned` entity), `TenantStampingSaveChangesInterceptor`, `ClaimsTenantContext` (reads the `tenant_id` claim), `AddClaimsTenancy`, `AddTenantStamping` |
+| `Tenancy.AspNetCore` | `Tenancy`, EF Core, ASP.NET Core | `ApplyTenantQueryFilters` (global query filter named `Tenant` for every `ITenantOwned` entity), `IgnoreTenantFilter()` (reads across tenants, keeps every other filter), `TenantStampingSaveChangesInterceptor`, `ClaimsTenantContext` (reads the `tenant_id` claim), `AddClaimsTenancy`, `AddTenantStamping` |
 
 `Core` references only `Tenancy`, so the domain stays free of EF Core and ASP.NET (ARCH001). `Tenancy.AspNetCore` is referenced by `Infrastructure`.
 
@@ -34,7 +34,8 @@ Api             AddClaimsTenancy()  (ITenantContext and ITenantScope from the ac
 
 - ARCH004: `Tenancy` and `Tenancy.*` cannot use `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api` or `ClassManager.Security` (see [analyzers.md](analyzers.md)).
 - The tenant filter is named (`TenantModelBuilderExtensions.TenantQueryFilter`) so it can live next to other named filters, such as the soft delete filter ([deleting data](deleting-data.md)). An unnamed filter added later would replace it, so every global filter must be named.
-- `IgnoreQueryFilters()` stays forbidden outside `Infrastructure` (ARCH002). Without arguments it ignores every filter, the tenant one included.
+- A query that must read across tenants uses `IgnoreTenantFilter()`. Today: `BranchDirectory` and `StudentAppDirectory` (the branches and student accounts of a user at sign-in), `ExpiredOrderDirectory` (background job over every business), the invitation repositories (an invitation code is accepted before entering the business) and `EmailBrandReader` (emails sent outside a request). It turns off only the tenant filter, so soft deleted rows stay hidden.
+- `IgnoreQueryFilters()` stays forbidden outside `Infrastructure` and `Tenancy.AspNetCore` (ARCH002), and calling it without filter names is forbidden everywhere (ARCH010): it would also turn off the soft delete filter.
 - Every new tenant-owned entity still needs a test proving that business A cannot read business B's data.
 
 ## Extracting to packages

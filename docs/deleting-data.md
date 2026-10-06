@@ -19,9 +19,19 @@ Payments, fees, plans, classes and anything else a business would want to audit 
 - The entity implements `ISoftDeletable` from `src/Records`: `IsDeleted` (a stored `bit` column), `DeletedOn` (date and time it was deleted, `null` = not deleted) and `Delete(now)`, which sets both.
 - A check constraint `CK_<Table>_IsDeleted_DeletedOn` keeps them in sync: `IsDeleted = 0` with no `DeletedOn`, or `IsDeleted = 1` with a `DeletedOn`. The database rejects any other combination, even from a manual `UPDATE`.
 - `SoftDeleteSaveChangesInterceptor` (`src/Infrastructure/Persistence`) turns removing an `ISoftDeletable` entity into `Delete(now)`, so a repository `Remove` or a use case calling `Delete(now)` both end in a soft delete, and such a row can't be physically deleted by mistake.
-- `ApplySoftDeleteQueryFilters` (`src/Infrastructure/Persistence`) adds a global query filter named `SoftDelete` (`[IsDeleted] = 0`) and the check constraint to every `ISoftDeletable` entity, so deleted rows never show up and repositories don't filter by hand. The tenant filter is named too (`Tenant`), and both apply together. To read deleted rows (an audit, a restore), use `IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])` inside `Infrastructure`, which keeps the tenant filter.
+- `ApplySoftDeleteQueryFilters` (`src/Infrastructure/Persistence`) adds a global query filter named `SoftDelete` (`[IsDeleted] = 0`) and the check constraint to every `ISoftDeletable` entity, so deleted rows never show up and repositories don't filter by hand. The tenant filter is named too (`Tenant`), and both apply together. To read deleted rows (an audit, a restore), use `IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])` inside `Infrastructure`, which keeps the tenant filter. Queries that read across tenants use `IgnoreTenantFilter()`, which keeps hiding deleted rows; `IgnoreQueryFilters()` without names is forbidden (ARCH010) because it would show them.
 - Every unique index of an `ISoftDeletable` entity is filtered on `[IsDeleted] = 0` (`SoftDeleteModelBuilderExtensions.NotDeletedFilter`), so the same key can be used again after a delete.
 - Tests enforce it: every `ISoftDeletable` entity stores `IsDeleted` and has both filters, every unique index ignores deleted rows, the check constraint rejects an `IsDeleted` without `DeletedOn`, and a deleted row stays in the table but is not returned.
+
+### Where global query filters don't protect
+
+From the EF Core documentation (Global Query Filters) and how EF applies them:
+
+- They apply to LINQ reads only. Writes (`SaveChanges`) are not filtered: `TenantStampingSaveChangesInterceptor` rejects changing another tenant's rows, and `SoftDeleteSaveChangesInterceptor` turns removals into soft deletes. Raw SQL (`ExecuteSql`) is not filtered either.
+- `IgnoreQueryFilters()` without names turns off every filter. ARCH010 forbids it; use `IgnoreTenantFilter()` or name the filters.
+- An unnamed `HasQueryFilter` replaces the previous one. Both filters here are named.
+- A required navigation to an entity with a filter is loaded with an `INNER JOIN`, so when the related row is filtered out (deleted, another tenant) the parent row disappears too. No navigation points to a soft deletable entity today, and `AppDbContext` turns EF's warning for this case (`PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning`) into an exception, so a new one fails the tests.
+- Filters can only be defined on the root type of an inheritance hierarchy, and EF doesn't detect cycles between filters. Neither applies today.
 
 ### Why `IsDeleted` is stored
 
