@@ -14,7 +14,7 @@ internal sealed class ClassFeedbackConfiguration : IEntityTypeConfiguration<Clas
         builder.HasOne<ClassSession>().WithMany().HasForeignKey(feedback => feedback.ClassSessionId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Student>().WithMany().HasForeignKey(feedback => feedback.StudentId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Instructor>().WithMany().HasForeignKey(feedback => feedback.InstructorId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(feedback => new { feedback.TenantId, feedback.ClassSessionId, feedback.StudentId }).IsUnique().HasFilter(CurrentRecordIndex.Filter);
+        builder.HasIndex(feedback => new { feedback.TenantId, feedback.ClassSessionId, feedback.StudentId }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
         builder.HasIndex(feedback => new { feedback.TenantId, feedback.StudentId });
     }
 }

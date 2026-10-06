@@ -24,7 +24,7 @@ public sealed class ClassFeedback : ITenantOwned, ISoftDeletable
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
     public DateTimeOffset? DeletedOn { get; private set; }
-    public bool IsDeleted => DeletedOn is not null;
+    public bool IsDeleted { get; private set; }
 
     public static Result<ClassFeedback> Create(
         Guid classSessionId, Guid studentId, Guid instructorId, string? text, DateTimeOffset createdAt)
@@ -73,5 +73,9 @@ public sealed class ClassFeedback : ITenantOwned, ISoftDeletable
             : Result.Success();
     }
 
-    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        IsDeleted = true;
+    }
 }

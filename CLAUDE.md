@@ -133,14 +133,14 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ### Records that change over time
 - A record that is replaced instead of edited (a subscription, an add-on) implements the interfaces in `src/Records`: `ICreatedOn` (`CreatedOn`, date and time it applies from), `IDeletedOn` (`DeletedOn`, date and time another record replaced it, `null` = current, and `Delete(now)`) and, when there is an agreed end, `IExpiredOn` (`ExpiredOn`, date, inclusive).
-- Never delete such rows physically and never store an `IsDeleted` column. Query with `WhereCurrent()` and decide with `IsCurrent()` / `IsActiveOn(date)` from `RecordExtensions`; don't rewrite the rule per entity.
+- Never delete such rows physically and never add an `IsDeleted` column to them (that column belongs to `ISoftDeletable`). Query with `WhereCurrent()` and decide with `IsCurrent()` / `IsActiveOn(date)` from `RecordExtensions`; don't rewrite the rule per entity.
 - Replacing is one save: `Delete(now)` on the current record and add the new one. Active = current, created on or before the date, and `ExpiredOn` empty or not past.
 - Enforced by tests: a column named `CreatedOn`, `DeletedOn` or `ExpiredOn` requires its interface, and every `IDeletedOn` entity needs a unique index filtered on `[DeletedOn] IS NULL`.
 - Business dates with their own meaning (a fee that applies from a month) are not this convention and keep their names.
 
 ### Deleting
 - Every action that deletes asks for confirmation first with `DeleteConfirmation`, and a test proves nothing is deleted until the user confirms.
-- Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`DeletedOn`, the date and time it was deleted; `IsDeleted`, computed from it and not stored; `Delete(now)`). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[DeletedOn] IS NULL`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
+- Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`IsDeleted`, a stored `bit`; `DeletedOn`, the date and time it was deleted; `Delete(now)` sets both, and a check constraint keeps them in sync). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`, `[IsDeleted] = 0`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[IsDeleted] = 0`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
 
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).

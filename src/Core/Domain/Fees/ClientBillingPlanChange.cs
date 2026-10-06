@@ -21,7 +21,7 @@ public sealed class ClientBillingPlanChange : ITenantOwned, ISoftDeletable
     public decimal? CustomFee { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? DeletedOn { get; private set; }
-    public bool IsDeleted => DeletedOn is not null;
+    public bool IsDeleted { get; private set; }
 
     public BillingPlan Plan => new(Kind, CustomFee);
 
@@ -71,5 +71,9 @@ public sealed class ClientBillingPlanChange : ITenantOwned, ISoftDeletable
         CustomFee = change.CustomFee;
     }
 
-    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        IsDeleted = true;
+    }
 }

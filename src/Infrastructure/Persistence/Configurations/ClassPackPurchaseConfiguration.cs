@@ -16,7 +16,7 @@ internal sealed class ClassPackPurchaseConfiguration : IEntityTypeConfiguration<
         builder.HasOne<PrivateLesson>().WithMany().HasForeignKey(purchase => purchase.TrialLessonId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(purchase => new { purchase.TenantId, purchase.TrialLessonId })
             .IsUnique()
-            .HasFilter($"[TrialLessonId] IS NOT NULL AND {CurrentRecordIndex.Filter}");
+            .HasFilter($"[TrialLessonId] IS NOT NULL AND {SoftDeleteModelBuilderExtensions.NotDeletedFilter}");
         builder.Property(purchase => purchase.Method).HasConversion<string>().HasMaxLength(MethodMaxLength);
         builder.Property(purchase => purchase.Notes).HasMaxLength(ClassPackPurchase.NotesMaxLength);
 

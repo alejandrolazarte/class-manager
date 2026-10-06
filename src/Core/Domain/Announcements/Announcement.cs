@@ -23,7 +23,7 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable
     public string? Body { get; private set; }
     public DateTimeOffset PublishedAt { get; private set; }
     public DateTimeOffset? DeletedOn { get; private set; }
-    public bool IsDeleted => DeletedOn is not null;
+    public bool IsDeleted { get; private set; }
 
     public static Result<Announcement> Create(string? title, string? body, DateTimeOffset publishedAt)
     {
@@ -53,5 +53,9 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable
         };
     }
 
-    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        IsDeleted = true;
+    }
 }

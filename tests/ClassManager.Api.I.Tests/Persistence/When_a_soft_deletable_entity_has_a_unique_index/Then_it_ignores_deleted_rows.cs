@@ -6,7 +6,7 @@ namespace ClassManager.Api.I.Tests.Persistence.When_a_soft_deletable_entity_has_
 [Collection(SqlServerCollectionDefinition.Name)]
 public sealed class Then_it_ignores_deleted_rows(ApiFixture fixture)
 {
-    private const string NotDeletedFilter = "[DeletedOn] IS NULL";
+    private const string NotDeletedFilter = "[IsDeleted] = 0";
 
     [Fact]
     public void Then_it_ignores_deleted_rows_Run()

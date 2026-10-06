@@ -27,7 +27,7 @@ public sealed class Payment : ITenantOwned, ISoftDeletable
     public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? DeletedOn { get; private set; }
-    public bool IsDeleted => DeletedOn is not null;
+    public bool IsDeleted { get; private set; }
 
     public BillingMonth BillingMonth => BillingMonth.From(Month);
 
@@ -83,5 +83,9 @@ public sealed class Payment : ITenantOwned, ISoftDeletable
         };
     }
 
-    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        IsDeleted = true;
+    }
 }
