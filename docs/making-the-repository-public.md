@@ -1,6 +1,6 @@
 # Making the repository public
 
-Date: 2026-10-06. Status: the license is in place; the repository is still private.
+Date: 2026-10-06. Status: done. The license is in place and the repository is public since 2026-10-06 (no forks at the time of the switch).
 
 ## Why it came up
 
@@ -31,7 +31,9 @@ Every commit of every branch was reviewed (228 commits without merges, full clon
 
 1. Decide about the pilot client's information: ask the client whether they mind it being public, or remove it. Removing it from the current files is not enough, because the history keeps it; that needs rewriting the history (`git filter-repo`) and force-pushing every branch, which breaks open pull requests and every existing clone.
 2. Settings → Actions → General: keep "Require approval for all external contributors" (or at least first-time contributors) so pull requests from forks do not run CI without review.
-3. Azure: check that the federated credential used by the deploy workflow only accepts the `main` branch (subject `repo:alejandrolazarte/class-manager:ref:refs/heads/main`), so no other workflow can deploy.
+3. Azure: already true (see [GitHub protection](github-protection.md#deploy-workflow)). Check that the federated credential used by the deploy workflow only accepts the `main` branch (subject `repo:alejandrolazarte/class-manager:ref:refs/heads/main`), so no other workflow can deploy.
 4. Re-run gitleaks on the full history right before switching (`gitleaks git . --log-opts="--all"`) in case something was added since this review.
 5. Switch: Settings → General → Danger Zone → Change visibility. It cannot be undone in practice: forks and caches made while public stay.
-6. After switching, apply the rulesets from [GitHub protection](github-protection.md) that GitHub Free only allows on public repositories.
+6. After switching, apply the rulesets from [GitHub protection](github-protection.md) that GitHub Free only allows on public repositories. Done: ruleset `main`.
+
+Still open after the switch: item 1 (the pilot client's information) and item 2 (the fork pull request approval setting, to confirm in Settings).

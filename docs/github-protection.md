@@ -1,8 +1,8 @@
 # GitHub protection
 
-Date: 2026-09-25 (settings applied to this repository; the approach comes from salon-manager, 2026-09-24)
+Date: 2026-09-25 (settings applied to this repository; the approach comes from salon-manager, 2026-09-24). Updated 2026-10-06: the repository is public and `main` has a server-side ruleset.
 
-Repository: `alejandrolazarte/class-manager` (private, GitHub Free account)
+Repository: `alejandrolazarte/class-manager` (public since 2026-10-06, GitHub Free account, [FSL-1.1-ALv2](../LICENSE.md); see [Making the repository public](making-the-repository-public.md))
 
 ## Goal
 
@@ -10,7 +10,7 @@ Repository: `alejandrolazarte/class-manager` (private, GitHub Free account)
 - AI agents (Claude Code, Codex) can open pull requests but never push to `main` or merge.
 - GitHub Actions cannot be abused to run untrusted code or write to the repository.
 
-## Initial state
+## Initial state (private repository)
 
 GitHub Free does not allow rulesets or branch protection on private repositories:
 
@@ -24,20 +24,36 @@ gh api repos/alejandrolazarte/class-manager/rulesets
 
 Actions allowed any marketplace action (`allowed_actions: all`).
 
-## Decision
+## Ruleset on `main` (since the repository is public)
 
-Server-side enforcement is not available without GitHub Pro or making the repository public. Neither is wanted for now (the code is a commercial product and there is a single contributor). Protection is therefore layered on the client side:
+Public repositories get rulesets on GitHub Free, so `main` is now protected on the server. Ruleset `main` (id `24615605`), enforcement **active**, target the default branch:
+
+| Rule | Setting | Effect |
+|---|---|---|
+| Restrict deletions | on | `main` cannot be deleted |
+| Block force pushes | on | `main`'s history cannot be rewritten |
+| Require a pull request before merging | 0 approvals | every change goes through a pull request; 0 because the only contributor cannot approve their own pull requests |
+| Require status checks to pass | `backend`, `frontend`, `e2e`, `container` (GitHub Actions), branches must be up to date | a pull request with red CI, or not tested against the latest `main`, cannot be merged |
+| Bypass list | Repository admin, **for pull requests only** | the owner can merge a pull request in an emergency, never push directly |
+
+Set it up in Settings → Rules → Rulesets → New branch ruleset with the values above.
+
+With the ruleset, nobody (the owner, Claude Code or Codex, all with the owner's write access) can push to `main` directly: GitHub rejects it whatever the local hook says. The client-side layers below stay as an earlier, friendlier stop.
+
+## Decision (before the repository was public)
+
+Server-side enforcement was not available without GitHub Pro or making the repository public. Protection was therefore layered on the client side, and these layers are still in place:
 
 | Layer | What it blocks | Can it be bypassed? |
 |---|---|---|
 | `.githooks/pre-push` | Any push whose target is `refs/heads/main` | Yes, with `--no-verify` or a clone without the hook |
 | `.claude/settings.json` deny rules | Claude Code running `git push ... main`, `--no-verify` and `gh pr merge` | Only by editing the file |
 | `CLAUDE.md` / `AGENTS.md` rules | Agents pushing to `main` or merging | Instructions, not enforcement |
-| CI on pull requests | Merging code that doesn't build or pass tests (visible red check) | Yes, merge is not blocked on free private repos |
+| CI on pull requests | Merging code that doesn't build or pass tests | No: required status checks in the ruleset |
 
-This protects against **mistakes** (an accidental push, an agent going too far), not against a malicious actor with write access. That is acceptable while the owner is the only collaborator.
+On their own these layers protect against **mistakes** (an accidental push, an agent going too far), not against a malicious actor with write access; the ruleset closes that gap for `main`.
 
-**Upgrade trigger:** when a second person gets write access, move to GitHub Pro (or a Team organization) and apply the same ruleset used in `knowledge-search`: `deletion`, `non_fast_forward`, `pull_request` with 1 approval, admin bypass only through pull requests.
+**When a second person gets write access:** raise the pull request rule to 1 approval so each change is reviewed by someone other than its author.
 
 ## Commands used
 
@@ -64,6 +80,10 @@ Why: merged branches don't pile up, and a pull request stacked on another one is
 
 Why: only `actions/*` can run, so a compromised third-party action cannot be introduced through a workflow change.
 
+### Pull requests from forks
+
+Settings → Actions → General → "Approval for running fork pull request workflows from contributors": **Require approval for all external contributors**. Why: with a public repository anyone can open a pull request from a fork, and its workflows must not run until the owner has read the change. Fork workflows run with a read-only token and without secrets, and `deploy.yml` only runs for pushes to `main`.
+
 ### Read-only workflow token
 
 ```powershell
@@ -79,7 +99,9 @@ Why: workflows cannot write to the repository or approve pull requests. `ci.yml`
 - Merged branches: deleted automatically (`delete_branch_on_merge: true`).
 - Collaborators: only the owner (`admin`).
 - Secrets: none. Variables: `AZURE_*` for the deploy workflow (identifiers, not credentials).
-- `main`: protected by the local hook and agent deny rules; changes go through pull requests with CI.
+- Visibility: public, forking allowed.
+- `main`: ruleset `main` active (no deletion, no force push, pull request required, `backend`, `frontend`, `e2e` and `container` must pass on an up-to-date branch, admin bypass only through pull requests), plus the local hook and agent deny rules.
+- Fork pull requests: workflows wait for the owner's approval.
 
 ## Audit commands
 
@@ -91,6 +113,10 @@ gh api repos/alejandrolazarte/class-manager/actions/permissions/selected-actions
 gh api repos/alejandrolazarte/class-manager/actions/permissions/workflow
 gh api repos/alejandrolazarte/class-manager/collaborators --paginate
 gh api repos/alejandrolazarte/class-manager/actions/secrets
+gh api repos/alejandrolazarte/class-manager/rules/branches/main
+gh api repos/alejandrolazarte/class-manager/rulesets --jq '.[] | {id, name, enforcement}'
+gh api repos/alejandrolazarte/class-manager/rulesets/24615605 --jq '{enforcement, conditions, bypass_actors}'
+gh api repos/alejandrolazarte/class-manager/actions/permissions/fork-pr-contributor-approval
 rg -n "pull_request_target|secrets|workflow_run|uses:|permissions:" .github
 ```
 
