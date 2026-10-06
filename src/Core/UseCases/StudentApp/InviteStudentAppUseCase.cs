@@ -19,6 +19,7 @@ public sealed class InviteStudentAppUseCase(
     IClientRepository clientRepository,
     IBusinessRepository businessRepository,
     IClientInvitationRepository invitationRepository,
+    IClientAccountRepository clientAccountRepository,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
     ISecretTokenGenerator secretTokenGenerator,
@@ -32,6 +33,7 @@ public sealed class InviteStudentAppUseCase(
 
     private const string ClientNotFoundMessage = "The client does not exist.";
     private const string EmailRequiredMessage = "Write the email of the person who will use the app.";
+    private const string AlreadyUsesTheAppMessage = "The client already uses the app.";
 
     public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
         new(
@@ -46,7 +48,7 @@ public sealed class InviteStudentAppUseCase(
 
     public async Task<Result<StudentAppInvitationResponse>> ExecuteAsync(InviteStudentAppCommand command, CancellationToken cancellationToken)
     {
-        var client = await clientRepository.GetByIdAsync(command.ClientId, cancellationToken);
+        var client = await clientRepository.GetForUpdateAsync(command.ClientId, cancellationToken);
         if (client is null || !await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [client.Id], cancellationToken))
         {
             return Result.NotFound<StudentAppInvitationResponse>(ClientNotFoundMessage, ClientErrorCodes.NotFound);
@@ -59,22 +61,34 @@ public sealed class InviteStudentAppUseCase(
             return Result.Unauthorized<StudentAppInvitationResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
 
-        var email = string.IsNullOrWhiteSpace(command.Email) ? client.Email : command.Email;
-        if (string.IsNullOrWhiteSpace(email))
+        if (await clientAccountRepository.HasAccountAsync(client.Id, cancellationToken))
+        {
+            return Result.Conflict<StudentAppInvitationResponse>(AlreadyUsesTheAppMessage, StudentAppErrorCodes.AlreadyUsesTheApp);
+        }
+
+        if (!string.IsNullOrWhiteSpace(command.Email) && !client.HasEmail(command.Email))
+        {
+            var emailChange = client.ChangeEmail(command.Email);
+            if (emailChange.IsFailure)
+            {
+                return emailChange.Error! with { FieldName = nameof(InviteStudentAppRequest.Email) };
+            }
+        }
+
+        if (client.Email is null)
         {
             return Result.Validation<StudentAppInvitationResponse>(EmailRequiredMessage, StudentAppErrorCodes.EmailRequired, nameof(InviteStudentAppRequest.Email));
         }
 
         var now = timeProvider.GetUtcNow();
         var token = secretTokenGenerator.Create();
-        var invitation = ClientInvitation.Create(client.Id, email, token.Hash, access.UserId, now);
+        var invitation = ClientInvitation.Create(client.Id, client.Email, token.Hash, access.UserId, now);
         if (invitation.IsFailure)
         {
             return invitation.Error!;
         }
 
-        var pendingInvitations = await invitationRepository.ListPendingForUpdateByClientAsync(client.Id, now, cancellationToken);
-        foreach (var previousInvitation in pendingInvitations.Where(pending => IsSameEmail(pending.Email, invitation.Value!.Email)))
+        foreach (var previousInvitation in await invitationRepository.ListPendingForUpdateByClientAsync(client.Id, now, cancellationToken))
         {
             previousInvitation.Revoke(now);
         }
@@ -87,7 +101,4 @@ public sealed class InviteStudentAppUseCase(
 
         return new StudentAppInvitationResponse(invitation.Value.Id, invitation.Value.Email, invitation.Value.ExpiresAt);
     }
-
-    private static bool IsSameEmail(string pendingEmail, string invitedEmail) =>
-        string.Equals(pendingEmail, invitedEmail, StringComparison.OrdinalIgnoreCase);
 }

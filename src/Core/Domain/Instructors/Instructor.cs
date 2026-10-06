@@ -53,6 +53,9 @@ public sealed class Instructor : ITenantOwned
         return Result.Success();
     }
 
+    public bool HasEmail(string? email) =>
+        string.Equals(string.IsNullOrWhiteSpace(email) ? null : email.Trim(), Email, StringComparison.OrdinalIgnoreCase);
+
     public void Activate() => IsActive = true;
 
     public void Deactivate() => IsActive = false;

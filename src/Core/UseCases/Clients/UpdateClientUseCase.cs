@@ -22,11 +22,14 @@ public sealed class UpdateClientUseCase(
     IBusinessRepository businessRepository,
     IClientRepository clientRepository,
     IUnitOfWork unitOfWork,
-    IAccessScopes accessScopes)
+    IAccessScopes accessScopes,
+    IClientAccountRepository clientAccountRepository,
+    IIdentityService identityService)
     : IUseCase<UpdateClientCommand, ClientResponse>
 {
     private const string NotFoundMessage = "The client does not exist.";
     private const string PhoneNumberTakenMessage = "Another client is already registered with this phone number.";
+    private const string EmailUsedToSignInMessage = "The client signs in to the app with this email; only they can change it.";
 
     public async Task<Result<ClientResponse>> ExecuteAsync(UpdateClientCommand command, CancellationToken cancellationToken)
     {
@@ -52,6 +55,19 @@ public sealed class UpdateClientUseCase(
         if (existingClient is not null && existingClient.Id != client.Id)
         {
             return PhoneNumberTaken(existingClient.Id);
+        }
+
+        if (!client.HasEmail(command.Email))
+        {
+            var accountUserIds = await clientAccountRepository.ListUserIdsByClientAsync(client.Id, cancellationToken);
+            var signInEmail = await SignInEmails.FirstAsync(identityService, accountUserIds, cancellationToken);
+            if (accountUserIds.Count > 0 && !string.Equals(command.Email?.Trim(), signInEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                return new ResultError(ClientErrorCodes.EmailUsedToSignIn, EmailUsedToSignInMessage, ErrorKind.Conflict)
+                {
+                    FieldName = nameof(UpdateClientCommand.Email),
+                };
+            }
         }
 
         var update = client.Update(command.FullName, phoneNumber.Value!, command.Email, command.Notes);

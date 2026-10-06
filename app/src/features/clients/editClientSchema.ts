@@ -19,11 +19,14 @@ export const editClientRequiredFieldNames = [
   "phoneNumber",
 ] as const satisfies readonly (keyof EditClientFormValues)[];
 
-export function toEditClientFormValues(client: Client): EditClientFormValues {
+export function toEditClientFormValues(
+  client: Client,
+  signInEmail?: string | null,
+): EditClientFormValues {
   return {
     fullName: client.fullName,
     phoneNumber: formatPhoneNumberForDisplay(client.phoneNumber),
-    email: client.email ?? "",
+    email: signInEmail ?? client.email ?? "",
     notes: client.notes ?? "",
   };
 }

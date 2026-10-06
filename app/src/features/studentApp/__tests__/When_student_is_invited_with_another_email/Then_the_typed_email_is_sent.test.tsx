@@ -9,29 +9,31 @@ jest.mock("@/features/studentApp/studentAppApi");
 
 const client = buildClient({ email: "ana@example.com" });
 
-describe("When student with an email is invited", () => {
+describe("When student is invited with another email", () => {
   beforeEach(() => {
     jest.mocked(inviteStudentApp).mockResolvedValue({
       id: "invitation-1",
-      email: "ana@example.com",
+      email: "ana.nueva@example.com",
       expiresAt: "2026-10-06T12:00:00Z",
     });
   });
 
-  it("Then the invitation goes to that email", async () => {
+  it("Then the typed email is sent", async () => {
     await renderWithProviders(<InviteStudentAppSection client={client} />);
-
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("student.app.inviteAccessibility") }),
     );
-    expect(screen.getByLabelText(translate("student.invite.email"))).toHaveDisplayValue(
-      "ana@example.com",
+    await fireEvent.changeText(
+      screen.getByLabelText(translate("student.invite.email")),
+      "ana.nueva@example.com",
     );
 
     await fireEvent.press(screen.getByRole("button", { name: translate("student.invite.send") }));
 
     await waitFor(() =>
-      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, { email: "ana@example.com" }),
+      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, {
+        email: "ana.nueva@example.com",
+      }),
     );
   });
 });

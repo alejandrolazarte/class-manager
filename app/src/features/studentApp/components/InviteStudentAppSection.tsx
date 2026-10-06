@@ -57,11 +57,17 @@ export function InviteStudentAppSection({ client }: InviteStudentAppSectionProps
   };
 
   const invite = () => {
-    if (emailOnFile.length === 0) {
-      setIsAskingEmail(true);
+    if (status === "Invited" && emailOnFile.length > 0) {
+      void sendTo(emailOnFile);
       return;
     }
-    void sendTo(emailOnFile);
+    setEmail(emailOnFile);
+    setIsAskingEmail(true);
+  };
+
+  const cancel = () => {
+    setEmailError(undefined);
+    setIsAskingEmail(false);
   };
 
   return (
@@ -94,7 +100,9 @@ export function InviteStudentAppSection({ client }: InviteStudentAppSectionProps
       {isAskingEmail ? (
         <View className="gap-2.5 rounded-2xl bg-muted p-3">
           <AppText variant="caption" tone="subtle">
-            {translate("student.invite.hint")}
+            {translate(
+              emailOnFile.length > 0 ? "student.invite.emailOnFileHint" : "student.invite.hint",
+            )}
           </AppText>
           <TextField
             label={translate("student.invite.email")}
@@ -113,6 +121,12 @@ export function InviteStudentAppSection({ client }: InviteStudentAppSectionProps
             onPress={() => sendTo(email.trim())}
             disabled={email.trim().length === 0}
             isLoading={isSending}
+          />
+          <Button
+            variant="ghost"
+            size="medium"
+            label={translate("common.cancel")}
+            onPress={cancel}
           />
         </View>
       ) : null}

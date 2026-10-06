@@ -9,17 +9,15 @@ public enum StudentAppAccessStatus
     Active,
 }
 
-public sealed record StudentAppAccessResponse(StudentAppAccessStatus Status, string? InvitedEmail)
+public sealed record StudentAppAccessResponse(StudentAppAccessStatus Status, string? InvitedEmail, string? SignInEmail = null)
 {
     public static readonly StudentAppAccessResponse NotInvited = new(StudentAppAccessStatus.NotInvited, null);
 
-    public static readonly StudentAppAccessResponse Active = new(StudentAppAccessStatus.Active, null);
-
-    public static StudentAppAccessResponse From(bool hasAccount, ClientInvitation? pendingInvitation)
+    public static StudentAppAccessResponse From(bool hasAccount, string? signInEmail, ClientInvitation? pendingInvitation)
     {
         if (hasAccount)
         {
-            return Active;
+            return new(StudentAppAccessStatus.Active, null, signInEmail);
         }
 
         return pendingInvitation is null ? NotInvited : new(StudentAppAccessStatus.Invited, pendingInvitation.Email);

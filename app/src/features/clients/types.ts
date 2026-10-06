@@ -15,6 +15,7 @@ export type StudentAppAccessStatus = "NotInvited" | "Invited" | "Active";
 export interface StudentAppAccess {
   status: StudentAppAccessStatus;
   invitedEmail: string | null;
+  signInEmail?: string | null;
 }
 
 export interface ClientDetails extends Client {
