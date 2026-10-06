@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Tenancy.AspNetCore.Persistence;
 
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
@@ -26,9 +27,9 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
 
     public Task ChangeEmailInEveryBusinessByAccountUserAsync(Guid userId, string email, CancellationToken cancellationToken) =>
         context.Clients
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .Where(client => context.ClientAccounts
-                .IgnoreQueryFilters()
+                .IgnoreTenantFilter()
                 .Any(account => account.ClientId == client.Id && account.UserId == userId))
             .ExecuteUpdateAsync(setters => setters.SetProperty(client => client.Email, email), cancellationToken);
 

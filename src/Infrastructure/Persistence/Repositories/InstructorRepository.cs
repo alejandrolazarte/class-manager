@@ -1,3 +1,5 @@
+using ClassManager.Tenancy.AspNetCore.Persistence;
+
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class InstructorRepository(AppDbContext context) : IInstructorRepository
@@ -12,9 +14,9 @@ internal sealed class InstructorRepository(AppDbContext context) : IInstructorRe
 
     public Task ChangeEmailInEveryBusinessByMemberUserAsync(Guid userId, string email, CancellationToken cancellationToken) =>
         context.Instructors
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .Where(instructor => context.BusinessMembers
-                .IgnoreQueryFilters()
+                .IgnoreTenantFilter()
                 .Any(member => member.InstructorId == instructor.Id && member.UserId == userId))
             .ExecuteUpdateAsync(setters => setters.SetProperty(instructor => instructor.Email, email), cancellationToken);
 
