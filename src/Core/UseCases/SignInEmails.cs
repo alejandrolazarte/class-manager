@@ -1,6 +1,6 @@
 using ClassManager.Core.Abstractions.Security;
 
-namespace ClassManager.Core.UseCases.Clients;
+namespace ClassManager.Core.UseCases;
 
 internal static class SignInEmails
 {

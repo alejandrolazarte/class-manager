@@ -43,8 +43,11 @@ export const instructorFieldNames = [
   "email",
 ] as const satisfies readonly (keyof InstructorFormValues)[];
 
-export function toInstructorFormValues(instructor?: Instructor): InstructorFormValues {
-  return { fullName: instructor?.fullName ?? "", email: instructor?.email ?? "" };
+export function toInstructorFormValues(
+  instructor?: Instructor,
+  signInEmail?: string,
+): InstructorFormValues {
+  return { fullName: instructor?.fullName ?? "", email: signInEmail ?? instructor?.email ?? "" };
 }
 
 export function toSaveInstructorRequest(formValues: InstructorFormValues): SaveInstructorRequest {

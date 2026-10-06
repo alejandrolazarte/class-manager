@@ -14,5 +14,7 @@ public interface IMemberInvitationRepository
 
     Task<IReadOnlyList<MemberInvitation>> ListPendingForUpdateByEmailAsync(string email, DateTimeOffset now, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<MemberInvitation>> ListPendingForUpdateByInstructorAsync(Guid instructorId, DateTimeOffset now, CancellationToken cancellationToken);
+
     Task<MemberInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken);
 }

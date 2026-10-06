@@ -26,6 +26,14 @@ internal sealed class MemberInvitationRepository(AppDbContext context) : IMember
             .Where(invitation => invitation.Email == email)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<MemberInvitation>> ListPendingForUpdateByInstructorAsync(
+        Guid instructorId,
+        DateTimeOffset now,
+        CancellationToken cancellationToken) =>
+        await PendingAt(context.MemberInvitations, now)
+            .Where(invitation => invitation.InstructorId == instructorId)
+            .ToListAsync(cancellationToken);
+
     public Task<MemberInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         context.MemberInvitations
             .IgnoreQueryFilters()

@@ -1,7 +1,9 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { instructorAppAccess } from "@/features/instructors/instructorAppAccess";
+import { instructorQueryKeys } from "@/features/instructors/instructorQueryKeys";
 import { Instructor, InstructorAppAccessStatus } from "@/features/instructors/types";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
 import { useTeam } from "@/features/members/useTeam";
@@ -31,6 +33,7 @@ interface InviteInstructorAppSectionProps {
 
 export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSectionProps) {
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
   const teamQuery = useTeam();
   const inviteMutation = useInviteMember();
   const resendMutation = useResendInvitation();
@@ -77,6 +80,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
       });
       showToast(translate("team.invite.sent"));
       setIsAskingEmail(false);
+      await queryClient.invalidateQueries({ queryKey: instructorQueryKeys.all });
     } catch (inviteError) {
       if (isApiError(inviteError) && inviteError.hasCode(memberErrorCodes.alreadyMember)) {
         setIsAskingEmail(true);
@@ -106,11 +110,13 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
       void resend(access.invitation.id);
       return;
     }
-    if (emailOnFile.length === 0) {
-      setIsAskingEmail(true);
-      return;
-    }
-    void sendTo(emailOnFile);
+    setEmail(emailOnFile);
+    setIsAskingEmail(true);
+  };
+
+  const cancel = () => {
+    setEmailError(undefined);
+    setIsAskingEmail(false);
   };
 
   return (
@@ -145,7 +151,11 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
       {isAskingEmail ? (
         <View className="gap-2.5 rounded-2xl bg-muted p-3">
           <AppText variant="caption" tone="subtle">
-            {translate("instructors.invite.hint")}
+            {translate(
+              emailOnFile.length > 0
+                ? "instructors.invite.emailOnFileHint"
+                : "instructors.invite.hint",
+            )}
           </AppText>
           <TextField
             label={translate("instructors.invite.email")}
@@ -164,6 +174,12 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
             onPress={() => sendTo(email.trim())}
             disabled={email.trim().length === 0}
             isLoading={isSending}
+          />
+          <Button
+            variant="ghost"
+            size="medium"
+            label={translate("common.cancel")}
+            onPress={cancel}
           />
         </View>
       ) : null}

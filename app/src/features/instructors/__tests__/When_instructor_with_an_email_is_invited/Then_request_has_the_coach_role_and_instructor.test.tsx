@@ -29,6 +29,7 @@ describe("When instructor with an email is invited", () => {
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("instructors.app.inviteAccessibility") }),
     );
+    await fireEvent.press(screen.getByRole("button", { name: translate("team.invite.submit") }));
 
     await waitFor(() =>
       expect(inviteMember).toHaveBeenCalledWith({
