@@ -42,6 +42,8 @@ The flow, available to team members and students from Ajustes → Mi perfil:
 2. Opening the link calls `POST /api/auth/email-change/confirm`. In one transaction it moves the account to the new email (also the user name), uses up every pending change link of the user, and updates the email of every client and instructor linked to the account in every business.
 3. The previous address gets a notice that the email changed.
 
+Updating the people in every business is the one deliberate cross-tenant write: one person can be a client or an instructor in several businesses, and a request is bound to a single tenant, so the stamping interceptor would reject those saves. The repositories do it with `ExecuteUpdateAsync` and `IgnoreQueryFilters()`, limited to the `Email` column of the clients and instructors linked to the confirmed user (`ChangeEmailInEveryBusinessByAccountUserAsync`, `ChangeEmailInEveryBusinessByMemberUserAsync`).
+
 Tokens are stored hashed in `identity.EmailChangeTokens` (`AddEmailChangeTokens` migration), like password reset tokens.
 
 ## 4. Proposal: one app account per person

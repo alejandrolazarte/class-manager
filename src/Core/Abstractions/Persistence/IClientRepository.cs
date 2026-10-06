@@ -15,7 +15,7 @@ public interface IClientRepository
 
     Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Client>> ListForUpdateInAnyBusinessByAccountUserAsync(Guid userId, CancellationToken cancellationToken);
+    Task ChangeEmailInEveryBusinessByAccountUserAsync(Guid userId, string email, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken);
 
