@@ -20,6 +20,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
+import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { Icon } from "@/ui/Icon";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
@@ -201,27 +202,12 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
         </View>
       )}
       {isConfirmingDelete ? (
-        <Banner tone="warning" icon="delete" message={translate("privateLessons.deleteQuestion")}>
-          <View className="flex-row gap-2">
-            <View className="flex-1">
-              <Button
-                variant="secondary"
-                size="medium"
-                label={translate("common.cancel")}
-                onPress={() => setIsConfirmingDelete(false)}
-              />
-            </View>
-            <View className="flex-1">
-              <Button
-                variant="danger"
-                size="medium"
-                label={translate("privateLessons.confirmDelete")}
-                onPress={deleteLesson}
-                isLoading={deleteMutation.isPending}
-              />
-            </View>
-          </View>
-        </Banner>
+        <DeleteConfirmation
+          question={translate("privateLessons.deleteQuestion")}
+          onCancel={() => setIsConfirmingDelete(false)}
+          onConfirm={deleteLesson}
+          isDeleting={deleteMutation.isPending}
+        />
       ) : null}
       {!canManageLessons ? null : hasAttendance ? (
         <AppText variant="caption" tone="subtle">

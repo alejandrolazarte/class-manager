@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Fees;
 
-public sealed class ClientBillingPlanChange : ITenantOwned
+public sealed class ClientBillingPlanChange : ITenantOwned, IDeletedOn
 {
     private const string KindRequiredMessage = "Choose how the client pays.";
     private const string CustomFeeRequiredMessage = "Enter the client's monthly fee.";
@@ -19,6 +20,7 @@ public sealed class ClientBillingPlanChange : ITenantOwned
     public BillingPlanKind Kind { get; private set; }
     public decimal? CustomFee { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
 
     public BillingPlan Plan => new(Kind, CustomFee);
 
@@ -67,4 +69,6 @@ public sealed class ClientBillingPlanChange : ITenantOwned
         Kind = change.Kind;
         CustomFee = change.CustomFee;
     }
+
+    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
 }

@@ -138,6 +138,10 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - Enforced by tests: a column named `CreatedOn`, `DeletedOn` or `ExpiredOn` requires its interface, and every `IDeletedOn` entity needs a unique index filtered on `[DeletedOn] IS NULL`.
 - Business dates with their own meaning (a fee that applies from a month) are not this convention and keep their names.
 
+### Deleting
+- Every action that deletes asks for confirmation first with `DeleteConfirmation`, and a test proves nothing is deleted until the user confirms.
+- Data with business meaning is soft deleted: the entity implements `IDeletedOn`, queries use `WhereCurrent()` and unique indexes are filtered on `[DeletedOn] IS NULL`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
+
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).
 

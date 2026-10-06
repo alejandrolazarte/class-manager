@@ -37,6 +37,19 @@ export function setClientBillingPlan(
   return httpClient.put<ClientBilling>(`${clientPath(clientId)}/${billingPlanSegment}`, request);
 }
 
+export function deleteDefaultMonthlyFeeChange(month: string): Promise<Business> {
+  return httpClient.delete<Business>(`${businessMonthlyFeePath}/${encodeURIComponent(month)}`);
+}
+
+export function deleteClientBillingPlanChange(
+  clientId: string,
+  month: string,
+): Promise<ClientBilling> {
+  return httpClient.delete<ClientBilling>(
+    `${clientPath(clientId)}/${billingPlanSegment}/${encodeURIComponent(month)}`,
+  );
+}
+
 export function recordPayment(clientId: string, request: RecordPaymentRequest): Promise<Payment> {
   return httpClient.post<Payment>(`${clientPath(clientId)}/${paymentsSegment}`, request);
 }

@@ -1,3 +1,5 @@
+using ClassManager.Records;
+
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class FeeScheduleRepository(AppDbContext context) : IFeeScheduleRepository
@@ -8,11 +10,12 @@ internal sealed class FeeScheduleRepository(AppDbContext context) : IFeeSchedule
 
     public async Task<IReadOnlyList<DefaultMonthlyFeeChange>> ListDefaultFeeChangesAsync(CancellationToken cancellationToken) =>
         await context.DefaultMonthlyFeeChanges.AsNoTracking()
+            .WhereCurrent()
             .OrderBy(change => change.EffectiveFrom)
             .ToListAsync(cancellationToken);
 
     public Task<DefaultMonthlyFeeChange?> FindDefaultFeeChangeForUpdateAsync(DateOnly effectiveFrom, CancellationToken cancellationToken) =>
-        context.DefaultMonthlyFeeChanges.FirstOrDefaultAsync(change => change.EffectiveFrom == effectiveFrom, cancellationToken);
+        context.DefaultMonthlyFeeChanges.WhereCurrent().FirstOrDefaultAsync(change => change.EffectiveFrom == effectiveFrom, cancellationToken);
 
     public async Task<IReadOnlyList<ClientBillingPlanChange>> ListClientPlanChangesAsync(
         IReadOnlyCollection<Guid> clientIds,
@@ -24,13 +27,14 @@ internal sealed class FeeScheduleRepository(AppDbContext context) : IFeeSchedule
         }
 
         return await context.ClientBillingPlanChanges.AsNoTracking()
+            .WhereCurrent()
             .Where(change => clientIds.Contains(change.ClientId))
             .OrderBy(change => change.EffectiveFrom)
             .ToListAsync(cancellationToken);
     }
 
     public Task<ClientBillingPlanChange?> FindClientPlanChangeForUpdateAsync(Guid clientId, DateOnly effectiveFrom, CancellationToken cancellationToken) =>
-        context.ClientBillingPlanChanges.FirstOrDefaultAsync(
+        context.ClientBillingPlanChanges.WhereCurrent().FirstOrDefaultAsync(
             change => change.ClientId == clientId && change.EffectiveFrom == effectiveFrom,
             cancellationToken);
 }
