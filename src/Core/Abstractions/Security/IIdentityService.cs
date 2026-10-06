@@ -18,4 +18,12 @@ public interface IIdentityService
     Task<string?> CreatePasswordResetTokenAsync(string email, CancellationToken cancellationToken);
 
     Task<Result> ResetPasswordAsync(string token, string newPassword, CancellationToken cancellationToken);
+
+    Task<Result<EmailChangeRequested>> RequestEmailChangeAsync(
+        Guid userId,
+        string currentPassword,
+        string newEmail,
+        CancellationToken cancellationToken);
+
+    Task<Result<ConfirmedEmailChange>> ConfirmEmailChangeAsync(string token, CancellationToken cancellationToken);
 }

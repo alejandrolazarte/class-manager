@@ -50,6 +50,9 @@ public static class SecurityServiceCollectionExtensions
         services.Configure<PasswordResetOptions>(passwordResetOptions =>
             passwordResetOptions.TokenLifetime = securityOptions.PasswordResetTokenLifetime);
         services.AddScoped<IPasswordResetService, PasswordResetService>();
+        services.Configure<EmailChangeOptions>(emailChangeOptions =>
+            emailChangeOptions.TokenLifetime = securityOptions.EmailChangeTokenLifetime);
+        services.AddScoped<IEmailChangeService, EmailChangeService>();
 
         return services;
     }

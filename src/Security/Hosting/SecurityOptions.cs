@@ -10,6 +10,7 @@ public sealed class SecurityOptions
 
     public static readonly TimeSpan DefaultLockoutDuration = TimeSpan.FromMinutes(15);
     public static readonly TimeSpan DefaultPasswordResetTokenLifetime = TimeSpan.FromHours(24);
+    public static readonly TimeSpan DefaultEmailChangeTokenLifetime = TimeSpan.FromHours(24);
 
     public string TenantClaimType { get; set; } = JwtOptions.DefaultTenantClaimType;
 
@@ -20,6 +21,8 @@ public sealed class SecurityOptions
     public TimeSpan LockoutDuration { get; set; } = DefaultLockoutDuration;
 
     public TimeSpan PasswordResetTokenLifetime { get; set; } = DefaultPasswordResetTokenLifetime;
+
+    public TimeSpan EmailChangeTokenLifetime { get; set; } = DefaultEmailChangeTokenLifetime;
 
     /// <summary>
     /// How <see cref="Persistence.SecurityDbContext"/> connects to the database. Required: the application decides it,
