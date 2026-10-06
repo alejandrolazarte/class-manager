@@ -16,10 +16,12 @@ Removing something from a form that is not saved yet (a photo in a form, a stude
 
 Payments, fees, plans, classes and anything else a business would want to audit or recover is marked as deleted instead of removed:
 
-- The entity implements `IDeletedOn` from `src/Records`: `DeletedOn` (`null` = current) and `Delete(now)`.
-- Queries read only current rows with `WhereCurrent()`.
-- A unique index that must hold for current rows is filtered on `[DeletedOn] IS NULL`, so the same key can be used again after a delete. A test enforces this for every `IDeletedOn` entity.
-- Never add an `IsDeleted` flag.
+- The entity implements `ISoftDeletable` from `src/Records`: `DeletedOn` (date and time it was deleted, `null` = not deleted), `IsDeleted` (computed from `DeletedOn`, not stored) and `Delete(now)`.
+- `ApplySoftDeleteQueryFilters` (`src/Infrastructure/Persistence`) adds a global query filter named `SoftDelete` to every `ISoftDeletable` entity, so deleted rows never show up and repositories don't filter by hand. The tenant filter is named too (`Tenant`), and both apply together. To read deleted rows (an audit, a restore), use `IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])` inside `Infrastructure`, which keeps the tenant filter.
+- Every unique index of an `ISoftDeletable` entity is filtered on `[DeletedOn] IS NULL`, so the same key can be used again after a delete.
+- Tests enforce it: every `ISoftDeletable` entity has both filters, every unique index ignores deleted rows, and a deleted row stays in the table but is not returned.
+
+`ISoftDeletable` is not `IDeletedOn`: `IDeletedOn` marks a record that another one replaced (a subscription, an add-on), whose history is still read with `WhereCurrent()`. A soft deleted row was removed by a user and is hidden everywhere.
 
 Rows are physically deleted only when they have no value once gone, for example web push subscriptions or rows the system recreates on its own.
 
