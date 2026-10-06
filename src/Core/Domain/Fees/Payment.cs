@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Fees;
 
-public sealed class Payment : ITenantOwned
+public sealed class Payment : ITenantOwned, ISoftDeletable
 {
     public const int NotesMaxLength = 200;
 
@@ -25,6 +26,8 @@ public sealed class Payment : ITenantOwned
     public string? Notes { get; private set; }
     public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
+    public bool IsDeleted => DeletedOn is not null;
 
     public BillingMonth BillingMonth => BillingMonth.From(Month);
 
@@ -79,4 +82,6 @@ public sealed class Payment : ITenantOwned
             CreatedAt = createdAt.ToUniversalTime(),
         };
     }
+
+    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
 }

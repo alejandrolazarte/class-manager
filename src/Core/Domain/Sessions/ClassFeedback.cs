@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Sessions;
 
-public sealed class ClassFeedback : ITenantOwned
+public sealed class ClassFeedback : ITenantOwned, ISoftDeletable
 {
     public const int TextMaxLength = 500;
 
@@ -22,6 +23,8 @@ public sealed class ClassFeedback : ITenantOwned
     public string Text { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
+    public bool IsDeleted => DeletedOn is not null;
 
     public static Result<ClassFeedback> Create(
         Guid classSessionId, Guid studentId, Guid instructorId, string? text, DateTimeOffset createdAt)
@@ -69,4 +72,6 @@ public sealed class ClassFeedback : ITenantOwned
             ? Result.Validation(TextLengthMessage, fieldName: nameof(Text))
             : Result.Success();
     }
+
+    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
 }

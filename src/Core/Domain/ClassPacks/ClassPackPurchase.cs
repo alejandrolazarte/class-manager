@@ -1,10 +1,11 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.ClassPacks;
 
-public sealed class ClassPackPurchase : ITenantOwned
+public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
 {
     public const int NotesMaxLength = 200;
 
@@ -33,6 +34,8 @@ public sealed class ClassPackPurchase : ITenantOwned
     public Guid? TrialLessonId { get; private set; }
     public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
+    public bool IsDeleted => DeletedOn is not null;
 
     public static Result<ClassPackPurchase> Sell(
         Guid clientId,
@@ -101,4 +104,6 @@ public sealed class ClassPackPurchase : ITenantOwned
     }
 
     public bool IsValidOn(DateOnly date) => ExpiresOn is null || ExpiresOn >= date;
+
+    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
 }

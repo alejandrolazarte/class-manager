@@ -16,8 +16,10 @@ import { AppText, TextTone } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
 import { Card } from "@/ui/Card";
+import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { Icon } from "@/ui/Icon";
 import { StatusPill } from "@/ui/StatusPill";
+import { useToast } from "@/ui/ToastProvider";
 import { useCanUndoCollection } from "@/features/fees/useCanUndoCollection";
 
 interface ClassBalanceSectionProps {
@@ -120,6 +122,20 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
   const currencyCode = useBusinessCurrency();
   const { data: balance, isPending } = useClassBalance(clientId);
   const deletePurchaseMutation = useDeleteClassPackPurchase();
+  const { showToast } = useToast();
+  const [purchasePendingDeletion, setPurchasePendingDeletion] = useState<ClassPackUsage | null>(
+    null,
+  );
+
+  const deletePendingPurchase = async (purchaseId: string) => {
+    try {
+      await deletePurchaseMutation.mutateAsync(purchaseId);
+      showToast(translate("classPacks.balance.purchaseDeleted"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
+    setPurchasePendingDeletion(null);
+  };
   const [openGroupKeys, setOpenGroupKeys] = useState<string[]>([]);
 
   if (isPending || balance === undefined) {
@@ -193,7 +209,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
                 title={`${usage.name} · ${formatMoney(usage.price, currencyCode)}`}
                 details={purchaseDetails(usage)}
                 canUndo={canUndoSale(usage.recordedByUserId)}
-                onUndo={() => deletePurchaseMutation.mutate(usage.id)}
+                onUndo={() => setPurchasePendingDeletion(usage)}
               />
             </View>
           );
@@ -245,7 +261,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
                         }),
                       ]}
                       canUndo={canUndoSale(usage.recordedByUserId)}
-                      onUndo={() => deletePurchaseMutation.mutate(usage.id)}
+                      onUndo={() => setPurchasePendingDeletion(usage)}
                     />
                   </View>
                 ))
@@ -253,6 +269,17 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
           </View>
         );
       })}
+      {purchasePendingDeletion ? (
+        <DeleteConfirmation
+          question={translate("classPacks.balance.deletePurchaseQuestion", {
+            name: purchasePendingDeletion.name,
+          })}
+          confirmLabel={translate("classPacks.balance.confirmDeletePurchase")}
+          onCancel={() => setPurchasePendingDeletion(null)}
+          onConfirm={() => deletePendingPurchase(purchasePendingDeletion.id)}
+          isDeleting={deletePurchaseMutation.isPending}
+        />
+      ) : null}
       {canSellClassPacks ? (
         <Button
           variant={isMonthlyPlan ? "secondary" : "primary"}

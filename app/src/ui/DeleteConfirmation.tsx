@@ -5,6 +5,7 @@ import { Button } from "@/ui/Button";
 
 interface DeleteConfirmationProps {
   question: string;
+  confirmLabel?: string;
   onCancel: () => void;
   onConfirm: () => void;
   isDeleting?: boolean;
@@ -12,6 +13,7 @@ interface DeleteConfirmationProps {
 
 export function DeleteConfirmation({
   question,
+  confirmLabel = translate("common.confirmDelete"),
   onCancel,
   onConfirm,
   isDeleting = false,
@@ -31,7 +33,7 @@ export function DeleteConfirmation({
           <Button
             variant="danger"
             size="medium"
-            label={translate("common.confirmDelete")}
+            label={confirmLabel}
             onPress={onConfirm}
             isLoading={isDeleting}
           />

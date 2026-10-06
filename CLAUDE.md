@@ -140,7 +140,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ### Deleting
 - Every action that deletes asks for confirmation first with `DeleteConfirmation`, and a test proves nothing is deleted until the user confirms.
-- Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`DeletedOn`, the date and time it was deleted; `IsDeleted`, computed from it and not stored; `Delete(now)`). A global query filter (`SoftDelete`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[DeletedOn] IS NULL`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
+- Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`DeletedOn`, the date and time it was deleted; `IsDeleted`, computed from it and not stored; `Delete(now)`). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[DeletedOn] IS NULL`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
 
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).

@@ -17,6 +17,7 @@ Removing something from a form that is not saved yet (a photo in a form, a stude
 Payments, fees, plans, classes and anything else a business would want to audit or recover is marked as deleted instead of removed:
 
 - The entity implements `ISoftDeletable` from `src/Records`: `DeletedOn` (date and time it was deleted, `null` = not deleted), `IsDeleted` (computed from `DeletedOn`, not stored) and `Delete(now)`.
+- `SoftDeleteSaveChangesInterceptor` (`src/Infrastructure/Persistence`) turns removing an `ISoftDeletable` entity into `Delete(now)`, so a repository `Remove` or a use case calling `Delete(now)` both end in a soft delete, and such a row can't be physically deleted by mistake.
 - `ApplySoftDeleteQueryFilters` (`src/Infrastructure/Persistence`) adds a global query filter named `SoftDelete` to every `ISoftDeletable` entity, so deleted rows never show up and repositories don't filter by hand. The tenant filter is named too (`Tenant`), and both apply together. To read deleted rows (an audit, a restore), use `IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])` inside `Infrastructure`, which keeps the tenant filter.
 - Every unique index of an `ISoftDeletable` entity is filtered on `[DeletedOn] IS NULL`, so the same key can be used again after a delete.
 - Tests enforce it: every `ISoftDeletable` entity has both filters, every unique index ignores deleted rows, and a deleted row stays in the table but is not returned.
@@ -31,12 +32,8 @@ Example: upcoming fee changes (`DefaultMonthlyFeeChange`, `ClientBillingPlanChan
 
 | What | Confirmation | Storage |
 | --- | --- | --- |
-| Payment (client card → Cobro) | No | Hard delete |
-| Class pack purchase ("Anular") | No | Hard delete |
-| Announcement | No | Hard delete |
-| Class comment (feedback) | No | Hard delete |
 | Private lesson | Yes | Hard delete |
 | Custom role | Yes | Hard delete |
 | Team member | Yes | Hard delete |
 
-Each of these should move to the rules above in its own change.
+Payments, class pack purchases ("Anular"), announcements, class comments and upcoming fee changes already follow both rules. Each of the rows above should move to them in its own change.
