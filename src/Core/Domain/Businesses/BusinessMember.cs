@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Businesses;
 
-public sealed class BusinessMember : ITenantOwned
+public sealed class BusinessMember : ITenantOwned, ISoftDeletable
 {
     public const int RoleMaxLength = 20;
 
@@ -19,6 +20,8 @@ public sealed class BusinessMember : ITenantOwned
     public BusinessRole Role { get; private set; }
     public Guid? CustomRoleId { get; private set; }
     public Guid? InstructorId { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
 
     public static BusinessMember CreateBranchOwner(Guid businessId, Guid userId, Guid? instructorId = null) =>
         new()
@@ -65,4 +68,10 @@ public sealed class BusinessMember : ITenantOwned
         instructorId is null && role.NeedsInstructor
             ? new ResultError(MemberErrorCodes.InstructorRequired, InstructorRequiredMessage, ErrorKind.Validation) { FieldName = nameof(InstructorId) }
             : null;
+
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        IsDeleted = true;
+    }
 }

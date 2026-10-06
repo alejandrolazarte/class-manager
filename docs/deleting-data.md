@@ -52,12 +52,11 @@ Rows are physically deleted only when they have no value once gone, for example 
 
 Example: upcoming fee changes (`DefaultMonthlyFeeChange`, `ClientBillingPlanChange`). Only changes for months after the current one can be deleted. The row keeps `IsDeleted` and `DeletedOn`, and saving the same month again creates a new row.
 
-## Deletes that don't follow these rules yet
+## Hard deletes on purpose
 
-| What | Confirmation | Storage |
+| What | Confirmation | Why it is not soft deleted |
 | --- | --- | --- |
-| Private lesson | Yes | Hard delete |
-| Custom role | Yes | Hard delete |
-| Team member | Yes | Hard delete |
+| Private lesson | Yes | It can only be deleted while it has no attendance and was not deducted as a trial from a pack sale, so nothing depends on it; it is meant for a lesson loaded by mistake. A lesson that didn't happen is cancelled instead, which keeps it. |
+| Web push subscriptions | No user action | The device subscribes again on its own. |
 
-Payments, class pack purchases ("Anular"), announcements, class comments and upcoming fee changes already follow both rules. Each of the rows above should move to them in its own change.
+Everything else a user can delete is soft deleted: payments, class pack purchases ("Anular"), announcements, class comments, upcoming fee changes, team members and custom roles.

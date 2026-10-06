@@ -1,10 +1,11 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 using PermissionCatalog = ClassManager.Core.Domain.Authorization.Permissions;
 
 namespace ClassManager.Core.Domain.Roles;
 
-public sealed class CustomRole : ITenantOwned
+public sealed class CustomRole : ITenantOwned, ISoftDeletable
 {
     public const int NameMinLength = 2;
     public const int NameMaxLength = 60;
@@ -39,6 +40,8 @@ public sealed class CustomRole : ITenantOwned
     public IReadOnlyList<string> Permissions { get; private set; } = [];
     public string? CopiedFrom { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
 
     public static Result<CustomRole> Create(string? name, IEnumerable<string>? permissions, string? copiedFrom, DateTimeOffset createdAt)
     {
@@ -89,5 +92,11 @@ public sealed class CustomRole : ITenantOwned
         Name = trimmedName;
         Permissions = distinctPermissions;
         return Result.Success();
+    }
+
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        IsDeleted = true;
     }
 }
