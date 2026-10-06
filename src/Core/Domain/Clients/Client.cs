@@ -67,6 +67,10 @@ public sealed class Client : ITenantOwned
         return Result.Success();
     }
 
+    public Result ChangeEmail(string? email) => Update(FullName, PhoneNumber, email, Notes);
+
+    public bool HasEmail(string? email) => string.Equals(TrimToNull(email), Email, StringComparison.OrdinalIgnoreCase);
+
     public void RecordRegisteredBy(Guid userId) => RegisteredByUserId = userId;
 
     private static Result<ValidatedDetails> ValidDetails(string? fullName, string? email, string? notes)

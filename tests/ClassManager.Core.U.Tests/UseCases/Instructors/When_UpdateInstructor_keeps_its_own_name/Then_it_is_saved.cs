@@ -11,7 +11,7 @@ public sealed class Then_it_is_saved
         builder.Instructors
             .Setup(repository => repository.FindByNameAsync(TestData.InstructorFullName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(builder.Instructor);
-        var useCase = new UpdateInstructorUseCase(builder.Instructors.Object, builder.UnitOfWork.Object);
+        var useCase = builder.BuildUpdate();
 
         var response = await useCase.ExecuteAsync(new UpdateInstructorCommand(builder.Instructor.Id, TestData.InstructorFullName), CancellationToken.None);
 

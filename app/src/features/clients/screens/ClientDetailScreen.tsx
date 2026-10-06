@@ -165,6 +165,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   }
 
   const clientIsTheOnlyStudent = isClientTheOnlyStudent(client);
+  const email = client.appAccess.signInEmail ?? client.email;
   const visibleSection: ClientDetailSection = canViewPayments ? section : "classes";
   const counterSaleButton = canSellAtCounter ? (
     <Button
@@ -202,7 +203,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           eyebrow={clientIsTheOnlyStudent ? undefined : translate("clients.detail.title")}
           title={client.fullName}
           subtitle={formatPhoneNumberForDisplay(client.phoneNumber)}
-          caption={client.email ?? undefined}
+          caption={email ?? undefined}
         />
       }
     >
@@ -219,11 +220,11 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
             Linking.openURL(`${whatsAppBaseUrl}${toDialableDigits(client.phoneNumber)}`)
           }
         />
-        {client.email ? (
+        {email ? (
           <ContactAction
             icon="email"
             label={translate("clients.detail.email")}
-            onPress={() => Linking.openURL(`${emailScheme}${client.email}`)}
+            onPress={() => Linking.openURL(`${emailScheme}${email}`)}
           />
         ) : null}
       </View>

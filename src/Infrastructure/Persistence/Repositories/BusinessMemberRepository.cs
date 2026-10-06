@@ -22,4 +22,10 @@ internal sealed class BusinessMemberRepository(AppDbContext context) : IBusiness
         context.BusinessMembers.AnyAsync(
             member => member.InstructorId == instructorId && member.Id != exceptMemberId,
             cancellationToken);
+
+    public Task<Guid?> FindUserIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken) =>
+        context.BusinessMembers
+            .Where(member => member.InstructorId == instructorId)
+            .Select(member => (Guid?)member.UserId)
+            .FirstOrDefaultAsync(cancellationToken);
 }

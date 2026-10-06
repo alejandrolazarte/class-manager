@@ -7,6 +7,7 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
 {
     public const string WebAppUrlSetting = "WebApp:Url";
     public const string ResetPasswordPath = "/reset-password?token=";
+    public const string ConfirmEmailChangePath = "/confirm-email-change?token=";
     public const string AcceptInvitationPath = "/accept-invitation?token=";
     public const string AcceptStudentAppInvitationPath = "/accept-student-invitation?token=";
     public const string StudentAppOrdersPath = "/student-app/orders";
@@ -16,6 +17,9 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
 
     public string ResetPassword(string token) =>
         WebAppUrl() + ResetPasswordPath + Uri.EscapeDataString(token);
+
+    public string ConfirmEmailChange(string token) =>
+        WebAppUrl() + ConfirmEmailChangePath + Uri.EscapeDataString(token);
 
     public string AcceptInvitation(string token) =>
         WebAppUrl() + AcceptInvitationPath + Uri.EscapeDataString(token);

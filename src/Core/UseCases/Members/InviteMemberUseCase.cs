@@ -85,6 +85,21 @@ public sealed class InviteMemberUseCase(
             previousInvitation.Revoke(now);
         }
 
+        if (command.InstructorId is { } instructorId)
+        {
+            var instructor = await instructorRepository.GetForUpdateAsync(instructorId, cancellationToken);
+            var emailChange = instructor!.Update(instructor.FullName, invitation.Value.Email);
+            if (emailChange.IsFailure)
+            {
+                return emailChange.Error!;
+            }
+
+            foreach (var previousInvitation in await invitationRepository.ListPendingForUpdateByInstructorAsync(instructorId, now, cancellationToken))
+            {
+                previousInvitation.Revoke(now);
+            }
+        }
+
         invitationRepository.Add(invitation.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
+using ClassManager.Core.UseCases.Accounts;
 using ClassManager.Core.UseCases.Achievements;
 using ClassManager.Core.UseCases.Announcements;
 using ClassManager.Core.UseCases.Authentication;
@@ -66,6 +67,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<SignOutCommand, SignOutResponse, SignOutUseCase>();
         services.AddUseCase<ResetPasswordCommand, ResetPasswordResponse, ResetPasswordUseCase>();
         services.AddUseCase<RequestPasswordResetCommand, RequestPasswordResetResponse, RequestPasswordResetUseCase>();
+        services.AddUseCase<GetMyAccountQuery, MyAccountResponse, GetMyAccountUseCase>();
+        services.AddUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse, RequestEmailChangeUseCase>();
+        services.AddUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse, ConfirmEmailChangeUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();
         services.AddUseCase<GetBrandQuery, BrandResponse, GetBrandUseCase>();
         services.AddUseCase<UpdateBrandCommand, BrandResponse, UpdateBrandUseCase>();

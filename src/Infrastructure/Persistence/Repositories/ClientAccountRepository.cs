@@ -12,4 +12,11 @@ internal sealed class ClientAccountRepository(AppDbContext context) : IClientAcc
 
     public Task<bool> HasAccountAsync(Guid clientId, CancellationToken cancellationToken) =>
         context.ClientAccounts.AnyAsync(account => account.ClientId == clientId, cancellationToken);
+
+    public async Task<IReadOnlyList<Guid>> ListUserIdsByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+        await context.ClientAccounts
+            .Where(account => account.ClientId == clientId)
+            .OrderBy(account => account.CreatedAt)
+            .Select(account => account.UserId)
+            .ToListAsync(cancellationToken);
 }

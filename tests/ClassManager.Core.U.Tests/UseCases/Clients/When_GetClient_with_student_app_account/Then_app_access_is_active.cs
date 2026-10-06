@@ -13,6 +13,6 @@ public sealed class Then_app_access_is_active
 
         var response = await builder.Build().ExecuteAsync(new GetClientQuery(builder.Client.Id), CancellationToken.None);
 
-        response.Value!.AppAccess.ShouldBe(new StudentAppAccessResponse(StudentAppAccessStatus.Active, null));
+        response.Value!.AppAccess.ShouldBe(new StudentAppAccessResponse(StudentAppAccessStatus.Active, null, GetClientUseCaseBuilder.SignInEmail));
     }
 }

@@ -38,6 +38,10 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
 ) {
   const { colors } = useTheme();
   const hasError = errorMessage !== undefined;
+  const isLocked = textInputProps.editable === false;
+  const surfaceClassName = isLocked
+    ? "bg-muted text-muted-foreground"
+    : `text-foreground ${fieldSurfaceClassNames[fieldSurface]}`;
   return (
     <View className="gap-1.5">
       <AppText variant="label" tone="muted">
@@ -56,7 +60,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
           accessibilityLabel={label}
           multiline={multiline}
           placeholderTextColor={colors["subtle-foreground"]}
-          className={`min-w-0 flex-1 rounded-2xl border-[1.5px] px-3.5 ${textVariantClassNames.input} text-foreground ${fieldSurfaceClassNames[fieldSurface]} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[52px]"}`}
+          className={`min-w-0 flex-1 rounded-2xl border-[1.5px] px-3.5 ${textVariantClassNames.input} ${surfaceClassName} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[52px]"}`}
           textAlignVertical={multiline ? "top" : "center"}
           {...textInputProps}
         />

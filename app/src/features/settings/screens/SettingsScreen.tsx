@@ -217,6 +217,13 @@ export function SettingsScreen() {
       tone: "neutral",
       items: [
         {
+          key: "profile",
+          isVisible: true,
+          icon: "privateLesson",
+          label: translate("profile.title"),
+          onPress: () => router.push(routes.myProfile),
+        },
+        {
           key: "accounts",
           isVisible: hasStudentAccount,
           icon: "home",

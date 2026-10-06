@@ -16,6 +16,8 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
 
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
+    public DbSet<EmailChangeToken> EmailChangeTokens => Set<EmailChangeToken>();
+
     public static void ConfigureSqlServer(SqlServerDbContextOptionsBuilder sqlServer) =>
         sqlServer.MigrationsHistoryTable(MigrationsHistoryTableName, SchemaName);
 
@@ -47,6 +49,18 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
             passwordResetToken.HasIndex(token => token.TokenHash).IsUnique();
             passwordResetToken.HasIndex(token => token.UserId);
             passwordResetToken.HasOne<ApplicationUser>().WithMany().HasForeignKey(token => token.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<EmailChangeToken>(emailChangeToken =>
+        {
+            emailChangeToken.HasKey(token => token.Id);
+            emailChangeToken.Property(token => token.Id).ValueGeneratedNever();
+            emailChangeToken.Property(token => token.NewEmail).HasMaxLength(EmailChangeToken.NewEmailMaxLength).IsRequired();
+            emailChangeToken.Property(token => token.TokenHash)
+                .HasMaxLength(EmailChangeToken.TokenHashLength).IsFixedLength().IsRequired();
+            emailChangeToken.HasIndex(token => token.TokenHash).IsUnique();
+            emailChangeToken.HasIndex(token => token.UserId);
+            emailChangeToken.HasOne<ApplicationUser>().WithMany().HasForeignKey(token => token.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

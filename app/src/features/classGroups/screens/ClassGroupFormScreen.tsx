@@ -226,7 +226,12 @@ export function ClassGroupFormScreen({ classGroupId, initialWeekday }: ClassGrou
     ? instructors
     : [
         ...instructors,
-        { id: classGroup.instructorId, fullName: classGroup.instructorFullName, isActive: false },
+        {
+          id: classGroup.instructorId,
+          fullName: classGroup.instructorFullName,
+          email: null,
+          isActive: false,
+        },
       ];
   return (
     <ClassGroupEditor

@@ -7,8 +7,14 @@ public static class AuthenticationErrorCodes
     public const string LockedOut = "auth.locked_out";
     public const string InvalidRefreshToken = "auth.invalid_refresh_token";
     public const string InvalidPasswordResetToken = "auth.invalid_password_reset_token";
+    public const string InvalidCurrentPassword = "auth.invalid_current_password";
+    public const string SameEmail = "auth.same_email";
+    public const string InvalidEmailChangeToken = "auth.invalid_email_change_token";
 
     public const string EmailTakenMessage = "An account with this email already exists.";
     public const string InvalidRefreshTokenMessage = "The session has expired. Sign in again.";
     public const string InvalidPasswordResetTokenMessage = "The link is invalid, expired or already used. Ask for a new one.";
+    public const string InvalidCurrentPasswordMessage = "The current password is not correct.";
+    public const string SameEmailMessage = "This is already the email of the account.";
+    public const string InvalidEmailChangeTokenMessage = "The link is invalid, expired or already used. Ask for the change again.";
 }
