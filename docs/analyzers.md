@@ -14,7 +14,8 @@ Rules in `CLAUDE.md` depend on someone reading them; these are enforced by the c
 | TEST004 | Same | The namespace ends with the `When_` folder name, so two `Then_x` classes in different folders never collide |
 | TEST005 | Same | The test method is named `<ClassName>_Run` |
 | ARCH001 | Assembly `Core` | No `using` of `Microsoft.EntityFrameworkCore`, `Microsoft.AspNetCore`, `ClassManager.Infrastructure` or `ClassManager.Api` |
-| ARCH002 | Any assembly except `*Infrastructure` and `*Tests` | No call to `IgnoreQueryFilters()`: it bypasses tenant isolation |
+| ARCH002 | Any assembly except `*Infrastructure`, `Tenancy.AspNetCore` and `*Tests` | No call to `IgnoreQueryFilters()`: it bypasses tenant isolation |
+| ARCH010 | Every assembly | No call to `IgnoreQueryFilters()` without filter names: it also ignores the soft delete filter. Use `IgnoreTenantFilter()` to read across tenants, or name the filters (see [tenancy.md](tenancy.md)) |
 | ARCH003 | Assembly `Security` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure` or `ClassManager.Api`: the security library must stay reusable (see [security.md](security.md)) |
 | ARCH004 | Assemblies `Tenancy` and `Tenancy.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api` or `ClassManager.Security`: the tenancy library must stay reusable (see [tenancy.md](tenancy.md)) |
 | ARCH005 | Assemblies `ImportExport` and `ImportExport.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api`, `ClassManager.Security` or `ClassManager.Tenancy`: the import and export engine must stay free of business concepts (see [import-export.md](import-export.md)) |

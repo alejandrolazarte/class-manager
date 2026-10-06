@@ -7,27 +7,20 @@ using Microsoft.CodeAnalysis.Operations;
 namespace ClassManager.Analyzers.Architecture;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class IgnoreQueryFiltersAnalyzer : DiagnosticAnalyzer
+public sealed class UnnamedIgnoreQueryFiltersAnalyzer : DiagnosticAnalyzer
 {
     private const string IgnoreQueryFiltersMethodName = "IgnoreQueryFilters";
     private const string QueryableExtensionsTypeName = "Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions";
-
-    private static readonly ImmutableArray<string> AllowedAssemblySuffixes = ImmutableArray.Create("Infrastructure", "Tenancy.AspNetCore", "Tests");
+    private const int SourceOnlyParameterCount = 1;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(DiagnosticDescriptors.IgnoreQueryFiltersOnlyInInfrastructure);
+        ImmutableArray.Create(DiagnosticDescriptors.IgnoreQueryFiltersMustNameFilters);
 
     public override void Initialize(AnalysisContext context)
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterCompilationStartAction(compilationStartContext =>
-        {
-            if (!IsAllowedAssembly(compilationStartContext.Compilation.AssemblyName))
-            {
-                compilationStartContext.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
-            }
-        });
+        context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
     }
 
     private static void AnalyzeInvocation(OperationAnalysisContext context)
@@ -36,15 +29,12 @@ public sealed class IgnoreQueryFiltersAnalyzer : DiagnosticAnalyzer
         var targetMethod = invocation.TargetMethod;
 
         if (targetMethod.Name == IgnoreQueryFiltersMethodName
-            && targetMethod.ContainingType.ToDisplayString() == QueryableExtensionsTypeName)
+            && targetMethod.ContainingType.ToDisplayString() == QueryableExtensionsTypeName
+            && targetMethod.Parameters.Length == SourceOnlyParameterCount)
         {
             context.ReportDiagnostic(Diagnostic.Create(
-                DiagnosticDescriptors.IgnoreQueryFiltersOnlyInInfrastructure,
+                DiagnosticDescriptors.IgnoreQueryFiltersMustNameFilters,
                 invocation.Syntax.GetLocation()));
         }
     }
-
-    private static bool IsAllowedAssembly(string? assemblyName) =>
-        assemblyName is not null
-        && AllowedAssemblySuffixes.Any(allowedSuffix => assemblyName.EndsWith(allowedSuffix, StringComparison.Ordinal));
 }

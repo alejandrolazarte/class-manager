@@ -2,6 +2,7 @@ using ClassManager.Subscriptions.AspNetCore.Persistence;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ClassManager.Infrastructure.Persistence;
 
@@ -55,6 +56,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<SubscriptionFeature> SubscriptionFeatures => Set<SubscriptionFeature>();
 
     public Guid CurrentTenantId => tenantContext.TenantId;
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+        optionsBuilder.ConfigureWarnings(warnings => warnings.Throw(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

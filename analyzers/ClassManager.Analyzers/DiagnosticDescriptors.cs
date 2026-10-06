@@ -63,6 +63,14 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor IgnoreQueryFiltersMustNameFilters = new(
+        id: "ARCH010",
+        title: "IgnoreQueryFilters must name the filters it ignores",
+        messageFormat: "IgnoreQueryFilters() without filter names also ignores the soft delete filter; use IgnoreTenantFilter() or name the filters",
+        category: ArchitectureCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor SecurityMustNotDependOnApplication = new(
         id: "ARCH003",
         title: "Security must not depend on the application",

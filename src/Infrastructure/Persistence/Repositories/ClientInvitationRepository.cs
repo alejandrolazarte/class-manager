@@ -1,3 +1,4 @@
+using ClassManager.Tenancy.AspNetCore.Persistence;
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class ClientInvitationRepository(AppDbContext context) : IClientInvitationRepository
@@ -27,6 +28,6 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
 
     public Task<ClientInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         context.ClientInvitations
-            .IgnoreQueryFilters()
+            .IgnoreTenantFilter()
             .FirstOrDefaultAsync(invitation => invitation.TokenHash == tokenHash, cancellationToken);
 }
