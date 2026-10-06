@@ -8,7 +8,10 @@ import { describeBillingPlan } from "@/features/fees/billingPlanDescription";
 import { formatMoney } from "@/features/fees/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
 import { BillingPlanChange } from "@/features/fees/types";
-import { useDeletePayment } from "@/features/fees/useFeeMutations";
+import {
+  useDeleteClientBillingPlanChange,
+  useDeletePayment,
+} from "@/features/fees/useFeeMutations";
 import { useCanUndoCollection } from "@/features/fees/useCanUndoCollection";
 import { useClientPayments } from "@/features/fees/useFees";
 import { useCan } from "@/features/members/CurrentMemberProvider";
@@ -18,8 +21,10 @@ import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
+import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { Icon } from "@/ui/Icon";
 import { IconButton } from "@/ui/IconButton";
+import { useToast } from "@/ui/ToastProvider";
 import { clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
 
@@ -50,7 +55,10 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const canViewClassPacks = useCan(permissions.classPacksView);
   const canUndoPayment = useCanUndoCollection(permissions.paymentsRecord);
   const deletePaymentMutation = useDeletePayment();
+  const deletePlanChangeMutation = useDeleteClientBillingPlanChange(client.id);
+  const { showToast } = useToast();
   const [isShowingUpcomingChanges, setIsShowingUpcomingChanges] = useState(false);
+  const [monthPendingDeletion, setMonthPendingDeletion] = useState<string | null>(null);
   const money = (amount: number) => formatMoney(amount, business.currencyCode);
   const describePlan = (plan: BillingPlanChange | ClientDetails["billingPlan"]) =>
     describeBillingPlan(plan, business.defaultMonthlyFee, business.currencyCode);
@@ -60,6 +68,16 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   );
   const planStart = currentPlanStart(client.billingPlanChanges, currentMonth);
   const isMonthlyPlan = client.billingPlan.kind !== "ClassPacks";
+
+  const deletePendingPlanChange = async (month: string) => {
+    try {
+      await deletePlanChangeMutation.mutateAsync(month);
+      showToast(translate("fees.client.upcomingChangeDeleted"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
+    setMonthPendingDeletion(null);
+  };
 
   return (
     <View className="gap-3">
@@ -108,14 +126,36 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
             </Pressable>
             {isShowingUpcomingChanges
               ? upcomingChanges.map((change) => (
-                  <AppText key={change.effectiveFrom} variant="caption" tone="subtle">
-                    {translate("fees.client.upcomingChange", {
-                      month: formatMonth(change.effectiveFrom),
-                      plan: describePlan(change),
-                    })}
-                  </AppText>
+                  <View key={change.effectiveFrom} className="flex-row items-center gap-2">
+                    <AppText variant="caption" tone="subtle" className="min-w-0 flex-1">
+                      {translate("fees.client.upcomingChange", {
+                        month: formatMonth(change.effectiveFrom),
+                        plan: describePlan(change),
+                      })}
+                    </AppText>
+                    {canRecordPayments ? (
+                      <IconButton
+                        icon="delete"
+                        tone="subtle-foreground"
+                        accessibilityLabel={translate("fees.client.deleteUpcomingChange", {
+                          month: formatMonth(change.effectiveFrom),
+                        })}
+                        onPress={() => setMonthPendingDeletion(change.effectiveFrom)}
+                      />
+                    ) : null}
+                  </View>
                 ))
               : null}
+            {monthPendingDeletion ? (
+              <DeleteConfirmation
+                question={translate("fees.client.deleteUpcomingChangeQuestion", {
+                  month: formatMonth(monthPendingDeletion),
+                })}
+                onCancel={() => setMonthPendingDeletion(null)}
+                onConfirm={() => deletePendingPlanChange(monthPendingDeletion)}
+                isDeleting={deletePlanChangeMutation.isPending}
+              />
+            ) : null}
           </View>
         ) : null}
         {isMonthlyPlan && canRecordPayments ? (

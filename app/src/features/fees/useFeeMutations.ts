@@ -4,6 +4,8 @@ import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import { clientQueryKeys } from "@/features/clients/clientQueryKeys";
 import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
 import {
+  deleteClientBillingPlanChange,
+  deleteDefaultMonthlyFeeChange,
   deletePayment,
   recordPayment,
   setClientBillingPlan,
@@ -32,28 +34,54 @@ export function useDeletePayment() {
   });
 }
 
-export function useSetDefaultMonthlyFee() {
+function useInvalidateDefaultFee() {
   const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: businessQueryKeys.all }),
+      queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
+    ]);
+}
+
+function useInvalidateClientBillingPlan(clientId: string) {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: clientQueryKeys.detail(clientId) }),
+      queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
+      queryClient.invalidateQueries({ queryKey: classPackQueryKeys.all }),
+    ]);
+}
+
+export function useSetDefaultMonthlyFee() {
+  const invalidateDefaultFee = useInvalidateDefaultFee();
   return useMutation({
     mutationFn: ({ amount, effectiveFrom }: { amount: number | null; effectiveFrom: string }) =>
       setDefaultMonthlyFee(amount, effectiveFrom),
-    onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: businessQueryKeys.all }),
-        queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
-      ]),
+    onSuccess: invalidateDefaultFee,
+  });
+}
+
+export function useDeleteDefaultMonthlyFeeChange() {
+  const invalidateDefaultFee = useInvalidateDefaultFee();
+  return useMutation({
+    mutationFn: (month: string) => deleteDefaultMonthlyFeeChange(month),
+    onSuccess: invalidateDefaultFee,
   });
 }
 
 export function useSetClientBillingPlan(clientId: string) {
-  const queryClient = useQueryClient();
+  const invalidateClientBillingPlan = useInvalidateClientBillingPlan(clientId);
   return useMutation({
     mutationFn: (request: SetBillingPlanRequest) => setClientBillingPlan(clientId, request),
-    onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: clientQueryKeys.detail(clientId) }),
-        queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
-        queryClient.invalidateQueries({ queryKey: classPackQueryKeys.all }),
-      ]),
+    onSuccess: invalidateClientBillingPlan,
+  });
+}
+
+export function useDeleteClientBillingPlanChange(clientId: string) {
+  const invalidateClientBillingPlan = useInvalidateClientBillingPlan(clientId);
+  return useMutation({
+    mutationFn: (month: string) => deleteClientBillingPlanChange(clientId, month),
+    onSuccess: invalidateClientBillingPlan,
   });
 }
