@@ -14,6 +14,7 @@ public sealed class GetClientUseCase(
     IFeeScheduleRepository feeScheduleRepository,
     IClientAccountRepository clientAccountRepository,
     IClientInvitationRepository invitationRepository,
+    IIdentityService identityService,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes,
     TimeProvider timeProvider)
@@ -32,11 +33,13 @@ public sealed class GetClientUseCase(
         var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var billingPlanChanges = await feeScheduleRepository.ListClientPlanChangesAsync([client.Id], cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
-        var hasAccount = await clientAccountRepository.HasAccountAsync(client.Id, cancellationToken);
+        var accountUserIds = await clientAccountRepository.ListUserIdsByClientAsync(client.Id, cancellationToken);
+        var hasAccount = accountUserIds.Count > 0;
+        var signInEmail = await SignInEmails.FirstAsync(identityService, accountUserIds, cancellationToken);
         var pendingInvitation = hasAccount
             ? null
             : await invitationRepository.FindLatestPendingByClientAsync(client.Id, timeProvider.GetUtcNow(), cancellationToken);
 
-        return ClientDetailsResponse.From(client, students, billingPlanChanges, today, StudentAppAccessResponse.From(hasAccount, pendingInvitation));
+        return ClientDetailsResponse.From(client, students, billingPlanChanges, today, StudentAppAccessResponse.From(hasAccount, signInEmail, pendingInvitation));
     }
 }

@@ -10,6 +10,14 @@ internal sealed class InstructorRepository(AppDbContext context) : IInstructorRe
     public Task<Instructor?> GetForUpdateAsync(Guid instructorId, CancellationToken cancellationToken) =>
         context.Instructors.FirstOrDefaultAsync(instructor => instructor.Id == instructorId, cancellationToken);
 
+    public Task ChangeEmailInEveryBusinessByMemberUserAsync(Guid userId, string email, CancellationToken cancellationToken) =>
+        context.Instructors
+            .IgnoreQueryFilters()
+            .Where(instructor => context.BusinessMembers
+                .IgnoreQueryFilters()
+                .Any(member => member.InstructorId == instructor.Id && member.UserId == userId))
+            .ExecuteUpdateAsync(setters => setters.SetProperty(instructor => instructor.Email, email), cancellationToken);
+
     public Task<Instructor?> FindByNameAsync(string fullName, CancellationToken cancellationToken) =>
         context.Instructors.AsNoTracking().FirstOrDefaultAsync(instructor => instructor.FullName == fullName, cancellationToken);
 

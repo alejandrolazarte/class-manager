@@ -6,7 +6,10 @@ using ClassManager.Security.Accounts;
 
 namespace ClassManager.Infrastructure.Security;
 
-internal sealed class IdentityService(IUserAccountService userAccountService, IPasswordResetService passwordResetService)
+internal sealed class IdentityService(
+    IUserAccountService userAccountService,
+    IPasswordResetService passwordResetService,
+    IEmailChangeService emailChangeService)
     : IIdentityService
 {
     public Task<bool> IsEmailRegisteredAsync(string email, CancellationToken cancellationToken) =>
@@ -65,6 +68,46 @@ internal sealed class IdentityService(IUserAccountService userAccountService, IP
             _ => Result.Validation(
                 AuthenticationErrorCodes.InvalidPasswordResetTokenMessage,
                 AuthenticationErrorCodes.InvalidPasswordResetToken),
+        };
+    }
+
+    public async Task<Result<EmailChangeRequested>> RequestEmailChangeAsync(
+        Guid userId,
+        string currentPassword,
+        string newEmail,
+        CancellationToken cancellationToken)
+    {
+        var request = await emailChangeService.RequestAsync(userId, currentPassword, newEmail, cancellationToken);
+
+        return request.Status switch
+        {
+            EmailChangeRequestStatus.Requested => new EmailChangeRequested(request.Token!, request.CurrentEmail!),
+            EmailChangeRequestStatus.InvalidPassword => Result.Validation<EmailChangeRequested>(
+                AuthenticationErrorCodes.InvalidCurrentPasswordMessage,
+                AuthenticationErrorCodes.InvalidCurrentPassword,
+                nameof(ClassManager.Core.UseCases.Accounts.RequestEmailChangeCommand.CurrentPassword)),
+            EmailChangeRequestStatus.EmailTaken => Result.Conflict<EmailChangeRequested>(
+                AuthenticationErrorCodes.EmailTakenMessage, AuthenticationErrorCodes.EmailTaken),
+            EmailChangeRequestStatus.SameEmail => Result.Validation<EmailChangeRequested>(
+                AuthenticationErrorCodes.SameEmailMessage,
+                AuthenticationErrorCodes.SameEmail,
+                nameof(ClassManager.Core.UseCases.Accounts.RequestEmailChangeCommand.NewEmail)),
+            _ => Result.Unauthorized<EmailChangeRequested>(
+                AuthenticationErrorCodes.InvalidRefreshTokenMessage, AuthenticationErrorCodes.InvalidRefreshToken),
+        };
+    }
+
+    public async Task<Result<ConfirmedEmailChange>> ConfirmEmailChangeAsync(string token, CancellationToken cancellationToken)
+    {
+        var change = await emailChangeService.ConfirmAsync(token, cancellationToken);
+
+        return change.Status switch
+        {
+            EmailChangeStatus.Changed => new ConfirmedEmailChange(change.UserId, change.PreviousEmail!, change.NewEmail!),
+            EmailChangeStatus.EmailTaken => Result.Conflict<ConfirmedEmailChange>(
+                AuthenticationErrorCodes.EmailTakenMessage, AuthenticationErrorCodes.EmailTaken),
+            _ => Result.Validation<ConfirmedEmailChange>(
+                AuthenticationErrorCodes.InvalidEmailChangeTokenMessage, AuthenticationErrorCodes.InvalidEmailChangeToken),
         };
     }
 }

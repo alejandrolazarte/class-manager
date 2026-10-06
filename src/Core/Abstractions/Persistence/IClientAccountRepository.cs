@@ -11,4 +11,6 @@ public interface IClientAccountRepository
     Task<ClientAccount?> FindByUserForUpdateAsync(Guid userId, CancellationToken cancellationToken);
 
     Task<bool> HasAccountAsync(Guid clientId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Guid>> ListUserIdsByClientAsync(Guid clientId, CancellationToken cancellationToken);
 }

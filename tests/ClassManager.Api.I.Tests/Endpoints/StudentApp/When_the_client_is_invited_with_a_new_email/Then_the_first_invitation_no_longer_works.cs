@@ -1,10 +1,10 @@
-namespace ClassManager.Api.I.Tests.Endpoints.StudentApp.When_two_people_of_the_same_student_are_invited;
+namespace ClassManager.Api.I.Tests.Endpoints.StudentApp.When_the_client_is_invited_with_a_new_email;
 
 [Collection(SqlServerCollectionDefinition.Name)]
-public sealed class Then_the_first_invitation_still_works(ApiFixture fixture)
+public sealed class Then_the_first_invitation_no_longer_works(ApiFixture fixture)
 {
     [Fact]
-    public async Task Then_the_first_invitation_still_works_Run()
+    public async Task Then_the_first_invitation_no_longer_works_Run()
     {
         var coaches = await fixture.SeedCoachScenarioAsync();
         var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
@@ -17,6 +17,6 @@ public sealed class Then_the_first_invitation_still_works(ApiFixture fixture)
         using var anonymous = fixture.ApiFactory.CreateClient();
         using var response = await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(firstEmail));
 
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 }

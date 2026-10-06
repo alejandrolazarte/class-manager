@@ -107,6 +107,8 @@ public static class ApiRoutes
     public const string CheckStudentAppInvitation = "/student-app-invitations/check";
     public const string MyBranches = "/api/me/branches";
     public const string MyAccounts = "/api/me/accounts";
+    public const string MyAccount = "/api/me/account";
+    public const string MyEmailChange = "/api/me/account/email-change";
     public const string SwitchBranch = "/branch";
     public const string OrganizationBranches = "/api/organization/branches";
     public const string OrganizationSubscription = "/api/organization/subscription";
@@ -119,4 +121,5 @@ public static class ApiRoutes
     public const string SignOut = "/sign-out";
     public const string PasswordReset = "/password-reset";
     public const string PasswordResetRequest = "/password-reset-request";
+    public const string ConfirmEmailChange = "/email-change/confirm";
 }

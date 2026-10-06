@@ -16,12 +16,20 @@ import {
   toInstructorFormValues,
   toSaveInstructorRequest,
 } from "@/features/instructors/instructorSchema";
+import {
+  InstructorAppAccess,
+  instructorAppAccess,
+} from "@/features/instructors/instructorAppAccess";
 import { Instructor } from "@/features/instructors/types";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
 import {
   useSaveInstructor,
   useSetInstructorActive,
 } from "@/features/instructors/useInstructorMutations";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
+import { useTeam } from "@/features/members/useTeam";
+import { useInviteMember } from "@/features/members/useTeamMutations";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
@@ -42,32 +50,71 @@ interface InstructorFormScreenProps {
 
 interface InstructorEditorProps {
   instructor?: Instructor;
+  access?: InstructorAppAccess;
 }
 
-function InstructorEditor({ instructor }: InstructorEditorProps) {
+const notInvited: InstructorAppAccess = { status: "NotInvited" };
+
+function isSameEmail(firstEmail: string, secondEmail: string): boolean {
+  return firstEmail.toLocaleLowerCase() === secondEmail.toLocaleLowerCase();
+}
+
+function InstructorEditor({ instructor, access = notInvited }: InstructorEditorProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const saveInstructorMutation = useSaveInstructor();
   const setInstructorActiveMutation = useSetInstructorActive();
+  const inviteMemberMutation = useInviteMember();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
   const form = useForm<InstructorFormValues>({
     resolver: zodResolver(instructorSchema),
-    defaultValues: toInstructorFormValues(instructor),
+    defaultValues: toInstructorFormValues(instructor, access.member?.email),
     mode: "onTouched",
   });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName"]);
+  const emailHints = {
+    NotInvited: translate("instructors.form.emailHint"),
+    Invited: translate("instructors.form.emailHintInvited"),
+    Active: translate("instructors.form.emailHintActive"),
+  };
+
+  const resendInvitationIfEmailChanged = async (email: string | null) => {
+    const { invitation } = access;
+    if (instructor === undefined || invitation === undefined || email === null) {
+      return;
+    }
+    if (isSameEmail(email, invitation.email)) {
+      return;
+    }
+    try {
+      await inviteMemberMutation.mutateAsync({
+        email,
+        role: invitation.role,
+        customRoleId: invitation.customRoleId,
+        instructorId: instructor.id,
+      });
+    } catch {
+      showToast(translate("instructors.form.invitationFailed"));
+    }
+  };
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
+    const request = toSaveInstructorRequest(formValues);
     try {
-      await saveInstructorMutation.mutateAsync({
-        instructorId: instructor?.id,
-        request: toSaveInstructorRequest(formValues),
-      });
+      await saveInstructorMutation.mutateAsync({ instructorId: instructor?.id, request });
+      await resendInvitationIfEmailChanged(request.email);
       showToast(translate("instructors.form.saved"));
       router.back();
     } catch (saveError) {
+      if (isApiError(saveError) && saveError.hasCode(instructorErrorCodes.emailUsedToSignIn)) {
+        form.setError("email", {
+          type: "server",
+          message: translate("instructors.form.emailHintActive"),
+        });
+        return;
+      }
       if (isApiError(saveError) && saveError.hasCode(instructorErrorCodes.nameTaken)) {
         form.setError("fullName", {
           type: "server",
@@ -140,6 +187,24 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
           />
         )}
       />
+      <Controller
+        control={form.control}
+        name="email"
+        render={({ field, fieldState }) => (
+          <TextField
+            label={translate("instructors.form.email")}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            hint={emailHints[access.status]}
+            editable={access.status !== "Active"}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            errorMessage={fieldState.error?.message}
+          />
+        )}
+      />
       <View className="gap-3">
         <Button
           label={translate("common.save")}
@@ -162,21 +227,30 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
 }
 
 export function InstructorFormScreen({ instructorId }: InstructorFormScreenProps) {
+  const canManageMembers = useCan(permissions.membersManage);
   const instructorsQuery = useInstructorsIncludingInactive({ enabled: instructorId !== undefined });
+  const teamQuery = useTeam({ enabled: instructorId !== undefined && canManageMembers });
   if (instructorId === undefined) {
     return <InstructorEditor />;
   }
   const instructor = instructorsQuery.data?.find((candidate) => candidate.id === instructorId);
-  if (instructor === undefined) {
+  const isTeamPending = canManageMembers && teamQuery.isPending;
+  if (instructor === undefined || isTeamPending) {
     return (
       <SettingsItemState
         navigation="close"
-        isPending={instructorsQuery.isPending}
+        isPending={instructorsQuery.isPending || isTeamPending}
         isError={instructorsQuery.isError}
         notFoundMessage={translate("instructors.form.notFound")}
         onRetry={() => instructorsQuery.refetch()}
       />
     );
   }
-  return <InstructorEditor key={instructor.id} instructor={instructor} />;
+  return (
+    <InstructorEditor
+      key={instructor.id}
+      instructor={instructor}
+      access={instructorAppAccess(instructor.id, teamQuery.data)}
+    />
+  );
 }

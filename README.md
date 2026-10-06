@@ -121,3 +121,4 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Team home](docs/frontend/20261001-team-home/plan.md) — Inicio replaces Hoy for the team: greeting, next class, tiles and the full day agenda
 - [Ajustes and Cobros](docs/frontend/20261002-settings-and-collections/plan.md) — Ajustes grouped by topic with values and sheets for appearance and notifications; Cobros with Cuotas and Pedidos, pending orders badge and counter sale button
 - [Branded emails](docs/backend/20261002-branded-emails/plan.md) — one HTML layout with the business logo and colors for every email, plain-text alternative, and why it is an HTML template instead of Razor
+- [Sign-in emails and app accounts per person](docs/backend/20261006-sign-in-emails/plan.md) — one email per person for invitations and sign-in, why only the person changes their sign-in email (Mi perfil, confirmed by a link), and the proposal for one app account per person with the age rules for Spain

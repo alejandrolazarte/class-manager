@@ -10,6 +10,7 @@ import { routes } from "@/navigation/routes";
 export function InstructorListScreen() {
   const router = useRouter();
   const canManageInstructors = useCan(permissions.instructorsManage);
+  const canOpenInstructor = useCan(permissions.instructorsManage, permissions.membersManage);
   const {
     data: instructors = [],
     isPending,
@@ -30,7 +31,7 @@ export function InstructorListScreen() {
         <InstructorListItem
           instructor={instructor}
           onPress={
-            canManageInstructors ? () => router.push(routes.instructor(instructor.id)) : undefined
+            canOpenInstructor ? () => router.push(routes.instructor(instructor.id)) : undefined
           }
         />
       )}

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
+using ClassManager.Core.UseCases.Accounts;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Branches;
 using ClassManager.Core.UseCases.Members;
@@ -23,12 +24,17 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.SignOut, SignOutAsync);
         authentication.MapPost(ApiRoutes.PasswordResetRequest, RequestPasswordResetAsync);
         authentication.MapPost(ApiRoutes.PasswordReset, ResetPasswordAsync);
+        authentication.MapPost(ApiRoutes.ConfirmEmailChange, ConfirmEmailChangeAsync);
         authentication.MapPost(ApiRoutes.AcceptInvitation, AcceptInvitationAsync);
         authentication.MapPost(ApiRoutes.AcceptStudentAppInvitation, AcceptStudentAppInvitationAsync);
         authentication.MapPost(ApiRoutes.CheckInvitation, CheckInvitationAsync);
         authentication.MapPost(ApiRoutes.CheckStudentAppInvitation, CheckStudentAppInvitationAsync);
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
+        endpoints.MapGet(ApiRoutes.MyAccount, GetMyAccountAsync).RequireAnyAccount();
+        endpoints.MapPost(ApiRoutes.MyEmailChange, RequestEmailChangeAsync)
+            .RequireAnyAccount()
+            .RequireRateLimiting(SecurityServiceCollectionExtensions.AuthenticationRateLimitPolicy);
 
         return endpoints;
     }
@@ -91,6 +97,35 @@ internal static class AuthenticationEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> GetMyAccountAsync(
+        IUseCase<GetMyAccountQuery, MyAccountResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetMyAccountQuery(), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> RequestEmailChangeAsync(
+        RequestEmailChangeCommand command,
+        IUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(response => TypedResults.Accepted((string?)null, response));
+    }
+
+    private static async Task<IResult> ConfirmEmailChangeAsync(
+        ConfirmEmailChangeCommand command,
+        IUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> ListAccountsAsync(

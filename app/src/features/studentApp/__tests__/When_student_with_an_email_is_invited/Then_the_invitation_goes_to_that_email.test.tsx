@@ -24,6 +24,11 @@ describe("When student with an email is invited", () => {
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("student.app.inviteAccessibility") }),
     );
+    expect(screen.getByLabelText(translate("student.invite.email"))).toHaveDisplayValue(
+      "ana@example.com",
+    );
+
+    await fireEvent.press(screen.getByRole("button", { name: translate("student.invite.send") }));
 
     await waitFor(() =>
       expect(inviteStudentApp).toHaveBeenCalledWith(client.id, { email: "ana@example.com" }),

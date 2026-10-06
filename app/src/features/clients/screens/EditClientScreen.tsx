@@ -47,7 +47,7 @@ function ClientEditor({ client }: ClientEditorProps) {
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const form = useForm<EditClientFormValues>({
     resolver: zodResolver(editClientSchema),
-    defaultValues: toEditClientFormValues(client),
+    defaultValues: toEditClientFormValues(client, client.appAccess.signInEmail),
     mode: "onTouched",
   });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(
@@ -55,11 +55,12 @@ function ClientEditor({ client }: ClientEditorProps) {
     editClientRequiredFieldNames,
   );
   const isInvited = client.appAccess.status === "Invited";
-  const emailHint = isInvited
-    ? translate("clients.edit.emailHintInvited")
-    : client.appAccess.status === "NotInvited"
-      ? translate("clients.edit.emailHint")
-      : undefined;
+  const usesTheApp = client.appAccess.status === "Active";
+  const emailHints = {
+    NotInvited: translate("clients.edit.emailHint"),
+    Invited: translate("clients.edit.emailHintInvited"),
+    Active: translate("clients.edit.emailHintActive"),
+  };
 
   const resendInvitationIfEmailChanged = async (email: string | null) => {
     if (!isInvited || email === null || email === client.appAccess.invitedEmail) {
@@ -73,6 +74,13 @@ function ClientEditor({ client }: ClientEditorProps) {
   };
 
   const handleSaveError = (saveError: unknown) => {
+    if (isApiError(saveError) && saveError.hasCode(clientErrorCodes.emailUsedToSignIn)) {
+      form.setError("email", {
+        type: "server",
+        message: translate("clients.edit.emailHintActive"),
+      });
+      return;
+    }
     if (isApiError(saveError) && saveError.hasCode(clientErrorCodes.phoneNumberTaken)) {
       form.setError("phoneNumber", {
         type: "server",
@@ -168,7 +176,8 @@ function ClientEditor({ client }: ClientEditorProps) {
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
-            hint={emailHint}
+            hint={emailHints[client.appAccess.status]}
+            editable={!usesTheApp}
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}

@@ -17,4 +17,6 @@ public interface IBusinessMemberRepository
     Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(Guid customRoleId, CancellationToken cancellationToken);
 
     Task<bool> IsInstructorLinkedAsync(Guid instructorId, Guid? exceptMemberId, CancellationToken cancellationToken);
+
+    Task<Guid?> FindUserIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
 }
