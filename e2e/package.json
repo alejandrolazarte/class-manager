@@ -2,6 +2,7 @@
   "name": "class-manager-e2e",
   "version": "1.0.0",
   "private": true,
+  "license": "SEE LICENSE IN ../LICENSE.md",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "db:migrate": "node scripts/migrateDatabase.mjs",

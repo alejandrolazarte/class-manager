@@ -7,6 +7,10 @@ Generated from [app-template](https://github.com/alejandrolazarte/app-template) 
 - **Backend**: ASP.NET Core Minimal API (.NET 10) + EF Core + SQL Server
 - **Frontend**: Expo (React Native) for Android, iOS and web
 
+## License
+
+[Functional Source License 1.1, Apache 2.0 future license](LICENSE.md) (`FSL-1.1-ALv2`): anyone may read, use and change the code for any purpose except offering it as a product or service that competes with class-manager. Two years after each version is published, that version becomes available under Apache 2.0. Why this license and the checklist before making the repository public: [Making the repository public](docs/making-the-repository-public.md).
+
 ## Requirements
 
 - .NET 10 SDK
@@ -82,6 +86,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [MVP plan](docs/mvp-plan.md) — goal, scope, domain sketch and milestones
 - [Pilot plan: DF Swimming Team](docs/pilot-df-swimming.md) — what the first pilot needs, in phases (private lessons, coach accounts)
 - [GitHub protection](docs/github-protection.md) — how `main` is protected on a free private repo, and audit commands
+- [Making the repository public](docs/making-the-repository-public.md) — the FSL license, what the history review found, and the checklist before switching the repository to public
 - [Dependency and secret scanning](docs/dependency-and-secret-scanning.md) — Dependabot alerts and version updates, push protection, gitleaks, and what to do when a secret leaks
 - [Running the e2e tests](docs/e2e/running-e2e-tests.md) — Playwright against the web app, the real API and SQL Server
 - [Demo screenshots](docs/e2e/demo-screenshots.md) — load a demo business and capture every screen at phone size
