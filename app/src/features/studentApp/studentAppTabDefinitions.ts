@@ -17,4 +17,4 @@ export const studentAppTabDefinitions: readonly StudentAppTabDefinition[] = [
 
 export const studentAppShopTabName = "shop";
 
-export const studentAppHiddenRouteNames: readonly string[] = ["orders", "news"];
+export const studentAppHiddenRouteNames: readonly string[] = ["orders", "news", "profile"];

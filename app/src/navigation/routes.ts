@@ -43,6 +43,9 @@ export const routes = {
   signIn: "/sign-in",
   signUp: "/sign-up",
   resetPassword: "/reset-password",
+  appEntry: "/",
+  myProfile: "/settings/profile",
+  studentAppProfile: "/student-app/profile",
   forgotPassword: (email: string) =>
     email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
   settings: "/settings",

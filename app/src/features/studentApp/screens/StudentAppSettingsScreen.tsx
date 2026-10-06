@@ -66,6 +66,13 @@ export function StudentAppSettingsScreen() {
       tone: "neutral",
       items: [
         {
+          key: "profile",
+          isVisible: true,
+          icon: "privateLesson",
+          label: translate("profile.title"),
+          onPress: () => router.push(routes.studentAppProfile),
+        },
+        {
           key: "accounts",
           isVisible: hasTeamAccount,
           icon: "business",
