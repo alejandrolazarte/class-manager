@@ -4,14 +4,14 @@ using ClassManager.Core.Domain.Instructors;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record CreateInstructorCommand(string? FullName) : ICommand;
+public sealed record CreateInstructorCommand(string? FullName, string? Email = null) : ICommand;
 
 public sealed class CreateInstructorUseCase(IInstructorRepository instructorRepository, IUnitOfWork unitOfWork)
     : IUseCase<CreateInstructorCommand, InstructorResponse>
 {
     public async Task<Result<InstructorResponse>> ExecuteAsync(CreateInstructorCommand command, CancellationToken cancellationToken)
     {
-        var instructor = Instructor.Create(command.FullName);
+        var instructor = Instructor.Create(command.FullName, command.Email);
         if (instructor.IsFailure)
         {
             return instructor.Error!;

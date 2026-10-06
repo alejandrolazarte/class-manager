@@ -3,12 +3,12 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record UpdateInstructorRequest(string? FullName)
+public sealed record UpdateInstructorRequest(string? FullName, string? Email = null)
 {
-    public UpdateInstructorCommand ToCommand(Guid instructorId) => new(instructorId, FullName);
+    public UpdateInstructorCommand ToCommand(Guid instructorId) => new(instructorId, FullName, Email);
 }
 
-public sealed record UpdateInstructorCommand(Guid InstructorId, string? FullName) : ICommand;
+public sealed record UpdateInstructorCommand(Guid InstructorId, string? FullName, string? Email = null) : ICommand;
 
 public sealed class UpdateInstructorUseCase(IInstructorRepository instructorRepository, IUnitOfWork unitOfWork)
     : IUseCase<UpdateInstructorCommand, InstructorResponse>
@@ -21,10 +21,10 @@ public sealed class UpdateInstructorUseCase(IInstructorRepository instructorRepo
             return InstructorFailures.NotFound();
         }
 
-        var rename = instructor.Rename(command.FullName);
-        if (rename.IsFailure)
+        var update = instructor.Update(command.FullName, command.Email);
+        if (update.IsFailure)
         {
-            return rename.Error!;
+            return update.Error!;
         }
 
         var existingInstructor = await instructorRepository.FindByNameAsync(instructor.FullName, cancellationToken);
