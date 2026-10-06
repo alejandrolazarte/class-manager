@@ -12,6 +12,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
+import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { EmptyState } from "@/ui/EmptyState";
 import { IconButton } from "@/ui/IconButton";
 import { ScrollScreen } from "@/ui/Screen";
@@ -28,6 +29,7 @@ const bodyMaxLength = 500;
 function AnnouncementCard({ announcement }: { announcement: Announcement }) {
   const { showToast } = useToast();
   const deleteAnnouncementMutation = useDeleteAnnouncement();
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const remove = async () => {
     try {
       await deleteAnnouncementMutation.mutateAsync(announcement.id);
@@ -35,30 +37,41 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
     } catch {
       showToast(translate("common.unexpectedError"));
     }
+    setIsConfirmingDelete(false);
   };
   return (
-    <Card className="flex-row items-start gap-3 px-4 py-3.5">
-      <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="bodyStrong">{announcement.title}</AppText>
-        {announcement.body === null ? null : (
-          <AppText variant="caption" tone="muted">
-            {announcement.body}
+    <View className="gap-2">
+      <Card className="flex-row items-start gap-3 px-4 py-3.5">
+        <View className="min-w-0 flex-1 gap-0.5">
+          <AppText variant="bodyStrong">{announcement.title}</AppText>
+          {announcement.body === null ? null : (
+            <AppText variant="caption" tone="muted">
+              {announcement.body}
+            </AppText>
+          )}
+          <AppText variant="footnote" tone="subtle" className="mt-1">
+            {translate("announcements.publishedOn", {
+              date: formatLongDate(toIsoDate(new Date(announcement.publishedAt))),
+            })}
           </AppText>
-        )}
-        <AppText variant="footnote" tone="subtle" className="mt-1">
-          {translate("announcements.publishedOn", {
-            date: formatLongDate(toIsoDate(new Date(announcement.publishedAt))),
-          })}
-        </AppText>
-      </View>
-      <IconButton
-        icon="delete"
-        tone="danger"
-        accessibilityLabel={translate("announcements.delete", { title: announcement.title })}
-        disabled={deleteAnnouncementMutation.isPending}
-        onPress={remove}
-      />
-    </Card>
+        </View>
+        <IconButton
+          icon="delete"
+          tone="danger"
+          accessibilityLabel={translate("announcements.delete", { title: announcement.title })}
+          disabled={deleteAnnouncementMutation.isPending}
+          onPress={() => setIsConfirmingDelete(true)}
+        />
+      </Card>
+      {isConfirmingDelete ? (
+        <DeleteConfirmation
+          question={translate("announcements.deleteQuestion", { title: announcement.title })}
+          onCancel={() => setIsConfirmingDelete(false)}
+          onConfirm={remove}
+          isDeleting={deleteAnnouncementMutation.isPending}
+        />
+      ) : null}
+    </View>
   );
 }
 

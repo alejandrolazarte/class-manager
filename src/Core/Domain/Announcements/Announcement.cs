@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Announcements;
 
-public sealed class Announcement : ITenantOwned
+public sealed class Announcement : ITenantOwned, ISoftDeletable
 {
     public const int TitleMaxLength = 80;
     public const int BodyMaxLength = 500;
@@ -21,6 +22,8 @@ public sealed class Announcement : ITenantOwned
     public string Title { get; private set; } = string.Empty;
     public string? Body { get; private set; }
     public DateTimeOffset PublishedAt { get; private set; }
+    public DateTimeOffset? DeletedOn { get; private set; }
+    public bool IsDeleted { get; private set; }
 
     public static Result<Announcement> Create(string? title, string? body, DateTimeOffset publishedAt)
     {
@@ -48,5 +51,11 @@ public sealed class Announcement : ITenantOwned
             Body = trimmedBody,
             PublishedAt = publishedAt.ToUniversalTime(),
         };
+    }
+
+    public void Delete(DateTimeOffset deletedOn)
+    {
+        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        IsDeleted = true;
     }
 }

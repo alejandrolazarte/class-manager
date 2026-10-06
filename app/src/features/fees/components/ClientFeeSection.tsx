@@ -7,7 +7,7 @@ import { ClientDetails } from "@/features/clients/types";
 import { describeBillingPlan } from "@/features/fees/billingPlanDescription";
 import { formatMoney } from "@/features/fees/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
-import { BillingPlanChange } from "@/features/fees/types";
+import { BillingPlanChange, Payment } from "@/features/fees/types";
 import {
   useDeleteClientBillingPlanChange,
   useDeletePayment,
@@ -59,6 +59,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const { showToast } = useToast();
   const [isShowingUpcomingChanges, setIsShowingUpcomingChanges] = useState(false);
   const [monthPendingDeletion, setMonthPendingDeletion] = useState<string | null>(null);
+  const [paymentPendingDeletion, setPaymentPendingDeletion] = useState<Payment | null>(null);
   const money = (amount: number) => formatMoney(amount, business.currencyCode);
   const describePlan = (plan: BillingPlanChange | ClientDetails["billingPlan"]) =>
     describeBillingPlan(plan, business.defaultMonthlyFee, business.currencyCode);
@@ -77,6 +78,16 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
       showToast(translate("common.unexpectedError"));
     }
     setMonthPendingDeletion(null);
+  };
+
+  const deletePendingPayment = async (paymentId: string) => {
+    try {
+      await deletePaymentMutation.mutateAsync(paymentId);
+      showToast(translate("fees.client.paymentDeleted"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
+    setPaymentPendingDeletion(null);
   };
 
   return (
@@ -203,12 +214,23 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
                   accessibilityLabel={translate("fees.client.deletePaymentOf", {
                     amount: money(payment.amount),
                   })}
-                  onPress={() => deletePaymentMutation.mutate(payment.id)}
+                  onPress={() => setPaymentPendingDeletion(payment)}
                 />
               ) : null}
             </View>
           ))
         )}
+        {paymentPendingDeletion ? (
+          <DeleteConfirmation
+            question={translate("fees.client.deletePaymentQuestion", {
+              amount: money(paymentPendingDeletion.amount),
+              month: formatMonth(paymentPendingDeletion.month),
+            })}
+            onCancel={() => setPaymentPendingDeletion(null)}
+            onConfirm={() => deletePendingPayment(paymentPendingDeletion.id)}
+            isDeleting={deletePaymentMutation.isPending}
+          />
+        ) : null}
       </Card>
     </View>
   );
