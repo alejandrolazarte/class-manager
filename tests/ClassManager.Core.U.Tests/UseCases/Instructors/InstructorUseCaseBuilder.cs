@@ -1,7 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
-using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.Domain.Instructors;
+using ClassManager.Core.UseCases.Instructors;
 
 namespace ClassManager.Core.U.Tests.UseCases.Instructors;
 
