@@ -1,6 +1,5 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { brandOnlyPermissions, Permission } from "@/features/members/permissions";
@@ -16,6 +15,7 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { isFilled } from "@/forms/requiredFields";
@@ -168,31 +168,12 @@ function RoleEditor({ role, copiedFrom }: RoleEditorProps) {
       />
       {role?.id ? (
         isConfirmingDelete ? (
-          <Banner
-            tone="warning"
-            icon="delete"
-            message={translate("roles.editor.deleteQuestion", { name: roleName(role) })}
-          >
-            <View className="flex-row gap-2">
-              <View className="flex-1">
-                <Button
-                  variant="secondary"
-                  size="medium"
-                  label={translate("common.cancel")}
-                  onPress={() => setIsConfirmingDelete(false)}
-                />
-              </View>
-              <View className="flex-1">
-                <Button
-                  variant="danger"
-                  size="medium"
-                  label={translate("roles.editor.confirmDelete")}
-                  onPress={remove}
-                  isLoading={deleteMutation.isPending}
-                />
-              </View>
-            </View>
-          </Banner>
+          <DeleteConfirmation
+            question={translate("roles.editor.deleteQuestion", { name: roleName(role) })}
+            onCancel={() => setIsConfirmingDelete(false)}
+            onConfirm={remove}
+            isDeleting={deleteMutation.isPending}
+          />
         ) : (
           <Button
             variant="dangerOutline"

@@ -26,9 +26,7 @@ describe("When role in use is deleted", () => {
       await screen.findByRole("button", { name: translate("roles.editor.delete") }),
     );
 
-    await fireEvent.press(
-      screen.getByRole("button", { name: translate("roles.editor.confirmDelete") }),
-    );
+    await fireEvent.press(screen.getByRole("button", { name: translate("common.confirmDelete") }));
 
     expect(await screen.findByText(translate("roles.editor.inUse"))).toBeOnTheScreen();
   });

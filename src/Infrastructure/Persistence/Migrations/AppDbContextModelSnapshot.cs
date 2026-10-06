@@ -57,6 +57,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("PublishedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -72,7 +78,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId", "PublishedAt");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcements", t =>
+                        {
+                            t.HasCheckConstraint("CK_Announcements_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BrandLogo", b =>
@@ -443,8 +452,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateOnly?>("ExpiresOn")
                         .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("MaterialUrl")
                         .HasMaxLength(500)
@@ -494,9 +509,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId", "TrialLessonId")
                         .IsUnique()
-                        .HasFilter("[TrialLessonId] IS NOT NULL");
+                        .HasFilter("[TrialLessonId] IS NOT NULL AND [IsDeleted] = 0");
 
-                    b.ToTable("ClassPackPurchases");
+                    b.ToTable("ClassPackPurchases", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClassPackPurchases_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.Client", b =>
@@ -719,8 +737,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateOnly>("EffectiveFrom")
                         .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -735,9 +759,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("ClientId");
 
                     b.HasIndex("TenantId", "ClientId", "EffectiveFrom")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("ClientBillingPlanChanges");
+                    b.ToTable("ClientBillingPlanChanges", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientBillingPlanChanges_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Fees.DefaultMonthlyFeeChange", b =>
@@ -752,8 +780,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateOnly>("EffectiveFrom")
                         .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
@@ -761,9 +795,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId", "EffectiveFrom")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("DefaultMonthlyFeeChanges");
+                    b.ToTable("DefaultMonthlyFeeChanges", t =>
+                        {
+                            t.HasCheckConstraint("CK_DefaultMonthlyFeeChanges_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Fees.Payment", b =>
@@ -780,6 +818,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Method")
                         .IsRequired()
@@ -810,7 +854,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId", "Month", "ClientId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", t =>
+                        {
+                            t.HasCheckConstraint("CK_Payments_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Instructors.Instructor", b =>
@@ -1499,8 +1546,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<Guid>("InstructorId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uniqueidentifier");
@@ -1527,9 +1580,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "StudentId");
 
                     b.HasIndex("TenantId", "ClassSessionId", "StudentId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("ClassFeedbacks");
+                    b.ToTable("ClassFeedbacks", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClassFeedbacks_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Sessions.ClassSession", b =>

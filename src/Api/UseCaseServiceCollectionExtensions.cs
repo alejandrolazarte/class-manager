@@ -162,6 +162,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<RemoveSubstituteCommand, SessionStatusResponse, RemoveSubstituteUseCase>();
         services.AddUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse, SetDefaultMonthlyFeeUseCase>();
         services.AddUseCase<SetClientBillingPlanCommand, ClientBillingResponse, SetClientBillingPlanUseCase>();
+        services.AddUseCase<DeleteDefaultMonthlyFeeChangeCommand, BusinessResponse, DeleteDefaultMonthlyFeeChangeUseCase>();
+        services.AddUseCase<DeleteClientBillingPlanChangeCommand, ClientBillingResponse, DeleteClientBillingPlanChangeUseCase>();
         services.AddUseCase<ListClassPacksQuery, IReadOnlyList<ClassPackResponse>, ListClassPacksUseCase>();
         services.AddUseCase<CreateClassPackCommand, ClassPackResponse, CreateClassPackUseCase>();
         services.AddUseCase<UpdateClassPackCommand, ClassPackResponse, UpdateClassPackUseCase>();

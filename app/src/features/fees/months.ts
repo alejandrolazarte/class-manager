@@ -16,12 +16,8 @@ export function monthName(month: string): string {
   return translate(`months.${monthNumber ?? 1}` as TranslationKey);
 }
 
-export function monthAndYear(month: string): string {
-  const [year] = month.split(monthSeparator).map(Number);
-  return `${monthName(month)} ${year}`;
-}
-
 export function formatMonth(month: string): string {
-  const name = monthAndYear(month);
-  return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+  const [year] = month.split(monthSeparator).map(Number);
+  const name = monthName(month);
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${year}`;
 }

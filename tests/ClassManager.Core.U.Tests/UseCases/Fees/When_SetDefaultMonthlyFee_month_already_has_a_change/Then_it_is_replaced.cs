@@ -9,13 +9,14 @@ public sealed class Then_it_is_replaced
     public async Task Then_it_is_replaced_Run()
     {
         var builder = new FeeUseCaseBuilder();
-        var existingChange = builder.DefaultFeeChanges.Single();
+        builder.AddDefaultFeeChange(builder.CurrentMonth, 13000m);
+        var existingChange = builder.DefaultFeeChanges.Last();
         builder.FeeSchedule
             .Setup(repository => repository.FindDefaultFeeChangeForUpdateAsync(existingChange.EffectiveFrom, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingChange);
 
         var response = await builder.BuildSetDefaultFee().ExecuteAsync(
-            new SetDefaultMonthlyFeeCommand(15000m, FeeUseCaseBuilder.SinceAlways.ToString()), CancellationToken.None);
+            new SetDefaultMonthlyFeeCommand(15000m, builder.CurrentMonth.ToString()), CancellationToken.None);
 
         existingChange.Amount.ShouldBe(15000m);
         response.Value!.DefaultMonthlyFee.ShouldBe(15000m);

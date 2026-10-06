@@ -11,9 +11,13 @@ internal static class FeeEndpoints
     {
         endpoints.MapPut(ApiRoutes.Business + ApiRoutes.MonthlyFee, SetDefaultMonthlyFeeAsync)
             .RequirePermission(Permissions.Business.Manage);
+        endpoints.MapDelete(ApiRoutes.Business + ApiRoutes.MonthlyFeeChangeByMonth, DeleteDefaultMonthlyFeeChangeAsync)
+            .RequirePermission(Permissions.Business.Manage);
 
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
         clients.MapPut(ApiRoutes.ClientById + ApiRoutes.BillingPlan, SetClientBillingPlanAsync)
+            .RequirePermission(Permissions.Payments.Record);
+        clients.MapDelete(ApiRoutes.ClientById + ApiRoutes.BillingPlanChangeByMonth, DeleteClientBillingPlanChangeAsync)
             .RequirePermission(Permissions.Payments.Record);
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, RecordPaymentAsync)
             .RequirePermission(Permissions.Payments.Record);
@@ -35,6 +39,27 @@ internal static class FeeEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new SetDefaultMonthlyFeeCommand(request.Amount, request.EffectiveFrom), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> DeleteDefaultMonthlyFeeChangeAsync(
+        string month,
+        IUseCase<DeleteDefaultMonthlyFeeChangeCommand, BusinessResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new DeleteDefaultMonthlyFeeChangeCommand(month), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> DeleteClientBillingPlanChangeAsync(
+        Guid clientId,
+        string month,
+        IUseCase<DeleteClientBillingPlanChangeCommand, ClientBillingResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new DeleteClientBillingPlanChangeCommand(clientId, month), cancellationToken);
 
         return result.ToOkResult();
     }

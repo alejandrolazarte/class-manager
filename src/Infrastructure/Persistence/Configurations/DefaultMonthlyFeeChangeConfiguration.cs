@@ -11,6 +11,6 @@ internal sealed class DefaultMonthlyFeeChangeConfiguration : IEntityTypeConfigur
         builder.Property(change => change.Amount).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(change => change.TenantId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(change => new { change.TenantId, change.EffectiveFrom }).IsUnique();
+        builder.HasIndex(change => new { change.TenantId, change.EffectiveFrom }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
     }
 }

@@ -119,4 +119,10 @@ internal sealed class FeeUseCaseBuilder
 
     public SetClientBillingPlanUseCase BuildSetClientPlan() =>
         new(Clients.Object, FeeSchedule.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), AccessScopes.Object);
+
+    public DeleteDefaultMonthlyFeeChangeUseCase BuildDeleteDefaultFeeChange() =>
+        new(Businesses.Object, FeeSchedule.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+
+    public DeleteClientBillingPlanChangeUseCase BuildDeleteClientPlanChange() =>
+        new(Clients.Object, FeeSchedule.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), AccessScopes.Object);
 }

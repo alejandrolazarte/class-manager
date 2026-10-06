@@ -25,6 +25,12 @@ public static class FeeRequests
             new SetClientBillingPlanRequest(kind, customFee, effectiveFrom),
             ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> DeleteBillingPlanChangeAsync(this HttpClient httpClient, Guid clientId, string month) =>
+        httpClient.DeleteAsync(new Uri($"{ApiRoutes.Clients}/{clientId}{ApiRoutes.BillingPlan}/{month}", UriKind.Relative));
+
+    public static Task<HttpResponseMessage> DeleteDefaultFeeChangeAsync(this HttpClient httpClient, string month) =>
+        httpClient.DeleteAsync(new Uri($"{ApiRoutes.Business}{ApiRoutes.MonthlyFee}/{month}", UriKind.Relative));
+
     public static Task<HttpResponseMessage> PostPaymentAsync(this HttpClient httpClient, Guid clientId, decimal amount = DefaultFee) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.PaymentsSegment}",

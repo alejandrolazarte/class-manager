@@ -5,11 +5,11 @@ namespace ClassManager.Api.I.Tests.Persistence.When_an_entity_has_record_columns
 [Collection(SqlServerCollectionDefinition.Name)]
 public sealed class Then_it_implements_the_record_interfaces(ApiFixture fixture)
 {
-    private static readonly Dictionary<string, Type> InterfaceByColumn = new Dictionary<string, Type>
+    private static readonly Dictionary<string, Type[]> InterfacesByColumn = new Dictionary<string, Type[]>
     {
-        [nameof(ICreatedOn.CreatedOn)] = typeof(ICreatedOn),
-        [nameof(IDeletedOn.DeletedOn)] = typeof(IDeletedOn),
-        [nameof(IExpiredOn.ExpiredOn)] = typeof(IExpiredOn),
+        [nameof(ICreatedOn.CreatedOn)] = [typeof(ICreatedOn)],
+        [nameof(IDeletedOn.DeletedOn)] = [typeof(IDeletedOn), typeof(ISoftDeletable)],
+        [nameof(IExpiredOn.ExpiredOn)] = [typeof(IExpiredOn)],
     };
 
     [Fact]
@@ -19,8 +19,8 @@ public sealed class Then_it_implements_the_record_interfaces(ApiFixture fixture)
 
         var violations = context.Model.GetEntityTypes()
             .SelectMany(entityType => entityType.GetProperties()
-                .Where(property => InterfaceByColumn.ContainsKey(property.Name))
-                .Where(property => !InterfaceByColumn[property.Name].IsAssignableFrom(entityType.ClrType))
+                .Where(property => InterfacesByColumn.ContainsKey(property.Name))
+                .Where(property => !InterfacesByColumn[property.Name].Any(recordInterface => recordInterface.IsAssignableFrom(entityType.ClrType)))
                 .Select(property => $"{entityType.ClrType.Name}.{property.Name}"))
             .ToList();
 

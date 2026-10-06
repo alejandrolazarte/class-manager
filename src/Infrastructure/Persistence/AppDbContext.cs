@@ -65,5 +65,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
         modelBuilder.Entity<Subscription>().HasOne<Organization>().WithMany().HasForeignKey(subscription => subscription.SubscriberId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.SeedSubscriptionCatalog();
         modelBuilder.ApplyTenantQueryFilters(this);
+        modelBuilder.ApplySoftDeleteQueryFilters();
     }
 }
