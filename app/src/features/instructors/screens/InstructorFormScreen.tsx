@@ -140,6 +140,22 @@ function InstructorEditor({ instructor }: InstructorEditorProps) {
           />
         )}
       />
+      <Controller
+        control={form.control}
+        name="email"
+        render={({ field, fieldState }) => (
+          <TextField
+            label={translate("instructors.form.email")}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            errorMessage={fieldState.error?.message}
+          />
+        )}
+      />
       <View className="gap-3">
         <Button
           label={translate("common.save")}

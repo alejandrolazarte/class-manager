@@ -56,6 +56,7 @@ export const routes = {
   newInstructor: "/settings/instructors/new",
   classesNewInstructor: "/classes/instructors/new",
   instructor: (instructorId: string) => `/settings/instructors/${instructorId}`,
+  editInstructor: (instructorId: string) => `/settings/instructors/${instructorId}/edit`,
   classPacks: "/settings/class-packs",
   newClassPack: "/settings/class-packs/new",
   classPack: (classPackId: string) => `/settings/class-packs/${classPackId}`,

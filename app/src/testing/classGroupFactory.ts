@@ -5,6 +5,7 @@ export function buildInstructor(overrides: Partial<Instructor> = {}): Instructor
   return {
     id: "0192f0d1-0000-7000-8000-000000000001",
     fullName: "Laura Gómez",
+    email: null,
     isActive: true,
     ...overrides,
   };

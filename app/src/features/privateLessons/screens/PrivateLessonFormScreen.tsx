@@ -419,7 +419,12 @@ export function PrivateLessonFormScreen({
     ? instructors
     : [
         ...instructors,
-        { id: lesson.instructorId, fullName: lesson.instructorFullName, isActive: false },
+        {
+          id: lesson.instructorId,
+          fullName: lesson.instructorFullName,
+          email: null,
+          isActive: false,
+        },
       ];
   return (
     <PrivateLessonEditor
