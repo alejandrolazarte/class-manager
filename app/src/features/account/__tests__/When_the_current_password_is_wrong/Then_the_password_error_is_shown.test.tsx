@@ -4,6 +4,7 @@ import { getMyAccount, requestEmailChange } from "@/features/account/accountApi"
 import { accountErrorCodes } from "@/features/account/accountErrorCodes";
 import { MyProfileScreen } from "@/features/account/screens/MyProfileScreen";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/account/accountApi");
@@ -24,7 +25,7 @@ describe("When the current password is wrong", () => {
   });
 
   it("Then the password error is shown", async () => {
-    await renderWithProviders(<MyProfileScreen />);
+    await renderWithProviders(<MyProfileScreen editProfileRoute={routes.editMyProfile} />);
     await fireEvent.changeText(
       screen.getByLabelText(translate("profile.email.newEmail")),
       "laura.nueva@example.com",

@@ -1,9 +1,9 @@
+import { Href, useRouter } from "expo-router";
 import { useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { requestEmailChange } from "@/features/account/accountApi";
 import { accountErrorCodes } from "@/features/account/accountErrorCodes";
-import { ChangeFullNameSection } from "@/features/account/components/ChangeFullNameSection";
 import { useMyAccount } from "@/features/account/useMyAccount";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { isFilled } from "@/forms/requiredFields";
@@ -13,6 +13,7 @@ import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
+import { Icon } from "@/ui/Icon";
 import { PasswordField } from "@/ui/PasswordField";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { ScrollScreen } from "@/ui/Screen";
@@ -23,7 +24,12 @@ import { TextField } from "@/ui/TextField";
 
 type EmailChangeFailure = "network" | "unexpected";
 
-export function MyProfileScreen() {
+interface MyProfileScreenProps {
+  editProfileRoute: Href;
+}
+
+export function MyProfileScreen({ editProfileRoute }: MyProfileScreenProps) {
+  const router = useRouter();
   const accountQuery = useMyAccount();
   const [newEmail, setNewEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -80,7 +86,27 @@ export function MyProfileScreen() {
   };
 
   return (
-    <ScrollScreen header={<ScreenHeader navigation="back" title={translate("profile.title")} />}>
+    <ScrollScreen
+      header={
+        <ScreenHeader
+          navigation="back"
+          title={translate("profile.title")}
+          navigationAction={
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={translate("profile.editAccessibility")}
+              onPress={() => router.push(editProfileRoute)}
+              className="flex-row items-center gap-1 rounded-full px-3 py-2.5 active:bg-muted"
+            >
+              <Icon name="edit" size="medium" tone="primary" />
+              <AppText variant="bodyStrong" tone="primary">
+                {translate("profile.edit")}
+              </AppText>
+            </Pressable>
+          }
+        />
+      }
+    >
       {accountQuery.isPending ? <Spinner className="mt-6" /> : null}
       {accountQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>
@@ -103,8 +129,6 @@ export function MyProfileScreen() {
           </View>
         </Card>
       ) : null}
-      <RequiredFieldsLegend />
-      {accountQuery.data ? <ChangeFullNameSection account={accountQuery.data} /> : null}
       <View className="gap-3">
         <SectionTitle title={translate("profile.email.title")} />
         <AppText variant="caption" tone="subtle">
@@ -119,6 +143,7 @@ export function MyProfileScreen() {
           </Banner>
         ) : null}
         {failure === "unexpected" ? <Banner message={translate("common.unexpectedError")} /> : null}
+        <RequiredFieldsLegend />
         <TextField
           label={translate("profile.email.newEmail")}
           isRequired

@@ -1,7 +1,8 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { changeMyFullName, getMyAccount } from "@/features/account/accountApi";
-import { MyProfileScreen } from "@/features/account/screens/MyProfileScreen";
+import { EditMyProfileScreen } from "@/features/account/screens/EditMyProfileScreen";
 import { translate } from "@/i18n/translate";
+import { routerMock } from "@/testing/expoRouterMock";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/account/accountApi");
@@ -19,15 +20,14 @@ describe("When the name is fixed", () => {
   });
 
   it("Then the new name is saved", async () => {
-    await renderWithProviders(<MyProfileScreen />);
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("profile.name.fullName")),
-      " Tomás Pérez ",
-    );
+    await renderWithProviders(<EditMyProfileScreen />);
+    const fullNameField = await screen.findByLabelText(translate("profile.name.fullName"));
+    expect(fullNameField).toHaveDisplayValue("Tomas Perez");
+    await fireEvent.changeText(fullNameField, " Tomás Pérez ");
 
-    await fireEvent.press(screen.getByRole("button", { name: translate("profile.name.submit") }));
+    await fireEvent.press(screen.getByRole("button", { name: translate("profile.edit.submit") }));
 
     await waitFor(() => expect(changeMyFullName).toHaveBeenCalledWith("Tomás Pérez"));
-    expect(await screen.findByText(translate("profile.name.saved"))).toBeOnTheScreen();
+    expect(routerMock.back).toHaveBeenCalled();
   });
 });
