@@ -20,6 +20,6 @@ internal sealed class TeamNotifier(AppDbContext context, PushPublisher publisher
         }
 
         await context.SaveChangesAsync(cancellationToken);
-        publisher.PublishToMembers(userIds, message);
+        await publisher.PublishToMembersAsync(userIds, message, cancellationToken);
     }
 }

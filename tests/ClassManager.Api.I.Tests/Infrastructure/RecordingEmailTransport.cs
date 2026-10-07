@@ -4,15 +4,23 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 
 public sealed class RecordingEmailTransport : IEmailTransport
 {
+    public const string FailedDeliveryMessage = "The mail server refused the email.";
+
     private static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(50);
 
     private readonly ConcurrentQueue<OutgoingEmail> _sentEmails = new();
+    private readonly ConcurrentDictionary<string, bool> _failingRecipients = new(StringComparer.OrdinalIgnoreCase);
     private TaskCompletionSource _deliveryGate = CompletedGate();
 
     public async Task SendAsync(OutgoingEmail email, CancellationToken cancellationToken)
     {
         await _deliveryGate.Task.WaitAsync(cancellationToken);
+        if (_failingRecipients.ContainsKey(email.To))
+        {
+            throw new InvalidOperationException(FailedDeliveryMessage);
+        }
+
         _sentEmails.Enqueue(email);
     }
 
@@ -34,6 +42,8 @@ public sealed class RecordingEmailTransport : IEmailTransport
 
         throw new TimeoutException($"No matching email reached {email}.");
     }
+
+    public void FailDeliveriesTo(string email) => _failingRecipients[email] = true;
 
     public IDisposable HoldDeliveries()
     {
