@@ -190,5 +190,5 @@ internal sealed class OrderNotificationService(
             : SystemRolePermissions.Of(member.Role);
 
     private Task SendAsync(EmailMessage message, CancellationToken cancellationToken) =>
-        backgroundTasks.EnqueueAsync(new SendEmailTask(message), cancellationToken);
+        backgroundTasks.EnqueueAsync(new SendEmailBackgroundTaskCommand(message), cancellationToken);
 }

@@ -17,7 +17,7 @@ public static class BackgroundTaskRequests
 
     public static string UniqueRecipient() => $"task-{Guid.NewGuid():N}@example.com";
 
-    public static SendEmailTask EmailTaskTo(string recipient, Guid businessId) =>
+    public static SendEmailBackgroundTaskCommand EmailTaskTo(string recipient, Guid businessId) =>
         new(new EmailMessage(recipient, EmailSubject, new EmailContent("Test", EmailSubject, "Intro", "Footer"), businessId));
 
     public static async Task EnqueueEmailAsync(this ApiFixture fixture, Guid businessId, string recipient)

@@ -103,7 +103,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IWebAppLinks, WebAppLinks>();
         services.AddScoped<EmailBrandReader>();
         services.AddScoped<IEmailSender, BrandedEmailSender>();
-        services.AddBackgroundTask<SendEmailTask, SendEmailTaskHandler>(SendEmailTask.TypeName);
+        services.AddBackgroundTask<SendEmailBackgroundTaskCommand, SendEmailBackgroundTaskHandler>();
 
         return services;
     }
@@ -111,7 +111,7 @@ public static class InfrastructureServiceCollectionExtensions
     private static IServiceCollection AddWebPush(this IServiceCollection services)
     {
         services.AddWebPushSender();
-        services.AddBackgroundTask<SendPushTask, SendPushTaskHandler>(SendPushTask.TypeName);
+        services.AddBackgroundTask<SendPushBackgroundTaskCommand, SendPushBackgroundTaskHandler>();
         services.AddSingleton<IWebPushKeyProvider, WebPushKeyProvider>();
         services.AddScoped<PushPublisher>();
         services.AddScoped(serviceProvider => new PushDispatcher(

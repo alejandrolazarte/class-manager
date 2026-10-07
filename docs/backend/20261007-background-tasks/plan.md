@@ -22,17 +22,18 @@ What we need is small: a handful of task types, one replica, retries. A table an
 ### Tasks
 
 - `BackgroundTaskCommand` is the base record of every task. It carries the `TenantId` (nullable, for tasks that don't belong to a business). Each task is a record that inherits from it:
-  - `SendEmailTask(EmailMessage Message)`: an order email.
-  - `SendPushTask(PushJob Push)`: a push to students (`StudentAppPush`) or to the team (`TeamPush`).
+  - `SendEmailBackgroundTaskCommand(EmailMessage Message)`: an order email.
+  - `SendPushBackgroundTaskCommand(PushJob Push)`: a push to students (`StudentAppPush`) or to the team (`TeamPush`).
 - Each task has a handler, `IBackgroundTaskHandler<TCommand>`, resolved from DI in its own scope.
-- Each task type is registered once with a stable name, `services.AddBackgroundTask<SendEmailTask, SendEmailTaskHandler>(SendEmailTask.TypeName)`. The stored name never depends on the CLR type name, so renaming a class doesn't break tasks already queued. The registration keeps a typed delegate to call the handler, so the worker doesn't use reflection.
+- Each task type is registered once, `services.AddBackgroundTask<SendEmailBackgroundTaskCommand, SendEmailBackgroundTaskHandler>()`, and stored under its class name (`SendEmailBackgroundTaskCommand`). No string to keep in sync: the registration reads `typeof(TCommand).Name` (`nameof(TCommand)` inside the generic method would give the literal `"TCommand"`). The registration keeps a typed delegate to call the handler, so the worker doesn't use reflection.
+- **Renaming a task class** changes the stored name. Tasks only live in the table until they run (minutes, or about 85 minutes with every retry), so the only tasks at risk are the ones still pending when the rename is deployed: the new code doesn't know their old name, they fail with `Background task type is not registered` and end marked failed after five attempts, with an error in the log. Rename when the table has no pending task of that type, or keep the old class until they drain.
 
 ### The `BackgroundTasks` table
 
 | Column | Meaning |
 |---|---|
 | `Id` | Task id |
-| `Type` | The stable type name (`email.send`, `push.send`) |
+| `Type` | The class name of the command (`SendEmailBackgroundTaskCommand`, `SendPushBackgroundTaskCommand`) |
 | `Payload` | The command serialized as JSON |
 | `TenantId` | The business the task runs for, or `null` |
 | `Attempts` | How many times the worker took it |

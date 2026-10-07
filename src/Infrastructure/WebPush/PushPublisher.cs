@@ -13,7 +13,7 @@ internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTas
             return;
         }
 
-        await queue.EnqueueAsync(new SendPushTask(new StudentAppPush(tenantContext.TenantId, clientIds, message)), cancellationToken);
+        await queue.EnqueueAsync(new SendPushBackgroundTaskCommand(new StudentAppPush(tenantContext.TenantId, clientIds, message)), cancellationToken);
     }
 
     public async Task PublishToMembersAsync(IReadOnlyCollection<Guid> userIds, PushMessage message, CancellationToken cancellationToken)
@@ -23,6 +23,6 @@ internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTas
             return;
         }
 
-        await queue.EnqueueAsync(new SendPushTask(new TeamPush(tenantContext.TenantId, userIds, message)), cancellationToken);
+        await queue.EnqueueAsync(new SendPushBackgroundTaskCommand(new TeamPush(tenantContext.TenantId, userIds, message)), cancellationToken);
     }
 }

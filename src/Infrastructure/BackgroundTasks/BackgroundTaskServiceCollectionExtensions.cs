@@ -4,13 +4,13 @@ namespace ClassManager.Infrastructure.BackgroundTasks;
 
 public static class BackgroundTaskServiceCollectionExtensions
 {
-    public static IServiceCollection AddBackgroundTask<TCommand, THandler>(this IServiceCollection services, string typeName)
+    public static IServiceCollection AddBackgroundTask<TCommand, THandler>(this IServiceCollection services)
         where TCommand : BackgroundTaskCommand
         where THandler : class, IBackgroundTaskHandler<TCommand>
     {
         services.AddScoped<IBackgroundTaskHandler<TCommand>, THandler>();
         services.AddSingleton(new BackgroundTaskRegistration(
-            typeName,
+            typeof(TCommand).Name,
             typeof(TCommand),
             (serviceProvider, command, cancellationToken) =>
                 serviceProvider.GetRequiredService<IBackgroundTaskHandler<TCommand>>().HandleAsync((TCommand)command, cancellationToken)));
