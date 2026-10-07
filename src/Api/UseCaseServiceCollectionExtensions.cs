@@ -68,6 +68,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<ResetPasswordCommand, ResetPasswordResponse, ResetPasswordUseCase>();
         services.AddUseCase<RequestPasswordResetCommand, RequestPasswordResetResponse, RequestPasswordResetUseCase>();
         services.AddUseCase<GetMyAccountQuery, MyAccountResponse, GetMyAccountUseCase>();
+        services.AddUseCase<ChangeMyFullNameCommand, MyAccountResponse, ChangeMyFullNameUseCase>();
         services.AddUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse, RequestEmailChangeUseCase>();
         services.AddUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse, ConfirmEmailChangeUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();

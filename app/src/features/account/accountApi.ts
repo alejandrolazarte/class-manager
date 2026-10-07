@@ -16,6 +16,10 @@ export function getMyAccount(): Promise<MyAccount> {
   return httpClient.get<MyAccount>(accountPaths.myAccount);
 }
 
+export function changeMyFullName(fullName: string): Promise<MyAccount> {
+  return httpClient.put<MyAccount>(accountPaths.myAccount, { fullName });
+}
+
 export function requestEmailChange(
   request: RequestEmailChangeRequest,
 ): Promise<RequestEmailChangeResponse> {

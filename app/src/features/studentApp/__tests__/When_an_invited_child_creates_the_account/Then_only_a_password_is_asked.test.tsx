@@ -5,36 +5,35 @@ import {
 } from "@/features/authentication/authenticationApi";
 import { AcceptStudentAppInvitationScreen } from "@/features/studentApp/screens/AcceptStudentAppInvitationScreen";
 import { translate } from "@/i18n/translate";
-import { routes } from "@/navigation/routes";
 import { buildCheckedInvitation, buildTokenResponse } from "@/testing/authenticationFactory";
-import { routerMock, searchParametersMock } from "@/testing/expoRouterMock";
-import { buildStudentAccessToken } from "@/testing/studentAppFactory";
+import { searchParametersMock } from "@/testing/expoRouterMock";
 import { mockRefreshTokenStorage } from "@/testing/refreshTokenStorageMock";
 import { renderWithSession } from "@/testing/renderWithSession";
 
 jest.mock("@/features/authentication/authenticationApi");
 jest.mock("@/features/authentication/sessionStorage");
 
-const invitationToken = "student-invitation-token";
-const fullName = "Ana Pérez";
-const password = "a long student passphrase";
+const invitationToken = "invitation-token";
+const password = "a long passphrase";
 
-describe("When student invitation is accepted", () => {
+describe("When an invited child creates the account", () => {
   beforeEach(() => {
     mockRefreshTokenStorage(null);
     searchParametersMock.current = { token: invitationToken };
-    jest.mocked(checkStudentAppInvitation).mockResolvedValue(buildCheckedInvitation());
     jest
-      .mocked(acceptStudentAppInvitation)
-      .mockResolvedValue(buildTokenResponse({ accessToken: buildStudentAccessToken() }));
+      .mocked(checkStudentAppInvitation)
+      .mockResolvedValue(buildCheckedInvitation({ fullName: "Tomás Pérez" }));
+    jest.mocked(acceptStudentAppInvitation).mockResolvedValue(buildTokenResponse());
   });
 
-  it("Then student home opens", async () => {
+  it("Then only a password is asked", async () => {
     await renderWithSession(<AcceptStudentAppInvitationScreen />);
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("studentAppInvitation.fullName")),
-      fullName,
-    );
+    expect(
+      await screen.findByText(translate("invitationAnswer.greeting", { name: "Tomás Pérez" })),
+    ).toBeOnTheScreen();
+    expect(
+      screen.queryByLabelText(translate("studentAppInvitation.fullName")),
+    ).not.toBeOnTheScreen();
     await fireEvent.changeText(
       screen.getByLabelText(translate("studentAppInvitation.password")),
       password,
@@ -48,11 +47,12 @@ describe("When student invitation is accepted", () => {
       screen.getByRole("button", { name: translate("studentAppInvitation.submit") }),
     );
 
-    await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith(routes.studentApp));
-    expect(acceptStudentAppInvitation).toHaveBeenCalledWith({
-      token: invitationToken,
-      fullName,
-      password,
-    });
+    await waitFor(() =>
+      expect(acceptStudentAppInvitation).toHaveBeenCalledWith({
+        token: invitationToken,
+        fullName: "Tomás Pérez",
+        password,
+      }),
+    );
   });
 });

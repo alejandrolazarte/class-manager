@@ -13,6 +13,8 @@ public sealed record AcceptStudentAppInvitationCommand(string? Token, string? Fu
 public sealed class AcceptStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
     IClientAccountRepository accountRepository,
+    IClientRepository clientRepository,
+    IStudentRepository studentRepository,
     IIdentityService identityService,
     ITokenService tokenService,
     ISecretTokenGenerator secretTokenGenerator,
@@ -45,7 +47,8 @@ public sealed class AcceptStudentAppInvitationUseCase(
         ClientAccount? existingAccount = null;
         if (userId is null)
         {
-            var account = OwnerAccount.Create(command.FullName, invitation.Email, command.Password);
+            var invitedName = await InvitedStudentName.FindAsync(invitation, clientRepository, studentRepository, cancellationToken);
+            var account = OwnerAccount.Create(invitedName ?? command.FullName, invitation.Email, command.Password);
             if (account.IsFailure)
             {
                 return account.Error!;

@@ -52,6 +52,18 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
             : UserAccountCreation.Invalid(firstError.Description);
     }
 
+    public async Task<bool> ChangeFullNameAsync(Guid userId, string fullName, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return false;
+        }
+
+        user.FullName = fullName;
+        return (await userManager.UpdateAsync(user)).Succeeded;
+    }
+
     public async Task<CredentialCheck> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(email);

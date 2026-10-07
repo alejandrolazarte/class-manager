@@ -39,10 +39,25 @@ export function InvitationAnswerForm({
   onAccept,
   onDecline,
 }: InvitationAnswerFormProps) {
+  const knownFullName = invitation.fullName ?? null;
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
-  const accept = () => onAccept(fullName.trim(), password);
-  const isFilled = invitation.hasAccount || (password.length > 0 && fullName.trim().length > 0);
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [confirmationError, setConfirmationError] = useState<string | undefined>();
+  const isFilled =
+    invitation.hasAccount ||
+    (password.length > 0 &&
+      passwordConfirmation.length > 0 &&
+      (knownFullName !== null || fullName.trim().length > 0));
+
+  const accept = () => {
+    if (!invitation.hasAccount && password !== passwordConfirmation) {
+      setConfirmationError(translate("invitationAnswer.passwordsDoNotMatch"));
+      return;
+    }
+    setConfirmationError(undefined);
+    onAccept(knownFullName ?? fullName.trim(), password);
+  };
 
   return (
     <>
@@ -53,26 +68,37 @@ export function InvitationAnswerForm({
       ) : (
         <>
           <AppText variant="body" tone="muted">
-            {texts.newAccountSubtitle}
+            {knownFullName
+              ? translate("invitationAnswer.greeting", { name: knownFullName })
+              : texts.newAccountSubtitle}
           </AppText>
-          <TextField
-            label={texts.fullName}
-            autoCapitalize="words"
-            autoComplete="name"
-            value={fullName}
-            onChangeText={setFullName}
-            errorMessage={fieldErrors.fullName}
-          />
+          {knownFullName ? null : (
+            <TextField
+              label={texts.fullName}
+              autoCapitalize="words"
+              autoComplete="name"
+              value={fullName}
+              onChangeText={setFullName}
+              errorMessage={fieldErrors.fullName}
+            />
+          )}
           <PasswordField
             label={texts.password}
             autoComplete="new-password"
             value={password}
             onChangeText={setPassword}
-            onSubmitEditing={accept}
             errorMessage={fieldErrors.password}
           />
+          <PasswordField
+            label={translate("invitationAnswer.passwordConfirmation")}
+            autoComplete="new-password"
+            value={passwordConfirmation}
+            onChangeText={setPasswordConfirmation}
+            onSubmitEditing={accept}
+            errorMessage={confirmationError}
+          />
           <AppText variant="caption" tone="subtle">
-            {texts.passwordHint}
+            {knownFullName ? translate("invitationAnswer.nameHint") : texts.passwordHint}
           </AppText>
         </>
       )}

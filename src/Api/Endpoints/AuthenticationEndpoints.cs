@@ -34,6 +34,7 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
         endpoints.MapGet(ApiRoutes.MyAccount, GetMyAccountAsync).RequireAnyAccount();
+        endpoints.MapPut(ApiRoutes.MyAccount, ChangeMyFullNameAsync).RequireAnyAccount();
         endpoints.MapPost(ApiRoutes.MyEmailChange, RequestEmailChangeAsync)
             .RequireAnyAccount()
             .RequireRateLimiting(SecurityServiceCollectionExtensions.AuthenticationRateLimitPolicy);
@@ -106,6 +107,16 @@ internal static class AuthenticationEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetMyAccountQuery(), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> ChangeMyFullNameAsync(
+        ChangeMyFullNameCommand command,
+        IUseCase<ChangeMyFullNameCommand, MyAccountResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToOkResult();
     }

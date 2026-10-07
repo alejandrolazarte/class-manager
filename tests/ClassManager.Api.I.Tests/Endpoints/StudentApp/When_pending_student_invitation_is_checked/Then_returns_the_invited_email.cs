@@ -22,6 +22,7 @@ public sealed class Then_returns_the_invited_email(ApiFixture fixture)
         using var response = await anonymous.PostCheckStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email));
 
         var checkedInvitation = await response.Content.ReadFromJsonAsync<CheckStudentAppInvitationResponse>(ApiRequests.JsonOptions);
-        checkedInvitation.ShouldBe(new CheckStudentAppInvitationResponse(email, checkedInvitation!.BusinessName, HasAccount: false));
+        checkedInvitation.ShouldBe(new CheckStudentAppInvitationResponse(email, checkedInvitation!.BusinessName, HasAccount: false, checkedInvitation.FullName));
+        checkedInvitation.FullName.ShouldNotBeNullOrEmpty();
     }
 }

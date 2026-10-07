@@ -19,7 +19,7 @@ public sealed class Then_the_person_who_invited_is_notified(ApiFixture fixture)
         (await anonymous.PostDeclineStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(childEmail))).EnsureSuccessStatusCode();
 
         var notification = (await business.HttpClient.GetTeamNotificationsAsync())!.Items.Single();
-        notification.Title.ShouldBe("Tomás rechazó el acceso a la app");
+        notification.Title.ShouldBe("Tomás rechazó la invitación a la app");
         notification.Url.ShouldBe($"/students/clients/{family.Id}");
     }
 }

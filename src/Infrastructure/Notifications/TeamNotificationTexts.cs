@@ -28,7 +28,7 @@ internal static class TeamNotificationTexts
 
     public static string ClientUrl(Guid clientId) => $"/students/clients/{clientId}";
 
-    public static string StudentAppInvitationDeclinedTitle(string fullName) => $"{FirstNameOf(fullName)} rechazó el acceso a la app";
+    public static string StudentAppInvitationDeclinedTitle(string fullName) => $"{FirstNameOf(fullName)} rechazó la invitación a la app";
 
     public static string TeamInvitationDeclinedTitle(string email) => $"{email} rechazó la invitación al equipo";
 

@@ -3,10 +3,10 @@ using ClassManager.Core.Domain.Businesses;
 namespace ClassManager.Api.I.Tests.Endpoints.Members.When_coach_opens_the_app;
 
 [Collection(SqlServerCollectionDefinition.Name)]
-public sealed class Then_their_name_is_returned(ApiFixture fixture)
+public sealed class Then_the_name_set_by_the_team_is_returned(ApiFixture fixture)
 {
     [Fact]
-    public async Task Then_their_name_is_returned_Run()
+    public async Task Then_the_name_set_by_the_team_is_returned_Run()
     {
         var business = await fixture.SeedBusinessAsync();
         var instructor = await business.HttpClient.CreateInstructorAsync();
@@ -19,6 +19,6 @@ public sealed class Then_their_name_is_returned(ApiFixture fixture)
 
         var member = await coachClient.GetCurrentMemberAsync();
 
-        member.FullName.ShouldBe(MemberRequests.InviteeFullName);
+        member.FullName.ShouldBe(instructor.FullName);
     }
 }

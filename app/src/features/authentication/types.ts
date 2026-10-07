@@ -48,6 +48,7 @@ export interface CheckedInvitation {
   email: string;
   businessName: string;
   hasAccount: boolean;
+  fullName?: string | null;
 }
 
 export interface SwitchBranchRequest {

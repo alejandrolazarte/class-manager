@@ -41,6 +41,9 @@ internal sealed class IdentityService(
         };
     }
 
+    public Task<bool> ChangeFullNameAsync(Guid userId, string fullName, CancellationToken cancellationToken) =>
+        userAccountService.ChangeFullNameAsync(userId, fullName, cancellationToken);
+
     public async Task<CredentialVerification> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken)
     {
         var check = await userAccountService.VerifyCredentialsAsync(email, password, cancellationToken);

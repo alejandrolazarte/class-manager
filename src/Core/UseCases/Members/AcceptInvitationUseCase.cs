@@ -14,6 +14,7 @@ public sealed class AcceptInvitationUseCase(
     IMemberInvitationRepository invitationRepository,
     IBusinessMemberRepository businessMemberRepository,
     ICustomRoleRepository customRoleRepository,
+    IInstructorRepository instructorRepository,
     IIdentityService identityService,
     ITokenService tokenService,
     ISecretTokenGenerator secretTokenGenerator,
@@ -59,7 +60,8 @@ public sealed class AcceptInvitationUseCase(
         var userId = await identityService.FindUserIdByEmailAsync(invitation.Email, cancellationToken);
         if (userId is null)
         {
-            var account = OwnerAccount.Create(command.FullName, invitation.Email, command.Password);
+            var invitedName = await InvitedPersonName.FindAsync(invitation, instructorRepository, cancellationToken);
+            var account = OwnerAccount.Create(invitedName ?? command.FullName, invitation.Email, command.Password);
             if (account.IsFailure)
             {
                 return account.Error!;

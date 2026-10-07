@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { requestEmailChange } from "@/features/account/accountApi";
 import { accountErrorCodes } from "@/features/account/accountErrorCodes";
+import { ChangeFullNameSection } from "@/features/account/components/ChangeFullNameSection";
 import { useMyAccount } from "@/features/account/useMyAccount";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { isFilled } from "@/forms/requiredFields";
@@ -102,6 +103,8 @@ export function MyProfileScreen() {
           </View>
         </Card>
       ) : null}
+      <RequiredFieldsLegend />
+      {accountQuery.data ? <ChangeFullNameSection account={accountQuery.data} /> : null}
       <View className="gap-3">
         <SectionTitle title={translate("profile.email.title")} />
         <AppText variant="caption" tone="subtle">
@@ -116,7 +119,6 @@ export function MyProfileScreen() {
           </Banner>
         ) : null}
         {failure === "unexpected" ? <Banner message={translate("common.unexpectedError")} /> : null}
-        <RequiredFieldsLegend />
         <TextField
           label={translate("profile.email.newEmail")}
           isRequired

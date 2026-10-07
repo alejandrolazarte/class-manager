@@ -30,6 +30,10 @@ describe("When invitation is accepted", () => {
       fullName,
     );
     await fireEvent.changeText(screen.getByLabelText(translate("invitation.password")), password);
+    await fireEvent.changeText(
+      screen.getByLabelText(translate("invitationAnswer.passwordConfirmation")),
+      password,
+    );
 
     await fireEvent.press(screen.getByRole("button", { name: translate("invitation.submit") }));
 

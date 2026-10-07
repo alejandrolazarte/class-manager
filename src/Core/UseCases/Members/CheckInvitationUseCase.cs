@@ -8,11 +8,12 @@ namespace ClassManager.Core.UseCases.Members;
 
 public sealed record CheckInvitationCommand(string? Token) : ICommand;
 
-public sealed record CheckInvitationResponse(string Email, string BusinessName, bool HasAccount);
+public sealed record CheckInvitationResponse(string Email, string BusinessName, bool HasAccount, string? FullName = null);
 
 public sealed class CheckInvitationUseCase(
     IMemberInvitationRepository invitationRepository,
     IBusinessRepository businessRepository,
+    IInstructorRepository instructorRepository,
     IIdentityService identityService,
     ISecretTokenGenerator secretTokenGenerator,
     ITenantScope tenantScope,
@@ -38,7 +39,8 @@ public sealed class CheckInvitationUseCase(
         tenantScope.Establish(invitation.TenantId);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
         var hasAccount = await identityService.IsEmailRegisteredAsync(invitation.Email, cancellationToken);
-        return new CheckInvitationResponse(invitation.Email, business?.BrandDisplayName ?? string.Empty, hasAccount);
+        var fullName = await InvitedPersonName.FindAsync(invitation, instructorRepository, cancellationToken);
+        return new CheckInvitationResponse(invitation.Email, business?.BrandDisplayName ?? string.Empty, hasAccount, fullName);
     }
 
     private static Result<CheckInvitationResponse> InvalidInvitation() =>
