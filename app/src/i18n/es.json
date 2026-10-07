@@ -753,6 +753,8 @@
   "team.brandOwner": "Dueño de marca",
   "team.member.makeBrandOwner": "Hacer dueño de marca",
   "team.member.removeBrandOwner": "Quitar de dueños de marca",
+  "team.member.removeBrandOwnerQuestion": "{name} deja de entrar a las otras sedes de la marca.",
+  "team.member.confirmRemoveBrandOwner": "Sí, quitar",
   "team.member.brandOwnerHint": "Un dueño de marca entra a todas las sedes con todos los permisos.",
   "team.member.lastBrandOwner": "La marca necesita al menos un dueño de marca.",
   "team.member.brandOwnerSaved": "Cambios guardados",

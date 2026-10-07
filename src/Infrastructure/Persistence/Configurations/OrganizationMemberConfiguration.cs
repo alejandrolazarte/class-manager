@@ -14,7 +14,7 @@ internal sealed class OrganizationMemberConfiguration : IEntityTypeConfiguration
             .IsRequired();
 
         builder.HasOne<Organization>().WithMany().HasForeignKey(member => member.OrganizationId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(member => new { member.OrganizationId, member.UserId }).IsUnique();
+        builder.HasIndex(member => new { member.OrganizationId, member.UserId }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
         builder.HasIndex(member => member.UserId);
     }
 }
