@@ -16,6 +16,7 @@ internal sealed class AddStudentUseCaseBuilder
     {
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
         Clients.Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Client());
+        Students.Setup(repository => repository.ListByClientAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     public static AddStudentCommand ValidCommand() =>

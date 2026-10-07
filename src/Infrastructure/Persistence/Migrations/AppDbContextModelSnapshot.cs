@@ -588,6 +588,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("NewsSeenAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<Guid?>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
@@ -597,6 +600,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("StudentId");
 
                     b.HasIndex("UserId");
 
@@ -636,6 +641,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("RevokedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<Guid?>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
@@ -648,6 +656,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("StudentId");
 
                     b.HasIndex("TokenHash")
                         .IsUnique();
@@ -1193,6 +1203,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1209,9 +1225,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.HasIndex("OrganizationId", "UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("OrganizationMembers");
+                    b.ToTable("OrganizationMembers", t =>
+                        {
+                            t.HasCheckConstraint("CK_OrganizationMembers_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.PrivateLessons.PrivateLesson", b =>
@@ -1732,6 +1752,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -2440,6 +2464,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -2454,6 +2483,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()

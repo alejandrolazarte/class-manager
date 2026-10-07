@@ -24,13 +24,13 @@ internal sealed class UpdateClientUseCaseBuilder
     {
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
         Clients.Setup(repository => repository.GetForUpdateAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Client);
-        ClientAccounts.Setup(repository => repository.ListUserIdsByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     public void WithStudentAppAccount()
     {
         var userId = Guid.CreateVersion7();
-        ClientAccounts.Setup(repository => repository.ListUserIdsByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([userId]);
+        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, userId, TestData.Now)]);
         Identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new UserAccount(userId, SignInEmail, NewFullName)]);

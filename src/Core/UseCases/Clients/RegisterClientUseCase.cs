@@ -56,7 +56,7 @@ public sealed class RegisterClientUseCase(
             client.Value!.RecordRegisteredBy(userId);
         }
 
-        var students = CreateStudents(client.Value!.Id, command.Students ?? [], business.TodayAt(now), now);
+        var students = CreateStudents(client.Value!.Id, client.Value.Email, command.Students ?? [], business.TodayAt(now), now);
         if (students.IsFailure)
         {
             return students.Error!;
@@ -84,11 +84,12 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(winnerClient?.Id);
         }
 
-        return ClientDetailsResponse.From(client.Value, students.Value!, [], business.TodayAt(timeProvider.GetUtcNow()), StudentAppAccessResponse.NotInvited);
+        return ClientDetailsResponse.From(client.Value, students.Value!, [], business.TodayAt(timeProvider.GetUtcNow()), StudentAppAccessResponse.NotInvited, new Dictionary<Guid, StudentAppAccessResponse>());
     }
 
     private static Result<IReadOnlyList<Student>> CreateStudents(
         Guid clientId,
+        string? clientEmail,
         IReadOnlyList<NewStudent> newStudents,
         DateOnly today,
         DateTimeOffset now)
@@ -106,7 +107,7 @@ public sealed class RegisterClientUseCase(
         for (var index = 0; index < newStudents.Count; index++)
         {
             var newStudent = newStudents[index];
-            var student = Student.Create(clientId, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now);
+            var student = Student.Create(clientId, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
             if (student.IsFailure)
             {
                 return student.Error! with { FieldName = StudentFieldName(index, student.Error.FieldName) };
@@ -118,6 +119,11 @@ public sealed class RegisterClientUseCase(
                     DuplicateStudentNameMessage,
                     StudentErrorCodes.DuplicateName,
                     StudentFieldName(index, nameof(Student.FullName)));
+            }
+
+            if (FamilyEmails.IsTakenByAnotherPerson(student.Value.Email, clientEmail, students))
+            {
+                return FamilyEmails.EmailOfAnotherPerson(StudentFieldName(index, nameof(Student.Email)));
             }
 
             students.Add(student.Value);

@@ -7,6 +7,9 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
 {
     public void Add(Student student) => context.Students.Add(student);
 
+    public Task<Student?> FindForUpdateAsync(Guid studentId, CancellationToken cancellationToken) =>
+        context.Students.FirstOrDefaultAsync(student => student.Id == studentId, cancellationToken);
+
     public Task<Student?> FindByClientAndNameAsync(Guid clientId, string fullName, CancellationToken cancellationToken) =>
         context.Students.AsNoTracking().FirstOrDefaultAsync(
             student => student.ClientId == clientId && student.FullName == fullName,

@@ -11,7 +11,8 @@ public sealed record AddStudentCommand(
     Guid ClientId,
     string? FullName,
     DateOnly? BirthDate,
-    string? Notes) : ICommand;
+    string? Notes,
+    string? Email = null) : ICommand;
 
 public sealed class AddStudentUseCase(
     IBusinessRepository businessRepository,
@@ -40,10 +41,16 @@ public sealed class AddStudentUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        var student = Student.Create(command.ClientId, command.FullName, command.BirthDate, command.Notes, business.TodayAt(now), now);
+        var student = Student.Create(command.ClientId, command.FullName, command.BirthDate, command.Notes, business.TodayAt(now), now, command.Email);
         if (student.IsFailure)
         {
             return student.Error!;
+        }
+
+        var siblings = await studentRepository.ListByClientAsync(command.ClientId, cancellationToken);
+        if (FamilyEmails.IsTakenByAnotherPerson(student.Value!.Email, client.Email, siblings))
+        {
+            return FamilyEmails.EmailOfAnotherPerson(nameof(Student.Email));
         }
 
         var existingStudent = await studentRepository.FindByClientAndNameAsync(command.ClientId, student.Value!.FullName, cancellationToken);

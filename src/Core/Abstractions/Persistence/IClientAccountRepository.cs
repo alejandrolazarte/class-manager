@@ -10,7 +10,7 @@ public interface IClientAccountRepository
 
     Task<ClientAccount?> FindByUserForUpdateAsync(Guid userId, CancellationToken cancellationToken);
 
-    Task<bool> HasAccountAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<bool> HasAccountAsync(Guid clientId, Guid? studentId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Guid>> ListUserIdsByClientAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ClientAccount>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken);
 }

@@ -1,4 +1,5 @@
 using ClassManager.Core.Domain.Students;
+using ClassManager.Core.UseCases.Clients;
 
 namespace ClassManager.Core.UseCases.Students;
 
@@ -8,8 +9,12 @@ public sealed record StudentResponse(
     string FullName,
     DateOnly? BirthDate,
     string? Notes,
-    DateTimeOffset CreatedAt)
+    string? Email,
+    DateTimeOffset CreatedAt,
+    StudentAppAccessResponse AppAccess)
 {
-    public static StudentResponse From(Student student) =>
-        new(student.Id, student.ClientId, student.FullName, student.BirthDate, student.Notes, student.CreatedAt);
+    public static StudentResponse From(Student student) => From(student, StudentAppAccessResponse.NotInvited);
+
+    public static StudentResponse From(Student student, StudentAppAccessResponse appAccess) =>
+        new(student.Id, student.ClientId, student.FullName, student.BirthDate, student.Notes, student.Email, student.CreatedAt, appAccess);
 }
