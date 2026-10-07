@@ -5,7 +5,7 @@ import { AppText, textVariantClassNames } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
 import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
-type TextFieldSurface = "surface" | "background";
+export type TextFieldSurface = "surface" | "background";
 
 interface TextFieldProps extends TextInputProps {
   label: string;

@@ -29,6 +29,7 @@ describe("When invitation is accepted", () => {
       await screen.findByLabelText(translate("invitation.fullName")),
       fullName,
     );
+    await fireEvent.changeText(screen.getByLabelText(translate("birthDate.label")), "12041990");
     await fireEvent.changeText(screen.getByLabelText(translate("invitation.password")), password);
     await fireEvent.changeText(
       screen.getByLabelText(translate("invitationAnswer.passwordConfirmation")),
@@ -38,6 +39,11 @@ describe("When invitation is accepted", () => {
     await fireEvent.press(screen.getByRole("button", { name: translate("invitation.submit") }));
 
     await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith(routes.today));
-    expect(acceptInvitation).toHaveBeenCalledWith({ token: invitationToken, fullName, password });
+    expect(acceptInvitation).toHaveBeenCalledWith({
+      token: invitationToken,
+      fullName,
+      password,
+      birthDate: "1990-04-12",
+    });
   });
 });

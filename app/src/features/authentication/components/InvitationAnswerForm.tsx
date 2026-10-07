@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { CheckedInvitation } from "@/features/authentication/types";
+import {
+  formatBirthDateForDisplay,
+  isValidBirthDate,
+  parseBirthDate,
+} from "@/features/students/birthDateFormatting";
+import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
@@ -18,6 +24,7 @@ export interface InvitationAnswerTexts {
 export interface InvitationFieldErrors {
   fullName?: string;
   password?: string;
+  birthDate?: string;
 }
 
 interface InvitationAnswerFormProps {
@@ -26,7 +33,7 @@ interface InvitationAnswerFormProps {
   fieldErrors: InvitationFieldErrors;
   isAccepting: boolean;
   isDeclining: boolean;
-  onAccept: (fullName: string, password: string) => void;
+  onAccept: (fullName: string, password: string, birthDate?: string) => void;
   onDecline: () => void;
 }
 
@@ -41,6 +48,10 @@ export function InvitationAnswerForm({
 }: InvitationAnswerFormProps) {
   const knownFullName = invitation.fullName ?? null;
   const [fullName, setFullName] = useState("");
+  const [birthDate, setBirthDate] = useState(
+    invitation.birthDate ? formatBirthDateForDisplay(invitation.birthDate) : "",
+  );
+  const [birthDateError, setBirthDateError] = useState<string | undefined>();
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [confirmationError, setConfirmationError] = useState<string | undefined>();
@@ -48,15 +59,24 @@ export function InvitationAnswerForm({
     invitation.hasAccount ||
     (password.length > 0 &&
       passwordConfirmation.length > 0 &&
+      birthDate.length > 0 &&
       (knownFullName !== null || fullName.trim().length > 0));
 
   const accept = () => {
-    if (!invitation.hasAccount && password !== passwordConfirmation) {
-      setConfirmationError(translate("invitationAnswer.passwordsDoNotMatch"));
+    if (invitation.hasAccount) {
+      onAccept("", "");
       return;
     }
-    setConfirmationError(undefined);
-    onAccept(knownFullName ?? fullName.trim(), password);
+    const hasValidBirthDate = isValidBirthDate(birthDate);
+    const passwordsMatch = password === passwordConfirmation;
+    setBirthDateError(hasValidBirthDate ? undefined : translate("birthDate.invalid"));
+    setConfirmationError(
+      passwordsMatch ? undefined : translate("invitationAnswer.passwordsDoNotMatch"),
+    );
+    if (!hasValidBirthDate || !passwordsMatch) {
+      return;
+    }
+    onAccept(knownFullName ?? fullName.trim(), password, parseBirthDate(birthDate) ?? undefined);
   };
 
   return (
@@ -82,6 +102,18 @@ export function InvitationAnswerForm({
               errorMessage={fieldErrors.fullName}
             />
           )}
+          <BirthDateField
+            hint={
+              invitation.birthDate
+                ? translate("invitationAnswer.birthDateFromTeam", {
+                    business: invitation.businessName,
+                  })
+                : translate("invitationAnswer.birthDateHint")
+            }
+            value={birthDate}
+            onChangeText={setBirthDate}
+            errorMessage={birthDateError ?? fieldErrors.birthDate}
+          />
           <PasswordField
             label={texts.password}
             autoComplete="new-password"

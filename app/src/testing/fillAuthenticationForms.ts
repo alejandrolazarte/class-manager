@@ -3,6 +3,8 @@ import { translate } from "@/i18n/translate";
 
 export const ownerEmail = "laura@example.com";
 export const ownerPassword = "a long passphrase";
+export const ownerTypedBirthDate = "12041990";
+export const ownerBirthDate = "1990-04-12";
 
 export async function fillSignInForm(
   email: string = ownerEmail,
@@ -28,6 +30,10 @@ export async function fillSignUpForm(): Promise<void> {
   await fireEvent.changeText(
     await screen.findByLabelText(translate("authentication.signUp.ownerFullName")),
     "Laura Gómez",
+  );
+  await fireEvent.changeText(
+    screen.getByLabelText(translate("birthDate.label")),
+    ownerTypedBirthDate,
   );
   await fireEvent.changeText(
     screen.getByLabelText(translate("authentication.signUp.email")),

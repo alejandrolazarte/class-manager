@@ -2,11 +2,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { isNetworkError } from "@/api/httpClient";
-import { changeMyFullName } from "@/features/account/accountApi";
+import { updateMyProfile } from "@/features/account/accountApi";
 import { accountQueryKeys } from "@/features/account/accountQueryKeys";
-import { MyAccount } from "@/features/account/types";
+import { MyAccount, UpdateMyProfileRequest } from "@/features/account/types";
 import { useMyAccount } from "@/features/account/useMyAccount";
+import { BirthDateField } from "@/forms/BirthDateField";
 import { isFilled } from "@/forms/requiredFields";
+import {
+  formatBirthDateForDisplay,
+  isValidBirthDate,
+  parseBirthDate,
+} from "@/features/students/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -55,21 +61,30 @@ function EditMyProfileForm({ account }: EditMyProfileFormProps) {
   const { showToast } = useToast();
   const [fullName, setFullName] = useState(account.fullName);
   const [fullNameError, setFullNameError] = useState<string | undefined>();
+  const [birthDate, setBirthDate] = useState(
+    account.birthDate ? formatBirthDateForDisplay(account.birthDate) : "",
+  );
+  const [birthDateError, setBirthDateError] = useState<string | undefined>();
   const [failure, setFailure] = useState<SaveFailure | null>(null);
-  const fullNameMutation = useMutation({
-    mutationFn: (newFullName: string) => changeMyFullName(newFullName),
+  const profileMutation = useMutation({
+    mutationFn: (request: UpdateMyProfileRequest) => updateMyProfile(request),
   });
 
   const save = async () => {
     const trimmedFullName = fullName.trim();
     setFailure(null);
-    if (trimmedFullName.length < fullNameMinimumLength) {
-      setFullNameError(translate("profile.name.tooShort"));
+    const isoBirthDate = isValidBirthDate(birthDate) ? parseBirthDate(birthDate) : null;
+    const isFullNameLongEnough = trimmedFullName.length >= fullNameMinimumLength;
+    setFullNameError(isFullNameLongEnough ? undefined : translate("profile.name.tooShort"));
+    setBirthDateError(isoBirthDate ? undefined : translate("birthDate.invalid"));
+    if (!isFullNameLongEnough || !isoBirthDate) {
       return;
     }
-    setFullNameError(undefined);
     try {
-      const updatedAccount = await fullNameMutation.mutateAsync(trimmedFullName);
+      const updatedAccount = await profileMutation.mutateAsync({
+        fullName: trimmedFullName,
+        birthDate: isoBirthDate,
+      });
       queryClient.setQueryData(accountQueryKeys.myAccount, updatedAccount);
     } catch (saveError) {
       setFailure(isNetworkError(saveError) ? "network" : "unexpected");
@@ -87,8 +102,8 @@ function EditMyProfileForm({ account }: EditMyProfileFormProps) {
           <Button
             label={translate("profile.edit.submit")}
             onPress={save}
-            disabled={!isFilled(fullName)}
-            isLoading={fullNameMutation.isPending}
+            disabled={!isFilled(fullName) || !isFilled(birthDate)}
+            isLoading={profileMutation.isPending}
           />
         </ScreenFooter>
       }
@@ -110,6 +125,7 @@ function EditMyProfileForm({ account }: EditMyProfileFormProps) {
         onSubmitEditing={save}
         errorMessage={fullNameError}
       />
+      <BirthDateField value={birthDate} onChangeText={setBirthDate} errorMessage={birthDateError} />
     </ScrollScreen>
   );
 }

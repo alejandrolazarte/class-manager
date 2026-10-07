@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { changeMyFullName, getMyAccount } from "@/features/account/accountApi";
+import { updateMyProfile, getMyAccount } from "@/features/account/accountApi";
 import { EditMyProfileScreen } from "@/features/account/screens/EditMyProfileScreen";
 import { translate } from "@/i18n/translate";
 import { routerMock } from "@/testing/expoRouterMock";
@@ -12,8 +12,9 @@ describe("When the name is fixed", () => {
     jest.mocked(getMyAccount).mockResolvedValue({
       email: "tomas@example.com",
       fullName: "Tomas Perez",
+      birthDate: "1990-04-12",
     });
-    jest.mocked(changeMyFullName).mockResolvedValue({
+    jest.mocked(updateMyProfile).mockResolvedValue({
       email: "tomas@example.com",
       fullName: "Tomás Pérez",
     });
@@ -27,7 +28,12 @@ describe("When the name is fixed", () => {
 
     await fireEvent.press(screen.getByRole("button", { name: translate("profile.edit.submit") }));
 
-    await waitFor(() => expect(changeMyFullName).toHaveBeenCalledWith("Tomás Pérez"));
+    await waitFor(() =>
+      expect(updateMyProfile).toHaveBeenCalledWith({
+        fullName: "Tomás Pérez",
+        birthDate: "1990-04-12",
+      }),
+    );
     expect(routerMock.back).toHaveBeenCalled();
   });
 });

@@ -8,7 +8,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record CheckStudentAppInvitationCommand(string? Token) : ICommand;
 
-public sealed record CheckStudentAppInvitationResponse(string Email, string BusinessName, bool HasAccount, string? FullName = null);
+public sealed record CheckStudentAppInvitationResponse(string Email, string BusinessName, bool HasAccount, string? FullName = null, DateOnly? BirthDate = null);
 
 public sealed class CheckStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
@@ -38,8 +38,13 @@ public sealed class CheckStudentAppInvitationUseCase(
         tenantScope.Establish(invitation.TenantId);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
         var hasAccount = await identityService.IsEmailRegisteredAsync(invitation.Email, cancellationToken);
-        var fullName = await InvitedStudentName.FindAsync(invitation, clientRepository, studentRepository, cancellationToken);
-        return new CheckStudentAppInvitationResponse(invitation.Email, business?.BrandDisplayName ?? string.Empty, hasAccount, fullName);
+        var invitedStudent = await InvitedStudent.FindAsync(invitation, clientRepository, studentRepository, cancellationToken);
+        return new CheckStudentAppInvitationResponse(
+            invitation.Email,
+            business?.BrandDisplayName ?? string.Empty,
+            hasAccount,
+            invitedStudent.FullName,
+            invitedStudent.BirthDate);
     }
 
     private static Result<CheckStudentAppInvitationResponse> InvalidInvitation() =>

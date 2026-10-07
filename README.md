@@ -105,6 +105,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Forms](docs/frontend/forms.md) — required fields marked with an asterisk, the main button grey until they are filled, and the shared step header and total bar
 - [Roslyn analyzers](docs/analyzers.md) — test layout and architecture rules enforced by the build
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package
+- [Ages and minors](docs/ages-and-minors.md) — every account has a birth date, the legal minimum ages in Argentina and Spain, and the age rules the app enforces
 - [Authorization](docs/authorization.md) — organizations, brand and branch roles, and the permission every endpoint requires
 - [Tenancy library](docs/tenancy.md) — what `src/Tenancy` and `src/Tenancy.AspNetCore` contain and how the app plugs into them
 - [Notifications library](docs/notifications.md) — `src/Notifications` and `src/Notifications.Delivery`: email content and branded HTML layout, SMTP, VAPID and web push encryption, and what stays in the app

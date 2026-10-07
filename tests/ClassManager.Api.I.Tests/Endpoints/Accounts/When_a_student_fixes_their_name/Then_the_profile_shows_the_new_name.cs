@@ -7,7 +7,7 @@ public sealed class Then_the_profile_shows_the_new_name(ApiFixture fixture)
     public async Task Then_the_profile_shows_the_new_name_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        using (var response = await scenario.Student.PutMyFullNameAsync("  Ana María Pérez "))
+        using (var response = await scenario.Student.PutMyProfileAsync("  Ana María Pérez ", AuthenticationRequests.AdultBirthDate))
         {
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
         }

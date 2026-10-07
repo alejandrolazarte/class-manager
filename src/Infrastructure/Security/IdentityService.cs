@@ -21,13 +21,13 @@ internal sealed class IdentityService(
     public async Task<IReadOnlyList<UserAccount>> ListAccountsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
         [
             .. (await userAccountService.ListAsync(userIds, cancellationToken))
-                .Select(account => new UserAccount(account.UserId, account.Email, account.FullName)),
+                .Select(account => new UserAccount(account.UserId, account.Email, account.FullName, account.BirthDate)),
         ];
 
     public async Task<Result<Guid>> CreateOwnerAsync(OwnerAccount account, CancellationToken cancellationToken)
     {
         var creation = await userAccountService.CreateAsync(
-            new NewUserAccount(account.Email, account.Password, account.FullName),
+            new NewUserAccount(account.Email, account.Password, account.FullName, account.BirthDate),
             cancellationToken);
 
         return creation.Status switch
@@ -41,8 +41,8 @@ internal sealed class IdentityService(
         };
     }
 
-    public Task<bool> ChangeFullNameAsync(Guid userId, string fullName, CancellationToken cancellationToken) =>
-        userAccountService.ChangeFullNameAsync(userId, fullName, cancellationToken);
+    public Task<bool> UpdateProfileAsync(Guid userId, string fullName, DateOnly birthDate, CancellationToken cancellationToken) =>
+        userAccountService.UpdateProfileAsync(userId, fullName, birthDate, cancellationToken);
 
     public async Task<CredentialVerification> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken)
     {

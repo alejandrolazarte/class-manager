@@ -1,3 +1,3 @@
 namespace ClassManager.Core.Abstractions.Security;
 
-public sealed record UserAccount(Guid UserId, string Email, string FullName);
+public sealed record UserAccount(Guid UserId, string Email, string FullName, DateOnly? BirthDate = null);

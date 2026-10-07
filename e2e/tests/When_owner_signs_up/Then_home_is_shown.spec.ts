@@ -4,6 +4,7 @@ import { ownerPassword, uniqueOwnerEmail } from "../../support/businessApi";
 test("Then home is shown", async ({ page }) => {
   await page.goto("/sign-up");
   await page.getByLabel("Nombre y apellido").fill("Valeria Sosa");
+  await page.getByLabel("Fecha de nacimiento").fill("20061985");
   await page.getByLabel("Email").fill(uniqueOwnerEmail());
   await page.getByLabel("Contraseña", { exact: true }).fill(ownerPassword);
   await page.getByRole("button", { name: "Continuar" }).click();

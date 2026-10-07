@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { getFieldErrors } from "@/api/problemDetails";
+import { authenticationErrorCodes } from "@/features/authentication/authenticationErrorCodes";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
 import {
   InvitationAnswerForm,
@@ -20,6 +21,7 @@ export interface AcceptInvitationAnswer {
   token: string;
   fullName: string;
   password: string;
+  birthDate?: string;
 }
 
 interface InvitationScreenProps {
@@ -102,6 +104,13 @@ export function InvitationScreen({
     if (isApiError(answerError) && answerError.hasCode(invalidInvitationCode)) {
       return { kind: "invalidLink" };
     }
+    if (
+      isApiError(answerError) &&
+      answerError.hasCode(authenticationErrorCodes.tooYoungForOwnAccount)
+    ) {
+      setFieldErrors({ birthDate: translate("invitationAnswer.tooYoung") });
+      return null;
+    }
     const conflictCode = Object.keys(conflictMessages).find(
       (code) => isApiError(answerError) && answerError.hasCode(code),
     );
@@ -121,7 +130,7 @@ export function InvitationScreen({
     return { kind: "message", message: translate("common.unexpectedError") };
   };
 
-  const acceptInvitation = async (fullName: string, password: string) => {
+  const acceptInvitation = async (fullName: string, password: string, birthDate?: string) => {
     if (!token) {
       return;
     }
@@ -129,10 +138,12 @@ export function InvitationScreen({
     setFieldErrors({});
     setIsAccepting(true);
     try {
-      await accept({ token, fullName, password });
+      await accept({ token, fullName, password, ...(birthDate ? { birthDate } : {}) });
       router.replace(successRoute);
     } catch (acceptError) {
-      setFailure(failureOf(acceptError, () => void acceptInvitation(fullName, password)));
+      setFailure(
+        failureOf(acceptError, () => void acceptInvitation(fullName, password, birthDate)),
+      );
     } finally {
       setIsAccepting(false);
     }
@@ -190,7 +201,9 @@ export function InvitationScreen({
           fieldErrors={fieldErrors}
           isAccepting={isAccepting}
           isDeclining={isDeclining}
-          onAccept={(fullName, password) => void acceptInvitation(fullName, password)}
+          onAccept={(fullName, password, birthDate) =>
+            void acceptInvitation(fullName, password, birthDate)
+          }
           onDecline={() => void declineInvitation()}
         />
       ) : null}

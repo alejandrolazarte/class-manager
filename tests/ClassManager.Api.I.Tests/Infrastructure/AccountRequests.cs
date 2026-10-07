@@ -13,8 +13,8 @@ public static class AccountRequests
     public static Task<List<AccountResponse>?> ListAccountsAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<List<AccountResponse>>(new Uri(ApiRoutes.MyAccounts, UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PutMyFullNameAsync(this HttpClient httpClient, string fullName) =>
-        httpClient.PutAsJsonAsync(ApiRoutes.MyAccount, new ChangeMyFullNameCommand(fullName), ApiRequests.JsonOptions);
+    public static Task<HttpResponseMessage> PutMyProfileAsync(this HttpClient httpClient, string fullName, DateOnly? birthDate) =>
+        httpClient.PutAsJsonAsync(ApiRoutes.MyAccount, new UpdateMyProfileCommand(fullName, birthDate), ApiRequests.JsonOptions);
 
     public static Task<MyAccountResponse?> GetMyAccountAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<MyAccountResponse>(new Uri(ApiRoutes.MyAccount, UriKind.Relative), ApiRequests.JsonOptions);

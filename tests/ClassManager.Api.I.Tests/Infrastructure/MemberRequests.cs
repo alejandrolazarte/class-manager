@@ -44,7 +44,7 @@ public static class MemberRequests
     public static Task<HttpResponseMessage> PostAcceptInvitationAsync(this HttpClient httpClient, string token, string password = InviteePassword) =>
         httpClient.PostAsJsonAsync(
             AcceptInvitationRoute,
-            new AcceptInvitationCommand(token, InviteeFullName, password),
+            new AcceptInvitationCommand(token, InviteeFullName, password, AuthenticationRequests.AdultBirthDate),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostDeclineInvitationAsync(this HttpClient httpClient, string token) =>

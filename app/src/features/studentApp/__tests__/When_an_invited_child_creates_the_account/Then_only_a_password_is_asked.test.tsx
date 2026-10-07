@@ -22,7 +22,9 @@ describe("When an invited child creates the account", () => {
     searchParametersMock.current = { token: invitationToken };
     jest
       .mocked(checkStudentAppInvitation)
-      .mockResolvedValue(buildCheckedInvitation({ fullName: "Tomás Pérez" }));
+      .mockResolvedValue(
+        buildCheckedInvitation({ fullName: "Tomás Pérez", birthDate: "2012-05-01" }),
+      );
     jest.mocked(acceptStudentAppInvitation).mockResolvedValue(buildTokenResponse());
   });
 
@@ -52,6 +54,7 @@ describe("When an invited child creates the account", () => {
         token: invitationToken,
         fullName: "Tomás Pérez",
         password,
+        birthDate: "2012-05-01",
       }),
     );
   });

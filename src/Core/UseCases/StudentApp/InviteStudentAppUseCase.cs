@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
@@ -74,7 +75,7 @@ public sealed class InviteStudentAppUseCase(
         var now = timeProvider.GetUtcNow();
         var familyStudents = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var recipient = command.StudentId is { } studentId
-            ? await StudentRecipientAsync(client, studentId, familyStudents, command, business.TodayAt(now), cancellationToken)
+            ? await StudentRecipientAsync(client, studentId, familyStudents, command, business, business.TodayAt(now), cancellationToken)
             : ClientRecipient(client, familyStudents, command);
         if (recipient.IsFailure)
         {
@@ -126,6 +127,7 @@ public sealed class InviteStudentAppUseCase(
         Guid studentId,
         IReadOnlyList<Student> familyStudents,
         InviteStudentAppCommand command,
+        Business business,
         DateOnly today,
         CancellationToken cancellationToken)
     {
@@ -146,9 +148,17 @@ public sealed class InviteStudentAppUseCase(
             }
         }
 
-        if (student.BirthDate is null)
+        if (student.BirthDate is not { } birthDate)
         {
             return Result.Validation<string>(BirthDateRequiredMessage, StudentAppErrorCodes.BirthDateRequired, nameof(InviteStudentAppRequest.BirthDate));
+        }
+
+        if (!PersonAge.CanHaveOwnAccount(birthDate, today, business.DefaultCountryCallingCode))
+        {
+            return Result.Validation<string>(
+                AuthenticationErrorCodes.TooYoungForOwnAccountMessage,
+                AuthenticationErrorCodes.TooYoungForOwnAccount,
+                nameof(InviteStudentAppRequest.BirthDate));
         }
 
         if (!string.IsNullOrWhiteSpace(command.Email) && !student.HasEmail(command.Email))

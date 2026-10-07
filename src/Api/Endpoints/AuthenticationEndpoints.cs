@@ -34,7 +34,7 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
         endpoints.MapGet(ApiRoutes.MyAccount, GetMyAccountAsync).RequireAnyAccount();
-        endpoints.MapPut(ApiRoutes.MyAccount, ChangeMyFullNameAsync).RequireAnyAccount();
+        endpoints.MapPut(ApiRoutes.MyAccount, UpdateMyProfileAsync).RequireAnyAccount();
         endpoints.MapPost(ApiRoutes.MyEmailChange, RequestEmailChangeAsync)
             .RequireAnyAccount()
             .RequireRateLimiting(SecurityServiceCollectionExtensions.AuthenticationRateLimitPolicy);
@@ -111,9 +111,9 @@ internal static class AuthenticationEndpoints
         return result.ToOkResult();
     }
 
-    private static async Task<IResult> ChangeMyFullNameAsync(
-        ChangeMyFullNameCommand command,
-        IUseCase<ChangeMyFullNameCommand, MyAccountResponse> useCase,
+    private static async Task<IResult> UpdateMyProfileAsync(
+        UpdateMyProfileCommand command,
+        IUseCase<UpdateMyProfileCommand, MyAccountResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);

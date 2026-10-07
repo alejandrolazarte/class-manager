@@ -268,6 +268,7 @@ export async function seedDemoStudentApp(
       token: decodeURIComponent(invitationToken!),
       fullName: studentAppFullName,
       password: demoStudentAppPassword,
+      birthDate: "1988-03-02",
     },
   );
 

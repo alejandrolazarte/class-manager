@@ -71,6 +71,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     timeZoneId: demoTimeZoneId,
     currencyCode: "ARS",
     defaultCountryCallingCode: "54",
+    ownerBirthDate: "1985-06-20",
   });
   accessToken = tokens.accessToken;
 

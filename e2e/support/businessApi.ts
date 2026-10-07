@@ -40,6 +40,7 @@ export async function signUpBusiness(request: APIRequestContext): Promise<Busine
       timeZoneId: "America/Argentina/Buenos_Aires",
       currencyCode: "ARS",
       defaultCountryCallingCode: "54",
+      ownerBirthDate: "1985-06-20",
     },
   });
   expect(response.status()).toBe(201);

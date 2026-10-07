@@ -15,6 +15,7 @@ internal static class TestData
     public const string OwnerFullName = "Laura Gómez";
     public const string OwnerEmail = "laura@example.com";
     public const string OwnerPassword = "a long passphrase";
+    public static readonly DateOnly OwnerBirthDate = new(1990, 4, 12);
     public const string BusinessName = "Panadería Laura";
     public const string StudentFullName = "Tomás Pérez";
     public const string InstructorFullName = "Laura Gómez";

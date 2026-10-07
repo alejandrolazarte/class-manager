@@ -15,19 +15,22 @@ public sealed class OwnerAccount
     private const string FullNameLengthMessage = "Full name must be between 2 and 120 characters.";
     private const string EmailFormatMessage = "Email must be a valid address of at most 254 characters.";
     private const string PasswordLengthMessage = "Password must be between 10 and 128 characters.";
+    private const string BirthDateMessage = "Birth date is required and must be between 1900-01-01 and today.";
 
-    private OwnerAccount(string fullName, string email, string password)
+    private OwnerAccount(string fullName, string email, string password, DateOnly birthDate)
     {
         FullName = fullName;
         Email = email;
         Password = password;
+        BirthDate = birthDate;
     }
 
     public string FullName { get; }
     public string Email { get; }
     public string Password { get; }
+    public DateOnly BirthDate { get; }
 
-    public static Result<OwnerAccount> Create(string? fullName, string? email, string? password)
+    public static Result<OwnerAccount> Create(string? fullName, string? email, string? password, DateOnly? birthDate, DateOnly today)
     {
         var trimmedFullName = fullName?.Trim() ?? string.Empty;
         if (trimmedFullName.Length is < FullNameMinLength or > FullNameMaxLength)
@@ -46,7 +49,12 @@ public sealed class OwnerAccount
             return Result.Validation<OwnerAccount>(PasswordLengthMessage, fieldName: nameof(Password));
         }
 
-        return new OwnerAccount(trimmedFullName, trimmedEmail, password);
+        if (birthDate is not { } validBirthDate || !PersonAge.IsValidBirthDate(validBirthDate, today))
+        {
+            return Result.Validation<OwnerAccount>(BirthDateMessage, fieldName: nameof(BirthDate));
+        }
+
+        return new OwnerAccount(trimmedFullName, trimmedEmail, password, validBirthDate);
     }
 
     private static bool IsValidEmail(string email) =>
