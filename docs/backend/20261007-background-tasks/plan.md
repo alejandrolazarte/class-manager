@@ -26,7 +26,7 @@ What we need is small: a handful of task types, one replica, retries. A table an
   - `SendPushBackgroundTaskCommand(PushJob Push)`: a push to students (`StudentAppPush`) or to the team (`TeamPush`).
 - Each task has a handler, `IBackgroundTaskHandler<TCommand>`, resolved from DI in its own scope.
 - Each task type is registered once, `services.AddBackgroundTask<SendEmailBackgroundTaskCommand, SendEmailBackgroundTaskHandler>()`, and stored under its class name (`SendEmailBackgroundTaskCommand`). No string to keep in sync: the registration reads `typeof(TCommand).Name` (`nameof(TCommand)` inside the generic method would give the literal `"TCommand"`). The registration keeps a typed delegate to call the handler, so the worker doesn't use reflection.
-- **Renaming a task class** changes the stored name. Tasks only live in the table until they run (minutes, or about 85 minutes with every retry), so the only tasks at risk are the ones still pending when the rename is deployed: the new code doesn't know their old name, they fail with `Background task type is not registered` and end marked failed after five attempts, with an error in the log. Rename when the table has no pending task of that type, or keep the old class until they drain.
+- **Renaming a task class** changes the stored name. Tasks only live in the table until they run (minutes, or about 85 minutes with every retry), so the only tasks at risk are the ones still pending when the rename is deployed: the new code doesn't know their old name, they are marked failed at once, without retries that could never work, with `Background task type is not registered: <name>` as their error and an error in the log. The row keeps its payload, so it can be run again by updating its `Type` to the new name and clearing `FailedOn`. Rename when the table has no pending task of that type, or keep the old class until they drain; if renames become common, a former-name attribute on the class can map the old name (what Hangfire solves with a custom type resolver).
 
 ### The `BackgroundTasks` table
 
@@ -92,6 +92,8 @@ Integration tests (`tests/ClassManager.Api.I.Tests/BackgroundTasks`), against SQ
 - A task queued in a transaction that rolls back is never stored, and its email is never sent.
 - A task whose handler fails stays queued with one attempt, the error and its next attempt one minute later.
 - A task that fails its last attempt is marked failed.
+- A task whose type is not registered (renamed or removed) is marked failed at once.
+- A task is stored under its command class name.
 - The doorbell: a ring before the wait ends the wait at once, and a wait with a due time ends at that time.
 
 The existing email and push tests (orders, team notifications, student app) keep passing unchanged: they now go through the table.

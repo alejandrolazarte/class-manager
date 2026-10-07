@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ClassManager.Infrastructure.BackgroundTasks;
 
 public sealed class BackgroundTaskTypes
 {
+    public const string UnknownTypeMessage = "Background task type is not registered: ";
+
     private const string UnknownCommandMessage = "Background task command is not registered: ";
-    private const string UnknownTypeMessage = "Background task type is not registered: ";
 
     private readonly Dictionary<string, BackgroundTaskRegistration> _byTypeName;
     private readonly Dictionary<Type, BackgroundTaskRegistration> _byCommandType;
@@ -20,8 +23,6 @@ public sealed class BackgroundTaskTypes
             ? registration
             : throw new InvalidOperationException(UnknownCommandMessage + command.GetType().Name);
 
-    public BackgroundTaskRegistration Named(string typeName) =>
-        _byTypeName.TryGetValue(typeName, out var registration)
-            ? registration
-            : throw new InvalidOperationException(UnknownTypeMessage + typeName);
+    public bool TryFind(string typeName, [NotNullWhen(true)] out BackgroundTaskRegistration? registration) =>
+        _byTypeName.TryGetValue(typeName, out registration);
 }

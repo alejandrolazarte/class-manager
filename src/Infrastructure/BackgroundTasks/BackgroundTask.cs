@@ -44,15 +44,24 @@ public sealed class BackgroundTask
 
     public void RecordFailure(string error, DateTimeOffset now, int maxAttempts)
     {
-        LastError = error.Length > LastErrorMaxLength ? error[..LastErrorMaxLength] : error;
         if (Attempts >= maxAttempts)
         {
-            FailedOn = now;
+            Fail(error, now);
             return;
         }
 
+        LastError = Shorten(error);
         NextAttemptOn = now + RetryDelayAfter(Attempts);
     }
+
+    public void Fail(string error, DateTimeOffset now)
+    {
+        LastError = Shorten(error);
+        FailedOn = now;
+    }
+
+    private static string Shorten(string error) =>
+        error.Length > LastErrorMaxLength ? error[..LastErrorMaxLength] : error;
 
     private static TimeSpan RetryDelayAfter(int attempts) =>
         FirstRetryDelay * Math.Pow(RetryDelayGrowth, attempts - 1);
