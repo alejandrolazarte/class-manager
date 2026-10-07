@@ -24,6 +24,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { useToast } from "@/ui/ToastProvider";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
@@ -50,6 +51,7 @@ function MemberEditor({ member, team }: MemberEditorProps) {
   const [instructorId, setInstructorId] = useState<string | null>(member.instructorId);
   const [instructorError, setInstructorError] = useState<string | undefined>();
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
+  const [isConfirmingBrandOwnerRemoval, setIsConfirmingBrandOwnerRemoval] = useState(false);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const instructors = freeInstructors(instructorsQuery.data ?? [], team, member.instructorId);
   const isCoachMissing =
@@ -86,6 +88,7 @@ function MemberEditor({ member, team }: MemberEditorProps) {
   const toggleBrandOwner = async () => {
     setSubmissionFailure(null);
     setIsLastBrandOwner(false);
+    setIsConfirmingBrandOwnerRemoval(false);
     try {
       await brandOwnerMutation.mutateAsync(!member.isBrandOwner);
       showToast(translate("team.member.brandOwnerSaved"));
@@ -137,43 +140,41 @@ function MemberEditor({ member, team }: MemberEditorProps) {
             {translate("team.member.brandOwnerHint")}
           </AppText>
           {isLastBrandOwner ? <Banner message={translate("team.member.lastBrandOwner")} /> : null}
-          <Button
-            variant="outline"
-            size="medium"
-            label={translate(
-              member.isBrandOwner ? "team.member.removeBrandOwner" : "team.member.makeBrandOwner",
-            )}
-            onPress={toggleBrandOwner}
-            isLoading={brandOwnerMutation.isPending}
-          />
+          {isConfirmingBrandOwnerRemoval ? (
+            <DeleteConfirmation
+              question={translate("team.member.removeBrandOwnerQuestion", {
+                name: member.fullName,
+              })}
+              confirmLabel={translate("team.member.confirmRemoveBrandOwner")}
+              onCancel={() => setIsConfirmingBrandOwnerRemoval(false)}
+              onConfirm={toggleBrandOwner}
+              isDeleting={brandOwnerMutation.isPending}
+            />
+          ) : (
+            <Button
+              variant="outline"
+              size="medium"
+              label={translate(
+                member.isBrandOwner ? "team.member.removeBrandOwner" : "team.member.makeBrandOwner",
+              )}
+              onPress={
+                member.isBrandOwner
+                  ? () => setIsConfirmingBrandOwnerRemoval(true)
+                  : toggleBrandOwner
+              }
+              isLoading={brandOwnerMutation.isPending}
+            />
+          )}
         </View>
       ) : null}
       {isConfirmingRemove ? (
-        <Banner
-          tone="warning"
-          icon="delete"
-          message={translate("team.member.removeQuestion", { name: member.fullName })}
-        >
-          <View className="flex-row gap-2">
-            <View className="flex-1">
-              <Button
-                variant="secondary"
-                size="medium"
-                label={translate("common.cancel")}
-                onPress={() => setIsConfirmingRemove(false)}
-              />
-            </View>
-            <View className="flex-1">
-              <Button
-                variant="danger"
-                size="medium"
-                label={translate("team.member.confirmRemove")}
-                onPress={remove}
-                isLoading={removeMutation.isPending}
-              />
-            </View>
-          </View>
-        </Banner>
+        <DeleteConfirmation
+          question={translate("team.member.removeQuestion", { name: member.fullName })}
+          confirmLabel={translate("team.member.confirmRemove")}
+          onCancel={() => setIsConfirmingRemove(false)}
+          onConfirm={remove}
+          isDeleting={removeMutation.isPending}
+        />
       ) : (
         <Button
           variant="dangerOutline"
