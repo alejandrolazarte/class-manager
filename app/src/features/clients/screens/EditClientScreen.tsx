@@ -60,6 +60,7 @@ function ClientEditor({ client }: ClientEditorProps) {
     NotInvited: translate("clients.edit.emailHint"),
     Invited: translate("clients.edit.emailHintInvited"),
     Active: translate("clients.edit.emailHintActive"),
+    AwaitingGuardianConsent: translate("clients.edit.emailHint"),
   };
 
   const resendInvitationIfEmailChanged = async (email: string | null) => {

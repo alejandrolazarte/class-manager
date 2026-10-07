@@ -28,8 +28,16 @@ All of them live in `PersonAge` (`src/Core/Domain/Accounts`).
 | Rule | Where | Error |
 |---|---|---|
 | The owner of a business is an adult (18) | Sign-up | `auth.owner_must_be_adult` |
-| A person has an account of their own only from the minimum age of the branch's country: 13 in Argentina (`54`), 14 in Spain (`34`), 16 anywhere else (the GDPR maximum, the safe default) | Inviting a student, and accepting any invitation | `auth.too_young_for_own_account` |
-| Younger children use the app through the account of the client who pays, who sees all the family | — | — |
+| Below the minimum age of the branch's country (13 in Argentina (`54`), 14 in Spain (`34`), 16 anywhere else, the GDPR maximum) a person still gets an account of their own, but only after the client who pays authorizes it | Inviting a student | — |
+| Anyone accepting an invitation below that age needs that authorization | Accepting any invitation | `auth.too_young_for_own_account` |
+
+### Authorization of the client who pays
+
+Inviting a student below the minimum age does not email the student. It emails the client who pays (`Clients.Email`, required in that case: `student_invitation.guardian_email_required`) a link to `/authorize-student-app?token=`:
+
+- **Autorizar** (`POST /api/auth/student-app-invitations/guardian-consent/accept`) stores `GuardianConsentedAt` and `GuardianEmail` on the invitation, which is the record that the parents consented, and only then emails the student their own invitation.
+- **No autorizar** (`.../guardian-consent/decline`) closes the invitation and notifies the team member who sent it.
+- While it waits, the client card shows "Falta que su responsable autorice".
 
 The country comes from the branch's default calling code; add a country to `PersonAge` when the app reaches it.
 

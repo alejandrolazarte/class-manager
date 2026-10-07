@@ -7,6 +7,7 @@ internal static class TeamNotificationTexts
     public const string OrdersUrl = "/today/orders";
     public const string TeamUrl = "/settings/team";
     public const string StudentAppInvitationDeclinedBody = "Si fue un error, podés volver a invitar desde su ficha.";
+    public const string GuardianConsentRefusedBody = "Su responsable no dio la autorización. Sus clases se siguen viendo desde la cuenta del responsable.";
     public const string TeamInvitationDeclinedBody = "Si fue un error, podés volver a invitar desde Equipo.";
 
     private const char NameSeparator = ' ';
@@ -29,6 +30,8 @@ internal static class TeamNotificationTexts
     public static string ClientUrl(Guid clientId) => $"/students/clients/{clientId}";
 
     public static string StudentAppInvitationDeclinedTitle(string fullName) => $"{FirstNameOf(fullName)} rechazó la invitación a la app";
+
+    public static string GuardianConsentRefusedTitle(string fullName) => $"No autorizaron a {FirstNameOf(fullName)} a usar la app";
 
     public static string TeamInvitationDeclinedTitle(string email) => $"{email} rechazó la invitación al equipo";
 

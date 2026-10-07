@@ -128,6 +128,7 @@ export interface StudentAppInvitation {
   id: string;
   email: string;
   expiresAt: string;
+  awaitsGuardianConsent?: boolean;
 }
 
 export type StockAvailability = "Available" | "OnOrder" | "SoldOut";

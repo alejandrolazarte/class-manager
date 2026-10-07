@@ -10,7 +10,8 @@ export interface Client {
   createdAt: string;
 }
 
-export type StudentAppAccessStatus = "NotInvited" | "Invited" | "Active";
+export type StudentAppAccessStatus =
+  "NotInvited" | "Invited" | "Active" | "AwaitingGuardianConsent";
 
 export interface StudentAppAccess {
   status: StudentAppAccessStatus;

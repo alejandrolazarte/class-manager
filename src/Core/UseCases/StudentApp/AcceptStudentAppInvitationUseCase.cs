@@ -36,7 +36,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
         var now = timeProvider.GetUtcNow();
         var invitation = await invitationRepository.FindForUpdateInAnyBusinessByTokenHashAsync(
             secretTokenGenerator.Hash(command.Token), cancellationToken);
-        if (invitation is null || !invitation.IsPendingAt(now))
+        if (invitation is null || !invitation.IsPendingAt(now) || invitation.AwaitsGuardianConsent)
         {
             return InvalidInvitation();
         }
@@ -57,7 +57,9 @@ public sealed class AcceptStudentAppInvitationUseCase(
                 return account.Error!;
             }
 
-            if (business is not null && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.DefaultCountryCallingCode))
+            if (business is not null
+                && invitation.GuardianConsentedAt is null
+                && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.DefaultCountryCallingCode))
             {
                 return Result.Validation<TokenResponse>(
                     AuthenticationErrorCodes.TooYoungForOwnAccountMessage,

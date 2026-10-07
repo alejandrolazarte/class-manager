@@ -47,6 +47,14 @@ export interface CheckInvitationRequest {
   token: string;
 }
 
+export interface GuardianConsentRequest {
+  businessName: string;
+  studentFullName: string;
+  studentEmail: string;
+  guardianEmail: string;
+  minimumAge: number;
+}
+
 export interface CheckedInvitation {
   email: string;
   businessName: string;

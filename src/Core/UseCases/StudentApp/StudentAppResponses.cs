@@ -53,4 +53,4 @@ public sealed record StudentAppHomeResponse(
     StudentAppBillingResponse Billing,
     IReadOnlyList<LevelDefinition> Levels);
 
-public sealed record StudentAppInvitationResponse(Guid Id, string Email, DateTimeOffset ExpiresAt);
+public sealed record StudentAppInvitationResponse(Guid Id, string Email, DateTimeOffset ExpiresAt, bool AwaitsGuardianConsent = false);

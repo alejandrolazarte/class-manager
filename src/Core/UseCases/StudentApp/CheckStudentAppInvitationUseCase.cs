@@ -30,7 +30,7 @@ public sealed class CheckStudentAppInvitationUseCase(
 
         var invitation = await invitationRepository.FindForUpdateInAnyBusinessByTokenHashAsync(
             secretTokenGenerator.Hash(command.Token), cancellationToken);
-        if (invitation is null || !invitation.IsPendingAt(timeProvider.GetUtcNow()))
+        if (invitation is null || !invitation.IsPendingAt(timeProvider.GetUtcNow()) || invitation.AwaitsGuardianConsent)
         {
             return InvalidInvitation();
         }

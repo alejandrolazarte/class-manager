@@ -84,6 +84,7 @@ export const routes = {
   role: (roleKey: string) => `/settings/roles/${roleKey}`,
   acceptInvitation: "/accept-invitation",
   acceptStudentAppInvitation: "/accept-student-invitation",
+  authorizeStudentApp: "/authorize-student-app",
   studentApp: "/student-app",
   studentAppClasses: "/student-app/classes",
   studentAppNews: "/student-app/news",

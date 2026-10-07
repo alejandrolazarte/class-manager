@@ -10,6 +10,8 @@ public interface IWebAppLinks
 
     string AcceptStudentAppInvitation(string token);
 
+    string AuthorizeStudentApp(string token);
+
     string StudentAppOrders();
 
     string TeamOrders();

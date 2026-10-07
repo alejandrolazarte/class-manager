@@ -30,7 +30,7 @@ public sealed class DeclineStudentAppInvitationUseCase(
         var now = timeProvider.GetUtcNow();
         var invitation = await invitationRepository.FindForUpdateInAnyBusinessByTokenHashAsync(
             secretTokenGenerator.Hash(command.Token), cancellationToken);
-        if (invitation is null || !invitation.IsPendingAt(now))
+        if (invitation is null || !invitation.IsPendingAt(now) || invitation.AwaitsGuardianConsent)
         {
             return InvalidInvitation();
         }

@@ -12,8 +12,10 @@ public static class StudentAppRequests
     public const string StudentAppFullName = "Ana Pérez";
     public const string ChildFullName = "Tomás Pérez";
     public static readonly DateOnly ChildBirthDate = new(2012, 5, 1);
+    public static readonly DateOnly ElevenYearsOld = new(2015, 3, 10);
     public const string StudentAppPassword = "a long student passphrase";
     public const string WebAppAcceptStudentAppInvitationUrl = "http://localhost:8081/accept-student-invitation?token=";
+    public const string WebAppAuthorizeStudentAppUrl = "http://localhost:8081/authorize-student-app?token=";
 
     public static string UniqueStudentEmail() => $"student-{Guid.NewGuid():N}@example.com";
 
@@ -41,6 +43,27 @@ public static class StudentAppRequests
         var link = body.Split('\n').Single(line => line.StartsWith(WebAppAcceptStudentAppInvitationUrl, StringComparison.Ordinal));
         return Uri.UnescapeDataString(link[WebAppAcceptStudentAppInvitationUrl.Length..]);
     }
+
+    public static string GuardianConsentTokenSentTo(this RecordingEmailTransport emailTransport, string email)
+    {
+        var body = emailTransport.SentTo(email)[^1].TextBody;
+        var link = body.Split('\n').Single(line => line.StartsWith(WebAppAuthorizeStudentAppUrl, StringComparison.Ordinal));
+        return Uri.UnescapeDataString(link[WebAppAuthorizeStudentAppUrl.Length..]);
+    }
+
+    public static Task<HttpResponseMessage> PostGiveGuardianConsentAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.GiveGuardianConsent, new GiveGuardianConsentCommand(token), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostRefuseGuardianConsentAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.RefuseGuardianConsent, new RefuseGuardianConsentCommand(token), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, DateOnly birthDate, string password = StudentAppPassword) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.AcceptStudentAppInvitation,
+            new AcceptStudentAppInvitationCommand(token, null, password, birthDate),
+            ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, string password = StudentAppPassword) =>
         httpClient.PostAsJsonAsync(

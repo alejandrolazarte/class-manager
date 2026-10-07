@@ -10,6 +10,7 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public const string ConfirmEmailChangePath = "/confirm-email-change?token=";
     public const string AcceptInvitationPath = "/accept-invitation?token=";
     public const string AcceptStudentAppInvitationPath = "/accept-student-invitation?token=";
+    public const string AuthorizeStudentAppPath = "/authorize-student-app?token=";
     public const string StudentAppOrdersPath = "/student-app/orders";
     public const string TeamOrdersPath = "/today/orders";
 
@@ -26,6 +27,9 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
 
     public string AcceptStudentAppInvitation(string token) =>
         WebAppUrl() + AcceptStudentAppInvitationPath + Uri.EscapeDataString(token);
+
+    public string AuthorizeStudentApp(string token) =>
+        WebAppUrl() + AuthorizeStudentAppPath + Uri.EscapeDataString(token);
 
     public string StudentAppOrders() => WebAppUrl() + StudentAppOrdersPath;
 

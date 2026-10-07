@@ -17,14 +17,28 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
 
     public async Task StudentAppInvitationDeclinedAsync(ClientInvitation invitation, CancellationToken cancellationToken)
     {
-        var fullName = invitation.StudentId is { } studentId
-            ? await context.Students.AsNoTracking().Where(student => student.Id == studentId).Select(student => student.FullName).FirstOrDefaultAsync(cancellationToken)
-            : await context.Clients.AsNoTracking().Where(client => client.Id == invitation.ClientId).Select(client => client.FullName).FirstOrDefaultAsync(cancellationToken);
         var message = new PushMessage(
-            TeamNotificationTexts.StudentAppInvitationDeclinedTitle(fullName ?? invitation.Email),
+            TeamNotificationTexts.StudentAppInvitationDeclinedTitle(await InvitedFullNameAsync(invitation, cancellationToken)),
             TeamNotificationTexts.StudentAppInvitationDeclinedBody,
             TeamNotificationTexts.ClientUrl(invitation.ClientId));
         await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
+    }
+
+    public async Task GuardianConsentRefusedAsync(ClientInvitation invitation, CancellationToken cancellationToken)
+    {
+        var message = new PushMessage(
+            TeamNotificationTexts.GuardianConsentRefusedTitle(await InvitedFullNameAsync(invitation, cancellationToken)),
+            TeamNotificationTexts.GuardianConsentRefusedBody,
+            TeamNotificationTexts.ClientUrl(invitation.ClientId));
+        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
+    }
+
+    private async Task<string> InvitedFullNameAsync(ClientInvitation invitation, CancellationToken cancellationToken)
+    {
+        var fullName = invitation.StudentId is { } studentId
+            ? await context.Students.AsNoTracking().Where(student => student.Id == studentId).Select(student => student.FullName).FirstOrDefaultAsync(cancellationToken)
+            : await context.Clients.AsNoTracking().Where(client => client.Id == invitation.ClientId).Select(client => client.FullName).FirstOrDefaultAsync(cancellationToken);
+        return fullName ?? invitation.Email;
     }
 
     public async Task TeamInvitationDeclinedAsync(MemberInvitation invitation, CancellationToken cancellationToken)

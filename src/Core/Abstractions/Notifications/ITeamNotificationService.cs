@@ -16,4 +16,6 @@ public interface ITeamNotificationService
     Task StudentAppInvitationDeclinedAsync(ClientInvitation invitation, CancellationToken cancellationToken);
 
     Task TeamInvitationDeclinedAsync(MemberInvitation invitation, CancellationToken cancellationToken);
+
+    Task GuardianConsentRefusedAsync(ClientInvitation invitation, CancellationToken cancellationToken);
 }

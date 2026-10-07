@@ -30,6 +30,11 @@ public sealed class ClientInvitation : ITenantOwned
     public DateTimeOffset? AcceptedAt { get; private set; }
     public DateTimeOffset? RevokedAt { get; private set; }
     public DateTimeOffset? DeclinedAt { get; private set; }
+    public string? GuardianEmail { get; private set; }
+    public string? GuardianTokenHash { get; private set; }
+    public DateTimeOffset? GuardianConsentedAt { get; private set; }
+
+    public bool AwaitsGuardianConsent => GuardianTokenHash is not null && GuardianConsentedAt is null;
 
     public static Result<ClientInvitation> Create(
         Guid clientId,
@@ -65,6 +70,19 @@ public sealed class ClientInvitation : ITenantOwned
     public void Revoke(DateTimeOffset revokedAt) => RevokedAt = revokedAt.ToUniversalTime();
 
     public void Decline(DateTimeOffset declinedAt) => DeclinedAt = declinedAt.ToUniversalTime();
+
+    public void RequireGuardianConsent(string guardianEmail, string guardianTokenHash)
+    {
+        GuardianEmail = guardianEmail;
+        GuardianTokenHash = guardianTokenHash;
+    }
+
+    public void ConsentByGuardian(string tokenHash, DateTimeOffset consentedAt)
+    {
+        GuardianConsentedAt = consentedAt.ToUniversalTime();
+        TokenHash = tokenHash;
+        ExpiresAt = (consentedAt + Lifetime).ToUniversalTime();
+    }
 
     private static bool IsValidEmail(string email) =>
         email.Length is > 0 and <= EmailMaxLength

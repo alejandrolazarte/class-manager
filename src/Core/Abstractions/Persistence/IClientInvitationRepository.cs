@@ -11,4 +11,6 @@ public interface IClientInvitationRepository
     Task<IReadOnlyList<ClientInvitation>> ListPendingByClientAsync(Guid clientId, DateTimeOffset now, CancellationToken cancellationToken);
 
     Task<ClientInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken);
+
+    Task<ClientInvitation?> FindForUpdateInAnyBusinessByGuardianTokenHashAsync(string guardianTokenHash, CancellationToken cancellationToken);
 }

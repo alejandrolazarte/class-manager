@@ -34,4 +34,9 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
         context.ClientInvitations
             .IgnoreTenantFilter()
             .FirstOrDefaultAsync(invitation => invitation.TokenHash == tokenHash, cancellationToken);
+
+    public Task<ClientInvitation?> FindForUpdateInAnyBusinessByGuardianTokenHashAsync(string guardianTokenHash, CancellationToken cancellationToken) =>
+        context.ClientInvitations
+            .IgnoreTenantFilter()
+            .FirstOrDefaultAsync(invitation => invitation.GuardianTokenHash == guardianTokenHash, cancellationToken);
 }

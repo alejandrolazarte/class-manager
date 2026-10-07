@@ -31,6 +31,9 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.CheckStudentAppInvitation, CheckStudentAppInvitationAsync);
         authentication.MapPost(ApiRoutes.DeclineInvitation, DeclineInvitationAsync);
         authentication.MapPost(ApiRoutes.DeclineStudentAppInvitation, DeclineStudentAppInvitationAsync);
+        authentication.MapPost(ApiRoutes.CheckGuardianConsent, CheckGuardianConsentAsync);
+        authentication.MapPost(ApiRoutes.GiveGuardianConsent, GiveGuardianConsentAsync);
+        authentication.MapPost(ApiRoutes.RefuseGuardianConsent, RefuseGuardianConsentAsync);
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
         endpoints.MapGet(ApiRoutes.MyAccount, GetMyAccountAsync).RequireAnyAccount();
@@ -204,6 +207,28 @@ internal static class AuthenticationEndpoints
     private static async Task<IResult> DeclineInvitationAsync(
         DeclineInvitationCommand command,
         IUseCase<DeclineInvitationCommand, DeclinedInvitationResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> CheckGuardianConsentAsync(
+        CheckGuardianConsentCommand command,
+        IUseCase<CheckGuardianConsentCommand, GuardianConsentResponse> useCase,
+        CancellationToken cancellationToken) =>
+        (await useCase.ExecuteAsync(command, cancellationToken)).ToOkResult();
+
+    private static async Task<IResult> GiveGuardianConsentAsync(
+        GiveGuardianConsentCommand command,
+        IUseCase<GiveGuardianConsentCommand, GivenGuardianConsentResponse> useCase,
+        CancellationToken cancellationToken) =>
+        (await useCase.ExecuteAsync(command, cancellationToken)).ToOkResult();
+
+    private static async Task<IResult> RefuseGuardianConsentAsync(
+        RefuseGuardianConsentCommand command,
+        IUseCase<RefuseGuardianConsentCommand, RefusedGuardianConsentResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
