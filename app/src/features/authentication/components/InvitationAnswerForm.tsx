@@ -82,13 +82,15 @@ export function InvitationAnswerForm({
         disabled={!isFilled || isDeclining}
         isLoading={isAccepting}
       />
-      <Button
-        variant="outline"
-        label={translate("invitationAnswer.decline")}
-        onPress={onDecline}
-        disabled={isAccepting}
-        isLoading={isDeclining}
-      />
+      {invitation.hasAccount ? (
+        <Button
+          variant="outline"
+          label={translate("invitationAnswer.decline")}
+          onPress={onDecline}
+          disabled={isAccepting}
+          isLoading={isDeclining}
+        />
+      ) : null}
     </>
   );
 }
