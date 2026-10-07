@@ -105,6 +105,8 @@ public static class ApiRoutes
     public const string AcceptStudentAppInvitation = "/student-app-invitations/accept";
     public const string CheckInvitation = "/invitations/check";
     public const string CheckStudentAppInvitation = "/student-app-invitations/check";
+    public const string DeclineInvitation = "/invitations/decline";
+    public const string DeclineStudentAppInvitation = "/student-app-invitations/decline";
     public const string MyBranches = "/api/me/branches";
     public const string MyAccounts = "/api/me/accounts";
     public const string MyAccount = "/api/me/account";

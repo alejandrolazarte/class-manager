@@ -12,28 +12,29 @@ jest.mock("@/features/authentication/authenticationApi");
 jest.mock("@/features/authentication/sessionStorage");
 
 const invitationToken = "invitation-token-from-the-link";
-const fullName = "Marcos Díaz";
-const password = "a long passphrase";
 
-describe("When invitation is accepted", () => {
+describe("When invited user already has an account", () => {
   beforeEach(() => {
     mockRefreshTokenStorage(null);
     searchParametersMock.current = { token: invitationToken };
-    jest.mocked(checkInvitation).mockResolvedValue(buildCheckedInvitation());
+    jest.mocked(checkInvitation).mockResolvedValue(buildCheckedInvitation({ hasAccount: true }));
     jest.mocked(acceptInvitation).mockResolvedValue(buildTokenResponse());
   });
 
-  it("Then session starts and today opens", async () => {
+  it("Then they accept without filling anything", async () => {
     await renderWithSession(<AcceptInvitationScreen />);
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("invitation.fullName")),
-      fullName,
-    );
-    await fireEvent.changeText(screen.getByLabelText(translate("invitation.password")), password);
+    const acceptButton = await screen.findByRole("button", {
+      name: translate("invitationAnswer.accept"),
+    });
+    expect(screen.queryByLabelText(translate("invitation.password"))).not.toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole("button", { name: translate("invitation.submit") }));
+    await fireEvent.press(acceptButton);
 
     await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith(routes.today));
-    expect(acceptInvitation).toHaveBeenCalledWith({ token: invitationToken, fullName, password });
+    expect(acceptInvitation).toHaveBeenCalledWith({
+      token: invitationToken,
+      fullName: "",
+      password: "",
+    });
   });
 });

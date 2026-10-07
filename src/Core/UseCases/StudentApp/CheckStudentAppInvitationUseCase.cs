@@ -2,16 +2,20 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record CheckStudentAppInvitationCommand(string? Token) : ICommand;
 
-public sealed record CheckStudentAppInvitationResponse;
+public sealed record CheckStudentAppInvitationResponse(string Email, string BusinessName, bool HasAccount);
 
 public sealed class CheckStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
+    IBusinessRepository businessRepository,
+    IIdentityService identityService,
     ISecretTokenGenerator secretTokenGenerator,
+    ITenantScope tenantScope,
     TimeProvider timeProvider)
     : IUseCase<CheckStudentAppInvitationCommand, CheckStudentAppInvitationResponse>
 {
@@ -24,10 +28,15 @@ public sealed class CheckStudentAppInvitationUseCase(
 
         var invitation = await invitationRepository.FindForUpdateInAnyBusinessByTokenHashAsync(
             secretTokenGenerator.Hash(command.Token), cancellationToken);
+        if (invitation is null || !invitation.IsPendingAt(timeProvider.GetUtcNow()))
+        {
+            return InvalidInvitation();
+        }
 
-        return invitation is not null && invitation.IsPendingAt(timeProvider.GetUtcNow())
-            ? new CheckStudentAppInvitationResponse()
-            : InvalidInvitation();
+        tenantScope.Establish(invitation.TenantId);
+        var business = await businessRepository.GetCurrentAsync(cancellationToken);
+        var hasAccount = await identityService.IsEmailRegisteredAsync(invitation.Email, cancellationToken);
+        return new CheckStudentAppInvitationResponse(invitation.Email, business?.BrandDisplayName ?? string.Empty, hasAccount);
     }
 
     private static Result<CheckStudentAppInvitationResponse> InvalidInvitation() =>

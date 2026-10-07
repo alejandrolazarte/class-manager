@@ -15,6 +15,7 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
                 && invitation.StudentId == studentId
                 && invitation.AcceptedAt == null
                 && invitation.RevokedAt == null
+                && invitation.DeclinedAt == null
                 && invitation.ExpiresAt > now)
             .ToListAsync(cancellationToken);
 
@@ -24,6 +25,7 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
             .Where(invitation => invitation.ClientId == clientId
                 && invitation.AcceptedAt == null
                 && invitation.RevokedAt == null
+                && invitation.DeclinedAt == null
                 && invitation.ExpiresAt > now)
             .OrderByDescending(invitation => invitation.CreatedAt)
             .ToListAsync(cancellationToken);

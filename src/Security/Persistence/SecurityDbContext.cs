@@ -12,6 +12,9 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
     public const string SchemaName = "identity";
     public const string MigrationsHistoryTableName = "__EFMigrationsHistory";
 
+    private const string EmailIndexName = "EmailIndex";
+    private const string NormalizedEmailIsNotNullFilter = "[NormalizedEmail] IS NOT NULL";
+
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
@@ -27,7 +30,13 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
         builder.HasDefaultSchema(SchemaName);
 
         builder.Entity<ApplicationUser>(user =>
-            user.Property(applicationUser => applicationUser.FullName).HasMaxLength(ApplicationUser.FullNameMaxLength).IsRequired());
+        {
+            user.Property(applicationUser => applicationUser.FullName).HasMaxLength(ApplicationUser.FullNameMaxLength).IsRequired();
+            user.HasIndex(applicationUser => applicationUser.NormalizedEmail)
+                .IsUnique()
+                .HasDatabaseName(EmailIndexName)
+                .HasFilter(NormalizedEmailIsNotNullFilter);
+        });
 
         builder.Entity<RefreshToken>(refreshToken =>
         {

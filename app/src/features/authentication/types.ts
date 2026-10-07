@@ -44,6 +44,12 @@ export interface CheckInvitationRequest {
   token: string;
 }
 
+export interface CheckedInvitation {
+  email: string;
+  businessName: string;
+  hasAccount: boolean;
+}
+
 export interface SwitchBranchRequest {
   refreshToken: string;
   businessId: string;

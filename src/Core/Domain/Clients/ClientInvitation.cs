@@ -29,6 +29,7 @@ public sealed class ClientInvitation : ITenantOwned
     public DateTimeOffset ExpiresAt { get; private set; }
     public DateTimeOffset? AcceptedAt { get; private set; }
     public DateTimeOffset? RevokedAt { get; private set; }
+    public DateTimeOffset? DeclinedAt { get; private set; }
 
     public static Result<ClientInvitation> Create(
         Guid clientId,
@@ -57,11 +58,13 @@ public sealed class ClientInvitation : ITenantOwned
         };
     }
 
-    public bool IsPendingAt(DateTimeOffset now) => AcceptedAt is null && RevokedAt is null && ExpiresAt > now;
+    public bool IsPendingAt(DateTimeOffset now) => AcceptedAt is null && RevokedAt is null && DeclinedAt is null && ExpiresAt > now;
 
     public void Accept(DateTimeOffset acceptedAt) => AcceptedAt = acceptedAt.ToUniversalTime();
 
     public void Revoke(DateTimeOffset revokedAt) => RevokedAt = revokedAt.ToUniversalTime();
+
+    public void Decline(DateTimeOffset declinedAt) => DeclinedAt = declinedAt.ToUniversalTime();
 
     private static bool IsValidEmail(string email) =>
         email.Length is > 0 and <= EmailMaxLength

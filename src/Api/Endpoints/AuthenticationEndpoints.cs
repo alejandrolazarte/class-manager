@@ -29,6 +29,8 @@ internal static class AuthenticationEndpoints
         authentication.MapPost(ApiRoutes.AcceptStudentAppInvitation, AcceptStudentAppInvitationAsync);
         authentication.MapPost(ApiRoutes.CheckInvitation, CheckInvitationAsync);
         authentication.MapPost(ApiRoutes.CheckStudentAppInvitation, CheckStudentAppInvitationAsync);
+        authentication.MapPost(ApiRoutes.DeclineInvitation, DeclineInvitationAsync);
+        authentication.MapPost(ApiRoutes.DeclineStudentAppInvitation, DeclineStudentAppInvitationAsync);
         authentication.MapPost(ApiRoutes.SwitchBranch, SwitchBranchAsync);
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
         endpoints.MapGet(ApiRoutes.MyAccount, GetMyAccountAsync).RequireAnyAccount();
@@ -175,12 +177,32 @@ internal static class AuthenticationEndpoints
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
-        return result.ToHttpResult(_ => TypedResults.NoContent());
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> CheckStudentAppInvitationAsync(
         CheckStudentAppInvitationCommand command,
         IUseCase<CheckStudentAppInvitationCommand, CheckStudentAppInvitationResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> DeclineInvitationAsync(
+        DeclineInvitationCommand command,
+        IUseCase<DeclineInvitationCommand, DeclinedInvitationResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> DeclineStudentAppInvitationAsync(
+        DeclineStudentAppInvitationCommand command,
+        IUseCase<DeclineStudentAppInvitationCommand, DeclinedStudentAppInvitationResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);

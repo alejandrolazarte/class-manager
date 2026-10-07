@@ -1,10 +1,12 @@
+using ClassManager.Core.UseCases.StudentApp;
+
 namespace ClassManager.Api.I.Tests.Endpoints.StudentApp.When_pending_student_invitation_is_checked;
 
 [Collection(SqlServerCollectionDefinition.Name)]
-public sealed class Then_returns_204(ApiFixture fixture)
+public sealed class Then_returns_the_invited_email(ApiFixture fixture)
 {
     [Fact]
-    public async Task Then_returns_204_Run()
+    public async Task Then_returns_the_invited_email_Run()
     {
         var coaches = await fixture.SeedCoachScenarioAsync();
         var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
@@ -19,6 +21,7 @@ public sealed class Then_returns_204(ApiFixture fixture)
 
         using var response = await anonymous.PostCheckStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email));
 
-        response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        var checkedInvitation = await response.Content.ReadFromJsonAsync<CheckStudentAppInvitationResponse>(ApiRequests.JsonOptions);
+        checkedInvitation.ShouldBe(new CheckStudentAppInvitationResponse(email, checkedInvitation!.BusinessName, HasAccount: false));
     }
 }

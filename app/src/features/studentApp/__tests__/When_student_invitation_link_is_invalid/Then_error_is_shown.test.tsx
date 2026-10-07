@@ -1,6 +1,6 @@
-import { fireEvent, screen } from "@testing-library/react-native";
+import { screen } from "@testing-library/react-native";
 import { ApiError } from "@/api/httpClient";
-import { acceptStudentAppInvitation } from "@/features/authentication/authenticationApi";
+import { checkStudentAppInvitation } from "@/features/authentication/authenticationApi";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { AcceptStudentAppInvitationScreen } from "@/features/studentApp/screens/AcceptStudentAppInvitationScreen";
 import { translate } from "@/i18n/translate";
@@ -18,7 +18,7 @@ describe("When student invitation link is invalid", () => {
     mockRefreshTokenStorage(null);
     searchParametersMock.current = { token: "used-token" };
     jest
-      .mocked(acceptStudentAppInvitation)
+      .mocked(checkStudentAppInvitation)
       .mockRejectedValue(
         new ApiError(badRequestStatus, { code: studentAppErrorCodes.invalidInvitation }),
       );
@@ -26,14 +26,6 @@ describe("When student invitation link is invalid", () => {
 
   it("Then error is shown", async () => {
     await renderWithSession(<AcceptStudentAppInvitationScreen />);
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("studentAppInvitation.fullName")),
-      "Ana Pérez",
-    );
-
-    await fireEvent.press(
-      screen.getByRole("button", { name: translate("studentAppInvitation.submit") }),
-    );
 
     expect(await screen.findByText(translate("studentAppInvitation.invalid"))).toBeOnTheScreen();
   });

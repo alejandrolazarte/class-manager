@@ -85,6 +85,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<ResendInvitationCommand, InvitationResponse, ResendInvitationUseCase>();
         services.AddUseCase<AcceptInvitationCommand, TokenResponse, AcceptInvitationUseCase>();
         services.AddUseCase<CheckInvitationCommand, CheckInvitationResponse, CheckInvitationUseCase>();
+        services.AddUseCase<DeclineInvitationCommand, DeclinedInvitationResponse, DeclineInvitationUseCase>();
         services.AddUseCase<ChangeMemberRoleCommand, MemberResponse, ChangeMemberRoleUseCase>();
         services.AddUseCase<RemoveMemberCommand, RemovedMemberResponse, RemoveMemberUseCase>();
         services.AddUseCase<ListBranchesQuery, IReadOnlyList<BranchResponse>, ListBranchesUseCase>();
@@ -154,6 +155,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<InviteStudentAppCommand, StudentAppInvitationResponse, InviteStudentAppUseCase>();
         services.AddUseCase<AcceptStudentAppInvitationCommand, TokenResponse, AcceptStudentAppInvitationUseCase>();
         services.AddUseCase<CheckStudentAppInvitationCommand, CheckStudentAppInvitationResponse, CheckStudentAppInvitationUseCase>();
+        services.AddUseCase<DeclineStudentAppInvitationCommand, DeclinedStudentAppInvitationResponse, DeclineStudentAppInvitationUseCase>();
         services.AddUseCase<ListRolesQuery, IReadOnlyList<RoleResponse>, ListRolesUseCase>();
         services.AddUseCase<CreateRoleCommand, RoleResponse, CreateRoleUseCase>();
         services.AddUseCase<UpdateRoleCommand, RoleResponse, UpdateRoleUseCase>();

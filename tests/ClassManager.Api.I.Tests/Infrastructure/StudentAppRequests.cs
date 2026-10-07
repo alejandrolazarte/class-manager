@@ -42,10 +42,16 @@ public static class StudentAppRequests
         return Uri.UnescapeDataString(link[WebAppAcceptStudentAppInvitationUrl.Length..]);
     }
 
-    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token) =>
+    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, string password = StudentAppPassword) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.Authentication + ApiRoutes.AcceptStudentAppInvitation,
-            new AcceptStudentAppInvitationCommand(token, StudentAppFullName, StudentAppPassword),
+            new AcceptStudentAppInvitationCommand(token, StudentAppFullName, password),
+            ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostDeclineStudentAppInvitationAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.DeclineStudentAppInvitation,
+            new DeclineStudentAppInvitationCommand(token),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostCheckStudentAppInvitationAsync(this HttpClient httpClient, string token) =>
