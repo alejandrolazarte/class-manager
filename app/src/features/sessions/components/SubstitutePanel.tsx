@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
+import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
+import { SubstituteInstructorPicker } from "@/features/sessions/components/SubstituteInstructorPicker";
 import { sessionErrorCodes } from "@/features/sessions/sessionErrorCodes";
 import { useAssignSubstitute } from "@/features/sessions/useSessionMutations";
 import { translate } from "@/i18n/translate";
-import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Chip } from "@/ui/Chip";
 import { ListRow } from "@/ui/ListRow";
-import { Spinner } from "@/ui/Spinner";
+import { PickerField } from "@/ui/PickerField";
 import { useToast } from "@/ui/ToastProvider";
 
 interface SubstitutePanelProps {
@@ -35,29 +35,30 @@ export function SubstitutePanel({
   const { showToast } = useToast();
   const assignSubstituteMutation = useAssignSubstitute(classGroupId, sessionDate);
   const [isOpen, setIsOpen] = useState(false);
-  const [instructorId, setInstructorId] = useState<string | null>(null);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [substitute, setSubstitute] = useState<Instructor | null>(null);
   const [failure, setFailure] = useState<SubstituteFailure | null>(null);
-  const { data: instructors, isPending } = useActiveInstructors({ enabled: isOpen });
+  const { data: instructors, isPending, isError } = useActiveInstructors({ enabled: isOpen });
   const offeredInstructors = (instructors ?? []).filter(
     (instructor) => instructor.id !== currentInstructorId,
   );
 
   const toggle = () => {
     setFailure(null);
-    setInstructorId(null);
+    setSubstitute(null);
     setIsOpen(!isOpen);
   };
 
   const confirm = async () => {
     setFailure(null);
-    if (instructorId === null) {
+    if (substitute === null) {
       setFailure("pickInstructor");
       return;
     }
     try {
-      await assignSubstituteMutation.mutateAsync(instructorId);
+      await assignSubstituteMutation.mutateAsync(substitute.id);
       setIsOpen(false);
-      setInstructorId(null);
+      setSubstitute(null);
       showToast(translate("sessions.substitute.saved"));
     } catch (assignError) {
       setFailure(
@@ -79,27 +80,18 @@ export function SubstitutePanel({
       {isOpen ? (
         <View className="gap-2.5 px-4 pb-4">
           {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
-          <AppText variant="label" tone="muted">
-            {translate("sessions.substitute.instructor")}
-          </AppText>
-          {isPending ? (
-            <Spinner />
-          ) : offeredInstructors.length === 0 ? (
-            <AppText variant="body" tone="muted">
-              {translate("sessions.substitute.noInstructors")}
-            </AppText>
-          ) : (
-            <View className="flex-row flex-wrap gap-2">
-              {offeredInstructors.map((instructor) => (
-                <Chip
-                  key={instructor.id}
-                  label={instructor.fullName}
-                  isSelected={instructorId === instructor.id}
-                  onPress={() => setInstructorId(instructor.id)}
-                />
-              ))}
-            </View>
-          )}
+          <PickerField
+            label={translate("sessions.substitute.instructor")}
+            chooseLabel={translate("sessions.substitute.chooseInstructor")}
+            removeLabel={translate("sessions.substitute.removeInstructor")}
+            picked={
+              substitute === null
+                ? null
+                : { name: substitute.fullName, detail: substitute.email ?? "" }
+            }
+            onChoose={() => setIsPickerOpen(true)}
+            onRemove={() => setSubstitute(null)}
+          />
           <Button
             size="medium"
             label={translate("sessions.substitute.confirm")}
@@ -107,6 +99,19 @@ export function SubstitutePanel({
             isLoading={assignSubstituteMutation.isPending}
           />
         </View>
+      ) : null}
+      {isPickerOpen ? (
+        <SubstituteInstructorPicker
+          instructors={offeredInstructors}
+          isPending={isPending}
+          isError={isError}
+          onPick={(instructor) => {
+            setFailure(null);
+            setSubstitute(instructor);
+            setIsPickerOpen(false);
+          }}
+          onClose={() => setIsPickerOpen(false)}
+        />
       ) : null}
     </View>
   );

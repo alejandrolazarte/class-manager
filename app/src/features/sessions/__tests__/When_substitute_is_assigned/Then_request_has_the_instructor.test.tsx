@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react-native";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react-native";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { SessionScreen } from "@/features/sessions/screens/SessionScreen";
 import { assignSubstitute, getSession } from "@/features/sessions/sessionsApi";
@@ -30,9 +30,16 @@ describe("When substitute is assigned", () => {
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("sessions.substitute.open") }),
     );
+    await fireEvent.press(
+      await screen.findByRole("button", {
+        name: translate("sessions.substitute.chooseInstructor"),
+      }),
+    );
+    const picker = within(screen.getByTestId("substitute-instructor-picker"));
+    const substituteOption = await picker.findByRole("button", { name: substitute.fullName });
 
-    expect(screen.queryByRole("button", { name: session.instructorFullName })).toBeNull();
-    await fireEvent.press(await screen.findByRole("button", { name: substitute.fullName }));
+    expect(picker.queryByRole("button", { name: session.instructorFullName })).toBeNull();
+    await fireEvent.press(substituteOption);
     await fireEvent.press(
       screen.getByRole("button", { name: translate("sessions.substitute.confirm") }),
     );
