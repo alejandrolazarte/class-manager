@@ -46,6 +46,7 @@ public static class InfrastructureServiceCollectionExtensions
             options
                 .UseSqlServer(connectionString)
                 .AddInterceptors(
+                    new SqlConnectionRetryInterceptor(),
                     new SoftDeleteSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>()),
                     serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>(),
                     serviceProvider.GetRequiredService<FeatureLimitSaveChangesInterceptor<AppDbContext>>());
