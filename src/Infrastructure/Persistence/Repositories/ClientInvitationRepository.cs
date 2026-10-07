@@ -5,26 +5,28 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
 {
     public void Add(ClientInvitation invitation) => context.ClientInvitations.Add(invitation);
 
-    public async Task<IReadOnlyList<ClientInvitation>> ListPendingForUpdateByClientAsync(
+    public async Task<IReadOnlyList<ClientInvitation>> ListPendingForUpdateByPersonAsync(
         Guid clientId,
+        Guid? studentId,
         DateTimeOffset now,
         CancellationToken cancellationToken) =>
         await context.ClientInvitations
             .Where(invitation => invitation.ClientId == clientId
+                && invitation.StudentId == studentId
                 && invitation.AcceptedAt == null
                 && invitation.RevokedAt == null
                 && invitation.ExpiresAt > now)
             .ToListAsync(cancellationToken);
 
-    public Task<ClientInvitation?> FindLatestPendingByClientAsync(Guid clientId, DateTimeOffset now, CancellationToken cancellationToken) =>
-        context.ClientInvitations
+    public async Task<IReadOnlyList<ClientInvitation>> ListPendingByClientAsync(Guid clientId, DateTimeOffset now, CancellationToken cancellationToken) =>
+        await context.ClientInvitations
             .AsNoTracking()
             .Where(invitation => invitation.ClientId == clientId
                 && invitation.AcceptedAt == null
                 && invitation.RevokedAt == null
                 && invitation.ExpiresAt > now)
             .OrderByDescending(invitation => invitation.CreatedAt)
-            .FirstOrDefaultAsync(cancellationToken);
+            .ToListAsync(cancellationToken);
 
     public Task<ClientInvitation?> FindForUpdateInAnyBusinessByTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         context.ClientInvitations

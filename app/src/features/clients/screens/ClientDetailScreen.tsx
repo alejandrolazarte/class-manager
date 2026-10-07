@@ -77,9 +77,15 @@ interface ClientClassesProps {
   client: ClientDetails;
   clientIsTheOnlyStudent: boolean;
   hasTitle: boolean;
+  canInviteStudents: boolean;
 }
 
-function ClientClasses({ client, clientIsTheOnlyStudent, hasTitle }: ClientClassesProps) {
+function ClientClasses({
+  client,
+  clientIsTheOnlyStudent,
+  hasTitle,
+  canInviteStudents,
+}: ClientClassesProps) {
   if (clientIsTheOnlyStudent) {
     return (
       <>
@@ -121,6 +127,10 @@ function ClientClasses({ client, clientIsTheOnlyStudent, hasTitle }: ClientClass
                 ) : null}
               </View>
               <StudentClasses studentId={student.id} />
+              {canInviteStudents &&
+              normalizedName(student.fullName) !== normalizedName(client.fullName) ? (
+                <InviteStudentAppSection client={client} student={student} />
+              ) : null}
             </Card>
           );
         })
@@ -255,6 +265,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
             client={client}
             clientIsTheOnlyStudent={clientIsTheOnlyStudent}
             hasTitle={!canViewPayments}
+            canInviteStudents={canManageStudents}
           />
           {canManageStudents ? (
             <Button

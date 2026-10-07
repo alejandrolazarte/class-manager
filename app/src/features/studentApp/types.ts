@@ -120,6 +120,8 @@ export interface StudentAppHome {
 
 export interface InviteStudentAppRequest {
   email: string;
+  studentId?: string;
+  birthDate?: string;
 }
 
 export interface StudentAppInvitation {

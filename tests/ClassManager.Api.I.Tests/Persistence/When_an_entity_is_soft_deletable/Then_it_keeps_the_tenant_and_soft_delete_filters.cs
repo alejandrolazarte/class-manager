@@ -1,5 +1,6 @@
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Records;
+using ClassManager.Tenancy;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 
 namespace ClassManager.Api.I.Tests.Persistence.When_an_entity_is_soft_deletable;
@@ -19,8 +20,9 @@ public sealed class Then_it_keeps_the_tenant_and_soft_delete_filters(ApiFixture 
             .Where(entityType =>
             {
                 var filterKeys = entityType.GetDeclaredQueryFilters().Select(filter => filter.Key).ToList();
+                var isTenantOwned = typeof(ITenantOwned).IsAssignableFrom(entityType.ClrType);
                 return !filterKeys.Contains(SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter)
-                    || !filterKeys.Contains(TenantModelBuilderExtensions.TenantQueryFilter);
+                    || (isTenantOwned && !filterKeys.Contains(TenantModelBuilderExtensions.TenantQueryFilter));
             })
             .Select(entityType => entityType.ClrType.Name)
             .ToList();

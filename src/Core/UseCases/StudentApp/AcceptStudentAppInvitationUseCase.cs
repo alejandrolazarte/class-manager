@@ -64,14 +64,14 @@ public sealed class AcceptStudentAppInvitationUseCase(
             existingAccount = await accountRepository.FindByUserAsync(userId.Value, cancellationToken);
         }
 
-        if (existingAccount is not null && existingAccount.ClientId != invitation.ClientId)
+        if (existingAccount is not null && (existingAccount.ClientId != invitation.ClientId || existingAccount.StudentId != invitation.StudentId))
         {
             return Result.Conflict<TokenResponse>(AlreadyLinkedMessage, StudentAppErrorCodes.AlreadyLinked);
         }
 
         if (existingAccount is null)
         {
-            accountRepository.Add(ClientAccount.Create(invitation.ClientId, userId!.Value, now));
+            accountRepository.Add(ClientAccount.Create(invitation.ClientId, userId!.Value, now, invitation.StudentId));
         }
 
         invitation.Accept(now);

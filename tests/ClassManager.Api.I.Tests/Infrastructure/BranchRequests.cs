@@ -35,4 +35,7 @@ public static class BranchRequests
 
     public static Task<HttpResponseMessage> PutBrandOwnerAsync(this HttpClient httpClient, Guid memberId) =>
         httpClient.PutAsync(new Uri($"{ApiRoutes.Members}/{memberId}{ApiRoutes.BrandOwnerSegment}", UriKind.Relative), null);
+
+    public static Task<HttpResponseMessage> DeleteBrandOwnerAsync(this HttpClient httpClient, Guid memberId) =>
+        httpClient.DeleteAsync(new Uri($"{ApiRoutes.Members}/{memberId}{ApiRoutes.BrandOwnerSegment}", UriKind.Relative));
 }

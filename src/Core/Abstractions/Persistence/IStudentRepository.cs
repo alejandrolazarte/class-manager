@@ -6,6 +6,8 @@ public interface IStudentRepository
 {
     void Add(Student student);
 
+    Task<Student?> FindForUpdateAsync(Guid studentId, CancellationToken cancellationToken);
+
     Task<Student?> FindByClientAndNameAsync(Guid clientId, string fullName, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken);

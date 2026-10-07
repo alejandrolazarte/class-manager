@@ -13,6 +13,7 @@ internal sealed class ClientInvitationConfiguration : IEntityTypeConfiguration<C
 
         builder.HasOne<Business>().WithMany().HasForeignKey(invitation => invitation.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Client>().WithMany().HasForeignKey(invitation => invitation.ClientId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Student>().WithMany().HasForeignKey(invitation => invitation.StudentId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(invitation => invitation.TokenHash).IsUnique();
         builder.HasIndex(invitation => new { invitation.TenantId, invitation.ClientId });
     }

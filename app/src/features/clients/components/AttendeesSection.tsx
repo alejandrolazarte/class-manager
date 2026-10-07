@@ -59,6 +59,7 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
               fullName: `additionalStudents.${index}.fullName`,
               birthDate: `additionalStudents.${index}.birthDate`,
               notes: `additionalStudents.${index}.notes`,
+              email: `additionalStudents.${index}.email`,
             }}
             autoFocus
             isInsideCard

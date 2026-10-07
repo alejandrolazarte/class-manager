@@ -24,7 +24,8 @@ internal sealed class GetClientUseCaseBuilder
     {
         Clients.Setup(repository => repository.GetByIdAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Client);
         Students.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        ClientAccounts.Setup(repository => repository.ListUserIdsByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Invitations.Setup(repository => repository.ListPendingByClientAsync(Client.Id, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         FeeSchedules
             .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
@@ -32,13 +33,13 @@ internal sealed class GetClientUseCaseBuilder
 
     public void WithPendingInvitation() =>
         Invitations
-            .Setup(repository => repository.FindLatestPendingByClientAsync(Client.Id, TestData.Now, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ClientInvitation.Create(Client.Id, InvitedEmail, "token-hash", Guid.CreateVersion7(), TestData.Now).Value);
+            .Setup(repository => repository.ListPendingByClientAsync(Client.Id, TestData.Now, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([ClientInvitation.Create(Client.Id, InvitedEmail, "token-hash", Guid.CreateVersion7(), TestData.Now).Value!]);
 
     public void WithStudentAppAccount()
     {
         var userId = Guid.CreateVersion7();
-        ClientAccounts.Setup(repository => repository.ListUserIdsByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([userId]);
+        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, userId, TestData.Now)]);
         Identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new UserAccount(userId, SignInEmail, Client.FullName)]);
