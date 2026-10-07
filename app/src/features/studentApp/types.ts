@@ -113,6 +113,7 @@ export interface StudentAppHome {
   businessName: string;
   currencyCode: string;
   clientFullName: string;
+  signedInFullName: string;
   students: AccountStudent[];
   billing: StudentAppBilling;
   levels: StudentAppLevel[];

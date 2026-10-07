@@ -33,7 +33,8 @@ public sealed class GetStudentAppHomeUseCase(
     IFeeScheduleRepository feeScheduleRepository,
     IPaymentRepository paymentRepository,
     IClassBalanceService classBalanceService,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IIdentityService identityService)
     : IUseCase<GetStudentAppHomeQuery, StudentAppHomeResponse>
 {
     public const int LookAheadDays = 14;
@@ -169,13 +170,15 @@ public sealed class GetStudentAppHomeUseCase(
                     : null));
         }
 
+        var signedInAccounts = await identityService.ListAccountsAsync([access.UserId], cancellationToken);
         return new StudentAppHomeResponse(
             business.Name,
             business.CurrencyCode,
             client.FullName,
             studentResponses,
             await BillingAsync(client.Id, today, cancellationToken),
-            levels);
+            levels,
+            signedInAccounts.Count > 0 ? signedInAccounts[0].FullName : client.FullName);
     }
 
     private const string PrivateLessonName = "Clase particular";

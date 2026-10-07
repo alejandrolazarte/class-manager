@@ -873,6 +873,7 @@
   "studentAppInvitation.invalid": "El link no es válido, venció o ya se usó. Pedí una invitación nueva en la sede.",
   "studentAppInvitation.alreadyLinked": "Esta cuenta ya está vinculada a otro alumno de esta sede.",
   "studentAppInvitation.goToSignIn": "Ir a ingresar",
+  "studentAppInvitation.existingAccountTitle": "Te invitaron a la app",
   "studentAppInvitation.existingAccount": "{business} te invitó a su app. Ya tenés cuenta con {email}: si aceptás, vas a entrar con tu contraseña de siempre.",
   "invitationAnswer.accept": "Aceptar",
   "invitationAnswer.greeting": "Hola, {name}. Completá tu fecha de nacimiento y elegí una contraseña para entrar.",

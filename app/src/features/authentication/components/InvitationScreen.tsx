@@ -26,6 +26,7 @@ export interface AcceptInvitationAnswer {
 
 interface InvitationScreenProps {
   title: string;
+  existingAccountTitle: string;
   invalidMessage: string;
   invalidInvitationCode: string;
   conflictMessages: Record<string, string>;
@@ -45,6 +46,7 @@ const badRequestStatus = 400;
 
 export function InvitationScreen({
   title,
+  existingAccountTitle,
   invalidMessage,
   invalidInvitationCode,
   conflictMessages,
@@ -168,7 +170,11 @@ export function InvitationScreen({
   const goToSignIn = () => router.replace(routes.signIn);
 
   return (
-    <AuthenticationScreenLayout title={title} onBack={goToSignIn} mark={<BrandMark />}>
+    <AuthenticationScreenLayout
+      title={invitation?.hasAccount ? existingAccountTitle : title}
+      onBack={goToSignIn}
+      mark={<BrandMark />}
+    >
       {failure?.kind === "invalidLink" ? (
         <Banner message={invalidMessage}>
           <Button

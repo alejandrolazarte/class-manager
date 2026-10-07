@@ -75,7 +75,7 @@ export function StudentAppHomeScreen() {
         <ScreenHeader
           leading={<CurrentBrandLogo />}
           eyebrow={brandName ?? home.businessName}
-          title={translate("student.greeting", { name: firstNameOf(home.clientFullName) })}
+          title={translate("student.greeting", { name: firstNameOf(home.signedInFullName) })}
           accessory={
             news === undefined ? undefined : (
               <NewsBell

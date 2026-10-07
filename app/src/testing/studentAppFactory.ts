@@ -101,6 +101,7 @@ export function buildStudentAppHome(overrides: Partial<StudentAppHome> = {}): St
     businessName: "DF Swimming Tenerife",
     currencyCode: "EUR",
     clientFullName: "Ana Pérez",
+    signedInFullName: "Ana Pérez",
     students: [buildAccountStudent()],
     billing: {
       kind: "BusinessFee",

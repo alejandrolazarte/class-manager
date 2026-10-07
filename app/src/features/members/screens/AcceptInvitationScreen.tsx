@@ -39,6 +39,7 @@ export function AcceptInvitationScreen() {
   return (
     <InvitationScreen
       title={translate("invitation.title")}
+      existingAccountTitle={translate("invitation.title")}
       invalidMessage={translate("invitation.invalid")}
       invalidInvitationCode={memberErrorCodes.invalidInvitation}
       conflictMessages={conflictMessages}

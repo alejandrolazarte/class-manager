@@ -41,6 +41,7 @@ export function AcceptStudentAppInvitationScreen() {
   return (
     <InvitationScreen
       title={translate("studentAppInvitation.title")}
+      existingAccountTitle={translate("studentAppInvitation.existingAccountTitle")}
       invalidMessage={translate("studentAppInvitation.invalid")}
       invalidInvitationCode={studentAppErrorCodes.invalidInvitation}
       conflictMessages={conflictMessages}
