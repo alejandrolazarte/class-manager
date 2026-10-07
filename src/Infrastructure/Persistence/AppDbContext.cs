@@ -1,3 +1,4 @@
+using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
@@ -33,6 +34,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<MemberPushSubscription> MemberPushSubscriptions => Set<MemberPushSubscription>();
     public DbSet<TeamNotification> TeamNotifications => Set<TeamNotification>();
+    public DbSet<BackgroundTask> BackgroundTasks => Set<BackgroundTask>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<DefaultMonthlyFeeChange> DefaultMonthlyFeeChanges => Set<DefaultMonthlyFeeChange>();
     public DbSet<ClientBillingPlanChange> ClientBillingPlanChanges => Set<ClientBillingPlanChange>();

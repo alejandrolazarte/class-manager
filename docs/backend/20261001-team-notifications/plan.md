@@ -20,7 +20,7 @@ Coaches and owners had no notifications: a new order sent an email to the staff,
 - `TeamNotification` (tenant-owned): recipient user, title, body, app URL, created and seen times. Title and body are shortened to 120 and 300 characters.
 - `MemberPushSubscription` (tenant-owned): a separate table from the family `PushSubscriptions`, so a device used for both a family and a team account keeps both subscriptions. Both share the endpoint and key validation (`PushSubscriptionRules`).
 - `ITeamNotificationService` is called by the absence and makeup use cases after saving; orders reuse `OrderNotificationService`. `TeamNotifier` stores the notifications and enqueues the push.
-- The push pipeline is shared: `PushOutbox` carries `FamilyPush` and `TeamPush` jobs, `PushDispatcher` sends each to its subscriptions and removes the ones the push service reports as gone, and `PushWorker` runs them in the background. Nothing is sent when VAPID keys are not configured; the avisos are still stored.
+- The push pipeline is shared: `PushOutbox` carries `FamilyPush` and `TeamPush` jobs, `PushDispatcher` sends each to its subscriptions and removes the ones the push service reports as gone, and `PushWorker` runs them in the background (the in-memory outbox and `PushWorker` were later replaced by stored background tasks, see the [background tasks plan](../20261007-background-tasks/plan.md)). Nothing is sent when VAPID keys are not configured; the avisos are still stored.
 
 ## API
 
