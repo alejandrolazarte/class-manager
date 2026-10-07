@@ -60,7 +60,7 @@ A branch can have its own roles (`CustomRoles`: name, permission codes, the role
 - **Nobody hands out permissions they don't have**: creating or editing a role, inviting with a role and changing someone's role fail with `403 role.exceeds_own` when the role has a permission the current member lacks.
 - Nobody edits the role they hold (`403 role.own_role`).
 - A role with an `.own` permission and without the matching `.all` needs a linked coach: editing a role into that shape fails with `409 role.instructor_required` while a member or pending invitation with that role has no coach.
-- A role used by members or pending invitations can't be deleted (`409 role.in_use`); deleting it removes its old, used or revoked invitations.
+- A role used by members or pending invitations can't be deleted (`409 role.in_use`). Deleting it is a soft delete: the role disappears from the app, and removed members and old invitations keep pointing to it, so the history still says which role someone had. Its name can be used again.
 - Invitations and member changes send `role: "Custom"` with `customRoleId`. Team, invitation and `GET /api/me` responses return `customRoleId`; `GET /api/me/branches` returns `customRoleName`.
 
 ## Collecting from a coach's own students
@@ -127,6 +127,7 @@ The `role` claim in the token is informational; authorization never reads it.
 
 - Giving, changing or taking away `BranchOwner` also needs `branchOwners.manage` (brand owners only).
 - Nobody changes or removes their own membership.
+- Removing a member is a soft delete: the `BusinessMembers` row stays with `IsDeleted = 1` and `DeletedOn`, so the history keeps who had access, with which role and until when. Every query ignores it, including sign-in and refresh (`BranchDirectory` uses `IgnoreTenantFilter()`, which keeps the soft delete filter), and the same person can be invited again.
 - Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation. Resending an invitation that was not accepted or revoked (expired ones too) replaces its token, so the previous link stops working, and emails the new one.
 - Accepting creates the account when the email has none (full name and password required). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password.
 
@@ -165,9 +166,9 @@ dotnet test tests/ClassManager.Api.I.Tests --filter "FullyQualifiedName~Authoriz
 
 ```sql
 SELECT o.Name, om.UserId, om.Role FROM OrganizationMembers om JOIN Organizations o ON o.Id = om.OrganizationId;
-SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
+SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId, bm.IsDeleted, bm.DeletedOn FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
 SELECT TenantId, Email, Role, CustomRoleId, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
-SELECT TenantId, Name, Permissions, CopiedFrom FROM CustomRoles;
+SELECT TenantId, Name, Permissions, CopiedFrom, IsDeleted, DeletedOn FROM CustomRoles;
 SELECT TenantId, ClientId, Amount, Month, RecordedByUserId FROM Payments ORDER BY CreatedAt DESC;
 SELECT TenantId, ClientId, UserId FROM ClientAccounts;
 SELECT TenantId, ClientId, Email, ExpiresAt, AcceptedAt, RevokedAt FROM ClientInvitations;

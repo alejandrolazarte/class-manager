@@ -25,6 +25,6 @@ internal sealed class CustomRoleConfiguration : IEntityTypeConfiguration<CustomR
             .IsRequired();
 
         builder.HasOne<Business>().WithMany().HasForeignKey(role => role.TenantId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(role => new { role.TenantId, role.Name }).IsUnique();
+        builder.HasIndex(role => new { role.TenantId, role.Name }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
     }
 }
