@@ -127,6 +127,7 @@ The `role` claim in the token is informational; authorization never reads it.
 
 - Giving, changing or taking away `BranchOwner` also needs `branchOwners.manage` (brand owners only).
 - Nobody changes or removes their own membership.
+- Removing someone from the brand owners is a soft delete too: the `OrganizationMembers` row stays with `IsDeleted = 1` and `DeletedOn`, sign-in and refresh ignore it, and the app asks for confirmation first.
 - Removing a member is a soft delete: the `BusinessMembers` row stays with `IsDeleted = 1` and `DeletedOn`, so the history keeps who had access, with which role and until when. Every query ignores it, including sign-in and refresh (`BranchDirectory` uses `IgnoreTenantFilter()`, which keeps the soft delete filter), and the same person can be invited again.
 - Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation. Resending an invitation that was not accepted or revoked (expired ones too) replaces its token, so the previous link stops working, and emails the new one.
 - Accepting creates the account when the email has none (full name and password required). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password.
@@ -165,7 +166,7 @@ dotnet test tests/ClassManager.Api.I.Tests --filter "FullyQualifiedName~Authoriz
 ```
 
 ```sql
-SELECT o.Name, om.UserId, om.Role FROM OrganizationMembers om JOIN Organizations o ON o.Id = om.OrganizationId;
+SELECT o.Name, om.UserId, om.Role, om.IsDeleted, om.DeletedOn FROM OrganizationMembers om JOIN Organizations o ON o.Id = om.OrganizationId;
 SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId, bm.IsDeleted, bm.DeletedOn FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
 SELECT TenantId, Email, Role, CustomRoleId, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
 SELECT TenantId, Name, Permissions, CopiedFrom, IsDeleted, DeletedOn FROM CustomRoles;
