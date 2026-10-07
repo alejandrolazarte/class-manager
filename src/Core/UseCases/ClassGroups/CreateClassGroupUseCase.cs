@@ -37,6 +37,12 @@ public sealed class CreateClassGroupUseCase(
             return classGroup.Error!;
         }
 
+        var material = classGroup.Value!.ShareMaterial(details.MaterialUrl);
+        if (material.IsFailure)
+        {
+            return material.Error!;
+        }
+
         var conflict = await ClassGroupRules.FindInstructorConflictAsync(
             classGroupRepository, instructor.Value.Id, classGroup.Value!.Id, schedule.Value!, cancellationToken);
         conflict ??= await InstructorAgendaRules.FindWeeklyPrivateLessonConflictAsync(

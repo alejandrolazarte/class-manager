@@ -11,6 +11,7 @@ internal sealed class ClassGroupConfiguration : IEntityTypeConfiguration<ClassGr
         builder.Property(classGroup => classGroup.Name).HasMaxLength(ClassGroup.NameMaxLength).IsRequired();
         builder.Property(classGroup => classGroup.Weekdays).HasConversion<int>();
         builder.Property(classGroup => classGroup.Location).HasMaxLength(ClassGroup.LocationMaxLength);
+        builder.Property(classGroup => classGroup.MaterialUrl).HasMaxLength(ClassGroup.MaterialUrlMaxLength);
         builder.Ignore(classGroup => classGroup.Schedule);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(classGroup => classGroup.TenantId).OnDelete(DeleteBehavior.Restrict);

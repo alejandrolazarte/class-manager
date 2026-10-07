@@ -12,6 +12,7 @@ export interface ClassGroup {
   durationMinutes: number;
   capacity: number;
   location: string | null;
+  materialUrl: string | null;
   isActive: boolean;
   enrolledCount: number;
 }
@@ -24,4 +25,5 @@ export interface SaveClassGroupRequest {
   durationMinutes: number;
   capacity: number;
   location: string | null;
+  materialUrl: string | null;
 }

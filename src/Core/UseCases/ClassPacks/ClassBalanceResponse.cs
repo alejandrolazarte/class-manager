@@ -15,7 +15,6 @@ public sealed record ClassPackUsageResponse(
     int RemainingClasses,
     ClassPackPurchaseStatus Status,
     int? ClassDurationMinutes,
-    string? MaterialUrl,
     Guid? RecordedByUserId = null)
 {
     public static ClassPackUsageResponse From(ClassPackUsage usage) =>
@@ -31,7 +30,6 @@ public sealed record ClassPackUsageResponse(
             usage.RemainingClasses,
             usage.Status,
             usage.Purchase.ClassDurationMinutes,
-            usage.Purchase.MaterialUrl,
             usage.Purchase.RecordedByUserId);
 }
 

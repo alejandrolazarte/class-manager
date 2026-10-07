@@ -68,6 +68,12 @@ public sealed class UpdateClassGroupUseCase(
             return update.Error!;
         }
 
+        var material = classGroup.ShareMaterial(details.MaterialUrl);
+        if (material.IsFailure)
+        {
+            return material.Error!;
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ClassGroupResponse.From(classGroup, instructor.Value.FullName, enrolledCount);

@@ -7,14 +7,12 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/classPacks/classPacksApi");
 
-const materialUrl = "https://example.com/adg-de-autor.pdf";
-
-describe("When pack has class duration and material", () => {
+describe("When pack has class duration", () => {
   beforeEach(() => {
     jest.mocked(createClassPack).mockResolvedValue(buildClassPack());
   });
 
-  it("Then they are sent", async () => {
+  it("Then it is sent", async () => {
     await renderWithProviders(<ClassPackFormScreen />);
     await fireEvent.changeText(
       screen.getByLabelText(translate("classPacks.form.name")),
@@ -30,16 +28,12 @@ describe("When pack has class duration and material", () => {
         name: translate("classGroups.form.durationOption", { minutes: 45 }),
       }),
     );
-    await fireEvent.changeText(
-      screen.getByLabelText(translate("classPacks.form.materialUrl")),
-      materialUrl,
-    );
 
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     await waitFor(() =>
       expect(createClassPack).toHaveBeenCalledWith(
-        expect.objectContaining({ classDurationMinutes: 45, materialUrl }),
+        expect.objectContaining({ classDurationMinutes: 45 }),
       ),
     );
   });

@@ -11,11 +11,8 @@ export const classPackLimits = {
   maximumClassCount: 100,
   minimumValidityMonths: 1,
   maximumValidityMonths: 24,
-  materialUrlMaximumLength: 500,
   descriptionMaximumLength: 500,
 } as const;
-
-const httpsUrlPattern = /^https:\/\/\S+$/i;
 
 const wholeNumberPattern = /^\d+$/;
 
@@ -66,17 +63,6 @@ export const classPackSchema = z.object({
       translate("classPacks.validation.validityInvalid"),
     ),
   classDurationMinutes: z.string(),
-  materialUrl: z
-    .string()
-    .trim()
-    .max(
-      classPackLimits.materialUrlMaximumLength,
-      translate("classPacks.validation.materialUrlInvalid"),
-    )
-    .refine(
-      (materialUrl) => materialUrl.length === 0 || httpsUrlPattern.test(materialUrl),
-      translate("classPacks.validation.materialUrlInvalid"),
-    ),
   classGroupIds: z.array(z.string()),
 });
 
@@ -89,7 +75,6 @@ export const classPackFieldNames = [
   "price",
   "validityMonths",
   "classDurationMinutes",
-  "materialUrl",
   "classGroupIds",
 ] as const satisfies readonly (keyof ClassPackFormValues)[];
 
@@ -103,7 +88,6 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
     classDurationMinutes: classPack?.classDurationMinutes
       ? String(classPack.classDurationMinutes)
       : "",
-    materialUrl: classPack?.materialUrl ?? "",
     classGroupIds: classPack?.classGroupIds ?? [],
   };
 }
@@ -119,7 +103,6 @@ export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveCla
     validityMonths: validityMonths.length === 0 ? null : Number(validityMonths),
     classDurationMinutes:
       formValues.classDurationMinutes.length === 0 ? null : Number(formValues.classDurationMinutes),
-    materialUrl: formValues.materialUrl.trim().length === 0 ? null : formValues.materialUrl.trim(),
     classGroupIds: formValues.classGroupIds,
   };
 }

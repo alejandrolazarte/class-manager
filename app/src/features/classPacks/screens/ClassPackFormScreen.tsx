@@ -53,7 +53,7 @@ interface ClassPackFieldOptions {
   placeholderKey?: TranslationKey;
   isMultiline?: boolean;
   isRequired?: boolean;
-  keyboardType?: "default" | "number-pad" | "decimal-pad" | "url";
+  keyboardType?: "default" | "number-pad" | "decimal-pad";
 }
 
 function ClassPackEditor({ classPack }: ClassPackEditorProps) {
@@ -141,7 +141,6 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           placeholder={placeholderKey ? translate(placeholderKey) : undefined}
           keyboardType={keyboardType}
           multiline={isMultiline}
-          autoCapitalize={keyboardType === "url" ? "none" : undefined}
           value={field.value}
           onChangeText={field.onChange}
           onBlur={field.onBlur}
@@ -253,12 +252,6 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           )}
         />
       ) : null}
-      {renderField({
-        name: "materialUrl",
-        labelKey: "classPacks.form.materialUrl",
-        placeholderKey: "classPacks.form.materialUrlPlaceholder",
-        keyboardType: "url",
-      })}
       <CatalogImageField images={images} placeholderIcon="classPacks" />
       <View className="gap-3">
         <Button
