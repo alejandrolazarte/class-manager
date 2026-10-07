@@ -21,7 +21,7 @@ describe("When client attends", () => {
       expect(registerClient).toHaveBeenCalledWith({
         fullName: "Ana Pérez",
         phoneNumber: "11 2233-4455",
-        students: [{ fullName: "Ana Pérez", birthDate: null, notes: null }],
+        students: [{ fullName: "Ana Pérez", birthDate: null, notes: null, email: null }],
       }),
     );
   });

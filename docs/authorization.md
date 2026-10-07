@@ -24,16 +24,17 @@ A role that has an `.own` permission without the matching `.all` one needs a lin
 
 Student app users are a different kind of user from the team, kept apart from everything the team does:
 
-- A **student account** (`ClientAccounts`: `ClientId`, `UserId`) belongs to whoever pays: a parent or an adult who takes the classes. Children never sign in. A user has at most one student account per branch (`student.already_linked` otherwise); several users can share a client.
-- The branch invites from the student card (`POST /api/clients/{id}/app-invitation`, `students.manage` and the same client scope as the rest of the team; the email defaults to the client's). The link (`/accept-student-invitation?token=`) is single-use, valid 7 days and hashed, like team invitations; inviting again revokes the previous one. Accepting (`POST /api/auth/student-app-invitations/accept`, anonymous) creates the account when the email has none.
-- The student card reads the app access from `GET /api/clients/{id}`: `appAccess.status` is `Active` once a student account exists, `Invited` (with `invitedEmail`) while an invitation is pending, and `NotInvited` otherwise.
+- A **student account** (`ClientAccounts`: `ClientId`, `StudentId`, `UserId`) belongs to one person of a family: the client who pays (`StudentId` empty) or one of their students (a child or another person they pay for). Every account of a client sees the whole family: its students, classes and balances. A user has at most one student account per branch (`student.already_linked` otherwise, also when the same email was already used by another person of the family).
+- Each person signs in with their own email. A student's email is optional and is never copied from the client: when a student has no email, they can't be invited until one is typed. No two people of a family share an email (`student.email_of_another_person`, checked when registering the client, adding a student and inviting).
+- The branch invites from the student card (`POST /api/clients/{id}/app-invitation`, `students.manage` and the same client scope as the rest of the team). Without `studentId` it invites the client, and the email defaults to the client's. With `studentId` it invites that student: the email defaults to the student's and is saved on the student, and the student's birth date is required (`student_invitation.birth_date_required`; send `birthDate` when it is missing) so the age of everyone using the app is known. The link (`/accept-student-invitation?token=`) is single-use, valid 7 days and hashed, like team invitations; inviting again revokes the previous one. Accepting (`POST /api/auth/student-app-invitations/accept`, anonymous) creates the account when the email has none.
+- The student card reads the app access from `GET /api/clients/{id}`: `appAccess` for the client and `students[].appAccess` for each student. `status` is `Active` once that person's account exists, `Invited` (with `invitedEmail`) while an invitation is pending, and `NotInvited` otherwise.
 - **The session kind is fixed at sign-in.** Tokens carry a `kind` claim (`team` or `student`; no claim means `team`) and the refresh token stores it, so refreshing or switching branch can never turn a student session into a team one, or the other way. Sign-in opens the team session when the user is a team member and the student session otherwise (a coach who is also a student reaches the student side once a switch exists; not built yet).
 - **Two disjoint authorization paths.** Team endpoints (`permission:` policies) reject any token whose kind is not `team`. Student endpoints, all under `/api/student-app`, use their own `student` policy: the token kind must be `student` and the user must have a `ClientAccounts` row in the token's branch (read from the database on every request, like `ICurrentMember`). Two tests enforce it: every endpoint is anonymous, a permission or `student`, and `student` only appears under `/api/student-app` and covers everything there.
 - Student use cases never reuse team use cases and never take a client id from the request: they read it from `IStudentAppAccess`.
 
 | Operation | Endpoint | Who |
 |---|---|---|
-| Invite a client to the student app | `POST /api/clients/{id}/app-invitation` `{ email? }` | `students.manage` |
+| Invite a client or one of their students to the student app | `POST /api/clients/{id}/app-invitation` `{ email?, studentId?, birthDate? }` | `students.manage` |
 | Edit a client's name, phone, email and notes (same client scope; another client's phone is `409 client.phone_number_taken`) | `PUT /api/clients/{id}` | `students.manage` |
 | Accept the invitation | `POST /api/auth/student-app-invitations/accept` | anonymous |
 | Home: students with next classes (14 days, cancellations, reschedules and substitutes applied), the month's fee or the class balance | `GET /api/student-app` | student |
@@ -170,6 +171,6 @@ SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId, bm.IsDelete
 SELECT TenantId, Email, Role, CustomRoleId, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
 SELECT TenantId, Name, Permissions, CopiedFrom, IsDeleted, DeletedOn FROM CustomRoles;
 SELECT TenantId, ClientId, Amount, Month, RecordedByUserId FROM Payments ORDER BY CreatedAt DESC;
-SELECT TenantId, ClientId, UserId FROM ClientAccounts;
-SELECT TenantId, ClientId, Email, ExpiresAt, AcceptedAt, RevokedAt FROM ClientInvitations;
+SELECT TenantId, ClientId, StudentId, UserId FROM ClientAccounts;
+SELECT TenantId, ClientId, StudentId, Email, ExpiresAt, AcceptedAt, RevokedAt FROM ClientInvitations;
 ```

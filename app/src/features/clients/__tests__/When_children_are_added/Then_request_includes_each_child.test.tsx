@@ -27,8 +27,8 @@ describe("When children are added", () => {
 
     await waitFor(() =>
       expect(jest.mocked(registerClient).mock.calls[0]?.[0].students).toEqual([
-        { fullName: "Tomás Pérez", birthDate: "2018-03-14", notes: null },
-        { fullName: "Lucía Pérez", birthDate: null, notes: null },
+        { fullName: "Tomás Pérez", birthDate: "2018-03-14", notes: null, email: null },
+        { fullName: "Lucía Pérez", birthDate: null, notes: null, email: null },
       ]),
     );
   });

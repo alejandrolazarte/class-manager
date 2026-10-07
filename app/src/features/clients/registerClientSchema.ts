@@ -3,6 +3,7 @@ import { emailAddressSchema } from "@/forms/emailAddress";
 import { countDigits } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientRequest } from "@/features/clients/types";
 import {
+  isEmailOfAnotherPerson,
   normalizeStudentName,
   studentFormSchema,
   toNewStudentRequest,
@@ -25,7 +26,7 @@ const phoneNumberAllowedCharactersPattern = /^[+\d\s()-]+$/;
 const serverStudentFieldPattern = /^students\[(\d+)\]\.(\w+)$/;
 const serverStudentsFieldName = "students";
 const clientFieldNames = ["fullName", "phoneNumber", "email", "notes"] as const;
-const studentFieldNames = ["fullName", "birthDate", "notes"] as const;
+const studentFieldNames = ["fullName", "birthDate", "notes", "email"] as const;
 
 export const clientContactSchema = z.object({
   fullName: z
@@ -83,6 +84,19 @@ export const registerClientSchema = clientFieldsSchema.superRefine((formValues, 
     formValues.clientAttends ? [normalizeStudentName(formValues.fullName)] : [],
   );
   formValues.additionalStudents.forEach((additionalStudent, index) => {
+    const otherPeopleEmails = [
+      formValues.email,
+      ...formValues.additionalStudents
+        .filter((_, otherIndex) => otherIndex < index)
+        .map((otherStudent) => otherStudent.email),
+    ];
+    if (isEmailOfAnotherPerson(additionalStudent.email, otherPeopleEmails)) {
+      context.addIssue({
+        code: "custom",
+        path: ["additionalStudents", index, "email"],
+        message: translate("students.validation.emailOfAnotherPerson"),
+      });
+    }
     const attendeeName = normalizeStudentName(additionalStudent.fullName);
     if (attendeeName.length === 0) {
       return;
@@ -146,7 +160,7 @@ function toCamelCase(fieldName: string): string {
 
 function toStudentRequests(formValues: RegisterClientFormValues): NewStudentRequest[] {
   const clientAsStudent: NewStudentRequest[] = formValues.clientAttends
-    ? [{ fullName: formValues.fullName.trim(), birthDate: null, notes: null }]
+    ? [{ fullName: formValues.fullName.trim(), birthDate: null, notes: null, email: null }]
     : [];
   return [...clientAsStudent, ...formValues.additionalStudents.map(toNewStudentRequest)];
 }

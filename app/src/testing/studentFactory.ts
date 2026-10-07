@@ -7,7 +7,9 @@ export function buildStudent(overrides: Partial<Student> = {}): Student {
     fullName: "Tomás Pérez",
     birthDate: "2018-03-14",
     notes: null,
+    email: null,
     createdAt: "2026-09-24T14:05:00Z",
+    appAccess: { status: "NotInvited", invitedEmail: null },
     ...overrides,
   };
 }
