@@ -8,6 +8,7 @@ import { StudentFields } from "@/features/students/components/StudentFields";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import {
   emptyStudentFormValues,
+  isEmailOfAnotherPerson,
   StudentFormValues,
   studentFormSchema,
   toNewStudentRequest,
@@ -28,7 +29,7 @@ import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
-const studentFieldNames = ["fullName", "birthDate", "notes"] as const;
+const studentFieldNames = ["fullName", "birthDate", "notes", "email"] as const;
 
 type SubmissionFailure = "network" | "unexpected";
 
@@ -62,6 +63,10 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       });
       return;
     }
+    if (isApiError(addError) && addError.hasCode(studentErrorCodes.emailOfAnotherPerson)) {
+      setEmailOfAnotherPersonError();
+      return;
+    }
     if (
       isApiError(addError) &&
       addError.status === badRequestStatus &&
@@ -72,8 +77,22 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
     setSubmissionFailure("unexpected");
   };
 
+  const setEmailOfAnotherPersonError = () =>
+    form.setError("email", {
+      type: "validate",
+      message: translate("students.validation.emailOfAnotherPerson"),
+    });
+
   const submit = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
+    const familyEmails = [
+      client?.email,
+      ...(client?.students ?? []).map((student) => student.email),
+    ];
+    if (isEmailOfAnotherPerson(formValues.email, familyEmails)) {
+      setEmailOfAnotherPersonError();
+      return;
+    }
     try {
       await addStudentMutation.mutateAsync(toNewStudentRequest(formValues));
       showToast(translate("students.add.success"));
@@ -108,7 +127,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
         </AppText>
         <StudentFields
           control={form.control}
-          paths={{ fullName: "fullName", birthDate: "birthDate", notes: "notes" }}
+          paths={{ fullName: "fullName", birthDate: "birthDate", notes: "notes", email: "email" }}
           autoFocus
           isInsideCard
         />

@@ -33,13 +33,27 @@ public sealed class GetClientUseCase(
         var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var billingPlanChanges = await feeScheduleRepository.ListClientPlanChangesAsync([client.Id], cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
-        var accountUserIds = await clientAccountRepository.ListUserIdsByClientAsync(client.Id, cancellationToken);
-        var hasAccount = accountUserIds.Count > 0;
-        var signInEmail = await SignInEmails.FirstAsync(identityService, accountUserIds, cancellationToken);
-        var pendingInvitation = hasAccount
-            ? null
-            : await invitationRepository.FindLatestPendingByClientAsync(client.Id, timeProvider.GetUtcNow(), cancellationToken);
+        var accounts = await clientAccountRepository.ListByClientAsync(client.Id, cancellationToken);
+        var pendingInvitations = await invitationRepository.ListPendingByClientAsync(client.Id, timeProvider.GetUtcNow(), cancellationToken);
+        var clientAppAccess = await AppAccessOfAsync(null, accounts, pendingInvitations, cancellationToken);
+        var studentAppAccesses = new Dictionary<Guid, StudentAppAccessResponse>();
+        foreach (var student in students)
+        {
+            studentAppAccesses[student.Id] = await AppAccessOfAsync(student.Id, accounts, pendingInvitations, cancellationToken);
+        }
 
-        return ClientDetailsResponse.From(client, students, billingPlanChanges, today, StudentAppAccessResponse.From(hasAccount, signInEmail, pendingInvitation));
+        return ClientDetailsResponse.From(client, students, billingPlanChanges, today, clientAppAccess, studentAppAccesses);
+    }
+
+    private async Task<StudentAppAccessResponse> AppAccessOfAsync(
+        Guid? studentId,
+        IReadOnlyList<ClientAccount> accounts,
+        IReadOnlyList<ClientInvitation> pendingInvitations,
+        CancellationToken cancellationToken)
+    {
+        var accountUserIds = accounts.Where(account => account.StudentId == studentId).Select(account => account.UserId).ToList();
+        var signInEmail = await SignInEmails.FirstAsync(identityService, accountUserIds, cancellationToken);
+        var pendingInvitation = pendingInvitations.FirstOrDefault(invitation => invitation.StudentId == studentId);
+        return StudentAppAccessResponse.From(accountUserIds.Count > 0, signInEmail, pendingInvitation);
     }
 }

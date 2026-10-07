@@ -21,6 +21,7 @@ public sealed class ClientInvitation : ITenantOwned
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
     public Guid ClientId { get; private set; }
+    public Guid? StudentId { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public string TokenHash { get; private set; } = string.Empty;
     public Guid InvitedByUserId { get; private set; }
@@ -34,7 +35,8 @@ public sealed class ClientInvitation : ITenantOwned
         string? email,
         string tokenHash,
         Guid invitedByUserId,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        Guid? studentId = null)
     {
         var trimmedEmail = email?.Trim() ?? string.Empty;
         if (!IsValidEmail(trimmedEmail))
@@ -46,6 +48,7 @@ public sealed class ClientInvitation : ITenantOwned
         {
             Id = Guid.CreateVersion7(),
             ClientId = clientId,
+            StudentId = studentId,
             Email = trimmedEmail,
             TokenHash = tokenHash,
             InvitedByUserId = invitedByUserId,

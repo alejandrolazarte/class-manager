@@ -8,6 +8,7 @@ export interface StudentFieldPaths<TFormValues extends FieldValues> {
   fullName: Path<TFormValues>;
   birthDate: Path<TFormValues>;
   notes: Path<TFormValues>;
+  email: Path<TFormValues>;
 }
 
 interface StudentFieldsProps<TFormValues extends FieldValues> {
@@ -58,6 +59,24 @@ export function StudentFields<TFormValues extends FieldValues>({
             keyboardType="number-pad"
             value={toText(field.value)}
             onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
+            onBlur={field.onBlur}
+            errorMessage={fieldState.error?.message}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name={paths.email}
+        render={({ field, fieldState }) => (
+          <TextField
+            label={translate("students.fields.email")}
+            hint={translate("students.fields.emailHint")}
+            fieldSurface={fieldSurface}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="off"
+            value={toText(field.value)}
+            onChangeText={field.onChange}
             onBlur={field.onBlur}
             errorMessage={fieldState.error?.message}
           />

@@ -10,13 +10,13 @@ internal sealed class ClientAccountRepository(AppDbContext context) : IClientAcc
     public Task<ClientAccount?> FindByUserForUpdateAsync(Guid userId, CancellationToken cancellationToken) =>
         context.ClientAccounts.FirstOrDefaultAsync(account => account.UserId == userId, cancellationToken);
 
-    public Task<bool> HasAccountAsync(Guid clientId, CancellationToken cancellationToken) =>
-        context.ClientAccounts.AnyAsync(account => account.ClientId == clientId, cancellationToken);
+    public Task<bool> HasAccountAsync(Guid clientId, Guid? studentId, CancellationToken cancellationToken) =>
+        context.ClientAccounts.AnyAsync(account => account.ClientId == clientId && account.StudentId == studentId, cancellationToken);
 
-    public async Task<IReadOnlyList<Guid>> ListUserIdsByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<ClientAccount>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
         await context.ClientAccounts
+            .AsNoTracking()
             .Where(account => account.ClientId == clientId)
             .OrderBy(account => account.CreatedAt)
-            .Select(account => account.UserId)
             .ToListAsync(cancellationToken);
 }

@@ -23,7 +23,8 @@ public sealed record ClientDetailsResponse(
         IEnumerable<Student> students,
         IReadOnlyCollection<ClientBillingPlanChange> billingPlanChanges,
         DateOnly today,
-        StudentAppAccessResponse appAccess) =>
+        StudentAppAccessResponse appAccess,
+        IReadOnlyDictionary<Guid, StudentAppAccessResponse> studentAppAccesses) =>
         new(
             client.Id,
             client.FullName,
@@ -33,6 +34,8 @@ public sealed record ClientDetailsResponse(
             client.CreatedAt,
             BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, BillingMonth.From(today))),
             BillingPlanChangeResponse.From(billingPlanChanges),
-            [.. students.OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase).Select(StudentResponse.From)],
+            [.. students
+                .OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase)
+                .Select(student => StudentResponse.From(student, studentAppAccesses.GetValueOrDefault(student.Id, StudentAppAccessResponse.NotInvited)))],
             appAccess);
 }
