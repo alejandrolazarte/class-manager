@@ -44,10 +44,10 @@ public sealed class InviteStudentAppUseCase(
         new(
             "Invitación a la app",
             EmailSubject,
-            $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Tocá el botón para crear tu cuenta.",
+            $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Tocá el botón para aceptar: si ya usás la app con este email, entrás con tu cuenta de siempre.",
             "Si no esperabas esta invitación, podés ignorar este mail.")
         {
-            Action = new EmailAction("Crear mi cuenta", acceptInvitationLink, ShowsLinkFallback: true),
+            Action = new EmailAction("Aceptar invitación", acceptInvitationLink, ShowsLinkFallback: true),
             Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
         };
 

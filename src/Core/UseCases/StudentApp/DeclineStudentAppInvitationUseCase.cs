@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
@@ -13,6 +14,7 @@ public sealed record DeclinedStudentAppInvitationResponse;
 public sealed class DeclineStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
     ISecretTokenGenerator secretTokenGenerator,
+    ITeamNotificationService teamNotificationService,
     ITenantScope tenantScope,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
@@ -36,6 +38,7 @@ public sealed class DeclineStudentAppInvitationUseCase(
         tenantScope.Establish(invitation.TenantId);
         invitation.Decline(now);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await teamNotificationService.StudentAppInvitationDeclinedAsync(invitation, cancellationToken);
         return new DeclinedStudentAppInvitationResponse();
     }
 

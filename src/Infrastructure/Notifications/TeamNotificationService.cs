@@ -15,6 +15,39 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     public Task PackClassBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
         NotifyInstructorAsync(studentId, classGroup, session, TeamNotificationTexts.PackClassTitle, cancellationToken);
 
+    public async Task StudentAppInvitationDeclinedAsync(ClientInvitation invitation, CancellationToken cancellationToken)
+    {
+        var fullName = invitation.StudentId is { } studentId
+            ? await context.Students.AsNoTracking().Where(student => student.Id == studentId).Select(student => student.FullName).FirstOrDefaultAsync(cancellationToken)
+            : await context.Clients.AsNoTracking().Where(client => client.Id == invitation.ClientId).Select(client => client.FullName).FirstOrDefaultAsync(cancellationToken);
+        var message = new PushMessage(
+            TeamNotificationTexts.StudentAppInvitationDeclinedTitle(fullName ?? invitation.Email),
+            TeamNotificationTexts.StudentAppInvitationDeclinedBody,
+            TeamNotificationTexts.ClientUrl(invitation.ClientId));
+        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
+    }
+
+    public async Task TeamInvitationDeclinedAsync(MemberInvitation invitation, CancellationToken cancellationToken)
+    {
+        var message = new PushMessage(
+            TeamNotificationTexts.TeamInvitationDeclinedTitle(invitation.Email),
+            TeamNotificationTexts.TeamInvitationDeclinedBody,
+            TeamNotificationTexts.TeamUrl);
+        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<Guid>> InviterOrOwnersAsync(Guid invitedByUserId, CancellationToken cancellationToken) =>
+        await context.BusinessMembers.AsNoTracking().AnyAsync(member => member.UserId == invitedByUserId, cancellationToken)
+            ? [invitedByUserId]
+            : await BranchOwnersAsync(cancellationToken);
+
+    private async Task<List<Guid>> BranchOwnersAsync(CancellationToken cancellationToken) =>
+        await context.BusinessMembers.AsNoTracking()
+            .Where(member => member.Role == BusinessRole.BranchOwner)
+            .Select(member => member.UserId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
     private async Task NotifyInstructorAsync(
         Guid studentId,
         ClassGroup classGroup,
@@ -45,10 +78,6 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
             .ToListAsync(cancellationToken);
         return coachUserIds.Count > 0
             ? coachUserIds
-            : await context.BusinessMembers.AsNoTracking()
-                .Where(member => member.Role == BusinessRole.BranchOwner)
-                .Select(member => member.UserId)
-                .Distinct()
-                .ToListAsync(cancellationToken);
+            : await BranchOwnersAsync(cancellationToken);
     }
 }
