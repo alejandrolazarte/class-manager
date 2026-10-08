@@ -7,6 +7,7 @@ import {
   fillRegisterClientForm,
   submitRegisterClientForm,
 } from "@/testing/fillRegisterClientForm";
+import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/clients/clientsApi");
@@ -29,6 +30,6 @@ describe("When api returns student field error", () => {
     await addAdditionalStudent("Tomás Pérez");
     await submitRegisterClientForm();
 
-    expect(await screen.findByText(studentNameServerMessage)).toBeOnTheScreen();
+    expect(await screen.findByText(translate("apiErrors.invalidValue"))).toBeOnTheScreen();
   });
 });

@@ -1,3 +1,5 @@
+import { hasTranslation, translate } from "@/i18n/translate";
+
 export interface ProblemDetails {
   type?: string;
   title?: string;
@@ -14,12 +16,21 @@ export function toCamelCase(fieldName: string): string {
   return fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
 }
 
+function localizedFieldError(problem: ProblemDetails, fieldName: string): string {
+  const codeKey = `apiErrors.${problem.code ?? ""}`;
+  if (hasTranslation(codeKey)) {
+    return translate(codeKey);
+  }
+  const fieldKey = `apiErrors.field.${fieldName}`;
+  return hasTranslation(fieldKey) ? translate(fieldKey) : translate("apiErrors.invalidValue");
+}
+
 export function getFieldErrors(problem: ProblemDetails): FieldErrors {
   const fieldErrors: FieldErrors = {};
   for (const [fieldName, messages] of Object.entries(problem.errors ?? {})) {
-    const firstMessage = messages[0];
-    if (firstMessage !== undefined) {
-      fieldErrors[toCamelCase(fieldName)] = firstMessage;
+    if (messages.length > 0) {
+      const camelCaseFieldName = toCamelCase(fieldName);
+      fieldErrors[camelCaseFieldName] = localizedFieldError(problem, camelCaseFieldName);
     }
   }
   return fieldErrors;

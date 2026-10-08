@@ -11,6 +11,9 @@ function errorMessageOf(error: unknown): TranslationKey {
   if (isApiError(error) && error.hasCode(studentAppErrorCodes.classStarted)) {
     return "student.absence.tooLate";
   }
+  if (isApiError(error) && error.hasCode(studentAppErrorCodes.attendanceTaken)) {
+    return "student.absence.attendanceTaken";
+  }
   return isApiError(error) && error.hasCode(studentAppErrorCodes.makeupCreditInUse)
     ? "student.absence.usedForMakeup"
     : "common.unexpectedError";

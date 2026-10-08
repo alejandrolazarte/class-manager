@@ -7,6 +7,6 @@ describe("When validation errors use pascal case", () => {
       errors: { FullName: ["Too short"], phoneNumber: ["Invalid", "Required"] },
     });
 
-    expect(fieldErrors).toEqual({ fullName: "Too short", phoneNumber: "Invalid" });
+    expect(Object.keys(fieldErrors)).toEqual(["fullName", "phoneNumber"]);
   });
 });

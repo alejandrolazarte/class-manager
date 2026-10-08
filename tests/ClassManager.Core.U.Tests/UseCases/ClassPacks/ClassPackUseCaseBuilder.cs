@@ -19,6 +19,7 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IAttendanceRepository> Attendances { get; } = new();
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
+    public Mock<IPaymentRepository> Payments { get; } = new();
     public Mock<IOrderNumbers> OrderNumbers { get; } = new();
     public Mock<IOrderRepository> Orders { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
@@ -28,6 +29,7 @@ internal sealed class ClassPackUseCaseBuilder
     public List<ClientAttendedClass> ClientAttendedClasses { get; } = [];
     public List<ClientAttendedClass> ClientAttendedPrivateLessons { get; } = [];
     public List<ClientBillingPlanChange> PlanChanges { get; } = [];
+    public List<ClientPaidMonth> PaidMonths { get; } = [];
 
     public ClassPackUseCaseBuilder()
     {
@@ -49,10 +51,15 @@ internal sealed class ClassPackUseCaseBuilder
         FeeSchedule
             .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);
+        Payments
+            .Setup(repository => repository.ListPaidMonthsByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PaidMonths);
     }
 
     public void PayPerClassFrom(Guid clientId, BillingMonth effectiveFrom) =>
         PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom, BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!);
+
+    public void PayFee(Guid clientId, BillingMonth month) => PaidMonths.Add(new ClientPaidMonth(clientId, month.FirstDay));
 
     public void Attend(Guid clientId, DateOnly date) =>
         ClientAttendedClasses.Add(new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, "Natación")));
@@ -62,7 +69,7 @@ internal sealed class ClassPackUseCaseBuilder
             new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, TestData.InstructorFullName, IsPrivateLesson: true)));
 
     public ClassBalanceService BuildBalanceService() =>
-        new(Purchases.Object, Attendances.Object, PrivateLessons.Object, FeeSchedule.Object, BusinessCalendar.Object);
+        new(Purchases.Object, Attendances.Object, PrivateLessons.Object, FeeSchedule.Object, Payments.Object, BusinessCalendar.Object);
 
     public SellClassPackUseCase BuildSell() =>
         new(

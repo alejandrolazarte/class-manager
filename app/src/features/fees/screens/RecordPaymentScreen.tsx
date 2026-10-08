@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { AmountField } from "@/features/fees/components/AmountField";
 import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
-import { formatMoney, toAmountText } from "@/features/fees/money";
+import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
 import { formatMonth } from "@/features/fees/months";
 import {
   PaymentFormValues,
@@ -23,6 +23,7 @@ import {
 } from "@/features/students/birthDateFormatting";
 import { todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
+import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
@@ -33,6 +34,14 @@ import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 interface RecordPaymentScreenProps {
   clientId: string;
   month: string;
+}
+
+function overpaidAmountOf(clientFee: ClientFee | undefined, typedAmount: string): number {
+  const amount = parseAmount(typedAmount);
+  if (!clientFee?.fee || amount === null) {
+    return 0;
+  }
+  return Math.max(clientFee.paid + amount - clientFee.fee, 0);
 }
 
 interface PaymentEditorProps {
@@ -58,6 +67,10 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
     mode: "onTouched",
   });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["amount", "paidOn"]);
+  const overpaidAmount = overpaidAmountOf(
+    clientFee,
+    useWatch({ control: form.control, name: "amount" }),
+  );
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -108,6 +121,14 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
           />
         )}
       />
+      {overpaidAmount > 0 ? (
+        <Banner
+          tone="warning"
+          message={translate("fees.payment.overpaid", {
+            extra: formatMoney(overpaidAmount, currencyCode),
+          })}
+        />
+      ) : null}
       <Controller
         control={form.control}
         name="method"
