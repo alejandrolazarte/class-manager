@@ -8,7 +8,7 @@ import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider
 import { allMedals, levelProgress } from "@/features/studentApp/studentAppAchievements";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -81,9 +81,12 @@ export function StudentAppProgressScreen() {
       <Card className="flex-row px-2 py-3.5">
         <Stat
           value={attendance.attendedClasses}
-          label={translate("student.progress.stats.classes")}
+          label={translateCount("student.progress.stats.classes", attendance.attendedClasses)}
         />
-        <Stat value={attendance.streakWeeks} label={translate("student.progress.stats.streak")} />
+        <Stat
+          value={attendance.streakWeeks}
+          label={translateCount("student.progress.stats.streak", attendance.streakWeeks)}
+        />
         <Stat
           value={`${attendance.medals.length}/${allMedals.length}`}
           label={translate("student.progress.stats.medals")}

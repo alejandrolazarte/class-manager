@@ -16,6 +16,15 @@ export function MonthlySummaryCard({
   owedAmount,
   money,
 }: MonthlySummaryCardProps) {
+  const paidByMonthlyClients = monthlyFees.clients.reduce(
+    (total, client) => total + client.paid,
+    0,
+  );
+  const paidByClassPackClients = monthlyFees.totalPaid - paidByMonthlyClients;
+  const statusMessage =
+    debtorCount > 0
+      ? translateCount("fees.month.owing", debtorCount, { amount: money(owedAmount) })
+      : translate(monthlyFees.totalDue > 0 ? "fees.month.everybodyPaid" : "fees.month.noFeeDue");
   return (
     <CollectedSummaryCard
       label={translate("fees.month.collected")}
@@ -28,10 +37,15 @@ export function MonthlySummaryCard({
       })}
     >
       <AppText variant="label" tone="onPrimary" className="opacity-90">
-        {debtorCount > 0
-          ? translateCount("fees.month.owing", debtorCount, { amount: money(owedAmount) })
-          : translate("fees.month.everybodyPaid")}
+        {statusMessage}
       </AppText>
+      {paidByClassPackClients > 0 ? (
+        <AppText variant="caption" tone="onPrimary" className="opacity-90">
+          {translate("fees.month.paidByClassPackClients", {
+            amount: money(paidByClassPackClients),
+          })}
+        </AppText>
+      ) : null}
     </CollectedSummaryCard>
   );
 }

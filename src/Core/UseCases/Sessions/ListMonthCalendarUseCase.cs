@@ -54,7 +54,9 @@ public sealed class ListMonthCalendarUseCase(
         {
             var dayClassGroups = classGroups
                 .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)
-                    && SessionRules.IsInScope(scope, classGroup, sessions.GetValueOrDefault((classGroup.Id, date))))
+                    && SessionRules.IsInScope(scope, classGroup, sessions.GetValueOrDefault((classGroup.Id, date)))
+                    && SessionRules.IsListedOn(
+                        date, today, sessions.GetValueOrDefault((classGroup.Id, date)), EnrolledCountOn(enrollmentPeriods, classGroup.Id, date)))
                 .ToList();
             var dayPrivateLessons = privateLessonsByDate[date].ToList();
             if (dayClassGroups.Count == 0 && dayPrivateLessons.Count == 0)
@@ -75,7 +77,7 @@ public sealed class ListMonthCalendarUseCase(
                     continue;
                 }
 
-                var enrolledCount = enrollmentPeriods.Count(period => period.ClassGroupId == classGroup.Id && period.IsActiveOn(date));
+                var enrolledCount = EnrolledCountOn(enrollmentPeriods, classGroup.Id, date);
                 var attendanceCount = session is null ? NoAttendance : attendanceCounts.GetValueOrDefault(session.Id, NoAttendance);
                 if (date < today && attendanceCount.Present + attendanceCount.Absent < enrolledCount)
                 {
@@ -88,4 +90,7 @@ public sealed class ListMonthCalendarUseCase(
 
         return new MonthCalendarResponse(month.Value.ToString(), days);
     }
+
+    private static int EnrolledCountOn(IReadOnlyList<ClassGroupEnrollmentPeriod> enrollmentPeriods, Guid classGroupId, DateOnly date) =>
+        enrollmentPeriods.Count(period => period.ClassGroupId == classGroupId && period.IsActiveOn(date));
 }

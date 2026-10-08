@@ -164,7 +164,7 @@ export function AttendanceRow({
             <AppText variant="caption" tone="subtle">
               {isOwnClient
                 ? statusLabel
-                : translate("students.list.responsible", { name: student.clientFullName })}
+                : `${statusLabel} · ${translate("students.list.responsible", { name: student.clientFullName })}`}
             </AppText>
             {student.absenceNotified ? (
               <AppText variant="caption" tone="warning" className="font-label">

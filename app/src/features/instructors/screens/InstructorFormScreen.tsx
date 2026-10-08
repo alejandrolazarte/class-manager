@@ -59,12 +59,15 @@ function isSameEmail(firstEmail: string, secondEmail: string): boolean {
   return firstEmail.toLocaleLowerCase() === secondEmail.toLocaleLowerCase();
 }
 
+const instructorRole = "Instructor";
+
 function InstructorEditor({ instructor, access = notInvited }: InstructorEditorProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const saveInstructorMutation = useSaveInstructor();
   const setInstructorActiveMutation = useSetInstructorActive();
   const inviteMemberMutation = useInviteMember();
+  const canManageMembers = useCan(permissions.membersManage);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
   const form = useForm<InstructorFormValues>({
@@ -99,13 +102,34 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
     }
   };
 
+  const inviteNewInstructor = async (createdInstructorId: string, email: string) => {
+    try {
+      await inviteMemberMutation.mutateAsync({
+        email,
+        role: instructorRole,
+        customRoleId: null,
+        instructorId: createdInstructorId,
+      });
+      showToast(translate("instructors.form.savedAndInvited"));
+    } catch {
+      showToast(translate("instructors.form.savedButNotInvited"));
+    }
+  };
+
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
     const request = toSaveInstructorRequest(formValues);
     try {
-      await saveInstructorMutation.mutateAsync({ instructorId: instructor?.id, request });
-      await resendInvitationIfEmailChanged(request.email);
-      showToast(translate("instructors.form.saved"));
+      const savedInstructor = await saveInstructorMutation.mutateAsync({
+        instructorId: instructor?.id,
+        request,
+      });
+      if (instructor === undefined && request.email !== null && canManageMembers) {
+        await inviteNewInstructor(savedInstructor.id, request.email);
+      } else {
+        await resendInvitationIfEmailChanged(request.email);
+        showToast(translate("instructors.form.saved"));
+      }
       router.back();
     } catch (saveError) {
       if (isApiError(saveError) && saveError.hasCode(instructorErrorCodes.emailUsedToSignIn)) {

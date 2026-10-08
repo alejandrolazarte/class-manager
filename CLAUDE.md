@@ -148,6 +148,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ### Forms
 - Required fields carry `isRequired` (or `withRequiredMark` for choices), the form shows `RequiredFieldsLegend` at the top (except sign-in and the password screens, which users already know), and the main button stays disabled (grey) until every required field is filled (`useRequiredFieldsFilled`, `isFilled`). Never write "(opcional)" in a label. See [docs/frontend/forms.md](docs/frontend/forms.md).
+- Placeholders and hints give generic examples that fit any business: no sport or discipline ("Natación inicial", "pileta") and no real or customer names.
 
 ### Documentation
 - Operational, security or infrastructure decisions go in a Markdown file under `docs/`, linked from `README.md`.

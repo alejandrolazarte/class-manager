@@ -57,17 +57,19 @@ public sealed class ListDaySessionsUseCase(
 
     public async Task<Result<IReadOnlyList<DaySessionResponse>>> ExecuteAsync(ListDaySessionsQuery command, CancellationToken cancellationToken)
     {
-        var date = command.Date ?? await businessCalendar.TodayAsync(cancellationToken);
+        var today = await businessCalendar.TodayAsync(cancellationToken);
+        var date = command.Date ?? today;
         var scope = await accessScopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, cancellationToken);
         var sessions = (await sessionRepository.ListByDateAsync(date, cancellationToken))
             .ToDictionary(session => session.ClassGroupId);
+        var enrolledCounts = await enrollmentRepository.CountActiveOnByClassGroupAsync(date, cancellationToken);
         var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken))
             .Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)
-                && SessionRules.IsInScope(scope, classGroup, sessions.GetValueOrDefault(classGroup.Id)))
+                && SessionRules.IsInScope(scope, classGroup, sessions.GetValueOrDefault(classGroup.Id))
+                && SessionRules.IsListedOn(date, today, sessions.GetValueOrDefault(classGroup.Id), enrolledCounts.GetValueOrDefault(classGroup.Id)))
             .ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
-        var enrolledCounts = await enrollmentRepository.CountActiveOnByClassGroupAsync(date, cancellationToken);
         IReadOnlyCollection<Guid> sessionIds = [.. sessions.Values.Select(session => session.Id)];
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(sessionIds, cancellationToken);
         var makeupCounts = await makeupBookingRepository.CountBySessionsAsync(sessionIds, cancellationToken);
