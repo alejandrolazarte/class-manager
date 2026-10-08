@@ -8,12 +8,15 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record AcceptStudentAppInvitationCommand(string? Token, string? FullName, string? Password) : ICommand;
+public sealed record AcceptStudentAppInvitationCommand(string? Token, string? FullName, string? Password, DateOnly? BirthDate = null) : ICommand;
 
 public sealed class AcceptStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
     IClientAccountRepository accountRepository,
+    IClientRepository clientRepository,
+    IStudentRepository studentRepository,
     IIdentityService identityService,
+    IBusinessRepository businessRepository,
     ITokenService tokenService,
     ISecretTokenGenerator secretTokenGenerator,
     ITenantScope tenantScope,
@@ -33,7 +36,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
         var now = timeProvider.GetUtcNow();
         var invitation = await invitationRepository.FindForUpdateInAnyBusinessByTokenHashAsync(
             secretTokenGenerator.Hash(command.Token), cancellationToken);
-        if (invitation is null || !invitation.IsPendingAt(now))
+        if (invitation is null || !invitation.IsPendingAt(now) || invitation.AwaitsGuardianConsent)
         {
             return InvalidInvitation();
         }
@@ -45,10 +48,23 @@ public sealed class AcceptStudentAppInvitationUseCase(
         ClientAccount? existingAccount = null;
         if (userId is null)
         {
-            var account = OwnerAccount.Create(command.FullName, invitation.Email, command.Password);
+            var invitedName = (await InvitedStudent.FindAsync(invitation, clientRepository, studentRepository, cancellationToken)).FullName;
+            var business = await businessRepository.GetCurrentAsync(cancellationToken);
+            var today = business?.TodayAt(now) ?? DateOnly.FromDateTime(now.UtcDateTime);
+            var account = OwnerAccount.Create(invitedName ?? command.FullName, invitation.Email, command.Password, command.BirthDate, today);
             if (account.IsFailure)
             {
                 return account.Error!;
+            }
+
+            if (business is not null
+                && invitation.GuardianConsentedAt is null
+                && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.DefaultCountryCallingCode))
+            {
+                return Result.Validation<TokenResponse>(
+                    AuthenticationErrorCodes.TooYoungForOwnAccountMessage,
+                    AuthenticationErrorCodes.TooYoungForOwnAccount,
+                    nameof(OwnerAccount.BirthDate));
             }
 
             var createdUserId = await identityService.CreateOwnerAsync(account.Value!, cancellationToken);

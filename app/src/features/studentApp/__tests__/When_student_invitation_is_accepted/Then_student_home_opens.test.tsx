@@ -1,9 +1,12 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { acceptStudentAppInvitation } from "@/features/authentication/authenticationApi";
+import {
+  acceptStudentAppInvitation,
+  checkStudentAppInvitation,
+} from "@/features/authentication/authenticationApi";
 import { AcceptStudentAppInvitationScreen } from "@/features/studentApp/screens/AcceptStudentAppInvitationScreen";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
-import { buildTokenResponse } from "@/testing/authenticationFactory";
+import { buildCheckedInvitation, buildTokenResponse } from "@/testing/authenticationFactory";
 import { routerMock, searchParametersMock } from "@/testing/expoRouterMock";
 import { buildStudentAccessToken } from "@/testing/studentAppFactory";
 import { mockRefreshTokenStorage } from "@/testing/refreshTokenStorageMock";
@@ -20,6 +23,7 @@ describe("When student invitation is accepted", () => {
   beforeEach(() => {
     mockRefreshTokenStorage(null);
     searchParametersMock.current = { token: invitationToken };
+    jest.mocked(checkStudentAppInvitation).mockResolvedValue(buildCheckedInvitation());
     jest
       .mocked(acceptStudentAppInvitation)
       .mockResolvedValue(buildTokenResponse({ accessToken: buildStudentAccessToken() }));
@@ -31,8 +35,13 @@ describe("When student invitation is accepted", () => {
       await screen.findByLabelText(translate("studentAppInvitation.fullName")),
       fullName,
     );
+    await fireEvent.changeText(screen.getByLabelText(translate("birthDate.label")), "12041990");
     await fireEvent.changeText(
       screen.getByLabelText(translate("studentAppInvitation.password")),
+      password,
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText(translate("invitationAnswer.passwordConfirmation")),
       password,
     );
 
@@ -45,6 +54,7 @@ describe("When student invitation is accepted", () => {
       token: invitationToken,
       fullName,
       password,
+      birthDate: "1990-04-12",
     });
   });
 });

@@ -41,5 +41,8 @@ internal sealed class MemberInvitationRepository(AppDbContext context) : IMember
             .FirstOrDefaultAsync(invitation => invitation.TokenHash == tokenHash, cancellationToken);
 
     private static IQueryable<MemberInvitation> PendingAt(IQueryable<MemberInvitation> invitations, DateTimeOffset now) =>
-        invitations.Where(invitation => invitation.AcceptedAt == null && invitation.RevokedAt == null && invitation.ExpiresAt > now);
+        invitations.Where(invitation => invitation.AcceptedAt == null
+            && invitation.RevokedAt == null
+            && invitation.DeclinedAt == null
+            && invitation.ExpiresAt > now);
 }

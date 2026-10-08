@@ -8,6 +8,7 @@ export interface SignUpRequest {
   timeZoneId: string;
   currencyCode: string;
   defaultCountryCallingCode: string;
+  ownerBirthDate: string;
 }
 
 export interface SignInRequest {
@@ -32,16 +33,34 @@ export interface AcceptInvitationRequest {
   token: string;
   fullName: string;
   password: string;
+  birthDate?: string;
 }
 
 export interface AcceptStudentAppInvitationRequest {
   token: string;
   fullName: string;
   password: string;
+  birthDate?: string;
 }
 
 export interface CheckInvitationRequest {
   token: string;
+}
+
+export interface GuardianConsentRequest {
+  businessName: string;
+  studentFullName: string;
+  studentEmail: string;
+  guardianEmail: string;
+  minimumAge: number;
+}
+
+export interface CheckedInvitation {
+  email: string;
+  businessName: string;
+  hasAccount: boolean;
+  fullName?: string | null;
+  birthDate?: string | null;
 }
 
 export interface SwitchBranchRequest {

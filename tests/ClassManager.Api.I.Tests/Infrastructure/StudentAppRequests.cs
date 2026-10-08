@@ -12,8 +12,10 @@ public static class StudentAppRequests
     public const string StudentAppFullName = "Ana Pérez";
     public const string ChildFullName = "Tomás Pérez";
     public static readonly DateOnly ChildBirthDate = new(2012, 5, 1);
+    public static readonly DateOnly ElevenYearsOld = new(2015, 3, 10);
     public const string StudentAppPassword = "a long student passphrase";
     public const string WebAppAcceptStudentAppInvitationUrl = "http://localhost:8081/accept-student-invitation?token=";
+    public const string WebAppAuthorizeStudentAppUrl = "http://localhost:8081/authorize-student-app?token=";
 
     public static string UniqueStudentEmail() => $"student-{Guid.NewGuid():N}@example.com";
 
@@ -42,10 +44,50 @@ public static class StudentAppRequests
         return Uri.UnescapeDataString(link[WebAppAcceptStudentAppInvitationUrl.Length..]);
     }
 
-    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token) =>
+    public static string GuardianConsentTokenSentTo(this RecordingEmailTransport emailTransport, string email)
+    {
+        var body = emailTransport.SentTo(email)[^1].TextBody;
+        var link = body.Split('\n').Single(line => line.StartsWith(WebAppAuthorizeStudentAppUrl, StringComparison.Ordinal));
+        return Uri.UnescapeDataString(link[WebAppAuthorizeStudentAppUrl.Length..]);
+    }
+
+    public static async Task<HttpClient> SignInClientOfFamilyAsync(this ApiFixture fixture, HttpClient team, Guid clientId, string clientEmail)
+    {
+        (await team.PostStudentAppInvitationAsync(clientId, clientEmail)).EnsureSuccessStatusCode();
+        using var anonymous = fixture.ApiFactory.CreateClient();
+        using var accepted = await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(clientEmail));
+        accepted.EnsureSuccessStatusCode();
+        var tokens = (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
+        return fixture.CreateClientWithToken(tokens.AccessToken);
+    }
+
+    public static Task<HttpResponseMessage> PostGuardianConsentInAppAsync(this HttpClient httpClient, Guid invitationId) =>
+        httpClient.PostAsync(new Uri($"{ApiRoutes.StudentApp}/guardian-consents/{invitationId}{ApiRoutes.Authorization}", UriKind.Relative), null);
+
+    public static Task<HttpResponseMessage> PostGiveGuardianConsentAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.GiveGuardianConsent, new GiveGuardianConsentCommand(token), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostRefuseGuardianConsentAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.RefuseGuardianConsent, new RefuseGuardianConsentCommand(token), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, DateOnly birthDate, string password = StudentAppPassword) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.Authentication + ApiRoutes.AcceptStudentAppInvitation,
-            new AcceptStudentAppInvitationCommand(token, StudentAppFullName, StudentAppPassword),
+            new AcceptStudentAppInvitationCommand(token, null, password, birthDate),
+            ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, string password = StudentAppPassword) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.AcceptStudentAppInvitation,
+            new AcceptStudentAppInvitationCommand(token, StudentAppFullName, password, AuthenticationRequests.AdultBirthDate),
+            ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostDeclineStudentAppInvitationAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.DeclineStudentAppInvitation,
+            new DeclineStudentAppInvitationCommand(token),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostCheckStudentAppInvitationAsync(this HttpClient httpClient, string token) =>

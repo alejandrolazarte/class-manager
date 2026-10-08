@@ -6,7 +6,10 @@ namespace ClassManager.Core.UseCases.Accounts;
 
 public sealed record GetMyAccountQuery : IQuery;
 
-public sealed record MyAccountResponse(string Email, string FullName);
+public sealed record MyAccountResponse(string Email, string FullName, DateOnly? BirthDate)
+{
+    public static MyAccountResponse From(UserAccount account) => new(account.Email, account.FullName, account.BirthDate);
+}
 
 public sealed class GetMyAccountUseCase(ICurrentUser currentUser, IIdentityService identityService)
     : IUseCase<GetMyAccountQuery, MyAccountResponse>
@@ -24,6 +27,6 @@ public sealed class GetMyAccountUseCase(ICurrentUser currentUser, IIdentityServi
             return Result.Unauthorized<MyAccountResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
 
-        return new MyAccountResponse(accounts[0].Email, accounts[0].FullName);
+        return MyAccountResponse.From(accounts[0]);
     }
 }

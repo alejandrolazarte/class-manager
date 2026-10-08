@@ -46,6 +46,8 @@ export const routes = {
   appEntry: "/",
   myProfile: "/settings/profile",
   studentAppProfile: "/student-app/profile",
+  studentAppEditProfile: "/student-app/edit-profile",
+  editMyProfile: "/settings/edit-profile",
   forgotPassword: (email: string) =>
     email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
   settings: "/settings",
@@ -82,6 +84,7 @@ export const routes = {
   role: (roleKey: string) => `/settings/roles/${roleKey}`,
   acceptInvitation: "/accept-invitation",
   acceptStudentAppInvitation: "/accept-student-invitation",
+  authorizeStudentApp: "/authorize-student-app",
   studentApp: "/student-app",
   studentAppClasses: "/student-app/classes",
   studentAppNews: "/student-app/news",

@@ -83,7 +83,8 @@ internal sealed class SignUpOwnerUseCaseBuilder
             TestData.BusinessName,
             TestData.BuenosAiresTimeZoneId,
             TestData.CurrencyCode,
-            TestData.DefaultCountryCallingCode);
+            TestData.DefaultCountryCallingCode,
+            TestData.OwnerBirthDate);
 
     public SignUpOwnerUseCase Build() =>
         new(

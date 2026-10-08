@@ -15,6 +15,8 @@ internal static class StudentAppEndpoints
         student.MapPost(ApiRoutes.StudentAppOrders, PlaceStudentAppOrderAsync);
         student.MapPut(ApiRoutes.StudentAppOrders + ApiRoutes.OrderById + ApiRoutes.Cancellation, CancelStudentAppOrderAsync);
         student.MapGet(ApiRoutes.StudentAppNews, GetStudentAppNewsAsync);
+        student.MapPost(ApiRoutes.StudentAppGuardianConsent + ApiRoutes.Authorization, GiveGuardianConsentInAppAsync);
+        student.MapPost(ApiRoutes.StudentAppGuardianConsent + ApiRoutes.Refusal, RefuseGuardianConsentInAppAsync);
         student.MapPut(ApiRoutes.StudentAppNews + ApiRoutes.Seen, MarkStudentAppNewsSeenAsync);
         student.MapPut(ApiRoutes.StudentAbsence, NotifyAbsenceAsync);
         student.MapDelete(ApiRoutes.StudentAbsence, WithdrawAbsenceAsync);
@@ -42,6 +44,22 @@ internal static class StudentAppEndpoints
         var result = await useCase.ExecuteAsync(new GetStudentAppHomeQuery(), cancellationToken);
 
         return result.ToOkResult();
+    }
+
+    private static async Task<IResult> GiveGuardianConsentInAppAsync(
+        Guid invitationId,
+        IUseCase<GiveGuardianConsentInAppCommand, GivenGuardianConsentResponse> useCase,
+        CancellationToken cancellationToken) =>
+        (await useCase.ExecuteAsync(new GiveGuardianConsentInAppCommand(invitationId), cancellationToken)).ToOkResult();
+
+    private static async Task<IResult> RefuseGuardianConsentInAppAsync(
+        Guid invitationId,
+        IUseCase<RefuseGuardianConsentInAppCommand, RefusedGuardianConsentResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RefuseGuardianConsentInAppCommand(invitationId), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
     }
 
     private static async Task<IResult> GetStudentAppNewsAsync(

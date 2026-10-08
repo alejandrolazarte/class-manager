@@ -81,6 +81,9 @@ public static class ApiRoutes
     public const string Deliveries = "/deliveries";
     public const string StudentAppShop = "/shop";
     public const string StudentAppOrders = "/orders";
+    public const string StudentAppGuardianConsent = "/guardian-consents/{invitationId:guid}";
+    public const string Authorization = "/authorization";
+    public const string Refusal = "/refusal";
     public const string PaymentsSegment = "/payments";
     public const string Payments = "/api/payments";
     public const string PaymentById = "/{paymentId:guid}";
@@ -106,6 +109,11 @@ public static class ApiRoutes
     public const string AcceptStudentAppInvitation = "/student-app-invitations/accept";
     public const string CheckInvitation = "/invitations/check";
     public const string CheckStudentAppInvitation = "/student-app-invitations/check";
+    public const string DeclineInvitation = "/invitations/decline";
+    public const string DeclineStudentAppInvitation = "/student-app-invitations/decline";
+    public const string CheckGuardianConsent = "/student-app-invitations/guardian-consent/check";
+    public const string GiveGuardianConsent = "/student-app-invitations/guardian-consent/accept";
+    public const string RefuseGuardianConsent = "/student-app-invitations/guardian-consent/decline";
     public const string MyBranches = "/api/me/branches";
     public const string MyAccounts = "/api/me/accounts";
     public const string MyAccount = "/api/me/account";

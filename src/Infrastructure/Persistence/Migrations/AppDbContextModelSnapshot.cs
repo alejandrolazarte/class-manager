@@ -257,6 +257,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("CustomRoleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("DeclinedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(254)
@@ -633,6 +636,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset?>("DeclinedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(254)
@@ -640,6 +646,18 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("GuardianConsentedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("GuardianEmail")
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
+
+                    b.Property<string>("GuardianTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("nchar(64)")
+                        .IsFixedLength();
 
                     b.Property<Guid>("InvitedByUserId")
                         .HasColumnType("uniqueidentifier");
@@ -662,6 +680,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("GuardianTokenHash")
+                        .IsUnique()
+                        .HasFilter("[GuardianTokenHash] IS NOT NULL");
 
                     b.HasIndex("StudentId");
 

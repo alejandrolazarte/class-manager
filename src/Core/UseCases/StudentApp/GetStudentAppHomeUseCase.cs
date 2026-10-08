@@ -9,6 +9,7 @@ using ClassManager.Core.Domain.Achievements;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
+using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.UseCases.StudentApp;
@@ -35,7 +36,11 @@ public sealed class GetStudentAppHomeUseCase(
     IPaymentRepository paymentRepository,
     IClassBalanceService classBalanceService,
     IBusinessCalendarService businessCalendar,
-    IDocumentStorageService documentStorage)
+    IDocumentStorageService documentStorage,
+    IIdentityService identityService,
+    IClientAccountRepository clientAccountRepository,
+    IClientInvitationRepository invitationRepository,
+    TimeProvider timeProvider)
     : IUseCase<GetStudentAppHomeQuery, StudentAppHomeResponse>
 {
     public const int LookAheadDays = 14;
@@ -177,13 +182,40 @@ public sealed class GetStudentAppHomeUseCase(
                 Materials(studentClassGroups)));
         }
 
+        var signedInAccounts = await identityService.ListAccountsAsync([access.UserId], cancellationToken);
+        var pendingGuardianConsents = await PendingGuardianConsentsAsync(access, students, cancellationToken);
         return new StudentAppHomeResponse(
             business.Name,
             business.CurrencyCode,
             client.FullName,
             studentResponses,
             await BillingAsync(client.Id, today, cancellationToken),
-            levels);
+            levels,
+            signedInAccounts.Count > 0 ? signedInAccounts[0].FullName : client.FullName,
+            pendingGuardianConsents);
+    }
+
+    private async Task<IReadOnlyList<StudentAppGuardianConsentResponse>> PendingGuardianConsentsAsync(
+        StudentAppAccess access,
+        IReadOnlyList<Student> students,
+        CancellationToken cancellationToken)
+    {
+        var signedInClientAccount = await clientAccountRepository.FindByUserAsync(access.UserId, cancellationToken);
+        if (signedInClientAccount is not { StudentId: null })
+        {
+            return [];
+        }
+
+        var pendingInvitations = await invitationRepository.ListPendingByClientAsync(access.ClientId, timeProvider.GetUtcNow(), cancellationToken);
+        return
+        [
+            .. pendingInvitations
+                .Where(invitation => invitation.AwaitsGuardianConsent)
+                .Select(invitation => new StudentAppGuardianConsentResponse(
+                    invitation.Id,
+                    students.FirstOrDefault(student => student.Id == invitation.StudentId)?.FullName ?? invitation.Email,
+                    invitation.Email)),
+        ];
     }
 
     private const string PrivateLessonName = "Clase particular";

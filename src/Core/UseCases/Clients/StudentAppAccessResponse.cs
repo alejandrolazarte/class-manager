@@ -7,6 +7,7 @@ public enum StudentAppAccessStatus
     NotInvited,
     Invited,
     Active,
+    AwaitingGuardianConsent,
 }
 
 public sealed record StudentAppAccessResponse(StudentAppAccessStatus Status, string? InvitedEmail, string? SignInEmail = null)
@@ -20,6 +21,11 @@ public sealed record StudentAppAccessResponse(StudentAppAccessStatus Status, str
             return new(StudentAppAccessStatus.Active, null, signInEmail);
         }
 
-        return pendingInvitation is null ? NotInvited : new(StudentAppAccessStatus.Invited, pendingInvitation.Email);
+        return pendingInvitation switch
+        {
+            null => NotInvited,
+            { AwaitsGuardianConsent: true } => new(StudentAppAccessStatus.AwaitingGuardianConsent, pendingInvitation.GuardianEmail),
+            _ => new(StudentAppAccessStatus.Invited, pendingInvitation.Email),
+        };
     }
 }

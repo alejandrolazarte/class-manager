@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { getMyAccount, requestEmailChange } from "@/features/account/accountApi";
 import { MyProfileScreen } from "@/features/account/screens/MyProfileScreen";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/account/accountApi");
@@ -16,7 +17,7 @@ describe("When a new email is requested", () => {
   });
 
   it("Then the link is sent to it", async () => {
-    await renderWithProviders(<MyProfileScreen />);
+    await renderWithProviders(<MyProfileScreen editProfileRoute={routes.editMyProfile} />);
     await fireEvent.changeText(
       screen.getByLabelText(translate("profile.email.newEmail")),
       " laura.nueva@example.com ",

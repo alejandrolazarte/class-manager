@@ -13,6 +13,8 @@ public interface IIdentityService
 
     Task<Result<Guid>> CreateOwnerAsync(OwnerAccount account, CancellationToken cancellationToken);
 
+    Task<bool> UpdateProfileAsync(Guid userId, string fullName, DateOnly birthDate, CancellationToken cancellationToken);
+
     Task<CredentialVerification> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken);
 
     Task<string?> CreatePasswordResetTokenAsync(string email, CancellationToken cancellationToken);

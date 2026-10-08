@@ -5,6 +5,7 @@ import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { BillingTile } from "@/features/studentApp/components/BillingTile";
 import { FeedbackCard } from "@/features/studentApp/components/FeedbackCard";
+import { GuardianConsentCard } from "@/features/studentApp/components/GuardianConsentCard";
 import { NewsBell } from "@/features/studentApp/components/NewsBell";
 import { NewsCard } from "@/features/studentApp/components/NewsCard";
 import { NextClassHero } from "@/features/studentApp/components/NextClassHero";
@@ -75,7 +76,7 @@ export function StudentAppHomeScreen() {
         <ScreenHeader
           leading={<CurrentBrandLogo />}
           eyebrow={brandName ?? home.businessName}
-          title={translate("student.greeting", { name: firstNameOf(home.clientFullName) })}
+          title={translate("student.greeting", { name: firstNameOf(home.signedInFullName) })}
           accessory={
             news === undefined ? undefined : (
               <NewsBell
@@ -87,6 +88,9 @@ export function StudentAppHomeScreen() {
         />
       }
     >
+      {home.pendingGuardianConsents.map((consent) => (
+        <GuardianConsentCard key={consent.invitationId} consent={consent} />
+      ))}
       {student === null ? (
         <AppText variant="body" tone="muted">
           {translate("student.students.empty")}

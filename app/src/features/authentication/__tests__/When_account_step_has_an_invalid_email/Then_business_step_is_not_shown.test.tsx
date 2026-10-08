@@ -18,6 +18,7 @@ describe("When account step has an invalid email", () => {
       await screen.findByLabelText(translate("authentication.signUp.ownerFullName")),
       "Laura Gómez",
     );
+    await fireEvent.changeText(screen.getByLabelText(translate("birthDate.label")), "12041990");
     await fireEvent.changeText(
       screen.getByLabelText(translate("authentication.signUp.email")),
       "laura@",

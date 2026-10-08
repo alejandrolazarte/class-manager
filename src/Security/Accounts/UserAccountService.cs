@@ -21,7 +21,7 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
             : await userManager.Users
                 .AsNoTracking()
                 .Where(user => userIds.Contains(user.Id))
-                .Select(user => new UserAccountSummary(user.Id, user.Email ?? string.Empty, user.FullName))
+                .Select(user => new UserAccountSummary(user.Id, user.Email ?? string.Empty, user.FullName, user.BirthDate))
                 .ToListAsync(cancellationToken);
 
     public async Task<UserAccountCreation> CreateAsync(NewUserAccount account, CancellationToken cancellationToken)
@@ -32,6 +32,7 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
             UserName = account.Email,
             Email = account.Email,
             FullName = account.FullName,
+            BirthDate = account.BirthDate,
         };
 
         var creation = await userManager.CreateAsync(user, account.Password);
@@ -50,6 +51,19 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
         return firstError.Code.StartsWith(PasswordErrorCodePrefix, StringComparison.Ordinal)
             ? UserAccountCreation.InvalidPassword(firstError.Description)
             : UserAccountCreation.Invalid(firstError.Description);
+    }
+
+    public async Task<bool> UpdateProfileAsync(Guid userId, string fullName, DateOnly birthDate, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return false;
+        }
+
+        user.FullName = fullName;
+        user.BirthDate = birthDate;
+        return (await userManager.UpdateAsync(user)).Succeeded;
     }
 
     public async Task<CredentialCheck> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken)

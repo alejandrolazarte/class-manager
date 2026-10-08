@@ -2,16 +2,21 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Members;
 
 public sealed record CheckInvitationCommand(string? Token) : ICommand;
 
-public sealed record CheckInvitationResponse;
+public sealed record CheckInvitationResponse(string Email, string BusinessName, bool HasAccount, string? FullName = null);
 
 public sealed class CheckInvitationUseCase(
     IMemberInvitationRepository invitationRepository,
+    IBusinessRepository businessRepository,
+    IInstructorRepository instructorRepository,
+    IIdentityService identityService,
     ISecretTokenGenerator secretTokenGenerator,
+    ITenantScope tenantScope,
     TimeProvider timeProvider)
     : IUseCase<CheckInvitationCommand, CheckInvitationResponse>
 {
@@ -26,10 +31,16 @@ public sealed class CheckInvitationUseCase(
 
         var invitation = await invitationRepository.FindForUpdateInAnyBusinessByTokenHashAsync(
             secretTokenGenerator.Hash(command.Token), cancellationToken);
+        if (invitation is null || !invitation.IsPendingAt(timeProvider.GetUtcNow()))
+        {
+            return InvalidInvitation();
+        }
 
-        return invitation is not null && invitation.IsPendingAt(timeProvider.GetUtcNow())
-            ? new CheckInvitationResponse()
-            : InvalidInvitation();
+        tenantScope.Establish(invitation.TenantId);
+        var business = await businessRepository.GetCurrentAsync(cancellationToken);
+        var hasAccount = await identityService.IsEmailRegisteredAsync(invitation.Email, cancellationToken);
+        var fullName = await InvitedPersonName.FindAsync(invitation, instructorRepository, cancellationToken);
+        return new CheckInvitationResponse(invitation.Email, business?.BrandDisplayName ?? string.Empty, hasAccount, fullName);
     }
 
     private static Result<CheckInvitationResponse> InvalidInvitation() =>

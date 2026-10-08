@@ -28,6 +28,7 @@ describe("When country is selected", () => {
           timeZoneId: "America/Montevideo",
           currencyCode: "UYU",
           defaultCountryCallingCode: "598",
+          ownerBirthDate: "1990-04-12",
         }),
       ),
     );

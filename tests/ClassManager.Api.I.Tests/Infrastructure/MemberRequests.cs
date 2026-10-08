@@ -13,6 +13,7 @@ public static class MemberRequests
     public const string InvitationsRoute = ApiRoutes.Members + ApiRoutes.InvitationsSegment;
     public const string AcceptInvitationRoute = ApiRoutes.Authentication + ApiRoutes.AcceptInvitation;
     public const string CheckInvitationRoute = ApiRoutes.Authentication + ApiRoutes.CheckInvitation;
+    public const string DeclineInvitationRoute = ApiRoutes.Authentication + ApiRoutes.DeclineInvitation;
 
     public static string UniqueInviteeEmail() => $"coach-{Guid.NewGuid():N}@example.com";
 
@@ -40,11 +41,14 @@ public static class MemberRequests
         return Uri.UnescapeDataString(link[WebAppAcceptInvitationUrl.Length..]);
     }
 
-    public static Task<HttpResponseMessage> PostAcceptInvitationAsync(this HttpClient httpClient, string token) =>
+    public static Task<HttpResponseMessage> PostAcceptInvitationAsync(this HttpClient httpClient, string token, string password = InviteePassword) =>
         httpClient.PostAsJsonAsync(
             AcceptInvitationRoute,
-            new AcceptInvitationCommand(token, InviteeFullName, InviteePassword),
+            new AcceptInvitationCommand(token, InviteeFullName, password, AuthenticationRequests.AdultBirthDate),
             ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PostDeclineInvitationAsync(this HttpClient httpClient, string token) =>
+        httpClient.PostAsJsonAsync(DeclineInvitationRoute, new DeclineInvitationCommand(token), ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostCheckInvitationAsync(this HttpClient httpClient, string token) =>
         httpClient.PostAsJsonAsync(CheckInvitationRoute, new CheckInvitationCommand(token), ApiRequests.JsonOptions);

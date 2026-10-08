@@ -6,6 +6,7 @@ public static class AuthenticationRequests
 {
     public const string OwnerFullName = "Laura Gómez";
     public const string OwnerPassword = "a long passphrase";
+    public static readonly DateOnly AdultBirthDate = new(1990, 4, 12);
     public const string WrongPassword = "not the right passphrase";
 
     public const string SignUpRoute = ApiRoutes.Authentication + ApiRoutes.SignUp;
@@ -28,7 +29,8 @@ public static class AuthenticationRequests
             businessName ?? UniqueBusinessName(),
             ApiFixture.BuenosAiresTimeZoneId,
             ApiFixture.CurrencyCode,
-            ApiFixture.DefaultCountryCallingCode);
+            ApiFixture.DefaultCountryCallingCode,
+            AdultBirthDate);
 
     public static Task<HttpResponseMessage> PostSignUpAsync(this HttpClient httpClient, SignUpOwnerCommand command) =>
         httpClient.PostAsJsonAsync(SignUpRoute, command, ApiRequests.JsonOptions);

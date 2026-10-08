@@ -18,7 +18,8 @@ public sealed record SignUpOwnerCommand(
     string? BusinessName,
     string? TimeZoneId,
     string? CurrencyCode,
-    string? DefaultCountryCallingCode) : ICommand;
+    string? DefaultCountryCallingCode,
+    DateOnly? OwnerBirthDate = null) : ICommand;
 
 public sealed class SignUpOwnerUseCase(
     IIdentityService identityService,
@@ -36,13 +37,25 @@ public sealed class SignUpOwnerUseCase(
 {
     public async Task<Result<TokenResponse>> ExecuteAsync(SignUpOwnerCommand command, CancellationToken cancellationToken)
     {
-        var account = OwnerAccount.Create(command.OwnerFullName, command.Email, command.Password);
+        var now = timeProvider.GetUtcNow();
+        var today = DateOnly.FromDateTime(now.UtcDateTime);
+        var account = OwnerAccount.Create(command.OwnerFullName, command.Email, command.Password, command.OwnerBirthDate, today);
         if (account.IsFailure)
         {
-            return RenameField(account.Error!, nameof(OwnerAccount.FullName), nameof(SignUpOwnerCommand.OwnerFullName));
+            return RenameField(
+                RenameField(account.Error!, nameof(OwnerAccount.FullName), nameof(SignUpOwnerCommand.OwnerFullName)),
+                nameof(OwnerAccount.BirthDate),
+                nameof(SignUpOwnerCommand.OwnerBirthDate));
         }
 
-        var now = timeProvider.GetUtcNow();
+        if (!PersonAge.IsAdult(account.Value!.BirthDate, today))
+        {
+            return Result.Validation<TokenResponse>(
+                AuthenticationErrorCodes.OwnerMustBeAdultMessage,
+                AuthenticationErrorCodes.OwnerMustBeAdult,
+                nameof(SignUpOwnerCommand.OwnerBirthDate));
+        }
+
         var organization = Organization.Create(command.BusinessName, now);
         if (organization.IsFailure)
         {

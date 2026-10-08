@@ -7,7 +7,8 @@ namespace ClassManager.Infrastructure.WebPush;
 [JsonDerivedType(typeof(TeamPush), TeamPush.Discriminator)]
 public abstract record PushJob(Guid TenantId, PushMessage Message);
 
-public sealed record StudentAppPush(Guid TenantId, IReadOnlyCollection<Guid>? ClientIds, PushMessage Message) : PushJob(TenantId, Message)
+public sealed record StudentAppPush(Guid TenantId, IReadOnlyCollection<Guid>? ClientIds, PushMessage Message, IReadOnlyCollection<Guid>? UserIds = null)
+    : PushJob(TenantId, Message)
 {
     public const string Discriminator = "students";
 }

@@ -1,3 +1,4 @@
+using ClassManager.Core.UseCases.Accounts;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Branches;
 
@@ -11,6 +12,12 @@ public static class AccountRequests
 
     public static Task<List<AccountResponse>?> ListAccountsAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<List<AccountResponse>>(new Uri(ApiRoutes.MyAccounts, UriKind.Relative), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> PutMyProfileAsync(this HttpClient httpClient, string fullName, DateOnly? birthDate) =>
+        httpClient.PutAsJsonAsync(ApiRoutes.MyAccount, new UpdateMyProfileCommand(fullName, birthDate), ApiRequests.JsonOptions);
+
+    public static Task<MyAccountResponse?> GetMyAccountAsync(this HttpClient httpClient) =>
+        httpClient.GetFromJsonAsync<MyAccountResponse>(new Uri(ApiRoutes.MyAccount, UriKind.Relative), ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostSwitchAccountAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string kind) =>
         httpClient.PostAsJsonAsync(SwitchRoute, new SwitchBranchCommand(refreshToken, businessId, kind), ApiRequests.JsonOptions);

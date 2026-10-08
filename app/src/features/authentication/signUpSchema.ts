@@ -3,7 +3,14 @@ import { emailAddressSchema } from "@/forms/emailAddress";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 import { SignUpRequest } from "@/features/authentication/types";
 import { CountryCode, getCountryPreset } from "@/features/business/countryPresets";
+import {
+  ageInYears,
+  isValidBirthDate,
+  parseBirthDate,
+} from "@/features/students/birthDateFormatting";
 import { translate } from "@/i18n/translate";
+
+const adultAge = 18;
 
 export const signUpSchema = z.object({
   ownerFullName: z
@@ -32,6 +39,14 @@ export const signUpSchema = z.object({
       authenticationLimits.passwordMaximumLength,
       translate("authentication.validation.passwordTooLong"),
     ),
+  ownerBirthDate: z
+    .string()
+    .trim()
+    .refine(isValidBirthDate, translate("birthDate.invalid"))
+    .refine((typedBirthDate) => {
+      const isoBirthDate = parseBirthDate(typedBirthDate);
+      return isoBirthDate === null || ageInYears(isoBirthDate) >= adultAge;
+    }, translate("authentication.validation.ownerMustBeAdult")),
   businessName: z
     .string()
     .trim()
@@ -54,6 +69,7 @@ export const signUpFieldNames = [
   "ownerFullName",
   "email",
   "password",
+  "ownerBirthDate",
   "businessName",
   "timeZoneId",
 ] as const satisfies readonly (keyof SignUpFormValues)[];
@@ -68,5 +84,6 @@ export function toSignUpRequest(formValues: SignUpFormValues): SignUpRequest {
     timeZoneId: formValues.timeZoneId,
     currencyCode: countryPreset.currencyCode,
     defaultCountryCallingCode: countryPreset.callingCode,
+    ownerBirthDate: parseBirthDate(formValues.ownerBirthDate) ?? "",
   };
 }

@@ -16,6 +16,18 @@ internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTas
         await queue.EnqueueAsync(new SendPushBackgroundTaskCommand(new StudentAppPush(tenantContext.TenantId, clientIds, message)), cancellationToken);
     }
 
+    public async Task PublishToStudentAccountsAsync(Guid clientId, IReadOnlyCollection<Guid> userIds, PushMessage message, CancellationToken cancellationToken)
+    {
+        if (!options.Value.IsConfigured || userIds.Count == 0)
+        {
+            return;
+        }
+
+        await queue.EnqueueAsync(
+            new SendPushBackgroundTaskCommand(new StudentAppPush(tenantContext.TenantId, [clientId], message, userIds)),
+            cancellationToken);
+    }
+
     public async Task PublishToMembersAsync(IReadOnlyCollection<Guid> userIds, PushMessage message, CancellationToken cancellationToken)
     {
         if (!options.Value.IsConfigured || userIds.Count == 0)

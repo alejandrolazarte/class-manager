@@ -31,6 +31,7 @@ internal static class SubscriptionLimits
             invitation => invitation.Role != BusinessRole.BranchOwner
                 && invitation.AcceptedAt == null
                 && invitation.RevokedAt == null
+                && invitation.DeclinedAt == null
                 && invitation.ExpiresAt > now,
             cancellationToken);
         return memberCount + pendingInvitationCount;

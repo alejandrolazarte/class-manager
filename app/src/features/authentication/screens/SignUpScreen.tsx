@@ -19,6 +19,8 @@ import {
   getDeviceTimeZone,
 } from "@/features/business/countryPresets";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
+import { BirthDateField } from "@/forms/BirthDateField";
+import { isValidBirthDate } from "@/features/students/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
@@ -40,7 +42,7 @@ type SignUpFailure =
 type SignUpStep = 1 | 2;
 
 const signUpStepCount = 2;
-const accountStepFieldNames = ["ownerFullName", "email", "password"] as const;
+const accountStepFieldNames = ["ownerFullName", "ownerBirthDate", "email", "password"] as const;
 const businessStepFieldNames = ["businessName"] as const;
 const startedStepFill = 0.15;
 const completedStepFill = 1;
@@ -61,6 +63,7 @@ export function SignUpScreen() {
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       ownerFullName: "",
+      ownerBirthDate: "",
       email: "",
       password: "",
       businessName: "",
@@ -68,15 +71,25 @@ export function SignUpScreen() {
     },
     mode: "onTouched",
   });
-  const [countryCode, timeZoneId, ownerFullName, email, password, businessName] = useWatch({
-    control: form.control,
-    name: ["countryCode", "timeZoneId", "ownerFullName", "email", "password", "businessName"],
-  });
+  const [countryCode, timeZoneId, ownerFullName, ownerBirthDate, email, password, businessName] =
+    useWatch({
+      control: form.control,
+      name: [
+        "countryCode",
+        "timeZoneId",
+        "ownerFullName",
+        "ownerBirthDate",
+        "email",
+        "password",
+        "businessName",
+      ],
+    });
   const hasLongEnoughPassword = password.length >= authenticationLimits.passwordMinimumLength;
   const isAccountStepFilled = useRequiredFieldsFilled(form.control, accountStepFieldNames);
   const isBusinessStepFilled = useRequiredFieldsFilled(form.control, businessStepFieldNames);
   const completedAccountFields = [
     ownerFullName.trim().length > 0,
+    isValidBirthDate(ownerBirthDate),
     emailAddressPattern.test(email.trim()),
     hasLongEnoughPassword,
   ].filter(Boolean).length;
@@ -166,6 +179,19 @@ export function SignUpScreen() {
                 placeholder={translate("authentication.signUp.ownerFullNamePlaceholder")}
                 autoCapitalize="words"
                 autoComplete="name"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                errorMessage={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="ownerBirthDate"
+            render={({ field, fieldState }) => (
+              <BirthDateField
+                hint={translate("authentication.signUp.birthDateHint")}
                 value={field.value}
                 onChangeText={field.onChange}
                 onBlur={field.onBlur}

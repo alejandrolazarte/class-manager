@@ -4,6 +4,8 @@ import {
   AcceptStudentAppInvitationRequest,
   AcceptInvitationRequest,
   CheckInvitationRequest,
+  CheckedInvitation,
+  GuardianConsentRequest,
   PasswordResetRequest,
   RefreshSessionRequest,
   ResetPasswordRequest,
@@ -25,6 +27,11 @@ const authenticationPaths = {
   acceptStudentAppInvitation: "/api/auth/student-app-invitations/accept",
   checkInvitation: "/api/auth/invitations/check",
   checkStudentAppInvitation: "/api/auth/student-app-invitations/check",
+  declineInvitation: "/api/auth/invitations/decline",
+  declineStudentAppInvitation: "/api/auth/student-app-invitations/decline",
+  checkGuardianConsent: "/api/auth/student-app-invitations/guardian-consent/check",
+  giveGuardianConsent: "/api/auth/student-app-invitations/guardian-consent/accept",
+  refuseGuardianConsent: "/api/auth/student-app-invitations/guardian-consent/decline",
   switchBranch: "/api/auth/branch",
   accounts: "/api/me/accounts",
 } as const;
@@ -53,12 +60,25 @@ export function acceptInvitation(request: AcceptInvitationRequest): Promise<Toke
   return anonymousHttpClient.post<TokenResponse>(authenticationPaths.acceptInvitation, request);
 }
 
-export function checkInvitation(request: CheckInvitationRequest): Promise<void> {
-  return anonymousHttpClient.post<void>(authenticationPaths.checkInvitation, request);
+export function checkInvitation(request: CheckInvitationRequest): Promise<CheckedInvitation> {
+  return anonymousHttpClient.post<CheckedInvitation>(authenticationPaths.checkInvitation, request);
 }
 
-export function checkStudentAppInvitation(request: CheckInvitationRequest): Promise<void> {
-  return anonymousHttpClient.post<void>(authenticationPaths.checkStudentAppInvitation, request);
+export function checkStudentAppInvitation(
+  request: CheckInvitationRequest,
+): Promise<CheckedInvitation> {
+  return anonymousHttpClient.post<CheckedInvitation>(
+    authenticationPaths.checkStudentAppInvitation,
+    request,
+  );
+}
+
+export function declineInvitation(request: CheckInvitationRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.declineInvitation, request);
+}
+
+export function declineStudentAppInvitation(request: CheckInvitationRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.declineStudentAppInvitation, request);
 }
 
 export function acceptStudentAppInvitation(
@@ -68,6 +88,23 @@ export function acceptStudentAppInvitation(
     authenticationPaths.acceptStudentAppInvitation,
     request,
   );
+}
+
+export function checkGuardianConsent(
+  request: CheckInvitationRequest,
+): Promise<GuardianConsentRequest> {
+  return anonymousHttpClient.post<GuardianConsentRequest>(
+    authenticationPaths.checkGuardianConsent,
+    request,
+  );
+}
+
+export function giveGuardianConsent(request: CheckInvitationRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.giveGuardianConsent, request);
+}
+
+export function refuseGuardianConsent(request: CheckInvitationRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.refuseGuardianConsent, request);
 }
 
 export function switchBranch(request: SwitchBranchRequest): Promise<TokenResponse> {

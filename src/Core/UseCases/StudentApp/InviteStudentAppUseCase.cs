@@ -1,7 +1,9 @@
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
@@ -27,27 +29,41 @@ public sealed class InviteStudentAppUseCase(
     ICurrentMember currentMember,
     ISecretTokenGenerator secretTokenGenerator,
     IEmailSender emailSender,
+    IStudentAppNotificationService studentAppNotificationService,
     IWebAppLinks webAppLinks,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
     : IUseCase<InviteStudentAppCommand, StudentAppInvitationResponse>
 {
     public const string EmailSubject = "Te invitaron a la app";
+    public const string GuardianEmailSubject = "Pedido de autorización para la app";
 
     private const string ClientNotFoundMessage = "The client does not exist.";
     private const string EmailRequiredMessage = "Write the email of the person who will use the app.";
     private const string AlreadyUsesTheAppMessage = "The client already uses the app.";
     private const string StudentNotFoundMessage = "The student is not part of this client.";
+    private const string GuardianEmailRequiredMessage = "Write the email of the client: a student this young needs their authorization.";
     private const string BirthDateRequiredMessage = "Write the birth date of the person who will use the app.";
 
     public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
         new(
             "Invitación a la app",
             EmailSubject,
-            $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Tocá el botón para crear tu cuenta.",
+            $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Tocá el botón para aceptar: si ya usás la app con este email, entrás con tu cuenta de siempre.",
             "Si no esperabas esta invitación, podés ignorar este mail.")
         {
-            Action = new EmailAction("Crear mi cuenta", acceptInvitationLink, ShowsLinkFallback: true),
+            Action = new EmailAction("Aceptar invitación", acceptInvitationLink, ShowsLinkFallback: true),
+            Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
+        };
+
+    public static EmailContent GuardianEmailContentFor(string businessName, string studentFullName, int minimumAge, string authorizeLink) =>
+        new(
+            "Autorización para la app",
+            GuardianEmailSubject,
+            $"{businessName} quiere invitar a {studentFullName} a su app para ver sus clases. Como es menor de {minimumAge} años, necesitamos tu autorización.",
+            "Si no esperabas este pedido, podés ignorar este mail.")
+        {
+            Action = new EmailAction("Revisar y autorizar", authorizeLink, ShowsLinkFallback: true),
             Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
         };
 
@@ -74,7 +90,7 @@ public sealed class InviteStudentAppUseCase(
         var now = timeProvider.GetUtcNow();
         var familyStudents = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var recipient = command.StudentId is { } studentId
-            ? await StudentRecipientAsync(client, studentId, familyStudents, command, business.TodayAt(now), cancellationToken)
+            ? await StudentRecipientAsync(client, studentId, familyStudents, command, business, business.TodayAt(now), cancellationToken)
             : ClientRecipient(client, familyStudents, command);
         if (recipient.IsFailure)
         {
@@ -82,10 +98,16 @@ public sealed class InviteStudentAppUseCase(
         }
 
         var token = secretTokenGenerator.Create();
-        var invitation = ClientInvitation.Create(client.Id, recipient.Value, token.Hash, access.UserId, now, command.StudentId);
+        var invitation = ClientInvitation.Create(client.Id, recipient.Value!.Email, token.Hash, access.UserId, now, command.StudentId);
         if (invitation.IsFailure)
         {
             return invitation.Error!;
+        }
+
+        var guardianToken = recipient.Value.NeedsGuardianConsent ? secretTokenGenerator.Create() : null;
+        if (guardianToken is not null)
+        {
+            invitation.Value!.RequireGuardianConsent(client.Email!, guardianToken.Hash);
         }
 
         foreach (var previousInvitation in await invitationRepository.ListPendingForUpdateByPersonAsync(client.Id, command.StudentId, now, cancellationToken))
@@ -96,13 +118,26 @@ public sealed class InviteStudentAppUseCase(
         invitationRepository.Add(invitation.Value!);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
-        await emailSender.SendAsync(new EmailMessage(invitation.Value!.Email, EmailSubject, content, business.Id), cancellationToken);
+        if (guardianToken is not null)
+        {
+            var guardianContent = GuardianEmailContentFor(
+                business.BrandDisplayName,
+                recipient.Value.StudentFullName ?? string.Empty,
+                PersonAge.OwnAccountMinimumAge(business.DefaultCountryCallingCode),
+                webAppLinks.AuthorizeStudentApp(guardianToken.Value));
+            await emailSender.SendAsync(new EmailMessage(client.Email!, GuardianEmailSubject, guardianContent, business.Id), cancellationToken);
+            await studentAppNotificationService.GuardianConsentRequestedAsync(invitation.Value!, recipient.Value.StudentFullName ?? string.Empty, cancellationToken);
+        }
+        else
+        {
+            var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
+            await emailSender.SendAsync(new EmailMessage(invitation.Value!.Email, EmailSubject, content, business.Id), cancellationToken);
+        }
 
-        return new StudentAppInvitationResponse(invitation.Value.Id, invitation.Value.Email, invitation.Value.ExpiresAt);
+        return new StudentAppInvitationResponse(invitation.Value!.Id, invitation.Value.Email, invitation.Value.ExpiresAt, invitation.Value.AwaitsGuardianConsent);
     }
 
-    private static Result<string> ClientRecipient(Client client, IReadOnlyList<Student> familyStudents, InviteStudentAppCommand command)
+    private static Result<Recipient> ClientRecipient(Client client, IReadOnlyList<Student> familyStudents, InviteStudentAppCommand command)
     {
         if (!string.IsNullOrWhiteSpace(command.Email) && !client.HasEmail(command.Email))
         {
@@ -118,14 +153,15 @@ public sealed class InviteStudentAppUseCase(
             }
         }
 
-        return client.Email is null ? EmailRequired() : client.Email;
+        return client.Email is null ? EmailRequired() : new Recipient(client.Email, NeedsGuardianConsent: false, StudentFullName: null);
     }
 
-    private async Task<Result<string>> StudentRecipientAsync(
+    private async Task<Result<Recipient>> StudentRecipientAsync(
         Client client,
         Guid studentId,
         IReadOnlyList<Student> familyStudents,
         InviteStudentAppCommand command,
+        Business business,
         DateOnly today,
         CancellationToken cancellationToken)
     {
@@ -134,7 +170,7 @@ public sealed class InviteStudentAppUseCase(
             : null;
         if (student is null)
         {
-            return Result.NotFound<string>(StudentNotFoundMessage, StudentErrorCodes.NotFound);
+            return Result.NotFound<Recipient>(StudentNotFoundMessage, StudentErrorCodes.NotFound);
         }
 
         if (command.BirthDate is not null)
@@ -146,9 +182,18 @@ public sealed class InviteStudentAppUseCase(
             }
         }
 
-        if (student.BirthDate is null)
+        if (student.BirthDate is not { } birthDate)
         {
-            return Result.Validation<string>(BirthDateRequiredMessage, StudentAppErrorCodes.BirthDateRequired, nameof(InviteStudentAppRequest.BirthDate));
+            return Result.Validation<Recipient>(BirthDateRequiredMessage, StudentAppErrorCodes.BirthDateRequired, nameof(InviteStudentAppRequest.BirthDate));
+        }
+
+        var needsGuardianConsent = !PersonAge.CanHaveOwnAccount(birthDate, today, business.DefaultCountryCallingCode);
+        if (needsGuardianConsent && client.Email is null)
+        {
+            return Result.Validation<Recipient>(
+                GuardianEmailRequiredMessage,
+                StudentAppErrorCodes.GuardianEmailRequired,
+                nameof(InviteStudentAppRequest.Email));
         }
 
         if (!string.IsNullOrWhiteSpace(command.Email) && !student.HasEmail(command.Email))
@@ -166,9 +211,11 @@ public sealed class InviteStudentAppUseCase(
             }
         }
 
-        return student.Email is null ? EmailRequired() : student.Email;
+        return student.Email is null ? EmailRequired() : new Recipient(student.Email, needsGuardianConsent, student.FullName);
     }
 
-    private static Result<string> EmailRequired() =>
-        Result.Validation<string>(EmailRequiredMessage, StudentAppErrorCodes.EmailRequired, nameof(InviteStudentAppRequest.Email));
+    private static Result<Recipient> EmailRequired() =>
+        Result.Validation<Recipient>(EmailRequiredMessage, StudentAppErrorCodes.EmailRequired, nameof(InviteStudentAppRequest.Email));
+
+    private sealed record Recipient(string Email, bool NeedsGuardianConsent, string? StudentFullName);
 }

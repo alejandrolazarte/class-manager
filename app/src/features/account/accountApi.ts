@@ -4,6 +4,7 @@ import {
   MyAccount,
   RequestEmailChangeRequest,
   RequestEmailChangeResponse,
+  UpdateMyProfileRequest,
 } from "@/features/account/types";
 
 const accountPaths = {
@@ -14,6 +15,10 @@ const accountPaths = {
 
 export function getMyAccount(): Promise<MyAccount> {
   return httpClient.get<MyAccount>(accountPaths.myAccount);
+}
+
+export function updateMyProfile(request: UpdateMyProfileRequest): Promise<MyAccount> {
+  return httpClient.put<MyAccount>(accountPaths.myAccount, request);
 }
 
 export function requestEmailChange(

@@ -98,3 +98,29 @@ The student signs in through the sign-in screen, then the test captures:
 | `30-elegir-cuenta` | Choosing between the team and the student account when the same email has both |
 
 Run only these with `pnpm screenshots:no-build Student_screens`.
+
+## Invitation flows
+
+`e2e/screenshots/Invitation_flows.capture.ts` captures who can use the app and how each person gets in (see [Ages and minors](../ages-and-minors.md)). It signs up its own business ("Natación Olas") with the Pérez family: Ana, the client who pays and already uses the app, Lucía (14) and Tomás (11), plus Marta Ruiz, who is invited with an email that already has an account. Emails go through the same SMTP sink as the student app screens.
+
+```powershell
+cd e2e
+pnpm web:build                  # once, or after changing the app
+pnpm screenshots:invitations
+```
+
+The images land in `e2e/screenshots-output/invitaciones/`:
+
+| File | Screen |
+|---|---|
+| `01-registro-del-dueno-con-fecha` | Owner sign-up asks for the birth date (must be an adult) |
+| `02-ficha-de-la-familia` | Client card: the client uses the app, and each child can be invited on their own |
+| `03-invitar-a-lucia-14-anos`, `04-lucia-invitada` | Inviting a child old enough for an account of their own |
+| `05-tomas-11-anos-espera-autorizacion` | Inviting a child below the minimum age: waiting for the client, with "Recordar al responsable" |
+| `06-responsable-autoriza-desde-el-mail` | The client can authorize from the email link |
+| `07-responsable-autoriza-desde-la-app`, `08-responsable-autorizo` | Or from the card on the home of their app |
+| `09-tomas-crea-su-cuenta`, `10-tomas-entra-a-la-app` | The child creates the account (name and birth date from the team) and sees the family |
+| `11-lucia-crea-su-cuenta-sin-autorizacion` | A 14-year-old creates the account with no authorization needed |
+| `12-ya-tiene-cuenta-aceptar-o-rechazar`, `13-rechazo-la-invitacion` | Someone who already has an account only accepts or declines |
+| `14-aviso-al-equipo` | The team is notified of the decline |
+| `15-editar-perfil` | Editar perfil: name and birth date |
