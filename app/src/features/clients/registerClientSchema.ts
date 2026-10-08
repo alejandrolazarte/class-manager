@@ -3,6 +3,11 @@ import { emailAddressSchema } from "@/forms/emailAddress";
 import { countDigits } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientRequest } from "@/features/clients/types";
 import {
+  ageInYears,
+  isValidBirthDate,
+  parseBirthDate,
+} from "@/features/students/birthDateFormatting";
+import {
   isEmailOfAnotherPerson,
   normalizeStudentName,
   studentFormSchema,
@@ -21,6 +26,8 @@ export const clientLimits = {
 } as const;
 
 export const maximumStudentsPerRegistration = 10;
+
+const adultAge = 18;
 
 const phoneNumberAllowedCharactersPattern = /^[+\d\s()-]+$/;
 const serverStudentFieldPattern = /^students\[(\d+)\]\.(\w+)$/;
@@ -60,6 +67,7 @@ export const clientContactSchema = z.object({
 
 const clientFieldsSchema = clientContactSchema.extend({
   clientAttends: z.boolean(),
+  clientBirthDate: z.string(),
   sendAppInvitation: z.boolean(),
   additionalStudents: z.array(studentFormSchema),
 });
@@ -79,6 +87,19 @@ export const registerClientSchema = clientFieldsSchema.superRefine((formValues, 
       path: ["clientAttends"],
       message: translate("clients.validation.tooManyAttendees"),
     });
+  }
+  if (formValues.clientAttends) {
+    const contactBirthDateMessage = contactBirthDateError(
+      formValues.clientBirthDate,
+      formValues.fullName.trim(),
+    );
+    if (contactBirthDateMessage !== null) {
+      context.addIssue({
+        code: "custom",
+        path: ["clientBirthDate"],
+        message: contactBirthDateMessage,
+      });
+    }
   }
   const attendeeNames = new Set(
     formValues.clientAttends ? [normalizeStudentName(formValues.fullName)] : [],
@@ -112,6 +133,16 @@ export const registerClientSchema = clientFieldsSchema.superRefine((formValues, 
   });
 });
 
+function contactBirthDateError(typedBirthDate: string, contactName: string): string | null {
+  if (!isValidBirthDate(typedBirthDate)) {
+    return translate("students.validation.birthDateInvalid");
+  }
+  const isoBirthDate = parseBirthDate(typedBirthDate);
+  return isoBirthDate !== null && ageInYears(isoBirthDate) < adultAge
+    ? translate("clients.validation.contactMustBeAdult", { name: contactName })
+    : null;
+}
+
 export type RegisterClientFormValues = z.input<typeof registerClientSchema>;
 
 export const emptyRegisterClientFormValues: RegisterClientFormValues = {
@@ -120,6 +151,7 @@ export const emptyRegisterClientFormValues: RegisterClientFormValues = {
   email: "",
   notes: "",
   clientAttends: true,
+  clientBirthDate: "",
   sendAppInvitation: true,
   additionalStudents: [],
 };
@@ -127,6 +159,7 @@ export const emptyRegisterClientFormValues: RegisterClientFormValues = {
 export type RegisterClientFieldName =
   | (typeof clientFieldNames)[number]
   | "clientAttends"
+  | "clientBirthDate"
   | `additionalStudents.${number}.${(typeof studentFieldNames)[number]}`;
 
 export function toRegisterClientFieldName(
@@ -148,7 +181,11 @@ export function toRegisterClientFieldName(
     return null;
   }
   if (clientAttends && studentIndex === 0) {
-    return studentFieldName === "fullName" ? "fullName" : null;
+    return studentFieldName === "fullName"
+      ? "fullName"
+      : studentFieldName === "birthDate"
+        ? "clientBirthDate"
+        : null;
   }
   const additionalStudentIndex = clientAttends ? studentIndex - 1 : studentIndex;
   return `additionalStudents.${additionalStudentIndex}.${studentFieldName as (typeof studentFieldNames)[number]}`;
@@ -160,7 +197,14 @@ function toCamelCase(fieldName: string): string {
 
 function toStudentRequests(formValues: RegisterClientFormValues): NewStudentRequest[] {
   const clientAsStudent: NewStudentRequest[] = formValues.clientAttends
-    ? [{ fullName: formValues.fullName.trim(), birthDate: null, notes: null, email: null }]
+    ? [
+        {
+          fullName: formValues.fullName.trim(),
+          birthDate: parseBirthDate(formValues.clientBirthDate),
+          notes: null,
+          email: null,
+        },
+      ]
     : [];
   return [...clientAsStudent, ...formValues.additionalStudents.map(toNewStudentRequest)];
 }

@@ -26,6 +26,7 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
   const additionalStudents = watch("additionalStudents");
   const areRequiredFieldsFilled =
     areFilled([watch("fullName"), watch("phoneNumber")]) &&
+    (!watch("clientAttends") || areFilled([watch("clientBirthDate")])) &&
     areFilled(additionalStudents.map((additionalStudent) => additionalStudent.fullName));
 
   return (

@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
+import { clientErrorCodes } from "@/features/clients/clientErrorCodes";
 import { clientQueryKeys } from "@/features/clients/clientQueryKeys";
 import { isApiError } from "@/api/httpClient";
 import { ClientDetails, StudentAppAccessStatus } from "@/features/clients/types";
@@ -13,7 +14,7 @@ import {
   parseBirthDate,
 } from "@/features/students/birthDateFormatting";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
-import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
+import { isEmailOfAnotherPerson, normalizeStudentName } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { TranslationKey, translate } from "@/i18n/translate";
@@ -73,7 +74,13 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     (student ? student.email : client.email) ??
     ""
   ).trim();
-  const needsBirthDate = student !== undefined && student.birthDate === null;
+  const contactAsStudent = student
+    ? undefined
+    : client.students.find(
+        (familyStudent) =>
+          normalizeStudentName(familyStudent.fullName) === normalizeStudentName(client.fullName),
+      );
+  const needsBirthDate = (student ?? contactAsStudent)?.birthDate === null;
   const [isAskingEmail, setIsAskingEmail] = useState(false);
   const [email, setEmail] = useState(emailOnFile);
   const [emailError, setEmailError] = useState<string | undefined>();
@@ -81,6 +88,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const [birthDateError, setBirthDateError] = useState<string | undefined>();
   const [hasFailed, setHasFailed] = useState(false);
   const [isMissingGuardianEmail, setIsMissingGuardianEmail] = useState(false);
+  const [isMinorContact, setIsMinorContact] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
   const askAgain = (emailMessage: string | undefined, birthDateMessage: string | undefined) => {
@@ -92,6 +100,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const sendTo = async (recipientEmail: string) => {
     setHasFailed(false);
     setIsMissingGuardianEmail(false);
+    setIsMinorContact(false);
     const emailMessage = !emailAddressPattern.test(recipientEmail)
       ? translate("student.invite.emailInvalid")
       : isEmailOfAnotherPerson(recipientEmail, otherPeopleEmails(client, student))
@@ -137,6 +146,11 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
       ) {
         setIsAskingEmail(false);
         setIsMissingGuardianEmail(true);
+        return;
+      }
+      if (isApiError(inviteError) && inviteError.hasCode(clientErrorCodes.contactMustBeAdult)) {
+        setIsAskingEmail(false);
+        setIsMinorContact(true);
         return;
       }
       setHasFailed(true);
@@ -192,6 +206,12 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
       </View>
       {student ? actionButton : null}
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
+      {isMinorContact ? (
+        <Banner
+          tone="warning"
+          message={translate("clients.validation.contactMustBeAdult", { name: client.fullName })}
+        />
+      ) : null}
       {isMissingGuardianEmail && student ? (
         <Banner
           tone="warning"

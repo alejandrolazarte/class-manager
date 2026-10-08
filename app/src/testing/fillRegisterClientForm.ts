@@ -1,7 +1,13 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { translate } from "@/i18n/translate";
 
-export async function fillRegisterClientForm(fullName: string, phoneNumber: string): Promise<void> {
+export const adultContactBirthDate = "20/06/1985";
+
+export async function fillRegisterClientForm(
+  fullName: string,
+  phoneNumber: string,
+  contactBirthDate = adultContactBirthDate,
+): Promise<void> {
   await fireEvent.changeText(
     screen.getByLabelText(translate("clients.register.fullName")),
     fullName,
@@ -10,6 +16,10 @@ export async function fillRegisterClientForm(fullName: string, phoneNumber: stri
     screen.getByLabelText(translate("clients.register.phoneNumber")),
     phoneNumber,
   );
+  const contactBirthDateField = screen.queryByLabelText(translate("clients.register.birthDate"));
+  if (contactBirthDateField !== null) {
+    await fireEvent.changeText(contactBirthDateField, contactBirthDate);
+  }
 }
 
 export async function setClientAttends(clientAttends: boolean): Promise<void> {
