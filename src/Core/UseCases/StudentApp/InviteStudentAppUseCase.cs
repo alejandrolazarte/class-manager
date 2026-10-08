@@ -7,6 +7,7 @@ using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
+using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Students;
 using ClassManager.Notifications.Email;
 
@@ -91,7 +92,7 @@ public sealed class InviteStudentAppUseCase(
         var familyStudents = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var recipient = command.StudentId is { } studentId
             ? await StudentRecipientAsync(client, studentId, familyStudents, command, business, business.TodayAt(now), cancellationToken)
-            : ClientRecipient(client, familyStudents, command);
+            : await ClientRecipientAsync(client, familyStudents, command, business.TodayAt(now), cancellationToken);
         if (recipient.IsFailure)
         {
             return recipient.Error!;
@@ -137,8 +138,19 @@ public sealed class InviteStudentAppUseCase(
         return new StudentAppInvitationResponse(invitation.Value!.Id, invitation.Value.Email, invitation.Value.ExpiresAt, invitation.Value.AwaitsGuardianConsent);
     }
 
-    private static Result<Recipient> ClientRecipient(Client client, IReadOnlyList<Student> familyStudents, InviteStudentAppCommand command)
+    private async Task<Result<Recipient>> ClientRecipientAsync(
+        Client client,
+        IReadOnlyList<Student> familyStudents,
+        InviteStudentAppCommand command,
+        DateOnly today,
+        CancellationToken cancellationToken)
     {
+        var minorContact = await AttendingContactMinorErrorAsync(client, familyStudents, command.BirthDate, today, cancellationToken);
+        if (minorContact is not null)
+        {
+            return minorContact;
+        }
+
         if (!string.IsNullOrWhiteSpace(command.Email) && !client.HasEmail(command.Email))
         {
             if (familyStudents.Any(student => student.HasEmail(command.Email)))
@@ -154,6 +166,32 @@ public sealed class InviteStudentAppUseCase(
         }
 
         return client.Email is null ? EmailRequired() : new Recipient(client.Email, NeedsGuardianConsent: false, StudentFullName: null);
+    }
+
+    private async Task<ResultError?> AttendingContactMinorErrorAsync(
+        Client client,
+        IReadOnlyList<Student> familyStudents,
+        DateOnly? typedBirthDate,
+        DateOnly today,
+        CancellationToken cancellationToken)
+    {
+        var contactAsStudent = familyStudents.FirstOrDefault(student => AttendingContact.IsTheContact(client.FullName, student.FullName));
+        if (contactAsStudent is null)
+        {
+            return null;
+        }
+
+        if (typedBirthDate is not null)
+        {
+            var trackedStudent = await studentRepository.FindForUpdateAsync(contactAsStudent.Id, cancellationToken);
+            var birthDateChange = trackedStudent?.ChangeBirthDate(typedBirthDate, today);
+            if (birthDateChange?.IsFailure == true)
+            {
+                return birthDateChange.Error! with { FieldName = nameof(InviteStudentAppRequest.BirthDate) };
+            }
+        }
+
+        return AttendingContact.MinorError(typedBirthDate ?? contactAsStudent.BirthDate, today, nameof(InviteStudentAppRequest.BirthDate));
     }
 
     private async Task<Result<Recipient>> StudentRecipientAsync(

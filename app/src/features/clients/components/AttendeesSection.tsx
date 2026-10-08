@@ -6,6 +6,7 @@ import {
 } from "@/features/clients/registerClientSchema";
 import { StudentFields } from "@/features/students/components/StudentFields";
 import { emptyStudentFormValues } from "@/features/students/studentSchema";
+import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
@@ -41,6 +42,22 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
           />
         )}
       />
+      {clientAttends ? (
+        <Controller
+          control={control}
+          name="clientBirthDate"
+          render={({ field, fieldState }) => (
+            <BirthDateField
+              label={translate("clients.register.birthDate")}
+              hint={translate("clients.register.birthDateHint")}
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              errorMessage={fieldState.error?.message}
+            />
+          )}
+        />
+      ) : null}
       {fields.map((additionalStudentField, index) => (
         <Card key={additionalStudentField.id} className="gap-3 p-4">
           <View className="flex-row items-center justify-between">

@@ -51,12 +51,13 @@ public sealed class RegisterClientUseCase(
             return client.Error!;
         }
 
+        var newClient = client.Value!;
         if (currentUser.UserId is { } userId)
         {
-            client.Value!.RecordRegisteredBy(userId);
+            newClient.RecordRegisteredBy(userId);
         }
 
-        var students = CreateStudents(client.Value!.Id, client.Value.Email, command.Students ?? [], business.TodayAt(now), now);
+        var students = CreateStudents(newClient, command.Students ?? [], business.TodayAt(now), now);
         if (students.IsFailure)
         {
             return students.Error!;
@@ -68,7 +69,7 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(existingClient.Id);
         }
 
-        clientRepository.Add(client.Value);
+        clientRepository.Add(newClient);
         foreach (var student in students.Value!)
         {
             studentRepository.Add(student);
@@ -84,12 +85,11 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(winnerClient?.Id);
         }
 
-        return ClientDetailsResponse.From(client.Value, students.Value!, [], business.TodayAt(timeProvider.GetUtcNow()), StudentAppAccessResponse.NotInvited, new Dictionary<Guid, StudentAppAccessResponse>());
+        return ClientDetailsResponse.From(newClient, students.Value!, [], business.TodayAt(timeProvider.GetUtcNow()), StudentAppAccessResponse.NotInvited, new Dictionary<Guid, StudentAppAccessResponse>());
     }
 
     private static Result<IReadOnlyList<Student>> CreateStudents(
-        Guid clientId,
-        string? clientEmail,
+        Client client,
         IReadOnlyList<NewStudent> newStudents,
         DateOnly today,
         DateTimeOffset now)
@@ -107,7 +107,7 @@ public sealed class RegisterClientUseCase(
         for (var index = 0; index < newStudents.Count; index++)
         {
             var newStudent = newStudents[index];
-            var student = Student.Create(clientId, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
+            var student = Student.Create(client.Id, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
             if (student.IsFailure)
             {
                 return student.Error! with { FieldName = StudentFieldName(index, student.Error.FieldName) };
@@ -121,7 +121,15 @@ public sealed class RegisterClientUseCase(
                     StudentFieldName(index, nameof(Student.FullName)));
             }
 
-            if (FamilyEmails.IsTakenByAnotherPerson(student.Value.Email, clientEmail, students))
+            var minorContact = AttendingContact.IsTheContact(client.FullName, student.Value.FullName)
+                ? AttendingContact.MinorError(student.Value.BirthDate, today, StudentFieldName(index, nameof(Student.BirthDate)))
+                : null;
+            if (minorContact is not null)
+            {
+                return minorContact;
+            }
+
+            if (FamilyEmails.IsTakenByAnotherPerson(student.Value.Email, client.Email, students))
             {
                 return FamilyEmails.EmailOfAnotherPerson(StudentFieldName(index, nameof(Student.Email)));
             }
