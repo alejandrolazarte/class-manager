@@ -25,9 +25,8 @@ describe("When private lesson is scheduled weekly", () => {
 
   it("Then request has students coach and weeks", async () => {
     await renderWithProviders(<PrivateLessonFormScreen initialDate="2026-10-06" />);
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("privateLessons.form.searchStudent")),
-      "Tom",
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("privateLessons.form.chooseStudent") }),
     );
     await fireEvent.press(await screen.findByRole("button", { name: student.fullName }));
     await fireEvent.changeText(

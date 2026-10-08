@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
-import { SubstituteInstructorPicker } from "@/features/sessions/components/SubstituteInstructorPicker";
+import { InstructorPicker } from "@/features/instructors/components/InstructorPicker";
 import { sessionErrorCodes } from "@/features/sessions/sessionErrorCodes";
 import { useAssignSubstitute } from "@/features/sessions/useSessionMutations";
 import { translate } from "@/i18n/translate";
@@ -101,7 +101,8 @@ export function SubstitutePanel({
         </View>
       ) : null}
       {isPickerOpen ? (
-        <SubstituteInstructorPicker
+        <InstructorPicker
+          testID="substitute-instructor-picker"
           instructors={offeredInstructors}
           isPending={isPending}
           isError={isError}
@@ -111,6 +112,7 @@ export function SubstitutePanel({
             setIsPickerOpen(false);
           }}
           onClose={() => setIsPickerOpen(false)}
+          emptyMessage={translate("sessions.substitute.noInstructors")}
         />
       ) : null}
     </View>

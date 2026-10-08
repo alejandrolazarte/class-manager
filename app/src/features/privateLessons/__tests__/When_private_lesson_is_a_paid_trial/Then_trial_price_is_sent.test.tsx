@@ -28,9 +28,8 @@ describe("When private lesson is a paid trial", () => {
 
   it("Then trial price is sent", async () => {
     await renderWithProviders(<PrivateLessonFormScreen initialDate="2026-10-06" />);
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("privateLessons.form.searchStudent")),
-      "Tom",
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("privateLessons.form.chooseStudent") }),
     );
     await fireEvent.press(await screen.findByRole("button", { name: student.fullName }));
     await fireEvent.changeText(

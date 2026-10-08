@@ -10,9 +10,11 @@ import { Banner } from "@/ui/Banner";
 import { SearchPage } from "@/ui/SearchPage";
 import { Spinner } from "@/ui/Spinner";
 
-interface CounterSaleStudentPickerProps {
+interface StudentPickerProps {
   onPick: (student: StudentSummary) => void;
   onClose: () => void;
+  excludedStudentIds?: string[];
+  testID?: string;
 }
 
 function normalizedName(fullName: string): string {
@@ -23,32 +25,41 @@ export function studentContactLine(student: StudentSummary): string {
   const phone = formatPhoneNumberForDisplay(student.clientPhoneNumber);
   return normalizedName(student.fullName) === normalizedName(student.clientFullName)
     ? phone
-    : translate("orders.counterSale.studentOfClient", { client: student.clientFullName, phone });
+    : translate("students.picker.studentOfClient", { client: student.clientFullName, phone });
 }
 
-export function CounterSaleStudentPicker({ onPick, onClose }: CounterSaleStudentPickerProps) {
+export function StudentPicker({
+  onPick,
+  onClose,
+  excludedStudentIds = [],
+  testID = "student-picker",
+}: StudentPickerProps) {
   const [searchText, setSearchText] = useState("");
-  const { data: students = [], isPending, isError, debouncedSearch } = useStudentSearch(searchText);
+  const {
+    data: foundStudents = [],
+    isPending,
+    isError,
+    debouncedSearch,
+  } = useStudentSearch(searchText);
   const hasSearch = debouncedSearch.length > 0;
+  const students = foundStudents.filter((student) => !excludedStudentIds.includes(student.id));
 
   return (
     <SearchPage
-      testID="counter-sale-student-picker"
+      testID={testID}
       searchText={searchText}
       onSearchTextChange={setSearchText}
-      searchPlaceholder={translate("orders.counterSale.studentSearch")}
+      searchPlaceholder={translate("students.picker.search")}
       onClose={onClose}
     >
       <AppText variant="overline" tone="subtle">
-        {translate(
-          hasSearch ? "orders.counterSale.results" : "orders.counterSale.chooseStudentTitle",
-        )}
+        {translate(hasSearch ? "students.picker.results" : "students.picker.chooseTitle")}
       </AppText>
       {isPending ? <Spinner /> : null}
       {isError ? <Banner message={translate("common.unexpectedError")} /> : null}
       {!isPending && hasSearch && students.length === 0 ? (
         <AppText variant="body" tone="muted">
-          {translate("orders.counterSale.noStudentResults", { search: debouncedSearch })}
+          {translate("students.picker.noResults", { search: debouncedSearch })}
         </AppText>
       ) : null}
       <View>

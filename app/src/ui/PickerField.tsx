@@ -9,6 +9,34 @@ export interface PickedPerson {
   detail: string;
 }
 
+interface PickerChooseButtonProps {
+  label: string;
+  onPress: () => void;
+  hint?: string;
+}
+
+export function PickerChooseButton({ label, onPress, hint }: PickerChooseButtonProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-3.5 py-3 active:bg-muted"
+    >
+      <Icon name="findPerson" tone="muted-foreground" />
+      <View className="min-w-0 flex-1">
+        <AppText variant="bodyStrong">{label}</AppText>
+        {hint ? (
+          <AppText variant="caption" tone="subtle">
+            {hint}
+          </AppText>
+        ) : null}
+      </View>
+      <Icon name="next" tone="subtle-foreground" />
+    </Pressable>
+  );
+}
+
 interface PickerFieldProps {
   label: string;
   chooseLabel: string;
@@ -34,23 +62,7 @@ export function PickerField({
         {label}
       </AppText>
       {picked === null ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={chooseLabel}
-          onPress={onChoose}
-          className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-3.5 py-3 active:bg-muted"
-        >
-          <Icon name="findPerson" tone="muted-foreground" />
-          <View className="min-w-0 flex-1">
-            <AppText variant="bodyStrong">{chooseLabel}</AppText>
-            {hint ? (
-              <AppText variant="caption" tone="subtle">
-                {hint}
-              </AppText>
-            ) : null}
-          </View>
-          <Icon name="next" tone="subtle-foreground" />
-        </Pressable>
+        <PickerChooseButton label={chooseLabel} hint={hint} onPress={onChoose} />
       ) : (
         <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
           <Avatar name={picked.name} size="small" />
