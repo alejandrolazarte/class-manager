@@ -26,7 +26,7 @@ public sealed class AcceptInvitationUseCase(
 {
     private const string InvalidInvitationMessage = "The invitation link is invalid, expired or already used. Ask for a new one.";
     private const string AlreadyMemberMessage = "You are already part of this team.";
-    private const string InstructorTakenMessage = "Another team member is already linked to this coach. Ask for a new invitation.";
+    private const string InstructorTakenMessage = "Another team member is already linked to this instructor. Ask for a new invitation.";
 
     public async Task<Result<TokenResponse>> ExecuteAsync(AcceptInvitationCommand command, CancellationToken cancellationToken)
     {

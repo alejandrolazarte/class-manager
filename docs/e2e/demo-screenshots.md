@@ -36,7 +36,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 |---|---|
 | `01-hoy` | Today's classes with present counts |
 | `02-asistencia` | Attendance of Natación inicial |
-| `02b-comentario-del-profe` | Comment sheet a coach fills in for a student after class |
+| `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
 | `03-clases-semana` | Weekly classes |
 | `04-clase-alumnos` | Class roster |
 | `05-clase-editar` | Class form |
@@ -68,7 +68,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - Five shop products: a T-shirt with sizes and one size sold out, a cap and a bottle with unlimited stock, a hoodie made to order, and a sold-out towel.
 - An app invitation for the Pérez client, accepted through the API. The invitation link only travels by email, so the test starts a small SMTP sink (`e2e/support/smtpSink.ts`) and the screenshots config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
 - Attendance in Natación inicial for every past class of the month: Lucía never misses, Tomás missed the class two weeks ago, so each shows a different streak.
-- A comment from the coach for each student: Lucía's on her last past class, Tomás's on today's class.
+- A comment from the instructor for each student: Lucía's on her last past class, Tomás's on today's class.
 - Two announcements from the school, and next week's Natación inicial class cancelled for a holiday.
 - A "No voy" notice for Tomás on his next class after today (skipping the cancelled one).
 - A "Pack Aquagym" of 4 classes valid for Aquagym, sold to the Pérez client, with one Aquagym class booked for Lucía this week.
@@ -78,9 +78,9 @@ The student signs in through the sign-in screen, then the test captures:
 
 | File | Screen |
 |---|---|
-| `20-alumno-inicio` | Home: next class, streak, monthly fee, coach comment and shop preview |
+| `20-alumno-inicio` | Home: next class, streak, monthly fee, instructor comment and shop preview |
 | `21-alumno-inicio-otro-alumno` | Home after picking the other student |
-| `21b-alumno-novedades` | News: announcements, ready order, coach comments and the cancelled class, grouped by day |
+| `21b-alumno-novedades` | News: announcements, ready order, instructor comments and the cancelled class, grouped by day |
 | `22-alumno-clases` | Week of classes for the selected student |
 | `22b-alumno-clases-no-voy` | A class the student won't attend, with "Voy a ir igual" |
 | `22c-alumno-clase-de-recuperacion` | A booked makeup class in the student schedule |

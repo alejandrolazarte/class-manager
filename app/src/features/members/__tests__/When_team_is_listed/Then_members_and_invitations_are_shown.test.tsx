@@ -10,7 +10,7 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 jest.mock("@/features/members/membersApi");
 jest.mock("@/features/instructors/instructorsApi");
 
-const coachInstructor = buildInstructor({ id: "instructor-coach", fullName: "Marcos Díaz" });
+const instructorOfMember = buildInstructor({ id: "instructor-of-member", fullName: "Marcos Díaz" });
 const owner = buildMember({
   id: "member-owner",
   fullName: "Laura Gómez",
@@ -19,13 +19,15 @@ const owner = buildMember({
   instructorId: null,
   isCurrentUser: true,
 });
-const coach = buildMember({ instructorId: coachInstructor.id });
+const instructor = buildMember({ instructorId: instructorOfMember.id });
 const invitation = buildInvitation();
 
 describe("When team is listed", () => {
   beforeEach(() => {
-    jest.mocked(getTeam).mockResolvedValue({ members: [owner, coach], invitations: [invitation] });
-    jest.mocked(listInstructorsIncludingInactive).mockResolvedValue([coachInstructor]);
+    jest
+      .mocked(getTeam)
+      .mockResolvedValue({ members: [owner, instructor], invitations: [invitation] });
+    jest.mocked(listInstructorsIncludingInactive).mockResolvedValue([instructorOfMember]);
   });
 
   it("Then members and invitations are shown", async () => {
@@ -35,9 +37,9 @@ describe("When team is listed", () => {
     expect(screen.getByText(translate("team.you"))).toBeOnTheScreen();
     expect(
       await screen.findByText(
-        translate("roles.withCoach", {
-          role: translate("roles.Coach"),
-          coach: coachInstructor.fullName,
+        translate("roles.withInstructor", {
+          role: translate("roles.Instructor"),
+          instructor: instructorOfMember.fullName,
         }),
       ),
     ).toBeOnTheScreen();

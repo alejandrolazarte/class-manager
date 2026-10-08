@@ -6,15 +6,15 @@ public sealed class Then_the_session_has_no_comment(ApiFixture fixture)
     [Fact]
     public async Task Then_the_session_has_no_comment_Run()
     {
-        var scenario = await fixture.SeedCoachScenarioAsync();
+        var scenario = await fixture.SeedInstructorScenarioAsync();
         var owner = scenario.Business.HttpClient;
-        (await owner.PutFeedbackAsync(scenario.CoachClassGroup.Id, CoachScenario.ClassDate, scenario.CoachStudentId, "Muy bien"))
+        (await owner.PutFeedbackAsync(scenario.InstructorClassGroup.Id, InstructorScenario.ClassDate, scenario.InstructorStudentId, "Muy bien"))
             .EnsureSuccessStatusCode();
 
-        using var cleared = await owner.PutFeedbackAsync(scenario.CoachClassGroup.Id, CoachScenario.ClassDate, scenario.CoachStudentId, " ");
+        using var cleared = await owner.PutFeedbackAsync(scenario.InstructorClassGroup.Id, InstructorScenario.ClassDate, scenario.InstructorStudentId, " ");
 
         cleared.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-        var session = await owner.GetSessionAsync(scenario.CoachClassGroup.Id, CoachScenario.ClassDate);
+        var session = await owner.GetSessionAsync(scenario.InstructorClassGroup.Id, InstructorScenario.ClassDate);
         session!.Students.Single().Feedback.ShouldBeNull();
     }
 }

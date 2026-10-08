@@ -8,11 +8,11 @@ public sealed class Then_returns_the_invited_email(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_the_invited_email_Run()
     {
-        var coaches = await fixture.SeedCoachScenarioAsync();
-        var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
-        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(CoachScenario.CoachStudentFullName)).ClientId;
+        var instructors = await fixture.SeedInstructorScenarioAsync();
+        var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
+        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.InstructorStudentFullName)).ClientId;
         var email = StudentAppRequests.UniqueStudentEmail();
-        using (var invitation = await coaches.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email))
+        using (var invitation = await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email))
         {
             invitation.StatusCode.ShouldBe(HttpStatusCode.Created);
         }

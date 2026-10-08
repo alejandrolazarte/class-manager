@@ -3,7 +3,7 @@ namespace ClassManager.Core.Domain.Businesses;
 public enum BusinessRole
 {
     BranchOwner,
-    Coach,
+    Instructor,
     Viewer,
     Custom,
 }

@@ -9,7 +9,7 @@ internal static class RoleFailures
     private const string NameTakenMessage = "Another role already has this name.";
     private const string OwnRoleMessage = "You can't change the role you have.";
     private const string InUseMessage = "Team members or pending invitations use this role. Give them another role first.";
-    private const string InstructorRequiredMessage = "These permissions only show a coach's own classes, and some team members with this role have no linked coach.";
+    private const string InstructorRequiredMessage = "These permissions only show an instructor's own classes, and some team members with this role have no linked instructor.";
 
     public static ResultError NotFound() => new(RoleErrorCodes.NotFound, NotFoundMessage, ErrorKind.NotFound);
 

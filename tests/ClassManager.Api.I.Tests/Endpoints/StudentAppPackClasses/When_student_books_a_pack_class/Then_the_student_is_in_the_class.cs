@@ -10,7 +10,7 @@ public sealed class Then_the_student_is_in_the_class(ApiFixture fixture)
 
         await scenario.BookPackClassAsync();
 
-        var session = await scenario.Owner.GetSessionAsync(scenario.PackClassGroupId, CoachScenario.ClassDate);
+        var session = await scenario.Owner.GetSessionAsync(scenario.PackClassGroupId, InstructorScenario.ClassDate);
         session!.Students.Single(student => student.StudentId == scenario.StudentId).IsPackBooking.ShouldBeTrue();
         (await scenario.Student.GetPackClassesAsync(scenario.StudentId))!.ClassesLeft.ShouldBe(3);
     }

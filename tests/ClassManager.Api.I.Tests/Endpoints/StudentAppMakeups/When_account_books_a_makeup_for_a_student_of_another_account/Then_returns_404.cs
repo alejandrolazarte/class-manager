@@ -8,7 +8,7 @@ public sealed class Then_returns_404(ApiFixture fixture)
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         using var response = await scenario.Student.PutMakeupAsync(
-            scenario.Coaches.OtherStudentId, scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate);
+            scenario.Instructors.OtherStudentId, scenario.Instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }

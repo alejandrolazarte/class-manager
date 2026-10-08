@@ -9,14 +9,14 @@ public sealed class Then_new_notices_break_the_streak(ApiFixture fixture)
     public async Task Then_new_notices_break_the_streak_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var business = scenario.Coaches.Business;
+        var business = scenario.Instructors.Business;
         (await business.HttpClient.PutAchievementSettingsAsync(AchievementRequests.SettingsWith(noticedAbsencesKeepStreak: false)))
             .EnsureSuccessStatusCode();
 
         (await scenario.Student.PutAbsenceAsync(
-            scenario.Coaches.CoachStudentId, scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate)).EnsureSuccessStatusCode();
+            scenario.Instructors.InstructorStudentId, scenario.Instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate)).EnsureSuccessStatusCode();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
-        (await context.AbsenceNotices.SingleAsync(notice => notice.StudentId == scenario.Coaches.CoachStudentId)).KeepsStreak.ShouldBeFalse();
+        (await context.AbsenceNotices.SingleAsync(notice => notice.StudentId == scenario.Instructors.InstructorStudentId)).KeepsStreak.ShouldBeFalse();
     }
 }

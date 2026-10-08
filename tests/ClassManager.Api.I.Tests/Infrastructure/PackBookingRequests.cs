@@ -6,11 +6,11 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 
 public sealed record PackStudentAppScenario(StudentAppScenario Scenario, ClassPackResponse ClassPack)
 {
-    public CoachScenario Coaches => Scenario.Coaches;
-    public HttpClient Owner => Scenario.Coaches.Business.HttpClient;
+    public InstructorScenario Instructors => Scenario.Instructors;
+    public HttpClient Owner => Scenario.Instructors.Business.HttpClient;
     public HttpClient Student => Scenario.Student;
-    public Guid StudentId => Scenario.Coaches.CoachStudentId;
-    public Guid PackClassGroupId => Scenario.Coaches.OtherClassGroup.Id;
+    public Guid StudentId => Scenario.Instructors.InstructorStudentId;
+    public Guid PackClassGroupId => Scenario.Instructors.OtherClassGroup.Id;
 }
 
 public static class PackBookingRequests
@@ -27,8 +27,8 @@ public static class PackBookingRequests
     public static async Task<PackStudentAppScenario> SeedPackStudentAppScenarioAsync(this ApiFixture fixture, int classCount = 4)
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
-        var classPack = await owner.CreateClassPackAsync(PackName, classCount, [scenario.Coaches.OtherClassGroup.Id]);
+        var owner = scenario.Instructors.Business.HttpClient;
+        var classPack = await owner.CreateClassPackAsync(PackName, classCount, [scenario.Instructors.OtherClassGroup.Id]);
         await owner.SellClassPackAsync(scenario.ClientId, classPack.Id);
         return new PackStudentAppScenario(scenario, classPack);
     }
@@ -44,7 +44,7 @@ public static class PackBookingRequests
 
     public static async Task BookPackClassAsync(this PackStudentAppScenario scenario, DateOnly? sessionDate = null)
     {
-        using var response = await scenario.Student.PutPackClassAsync(scenario.StudentId, scenario.PackClassGroupId, sessionDate ?? CoachScenario.ClassDate);
+        using var response = await scenario.Student.PutPackClassAsync(scenario.StudentId, scenario.PackClassGroupId, sessionDate ?? InstructorScenario.ClassDate);
         response.EnsureSuccessStatusCode();
     }
 }

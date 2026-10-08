@@ -17,7 +17,7 @@ public sealed class Then_both_accounts_are_listed(ApiFixture fixture)
         accounts.ShouldBe(
         [
             new AccountResponse(seeded.OwnBusinessId, seeded.OwnBusinessName, AccountKinds.Team, IsCurrent: true),
-            new AccountResponse(seeded.Student.Coaches.Business.Business.Id, seeded.Student.Coaches.Business.Business.Name, AccountKinds.Student, IsCurrent: false),
+            new AccountResponse(seeded.Student.Instructors.Business.Business.Id, seeded.Student.Instructors.Business.Business.Name, AccountKinds.Student, IsCurrent: false),
         ], ignoreOrder: true);
     }
 }

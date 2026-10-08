@@ -12,7 +12,7 @@ public sealed class Then_the_booking_is_used_once(ApiFixture fixture)
         await scenario.BookPackClassAsync();
 
         (await scenario.Owner.PutAttendanceAsync(
-            scenario.PackClassGroupId, CoachScenario.ClassDate, scenario.StudentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
+            scenario.PackClassGroupId, InstructorScenario.ClassDate, scenario.StudentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
 
         (await scenario.Student.GetPackClassesAsync(scenario.StudentId))!.ClassesLeft.ShouldBe(3);
     }

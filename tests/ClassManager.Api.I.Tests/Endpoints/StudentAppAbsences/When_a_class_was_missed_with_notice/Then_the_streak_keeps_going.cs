@@ -10,16 +10,16 @@ public sealed class Then_the_streak_keeps_going(ApiFixture fixture)
     public async Task Then_the_streak_keeps_going_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
-        var studentId = scenario.Coaches.CoachStudentId;
-        var today = CoachScenario.ClassDate;
+        var owner = scenario.Instructors.Business.HttpClient;
+        var studentId = scenario.Instructors.InstructorStudentId;
+        var today = InstructorScenario.ClassDate;
         var weekly = await owner.CreateClassGroupAsync(
-            ClassGroupRequests.ClassGroupFor(scenario.Coaches.CoachInstructorId, [today.DayOfWeek], "08:00") with { Name = "Natación semanal" });
+            ClassGroupRequests.ClassGroupFor(scenario.Instructors.InstructorId, [today.DayOfWeek], "08:00") with { Name = "Natación semanal" });
         await owner.EnrollAsync(weekly.Id, studentId, today.AddDays(-21));
         (await owner.PutAttendanceAsync(weekly.Id, today.AddDays(-21), studentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
         (await owner.PutAttendanceAsync(weekly.Id, today.AddDays(-14), studentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
         (await owner.PutAttendanceAsync(weekly.Id, today.AddDays(-7), studentId, AttendanceStatus.Absent)).EnsureSuccessStatusCode();
-        await using (var context = fixture.CreateDbContext(scenario.Coaches.Business.Business.Id))
+        await using (var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id))
         {
             var missedSession = await context.ClassSessions.SingleAsync(session => session.ClassGroupId == weekly.Id && session.Date == today.AddDays(-7));
             context.AbsenceNotices.Add(AbsenceNotice.Create(missedSession.Id, studentId, keepsStreak: true, BusinessApiFactory.Now.AddDays(-8)));

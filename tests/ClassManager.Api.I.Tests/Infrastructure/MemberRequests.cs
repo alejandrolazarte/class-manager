@@ -15,7 +15,7 @@ public static class MemberRequests
     public const string CheckInvitationRoute = ApiRoutes.Authentication + ApiRoutes.CheckInvitation;
     public const string DeclineInvitationRoute = ApiRoutes.Authentication + ApiRoutes.DeclineInvitation;
 
-    public static string UniqueInviteeEmail() => $"coach-{Guid.NewGuid():N}@example.com";
+    public static string UniqueInviteeEmail() => $"instructor-{Guid.NewGuid():N}@example.com";
 
     public static async Task<CurrentMemberResponse> GetCurrentMemberAsync(this HttpClient httpClient)
     {

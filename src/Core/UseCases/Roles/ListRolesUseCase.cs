@@ -9,7 +9,7 @@ public sealed record ListRolesQuery : IQuery;
 public sealed class ListRolesUseCase(ICustomRoleRepository customRoleRepository, IBusinessMemberRepository businessMemberRepository)
     : IUseCase<ListRolesQuery, IReadOnlyList<RoleResponse>>
 {
-    private static readonly BusinessRole[] SystemRoles = [BusinessRole.BranchOwner, BusinessRole.Coach, BusinessRole.Viewer];
+    private static readonly BusinessRole[] SystemRoles = [BusinessRole.BranchOwner, BusinessRole.Instructor, BusinessRole.Viewer];
 
     public async Task<Result<IReadOnlyList<RoleResponse>>> ExecuteAsync(ListRolesQuery command, CancellationToken cancellationToken)
     {

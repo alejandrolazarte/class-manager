@@ -54,8 +54,8 @@ function MemberEditor({ member, team }: MemberEditorProps) {
   const [isConfirmingBrandOwnerRemoval, setIsConfirmingBrandOwnerRemoval] = useState(false);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const instructors = freeInstructors(instructorsQuery.data ?? [], team, member.instructorId);
-  const isCoachMissing =
-    findRoleChoice(roleKey, roles)?.needsCoach === true && instructorId === null;
+  const isInstructorMissing =
+    findRoleChoice(roleKey, roles)?.needsInstructor === true && instructorId === null;
 
   const save = async () => {
     setSubmissionFailure(null);
@@ -63,8 +63,8 @@ function MemberEditor({ member, team }: MemberEditorProps) {
     if (roleChoice === undefined) {
       return;
     }
-    if (roleChoice.needsCoach && instructorId === null) {
-      setInstructorError(translate("team.invite.coachRequired"));
+    if (roleChoice.needsInstructor && instructorId === null) {
+      setInstructorError(translate("team.invite.instructorRequired"));
       return;
     }
     setInstructorError(undefined);
@@ -72,13 +72,13 @@ function MemberEditor({ member, team }: MemberEditorProps) {
       await changeRoleMutation.mutateAsync({
         role: roleChoice.role,
         customRoleId: roleChoice.customRoleId,
-        instructorId: roleChoice.needsCoach ? instructorId : null,
+        instructorId: roleChoice.needsInstructor ? instructorId : null,
       });
       showToast(translate("team.member.saved"));
       router.back();
     } catch (saveError) {
       if (isApiError(saveError) && saveError.hasCode(memberErrorCodes.instructorTaken)) {
-        setInstructorError(translate("team.invite.coachTaken"));
+        setInstructorError(translate("team.invite.instructorTaken"));
         return;
       }
       setSubmissionFailure(toSubmissionFailure(saveError));
@@ -131,7 +131,7 @@ function MemberEditor({ member, team }: MemberEditorProps) {
       <Button
         label={translate("common.save")}
         onPress={save}
-        disabled={isCoachMissing}
+        disabled={isInstructorMissing}
         isLoading={changeRoleMutation.isPending}
       />
       {canManageBrandOwners ? (

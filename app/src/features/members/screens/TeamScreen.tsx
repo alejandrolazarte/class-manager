@@ -36,11 +36,11 @@ const isoDateLength = 10;
 interface MemberCardProps {
   member: Member;
   roles: Role[] | undefined;
-  coachFullName: string | undefined;
+  instructorFullName: string | undefined;
   onPress?: () => void;
 }
 
-function MemberCard({ member, roles, coachFullName, onPress }: MemberCardProps) {
+function MemberCard({ member, roles, instructorFullName, onPress }: MemberCardProps) {
   return (
     <Card
       onPress={onPress}
@@ -61,7 +61,7 @@ function MemberCard({ member, roles, coachFullName, onPress }: MemberCardProps) 
           {member.email}
         </AppText>
         <AppText variant="caption" tone="muted">
-          {roleDescription(member.role, member.customRoleId, roles, coachFullName)}
+          {roleDescription(member.role, member.customRoleId, roles, instructorFullName)}
         </AppText>
       </View>
       {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
@@ -139,7 +139,7 @@ export function TeamScreen() {
   const instructorNames = new Map(
     (instructorsQuery.data ?? []).map((instructor) => [instructor.id, instructor.fullName]),
   );
-  const coachNameOf = (instructorId: string | null) =>
+  const instructorNameOf = (instructorId: string | null) =>
     instructorId === null ? undefined : instructorNames.get(instructorId);
 
   const resend = async (invitationId: string) => {
@@ -187,7 +187,7 @@ export function TeamScreen() {
               key={member.id}
               member={member}
               roles={roles}
-              coachFullName={coachNameOf(member.instructorId)}
+              instructorFullName={instructorNameOf(member.instructorId)}
               onPress={
                 canManageMembers && !member.isCurrentUser
                   ? () => router.push(routes.teamMember(member.id))

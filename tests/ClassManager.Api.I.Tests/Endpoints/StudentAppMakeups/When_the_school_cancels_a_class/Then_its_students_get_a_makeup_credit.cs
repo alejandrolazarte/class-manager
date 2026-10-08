@@ -9,11 +9,11 @@ public sealed class Then_its_students_get_a_makeup_credit(ApiFixture fixture)
     public async Task Then_its_students_get_a_makeup_credit_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var coaches = scenario.Coaches;
-        (await coaches.Business.HttpClient.PutSessionCancellationAsync(coaches.CoachClassGroup.Id, CoachScenario.ClassDate, "Feriado"))
+        var instructors = scenario.Instructors;
+        (await instructors.Business.HttpClient.PutSessionCancellationAsync(instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate, "Feriado"))
             .EnsureSuccessStatusCode();
 
-        var makeups = await scenario.Student.GetMakeupsAsync(coaches.CoachStudentId);
+        var makeups = await scenario.Student.GetMakeupsAsync(instructors.InstructorStudentId);
 
         makeups!.Credits.ShouldHaveSingleItem().Reason.ShouldBe(MakeupReason.Cancelled);
     }

@@ -9,11 +9,11 @@ public sealed class Then_returns_403(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_403_Run()
     {
-        var scenario = await fixture.SeedCoachScenarioAsync();
+        var scenario = await fixture.SeedInstructorScenarioAsync();
         using var viewer = await fixture.SeedMemberAsync(scenario.Business.Business.Id, BusinessRole.Viewer);
 
         using var response = await viewer.PutAttendanceAsync(
-            scenario.CoachClassGroup.Id, CoachScenario.ClassDate, scenario.CoachStudentId, AttendanceStatus.Present);
+            scenario.InstructorClassGroup.Id, InstructorScenario.ClassDate, scenario.InstructorStudentId, AttendanceStatus.Present);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
