@@ -13,7 +13,6 @@ public sealed record ClassPackResponse(
     int? ValidityMonths,
     bool IsActive,
     int? ClassDurationMinutes,
-    string? MaterialUrl,
     IReadOnlyList<Guid> ClassGroupIds,
     IReadOnlyList<CatalogImageResponse> Images)
 {
@@ -27,7 +26,6 @@ public sealed record ClassPackResponse(
             classPack.ValidityMonths,
             classPack.IsActive,
             classPack.ClassDurationMinutes,
-            classPack.MaterialUrl,
             classPack.ClassGroupIds,
             CatalogImageResponse.ListFrom(classPack.ImagesInOrder, documentStorage));
 }

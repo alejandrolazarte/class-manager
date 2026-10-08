@@ -11,7 +11,6 @@ public sealed record CreateClassPackCommand(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    string? MaterialUrl = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
     string? Description = null) : ICommand;
 
@@ -31,7 +30,7 @@ public sealed class CreateClassPackUseCase(
             return classPack.Error!;
         }
 
-        var lessons = classPack.Value!.DefineLessons(command.ClassDurationMinutes, command.MaterialUrl);
+        var lessons = classPack.Value!.DefineLessons(command.ClassDurationMinutes);
         if (lessons.IsFailure)
         {
             return lessons.Error!;

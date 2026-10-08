@@ -30,7 +30,6 @@ public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
     public PaymentMethod Method { get; private set; }
     public string? Notes { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
-    public string? MaterialUrl { get; private set; }
     public Guid? TrialLessonId { get; private set; }
     public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
@@ -89,7 +88,6 @@ public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
             Method = method.Value,
             Notes = trimmedNotes,
             ClassDurationMinutes = pack.ClassDurationMinutes,
-            MaterialUrl = pack.MaterialUrl,
             RecordedByUserId = recordedByUserId,
             CreatedAt = createdAt.ToUniversalTime(),
         };

@@ -10,12 +10,11 @@ public sealed record UpdateClassPackRequest(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    string? MaterialUrl = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
     string? Description = null)
 {
     public UpdateClassPackCommand ToCommand(Guid classPackId) =>
-        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, MaterialUrl, ClassGroupIds, Description);
+        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description);
 }
 
 public sealed record UpdateClassPackCommand(
@@ -25,7 +24,6 @@ public sealed record UpdateClassPackCommand(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    string? MaterialUrl = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
     string? Description = null) : ICommand;
 
@@ -50,7 +48,7 @@ public sealed class UpdateClassPackUseCase(
             return update.Error!;
         }
 
-        var lessons = classPack.DefineLessons(command.ClassDurationMinutes, command.MaterialUrl);
+        var lessons = classPack.DefineLessons(command.ClassDurationMinutes);
         if (lessons.IsFailure)
         {
             return lessons.Error!;

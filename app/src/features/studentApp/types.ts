@@ -82,12 +82,19 @@ export interface StudentAppFeedback {
   text: string;
 }
 
+export interface StudentAppClassMaterial {
+  classGroupId: string;
+  className: string;
+  url: string;
+}
+
 export interface AccountStudent {
   id: string;
   fullName: string;
   nextClasses: StudentAppNextClass[];
   attendance: StudentAppAttendance;
   latestFeedback: StudentAppFeedback | null;
+  materials: StudentAppClassMaterial[];
 }
 
 export interface StudentAppMonthlyFee {

@@ -15,14 +15,12 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
     public const int MaximumClassCount = 100;
     public const int MinimumValidityMonths = 1;
     public const int MaximumValidityMonths = 24;
-    public const int MaterialUrlMaxLength = 500;
     public const int DescriptionMaxLength = 500;
 
     private const string NameLengthMessage = "The name must be between 2 and 60 characters.";
     private const string ClassCountRangeMessage = "The number of classes must be between 1 and 100.";
     private const string ValidityRangeMessage = "The validity must be between 1 and 24 months.";
     private const string ClassDurationMessage = "Class duration must be between 15 and 240 minutes, in steps of 5.";
-    private const string MaterialUrlMessage = "The material link must be an https address of at most 500 characters.";
     private const string DescriptionLengthMessage = "The description must be at most 500 characters.";
 
     private readonly List<ClassPackClassGroup> _classGroups = [];
@@ -40,7 +38,6 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
     public decimal Price { get; private set; }
     public int? ValidityMonths { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
-    public string? MaterialUrl { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public IReadOnlyList<ClassPackImage> Images => _images;
@@ -92,7 +89,7 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
         return Result.Success();
     }
 
-    public Result DefineLessons(int? classDurationMinutes, string? materialUrl)
+    public Result DefineLessons(int? classDurationMinutes)
     {
         if (classDurationMinutes is not null
             && (classDurationMinutes is < ClassSchedule.MinimumDurationMinutes or > ClassSchedule.MaximumDurationMinutes
@@ -101,17 +98,7 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
             return Result.Validation(ClassDurationMessage, fieldName: nameof(ClassDurationMinutes));
         }
 
-        var trimmedUrl = string.IsNullOrWhiteSpace(materialUrl) ? null : materialUrl.Trim();
-        if (trimmedUrl is not null
-            && (trimmedUrl.Length > MaterialUrlMaxLength
-                || !Uri.TryCreate(trimmedUrl, UriKind.Absolute, out var parsedUrl)
-                || parsedUrl.Scheme != Uri.UriSchemeHttps))
-        {
-            return Result.Validation(MaterialUrlMessage, fieldName: nameof(MaterialUrl));
-        }
-
         ClassDurationMinutes = classDurationMinutes;
-        MaterialUrl = trimmedUrl;
         return Result.Success();
     }
 

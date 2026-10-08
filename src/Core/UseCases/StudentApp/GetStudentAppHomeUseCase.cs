@@ -83,6 +83,7 @@ public sealed class GetStudentAppHomeUseCase(
         {
             var enrollments = await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken);
             var nextClasses = new List<StudentAppNextClassResponse>();
+            var studentClassGroups = new List<ClassGroup>();
             foreach (var enrollment in enrollments)
             {
                 var classGroup = await classGroupRepository.GetByIdAsync(enrollment.ClassGroupId, cancellationToken);
@@ -90,6 +91,8 @@ public sealed class GetStudentAppHomeUseCase(
                 {
                     continue;
                 }
+
+                studentClassGroups.Add(classGroup);
 
                 for (var date = today; date <= lastDate; date = date.AddDays(1))
                 {
@@ -113,6 +116,7 @@ public sealed class GetStudentAppHomeUseCase(
                 var classGroup = await classGroupRepository.GetByIdAsync(booking.ClassGroupId, cancellationToken);
                 if (classGroup is not null)
                 {
+                    studentClassGroups.Add(classGroup);
                     nextClasses.Add(GroupClass(
                         classGroup,
                         sessions.GetValueOrDefault((classGroup.Id, booking.Date)),
@@ -128,6 +132,7 @@ public sealed class GetStudentAppHomeUseCase(
                 var classGroup = await classGroupRepository.GetByIdAsync(booking.ClassGroupId, cancellationToken);
                 if (classGroup is not null)
                 {
+                    studentClassGroups.Add(classGroup);
                     nextClasses.Add(GroupClass(
                         classGroup,
                         sessions.GetValueOrDefault((classGroup.Id, booking.Date)),
@@ -166,7 +171,8 @@ public sealed class GetStudentAppHomeUseCase(
                 Attendance(attendanceMarks[student.Id].ToList(), attendedClasses.GetValueOrDefault(student.Id), levels, today),
                 latestFeedbacks.TryGetValue(student.Id, out var feedback)
                     ? new StudentAppFeedbackResponse(feedback.Date, feedback.ClassGroupName, instructorNames.GetValueOrDefault(feedback.InstructorId), feedback.Text)
-                    : null));
+                    : null,
+                Materials(studentClassGroups)));
         }
 
         return new StudentAppHomeResponse(
@@ -204,6 +210,15 @@ public sealed class GetStudentAppHomeUseCase(
             absenceNotified,
             isMakeup);
     }
+
+    private static List<StudentAppClassMaterialResponse> Materials(IEnumerable<ClassGroup> classGroups) =>
+    [
+        .. classGroups
+            .Where(classGroup => classGroup.MaterialUrl is not null)
+            .DistinctBy(classGroup => classGroup.Id)
+            .OrderBy(classGroup => classGroup.Name, StringComparer.CurrentCultureIgnoreCase)
+            .Select(classGroup => new StudentAppClassMaterialResponse(classGroup.Id, classGroup.Name, classGroup.MaterialUrl!)),
+    ];
 
     private static StudentAppAttendanceResponse Attendance(
         IReadOnlyCollection<AttendanceMark> marks,

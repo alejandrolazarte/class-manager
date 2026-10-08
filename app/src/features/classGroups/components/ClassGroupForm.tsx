@@ -180,6 +180,23 @@ export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
           />
         )}
       />
+      <Controller
+        control={control}
+        name="materialUrl"
+        render={({ field, fieldState }) => (
+          <TextField
+            label={translate("classGroups.form.materialUrl")}
+            placeholder={translate("classGroups.form.materialUrlPlaceholder")}
+            keyboardType="url"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            errorMessage={fieldState.error?.message}
+          />
+        )}
+      />
     </View>
   );
 }

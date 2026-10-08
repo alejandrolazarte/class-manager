@@ -123,7 +123,7 @@ Plans in [backend](backend/20260927-fee-history-and-class-packs/plan.md) and [fr
 Plan in [backend](backend/20260928-private-lessons/plan.md), part of the [DF Swimming pilot plan](pilot-df-swimming.md).
 
 - One-off lessons for one to four students, optionally repeated weekly, that use classes from the student's pack.
-- Packs with class duration and a material link; trial classes.
+- Packs with class duration; trial classes. Each class has an optional material link that its students open from the app.
 
 ### M8 — Organizations, branches, roles and permissions
 

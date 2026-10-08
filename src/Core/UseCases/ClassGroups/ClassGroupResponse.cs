@@ -14,6 +14,7 @@ public sealed record ClassGroupResponse(
     int DurationMinutes,
     int Capacity,
     string? Location,
+    string? MaterialUrl,
     bool IsActive,
     int EnrolledCount)
 {
@@ -31,6 +32,7 @@ public sealed record ClassGroupResponse(
             schedule.DurationMinutes,
             classGroup.Capacity,
             classGroup.Location,
+            classGroup.MaterialUrl,
             classGroup.IsActive,
             enrolledCount);
     }
