@@ -159,10 +159,22 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
     if (feedbackStudent === undefined) {
       return;
     }
+    const { studentId, feedback: previousFeedback } = feedbackStudent;
     try {
-      await recordFeedbackMutation.mutateAsync({ studentId: feedbackStudent.studentId, text });
+      await recordFeedbackMutation.mutateAsync({ studentId, text });
       setFeedbackStudentId(null);
-      showToast(translate(text === null ? "sessions.feedback.removed" : "sessions.feedback.saved"));
+      if (text === null && previousFeedback !== null) {
+        showToast(translate("sessions.feedback.removed"), {
+          label: translate("common.undo"),
+          onPress: () => {
+            recordFeedbackMutation
+              .mutateAsync({ studentId, text: previousFeedback })
+              .catch(() => showToast(translate("common.undoFailed")));
+          },
+        });
+      } else {
+        showToast(translate("sessions.feedback.saved"));
+      }
     } catch {
       showToast(translate("common.unexpectedError"));
     }

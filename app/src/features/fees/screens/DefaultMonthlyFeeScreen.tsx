@@ -5,6 +5,7 @@ import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider"
 import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
 import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
+import { MonthlyFeeChange } from "@/features/fees/types";
 import {
   useDeleteDefaultMonthlyFeeChange,
   useSetDefaultMonthlyFee,
@@ -14,7 +15,6 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { IconButton } from "@/ui/IconButton";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
@@ -30,16 +30,21 @@ export function DefaultMonthlyFeeScreen() {
   const [effectiveFrom, setEffectiveFrom] = useState(currentMonth);
   const [amountError, setAmountError] = useState<string | undefined>(undefined);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
-  const [monthPendingDeletion, setMonthPendingDeletion] = useState<string | null>(null);
 
-  const deletePendingChange = async (month: string) => {
+  const deleteChange = async (change: MonthlyFeeChange) => {
     try {
-      await deleteChangeMutation.mutateAsync(month);
-      showToast(translate("fees.defaultFee.changeDeleted"));
+      await deleteChangeMutation.mutateAsync(change.effectiveFrom);
+      showToast(translate("fees.defaultFee.changeDeleted"), {
+        label: translate("common.undo"),
+        onPress: () => {
+          setDefaultMonthlyFeeMutation
+            .mutateAsync({ amount: change.amount, effectiveFrom: change.effectiveFrom })
+            .catch(() => showToast(translate("common.undoFailed")));
+        },
+      });
     } catch {
       showToast(translate("common.unexpectedError"));
     }
-    setMonthPendingDeletion(null);
   };
 
   const save = async () => {
@@ -107,21 +112,12 @@ export function DefaultMonthlyFeeScreen() {
                   accessibilityLabel={translate("fees.defaultFee.deleteChange", {
                     month: formatMonth(change.effectiveFrom),
                   })}
-                  onPress={() => setMonthPendingDeletion(change.effectiveFrom)}
+                  disabled={deleteChangeMutation.isPending}
+                  onPress={() => deleteChange(change)}
                 />
               ) : null}
             </View>
           ))}
-          {monthPendingDeletion ? (
-            <DeleteConfirmation
-              question={translate("fees.defaultFee.deleteChangeQuestion", {
-                month: formatMonth(monthPendingDeletion),
-              })}
-              onCancel={() => setMonthPendingDeletion(null)}
-              onConfirm={() => deletePendingChange(monthPendingDeletion)}
-              isDeleting={deleteChangeMutation.isPending}
-            />
-          ) : null}
         </View>
       ) : null}
     </SettingsFormScreenLayout>

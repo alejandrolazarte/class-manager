@@ -9,6 +9,11 @@ internal sealed class AnnouncementRepository(AppDbContext context) : IAnnounceme
     public Task<Announcement?> FindForUpdateAsync(Guid announcementId, CancellationToken cancellationToken) =>
         context.Announcements.FirstOrDefaultAsync(announcement => announcement.Id == announcementId, cancellationToken);
 
+    public Task<Announcement?> FindDeletedForUpdateAsync(Guid announcementId, CancellationToken cancellationToken) =>
+        context.Announcements
+            .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
+            .FirstOrDefaultAsync(announcement => announcement.Id == announcementId && announcement.IsDeleted, cancellationToken);
+
     public async Task<IReadOnlyList<Announcement>> ListPublishedSinceAsync(DateTimeOffset since, CancellationToken cancellationToken) =>
         await context.Announcements.AsNoTracking()
             .Where(announcement => announcement.PublishedAt >= since)

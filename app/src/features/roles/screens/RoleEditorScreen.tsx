@@ -6,7 +6,7 @@ import { brandOnlyPermissions, Permission } from "@/features/members/permissions
 import { PermissionPicker } from "@/features/roles/components/PermissionPicker";
 import { roleErrorCodes } from "@/features/roles/roleErrorCodes";
 import { isSystemRole, roleKeyOfRole, roleName } from "@/features/roles/roleChoices";
-import { Role } from "@/features/roles/types";
+import { CreateRoleRequest, Role } from "@/features/roles/types";
 import { useCreateRole, useDeleteRole, useUpdateRole } from "@/features/roles/useRoleMutations";
 import { useRoles } from "@/features/roles/useRoles";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
@@ -15,7 +15,6 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { isFilled } from "@/forms/requiredFields";
@@ -73,7 +72,6 @@ function RoleEditor({ role, copiedFrom }: RoleEditorProps) {
   const [nameError, setNameError] = useState<string | undefined>();
   const [permissionsError, setPermissionsError] = useState<string | undefined>();
   const [conflict, setConflict] = useState<RoleConflict | null>(null);
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const grantable = memberPermissions.filter(
     (permission) => !brandOnlyPermissions.includes(permission),
@@ -127,14 +125,25 @@ function RoleEditor({ role, copiedFrom }: RoleEditorProps) {
     }
     setSubmissionFailure(null);
     setConflict(null);
+    const deletedRole: CreateRoleRequest = {
+      name: role.name ?? "",
+      permissions: role.permissions,
+      copiedFrom: role.copiedFrom,
+    };
     try {
       await deleteMutation.mutateAsync(role.id);
-      showToast(translate("roles.editor.deleted"));
+      showToast(translate("roles.editor.deleted"), {
+        label: translate("common.undo"),
+        onPress: () => {
+          createMutation
+            .mutateAsync(deletedRole)
+            .catch(() => showToast(translate("common.undoFailed")));
+        },
+      });
       router.back();
     } catch (deleteError) {
       const roleConflict = conflictOf(deleteError);
       if (roleConflict) {
-        setIsConfirmingDelete(false);
         setConflict(roleConflict);
         return;
       }
@@ -167,21 +176,13 @@ function RoleEditor({ role, copiedFrom }: RoleEditorProps) {
         isLoading={createMutation.isPending || updateMutation.isPending}
       />
       {role?.id ? (
-        isConfirmingDelete ? (
-          <DeleteConfirmation
-            question={translate("roles.editor.deleteQuestion", { name: roleName(role) })}
-            onCancel={() => setIsConfirmingDelete(false)}
-            onConfirm={remove}
-            isDeleting={deleteMutation.isPending}
-          />
-        ) : (
-          <Button
-            variant="dangerOutline"
-            size="medium"
-            label={translate("roles.editor.delete")}
-            onPress={() => setIsConfirmingDelete(true)}
-          />
-        )
+        <Button
+          variant="dangerOutline"
+          size="medium"
+          label={translate("roles.editor.delete")}
+          onPress={remove}
+          isLoading={deleteMutation.isPending}
+        />
       ) : null}
     </SettingsFormScreenLayout>
   );

@@ -20,7 +20,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
-import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { Icon } from "@/ui/Icon";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
@@ -202,11 +202,13 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
         </View>
       )}
       {isConfirmingDelete ? (
-        <DeleteConfirmation
-          question={translate("privateLessons.deleteQuestion")}
+        <ConfirmDialog
+          title={translate("privateLessons.deleteQuestion")}
+          message={translate("privateLessons.deleteMessage")}
+          confirmLabel={translate("common.confirmDelete")}
           onCancel={() => setIsConfirmingDelete(false)}
           onConfirm={deleteLesson}
-          isDeleting={deleteMutation.isPending}
+          isConfirming={deleteMutation.isPending}
         />
       ) : null}
       {!canManageLessons ? null : hasAttendance ? (

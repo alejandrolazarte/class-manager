@@ -24,7 +24,10 @@ internal static class FeeEndpoints
         clients.MapGet(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, ListClientPaymentsAsync)
             .RequirePermission(Permissions.Payments.ViewAll, Permissions.Payments.ViewOwn);
 
-        endpoints.MapGroup(ApiRoutes.Payments).MapDelete(ApiRoutes.PaymentById, DeletePaymentAsync)
+        var payments = endpoints.MapGroup(ApiRoutes.Payments);
+        payments.MapDelete(ApiRoutes.PaymentById, DeletePaymentAsync)
+            .RequirePermission(Permissions.Payments.Record);
+        payments.MapPost(ApiRoutes.PaymentById + ApiRoutes.Restore, RestorePaymentAsync)
             .RequirePermission(Permissions.Payments.Record);
 
         endpoints.MapGroup(ApiRoutes.Fees).MapGet("/", ListMonthlyFeesAsync)
@@ -103,6 +106,16 @@ internal static class FeeEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new DeletePaymentCommand(paymentId), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RestorePaymentAsync(
+        Guid paymentId,
+        IUseCase<RestorePaymentCommand, PaymentResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RestorePaymentCommand(paymentId), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }

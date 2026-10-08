@@ -5,7 +5,6 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { BottomSheet } from "@/ui/BottomSheet";
 import { Button } from "@/ui/Button";
-import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { TextField } from "@/ui/TextField";
 
 const feedbackMaxLength = 500;
@@ -19,7 +18,6 @@ interface FeedbackSheetProps {
 
 export function FeedbackSheet({ student, isSaving, onSave, onClose }: FeedbackSheetProps) {
   const [text, setText] = useState(student.feedback ?? "");
-  const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   return (
     <BottomSheet onClose={onClose}>
       <View className="gap-1">
@@ -46,22 +44,13 @@ export function FeedbackSheet({ student, isSaving, onSave, onClose }: FeedbackSh
         isLoading={isSaving}
         onPress={() => onSave(text)}
       />
-      {student.feedback === null ? null : isConfirmingRemove ? (
-        <DeleteConfirmation
-          question={translate("sessions.feedback.removeQuestion", {
-            name: student.studentFullName,
-          })}
-          onCancel={() => setIsConfirmingRemove(false)}
-          onConfirm={() => onSave(null)}
-          isDeleting={isSaving}
-        />
-      ) : (
+      {student.feedback === null ? null : (
         <Button
           variant="dangerOutline"
           size="medium"
           label={translate("sessions.feedback.remove")}
           disabled={isSaving}
-          onPress={() => setIsConfirmingRemove(true)}
+          onPress={() => onSave(null)}
         />
       )}
     </BottomSheet>

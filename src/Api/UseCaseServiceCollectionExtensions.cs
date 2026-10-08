@@ -155,6 +155,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<CreateAnnouncementCommand, AnnouncementResponse, CreateAnnouncementUseCase>();
         services.AddUseCase<ListAnnouncementsQuery, IReadOnlyList<AnnouncementResponse>, ListAnnouncementsUseCase>();
         services.AddUseCase<DeleteAnnouncementCommand, bool, DeleteAnnouncementUseCase>();
+        services.AddUseCase<RestoreAnnouncementCommand, bool, RestoreAnnouncementUseCase>();
         services.AddUseCase<InviteStudentAppCommand, StudentAppInvitationResponse, InviteStudentAppUseCase>();
         services.AddUseCase<AcceptStudentAppInvitationCommand, TokenResponse, AcceptStudentAppInvitationUseCase>();
         services.AddUseCase<CheckStudentAppInvitationCommand, CheckStudentAppInvitationResponse, CheckStudentAppInvitationUseCase>();
@@ -213,6 +214,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<RecordPaymentCommand, PaymentResponse, RecordPaymentUseCase>();
         services.AddUseCase<ListClientPaymentsQuery, IReadOnlyList<PaymentResponse>, ListClientPaymentsUseCase>();
         services.AddUseCase<DeletePaymentCommand, PaymentResponse, DeletePaymentUseCase>();
+        services.AddUseCase<RestorePaymentCommand, PaymentResponse, RestorePaymentUseCase>();
         services.AddUseCase<ListMonthlyFeesQuery, MonthlyFeesResponse, ListMonthlyFeesUseCase>();
         services.AddUseCase<UpdateBusinessSettingsCommand, UpdateBusinessSettingsResponse, UpdateBusinessSettingsUseCase>();
         services.AddUseCase<GetAchievementSettingsQuery, AchievementSettingsResponse, GetAchievementSettingsUseCase>();

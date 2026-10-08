@@ -24,7 +24,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { useToast } from "@/ui/ToastProvider";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
@@ -141,48 +141,46 @@ function MemberEditor({ member, team }: MemberEditorProps) {
           </AppText>
           {isLastBrandOwner ? <Banner message={translate("team.member.lastBrandOwner")} /> : null}
           {isConfirmingBrandOwnerRemoval ? (
-            <DeleteConfirmation
-              question={translate("team.member.removeBrandOwnerQuestion", {
+            <ConfirmDialog
+              title={translate("team.member.removeBrandOwnerQuestion", {
                 name: member.fullName,
               })}
+              message={translate("team.member.removeBrandOwnerMessage")}
               confirmLabel={translate("team.member.confirmRemoveBrandOwner")}
               onCancel={() => setIsConfirmingBrandOwnerRemoval(false)}
               onConfirm={toggleBrandOwner}
-              isDeleting={brandOwnerMutation.isPending}
+              isConfirming={brandOwnerMutation.isPending}
             />
-          ) : (
-            <Button
-              variant="outline"
-              size="medium"
-              label={translate(
-                member.isBrandOwner ? "team.member.removeBrandOwner" : "team.member.makeBrandOwner",
-              )}
-              onPress={
-                member.isBrandOwner
-                  ? () => setIsConfirmingBrandOwnerRemoval(true)
-                  : toggleBrandOwner
-              }
-              isLoading={brandOwnerMutation.isPending}
-            />
-          )}
+          ) : null}
+          <Button
+            variant="outline"
+            size="medium"
+            label={translate(
+              member.isBrandOwner ? "team.member.removeBrandOwner" : "team.member.makeBrandOwner",
+            )}
+            onPress={
+              member.isBrandOwner ? () => setIsConfirmingBrandOwnerRemoval(true) : toggleBrandOwner
+            }
+            isLoading={brandOwnerMutation.isPending}
+          />
         </View>
       ) : null}
       {isConfirmingRemove ? (
-        <DeleteConfirmation
-          question={translate("team.member.removeQuestion", { name: member.fullName })}
+        <ConfirmDialog
+          title={translate("team.member.removeQuestion", { name: member.fullName })}
+          message={translate("team.member.removeMessage")}
           confirmLabel={translate("team.member.confirmRemove")}
           onCancel={() => setIsConfirmingRemove(false)}
           onConfirm={remove}
-          isDeleting={removeMutation.isPending}
+          isConfirming={removeMutation.isPending}
         />
-      ) : (
-        <Button
-          variant="dangerOutline"
-          size="medium"
-          label={translate("team.member.remove")}
-          onPress={() => setIsConfirmingRemove(true)}
-        />
-      )}
+      ) : null}
+      <Button
+        variant="dangerOutline"
+        size="medium"
+        label={translate("team.member.remove")}
+        onPress={() => setIsConfirmingRemove(true)}
+      />
     </SettingsFormScreenLayout>
   );
 }

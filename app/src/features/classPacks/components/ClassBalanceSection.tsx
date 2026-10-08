@@ -16,7 +16,7 @@ import { AppText, TextTone } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
 import { Card } from "@/ui/Card";
-import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { Icon } from "@/ui/Icon";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
@@ -256,14 +256,15 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
         );
       })}
       {purchasePendingDeletion ? (
-        <DeleteConfirmation
-          question={translate("classPacks.balance.deletePurchaseQuestion", {
+        <ConfirmDialog
+          title={translate("classPacks.balance.deletePurchaseQuestion", {
             name: purchasePendingDeletion.name,
           })}
+          message={translate("classPacks.balance.deletePurchaseMessage")}
           confirmLabel={translate("classPacks.balance.confirmDeletePurchase")}
           onCancel={() => setPurchasePendingDeletion(null)}
           onConfirm={() => deletePendingPurchase(purchasePendingDeletion.id)}
-          isDeleting={deletePurchaseMutation.isPending}
+          isConfirming={deletePurchaseMutation.isPending}
         />
       ) : null}
       {canSellClassPacks ? (

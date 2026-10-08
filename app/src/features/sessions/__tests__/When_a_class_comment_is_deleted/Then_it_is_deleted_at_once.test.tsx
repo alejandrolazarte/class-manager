@@ -5,7 +5,7 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildSessionStudent } from "@/testing/sessionFactory";
 
 describe("When a class comment is deleted", () => {
-  it("Then it is deleted after confirming", async () => {
+  it("Then it is deleted at once", async () => {
     const onSave = jest.fn();
     await renderWithProviders(
       <FeedbackSheet
@@ -19,8 +19,6 @@ describe("When a class comment is deleted", () => {
     await fireEvent.press(
       screen.getByRole("button", { name: translate("sessions.feedback.remove") }),
     );
-    expect(onSave).not.toHaveBeenCalled();
-    await fireEvent.press(screen.getByRole("button", { name: translate("common.confirmDelete") }));
 
     expect(onSave).toHaveBeenCalledWith(null);
   });

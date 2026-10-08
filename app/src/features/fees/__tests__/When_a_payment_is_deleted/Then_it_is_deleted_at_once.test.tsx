@@ -31,7 +31,7 @@ describe("When a payment is deleted", () => {
     jest.mocked(deletePayment).mockResolvedValue(undefined);
   });
 
-  it("Then it is deleted after confirming", async () => {
+  it("Then it is deleted at once", async () => {
     await renderWithProviders(<ClientFeeSection client={client} />, { member });
 
     await fireEvent.press(
@@ -41,8 +41,6 @@ describe("When a payment is deleted", () => {
         }),
       }),
     );
-    expect(deletePayment).not.toHaveBeenCalled();
-    await fireEvent.press(screen.getByRole("button", { name: translate("common.confirmDelete") }));
 
     await waitFor(() => expect(deletePayment).toHaveBeenCalledWith(payment.id));
   });

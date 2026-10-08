@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { deleteDefaultMonthlyFeeChange } from "@/features/fees/feesApi";
+import { deleteDefaultMonthlyFeeChange, setDefaultMonthlyFee } from "@/features/fees/feesApi";
 import { addMonths, formatMonth, monthOf } from "@/features/fees/months";
 import { DefaultMonthlyFeeScreen } from "@/features/fees/screens/DefaultMonthlyFeeScreen";
 import { translate } from "@/i18n/translate";
@@ -10,12 +10,13 @@ jest.mock("@/features/fees/feesApi");
 
 const upcomingMonth = addMonths(monthOf(), 1);
 
-describe("When upcoming default fee change is deleted", () => {
+describe("When a deleted upcoming default fee change is undone", () => {
   beforeEach(() => {
     jest.mocked(deleteDefaultMonthlyFeeChange).mockResolvedValue(buildBusiness());
+    jest.mocked(setDefaultMonthlyFee).mockResolvedValue(buildBusiness());
   });
 
-  it("Then it is deleted after confirming", async () => {
+  it("Then it is scheduled again", async () => {
     await renderWithProviders(<DefaultMonthlyFeeScreen />, {
       business: buildBusiness({
         defaultMonthlyFeeChanges: [
@@ -30,9 +31,9 @@ describe("When upcoming default fee change is deleted", () => {
         name: translate("fees.defaultFee.deleteChange", { month: formatMonth(upcomingMonth) }),
       }),
     );
-    expect(deleteDefaultMonthlyFeeChange).not.toHaveBeenCalled();
-    await fireEvent.press(screen.getByRole("button", { name: translate("common.confirmDelete") }));
 
-    await waitFor(() => expect(deleteDefaultMonthlyFeeChange).toHaveBeenCalledWith(upcomingMonth));
+    await fireEvent.press(await screen.findByRole("button", { name: translate("common.undo") }));
+
+    await waitFor(() => expect(setDefaultMonthlyFee).toHaveBeenCalledWith(15000, upcomingMonth));
   });
 });

@@ -139,7 +139,8 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - Business dates with their own meaning (a fee that applies from a month) are not this convention and keep their names.
 
 ### Deleting
-- Every action that deletes asks for confirmation first with `DeleteConfirmation`, and a test proves nothing is deleted until the user confirms.
+- A delete that can be brought back runs on the first tap and the toast offers **Deshacer** (`showToast(message, action)`), which restores it; a test proves the undo restores it. Payments and announcements have a restore endpoint (`POST .../{id}/restore`); fee changes, class comments and custom roles are undone by saving them again.
+- An action that can't be undone, or that touches other people or money (cancelling a class, removing someone from the team, voiding a pack sale, deleting a private lesson, unenrolling), asks first with `ConfirmDialog` (a modal: short question, optional consequence, **Volver** and a verb, never "Sí, …"), and a test proves nothing happens until the user confirms.
 - Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`IsDeleted`, a stored `bit`; `DeletedOn`, the date and time it was deleted; `Delete(now)` sets both, and a check constraint keeps them in sync). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`, `[IsDeleted] = 0`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[IsDeleted] = 0`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
 
 ### Empty states

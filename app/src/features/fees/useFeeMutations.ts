@@ -7,6 +7,7 @@ import {
   deleteClientBillingPlanChange,
   deleteDefaultMonthlyFeeChange,
   deletePayment,
+  restorePayment,
   recordPayment,
   setClientBillingPlan,
   setDefaultMonthlyFee,
@@ -30,6 +31,14 @@ export function useDeletePayment() {
   const invalidateFees = useInvalidateFees();
   return useMutation({
     mutationFn: (paymentId: string) => deletePayment(paymentId),
+    onSuccess: invalidateFees,
+  });
+}
+
+export function useRestorePayment() {
+  const invalidateFees = useInvalidateFees();
+  return useMutation({
+    mutationFn: (paymentId: string) => restorePayment(paymentId),
     onSuccess: invalidateFees,
   });
 }

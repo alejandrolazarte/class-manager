@@ -10,6 +10,8 @@ public interface IPaymentRepository
 
     Task<Payment?> GetForUpdateAsync(Guid paymentId, CancellationToken cancellationToken);
 
+    Task<Payment?> FindDeletedForUpdateAsync(Guid paymentId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Payment>> ListByClientAsync(Guid clientId, int limit, CancellationToken cancellationToken);
 
     Task<IReadOnlyDictionary<Guid, decimal>> SumByClientForMonthAsync(DateOnly monthFirstDay, CancellationToken cancellationToken);

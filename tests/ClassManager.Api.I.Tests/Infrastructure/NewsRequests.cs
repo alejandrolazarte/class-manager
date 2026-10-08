@@ -23,6 +23,12 @@ public static class NewsRequests
     public static Task<List<AnnouncementResponse>?> ListAnnouncementsAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<List<AnnouncementResponse>>(new Uri(ApiRoutes.Announcements, UriKind.Relative), ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> DeleteAnnouncementAsync(this HttpClient httpClient, Guid announcementId) =>
+        httpClient.DeleteAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}", UriKind.Relative));
+
+    public static Task<HttpResponseMessage> RestoreAnnouncementAsync(this HttpClient httpClient, Guid announcementId) =>
+        httpClient.PostAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Restore}", UriKind.Relative), null);
+
     public static Task<StudentAppNewsResponse?> GetStudentAppNewsAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<StudentAppNewsResponse>(
             new Uri(ApiRoutes.StudentApp + ApiRoutes.StudentAppNews, UriKind.Relative), ApiRequests.JsonOptions);

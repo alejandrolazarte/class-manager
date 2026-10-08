@@ -15,6 +15,7 @@ import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
 import { Spinner } from "@/ui/Spinner";
@@ -135,34 +136,16 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
         ) : null}
       </Card>
       {entryToUnenroll ? (
-        <Banner
-          tone="warning"
-          icon="unenroll"
-          message={translate("enrollments.detail.unenrollQuestion", {
+        <ConfirmDialog
+          title={translate("enrollments.detail.unenrollQuestion", {
             student: entryToUnenroll.studentFullName,
-            classGroup: classGroup.name,
           })}
-        >
-          <View className="flex-row gap-2">
-            <View className="flex-1">
-              <Button
-                variant="secondary"
-                size="medium"
-                label={translate("common.cancel")}
-                onPress={() => setEntryToUnenroll(null)}
-              />
-            </View>
-            <View className="flex-1">
-              <Button
-                variant="danger"
-                size="medium"
-                label={translate("enrollments.detail.confirmUnenroll")}
-                onPress={confirmUnenroll}
-                isLoading={endEnrollmentMutation.isPending}
-              />
-            </View>
-          </View>
-        </Banner>
+          message={translate("enrollments.detail.unenrollMessage", { classGroup: classGroup.name })}
+          confirmLabel={translate("enrollments.detail.confirmUnenroll")}
+          onCancel={() => setEntryToUnenroll(null)}
+          onConfirm={confirmUnenroll}
+          isConfirming={endEnrollmentMutation.isPending}
+        />
       ) : null}
       {hasUnenrollFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
       <SectionTitle title={translate("enrollments.detail.students")} />

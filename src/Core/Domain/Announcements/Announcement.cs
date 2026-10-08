@@ -58,4 +58,10 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable
         DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
         IsDeleted = true;
     }
+
+    public void Restore()
+    {
+        DeletedOn = null;
+        IsDeleted = false;
+    }
 }
