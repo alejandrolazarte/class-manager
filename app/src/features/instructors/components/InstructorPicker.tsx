@@ -2,24 +2,21 @@ import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { Instructor } from "@/features/instructors/types";
 import { translate } from "@/i18n/translate";
+import { searchableText } from "@/forms/searchableText";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { SearchPage } from "@/ui/SearchPage";
 import { Spinner } from "@/ui/Spinner";
 
-interface SubstituteInstructorPickerProps {
+interface InstructorPickerProps {
   instructors: Instructor[];
   isPending: boolean;
   isError: boolean;
   onPick: (instructor: Instructor) => void;
   onClose: () => void;
-}
-
-const diacriticalMarks = /[̀-ͯ]/g;
-
-function searchableText(text: string): string {
-  return text.normalize("NFD").replace(diacriticalMarks, "").trim().toLocaleLowerCase();
+  emptyMessage: string;
+  testID?: string;
 }
 
 function matchesSearch(instructor: Instructor, searchText: string): boolean {
@@ -31,13 +28,15 @@ function matchesSearch(instructor: Instructor, searchText: string): boolean {
   );
 }
 
-export function SubstituteInstructorPicker({
+export function InstructorPicker({
   instructors,
   isPending,
   isError,
   onPick,
   onClose,
-}: SubstituteInstructorPickerProps) {
+  emptyMessage,
+  testID = "instructor-picker",
+}: InstructorPickerProps) {
   const [searchText, setSearchText] = useState("");
   const trimmedSearch = searchText.trim();
   const hasSearch = trimmedSearch.length > 0;
@@ -47,24 +46,22 @@ export function SubstituteInstructorPicker({
 
   return (
     <SearchPage
-      testID="substitute-instructor-picker"
+      testID={testID}
       searchText={searchText}
       onSearchTextChange={setSearchText}
-      searchPlaceholder={translate("sessions.substitute.search")}
+      searchPlaceholder={translate("instructors.picker.search")}
       onClose={onClose}
     >
       <AppText variant="overline" tone="subtle">
-        {translate(
-          hasSearch ? "sessions.substitute.results" : "sessions.substitute.chooseInstructorTitle",
-        )}
+        {translate(hasSearch ? "instructors.picker.results" : "instructors.picker.chooseTitle")}
       </AppText>
       {isPending ? <Spinner /> : null}
       {isError ? <Banner message={translate("common.unexpectedError")} /> : null}
       {!isPending && !isError && shownInstructors.length === 0 ? (
         <AppText variant="body" tone="muted">
           {hasSearch
-            ? translate("sessions.substitute.noResults", { search: trimmedSearch })
-            : translate("sessions.substitute.noInstructors")}
+            ? translate("instructors.picker.noResults", { search: trimmedSearch })
+            : emptyMessage}
         </AppText>
       ) : null}
       <View>

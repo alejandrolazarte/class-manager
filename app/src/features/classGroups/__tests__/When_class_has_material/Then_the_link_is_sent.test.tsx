@@ -21,7 +21,7 @@ describe("When class has material", () => {
 
   it("Then the link is sent", async () => {
     await renderWithProviders(<ClassGroupFormScreen />);
-    await screen.findByRole("button", { name: instructor.fullName });
+    await screen.findByText(instructor.fullName);
     await fillClassGroupForm();
     await fireEvent.changeText(
       screen.getByLabelText(translate("classGroups.form.materialUrl")),

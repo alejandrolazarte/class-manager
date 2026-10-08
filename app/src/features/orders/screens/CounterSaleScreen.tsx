@@ -12,10 +12,6 @@ import { PaymentMethod } from "@/features/fees/types";
 import { CounterSaleCatalogPicker } from "@/features/orders/components/CounterSaleCatalogPicker";
 import { CounterSaleItemRow } from "@/features/orders/components/CounterSaleItemRow";
 import {
-  CounterSaleStudentPicker,
-  studentContactLine,
-} from "@/features/orders/components/CounterSaleStudentPicker";
-import {
   chosenItems,
   CounterSaleItem,
   counterSaleItems,
@@ -31,6 +27,7 @@ import { useDeliveryClasses } from "@/features/orders/useOrders";
 import { productErrorCodes } from "@/features/products/productErrorCodes";
 import { useProducts } from "@/features/products/useProducts";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
+import { StudentPicker, studentContactLine } from "@/features/students/components/StudentPicker";
 import { StudentSummary } from "@/features/students/types";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -162,7 +159,8 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
 
   const pickers =
     openPicker === "student" ? (
-      <CounterSaleStudentPicker
+      <StudentPicker
+        testID="counter-sale-student-picker"
         onPick={(student) => {
           chooseCustomer(customerOfStudent(student));
           setOpenPicker(null);

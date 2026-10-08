@@ -19,7 +19,7 @@ describe("When class is created", () => {
 
   it("Then request has weekdays and start time", async () => {
     await renderWithProviders(<ClassGroupFormScreen />);
-    await screen.findByRole("button", { name: instructor.fullName });
+    await screen.findByText(instructor.fullName);
     await fillClassGroupForm({ weekdays: ["Thursday", "Tuesday"], startTime: "1800" });
     await submitClassGroupForm();
 

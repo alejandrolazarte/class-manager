@@ -31,6 +31,9 @@ describe("When member is invited with a custom role", () => {
     await renderWithProviders(<InviteMemberScreen />);
     await fireEvent.changeText(screen.getByLabelText(translate("team.invite.email")), email);
     await fireEvent.press(await screen.findByRole("button", { name: customRole.name! }));
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("instructors.picker.choose") }),
+    );
     await fireEvent.press(await screen.findByRole("button", { name: instructor.fullName }));
 
     await fireEvent.press(screen.getByRole("button", { name: translate("team.invite.submit") }));

@@ -27,7 +27,7 @@ describe("When class material pdf is too large", () => {
 
   it("Then it is not attached", async () => {
     await renderWithProviders(<ClassGroupFormScreen />);
-    await screen.findByRole("button", { name: instructor.fullName });
+    await screen.findByText(instructor.fullName);
     await fireEvent.press(
       screen.getByRole("button", { name: translate("classGroups.form.uploadMaterialFile") }),
     );

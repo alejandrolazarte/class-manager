@@ -7,6 +7,7 @@ import { isApiError } from "@/api/httpClient";
 import { catalogImageSaveMessageKey } from "@/features/catalogImages/catalogImageSaveMessage";
 import { CatalogImageField } from "@/features/catalogImages/components/CatalogImageField";
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
+import { ClassPackClassGroupsField } from "@/features/classPacks/components/ClassPackClassGroupsField";
 import { classPackErrorCodes } from "@/features/classPacks/classPackErrorCodes";
 import {
   classPackFieldNames,
@@ -218,37 +219,11 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           control={form.control}
           name="classGroupIds"
           render={({ field }) => (
-            <View className="gap-2">
-              <AppText variant="label" tone="muted">
-                {translate("classPacks.form.classGroups")}
-              </AppText>
-              <View className="flex-row flex-wrap gap-2">
-                {classGroups.map((classGroup) => {
-                  const isSelected = field.value.includes(classGroup.id);
-                  return (
-                    <Chip
-                      key={classGroup.id}
-                      label={classGroup.name}
-                      isSelected={isSelected}
-                      onPress={() =>
-                        field.onChange(
-                          isSelected
-                            ? field.value.filter((classGroupId) => classGroupId !== classGroup.id)
-                            : [...field.value, classGroup.id],
-                        )
-                      }
-                    />
-                  );
-                })}
-              </View>
-              <AppText variant="caption" tone="muted">
-                {translate(
-                  field.value.length === 0
-                    ? "classPacks.form.classGroupsNoneHint"
-                    : "classPacks.form.classGroupsHint",
-                )}
-              </AppText>
-            </View>
+            <ClassPackClassGroupsField
+              classGroups={classGroups}
+              classGroupIds={field.value}
+              onChange={field.onChange}
+            />
           )}
         />
       ) : null}

@@ -44,7 +44,7 @@ describe("When substitute search is typed", () => {
     await picker.findByRole("button", { name: otherInstructor.fullName });
 
     await fireEvent.changeText(
-      picker.getByPlaceholderText(translate("sessions.substitute.search")),
+      picker.getByPlaceholderText(translate("instructors.picker.search")),
       "rios",
     );
 

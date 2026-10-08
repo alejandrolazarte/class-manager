@@ -33,9 +33,8 @@ describe("When coach is busy on a later week", () => {
 
   it("Then the conflicting date is shown", async () => {
     await renderWithProviders(<PrivateLessonFormScreen initialDate="2026-10-06" />);
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("privateLessons.form.searchStudent")),
-      "Tom",
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("privateLessons.form.chooseStudent") }),
     );
     await fireEvent.press(await screen.findByRole("button", { name: student.fullName }));
     await fireEvent.changeText(

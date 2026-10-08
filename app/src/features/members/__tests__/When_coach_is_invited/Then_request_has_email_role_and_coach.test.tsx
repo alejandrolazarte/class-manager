@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react-native";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react-native";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { getTeam, inviteMember } from "@/features/members/membersApi";
 import { InviteMemberScreen } from "@/features/members/screens/InviteMemberScreen";
@@ -32,8 +32,12 @@ describe("When coach is invited", () => {
   it("Then request has email role and coach", async () => {
     await renderWithProviders(<InviteMemberScreen />);
     await fireEvent.changeText(screen.getByLabelText(translate("team.invite.email")), email);
-    await fireEvent.press(await screen.findByRole("button", { name: freeInstructor.fullName }));
-    expect(screen.queryByRole("button", { name: linkedInstructor.fullName })).toBeNull();
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("instructors.picker.choose") }),
+    );
+    const picker = within(screen.getByTestId("linked-instructor-picker"));
+    expect(picker.queryByRole("button", { name: linkedInstructor.fullName })).toBeNull();
+    await fireEvent.press(picker.getByRole("button", { name: freeInstructor.fullName }));
 
     await fireEvent.press(screen.getByRole("button", { name: translate("team.invite.submit") }));
 

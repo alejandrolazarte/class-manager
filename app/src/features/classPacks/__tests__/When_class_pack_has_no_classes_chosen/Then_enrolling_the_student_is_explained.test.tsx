@@ -21,7 +21,10 @@ describe("When class pack has no classes chosen", () => {
     expect(
       await screen.findByText(translate("classPacks.form.classGroupsNoneHint")),
     ).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole("button", { name: aquagym.name }));
+    await fireEvent.press(
+      screen.getByRole("button", { name: translate("classPacks.form.chooseClassGroup") }),
+    );
+    await fireEvent.press(await screen.findByRole("button", { name: aquagym.name }));
     expect(screen.getByText(translate("classPacks.form.classGroupsHint"))).toBeOnTheScreen();
   });
 });

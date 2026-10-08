@@ -33,7 +33,7 @@ describe("When class is created with a material pdf", () => {
 
   it("Then the pdf is uploaded to the new class", async () => {
     await renderWithProviders(<ClassGroupFormScreen />);
-    await screen.findByRole("button", { name: instructor.fullName });
+    await screen.findByText(instructor.fullName);
     await fillClassGroupForm();
     await fireEvent.press(
       screen.getByRole("button", { name: translate("classGroups.form.uploadMaterialFile") }),

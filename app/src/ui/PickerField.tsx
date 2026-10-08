@@ -1,12 +1,77 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
-import { Icon } from "@/ui/Icon";
+import { Icon, IconName } from "@/ui/Icon";
 import { IconButton } from "@/ui/IconButton";
 
 export interface PickedPerson {
   name: string;
   detail: string;
+}
+
+interface PickerChooseButtonProps {
+  label: string;
+  onPress: () => void;
+  hint?: string;
+  icon?: IconName;
+}
+
+interface PickedItemRowProps {
+  name: string;
+  detail?: string;
+  removeLabel: string;
+  onRemove?: () => void;
+}
+
+export function PickerChooseButton({
+  label,
+  onPress,
+  hint,
+  icon = "findPerson",
+}: PickerChooseButtonProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-3.5 py-3 active:bg-muted"
+    >
+      <Icon name={icon} tone="muted-foreground" />
+      <View className="min-w-0 flex-1">
+        <AppText variant="bodyStrong">{label}</AppText>
+        {hint ? (
+          <AppText variant="caption" tone="subtle">
+            {hint}
+          </AppText>
+        ) : null}
+      </View>
+      <Icon name="next" tone="subtle-foreground" />
+    </Pressable>
+  );
+}
+
+export function PickedItemRow({ name, detail, removeLabel, onRemove }: PickedItemRowProps) {
+  return (
+    <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
+      <Avatar name={name} size="small" />
+      <View className="min-w-0 flex-1 py-1.5">
+        <AppText variant="bodyStrong">{name}</AppText>
+        {detail ? (
+          <AppText variant="caption" tone="subtle">
+            {detail}
+          </AppText>
+        ) : null}
+      </View>
+      {onRemove ? (
+        <IconButton
+          icon="close"
+          tone="muted-foreground"
+          accessibilityLabel={removeLabel}
+          onPress={onRemove}
+        />
+      ) : null}
+    </View>
+  );
 }
 
 interface PickerFieldProps {
@@ -34,23 +99,7 @@ export function PickerField({
         {label}
       </AppText>
       {picked === null ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={chooseLabel}
-          onPress={onChoose}
-          className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-3.5 py-3 active:bg-muted"
-        >
-          <Icon name="findPerson" tone="muted-foreground" />
-          <View className="min-w-0 flex-1">
-            <AppText variant="bodyStrong">{chooseLabel}</AppText>
-            {hint ? (
-              <AppText variant="caption" tone="subtle">
-                {hint}
-              </AppText>
-            ) : null}
-          </View>
-          <Icon name="next" tone="subtle-foreground" />
-        </Pressable>
+        <PickerChooseButton label={chooseLabel} hint={hint} onPress={onChoose} />
       ) : (
         <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
           <Avatar name={picked.name} size="small" />

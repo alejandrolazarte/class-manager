@@ -16,7 +16,7 @@ describe("When class form has no days", () => {
 
   it("Then save is disabled", async () => {
     await renderWithProviders(<ClassGroupFormScreen />);
-    await screen.findByRole("button", { name: buildInstructor().fullName });
+    await screen.findByText(buildInstructor().fullName);
 
     await fillClassGroupForm({ weekdays: [] });
 
