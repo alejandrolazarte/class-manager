@@ -1,4 +1,4 @@
-import { needsCoach, Permission } from "@/features/members/permissions";
+import { needsInstructor, Permission } from "@/features/members/permissions";
 import { BusinessRole, SystemRole, systemRoles } from "@/features/members/types";
 import { Role } from "@/features/roles/types";
 import { translate, TranslationKey } from "@/i18n/translate";
@@ -9,10 +9,10 @@ export interface RoleChoice {
   customRoleId: string | null;
   label: string;
   permissions: readonly Permission[] | null;
-  needsCoach: boolean;
+  needsInstructor: boolean;
 }
 
-const coachRole: SystemRole = "Coach";
+const instructorRole: SystemRole = "Instructor";
 
 export function systemRoleLabel(role: SystemRole): string {
   return translate(`roles.${role}` as TranslationKey);
@@ -42,7 +42,7 @@ export function roleChoices(roles: Role[] | undefined): RoleChoice[] {
       customRoleId: null,
       label: systemRoleLabel(role),
       permissions: null,
-      needsCoach: role === coachRole,
+      needsInstructor: role === instructorRole,
     }));
   }
   return roles.map((role) => ({
@@ -51,7 +51,7 @@ export function roleChoices(roles: Role[] | undefined): RoleChoice[] {
     customRoleId: role.id,
     label: roleName(role),
     permissions: role.permissions,
-    needsCoach: needsCoach(role.permissions),
+    needsInstructor: needsInstructor(role.permissions),
   }));
 }
 

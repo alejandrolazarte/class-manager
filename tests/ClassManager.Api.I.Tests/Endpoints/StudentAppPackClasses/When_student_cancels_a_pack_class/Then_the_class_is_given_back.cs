@@ -9,7 +9,7 @@ public sealed class Then_the_class_is_given_back(ApiFixture fixture)
         var scenario = await fixture.SeedPackStudentAppScenarioAsync();
         await scenario.BookPackClassAsync();
 
-        using var response = await scenario.Student.DeletePackClassAsync(scenario.StudentId, scenario.PackClassGroupId, CoachScenario.ClassDate);
+        using var response = await scenario.Student.DeletePackClassAsync(scenario.StudentId, scenario.PackClassGroupId, InstructorScenario.ClassDate);
 
         response.EnsureSuccessStatusCode();
         (await scenario.Student.GetPackClassesAsync(scenario.StudentId))!.ClassesLeft.ShouldBe(4);

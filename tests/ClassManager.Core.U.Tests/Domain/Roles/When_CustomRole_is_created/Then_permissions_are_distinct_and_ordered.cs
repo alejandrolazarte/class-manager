@@ -9,9 +9,9 @@ public sealed class Then_permissions_are_distinct_and_ordered
     public void Then_permissions_are_distinct_and_ordered_Run()
     {
         var role = CustomRole.Create(
-            "Coach que cobra",
+            "Instructor que cobra",
             [Permissions.Payments.Record, Permissions.Sessions.ViewOwn, Permissions.Payments.Record],
-            copiedFrom: "Coach",
+            copiedFrom: "Instructor",
             TestData.Now);
 
         role.Value!.Permissions.ShouldBe([Permissions.Payments.Record, Permissions.Sessions.ViewOwn]);

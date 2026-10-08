@@ -9,11 +9,11 @@ public sealed class Then_its_students_get_a_push(ApiFixture fixture)
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var endpoint = await scenario.SubscribeAsync();
 
-        (await scenario.Coaches.Business.HttpClient.PutSessionCancellationAsync(
-            scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate, "Feriado")).EnsureSuccessStatusCode();
+        (await scenario.Instructors.Business.HttpClient.PutSessionCancellationAsync(
+            scenario.Instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate, "Feriado")).EnsureSuccessStatusCode();
 
         var push = await fixture.ApiFactory.PushSender.WaitForPushToAsync(endpoint);
-        push.Title.ShouldBe($"Se suspende {CoachScenario.CoachClassGroupName}");
+        push.Title.ShouldBe($"Se suspende {InstructorScenario.InstructorClassGroupName}");
         push.Body.ShouldBe("El jueves 24/9 a las 18:00 no hay clase. Feriado");
     }
 }

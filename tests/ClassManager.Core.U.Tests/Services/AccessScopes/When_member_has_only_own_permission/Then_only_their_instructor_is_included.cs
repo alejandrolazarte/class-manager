@@ -9,7 +9,7 @@ public sealed class Then_only_their_instructor_is_included
     public async Task Then_only_their_instructor_is_included_Run()
     {
         var instructorId = Guid.CreateVersion7();
-        var scopes = new ClassManager.Core.Services.AccessScopes(new CurrentMemberFake(BusinessRole.Coach, instructorId));
+        var scopes = new ClassManager.Core.Services.AccessScopes(new CurrentMemberFake(BusinessRole.Instructor, instructorId));
 
         var scope = await scopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, CancellationToken.None);
 

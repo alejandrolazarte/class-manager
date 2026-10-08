@@ -9,13 +9,13 @@ public sealed class Then_they_only_see_their_sessions(ApiFixture fixture)
     [Fact]
     public async Task Then_they_only_see_their_sessions_Run()
     {
-        var scenario = await fixture.SeedCoachScenarioAsync();
+        var scenario = await fixture.SeedInstructorScenarioAsync();
         var role = await fixture.SeedCustomRoleAsync(
             scenario.Business.Business.Id, [Permissions.Business.View, Permissions.Sessions.ViewOwn, Permissions.Payments.Record]);
         var member = await fixture.SeedMemberAsync(scenario.Business.Business.Id, MemberRole.Custom(role), scenario.OtherInstructorId);
 
-        var sessions = await member.GetDayAsync(CoachScenario.ClassDate);
+        var sessions = await member.GetDayAsync(InstructorScenario.ClassDate);
 
-        sessions!.Select(session => session.ClassGroupName).ShouldBe([CoachScenario.OtherClassGroupName]);
+        sessions!.Select(session => session.ClassGroupName).ShouldBe([InstructorScenario.OtherClassGroupName]);
     }
 }

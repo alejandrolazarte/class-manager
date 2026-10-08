@@ -7,7 +7,7 @@ public sealed class Then_returns_409(ApiFixture fixture)
     public async Task Then_returns_409_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var classPack = await owner.CreateClassPackAsync();
         var order = await scenario.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.PackLine(classPack.Id));
         (await owner.PutOrderPaymentAsync(order.Id)).EnsureSuccessStatusCode();

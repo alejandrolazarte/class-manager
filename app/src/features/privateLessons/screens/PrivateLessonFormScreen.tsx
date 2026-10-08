@@ -69,7 +69,7 @@ interface PrivateLessonEditorProps {
   instructors: Instructor[];
 }
 
-type CoachConflict = { date: string | undefined };
+type InstructorConflict = { date: string | undefined };
 
 function FieldLabel({ label }: { label: string }) {
   return (
@@ -93,7 +93,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
   const scheduleMutation = useSchedulePrivateLesson();
   const rescheduleMutation = useReschedulePrivateLesson(lesson?.id ?? "");
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
-  const [coachConflict, setCoachConflict] = useState<CoachConflict | null>(null);
+  const [instructorConflict, setInstructorConflict] = useState<InstructorConflict | null>(null);
   const isEditing = lesson !== undefined;
   const form = useForm<PrivateLessonFormValues>({
     resolver: zodResolver(privateLessonSchema),
@@ -142,7 +142,9 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
 
   const handleSaveError = (saveError: unknown) => {
     if (isApiError(saveError) && saveError.hasCode(privateLessonErrorCodes.instructorBusy)) {
-      setCoachConflict({ date: getStringExtension(saveError.problem, conflictingDateExtension) });
+      setInstructorConflict({
+        date: getStringExtension(saveError.problem, conflictingDateExtension),
+      });
       return;
     }
     const hasFieldErrors =
@@ -156,7 +158,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
-    setCoachConflict(null);
+    setInstructorConflict(null);
     try {
       if (isEditing) {
         await rescheduleMutation.mutateAsync(toPrivateLessonDetails(formValues));
@@ -181,13 +183,15 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
       submissionFailure={submissionFailure}
       onRetry={save}
     >
-      {coachConflict ? (
+      {instructorConflict ? (
         <Banner
           tone="warning"
           message={
-            coachConflict.date
-              ? translate("privateLessons.coachBusy", { date: formatLongDate(coachConflict.date) })
-              : translate("privateLessons.coachBusyUnknownDate")
+            instructorConflict.date
+              ? translate("privateLessons.instructorBusy", {
+                  date: formatLongDate(instructorConflict.date),
+                })
+              : translate("privateLessons.instructorBusyUnknownDate")
           }
         />
       ) : null}
@@ -211,7 +215,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
         render={({ field, fieldState }) => (
           <InstructorField
             testID="private-lesson-instructor-picker"
-            label={withRequiredMark(translate("privateLessons.form.coach"))}
+            label={withRequiredMark(translate("privateLessons.form.instructor"))}
             instructors={instructors}
             instructorId={field.value || null}
             onChange={(instructorId) => field.onChange(instructorId ?? "")}

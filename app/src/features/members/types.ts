@@ -1,7 +1,7 @@
 import { Permission } from "@/features/members/permissions";
 import { CurrentSubscription } from "@/features/subscriptions/types";
 
-export const systemRoles = ["BranchOwner", "Coach", "Viewer"] as const;
+export const systemRoles = ["BranchOwner", "Instructor", "Viewer"] as const;
 
 export type SystemRole = (typeof systemRoles)[number];
 

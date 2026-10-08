@@ -9,7 +9,7 @@ public sealed class Then_classes_are_credited_and_products_await_pickup(ApiFixtu
     public async Task Then_classes_are_credited_and_products_await_pickup_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var classPack = await owner.CreateClassPackAsync();
         var product = await owner.RestockAsync(await owner.CreateProductAsync(), 2);
         var order = await scenario.Student.PlaceStudentAppOrderAsync(

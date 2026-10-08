@@ -8,10 +8,10 @@ public sealed class Then_the_student_gets_a_push(ApiFixture fixture)
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var endpoint = await scenario.SubscribeAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var product = await owner.RestockAsync(await owner.CreateProductAsync(), 2);
         (await scenario.Student.PostStudentAppOrderForClassAsync(
-            scenario.Coaches.CoachClassGroup.Id, StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1))).EnsureSuccessStatusCode();
+            scenario.Instructors.InstructorClassGroup.Id, StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1))).EnsureSuccessStatusCode();
         var orderId = (await scenario.Student.ListStudentAppOrdersAsync()).Single().Id;
         (await owner.PutOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
 

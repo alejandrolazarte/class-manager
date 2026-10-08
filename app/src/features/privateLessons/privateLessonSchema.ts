@@ -44,7 +44,7 @@ export const privateLessonSchema = z
         privateLessonLimits.maximumStudents,
         translate("privateLessons.validation.tooManyStudents"),
       ),
-    instructorId: z.string().min(1, translate("privateLessons.validation.coachRequired")),
+    instructorId: z.string().min(1, translate("privateLessons.validation.instructorRequired")),
     date: z
       .string()
       .refine(

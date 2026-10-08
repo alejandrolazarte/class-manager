@@ -30,7 +30,7 @@ export function RoleFields({
   const { data: roles } = useRoles();
   const choices = offeredRoleChoices(roleChoices(roles), permissions, roleKey);
   const selectedChoice = choices.find((choice) => choice.key === roleKey);
-  const coachLabel = withRequiredMark(translate("team.invite.coach"));
+  const instructorLabel = withRequiredMark(translate("team.invite.instructor"));
   return (
     <View className="gap-4">
       <View className="gap-2">
@@ -48,30 +48,30 @@ export function RoleFields({
           ))}
         </View>
       </View>
-      {selectedChoice?.needsCoach ? (
+      {selectedChoice?.needsInstructor ? (
         <View className="gap-2">
           {instructors.length === 0 ? (
             <>
               <AppText variant="label" tone="muted">
-                {coachLabel}
+                {instructorLabel}
               </AppText>
               <AppText variant="body" tone="muted">
-                {translate("team.invite.noFreeCoaches")}
+                {translate("team.invite.noFreeInstructors")}
               </AppText>
             </>
           ) : (
             <InstructorField
               testID="linked-instructor-picker"
-              label={coachLabel}
+              label={instructorLabel}
               instructors={instructors}
               instructorId={instructorId}
               onChange={onInstructorChange}
-              emptyMessage={translate("team.invite.noFreeCoaches")}
+              emptyMessage={translate("team.invite.noFreeInstructors")}
               errorMessage={instructorError}
             />
           )}
           <AppText variant="caption" tone="subtle">
-            {translate("team.invite.coachHint")}
+            {translate("team.invite.instructorHint")}
           </AppText>
         </View>
       ) : null}

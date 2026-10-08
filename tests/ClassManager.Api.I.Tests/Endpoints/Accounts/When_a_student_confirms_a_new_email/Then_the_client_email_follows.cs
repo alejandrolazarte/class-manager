@@ -19,7 +19,7 @@ public sealed class Then_the_client_email_follows(ApiFixture fixture)
         using var confirmation = await anonymous.PostConfirmEmailChangeAsync(fixture.ApiFactory.EmailTransport.EmailChangeTokenSentTo(newEmail));
 
         confirmation.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var client = await scenario.Coaches.Business.HttpClient.GetFromJsonAsync<ClientDetailsResponse>(
+        var client = await scenario.Instructors.Business.HttpClient.GetFromJsonAsync<ClientDetailsResponse>(
             new Uri($"{ApiRoutes.Clients}/{scenario.ClientId}", UriKind.Relative), ApiRequests.JsonOptions);
         client!.Email.ShouldBe(newEmail);
         using var signIn = await anonymous.PostSignInAsync(newEmail, StudentAppRequests.StudentAppPassword);

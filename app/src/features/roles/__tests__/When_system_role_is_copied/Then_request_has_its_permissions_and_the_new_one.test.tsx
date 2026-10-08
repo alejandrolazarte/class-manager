@@ -3,7 +3,7 @@ import { createRole, listRoles } from "@/features/roles/rolesApi";
 import { RoleEditorScreen } from "@/features/roles/screens/RoleEditorScreen";
 import { translate } from "@/i18n/translate";
 import { routerMock } from "@/testing/expoRouterMock";
-import { coachPermissions } from "@/testing/memberFactory";
+import { instructorPermissions } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildCustomRole, buildSystemRoles } from "@/testing/roleFactory";
 
@@ -16,10 +16,10 @@ describe("When system role is copied", () => {
   });
 
   it("Then request has its permissions and the new one", async () => {
-    await renderWithProviders(<RoleEditorScreen copyFromRoleKey="Coach" />);
+    await renderWithProviders(<RoleEditorScreen copyFromRoleKey="Instructor" />);
     await fireEvent.changeText(
       await screen.findByLabelText(translate("roles.editor.name")),
-      "Coach que cobra",
+      "Profe que cobra",
     );
 
     await fireEvent.press(
@@ -29,9 +29,9 @@ describe("When system role is copied", () => {
 
     await waitFor(() =>
       expect(createRole).toHaveBeenCalledWith({
-        name: "Coach que cobra",
-        permissions: [...coachPermissions, "payments.record"],
-        copiedFrom: "Coach",
+        name: "Profe que cobra",
+        permissions: [...instructorPermissions, "payments.record"],
+        copiedFrom: "Instructor",
       }),
     );
     expect(routerMock.back).toHaveBeenCalled();

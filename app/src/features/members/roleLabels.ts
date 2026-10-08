@@ -7,10 +7,10 @@ export function roleDescription(
   role: BusinessRole,
   customRoleId: string | null,
   roles: Role[] | undefined,
-  coachFullName: string | undefined,
+  instructorFullName: string | undefined,
 ): string {
   const label = memberRoleLabel(role, customRoleId, roles);
-  return coachFullName
-    ? translate("roles.withCoach", { role: label, coach: coachFullName })
+  return instructorFullName
+    ? translate("roles.withInstructor", { role: label, instructor: instructorFullName })
     : label;
 }

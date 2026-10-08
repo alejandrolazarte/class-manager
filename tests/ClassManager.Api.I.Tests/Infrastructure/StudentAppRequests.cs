@@ -5,7 +5,7 @@ using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed record StudentAppScenario(CoachScenario Coaches, Guid ClientId, string Email, TokenResponse Tokens, HttpClient Student);
+public sealed record StudentAppScenario(InstructorScenario Instructors, Guid ClientId, string Email, TokenResponse Tokens, HttpClient Student);
 
 public static class StudentAppRequests
 {
@@ -97,14 +97,14 @@ public static class StudentAppRequests
             ApiRequests.JsonOptions);
 
     public static async Task<StudentAppScenario> SeedStudentAppScenarioAsync(this ApiFixture fixture) =>
-        await fixture.InviteStudentAppOfAsync(await fixture.SeedCoachScenarioAsync(), CoachScenario.CoachStudentFullName);
+        await fixture.InviteStudentAppOfAsync(await fixture.SeedInstructorScenarioAsync(), InstructorScenario.InstructorStudentFullName);
 
-    public static async Task<StudentAppScenario> InviteStudentAppOfAsync(this ApiFixture fixture, CoachScenario coaches, string studentFullName)
+    public static async Task<StudentAppScenario> InviteStudentAppOfAsync(this ApiFixture fixture, InstructorScenario instructors, string studentFullName)
     {
-        var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
+        var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
         var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(studentFullName)).ClientId;
         var email = UniqueStudentEmail();
-        using (var invitation = await coaches.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email))
+        using (var invitation = await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email))
         {
             invitation.StatusCode.ShouldBe(HttpStatusCode.Created);
         }
@@ -114,7 +114,7 @@ public static class StudentAppRequests
         accepted.StatusCode.ShouldBe(HttpStatusCode.OK);
         var tokens = (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
 
-        return new StudentAppScenario(coaches, clientId, email, tokens, fixture.CreateClientWithToken(tokens.AccessToken));
+        return new StudentAppScenario(instructors, clientId, email, tokens, fixture.CreateClientWithToken(tokens.AccessToken));
     }
 
     public static Task<StudentAppHomeResponse?> GetStudentAppHomeAsync(this HttpClient httpClient) =>

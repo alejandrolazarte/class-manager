@@ -292,7 +292,7 @@ Without `Email__Smtp__Host` the API doesn't send anything: it logs a warning, an
 
 ## Push notifications
 
-Students can turn on notifications in **Ajustes → Notificaciones** of the web app. They then get a notification on that device when the school publishes an announcement, cancels one of their classes, a coach leaves a comment, or an order is ready. The notification opens the matching screen of the app.
+Students can turn on notifications in **Ajustes → Notificaciones** of the web app. They then get a notification on that device when the school publishes an announcement, cancels one of their classes, an instructor leaves a comment, or an order is ready. The notification opens the matching screen of the app.
 
 The API signs these with a VAPID key pair (Web Push, RFC 8292) and encrypts them itself (RFC 8291), with no third-party service. Generate the keys once and keep them: changing them makes every existing subscription stop working until each student turns notifications on again.
 

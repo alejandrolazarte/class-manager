@@ -10,9 +10,9 @@ public sealed class Then_returns_409(ApiFixture fixture)
     {
         var scenario = await fixture.SeedPackStudentAppScenarioAsync();
         var otherClassGroup = await scenario.Owner.CreateClassGroupAsync(
-            ClassGroupRequests.ClassGroupFor(scenario.Coaches.OtherInstructorId, [CoachScenario.ClassDate.DayOfWeek], "20:00") with { Name = "Aquagym" });
+            ClassGroupRequests.ClassGroupFor(scenario.Instructors.OtherInstructorId, [InstructorScenario.ClassDate.DayOfWeek], "20:00") with { Name = "Aquagym" });
 
-        using var response = await scenario.Student.PutPackClassAsync(scenario.StudentId, otherClassGroup.Id, CoachScenario.ClassDate);
+        using var response = await scenario.Student.PutPackClassAsync(scenario.StudentId, otherClassGroup.Id, InstructorScenario.ClassDate);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await response.Content.ReadAsStringAsync()).ShouldContain(SessionErrorCodes.PackNoClasses);

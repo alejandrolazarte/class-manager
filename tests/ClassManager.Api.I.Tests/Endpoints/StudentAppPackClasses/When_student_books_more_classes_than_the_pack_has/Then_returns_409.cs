@@ -12,7 +12,7 @@ public sealed class Then_returns_409(ApiFixture fixture)
         await scenario.BookPackClassAsync();
 
         using var response = await scenario.Student.PutPackClassAsync(
-            scenario.StudentId, scenario.PackClassGroupId, CoachScenario.ClassDate.AddDays(7));
+            scenario.StudentId, scenario.PackClassGroupId, InstructorScenario.ClassDate.AddDays(7));
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await response.Content.ReadAsStringAsync()).ShouldContain(SessionErrorCodes.PackNoClasses);

@@ -11,7 +11,7 @@ public sealed class Then_the_description_is_shown(ApiFixture fixture)
     public async Task Then_the_description_is_shown_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        using (var created = await scenario.Coaches.Business.HttpClient.PostAsJsonAsync(
+        using (var created = await scenario.Instructors.Business.HttpClient.PostAsJsonAsync(
             ApiRoutes.ClassPacks,
             new CreateClassPackCommand(ClassPackRequests.PackName, 4, 80m, 1, Description: Description),
             ApiRequests.JsonOptions))

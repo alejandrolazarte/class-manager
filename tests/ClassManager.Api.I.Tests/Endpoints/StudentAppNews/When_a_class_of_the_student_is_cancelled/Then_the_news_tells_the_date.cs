@@ -9,15 +9,15 @@ public sealed class Then_the_news_tells_the_date(ApiFixture fixture)
     public async Task Then_the_news_tells_the_date_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var nextWeek = CoachScenario.ClassDate.AddDays(7);
-        (await scenario.Coaches.Business.HttpClient.PutSessionCancellationAsync(scenario.Coaches.CoachClassGroup.Id, nextWeek, "Feriado"))
+        var nextWeek = InstructorScenario.ClassDate.AddDays(7);
+        (await scenario.Instructors.Business.HttpClient.PutSessionCancellationAsync(scenario.Instructors.InstructorClassGroup.Id, nextWeek, "Feriado"))
             .EnsureSuccessStatusCode();
 
         var news = await scenario.Student.GetStudentAppNewsAsync();
 
         var cancelled = news!.Items.Single(item => item.Kind == StudentAppNewsKind.ClassCancelled);
         cancelled.ClassDate.ShouldBe(nextWeek);
-        cancelled.ClassName.ShouldBe(CoachScenario.CoachClassGroupName);
+        cancelled.ClassName.ShouldBe(InstructorScenario.InstructorClassGroupName);
         cancelled.Body.ShouldBe("Feriado");
     }
 }

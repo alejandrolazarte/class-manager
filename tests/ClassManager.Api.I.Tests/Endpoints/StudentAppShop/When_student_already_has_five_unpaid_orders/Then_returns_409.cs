@@ -9,7 +9,7 @@ public sealed class Then_returns_409(ApiFixture fixture)
     public async Task Then_returns_409_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var classPack = await scenario.Coaches.Business.HttpClient.CreateClassPackAsync();
+        var classPack = await scenario.Instructors.Business.HttpClient.CreateClassPackAsync();
         for (var orderNumber = 0; orderNumber < Order.MaximumOpenRequestsPerClient; orderNumber++)
         {
             await scenario.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.PackLine(classPack.Id));

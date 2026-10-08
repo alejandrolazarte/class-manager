@@ -84,7 +84,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 
 - [CLAUDE.md](CLAUDE.md) — conventions and rules for contributors and AI agents
 - [MVP plan](docs/mvp-plan.md) — goal, scope, domain sketch and milestones
-- [Pilot plan: DF Swimming Team](docs/pilot-df-swimming.md) — what the first pilot needs, in phases (private lessons, coach accounts)
+- [Pilot plan: DF Swimming Team](docs/pilot-df-swimming.md) — what the first pilot needs, in phases (private lessons, instructor accounts)
 - [GitHub protection](docs/github-protection.md) — how `main` is protected on a free private repo, and audit commands
 - [Making the repository public](docs/making-the-repository-public.md) — the FSL license, what the history review found, and the checklist before switching the repository to public
 - [Dependency and secret scanning](docs/dependency-and-secret-scanning.md) — Dependabot alerts and version updates, push protection, gitleaks, and what to do when a secret leaks
@@ -111,14 +111,14 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Notifications library](docs/notifications.md) — `src/Notifications` and `src/Notifications.Delivery`: email content and branded HTML layout, SMTP, VAPID and web push encryption, and what stays in the app
 - [Storage library and catalog images](docs/storage.md) — `src/Storage` and `src/Storage.AzureBlob`: product and class pack photos in Azure Blob Storage, the `Documents` table with public/private visibility, photos per plan, cost comparison with Cloudflare R2, Azurite for development and tests
 - [Import and export library](docs/import-export.md) — the import/export engine in `src/ImportExport` and `src/ImportExport.Xlsx`: XLSX and CSV reading, header matching, limits and why exports are XLSX
-- [Import and export plan](docs/backend/20260929-import-export/plan.md) — students and coaches from and to a spreadsheet
+- [Import and export plan](docs/backend/20260929-import-export/plan.md) — students and instructors from and to a spreadsheet
 - [Session substitutes plan](docs/backend/20260929-session-substitutes/plan.md) — another instructor teaches one date of a class
 - [Student app, shop and online payments plan](docs/backend/20260929-online-shop-and-payments/plan.md) — accounts for parents and adult students, products and stock, orders paid at the branch, then Stripe Connect per branch (steps 1–4 built, the rest is a proposal)
 - [Subscriptions plan](docs/backend/20261003-subscriptions/plan.md) — one subscription per brand, plans Free (30-day trial, read-only once it ends)/Lite/Pro/Enterprise, features and add-ons checked like permissions, and the `Subscriptions` library, enforced centrally (steps 1–4 built)
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes chosen by each user, a theme created by the business from its color, and a business icon
 - [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, brand colors with accent, theme lock, welcome screen, and where students and the team see the brand
-- [Team notifications](docs/backend/20261001-team-notifications/plan.md) — avisos for coaches and owners (no voy, makeups, new orders), who gets each one, and web push for the team
+- [Team notifications](docs/backend/20261001-team-notifications/plan.md) — avisos for instructors and owners (no voy, makeups, new orders), who gets each one, and web push for the team
 - [Background tasks](docs/backend/20261007-background-tasks/plan.md) — order emails and push notifications queued in the `BackgroundTasks` table, sent and retried by one worker that sleeps until there is work instead of polling the database
 - [Team home](docs/frontend/20261001-team-home/plan.md) — Inicio replaces Hoy for the team: greeting, next class, tiles and the full day agenda
 - [Ajustes and Cobros](docs/frontend/20261002-settings-and-collections/plan.md) — Ajustes grouped by topic with values and sheets for appearance and notifications; Cobros with Cuotas and Pedidos, pending orders badge and counter sale button

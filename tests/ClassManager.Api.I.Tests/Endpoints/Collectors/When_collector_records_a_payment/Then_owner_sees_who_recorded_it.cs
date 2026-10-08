@@ -12,7 +12,7 @@ public sealed class Then_owner_sees_who_recorded_it(ApiFixture fixture)
         using var response = await scenario.Collector.PostPaymentAsync(scenario.CollectorClientId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var payments = await scenario.Coaches.Business.HttpClient.GetClientPaymentsAsync(scenario.CollectorClientId);
+        var payments = await scenario.Instructors.Business.HttpClient.GetClientPaymentsAsync(scenario.CollectorClientId);
         payments!.Single().RecordedByUserId.ShouldBe(collectorUserId);
     }
 }

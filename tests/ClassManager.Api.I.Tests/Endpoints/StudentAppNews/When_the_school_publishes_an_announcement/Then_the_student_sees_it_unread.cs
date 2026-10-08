@@ -9,7 +9,7 @@ public sealed class Then_the_student_sees_it_unread(ApiFixture fixture)
     public async Task Then_the_student_sees_it_unread_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        await scenario.Coaches.Business.HttpClient.PublishAnnouncementAsync();
+        await scenario.Instructors.Business.HttpClient.PublishAnnouncementAsync();
 
         var news = await scenario.Student.GetStudentAppNewsAsync();
 
