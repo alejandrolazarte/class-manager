@@ -4,15 +4,14 @@ import {
   maximumStudentsPerRegistration,
   RegisterClientFormValues,
 } from "@/features/clients/registerClientSchema";
-import { formatBirthDateAsTyped } from "@/features/students/birthDateFormatting";
 import { StudentFields } from "@/features/students/components/StudentFields";
 import { emptyStudentFormValues } from "@/features/students/studentSchema";
+import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
 import { Card } from "@/ui/Card";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
 interface AttendeesSectionProps {
@@ -48,14 +47,11 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
           control={control}
           name="clientBirthDate"
           render={({ field, fieldState }) => (
-            <TextField
+            <BirthDateField
               label={translate("clients.register.birthDate")}
               hint={translate("clients.register.birthDateHint")}
-              isRequired
-              placeholder={translate("students.fields.birthDatePlaceholder")}
-              keyboardType="number-pad"
               value={field.value}
-              onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
+              onChangeText={field.onChange}
               onBlur={field.onBlur}
               errorMessage={fieldState.error?.message}
             />

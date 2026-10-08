@@ -22,10 +22,8 @@ import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPic
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { todayIsoDate } from "@/features/sessions/dates";
-import {
-  formatBirthDateAsTyped,
-  formatBirthDateForDisplay,
-} from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { DateField } from "@/forms/DateField";
 import { translate } from "@/i18n/translate";
 import { clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -220,12 +218,11 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
         control={form.control}
         name="purchasedOn"
         render={({ field, fieldState }) => (
-          <TextField
+          <DateField
             label={translate("classPacks.sell.purchasedOn")}
             isRequired
-            keyboardType="number-pad"
             value={field.value}
-            onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
+            onChangeText={field.onChange}
             onBlur={field.onBlur}
             errorMessage={fieldState.error?.message}
           />

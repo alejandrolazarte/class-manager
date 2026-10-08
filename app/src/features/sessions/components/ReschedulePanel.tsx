@@ -1,19 +1,16 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
-import {
-  formatStartTimeAsTyped,
-  startTimePattern,
-} from "@/features/classGroups/startTimeFormatting";
+import { startTimePattern } from "@/features/classGroups/startTimeFormatting";
 import { sessionErrorCodes } from "@/features/sessions/sessionErrorCodes";
 import { useRescheduleSession } from "@/features/sessions/useSessionMutations";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { ListRow } from "@/ui/ListRow";
-import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { isFilled } from "@/forms/requiredFields";
+import { TimeField } from "@/forms/TimeField";
 
 interface ReschedulePanelProps {
   classGroupId: string;
@@ -86,14 +83,12 @@ export function ReschedulePanel({
       {isOpen ? (
         <View className="gap-2.5 px-4 pb-4">
           {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
-          <TextField
+          <TimeField
             label={translate("sessions.reschedule.startTime")}
             isRequired
-            placeholder={translate("classGroups.form.startTimePlaceholder")}
-            keyboardType="number-pad"
             fieldSurface="background"
             value={startTime}
-            onChangeText={(typedText) => setStartTime(formatStartTimeAsTyped(typedText))}
+            onChangeText={setStartTime}
           />
           <Button
             size="medium"
