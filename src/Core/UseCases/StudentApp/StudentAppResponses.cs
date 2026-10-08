@@ -52,6 +52,9 @@ public sealed record StudentAppHomeResponse(
     IReadOnlyList<AccountStudentResponse> Students,
     StudentAppBillingResponse Billing,
     IReadOnlyList<LevelDefinition> Levels,
-    string SignedInFullName);
+    string SignedInFullName,
+    IReadOnlyList<StudentAppGuardianConsentResponse> PendingGuardianConsents);
+
+public sealed record StudentAppGuardianConsentResponse(Guid InvitationId, string StudentFullName, string StudentEmail);
 
 public sealed record StudentAppInvitationResponse(Guid Id, string Email, DateTimeOffset ExpiresAt, bool AwaitsGuardianConsent = false);

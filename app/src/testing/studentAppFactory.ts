@@ -102,6 +102,7 @@ export function buildStudentAppHome(overrides: Partial<StudentAppHome> = {}): St
     currencyCode: "EUR",
     clientFullName: "Ana Pérez",
     signedInFullName: "Ana Pérez",
+    pendingGuardianConsents: [],
     students: [buildAccountStudent()],
     billing: {
       kind: "BusinessFee",

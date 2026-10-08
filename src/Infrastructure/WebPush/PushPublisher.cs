@@ -15,6 +15,16 @@ internal sealed class PushPublisher(ITenantContext tenantContext, PushOutbox que
         queue.Enqueue(new StudentAppPush(tenantContext.TenantId, clientIds, message));
     }
 
+    public void PublishToStudentAccounts(Guid clientId, IReadOnlyCollection<Guid> userIds, PushMessage message)
+    {
+        if (!options.Value.IsConfigured || userIds.Count == 0)
+        {
+            return;
+        }
+
+        queue.Enqueue(new StudentAppPush(tenantContext.TenantId, [clientId], message, userIds));
+    }
+
     public void PublishToMembers(IReadOnlyCollection<Guid> userIds, PushMessage message)
     {
         if (!options.Value.IsConfigured || userIds.Count == 0)

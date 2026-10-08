@@ -80,6 +80,9 @@ public static class ApiRoutes
     public const string Deliveries = "/deliveries";
     public const string StudentAppShop = "/shop";
     public const string StudentAppOrders = "/orders";
+    public const string StudentAppGuardianConsent = "/guardian-consents/{invitationId:guid}";
+    public const string Authorization = "/authorization";
+    public const string Refusal = "/refusal";
     public const string PaymentsSegment = "/payments";
     public const string Payments = "/api/payments";
     public const string PaymentById = "/{paymentId:guid}";

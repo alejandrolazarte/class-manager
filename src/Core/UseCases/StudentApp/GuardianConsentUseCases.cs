@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
+using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Tenancy;
 
@@ -25,6 +26,44 @@ public sealed record GivenGuardianConsentResponse(string StudentEmail);
 public sealed record RefuseGuardianConsentCommand(string? Token) : ICommand;
 
 public sealed record RefusedGuardianConsentResponse;
+
+internal static class GuardianConsentActions
+{
+    public static async Task<GivenGuardianConsentResponse> GiveAsync(
+        ClientInvitation invitation,
+        Business business,
+        ISecretTokenGenerator secretTokenGenerator,
+        IEmailSender emailSender,
+        IWebAppLinks webAppLinks,
+        IUnitOfWork unitOfWork,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var token = secretTokenGenerator.Create();
+        invitation.ConsentByGuardian(token.Hash, now);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var content = InviteStudentAppUseCase.EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
+        await emailSender.SendAsync(
+            new EmailMessage(invitation.Email, InviteStudentAppUseCase.EmailSubject, content, business.Id),
+            cancellationToken);
+
+        return new GivenGuardianConsentResponse(invitation.Email);
+    }
+
+    public static async Task<RefusedGuardianConsentResponse> RefuseAsync(
+        ClientInvitation invitation,
+        ITeamNotificationService teamNotificationService,
+        IUnitOfWork unitOfWork,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        invitation.Decline(now);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await teamNotificationService.GuardianConsentRefusedAsync(invitation, cancellationToken);
+        return new RefusedGuardianConsentResponse();
+    }
+}
 
 internal static class GuardianConsentRequests
 {
@@ -107,16 +146,8 @@ public sealed class GiveGuardianConsentUseCase(
             return GuardianConsentRequests.InvalidRequest<GivenGuardianConsentResponse>();
         }
 
-        var token = secretTokenGenerator.Create();
-        invitation.ConsentByGuardian(token.Hash, now);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        var content = InviteStudentAppUseCase.EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
-        await emailSender.SendAsync(
-            new EmailMessage(invitation.Email, InviteStudentAppUseCase.EmailSubject, content, business.Id),
-            cancellationToken);
-
-        return new GivenGuardianConsentResponse(invitation.Email);
+        return await GuardianConsentActions.GiveAsync(
+            invitation, business, secretTokenGenerator, emailSender, webAppLinks, unitOfWork, now, cancellationToken);
     }
 }
 
@@ -139,9 +170,6 @@ public sealed class RefuseGuardianConsentUseCase(
             return GuardianConsentRequests.InvalidRequest<RefusedGuardianConsentResponse>();
         }
 
-        invitation.Decline(now);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        await teamNotificationService.GuardianConsentRefusedAsync(invitation, cancellationToken);
-        return new RefusedGuardianConsentResponse();
+        return await GuardianConsentActions.RefuseAsync(invitation, teamNotificationService, unitOfWork, now, cancellationToken);
     }
 }

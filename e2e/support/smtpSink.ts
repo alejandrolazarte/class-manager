@@ -125,10 +125,15 @@ export class SmtpSink {
   async waitForEmailTo(
     recipient: string,
     timeoutMilliseconds = defaultWaitMilliseconds,
+    bodyPattern?: RegExp,
   ): Promise<ReceivedEmail> {
     const deadline = Date.now() + timeoutMilliseconds;
     while (Date.now() < deadline) {
-      const email = this.received.find((candidate) => candidate.to.includes(recipient));
+      const email = this.received.find(
+        (candidate) =>
+          candidate.to.includes(recipient) &&
+          (bodyPattern === undefined || bodyPattern.test(candidate.body)),
+      );
       if (email !== undefined) {
         return email;
       }

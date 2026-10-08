@@ -160,6 +160,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<CheckGuardianConsentCommand, GuardianConsentResponse, CheckGuardianConsentUseCase>();
         services.AddUseCase<GiveGuardianConsentCommand, GivenGuardianConsentResponse, GiveGuardianConsentUseCase>();
         services.AddUseCase<RefuseGuardianConsentCommand, RefusedGuardianConsentResponse, RefuseGuardianConsentUseCase>();
+        services.AddUseCase<GiveGuardianConsentInAppCommand, GivenGuardianConsentResponse, GiveGuardianConsentInAppUseCase>();
+        services.AddUseCase<RefuseGuardianConsentInAppCommand, RefusedGuardianConsentResponse, RefuseGuardianConsentInAppUseCase>();
         services.AddUseCase<ListRolesQuery, IReadOnlyList<RoleResponse>, ListRolesUseCase>();
         services.AddUseCase<CreateRoleCommand, RoleResponse, CreateRoleUseCase>();
         services.AddUseCase<UpdateRoleCommand, RoleResponse, UpdateRoleUseCase>();

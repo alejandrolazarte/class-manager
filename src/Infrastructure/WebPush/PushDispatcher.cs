@@ -37,6 +37,11 @@ public sealed class PushDispatcher
             query = query.Where(subscription => clientIds.Contains(subscription.ClientId));
         }
 
+        if (push.UserIds is { } userIds)
+        {
+            query = query.Where(subscription => userIds.Contains(subscription.UserId));
+        }
+
         var payload = Serialize(push.Message);
         foreach (var subscription in await query.ToListAsync(cancellationToken))
         {

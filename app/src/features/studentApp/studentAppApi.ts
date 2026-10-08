@@ -37,6 +37,24 @@ export function inviteStudentApp(
   );
 }
 
+const guardianConsentsPath = `${studentAppPath}/guardian-consents`;
+const authorizationSegment = "authorization";
+const refusalSegment = "refusal";
+
+export function giveGuardianConsentInApp(invitationId: string): Promise<void> {
+  return httpClient.post<void>(
+    `${guardianConsentsPath}/${encodeURIComponent(invitationId)}/${authorizationSegment}`,
+    {},
+  );
+}
+
+export function refuseGuardianConsentInApp(invitationId: string): Promise<void> {
+  return httpClient.post<void>(
+    `${guardianConsentsPath}/${encodeURIComponent(invitationId)}/${refusalSegment}`,
+    {},
+  );
+}
+
 export function getStudentAppShop(): Promise<StudentAppShop> {
   return httpClient.get<StudentAppShop>(shopPath);
 }

@@ -5,6 +5,9 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
 {
     public void Add(ClientInvitation invitation) => context.ClientInvitations.Add(invitation);
 
+    public Task<ClientInvitation?> FindForUpdateAsync(Guid invitationId, CancellationToken cancellationToken) =>
+        context.ClientInvitations.FirstOrDefaultAsync(invitation => invitation.Id == invitationId, cancellationToken);
+
     public async Task<IReadOnlyList<ClientInvitation>> ListPendingForUpdateByPersonAsync(
         Guid clientId,
         Guid? studentId,

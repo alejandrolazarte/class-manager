@@ -7,12 +7,16 @@ internal static class StudentAppPushTexts
     public const string NewsUrl = "/student-app/news";
     public const string OrdersUrl = "/student-app/orders";
     public const string OrderReadyTitle = "Tu pedido está listo";
+    public const string HomeUrl = "/student-app";
+    public const string GuardianConsentBody = "Entrá a la app para autorizar o no su acceso.";
 
     private const int BodyMaxLength = 160;
     private const string Ellipsis = "…";
     private const char NameSeparator = ' ';
 
     private static readonly string[] Weekdays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+    public static string GuardianConsentTitle(string studentFullName) => $"{FirstNameOf(studentFullName)} quiere usar la app";
 
     public static string ClassCancelledTitle(string classGroupName) => $"Se suspende {classGroupName}";
 
@@ -24,7 +28,7 @@ internal static class StudentAppPushTexts
 
     public static string FeedbackTitle(string? instructorFullName, string studentFullName)
     {
-        var studentFirstName = studentFullName.Split(NameSeparator, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? studentFullName;
+        var studentFirstName = FirstNameOf(studentFullName);
         return instructorFullName is null
             ? $"Comentario sobre la clase de {studentFirstName}"
             : $"{instructorFullName} comentó la clase de {studentFirstName}";
@@ -32,4 +36,7 @@ internal static class StudentAppPushTexts
 
     public static string Shorten(string text) =>
         text.Length <= BodyMaxLength ? text : $"{text[..(BodyMaxLength - Ellipsis.Length)]}{Ellipsis}";
+
+    private static string FirstNameOf(string fullName) =>
+        fullName.Split(NameSeparator, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? fullName;
 }

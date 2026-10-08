@@ -16,6 +16,21 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
         return Task.CompletedTask;
     }
 
+    public async Task GuardianConsentRequestedAsync(ClientInvitation invitation, string studentFullName, CancellationToken cancellationToken)
+    {
+        var clientUserIds = await context.ClientAccounts.AsNoTracking()
+            .Where(account => account.ClientId == invitation.ClientId && account.StudentId == null)
+            .Select(account => account.UserId)
+            .ToListAsync(cancellationToken);
+        publisher.PublishToStudentAccounts(
+            invitation.ClientId,
+            clientUserIds,
+            new PushMessage(
+                StudentAppPushTexts.GuardianConsentTitle(studentFullName),
+                StudentAppPushTexts.GuardianConsentBody,
+                StudentAppPushTexts.HomeUrl));
+    }
+
     public async Task ClassCancelledAsync(ClassSession session, CancellationToken cancellationToken)
     {
         var business = await context.Businesses.AsNoTracking()

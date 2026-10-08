@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
@@ -28,6 +29,7 @@ public sealed class InviteStudentAppUseCase(
     ICurrentMember currentMember,
     ISecretTokenGenerator secretTokenGenerator,
     IEmailSender emailSender,
+    IStudentAppNotificationService studentAppNotificationService,
     IWebAppLinks webAppLinks,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
@@ -124,6 +126,7 @@ public sealed class InviteStudentAppUseCase(
                 PersonAge.OwnAccountMinimumAge(business.DefaultCountryCallingCode),
                 webAppLinks.AuthorizeStudentApp(guardianToken.Value));
             await emailSender.SendAsync(new EmailMessage(client.Email!, GuardianEmailSubject, guardianContent, business.Id), cancellationToken);
+            await studentAppNotificationService.GuardianConsentRequestedAsync(invitation.Value!, recipient.Value.StudentFullName ?? string.Empty, cancellationToken);
         }
         else
         {

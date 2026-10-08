@@ -51,6 +51,19 @@ public static class StudentAppRequests
         return Uri.UnescapeDataString(link[WebAppAuthorizeStudentAppUrl.Length..]);
     }
 
+    public static async Task<HttpClient> SignInClientOfFamilyAsync(this ApiFixture fixture, HttpClient team, Guid clientId, string clientEmail)
+    {
+        (await team.PostStudentAppInvitationAsync(clientId, clientEmail)).EnsureSuccessStatusCode();
+        using var anonymous = fixture.ApiFactory.CreateClient();
+        using var accepted = await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(clientEmail));
+        accepted.EnsureSuccessStatusCode();
+        var tokens = (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
+        return fixture.CreateClientWithToken(tokens.AccessToken);
+    }
+
+    public static Task<HttpResponseMessage> PostGuardianConsentInAppAsync(this HttpClient httpClient, Guid invitationId) =>
+        httpClient.PostAsync(new Uri($"{ApiRoutes.StudentApp}/guardian-consents/{invitationId}{ApiRoutes.Authorization}", UriKind.Relative), null);
+
     public static Task<HttpResponseMessage> PostGiveGuardianConsentAsync(this HttpClient httpClient, string token) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.Authentication + ApiRoutes.GiveGuardianConsent, new GiveGuardianConsentCommand(token), ApiRequests.JsonOptions);

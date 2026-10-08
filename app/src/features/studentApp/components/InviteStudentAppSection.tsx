@@ -14,7 +14,7 @@ import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
 import { emailAddressPattern } from "@/forms/emailAddress";
-import { translate } from "@/i18n/translate";
+import { TranslationKey, translate } from "@/i18n/translate";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -27,6 +27,16 @@ interface InviteStudentAppSectionProps {
   client: ClientDetails;
   student?: Student;
 }
+
+const pendingLabels: Partial<Record<StudentAppAccessStatus, TranslationKey>> = {
+  Invited: "student.app.resend",
+  AwaitingGuardianConsent: "student.app.remindGuardian",
+};
+
+const pendingAccessibilityLabels: Partial<Record<StudentAppAccessStatus, TranslationKey>> = {
+  Invited: "student.app.resendAccessibility",
+  AwaitingGuardianConsent: "student.app.remindGuardianAccessibility",
+};
 
 const statusTones: Record<StudentAppAccessStatus, TextTone> = {
   NotInvited: "muted",
@@ -98,7 +108,12 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
       });
       showToast(
         invitation.awaitsGuardianConsent
-          ? translate("student.invite.guardianAsked", { email: client.email ?? "" })
+          ? translate(
+              status === "AwaitingGuardianConsent"
+                ? "student.invite.guardianReminded"
+                : "student.invite.guardianAsked",
+              { email: client.email ?? "" },
+            )
           : translate("student.invite.sent"),
       );
       setIsAskingEmail(false);
@@ -132,6 +147,19 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const isFormFilled = email.trim().length > 0 && (!needsBirthDate || birthDate.length > 0);
   const Container = student ? View : Card;
 
+  const actionButton =
+    status === "Active" || isAskingEmail ? null : (
+      <Button
+        size="medium"
+        label={translate(pendingLabels[status] ?? "student.app.invite")}
+        accessibilityLabel={translate(
+          pendingAccessibilityLabels[status] ?? "student.app.inviteAccessibility",
+        )}
+        onPress={invite}
+        isLoading={isSending}
+      />
+    );
+
   return (
     <Container className={student ? "gap-3 rounded-2xl bg-muted p-3" : "gap-3 p-3.5"}>
       <View className="flex-row items-center gap-3">
@@ -144,18 +172,9 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             {translate(`student.app.${status}`, { email: invitedEmail ?? "" })}
           </AppText>
         </View>
-        {status === "Active" || isAskingEmail ? null : (
-          <Button
-            size="medium"
-            label={translate(isPending ? "student.app.resend" : "student.app.invite")}
-            accessibilityLabel={translate(
-              isPending ? "student.app.resendAccessibility" : "student.app.inviteAccessibility",
-            )}
-            onPress={invite}
-            isLoading={isSending}
-          />
-        )}
+        {student ? null : actionButton}
       </View>
+      {student ? actionButton : null}
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
       {isAskingEmail ? (
         <View className={student ? "gap-2.5" : "gap-2.5 rounded-2xl bg-muted p-3"}>

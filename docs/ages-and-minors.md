@@ -37,7 +37,8 @@ Inviting a student below the minimum age does not email the student. It emails t
 
 - **Autorizar** (`POST /api/auth/student-app-invitations/guardian-consent/accept`) stores `GuardianConsentedAt` and `GuardianEmail` on the invitation, which is the record that the parents consented, and only then emails the student their own invitation.
 - **No autorizar** (`.../guardian-consent/decline`) closes the invitation and notifies the team member who sent it.
-- While it waits, the client card shows "Falta que su responsable autorice".
+- If the client already uses the app, they also get a push notification ("Tomás quiere usar la app") and a card on the home of their app with the same two buttons (`POST /api/student-app/guardian-consents/{invitationId}/authorization` or `/refusal`). Only the client's own account sees it: the accounts of the students of the family get `404`.
+- While it waits, the client card shows "Falta que su responsable autorice" and the button **Recordar al responsable**, which sends the request again.
 
 The country comes from the branch's default calling code; add a country to `PersonAge` when the app reaches it.
 

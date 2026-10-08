@@ -114,9 +114,16 @@ export interface StudentAppHome {
   currencyCode: string;
   clientFullName: string;
   signedInFullName: string;
+  pendingGuardianConsents: StudentAppGuardianConsent[];
   students: AccountStudent[];
   billing: StudentAppBilling;
   levels: StudentAppLevel[];
+}
+
+export interface StudentAppGuardianConsent {
+  invitationId: string;
+  studentFullName: string;
+  studentEmail: string;
 }
 
 export interface InviteStudentAppRequest {
