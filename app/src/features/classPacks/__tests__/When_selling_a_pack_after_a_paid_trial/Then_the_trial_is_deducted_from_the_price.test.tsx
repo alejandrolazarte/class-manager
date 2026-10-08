@@ -32,6 +32,9 @@ describe("When selling a pack after a paid trial", () => {
 
   it("Then the trial is deducted from the price", async () => {
     await renderWithProviders(<SellClassPackScreen clientId={clientId} />);
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("classPacks.sell.choosePack") }),
+    );
     await fireEvent.press(await screen.findByRole("button", { name: classPack.name }));
 
     await fireEvent.press(

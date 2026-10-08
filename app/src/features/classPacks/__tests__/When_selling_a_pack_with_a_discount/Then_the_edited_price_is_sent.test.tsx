@@ -31,6 +31,9 @@ describe("When selling a pack with a discount", () => {
   it("Then the edited price is sent", async () => {
     await renderWithProviders(<SellClassPackScreen clientId={clientId} />);
 
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("classPacks.sell.choosePack") }),
+    );
     await fireEvent.press(await screen.findByRole("button", { name: classPack.name }));
     const priceField = screen.getByLabelText(translate("classPacks.sell.price"));
     expect(priceField).toHaveDisplayValue("160");

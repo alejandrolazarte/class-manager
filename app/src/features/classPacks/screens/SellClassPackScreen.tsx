@@ -7,6 +7,10 @@ import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import {
+  ClassPackPicker,
+  classPackSummaryLine,
+} from "@/features/classPacks/components/ClassPackPicker";
+import {
   SellClassPackFormValues,
   sellClassPackSchema,
   toSellClassPackRequest,
@@ -22,13 +26,12 @@ import {
   formatBirthDateAsTyped,
   formatBirthDateForDisplay,
 } from "@/features/students/birthDateFormatting";
-import { translate, translateCount } from "@/i18n/translate";
+import { translate } from "@/i18n/translate";
 import { clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
-import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Chip } from "@/ui/Chip";
+import { PickerField } from "@/ui/PickerField";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
@@ -51,6 +54,7 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
   const { data: classPacks = [], isPending } = useClassPacks(false);
   const sellClassPackMutation = useSellClassPack(clientId);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const [isPackPickerOpen, setIsPackPickerOpen] = useState(false);
   const form = useForm<SellClassPackFormValues>({
     resolver: zodResolver(sellClassPackSchema),
     defaultValues: {
@@ -125,36 +129,41 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
       <Controller
         control={form.control}
         name="classPackId"
-        render={({ field }) => (
-          <View className="gap-2">
-            <AppText variant="label" tone="muted">
-              {withRequiredMark(translate("classPacks.sell.pack"))}
-            </AppText>
-            <View className="flex-row flex-wrap gap-2">
-              {classPacks.map((classPack) => (
-                <Chip
-                  key={classPack.id}
-                  label={classPack.name}
-                  accessibilityLabel={classPack.name}
-                  isSelected={field.value === classPack.id}
-                  onPress={() => {
+        render={({ field }) => {
+          const pickedClassPack = classPacks.find((classPack) => classPack.id === field.value);
+          return (
+            <View>
+              <PickerField
+                label={withRequiredMark(translate("classPacks.sell.pack"))}
+                chooseLabel={translate("classPacks.sell.choosePack")}
+                removeLabel={translate("classPacks.sell.removePack")}
+                chooseIcon="classPacks"
+                picked={
+                  pickedClassPack === undefined
+                    ? null
+                    : {
+                        name: pickedClassPack.name,
+                        detail: classPackSummaryLine(pickedClassPack, currencyCode),
+                      }
+                }
+                onChoose={() => setIsPackPickerOpen(true)}
+                onRemove={() => field.onChange("")}
+              />
+              {isPackPickerOpen ? (
+                <ClassPackPicker
+                  testID="sell-class-pack-picker"
+                  classPacks={classPacks}
+                  onPick={(classPack) => {
                     field.onChange(classPack.id);
                     applyPrice(classPack.id, selectedTrialLessonId);
+                    setIsPackPickerOpen(false);
                   }}
+                  onClose={() => setIsPackPickerOpen(false)}
                 />
-              ))}
+              ) : null}
             </View>
-            {classPacks
-              .filter((classPack) => classPack.id === field.value)
-              .map((classPack) => (
-                <AppText key={classPack.id} variant="caption" tone="muted">
-                  {translateCount("classPacks.list.summary", classPack.classCount, {
-                    price: formatMoney(classPack.price, currencyCode),
-                  })}
-                </AppText>
-              ))}
-          </View>
-        )}
+          );
+        }}
       />
       {deductibleTrials.length > 0 ? (
         <Controller

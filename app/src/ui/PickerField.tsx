@@ -82,6 +82,7 @@ interface PickerFieldProps {
   onChoose: () => void;
   onRemove: () => void;
   hint?: string;
+  chooseIcon?: IconName;
 }
 
 export function PickerField({
@@ -92,6 +93,7 @@ export function PickerField({
   onChoose,
   onRemove,
   hint,
+  chooseIcon,
 }: PickerFieldProps) {
   return (
     <View className="gap-2">
@@ -99,7 +101,7 @@ export function PickerField({
         {label}
       </AppText>
       {picked === null ? (
-        <PickerChooseButton label={chooseLabel} hint={hint} onPress={onChoose} />
+        <PickerChooseButton label={chooseLabel} hint={hint} icon={chooseIcon} onPress={onChoose} />
       ) : (
         <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
           <Avatar name={picked.name} size="small" />
