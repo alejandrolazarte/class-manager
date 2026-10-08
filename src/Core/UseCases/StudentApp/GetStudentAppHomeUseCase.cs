@@ -2,6 +2,7 @@ using System.Globalization;
 using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Achievements;
@@ -33,7 +34,8 @@ public sealed class GetStudentAppHomeUseCase(
     IFeeScheduleRepository feeScheduleRepository,
     IPaymentRepository paymentRepository,
     IClassBalanceService classBalanceService,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IDocumentStorageService documentStorage)
     : IUseCase<GetStudentAppHomeQuery, StudentAppHomeResponse>
 {
     public const int LookAheadDays = 14;
@@ -211,13 +213,16 @@ public sealed class GetStudentAppHomeUseCase(
             isMakeup);
     }
 
-    private static List<StudentAppClassMaterialResponse> Materials(IEnumerable<ClassGroup> classGroups) =>
+    private List<StudentAppClassMaterialResponse> Materials(IEnumerable<ClassGroup> classGroups) =>
     [
         .. classGroups
-            .Where(classGroup => classGroup.MaterialUrl is not null)
+            .Where(classGroup => classGroup.MaterialUrl is not null || classGroup.MaterialDocument is not null)
             .DistinctBy(classGroup => classGroup.Id)
             .OrderBy(classGroup => classGroup.Name, StringComparer.CurrentCultureIgnoreCase)
-            .Select(classGroup => new StudentAppClassMaterialResponse(classGroup.Id, classGroup.Name, classGroup.MaterialUrl!)),
+            .Select(classGroup => new StudentAppClassMaterialResponse(
+                classGroup.Id,
+                classGroup.Name,
+                classGroup.MaterialUrl ?? documentStorage.PublicUrlOf(classGroup.MaterialDocument!).ToString())),
     ];
 
     private static StudentAppAttendanceResponse Attendance(

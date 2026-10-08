@@ -1,3 +1,4 @@
+import { PickedFile } from "@/api/fileForm";
 import { ClassGroup } from "@/features/classGroups/types";
 import { Instructor } from "@/features/instructors/types";
 
@@ -24,8 +25,19 @@ export function buildClassGroup(overrides: Partial<ClassGroup> = {}): ClassGroup
     capacity: 8,
     location: "Pileta chica",
     materialUrl: null,
+    materialFile: null,
     isActive: true,
     enrolledCount: 0,
+    ...overrides,
+  };
+}
+
+export function buildPickedMaterialFile(overrides: Partial<PickedFile> = {}): PickedFile {
+  return {
+    name: "guia-natacion.pdf",
+    uri: "file:///cache/guia-natacion.pdf",
+    mimeType: "application/pdf",
+    size: 2_400_000,
     ...overrides,
   };
 }

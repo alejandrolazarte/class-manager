@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
@@ -14,7 +15,9 @@ public sealed class UpdateClassGroupUseCase(
     IEnrollmentRepository enrollmentRepository,
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IDocumentRepository documentRepository,
+    IDocumentStorageService documentStorage)
     : IUseCase<UpdateClassGroupCommand, ClassGroupResponse>
 {
     private const string CapacityBelowEnrolledMessage = "Capacity can't be lower than the students currently enrolled.";
@@ -68,14 +71,25 @@ public sealed class UpdateClassGroupUseCase(
             return update.Error!;
         }
 
+        var previousMaterialFile = classGroup.MaterialDocument;
         var material = classGroup.ShareMaterial(details.MaterialUrl);
         if (material.IsFailure)
         {
             return material.Error!;
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        var droppedMaterialFile = classGroup.MaterialDocument is null ? previousMaterialFile : null;
+        if (droppedMaterialFile is not null)
+        {
+            documentRepository.Remove(droppedMaterialFile);
+        }
 
-        return ClassGroupResponse.From(classGroup, instructor.Value.FullName, enrolledCount);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (droppedMaterialFile is not null)
+        {
+            await documentStorage.DeleteFileAsync(droppedMaterialFile, cancellationToken);
+        }
+
+        return ClassGroupResponse.From(classGroup, instructor.Value.FullName, enrolledCount, documentStorage);
     }
 }

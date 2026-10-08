@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
@@ -13,7 +14,8 @@ public sealed class GetClassGroupUseCase(
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
     IBusinessCalendarService businessCalendar,
-    IAccessScopes accessScopes)
+    IAccessScopes accessScopes,
+    IDocumentStorageService documentStorage)
     : IUseCase<GetClassGroupQuery, ClassGroupResponse>
 {
     public async Task<Result<ClassGroupResponse>> ExecuteAsync(GetClassGroupQuery command, CancellationToken cancellationToken)
@@ -29,6 +31,6 @@ public sealed class GetClassGroupUseCase(
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var enrolledCount = await enrollmentRepository.CountCurrentAsync(classGroup.Id, today, cancellationToken);
 
-        return ClassGroupResponse.From(classGroup, instructor?.FullName ?? string.Empty, enrolledCount);
+        return ClassGroupResponse.From(classGroup, instructor?.FullName ?? string.Empty, enrolledCount, documentStorage);
     }
 }

@@ -1,8 +1,10 @@
+import { PickedFile, toFileForm } from "@/api/fileForm";
 import { httpClient } from "@/api/httpClient";
 import { ClassGroup, SaveClassGroupRequest } from "@/features/classGroups/types";
 
 const classGroupsPath = "/api/class-groups";
 const activeSegment = "active";
+const materialSegment = "material";
 const includeInactiveParameters = { includeInactive: "true" };
 
 function classGroupPath(classGroupId: string): string {
@@ -32,4 +34,18 @@ export function setClassGroupActive(classGroupId: string, isActive: boolean): Pr
   return httpClient.put<ClassGroup>(`${classGroupPath(classGroupId)}/${activeSegment}`, {
     isActive,
   });
+}
+
+export function uploadClassMaterialFile(
+  classGroupId: string,
+  file: PickedFile,
+): Promise<ClassGroup> {
+  return httpClient.postForm<ClassGroup>(
+    `${classGroupPath(classGroupId)}/${materialSegment}`,
+    toFileForm(file),
+  );
+}
+
+export function removeClassMaterialFile(classGroupId: string): Promise<ClassGroup> {
+  return httpClient.delete<ClassGroup>(`${classGroupPath(classGroupId)}/${materialSegment}`);
 }
