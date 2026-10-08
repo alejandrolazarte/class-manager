@@ -92,6 +92,7 @@ export function buildAccountStudent(overrides: Partial<AccountStudent> = {}): Ac
     nextClasses: [buildStudentAppNextClass()],
     attendance: buildStudentAppAttendance(),
     latestFeedback: null,
+    materials: [],
     ...overrides,
   };
 }

@@ -24,7 +24,6 @@ describe("When selling a pack with a discount", () => {
       method: "Cash",
       notes: null,
       classDurationMinutes: null,
-      materialUrl: null,
       trialLessonId: null,
     });
   });

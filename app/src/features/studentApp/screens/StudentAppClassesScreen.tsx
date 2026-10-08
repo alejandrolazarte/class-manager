@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { ClassMaterialSection } from "@/features/studentApp/components/ClassMaterialSection";
 import { MakeupSection } from "@/features/studentApp/components/MakeupSection";
 import { PackClassSection } from "@/features/studentApp/components/PackClassSection";
 import { ScheduledClassCard } from "@/features/studentApp/components/ScheduledClassCard";
@@ -134,6 +135,7 @@ export function StudentAppClassesScreen() {
           />
         ))
       )}
+      <ClassMaterialSection materials={student.materials} />
       <PackClassSection studentId={student.id} days={days} />
       <MakeupSection studentId={student.id} days={days} />
     </ScrollScreen>

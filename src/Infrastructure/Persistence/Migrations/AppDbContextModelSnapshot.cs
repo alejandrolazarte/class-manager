@@ -329,6 +329,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
+                    b.Property<Guid?>("MaterialDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MaterialUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -347,9 +354,16 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("InstructorId");
 
+                    b.HasIndex("MaterialDocumentId")
+                        .IsUnique()
+                        .HasFilter("[MaterialDocumentId] IS NOT NULL");
+
                     b.HasIndex("TenantId", "IsActive", "StartTime");
 
-                    b.ToTable("ClassGroups");
+                    b.ToTable("ClassGroups", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClassGroups_OneMaterial", "[MaterialUrl] IS NULL OR [MaterialDocumentId] IS NULL");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
@@ -372,10 +386,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
-
-                    b.Property<string>("MaterialUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -472,10 +482,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("MaterialUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Method")
                         .IsRequired()
@@ -2383,11 +2389,18 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "MaterialDocument")
+                        .WithMany()
+                        .HasForeignKey("MaterialDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("MaterialDocument");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>

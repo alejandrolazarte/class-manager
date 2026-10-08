@@ -1,6 +1,12 @@
 export type Weekday =
   "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
 
+export interface ClassMaterialFile {
+  id: string;
+  url: string;
+  sizeInBytes: number;
+}
+
 export interface ClassGroup {
   id: string;
   name: string;
@@ -12,6 +18,8 @@ export interface ClassGroup {
   durationMinutes: number;
   capacity: number;
   location: string | null;
+  materialUrl: string | null;
+  materialFile: ClassMaterialFile | null;
   isActive: boolean;
   enrolledCount: number;
 }
@@ -24,4 +32,5 @@ export interface SaveClassGroupRequest {
   durationMinutes: number;
   capacity: number;
   location: string | null;
+  materialUrl: string | null;
 }

@@ -76,6 +76,22 @@ The app keeps photo changes in the form and sends them when the user taps Guarda
 
 **Public photos can be opened by anyone with the URL.** URLs contain random ids and can't be guessed or listed, and shop photos are meant to be seen by students.
 
+## Class material files
+
+A class has one optional material for its students: a link (`MaterialUrl`) or an uploaded PDF (`MaterialDocumentId`, a nullable foreign key to `Documents`), never both (check constraint `CK_ClassGroups_OneMaterial`). A single file needs no link table, so it is a column on `ClassGroups` with a filtered unique index.
+
+| Endpoint | What it does |
+|---|---|
+| `POST /api/class-groups/{id}/material` | Uploads a PDF (detected by its `%PDF-` signature, never by name, up to 20 MB). Clears the link and deletes the previous file. 400 `class_group.material_unsupported` or `class_group.material_too_large` |
+| `DELETE /api/class-groups/{id}/material` | Removes the file. 404 `class_group.material_file_not_found` if there is none |
+| `PUT /api/class-groups/{id}` with a `materialUrl` | Sets the link and deletes the file, if any |
+
+Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student app returns the file's public URL in place of the link, so students open both the same way.
+
+**Material files are public, like shop photos.** Decision (2026-10-08): a signed, short-lived link would only stop students from sharing the URL; they can still download the PDF and pass it on, as they can with printed material or a public Drive link. Private files stay for sensitive documents (medical certificates, IDs).
+
+The app keeps the file change in the form and sends it on Guardar: the removal first, then the class, then the upload. If the upload fails the class is still saved and a message says the PDF was not uploaded.
+
 ## Configuration
 
 | Setting | Value |

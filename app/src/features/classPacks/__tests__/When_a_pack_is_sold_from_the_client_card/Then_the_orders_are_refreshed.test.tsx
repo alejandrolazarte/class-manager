@@ -33,7 +33,6 @@ describe("When a pack is sold from the client card", () => {
       method: "Cash",
       notes: null,
       classDurationMinutes: null,
-      materialUrl: null,
       trialLessonId: null,
     });
   });

@@ -29,12 +29,15 @@ public sealed record StudentAppAttendanceResponse(
 
 public sealed record StudentAppFeedbackResponse(DateOnly Date, string ClassName, string? InstructorFullName, string Text);
 
+public sealed record StudentAppClassMaterialResponse(Guid ClassGroupId, string ClassName, string Url);
+
 public sealed record AccountStudentResponse(
     Guid Id,
     string FullName,
     IReadOnlyList<StudentAppNextClassResponse> NextClasses,
     StudentAppAttendanceResponse Attendance,
-    StudentAppFeedbackResponse? LatestFeedback);
+    StudentAppFeedbackResponse? LatestFeedback,
+    IReadOnlyList<StudentAppClassMaterialResponse> Materials);
 
 public sealed record StudentAppMonthlyFeeResponse(string Month, decimal? Fee, decimal Paid, decimal Balance, FeeStatus Status);
 

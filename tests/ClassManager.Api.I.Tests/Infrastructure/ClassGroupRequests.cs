@@ -34,4 +34,19 @@ public static class ClassGroupRequests
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<ClassGroupResponse>(ApiRequests.JsonOptions))!;
     }
+
+    public static async Task ShareClassGroupMaterialAsync(this HttpClient httpClient, ClassGroupResponse classGroup, string materialUrl)
+    {
+        var details = new ClassGroupDetails(
+            classGroup.Name,
+            classGroup.InstructorId,
+            classGroup.Weekdays,
+            classGroup.StartTime,
+            classGroup.DurationMinutes,
+            classGroup.Capacity,
+            classGroup.Location,
+            materialUrl);
+        using var response = await httpClient.PutAsJsonAsync($"{ApiRoutes.ClassGroups}/{classGroup.Id}", details, ApiRequests.JsonOptions);
+        response.EnsureSuccessStatusCode();
+    }
 }

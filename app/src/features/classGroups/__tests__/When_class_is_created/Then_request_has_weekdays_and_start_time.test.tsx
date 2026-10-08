@@ -32,6 +32,7 @@ describe("When class is created", () => {
         durationMinutes: 45,
         capacity: 8,
         location: null,
+        materialUrl: null,
       }),
     );
   });

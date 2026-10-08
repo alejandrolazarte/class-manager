@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
@@ -12,7 +13,8 @@ public sealed class SetClassGroupActiveUseCase(
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
     IUnitOfWork unitOfWork,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IDocumentStorageService documentStorage)
     : IUseCase<SetClassGroupActiveCommand, ClassGroupResponse>
 {
     private const string HasEnrollmentsMessage = "The class group still has enrolled students.";
@@ -41,7 +43,7 @@ public sealed class SetClassGroupActiveUseCase(
             classGroup.Deactivate();
             await unitOfWork.SaveChangesAsync(cancellationToken);
             var instructor = await instructorRepository.GetByIdAsync(classGroup.InstructorId, cancellationToken);
-            return ClassGroupResponse.From(classGroup, instructor?.FullName ?? string.Empty, enrolledCount);
+            return ClassGroupResponse.From(classGroup, instructor?.FullName ?? string.Empty, enrolledCount, documentStorage);
         }
 
         var activeInstructor = await ClassGroupRules.FindActiveInstructorAsync(instructorRepository, classGroup.InstructorId, cancellationToken);
@@ -60,6 +62,6 @@ public sealed class SetClassGroupActiveUseCase(
         classGroup.Activate();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ClassGroupResponse.From(classGroup, activeInstructor.Value!.FullName, enrolledCount);
+        return ClassGroupResponse.From(classGroup, activeInstructor.Value!.FullName, enrolledCount, documentStorage);
     }
 }

@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
@@ -13,7 +14,8 @@ public sealed class CreateClassGroupUseCase(
     IClassGroupRepository classGroupRepository,
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
-    IBusinessCalendarService businessCalendar)
+    IBusinessCalendarService businessCalendar,
+    IDocumentStorageService documentStorage)
     : IUseCase<CreateClassGroupCommand, ClassGroupResponse>
 {
     public async Task<Result<ClassGroupResponse>> ExecuteAsync(CreateClassGroupCommand command, CancellationToken cancellationToken)
@@ -37,6 +39,12 @@ public sealed class CreateClassGroupUseCase(
             return classGroup.Error!;
         }
 
+        var material = classGroup.Value!.ShareMaterial(details.MaterialUrl);
+        if (material.IsFailure)
+        {
+            return material.Error!;
+        }
+
         var conflict = await ClassGroupRules.FindInstructorConflictAsync(
             classGroupRepository, instructor.Value.Id, classGroup.Value!.Id, schedule.Value!, cancellationToken);
         conflict ??= await InstructorAgendaRules.FindWeeklyPrivateLessonConflictAsync(
@@ -49,6 +57,6 @@ public sealed class CreateClassGroupUseCase(
         classGroupRepository.Add(classGroup.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ClassGroupResponse.From(classGroup.Value, instructor.Value.FullName, enrolledCount: 0);
+        return ClassGroupResponse.From(classGroup.Value, instructor.Value.FullName, enrolledCount: 0, documentStorage);
     }
 }

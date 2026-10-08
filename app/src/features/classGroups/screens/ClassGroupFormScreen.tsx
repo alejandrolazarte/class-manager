@@ -21,9 +21,15 @@ import {
 import { ClassGroup, Weekday } from "@/features/classGroups/types";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import {
+  ClassMaterialFileChange,
   useSaveClassGroup,
   useSetClassGroupActive,
 } from "@/features/classGroups/useClassGroupMutations";
+import { ShownMaterialFile } from "@/features/classGroups/components/ClassMaterialField";
+import {
+  classMaterialMaximumSizeInBytes,
+  pickClassMaterialFile,
+} from "@/features/classGroups/pickClassMaterialFile";
 import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
@@ -63,6 +69,10 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [busyConflict, setBusyConflict] = useState<BusyConflict | null>(null);
   const [enrolledStudentCount, setEnrolledStudentCount] = useState(0);
+  const [materialFileChange, setMaterialFileChange] = useState<ClassMaterialFileChange>({
+    kind: "unchanged",
+  });
+  const [materialFileError, setMaterialFileError] = useState<string | null>(null);
   const form = useForm<ClassGroupFormValues>({
     resolver: zodResolver(classGroupSchema),
     defaultValues: toClassGroupFormValues({
@@ -84,6 +94,27 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
   const otherClassGroup = allClassGroups.find(
     (candidate) => candidate.id === busyConflict?.otherClassGroupId,
   );
+
+  const shownMaterialFile = shownMaterialFileOf(classGroup, materialFileChange);
+
+  const pickMaterialFile = async () => {
+    const file = await pickClassMaterialFile();
+    if (file === null) {
+      return;
+    }
+    if ((file.size ?? 0) > classMaterialMaximumSizeInBytes) {
+      setMaterialFileError(translate("classGroups.validation.materialFileTooLarge"));
+      return;
+    }
+    setMaterialFileError(null);
+    form.setValue("materialUrl", "");
+    setMaterialFileChange({ kind: "picked", file });
+  };
+
+  const removeMaterialFile = () => {
+    setMaterialFileError(null);
+    setMaterialFileChange(classGroup?.materialFile ? { kind: "removed" } : { kind: "unchanged" });
+  };
 
   const handleSaveError = (saveError: unknown) => {
     if (isApiError(saveError) && saveError.hasCode(classGroupErrorCodes.hasEnrollments)) {
@@ -109,11 +140,18 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
     setSubmissionFailure(null);
     setBusyConflict(null);
     try {
-      await saveClassGroupMutation.mutateAsync({
+      const outcome = await saveClassGroupMutation.mutateAsync({
         classGroupId: classGroup?.id,
         request: toSaveClassGroupRequest(formValues),
+        materialFileChange,
       });
-      showToast(translate("classGroups.form.saved"));
+      showToast(
+        translate(
+          outcome === "saved"
+            ? "classGroups.form.saved"
+            : "classGroups.form.savedWithoutMaterialFile",
+        ),
+      );
       router.back();
     } catch (saveError) {
       handleSaveError(saveError);
@@ -174,7 +212,16 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
           />
         </Banner>
       ) : null}
-      <ClassGroupForm form={form} instructors={instructors} />
+      <ClassGroupForm
+        form={form}
+        instructors={instructors}
+        material={{
+          materialFile: shownMaterialFile,
+          errorMessage: materialFileError,
+          onPickFile: pickMaterialFile,
+          onRemoveFile: removeMaterialFile,
+        }}
+      />
       <View className="gap-3">
         <Button
           label={translate("common.save")}
@@ -196,6 +243,25 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
       </View>
     </SettingsFormScreenLayout>
   );
+}
+
+function shownMaterialFileOf(
+  classGroup: ClassGroup | undefined,
+  materialFileChange: ClassMaterialFileChange,
+): ShownMaterialFile | null {
+  if (materialFileChange.kind === "picked") {
+    const { file } = materialFileChange;
+    return { name: file.name, sizeInBytes: file.size, url: null };
+  }
+  const savedFile = classGroup?.materialFile;
+  if (materialFileChange.kind === "removed" || savedFile === null || savedFile === undefined) {
+    return null;
+  }
+  return {
+    name: translate("classGroups.form.savedMaterialFile"),
+    sizeInBytes: savedFile.sizeInBytes,
+    url: savedFile.url,
+  };
 }
 
 export function ClassGroupFormScreen({ classGroupId, initialWeekday }: ClassGroupFormScreenProps) {

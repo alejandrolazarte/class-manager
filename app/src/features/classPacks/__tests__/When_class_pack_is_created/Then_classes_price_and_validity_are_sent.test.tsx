@@ -36,7 +36,6 @@ describe("When class pack is created", () => {
         price: 160,
         validityMonths: 2,
         classDurationMinutes: null,
-        materialUrl: null,
         classGroupIds: [],
       }),
     );

@@ -8,6 +8,9 @@ public static class ClassGroupErrorCodes
     public const string Full = "class_group.full";
     public const string HasEnrollments = "class_group.has_enrollments";
     public const string CapacityBelowEnrolled = "class_group.capacity_below_enrolled";
+    public const string MaterialUnsupported = "class_group.material_unsupported";
+    public const string MaterialTooLarge = "class_group.material_too_large";
+    public const string MaterialFileNotFound = "class_group.material_file_not_found";
     public const string ConflictingClassGroupIdDetail = "classGroupId";
     public const string CapacityDetail = "capacity";
     public const string EnrollmentCountDetail = "enrollmentCount";

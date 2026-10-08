@@ -7,4 +7,5 @@ public sealed record ClassGroupDetails(
     string? StartTime,
     int? DurationMinutes,
     int? Capacity,
-    string? Location);
+    string? Location,
+    string? MaterialUrl = null);

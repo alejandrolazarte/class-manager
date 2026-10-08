@@ -109,6 +109,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<CreateClassGroupCommand, ClassGroupResponse, CreateClassGroupUseCase>();
         services.AddUseCase<UpdateClassGroupCommand, ClassGroupResponse, UpdateClassGroupUseCase>();
         services.AddUseCase<SetClassGroupActiveCommand, ClassGroupResponse, SetClassGroupActiveUseCase>();
+        services.AddUseCase<UploadClassMaterialFileCommand, ClassGroupResponse, UploadClassMaterialFileUseCase>();
+        services.AddUseCase<RemoveClassMaterialFileCommand, ClassGroupResponse, RemoveClassMaterialFileUseCase>();
         services.AddUseCase<EnrollStudentCommand, EnrollmentResponse, EnrollStudentUseCase>();
         services.AddUseCase<EndEnrollmentCommand, EndEnrollmentResponse, EndEnrollmentUseCase>();
         services.AddUseCase<ListClassRosterQuery, IReadOnlyList<RosterEntryResponse>, ListClassRosterUseCase>();

@@ -14,7 +14,6 @@ public sealed record ClassPackPurchaseResponse(
     PaymentMethod Method,
     string? Notes,
     int? ClassDurationMinutes,
-    string? MaterialUrl,
     Guid? TrialLessonId)
 {
     public static ClassPackPurchaseResponse From(ClassPackPurchase purchase) =>
@@ -29,6 +28,5 @@ public sealed record ClassPackPurchaseResponse(
             purchase.Method,
             purchase.Notes,
             purchase.ClassDurationMinutes,
-            purchase.MaterialUrl,
             purchase.TrialLessonId);
 }

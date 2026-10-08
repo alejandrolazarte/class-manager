@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Linking, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { ClassPackUsage } from "@/features/classPacks/types";
 import { useDeleteClassPackPurchase } from "@/features/classPacks/useClassPackMutations";
@@ -83,20 +83,6 @@ function PurchaseRow({ usage, title, details, canUndo, onUndo }: PurchaseRowProp
         <AppText variant="caption" tone="muted">
           {details.filter(Boolean).join(" · ")}
         </AppText>
-        {usage.materialUrl ? (
-          <Pressable
-            accessibilityRole="link"
-            accessibilityLabel={translate("classPacks.balance.openMaterial", {
-              name: usage.name,
-            })}
-            onPress={() => Linking.openURL(usage.materialUrl ?? "")}
-            className="self-start py-1"
-          >
-            <AppText variant="link" tone="primary">
-              {translate("classPacks.balance.material")}
-            </AppText>
-          </Pressable>
-        ) : null}
       </View>
       {canUndo ? (
         <Pressable

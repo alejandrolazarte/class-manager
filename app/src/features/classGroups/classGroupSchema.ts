@@ -17,11 +17,14 @@ export const classGroupLimits = {
   minimumCapacity: 1,
   maximumCapacity: 100,
   locationMaximumLength: 80,
+  materialUrlMaximumLength: 500,
 } as const;
 
 export const commonDurationsInMinutes = [30, 45, 60, 90] as const;
 
 const wholeNumberPattern = /^\d+$/;
+
+const httpsUrlPattern = /^https:\/\/\S+$/i;
 
 export function isWholeNumberBetween(value: string, minimum: number, maximum: number): boolean {
   const trimmedValue = value.trim();
@@ -76,6 +79,17 @@ export const classGroupSchema = z
         classGroupLimits.locationMaximumLength,
         translate("classGroups.validation.locationTooLong"),
       ),
+    materialUrl: z
+      .string()
+      .trim()
+      .max(
+        classGroupLimits.materialUrlMaximumLength,
+        translate("classGroups.validation.materialUrlInvalid"),
+      )
+      .refine(
+        (materialUrl) => materialUrl.length === 0 || httpsUrlPattern.test(materialUrl),
+        translate("classGroups.validation.materialUrlInvalid"),
+      ),
   })
   .refine(
     (formValues) =>
@@ -98,6 +112,7 @@ export const classGroupFieldNames = [
   "capacity",
   "instructorId",
   "location",
+  "materialUrl",
 ] as const satisfies readonly (keyof ClassGroupFormValues)[];
 
 export function toClassGroupFormValues({
@@ -118,6 +133,7 @@ export function toClassGroupFormValues({
       capacity: String(classGroup.capacity),
       instructorId: classGroup.instructorId,
       location: classGroup.location ?? "",
+      materialUrl: classGroup.materialUrl ?? "",
     };
   }
   return {
@@ -128,11 +144,13 @@ export function toClassGroupFormValues({
     capacity: "",
     instructorId: defaultInstructorId ?? "",
     location: "",
+    materialUrl: "",
   };
 }
 
 export function toSaveClassGroupRequest(formValues: ClassGroupFormValues): SaveClassGroupRequest {
   const location = formValues.location.trim();
+  const materialUrl = formValues.materialUrl.trim();
   return {
     name: formValues.name.trim(),
     instructorId: formValues.instructorId,
@@ -141,5 +159,6 @@ export function toSaveClassGroupRequest(formValues: ClassGroupFormValues): SaveC
     durationMinutes: Number(formValues.durationMinutes),
     capacity: Number(formValues.capacity.trim()),
     location: location.length > 0 ? location : null,
+    materialUrl: materialUrl.length > 0 ? materialUrl : null,
   };
 }

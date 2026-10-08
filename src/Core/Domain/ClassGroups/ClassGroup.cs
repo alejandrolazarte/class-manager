@@ -1,4 +1,5 @@
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Documents;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.ClassGroups;
@@ -10,10 +11,12 @@ public sealed class ClassGroup : ITenantOwned
     public const int MinimumCapacity = 1;
     public const int MaximumCapacity = 100;
     public const int LocationMaxLength = 80;
+    public const int MaterialUrlMaxLength = 500;
 
     private const string NameLengthMessage = "Name must be between 2 and 80 characters.";
     private const string CapacityRangeMessage = "Capacity must be between 1 and 100.";
     private const string LocationLengthMessage = "Location must be at most 80 characters.";
+    private const string MaterialUrlMessage = "The material link must be an https address of at most 500 characters.";
 
     private ClassGroup()
     {
@@ -28,6 +31,9 @@ public sealed class ClassGroup : ITenantOwned
     public int DurationMinutes { get; private set; }
     public int Capacity { get; private set; }
     public string? Location { get; private set; }
+    public string? MaterialUrl { get; private set; }
+    public Guid? MaterialDocumentId { get; private set; }
+    public Document? MaterialDocument { get; private set; }
     public bool IsActive { get; private set; }
 
     public ClassSchedule Schedule => ClassSchedule.FromStored(Weekdays, StartTime, DurationMinutes);
@@ -67,6 +73,43 @@ public sealed class ClassGroup : ITenantOwned
         Capacity = capacity.Value;
         Location = trimmedLocation;
         return Result.Success();
+    }
+
+    public Result ShareMaterial(string? materialUrl)
+    {
+        var trimmedUrl = string.IsNullOrWhiteSpace(materialUrl) ? null : materialUrl.Trim();
+        if (trimmedUrl is not null
+            && (trimmedUrl.Length > MaterialUrlMaxLength
+                || !Uri.TryCreate(trimmedUrl, UriKind.Absolute, out var parsedUrl)
+                || parsedUrl.Scheme != Uri.UriSchemeHttps))
+        {
+            return Result.Validation(MaterialUrlMessage, fieldName: nameof(MaterialUrl));
+        }
+
+        MaterialUrl = trimmedUrl;
+        if (trimmedUrl is not null)
+        {
+            RemoveMaterialFile();
+        }
+
+        return Result.Success();
+    }
+
+    public Document? ShareMaterialFile(Document file)
+    {
+        var replacedFile = RemoveMaterialFile();
+        MaterialUrl = null;
+        MaterialDocumentId = file.Id;
+        MaterialDocument = file;
+        return replacedFile;
+    }
+
+    public Document? RemoveMaterialFile()
+    {
+        var removedFile = MaterialDocument;
+        MaterialDocumentId = null;
+        MaterialDocument = null;
+        return removedFile;
     }
 
     public void Activate() => IsActive = true;

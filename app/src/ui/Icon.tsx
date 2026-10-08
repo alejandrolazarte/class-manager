@@ -92,6 +92,7 @@ const iconGlyphs = {
   recurringFee: "event-repeat",
   fieldError: "error",
   fieldValid: "check-circle",
+  material: "menu-book",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
 const iconSizes = {

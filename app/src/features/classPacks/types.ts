@@ -10,7 +10,6 @@ export interface ClassPack {
   validityMonths: number | null;
   isActive: boolean;
   classDurationMinutes: number | null;
-  materialUrl: string | null;
   classGroupIds: string[];
   images: CatalogImage[];
 }
@@ -22,7 +21,6 @@ export interface SaveClassPackRequest {
   price: number;
   validityMonths: number | null;
   classDurationMinutes: number | null;
-  materialUrl: string | null;
   classGroupIds: string[];
 }
 
@@ -37,7 +35,6 @@ export interface ClassPackPurchase {
   method: PaymentMethod;
   notes: string | null;
   classDurationMinutes: number | null;
-  materialUrl: string | null;
   trialLessonId: string | null;
 }
 
@@ -64,7 +61,6 @@ export interface ClassPackUsage {
   remainingClasses: number;
   status: ClassPackPurchaseStatus;
   classDurationMinutes: number | null;
-  materialUrl: string | null;
   recordedByUserId: string | null;
 }
 
