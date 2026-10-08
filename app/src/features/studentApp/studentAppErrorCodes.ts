@@ -5,6 +5,7 @@ export const studentAppErrorCodes = {
   outOfStock: "product.out_of_stock",
   tooManyOpenOrders: "order.too_many_open",
   classStarted: "absence.class_started",
+  attendanceTaken: "absence.attendance_taken",
   makeupNoCredit: "makeup.no_credit",
   makeupFull: "makeup.full",
   makeupCreditInUse: "makeup.credit_in_use",

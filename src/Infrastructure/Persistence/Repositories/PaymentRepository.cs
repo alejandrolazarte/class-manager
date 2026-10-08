@@ -23,4 +23,12 @@ internal sealed class PaymentRepository(AppDbContext context) : IPaymentReposito
             .GroupBy(payment => payment.ClientId)
             .Select(group => new { ClientId = group.Key, Paid = group.Sum(payment => payment.Amount) })
             .ToDictionaryAsync(group => group.ClientId, group => group.Paid, cancellationToken);
+
+    public async Task<IReadOnlyList<ClientPaidMonth>> ListPaidMonthsByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
+        await context.Payments.AsNoTracking()
+            .Where(payment => clientIds.Contains(payment.ClientId))
+            .Select(payment => new { payment.ClientId, payment.Month })
+            .Distinct()
+            .Select(paidMonth => new ClientPaidMonth(paidMonth.ClientId, paidMonth.Month))
+            .ToListAsync(cancellationToken);
 }

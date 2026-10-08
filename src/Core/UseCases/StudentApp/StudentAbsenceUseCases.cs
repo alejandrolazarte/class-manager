@@ -76,6 +76,7 @@ public sealed class NotifyAbsenceUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
     IAbsenceNoticeRepository absenceNoticeRepository,
+    IAttendanceRepository attendanceRepository,
     IBusinessRepository businessRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
@@ -84,6 +85,7 @@ public sealed class NotifyAbsenceUseCase(
     : IUseCase<NotifyAbsenceCommand, bool>
 {
     private const string ConcurrentUpdateMessage = "The class changed at the same time. Try again.";
+    private const string AttendanceTakenMessage = "Attendance was already taken for this student in this class.";
 
     public async Task<Result<bool>> ExecuteAsync(NotifyAbsenceCommand command, CancellationToken cancellationToken)
     {
@@ -105,6 +107,10 @@ public sealed class NotifyAbsenceUseCase(
         else if (await absenceNoticeRepository.FindForUpdateAsync(session.Id, command.StudentId, cancellationToken) is not null)
         {
             return true;
+        }
+        else if (await attendanceRepository.FindForUpdateAsync(session.Id, command.StudentId, cancellationToken) is not null)
+        {
+            return Result.Conflict<bool>(AttendanceTakenMessage, SessionErrorCodes.AttendanceTaken);
         }
 
         var keepsStreak = (await businessRepository.GetCurrentAsync(cancellationToken))?.NoticedAbsencesKeepStreak ?? true;

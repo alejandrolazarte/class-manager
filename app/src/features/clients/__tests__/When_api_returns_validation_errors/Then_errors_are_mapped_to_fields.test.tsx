@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react-native";
 import { ApiError } from "@/api/httpClient";
 import { registerClient } from "@/features/clients/clientsApi";
 import { RegisterClientScreen } from "@/features/clients/screens/RegisterClientScreen";
+import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { fillRegisterClientForm, submitRegisterClientForm } from "@/testing/fillRegisterClientForm";
 
@@ -24,6 +25,6 @@ describe("When api returns validation errors", () => {
     await fillRegisterClientForm("Ana Pérez", "11 2233-4455");
     await submitRegisterClientForm();
 
-    expect(await screen.findByText(phoneNumberServerMessage)).toBeOnTheScreen();
+    expect(await screen.findByText(translate("apiErrors.invalidValue"))).toBeOnTheScreen();
   });
 });

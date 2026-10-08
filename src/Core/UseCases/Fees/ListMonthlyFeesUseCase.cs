@@ -73,12 +73,12 @@ public sealed class ListMonthlyFeesUseCase(
             enrolledClient => enrolledClient.Row.ClientId,
             enrolledClient => FeeTimeline.PlanIn(planChanges.Where(change => change.ClientId == enrolledClient.Row.ClientId), month.Value));
 
-        var monthlyClients = await ListMonthlyClientsAsync(
+        var paidByClient = await paymentRepository.SumByClientForMonthAsync(month.Value.FirstDay, cancellationToken);
+        var monthlyClients = ListMonthlyClients(
             enrolledClients.Where(enrolledClient => !planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
             planByClient,
             defaultFee,
-            month.Value,
-            cancellationToken);
+            paidByClient);
         var classPackClients = await ListClassPackClientsAsync(
             enrolledClients.Where(enrolledClient => planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
             cancellationToken);
@@ -86,20 +86,17 @@ public sealed class ListMonthlyFeesUseCase(
         return new MonthlyFeesResponse(
             month.Value.ToString(),
             monthlyClients.Sum(client => client.Fee ?? 0),
-            monthlyClients.Sum(client => client.Paid),
+            clientIds.Sum(clientId => paidByClient.GetValueOrDefault(clientId)),
             monthlyClients,
             classPackClients);
     }
 
-    private async Task<IReadOnlyList<ClientFeeResponse>> ListMonthlyClientsAsync(
+    private static IReadOnlyList<ClientFeeResponse> ListMonthlyClients(
         IReadOnlyList<EnrolledClient> enrolledClients,
         Dictionary<Guid, BillingPlan> planByClient,
         decimal? defaultFee,
-        BillingMonth month,
-        CancellationToken cancellationToken)
+        IReadOnlyDictionary<Guid, decimal> paidByClient)
     {
-        var paidByClient = await paymentRepository.SumByClientForMonthAsync(month.FirstDay, cancellationToken);
-
         return [.. enrolledClients
             .Select(enrolledClient =>
             {

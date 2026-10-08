@@ -11,6 +11,7 @@ public sealed class ClassBalanceService(
     IAttendanceRepository attendanceRepository,
     IPrivateLessonRepository privateLessonRepository,
     IFeeScheduleRepository feeScheduleRepository,
+    IPaymentRepository paymentRepository,
     IBusinessCalendarService businessCalendar)
     : IClassBalanceService
 {
@@ -29,6 +30,7 @@ public sealed class ClassBalanceService(
             .. await privateLessonRepository.ListAttendedClassesByClientsAsync(clientIds, cancellationToken),
         ];
         var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync(clientIds, cancellationToken);
+        var paidMonths = (await paymentRepository.ListPaidMonthsByClientsAsync(clientIds, cancellationToken)).ToHashSet();
 
         return clientIds.Distinct().ToDictionary(
             clientId => clientId,
@@ -38,9 +40,20 @@ public sealed class ClassBalanceService(
                 var classesPaidPerClass = attendedClasses
                     .Where(attended => attended.ClientId == clientId)
                     .Select(attended => attended.AttendedClass)
-                    .Where(attended => attended.IsPackBooking || FeeTimeline.PlanIn(clientPlanChanges, BillingMonth.From(attended.Date)).PaysPerClass)
+                    .Where(attended => attended.IsPackBooking || IsPaidPerClass(clientId, attended.Date, clientPlanChanges, paidMonths))
                     .ToList();
                 return ClassBalance.Calculate([.. purchases.Where(purchase => purchase.ClientId == clientId)], classesPaidPerClass, today);
             });
+    }
+
+    private static bool IsPaidPerClass(
+        Guid clientId,
+        DateOnly attendedOn,
+        List<ClientBillingPlanChange> clientPlanChanges,
+        HashSet<ClientPaidMonth> paidMonths)
+    {
+        var month = BillingMonth.From(attendedOn);
+        var isCoveredByPaidFee = paidMonths.Contains(new ClientPaidMonth(clientId, month.FirstDay));
+        return !isCoveredByPaidFee && FeeTimeline.PlanIn(clientPlanChanges, month).PaysPerClass;
     }
 }

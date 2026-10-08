@@ -41,8 +41,17 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
             })}
           </AppText>
         ) : null}
+        {entry.endDate !== null ? (
+          <AppText variant="caption" tone="primary">
+            {entry.endDate === today
+              ? translate("enrollments.detail.lastDayToday")
+              : translate("enrollments.detail.lastDay", {
+                  date: formatBirthDateForDisplay(entry.endDate),
+                })}
+          </AppText>
+        ) : null}
       </View>
-      {onUnenroll ? (
+      {onUnenroll && entry.endDate === null ? (
         <IconButton
           icon="unenroll"
           tone="subtle-foreground"
