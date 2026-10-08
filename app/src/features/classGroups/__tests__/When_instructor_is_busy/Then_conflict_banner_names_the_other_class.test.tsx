@@ -32,7 +32,7 @@ describe("When instructor is busy", () => {
 
   it("Then conflict banner names the other class", async () => {
     await renderWithProviders(<ClassGroupFormScreen />);
-    await screen.findByRole("button", { name: buildInstructor().fullName });
+    await screen.findByText(buildInstructor().fullName);
     await fillClassGroupForm();
     await submitClassGroupForm();
 

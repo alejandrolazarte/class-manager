@@ -4,9 +4,7 @@ import { LessonStudent, privateLessonLimits } from "@/features/privateLessons/pr
 import { StudentPicker } from "@/features/students/components/StudentPicker";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Avatar } from "@/ui/Avatar";
-import { IconButton } from "@/ui/IconButton";
-import { PickerChooseButton } from "@/ui/PickerField";
+import { PickedItemRow, PickerChooseButton } from "@/ui/PickerField";
 import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface LessonStudentPickerProps {
@@ -33,25 +31,16 @@ export function LessonStudentPicker({
         {withRequiredMark(translate("privateLessons.form.students"))}
       </AppText>
       {students.map((student) => (
-        <View
+        <PickedItemRow
           key={student.id}
-          className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-2 pl-3 pr-1"
-        >
-          <Avatar name={student.fullName} size="small" />
-          <AppText variant="bodyStrong" className="min-w-0 flex-1">
-            {student.fullName}
-          </AppText>
-          {isReadOnly ? null : (
-            <IconButton
-              icon="close"
-              tone="muted-foreground"
-              accessibilityLabel={translate("privateLessons.form.removeStudent", {
-                name: student.fullName,
-              })}
-              onPress={() => onChange(students.filter((selected) => selected.id !== student.id))}
-            />
-          )}
-        </View>
+          name={student.fullName}
+          removeLabel={translate("privateLessons.form.removeStudent", { name: student.fullName })}
+          onRemove={
+            isReadOnly
+              ? undefined
+              : () => onChange(students.filter((selected) => selected.id !== student.id))
+          }
+        />
       ))}
       {canAddMore ? (
         <PickerChooseButton

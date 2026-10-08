@@ -11,6 +11,7 @@ import {
   commonDurationsInMinutes,
 } from "@/features/classGroups/classGroupSchema";
 import { formatStartTimeAsTyped } from "@/features/classGroups/startTimeFormatting";
+import { InstructorField } from "@/features/instructors/components/InstructorField";
 import { Instructor } from "@/features/instructors/types";
 import { translate } from "@/i18n/translate";
 import { Chip } from "@/ui/Chip";
@@ -162,20 +163,15 @@ export function ClassGroupForm({ form, instructors, material }: ClassGroupFormPr
         control={control}
         name="instructorId"
         render={({ field, fieldState }) => (
-          <View className="gap-2">
-            <FieldLabel label={translate("classGroups.form.instructor")} />
-            <View className="flex-row flex-wrap gap-2">
-              {instructors.map((instructor) => (
-                <Chip
-                  key={instructor.id}
-                  label={instructor.fullName}
-                  isSelected={field.value === instructor.id}
-                  onPress={() => field.onChange(instructor.id)}
-                />
-              ))}
-            </View>
-            <FieldError message={fieldState.error?.message} />
-          </View>
+          <InstructorField
+            testID="class-group-instructor-picker"
+            label={withRequiredMark(translate("classGroups.form.instructor"))}
+            instructors={instructors}
+            instructorId={field.value || null}
+            onChange={(instructorId) => field.onChange(instructorId ?? "")}
+            emptyMessage={translate("instructors.picker.noInstructors")}
+            errorMessage={fieldState.error?.message}
+          />
         )}
       />
       <Controller

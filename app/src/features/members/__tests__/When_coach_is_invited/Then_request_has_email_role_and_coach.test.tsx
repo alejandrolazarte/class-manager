@@ -33,7 +33,7 @@ describe("When coach is invited", () => {
     await renderWithProviders(<InviteMemberScreen />);
     await fireEvent.changeText(screen.getByLabelText(translate("team.invite.email")), email);
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("team.invite.chooseCoach") }),
+      await screen.findByRole("button", { name: translate("instructors.picker.choose") }),
     );
     const picker = within(screen.getByTestId("linked-instructor-picker"));
     expect(picker.queryByRole("button", { name: linkedInstructor.fullName })).toBeNull();

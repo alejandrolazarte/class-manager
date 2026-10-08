@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { Instructor } from "@/features/instructors/types";
 import { translate } from "@/i18n/translate";
+import { searchableText } from "@/forms/searchableText";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
@@ -16,12 +17,6 @@ interface InstructorPickerProps {
   onClose: () => void;
   emptyMessage: string;
   testID?: string;
-}
-
-const diacriticalMarks = /[̀-ͯ]/g;
-
-function searchableText(text: string): string {
-  return text.normalize("NFD").replace(diacriticalMarks, "").trim().toLocaleLowerCase();
 }
 
 function matchesSearch(instructor: Instructor, searchText: string): boolean {

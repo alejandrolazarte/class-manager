@@ -1,7 +1,7 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
-import { Icon } from "@/ui/Icon";
+import { Icon, IconName } from "@/ui/Icon";
 import { IconButton } from "@/ui/IconButton";
 
 export interface PickedPerson {
@@ -13,9 +13,22 @@ interface PickerChooseButtonProps {
   label: string;
   onPress: () => void;
   hint?: string;
+  icon?: IconName;
 }
 
-export function PickerChooseButton({ label, onPress, hint }: PickerChooseButtonProps) {
+interface PickedItemRowProps {
+  name: string;
+  detail?: string;
+  removeLabel: string;
+  onRemove?: () => void;
+}
+
+export function PickerChooseButton({
+  label,
+  onPress,
+  hint,
+  icon = "findPerson",
+}: PickerChooseButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -23,7 +36,7 @@ export function PickerChooseButton({ label, onPress, hint }: PickerChooseButtonP
       onPress={onPress}
       className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-3.5 py-3 active:bg-muted"
     >
-      <Icon name="findPerson" tone="muted-foreground" />
+      <Icon name={icon} tone="muted-foreground" />
       <View className="min-w-0 flex-1">
         <AppText variant="bodyStrong">{label}</AppText>
         {hint ? (
@@ -34,6 +47,30 @@ export function PickerChooseButton({ label, onPress, hint }: PickerChooseButtonP
       </View>
       <Icon name="next" tone="subtle-foreground" />
     </Pressable>
+  );
+}
+
+export function PickedItemRow({ name, detail, removeLabel, onRemove }: PickedItemRowProps) {
+  return (
+    <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
+      <Avatar name={name} size="small" />
+      <View className="min-w-0 flex-1 py-1.5">
+        <AppText variant="bodyStrong">{name}</AppText>
+        {detail ? (
+          <AppText variant="caption" tone="subtle">
+            {detail}
+          </AppText>
+        ) : null}
+      </View>
+      {onRemove ? (
+        <IconButton
+          icon="close"
+          tone="muted-foreground"
+          accessibilityLabel={removeLabel}
+          onPress={onRemove}
+        />
+      ) : null}
+    </View>
   );
 }
 

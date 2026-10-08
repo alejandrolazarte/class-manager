@@ -8,6 +8,7 @@ import { isApiError } from "@/api/httpClient";
 import { getStringExtension } from "@/api/problemDetails";
 import { commonDurationsInMinutes } from "@/features/classGroups/classGroupSchema";
 import { formatStartTimeAsTyped } from "@/features/classGroups/startTimeFormatting";
+import { InstructorField } from "@/features/instructors/components/InstructorField";
 import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
 import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
@@ -208,20 +209,15 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
         control={control}
         name="instructorId"
         render={({ field, fieldState }) => (
-          <View className="gap-2">
-            <FieldLabel label={translate("privateLessons.form.coach")} />
-            <View className="flex-row flex-wrap gap-2">
-              {instructors.map((instructor) => (
-                <Chip
-                  key={instructor.id}
-                  label={instructor.fullName}
-                  isSelected={field.value === instructor.id}
-                  onPress={() => field.onChange(instructor.id)}
-                />
-              ))}
-            </View>
-            <FieldError message={fieldState.error?.message} />
-          </View>
+          <InstructorField
+            testID="private-lesson-instructor-picker"
+            label={withRequiredMark(translate("privateLessons.form.coach"))}
+            instructors={instructors}
+            instructorId={field.value || null}
+            onChange={(instructorId) => field.onChange(instructorId ?? "")}
+            emptyMessage={translate("instructors.picker.noInstructors")}
+            errorMessage={fieldState.error?.message}
+          />
         )}
       />
       <View className="flex-row gap-3">
