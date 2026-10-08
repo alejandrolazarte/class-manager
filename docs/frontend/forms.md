@@ -31,6 +31,14 @@ const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName
 <Button label={translate("common.save")} onPress={save} disabled={!areRequiredFieldsFilled} />
 ```
 
+## Dates and times
+
+- Every date is a `DateField` (`BirthDateField` for birth dates) and every time is a `TimeField`, both from `app/src/forms`. Never a bare `TextField` with a date or time mask.
+- The user can always type: the field keeps the `dd/mm/aaaa` or `hh:mm` mask and the number keyboard, which is the fastest way for a known date (a birth date) or an odd time (18:47).
+- The button at the right of the field opens a bottom sheet to pick instead: a month calendar (tap the month title to jump to a year) or a grid of hours and minutes (every 5 minutes by default, `minuteStep`). **Cancelar** leaves the typed value untouched; **Listo** writes the picked value back as text, so validation and the form values don't change.
+- The sheet opens on what is typed when it is valid; a typed minute that is off the grid still shows selected.
+- Limit the calendar with `earliestIsoDate` and `latestIsoDate` when the range has a meaning: `BirthDateField` stops at today.
+
 ## Steps and totals
 
 - Forms in steps (sign-up, counter sale) use the same header: back arrow, a progress bar with one segment per step that fills as the step is completed, "Paso N de M" and the step title (`StepScreen`, or `AuthenticationScreenLayout` with `StepProgress`).
@@ -40,4 +48,5 @@ const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName
 
 - `app/src/forms/__tests__/When_required_values_are_checked/` defines what counts as filled.
 - `app/src/ui/__tests__/When_a_field_is_required/` checks the asterisk and the accessible name.
+- `app/src/forms/__tests__/When_a_date_is_picked_from_the_calendar/`, `When_a_date_is_typed/`, `When_the_date_picker_is_cancelled/`, `When_a_birth_date_calendar_is_opened/`, `When_a_time_is_picked/` and `When_a_time_is_typed/` check that typing and picking agree.
 - Screen tests check the grey button where the form starts empty: sign-up (`When_account_step_is_incomplete`), new student (`When_register_form_is_empty`), class (`When_class_form_has_no_days`), edit student (`When_edited_client_has_no_name`), billing plan (`When_client_switches_to_an_own_fee_without_amount`) and counter sale (`When_counter_sale_has_nothing_yet`).

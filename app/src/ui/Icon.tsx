@@ -29,6 +29,8 @@ const iconGlyphs = {
   paid: "check-circle",
   cancelled: "event-busy",
   schedule: "schedule",
+  pickDate: "event",
+  pickTime: "access-time",
   substitute: "swap-horiz",
   roles: "admin-panel-settings",
   notYet: "hourglass-top",

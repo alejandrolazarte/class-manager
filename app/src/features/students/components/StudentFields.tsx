@@ -1,6 +1,6 @@
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import { View } from "react-native";
-import { formatBirthDateAsTyped } from "@/features/students/birthDateFormatting";
+import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";
 import { TextField } from "@/ui/TextField";
 
@@ -52,13 +52,12 @@ export function StudentFields<TFormValues extends FieldValues>({
         control={control}
         name={paths.birthDate}
         render={({ field, fieldState }) => (
-          <TextField
+          <BirthDateField
             label={translate("students.fields.birthDate")}
+            isRequired={false}
             fieldSurface={fieldSurface}
-            placeholder={translate("students.fields.birthDatePlaceholder")}
-            keyboardType="number-pad"
             value={toText(field.value)}
-            onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
+            onChangeText={field.onChange}
             onBlur={field.onBlur}
             errorMessage={fieldState.error?.message}
           />

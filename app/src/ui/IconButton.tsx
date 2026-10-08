@@ -7,6 +7,7 @@ type IconButtonVariant = "plain" | "outlined";
 interface IconButtonProps {
   icon: IconName;
   accessibilityLabel: string;
+  accessibilityHint?: string;
   onPress: () => void;
   variant?: IconButtonVariant;
   tone?: ThemeColorToken;
@@ -21,6 +22,7 @@ const variantClassNames: Record<IconButtonVariant, string> = {
 export function IconButton({
   icon,
   accessibilityLabel,
+  accessibilityHint,
   onPress,
   variant = "plain",
   tone = "foreground",
@@ -30,6 +32,7 @@ export function IconButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}

@@ -7,14 +7,11 @@ import { isApiError } from "@/api/httpClient";
 import { ClientDetails, StudentAppAccessStatus } from "@/features/clients/types";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
-import {
-  formatBirthDateAsTyped,
-  isValidBirthDate,
-  parseBirthDate,
-} from "@/features/students/birthDateFormatting";
+import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
+import { BirthDateField } from "@/forms/BirthDateField";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { TranslationKey, translate } from "@/i18n/translate";
 import { clientTabs, routes } from "@/navigation/routes";
@@ -235,15 +232,12 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             errorMessage={emailError}
           />
           {needsBirthDate ? (
-            <TextField
+            <BirthDateField
               label={translate("student.invite.birthDate")}
               hint={translate("student.invite.birthDateHint")}
-              isRequired
-              placeholder={translate("students.fields.birthDatePlaceholder")}
-              keyboardType="number-pad"
               fieldSurface="background"
               value={birthDate}
-              onChangeText={(typedText) => setBirthDate(formatBirthDateAsTyped(typedText))}
+              onChangeText={setBirthDate}
               errorMessage={birthDateError}
             />
           ) : null}

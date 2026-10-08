@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, ReactNode } from "react";
 import { TextInput, TextInputProps, View } from "react-native";
 import { useTheme } from "@/theme/useTheme";
 import { AppText, textVariantClassNames } from "@/ui/AppText";
@@ -15,6 +15,7 @@ interface TextFieldProps extends TextInputProps {
   prefix?: string;
   fieldSurface?: TextFieldSurface;
   isRequired?: boolean;
+  accessory?: ReactNode;
 }
 
 const fieldSurfaceClassNames: Record<TextFieldSurface, string> = {
@@ -31,6 +32,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     prefix,
     fieldSurface = "surface",
     isRequired = false,
+    accessory,
     multiline,
     ...textInputProps
   },
@@ -64,6 +66,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
           textAlignVertical={multiline ? "top" : "center"}
           {...textInputProps}
         />
+        {accessory ? <View className="h-[52px] justify-center">{accessory}</View> : null}
       </View>
       {hasError ? (
         <View className="flex-row items-center gap-1">

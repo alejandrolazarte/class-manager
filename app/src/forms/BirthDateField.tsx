@@ -1,6 +1,8 @@
-import { formatBirthDateAsTyped } from "@/features/students/birthDateFormatting";
+import { DateField } from "@/forms/DateField";
+import { earliestBirthDate } from "@/features/students/birthDateFormatting";
+import { todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
-import { TextField, TextFieldSurface } from "@/ui/TextField";
+import { TextFieldSurface } from "@/ui/TextField";
 
 interface BirthDateFieldProps {
   label?: string;
@@ -24,17 +26,18 @@ export function BirthDateField({
   fieldSurface,
 }: BirthDateFieldProps) {
   return (
-    <TextField
+    <DateField
       label={label}
       hint={hint}
       isRequired={isRequired}
       placeholder={translate("birthDate.placeholder")}
-      keyboardType="number-pad"
       fieldSurface={fieldSurface}
       value={value}
-      onChangeText={(typedText) => onChangeText(formatBirthDateAsTyped(typedText))}
+      onChangeText={onChangeText}
       onBlur={onBlur}
       errorMessage={errorMessage}
+      earliestIsoDate={earliestBirthDate}
+      latestIsoDate={todayIsoDate()}
     />
   );
 }
