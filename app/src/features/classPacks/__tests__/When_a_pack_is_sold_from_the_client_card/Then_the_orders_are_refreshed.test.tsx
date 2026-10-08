@@ -46,6 +46,9 @@ describe("When a pack is sold from the client card", () => {
     );
     await waitFor(() => expect(listOrders).toHaveBeenCalledTimes(1));
 
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("classPacks.sell.choosePack") }),
+    );
     await fireEvent.press(await screen.findByRole("button", { name: classPack.name }));
     await fireEvent.press(
       screen.getByRole("button", { name: translate("classPacks.sell.submit") }),
