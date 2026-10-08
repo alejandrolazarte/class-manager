@@ -3,6 +3,7 @@ import {
   createAnnouncement,
   deleteAnnouncement,
   listAnnouncements,
+  restoreAnnouncement,
 } from "@/features/announcements/announcementsApi";
 import { CreateAnnouncementRequest } from "@/features/announcements/types";
 
@@ -29,6 +30,14 @@ export function useDeleteAnnouncement() {
   const invalidate = useInvalidateAnnouncements();
   return useMutation({
     mutationFn: (announcementId: string) => deleteAnnouncement(announcementId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useRestoreAnnouncement() {
+  const invalidate = useInvalidateAnnouncements();
+  return useMutation({
+    mutationFn: (announcementId: string) => restoreAnnouncement(announcementId),
     onSuccess: invalidate,
   });
 }

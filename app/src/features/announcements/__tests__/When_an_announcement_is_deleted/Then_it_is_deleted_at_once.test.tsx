@@ -19,7 +19,7 @@ describe("When an announcement is deleted", () => {
     jest.mocked(deleteAnnouncement).mockResolvedValue(undefined);
   });
 
-  it("Then it is deleted after confirming", async () => {
+  it("Then it is deleted at once", async () => {
     await renderWithProviders(<AnnouncementsScreen />);
 
     await fireEvent.press(
@@ -27,8 +27,6 @@ describe("When an announcement is deleted", () => {
         name: translate("announcements.delete", { title: announcement.title }),
       }),
     );
-    expect(deleteAnnouncement).not.toHaveBeenCalled();
-    await fireEvent.press(screen.getByRole("button", { name: translate("common.confirmDelete") }));
 
     await waitFor(() => expect(deleteAnnouncement).toHaveBeenCalledWith(announcement.id));
   });

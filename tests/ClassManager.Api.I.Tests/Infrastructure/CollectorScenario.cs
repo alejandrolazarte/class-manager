@@ -36,6 +36,9 @@ public static class CollectorScenarioRequests
     public static Task<HttpResponseMessage> DeletePaymentAsync(this HttpClient httpClient, Guid paymentId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Payments}/{paymentId}", UriKind.Relative));
 
+    public static Task<HttpResponseMessage> RestorePaymentAsync(this HttpClient httpClient, Guid paymentId) =>
+        httpClient.PostAsync(new Uri($"{ApiRoutes.Payments}/{paymentId}{ApiRoutes.Restore}", UriKind.Relative), null);
+
     private static Guid ClientOf(MonthlyFeesResponse fees, string studentFullName) =>
         fees.Clients.Single(client => client.StudentNames.Contains(studentFullName)).ClientId;
 }

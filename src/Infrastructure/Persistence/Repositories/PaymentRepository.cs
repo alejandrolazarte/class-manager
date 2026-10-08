@@ -9,6 +9,11 @@ internal sealed class PaymentRepository(AppDbContext context) : IPaymentReposito
     public Task<Payment?> GetForUpdateAsync(Guid paymentId, CancellationToken cancellationToken) =>
         context.Payments.FirstOrDefaultAsync(payment => payment.Id == paymentId, cancellationToken);
 
+    public Task<Payment?> FindDeletedForUpdateAsync(Guid paymentId, CancellationToken cancellationToken) =>
+        context.Payments
+            .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
+            .FirstOrDefaultAsync(payment => payment.Id == paymentId && payment.IsDeleted, cancellationToken);
+
     public async Task<IReadOnlyList<Payment>> ListByClientAsync(Guid clientId, int limit, CancellationToken cancellationToken) =>
         await context.Payments.AsNoTracking()
             .Where(payment => payment.ClientId == clientId)

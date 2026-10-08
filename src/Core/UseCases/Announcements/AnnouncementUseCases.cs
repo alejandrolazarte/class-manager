@@ -9,6 +9,8 @@ public sealed record CreateAnnouncementCommand(string? Title, string? Body) : IC
 
 public sealed record DeleteAnnouncementCommand(Guid AnnouncementId) : ICommand;
 
+public sealed record RestoreAnnouncementCommand(Guid AnnouncementId) : ICommand;
+
 public sealed record ListAnnouncementsQuery : IQuery;
 
 public sealed record AnnouncementResponse(Guid Id, string Title, string? Body, DateTimeOffset PublishedAt)
@@ -71,6 +73,25 @@ public sealed class DeleteAnnouncementUseCase(IAnnouncementRepository announceme
         }
 
         announcementRepository.Remove(announcement);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+}
+
+public sealed class RestoreAnnouncementUseCase(IAnnouncementRepository announcementRepository, IUnitOfWork unitOfWork)
+    : IUseCase<RestoreAnnouncementCommand, bool>
+{
+    private const string NotFoundMessage = "The deleted announcement doesn't exist.";
+
+    public async Task<Result<bool>> ExecuteAsync(RestoreAnnouncementCommand command, CancellationToken cancellationToken)
+    {
+        var announcement = await announcementRepository.FindDeletedForUpdateAsync(command.AnnouncementId, cancellationToken);
+        if (announcement is null)
+        {
+            return Result.NotFound<bool>(NotFoundMessage, AnnouncementErrorCodes.NotFound);
+        }
+
+        announcement.Restore();
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
     }

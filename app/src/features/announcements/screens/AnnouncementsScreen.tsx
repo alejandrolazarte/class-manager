@@ -5,6 +5,7 @@ import {
   useAnnouncements,
   useCreateAnnouncement,
   useDeleteAnnouncement,
+  useRestoreAnnouncement,
 } from "@/features/announcements/useAnnouncements";
 import { formatLongDate, toIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
@@ -12,7 +13,6 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
-import { DeleteConfirmation } from "@/ui/DeleteConfirmation";
 import { EmptyState } from "@/ui/EmptyState";
 import { IconButton } from "@/ui/IconButton";
 import { ScrollScreen } from "@/ui/Screen";
@@ -26,19 +26,13 @@ import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 const titleMaxLength = 80;
 const bodyMaxLength = 500;
 
-function AnnouncementCard({ announcement }: { announcement: Announcement }) {
-  const { showToast } = useToast();
-  const deleteAnnouncementMutation = useDeleteAnnouncement();
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const remove = async () => {
-    try {
-      await deleteAnnouncementMutation.mutateAsync(announcement.id);
-      showToast(translate("announcements.deleted"));
-    } catch {
-      showToast(translate("common.unexpectedError"));
-    }
-    setIsConfirmingDelete(false);
-  };
+interface AnnouncementCardProps {
+  announcement: Announcement;
+  isDeleting: boolean;
+  onDelete: (announcement: Announcement) => void;
+}
+
+function AnnouncementCard({ announcement, isDeleting, onDelete }: AnnouncementCardProps) {
   return (
     <View className="gap-2">
       <Card className="flex-row items-start gap-3 px-4 py-3.5">
@@ -59,24 +53,33 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
           icon="delete"
           tone="danger"
           accessibilityLabel={translate("announcements.delete", { title: announcement.title })}
-          disabled={deleteAnnouncementMutation.isPending}
-          onPress={() => setIsConfirmingDelete(true)}
+          disabled={isDeleting}
+          onPress={() => onDelete(announcement)}
         />
       </Card>
-      {isConfirmingDelete ? (
-        <DeleteConfirmation
-          question={translate("announcements.deleteQuestion", { title: announcement.title })}
-          onCancel={() => setIsConfirmingDelete(false)}
-          onConfirm={remove}
-          isDeleting={deleteAnnouncementMutation.isPending}
-        />
-      ) : null}
     </View>
   );
 }
 
 export function AnnouncementsScreen() {
   const { showToast } = useToast();
+  const deleteAnnouncementMutation = useDeleteAnnouncement();
+  const restoreAnnouncementMutation = useRestoreAnnouncement();
+  const deleteAnnouncement = async (announcement: Announcement) => {
+    try {
+      await deleteAnnouncementMutation.mutateAsync(announcement.id);
+      showToast(translate("announcements.deleted"), {
+        label: translate("common.undo"),
+        onPress: () => {
+          restoreAnnouncementMutation
+            .mutateAsync(announcement.id)
+            .catch(() => showToast(translate("common.undoFailed")));
+        },
+      });
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
+  };
   const { data: announcements = [], isPending, isError, refetch } = useAnnouncements();
   const createAnnouncementMutation = useCreateAnnouncement();
   const [title, setTitle] = useState("");
@@ -154,7 +157,12 @@ export function AnnouncementsScreen() {
         />
       ) : null}
       {announcements.map((announcement) => (
-        <AnnouncementCard key={announcement.id} announcement={announcement} />
+        <AnnouncementCard
+          key={announcement.id}
+          announcement={announcement}
+          isDeleting={deleteAnnouncementMutation.isPending}
+          onDelete={deleteAnnouncement}
+        />
       ))}
     </ScrollScreen>
   );

@@ -12,6 +12,7 @@ const feesPath = "/api/fees";
 const businessMonthlyFeePath = "/api/business/monthly-fee";
 const clientsPath = "/api/clients";
 const paymentsPath = "/api/payments";
+const restoreSegment = "restore";
 const billingPlanSegment = "billing-plan";
 const paymentsSegment = "payments";
 
@@ -60,4 +61,11 @@ export function listClientPayments(clientId: string): Promise<Payment[]> {
 
 export function deletePayment(paymentId: string): Promise<void> {
   return httpClient.delete<void>(`${paymentsPath}/${encodeURIComponent(paymentId)}`);
+}
+
+export function restorePayment(paymentId: string): Promise<void> {
+  return httpClient.post<void>(
+    `${paymentsPath}/${encodeURIComponent(paymentId)}/${restoreSegment}`,
+    {},
+  );
 }

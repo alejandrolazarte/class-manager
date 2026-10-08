@@ -88,4 +88,10 @@ public sealed class Payment : ITenantOwned, ISoftDeletable
         DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
         IsDeleted = true;
     }
+
+    public void Restore()
+    {
+        DeletedOn = null;
+        IsDeleted = false;
+    }
 }

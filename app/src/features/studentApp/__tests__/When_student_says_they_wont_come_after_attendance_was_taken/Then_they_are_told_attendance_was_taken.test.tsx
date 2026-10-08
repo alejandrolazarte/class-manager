@@ -6,7 +6,7 @@ import {
   notifyAbsence,
 } from "@/features/studentApp/studentAppApi";
 import { StudentAppHomeScreen } from "@/features/studentApp/screens/StudentAppHomeScreen";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentAppHome,
@@ -19,6 +19,7 @@ import { renderStudentAppScreen } from "@/testing/renderStudentAppScreen";
 jest.mock("@/features/studentApp/studentAppApi");
 
 const conflictStatus = 409;
+const tomorrow = addDays(todayIsoDate(), 1);
 
 describe("When student says they won't come after attendance was taken", () => {
   beforeEach(() => {
@@ -30,7 +31,7 @@ describe("When student says they won't come after attendance was taken", () => {
       buildStudentAppHome({
         students: [
           buildAccountStudent({
-            nextClasses: [buildStudentAppNextClass({ date: todayIsoDate() })],
+            nextClasses: [buildStudentAppNextClass({ date: tomorrow })],
           }),
         ],
       }),

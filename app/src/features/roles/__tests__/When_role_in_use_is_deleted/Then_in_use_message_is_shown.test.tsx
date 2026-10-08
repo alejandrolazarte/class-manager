@@ -22,11 +22,10 @@ describe("When role in use is deleted", () => {
 
   it("Then in use message is shown", async () => {
     await renderWithProviders(<RoleEditorScreen roleKey={role.id!} />);
+
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("roles.editor.delete") }),
     );
-
-    await fireEvent.press(screen.getByRole("button", { name: translate("common.confirmDelete") }));
 
     expect(await screen.findByText(translate("roles.editor.inUse"))).toBeOnTheScreen();
   });

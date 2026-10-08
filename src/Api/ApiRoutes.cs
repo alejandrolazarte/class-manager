@@ -46,6 +46,7 @@ public static class ApiRoutes
     public const string Feedback = "/feedback";
     public const string FeedbackByStudent = "/feedback/{studentId:guid}";
     public const string Cancellation = "/cancellation";
+    public const string Restore = "/restore";
     public const string Schedule = "/schedule";
     public const string Substitute = "/substitute";
     public const string MonthlyFee = "/monthly-fee";

@@ -12,6 +12,7 @@ internal static class AnnouncementEndpoints
         announcements.MapGet("/", ListAnnouncementsAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapPost("/", CreateAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapDelete(ApiRoutes.AnnouncementById, DeleteAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
+        announcements.MapPost(ApiRoutes.AnnouncementById + ApiRoutes.Restore, RestoreAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
 
         return endpoints;
     }
@@ -41,6 +42,16 @@ internal static class AnnouncementEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new DeleteAnnouncementCommand(announcementId), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> RestoreAnnouncementAsync(
+        Guid announcementId,
+        IUseCase<RestoreAnnouncementCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RestoreAnnouncementCommand(announcementId), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }
