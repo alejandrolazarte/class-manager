@@ -1,10 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { clientQueryKeys } from "@/features/clients/clientQueryKeys";
 import { isApiError } from "@/api/httpClient";
 import { ClientDetails, StudentAppAccessStatus } from "@/features/clients/types";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
+import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import {
   formatBirthDateAsTyped,
   isValidBirthDate,
@@ -15,6 +17,8 @@ import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { TranslationKey, translate } from "@/i18n/translate";
+import { clientTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -58,6 +62,8 @@ function otherPeopleEmails(client: ClientDetails, student: Student | undefined):
 
 export function InviteStudentAppSection({ client, student }: InviteStudentAppSectionProps) {
   const { showToast } = useToast();
+  const router = useRouter();
+  const clientTab = useCurrentTab(clientTabs);
   const queryClient = useQueryClient();
   const { status, invitedEmail } = student ? student.appAccess : client.appAccess;
   const isPending = status === "Invited" || status === "AwaitingGuardianConsent";
@@ -74,6 +80,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const [birthDate, setBirthDate] = useState("");
   const [birthDateError, setBirthDateError] = useState<string | undefined>();
   const [hasFailed, setHasFailed] = useState(false);
+  const [isMissingGuardianEmail, setIsMissingGuardianEmail] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
   const askAgain = (emailMessage: string | undefined, birthDateMessage: string | undefined) => {
@@ -84,6 +91,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
 
   const sendTo = async (recipientEmail: string) => {
     setHasFailed(false);
+    setIsMissingGuardianEmail(false);
     const emailMessage = !emailAddressPattern.test(recipientEmail)
       ? translate("student.invite.emailInvalid")
       : isEmailOfAnotherPerson(recipientEmail, otherPeopleEmails(client, student))
@@ -121,6 +129,14 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     } catch (inviteError) {
       if (isApiError(inviteError) && inviteError.hasCode(studentErrorCodes.emailOfAnotherPerson)) {
         askAgain(translate("students.validation.emailOfAnotherPerson"), undefined);
+        return;
+      }
+      if (
+        isApiError(inviteError) &&
+        inviteError.hasCode(studentAppErrorCodes.guardianEmailRequired)
+      ) {
+        setIsAskingEmail(false);
+        setIsMissingGuardianEmail(true);
         return;
       }
       setHasFailed(true);
@@ -176,6 +192,22 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
       </View>
       {student ? actionButton : null}
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
+      {isMissingGuardianEmail && student ? (
+        <Banner
+          tone="warning"
+          message={translate("student.invite.guardianEmailRequired", {
+            student: student.fullName,
+            guardian: client.fullName,
+          })}
+        >
+          <Button
+            variant="secondary"
+            size="medium"
+            label={translate("student.invite.addGuardianEmail", { guardian: client.fullName })}
+            onPress={() => router.push(routes.editClient(clientTab, client.id))}
+          />
+        </Banner>
+      ) : null}
       {isAskingEmail ? (
         <View className={student ? "gap-2.5" : "gap-2.5 rounded-2xl bg-muted p-3"}>
           <AppText variant="caption" tone="subtle">
