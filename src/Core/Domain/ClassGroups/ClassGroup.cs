@@ -1,4 +1,5 @@
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Documents;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.ClassGroups;
@@ -31,6 +32,8 @@ public sealed class ClassGroup : ITenantOwned
     public int Capacity { get; private set; }
     public string? Location { get; private set; }
     public string? MaterialUrl { get; private set; }
+    public Guid? MaterialDocumentId { get; private set; }
+    public Document? MaterialDocument { get; private set; }
     public bool IsActive { get; private set; }
 
     public ClassSchedule Schedule => ClassSchedule.FromStored(Weekdays, StartTime, DurationMinutes);
@@ -84,7 +87,29 @@ public sealed class ClassGroup : ITenantOwned
         }
 
         MaterialUrl = trimmedUrl;
+        if (trimmedUrl is not null)
+        {
+            RemoveMaterialFile();
+        }
+
         return Result.Success();
+    }
+
+    public Document? ShareMaterialFile(Document file)
+    {
+        var replacedFile = RemoveMaterialFile();
+        MaterialUrl = null;
+        MaterialDocumentId = file.Id;
+        MaterialDocument = file;
+        return replacedFile;
+    }
+
+    public Document? RemoveMaterialFile()
+    {
+        var removedFile = MaterialDocument;
+        MaterialDocumentId = null;
+        MaterialDocument = null;
+        return removedFile;
     }
 
     public void Activate() => IsActive = true;

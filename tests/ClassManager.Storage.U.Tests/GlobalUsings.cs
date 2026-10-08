@@ -1,3 +1,4 @@
+global using ClassManager.Storage.Documents;
 global using ClassManager.Storage.Files;
 global using ClassManager.Storage.Images;
 global using Shouldly;

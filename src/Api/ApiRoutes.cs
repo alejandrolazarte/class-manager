@@ -65,6 +65,7 @@ public static class ApiRoutes
     public const string ProductById = "/{productId:guid}";
     public const string Stock = "/stock";
     public const string Images = "/images";
+    public const string Material = "/material";
     public const string ImageById = "/images/{documentId:guid}";
     public const string ImagesOrder = "/images/order";
     public const string StockMovements = "/stock-movements";

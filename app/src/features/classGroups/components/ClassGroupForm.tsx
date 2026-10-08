@@ -1,5 +1,9 @@
 import { Controller, UseFormReturn } from "react-hook-form";
 import { View } from "react-native";
+import {
+  ClassMaterialField,
+  ShownMaterialFile,
+} from "@/features/classGroups/components/ClassMaterialField";
 import { WeekdayChips } from "@/features/classGroups/components/WeekdayChips";
 import {
   ClassGroupFormValues,
@@ -15,9 +19,17 @@ import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
 import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
+interface ClassGroupMaterialProps {
+  materialFile: ShownMaterialFile | null;
+  errorMessage: string | null;
+  onPickFile: () => void;
+  onRemoveFile: () => void;
+}
+
 interface ClassGroupFormProps {
   form: UseFormReturn<ClassGroupFormValues>;
   instructors: Instructor[];
+  material: ClassGroupMaterialProps;
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -36,7 +48,7 @@ function FieldLabel({ label }: { label: string }) {
   );
 }
 
-export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
+export function ClassGroupForm({ form, instructors, material }: ClassGroupFormProps) {
   const { control } = form;
   return (
     <View className="gap-[18px]">
@@ -180,23 +192,7 @@ export function ClassGroupForm({ form, instructors }: ClassGroupFormProps) {
           />
         )}
       />
-      <Controller
-        control={control}
-        name="materialUrl"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("classGroups.form.materialUrl")}
-            placeholder={translate("classGroups.form.materialUrlPlaceholder")}
-            keyboardType="url"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
-          />
-        )}
-      />
+      <ClassMaterialField form={form} {...material} />
     </View>
   );
 }
