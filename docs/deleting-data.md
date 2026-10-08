@@ -2,13 +2,35 @@
 
 Two rules apply to anything a user can delete.
 
-## 1. Every delete asks for confirmation
+## 1. Undo what can be brought back, confirm what can't
 
-An action that deletes something never runs on the first tap. It opens `DeleteConfirmation` (`app/src/ui/DeleteConfirmation.tsx`): a warning banner with the question, **Cancelar** and **Sí, borrar**.
+Following Material Design: a confirmation dialog interrupts the user, so it is kept for actions that can't be undone. Everything else runs at once and offers to undo it.
 
-- The question names what is deleted and what happens after, for example "¿Borrar el cambio desde Diciembre 2026? Ese mes sigue con la cuota anterior."
-- The delete button is an `IconButton` with `icon="delete"` and an accessibility label that names the item ("Borrar el cambio desde {month}").
-- A test proves that nothing is deleted until the user confirms, and that **Cancelar** deletes nothing.
+### Undo
+
+The delete runs on the first tap. The toast says what happened and carries a **Deshacer** action (`showToast(message, { label, onPress })` in `app/src/ui/ToastProvider.tsx`); a toast with an action stays 6 seconds instead of 3.
+
+| What | How Deshacer brings it back |
+| --- | --- |
+| Payment | `POST /api/payments/{id}/restore` restores the soft deleted row (same id, same "cobró") |
+| Announcement | `POST /api/announcements/{id}/restore` restores the row without notifying the students again |
+| Upcoming fee change (default or a client's) | Saves the same change again |
+| Class comment | Saves the same text again |
+| Custom role | Creates it again with the same name and permissions (it could only be deleted while unused) |
+
+A restore endpoint reads the deleted row with `IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])`, so the tenant filter still applies, and checks the same permissions as the delete. A test proves Deshacer restores the item.
+
+### Confirm
+
+Actions that can't be undone, or that reach other people or money, ask first with `ConfirmDialog` (`app/src/ui/ConfirmDialog.tsx`), a modal:
+
+- Title: a short question that names the item ("¿Borrar esta clase?", "¿Quitar a {name} del equipo?").
+- Message, optional: the consequence in one line ("Ya no va a poder entrar a la app.").
+- Buttons: **Volver** and the action's verb (**Borrar**, **Anular**, **Quitar**, **Dar de baja**), never "Sí, …" or "Aceptar".
+
+Used by: cancelling a class (students are notified at once), removing a team member or a brand owner (they lose access at once), voiding a pack sale (it refunds the order), deleting a private lesson (hard delete) and unenrolling. A test proves nothing happens until the user confirms.
+
+The delete button is an `IconButton` with `icon="delete"` and an accessibility label that names the item ("Borrar el cambio desde {month}").
 
 Removing something from a form that is not saved yet (a photo in a form, a student in a sale that is being built, an item in the cart) is not a delete: it changes the form and needs no confirmation.
 
