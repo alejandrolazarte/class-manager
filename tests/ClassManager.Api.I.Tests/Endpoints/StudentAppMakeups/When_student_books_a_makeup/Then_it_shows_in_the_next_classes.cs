@@ -12,6 +12,6 @@ public sealed class Then_it_shows_in_the_next_classes(ApiFixture fixture)
         var home = await scenario.Student.GetStudentAppHomeAsync();
 
         home!.Students.Single().NextClasses
-            .ShouldContain(nextClass => nextClass.ClassGroupId == scenario.Coaches.OtherClassGroup.Id && nextClass.IsMakeup);
+            .ShouldContain(nextClass => nextClass.ClassGroupId == scenario.Instructors.OtherClassGroup.Id && nextClass.IsMakeup);
     }
 }

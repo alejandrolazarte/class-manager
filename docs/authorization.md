@@ -6,7 +6,8 @@ How the API decides what a signed-in user may do. The full design is in the [rol
 
 - An **organization** is the brand. It groups **businesses** (branches). The tenant is still the business: `tenant_id` in the access token, `TenantId` on every tenant-owned row ([tenancy](tenancy.md)).
 - `OrganizationMembers` holds brand-level roles. Today: `BrandOwner`.
-- `BusinessMembers` holds the role inside one business (`BranchOwner`, `Coach`, `Viewer`, or `Custom` with a `CustomRoleId`) and, for roles that only see their own classes, the linked `InstructorId`.
+- `BusinessMembers` holds the role inside one business (`BranchOwner`, `Instructor`, `Viewer`, or `Custom` with a `CustomRoleId`) and, for roles that only see their own classes, the linked `InstructorId`.
+- The `Instructor` role is shown as "Profe" in the app, the same word as the instructors themselves. It was called `Coach` until the `RenameCoachRoleToInstructor` migration, which rewrote the stored `Role` of `BusinessMembers` and `MemberInvitations`.
 - Sign-up creates an organization, its first business, and makes the user `BrandOwner` of the organization and `BranchOwner` of the business.
 
 ## System roles
@@ -15,7 +16,7 @@ How the API decides what a signed-in user may do. The full design is in the [rol
 |---|---|
 | `BrandOwner` | Every permission in every business of the organization, including giving or taking the `BranchOwner` role |
 | `BranchOwner` | Everything inside the business except the `BranchOwner` role itself, including custom roles |
-| `Coach` | Their own class groups, sessions and private lessons; attendance in them; their students; register clients and students; enroll and unenroll the students they reach in their own class groups (`enrollments.manage.own`). No money, settings or team |
+| `Instructor` | Their own class groups, sessions and private lessons; attendance in them; their students; register clients and students; enroll and unenroll the students they reach in their own class groups (`enrollments.manage.own`). No money, settings or team |
 | `Viewer` | Read everything in the business (money, products and orders included), change nothing |
 
 A role that has an `.own` permission without the matching `.all` one needs a linked instructor (`member.instructor_required`).
@@ -28,7 +29,7 @@ Student app users are a different kind of user from the team, kept apart from ev
 - Each person signs in with their own email. A student's email is optional and is never copied from the client: when a student has no email, they can't be invited until one is typed. No two people of a family share an email (`student.email_of_another_person`, checked when registering the client, adding a student and inviting).
 - The branch invites from the student card (`POST /api/clients/{id}/app-invitation`, `students.manage` and the same client scope as the rest of the team). Without `studentId` it invites the client, and the email defaults to the client's. With `studentId` it invites that student: the email defaults to the student's and is saved on the student, and the student's birth date is required (`student_invitation.birth_date_required`; send `birthDate` when it is missing) so the age of everyone using the app is known. The link (`/accept-student-invitation?token=`) is single-use, valid 7 days and hashed, like team invitations; inviting again revokes the previous one. Accepting (`POST /api/auth/student-app-invitations/accept`, anonymous) creates the account when the email has none; when it already has one (the person uses the app elsewhere or is on a team) the link is enough, as for team invitations. The invitee can also decline (`POST /api/auth/student-app-invitations/decline`), which closes the invitation for good.
 - The student card reads the app access from `GET /api/clients/{id}`: `appAccess` for the client and `students[].appAccess` for each student. `status` is `Active` once that person's account exists, `Invited` (with `invitedEmail`) while an invitation is pending, and `NotInvited` otherwise.
-- **The session kind is fixed at sign-in.** Tokens carry a `kind` claim (`team` or `student`; no claim means `team`) and the refresh token stores it, so refreshing or switching branch can never turn a student session into a team one, or the other way. Sign-in opens the team session when the user is a team member and the student session otherwise (a coach who is also a student reaches the student side once a switch exists; not built yet).
+- **The session kind is fixed at sign-in.** Tokens carry a `kind` claim (`team` or `student`; no claim means `team`) and the refresh token stores it, so refreshing or switching branch can never turn a student session into a team one, or the other way. Sign-in opens the team session when the user is a team member and the student session otherwise (an instructor who is also a student reaches the student side once a switch exists; not built yet).
 - **Two disjoint authorization paths.** Team endpoints (`permission:` policies) reject any token whose kind is not `team`. Student endpoints, all under `/api/student-app`, use their own `student` policy: the token kind must be `student` and the user must have a `ClientAccounts` row in the token's branch (read from the database on every request, like `ICurrentMember`). Two tests enforce it: every endpoint is anonymous, a permission or `student`, and `student` only appears under `/api/student-app` and covers everything there.
 - Student use cases never reuse team use cases and never take a client id from the request: they read it from `IStudentAppAccess`.
 
@@ -60,13 +61,13 @@ A branch can have its own roles (`CustomRoles`: name, permission codes, the role
 - Brand permissions (`Permissions.BrandOnly`) and unknown codes are rejected (`role.permission_not_assignable`).
 - **Nobody hands out permissions they don't have**: creating or editing a role, inviting with a role and changing someone's role fail with `403 role.exceeds_own` when the role has a permission the current member lacks.
 - Nobody edits the role they hold (`403 role.own_role`).
-- A role with an `.own` permission and without the matching `.all` needs a linked coach: editing a role into that shape fails with `409 role.instructor_required` while a member or pending invitation with that role has no coach.
+- A role with an `.own` permission and without the matching `.all` needs a linked instructor: editing a role into that shape fails with `409 role.instructor_required` while a member or pending invitation with that role has no instructor.
 - A role used by members or pending invitations can't be deleted (`409 role.in_use`). Deleting it is a soft delete: the role disappears from the app, and removed members and old invitations keep pointing to it, so the history still says which role someone had. Its name can be used again.
 - Invitations and member changes send `role: "Custom"` with `customRoleId`. Team, invitation and `GET /api/me` responses return `customRoleId`; `GET /api/me/branches` returns `customRoleName`.
 
-## Collecting from a coach's own students
+## Collecting from an instructor's own students
 
-The system `Coach` role has no money permissions. A custom role can add them:
+The system `Instructor` role has no money permissions. A custom role can add them:
 
 - `payments.view.own` (instead of `payments.view.all`) narrows the monthly fees list, a student's payments and the class pack sales total to the students the member reaches: the same client scope as `students.view.own` (clients they registered and clients of students in their class groups or private lessons). Reading a student outside it returns `404`.
 - With `payments.view.own`, `payments.record` and `classPacks.sell` only work for those students: recording a payment, changing the billing plan or selling a pack for another student returns `403 member.not_yours`.
@@ -88,12 +89,12 @@ The system `Coach` role has no money permissions. A custom role can add them:
 | What to hand over in a class, hand it over | `GET /api/class-groups/{id}/deliveries`, `PUT /api/class-groups/{id}/deliveries/{orderId}` | `attendance.record.all` or `attendance.record.own` (own class groups only, like attendance) |
 
 - `orders.view.own` narrows orders to the students the member reaches (the student client scope); orders without a student are only visible with `orders.view.all`. With it, selling to another student returns `403 member.not_yours`, and delivering or refunding its orders returns `404`.
-- The system `Coach` role has no shop permissions; `Viewer` gets `products.view` and `orders.view.all`.
+- The system `Instructor` role has no shop permissions; `Viewer` gets `products.view` and `orders.view.all`.
 
 ## Permissions
 
 - The catalog is `Permissions` in `src/Core/Domain/Authorization`. Codes are strings such as `payments.record`.
-- Modules tied to a coach's agenda come in pairs: `sessions.view.all` / `sessions.view.own`, `attendance.record.all` / `.own`, and so on. The endpoint accepts either; the use case narrows the result.
+- Modules tied to an instructor's agenda come in pairs: `sessions.view.all` / `sessions.view.own`, `attendance.record.all` / `.own`, and so on. The endpoint accepts either; the use case narrows the result.
 - `SystemRolePermissions` maps each system role to its permissions.
 - Every endpoint declares its permission with `RequirePermission(...)`, or is anonymous. `GET /api/me` only requires access to the business (`RequireMember()`). The test `When_endpoints_are_mapped/Then_every_endpoint_requires_a_permission_or_is_anonymous` fails the build when an endpoint has neither.
 
@@ -131,7 +132,7 @@ The `role` claim in the token is informational; authorization never reads it.
 - Removing someone from the brand owners is a soft delete too: the `OrganizationMembers` row stays with `IsDeleted = 1` and `DeletedOn`, sign-in and refresh ignore it, and the app asks for confirmation first.
 - Removing a member is a soft delete: the `BusinessMembers` row stays with `IsDeleted = 1` and `DeletedOn`, so the history keeps who had access, with which role and until when. Every query ignores it, including sign-in and refresh (`BranchDirectory` uses `IgnoreTenantFilter()`, which keeps the soft delete filter), and the same person can be invited again.
 - Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation. Resending an invitation that was not accepted or revoked (expired ones too) replaces its token, so the previous link stops working, and emails the new one.
-- Accepting creates the account when the email has none. The name is the one the team already typed (the student, the client or the linked coach), so the person only chooses a password and repeats it; only a team invitation without a linked coach still asks for the name. Anyone can fix their name later from their profile (`PUT /api/me/account` `{ fullName }`). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password. The check endpoint tells the screen which case it is, so a person who already has an account only sees "Aceptar" and "Rechazar", and a person without one only sees the form to create it (no "Rechazar": they simply don't use the link). Declining sets `DeclinedAt`; a declined invitation no longer counts as pending and its link stops working, and the team member who sent it (or the branch owners, if they left the team) gets a team notification. The client card then shows "Invitar" again.
+- Accepting creates the account when the email has none. The name is the one the team already typed (the student, the client or the linked instructor), so the person only chooses a password and repeats it; only a team invitation without a linked instructor still asks for the name. Anyone can fix their name later from their profile (`PUT /api/me/account` `{ fullName }`). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password. The check endpoint tells the screen which case it is, so a person who already has an account only sees "Aceptar" and "Rechazar", and a person without one only sees the form to create it (no "Rechazar": they simply don't use the link). Declining sets `DeclinedAt`; a declined invitation no longer counts as pending and its link stops working, and the team member who sent it (or the branch owners, if they left the team) gets a team notification. The client card then shows "Invitar" again.
 - A sign-in email belongs to one user only: Identity requires unique emails and the database enforces it with the unique `EmailIndex` on `AspNetUsers.NormalizedEmail` (and `UserNameIndex`, since the user name is the email). One user can still have a team membership and student accounts in several branches.
 
 ## Branches
@@ -152,19 +153,19 @@ The `role` claim in the token is informational; authorization never reads it.
 
 - `MemberProvider` loads `GET /api/me` next to the business; `useCan(...)` hides tabs, rows, buttons and sections the member can't use ([frontend plan](frontend/20260928-roles-and-team/plan.md)).
 - Ajustes → Equipo lists members and pending invitations, invites, changes roles and removes members.
-- Ajustes → Roles lists the branch's roles and the app's; a system role can be copied into a custom one, and custom roles are edited by module with "No / Solo lo suyo / Todo" for the modules tied to a coach.
+- Ajustes → Roles lists the branch's roles and the app's; a system role can be copied into a custom one, and custom roles are edited by module with "No / Solo lo suyo / Todo" for the modules tied to an instructor.
 - The email link opens `/accept-invitation?token=`, which creates the account if needed and signs in.
 
 ## Adding an endpoint
 
 1. Pick an existing permission from `Permissions`, or add one there (and to `Permissions.All`).
-2. Add `.RequirePermission(Permissions.<Module>.<Action>)` to the mapping. For coach-scoped modules, pass the `.all` code and then the `.own` code, and apply `IAccessScopes` in the use case.
+2. Add `.RequirePermission(Permissions.<Module>.<Action>)` to the mapping. For instructor-scoped modules, pass the `.all` code and then the `.own` code, and apply `IAccessScopes` in the use case.
 3. If a new permission should not belong to every system role, update `SystemRolePermissions` and its tests.
 
 ## Audit
 
 ```powershell
-dotnet test tests/ClassManager.Api.I.Tests --filter "FullyQualifiedName~Authorization|FullyQualifiedName~Coaches|FullyQualifiedName~Viewers|FullyQualifiedName~Members|FullyQualifiedName~Roles"
+dotnet test tests/ClassManager.Api.I.Tests --filter "FullyQualifiedName~Authorization|FullyQualifiedName~Instructors|FullyQualifiedName~Viewers|FullyQualifiedName~Members|FullyQualifiedName~Roles"
 ```
 
 ```sql

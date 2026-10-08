@@ -11,7 +11,7 @@ public static class SystemRolePermissions
     private static readonly FrozenSet<string> BranchOwnerPermissions =
         Permissions.Assignable.ToFrozenSet(StringComparer.Ordinal);
 
-    private static readonly FrozenSet<string> CoachPermissions = new[]
+    private static readonly FrozenSet<string> InstructorPermissions = new[]
     {
         Permissions.Business.View,
         Permissions.Instructors.View,
@@ -48,7 +48,7 @@ public static class SystemRolePermissions
         role switch
         {
             BusinessRole.BranchOwner => BranchOwnerPermissions,
-            BusinessRole.Coach => CoachPermissions,
+            BusinessRole.Instructor => InstructorPermissions,
             BusinessRole.Viewer => ViewerPermissions,
             _ => FrozenSet<string>.Empty,
         };

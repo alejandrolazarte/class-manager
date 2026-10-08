@@ -10,7 +10,7 @@ public sealed class Then_returns_409(ApiFixture fixture)
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         using var response = await scenario.Student.PutMakeupAsync(
-            scenario.Coaches.CoachStudentId, scenario.Coaches.OtherClassGroup.Id, CoachScenario.ClassDate);
+            scenario.Instructors.InstructorStudentId, scenario.Instructors.OtherClassGroup.Id, InstructorScenario.ClassDate);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await response.Content.ReadAsStringAsync()).ShouldContain(SessionErrorCodes.MakeupNoCredit);

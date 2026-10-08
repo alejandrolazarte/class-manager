@@ -8,7 +8,7 @@ public sealed class BusinessMember : ITenantOwned, ISoftDeletable
 {
     public const int RoleMaxLength = 20;
 
-    private const string InstructorRequiredMessage = "This role only sees its own classes, so it needs a linked coach.";
+    private const string InstructorRequiredMessage = "This role only sees its own classes, so it needs a linked instructor.";
 
     private BusinessMember()
     {

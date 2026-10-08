@@ -62,7 +62,7 @@ export function presentNews(item: StudentAppNewsItem): NewsPresentation {
         title: translate("student.news.orderReady.title"),
         body: translate("student.news.orderReady.body"),
       };
-    case "CoachFeedback":
+    case "InstructorFeedback":
       return {
         icon: "comment",
         title:

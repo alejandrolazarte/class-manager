@@ -17,14 +17,14 @@ Product decisions on what a business can brand, and which parts could be paid. P
 | Built-in themes, light/dark | Free | Basic personalization; costs nothing to keep and makes the app feel like one's own from day one |
 | Business icon from the catalog | Free | Same |
 | Business theme from its brand colors, default for the team | Paid ("Marca propia" or part of a Pro plan) | Studios and chains with an established brand value it, and they are the ones that pay the most |
-| Lock the business theme for members | Paid | Studios with a brand want coaches (and, later, students) to see it; an independent instructor doesn't need it |
+| Lock the business theme for members | Paid | Studios with a brand want instructors (and, later, students) to see it; an independent instructor doesn't need it |
 | Custom logo instead of the catalog icon | Paid, later | Students now see it (welcome screen and Inicio in the student app) |
 
 **When a business stops paying:** the colors stay stored but are no longer applied; everyone falls back to `aqua` or the theme they chose. Nothing breaks, and paying again brings the theme back.
 
 **Status (2026-09-30):** logo, brand theme with accent, lock and welcome screen are built and, during the pilot, available to every business without a paid gate ([brand plan](frontend/20260930-brand/plan.md)).
 
-**Timing:** while only the owner and coaches use the app, a business theme is nice to have, not a need. It becomes a strong selling point once students see something branded (receipts, a student portal, emails). Until then it can be free during the pilot as a hook, announced as part of the paid plan later.
+**Timing:** while only the owner and instructors use the app, a business theme is nice to have, not a need. It becomes a strong selling point once students see something branded (receipts, a student portal, emails). Until then it can be free during the pilot as a hook, announced as part of the paid plan later.
 
 ## Brands with two or more colors
 

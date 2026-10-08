@@ -12,7 +12,7 @@ public sealed class Then_a_class_is_used(ApiFixture fixture)
         await scenario.BookPackClassAsync();
 
         using var response = await scenario.Owner.PutAttendanceAsync(
-            scenario.PackClassGroupId, CoachScenario.ClassDate, scenario.StudentId, AttendanceStatus.Absent);
+            scenario.PackClassGroupId, InstructorScenario.ClassDate, scenario.StudentId, AttendanceStatus.Absent);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         (await scenario.Owner.GetClassBalanceAsync(scenario.Scenario.ClientId))!.AvailableClasses.ShouldBe(3);

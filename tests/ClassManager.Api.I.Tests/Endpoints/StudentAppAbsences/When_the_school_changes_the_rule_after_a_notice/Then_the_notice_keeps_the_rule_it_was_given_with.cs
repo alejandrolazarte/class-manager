@@ -9,14 +9,14 @@ public sealed class Then_the_notice_keeps_the_rule_it_was_given_with(ApiFixture 
     public async Task Then_the_notice_keeps_the_rule_it_was_given_with_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var business = scenario.Coaches.Business;
+        var business = scenario.Instructors.Business;
         (await scenario.Student.PutAbsenceAsync(
-            scenario.Coaches.CoachStudentId, scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate)).EnsureSuccessStatusCode();
+            scenario.Instructors.InstructorStudentId, scenario.Instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate)).EnsureSuccessStatusCode();
 
         (await business.HttpClient.PutAchievementSettingsAsync(AchievementRequests.SettingsWith(noticedAbsencesKeepStreak: false)))
             .EnsureSuccessStatusCode();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
-        (await context.AbsenceNotices.SingleAsync(notice => notice.StudentId == scenario.Coaches.CoachStudentId)).KeepsStreak.ShouldBeTrue();
+        (await context.AbsenceNotices.SingleAsync(notice => notice.StudentId == scenario.Instructors.InstructorStudentId)).KeepsStreak.ShouldBeTrue();
     }
 }

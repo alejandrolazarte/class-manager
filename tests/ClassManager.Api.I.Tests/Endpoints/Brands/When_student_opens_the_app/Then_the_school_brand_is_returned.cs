@@ -7,7 +7,7 @@ public sealed class Then_the_school_brand_is_returned(ApiFixture fixture)
     public async Task Then_the_school_brand_is_returned_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         (await owner.PutBrandAsync(BrandRequests.DeltaBrand())).EnsureSuccessStatusCode();
         (await owner.PutBrandLogoAsync(BrandRequests.PngLogo)).EnsureSuccessStatusCode();
 

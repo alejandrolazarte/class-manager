@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var role = CustomRole.Create("Coach que cobra", [Permissions.Sessions.ViewOwn, Permissions.Payments.Record], null, TestData.Now).Value!;
+        var role = CustomRole.Create("Instructor que cobra", [Permissions.Sessions.ViewOwn, Permissions.Payments.Record], null, TestData.Now).Value!;
 
         var member = BusinessMember.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), MemberRole.Custom(role), instructorId: null);
 

@@ -17,7 +17,7 @@ Sources: Law 25.326 and the AAIP criteria (Argentina); LOPDGDD art. 7, GDPR art.
 
 ## Where the birth date comes from
 
-- **Every new account** asks for it: the owner when signing up, and anyone accepting an invitation without an account (client, student, coach, team member). It is stored on the account (`AspNetUsers.BirthDate`) and the person can correct it from Editar perfil.
+- **Every new account** asks for it: the owner when signing up, and anyone accepting an invitation without an account (client, student, instructor, team member). It is stored on the account (`AspNetUsers.BirthDate`) and the person can correct it from Editar perfil.
 - **Students** also have a birth date typed by the team (`Students.BirthDate`). Inviting a student to the app requires it, and the invitation screen comes with it filled in so the person confirms or corrects it.
 - **Accounts created before this change** have no birth date; they add it from Editar perfil (the form requires it to save).
 

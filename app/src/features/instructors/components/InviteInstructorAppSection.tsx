@@ -19,7 +19,7 @@ import { Spinner } from "@/ui/Spinner";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
-const coachRole = "Coach";
+const instructorRole = "Instructor";
 
 const statusTones: Record<InstructorAppAccessStatus, TextTone> = {
   NotInvited: "muted",
@@ -74,7 +74,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
     try {
       await inviteMutation.mutateAsync({
         email: recipientEmail,
-        role: coachRole,
+        role: instructorRole,
         customRoleId: null,
         instructorId: instructor.id,
       });
@@ -88,7 +88,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
         return;
       }
       if (isApiError(inviteError) && inviteError.hasCode(memberErrorCodes.instructorTaken)) {
-        setFailureMessage(translate("team.invite.coachTaken"));
+        setFailureMessage(translate("team.invite.instructorTaken"));
         return;
       }
       setFailureMessage(translate("common.unexpectedError"));

@@ -12,10 +12,10 @@ public sealed class Then_it_is_removed(ApiFixture fixture)
         var endpoint = await scenario.SubscribeAsync();
         fixture.ApiFactory.PushSender.Expire(endpoint);
 
-        (await scenario.Coaches.Business.HttpClient.PostAnnouncementAsync("Lunes cerrado", "Feriado")).EnsureSuccessStatusCode();
+        (await scenario.Instructors.Business.HttpClient.PostAnnouncementAsync("Lunes cerrado", "Feriado")).EnsureSuccessStatusCode();
         await fixture.ApiFactory.PushSender.WaitForPushToAsync(endpoint);
 
-        await using var context = fixture.CreateDbContext(scenario.Coaches.Business.Business.Id);
+        await using var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id);
         var isRemoved = false;
         for (var attempt = 0; attempt < 100 && !isRemoved; attempt++)
         {

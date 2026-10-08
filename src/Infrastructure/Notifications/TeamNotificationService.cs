@@ -85,13 +85,13 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
 
     private async Task<IReadOnlyList<Guid>> RecipientsAsync(Guid instructorId, CancellationToken cancellationToken)
     {
-        var coachUserIds = await context.BusinessMembers.AsNoTracking()
+        var instructorUserIds = await context.BusinessMembers.AsNoTracking()
             .Where(member => member.InstructorId == instructorId)
             .Select(member => member.UserId)
             .Distinct()
             .ToListAsync(cancellationToken);
-        return coachUserIds.Count > 0
-            ? coachUserIds
+        return instructorUserIds.Count > 0
+            ? instructorUserIds
             : await BranchOwnersAsync(cancellationToken);
     }
 }

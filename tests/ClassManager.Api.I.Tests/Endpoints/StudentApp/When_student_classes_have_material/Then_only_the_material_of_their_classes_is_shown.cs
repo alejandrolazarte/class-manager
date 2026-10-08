@@ -12,13 +12,13 @@ public sealed class Then_only_the_material_of_their_classes_is_shown(ApiFixture 
     public async Task Then_only_the_material_of_their_classes_is_shown_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var coaches = scenario.Coaches;
-        await coaches.Business.HttpClient.ShareClassGroupMaterialAsync(coaches.CoachClassGroup, StudentClassMaterialUrl);
-        await coaches.Business.HttpClient.ShareClassGroupMaterialAsync(coaches.OtherClassGroup, OtherClassMaterialUrl);
+        var instructors = scenario.Instructors;
+        await instructors.Business.HttpClient.ShareClassGroupMaterialAsync(instructors.InstructorClassGroup, StudentClassMaterialUrl);
+        await instructors.Business.HttpClient.ShareClassGroupMaterialAsync(instructors.OtherClassGroup, OtherClassMaterialUrl);
 
         var home = await scenario.Student.GetStudentAppHomeAsync();
 
         home!.Students.Single().Materials.ShouldBe(
-            [new StudentAppClassMaterialResponse(coaches.CoachClassGroup.Id, CoachScenario.CoachClassGroupName, StudentClassMaterialUrl)]);
+            [new StudentAppClassMaterialResponse(instructors.InstructorClassGroup.Id, InstructorScenario.InstructorClassGroupName, StudentClassMaterialUrl)]);
     }
 }

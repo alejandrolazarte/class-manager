@@ -11,15 +11,15 @@ public sealed class Then_the_news_mentions_both_once(ApiFixture fixture)
     public async Task Then_the_news_mentions_both_once_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var siblingId = (await owner.AddStudentAsync(scenario.ClientId, SiblingFullName)).Id;
-        await owner.EnrollAsync(scenario.Coaches.CoachClassGroup.Id, siblingId, CoachScenario.ClassDate);
-        var nextWeek = CoachScenario.ClassDate.AddDays(7);
-        (await owner.PutSessionCancellationAsync(scenario.Coaches.CoachClassGroup.Id, nextWeek, "Feriado")).EnsureSuccessStatusCode();
+        await owner.EnrollAsync(scenario.Instructors.InstructorClassGroup.Id, siblingId, InstructorScenario.ClassDate);
+        var nextWeek = InstructorScenario.ClassDate.AddDays(7);
+        (await owner.PutSessionCancellationAsync(scenario.Instructors.InstructorClassGroup.Id, nextWeek, "Feriado")).EnsureSuccessStatusCode();
 
         var news = await scenario.Student.GetStudentAppNewsAsync();
 
         var cancelled = news!.Items.Single(item => item.Kind == StudentAppNewsKind.ClassCancelled);
-        cancelled.StudentFullNames.ShouldBe([CoachScenario.CoachStudentFullName, SiblingFullName], ignoreOrder: true);
+        cancelled.StudentFullNames.ShouldBe([InstructorScenario.InstructorStudentFullName, SiblingFullName], ignoreOrder: true);
     }
 }

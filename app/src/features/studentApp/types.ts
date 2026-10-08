@@ -226,7 +226,8 @@ export interface PlaceStudentAppOrderLine {
   quantity: number;
 }
 
-export type StudentAppNewsKind = "Announcement" | "OrderReady" | "CoachFeedback" | "ClassCancelled";
+export type StudentAppNewsKind =
+  "Announcement" | "OrderReady" | "InstructorFeedback" | "ClassCancelled";
 
 export interface StudentAppNewsItem {
   id: string;

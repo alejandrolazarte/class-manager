@@ -86,7 +86,7 @@ public sealed class GetStudentAppNewsUseCase(
 
         items.AddRange((await feedbackRepository.ListUpdatedSinceAsync(studentIds, now.AddDays(-FeedbackDays), cancellationToken))
             .Select(feedback => Item(
-                StudentAppNewsKind.CoachFeedback,
+                StudentAppNewsKind.InstructorFeedback,
                 string.Join(IdSeparator, feedback.StudentId, feedback.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture)),
                 feedback.UpdatedAt,
                 body: feedback.Text,

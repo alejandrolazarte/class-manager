@@ -10,7 +10,7 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 jest.mock("@/features/orders/ordersApi");
 
 const ordersOnlyMember = buildCurrentMember({
-  branchRole: "Coach",
+  branchRole: "Instructor",
   isBrandOwner: false,
   permissions: ["business.view", "orders.view.all"],
 });

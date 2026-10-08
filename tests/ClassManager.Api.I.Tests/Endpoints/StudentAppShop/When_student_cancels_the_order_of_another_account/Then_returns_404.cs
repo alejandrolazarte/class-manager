@@ -7,8 +7,8 @@ public sealed class Then_returns_404(ApiFixture fixture)
     public async Task Then_returns_404_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var otherStudent = await fixture.InviteStudentAppOfAsync(scenario.Coaches, CoachScenario.OtherStudentFullName);
-        var classPack = await scenario.Coaches.Business.HttpClient.CreateClassPackAsync();
+        var otherStudent = await fixture.InviteStudentAppOfAsync(scenario.Instructors, InstructorScenario.OtherStudentFullName);
+        var classPack = await scenario.Instructors.Business.HttpClient.CreateClassPackAsync();
         var otherOrder = await otherStudent.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.PackLine(classPack.Id));
 
         using var response = await scenario.Student.PutStudentAppOrderCancellationAsync(otherOrder.Id);

@@ -12,7 +12,7 @@ public sealed class Then_returns_409(ApiFixture fixture)
         await scenario.NoticeAndBookOtherClassAsync();
 
         using var response = await scenario.Student.DeleteAbsenceAsync(
-            scenario.Coaches.CoachStudentId, scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate);
+            scenario.Instructors.InstructorStudentId, scenario.Instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await response.Content.ReadAsStringAsync()).ShouldContain(SessionErrorCodes.MakeupCreditInUse);

@@ -4,7 +4,7 @@ public enum StudentAppNewsKind
 {
     Announcement,
     OrderReady,
-    CoachFeedback,
+    InstructorFeedback,
     ClassCancelled,
 }
 

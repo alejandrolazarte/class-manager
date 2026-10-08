@@ -19,7 +19,7 @@ import { useToast } from "@/ui/ToastProvider";
 import { isFilled } from "@/forms/requiredFields";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
-const defaultRoleKey = "Coach";
+const defaultRoleKey = "Instructor";
 
 export function InviteMemberScreen() {
   const router = useRouter();
@@ -35,18 +35,20 @@ export function InviteMemberScreen() {
   const [instructorError, setInstructorError] = useState<string | undefined>();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const instructors = freeInstructors(instructorsQuery.data ?? [], teamQuery.data);
-  const needsCoach = findRoleChoice(roleKey, roles)?.needsCoach === true;
-  const areRequiredFieldsFilled = isFilled(email) && (!needsCoach || instructorId !== null);
+  const needsInstructor = findRoleChoice(roleKey, roles)?.needsInstructor === true;
+  const areRequiredFieldsFilled = isFilled(email) && (!needsInstructor || instructorId !== null);
 
   const invite = async () => {
     setSubmissionFailure(null);
     const trimmedEmail = email.trim();
     const isEmailValid = emailAddressPattern.test(trimmedEmail);
     const roleChoice = findRoleChoice(roleKey, roles);
-    const isCoachMissing = roleChoice?.needsCoach === true && instructorId === null;
+    const isInstructorMissing = roleChoice?.needsInstructor === true && instructorId === null;
     setEmailError(isEmailValid ? undefined : translate("team.invite.emailInvalid"));
-    setInstructorError(isCoachMissing ? translate("team.invite.coachRequired") : undefined);
-    if (!isEmailValid || isCoachMissing || roleChoice === undefined) {
+    setInstructorError(
+      isInstructorMissing ? translate("team.invite.instructorRequired") : undefined,
+    );
+    if (!isEmailValid || isInstructorMissing || roleChoice === undefined) {
       return;
     }
     try {
@@ -54,7 +56,7 @@ export function InviteMemberScreen() {
         email: trimmedEmail,
         role: roleChoice.role,
         customRoleId: roleChoice.customRoleId,
-        instructorId: roleChoice.needsCoach ? instructorId : null,
+        instructorId: roleChoice.needsInstructor ? instructorId : null,
       });
       showToast(translate("team.invite.sent"));
       router.back();
@@ -64,7 +66,7 @@ export function InviteMemberScreen() {
         return;
       }
       if (isApiError(inviteError) && inviteError.hasCode(memberErrorCodes.instructorTaken)) {
-        setInstructorError(translate("team.invite.coachTaken"));
+        setInstructorError(translate("team.invite.instructorTaken"));
         return;
       }
       setSubmissionFailure(toSubmissionFailure(inviteError));

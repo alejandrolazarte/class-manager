@@ -7,10 +7,10 @@ public sealed class Then_the_student_is_emailed_where_to_get_it(ApiFixture fixtu
     public async Task Then_the_student_is_emailed_where_to_get_it_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var product = await owner.RestockAsync(await owner.CreateProductAsync(), 2);
         using (var placed = await scenario.Student.PostStudentAppOrderForClassAsync(
-            scenario.Coaches.CoachClassGroup.Id, StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1)))
+            scenario.Instructors.InstructorClassGroup.Id, StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1)))
         {
             placed.StatusCode.ShouldBe(HttpStatusCode.Created);
         }
@@ -22,6 +22,6 @@ public sealed class Then_the_student_is_emailed_where_to_get_it(ApiFixture fixtu
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var readyEmail = await fixture.ApiFactory.EmailTransport.WaitForEmailToAsync(scenario.Email, email => email.Subject == "Tu pedido está listo");
-        readyEmail.TextBody.ShouldContain(CoachScenario.CoachClassGroupName);
+        readyEmail.TextBody.ShouldContain(InstructorScenario.InstructorClassGroupName);
     }
 }

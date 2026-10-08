@@ -11,7 +11,7 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 
 const conflictMessages = {
-  [memberErrorCodes.instructorTaken]: translate("invitation.coachTaken"),
+  [memberErrorCodes.instructorTaken]: translate("invitation.instructorTaken"),
   [memberErrorCodes.alreadyMember]: translate("team.invite.alreadyMember"),
 };
 

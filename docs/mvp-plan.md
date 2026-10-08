@@ -129,9 +129,9 @@ Plan in [backend](backend/20260928-private-lessons/plan.md), part of the [DF Swi
 
 Plan in [backend](backend/20260928-roles-and-permissions/plan.md), Phase 2 of the [DF Swimming pilot plan](pilot-df-swimming.md).
 
-- Every endpoint requires a permission; system roles `BrandOwner`, `BranchOwner`, `Coach` and `Viewer`, copyable into custom roles per branch.
+- Every endpoint requires a permission; system roles `BrandOwner`, `BranchOwner`, `Instructor` and `Viewer`, copyable into custom roles per branch.
 - A brand (organization) groups branches, each its own business; brand owners act in every branch.
-- Coaches are invited by email and see their own classes, private lessons and students (payments for coaches come next).
+- Instructors are invited by email and see their own classes, private lessons and students (payments for instructors come next).
 - The app shows each role only what it allows; owners manage the team from Ajustes → Equipo ([frontend plan](frontend/20260928-roles-and-team/plan.md)).
 
 ## Definition of done (per use case)

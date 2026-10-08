@@ -24,8 +24,8 @@ public static class MakeupRequests
 
     public static async Task NoticeAndBookOtherClassAsync(this StudentAppScenario scenario)
     {
-        var coaches = scenario.Coaches;
-        (await scenario.Student.PutAbsenceAsync(coaches.CoachStudentId, coaches.CoachClassGroup.Id, CoachScenario.ClassDate)).EnsureSuccessStatusCode();
-        (await scenario.Student.PutMakeupAsync(coaches.CoachStudentId, coaches.OtherClassGroup.Id, CoachScenario.ClassDate)).EnsureSuccessStatusCode();
+        var instructors = scenario.Instructors;
+        (await scenario.Student.PutAbsenceAsync(instructors.InstructorStudentId, instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate)).EnsureSuccessStatusCode();
+        (await scenario.Student.PutMakeupAsync(instructors.InstructorStudentId, instructors.OtherClassGroup.Id, InstructorScenario.ClassDate)).EnsureSuccessStatusCode();
     }
 }

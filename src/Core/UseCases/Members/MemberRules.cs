@@ -12,8 +12,8 @@ internal static class MemberRules
 {
     private const string RoleNotAllowedMessage = "Only a brand owner can give or take the branch owner role.";
     private const string OwnMembershipMessage = "You can't change or remove your own access.";
-    private const string InstructorNotFoundMessage = "The coach does not exist.";
-    private const string InstructorTakenMessage = "Another team member is already linked to this coach.";
+    private const string InstructorNotFoundMessage = "The instructor does not exist.";
+    private const string InstructorTakenMessage = "Another team member is already linked to this instructor.";
     private const string MemberNotFoundMessage = "The team member does not exist.";
     private const string RoleRequiredMessage = "Choose a role.";
     private const string CustomRoleNotFoundMessage = "The role does not exist.";

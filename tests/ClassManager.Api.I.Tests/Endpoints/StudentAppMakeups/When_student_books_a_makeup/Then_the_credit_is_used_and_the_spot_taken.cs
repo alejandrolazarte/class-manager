@@ -9,11 +9,11 @@ public sealed class Then_the_credit_is_used_and_the_spot_taken(ApiFixture fixtur
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         await scenario.NoticeAndBookOtherClassAsync();
 
-        var makeups = await scenario.Student.GetMakeupsAsync(scenario.Coaches.CoachStudentId);
+        var makeups = await scenario.Student.GetMakeupsAsync(scenario.Instructors.InstructorStudentId);
 
         makeups!.Credits.ShouldBeEmpty();
-        var slot = makeups.Slots.Single(slot => slot.Date == CoachScenario.ClassDate);
+        var slot = makeups.Slots.Single(slot => slot.Date == InstructorScenario.ClassDate);
         slot.IsBooked.ShouldBeTrue();
-        slot.SpotsLeft.ShouldBe(scenario.Coaches.OtherClassGroup.Capacity - 2);
+        slot.SpotsLeft.ShouldBe(scenario.Instructors.OtherClassGroup.Capacity - 2);
     }
 }

@@ -12,7 +12,7 @@ public sealed class Then_a_team_session_is_issued(ApiFixture fixture)
         using var client = fixture.CreateClientWithToken(seeded.OwnerTokens.AccessToken);
 
         var studentTokens = await (await client.PostSwitchAccountAsync(
-            seeded.OwnerTokens.RefreshToken, seeded.Student.Coaches.Business.Business.Id, AccountKinds.Student)).ReadTokensAsync();
+            seeded.OwnerTokens.RefreshToken, seeded.Student.Instructors.Business.Business.Id, AccountKinds.Student)).ReadTokensAsync();
         using var studentClient = fixture.CreateClientWithToken(studentTokens.AccessToken);
 
         using var response = await studentClient.PostSwitchAccountAsync(studentTokens.RefreshToken, seeded.OwnBusinessId, AccountKinds.Team);

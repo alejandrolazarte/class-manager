@@ -9,10 +9,10 @@ public sealed class Then_it_counts_as_an_attended_class(ApiFixture fixture)
     public async Task Then_it_counts_as_an_attended_class_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var lesson = await owner.SchedulePrivateLessonAsync(
-            scenario.Coaches.CoachInstructorId, scenario.Coaches.CoachStudentId, CoachScenario.ClassDate);
-        using (var response = await owner.PutPrivateLessonAttendanceAsync(lesson.Id, scenario.Coaches.CoachStudentId, AttendanceStatus.Present))
+            scenario.Instructors.InstructorId, scenario.Instructors.InstructorStudentId, InstructorScenario.ClassDate);
+        using (var response = await owner.PutPrivateLessonAttendanceAsync(lesson.Id, scenario.Instructors.InstructorStudentId, AttendanceStatus.Present))
         {
             response.IsSuccessStatusCode.ShouldBeTrue();
         }
