@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { BackHandler, Pressable, View } from "react-native";
+import { BackHandler, View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
@@ -34,14 +34,13 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { StudentSummary } from "@/features/students/types";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
-import { IconButton } from "@/ui/IconButton";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { OptionCard } from "@/ui/OptionCard";
+import { PickerField } from "@/ui/PickerField";
 import { StepScreen } from "@/ui/StepScreen";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
@@ -71,62 +70,6 @@ function customerOfStudent(student: StudentSummary): SaleCustomer {
     name: student.fullName,
     detail: studentContactLine(student),
   };
-}
-
-interface CustomerFieldProps {
-  customer: SaleCustomer | null;
-  onChoose: () => void;
-  onRemove: () => void;
-}
-
-function CustomerField({ customer, onChoose, onRemove }: CustomerFieldProps) {
-  return (
-    <View className="gap-2">
-      <AppText variant="label" tone="muted">
-        {translate("orders.counterSale.student")}
-      </AppText>
-      {customer === null ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={translate("orders.counterSale.chooseStudent")}
-          onPress={onChoose}
-          className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-3.5 py-3 active:bg-muted"
-        >
-          <Icon name="findPerson" tone="muted-foreground" />
-          <View className="min-w-0 flex-1">
-            <AppText variant="bodyStrong">{translate("orders.counterSale.chooseStudent")}</AppText>
-            <AppText variant="caption" tone="subtle">
-              {translate("common.optional")}
-            </AppText>
-          </View>
-          <Icon name="next" tone="subtle-foreground" />
-        </Pressable>
-      ) : (
-        <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
-          <Avatar name={customer.name} size="small" />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={translate("orders.counterSale.chooseStudent")}
-            onPress={onChoose}
-            className="min-w-0 flex-1 py-1.5"
-          >
-            <AppText variant="bodyStrong">{customer.name}</AppText>
-            {customer.detail ? (
-              <AppText variant="caption" tone="subtle">
-                {customer.detail}
-              </AppText>
-            ) : null}
-          </Pressable>
-          <IconButton
-            icon="close"
-            tone="muted-foreground"
-            accessibilityLabel={translate("orders.counterSale.removeStudent")}
-            onPress={onRemove}
-          />
-        </View>
-      )}
-    </View>
-  );
 }
 
 export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
@@ -255,8 +198,12 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
           </TotalBar>
         }
       >
-        <CustomerField
-          customer={customer}
+        <PickerField
+          label={translate("orders.counterSale.student")}
+          chooseLabel={translate("orders.counterSale.chooseStudent")}
+          removeLabel={translate("orders.counterSale.removeStudent")}
+          hint={translate("common.optional")}
+          picked={customer}
           onChoose={() => setOpenPicker("student")}
           onRemove={() => chooseCustomer(null)}
         />

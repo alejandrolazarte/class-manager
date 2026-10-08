@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Domain.Accounts;
+using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Notifications;
 using ClassManager.Infrastructure.Persistence;
@@ -46,6 +47,7 @@ public static class InfrastructureServiceCollectionExtensions
             options
                 .UseSqlServer(connectionString)
                 .AddInterceptors(
+                    serviceProvider.GetRequiredService<BackgroundTaskSignalInterceptor>(),
                     new SoftDeleteSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>()),
                     serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>(),
                     serviceProvider.GetRequiredService<FeatureLimitSaveChangesInterceptor<AppDbContext>>());
@@ -92,7 +94,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IOrderNotificationService, OrderNotificationService>();
         services.AddScoped<IPrivateLessonRepository, PrivateLessonRepository>();
 
-        return services.AddEmail().AddWebPush().AddCatalogImages().AddSecurity();
+        return services.AddBackgroundTasks().AddEmail().AddWebPush().AddCatalogImages().AddSecurity();
     }
 
     private static IServiceCollection AddEmail(this IServiceCollection services)
@@ -101,7 +103,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IWebAppLinks, WebAppLinks>();
         services.AddScoped<EmailBrandReader>();
         services.AddScoped<IEmailSender, BrandedEmailSender>();
-        services.AddSingleton<EmailOutbox>();
+        services.AddBackgroundTask<SendEmailBackgroundTaskCommand, SendEmailBackgroundTaskHandler>();
 
         return services;
     }
@@ -109,7 +111,7 @@ public static class InfrastructureServiceCollectionExtensions
     private static IServiceCollection AddWebPush(this IServiceCollection services)
     {
         services.AddWebPushSender();
-        services.AddSingleton<PushOutbox>();
+        services.AddBackgroundTask<SendPushBackgroundTaskCommand, SendPushBackgroundTaskHandler>();
         services.AddSingleton<IWebPushKeyProvider, WebPushKeyProvider>();
         services.AddScoped<PushPublisher>();
         services.AddScoped(serviceProvider => new PushDispatcher(

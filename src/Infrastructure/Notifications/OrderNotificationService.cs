@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Authorization;
+using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.WebPush;
@@ -12,7 +13,7 @@ namespace ClassManager.Infrastructure.Notifications;
 internal sealed class OrderNotificationService(
     AppDbContext context,
     IIdentityService identityService,
-    EmailOutbox emailOutbox,
+    IBackgroundTaskOutbox backgroundTasks,
     IWebAppLinks webAppLinks,
     PushPublisher pushPublisher,
     TeamNotifier teamNotifier)
@@ -32,7 +33,7 @@ internal sealed class OrderNotificationService(
         var staffUserIds = await StaffUserIdsAsync(business, cancellationToken);
         foreach (var email in await EmailsOfAsync(staffUserIds, cancellationToken))
         {
-            Send(OrderEmails.Placed(EmailContextOf(order, business, email), client.FullName, delivery, webAppLinks.TeamOrders()));
+            await SendAsync(OrderEmails.Placed(EmailContextOf(order, business, email), client.FullName, delivery, webAppLinks.TeamOrders()), cancellationToken);
         }
 
         await teamNotifier.NotifyAsync(
@@ -59,13 +60,14 @@ internal sealed class OrderNotificationService(
             : OrderEmails.WillNotifyWhenReady;
         if (order.HasProducts && order.IsReady)
         {
-            PushReady(order, nextStep);
+            await PushReadyAsync(order, nextStep, cancellationToken);
         }
 
         foreach (var email in await ClientEmailsAsync(order, cancellationToken))
         {
-            Send(
-                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.StudentAppOrders()));
+            await SendAsync(
+                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.StudentAppOrders()),
+                cancellationToken);
         }
     }
 
@@ -78,10 +80,10 @@ internal sealed class OrderNotificationService(
         }
 
         var whereToGetIt = await WhereToGetItAsync(order, business, cancellationToken);
-        PushReady(order, whereToGetIt);
+        await PushReadyAsync(order, whereToGetIt, cancellationToken);
         foreach (var email in await ClientEmailsAsync(order, cancellationToken))
         {
-            Send(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.StudentAppOrders()));
+            await SendAsync(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.StudentAppOrders()), cancellationToken);
         }
     }
 
@@ -99,7 +101,7 @@ internal sealed class OrderNotificationService(
             var message = reason == OrderCancellationReason.Unpaid
                 ? OrderEmails.CancelledUnpaid(emailContext, webAppLinks.StudentAppOrders())
                 : OrderEmails.CancelledByBranch(emailContext, webAppLinks.StudentAppOrders());
-            Send(message);
+            await SendAsync(message, cancellationToken);
         }
     }
 
@@ -112,11 +114,12 @@ internal sealed class OrderNotificationService(
             [.. order.Lines.Select(line => OrderEmails.Line(line.Quantity, line.Name, line.Total, business.CurrencyCode))],
             OrderEmails.Amount(order.Total, business.CurrencyCode));
 
-    private void PushReady(Order order, string whereToGetIt)
+    private async Task PushReadyAsync(Order order, string whereToGetIt, CancellationToken cancellationToken)
     {
         if (order.ClientId is { } clientId)
         {
-            pushPublisher.PublishToStudents([clientId], new PushMessage(StudentAppPushTexts.OrderReadyTitle, whereToGetIt, StudentAppPushTexts.OrdersUrl));
+            await pushPublisher.PublishToStudentsAsync(
+                [clientId], new PushMessage(StudentAppPushTexts.OrderReadyTitle, whereToGetIt, StudentAppPushTexts.OrdersUrl), cancellationToken);
         }
     }
 
@@ -186,5 +189,6 @@ internal sealed class OrderNotificationService(
             ? customRoles.TryGetValue(customRoleId, out var customRole) ? MemberRole.Custom(customRole).Permissions : new HashSet<string>()
             : SystemRolePermissions.Of(member.Role);
 
-    private void Send(EmailMessage message) => emailOutbox.Enqueue(message);
+    private Task SendAsync(EmailMessage message, CancellationToken cancellationToken) =>
+        backgroundTasks.EnqueueAsync(new SendEmailBackgroundTaskCommand(message), cancellationToken);
 }

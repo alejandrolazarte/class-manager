@@ -119,6 +119,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes chosen by each user, a theme created by the business from its color, and a business icon
 - [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, brand colors with accent, theme lock, welcome screen, and where students and the team see the brand
 - [Team notifications](docs/backend/20261001-team-notifications/plan.md) — avisos for coaches and owners (no voy, makeups, new orders), who gets each one, and web push for the team
+- [Background tasks](docs/backend/20261007-background-tasks/plan.md) — order emails and push notifications queued in the `BackgroundTasks` table, sent and retried by one worker that sleeps until there is work instead of polling the database
 - [Team home](docs/frontend/20261001-team-home/plan.md) — Inicio replaces Hoy for the team: greeting, next class, tiles and the full day agenda
 - [Ajustes and Cobros](docs/frontend/20261002-settings-and-collections/plan.md) — Ajustes grouped by topic with values and sheets for appearance and notifications; Cobros with Cuotas and Pedidos, pending orders badge and counter sale button
 - [Branded emails](docs/backend/20261002-branded-emails/plan.md) — one HTML layout with the business logo and colors for every email, plain-text alternative, and why it is an HTML template instead of Razor

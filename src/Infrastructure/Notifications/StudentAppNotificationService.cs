@@ -8,13 +8,11 @@ namespace ClassManager.Infrastructure.Notifications;
 internal sealed class StudentAppNotificationService(AppDbContext context, PushPublisher publisher, TimeProvider timeProvider)
     : IStudentAppNotificationService
 {
-    public Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken)
-    {
-        publisher.PublishToStudents(
+    public Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken) =>
+        publisher.PublishToStudentsAsync(
             clientIds: null,
-            new PushMessage(announcement.Title, StudentAppPushTexts.Shorten(announcement.Body ?? string.Empty), StudentAppPushTexts.NewsUrl));
-        return Task.CompletedTask;
-    }
+            new PushMessage(announcement.Title, StudentAppPushTexts.Shorten(announcement.Body ?? string.Empty), StudentAppPushTexts.NewsUrl),
+            cancellationToken);
 
     public async Task GuardianConsentRequestedAsync(ClientInvitation invitation, string studentFullName, CancellationToken cancellationToken)
     {
@@ -22,13 +20,14 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
             .Where(account => account.ClientId == invitation.ClientId && account.StudentId == null)
             .Select(account => account.UserId)
             .ToListAsync(cancellationToken);
-        publisher.PublishToStudentAccounts(
+        await publisher.PublishToStudentAccountsAsync(
             invitation.ClientId,
             clientUserIds,
             new PushMessage(
                 StudentAppPushTexts.GuardianConsentTitle(studentFullName),
                 StudentAppPushTexts.GuardianConsentBody,
-                StudentAppPushTexts.HomeUrl));
+                StudentAppPushTexts.HomeUrl),
+            cancellationToken);
     }
 
     public async Task ClassCancelledAsync(ClassSession session, CancellationToken cancellationToken)
@@ -51,12 +50,13 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
             select student.ClientId)
             .Distinct()
             .ToListAsync(cancellationToken);
-        publisher.PublishToStudents(
+        await publisher.PublishToStudentsAsync(
             clientIds,
             new PushMessage(
                 StudentAppPushTexts.ClassCancelledTitle(classGroup.Name),
                 StudentAppPushTexts.ClassCancelledBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), session.CancellationReason),
-                StudentAppPushTexts.NewsUrl));
+                StudentAppPushTexts.NewsUrl),
+            cancellationToken);
     }
 
     public async Task FeedbackLeftAsync(ClassFeedback feedback, CancellationToken cancellationToken)
@@ -72,11 +72,12 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
             .Where(instructor => instructor.Id == feedback.InstructorId)
             .Select(instructor => instructor.FullName)
             .FirstOrDefaultAsync(cancellationToken);
-        publisher.PublishToStudents(
+        await publisher.PublishToStudentsAsync(
             [student.ClientId],
             new PushMessage(
                 StudentAppPushTexts.FeedbackTitle(instructorFullName, student.FullName),
                 StudentAppPushTexts.Shorten(feedback.Text),
-                StudentAppPushTexts.NewsUrl));
+                StudentAppPushTexts.NewsUrl),
+            cancellationToken);
     }
 }

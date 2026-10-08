@@ -1,9 +1,7 @@
 import { fireEvent, screen, within } from "@testing-library/react-native";
-import { ApiError } from "@/api/httpClient";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { SessionScreen } from "@/features/sessions/screens/SessionScreen";
-import { sessionErrorCodes } from "@/features/sessions/sessionErrorCodes";
-import { assignSubstitute, getSession } from "@/features/sessions/sessionsApi";
+import { getSession } from "@/features/sessions/sessionsApi";
 import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -12,23 +10,25 @@ import { buildSessionDetails, sessionDate } from "@/testing/sessionFactory";
 jest.mock("@/features/sessions/sessionsApi");
 jest.mock("@/features/instructors/instructorsApi");
 
-const conflictStatus = 409;
 const session = buildSessionDetails();
-const substitute = buildInstructor({
+const matchingInstructor = buildInstructor({
   id: "0192f0d1-0000-7000-8000-000000000002",
+  fullName: "Valentina Ríos",
+});
+const otherInstructor = buildInstructor({
+  id: "0192f0d1-0000-7000-8000-000000000003",
   fullName: "Marcos Díaz",
 });
 
-describe("When substitute is busy", () => {
+describe("When substitute search is typed", () => {
   beforeEach(() => {
     jest.mocked(getSession).mockResolvedValue(session);
-    jest.mocked(listActiveInstructors).mockResolvedValue([buildInstructor(), substitute]);
     jest
-      .mocked(assignSubstitute)
-      .mockRejectedValue(new ApiError(conflictStatus, { code: sessionErrorCodes.instructorBusy }));
+      .mocked(listActiveInstructors)
+      .mockResolvedValue([buildInstructor(), matchingInstructor, otherInstructor]);
   });
 
-  it("Then busy message is shown", async () => {
+  it("Then only matching instructors are listed", async () => {
     await renderWithProviders(
       <SessionScreen classGroupId={session.classGroupId} sessionDate={sessionDate} />,
     );
@@ -40,18 +40,15 @@ describe("When substitute is busy", () => {
         name: translate("sessions.substitute.chooseInstructor"),
       }),
     );
-    await fireEvent.press(
-      await within(screen.getByTestId("substitute-instructor-picker")).findByRole("button", {
-        name: substitute.fullName,
-      }),
+    const picker = within(screen.getByTestId("substitute-instructor-picker"));
+    await picker.findByRole("button", { name: otherInstructor.fullName });
+
+    await fireEvent.changeText(
+      picker.getByPlaceholderText(translate("sessions.substitute.search")),
+      "rios",
     );
 
-    await fireEvent.press(
-      screen.getByRole("button", { name: translate("sessions.substitute.confirm") }),
-    );
-
-    expect(
-      await screen.findByText(translate("sessions.substitute.instructorBusy")),
-    ).toBeOnTheScreen();
+    expect(picker.queryByRole("button", { name: otherInstructor.fullName })).toBeNull();
+    expect(picker.getByRole("button", { name: matchingInstructor.fullName })).toBeOnTheScreen();
   });
 });
