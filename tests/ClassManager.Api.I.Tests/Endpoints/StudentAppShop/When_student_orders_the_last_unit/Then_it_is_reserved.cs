@@ -10,7 +10,7 @@ public sealed class Then_it_is_reserved(ApiFixture fixture)
     public async Task Then_it_is_reserved_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var product = await owner.RestockAsync(await owner.CreateProductAsync(), 1);
 
         var order = await scenario.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1));

@@ -10,9 +10,9 @@ public sealed class Then_the_credit_is_back(ApiFixture fixture)
         await scenario.NoticeAndBookOtherClassAsync();
 
         using var response = await scenario.Student.DeleteMakeupAsync(
-            scenario.Coaches.CoachStudentId, scenario.Coaches.OtherClassGroup.Id, CoachScenario.ClassDate);
+            scenario.Instructors.InstructorStudentId, scenario.Instructors.OtherClassGroup.Id, InstructorScenario.ClassDate);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-        (await scenario.Student.GetMakeupsAsync(scenario.Coaches.CoachStudentId))!.Credits.ShouldHaveSingleItem();
+        (await scenario.Student.GetMakeupsAsync(scenario.Instructors.InstructorStudentId))!.Credits.ShouldHaveSingleItem();
     }
 }

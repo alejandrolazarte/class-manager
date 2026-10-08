@@ -11,8 +11,8 @@ public sealed class Then_they_see_their_student_and_next_classes(ApiFixture fixt
         var home = await scenario.Student.GetStudentAppHomeAsync();
 
         var student = home!.Students.ShouldHaveSingleItem();
-        student.FullName.ShouldBe(CoachScenario.CoachStudentFullName);
-        student.NextClasses[0].Name.ShouldBe(CoachScenario.CoachClassGroupName);
-        student.NextClasses[0].Date.ShouldBe(CoachScenario.ClassDate);
+        student.FullName.ShouldBe(InstructorScenario.InstructorStudentFullName);
+        student.NextClasses[0].Name.ShouldBe(InstructorScenario.InstructorClassGroupName);
+        student.NextClasses[0].Date.ShouldBe(InstructorScenario.ClassDate);
     }
 }

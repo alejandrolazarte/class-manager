@@ -24,20 +24,20 @@ public static class AccountRequests
 
     public static async Task<OwnerAndStudent> SeedOwnerWhoIsAlsoStudentAsync(this ApiFixture fixture)
     {
-        var coaches = await fixture.SeedCoachScenarioAsync();
+        var instructors = await fixture.SeedInstructorScenarioAsync();
         var email = AuthenticationRequests.UniqueEmail();
         using var anonymous = fixture.ApiFactory.CreateClient();
         var signUp = await anonymous.SignUpAsync(AuthenticationRequests.SignUpCommand(email));
         using var ownerClient = fixture.CreateClientWithToken(signUp.AccessToken);
         var ownBusiness = (await ownerClient.ListBranchesAsync()).Single();
 
-        var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
-        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(CoachScenario.CoachStudentFullName)).ClientId;
-        (await coaches.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email)).EnsureSuccessStatusCode();
+        var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
+        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.InstructorStudentFullName)).ClientId;
+        (await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email)).EnsureSuccessStatusCode();
         (await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email))).EnsureSuccessStatusCode();
 
         var ownerTokens = await anonymous.SignInAsync(email);
-        var student = new StudentAppScenario(coaches, clientId, email, ownerTokens, fixture.CreateClientWithToken(ownerTokens.AccessToken));
+        var student = new StudentAppScenario(instructors, clientId, email, ownerTokens, fixture.CreateClientWithToken(ownerTokens.AccessToken));
         return new OwnerAndStudent(student, ownBusiness.BusinessId, ownBusiness.Name, email, ownerTokens);
     }
 }

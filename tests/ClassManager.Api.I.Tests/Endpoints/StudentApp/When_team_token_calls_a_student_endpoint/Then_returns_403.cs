@@ -13,7 +13,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var studentUserId = (await ClientAccountUserIdAsync(fixture, scenario)).GetValueOrDefault();
         using var teamKindClient = fixture.CreateClientWithToken(
-            fixture.CreateAccessToken(scenario.Coaches.Business.Business.Id, userId: studentUserId, kind: AccountKinds.Team));
+            fixture.CreateAccessToken(scenario.Instructors.Business.Business.Id, userId: studentUserId, kind: AccountKinds.Team));
 
         using var response = await teamKindClient.GetAsync(new Uri(ApiRoutes.StudentApp, UriKind.Relative));
 
@@ -22,7 +22,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
 
     private static async Task<Guid?> ClientAccountUserIdAsync(ApiFixture fixture, StudentAppScenario scenario)
     {
-        await using var context = fixture.CreateDbContext(scenario.Coaches.Business.Business.Id);
+        await using var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id);
         return await context.ClientAccounts.Where(account => account.ClientId == scenario.ClientId).Select(account => (Guid?)account.UserId).FirstOrDefaultAsync();
     }
 }

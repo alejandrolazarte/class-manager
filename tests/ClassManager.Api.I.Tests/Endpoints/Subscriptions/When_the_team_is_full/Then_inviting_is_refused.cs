@@ -12,7 +12,7 @@ public sealed class Then_inviting_is_refused(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
 
-        using var response = await business.HttpClient.PostInvitationAsync("coach@example.com", BusinessRole.Viewer);
+        using var response = await business.HttpClient.PostInvitationAsync("instructor@example.com", BusinessRole.Viewer);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await response.ReadProblemAsync()).GetProperty(FeatureErrorCodes.FeatureDetail).GetString().ShouldBe(Features.Team);

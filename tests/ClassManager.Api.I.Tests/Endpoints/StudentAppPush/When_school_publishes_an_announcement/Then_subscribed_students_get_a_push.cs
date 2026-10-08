@@ -9,7 +9,7 @@ public sealed class Then_subscribed_students_get_a_push(ApiFixture fixture)
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var endpoint = await scenario.SubscribeAsync();
 
-        (await scenario.Coaches.Business.HttpClient.PostAnnouncementAsync("Lunes cerrado", "Feriado")).EnsureSuccessStatusCode();
+        (await scenario.Instructors.Business.HttpClient.PostAnnouncementAsync("Lunes cerrado", "Feriado")).EnsureSuccessStatusCode();
 
         var push = await fixture.ApiFactory.PushSender.WaitForPushToAsync(endpoint);
         push.ShouldBe(new PushMessage("Lunes cerrado", "Feriado", "/student-app/news"));

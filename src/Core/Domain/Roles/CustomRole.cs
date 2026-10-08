@@ -22,12 +22,13 @@ public sealed class CustomRole : ITenantOwned, ISoftDeletable
     [
         "BrandOwner",
         "BranchOwner",
-        "Coach",
+        "Instructor",
         "Viewer",
         "Custom",
         "Dueño de marca",
         "Dueño de la sede",
         "Solo lectura",
+        "Profe",
     ];
 
     private CustomRole()

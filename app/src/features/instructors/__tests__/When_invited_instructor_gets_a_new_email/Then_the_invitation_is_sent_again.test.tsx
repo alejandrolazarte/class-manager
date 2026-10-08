@@ -16,7 +16,7 @@ jest.mock("@/features/members/membersApi");
 const instructor = buildInstructor({ email: "laura@example.com" });
 const invitation = buildInvitation({
   email: "laura@example.com",
-  role: "Coach",
+  role: "Instructor",
   instructorId: instructor.id,
 });
 
@@ -40,7 +40,7 @@ describe("When invited instructor gets a new email", () => {
     await waitFor(() =>
       expect(inviteMember).toHaveBeenCalledWith({
         email: "laura.nueva@example.com",
-        role: "Coach",
+        role: "Instructor",
         customRoleId: null,
         instructorId: instructor.id,
       }),

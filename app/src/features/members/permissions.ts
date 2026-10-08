@@ -68,7 +68,7 @@ export const everyInstructorPermissionByOwnPermission: Readonly<
   [permissions.ordersViewOwn]: permissions.ordersViewAll,
 };
 
-export function needsCoach(rolePermissions: readonly Permission[]): boolean {
+export function needsInstructor(rolePermissions: readonly Permission[]): boolean {
   return Object.entries(everyInstructorPermissionByOwnPermission).some(
     ([ownPermission, allPermission]) =>
       rolePermissions.includes(ownPermission as Permission) &&

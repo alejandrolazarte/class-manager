@@ -10,7 +10,7 @@ public sealed class Then_app_access_is_active(ApiFixture fixture)
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
 
-        var client = await scenario.Coaches.Business.HttpClient.GetFromJsonAsync<ClientDetailsResponse>(
+        var client = await scenario.Instructors.Business.HttpClient.GetFromJsonAsync<ClientDetailsResponse>(
             new Uri($"{ApiRoutes.Clients}/{scenario.ClientId}", UriKind.Relative), ApiRequests.JsonOptions);
 
         client!.AppAccess.ShouldBe(new StudentAppAccessResponse(StudentAppAccessStatus.Active, null, scenario.Email));

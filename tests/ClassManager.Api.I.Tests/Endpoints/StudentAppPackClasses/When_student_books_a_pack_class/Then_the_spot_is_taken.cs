@@ -11,6 +11,6 @@ public sealed class Then_the_spot_is_taken(ApiFixture fixture)
         await scenario.BookPackClassAsync();
 
         var makeups = await scenario.Student.GetMakeupsAsync(scenario.StudentId);
-        makeups!.Slots.Single(slot => slot.ClassGroupId == scenario.PackClassGroupId && slot.Date == CoachScenario.ClassDate).SpotsLeft.ShouldBe(6);
+        makeups!.Slots.Single(slot => slot.ClassGroupId == scenario.PackClassGroupId && slot.Date == InstructorScenario.ClassDate).SpotsLeft.ShouldBe(6);
     }
 }

@@ -9,7 +9,7 @@ public sealed class Then_client_scope_is_their_instructor_and_user
     public async Task Then_client_scope_is_their_instructor_and_user_Run()
     {
         var instructorId = Guid.CreateVersion7();
-        var currentMember = new CurrentMemberFake(BusinessRole.Coach, instructorId);
+        var currentMember = new CurrentMemberFake(BusinessRole.Instructor, instructorId);
         var scopes = new ClassManager.Core.Services.AccessScopes(currentMember);
 
         var scope = await scopes.ForClientsAsync(CancellationToken.None);

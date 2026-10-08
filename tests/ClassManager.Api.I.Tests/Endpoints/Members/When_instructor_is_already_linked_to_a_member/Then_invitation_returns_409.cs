@@ -8,10 +8,10 @@ public sealed class Then_invitation_returns_409(ApiFixture fixture)
     [Fact]
     public async Task Then_invitation_returns_409_Run()
     {
-        var scenario = await fixture.SeedCoachScenarioAsync();
+        var scenario = await fixture.SeedInstructorScenarioAsync();
 
         using var response = await scenario.Business.HttpClient.PostInvitationAsync(
-            MemberRequests.UniqueInviteeEmail(), BusinessRole.Coach, scenario.CoachInstructorId);
+            MemberRequests.UniqueInviteeEmail(), BusinessRole.Instructor, scenario.InstructorId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
     }

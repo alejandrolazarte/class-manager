@@ -10,7 +10,7 @@ public sealed class Then_only_products_shown_in_the_app_are_listed(ApiFixture fi
     public async Task Then_only_products_shown_in_the_app_are_listed_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         await owner.CreateClassPackAsync();
         await owner.CreateProductAsync(StockMode.Unlimited);
         using (var hidden = await owner.PostAsJsonAsync(

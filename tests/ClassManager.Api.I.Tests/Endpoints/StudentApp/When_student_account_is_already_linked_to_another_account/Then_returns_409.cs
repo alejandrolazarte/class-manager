@@ -6,11 +6,11 @@ public sealed class Then_returns_409(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_409_Run()
     {
-        var coaches = await fixture.SeedCoachScenarioAsync();
-        var firstClient = await fixture.InviteStudentAppOfAsync(coaches, CoachScenario.CoachStudentFullName);
-        var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
-        var otherClientId = fees!.Clients.Single(client => client.StudentNames.Contains(CoachScenario.OtherStudentFullName)).ClientId;
-        using (var invitation = await coaches.Business.HttpClient.PostStudentAppInvitationAsync(otherClientId, firstClient.Email))
+        var instructors = await fixture.SeedInstructorScenarioAsync();
+        var firstClient = await fixture.InviteStudentAppOfAsync(instructors, InstructorScenario.InstructorStudentFullName);
+        var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
+        var otherClientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.OtherStudentFullName)).ClientId;
+        using (var invitation = await instructors.Business.HttpClient.PostStudentAppInvitationAsync(otherClientId, firstClient.Email))
         {
             invitation.StatusCode.ShouldBe(HttpStatusCode.Created);
         }

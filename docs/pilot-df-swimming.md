@@ -1,6 +1,6 @@
 # Pilot plan — DF Swimming Team
 
-The first pilot is the **owner** of DF Swimming Team, a Spanish network of affiliated swimming coaches ("filiales"). What the app already covers and what it still needs, in the order to build it.
+The first pilot is the **owner** of DF Swimming Team, a Spanish network of affiliated swimming instructors ("filiales"). What the app already covers and what it still needs, in the order to build it.
 
 ## How the business works
 
@@ -8,11 +8,11 @@ The first pilot is the **owner** of DF Swimming Team, a Spanish network of affil
 - Sells **named courses** instead of single classes: *ADG Básico* (10 × 30 min), *ADG De Autor* (10 × 45 min, with PDF and video material), *EDT* (5 × 45 min per stroke). Trial classes, free or paid, are deducted from the course.
 - A money-back guarantee (7 or 30 days) and cancellation policies that vary per affiliate (for example free until 48 h, 50 € penalty after).
 - Today: WordPress forms and WhatsApp for leads, payment outside any tool, and Timify for bookings. Timify doesn't know which course a student bought or how many classes are left: the student has to translate that by hand.
-- The owner runs his own classes and also wants to see his coaches.
+- The owner runs his own classes and also wants to see his instructors.
 
 ## Already covered
 
-Parents of children and adult students, weekly group classes, enrollments, attendance, monthly fees, **class packs with balance and expiry** (M6), several instructors, euros and Spain, the Inicio agenda and month calendar, **private lessons and trial classes** (Phase 1), **coach accounts, roles and branches** (Phase 2), import and export of students and coaches, and the student app with a shop paid at the branch.
+Parents of children and adult students, weekly group classes, enrollments, attendance, monthly fees, **class packs with balance and expiry** (M6), several instructors, euros and Spain, the Inicio agenda and month calendar, **private lessons and trial classes** (Phase 1), **instructor accounts, roles and branches** (Phase 2), import and export of students and instructors, and the student app with a shop paid at the branch.
 
 ## Phases
 
@@ -20,21 +20,21 @@ Parents of children and adult students, weekly group classes, enrollments, atten
 
 Status: done (backend and app). [Backend plan](backend/20260928-private-lessons/plan.md).
 
-- Schedule a private lesson: one to four students, coach, date, time, duration and place. It shows on Hoy and on the month calendar next to group classes.
+- Schedule a private lesson: one to four students, instructor, date, time, duration and place. It shows on Hoy and on the month calendar next to group classes.
 - Marking a student as present uses a class from their client's pack, with the same balance rules as group classes.
 - Packs gain a **class duration** and an optional **material link** (PDF or video hosted elsewhere, for *ADG De Autor*), so "ADG De Autor = 10 × 45 min" is a catalog item. The material link later moved from the pack to the class: a pack can cover several classes (adults and teens) with different material, and students on a monthly fee need it too.
 - **Trial class**: a private lesson marked as a trial, free or paid. When the student buys a course, the paid trial can count as its first class.
 
 Outside the app during the pilot: Timify for public booking, WordPress and WhatsApp for leads, payments collected as today and recorded in the app.
 
-### Phase 2 — Coaches see their own agenda (early in the pilot)
+### Phase 2 — Instructors see their own agenda (early in the pilot)
 
-Status: done (backend and app), except the coach filter on Inicio and the calendar for the owner.
+Status: done (backend and app), except the instructor filter on Inicio and the calendar for the owner.
 
-[Backend plan](backend/20260928-roles-and-permissions/plan.md): permissions per endpoint, the brand as an organization with one business per branch (Tenerife, Valencia, Barcelona), system roles (`BrandOwner`, `BranchOwner`, `Coach`, `Viewer`) and custom roles per branch.
+[Backend plan](backend/20260928-roles-and-permissions/plan.md): permissions per endpoint, the brand as an organization with one business per branch (Tenerife, Valencia, Barcelona), system roles (`BrandOwner`, `BranchOwner`, `Instructor`, `Viewer`) and custom roles per branch.
 
-- Coach accounts: the owner invites a coach by email. The coach signs in and sees only their classes, students and attendance. Only the owner sees money.
-- Hoy and the calendar gain a coach filter for the owner.
+- Instructor accounts: the owner invites an instructor by email. The instructor signs in and sees only their classes, students and attendance. Only the owner sees money.
+- Hoy and the calendar gain an instructor filter for the owner.
 - This is the "accounts for instructors" item that the MVP left out ([MVP plan](mvp-plan.md)).
 
 ### Phase 3 — Driven by pilot feedback

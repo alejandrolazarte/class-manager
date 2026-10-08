@@ -1,5 +1,5 @@
 import { everyPermission } from "@/features/members/permissions";
-import { coachPermissions, viewerPermissions } from "@/testing/memberFactory";
+import { instructorPermissions, viewerPermissions } from "@/testing/memberFactory";
 import { Role } from "@/features/roles/types";
 
 export function buildSystemRoles(): Role[] {
@@ -22,9 +22,9 @@ export function buildSystemRoles(): Role[] {
     },
     {
       id: null,
-      systemRole: "Coach",
+      systemRole: "Instructor",
       name: null,
-      permissions: [...coachPermissions],
+      permissions: [...instructorPermissions],
       copiedFrom: null,
       memberCount: 1,
     },
@@ -43,9 +43,9 @@ export function buildCustomRole(overrides: Partial<Role> = {}): Role {
   return {
     id: "role-custom",
     systemRole: null,
-    name: "Coach que cobra",
-    permissions: [...coachPermissions, "payments.view.all", "payments.record"],
-    copiedFrom: "Coach",
+    name: "Profe que cobra",
+    permissions: [...instructorPermissions, "payments.view.all", "payments.record"],
+    copiedFrom: "Instructor",
     memberCount: 0,
     ...overrides,
   };

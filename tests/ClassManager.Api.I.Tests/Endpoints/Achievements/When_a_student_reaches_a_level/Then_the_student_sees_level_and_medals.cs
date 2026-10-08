@@ -10,10 +10,10 @@ public sealed class Then_the_student_sees_level_and_medals(ApiFixture fixture)
     public async Task Then_the_student_sees_level_and_medals_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         (await owner.PutAchievementSettingsAsync(AchievementRequests.SettingsWith(levels: AchievementRequests.ThreeLevels))).EnsureSuccessStatusCode();
         (await owner.PutAttendanceAsync(
-            scenario.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate, scenario.Coaches.CoachStudentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
+            scenario.Instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate, scenario.Instructors.InstructorStudentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
 
         var home = await scenario.Student.GetStudentAppHomeAsync();
 

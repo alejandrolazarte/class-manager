@@ -9,8 +9,8 @@ public sealed class Then_the_day_list_counts_the_student(ApiFixture fixture)
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         await scenario.NoticeAndBookOtherClassAsync();
 
-        var day = await scenario.Coaches.Business.HttpClient.GetDayAsync(CoachScenario.ClassDate);
+        var day = await scenario.Instructors.Business.HttpClient.GetDayAsync(InstructorScenario.ClassDate);
 
-        day!.Single(session => session.ClassGroupId == scenario.Coaches.OtherClassGroup.Id).EnrolledCount.ShouldBe(2);
+        day!.Single(session => session.ClassGroupId == scenario.Instructors.OtherClassGroup.Id).EnrolledCount.ShouldBe(2);
     }
 }

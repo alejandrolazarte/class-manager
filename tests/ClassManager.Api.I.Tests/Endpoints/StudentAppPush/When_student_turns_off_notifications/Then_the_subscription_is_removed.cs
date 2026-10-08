@@ -14,7 +14,7 @@ public sealed class Then_the_subscription_is_removed(ApiFixture fixture)
         using var response = await scenario.Student.DeletePushSubscriptionAsync(endpoint);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-        await using var context = fixture.CreateDbContext(scenario.Coaches.Business.Business.Id);
+        await using var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id);
         (await context.PushSubscriptions.AnyAsync(saved => saved.Endpoint == endpoint)).ShouldBeFalse();
     }
 }

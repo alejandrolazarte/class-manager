@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react-native";
 import { listBranches } from "@/features/branches/branchesApi";
 import { SettingsScreen } from "@/features/settings/screens/SettingsScreen";
 import { translate } from "@/i18n/translate";
-import { buildCurrentMember, coachPermissions } from "@/testing/memberFactory";
+import { buildCurrentMember, instructorPermissions } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/branches/branchesApi");
@@ -17,7 +17,7 @@ describe("When member sees orders but not payments", () => {
 
   it("Then orders stay in settings", async () => {
     await renderWithProviders(<SettingsScreen />, {
-      member: buildCurrentMember({ permissions: [...coachPermissions, "orders.view.own"] }),
+      member: buildCurrentMember({ permissions: [...instructorPermissions, "orders.view.own"] }),
     });
 
     expect(screen.getByRole("button", { name: translate("settings.orders") })).toBeOnTheScreen();

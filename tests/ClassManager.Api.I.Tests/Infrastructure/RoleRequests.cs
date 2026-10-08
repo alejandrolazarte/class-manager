@@ -7,7 +7,7 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 
 public static class RoleRequests
 {
-    public const string CustomRoleName = "Coach que cobra";
+    public const string CustomRoleName = "Instructor que cobra";
 
     public static Task<HttpResponseMessage> PostRoleAsync(
         this HttpClient httpClient, string name, IReadOnlyList<string> permissions, string? copiedFrom = null) =>

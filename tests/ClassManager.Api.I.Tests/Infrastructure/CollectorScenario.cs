@@ -4,29 +4,29 @@ using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed record CollectorScenario(CoachScenario Coaches, HttpClient Collector, Guid CollectorClientId, Guid OtherClientId);
+public sealed record CollectorScenario(InstructorScenario Instructors, HttpClient Collector, Guid CollectorClientId, Guid OtherClientId);
 
 public static class CollectorScenarioRequests
 {
     public static async Task<CollectorScenario> SeedCollectorScenarioAsync(this ApiFixture fixture)
     {
-        var coaches = await fixture.SeedCoachScenarioAsync();
+        var instructors = await fixture.SeedInstructorScenarioAsync();
         string[] permissions =
         [
-            .. SystemRolePermissions.Of(BusinessRole.Coach),
+            .. SystemRolePermissions.Of(BusinessRole.Instructor),
             Permissions.Payments.ViewOwn,
             Permissions.Payments.Record,
             Permissions.ClassPacks.Sell,
         ];
-        var role = await fixture.SeedCustomRoleAsync(coaches.Business.Business.Id, permissions);
-        var collector = await fixture.SeedMemberAsync(coaches.Business.Business.Id, MemberRole.Custom(role), coaches.OtherInstructorId);
-        var fees = await coaches.Business.HttpClient.GetMonthlyFeesAsync();
+        var role = await fixture.SeedCustomRoleAsync(instructors.Business.Business.Id, permissions);
+        var collector = await fixture.SeedMemberAsync(instructors.Business.Business.Id, MemberRole.Custom(role), instructors.OtherInstructorId);
+        var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
 
         return new CollectorScenario(
-            coaches,
+            instructors,
             collector,
-            ClientOf(fees!, CoachScenario.OtherStudentFullName),
-            ClientOf(fees!, CoachScenario.CoachStudentFullName));
+            ClientOf(fees!, InstructorScenario.OtherStudentFullName),
+            ClientOf(fees!, InstructorScenario.InstructorStudentFullName));
     }
 
     public static Task<List<PaymentResponse>?> GetClientPaymentsAsync(this HttpClient httpClient, Guid clientId) =>

@@ -2,7 +2,7 @@
 
 Date: 2026-09-29
 
-`src/ImportExport` is the engine that reads and writes spreadsheet files for any module. It knows columns, types, rows, cells and errors, never students or coaches, so it can be reused like the [tenancy](tenancy.md) and [security](security.md) libraries. Plan and module rules: [import and export plan](backend/20260929-import-export/plan.md).
+`src/ImportExport` is the engine that reads and writes spreadsheet files for any module. It knows columns, types, rows, cells and errors, never students or instructors, so it can be reused like the [tenancy](tenancy.md) and [security](security.md) libraries. Plan and module rules: [import and export plan](backend/20260929-import-export/plan.md).
 
 ## Contents
 

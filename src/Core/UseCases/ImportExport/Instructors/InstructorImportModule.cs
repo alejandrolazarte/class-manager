@@ -13,7 +13,7 @@ public sealed class InstructorImportModule(IInstructorRepository instructorRepos
 
     private const string FullNameHeader = "Profesor";
     private const string FullNameExample = "Laura Gómez";
-    private const string NameTakenMessage = "A coach with this name already exists.";
+    private const string NameTakenMessage = "An instructor with this name already exists.";
 
     private static readonly ImportColumn FullNameColumn = new(FullNameKey, FullNameHeader, ColumnType.Text, IsRequired: true)
     {

@@ -13,7 +13,7 @@ public sealed class Then_it_is_cancelled(ApiFixture fixture)
     public async Task Then_it_is_cancelled_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Coaches.Business.HttpClient;
+        var owner = scenario.Instructors.Business.HttpClient;
         var productResponse = await owner.RestockAsync(await owner.CreateProductAsync(), 2);
         var oldOrder = await SeedRequestedOrderAsync(scenario, productResponse.Id, BusinessApiFactory.Now - Order.RequestLifetime);
         var recentOrder = await scenario.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.ProductLine(productResponse.Variants[0].Id, 1));
@@ -28,7 +28,7 @@ public sealed class Then_it_is_cancelled(ApiFixture fixture)
 
     private async Task<Guid> SeedRequestedOrderAsync(StudentAppScenario scenario, Guid productId, DateTimeOffset createdAt)
     {
-        await using var context = fixture.CreateDbContext(scenario.Coaches.Business.Business.Id);
+        await using var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id);
         var product = await context.Products.Include(candidate => candidate.Variants).SingleAsync(candidate => candidate.Id == productId);
         var variant = product.Variants[0];
         var order = Order.Request(scenario.ClientId, [OrderLine.ForProduct(product, variant, 1, null).Value!], null, createdAt).Value!;

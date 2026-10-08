@@ -1,7 +1,7 @@
 import { everyPermission, Permission } from "@/features/members/permissions";
 import { CurrentMember, Invitation, Member } from "@/features/members/types";
 
-export const coachPermissions: readonly Permission[] = [
+export const instructorPermissions: readonly Permission[] = [
   "business.view",
   "instructors.view",
   "classGroups.view.own",
@@ -42,12 +42,12 @@ export function buildCurrentMember(overrides: Partial<CurrentMember> = {}): Curr
   };
 }
 
-export function buildCoach(instructorId = "instructor-coach"): CurrentMember {
+export function buildInstructorMember(instructorId = "instructor-of-member"): CurrentMember {
   return buildCurrentMember({
-    branchRole: "Coach",
+    branchRole: "Instructor",
     instructorId,
     isBrandOwner: false,
-    permissions: [...coachPermissions],
+    permissions: [...instructorPermissions],
   });
 }
 
@@ -64,9 +64,9 @@ export function buildMember(overrides: Partial<Member> = {}): Member {
     id: "member-1",
     fullName: "Marcos Díaz",
     email: "marcos@example.com",
-    role: "Coach",
+    role: "Instructor",
     customRoleId: null,
-    instructorId: "instructor-coach",
+    instructorId: "instructor-of-member",
     isCurrentUser: false,
     isBrandOwner: false,
     ...overrides,

@@ -11,8 +11,8 @@ public sealed class Then_the_student_is_emailed(ApiFixture fixture)
     public async Task Then_the_student_is_emailed_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var classPack = await scenario.Coaches.Business.HttpClient.CreateClassPackAsync();
-        await using (var context = fixture.CreateDbContext(scenario.Coaches.Business.Business.Id))
+        var classPack = await scenario.Instructors.Business.HttpClient.CreateClassPackAsync();
+        await using (var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id))
         {
             var pack = await context.ClassPacks.FindAsync(classPack.Id);
             context.Orders.Add(Order.Request(

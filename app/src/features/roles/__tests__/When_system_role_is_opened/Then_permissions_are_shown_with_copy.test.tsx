@@ -14,7 +14,7 @@ describe("When system role is opened", () => {
   });
 
   it("Then permissions are shown with copy", async () => {
-    await renderWithProviders(<RoleScreen roleKey="Coach" />);
+    await renderWithProviders(<RoleScreen roleKey="Instructor" />);
 
     expect(
       await screen.findByText(
@@ -22,6 +22,6 @@ describe("When system role is opened", () => {
       ),
     ).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole("button", { name: translate("roles.copy") }));
-    expect(routerMock.push).toHaveBeenCalledWith("/settings/roles/new?copyFrom=Coach");
+    expect(routerMock.push).toHaveBeenCalledWith("/settings/roles/new?copyFrom=Instructor");
   });
 });

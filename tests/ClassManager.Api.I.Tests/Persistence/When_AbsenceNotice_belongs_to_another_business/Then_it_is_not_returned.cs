@@ -11,10 +11,10 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
         var business = await fixture.SeedBusinessAsync();
         var otherStudent = await fixture.SeedStudentAppScenarioAsync();
         (await otherStudent.Student.PutAbsenceAsync(
-            otherStudent.Coaches.CoachStudentId, otherStudent.Coaches.CoachClassGroup.Id, CoachScenario.ClassDate)).EnsureSuccessStatusCode();
+            otherStudent.Instructors.InstructorStudentId, otherStudent.Instructors.InstructorClassGroup.Id, InstructorScenario.ClassDate)).EnsureSuccessStatusCode();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
 
-        (await context.AbsenceNotices.AnyAsync(notice => notice.StudentId == otherStudent.Coaches.CoachStudentId)).ShouldBeFalse();
+        (await context.AbsenceNotices.AnyAsync(notice => notice.StudentId == otherStudent.Instructors.InstructorStudentId)).ShouldBeFalse();
     }
 }

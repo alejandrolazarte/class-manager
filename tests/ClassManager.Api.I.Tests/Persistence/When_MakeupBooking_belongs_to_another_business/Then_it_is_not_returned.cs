@@ -14,6 +14,6 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
 
-        (await context.MakeupBookings.AnyAsync(booking => booking.StudentId == otherStudent.Coaches.CoachStudentId)).ShouldBeFalse();
+        (await context.MakeupBookings.AnyAsync(booking => booking.StudentId == otherStudent.Instructors.InstructorStudentId)).ShouldBeFalse();
     }
 }

@@ -10,7 +10,7 @@ public sealed class Then_returns_404(ApiFixture fixture)
     public async Task Then_returns_404_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        using var created = await scenario.Coaches.Business.HttpClient.PostAsJsonAsync(
+        using var created = await scenario.Instructors.Business.HttpClient.PostAsJsonAsync(
             ApiRoutes.Products,
             new CreateProductCommand("Toalla del staff", null, 10m, StockMode.Unlimited, false, null),
             ApiRequests.JsonOptions);
