@@ -46,7 +46,9 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
   const enrollStudentMutation = useEnrollStudent(classGroupId);
   const classGroupName =
     classGroups.find((classGroup) => classGroup.id === classGroupId)?.name ?? "";
-  const enrolledStudentIds = new Set(roster.map((entry) => entry.studentId));
+  const enrolledStudentIds = new Set(
+    roster.filter((entry) => entry.endDate === null).map((entry) => entry.studentId),
+  );
 
   const enroll = async (student: StudentSummary) => {
     setEnrollFailure(null);

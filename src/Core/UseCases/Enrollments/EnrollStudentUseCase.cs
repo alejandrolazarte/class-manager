@@ -60,6 +60,11 @@ public sealed class EnrollStudentUseCase(
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var existingEnrollment = await enrollmentRepository.FindCurrentAsync(student.Id, classGroup.Id, today, cancellationToken);
+        if (existingEnrollment?.EndDate is not null)
+        {
+            return await ContinueAsync(existingEnrollment.Id, cancellationToken);
+        }
+
         if (existingEnrollment is not null)
         {
             return AlreadyEnrolled(existingEnrollment.Id);
@@ -87,6 +92,19 @@ public sealed class EnrollStudentUseCase(
         }
 
         return EnrollmentResponse.From(enrollment);
+    }
+
+    private async Task<Result<EnrollmentResponse>> ContinueAsync(Guid leavingEnrollmentId, CancellationToken cancellationToken)
+    {
+        var leavingEnrollment = await enrollmentRepository.GetForUpdateAsync(leavingEnrollmentId, cancellationToken);
+        if (leavingEnrollment is null)
+        {
+            return AlreadyEnrolled(leavingEnrollmentId);
+        }
+
+        leavingEnrollment.Continue();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return EnrollmentResponse.From(leavingEnrollment);
     }
 
     private static Result<EnrollmentResponse> AlreadyEnrolled(Guid? existingEnrollmentId) =>

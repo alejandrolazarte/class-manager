@@ -53,6 +53,9 @@ internal static class SessionRules
                 || await packBookingRepository.FindForUpdateAsync(session.Id, studentId, cancellationToken) is not null);
     }
 
+    public static bool IsListedOn(DateOnly date, DateOnly today, ClassSession? session, int enrolledCount) =>
+        date >= today || session is not null || enrolledCount > 0;
+
     public static bool IsInScope(InstructorScope scope, ClassGroup classGroup, ClassSession? session) =>
         scope.Includes(classGroup.InstructorId)
         || (session?.SubstituteInstructorId is { } substituteInstructorId && scope.Includes(substituteInstructorId));

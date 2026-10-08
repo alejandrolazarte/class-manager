@@ -46,6 +46,8 @@ public sealed class Enrollment : ITenantOwned
         return Result.Success();
     }
 
+    public void Continue() => EndDate = null;
+
     public bool IsCurrentOn(DateOnly date) => EndDate is null || EndDate >= date;
 
     public bool IsActiveOn(DateOnly date) => StartDate <= date && IsCurrentOn(date);

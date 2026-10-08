@@ -3,10 +3,10 @@ using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.U.Tests.UseCases.Sessions.When_ListMonthCalendar_with_unmarked_past_classes;
 
-public sealed class Then_only_past_days_with_enrolled_students_are_pending
+public sealed class Then_past_days_without_students_are_not_listed
 {
     [Fact]
-    public async Task Then_only_past_days_with_enrolled_students_are_pending_Run()
+    public async Task Then_past_days_without_students_are_not_listed_Run()
     {
         var builder = new SessionUseCaseBuilder();
         var enrolledSince = TestData.Today.AddDays(-14);
@@ -21,7 +21,6 @@ public sealed class Then_only_past_days_with_enrolled_students_are_pending
             .Select(day => (day.Date, day.ClassCount, day.PendingAttendanceCount))
             .ShouldBe(
             [
-                (TestData.Today.AddDays(-21), 1, 0),
                 (enrolledSince, 1, 1),
                 (TestData.Today.AddDays(-7), 1, 1),
                 (TestData.Today, 1, 0),
