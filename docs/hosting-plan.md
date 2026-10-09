@@ -166,7 +166,7 @@ Flow (`.github/workflows/deploy.yml`): PR merged to `main` → CI green → push
 - A paying business depends on the app during working hours (cold starts and database auto-pause stop being acceptable).
 - The database hits the monthly allowance before the month ends.
 
-At that point: move the database to a paid serverless or provisioned tier and set `minReplicas: 1`, or compare with other providers using real usage numbers.
+At that point: move the database to the Basic tier (about USD 5 a month, online all the time; runbook in [Database on the Basic tier](database-basic-tier.md)) and set `minReplicas: 1`, or compare with other providers using real usage numbers.
 
 ## Sources
 
