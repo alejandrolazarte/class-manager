@@ -45,7 +45,7 @@ export function StudentAppNewsScreen() {
         onPress: () => router.navigate(routes.studentAppOrders),
       };
     }
-    if (item.kind === "ClassCancelled") {
+    if (item.kind === "ClassCancelled" || item.kind === "ClassChanged") {
       return {
         label: translate("student.news.cancelled.cta"),
         onPress: () => router.navigate(routes.studentAppClasses),

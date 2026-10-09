@@ -6,6 +6,7 @@ public enum StudentAppNewsKind
     OrderReady,
     InstructorFeedback,
     ClassCancelled,
+    ClassChanged,
 }
 
 public sealed record StudentAppNewsItemResponse(
@@ -19,6 +20,7 @@ public sealed record StudentAppNewsItemResponse(
     string? ClassName,
     string? InstructorFullName,
     DateOnly? ClassDate,
-    Guid? OrderId);
+    Guid? OrderId,
+    string? ClassStartTime = null);
 
 public sealed record StudentAppNewsResponse(IReadOnlyList<StudentAppNewsItemResponse> Items, int UnreadCount);

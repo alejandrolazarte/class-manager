@@ -32,6 +32,13 @@ public static class SessionRequests
             new AssignSubstituteRequest(instructorId),
             ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PutScheduleAsync(
+        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, string startTime) =>
+        httpClient.PutAsJsonAsync(
+            $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Schedule}",
+            new RescheduleSessionRequest(startTime),
+            ApiRequests.JsonOptions);
+
     public static Task<SessionDetailsResponse?> GetSessionAsync(this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate) =>
         httpClient.GetFromJsonAsync<SessionDetailsResponse>(new Uri(SessionPath(classGroupId, sessionDate), UriKind.Relative), ApiRequests.JsonOptions);
 

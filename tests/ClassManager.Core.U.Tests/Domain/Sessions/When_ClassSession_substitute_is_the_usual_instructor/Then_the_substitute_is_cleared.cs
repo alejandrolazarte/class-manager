@@ -9,9 +9,9 @@ public sealed class Then_the_substitute_is_cleared
     {
         var usualInstructorId = Guid.CreateVersion7();
         var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
-        session.AssignSubstitute(Guid.CreateVersion7(), usualInstructorId);
+        session.AssignSubstitute(Guid.CreateVersion7(), usualInstructorId, TestData.Now);
 
-        session.AssignSubstitute(usualInstructorId, usualInstructorId);
+        session.AssignSubstitute(usualInstructorId, usualInstructorId, TestData.Now);
 
         session.SubstituteInstructorId.ShouldBeNull();
     }

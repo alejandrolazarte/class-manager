@@ -36,8 +36,8 @@ public sealed class InviteStudentAppUseCase(
     TimeProvider timeProvider)
     : IUseCase<InviteStudentAppCommand, StudentAppInvitationResponse>
 {
-    public const string EmailSubject = "Te invitaron a la app";
-    public const string GuardianEmailSubject = "Pedido de autorización para la app";
+    public const string EmailHeading = "Te invitaron a la app";
+    public const string GuardianEmailHeading = "Pedido de autorización para la app";
 
     private const string ClientNotFoundMessage = "The client does not exist.";
     private const string EmailRequiredMessage = "Write the email of the person who will use the app.";
@@ -46,10 +46,14 @@ public sealed class InviteStudentAppUseCase(
     private const string GuardianEmailRequiredMessage = "Write the email of the client: a student this young needs their authorization.";
     private const string BirthDateRequiredMessage = "Write the birth date of the person who will use the app.";
 
+    public static string EmailSubjectFor(string businessName) => $"{businessName} te invita a su app";
+
+    public static string GuardianEmailSubjectFor(string businessName) => $"{businessName} pide tu autorización para su app";
+
     public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
         new(
             "Invitación a la app",
-            EmailSubject,
+            EmailHeading,
             $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Tocá el botón para aceptar: si ya usás la app con este email, entrás con tu cuenta de siempre.",
             "Si no esperabas esta invitación, podés ignorar este mail.")
         {
@@ -60,7 +64,7 @@ public sealed class InviteStudentAppUseCase(
     public static EmailContent GuardianEmailContentFor(string businessName, string studentFullName, int minimumAge, string authorizeLink) =>
         new(
             "Autorización para la app",
-            GuardianEmailSubject,
+            GuardianEmailHeading,
             $"{businessName} quiere invitar a {studentFullName} a su app para ver sus clases. Como es menor de {minimumAge} años, necesitamos tu autorización.",
             "Si no esperabas este pedido, podés ignorar este mail.")
         {
@@ -126,13 +130,13 @@ public sealed class InviteStudentAppUseCase(
                 recipient.Value.StudentFullName ?? string.Empty,
                 PersonAge.OwnAccountMinimumAge(business.DefaultCountryCallingCode),
                 webAppLinks.AuthorizeStudentApp(guardianToken.Value));
-            await emailSender.SendAsync(new EmailMessage(client.Email!, GuardianEmailSubject, guardianContent, business.Id), cancellationToken);
+            await emailSender.SendAsync(new EmailMessage(client.Email!, GuardianEmailSubjectFor(business.BrandDisplayName), guardianContent, business.Id), cancellationToken);
             await studentAppNotificationService.GuardianConsentRequestedAsync(invitation.Value!, recipient.Value.StudentFullName ?? string.Empty, cancellationToken);
         }
         else
         {
             var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
-            await emailSender.SendAsync(new EmailMessage(invitation.Value!.Email, EmailSubject, content, business.Id), cancellationToken);
+            await emailSender.SendAsync(new EmailMessage(invitation.Value!.Email, EmailSubjectFor(business.BrandDisplayName), content, business.Id), cancellationToken);
         }
 
         return new StudentAppInvitationResponse(invitation.Value!.Id, invitation.Value.Email, invitation.Value.ExpiresAt, invitation.Value.AwaitsGuardianConsent);

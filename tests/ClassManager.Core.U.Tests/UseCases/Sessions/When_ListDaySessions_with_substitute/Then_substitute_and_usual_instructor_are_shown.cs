@@ -11,7 +11,7 @@ public sealed class Then_substitute_and_usual_instructor_are_shown
     {
         var builder = new SessionUseCaseBuilder();
         var session = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now);
-        session.AssignSubstitute(builder.Substitute.Id, builder.Instructor.Id);
+        session.AssignSubstitute(builder.Substitute.Id, builder.Instructor.Id, TestData.Now);
         builder.ClassGroups.Setup(repository => repository.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync([builder.ClassGroup]);
         builder.Sessions.Setup(repository => repository.ListByDateAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync([session]);
         builder.Enrollments.Setup(repository => repository.CountActiveOnByClassGroupAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(new Dictionary<Guid, int>());

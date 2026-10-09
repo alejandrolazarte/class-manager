@@ -26,6 +26,7 @@ public sealed class ClassSession : ITenantOwned
     public DateTimeOffset? CancelledAt { get; private set; }
     public TimeOnly? RescheduledStartTime { get; private set; }
     public Guid? SubstituteInstructorId { get; private set; }
+    public DateTimeOffset? ChangedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static ClassSession Create(Guid classGroupId, DateOnly date, DateTimeOffset createdAt) =>
@@ -51,7 +52,9 @@ public sealed class ClassSession : ITenantOwned
         return Result.Success();
     }
 
-    public Result Reschedule(TimeOnly startTime, int durationMinutes, TimeOnly usualStartTime)
+    public bool IsChanged => RescheduledStartTime is not null || SubstituteInstructorId is not null;
+
+    public Result Reschedule(TimeOnly startTime, int durationMinutes, TimeOnly usualStartTime, DateTimeOffset changedAt)
     {
         if (IsCancelled)
         {
@@ -64,6 +67,7 @@ public sealed class ClassSession : ITenantOwned
         }
 
         RescheduledStartTime = startTime == usualStartTime ? null : startTime;
+        ChangedAt = changedAt.ToUniversalTime();
         return Result.Success();
     }
 
@@ -71,7 +75,7 @@ public sealed class ClassSession : ITenantOwned
 
     public TimeOnly EffectiveStartTime(TimeOnly usualStartTime) => RescheduledStartTime ?? usualStartTime;
 
-    public Result AssignSubstitute(Guid instructorId, Guid usualInstructorId)
+    public Result AssignSubstitute(Guid instructorId, Guid usualInstructorId, DateTimeOffset changedAt)
     {
         if (IsCancelled)
         {
@@ -79,6 +83,7 @@ public sealed class ClassSession : ITenantOwned
         }
 
         SubstituteInstructorId = instructorId == usualInstructorId ? null : instructorId;
+        ChangedAt = changedAt.ToUniversalTime();
         return Result.Success();
     }
 

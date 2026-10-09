@@ -83,6 +83,28 @@ export function presentNews(item: StudentAppNewsItem): NewsPresentation {
         }),
         body: [item.className, item.body].filter(Boolean).join(" · ") || null,
       };
+    case "ClassChanged":
+      return {
+        icon: "schedule",
+        title: translate("student.news.changed.title", {
+          student,
+          date: item.classDate === null ? "" : shortDayLabel(item.classDate),
+        }),
+        body:
+          [
+            item.className,
+            item.classStartTime === null
+              ? null
+              : translate("student.news.changed.time", { time: item.classStartTime }),
+            item.instructorFullName === null
+              ? null
+              : translate("student.news.changed.instructor", {
+                  instructor: firstNameOf(item.instructorFullName),
+                }),
+          ]
+            .filter(Boolean)
+            .join(" · ") || null,
+      };
     default:
       return { icon: "announcement", title: item.title ?? "", body: item.body };
   }

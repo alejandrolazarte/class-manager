@@ -17,7 +17,7 @@ public sealed class Then_workbook_has_headers_and_an_example(ApiFixture fixture)
         response.Content.Headers.ContentType!.MediaType.ShouldBe(XlsxTabularWriter.XlsxContentType);
         response.Content.Headers.ContentDisposition!.FileNameStar.ShouldBe("students-template.xlsx");
         var rows = ImportRequests.WorkbookRows(await response.Content.ReadAsByteArrayAsync());
-        rows[0].ShouldBe(["Alumno", "Teléfono", "Email", "Fecha de nacimiento", "Notas alumno", "Responsable", "Notas responsable"]);
+        rows[0].ShouldBe(["Alumno", "Teléfono", "Email de contacto", "Fecha de nacimiento", "Notas alumno", "Responsable", "Notas responsable", "Email alumno"]);
         rows[1][0].ShouldBe("Lucas Gómez");
     }
 }

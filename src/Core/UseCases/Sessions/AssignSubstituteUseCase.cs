@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Sessions;
@@ -16,6 +17,7 @@ public sealed class AssignSubstituteUseCase(
     IClassSessionRepository sessionRepository,
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
+    IStudentAppNotificationService studentAppNotifications,
     TimeProvider timeProvider)
     : IUseCase<AssignSubstituteCommand, SessionStatusResponse>
 {
@@ -58,7 +60,7 @@ public sealed class AssignSubstituteUseCase(
             sessionRepository.Add(session);
         }
 
-        var assign = session.AssignSubstitute(substitute.Value.Id, classGroup.Value.InstructorId);
+        var assign = session.AssignSubstitute(substitute.Value.Id, classGroup.Value.InstructorId, timeProvider.GetUtcNow());
         if (assign.IsFailure)
         {
             return assign.Error!;
@@ -73,6 +75,7 @@ public sealed class AssignSubstituteUseCase(
             return Result.Conflict<SessionStatusResponse>(ConcurrentUpdateMessage, SessionErrorCodes.ConcurrentUpdate);
         }
 
+        await studentAppNotifications.ClassChangedAsync(session, cancellationToken);
         return new SessionStatusResponse(session.ClassGroupId, session.Date, session.IsCancelled, session.CancellationReason);
     }
 }

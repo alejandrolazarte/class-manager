@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
 
-        var reschedule = session.Reschedule(new TimeOnly(23, 30), durationMinutes: 45, usualStartTime: new TimeOnly(18, 0));
+        var reschedule = session.Reschedule(new TimeOnly(23, 30), durationMinutes: 45, usualStartTime: new TimeOnly(18, 0), TestData.Now);
 
         reschedule.Error!.Kind.ShouldBe(ErrorKind.Validation);
         session.RescheduledStartTime.ShouldBeNull();

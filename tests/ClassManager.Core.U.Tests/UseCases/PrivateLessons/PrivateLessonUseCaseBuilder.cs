@@ -62,7 +62,7 @@ internal sealed class PrivateLessonUseCaseBuilder
     public ClassSession SubstituteTodayIn(ClassGroup classGroup, Guid substituteInstructorId)
     {
         var session = ClassSession.Create(classGroup.Id, TestData.Today, TestData.Now);
-        session.AssignSubstitute(substituteInstructorId, classGroup.InstructorId);
+        session.AssignSubstitute(substituteInstructorId, classGroup.InstructorId, TestData.Now);
         Sessions
             .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([session]);

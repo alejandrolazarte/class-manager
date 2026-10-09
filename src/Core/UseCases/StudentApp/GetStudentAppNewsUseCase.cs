@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.ClassGroups;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
@@ -25,7 +26,7 @@ public sealed class GetStudentAppNewsUseCase(
 {
     public const int AnnouncementDays = 60;
     public const int FeedbackDays = 30;
-    public const int CancelledClassLookAheadDays = 14;
+    public const int ClassChangeLookAheadDays = 14;
     public const int ItemLimit = 30;
 
     private const int OrderLimit = 20;
@@ -62,7 +63,8 @@ public sealed class GetStudentAppNewsUseCase(
             string? className = null,
             string? instructorFullName = null,
             DateOnly? classDate = null,
-            Guid? orderId = null) =>
+            Guid? orderId = null,
+            string? classStartTime = null) =>
             new(
                 string.Join(IdSeparator, kind.ToString(), sourceKey),
                 kind,
@@ -74,7 +76,8 @@ public sealed class GetStudentAppNewsUseCase(
                 className,
                 instructorFullName,
                 classDate,
-                orderId);
+                orderId,
+                classStartTime);
 
         items.AddRange((await announcementRepository.ListPublishedSinceAsync(now.AddDays(-AnnouncementDays), cancellationToken))
             .Select(announcement => Item(
@@ -95,39 +98,49 @@ public sealed class GetStudentAppNewsUseCase(
                 instructorFullName: instructorNames.GetValueOrDefault(feedback.InstructorId),
                 classDate: feedback.Date)));
 
-        items.AddRange(await CancelledClassesAsync(
+        items.AddRange(await UpcomingClassChangesAsync(
             students,
             today,
-            (session, className, studentFullNames) => Item(
-                StudentAppNewsKind.ClassCancelled,
-                session.Id.ToString(),
-                session.CancelledAt ?? session.CreatedAt,
-                body: session.CancellationReason,
-                studentFullNames: studentFullNames,
-                className: className,
-                classDate: session.Date),
+            (session, classGroup, studentFullNames) => session.IsCancelled
+                ? Item(
+                    StudentAppNewsKind.ClassCancelled,
+                    session.Id.ToString(),
+                    session.CancelledAt ?? session.CreatedAt,
+                    body: session.CancellationReason,
+                    studentFullNames: studentFullNames,
+                    className: classGroup.Name,
+                    classDate: session.Date)
+                : Item(
+                    StudentAppNewsKind.ClassChanged,
+                    session.Id.ToString(),
+                    session.ChangedAt ?? session.CreatedAt,
+                    studentFullNames: studentFullNames,
+                    className: classGroup.Name,
+                    instructorFullName: session.SubstituteInstructorId is { } substituteId ? instructorNames.GetValueOrDefault(substituteId) : null,
+                    classDate: session.Date,
+                    classStartTime: session.RescheduledStartTime?.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture)),
             cancellationToken));
 
         var newestItems = items.OrderByDescending(item => item.OccurredAt).Take(ItemLimit).ToList();
         return new StudentAppNewsResponse(newestItems, newestItems.Count(item => item.IsUnread));
     }
 
-    private async Task<IReadOnlyList<StudentAppNewsItemResponse>> CancelledClassesAsync(
+    private async Task<IReadOnlyList<StudentAppNewsItemResponse>> UpcomingClassChangesAsync(
         IReadOnlyList<Domain.Students.Student> students,
         DateOnly today,
-        Func<Domain.Sessions.ClassSession, string, IReadOnlyList<string>, StudentAppNewsItemResponse> item,
+        Func<Domain.Sessions.ClassSession, ClassGroup, IReadOnlyList<string>, StudentAppNewsItemResponse> item,
         CancellationToken cancellationToken)
     {
-        var cancelledSessions = (await sessionRepository.ListBetweenAsync(today, today.AddDays(CancelledClassLookAheadDays), cancellationToken))
-            .Where(session => session.IsCancelled)
+        var changedSessions = (await sessionRepository.ListBetweenAsync(today, today.AddDays(ClassChangeLookAheadDays), cancellationToken))
+            .Where(session => session.IsCancelled || session.IsChanged)
             .ToList();
-        if (cancelledSessions.Count == 0)
+        if (changedSessions.Count == 0)
         {
             return [];
         }
 
         var studentsBySession = new Dictionary<Guid, List<string>>();
-        var classNames = new Dictionary<Guid, string>();
+        var classGroups = new Dictionary<Guid, ClassGroup>();
         foreach (var student in students)
         {
             foreach (var enrollment in await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken))
@@ -138,11 +151,11 @@ public sealed class GetStudentAppNewsUseCase(
                     continue;
                 }
 
-                foreach (var session in cancelledSessions.Where(session => session.ClassGroupId == enrollment.ClassGroupId
+                foreach (var session in changedSessions.Where(session => session.ClassGroupId == enrollment.ClassGroupId
                     && session.Date >= enrollment.StartDate
                     && (enrollment.EndDate is not { } endDate || session.Date <= endDate)))
                 {
-                    classNames[session.Id] = classGroup.Name;
+                    classGroups[session.Id] = classGroup;
                     if (!studentsBySession.TryGetValue(session.Id, out var studentFullNames))
                     {
                         studentFullNames = [];
@@ -156,9 +169,9 @@ public sealed class GetStudentAppNewsUseCase(
 
         return
         [
-            .. cancelledSessions
+            .. changedSessions
                 .Where(session => studentsBySession.ContainsKey(session.Id))
-                .Select(session => item(session, classNames[session.Id], studentsBySession[session.Id])),
+                .Select(session => item(session, classGroups[session.Id], studentsBySession[session.Id])),
         ];
     }
 }

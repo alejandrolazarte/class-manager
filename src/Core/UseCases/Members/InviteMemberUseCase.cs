@@ -24,14 +24,16 @@ public sealed class InviteMemberUseCase(
     TimeProvider timeProvider)
     : IUseCase<InviteMemberCommand, InvitationResponse>
 {
-    public const string EmailSubject = "Te invitaron a sumarte al equipo";
+    public const string EmailHeading = "Te invitaron a sumarte al equipo";
 
     private const string AlreadyMemberMessage = "This person is already part of the team.";
+
+    public static string EmailSubjectFor(string businessName) => $"{businessName} te invita a su equipo";
 
     public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
         new(
             "Invitación al equipo",
-            EmailSubject,
+            EmailHeading,
             $"Te invitaron a sumarte al equipo de {businessName}. Tocá el botón para aceptar.",
             "Si no esperabas esta invitación, podés ignorar este mail.")
         {
@@ -104,7 +106,7 @@ public sealed class InviteMemberUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptInvitation(token.Value));
-        await emailSender.SendAsync(new EmailMessage(invitation.Value.Email, EmailSubject, content, business.Id), cancellationToken);
+        await emailSender.SendAsync(new EmailMessage(invitation.Value.Email, EmailSubjectFor(business.BrandDisplayName), content, business.Id), cancellationToken);
 
         return InvitationResponse.From(invitation.Value);
     }

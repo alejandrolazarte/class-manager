@@ -5,6 +5,7 @@ using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Subscriptions;
+using ClassManager.Core.UseCases.Clients;
 using ClassManager.ImportExport.Columns;
 using ClassManager.ImportExport.Parsing;
 
@@ -25,6 +26,7 @@ public sealed class StudentImportModule(
     public const string StudentNotesKey = "studentNotes";
     public const string ContactNameKey = "contactName";
     public const string ContactNotesKey = "contactNotes";
+    public const string StudentEmailKey = "studentEmail";
 
     private const string ExportDateFormat = "dd/MM/yyyy";
     private const string InternationalPrefix = "+";
@@ -48,9 +50,9 @@ public sealed class StudentImportModule(
             Aliases = ["tel", "móvil", "celular", "whatsapp", "phone"],
             Example = "611 222 333",
         },
-        new(EmailKey, "Email", ColumnType.Email)
+        new(EmailKey, "Email de contacto", ColumnType.Email)
         {
-            Aliases = ["correo", "mail", "correo electrónico"],
+            Aliases = ["email", "correo", "mail", "correo electrónico", "email responsable"],
             Example = "maria@example.com",
         },
         new(BirthDateKey, "Fecha de nacimiento", ColumnType.Date)
@@ -70,6 +72,10 @@ public sealed class StudentImportModule(
         new(ContactNotesKey, "Notas responsable", ColumnType.Text)
         {
             Aliases = ["notas contacto", "notas tutor"],
+        },
+        new(StudentEmailKey, "Email alumno", ColumnType.Email)
+        {
+            Aliases = ["mail alumno", "correo alumno", "email alumna"],
         },
     ];
 
@@ -118,6 +124,7 @@ public sealed class StudentImportModule(
             [StudentNotesKey] = student.Notes,
             [ContactNameKey] = StringComparer.CurrentCultureIgnoreCase.Equals(client.FullName, student.FullName) ? null : client.FullName,
             [ContactNotesKey] = client.Notes,
+            [StudentEmailKey] = student.Email,
         };
 
     private static string ToExportPhoneNumber(PhoneNumber phoneNumber, string defaultCountryCallingCode)
@@ -211,13 +218,20 @@ public sealed class StudentImportModule(
                 row.GetDate(BirthDateKey),
                 row.GetText(StudentNotesKey),
                 today,
-                now);
+                now,
+                row.GetText(StudentEmailKey));
             if (student.IsFailure)
             {
                 return Error(row, StudentFieldKey(student.Error!.FieldName), student.Error);
             }
 
-            if (importClient.HasPlannedStudent(student.Value!.FullName))
+            if (AttendingContact.IsTheContact(importClient.Client.FullName, student.Value!.FullName)
+                && AttendingContact.MinorError(student.Value.BirthDate, today, nameof(Student.BirthDate)) is { } minorError)
+            {
+                return Error(row, BirthDateKey, minorError);
+            }
+
+            if (importClient.HasPlannedStudent(student.Value.FullName))
             {
                 return ImportRowResult.Error(row.LineNumber, ImportFlow.DuplicateInFile(StudentNameKey));
             }
@@ -253,6 +267,7 @@ public sealed class StudentImportModule(
         {
             nameof(Student.BirthDate) => BirthDateKey,
             nameof(Student.Notes) => StudentNotesKey,
+            nameof(Student.Email) => StudentEmailKey,
             _ => StudentNameKey,
         };
     }

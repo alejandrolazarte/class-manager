@@ -13,6 +13,7 @@ internal static class StudentAppPushTexts
     private const int BodyMaxLength = 160;
     private const string Ellipsis = "…";
     private const char NameSeparator = ' ';
+    private const string TimeFormat = "HH:mm";
 
     private static readonly string[] Weekdays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
@@ -22,8 +23,16 @@ internal static class StudentAppPushTexts
 
     public static string ClassCancelledBody(DateOnly date, TimeOnly startTime, string? reason)
     {
-        var when = $"El {Weekdays[(int)date.DayOfWeek]} {date.Day}/{date.Month} a las {startTime.ToString("HH:mm", CultureInfo.InvariantCulture)} no hay clase.";
+        var when = $"El {Weekdays[(int)date.DayOfWeek]} {date.Day}/{date.Month} a las {startTime.ToString(TimeFormat, CultureInfo.InvariantCulture)} no hay clase.";
         return string.IsNullOrWhiteSpace(reason) ? when : $"{when} {reason}";
+    }
+
+    public static string ClassChangedTitle(string classGroupName) => $"Cambio en {classGroupName}";
+
+    public static string ClassChangedBody(DateOnly date, TimeOnly startTime, string? substituteFullName)
+    {
+        var when = $"La clase del {Weekdays[(int)date.DayOfWeek]} {date.Day}/{date.Month} es a las {startTime.ToString(TimeFormat, CultureInfo.InvariantCulture)}";
+        return substituteFullName is null ? $"{when}." : $"{when} con {substituteFullName}.";
     }
 
     public static string FeedbackTitle(string? instructorFullName, string studentFullName)

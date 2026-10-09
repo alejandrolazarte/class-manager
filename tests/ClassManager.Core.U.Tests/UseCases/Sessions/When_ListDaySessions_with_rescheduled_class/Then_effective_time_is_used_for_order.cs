@@ -14,7 +14,7 @@ public sealed class Then_effective_time_is_used_for_order
         var laterClassGroup = ClassGroup.Create(
             "Aquagym", builder.Instructor.Id, ClassSchedule.Create([TestData.Today.DayOfWeek], "18:30", 45).Value!, 10, null).Value!;
         var movedSession = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now);
-        movedSession.Reschedule(new TimeOnly(19, 30), builder.ClassGroup.DurationMinutes, builder.ClassGroup.StartTime);
+        movedSession.Reschedule(new TimeOnly(19, 30), builder.ClassGroup.DurationMinutes, builder.ClassGroup.StartTime, TestData.Now);
         builder.ClassGroups.Setup(repository => repository.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync([builder.ClassGroup, laterClassGroup]);
         builder.Instructors.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([builder.Instructor]);
         builder.Sessions.Setup(repository => repository.ListByDateAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync([movedSession]);

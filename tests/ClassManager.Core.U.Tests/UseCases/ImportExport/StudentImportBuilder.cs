@@ -62,20 +62,20 @@ internal sealed class StudentImportBuilder
         return client;
     }
 
-    public void AddExistingStudent(Client client, string fullName, DateOnly? birthDate, string? notes = null) =>
-        ExistingStudents.Add(Student.Create(client.Id, fullName, birthDate, notes, TestData.Today, TestData.Now).Value!);
+    public void AddExistingStudent(Client client, string fullName, DateOnly? birthDate, string? notes = null, string? email = null) =>
+        ExistingStudents.Add(Student.Create(client.Id, fullName, birthDate, notes, TestData.Today, TestData.Now, email).Value!);
 
-    public async Task<Result<ImportPlan>> PlanAsync(string rowsText)
+    public async Task<Result<ImportPlan>> PlanAsync(string rowsText, string header = Header)
     {
         var parser = new ImportParser(new CsvTabularReader());
-        using var file = new MemoryStream(Encoding.UTF8.GetBytes(Header + rowsText));
+        using var file = new MemoryStream(Encoding.UTF8.GetBytes(header + rowsText));
         var parsed = await parser.ParseAsync(file, Module.Columns, ImportLimits.Default, CancellationToken.None);
         return await Module.PlanAsync(parsed.Import!.Rows, CancellationToken.None);
     }
 
-    public async Task<ImportPlan> PlanAndAddAsync(string rowsText)
+    public async Task<ImportPlan> PlanAndAddAsync(string rowsText, string header = Header)
     {
-        var plan = (await PlanAsync(rowsText)).Value!;
+        var plan = (await PlanAsync(rowsText, header)).Value!;
         plan.AddValidRows();
         return plan;
     }
