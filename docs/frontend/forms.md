@@ -36,7 +36,7 @@ const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName
 - Every date is a `DateField` (`BirthDateField` for birth dates) and every time is a `TimeField`, both from `app/src/forms`. Never a bare `TextField` with a date or time mask.
 - The user can always type: the field keeps the `dd/mm/aaaa` or `hh:mm` mask and the number keyboard, which is the fastest way for a known date (a birth date) or an odd time (18:47).
 - Typing only takes digits that can still make a real date or time: `44:33` can't be typed (the 4 after the 4 is ignored), and a first digit that can only be one digit long gets its zero (`9` becomes `09`). Day-month combinations (31/02) are still caught by validation.
-- The button inside the field, at the right, opens a bottom sheet to pick instead: a month calendar (tap the month title to jump to a year) or two columns that scroll vertically, hours and minutes (every 5 minutes by default, `minuteStep`), opened on the current value. **Cancelar** leaves the typed value untouched; **Listo** writes the picked value back as text, so validation and the form values don't change.
+- The button inside the field, at the right, opens a bottom sheet to pick instead: a month calendar (tap the month title to pick a year from a short scrolling list, then a month, and you are back on that month's days) or two columns that scroll vertically, hours and minutes (every 5 minutes by default, `minuteStep`), opened on the current value. **Cancelar** leaves the typed value untouched; **Listo** writes the picked value back as text, so validation and the form values don't change.
 - The sheet opens on what is typed when it is valid; a typed minute that is off the grid still shows selected.
 - Limit the calendar with `earliestIsoDate` and `latestIsoDate` when the range has a meaning: `BirthDateField` stops at today.
 
@@ -49,5 +49,5 @@ const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName
 
 - `app/src/forms/__tests__/When_required_values_are_checked/` defines what counts as filled.
 - `app/src/ui/__tests__/When_a_field_is_required/` checks the asterisk and the accessible name.
-- `app/src/forms/__tests__/When_a_date_is_picked_from_the_calendar/`, `When_a_date_is_typed/`, `When_the_date_picker_is_cancelled/`, `When_a_birth_date_calendar_is_opened/`, `When_a_time_is_picked/` and `When_a_time_is_typed/` check that typing and picking agree.
+- `app/src/forms/__tests__/When_a_date_is_picked_from_the_calendar/`, `When_a_year_and_a_month_are_chosen/`, `When_a_date_is_typed/`, `When_the_date_picker_is_cancelled/`, `When_a_birth_date_calendar_is_opened/`, `When_a_time_is_picked/` and `When_a_time_is_typed/` check that typing and picking agree.
 - Screen tests check the grey button where the form starts empty: sign-up (`When_account_step_is_incomplete`), new student (`When_register_form_is_empty`), class (`When_class_form_has_no_days`), edit student (`When_edited_client_has_no_name`), billing plan (`When_client_switches_to_an_own_fee_without_amount`) and counter sale (`When_counter_sale_has_nothing_yet`).

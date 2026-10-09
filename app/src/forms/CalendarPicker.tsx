@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { useRef, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 import { weekdayShortLabel, weekOrder } from "@/features/classGroups/weekdays";
 import { monthGridOf, monthOfDate, parseIsoDate, todayIsoDate } from "@/features/sessions/dates";
 import { translate, TranslationKey } from "@/i18n/translate";
@@ -13,11 +13,14 @@ interface CalendarPickerProps {
   latestIsoDate: string;
 }
 
-type CalendarView = "days" | "years";
+type CalendarView = "days" | "years" | "months";
 
 const monthsPerYear = 12;
 const isoMonthLength = 7;
 const isoYearLength = 4;
+const yearsPerRow = 4;
+const yearRowHeight = 52;
+const yearListHeight = 288;
 
 function shiftMonth(month: string, monthCount: number): string {
   const [year, monthNumber] = month.split("-").map(Number);
@@ -34,13 +37,87 @@ function clampMonth(month: string, earliestMonth: string, latestMonth: string): 
   return month > latestMonth ? latestMonth : month;
 }
 
+function yearOf(isoDateOrMonth: string): number {
+  return Number(isoDateOrMonth.slice(0, isoYearLength));
+}
+
+function monthName(monthNumber: number): string {
+  return translate(`months.${monthNumber}` as TranslationKey);
+}
+
+function capitalized(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 function monthTitle(month: string): string {
   const [year, monthNumber] = month.split("-");
-  const monthName = translate(`months.${Number(monthNumber)}` as TranslationKey);
   return translate("dateField.monthTitle", {
-    month: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+    month: capitalized(monthName(Number(monthNumber))),
     year: year ?? "",
   });
+}
+
+interface YearListProps {
+  earliestYear: number;
+  latestYear: number;
+  selectedYear: number;
+  onSelect: (year: number) => void;
+}
+
+function YearList({ earliestYear, latestYear, selectedYear, onSelect }: YearListProps) {
+  const listRef = useRef<ScrollView>(null);
+  const years = Array.from(
+    { length: latestYear - earliestYear + 1 },
+    (_, yearIndex) => latestYear - yearIndex,
+  );
+  const yearRows = Array.from({ length: Math.ceil(years.length / yearsPerRow) }, (_, rowIndex) =>
+    years.slice(rowIndex * yearsPerRow, (rowIndex + 1) * yearsPerRow),
+  );
+  const scrollToSelectedYear = () => {
+    const selectedRowIndex = Math.floor(years.indexOf(selectedYear) / yearsPerRow);
+    const rowTop = Math.max(0, selectedRowIndex) * yearRowHeight;
+    listRef.current?.scrollTo({
+      y: Math.max(0, rowTop - (yearListHeight - yearRowHeight) / 2),
+      animated: false,
+    });
+  };
+  return (
+    <View className="gap-2">
+      <AppText variant="heading" className="text-center">
+        {translate("dateField.chooseYear")}
+      </AppText>
+      <ScrollView
+        ref={listRef}
+        nestedScrollEnabled
+        onLayout={scrollToSelectedYear}
+        className="h-72 rounded-2xl bg-surface"
+        contentContainerClassName="p-1"
+      >
+        {yearRows.map((yearRow) => (
+          <View key={yearRow[0]} className="flex-row">
+            {yearRow.map((year) => {
+              const isSelected = year === selectedYear;
+              return (
+                <View key={year} className="w-1/4 p-1">
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={String(year)}
+                    accessibilityState={{ selected: isSelected }}
+                    onPress={() => onSelect(year)}
+                    className={`h-11 items-center justify-center rounded-xl ${isSelected ? "bg-primary" : "bg-muted active:bg-border"}`}
+                  >
+                    <AppText variant="bodyStrong" tone={isSelected ? "onPrimary" : "default"}>
+                      {year}
+                    </AppText>
+                  </Pressable>
+                </View>
+              );
+            })}
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
 }
 
 function longDayLabel(isoDate: string): string {
@@ -63,36 +140,55 @@ export function CalendarPicker({
   const [view, setView] = useState<CalendarView>("days");
 
   if (view === "years") {
-    const earliestYear = Number(earliestIsoDate.slice(0, isoYearLength));
-    const latestYear = Number(latestIsoDate.slice(0, isoYearLength));
-    const visibleYear = Number(visibleMonth.slice(0, isoYearLength));
-    const years = Array.from(
-      { length: latestYear - earliestYear + 1 },
-      (_, yearIndex) => latestYear - yearIndex,
+    return (
+      <YearList
+        earliestYear={yearOf(earliestIsoDate)}
+        latestYear={yearOf(latestIsoDate)}
+        selectedYear={yearOf(visibleMonth)}
+        onSelect={(year) => {
+          setVisibleMonth(`${year}${visibleMonth.slice(isoYearLength)}`);
+          setView("months");
+        }}
+      />
     );
+  }
+
+  if (view === "months") {
+    const visibleYear = yearOf(visibleMonth);
     return (
       <View className="gap-2">
-        <AppText variant="heading" className="text-center">
-          {translate("dateField.chooseYear")}
-        </AppText>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={translate("dateField.chooseYear")}
+          accessibilityHint={String(visibleYear)}
+          onPress={() => setView("years")}
+          className="self-center rounded-xl px-3 py-2 active:bg-muted"
+        >
+          <AppText variant="heading">{visibleYear}</AppText>
+        </Pressable>
         <View className="flex-row flex-wrap">
-          {years.map((year) => {
-            const isSelected = year === visibleYear;
+          {Array.from({ length: monthsPerYear }, (_, monthIndex) => {
+            const month = `${visibleYear}-${String(monthIndex + 1).padStart(2, "0")}`;
+            const isSelectable = month >= earliestMonth && month <= latestMonth;
+            const isSelected = month === visibleMonth;
             return (
-              <View key={year} className="w-1/4 p-1">
+              <View key={month} className="w-1/3 p-1">
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={String(year)}
-                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={monthTitle(month)}
+                  accessibilityState={{ selected: isSelected, disabled: !isSelectable }}
+                  disabled={!isSelectable}
                   onPress={() => {
-                    const month = visibleMonth.slice(isoYearLength);
-                    setVisibleMonth(clampMonth(`${year}${month}`, earliestMonth, latestMonth));
+                    setVisibleMonth(month);
                     setView("days");
                   }}
-                  className={`h-11 items-center justify-center rounded-xl ${isSelected ? "bg-primary" : "bg-muted active:bg-border"}`}
+                  className={`h-12 items-center justify-center rounded-xl ${isSelected ? "bg-primary" : "bg-muted active:bg-border"}`}
                 >
-                  <AppText variant="bodyStrong" tone={isSelected ? "onPrimary" : "default"}>
-                    {year}
+                  <AppText
+                    variant="bodyStrong"
+                    tone={isSelected ? "onPrimary" : isSelectable ? "default" : "disabled"}
+                  >
+                    {capitalized(monthName(monthIndex + 1))}
                   </AppText>
                 </Pressable>
               </View>
