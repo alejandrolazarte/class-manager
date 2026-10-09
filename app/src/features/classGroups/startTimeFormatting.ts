@@ -1,17 +1,18 @@
-const startTimeDigitsLength = 4;
-const hourDigitsEnd = 2;
-const nonDigitPattern = /\D/g;
+import { acceptTypedNumberParts, TypedNumberPart } from "@/forms/typedNumberParts";
+
 const timeSeparator = ":";
 const minutesPerHour = 60;
 
 export const startTimePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 export const minutesPerDay = 24 * minutesPerHour;
 
+const startTimeParts: readonly TypedNumberPart[] = [
+  { digitCount: 2, minimum: 0, maximum: 23 },
+  { digitCount: 2, minimum: 0, maximum: 59 },
+];
+
 export function formatStartTimeAsTyped(typedText: string): string {
-  const digits = typedText.replace(nonDigitPattern, "").slice(0, startTimeDigitsLength);
-  return digits.length > hourDigitsEnd
-    ? `${digits.slice(0, hourDigitsEnd)}${timeSeparator}${digits.slice(hourDigitsEnd)}`
-    : digits;
+  return acceptTypedNumberParts(typedText, startTimeParts).join(timeSeparator);
 }
 
 export function toMinutesOfDay(startTime: string): number {

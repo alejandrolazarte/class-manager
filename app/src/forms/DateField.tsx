@@ -80,7 +80,7 @@ export function DateField({
         accessory={
           <IconButton
             icon="pickDate"
-            variant="outlined"
+            tone="muted-foreground"
             accessibilityLabel={translate("dateField.openCalendar")}
             accessibilityHint={label}
             onPress={openPicker}

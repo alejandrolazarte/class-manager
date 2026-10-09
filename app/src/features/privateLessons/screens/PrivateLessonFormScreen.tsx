@@ -225,7 +225,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
         )}
       />
       <View className="flex-row gap-3">
-        <View className="flex-1">
+        <View className="flex-[3]">
           <Controller
             control={control}
             name="date"
@@ -242,7 +242,7 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
             )}
           />
         </View>
-        <View className="flex-1">
+        <View className="flex-[2]">
           <Controller
             control={control}
             name="startTime"

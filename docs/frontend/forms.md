@@ -35,7 +35,8 @@ const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName
 
 - Every date is a `DateField` (`BirthDateField` for birth dates) and every time is a `TimeField`, both from `app/src/forms`. Never a bare `TextField` with a date or time mask.
 - The user can always type: the field keeps the `dd/mm/aaaa` or `hh:mm` mask and the number keyboard, which is the fastest way for a known date (a birth date) or an odd time (18:47).
-- The button at the right of the field opens a bottom sheet to pick instead: a month calendar (tap the month title to jump to a year) or a grid of hours and minutes (every 5 minutes by default, `minuteStep`). **Cancelar** leaves the typed value untouched; **Listo** writes the picked value back as text, so validation and the form values don't change.
+- Typing only takes digits that can still make a real date or time: `44:33` can't be typed (the 4 after the 4 is ignored), and a first digit that can only be one digit long gets its zero (`9` becomes `09`). Day-month combinations (31/02) are still caught by validation.
+- The button inside the field, at the right, opens a bottom sheet to pick instead: a month calendar (tap the month title to jump to a year) or two columns that scroll vertically, hours and minutes (every 5 minutes by default, `minuteStep`), opened on the current value. **Cancelar** leaves the typed value untouched; **Listo** writes the picked value back as text, so validation and the form values don't change.
 - The sheet opens on what is typed when it is valid; a typed minute that is off the grid still shows selected.
 - Limit the calendar with `earliestIsoDate` and `latestIsoDate` when the range has a meaning: `BirthDateField` stops at today.
 

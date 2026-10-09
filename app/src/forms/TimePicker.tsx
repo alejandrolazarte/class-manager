@@ -1,4 +1,5 @@
-import { Pressable, View } from "react-native";
+import { useRef } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 
@@ -12,6 +13,10 @@ interface TimePickerProps {
 
 const hoursPerDay = 24;
 const minutesPerHour = 60;
+const optionHeight = 44;
+const optionGap = 4;
+const columnHeight = 320;
+const defaultHour = 9;
 
 function twoDigits(timePart: number): string {
   return String(timePart).padStart(2, "0");
@@ -27,30 +32,67 @@ function minuteOptions(minuteStep: number, selectedMinute: number | null): numbe
     : [...steppedMinutes, selectedMinute].sort((first, second) => first - second);
 }
 
-interface TimeOptionProps {
-  label: string;
-  accessibilityLabel: string;
-  isSelected: boolean;
-  onPress: () => void;
+function centeredScrollOffset(optionIndex: number): number {
+  const optionTop = optionIndex * (optionHeight + optionGap);
+  return Math.max(0, optionTop - (columnHeight - optionHeight) / 2);
 }
 
-function TimeOption({ label, accessibilityLabel, isSelected, onPress }: TimeOptionProps) {
+interface TimeColumnProps {
+  title: string;
+  options: readonly number[];
+  selectedOption: number | null;
+  initiallyVisibleOption: number;
+  onSelect: (option: number) => void;
+}
+
+function TimeColumn({
+  title,
+  options,
+  selectedOption,
+  initiallyVisibleOption,
+  onSelect,
+}: TimeColumnProps) {
+  const columnRef = useRef<ScrollView>(null);
+  const scrollToInitialOption = () => {
+    const initialIndex = Math.max(0, options.indexOf(selectedOption ?? initiallyVisibleOption));
+    columnRef.current?.scrollTo({ y: centeredScrollOffset(initialIndex), animated: false });
+  };
   return (
-    <View className="w-1/4 p-1">
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityState={{ selected: isSelected }}
-        onPress={onPress}
-        className={`h-11 items-center justify-center rounded-xl ${isSelected ? "bg-primary" : "bg-muted active:bg-border"}`}
+    <View className="flex-1 gap-1.5">
+      <AppText variant="label" tone="muted" className="text-center">
+        {title}
+      </AppText>
+      <ScrollView
+        ref={columnRef}
+        nestedScrollEnabled
+        showsVerticalScrollIndicator={false}
+        onLayout={scrollToInitialOption}
+        className="h-80 rounded-2xl bg-surface"
+        contentContainerClassName="gap-1 p-1"
       >
-        <AppText variant="heading" tone={isSelected ? "onPrimary" : "default"}>
-          {label}
-        </AppText>
-      </Pressable>
+        {options.map((option) => {
+          const isSelected = option === selectedOption;
+          return (
+            <Pressable
+              key={option}
+              accessibilityRole="button"
+              accessibilityLabel={`${title} ${twoDigits(option)}`}
+              accessibilityState={{ selected: isSelected }}
+              onPress={() => onSelect(option)}
+              className={`h-11 items-center justify-center rounded-xl ${isSelected ? "bg-primary" : "bg-muted active:bg-border"}`}
+            >
+              <AppText variant="heading" tone={isSelected ? "onPrimary" : "default"}>
+                {twoDigits(option)}
+              </AppText>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 }
+
+const hourOptions = Array.from({ length: hoursPerDay }, (_, hour) => hour);
 
 export function TimePicker({
   selectedHour,
@@ -59,42 +101,22 @@ export function TimePicker({
   onSelectMinute,
   minuteStep,
 }: TimePickerProps) {
-  const hoursLabel = translate("timeField.hours");
-  const minutesLabel = translate("timeField.minutes");
   return (
-    <View className="gap-3">
-      <View className="gap-1">
-        <AppText variant="label" tone="muted">
-          {hoursLabel}
-        </AppText>
-        <View className="flex-row flex-wrap">
-          {Array.from({ length: hoursPerDay }, (_, hour) => (
-            <TimeOption
-              key={hour}
-              label={twoDigits(hour)}
-              accessibilityLabel={`${hoursLabel} ${twoDigits(hour)}`}
-              isSelected={hour === selectedHour}
-              onPress={() => onSelectHour(hour)}
-            />
-          ))}
-        </View>
-      </View>
-      <View className="gap-1">
-        <AppText variant="label" tone="muted">
-          {minutesLabel}
-        </AppText>
-        <View className="flex-row flex-wrap">
-          {minuteOptions(minuteStep, selectedMinute).map((minute) => (
-            <TimeOption
-              key={minute}
-              label={twoDigits(minute)}
-              accessibilityLabel={`${minutesLabel} ${twoDigits(minute)}`}
-              isSelected={minute === selectedMinute}
-              onPress={() => onSelectMinute(minute)}
-            />
-          ))}
-        </View>
-      </View>
+    <View className="flex-row gap-3">
+      <TimeColumn
+        title={translate("timeField.hours")}
+        options={hourOptions}
+        selectedOption={selectedHour}
+        initiallyVisibleOption={defaultHour}
+        onSelect={onSelectHour}
+      />
+      <TimeColumn
+        title={translate("timeField.minutes")}
+        options={minuteOptions(minuteStep, selectedMinute)}
+        selectedOption={selectedMinute}
+        initiallyVisibleOption={0}
+        onSelect={onSelectMinute}
+      />
     </View>
   );
 }
