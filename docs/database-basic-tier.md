@@ -2,7 +2,29 @@
 
 Date: 2026-10-09
 
-What the Azure SQL **Basic** tier costs and includes, and the runbook to move the pilot database from the free offer to Basic for a trial month and back. Variables (`$resourceGroup`, `$sqlServer`, `$database`, `$containerApp`) are the ones from step 1 of the [pilot deployment runbook](pilot-deployment.md#1-names-and-sign-in).
+The difference between the DTU and vCore purchasing models, what the Azure SQL **Basic** tier costs and includes, and the runbook to move the pilot database from the free offer to Basic for a trial month and back. Variables (`$resourceGroup`, `$sqlServer`, `$database`, `$containerApp`) are the ones from step 1 of the [pilot deployment runbook](pilot-deployment.md#1-names-and-sign-in).
+
+## DTU and vCore
+
+Azure SQL Database sells the same SQL Server engine through two purchasing models. They differ in how compute is chosen and billed, not in what the database can store or run.
+
+| | DTU | vCore |
+|---|---|---|
+| What you buy | A bundle of CPU, memory and IO expressed as one number (Database Transaction Units) | A number of virtual CPU cores; memory follows from the hardware |
+| Sizes | Fixed list: Basic (5 DTU), Standard S0–S12 (10–3000 DTU), Premium P1–P15 | Any core count within a tier: General Purpose, Business Critical, Hyperscale |
+| Storage | Included up to the tier's size (2 GB on Basic, 250 GB on Standard) | Billed separately per GB |
+| Compute modes | Provisioned only: online all the time | Provisioned, or **serverless**: scales with load, auto-pauses when idle, billed per second online |
+| Price | Fixed per month | Per core-hour (provisioned) or per vCore-second (serverless) |
+| Smallest size | Basic, about 1/20 of a core, about USD 5 a month | 0.5 vCore serverless, about USD 190 a month if online all month |
+| Good for | Small, steady workloads that must stay online at a predictable price | Workloads that need more power, pause for long periods, or reuse existing SQL Server licenses (Azure Hybrid Benefit) |
+
+Microsoft's rule of thumb for comparing them: **100 DTU on Standard ≈ 1 vCore on General Purpose** (125 DTU on Premium ≈ 1 vCore on Business Critical).
+
+Where class-manager sits:
+
+- **Today:** the free offer is **vCore serverless**: plenty of power, few online hours per month, auto-pause.
+- **Online all the time and cheap:** **DTU Basic**: little power, always online, fixed price.
+- **When several businesses use it all day:** Standard S0/S1 or vCore provisioned. Switching between models is a setting change that keeps the data; the only one-way step is leaving the free offer.
 
 ## Why Basic
 
@@ -163,6 +185,7 @@ Expected on Basic: `tier` is `Basic`, `objective` is `Basic`, `maxSizeBytes` is 
 
 - [Resource limits for single databases using the DTU purchasing model](https://learn.microsoft.com/azure/azure-sql/database/resource-limits-dtu-single-databases?view=azuresql)
 - [DTU-based purchasing model overview](https://learn.microsoft.com/azure/azure-sql/database/service-tiers-dtu?view=azuresql)
+- [Purchasing models: DTU and vCore](https://learn.microsoft.com/azure/azure-sql/database/purchasing-models?view=azuresql) and [migrating from DTU to vCore](https://learn.microsoft.com/azure/azure-sql/database/migrate-dtu-to-vcore?view=azuresql)
 - [Azure SQL Database free offer](https://learn.microsoft.com/azure/azure-sql/database/free-offer?view=azuresql) and [FAQ](https://learn.microsoft.com/azure/azure-sql/database/free-offer-faq?view=azuresql)
 - [SqlPackage Import](https://learn.microsoft.com/sql/tools/sqlpackage/sqlpackage-import?view=sql-server-ver17) and [Export](https://learn.microsoft.com/sql/tools/sqlpackage/sqlpackage-export?view=sql-server-ver17)
 - [Azure SQL Database pricing](https://azure.microsoft.com/pricing/details/azure-sql-database/single/)
