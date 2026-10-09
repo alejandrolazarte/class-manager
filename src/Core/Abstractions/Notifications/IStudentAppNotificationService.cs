@@ -10,6 +10,8 @@ public interface IStudentAppNotificationService
 
     Task ClassCancelledAsync(ClassSession session, CancellationToken cancellationToken);
 
+    Task ClassChangedAsync(ClassSession session, CancellationToken cancellationToken);
+
     Task FeedbackLeftAsync(ClassFeedback feedback, CancellationToken cancellationToken);
 
     Task GuardianConsentRequestedAsync(ClientInvitation invitation, string studentFullName, CancellationToken cancellationToken);

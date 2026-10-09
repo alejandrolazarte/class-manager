@@ -29,7 +29,7 @@ All of them live in `PersonAge` (`src/Core/Domain/Accounts`).
 | Rule | Where | Error |
 |---|---|---|
 | The owner of a business is an adult (18) | Sign-up | `auth.owner_must_be_adult` |
-| The client (contact) is an adult (18): they pay and get the reminders, and both countries need 18 to contract. A minor is registered as a student of an adult client, never as the client | Registering a client who attends class; inviting such a client to the app (`AttendingContact` in `src/Core/UseCases/Clients`) | `client.contact_must_be_adult` |
+| The client (contact) is an adult (18): they pay and get the reminders, and both countries need 18 to contract. A minor is registered as a student of an adult client, never as the client | Registering a client who attends class; importing a student without Responsable (the student becomes the client); inviting such a client to the app (`AttendingContact` in `src/Core/UseCases/Clients`) | `client.contact_must_be_adult` |
 | Below the minimum age of the branch's country (13 in Argentina (`54`), 14 in Spain (`34`), 16 anywhere else, the GDPR maximum) a person still gets an account of their own, but only after the client who pays authorizes it | Inviting a student | — |
 | Anyone accepting an invitation below that age needs that authorization | Accepting any invitation | `auth.too_young_for_own_account` |
 

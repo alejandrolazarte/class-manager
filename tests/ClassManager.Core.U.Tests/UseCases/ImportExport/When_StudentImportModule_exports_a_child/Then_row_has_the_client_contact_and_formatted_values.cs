@@ -9,7 +9,7 @@ public sealed class Then_row_has_the_client_contact_and_formatted_values
     {
         var builder = new StudentImportBuilder();
         var client = builder.AddExistingClient("María Gómez", "11 7777-8888", "maria@example.com", "Paga en efectivo");
-        builder.AddExistingStudent(client, "Lucas Gómez", new DateOnly(2015, 3, 7), "Alergia");
+        builder.AddExistingStudent(client, "Lucas Gómez", new DateOnly(2015, 3, 7), "Alergia", "lucas@example.com");
 
         var rows = await builder.Module.ExportRowsAsync(CancellationToken.None);
 
@@ -22,6 +22,7 @@ public sealed class Then_row_has_the_client_contact_and_formatted_values
             [StudentImportModule.StudentNotesKey] = "Alergia",
             [StudentImportModule.ContactNameKey] = "María Gómez",
             [StudentImportModule.ContactNotesKey] = "Paga en efectivo",
+            [StudentImportModule.StudentEmailKey] = "lucas@example.com",
         });
     }
 }

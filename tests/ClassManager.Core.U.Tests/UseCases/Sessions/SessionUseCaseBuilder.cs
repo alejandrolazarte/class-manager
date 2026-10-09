@@ -88,10 +88,10 @@ internal sealed class SessionUseCaseBuilder
         new(ClassGroups.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, new Mock<IStudentAppNotificationService>().Object, new FakeTimeProvider(TestData.Now));
 
     public RescheduleSessionUseCase BuildReschedule() =>
-        new(ClassGroups.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
+        new(ClassGroups.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, new Mock<IStudentAppNotificationService>().Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
 
     public AssignSubstituteUseCase BuildAssignSubstitute() =>
-        new(ClassGroups.Object, Instructors.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
+        new(ClassGroups.Object, Instructors.Object, Sessions.Object, PrivateLessons.Object, UnitOfWork.Object, new Mock<IStudentAppNotificationService>().Object, new FakeTimeProvider(TestData.Now));
 
     public ListMonthCalendarUseCase BuildMonthCalendar() =>
         new(ClassGroups.Object, Enrollments.Object, Sessions.Object, Attendances.Object, PrivateLessons.Object, BusinessCalendar.Object, new EveryAccessScopes());

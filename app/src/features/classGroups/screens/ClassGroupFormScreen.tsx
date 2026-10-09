@@ -31,6 +31,8 @@ import {
   pickClassMaterialFile,
 } from "@/features/classGroups/pickClassMaterialFile";
 import { Instructor } from "@/features/instructors/types";
+import { conflictingDateExtension } from "@/features/privateLessons/privateLessonErrorCodes";
+import { formatLongDate } from "@/features/sessions/dates";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
@@ -58,7 +60,11 @@ interface ClassGroupEditorProps {
   instructors: Instructor[];
 }
 
-type BusyConflict = { otherClassGroupId: string | undefined };
+type BusyConflict = {
+  instructorFullName: string;
+  otherClassGroupId: string | undefined;
+  privateLessonDate: string | undefined;
+};
 
 function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGroupEditorProps) {
   const router = useRouter();
@@ -122,8 +128,12 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
       return;
     }
     if (isApiError(saveError) && saveError.hasCode(classGroupErrorCodes.instructorBusy)) {
+      const instructorId = form.getValues("instructorId");
       setBusyConflict({
+        instructorFullName:
+          instructors.find((instructor) => instructor.id === instructorId)?.fullName ?? "",
         otherClassGroupId: getStringExtension(saveError.problem, conflictingClassGroupIdExtension),
+        privateLessonDate: getStringExtension(saveError.problem, conflictingDateExtension),
       });
       return;
     }
@@ -183,26 +193,6 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
       submissionFailure={submissionFailure}
       onRetry={save}
     >
-      {busyConflict ? (
-        <Banner
-          tone="warning"
-          message={
-            otherClassGroup
-              ? translate("classGroups.form.instructorBusy", {
-                  instructor: otherClassGroup.instructorFullName,
-                  name: otherClassGroup.name,
-                  startTime: otherClassGroup.startTime,
-                })
-              : translate("classGroups.form.instructorBusyUnknownClass")
-          }
-        />
-      ) : null}
-      {enrolledStudentCount > 0 ? (
-        <Banner
-          tone="warning"
-          message={translateCount("classGroups.form.hasEnrollments", enrolledStudentCount)}
-        />
-      ) : null}
       {instructors.length === 0 ? (
         <Banner tone="warning" message={translate("classGroups.form.noInstructors")}>
           <Button
@@ -223,6 +213,15 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
         }}
       />
       <View className="gap-3">
+        {busyConflict ? (
+          <Banner tone="warning" message={busyConflictMessage(busyConflict, otherClassGroup)} />
+        ) : null}
+        {enrolledStudentCount > 0 ? (
+          <Banner
+            tone="warning"
+            message={translateCount("classGroups.form.hasEnrollments", enrolledStudentCount)}
+          />
+        ) : null}
         <Button
           label={translate("common.save")}
           onPress={save}
@@ -243,6 +242,28 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
       </View>
     </SettingsFormScreenLayout>
   );
+}
+
+function busyConflictMessage(
+  busyConflict: BusyConflict,
+  otherClassGroup: ClassGroup | undefined,
+): string {
+  if (otherClassGroup) {
+    return translate("classGroups.form.instructorBusy", {
+      instructor: otherClassGroup.instructorFullName,
+      name: otherClassGroup.name,
+      startTime: otherClassGroup.startTime,
+    });
+  }
+  if (busyConflict.privateLessonDate) {
+    return translate("classGroups.form.instructorBusyPrivateLesson", {
+      instructor: busyConflict.instructorFullName,
+      date: formatLongDate(busyConflict.privateLessonDate),
+    });
+  }
+  return translate("classGroups.form.instructorBusyUnknownClass", {
+    instructor: busyConflict.instructorFullName,
+  });
 }
 
 function shownMaterialFileOf(

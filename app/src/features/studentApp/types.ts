@@ -227,7 +227,7 @@ export interface PlaceStudentAppOrderLine {
 }
 
 export type StudentAppNewsKind =
-  "Announcement" | "OrderReady" | "InstructorFeedback" | "ClassCancelled";
+  "Announcement" | "OrderReady" | "InstructorFeedback" | "ClassCancelled" | "ClassChanged";
 
 export interface StudentAppNewsItem {
   id: string;
@@ -241,6 +241,7 @@ export interface StudentAppNewsItem {
   instructorFullName: string | null;
   classDate: string | null;
   orderId: string | null;
+  classStartTime: string | null;
 }
 
 export interface StudentAppNews {

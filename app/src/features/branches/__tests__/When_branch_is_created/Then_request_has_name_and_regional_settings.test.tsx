@@ -8,6 +8,9 @@ import { routerMock } from "@/testing/expoRouterMock";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/branches/branchesApi");
+jest.mock("@/features/authentication/useSession", () => ({
+  useSession: () => ({ switchBranch: jest.fn() }),
+}));
 
 const madridBusiness = buildBusiness({
   timeZoneId: "Europe/Madrid",

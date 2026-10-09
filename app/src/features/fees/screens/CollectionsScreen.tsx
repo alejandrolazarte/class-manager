@@ -8,6 +8,10 @@ import { usePendingOrders } from "@/features/orders/useOrders";
 import { translate } from "@/i18n/translate";
 import { CollectionsView } from "@/navigation/routes";
 import { View } from "react-native";
+import { Card } from "@/ui/Card";
+import { EmptyState } from "@/ui/EmptyState";
+import { ScrollScreen } from "@/ui/Screen";
+import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Tabs } from "@/ui/Tabs";
 
 interface CollectionsScreenProps {
@@ -16,9 +20,24 @@ interface CollectionsScreenProps {
 }
 
 export function CollectionsScreen({ initialMonth, initialView = "fees" }: CollectionsScreenProps) {
+  const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
   const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
   const [view, setView] = useState<CollectionsView>(canViewOrders ? initialView : "fees");
   const pendingOrders = usePendingOrders({ enabled: canViewOrders });
+
+  if (!canViewPayments) {
+    return (
+      <ScrollScreen header={<ScreenHeader title={translate("tabs.fees")} />}>
+        <Card>
+          <EmptyState
+            icon="locked"
+            iconTone="disabled-foreground"
+            message={translate("fees.noAccess")}
+          />
+        </Card>
+      </ScrollScreen>
+    );
+  }
 
   if (!canViewOrders) {
     return <MonthlyFeesScreen initialMonth={initialMonth} />;

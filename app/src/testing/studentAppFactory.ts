@@ -199,6 +199,7 @@ export function buildStudentAppNewsItem(
     instructorFullName: null,
     classDate: null,
     orderId: null,
+    classStartTime: null,
     ...overrides,
   };
 }

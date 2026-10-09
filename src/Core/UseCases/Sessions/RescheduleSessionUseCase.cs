@@ -1,4 +1,5 @@
 using System.Globalization;
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
@@ -17,6 +18,7 @@ public sealed class RescheduleSessionUseCase(
     IClassSessionRepository sessionRepository,
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
+    IStudentAppNotificationService studentAppNotifications,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider)
     : IUseCase<RescheduleSessionCommand, SessionStatusResponse>
@@ -63,7 +65,7 @@ public sealed class RescheduleSessionUseCase(
             sessionRepository.Add(session);
         }
 
-        var reschedule = session.Reschedule(startTime, classGroup.Value!.DurationMinutes, classGroup.Value.StartTime);
+        var reschedule = session.Reschedule(startTime, classGroup.Value!.DurationMinutes, classGroup.Value.StartTime, timeProvider.GetUtcNow());
         if (reschedule.IsFailure)
         {
             return reschedule.Error!;
@@ -78,6 +80,7 @@ public sealed class RescheduleSessionUseCase(
             return Result.Conflict<SessionStatusResponse>(ConcurrentUpdateMessage, SessionErrorCodes.ConcurrentUpdate);
         }
 
+        await studentAppNotifications.ClassChangedAsync(session, cancellationToken);
         return new SessionStatusResponse(session.ClassGroupId, session.Date, session.IsCancelled, session.CancellationReason);
     }
 }

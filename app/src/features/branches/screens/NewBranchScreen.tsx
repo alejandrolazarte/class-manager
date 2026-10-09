@@ -3,6 +3,8 @@ import { useState } from "react";
 import { View } from "react-native";
 import { getFieldErrors } from "@/api/problemDetails";
 import { isApiError } from "@/api/httpClient";
+import { useSession } from "@/features/authentication/useSession";
+import { Branch } from "@/features/branches/types";
 import { useCreateBranch } from "@/features/branches/useBranches";
 import { CountryPicker } from "@/features/business/components/CountryPicker";
 import {
@@ -15,6 +17,7 @@ import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider"
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
@@ -28,6 +31,7 @@ const badRequestStatus = 400;
 export function NewBranchScreen() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { switchBranch } = useSession();
   const business = useCurrentBusiness();
   const createBranchMutation = useCreateBranch();
   const [name, setName] = useState("");
@@ -44,17 +48,30 @@ export function NewBranchScreen() {
     setCurrencyCode(getCountryPreset(selection.countryCode).currencyCode);
   };
 
+  const enterBranch = async (branch: Branch) => {
+    try {
+      await switchBranch(branch.businessId);
+      showToast(translate("branches.switched", { name: branch.name }));
+      router.replace(routes.today);
+    } catch {
+      showToast(translate("branches.switchFailed"));
+    }
+  };
+
   const create = async () => {
     setSubmissionFailure(null);
     setNameError(undefined);
     try {
-      await createBranchMutation.mutateAsync({
+      const branch = await createBranchMutation.mutateAsync({
         name: name.trim(),
         timeZoneId: countrySelection.timeZoneId,
         currencyCode,
         defaultCountryCallingCode: countryPreset.callingCode,
       });
-      showToast(translate("branches.form.created"));
+      showToast(translate("branches.form.created", { name: branch.name }), {
+        label: translate("branches.form.enter"),
+        onPress: () => void enterBranch(branch),
+      });
       router.back();
     } catch (createError) {
       if (isApiError(createError) && createError.status === badRequestStatus) {

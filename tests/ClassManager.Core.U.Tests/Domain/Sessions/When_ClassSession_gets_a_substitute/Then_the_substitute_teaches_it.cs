@@ -11,7 +11,7 @@ public sealed class Then_the_substitute_teaches_it
         var substituteInstructorId = Guid.CreateVersion7();
         var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
 
-        session.AssignSubstitute(substituteInstructorId, usualInstructorId);
+        session.AssignSubstitute(substituteInstructorId, usualInstructorId, TestData.Now);
 
         session.EffectiveInstructorId(usualInstructorId).ShouldBe(substituteInstructorId);
     }

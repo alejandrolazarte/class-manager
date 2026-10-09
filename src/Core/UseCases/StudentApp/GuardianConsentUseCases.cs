@@ -45,7 +45,7 @@ internal static class GuardianConsentActions
 
         var content = InviteStudentAppUseCase.EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
         await emailSender.SendAsync(
-            new EmailMessage(invitation.Email, InviteStudentAppUseCase.EmailSubject, content, business.Id),
+            new EmailMessage(invitation.Email, InviteStudentAppUseCase.EmailSubjectFor(business.BrandDisplayName), content, business.Id),
             cancellationToken);
 
         return new GivenGuardianConsentResponse(invitation.Email);
