@@ -17,10 +17,7 @@ import { useRecordPayment } from "@/features/fees/useFeeMutations";
 import { useMonthlyFees } from "@/features/fees/useFees";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
-import {
-  formatBirthDateAsTyped,
-  formatBirthDateForDisplay,
-} from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
@@ -28,6 +25,7 @@ import { Button } from "@/ui/Button";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { DateField } from "@/forms/DateField";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 
@@ -140,12 +138,11 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
         control={form.control}
         name="paidOn"
         render={({ field, fieldState }) => (
-          <TextField
+          <DateField
             label={translate("fees.payment.paidOn")}
             isRequired
-            keyboardType="number-pad"
             value={field.value}
-            onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
+            onChangeText={field.onChange}
             onBlur={field.onBlur}
             errorMessage={fieldState.error?.message}
           />

@@ -10,7 +10,7 @@ import {
   classGroupLimits,
   commonDurationsInMinutes,
 } from "@/features/classGroups/classGroupSchema";
-import { formatStartTimeAsTyped } from "@/features/classGroups/startTimeFormatting";
+import { TimeField } from "@/forms/TimeField";
 import { InstructorField } from "@/features/instructors/components/InstructorField";
 import { Instructor } from "@/features/instructors/types";
 import { translate } from "@/i18n/translate";
@@ -96,13 +96,11 @@ export function ClassGroupForm({ form, instructors, material }: ClassGroupFormPr
             control={control}
             name="startTime"
             render={({ field, fieldState }) => (
-              <TextField
+              <TimeField
                 label={translate("classGroups.form.startTime")}
                 isRequired
-                placeholder={translate("classGroups.form.startTimePlaceholder")}
-                keyboardType="number-pad"
                 value={field.value}
-                onChangeText={(typedText) => field.onChange(formatStartTimeAsTyped(typedText))}
+                onChangeText={field.onChange}
                 onBlur={field.onBlur}
                 errorMessage={fieldState.error?.message}
               />

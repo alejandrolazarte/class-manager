@@ -7,7 +7,6 @@ import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { getStringExtension } from "@/api/problemDetails";
 import { commonDurationsInMinutes } from "@/features/classGroups/classGroupSchema";
-import { formatStartTimeAsTyped } from "@/features/classGroups/startTimeFormatting";
 import { InstructorField } from "@/features/instructors/components/InstructorField";
 import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
@@ -40,7 +39,8 @@ import { formatLongDate, todayIsoDate } from "@/features/sessions/dates";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
-import { formatBirthDateAsTyped } from "@/features/students/birthDateFormatting";
+import { DateField } from "@/forms/DateField";
+import { TimeField } from "@/forms/TimeField";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -225,36 +225,33 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
         )}
       />
       <View className="flex-row gap-3">
-        <View className="flex-1">
+        <View className="flex-[3]">
           <Controller
             control={control}
             name="date"
             render={({ field, fieldState }) => (
-              <TextField
+              <DateField
                 label={translate("privateLessons.form.date")}
                 isRequired
                 placeholder={translate("privateLessons.form.datePlaceholder")}
-                keyboardType="number-pad"
                 value={field.value}
-                onChangeText={(typedText) => field.onChange(formatBirthDateAsTyped(typedText))}
+                onChangeText={field.onChange}
                 onBlur={field.onBlur}
                 errorMessage={fieldState.error?.message}
               />
             )}
           />
         </View>
-        <View className="flex-1">
+        <View className="flex-[2]">
           <Controller
             control={control}
             name="startTime"
             render={({ field, fieldState }) => (
-              <TextField
+              <TimeField
                 label={translate("privateLessons.form.startTime")}
                 isRequired
-                placeholder={translate("classGroups.form.startTimePlaceholder")}
-                keyboardType="number-pad"
                 value={field.value}
-                onChangeText={(typedText) => field.onChange(formatStartTimeAsTyped(typedText))}
+                onChangeText={field.onChange}
                 onBlur={field.onBlur}
                 errorMessage={fieldState.error?.message}
               />
