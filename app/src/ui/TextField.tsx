@@ -57,16 +57,20 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
             </AppText>
           </View>
         ) : null}
-        <TextInput
-          ref={forwardedRef}
-          accessibilityLabel={label}
-          multiline={multiline}
-          placeholderTextColor={colors["subtle-foreground"]}
-          className={`min-w-0 flex-1 rounded-2xl border-[1.5px] px-3.5 ${textVariantClassNames.input} ${surfaceClassName} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[52px]"}`}
-          textAlignVertical={multiline ? "top" : "center"}
-          {...textInputProps}
-        />
-        {accessory ? <View className="h-[52px] justify-center">{accessory}</View> : null}
+        <View className="min-w-0 flex-1 justify-center">
+          <TextInput
+            ref={forwardedRef}
+            accessibilityLabel={label}
+            multiline={multiline}
+            placeholderTextColor={colors["subtle-foreground"]}
+            className={`rounded-2xl border-[1.5px] pl-3.5 ${accessory ? "pr-12" : "pr-3.5"} ${textVariantClassNames.input} ${surfaceClassName} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[52px]"}`}
+            textAlignVertical={multiline ? "top" : "center"}
+            {...textInputProps}
+          />
+          {accessory ? (
+            <View className="absolute bottom-0 right-0 top-0 justify-center">{accessory}</View>
+          ) : null}
+        </View>
       </View>
       {hasError ? (
         <View className="flex-row items-center gap-1">

@@ -1,23 +1,20 @@
-const birthDateDigitsLength = 8;
-const dayDigitsEnd = 2;
-const monthDigitsEnd = 4;
+import { acceptTypedNumberParts, TypedNumberPart } from "@/forms/typedNumberParts";
+
 const typedBirthDatePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 const isoDatePattern = /^(\d{4})-(\d{2})-(\d{2})$/;
-const nonDigitPattern = /\D/g;
 const dateSeparator = "/";
 const isoDateLength = 10;
 
 export const earliestBirthDate = "1900-01-01";
 
+const typedDateParts: readonly TypedNumberPart[] = [
+  { digitCount: 2, minimum: 1, maximum: 31 },
+  { digitCount: 2, minimum: 1, maximum: 12 },
+  { digitCount: 4, minimum: 1900, maximum: 2099 },
+];
+
 export function formatBirthDateAsTyped(typedText: string): string {
-  const digits = typedText.replace(nonDigitPattern, "").slice(0, birthDateDigitsLength);
-  return [
-    digits.slice(0, dayDigitsEnd),
-    digits.slice(dayDigitsEnd, monthDigitsEnd),
-    digits.slice(monthDigitsEnd),
-  ]
-    .filter((datePart) => datePart.length > 0)
-    .join(dateSeparator);
+  return acceptTypedNumberParts(typedText, typedDateParts).join(dateSeparator);
 }
 
 export function parseBirthDate(typedBirthDate: string): string | null {

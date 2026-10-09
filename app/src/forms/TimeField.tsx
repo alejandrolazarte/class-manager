@@ -82,7 +82,7 @@ export function TimeField({
         accessory={
           <IconButton
             icon="pickTime"
-            variant="outlined"
+            tone="muted-foreground"
             accessibilityLabel={translate("timeField.openPicker")}
             accessibilityHint={label}
             onPress={openPicker}
