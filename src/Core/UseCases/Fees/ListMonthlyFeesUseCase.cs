@@ -42,6 +42,7 @@ public sealed class ListMonthlyFeesUseCase(
     IClassBalanceService classBalanceService,
     IClientRepository clientRepository,
     IBusinessCalendarService businessCalendar,
+    IBusinessCurrencyService businessCurrency,
     IAccessScopes accessScopes)
     : IUseCase<ListMonthlyFeesQuery, MonthlyFeesResponse>
 {
@@ -73,7 +74,8 @@ public sealed class ListMonthlyFeesUseCase(
             enrolledClient => enrolledClient.Row.ClientId,
             enrolledClient => FeeTimeline.PlanIn(planChanges.Where(change => change.ClientId == enrolledClient.Row.ClientId), month.Value));
 
-        var paidByClient = await paymentRepository.SumByClientForMonthAsync(month.Value.FirstDay, cancellationToken);
+        var paidByClient = await paymentRepository.SumByClientForMonthAsync(
+            month.Value.FirstDay, await businessCurrency.CurrencyCodeAsync(cancellationToken), cancellationToken);
         var monthlyClients = ListMonthlyClients(
             enrolledClients.Where(enrolledClient => !planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
             planByClient,

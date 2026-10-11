@@ -11,7 +11,7 @@ internal static class ClassPackTestData
         ClassPack.Create(name, classCount, price, validityMonths, TestData.Now).Value!;
 
     public static ClassPackPurchase Purchase(DateOnly purchasedOn, int classCount = 4, int? validityMonths = null, string name = "4 clases") =>
-        ClassPackPurchase.Sell(ClientId, Pack(classCount, 80m, validityMonths, name), null, purchasedOn, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!;
+        ClassPackPurchase.Sell(ClientId, Pack(classCount, 80m, validityMonths, name), null, TestData.CurrencyCode, purchasedOn, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!;
 
     public static AttendedClass Attended(DateOnly date) => new(date, TestData.StudentFullName, "Natación inicial");
 }

@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
-import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { ClassPackUsage } from "@/features/classPacks/types";
 import { useDeleteClassPackPurchase } from "@/features/classPacks/useClassPackMutations";
 import { useClassBalance } from "@/features/classPacks/useClassPacks";
@@ -105,7 +104,6 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
   const canUndoSale = useCanUndoCollection(permissions.classPacksSell);
   const router = useRouter();
   const clientTab = useCurrentTab(clientTabs);
-  const currencyCode = useBusinessCurrency();
   const { data: balance, isPending } = useClassBalance(clientId);
   const deletePurchaseMutation = useDeleteClassPackPurchase();
   const { showToast } = useToast();
@@ -192,7 +190,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
             <View key={group.key} className="border-t border-border pt-2.5">
               <PurchaseRow
                 usage={usage}
-                title={`${usage.name} · ${formatMoney(usage.price, currencyCode)}`}
+                title={`${usage.name} · ${formatMoney(usage.price, usage.currencyCode)}`}
                 details={purchaseDetails(usage)}
                 canUndo={canUndoSale(usage.recordedByUserId)}
                 onUndo={() => setPurchasePendingDeletion(usage)}
@@ -238,7 +236,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
                       usage={usage}
                       title={translate("classPacks.balance.packNumber", {
                         number: index + 1,
-                        price: formatMoney(usage.price, currencyCode),
+                        price: formatMoney(usage.price, usage.currencyCode),
                       })}
                       details={[
                         ...purchaseDetails(usage),

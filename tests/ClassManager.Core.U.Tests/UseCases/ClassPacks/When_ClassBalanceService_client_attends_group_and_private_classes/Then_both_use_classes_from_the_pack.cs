@@ -13,7 +13,7 @@ public sealed class Then_both_use_classes_from_the_pack
         var currentMonth = BillingMonth.From(TestData.Today);
         builder.PayPerClassFrom(clientId, currentMonth);
         builder.ClientPurchases.Add(ClassPackPurchase.Sell(
-            clientId, builder.Pack, null, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
+            clientId, builder.Pack, null, TestData.CurrencyCode, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
         builder.Attend(clientId, currentMonth.FirstDay.AddDays(1));
         builder.AttendPrivateLesson(clientId, currentMonth.FirstDay.AddDays(2));
 

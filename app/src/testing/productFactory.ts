@@ -27,6 +27,7 @@ export function buildOrder(overrides: Partial<Order> = {}): Order {
     awaitsPickup: true,
     method: "Cash",
     paidOn: "2026-09-29",
+    currencyCode: "ARS",
     total: 24,
     refundedAmount: 0,
     notes: null,

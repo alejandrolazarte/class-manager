@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     public void Then_validation_fails_Run()
     {
         var purchase = ClassPackPurchase.Sell(
-            ClassPackTestData.ClientId, ClassPackTestData.Pack(), null, TestData.Today.AddDays(1), PaymentMethod.Cash, null, TestData.Today, TestData.Now);
+            ClassPackTestData.ClientId, ClassPackTestData.Pack(), null, TestData.CurrencyCode, TestData.Today.AddDays(1), PaymentMethod.Cash, null, TestData.Today, TestData.Now);
 
         purchase.Error!.FieldName.ShouldBe(nameof(ClassPackPurchase.PurchasedOn));
     }

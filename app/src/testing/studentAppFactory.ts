@@ -162,6 +162,7 @@ export function buildStudentAppOrder(overrides: Partial<StudentAppOrder> = {}): 
     number: 1043,
     status: "Requested",
     awaitsPickup: false,
+    currencyCode: "EUR",
     total: 120,
     refundedAmount: 0,
     createdAt: "2026-09-29T10:00:00Z",

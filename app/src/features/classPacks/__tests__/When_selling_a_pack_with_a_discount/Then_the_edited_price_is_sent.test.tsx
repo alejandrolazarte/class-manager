@@ -19,6 +19,7 @@ describe("When selling a pack with a discount", () => {
       name: classPack.name,
       classCount: classPack.classCount,
       price: 150,
+      currencyCode: "ARS",
       purchasedOn: "2026-09-05",
       expiresOn: "2026-11-04",
       method: "Cash",

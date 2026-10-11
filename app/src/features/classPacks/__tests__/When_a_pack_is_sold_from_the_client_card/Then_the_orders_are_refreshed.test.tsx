@@ -28,6 +28,7 @@ describe("When a pack is sold from the client card", () => {
       name: classPack.name,
       classCount: classPack.classCount,
       price: classPack.price,
+      currencyCode: "ARS",
       purchasedOn: "2026-09-05",
       expiresOn: null,
       method: "Cash",

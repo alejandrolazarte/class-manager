@@ -25,6 +25,7 @@ public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
     public string Name { get; private set; } = string.Empty;
     public int ClassCount { get; private set; }
     public decimal Price { get; private set; }
+    public string CurrencyCode { get; private set; } = string.Empty;
     public DateOnly PurchasedOn { get; private set; }
     public DateOnly? ExpiresOn { get; private set; }
     public PaymentMethod Method { get; private set; }
@@ -40,6 +41,7 @@ public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
         Guid clientId,
         ClassPack pack,
         decimal? price,
+        string currencyCode,
         DateOnly purchasedOn,
         PaymentMethod? method,
         string? notes,
@@ -83,6 +85,7 @@ public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
             Name = pack.Name,
             ClassCount = pack.ClassCount,
             Price = chargedPrice,
+            CurrencyCode = currencyCode,
             PurchasedOn = purchasedOn,
             ExpiresOn = pack.ValidityMonths is null ? null : purchasedOn.AddMonths(pack.ValidityMonths.Value).AddDays(-1),
             Method = method.Value,

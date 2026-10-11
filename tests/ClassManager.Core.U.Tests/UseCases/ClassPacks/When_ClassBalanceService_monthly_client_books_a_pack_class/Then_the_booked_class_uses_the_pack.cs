@@ -12,7 +12,7 @@ public sealed class Then_the_booked_class_uses_the_pack
         var builder = new ClassPackUseCaseBuilder();
         var clientId = Guid.CreateVersion7();
         builder.ClientPurchases.Add(ClassPackPurchase.Sell(
-            clientId, builder.Pack, null, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
+            clientId, builder.Pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
         builder.Attend(clientId, TestData.Today);
         builder.ClientAttendedClasses.Add(new ClientAttendedClass(
             clientId, new AttendedClass(TestData.Today, TestData.StudentFullName, "Aquagym", IsPackBooking: true)));

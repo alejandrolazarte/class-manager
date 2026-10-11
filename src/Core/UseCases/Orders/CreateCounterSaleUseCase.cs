@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -36,6 +37,7 @@ public sealed class CreateCounterSaleUseCase(
     IEnrollmentRepository enrollmentRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
+    IBusinessCurrencyService businessCurrency,
     TimeProvider timeProvider,
     IAccessScopes accessScopes,
     ICurrentMember currentMember)
@@ -72,8 +74,9 @@ public sealed class CreateCounterSaleUseCase(
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var now = timeProvider.GetUtcNow();
         var access = await currentMember.GetAccessAsync(cancellationToken);
+        var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
         var order = Order.CounterSale(
-            client?.Id, draft.Value!.Lines, command.Method, command.PaidOn ?? today, command.Notes, command.IsDelivered, today, access?.UserId, now);
+            client?.Id, draft.Value!.Lines, currencyCode, command.Method, command.PaidOn ?? today, command.Notes, command.IsDelivered, today, access?.UserId, now);
         if (order.IsFailure)
         {
             return order.Error!;

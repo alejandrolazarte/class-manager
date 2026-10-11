@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -39,6 +40,7 @@ public sealed class SellClassPackUseCase(
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
+    IBusinessCurrencyService businessCurrency,
     TimeProvider timeProvider,
     IAccessScopes accessScopes,
     ICurrentMember currentMember)
@@ -78,6 +80,7 @@ public sealed class SellClassPackUseCase(
             client.Id,
             classPack,
             command.Price,
+            await businessCurrency.CurrencyCodeAsync(cancellationToken),
             command.PurchasedOn ?? today,
             command.Method,
             command.Notes,
@@ -134,6 +137,7 @@ public sealed class SellClassPackUseCase(
         return Order.CounterSale(
             purchase.ClientId,
             [line.Value],
+            purchase.CurrencyCode,
             purchase.Method,
             purchase.PurchasedOn,
             purchase.Notes,

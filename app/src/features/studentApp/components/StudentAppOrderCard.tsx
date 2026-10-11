@@ -107,13 +107,7 @@ function OrderSteps({ currentStep }: { currentStep: number }) {
   );
 }
 
-export function StudentAppOrderCard({
-  order,
-  currencyCode,
-}: {
-  order: StudentAppOrder;
-  currencyCode: string;
-}) {
+export function StudentAppOrderCard({ order }: { order: StudentAppOrder }) {
   const { showToast } = useToast();
   const cancelStudentAppOrderMutation = useCancelStudentAppOrder();
   const stage = orderStage(order);
@@ -142,7 +136,7 @@ export function StudentAppOrderCard({
           </AppText>
         </View>
         <AppText variant="heading" className="font-heavy">
-          {formatMoney(order.total, currencyCode)}
+          {formatMoney(order.total, order.currencyCode)}
         </AppText>
       </View>
       {currentStep === null ? null : <OrderSteps currentStep={currentStep} />}

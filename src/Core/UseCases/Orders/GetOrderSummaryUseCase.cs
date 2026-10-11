@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -15,6 +16,7 @@ public sealed record OrderSummaryResponse(string Month, decimal Collected, decim
 public sealed class GetOrderSummaryUseCase(
     IOrderRepository orderRepository,
     IBusinessCalendarService businessCalendar,
+    IBusinessCurrencyService businessCurrency,
     IAccessScopes accessScopes)
     : IUseCase<GetOrderSummaryQuery, OrderSummaryResponse>
 {
@@ -29,7 +31,10 @@ public sealed class GetOrderSummaryUseCase(
         }
 
         var scope = await accessScopes.ForClientsAsync(Permissions.Orders.ViewAll, cancellationToken);
-        var orders = await orderRepository.ListPaidBetweenOrRequestedAsync(month.Value!.FirstDay, month.Value.LastDay, scope, cancellationToken);
+        var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
+        var orders = (await orderRepository.ListPaidBetweenOrRequestedAsync(month.Value!.FirstDay, month.Value.LastDay, scope, cancellationToken))
+            .Where(order => order.CurrencyCode == currencyCode)
+            .ToList();
         var paidLines = orders
             .Where(order => order.Status is OrderStatus.Paid or OrderStatus.Delivered)
             .SelectMany(order => order.Lines)

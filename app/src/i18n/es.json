@@ -201,7 +201,7 @@
   "businessSettings.title": "Negocio",
   "businessSettings.name": "Nombre del negocio",
   "businessSettings.currency": "Moneda",
-  "businessSettings.currencyChangeNotice": "Los montos ya cargados (cuotas y pagos) no se convierten: solo cambia cómo se muestran.",
+  "businessSettings.currencyChangeNotice": "Los pagos y ventas ya registrados mantienen su moneda. Los precios (cuotas, packs y productos) no se convierten: revisalos en la nueva moneda.",
   "businessSettings.saved": "Datos del negocio guardados",
   "weekdays.short.Monday": "Lun",
   "weekdays.short.Tuesday": "Mar",

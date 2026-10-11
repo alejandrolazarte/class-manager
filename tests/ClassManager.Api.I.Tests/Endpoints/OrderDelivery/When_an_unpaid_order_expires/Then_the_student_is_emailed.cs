@@ -16,7 +16,7 @@ public sealed class Then_the_student_is_emailed(ApiFixture fixture)
         {
             var pack = await context.ClassPacks.FindAsync(classPack.Id);
             context.Orders.Add(Order.Request(
-                scenario.ClientId, [OrderLine.ForClassPack(pack!, null).Value!], null, BusinessApiFactory.Now - Order.RequestLifetime).Value!);
+                scenario.ClientId, [OrderLine.ForClassPack(pack!, null).Value!], ApiFixture.CurrencyCode, null, BusinessApiFactory.Now - Order.RequestLifetime).Value!);
             await context.SaveChangesAsync();
         }
 

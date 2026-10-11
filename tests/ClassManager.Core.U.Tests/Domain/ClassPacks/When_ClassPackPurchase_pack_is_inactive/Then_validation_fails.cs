@@ -11,7 +11,7 @@ public sealed class Then_validation_fails
         var pack = ClassPackTestData.Pack();
         pack.Deactivate();
 
-        var purchase = ClassPackPurchase.Sell(ClassPackTestData.ClientId, pack, null, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now);
+        var purchase = ClassPackPurchase.Sell(ClassPackTestData.ClientId, pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now);
 
         purchase.Error!.FieldName.ShouldBe(nameof(ClassPackPurchase.ClassPackId));
     }

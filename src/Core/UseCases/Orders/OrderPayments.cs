@@ -24,7 +24,7 @@ internal static class OrderPayments
             }
 
             var purchase = ClassPackPurchase.Sell(
-                order.ClientId!.Value, pack, line.UnitPrice, order.PaidOn!.Value, order.Method, order.Notes, today, now, recordedByUserId);
+                order.ClientId!.Value, pack, line.UnitPrice, order.CurrencyCode, order.PaidOn!.Value, order.Method, order.Notes, today, now, recordedByUserId);
             if (purchase.IsFailure)
             {
                 return Result.Failure(purchase.Error!);

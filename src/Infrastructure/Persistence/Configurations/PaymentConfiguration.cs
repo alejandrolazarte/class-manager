@@ -11,6 +11,7 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.HasKey(payment => payment.Id);
         builder.Property(payment => payment.Id).ValueGeneratedNever();
         builder.Property(payment => payment.Amount).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
+        builder.Property(payment => payment.CurrencyCode).HasMaxLength(Business.CurrencyCodeLength).IsFixedLength().IsRequired();
         builder.Property(payment => payment.Method).HasConversion<string>().HasMaxLength(MethodMaxLength);
         builder.Property(payment => payment.Notes).HasMaxLength(Payment.NotesMaxLength);
         builder.Ignore(payment => payment.BillingMonth);
