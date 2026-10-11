@@ -2091,9 +2091,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             Code = "student-app",
-                            AddOnListPrice = 5m,
-                            Currency = "USD",
-                            IsAddOn = true,
+                            IsAddOn = false,
                             IsCounted = false
                         },
                         new
@@ -2243,6 +2241,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "free",
+                            FeatureCode = "student-app"
+                        },
+                        new
+                        {
+                            PlanCode = "free",
                             FeatureCode = "catalog-photos",
                             Limit = 1
                         },
@@ -2273,6 +2276,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             PlanCode = "lite",
                             FeatureCode = "import-export"
+                        },
+                        new
+                        {
+                            PlanCode = "lite",
+                            FeatureCode = "student-app"
                         },
                         new
                         {

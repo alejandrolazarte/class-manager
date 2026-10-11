@@ -11,7 +11,6 @@ internal static class SubscriptionCatalogSeed
     private const decimal ProPrice = 19m;
     private const decimal ExtraBranchPrice = 10m;
     private const decimal ImportExportPrice = 3m;
-    private const decimal StudentAppPrice = 5m;
     private const decimal ShopPrice = 5m;
     private const decimal BrandPrice = 5m;
     private const decimal ExtraCatalogPhotosPrice = 3m;
@@ -42,7 +41,7 @@ internal static class SubscriptionCatalogSeed
             Feature.Create(Features.ClassPacks, isCounted: false),
             Feature.CreateAddOn(Features.ImportExport, isCounted: false, ImportExportPrice, ListPriceCurrency),
             Feature.Create(Features.CustomRoles, isCounted: false),
-            Feature.CreateAddOn(Features.StudentApp, isCounted: false, StudentAppPrice, ListPriceCurrency),
+            Feature.Create(Features.StudentApp, isCounted: false),
             Feature.CreateAddOn(Features.Shop, isCounted: false, ShopPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.Brand, isCounted: false, BrandPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.CatalogPhotos, isCounted: true, ExtraCatalogPhotosPrice, ListPriceCurrency));
@@ -51,12 +50,14 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Free, Features.Students, FreeStudents),
             PlanFeature.Create(PlanCodes.Free, Features.Branches, SingleBranch),
             PlanFeature.Create(PlanCodes.Free, Features.Team, FreeTeam),
+            PlanFeature.Create(PlanCodes.Free, Features.StudentApp),
             PlanFeature.Create(PlanCodes.Free, Features.CatalogPhotos, FreeCatalogPhotos),
             PlanFeature.Create(PlanCodes.Lite, Features.Students, LiteStudents),
             PlanFeature.Create(PlanCodes.Lite, Features.Branches, SingleBranch),
             PlanFeature.Create(PlanCodes.Lite, Features.Team, LiteTeam),
             PlanFeature.Create(PlanCodes.Lite, Features.ClassPacks),
             PlanFeature.Create(PlanCodes.Lite, Features.ImportExport),
+            PlanFeature.Create(PlanCodes.Lite, Features.StudentApp),
             PlanFeature.Create(PlanCodes.Lite, Features.CatalogPhotos, PaidCatalogPhotos),
             PlanFeature.Create(PlanCodes.Pro, Features.Students),
             PlanFeature.Create(PlanCodes.Pro, Features.Branches, ProBranches),
