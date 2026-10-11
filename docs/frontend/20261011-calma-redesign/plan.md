@@ -46,9 +46,9 @@ Every PR shows how the app looked before and after it:
 
 1. Before changing anything, capture the screens on `main` with [Demo screenshots](../../e2e/demo-screenshots.md): `pnpm screenshots` (team app), `pnpm screenshots:no-build Student_screens` (student app) and `pnpm screenshots:invitations` when sign-up or invitations are touched. Capture light and dark (`SCREENSHOTS_COLOR_SCHEME=dark`).
 2. Make the change and capture the same screens again on the branch.
-3. Commit both sets, at phone size, under `docs/frontend/20261011-calma-redesign/screenshots/<step>/before/` and `.../after/`, with the same file names.
-4. The PR description has a table with one row per screen that changed: name, before, after.
-5. When the whole plan is done, the last PR collects the first "before" and the last "after" of every screen in one table, to show the full change.
+3. Publish both sets, at phone size, in one private Claude artifact for the redesign: a gallery with one section per step and, inside it, each screen that changed with its before and after side by side (light and dark). The images are not committed to the repository; `e2e/screenshots-output/` stays git-ignored.
+4. The PR description links the artifact section of its step and lists the screens that changed.
+5. When the whole plan is done, the artifact gets a final section with the first "before" and the last "after" of every screen and email, to show the full change, and the last PR links it.
 
 A screen that is not in the capture scripts gets added to them in the same PR, before the "before" capture. Emails are captured the same way through the email previews (step 0): every email type, at phone and desktop width.
 
@@ -61,7 +61,7 @@ The redesign replaces, it does not pile up. Each PR deletes what it replaces, in
 - Components, hooks, helpers, translation keys (`es.json`) and email fragments that lost their last user, with the tests that only covered them.
 - No commented-out code, no `Old`/`Legacy`/`V2` copies, no feature flags to switch back to the old look.
 
-How it is checked: before opening the PR, search for every name the PR replaced (`git grep`) and remove what has no users left; TypeScript, ESLint (`no-unused-vars`) and `dotnet build -warnaserror` stay clean. Step 0 also proposes a check for unused translation keys and unused files and exports (for example `knip`), raised in its PR before adding the dependency.
+How it is checked: before opening the PR, search for every name the PR replaced (`git grep`) and remove what has no users left; TypeScript, ESLint (`no-unused-vars`) and `dotnet build -warnaserror` stay clean. Step 0 adds [knip](https://knip.dev) as a dev dependency of `app/`, run in CI, so an unused file, export or dependency fails the build, plus a test that fails when an `es.json` key has no user (keys built at runtime, like `orders.filter.${filter}`, are listed by prefix).
 
 ### 6. Motion is short and optional
 
@@ -94,7 +94,7 @@ Colors do not change: the aqua tokens, the other built-in themes and the brand t
 
 Every email the app sends follows Calma too. They share one layout (`src/Notifications/Email/Templates/BrandedEmail.html` and the fragments in `BrandedEmailHtml`, see [Branded emails](../../backend/20261002-branded-emails/plan.md)), so the change happens there and every email takes it:
 
-- Figtree with a safe fallback (`Figtree, Arial, Helvetica, sans-serif`): many email clients block web fonts, so the email must still look right in Arial.
+- Arial (`Arial, Helvetica, sans-serif`), no web font: many email clients block web fonts and Gmail ignores them, and an email should not make external requests. The Calma feel comes from the rest.
 - Weight 600 instead of `bold`, lighter headings, the same type steps as the app.
 - Items and totals separated by 1 px lines instead of boxes; the note as a tonal block; button 12 px radius and 44 px high; header with the logo or initials kept.
 - Kept as they are: brand colors from `EmailPalette` (darkened until white text reads), logo as an inline attachment, plain-text alternative, link fallback under the button, HTML encoding, sender name, and every email type in the table of that plan.
@@ -121,7 +121,7 @@ Every email the app sends follows Calma too. They share one layout (`src/Notific
 
 Each step is its own PR, with its before/after screenshots.
 
-0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color) to HTML files, and a capture that screenshots them at phone and desktop width. Propose the unused-code check (rule 5). No visual change.
+0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color) to HTML files, and a capture that screenshots them at phone and desktop width. Add knip and the unused translation keys test (rule 5), removing what they find unused today in its own commit. Create the screenshots artifact with the baseline of every screen and email. No visual change.
 1. **Base.** Figtree (`@expo-google-fonts/figtree`) and the new weights in `typography.ts` and `tailwind.config.js`, the smaller type scale, no card shadows (`elevation.ts`), flat `Card`, hairline `ListRow` and `ListDivider`, button, input, icon and tab bar sizes. Update [Theming](../theming.md) (visual language and type scale tables). This step alone changes every screen.
 2. **Motion primitives.** `src/ui/motion/` with the durations and easing constants, `useReducedMotion`, and the primitives in the table above, wired into the existing `src/ui` components. Tests prove each primitive renders its content with reduced motion on.
 3. **Team screens with their own layout.** Inicio (timeline, live strip, calendar), Asistencia (counts row, marks, panels), Clases, Alumnos, client card, Cobros (Cuotas and Pedidos), Registrar pago, Ajustes, sign-in and sign-up. New patterns go to `src/ui` first.
@@ -202,3 +202,7 @@ Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshot
 - 2026-10-11: every current text stays (rule 2). The two texts the design invented (under "País" in sign-up, and the toast after "Avisar que está listo") are not used.
 - 2026-10-11: the design does not draw the free-day "Particular" button, the month view day colors or the dimmed list while loading; they stay (see the checklist).
 - 2026-10-11: colors are chosen by the business for everyone ([branding and plans](../../branding-and-plans.md)); Calma keeps the built-in themes and the brand theme, and only changes type, spacing, lines and motion.
+- 2026-10-11: before/after screenshots live in a private Claude artifact (a gallery per step), not in the repository, so it doesn't grow.
+- 2026-10-11: `knip` and an unused translation keys test are added in step 0, so unused code fails CI instead of depending on a manual search.
+- 2026-10-11: the student app is drawn in Calma and reviewed by the owner before it is built (step 4).
+- 2026-10-11: emails use Arial with the Calma styling, no web font.
