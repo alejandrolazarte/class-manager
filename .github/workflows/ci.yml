@@ -74,6 +74,8 @@ jobs:
 
       - run: pnpm typecheck
 
+      - run: pnpm knip
+
       - run: pnpm test --ci
 
   e2e:

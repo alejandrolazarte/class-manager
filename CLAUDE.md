@@ -94,7 +94,7 @@ CI runs the same checks and fails on any of them:
 dotnet build class-manager.slnx -warnaserror
 dotnet test class-manager.slnx
 dotnet format class-manager.slnx --verify-no-changes   # dotnet format class-manager.slnx to fix
-cd app; pnpm typecheck; pnpm test --ci; pnpm lint; pnpm format:check   # pnpm format to fix
+cd app; pnpm typecheck; pnpm knip; pnpm test --ci; pnpm lint; pnpm format:check   # pnpm format to fix
 cd e2e; pnpm typecheck; pnpm format:check; pnpm test                     # e2e job
 ```
 
