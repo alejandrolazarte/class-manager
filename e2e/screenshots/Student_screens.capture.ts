@@ -161,7 +161,7 @@ test("Student screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Listo" }).click();
 
   await page.getByRole("button", { name: "Apariencia" }).click();
-  await page.getByText("Colores").filter({ visible: true }).first().waitFor();
+  await page.getByText("Automático").filter({ visible: true }).first().waitFor();
   await capture(page, "29c-alumno-ajustes-apariencia");
 });
 

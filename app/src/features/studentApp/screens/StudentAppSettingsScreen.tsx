@@ -115,6 +115,7 @@ export function StudentAppSettingsScreen() {
         kind={openSheet}
         notifications={notifications}
         notificationsHint={translate("student.notifications.hint")}
+        colorsHint={translate("settings.colorsHint.student")}
         onClose={() => setOpenSheet(null)}
       />
     </ScrollScreen>

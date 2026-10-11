@@ -88,7 +88,6 @@ test("Brand screens", async ({ browser, page, request }) => {
   await page.getByRole("button", { name: `Color principal ${mainColor}` }).click();
   await page.getByRole("button", { name: `Acento ${accentColor}` }).click();
   await capture(page, "41-marca-logo-y-colores");
-  await page.getByRole("switch", { name: "Usar siempre mi marca" }).click();
   await page.getByRole("button", { name: "Guardar marca" }).click();
   await page.getByText("Marca guardada", { exact: false }).waitFor();
   await page.mouse.wheel(0, 2000);

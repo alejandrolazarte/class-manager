@@ -3,7 +3,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Brands;
 
-public sealed record UpdateBrandCommand(string? BrandName, string? ThemeColor, string? AccentColor, bool LocksTheme) : ICommand;
+public sealed record UpdateBrandCommand(string? BrandName, string? ThemeColor, string? AccentColor) : ICommand;
 
 public sealed class UpdateBrandUseCase(IBusinessRepository businessRepository, IUnitOfWork unitOfWork)
     : IUseCase<UpdateBrandCommand, BrandResponse>
@@ -16,7 +16,7 @@ public sealed class UpdateBrandUseCase(IBusinessRepository businessRepository, I
             return BrandRules.BusinessNotFound<BrandResponse>();
         }
 
-        var update = business.UpdateBrand(command.BrandName, command.ThemeColor, command.AccentColor, command.LocksTheme);
+        var update = business.UpdateBrand(command.BrandName, command.ThemeColor, command.AccentColor);
         if (update.IsFailure)
         {
             return update.Error!;

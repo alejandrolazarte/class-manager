@@ -12,7 +12,7 @@ function BackgroundColorProbe() {
 describe("When dark color scheme is chosen", () => {
   it("Then dark colors are provided", async () => {
     await render(
-      <ThemeProvider initialThemeName="violet" initialColorSchemePreference="dark">
+      <ThemeProvider baseThemeName="violet" initialColorSchemePreference="dark">
         <BackgroundColorProbe />
       </ThemeProvider>,
     );

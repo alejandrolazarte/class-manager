@@ -25,9 +25,9 @@ The design's oklch colors were converted to hex. A few light-mode values were da
 - `ThemeProvider` (root layout) merges the built-in themes with optional `customThemes`, resolves the color scheme (`system` by default, or a forced `light` / `dark`), turns the active colors into CSS variables (`--color-primary: 0 118 180`) with NativeWind's [`vars()`](https://www.nativewind.dev/docs/api/vars) and sets them on a root `View`, so Android, iOS and web inherit them. It also feeds the navigation theme, so the tab bar follows the theme.
 - `tailwind.config.js` maps each token to `rgb(var(--color-<token>) / <alpha-value>)` (`bg-surface`, `text-muted-foreground`, `bg-primary/20`) and each font role to a family (`font-strong`, `font-heavy`).
 - `accent*` tokens are for small highlights (the eyebrow above titles, chips), never for buttons. Built-in themes set them to their `primary*` values.
-- `useTheme()` exposes `colors` (hex values for props that are not classes: `placeholderTextColor`, icon colors, shadows), `colorScheme`, `themeName`, `themeNames`, `previewColors(themeName)`, `setThemeName` and `setColorSchemePreference`.
+- `useTheme()` exposes `colors` (hex values for props that are not classes: `placeholderTextColor`, icon colors, shadows), `colorScheme`, `colorSchemePreference`, `themeName` (`business` when the business theme applies), `setBrandTheme` and `setColorSchemePreference`.
 - `useElevationStyle()` (`src/ui/elevation.ts`) builds card and floating shadows from the `shadow` / `primary` tokens and drops card shadows in dark mode.
-- `PersistedThemePreferences` (root layout) restores and saves the chosen theme and color scheme (`expo-secure-store` on native, `localStorage` on web). **Ajustes → Apariencia / Colores** lets each user pick them for their own device, in a grid of three swatches per row.
+- `PersistedThemePreferences` (root layout) restores and saves the color scheme (`expo-secure-store` on native, `localStorage` on web); a theme name stored by older versions is ignored. **Ajustes → Apariencia** only offers Automático / Claro / Oscuro: the colors are the business's ([branding and plans](../branding-and-plans.md)).
 
 ## Typography
 
@@ -75,7 +75,7 @@ To change fonts, update the families and assets in `typography.ts` and the `font
 
 1. Add any missing raw colors to `palette.ts`.
 2. Add an entry to `themes` in `themes.ts` with `light` and `dark` colors. TypeScript fails if a token is missing.
-3. Add its display name as `themes.<name>` in `src/i18n/es.json` (the picker falls back to the theme id).
+3. Add its display name as `themes.<name>` in `src/i18n/es.json`. Ajustes → Marca offers it to owners as soon as it is in `themes`.
 4. Run `pnpm test`: `When_any_theme_is_defined` checks WCAG AA contrast (4.5:1) for every text/background pair in `themeContrastPairs`, and that the primary color is not mistaken for a status color (below).
 
 ## Primary colors never look like a status
@@ -86,11 +86,11 @@ Red means an error or a destructive action (Cancelar, Eliminar), amber a warning
 
 ## The brand theme
 
-A business sets its main color and an optional accent in **Ajustes → Marca** ([brand plan](20260930-brand/plan.md)). `BrandProvider` (team and student layouts) reads them from the API, builds the theme with `deriveBrandTheme` (neutral grays plus `primary*` and `accent*` derived so every pair passes AA) and registers it with `setBrandTheme` under the name `business`:
+In **Ajustes → Marca** ([brand plan](20260930-brand/plan.md)) the owner picks one of the built-in themes or its own main color and optional accent. Both are stored the same way, as `themeColor` / `accentColor`: a built-in theme is saved as its light `primary` color with no accent (`builtInThemeColor`), so emails get the color too, and Agua clears the colors. `BrandProvider` (team and student layouts) reads them from the API and `toBrandTheme` turns them into a theme:
 
-- A user who never chose a theme gets it; a stored choice (`chosenThemeName`) wins.
-- When the business locks its brand, `isThemeLocked` is true, the brand theme wins over any choice and the picker only explains it.
-- Signing out or removing the colors unregisters it; the user's choice or `aqua` applies again.
+- A color equal to a built-in theme's seed with no accent (`findBuiltInThemeName`) uses that built-in theme as designed.
+- Any other color builds the theme with `deriveBrandTheme` (neutral grays plus `primary*` and `accent*` derived so every pair passes AA).
+- `setBrandTheme` applies it to everyone in the business under the name `business`. Signing out or removing the colors clears it and `aqua` applies again.
 
 `ThemePreviewScope` applies another set of colors (and the matching `useTheme().colors`) to a subtree; Ajustes → Marca uses it for the live preview and the welcome preview.
 
@@ -100,7 +100,7 @@ A business can bring its own theme without a code change:
 
 1. Receive the theme as JSON (for example from the API): `{ "light": { "<token>": "#rrggbb", ... }, "dark": { ... } }`.
 2. Validate it with `parseThemeDefinition(json)`. It returns `{ isValid: true, theme }`, or `{ isValid: false, problems }` listing missing or malformed tokens (`light.primary: expected a #rrggbb color`) and text pairs below AA contrast (`light primary-foreground on primary`).
-3. Pass valid themes to `ThemeProvider` as `customThemes={{ "studio-brand": theme }}`. They appear in `themeNames`, in the Ajustes color picker (named by their id unless a translation exists) and can be selected with `setThemeName`.
+3. Pass valid themes to `ThemeProvider` as `customThemes={{ "studio-brand": theme }}` with `baseThemeName="studio-brand"`, or apply one at runtime with `setBrandTheme(theme)`.
 
 A theme editor would only need to produce that JSON; screens and primitives already read everything from tokens.
 

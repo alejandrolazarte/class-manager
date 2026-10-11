@@ -16,7 +16,7 @@ public static class BrandRequests
 
     private static string BusinessBrandLogoPath => ApiRoutes.Business + ApiRoutes.BrandLogo;
 
-    public static UpdateBrandCommand DeltaBrand() => new("Club Delta", "#0076B4", "#efb062", LocksTheme: true);
+    public static UpdateBrandCommand DeltaBrand() => new("Club Delta", "#0076B4", "#efb062");
 
     public static Task<HttpResponseMessage> PutBrandAsync(this HttpClient httpClient, UpdateBrandCommand command) =>
         httpClient.PutAsJsonAsync(BusinessBrandPath, command, ApiRequests.JsonOptions);

@@ -42,10 +42,9 @@ export function BrandProvider({ audience, children }: BrandProviderProps) {
 
   const themeColor = brand?.themeColor ?? null;
   const accentColor = brand?.accentColor ?? null;
-  const locksTheme = brand?.locksTheme ?? false;
   useEffect(() => {
-    setBrandTheme(toBrandTheme({ themeColor, accentColor, locksTheme }));
-  }, [setBrandTheme, themeColor, accentColor, locksTheme]);
+    setBrandTheme(toBrandTheme({ themeColor, accentColor }));
+  }, [setBrandTheme, themeColor, accentColor]);
   useEffect(() => () => setBrandTheme(null), [setBrandTheme]);
 
   useEffect(() => {

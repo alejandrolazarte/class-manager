@@ -7,12 +7,11 @@ public sealed class Then_colors_are_stored_lowercase
     {
         var business = TestData.Business();
 
-        var result = business.UpdateBrand("  Club Delta  ", "#0076B4", "#EFB062", locksTheme: true);
+        var result = business.UpdateBrand("  Club Delta  ", "#0076B4", "#EFB062");
 
         result.IsSuccess.ShouldBeTrue();
         business.ThemeColor.ShouldBe("#0076b4");
         business.AccentColor.ShouldBe("#efb062");
         business.BrandName.ShouldBe("Club Delta");
-        business.LocksTheme.ShouldBeTrue();
     }
 }

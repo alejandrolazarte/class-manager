@@ -19,6 +19,5 @@ public sealed class Then_the_brand_colors_are_not_applied(ApiFixture fixture)
         var brand = await business.HttpClient.GetBrandAsync();
         brand!.ThemeColor.ShouldBeNull();
         brand.AccentColor.ShouldBeNull();
-        brand.LocksTheme.ShouldBeFalse();
     }
 }

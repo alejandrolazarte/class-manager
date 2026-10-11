@@ -1,18 +1,14 @@
 import { ThemeProvider as NavigationThemeProvider } from "expo-router";
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { useColorScheme } from "react-native";
 import { buildNavigationTheme } from "@/theme/buildNavigationTheme";
-import {
-  BrandTheme,
-  ColorSchemePreference,
-  ThemeContext,
-  ThemeContextValue,
-} from "@/theme/ThemeContext";
+import { ColorSchemePreference, ThemeContext, ThemeContextValue } from "@/theme/ThemeContext";
 import { ThemeScope } from "@/theme/ThemeScope";
 import {
   brandThemeName,
   ColorScheme,
   defaultThemeName,
+  ThemeDefinition,
   ThemeName,
   ThemeRegistry,
   themes,
@@ -21,7 +17,7 @@ import {
 interface ThemeProviderProps {
   children: ReactNode;
   customThemes?: ThemeRegistry;
-  initialThemeName?: ThemeName;
+  baseThemeName?: ThemeName;
   initialColorSchemePreference?: ColorSchemePreference;
 }
 
@@ -35,50 +31,27 @@ function resolveColorScheme(
   return systemColorScheme === "dark" ? "dark" : "light";
 }
 
-function resolveThemeName(
-  chosenThemeName: ThemeName | null,
-  brandTheme: BrandTheme | null,
-  registry: ThemeRegistry,
-): ThemeName {
-  if (brandTheme?.isLocked) {
-    return brandThemeName;
-  }
-  if (chosenThemeName !== null && chosenThemeName in registry) {
-    return chosenThemeName;
-  }
-  return brandTheme === null ? defaultThemeName : brandThemeName;
-}
-
 export function ThemeProvider({
   children,
   customThemes,
-  initialThemeName,
+  baseThemeName = defaultThemeName,
   initialColorSchemePreference = "system",
 }: ThemeProviderProps) {
-  const [brandTheme, setBrandTheme] = useState<BrandTheme | null>(null);
-  const registry = useMemo<ThemeRegistry>(
-    () => ({
-      ...themes,
-      ...customThemes,
-      ...(brandTheme === null ? {} : { [brandThemeName]: brandTheme.theme }),
-    }),
-    [customThemes, brandTheme],
-  );
-  const [chosenThemeName, setChosenThemeName] = useState<ThemeName | null>(
-    initialThemeName ?? null,
-  );
+  const [brandTheme, setBrandTheme] = useState<ThemeDefinition | null>(null);
   const [colorSchemePreference, setColorSchemePreference] = useState<ColorSchemePreference>(
     initialColorSchemePreference,
   );
-  const themeName = resolveThemeName(chosenThemeName, brandTheme, registry);
+  const registry = useMemo<ThemeRegistry>(() => ({ ...themes, ...customThemes }), [customThemes]);
+  const themeName =
+    brandTheme !== null
+      ? brandThemeName
+      : baseThemeName in registry
+        ? baseThemeName
+        : defaultThemeName;
+  const theme = brandTheme ?? registry[themeName]!;
   const colorScheme = resolveColorScheme(colorSchemePreference, useColorScheme());
-  const colors = registry[themeName]![colorScheme];
+  const colors = theme[colorScheme];
 
-  const previewColors = useCallback(
-    (candidateThemeName: ThemeName) =>
-      (registry[candidateThemeName] ?? registry[defaultThemeName]!)[colorScheme],
-    [registry, colorScheme],
-  );
   const navigationTheme = useMemo(
     () => buildNavigationTheme(colors, colorScheme),
     [colors, colorScheme],
@@ -86,27 +59,13 @@ export function ThemeProvider({
   const themeContextValue = useMemo<ThemeContextValue>(
     () => ({
       themeName,
-      chosenThemeName,
-      isThemeLocked: brandTheme?.isLocked ?? false,
-      themeNames: Object.keys(registry),
       colorScheme,
       colorSchemePreference,
       colors,
-      previewColors,
-      setThemeName: setChosenThemeName,
       setBrandTheme,
       setColorSchemePreference,
     }),
-    [
-      themeName,
-      chosenThemeName,
-      brandTheme,
-      registry,
-      colorScheme,
-      colorSchemePreference,
-      colors,
-      previewColors,
-    ],
+    [themeName, colorScheme, colorSchemePreference, colors],
   );
 
   return (

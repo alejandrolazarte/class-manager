@@ -12,7 +12,7 @@ public sealed class Then_the_email_header_uses_it(ApiFixture fixture)
     public async Task Then_the_email_header_uses_it_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        (await business.HttpClient.PutBrandAsync(new UpdateBrandCommand(null, ThemeColor, null, LocksTheme: false))).EnsureSuccessStatusCode();
+        (await business.HttpClient.PutBrandAsync(new UpdateBrandCommand(null, ThemeColor, null))).EnsureSuccessStatusCode();
         var email = MemberRequests.UniqueInviteeEmail();
 
         await business.HttpClient.InviteAsync(email, BusinessRole.Viewer);

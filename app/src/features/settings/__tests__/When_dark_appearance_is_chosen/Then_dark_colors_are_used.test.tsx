@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
+import { AppearanceSettings } from "@/features/settings/components/AppearanceSettings";
 import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { themes } from "@/theme/themes";
@@ -15,7 +15,7 @@ describe("When dark appearance is chosen", () => {
   it("Then dark colors are used", async () => {
     await renderWithProviders(
       <>
-        <AppearanceSettings />
+        <AppearanceSettings colorsHint="" />
         <BackgroundColorProbe />
       </>,
     );
