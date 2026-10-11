@@ -1,6 +1,6 @@
 # Backend plan — Subscriptions, plans and features
 
-Status: steps 1–4 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks); step 5 (operator script) is next; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
+Status: steps 1–5 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks), and the operator script to change a plan; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
 
 ## Goal
 
@@ -227,7 +227,7 @@ What stays in the app:
 | Effective feature codes and limits, for the app to lock things | added to `GET /api/me` (`features`) | any member |
 | Public plans with list prices, for the sign-up and plan screens | `GET /api/plans` | anonymous |
 
-No endpoint changes a subscription in the MVP: there is no platform administrator role yet. The operator runs `scripts/set-subscription.cs <connection> <organizationId> <plan> <price> <currency> [note]` (and `add-feature`), the same style as `scripts/seed-demo-business.cs`. A platform admin screen comes with online billing.
+No endpoint changes a subscription in the MVP: there is no platform administrator role yet. The operator runs `scripts/set-subscription.cs <brand owner email | organizationId> <plan> <price> [currency] [note]` with the connection string in `BUSINESS_DATABASE` ([runbook](../../changing-a-subscription.md)); adding an add-on by hand is not scripted yet. A platform admin screen comes with online billing.
 
 ## In the app
 
@@ -257,7 +257,7 @@ Built in `app/src/features/subscriptions`:
 3. Gate the features in the table:
    - ✅ Every feature in the table: permission gates, `RequireFeature` for brand and family app, and the students, team and branches limits in the interceptor; usage in `/api/me`, locks in the app, and the import preview's room left.
 4. ✅ `subscription` in `GET /api/me`, `GET /api/organization/subscription` (brand-only `subscription.view`), `GET /api/plans`; app: hooks, trial notice, ended gate, locks and Ajustes → Plan.
-5. `scripts/set-subscription.cs` and a runbook in `docs/`.
+5. ✅ `scripts/set-subscription.cs` and a [runbook](../../changing-a-subscription.md).
 
 ## Later, not in the MVP
 
