@@ -9,9 +9,9 @@ interface TotalBarProps extends PropsWithChildren {
 
 export function TotalBar({ total, children }: TotalBarProps) {
   return (
-    <View className="gap-2.5 rounded-t-3xl border-t border-border bg-surface px-5 pb-4 pt-3.5">
+    <View className="gap-2.5 border-t border-border-subtle bg-background px-5 pb-4 pt-3">
       <View className="flex-row items-baseline justify-between">
-        <AppText variant="bodyStrong" tone="muted">
+        <AppText variant="body" tone="muted">
           {translate("common.total")}
         </AppText>
         <AppText variant="display" accessibilityLabel={`${translate("common.total")} ${total}`}>

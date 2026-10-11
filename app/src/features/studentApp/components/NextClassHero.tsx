@@ -1,4 +1,4 @@
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import {
   canNotifyAbsence,
   classDetails,
@@ -10,9 +10,8 @@ import { AccountStudent } from "@/features/studentApp/types";
 import { useAbsenceNotice } from "@/features/studentApp/useAbsenceNotice";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
-import { useFloatingShadowStyle } from "@/ui/elevation";
+import { Button } from "@/ui/Button";
+import { Highlight } from "@/ui/Highlight";
 
 interface NextClassHeroProps {
   student: AccountStudent;
@@ -20,82 +19,73 @@ interface NextClassHeroProps {
 }
 
 export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
-  const floatingStyle = useFloatingShadowStyle();
   const { toggleAbsence, isPending } = useAbsenceNotice();
   const nextClass = nextClassOf(student);
   if (nextClass === null) {
     return (
-      <Card className="gap-2 p-[18px]">
-        <AppText variant="overline" tone="subtle">
+      <Highlight tone="muted">
+        <AppText variant="badge" tone="muted">
           {translate("student.nextClass.title")}
         </AppText>
         <AppText variant="body" tone="muted">
           {translate("student.student.noClasses")}
         </AppText>
-      </Card>
+      </Highlight>
     );
   }
-  const countdown = nextClass.absenceNotified
+  const { absenceNotified } = nextClass;
+  const countdown = absenceNotified
     ? translate("student.absence.notified")
     : countdownLabel(nextClass);
+  const absenceLabel = translate(
+    absenceNotified ? "student.absence.undo" : "student.absence.notGoing",
+  );
   return (
-    <View style={floatingStyle} className="gap-3.5 rounded-3xl bg-primary p-[18px]">
+    <Highlight tone="primary">
       <View className="flex-row items-center justify-between gap-2">
-        <AppText variant="overline" tone="onPrimary" className="opacity-85">
+        <AppText variant="badge" tone="primarySoft">
           {translate("student.nextClass.title")}
         </AppText>
         {countdown === null ? null : (
-          <View className="rounded-full bg-primary-foreground/20 px-2.5 py-[5px]">
-            <AppText variant="badge" tone="onPrimary">
+          <View
+            className={`rounded-full px-2.5 py-[3px] ${absenceNotified ? "bg-danger-soft" : "bg-surface"}`}
+          >
+            <AppText variant="badge" tone={absenceNotified ? "dangerSoft" : "primarySoft"}>
               {countdown}
             </AppText>
           </View>
         )}
       </View>
-      <View className="gap-1">
-        <AppText variant="hero" tone="onPrimary">
+      <View className="gap-0.5">
+        <AppText variant="hero" className={absenceNotified ? "line-through opacity-50" : ""}>
           {`${relativeDayLabel(nextClass.date)} · ${nextClass.startTime}`}
         </AppText>
-        <AppText variant="body" tone="onPrimary" className="opacity-90">
+        <AppText variant="body" tone="muted">
           {classDetails(nextClass)}
         </AppText>
       </View>
       <View className="flex-row gap-2">
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={translate("student.nextClass.seeWeek")}
-          onPress={onSeeWeek}
-          className="h-11 flex-1 flex-row items-center justify-center gap-1.5 rounded-[14px] bg-surface active:opacity-80"
-        >
-          <Icon name="classes" size="medium" tone="primary-strong" />
-          <AppText variant="bodyStrong" tone="primary">
-            {translate("student.nextClass.seeWeek")}
-          </AppText>
-        </Pressable>
+        <View className="flex-1">
+          <Button
+            size="medium"
+            icon="classes"
+            label={translate("student.nextClass.seeWeek")}
+            onPress={onSeeWeek}
+          />
+        </View>
         {canNotifyAbsence(nextClass) ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={translate(
-              nextClass.absenceNotified ? "student.absence.undo" : "student.absence.notGoing",
-            )}
-            accessibilityState={{ busy: isPending }}
-            disabled={isPending}
-            onPress={() => toggleAbsence(student.id, nextClass)}
-            className="h-11 flex-1 flex-row items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] border-primary-foreground/50 active:opacity-80"
-          >
-            <Icon
-              name={nextClass.absenceNotified ? "refund" : "cancelled"}
+          <View className="flex-1">
+            <Button
               size="medium"
-              tone="primary-foreground"
+              variant="secondary"
+              icon={absenceNotified ? "refund" : "cancelled"}
+              label={absenceLabel}
+              isLoading={isPending}
+              onPress={() => toggleAbsence(student.id, nextClass)}
             />
-            <AppText variant="bodyStrong" tone="onPrimary">
-              {translate(
-                nextClass.absenceNotified ? "student.absence.undo" : "student.absence.notGoing",
-              )}
-            </AppText>
-          </Pressable>
+          </View>
         ) : null}
       </View>
-    </View>
+    </Highlight>
   );
 }
