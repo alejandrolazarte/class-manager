@@ -17,6 +17,7 @@ internal sealed class ClassPackConfiguration : IEntityTypeConfiguration<ClassPac
         builder.Ignore(classPack => classPack.ClassGroupIds);
         builder.Ignore(classPack => classPack.ImagesInOrder);
         builder.Ignore(classPack => classPack.ImageCount);
+        builder.Ignore(classPack => classPack.MaximumImageCount);
 
         builder.HasMany(classPack => classPack.ClassGroups)
             .WithOne()

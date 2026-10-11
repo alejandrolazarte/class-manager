@@ -12,6 +12,7 @@ public sealed class Product : ITenantOwned, IHasCatalogImages
     public const int NameMaxLength = 60;
     public const int DescriptionMaxLength = 500;
     public const int MaximumVariantCount = 20;
+    public const int MaximumImages = 5;
     public const string VariantsFieldName = "Variants";
 
     private const string NameLengthMessage = "The name must be between 2 and 60 characters.";
@@ -41,6 +42,7 @@ public sealed class Product : ITenantOwned, IHasCatalogImages
     public IReadOnlyList<ProductImage> Images => _images;
     public IReadOnlyList<Document> ImagesInOrder => CatalogImageGallery.InOrder(_images);
     public int ImageCount => _images.Count;
+    public int MaximumImageCount => MaximumImages;
     public IReadOnlyList<ProductVariant> Variants => _variants;
 
     public bool TracksStock => StockMode != StockMode.Unlimited;

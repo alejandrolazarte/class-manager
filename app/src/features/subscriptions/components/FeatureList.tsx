@@ -1,25 +1,31 @@
 import { View } from "react-native";
 import {
   countedFeatureCodes,
+  featureCodes,
   featureDisplayOrder,
 } from "@/features/subscriptions/subscriptionCodes";
+import { formatMegabytes } from "@/features/subscriptions/storageSize";
 import { featureLabel } from "@/features/subscriptions/subscriptionLabels";
 import { FeatureLimit } from "@/features/subscriptions/types";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
 
+function amountOf(feature: FeatureLimit, amount: number): string | number {
+  return feature.code === featureCodes.documentStorage ? formatMegabytes(amount) : amount;
+}
+
 function featureDescription(feature: FeatureLimit): string {
   if (feature.used != null) {
     return feature.limit === null
       ? translate("subscriptions.featureUsedUnlimited", {
           feature: featureLabel(feature.code),
-          used: feature.used,
+          used: amountOf(feature, feature.used),
         })
       : translate("subscriptions.featureUsed", {
           feature: featureLabel(feature.code),
-          used: feature.used,
-          limit: feature.limit,
+          used: amountOf(feature, feature.used),
+          limit: amountOf(feature, feature.limit),
         });
   }
   if (feature.limit === null) {
@@ -29,7 +35,7 @@ function featureDescription(feature: FeatureLimit): string {
   }
   return translate("subscriptions.featureWithLimit", {
     feature: featureLabel(feature.code),
-    limit: feature.limit,
+    limit: amountOf(feature, feature.limit),
   });
 }
 

@@ -14,7 +14,7 @@ internal static class SubscriptionCatalogSeed
     private const decimal StudentAppPrice = 5m;
     private const decimal ShopPrice = 5m;
     private const decimal BrandPrice = 5m;
-    private const decimal ExtraCatalogPhotosPrice = 3m;
+    private const decimal ExtraDocumentStoragePrice = 2m;
 
     private const int FreeTrialDays = 30;
     private const int FreeStudents = 30;
@@ -24,8 +24,10 @@ internal static class SubscriptionCatalogSeed
     private const int FreeTeam = 0;
     private const int LiteTeam = 2;
     private const int ProTeam = 10;
-    private const int FreeCatalogPhotos = 1;
-    private const int PaidCatalogPhotos = 5;
+    private const int FreeDocumentStorageInMegabytes = 100;
+    private const int LiteDocumentStorageInMegabytes = 1024;
+    private const int ProDocumentStorageInMegabytes = 5 * 1024;
+    private const int EnterpriseDocumentStorageInMegabytes = 10 * 1024;
 
     public static ModelBuilder SeedSubscriptionCatalog(this ModelBuilder modelBuilder)
     {
@@ -45,19 +47,19 @@ internal static class SubscriptionCatalogSeed
             Feature.CreateAddOn(Features.StudentApp, isCounted: false, StudentAppPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.Shop, isCounted: false, ShopPrice, ListPriceCurrency),
             Feature.CreateAddOn(Features.Brand, isCounted: false, BrandPrice, ListPriceCurrency),
-            Feature.CreateAddOn(Features.CatalogPhotos, isCounted: true, ExtraCatalogPhotosPrice, ListPriceCurrency));
+            Feature.CreateAddOn(Features.DocumentStorage, isCounted: true, ExtraDocumentStoragePrice, ListPriceCurrency));
 
         modelBuilder.Entity<PlanFeature>().HasData(
             PlanFeature.Create(PlanCodes.Free, Features.Students, FreeStudents),
             PlanFeature.Create(PlanCodes.Free, Features.Branches, SingleBranch),
             PlanFeature.Create(PlanCodes.Free, Features.Team, FreeTeam),
-            PlanFeature.Create(PlanCodes.Free, Features.CatalogPhotos, FreeCatalogPhotos),
+            PlanFeature.Create(PlanCodes.Free, Features.DocumentStorage, FreeDocumentStorageInMegabytes),
             PlanFeature.Create(PlanCodes.Lite, Features.Students, LiteStudents),
             PlanFeature.Create(PlanCodes.Lite, Features.Branches, SingleBranch),
             PlanFeature.Create(PlanCodes.Lite, Features.Team, LiteTeam),
             PlanFeature.Create(PlanCodes.Lite, Features.ClassPacks),
             PlanFeature.Create(PlanCodes.Lite, Features.ImportExport),
-            PlanFeature.Create(PlanCodes.Lite, Features.CatalogPhotos, PaidCatalogPhotos),
+            PlanFeature.Create(PlanCodes.Lite, Features.DocumentStorage, LiteDocumentStorageInMegabytes),
             PlanFeature.Create(PlanCodes.Pro, Features.Students),
             PlanFeature.Create(PlanCodes.Pro, Features.Branches, ProBranches),
             PlanFeature.Create(PlanCodes.Pro, Features.Team, ProTeam),
@@ -67,7 +69,7 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Pro, Features.StudentApp),
             PlanFeature.Create(PlanCodes.Pro, Features.Shop),
             PlanFeature.Create(PlanCodes.Pro, Features.Brand),
-            PlanFeature.Create(PlanCodes.Pro, Features.CatalogPhotos, PaidCatalogPhotos),
+            PlanFeature.Create(PlanCodes.Pro, Features.DocumentStorage, ProDocumentStorageInMegabytes),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Students),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Branches),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Team),
@@ -77,7 +79,7 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Enterprise, Features.StudentApp),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Shop),
             PlanFeature.Create(PlanCodes.Enterprise, Features.Brand),
-            PlanFeature.Create(PlanCodes.Enterprise, Features.CatalogPhotos, PaidCatalogPhotos));
+            PlanFeature.Create(PlanCodes.Enterprise, Features.DocumentStorage, EnterpriseDocumentStorageInMegabytes));
 
         return modelBuilder;
     }

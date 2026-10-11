@@ -11,7 +11,7 @@ public static class Features
     public const string StudentApp = "student-app";
     public const string Shop = "shop";
     public const string Brand = "brand";
-    public const string CatalogPhotos = "catalog-photos";
+    public const string DocumentStorage = "document-storage";
 
     public static IReadOnlyList<string> All { get; } =
     [
@@ -24,8 +24,8 @@ public static class Features
         StudentApp,
         Shop,
         Brand,
-        CatalogPhotos,
+        DocumentStorage,
     ];
 
-    public static IReadOnlyList<string> Counted { get; } = [Students, Branches, Team, CatalogPhotos];
+    public static IReadOnlyList<string> Counted { get; } = [Students, Branches, Team, DocumentStorage];
 }
