@@ -2,8 +2,10 @@
 # Runs at the start of every Claude Code on the web session (SessionStart hook in
 # .claude/settings.json). Processes started by cloud-setup.sh do not survive into
 # the session, so this starts the Docker daemon and the SQL Server container used
-# by the e2e tests, and exports E2E_DATABASE_CONNECTION_STRING. Does nothing on
-# developer machines. Idempotent.
+# by the e2e tests, and exports E2E_DATABASE_CONNECTION_STRING. The daemon and the
+# container (pulling the image when it is missing) start in the background so the
+# session does not wait for them; --wait runs in the foreground until SQL Server
+# is ready. Does nothing on developer machines. Idempotent.
 set -euo pipefail
 
 readonly SQL_SERVER_IMAGE="mcr.microsoft.com/mssql/server:2022-latest"
@@ -15,6 +17,8 @@ readonly SQL_SERVER_READY_TIMEOUT_SECONDS=90
 readonly E2E_DATABASE_NAME="ClassManagerE2E"
 readonly DOCKER_LOG_FILE="/tmp/dockerd.log"
 readonly DOCKER_READY_TIMEOUT_SECONDS=30
+readonly BACKGROUND_LOG_FILE="/tmp/cloud-session-start.log"
+readonly WAIT_ARGUMENT="--wait"
 
 log() { echo "[cloud-session-start] $*" >&2; }
 
@@ -92,7 +96,16 @@ export_e2e_connection_string() {
     "Server=tcp:localhost,$SQL_SERVER_PORT;Database=$E2E_DATABASE_NAME;User Id=sa;Password=$SQL_SERVER_THROWAWAY_PASSWORD;TrustServerCertificate=True"
 }
 
-if start_docker_daemon && start_sql_server; then
-  export_e2e_connection_string
+start_docker_and_sql_server() {
+  start_docker_daemon && start_sql_server
+}
+
+export_e2e_connection_string
+if [ "${1:-}" = "$WAIT_ARGUMENT" ]; then
+  start_docker_and_sql_server || exit 1
+else
+  log "Starting Docker and SQL Server in the background, see $BACKGROUND_LOG_FILE"
+  start_docker_and_sql_server </dev/null >>"$BACKGROUND_LOG_FILE" 2>&1 &
+  disown
 fi
 exit 0
