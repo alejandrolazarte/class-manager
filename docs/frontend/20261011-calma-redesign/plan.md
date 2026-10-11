@@ -23,7 +23,15 @@ How it is checked:
 - Behavior tests (jest and e2e) are not deleted, skipped or weakened. They test behavior, not looks, so a visual change keeps them green. When a test has to change because the markup changed (a role, a label), the PR says why and the test still proves the same behavior.
 - Accessibility labels, roles and `testID`s stay: tests and screen readers depend on them.
 
-### 2. One component base
+### 2. Texts stay as they are
+
+The redesign changes how the app looks, never what it says. Every text in `app/src/i18n/es.json`, in the emails and in accessibility labels stays word for word: no value is edited and no key is added or removed for the redesign.
+
+- The texts in the design artifacts are illustrative. Where a design shows a text that differs from the app, the app's current text wins (for example, the line under "País" in sign-up keeps "Zona horaria: … · Moneda: … · Código telefónico: +…" and its "Cambiar zona horaria" button; the toast after "Avisar que está listo" keeps "Le avisamos al alumno").
+- Information that only the design shows (a student count under Alumnos, "Desde el …" in the class roster, values next to Ajustes rows that the app doesn't show today, the "Todavía no usa la app de alumnos" line in the client card) is not added. New information is a feature, with its own plan, not part of the redesign.
+- A key whose last user disappears is removed under rule 5 only when the feature it belonged to moved, and rule 1 still holds: the same text keeps appearing wherever that feature is now.
+
+### 3. One component base
 
 Screens never style things on their own. Everything visual comes from `app/src/ui` and the theme (see [Theming](../theming.md)):
 
@@ -32,7 +40,7 @@ Screens never style things on their own. Everything visual comes from `app/src/u
 - Motion lives in shared primitives and constants (durations, easing), never in a screen. A screen asks for "a list that enters", "a pressable row" or "a sliding indicator"; it does not write `withTiming` itself.
 - The lint rules in `app/eslint/themeRules.js` still apply: no raw colors, no raw font sizes, no `Text` outside `src/ui`.
 
-### 3. Before and after screenshots for every change
+### 4. Before and after screenshots for every change
 
 Every PR shows how the app looked before and after it:
 
@@ -44,7 +52,7 @@ Every PR shows how the app looked before and after it:
 
 A screen that is not in the capture scripts gets added to them in the same PR, before the "before" capture. Emails are captured the same way through the email previews (step 0): every email type, at phone and desktop width.
 
-### 4. Nothing of the old design is left, and nothing unused
+### 5. Nothing of the old design is left, and nothing unused
 
 The redesign replaces, it does not pile up. Each PR deletes what it replaces, in the same PR:
 
@@ -55,7 +63,7 @@ The redesign replaces, it does not pile up. Each PR deletes what it replaces, in
 
 How it is checked: before opening the PR, search for every name the PR replaced (`git grep`) and remove what has no users left; TypeScript, ESLint (`no-unused-vars`) and `dotnet build -warnaserror` stay clean. Step 0 also proposes a check for unused translation keys and unused files and exports (for example `knip`), raised in its PR before adding the dependency.
 
-### 5. Motion is short and optional
+### 6. Motion is short and optional
 
 - 140 to 420 ms, one easing curve (`cubic-bezier(.2,.8,.2,1)`), a soft spring only for toasts and selected marks.
 - Every animation is off when the device has "Reduce motion" on (Reanimated `useReducedMotion`). Content still appears, just without movement.
@@ -113,13 +121,13 @@ Every email the app sends follows Calma too. They share one layout (`src/Notific
 
 Each step is its own PR, with its before/after screenshots.
 
-0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color) to HTML files, and a capture that screenshots them at phone and desktop width. Propose the unused-code check (rule 4). No visual change.
+0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color) to HTML files, and a capture that screenshots them at phone and desktop width. Propose the unused-code check (rule 5). No visual change.
 1. **Base.** Figtree (`@expo-google-fonts/figtree`) and the new weights in `typography.ts` and `tailwind.config.js`, the smaller type scale, no card shadows (`elevation.ts`), flat `Card`, hairline `ListRow` and `ListDivider`, button, input, icon and tab bar sizes. Update [Theming](../theming.md) (visual language and type scale tables). This step alone changes every screen.
 2. **Motion primitives.** `src/ui/motion/` with the durations and easing constants, `useReducedMotion`, and the primitives in the table above, wired into the existing `src/ui` components. Tests prove each primitive renders its content with reduced motion on.
 3. **Team screens with their own layout.** Inicio (timeline, live strip, calendar), Asistencia (counts row, marks, panels), Clases, Alumnos, client card, Cobros (Cuotas and Pedidos), Registrar pago, Ajustes, sign-in and sign-up. New patterns go to `src/ui` first.
 4. **Student app.** The student app follows Calma too, through the same primitives (it already shares `src/ui`). Its screens (home, clases, novedades, tienda, carrito, pedidos, logros, ajustes) are drawn in Calma in the design artifact first, reviewed by the owner, then built.
 5. **Emails.** The Calma layout for every email (see [Emails](#emails)), with before/after previews of each email type.
-6. **Sweep and cleanup.** Walk every screenshot of both apps and every email, light and dark and every built-in theme, and fix what still looks like the old style (secondary forms: nueva clase, editar alumno, packs, productos, equipo, roles, sedes, importar y exportar, mi perfil, venta en mostrador). Then remove whatever the old design left behind (rule 4), so the plan ends with no unused code, and update [Theming](../theming.md) and [Branded emails](../../backend/20261002-branded-emails/plan.md) to describe only Calma.
+6. **Sweep and cleanup.** Walk every screenshot of both apps and every email, light and dark and every built-in theme, and fix what still looks like the old style (secondary forms: nueva clase, editar alumno, packs, productos, equipo, roles, sedes, importar y exportar, mi perfil, venta en mostrador). Then remove whatever the old design left behind (rule 5), so the plan ends with no unused code, and update [Theming](../theming.md) and [Branded emails](../../backend/20261002-branded-emails/plan.md) to describe only Calma.
 
 ## Feature checklist
 
@@ -176,7 +184,9 @@ What each screen does today, read from the code on 2026-10-11. The Calma version
 
 ### Ajustes
 
-- Business identity row (opens business settings with permission), every group and row visible today with its values (Marca, Plan, Sedes, Cuota mensual or "Sin definir", Equipo, Roles, Profes, Logros y asistencia, Novedades, Packs, Productos, Pedidos, Apariencia, Notificaciones, Importar y exportar, Mi perfil, Cambiar de cuenta, Cerrar sesión), rows hidden by permission stay hidden, the appearance and notification sheets, app version.
+- Business identity row (opens business settings with permission), every group and row visible today with the values it shows today (Marca, Plan, Sedes, Cuota mensual or "Sin definir", Equipo, Roles, Profes, Logros y asistencia, Novedades, Packs, Productos, Pedidos, Apariencia, Notificaciones, Importar y exportar, Mi perfil, Cambiar de cuenta, Cerrar sesión), rows hidden by permission stay hidden, app version.
+- Apariencia sheet: Automático / Claro / Oscuro and the hint about who picks the colors ("Los colores de la app se eligen en Marca" for the owner, "Los colores de la app los elige el negocio" for the team). Notifications sheet.
+- Marca: theme for everyone (a built-in theme or the business colors), main color with hex code, accent, the contrast and status-clash warnings, the adjusted-color note, logo, name students see, live preview, welcome preview, reset and save. The built-in themes keep working in Calma, since the business chooses them for students and team.
 
 ### Student app
 
@@ -187,8 +197,8 @@ Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshot
 - Team invitation and resend, family invitation, password reset (app brand), new order for the team, payment confirmed, order ready and order cancelled for families, sign-in and email-change emails, and any email added later.
 - Each keeps its eyebrow, title, intro, items and total, note, button with link fallback, footer note, subject, sender name, logo or initials, brand colors and plain-text part.
 
-## Open questions
+## Decisions
 
-- Sign-up step 2: the line under "País" in the design ("Hora de Buenos Aires · cobrás en pesos (ARS)") is new copy; confirm it or keep today's picker text.
-- Pedidos: the toast after "Avisar que está listo" in the design is new copy; use the existing `orders.readyNotified` text.
-- The design does not draw the free-day "Particular" button, the month view day colors or the dimmed list while loading; they stay (see the checklist).
+- 2026-10-11: every current text stays (rule 2). The two texts the design invented (under "País" in sign-up, and the toast after "Avisar que está listo") are not used.
+- 2026-10-11: the design does not draw the free-day "Particular" button, the month view day colors or the dimmed list while loading; they stay (see the checklist).
+- 2026-10-11: colors are chosen by the business for everyone ([branding and plans](../../branding-and-plans.md)); Calma keeps the built-in themes and the brand theme, and only changes type, spacing, lines and motion.
