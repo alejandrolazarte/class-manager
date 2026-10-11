@@ -5,8 +5,6 @@ export const planCodes = {
   enterprise: "enterprise",
 } as const;
 
-export type PlanCode = (typeof planCodes)[keyof typeof planCodes];
-
 export const featureCodes = {
   students: "students",
   branches: "branches",

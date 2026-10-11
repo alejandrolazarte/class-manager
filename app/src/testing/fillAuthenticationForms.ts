@@ -4,7 +4,6 @@ import { translate } from "@/i18n/translate";
 export const ownerEmail = "laura@example.com";
 export const ownerPassword = "a long passphrase";
 export const ownerTypedBirthDate = "12041990";
-export const ownerBirthDate = "1990-04-12";
 
 export async function fillSignInForm(
   email: string = ownerEmail,

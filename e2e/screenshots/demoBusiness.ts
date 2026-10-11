@@ -24,6 +24,7 @@ export interface DemoBusiness {
   studentAppClientId: string;
   debtorClientId: string;
   classPackClientId: string;
+  privateLessonId: string;
 }
 
 function todayIn(timeZoneId: string): string {
@@ -246,6 +247,17 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     notes: "Descuento por pago en efectivo",
   });
 
+  const [privateLesson] = await send<Identified[]>("POST", "/api/private-lessons", {
+    instructorId: martin.id,
+    studentIds: [studentId(diego, "Valentina Fernández")],
+    date: today,
+    startTime: "21:00",
+    durationMinutes: 45,
+    location: "Pileta chica",
+    notes: "Técnica de viraje",
+    repeatWeeks: null,
+  });
+
   return {
     email,
     today,
@@ -255,5 +267,6 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     studentAppClientId: ana.id,
     debtorClientId: diego.id,
     classPackClientId: paula.id,
+    privateLessonId: privateLesson!.id,
   };
 }

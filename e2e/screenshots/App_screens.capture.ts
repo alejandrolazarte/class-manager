@@ -1,6 +1,8 @@
 import { expect, Page, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { e2eEnvironment } from "../support/environment";
+import { SmtpSink } from "../support/smtpSink";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
 import { waitForBrandWelcomeToClose } from "./brandWelcome";
 
@@ -8,12 +10,60 @@ const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
 const settleMilliseconds = 800;
 const darkColorScheme = "dark";
 const colorScheme = process.env.SCREENSHOTS_COLOR_SCHEME === darkColorScheme ? "dark" : "light";
+const wrongPassword = "not-the-right-password";
 
 test.use({ locale: "es-AR", timezoneId: demoTimeZoneId, colorScheme });
+
+const smtpSink = new SmtpSink();
+
+test.beforeAll(async () => {
+  await smtpSink.start(e2eEnvironment.smtpPort);
+});
+
+test.afterAll(async () => {
+  await smtpSink.stop();
+});
 
 test("App screens", async ({ page, request }) => {
   const demo = await seedDemoBusiness(request);
   mkdirSync(outputDirectory, { recursive: true });
+
+  await page.goto("/welcome");
+  await page.getByText("Registrá tu negocio").filter({ visible: true }).first().waitFor();
+  await capture(page, "00a-bienvenida");
+
+  await page.goto("/sign-in");
+  await page.getByText("Ingresá a tu negocio").filter({ visible: true }).first().waitFor();
+  await capture(page, "00b-ingresar");
+
+  await page.getByLabel("Email").fill(demo.email);
+  await page.getByLabel("Contraseña", { exact: true }).fill(wrongPassword);
+  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page
+    .getByText("Email o contraseña incorrectos")
+    .filter({ visible: true })
+    .first()
+    .waitFor();
+  await capture(page, "00c-ingresar-error");
+
+  await page.getByText("¿Olvidaste tu contraseña?").click();
+  await page.getByText("Recuperá tu contraseña").filter({ visible: true }).first().waitFor();
+  await capture(page, "00d-olvide-mi-contrasena");
+
+  await page.getByRole("button", { name: "Enviar link" }).click();
+  await page.getByText("Volver a ingresar").filter({ visible: true }).first().waitFor();
+  await capture(page, "00e-olvide-mi-contrasena-enviado");
+
+  await page.goto("/sign-up");
+  await page.getByLabel("Nombre y apellido").fill("Valeria Sosa");
+  await page.getByLabel("Fecha de nacimiento").fill("20061985");
+  await page.getByLabel("Email").fill("valeria.sosa@example.com");
+  await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
+  await capture(page, "00f-registro-tu-cuenta");
+
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByLabel("Nombre del negocio").fill("Estudio Valeria");
+  await capture(page, "00g-registro-tu-negocio");
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(demo.email);
@@ -27,7 +77,7 @@ test("App screens", async ({ page, request }) => {
     ["03-clases-semana", "/classes", "lugares"],
     ["04-clase-alumnos", `/classes/${demo.beginnersClassGroupId}`, "Inscribir alumno"],
     ["05-clase-editar", `/classes/${demo.beginnersClassGroupId}/edit`, "Nombre de la clase"],
-    ["06-inscribir", `/classes/${demo.beginnersClassGroupId}/enroll`, "Ya inscripto"],
+    ["06-inscribir", `/classes/${demo.beginnersClassGroupId}/enroll`, "Ya está en la clase"],
     ["07-alumnos", "/students", "Tomás Pérez"],
     ["08-alumno", `/students/clients/${demo.studentAppClientId}`, "Natación inicial"],
     ["09-nuevo-alumno", "/students/new", "¿Quién viene a clase?"],
@@ -58,6 +108,22 @@ test("App screens", async ({ page, request }) => {
     await waitForBrandWelcomeToClose(page);
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
+
+  await page.goto("/today");
+  await page.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
+  await page.getByRole("button", { name: "Mes", exact: true }).click();
+  await page.getByText("Elegí un día").filter({ visible: true }).first().waitFor();
+  await capture(page, "01b-inicio-mes");
+
+  await page.goto(`/today/private/${demo.privateLessonId}`);
+  await page.getByText("Valentina Fernández").filter({ visible: true }).first().waitFor();
+  await capture(page, "01d-clase-particular");
+
+  await page.goto(`/classes/${demo.beginnersClassGroupId}`);
+  await page.getByRole("button", { name: "Dar de baja a Tomás Pérez" }).click();
+  await page.getByText("¿Dar de baja a Tomás Pérez?").filter({ visible: true }).first().waitFor();
+  await capture(page, "04b-confirmar-dar-de-baja");
+  await page.getByRole("alert").getByRole("button", { name: "Volver" }).click();
 
   await page.goto(`/today/${demo.beginnersClassGroupId}/${demo.today}`);
   await page.getByRole("button", { name: "Comentario para Tomás Pérez" }).click();
@@ -135,6 +201,12 @@ test("App screens", async ({ page, request }) => {
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
 });
+
+async function capture(page: Page, fileName: string): Promise<void> {
+  await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
+  await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
+}
 
 async function chooseBusinessTheme(page: Page, themeName: string): Promise<void> {
   await page.goto("/settings/brand");

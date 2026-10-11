@@ -21,10 +21,6 @@ export function useCurrentBusiness(): Business {
   return business;
 }
 
-export function useBusinessTimeZone(): string {
-  return useCurrentBusiness().timeZoneId;
-}
-
 export function useBusinessCurrency(): string {
   return useCurrentBusiness().currencyCode;
 }

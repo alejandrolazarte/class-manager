@@ -14,7 +14,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.areas.outputs.backend }}
+      frontend: ${{ steps.areas.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - id: areas
+        if: github.event_name == 'pull_request'
+        run: git diff --name-only HEAD^1 HEAD | scripts/ci-changed-areas.sh >> "$GITHUB_OUTPUT"
+
   backend:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.backend != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -33,6 +50,8 @@ jobs:
       - run: dotnet test class-manager.slnx --no-build --verbosity normal
 
   container:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.backend != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -41,6 +60,8 @@ jobs:
       - run: docker build --file src/Api/Containerfile --tag class-manager-api:ci .
 
   frontend:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.frontend != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -73,6 +94,8 @@ jobs:
       - run: pnpm format:check
 
       - run: pnpm typecheck
+
+      - run: pnpm knip
 
       - run: pnpm test --ci
 

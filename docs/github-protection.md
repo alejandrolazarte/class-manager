@@ -33,7 +33,7 @@ Public repositories get rulesets on GitHub Free, so `main` is now protected on t
 | Restrict deletions | on | `main` cannot be deleted |
 | Block force pushes | on | `main`'s history cannot be rewritten |
 | Require a pull request before merging | 0 approvals | every change goes through a pull request; 0 because the only contributor cannot approve their own pull requests |
-| Require status checks to pass | `backend`, `frontend`, `e2e`, `container` (GitHub Actions), branches must be up to date | a pull request with red CI, or not tested against the latest `main`, cannot be merged |
+| Require status checks to pass | `backend`, `frontend`, `e2e`, `container` (GitHub Actions), branches must be up to date | a pull request with red CI, or not tested against the latest `main`, cannot be merged. `backend`, `frontend` and `container` are skipped (and count as passing) when a pull request doesn't touch their side; `e2e` always runs (see [Continuous integration](ci.md)) |
 | Bypass list | Repository admin, **for pull requests only** | the owner can merge a pull request in an emergency, never push directly |
 
 Set it up in Settings → Rules → Rulesets → New branch ruleset with the values above.

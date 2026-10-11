@@ -37,6 +37,7 @@ app/                 ← Expo app (mobile + web)
 e2e/                 ← Playwright e2e tests: web build + real API + SQL Server (critical flows only)
 docs/                ← decisions and runbooks
 scripts/             ← standalone scripts (setup, seeding)
+tools/EmailPreviews/ ← renders every email type to HTML for the email screenshots (docs/e2e/demo-screenshots.md)
 ```
 
 ## Language
@@ -88,13 +89,13 @@ Add an e2e test only for a critical flow that crosses the app and the API; busin
 
 ## Before pushing
 
-CI runs the same checks and fails on any of them:
+CI runs the same checks and fails on any of them (backend and frontend only when the pull request changes their files, e2e always, see [docs/ci.md](docs/ci.md)):
 
 ```powershell
 dotnet build class-manager.slnx -warnaserror
 dotnet test class-manager.slnx
 dotnet format class-manager.slnx --verify-no-changes   # dotnet format class-manager.slnx to fix
-cd app; pnpm typecheck; pnpm test --ci; pnpm lint; pnpm format:check   # pnpm format to fix
+cd app; pnpm typecheck; pnpm knip; pnpm test --ci; pnpm lint; pnpm format:check   # pnpm format to fix
 cd e2e; pnpm typecheck; pnpm format:check; pnpm test                     # e2e job
 ```
 

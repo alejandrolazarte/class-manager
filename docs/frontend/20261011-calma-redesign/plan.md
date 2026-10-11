@@ -8,6 +8,7 @@ Designs (Claude artifacts, private to the owner):
 
 - [Calma, app completa](https://claude.ai/artifact/MGjmVNd9Qav63zCt7WfueM): every main team screen, sign-in and sign-up, a component sheet and a clickable prototype.
 - [Rediseño minimalista](https://claude.ai/artifact/8VsXqgpt8sphR6wDya5hzU): the three directions that were compared, the animation catalog and the font comparison.
+- [Calma, antes y después](https://claude.ai/artifact/AMoHSyDZQNwkEszSW6NqkJ): the before/after screenshots of every step (rule 4); step 0 holds the baseline of every screen of both apps, light and dark, and every email.
 
 ## Rules
 
@@ -211,3 +212,6 @@ Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshot
 - 2026-10-11: Logros keeps today's content in the redesign; a more exciting Logros is a separate proposal ([Logros that make progress exciting](../20261011-student-achievements/plan.md)).
 - 2026-10-11: "Cancelar pedido" (student and team) cancels without asking; adding a confirmation is a behavior change, so it is a separate pending plan ([Confirm before cancelling an order](../20261011-confirm-order-cancellation/plan.md)). The redesign keeps today's behavior.
 - 2026-10-11: emails use Figtree with Arial as the fallback, the font served from our own web app (not Google Fonts) and Arial forced for Outlook for Windows.
+- 2026-10-11 (step 0): email previews are a console project in the solution (`tools/EmailPreviews`), so it builds in CI and breaks when an email changes shape; the capture runs it, so emails need neither the API nor a database. The screenshots of the web font blocked are taken with `SCREENSHOTS_EMAIL_FONT=blocked`; until step 5 adds the web font they are identical to the others.
+- 2026-10-11 (step 0): knip treats an export used only in its own file as used (`ignoreExportsUsedInFile`), and two Expo dependencies its plugin expects are ignored because the app does not use them; the reasons are in [Unused code](../unused-code.md).
+- 2026-10-11 (step 0): team notifications and the order payment panel are captured in `Student_screens.capture.ts`, which seeds the student activity they need.

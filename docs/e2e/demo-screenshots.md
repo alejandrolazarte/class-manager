@@ -13,6 +13,7 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 - Six students, nine enrollments from the first day of the current month, and attendance for today.
 - A default fee of $25.000, one student with its own fee, and payments that leave students paid, partially paid and owing.
 - A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
+- A private lesson for Valentina Fernández with Martín today at 21:00.
 
 Every run signs up a new business with a unique email, so it can run against the same database many times.
 
@@ -34,11 +35,18 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 
 | File | Screen |
 |---|---|
-| `01-hoy` | Today's classes with present counts |
+| `00a-bienvenida` | Welcome, before signing in |
+| `00b-ingresar`, `00c-ingresar-error` | Sign-in, and the banner after a wrong password |
+| `00d-olvide-mi-contrasena`, `00e-olvide-mi-contrasena-enviado` | Forgot password, and the message after the link is sent |
+| `00f-registro-tu-cuenta`, `00g-registro-tu-negocio` | Sign-up, both steps filled in (nothing is submitted) |
+| `01-inicio` | Inicio: next class and today's agenda |
+| `01b-inicio-mes` | Inicio in month view |
+| `01d-clase-particular` | A private lesson |
 | `02-asistencia` | Attendance of Natación inicial |
 | `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
 | `03-clases-semana` | Weekly classes |
 | `04-clase-alumnos` | Class roster |
+| `04b-confirmar-dar-de-baja` | The confirm dialog before unenrolling a student (closed with "Volver") |
 | `05-clase-editar` | Class form |
 | `06-inscribir` | Enroll a student |
 | `07-alumnos` | Student list |
@@ -56,8 +64,10 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `16-packs` | Class pack catalog |
 | `16b-pack-nuevo` | New class pack form, with the classes where the pack can be booked |
 | `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
-| `18-colores` | Color picker in Ajustes |
+| `18-apariencia` | Appearance sheet in Ajustes |
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
+
+The forgot password request sends an email, so this capture starts the same SMTP sink as the student app screens.
 
 When a new screen is added, add a row to `screens` in `e2e/screenshots/App_screens.capture.ts` with the path and a text that proves it finished loading. When a built-in theme is added, add it to `themes` in the same file.
 
@@ -97,6 +107,13 @@ The student signs in through the sign-in screen, then the test captures:
 | `29b-alumno-ajustes-notificaciones`, `29c-alumno-ajustes-apariencia` | Notifications and appearance sheets opened from Ajustes |
 | `30-elegir-cuenta` | Choosing between the team and the student account when the same email has both |
 
+The same file also captures two team screens that need student activity, signed in as the owner of a second demo business with the same data:
+
+| File | Screen |
+|---|---|
+| `01c-avisos` | Team notifications (avisos): the "No voy", the makeup and the orders |
+| `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment panel of an order open |
+
 Run only these with `pnpm screenshots:no-build Student_screens`.
 
 ## Invitation flows
@@ -124,3 +141,35 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `12-ya-tiene-cuenta-aceptar-o-rechazar`, `13-rechazo-la-invitacion` | Someone who already has an account only accepts or declines |
 | `14-aviso-al-equipo` | The team is notified of the decline |
 | `15-editar-perfil` | Editar perfil: name and birth date |
+
+## Email previews
+
+`e2e/screenshots/Email_previews.capture.ts` captures every email the app sends, without the API or a database. It runs `tools/EmailPreviews`, a small console project in the solution that builds each email with the same code the app uses (`EmailContentFor` of each use case, `OrderEmails`) and renders it with `BrandedEmailHtml`, then screenshots each HTML file at phone (390 px) and desktop (1280 px) width.
+
+```powershell
+cd e2e
+pnpm screenshots:emails                                     # with the web font
+$env:SCREENSHOTS_EMAIL_FONT = "blocked"; pnpm screenshots:emails   # web font blocked, as Gmail or Outlook show it
+```
+
+The images land in `e2e/screenshots-output/correos/telefono/` and `.../correos/escritorio/` (`correos-sin-fuente-web/` with the font blocked), next to the HTML files and a plain-text file per email in `html/`. To only get the HTML: `dotnet run --project tools/EmailPreviews -- <folder>`.
+
+Business emails are rendered with four brands of "Escuela Brazada": `sin-marca` (no color, initials), `color` (main color and accent), `logo` (logo, no color) and `color-y-logo`. Account emails use the app brand (`app`), as they do when sent. The logo, an inline attachment (`cid:`) in a real email, is inlined as a data URI so a browser shows it.
+
+| File | Email |
+|---|---|
+| `01-invitacion-al-equipo` | Team invitation (also sent again from Equipo) |
+| `02-invitacion-a-la-app` | Family or student invitation to the student app |
+| `03-autorizacion-del-responsable` | The client is asked to authorize a child below the minimum age |
+| `04-nuevo-pedido-para-el-equipo` | New order from the app, to the team |
+| `05-pago-confirmado-con-productos` | Payment confirmed, products not ready yet |
+| `06-pago-confirmado-listo-para-retirar` | Payment confirmed, products already ready |
+| `07-pago-confirmado-de-clases` | Payment confirmed for a class pack |
+| `08-pedido-listo` | Order ready, handed over in a class |
+| `09-pedido-cancelado-sin-pago` | Order cancelled after 7 days unpaid |
+| `10-pedido-cancelado-por-la-sede` | Order cancelled by the branch |
+| `11-elegir-contrasena` | Password reset (app brand) |
+| `12-confirmar-email-nuevo` | Confirm a new sign-in email (app brand) |
+| `13-email-cambiado` | Notice to the old address after the email changed (app brand) |
+
+When a new email is added, add it to `EmailPreviewCatalog` in `tools/EmailPreviews` and to this table.

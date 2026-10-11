@@ -182,3 +182,29 @@ test("Account chooser", async ({ page, request }) => {
   await expect(page).toHaveURL(/\/student-app/);
   await page.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
 });
+
+test("Team screens with student activity", async ({ page, request }) => {
+  const demo = await seedDemoBusiness(request);
+  await seedDemoStudentApp(request, demo, smtpSink);
+  mkdirSync(outputDirectory, { recursive: true });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(demo.email);
+  await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
+  await page.getByRole("button", { name: "Ingresar" }).click();
+  await expect(page).toHaveURL(/\/today/);
+
+  await page.goto("/today/notifications");
+  await page.getByText("Avisos").filter({ visible: true }).first().waitFor();
+  await page
+    .getByText("avisó que no viene", { exact: false })
+    .filter({ visible: true })
+    .first()
+    .waitFor();
+  await capture(page, "01c-avisos");
+
+  await page.goto("/fees?view=orders");
+  await page.getByRole("button", { name: "Cobrar" }).first().click();
+  await page.getByRole("button", { name: "Confirmar pago" }).waitFor();
+  await capture(page, "10d-cobros-pedidos-cobrar");
+});
