@@ -35,7 +35,7 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { OptionCard } from "@/ui/OptionCard";
 import { PickerField } from "@/ui/PickerField";
 import { StepScreen } from "@/ui/StepScreen";
@@ -154,7 +154,7 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
   };
 
   if (isLoadingProducts) {
-    return <LoadingScreen />;
+    return <SkeletonScreen />;
   }
 
   const pickers =

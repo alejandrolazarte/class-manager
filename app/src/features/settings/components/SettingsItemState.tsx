@@ -3,7 +3,7 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { ScrollScreen } from "@/ui/Screen";
 import { HeaderNavigation, ScreenHeader } from "@/ui/ScreenHeader";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 
 interface SettingsItemStateProps {
   isPending: boolean;
@@ -23,7 +23,7 @@ export function SettingsItemState({
   return (
     <ScrollScreen header={<ScreenHeader navigation={navigation} title="" />}>
       {isPending ? (
-        <Spinner size="large" className="mt-6" />
+        <SkeletonDetail />
       ) : isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button

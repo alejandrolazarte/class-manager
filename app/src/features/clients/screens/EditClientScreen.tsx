@@ -23,7 +23,7 @@ import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { ScreenFooter, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -208,7 +208,7 @@ function ClientEditor({ client }: ClientEditorProps) {
 export function EditClientScreen({ clientId }: EditClientScreenProps) {
   const { data: client } = useClient(clientId);
   if (client === undefined) {
-    return <LoadingScreen />;
+    return <SkeletonScreen />;
   }
   return <ClientEditor client={client} />;
 }

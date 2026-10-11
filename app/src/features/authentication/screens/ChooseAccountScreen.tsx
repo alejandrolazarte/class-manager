@@ -14,6 +14,7 @@ import { IconCircle } from "@/ui/IconCircle";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { StatusPill } from "@/ui/StatusPill";
 
 function accountLabel(account: Account): string {
@@ -62,7 +63,7 @@ export function ChooseAccountScreen() {
       }
     >
       {hasFailed ? <Banner message={translate("accounts.switchFailed")} /> : null}
-      {isPending ? <Spinner className="mt-6" /> : null}
+      {isPending ? <SkeletonList /> : null}
       <View>
         {(accounts ?? []).map((account) => {
           const key = `${account.kind}-${account.businessId}`;

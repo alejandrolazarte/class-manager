@@ -120,7 +120,7 @@ Every email the app sends follows Calma too. They share one layout (`src/Notific
 | Dialog fades and scales from 0.96 | `ConfirmDialog` | `ConfirmDialog` |
 | Sheet slides up, backdrop fades | `BottomSheet` | `BottomSheet` |
 | Panels open and close by height | Asistencia panels, order payment and refund | `Collapsible` |
-| Skeleton instead of a spinner in lists | lists while loading | `SkeletonList` |
+| Skeleton instead of a spinner on every screen-level data load; spinners only for an action in progress (a button saving, a row switching) and inside small pickers | lists, details and forms while their data loads | `SkeletonList` for lists, `SkeletonDetail` (or `SkeletonScreen` when the whole screen waits) for details and forms, both on the shared `SkeletonFrame` |
 | Screen push (short slide) | stack navigation | navigation options |
 
 ## Steps
@@ -227,6 +227,7 @@ Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshot
 - 2026-10-11 (step 2): the row tint in Asistencia waits for the Asistencia layout in step 3; step 2 adds the spring fill to the Vino and Faltó marks.
 - 2026-10-11 (step 2): dialogs, sheets and toasts animate when they appear and close at once, as they do today; panels animate both ways through `Collapsible`.
 - 2026-10-11 (step 2): no screenshots (rule 4): motion doesn't show in a still image, and the only visual changes are the chip and tab indicators and the loading skeleton.
+- 2026-10-11 (step 2): step 2 put `SkeletonList` only on some lists; the missed screens are completed. Team, roles, branches, avisos, choosing an account and the student Clases and Tienda show `SkeletonList`; the client card, Asistencia, Mi perfil, editing the profile, settings items, achievements, the student Inicio and Logros, and the forms that waited on `LoadingScreen` (registrar pago, plan de cobro, venta en mostrador, vender pack, clase particular, clase, editar alumno, marca) show `SkeletonDetail`. `LoadingScreen` stays only for app bootstrap (session restore, business and member providers, the notified orders redirect), pending a branded splash. No screenshots (rule 4): the skeleton is applied through primitives and keeps functionality.
 - 2026-10-11 (step 5): `BrandedEmailHtml.Render` takes the URL of the fonts folder, so the notifications library stays free of app settings; the app passes `WebApp:Url` + `/fonts/`. Only the weights emails use are served (400, 600 and 700 for the initials), latin subset, about 11 KB each. Cloudflare Pages sends `/fonts/*` with `Access-Control-Allow-Origin: *` and an immutable cache.
 - 2026-10-11 (step 5): the grey footer band becomes a hairline above the footer note, like the rest of Calma; the card keeps the white surface on the tinted background with a 20 px radius, as sheets and dialogs. Text sizes are the app's steps: title 24 (display), brand name and total 17 (large), body and notes 15, labels 13, eyebrow and footer 12.
 - 2026-10-11 (step 3): the owner decided not to capture before/after screenshots for steps 3 and 4 (rule 4 is skipped for them): capturing every changed screen takes too long. Steps 3 and 4 are checked against the feature checklist and the behavior tests instead.

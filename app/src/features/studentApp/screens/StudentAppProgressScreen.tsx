@@ -16,7 +16,7 @@ import { HairlineColumns } from "@/ui/HairlineColumns";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 
 function Stat({ value, label }: { value: number | string; label: string }) {
   return (
@@ -38,7 +38,7 @@ export function StudentAppProgressScreen() {
   if (isPending) {
     return (
       <ScrollScreen header={header}>
-        <Spinner className="mt-6" />
+        <SkeletonDetail />
       </ScrollScreen>
     );
   }

@@ -27,7 +27,7 @@ import { ListDivider } from "@/ui/ListRow";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { TonalButton } from "@/ui/TonalButton";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { useToast } from "@/ui/ToastProvider";
 
 interface SessionScreenProps {
@@ -64,7 +64,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   if (isPending) {
     return (
       <Screen header={<ScreenHeader navigation="back" title="" />}>
-        <Spinner className="mt-6" />
+        <SkeletonDetail className="w-full max-w-2xl self-center px-5 pt-4" />
       </Screen>
     );
   }

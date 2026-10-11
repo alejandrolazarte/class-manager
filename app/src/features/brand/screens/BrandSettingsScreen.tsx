@@ -31,7 +31,7 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
 import { Chip } from "@/ui/Chip";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
@@ -89,7 +89,7 @@ export function BrandSettingsScreen() {
     );
   }
   return brand === null ? (
-    <LoadingScreen />
+    <SkeletonScreen />
   ) : (
     <BrandSettingsForm brand={brand} logoUri={currentBrand?.logoUri ?? null} />
   );

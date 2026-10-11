@@ -20,7 +20,7 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { Avatar } from "@/ui/Avatar";
 import { ActionTile } from "@/ui/ActionTile";
 import { TonalBlock } from "@/ui/TonalBlock";
@@ -133,7 +133,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   if (isPending) {
     return (
       <Screen header={<ScreenHeader navigation="back" title="" />}>
-        <Spinner className="mt-6" />
+        <SkeletonDetail className="w-full max-w-2xl self-center px-5 pt-4" />
       </Screen>
     );
   }

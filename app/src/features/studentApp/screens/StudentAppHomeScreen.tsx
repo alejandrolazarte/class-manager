@@ -27,10 +27,10 @@ import { HairlineColumns } from "@/ui/HairlineColumns";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
 import { TextLink } from "@/ui/TextLink";
 import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 import { Entrance } from "@/ui/motion/Entrance";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 
 const homeAnnouncementLimit = 2;
 
@@ -55,7 +55,7 @@ export function StudentAppHomeScreen() {
   if (isPending) {
     return (
       <Screen header={<ScreenHeader title="" />}>
-        <Spinner className="mt-6" />
+        <SkeletonDetail className="w-full max-w-2xl self-center px-5 pt-4" />
       </Screen>
     );
   }
