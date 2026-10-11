@@ -89,7 +89,7 @@ Add an e2e test only for a critical flow that crosses the app and the API; busin
 
 ## Before pushing
 
-CI runs the same checks and fails on any of them:
+CI runs the same checks and fails on any of them (backend and frontend only when the pull request changes their files, e2e always, see [docs/ci.md](docs/ci.md)):
 
 ```powershell
 dotnet build class-manager.slnx -warnaserror
