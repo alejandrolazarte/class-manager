@@ -1,6 +1,7 @@
 #!/bin/bash
 # Prepares a Claude Code on the web container: .NET 10 SDK, frontend tooling,
-# a container engine for Testcontainers and the SQL Server image it uses.
+# the Playwright browser for the e2e tests, a container engine for Testcontainers
+# and the SQL Server image it uses.
 # Meant to be run from the cloud environment's Setup script. Idempotent.
 set -euo pipefail
 
@@ -14,6 +15,8 @@ readonly DOCKER_LOG_FILE="/tmp/dockerd.log"
 readonly FRONTEND_DIRECTORY="$PROJECT_DIRECTORY/app"
 readonly E2E_DIRECTORY="$PROJECT_DIRECTORY/e2e"
 readonly GIT_HOOKS_DIRECTORY=".githooks"
+readonly PLAYWRIGHT_BROWSER="chromium"
+readonly PLAYWRIGHT_DOWNLOAD_HOST="cdn.playwright.dev"
 
 log() { echo "[cloud-setup] $*" >&2; }
 
@@ -67,8 +70,10 @@ install_frontend_tooling() {
     log "Node.js not found, installing from apt"
     run_as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nodejs npm
   fi
-  if ! command -v pnpm >/dev/null 2>&1; then
-    log "Installing pnpm"
+  log "Enabling pnpm through corepack (version pinned by packageManager)"
+  persist_environment_variable COREPACK_ENABLE_DOWNLOAD_PROMPT "0"
+  if ! corepack enable pnpm; then
+    log "corepack enable failed, installing pnpm with npm"
     npm install -g pnpm
   fi
 
@@ -83,6 +88,15 @@ install_frontend_tooling() {
     log "Installing e2e dependencies"
     (cd "$E2E_DIRECTORY" && pnpm install)
   fi
+}
+
+install_playwright_browser() {
+  if [ ! -f "$E2E_DIRECTORY/package.json" ]; then
+    return
+  fi
+  log "Installing the Chromium revision pinned by the e2e Playwright version"
+  (cd "$E2E_DIRECTORY" && pnpm exec playwright install "$PLAYWRIGHT_BROWSER") \
+    || log "Playwright browser download failed, allow $PLAYWRIGHT_DOWNLOAD_HOST in the environment's network access"
 }
 
 docker_daemon_is_running() {
@@ -136,6 +150,7 @@ install_dotnet
 configure_dotnet_environment
 restore_dotnet_packages
 install_frontend_tooling
+install_playwright_browser
 start_container_engine
 configure_testcontainers
 pull_sql_server_image
