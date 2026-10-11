@@ -44,7 +44,7 @@ Four is enough: fewer and `Lite` and `Pro` merge into one plan that is either to
 - `Plan.ListPrice` is what the app shows before subscribing ("desde …").
 - `Subscription.Price` is what this brand actually pays, copied from the list price when the subscription is created and editable afterwards. Changing a list price never changes what existing customers pay.
 - That is how the pilot instructor gets **`Enterprise` at 0**: a normal subscription with `Price = 0` and a `Note` ("Pilot, DF Swimming"). No special case in code, and later it becomes a discount or an expiry (`ExpiredOn`) without a migration.
-- Every price has a currency (`ARS`, `EUR`, `USD`): the pilot is in Spain and the target market is Argentina. List prices of plans and add-ons are in euros (`SubscriptionCatalogSeed.ListPriceCurrency`, changed from dollars on 2026-10-11 by `ListPlanPricesInEuros`, which also relabels current subscriptions at 0 from `USD` to `EUR`; the amounts stayed the same placeholders).
+- Every price has a currency (`ARS`, `EUR`, `USD`): the pilot is in Spain and the target market is Argentina. List prices of plans and add-ons are in euros (`SubscriptionCatalogSeed.ListPriceCurrency`).
 
 ### Features, and an add-on is a feature with a price
 
@@ -197,7 +197,7 @@ The daily core — students, families, class groups, enrollments, attendance, mo
 | `family-app` (family accounts, avisos) | | | | ✓ | ✓ | yes |
 | `shop` (products and orders) | | | | ✓ | ✓ | yes |
 | `brand` (brand theme, logo, theme lock) | | | | ✓ | ✓ | yes |
-| `document-storage` (MB of uploaded files: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 10 GB | yes, US$ 2 per 10 GB more |
+| `document-storage` (MB of uploaded files: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 10 GB | yes, 2 € per 10 GB more |
 | Future paid features (online payments, reports, …) | | | | | | yes, priced |
 
 ## Library or part of Core?
