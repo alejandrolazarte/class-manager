@@ -24,17 +24,17 @@ interface ButtonProps {
 
 const containerClassNames: Record<ButtonVariant, string> = {
   primary: "bg-primary active:bg-primary-strong",
-  secondary: "border-[1.5px] border-border bg-surface active:bg-muted",
-  outline: "border-[1.5px] border-primary bg-transparent active:bg-primary-soft",
+  secondary: "border border-border bg-surface active:bg-muted",
+  outline: "border border-primary bg-transparent active:bg-primary-soft",
   danger: "bg-danger",
-  dangerOutline: "border-[1.5px] border-border bg-surface active:bg-danger-soft",
-  dashed: "border-[1.5px] border-dashed border-primary bg-transparent active:bg-primary-soft",
+  dangerOutline: "border border-border bg-surface active:bg-danger-soft",
+  dashed: "border border-dashed border-primary bg-transparent active:bg-primary-soft",
   ghost: "bg-transparent active:bg-primary-soft",
 };
 
 const sizeClassNames: Record<ButtonSize, string> = {
-  large: "min-h-[52px] rounded-2xl px-5",
-  medium: "min-h-12 rounded-[14px] px-4",
+  large: "min-h-12 rounded-xl px-5",
+  medium: "min-h-11 rounded-xl px-4",
 };
 
 const contentTones: Record<ButtonVariant, TextTone> = {
@@ -49,11 +49,11 @@ const contentTones: Record<ButtonVariant, TextTone> = {
 
 const disabledContainerClassNames: Record<ButtonVariant, string> = {
   primary: "bg-border",
-  secondary: "border-[1.5px] border-border bg-surface",
-  outline: "border-[1.5px] border-border bg-transparent",
+  secondary: "border border-border bg-surface",
+  outline: "border border-border bg-transparent",
   danger: "bg-border",
-  dangerOutline: "border-[1.5px] border-border bg-surface",
-  dashed: "border-[1.5px] border-dashed border-border bg-transparent",
+  dangerOutline: "border border-border bg-surface",
+  dashed: "border border-dashed border-border bg-transparent",
   ghost: "bg-transparent",
 };
 
@@ -102,10 +102,7 @@ export function Button({
       ) : icon ? (
         <Icon name={icon} size="medium" tone={contentColorToken} />
       ) : null}
-      <AppText
-        variant={size === "large" ? "button" : "bodyStrong"}
-        tone={isDisabled ? "disabled" : contentTones[variant]}
-      >
+      <AppText variant="button" tone={isDisabled ? "disabled" : contentTones[variant]}>
         {label}
       </AppText>
       {trailingIcon ? <Icon name={trailingIcon} size="medium" tone={contentColorToken} /> : null}

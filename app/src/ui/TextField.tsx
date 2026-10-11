@@ -51,7 +51,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
       </AppText>
       <View className="flex-row gap-2">
         {prefix ? (
-          <View className="h-[52px] justify-center rounded-2xl border-[1.5px] border-border bg-muted px-3">
+          <View className="h-[46px] justify-center rounded-[10px] border border-border bg-muted px-3">
             <AppText variant="bodyStrong" tone="muted">
               {prefix}
             </AppText>
@@ -63,7 +63,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
             accessibilityLabel={label}
             multiline={multiline}
             placeholderTextColor={colors["subtle-foreground"]}
-            className={`rounded-2xl border-[1.5px] pl-3.5 ${accessory ? "pr-12" : "pr-3.5"} ${textVariantClassNames.input} ${surfaceClassName} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[52px]"}`}
+            className={`rounded-[10px] border pl-3.5 ${accessory ? "pr-12" : "pr-3.5"} ${textVariantClassNames.input} ${surfaceClassName} ${hasError ? "border-danger" : "border-border focus:border-primary"} ${multiline ? "min-h-24 py-3" : "h-[46px]"}`}
             textAlignVertical={multiline ? "top" : "center"}
             {...textInputProps}
           />

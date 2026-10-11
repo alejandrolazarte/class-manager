@@ -1,7 +1,6 @@
 import { Pressable, View } from "react-native";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { useElevationStyle } from "@/ui/elevation";
 import { Icon } from "@/ui/Icon";
 
 interface NewsBellProps {
@@ -10,7 +9,6 @@ interface NewsBellProps {
 }
 
 export function NewsBell({ unreadCount, onPress }: NewsBellProps) {
-  const elevationStyle = useElevationStyle();
   return (
     <Pressable
       accessibilityRole="button"
@@ -20,7 +18,6 @@ export function NewsBell({ unreadCount, onPress }: NewsBellProps) {
           : translate("student.news.bellEmpty")
       }
       onPress={onPress}
-      style={elevationStyle}
       className="h-11 w-11 items-center justify-center rounded-full bg-surface active:bg-muted"
     >
       <Icon name="notifications" />

@@ -135,9 +135,7 @@ export function StudentAppOrderCard({ order }: { order: StudentAppOrder }) {
             })}
           </AppText>
         </View>
-        <AppText variant="heading" className="font-heavy">
-          {formatMoney(order.total, order.currencyCode)}
-        </AppText>
+        <AppText variant="heading">{formatMoney(order.total, order.currencyCode)}</AppText>
       </View>
       {currentStep === null ? null : <OrderSteps currentStep={currentStep} />}
       <View className="gap-2">

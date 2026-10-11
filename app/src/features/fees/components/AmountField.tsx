@@ -2,7 +2,6 @@ import { TextInput, View } from "react-native";
 import { currencySymbol } from "@/features/fees/money";
 import { useTheme } from "@/theme/useTheme";
 import { AppText, textVariantClassNames } from "@/ui/AppText";
-import { useElevationStyle } from "@/ui/elevation";
 import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 interface AmountFieldProps {
@@ -25,10 +24,8 @@ export function AmountField({
   isRequired = false,
 }: AmountFieldProps) {
   const { colors } = useTheme();
-  const elevationStyle = useElevationStyle();
   return (
     <View
-      style={elevationStyle}
       className={`items-center gap-1.5 rounded-3xl border-[1.5px] bg-surface p-[18px] ${errorMessage ? "border-danger" : "border-transparent"}`}
     >
       <AppText variant="label" tone="muted">

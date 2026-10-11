@@ -46,7 +46,7 @@ export function ShopProductCard({ product, currencyCode, isInCart, onOpen }: Sho
           {product.name}
         </AppText>
         <View className="flex-row items-center justify-between">
-          <AppText variant="heading" tone="primary" className="font-heavy">
+          <AppText variant="heading" tone="primary">
             {formatMoney(product.price, currencyCode)}
           </AppText>
           <View

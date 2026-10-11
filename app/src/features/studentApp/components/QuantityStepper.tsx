@@ -32,7 +32,7 @@ export function QuantityStepper({
         disabled={units <= minimum}
         onPress={() => onChange(units - 1)}
       />
-      <AppText variant="heading" className="min-w-6 text-center font-heavy">
+      <AppText variant="heading" className="min-w-6 text-center">
         {units}
       </AppText>
       <IconButton

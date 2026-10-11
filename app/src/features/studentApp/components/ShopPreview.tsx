@@ -47,7 +47,7 @@ export function ShopPreview({ shop, onSeeAll, onOpenProduct }: ShopPreviewProps)
               <AppText variant="bodyStrong" numberOfLines={1}>
                 {product.name}
               </AppText>
-              <AppText variant="bodyStrong" tone="primary" className="font-heavy">
+              <AppText variant="bodyStrong" tone="primary">
                 {formatMoney(product.price, shop.currencyCode)}
               </AppText>
             </View>

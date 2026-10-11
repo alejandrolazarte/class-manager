@@ -1,24 +1,25 @@
 import { Text, TextProps } from "react-native";
 
 export const textVariantClassNames = {
-  hero: "font-heavy text-hero tracking-[-0.6px]",
-  amount: "font-heavy text-hero tracking-[-0.6px]",
-  display: "font-heavy text-display tracking-[-0.5px]",
-  headline: "font-heavy text-title tracking-[-0.4px]",
+  hero: "font-strong text-hero tracking-[-0.6px]",
+  amount: "font-strong text-hero tracking-[-0.6px]",
+  display: "font-strong text-display tracking-[-0.4px]",
+  headline: "font-strong text-title tracking-[-0.3px]",
   heading: "font-strong text-large",
   lead: "font-text text-large",
-  button: "font-strong text-large",
-  input: "font-label text-large",
+  button: "font-strong text-body",
+  input: "font-text text-body",
   body: "font-text text-body",
   bodyStrong: "font-strong text-body",
   link: "font-strong text-caption",
-  eyebrow: "font-strong text-caption",
+  eyebrow: "font-label text-caption",
   label: "font-label text-caption",
   caption: "font-text text-caption",
   footnote: "font-text text-small",
   badge: "font-strong text-small",
   overline: "font-strong text-small uppercase tracking-[0.7px]",
-  counter: "font-strong text-micro",
+  counter: "font-heavy text-micro",
+  tab: "font-label text-micro",
 } as const;
 
 export const textToneClassNames = {

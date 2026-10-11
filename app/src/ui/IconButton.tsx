@@ -15,8 +15,8 @@ interface IconButtonProps {
 }
 
 const variantClassNames: Record<IconButtonVariant, string> = {
-  plain: "h-12 w-12 active:bg-muted",
-  outlined: "h-11 w-11 border-[1.5px] border-border bg-surface active:bg-muted",
+  plain: "h-11 w-11 active:bg-muted",
+  outlined: "h-10 w-10 border border-border bg-surface active:bg-muted",
 };
 
 export function IconButton({
@@ -39,7 +39,7 @@ export function IconButton({
       hitSlop={4}
       className={`items-center justify-center rounded-full ${variantClassNames[variant]} ${disabled ? "opacity-40" : ""}`}
     >
-      <Icon name={icon} size={variant === "plain" ? "extraLarge" : "large"} tone={tone} />
+      <Icon name={icon} size={variant === "plain" ? "large" : "medium"} tone={tone} />
     </Pressable>
   );
 }

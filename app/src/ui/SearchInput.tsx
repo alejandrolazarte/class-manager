@@ -18,7 +18,7 @@ export function SearchInput({
 }: SearchInputProps) {
   const { colors } = useTheme();
   return (
-    <View className="h-[52px] flex-row items-center gap-2.5 rounded-2xl border-[1.5px] border-border bg-surface px-3.5">
+    <View className="h-[46px] flex-row items-center gap-2.5 rounded-[10px] border border-border bg-surface px-3.5">
       <Icon name="search" tone="subtle-foreground" />
       <TextInput
         accessibilityLabel={placeholder}

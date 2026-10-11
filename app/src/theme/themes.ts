@@ -35,7 +35,6 @@ export const neutralLightColors = {
   "success-soft-foreground": palette.green800,
   inverse: palette.gray900,
   "inverse-foreground": palette.white,
-  shadow: palette.gray900,
 } as const;
 
 export const neutralDarkColors = {
@@ -62,7 +61,6 @@ export const neutralDarkColors = {
   "success-soft-foreground": palette.green300,
   inverse: palette.gray100,
   "inverse-foreground": palette.gray900,
-  shadow: palette.gray950,
 } as const;
 
 const aquaTheme: ThemeDefinition = {
@@ -98,7 +96,6 @@ const aquaTheme: ThemeDefinition = {
     "success-soft-foreground": palette.seaGreen800,
     inverse: palette.aqua900,
     "inverse-foreground": palette.aqua50,
-    shadow: palette.aquaShadow,
   },
   dark: {
     background: palette.aquaNight950,
@@ -132,7 +129,6 @@ const aquaTheme: ThemeDefinition = {
     "success-soft-foreground": palette.seaGreen200,
     inverse: palette.aquaNight50,
     "inverse-foreground": palette.aquaNight950,
-    shadow: palette.aquaNightShadow,
   },
 };
 

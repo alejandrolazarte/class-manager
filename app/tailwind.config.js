@@ -30,14 +30,13 @@ const themeColorTokens = [
   "success-soft-foreground",
   "inverse",
   "inverse-foreground",
-  "shadow",
 ];
 
 const fontFamilies = {
-  text: "Nunito_600SemiBold",
-  label: "Nunito_700Bold",
-  strong: "Nunito_800ExtraBold",
-  heavy: "Nunito_900Black",
+  text: "Figtree_400Regular",
+  label: "Figtree_500Medium",
+  strong: "Figtree_600SemiBold",
+  heavy: "Figtree_700Bold",
 };
 
 const typeScale = {
@@ -47,8 +46,8 @@ const typeScale = {
   body: { fontSize: 15, lineHeight: 21 },
   large: { fontSize: 17, lineHeight: 22 },
   title: { fontSize: 20, lineHeight: 24 },
-  display: { fontSize: 26, lineHeight: 30 },
-  hero: { fontSize: 32, lineHeight: 36 },
+  display: { fontSize: 24, lineHeight: 30 },
+  hero: { fontSize: 28, lineHeight: 34 },
 };
 
 const themeColors = Object.fromEntries(

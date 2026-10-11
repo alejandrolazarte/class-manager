@@ -26,7 +26,7 @@ export function ClassGroupCard({ classGroup, onPress }: ClassGroupCardProps) {
     >
       <View className="flex-row items-start gap-3.5">
         <View className="h-[52px] w-[52px] items-center justify-center rounded-2xl bg-primary-soft">
-          <AppText variant="bodyStrong" tone="primarySoft" className="font-heavy">
+          <AppText variant="bodyStrong" tone="primarySoft">
             {classGroup.startTime}
           </AppText>
           <AppText variant="footnote" tone="primarySoft" className="font-label">

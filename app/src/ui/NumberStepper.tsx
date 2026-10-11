@@ -40,7 +40,7 @@ export function NumberStepper({
         {withRequiredMark(label, isRequired)}
       </AppText>
       <View
-        className={`h-[52px] flex-row items-center justify-between rounded-2xl border-[1.5px] bg-surface px-1 ${errorMessage ? "border-danger" : "border-border"}`}
+        className={`h-[46px] flex-row items-center justify-between rounded-[10px] border bg-surface px-1 ${errorMessage ? "border-danger" : "border-border"}`}
       >
         <IconButton
           icon="remove"
