@@ -107,6 +107,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Forms](docs/frontend/forms.md) — required fields marked with an asterisk, the main button grey until they are filled, and the shared step header and total bar
 - [Roslyn analyzers](docs/analyzers.md) — test layout and architecture rules enforced by the build
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package
+- [Student accounts](docs/student-accounts.md) — an app account belongs to the person and is kept when no business links it; deleted only when the person asks (pending: "Eliminar mi cuenta", home with no business, finding a business)
 - [Ages and minors](docs/ages-and-minors.md) — every account has a birth date, the legal minimum ages in Argentina and Spain, and the age rules the app enforces
 - [Countries](docs/countries.md) — the `Countries` table: calling code, currency, minimum age for an own account and time zones of each country, and what a business takes from its country
 - [Authorization](docs/authorization.md) — organizations, brand and branch roles, and the permission every endpoint requires
