@@ -8,6 +8,7 @@ Designs (Claude artifacts, private to the owner):
 
 - [Calma, app completa](https://claude.ai/artifact/MGjmVNd9Qav63zCt7WfueM): every main team screen, sign-in and sign-up, a component sheet and a clickable prototype.
 - [Rediseño minimalista](https://claude.ai/artifact/8VsXqgpt8sphR6wDya5hzU): the three directions that were compared, the animation catalog and the font comparison.
+- [Calma, antes y después](https://claude.ai/artifact/AMoHSyDZQNwkEszSW6NqkJ): the before/after screenshots of every step (rule 4); step 0 holds the baseline of every screen of both apps, light and dark, and every email.
 
 ## Rules
 
