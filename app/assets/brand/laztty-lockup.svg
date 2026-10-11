@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 100">
+  <rect width="100" height="100" rx="32" fill="#6d28d9"/>
+  <g transform="translate(21 21) scale(0.58)">
+    <g fill="#ffffff" transform="translate(10.63 0) skewX(-12)">
+      <rect x="24" y="14" width="26" height="72" rx="13"/>
+      <rect x="24" y="60" width="60" height="26" rx="13" opacity="0.55"/>
+    </g>
+  </g>
+  <text x="122" y="70" font-family="Figtree, system-ui, sans-serif" font-weight="700" font-size="64" letter-spacing="-1.3" fill="#10212f">laztty</text>
+</svg>
