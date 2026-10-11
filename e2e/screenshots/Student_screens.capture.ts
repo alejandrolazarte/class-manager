@@ -196,7 +196,11 @@ test("Team screens with student activity", async ({ page, request }) => {
 
   await page.goto("/today/notifications");
   await page.getByText("Avisos").filter({ visible: true }).first().waitFor();
-  await page.getByText("Tomás Pérez", { exact: false }).filter({ visible: true }).first().waitFor();
+  await page
+    .getByText("avisó que no viene", { exact: false })
+    .filter({ visible: true })
+    .first()
+    .waitFor();
   await capture(page, "01c-avisos");
 
   await page.goto("/fees?view=orders");
