@@ -13,6 +13,7 @@ using ClassManager.Core.UseCases.Businesses;
 using ClassManager.Core.UseCases.ClassGroups;
 using ClassManager.Core.UseCases.ClassPacks;
 using ClassManager.Core.UseCases.Clients;
+using ClassManager.Core.UseCases.Countries;
 using ClassManager.Core.UseCases.Enrollments;
 using ClassManager.Core.UseCases.Fees;
 using ClassManager.Core.UseCases.ImportExport;
@@ -79,6 +80,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<GetBrandLogoQuery, BrandLogoFile, GetBrandLogoUseCase>();
         services.AddUseCase<GetCurrentMemberQuery, CurrentMemberResponse, GetCurrentMemberUseCase>();
         services.AddUseCase<ListPlansQuery, IReadOnlyList<PlanResponse>, ListPlansUseCase>();
+        services.AddUseCase<ListCountriesQuery, IReadOnlyList<CountryResponse>, ListCountriesUseCase>();
         services.AddUseCase<GetOrganizationSubscriptionQuery, OrganizationSubscriptionResponse, GetOrganizationSubscriptionUseCase>();
         services.AddUseCase<GetTeamQuery, TeamResponse, GetTeamUseCase>();
         services.AddUseCase<InviteMemberCommand, InvitationResponse, InviteMemberUseCase>();

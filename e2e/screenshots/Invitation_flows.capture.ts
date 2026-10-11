@@ -103,7 +103,7 @@ async function seedFlowBusiness(request: APIRequestContext): Promise<FlowBusines
     businessName: "Natación Olas",
     timeZoneId,
     currencyCode: "ARS",
-    defaultCountryCallingCode: "54",
+    countryCode: "AR",
     ownerBirthDate: "1985-06-20",
   }));
 

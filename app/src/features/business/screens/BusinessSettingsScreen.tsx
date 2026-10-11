@@ -3,12 +3,6 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { isApiError } from "@/api/httpClient";
-import { CountryPicker } from "@/features/business/components/CountryPicker";
-import {
-  CountrySelection,
-  getCountryPreset,
-  getCountrySelectionForTimeZone,
-} from "@/features/business/countryPresets";
 import { currencyOptions } from "@/features/business/currencyOptions";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import {
@@ -17,6 +11,10 @@ import {
   businessSettingsSchema,
 } from "@/features/business/businessSettingsSchema";
 import { useUpdateBusinessSettings } from "@/features/business/useUpdateBusinessSettings";
+import { CountryPicker } from "@/features/countries/CountryPicker";
+import { findCountry } from "@/features/countries/countrySelection";
+import { CountrySelection } from "@/features/countries/types";
+import { useCountries } from "@/features/countries/useCountries";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
@@ -35,7 +33,6 @@ const badRequestStatus = 400;
 interface RegionalSettings {
   countrySelection: CountrySelection;
   currencyCode: string;
-  defaultCountryCallingCode: string;
 }
 
 export function BusinessSettingsScreen() {
@@ -43,11 +40,11 @@ export function BusinessSettingsScreen() {
   const { showToast } = useToast();
   const business = useCurrentBusiness();
   const updateBusinessSettingsMutation = useUpdateBusinessSettings();
+  const { data: countries = [] } = useCountries();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [regionalSettings, setRegionalSettings] = useState<RegionalSettings>(() => ({
-    countrySelection: getCountrySelectionForTimeZone(business.timeZoneId),
+    countrySelection: { countryCode: business.countryCode, timeZoneId: business.timeZoneId },
     currencyCode: business.currencyCode,
-    defaultCountryCallingCode: business.defaultCountryCallingCode,
   }));
   const form = useForm<BusinessSettingsFormValues>({
     resolver: zodResolver(businessSettingsSchema),
@@ -56,30 +53,27 @@ export function BusinessSettingsScreen() {
   });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["name"]);
 
-  const selectCountry = (countrySelection: CountrySelection) => {
-    const countryPreset = getCountryPreset(countrySelection.countryCode);
-    setRegionalSettings({
+  const selectCountry = (countrySelection: CountrySelection) =>
+    setRegionalSettings((current) => ({
       countrySelection,
-      currencyCode: countryPreset.currencyCode,
-      defaultCountryCallingCode: countryPreset.callingCode,
-    });
-  };
+      currencyCode:
+        findCountry(countries, countrySelection.countryCode)?.currencyCode ?? current.currencyCode,
+    }));
 
   const selectCurrency = (currencyCode: string) =>
     setRegionalSettings((current) => ({ ...current, currencyCode }));
-  const countryCurrencyCode = getCountryPreset(
-    regionalSettings.countrySelection.countryCode,
-  ).currencyCode;
+  const countryCurrencyCode =
+    findCountry(countries, regionalSettings.countrySelection.countryCode)?.currencyCode ??
+    regionalSettings.currencyCode;
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
-    const timeZoneId = regionalSettings.countrySelection.timeZoneId;
     try {
       await updateBusinessSettingsMutation.mutateAsync({
         name: formValues.name.trim(),
-        timeZoneId,
+        countryCode: regionalSettings.countrySelection.countryCode,
+        timeZoneId: regionalSettings.countrySelection.timeZoneId,
         currencyCode: regionalSettings.currencyCode,
-        defaultCountryCallingCode: regionalSettings.defaultCountryCallingCode,
       });
       showToast(translate("businessSettings.saved"));
       router.back();

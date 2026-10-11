@@ -6,8 +6,6 @@ namespace ClassManager.Core.U.Tests.UseCases.Businesses;
 
 internal sealed class UpdateBusinessSettingsUseCaseBuilder
 {
-    public const string MadridTimeZoneId = "Europe/Madrid";
-
     public Business Business { get; } = TestData.Business();
 
     public Mock<IBusinessRepository> Businesses { get; } = new();
@@ -18,10 +16,10 @@ internal sealed class UpdateBusinessSettingsUseCaseBuilder
         Businesses.Setup(repository => repository.GetCurrentForUpdateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Business);
     }
 
-    public UpdateBusinessSettingsCommand CommandWithTimeZone(string timeZoneId) =>
-        new(Business.Name, timeZoneId, Business.CurrencyCode, Business.DefaultCountryCallingCode);
+    public UpdateBusinessSettingsCommand CommandFor(string countryCode, string timeZoneId) =>
+        new(Business.Name, countryCode, timeZoneId, Business.CurrencyCode);
 
     public UpdateBusinessSettingsUseCase Build() =>
-        new(Businesses.Object, UnitOfWork.Object);
+        new(Businesses.Object, new InMemoryCountryRepository(), UnitOfWork.Object);
 
 }

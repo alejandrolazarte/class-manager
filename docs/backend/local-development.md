@@ -86,7 +86,7 @@ Content-Type: application/json
 | `POST /api/clients` | Register a client |
 | `GET /api/clients/{clientId}` | Get a client |
 | `GET /api/clients?search=ana&limit=20` | Search by name or phone prefix |
-| `PUT /api/business` | Owner only. Edit name, time zone, currency and calling code; the slug never changes |
+| `PUT /api/business` | Owner only. Edit name, country, time zone and currency (the calling code comes from the country); the slug never changes |
 
 Owner only endpoints use the `OwnerOnly` authorization policy (`role` claim `Owner`) and answer `403` to any other role. An id that belongs to another business answers `404`.
 

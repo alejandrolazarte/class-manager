@@ -11,7 +11,7 @@ public sealed class Then_other_businesses_are_unchanged(ApiFixture fixture)
         var business = await fixture.SeedBusinessAsync();
         var otherBusiness = await fixture.SeedBusinessAsync();
 
-        using var response = await business.HttpClient.PutBusinessAsync(SettingsRequests.SettingsOf(business, SettingsRequests.MadridTimeZoneId));
+        using var response = await business.HttpClient.PutBusinessAsync(SettingsRequests.SpainSettingsOf(business));
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var otherBusinessSettings = await otherBusiness.HttpClient.GetFromJsonAsync<BusinessResponse>(

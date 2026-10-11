@@ -128,7 +128,7 @@ public sealed class InviteStudentAppUseCase(
             var guardianContent = GuardianEmailContentFor(
                 business.BrandDisplayName,
                 recipient.Value.StudentFullName ?? string.Empty,
-                PersonAge.OwnAccountMinimumAge(business.DefaultCountryCallingCode),
+                business.Country.OwnAccountMinimumAge,
                 webAppLinks.AuthorizeStudentApp(guardianToken.Value));
             await emailSender.SendAsync(new EmailMessage(client.Email!, GuardianEmailSubjectFor(business.BrandDisplayName), guardianContent, business.Id), cancellationToken);
             await studentAppNotificationService.GuardianConsentRequestedAsync(invitation.Value!, recipient.Value.StudentFullName ?? string.Empty, cancellationToken);
@@ -229,7 +229,7 @@ public sealed class InviteStudentAppUseCase(
             return Result.Validation<Recipient>(BirthDateRequiredMessage, StudentAppErrorCodes.BirthDateRequired, nameof(InviteStudentAppRequest.BirthDate));
         }
 
-        var needsGuardianConsent = !PersonAge.CanHaveOwnAccount(birthDate, today, business.DefaultCountryCallingCode);
+        var needsGuardianConsent = !PersonAge.CanHaveOwnAccount(birthDate, today, business.Country);
         if (needsGuardianConsent && client.Email is null)
         {
             return Result.Validation<Recipient>(

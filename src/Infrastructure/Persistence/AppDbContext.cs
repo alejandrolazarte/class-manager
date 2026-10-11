@@ -51,6 +51,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
+    public DbSet<Country> Countries => Set<Country>();
     public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<Feature> Features => Set<Feature>();
     public DbSet<PlanFeature> PlanFeatures => Set<PlanFeature>();
@@ -70,6 +71,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
         modelBuilder.ApplySubscriptionsModel();
         modelBuilder.Entity<Subscription>().HasOne<Organization>().WithMany().HasForeignKey(subscription => subscription.SubscriberId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.SeedSubscriptionCatalog();
+        modelBuilder.SeedCountryCatalog();
         modelBuilder.ApplyTenantQueryFilters(this);
         modelBuilder.ApplySoftDeleteQueryFilters();
     }

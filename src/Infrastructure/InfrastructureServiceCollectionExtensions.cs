@@ -59,6 +59,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSubscriptions<AppDbContext, OrganizationSubscriberResolver>(SubscriptionLimits.Configure);
         services.AddScoped<IOrganizationMemberRepository, OrganizationMemberRepository>();
         services.AddScoped<IBusinessRepository, BusinessRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IBrandLogoRepository, BrandLogoRepository>();
         services.AddScoped<IBusinessMemberRepository, BusinessMemberRepository>();
         services.AddScoped<IMemberInvitationRepository, MemberInvitationRepository>();

@@ -81,9 +81,9 @@ internal sealed class SignUpOwnerUseCaseBuilder
             TestData.OwnerEmail,
             TestData.OwnerPassword,
             TestData.BusinessName,
+            TestData.ArgentinaCountryCode,
             TestData.BuenosAiresTimeZoneId,
             TestData.CurrencyCode,
-            TestData.DefaultCountryCallingCode,
             TestData.OwnerBirthDate);
 
     public SignUpOwnerUseCase Build() =>
@@ -93,6 +93,7 @@ internal sealed class SignUpOwnerUseCaseBuilder
             Organizations.Object,
             OrganizationMembers.Object,
             Businesses.Object,
+            new InMemoryCountryRepository(),
             BusinessMembers.Object,
             Instructors.Object,
             Subscriptions.Object,

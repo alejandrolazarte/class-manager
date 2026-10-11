@@ -4,6 +4,11 @@ import { clearTestQueryClients } from "./src/testing/testQueryClients";
 
 process.env.EXPO_PUBLIC_API_BASE_URL = "http://api.test";
 
+jest.mock("./src/features/countries/countriesApi", () => ({
+  listCountries: () =>
+    Promise.resolve(jest.requireActual("./src/testing/countryFactory").buildCountries()),
+}));
+
 jest.mock("expo-router", () => {
   const { routerMock, navigationMock, searchParametersMock, segmentsMock, RedirectMock } =
     jest.requireActual("./src/testing/expoRouterMock");

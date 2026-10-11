@@ -18,6 +18,7 @@ public sealed class Then_settings_of_token_business_are_returned(ApiFixture fixt
         settings!.DefaultMonthlyFeeChanges.ShouldBeEmpty();
         settings.ShouldBe(new BusinessResponse(
             business.Business.Name,
+            business.Business.CountryCode,
             business.Business.TimeZoneId,
             business.Business.CurrencyCode,
             business.Business.DefaultCountryCallingCode,

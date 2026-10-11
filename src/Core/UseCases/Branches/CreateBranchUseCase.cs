@@ -10,12 +10,13 @@ namespace ClassManager.Core.UseCases.Branches;
 
 public sealed record CreateBranchCommand(
     string? Name,
+    string? CountryCode,
     string? TimeZoneId,
-    string? CurrencyCode,
-    string? DefaultCountryCallingCode) : ICommand;
+    string? CurrencyCode) : ICommand;
 
 public sealed class CreateBranchUseCase(
     IBusinessRepository businessRepository,
+    ICountryRepository countryRepository,
     IBusinessMemberRepository businessMemberRepository,
     IInstructorRepository instructorRepository,
     ICurrentMember currentMember,
@@ -39,9 +40,9 @@ public sealed class CreateBranchUseCase(
             currentBusiness.OrganizationId,
             command.Name,
             slug,
+            await countryRepository.FindAsync(command.CountryCode, cancellationToken),
             command.TimeZoneId,
             command.CurrencyCode,
-            command.DefaultCountryCallingCode,
             timeProvider.GetUtcNow());
         if (branch.IsFailure)
         {
