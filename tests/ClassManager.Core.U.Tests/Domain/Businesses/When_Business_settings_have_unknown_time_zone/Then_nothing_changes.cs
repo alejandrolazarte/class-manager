@@ -9,7 +9,7 @@ public sealed class Then_nothing_changes
     {
         var business = TestData.Business();
 
-        var result = business.UpdateSettings("Panadería Nueva", "Mars/Olympus_Mons", TestData.CurrencyCode, TestData.DefaultCountryCallingCode);
+        var result = business.UpdateSettings("Panadería Nueva", TestData.Argentina(), "Mars/Olympus_Mons", TestData.CurrencyCode);
 
         result.Error!.FieldName.ShouldBe(nameof(Business.TimeZoneId));
         business.Name.ShouldBe(TestData.Business().Name);

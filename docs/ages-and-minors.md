@@ -30,7 +30,7 @@ All of them live in `PersonAge` (`src/Core/Domain/Accounts`).
 |---|---|---|
 | The owner of a business is an adult (18) | Sign-up | `auth.owner_must_be_adult` |
 | The client (contact) is an adult (18): they pay and get the reminders, and both countries need 18 to contract. A minor is registered as a student of an adult client, never as the client | Registering a client who attends class; importing a student without Responsable (the student becomes the client); inviting such a client to the app (`AttendingContact` in `src/Core/UseCases/Clients`) | `client.contact_must_be_adult` |
-| Below the minimum age of the branch's country (13 in Argentina (`54`), 14 in Spain (`34`), 16 anywhere else, the GDPR maximum) a person still gets an account of their own, but only after the client who pays authorizes it | Inviting a student | — |
+| Below the minimum age of the branch's country (`Countries.OwnAccountMinimumAge`: 13 in Argentina, 14 in Spain, 16 in the other countries, the GDPR maximum) a person still gets an account of their own, but only after the client who pays authorizes it | Inviting a student | — |
 | Anyone accepting an invitation below that age needs that authorization | Accepting any invitation | `auth.too_young_for_own_account` |
 
 ### Authorization of the client who pays
@@ -42,7 +42,7 @@ Inviting a student below the minimum age does not email the student. It emails t
 - If the client already uses the app, they also get a push notification ("Tomás quiere usar la app") and a card on the home of their app with the same two buttons (`POST /api/student-app/guardian-consents/{invitationId}/authorization` or `/refusal`). Only the client's own account sees it: the accounts of the students of the family get `404`.
 - While it waits, the client card shows "Falta que su responsable autorice" and the button **Recordar al responsable**, which sends the request again.
 
-The country comes from the branch's default calling code; add a country to `PersonAge` when the app reaches it.
+The age comes from the branch's country (`Businesses.CountryCode`, see [Countries](countries.md)), never from a phone number: a student of a branch in Spain may have an Argentine number and still follows the rules of Spain.
 
 ### Next: orders of minors
 

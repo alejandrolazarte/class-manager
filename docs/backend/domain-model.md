@@ -48,8 +48,9 @@ erDiagram
 | `Id` | `Guid` | v7 |
 | `Name` | `string` | Required, 2–120 characters |
 | `Slug` | `string` | Required, unique globally, lowercase, 3–80 characters |
-| `TimeZoneId` | `string` | IANA id, for example `America/Argentina/Buenos_Aires` |
-| `DefaultCountryCallingCode` | `string` | 1–3 digits, for example `54`; used to normalize local phone numbers |
+| `CountryCode` | `string` | ISO 3166-1 alpha-2, references `Countries` (see [Countries](../countries.md)) |
+| `TimeZoneId` | `string` | IANA id, one of the country's time zones, for example `America/Argentina/Buenos_Aires` |
+| `DefaultCountryCallingCode` | `string` | The calling code of the country, for example `54`; used to normalize local phone numbers |
 | `CurrencyCode` | `string` | ISO 4217, 3 letters, for example `ARS`; normalized to upper case |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 

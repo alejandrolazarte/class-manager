@@ -5,9 +5,9 @@ export interface SignUpRequest {
   email: string;
   password: string;
   businessName: string;
+  countryCode: string;
   timeZoneId: string;
   currencyCode: string;
-  defaultCountryCallingCode: string;
   ownerBirthDate: string;
 }
 

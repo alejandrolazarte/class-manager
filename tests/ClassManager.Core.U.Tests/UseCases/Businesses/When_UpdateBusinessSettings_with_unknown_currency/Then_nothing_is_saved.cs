@@ -8,7 +8,7 @@ public sealed class Then_nothing_is_saved
     public async Task Then_nothing_is_saved_Run()
     {
         var builder = new UpdateBusinessSettingsUseCaseBuilder();
-        var command = builder.CommandWithTimeZone(TestData.BuenosAiresTimeZoneId) with { CurrencyCode = "XYZ" };
+        var command = builder.CommandFor(TestData.ArgentinaCountryCode, TestData.BuenosAiresTimeZoneId) with { CurrencyCode = "XYZ" };
 
         var response = await builder.Build().ExecuteAsync(command, CancellationToken.None);
 

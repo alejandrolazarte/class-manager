@@ -27,9 +27,9 @@ public static class AuthenticationRequests
             email ?? UniqueEmail(),
             OwnerPassword,
             businessName ?? UniqueBusinessName(),
+            ApiFixture.ArgentinaCountryCode,
             ApiFixture.BuenosAiresTimeZoneId,
             ApiFixture.CurrencyCode,
-            ApiFixture.DefaultCountryCallingCode,
             AdultBirthDate);
 
     public static Task<HttpResponseMessage> PostSignUpAsync(this HttpClient httpClient, SignUpOwnerCommand command) =>

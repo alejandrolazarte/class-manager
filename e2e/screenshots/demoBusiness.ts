@@ -70,7 +70,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     businessName: "Escuela de Natación Brazada",
     timeZoneId: demoTimeZoneId,
     currencyCode: "ARS",
-    defaultCountryCallingCode: "54",
+    countryCode: "AR",
     ownerBirthDate: "1985-06-20",
   });
   accessToken = tokens.accessToken;

@@ -5,14 +5,18 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 public static class SettingsRequests
 {
     public const string MadridTimeZoneId = "Europe/Madrid";
+    public const string EuroCurrencyCode = "EUR";
 
     public static UpdateBusinessSettingsCommand SettingsOf(
         SeededBusiness business, string? timeZoneId = null, string? name = null, string? currencyCode = null) =>
         new(
             name ?? business.Business.Name,
+            business.Business.CountryCode,
             timeZoneId ?? business.Business.TimeZoneId,
-            currencyCode ?? business.Business.CurrencyCode,
-            business.Business.DefaultCountryCallingCode);
+            currencyCode ?? business.Business.CurrencyCode);
+
+    public static UpdateBusinessSettingsCommand SpainSettingsOf(SeededBusiness business) =>
+        new(business.Business.Name, ApiFixture.SpainCountryCode, MadridTimeZoneId, EuroCurrencyCode);
 
     public static Task<HttpResponseMessage> PutBusinessAsync(this HttpClient httpClient, UpdateBusinessSettingsCommand command) =>
         httpClient.PutAsJsonAsync(ApiRoutes.Business, command, ApiRequests.JsonOptions);

@@ -13,6 +13,7 @@ jest.mock("@/features/authentication/useSession", () => ({
 }));
 
 const madridBusiness = buildBusiness({
+  countryCode: "ES",
   timeZoneId: "Europe/Madrid",
   currencyCode: "EUR",
   defaultCountryCallingCode: "34",
@@ -35,9 +36,9 @@ describe("When branch is created", () => {
     await waitFor(() =>
       expect(createBranch).toHaveBeenCalledWith({
         name: branchName,
+        countryCode: "ES",
         timeZoneId: "Europe/Madrid",
         currencyCode: "EUR",
-        defaultCountryCallingCode: "34",
       }),
     );
     expect(routerMock.back).toHaveBeenCalled();

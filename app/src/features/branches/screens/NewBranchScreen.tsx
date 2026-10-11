@@ -6,14 +6,12 @@ import { isApiError } from "@/api/httpClient";
 import { useSession } from "@/features/authentication/useSession";
 import { Branch } from "@/features/branches/types";
 import { useCreateBranch } from "@/features/branches/useBranches";
-import { CountryPicker } from "@/features/business/components/CountryPicker";
-import {
-  CountrySelection,
-  getCountryPreset,
-  getCountrySelectionForTimeZone,
-} from "@/features/business/countryPresets";
 import { currencyOptions } from "@/features/business/currencyOptions";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { CountryPicker } from "@/features/countries/CountryPicker";
+import { findCountry } from "@/features/countries/countrySelection";
+import { CountrySelection } from "@/features/countries/types";
+import { useCountries } from "@/features/countries/useCountries";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { translate } from "@/i18n/translate";
@@ -34,18 +32,23 @@ export function NewBranchScreen() {
   const { switchBranch } = useSession();
   const business = useCurrentBusiness();
   const createBranchMutation = useCreateBranch();
+  const { data: countries = [] } = useCountries();
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string | undefined>();
-  const [countrySelection, setCountrySelection] = useState<CountrySelection>(() =>
-    getCountrySelectionForTimeZone(business.timeZoneId),
-  );
+  const [countrySelection, setCountrySelection] = useState<CountrySelection>(() => ({
+    countryCode: business.countryCode,
+    timeZoneId: business.timeZoneId,
+  }));
   const [currencyCode, setCurrencyCode] = useState(business.currencyCode);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
-  const countryPreset = getCountryPreset(countrySelection.countryCode);
+  const countryCurrencyCode =
+    findCountry(countries, countrySelection.countryCode)?.currencyCode ?? currencyCode;
 
   const selectCountry = (selection: CountrySelection) => {
     setCountrySelection(selection);
-    setCurrencyCode(getCountryPreset(selection.countryCode).currencyCode);
+    setCurrencyCode(
+      (current) => findCountry(countries, selection.countryCode)?.currencyCode ?? current,
+    );
   };
 
   const enterBranch = async (branch: Branch) => {
@@ -64,9 +67,9 @@ export function NewBranchScreen() {
     try {
       const branch = await createBranchMutation.mutateAsync({
         name: name.trim(),
+        countryCode: countrySelection.countryCode,
         timeZoneId: countrySelection.timeZoneId,
         currencyCode,
-        defaultCountryCallingCode: countryPreset.callingCode,
       });
       showToast(translate("branches.form.created", { name: branch.name }), {
         label: translate("branches.form.enter"),
@@ -107,7 +110,7 @@ export function NewBranchScreen() {
           {withRequiredMark(translate("businessSettings.currency"))}
         </AppText>
         <View className="flex-row flex-wrap gap-2">
-          {currencyOptions(countryPreset.currencyCode, currencyCode).map((currencyOption) => (
+          {currencyOptions(countryCurrencyCode, currencyCode).map((currencyOption) => (
             <Chip
               key={currencyOption}
               label={currencyOption}

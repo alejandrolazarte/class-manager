@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Countries;
 
 namespace ClassManager.Core.Domain.Businesses;
 
@@ -14,14 +15,14 @@ public sealed partial class Business
     public const int SlugMaxLength = 80;
     public const int TimeZoneIdMaxLength = 64;
     public const int CurrencyCodeLength = 3;
-    public const int DefaultCountryCallingCodeMaxLength = 3;
+    public const int DefaultCountryCallingCodeMaxLength = Country.CallingCodeMaxLength;
     public const int BrandColorLength = 7;
 
     private const string NameLengthMessage = "Name must be between 2 and 120 characters.";
     private const string SlugFormatMessage = "Slug must be 3 to 80 lowercase letters, digits or hyphens.";
-    private const string TimeZoneIdUnknownMessage = "Time zone id is not a known IANA time zone.";
+    private const string CountryUnknownMessage = "Country is not supported.";
+    private const string TimeZoneIdUnknownMessage = "Time zone id is not a time zone of the country.";
     private const string CurrencyCodeUnknownMessage = "Currency code is not a known ISO 4217 code.";
-    private const string DefaultCountryCallingCodeFormatMessage = "Default country calling code must be 1 to 3 digits.";
     private const string BrandNameLengthMessage = "Brand name must be between 2 and 120 characters.";
     private const string BrandColorFormatMessage = "Brand colors must be # followed by 6 hexadecimal digits.";
     private const string LockWithoutThemeColorMessage = "Choose a main color before locking the brand theme.";
@@ -36,6 +37,8 @@ public sealed partial class Business
     public Guid OrganizationId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Slug { get; private set; } = string.Empty;
+    public string CountryCode { get; private set; } = string.Empty;
+    public Country Country { get; private set; } = null!;
     public string TimeZoneId { get; private set; } = string.Empty;
     public string CurrencyCode { get; private set; } = string.Empty;
     public string DefaultCountryCallingCode { get; private set; } = string.Empty;
@@ -52,9 +55,9 @@ public sealed partial class Business
         Guid organizationId,
         string? name,
         string? slug,
+        Country? country,
         string? timeZoneId,
         string? currencyCode,
-        string? defaultCountryCallingCode,
         DateTimeOffset createdAt)
     {
         var trimmedName = name?.Trim() ?? string.Empty;
@@ -69,7 +72,7 @@ public sealed partial class Business
             return ValidationError(SlugFormatMessage, nameof(Slug));
         }
 
-        if (ValidateLocalization(timeZoneId, normalizedCurrencyCode, defaultCountryCallingCode) is { } localizationError)
+        if (ValidateLocalization(country, timeZoneId, normalizedCurrencyCode) is { } localizationError)
         {
             return localizationError;
         }
@@ -80,28 +83,32 @@ public sealed partial class Business
             OrganizationId = organizationId,
             Name = trimmedName,
             Slug = slug,
+            CountryCode = country!.Code,
+            Country = country,
             TimeZoneId = timeZoneId!,
             CurrencyCode = normalizedCurrencyCode!,
-            DefaultCountryCallingCode = defaultCountryCallingCode!,
+            DefaultCountryCallingCode = country.CallingCode,
             CreatedAt = createdAt.ToUniversalTime(),
         };
     }
 
-    public Result UpdateSettings(string? name, string? timeZoneId, string? currencyCode, string? defaultCountryCallingCode)
+    public Result UpdateSettings(string? name, Country? country, string? timeZoneId, string? currencyCode)
     {
         var trimmedName = name?.Trim() ?? string.Empty;
         var normalizedCurrencyCode = NormalizeCurrencyCode(currencyCode);
         var error = ValidateName(trimmedName)
-            ?? ValidateLocalization(timeZoneId, normalizedCurrencyCode, defaultCountryCallingCode);
+            ?? ValidateLocalization(country, timeZoneId, normalizedCurrencyCode);
         if (error is not null)
         {
             return Result.Failure(error);
         }
 
         Name = trimmedName;
+        CountryCode = country!.Code;
+        Country = country;
         TimeZoneId = timeZoneId!;
         CurrencyCode = normalizedCurrencyCode!;
-        DefaultCountryCallingCode = defaultCountryCallingCode!;
+        DefaultCountryCallingCode = country.CallingCode;
         return Result.Success();
     }
 
@@ -154,10 +161,15 @@ public sealed partial class Business
             ? ValidationError(NameLengthMessage, nameof(Name))
             : null;
 
-    private static ResultError? ValidateLocalization(string? timeZoneId, string? normalizedCurrencyCode, string? defaultCountryCallingCode)
+    private static ResultError? ValidateLocalization(Country? country, string? timeZoneId, string? normalizedCurrencyCode)
     {
+        if (country is null)
+        {
+            return ValidationError(CountryUnknownMessage, nameof(CountryCode));
+        }
+
         if (timeZoneId is null
-            || timeZoneId.Length > TimeZoneIdMaxLength
+            || !country.HasTimeZone(timeZoneId)
             || !TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out _))
         {
             return ValidationError(TimeZoneIdUnknownMessage, nameof(TimeZoneId));
@@ -166,11 +178,6 @@ public sealed partial class Business
         if (normalizedCurrencyCode is null || !KnownCurrencyCodes.Value.Contains(normalizedCurrencyCode))
         {
             return ValidationError(CurrencyCodeUnknownMessage, nameof(CurrencyCode));
-        }
-
-        if (defaultCountryCallingCode is null || !CountryCallingCodePattern().IsMatch(defaultCountryCallingCode))
-        {
-            return ValidationError(DefaultCountryCallingCodeFormatMessage, nameof(DefaultCountryCallingCode));
         }
 
         return null;
@@ -192,7 +199,4 @@ public sealed partial class Business
 
     [GeneratedRegex("^#[0-9a-fA-F]{6}$")]
     private static partial Regex BrandColorPattern();
-
-    [GeneratedRegex("^[1-9][0-9]{0,2}$")]
-    private static partial Regex CountryCallingCodePattern();
 }

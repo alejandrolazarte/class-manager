@@ -59,7 +59,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
 
             if (business is not null
                 && invitation.GuardianConsentedAt is null
-                && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.DefaultCountryCallingCode))
+                && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.Country))
             {
                 return Result.Validation<TokenResponse>(
                     AuthenticationErrorCodes.TooYoungForOwnAccountMessage,

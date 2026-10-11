@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Domain.Countries;
 using ClassManager.Core.Domain.Organizations;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Subscriptions;
@@ -24,6 +25,8 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     public const string BuenosAiresTimeZoneId = "America/Argentina/Buenos_Aires";
     public const string CurrencyCode = "ARS";
     public const string DefaultCountryCallingCode = "54";
+    public const string ArgentinaCountryCode = "AR";
+    public const string SpainCountryCode = "ES";
     public const string BearerScheme = "Bearer";
 
     private const string SeededStudentsClientName = "Cliente sembrado";
@@ -209,20 +212,28 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         await context.SaveChangesAsync();
     }
 
+    public async Task<Country> FindCountryAsync(string countryCode)
+    {
+        await using var context = CreateDbContext(Guid.Empty);
+        return await context.Countries.AsNoTracking().SingleAsync(country => country.Code == countryCode);
+    }
+
     public async Task<SeededBusiness> SeedBusinessAsync(string planCode = PlanCodes.Enterprise)
     {
         var organization = Organization.Create(BusinessName, BusinessApiFactory.Now).Value!;
         var ownerUserId = Guid.CreateVersion7();
+        var argentina = await FindCountryAsync(ArgentinaCountryCode);
         var business = Business.Create(
             organization.Id,
             BusinessName,
             $"business-{Guid.NewGuid():N}",
+            argentina,
             BuenosAiresTimeZoneId,
             CurrencyCode,
-            DefaultCountryCallingCode,
             BusinessApiFactory.Now).Value!;
 
         await using var context = CreateDbContext(business.Id);
+        context.Countries.Attach(argentina);
         context.Organizations.Add(organization);
         context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerUserId));
         context.Businesses.Add(business);

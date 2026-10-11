@@ -9,7 +9,7 @@ public sealed class Then_they_can_have_their_own_account
     {
         var today = new DateOnly(2026, 10, 7);
 
-        var canHaveOwnAccount = PersonAge.CanHaveOwnAccount(new DateOnly(2013, 10, 7), today, "54");
+        var canHaveOwnAccount = PersonAge.CanHaveOwnAccount(new DateOnly(2013, 10, 7), today, TestData.Argentina());
 
         canHaveOwnAccount.ShouldBeTrue();
     }

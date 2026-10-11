@@ -13,9 +13,9 @@ public sealed class Then_it_belongs_to_the_organization
             organizationId,
             TestData.BusinessName,
             "panaderia-laura",
+            TestData.Argentina(),
             TestData.BuenosAiresTimeZoneId,
             TestData.CurrencyCode,
-            TestData.DefaultCountryCallingCode,
             TestData.Now);
 
         business.Value!.OrganizationId.ShouldBe(organizationId);

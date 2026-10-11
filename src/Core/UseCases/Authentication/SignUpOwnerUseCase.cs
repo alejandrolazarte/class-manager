@@ -16,9 +16,9 @@ public sealed record SignUpOwnerCommand(
     string? Email,
     string? Password,
     string? BusinessName,
+    string? CountryCode,
     string? TimeZoneId,
     string? CurrencyCode,
-    string? DefaultCountryCallingCode,
     DateOnly? OwnerBirthDate = null) : ICommand;
 
 public sealed class SignUpOwnerUseCase(
@@ -27,6 +27,7 @@ public sealed class SignUpOwnerUseCase(
     IOrganizationRepository organizationRepository,
     IOrganizationMemberRepository organizationMemberRepository,
     IBusinessRepository businessRepository,
+    ICountryRepository countryRepository,
     IBusinessMemberRepository businessMemberRepository,
     IInstructorRepository instructorRepository,
     ISubscriptionRepository subscriptionRepository,
@@ -67,9 +68,9 @@ public sealed class SignUpOwnerUseCase(
             organization.Value!.Id,
             command.BusinessName,
             slug,
+            await countryRepository.FindAsync(command.CountryCode, cancellationToken),
             command.TimeZoneId,
             command.CurrencyCode,
-            command.DefaultCountryCallingCode,
             now);
         if (business.IsFailure)
         {
