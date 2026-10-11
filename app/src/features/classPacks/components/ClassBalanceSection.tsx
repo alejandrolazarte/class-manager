@@ -14,7 +14,8 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
-import { Card } from "@/ui/Card";
+import { InsetPanel } from "@/ui/InsetPanel";
+import { SectionTitle } from "@/ui/SectionTitle";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { Icon } from "@/ui/Icon";
 import { StatusPill } from "@/ui/StatusPill";
@@ -145,12 +146,10 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
   ];
 
   return (
-    <Card className="gap-2.5 p-4">
+    <View className="gap-2.5 border-b border-border-subtle pb-3">
       <View className="flex-row items-start justify-between gap-2">
         <View className="min-w-0 flex-1 gap-0.5">
-          <AppText variant="overline" tone="subtle">
-            {translate("classPacks.balance.purchasedTitle")}
-          </AppText>
+          <SectionTitle title={translate("classPacks.balance.purchasedTitle")} isOverline />
           {hasHistory || !isMonthlyPlan ? (
             <AppText variant="headline" tone={availableTone}>
               {translateCount("classPacks.balance.available", balance.availableClasses)}
@@ -187,7 +186,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
         if (group.purchases.length === 1) {
           const usage = group.purchases[0];
           return (
-            <View key={group.key} className="border-t border-border pt-2.5">
+            <View key={group.key} className="border-t border-border-subtle pt-2.5">
               <PurchaseRow
                 usage={usage}
                 title={`${usage.name} · ${formatMoney(usage.price, usage.currencyCode)}`}
@@ -205,7 +204,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
           count: group.purchases.length,
         });
         return (
-          <View key={group.key} className="gap-2.5 rounded-2xl bg-muted p-3">
+          <InsetPanel key={group.key}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={translate(
@@ -231,7 +230,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
             </Pressable>
             {isOpen
               ? group.purchases.map((usage, index) => (
-                  <View key={usage.id} className="border-t border-border pt-2.5">
+                  <View key={usage.id} className="border-t border-border-subtle pt-2.5">
                     <PurchaseRow
                       usage={usage}
                       title={translate("classPacks.balance.packNumber", {
@@ -250,7 +249,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
                   </View>
                 ))
               : null}
-          </View>
+          </InsetPanel>
         );
       })}
       {purchasePendingDeletion ? (
@@ -274,6 +273,6 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
           onPress={() => router.push(routes.sellClassPack(clientTab, clientId))}
         />
       ) : null}
-    </Card>
+    </View>
   );
 }
