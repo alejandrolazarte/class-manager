@@ -14,7 +14,8 @@
     "test:no-build": "playwright test",
     "screenshots": "pnpm web:build && playwright test --config playwright.screenshots.config.ts",
     "screenshots:no-build": "playwright test --config playwright.screenshots.config.ts",
-    "screenshots:invitations": "playwright test --config playwright.screenshots.config.ts screenshots/Invitation_flows.capture.ts"
+    "screenshots:invitations": "playwright test --config playwright.screenshots.config.ts screenshots/Invitation_flows.capture.ts",
+    "screenshots:emails": "playwright test --config playwright.emails.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

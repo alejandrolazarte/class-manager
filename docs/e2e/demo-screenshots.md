@@ -124,3 +124,35 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `12-ya-tiene-cuenta-aceptar-o-rechazar`, `13-rechazo-la-invitacion` | Someone who already has an account only accepts or declines |
 | `14-aviso-al-equipo` | The team is notified of the decline |
 | `15-editar-perfil` | Editar perfil: name and birth date |
+
+## Email previews
+
+`e2e/screenshots/Email_previews.capture.ts` captures every email the app sends, without the API or a database. It runs `tools/EmailPreviews`, a small console project in the solution that builds each email with the same code the app uses (`EmailContentFor` of each use case, `OrderEmails`) and renders it with `BrandedEmailHtml`, then screenshots each HTML file at phone (390 px) and desktop (1280 px) width.
+
+```powershell
+cd e2e
+pnpm screenshots:emails                                     # with the web font
+$env:SCREENSHOTS_EMAIL_FONT = "blocked"; pnpm screenshots:emails   # web font blocked, as Gmail or Outlook show it
+```
+
+The images land in `e2e/screenshots-output/correos/telefono/` and `.../correos/escritorio/` (`correos-sin-fuente-web/` with the font blocked), next to the HTML files and a plain-text file per email in `html/`. To only get the HTML: `dotnet run --project tools/EmailPreviews -- <folder>`.
+
+Business emails are rendered with four brands of "Escuela Brazada": `sin-marca` (no color, initials), `color` (main color and accent), `logo` (logo, no color) and `color-y-logo`. Account emails use the app brand (`app`), as they do when sent. The logo, an inline attachment (`cid:`) in a real email, is inlined as a data URI so a browser shows it.
+
+| File | Email |
+|---|---|
+| `01-invitacion-al-equipo` | Team invitation (also sent again from Equipo) |
+| `02-invitacion-a-la-app` | Family or student invitation to the student app |
+| `03-autorizacion-del-responsable` | The client is asked to authorize a child below the minimum age |
+| `04-nuevo-pedido-para-el-equipo` | New order from the app, to the team |
+| `05-pago-confirmado-con-productos` | Payment confirmed, products not ready yet |
+| `06-pago-confirmado-listo-para-retirar` | Payment confirmed, products already ready |
+| `07-pago-confirmado-de-clases` | Payment confirmed for a class pack |
+| `08-pedido-listo` | Order ready, handed over in a class |
+| `09-pedido-cancelado-sin-pago` | Order cancelled after 7 days unpaid |
+| `10-pedido-cancelado-por-la-sede` | Order cancelled by the branch |
+| `11-elegir-contrasena` | Password reset (app brand) |
+| `12-confirmar-email-nuevo` | Confirm a new sign-in email (app brand) |
+| `13-email-cambiado` | Notice to the old address after the email changed (app brand) |
+
+When a new email is added, add it to `EmailPreviewCatalog` in `tools/EmailPreviews` and to this table.

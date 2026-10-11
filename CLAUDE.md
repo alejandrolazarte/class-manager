@@ -37,6 +37,7 @@ app/                 ← Expo app (mobile + web)
 e2e/                 ← Playwright e2e tests: web build + real API + SQL Server (critical flows only)
 docs/                ← decisions and runbooks
 scripts/             ← standalone scripts (setup, seeding)
+tools/EmailPreviews/ ← renders every email type to HTML for the email screenshots (docs/e2e/demo-screenshots.md)
 ```
 
 ## Language

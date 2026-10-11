@@ -19,6 +19,9 @@
   <Folder Name="/analyzers/">
     <Project Path="analyzers/ClassManager.Analyzers/ClassManager.Analyzers.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/EmailPreviews/EmailPreviews.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ClassManager.Analyzers.U.Tests/ClassManager.Analyzers.U.Tests.csproj" />
     <Project Path="tests/ClassManager.Api.I.Tests/ClassManager.Api.I.Tests.csproj" />
