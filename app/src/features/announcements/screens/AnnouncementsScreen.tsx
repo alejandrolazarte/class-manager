@@ -18,7 +18,7 @@ import { IconButton } from "@/ui/IconButton";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
@@ -138,7 +138,7 @@ export function AnnouncementsScreen() {
           onPress={publish}
         />
       </Card>
-      {isPending ? <Spinner className="mt-2" /> : null}
+      {isPending ? <SkeletonList /> : null}
       {isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button

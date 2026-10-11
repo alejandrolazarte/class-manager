@@ -22,7 +22,7 @@ import { todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { DateField } from "@/forms/DateField";
@@ -174,7 +174,7 @@ function PaymentEditor({ clientId, month, clientFee }: PaymentEditorProps) {
 export function RecordPaymentScreen({ clientId, month }: RecordPaymentScreenProps) {
   const { data: monthlyFees, isPending } = useMonthlyFees(month);
   if (isPending) {
-    return <LoadingScreen />;
+    return <SkeletonScreen />;
   }
   const clientFee = monthlyFees?.clients.find((candidate) => candidate.clientId === clientId);
   return <PaymentEditor clientId={clientId} month={month} clientFee={clientFee} />;

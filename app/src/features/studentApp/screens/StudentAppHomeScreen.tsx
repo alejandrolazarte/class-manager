@@ -26,7 +26,7 @@ import { Button } from "@/ui/Button";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 
 const homeAnnouncementLimit = 2;
 
@@ -51,7 +51,7 @@ export function StudentAppHomeScreen() {
   if (isPending) {
     return (
       <Screen header={<ScreenHeader title="" />}>
-        <Spinner className="mt-6" />
+        <SkeletonDetail className="w-full max-w-2xl self-center px-5 pt-4" />
       </Screen>
     );
   }

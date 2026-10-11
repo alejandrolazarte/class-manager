@@ -147,6 +147,9 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).
 
+### Loading states
+- Every screen-level data load shows a skeleton from `src/ui/motion`: `SkeletonList` for lists, `SkeletonDetail` (or `SkeletonScreen` for a whole screen) for details and forms. A spinner only marks an action in progress (a button saving, a row switching) or loads a small picker. See [docs/frontend/theming.md](docs/frontend/theming.md#motion).
+
 ### Forms
 - Required fields carry `isRequired` (or `withRequiredMark` for choices), the form shows `RequiredFieldsLegend` at the top (except sign-in and the password screens, which users already know), and the main button stays disabled (grey) until every required field is filled (`useRequiredFieldsFilled`, `isFilled`). Never write "(opcional)" in a label. See [docs/frontend/forms.md](docs/frontend/forms.md).
 - Placeholders and hints give generic examples that fit any business: no sport or discipline ("Natación inicial", "pileta") and no real or customer names.

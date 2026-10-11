@@ -15,7 +15,7 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
 import { areFilled } from "@/forms/requiredFields";
@@ -136,7 +136,7 @@ function AchievementSettingsForm({ settings }: { settings: AchievementSettings }
 export function AchievementSettingsScreen() {
   const { data: settings } = useAchievementSettings();
   if (settings === undefined) {
-    return <Spinner className="mt-6" />;
+    return <SkeletonScreen />;
   }
   return <AchievementSettingsForm settings={settings} />;
 }

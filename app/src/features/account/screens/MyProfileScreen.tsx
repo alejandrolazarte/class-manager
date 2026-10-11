@@ -19,7 +19,7 @@ import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { TextField } from "@/ui/TextField";
 
 type EmailChangeFailure = "network" | "unexpected";
@@ -107,7 +107,7 @@ export function MyProfileScreen({ editProfileRoute }: MyProfileScreenProps) {
         />
       }
     >
-      {accountQuery.isPending ? <Spinner className="mt-6" /> : null}
+      {accountQuery.isPending ? <SkeletonDetail /> : null}
       {accountQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button

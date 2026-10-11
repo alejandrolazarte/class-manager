@@ -80,7 +80,11 @@ Animations are short and live only in `app/src/ui/motion/`, built on Reanimated.
 | `Breathing` | Scales to 94 % and fades to 60 % in a loop, still with reduced motion | The Laztty mark on the loading screen while the session and the business load ([Laztty brand](../brand.md)) |
 | `Entrance` | Fade, scale from 0.96, slide up, spring rise or pop when a view appears | `ConfirmDialog`, `BottomSheet`, `ToastProvider`, the tab bar dot, attendance marks |
 | `Collapsible` | Opens and closes a panel by height; closing content is hidden from screen readers at once | Asistencia panels, private lesson cancel, order payment and refund |
-| `SkeletonList` | Placeholder rows that breathe while a list loads, announced as "Cargando…" | List screens instead of a spinner |
+| `SkeletonList` | Placeholder rows that breathe while a list loads, announced as "Cargando…" | Every list screen while it loads |
+| `SkeletonDetail` | A header and field blocks that breathe while a detail or form loads, announced as "Cargando…" (`SkeletonScreen` wraps it in a full screen) | Every detail and form screen while it loads |
+| `SkeletonFrame` | The breathing animation and the progress bar role shared by the skeletons | `SkeletonList`, `SkeletonDetail` |
+
+Every screen-level data load shows a skeleton: `SkeletonList` for lists, `SkeletonDetail` for details and forms. A spinner (`Spinner`, or `Button` with `isLoading`) only shows an action in progress, such as a button saving or a row switching, and inside small pickers. `LoadingScreen` is only for app bootstrap.
 
 Stack screens slide in from the right on native (`useStackScreenOptions`, none with reduced motion). Nothing animates while the user reads: numbers in lists stay still, and layouts keep their heights.
 

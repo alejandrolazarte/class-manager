@@ -43,7 +43,7 @@ import { TranslationKey, translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { useToast } from "@/ui/ToastProvider";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
@@ -289,7 +289,7 @@ export function ClassGroupFormScreen({ classGroupId, initialWeekday }: ClassGrou
   const instructorsQuery = useActiveInstructors();
   const classGroupsQuery = useClassGroupsIncludingInactive();
   if (instructorsQuery.isPending) {
-    return <LoadingScreen />;
+    return <SkeletonScreen />;
   }
   const instructors = instructorsQuery.data ?? [];
   if (classGroupId === undefined) {

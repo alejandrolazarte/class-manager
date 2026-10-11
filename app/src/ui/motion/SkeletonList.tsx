@@ -1,16 +1,5 @@
-import { useEffect } from "react";
 import { View } from "react-native";
-import {
-  cancelAnimation,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from "react-native-reanimated";
-import { translate } from "@/i18n/translate";
-import { AnimatedView } from "@/ui/motion/animatedComponents";
-import { motionDurations, motionEasing } from "@/ui/motion/motion";
-import { useReducedMotion } from "@/ui/motion/useReducedMotion";
+import { SkeletonFrame } from "@/ui/motion/SkeletonFrame";
 
 interface SkeletonListProps {
   rowCount?: number;
@@ -18,35 +7,10 @@ interface SkeletonListProps {
 }
 
 const defaultRowCount = 4;
-const dimmedOpacity = 0.45;
-const repeatForever = -1;
-const reverseEachCycle = true;
 
 export function SkeletonList({ rowCount = defaultRowCount, className }: SkeletonListProps) {
-  const isReducedMotion = useReducedMotion();
-  const opacity = useSharedValue(1);
-  useEffect(() => {
-    if (isReducedMotion) {
-      return;
-    }
-    opacity.set(
-      withRepeat(
-        withTiming(dimmedOpacity, { duration: motionDurations.progress, easing: motionEasing }),
-        repeatForever,
-        reverseEachCycle,
-      ),
-    );
-    return () => cancelAnimation(opacity);
-  }, [isReducedMotion, opacity]);
-  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.get() }));
   return (
-    <AnimatedView
-      accessible
-      accessibilityRole="progressbar"
-      accessibilityLabel={translate("common.loading")}
-      style={animatedStyle}
-      className={`gap-1 ${className ?? ""}`}
-    >
+    <SkeletonFrame className={`gap-1 ${className ?? ""}`}>
       {Array.from({ length: rowCount }, (_, rowIndex) => (
         <View
           key={rowIndex}
@@ -59,6 +23,6 @@ export function SkeletonList({ rowCount = defaultRowCount, className }: Skeleton
           </View>
         </View>
       ))}
-    </AnimatedView>
+    </SkeletonFrame>
   );
 }
