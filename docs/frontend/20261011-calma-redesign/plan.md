@@ -94,7 +94,10 @@ Colors do not change: the aqua tokens, the other built-in themes and the brand t
 
 Every email the app sends follows Calma too. They share one layout (`src/Notifications/Email/Templates/BrandedEmail.html` and the fragments in `BrandedEmailHtml`, see [Branded emails](../../backend/20261002-branded-emails/plan.md)), so the change happens there and every email takes it:
 
-- Arial (`Arial, Helvetica, sans-serif`), no web font: many email clients block web fonts and Gmail ignores them, and an email should not make external requests. The Calma feel comes from the rest.
+- Figtree, the app's font, with Arial as the fallback (`Figtree, Arial, Helvetica, sans-serif`). Apple Mail (iPhone and Mac), Samsung Mail, Thunderbird and Outlook for Mac show Figtree; Gmail, Outlook for Windows and Yahoo ignore web fonts and show Arial, which still looks right.
+- The font is served from our own web app, never from Google Fonts: a request to Google would tell it who opened the email and from which IP (European courts have fined sites for loading Google Fonts without consent). The `.woff2` files go in `app/public/fonts/` with a stable, versioned name (Figtree is under the SIL Open Font License, which allows it), and the email layout points `@font-face` at `WebApp:Url` plus that path, the same base URL email links already use.
+- Outlook for Windows can fall back to Times New Roman when it ignores a web font: the layout adds the usual `<!--[if mso]>` style that forces Arial for it.
+- The layout must look right in both fonts: email previews are captured with the web font and with it blocked.
 - Weight 600 instead of `bold`, lighter headings, the same type steps as the app.
 - Items and totals separated by 1 px lines instead of boxes; the note as a tonal block; button 12 px radius and 44 px high; header with the logo or initials kept.
 - Kept as they are: brand colors from `EmailPalette` (darkened until white text reads), logo as an inline attachment, plain-text alternative, link fallback under the button, HTML encoding, sender name, and every email type in the table of that plan.
@@ -121,7 +124,7 @@ Every email the app sends follows Calma too. They share one layout (`src/Notific
 
 Each step is its own PR, with its before/after screenshots.
 
-0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color) to HTML files, and a capture that screenshots them at phone and desktop width. Add knip and the unused translation keys test (rule 5), removing what they find unused today in its own commit. Create the screenshots artifact with the baseline of every screen and email. No visual change.
+0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color, with the web font and with it blocked) to HTML files, and a capture that screenshots them at phone and desktop width. Add knip and the unused translation keys test (rule 5), removing what they find unused today in its own commit. Create the screenshots artifact with the baseline of every screen and email. No visual change.
 1. **Base.** Figtree (`@expo-google-fonts/figtree`) and the new weights in `typography.ts` and `tailwind.config.js`, the smaller type scale, no card shadows (`elevation.ts`), flat `Card`, hairline `ListRow` and `ListDivider`, button, input, icon and tab bar sizes. Update [Theming](../theming.md) (visual language and type scale tables). This step alone changes every screen.
 2. **Motion primitives.** `src/ui/motion/` with the durations and easing constants, `useReducedMotion`, and the primitives in the table above, wired into the existing `src/ui` components. Tests prove each primitive renders its content with reduced motion on.
 3. **Team screens with their own layout.** Inicio (timeline, live strip, calendar), Asistencia (counts row, marks, panels), Clases, Alumnos, client card, Cobros (Cuotas and Pedidos), Registrar pago, Ajustes, sign-in and sign-up. New patterns go to `src/ui` first.
@@ -205,4 +208,4 @@ Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshot
 - 2026-10-11: before/after screenshots live in a private Claude artifact (a gallery per step), not in the repository, so it doesn't grow.
 - 2026-10-11: `knip` and an unused translation keys test are added in step 0, so unused code fails CI instead of depending on a manual search.
 - 2026-10-11: the student app is drawn in Calma and reviewed by the owner before it is built (step 4).
-- 2026-10-11: emails use Arial with the Calma styling, no web font.
+- 2026-10-11: emails use Figtree with Arial as the fallback, the font served from our own web app (not Google Fonts) and Arial forced for Outlook for Windows.
