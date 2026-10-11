@@ -14,7 +14,7 @@ public sealed class Then_classes_of_that_month_are_not_used
         builder.PayPerClassFrom(clientId, currentMonth);
         builder.PayFee(clientId, currentMonth);
         builder.ClientPurchases.Add(ClassPackPurchase.Sell(
-            clientId, builder.Pack, null, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
+            clientId, builder.Pack, null, TestData.CurrencyCode, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
         builder.Attend(clientId, currentMonth.FirstDay);
 
         var balances = await builder.BuildBalanceService().CalculateAsync([clientId], CancellationToken.None);

@@ -28,7 +28,7 @@ internal sealed class OrderNotificationService(
             return;
         }
 
-        var total = OrderEmails.Amount(order.Total, business.CurrencyCode);
+        var total = OrderEmails.Amount(order.Total, order.CurrencyCode);
         var delivery = order.HasProducts ? OrderEmails.DeliveryForBranch(await DeliveryClassNameAsync(order, cancellationToken)) : null;
         var staffUserIds = await StaffUserIdsAsync(business, cancellationToken);
         foreach (var email in await EmailsOfAsync(staffUserIds, cancellationToken))
@@ -111,8 +111,8 @@ internal sealed class OrderNotificationService(
             order.Number,
             business.Id,
             business.BrandDisplayName,
-            [.. order.Lines.Select(line => OrderEmails.Line(line.Quantity, line.Name, line.Total, business.CurrencyCode))],
-            OrderEmails.Amount(order.Total, business.CurrencyCode));
+            [.. order.Lines.Select(line => OrderEmails.Line(line.Quantity, line.Name, line.Total, order.CurrencyCode))],
+            OrderEmails.Amount(order.Total, order.CurrencyCode));
 
     private async Task PushReadyAsync(Order order, string whereToGetIt, CancellationToken cancellationToken)
     {

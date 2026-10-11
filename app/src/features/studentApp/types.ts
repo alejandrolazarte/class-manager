@@ -204,6 +204,7 @@ export interface StudentAppOrder {
   number: number;
   status: StudentAppOrderStatus;
   awaitsPickup: boolean;
+  currencyCode: string;
   total: number;
   refundedAmount: number;
   createdAt: string;

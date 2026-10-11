@@ -7,12 +7,13 @@ public static class SettingsRequests
     public const string MadridTimeZoneId = "Europe/Madrid";
     public const string EuroCurrencyCode = "EUR";
 
-    public static UpdateBusinessSettingsCommand SettingsOf(SeededBusiness business, string? timeZoneId = null, string? name = null) =>
+    public static UpdateBusinessSettingsCommand SettingsOf(
+        SeededBusiness business, string? timeZoneId = null, string? name = null, string? currencyCode = null) =>
         new(
             name ?? business.Business.Name,
             business.Business.CountryCode,
             timeZoneId ?? business.Business.TimeZoneId,
-            business.Business.CurrencyCode);
+            currencyCode ?? business.Business.CurrencyCode);
 
     public static UpdateBusinessSettingsCommand SpainSettingsOf(SeededBusiness business) =>
         new(business.Business.Name, ApiFixture.SpainCountryCode, MadridTimeZoneId, EuroCurrencyCode);

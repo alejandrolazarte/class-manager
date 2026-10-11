@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Pressable, View } from "react-native";
-import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
@@ -64,14 +63,13 @@ function OrderAction({ label, onPress, isLoading = false, isExpanded }: OrderAct
 }
 
 export function OrderCard({ order, canManage }: OrderCardProps) {
-  const currencyCode = useBusinessCurrency();
   const { showToast } = useToast();
   const markOrderDeliveredMutation = useMarkOrderDelivered();
   const markOrderReadyMutation = useMarkOrderReady();
   const [openPanel, setOpenPanel] = useState<OrderPanel | null>(null);
   const hasRefundableLines = refundableLinesOf(order).length > 0;
   const isSettled = order.status === "Paid" || order.status === "Delivered";
-  const money = (amount: number) => formatMoney(amount, currencyCode);
+  const money = (amount: number) => formatMoney(amount, order.currencyCode);
 
   const markDelivered = async () => {
     try {

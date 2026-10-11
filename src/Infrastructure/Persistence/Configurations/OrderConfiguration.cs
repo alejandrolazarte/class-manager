@@ -11,6 +11,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasKey(order => order.Id);
         builder.Property(order => order.Id).ValueGeneratedNever();
         builder.Property(order => order.Channel).HasConversion<string>().HasMaxLength(EnumMaxLength);
+        builder.Property(order => order.CurrencyCode).HasMaxLength(Business.CurrencyCodeLength).IsFixedLength().IsRequired();
         builder.Property(order => order.Status).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(order => order.Method).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(order => order.Delivery).HasConversion<string>().HasMaxLength(EnumMaxLength);

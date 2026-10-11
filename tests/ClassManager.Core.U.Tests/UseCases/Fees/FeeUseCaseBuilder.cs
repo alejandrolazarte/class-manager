@@ -6,6 +6,7 @@ using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Fees;
 using Microsoft.Extensions.Time.Testing;
 
@@ -50,7 +51,7 @@ internal sealed class FeeUseCaseBuilder
             .Setup(repository => repository.ListEnrolledInPeriodAsync(CurrentMonth.FirstDay, CurrentMonth.LastDay, It.IsAny<CancellationToken>()))
             .ReturnsAsync(EnrolledStudents);
         Payments
-            .Setup(repository => repository.SumByClientForMonthAsync(CurrentMonth.FirstDay, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.SumByClientForMonthAsync(CurrentMonth.FirstDay, TestData.CurrencyCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(PaidByClient);
         FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(DefaultFeeChanges);
         FeeSchedule
@@ -107,10 +108,19 @@ internal sealed class FeeUseCaseBuilder
             ClassBalances.Object,
             Clients.Object,
             BusinessCalendar.Object,
+            new BusinessCurrencyService(Businesses.Object),
             AccessScopes.Object);
 
     public RecordPaymentUseCase BuildRecord() =>
-        new(Clients.Object, Payments.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), AccessScopes.Object, CurrentMember.Object);
+        new(
+            Clients.Object,
+            Payments.Object,
+            UnitOfWork.Object,
+            BusinessCalendar.Object,
+            new BusinessCurrencyService(Businesses.Object),
+            new FakeTimeProvider(TestData.Now),
+            AccessScopes.Object,
+            CurrentMember.Object);
 
     public DeletePaymentUseCase BuildDelete() => new(Payments.Object, Clients.Object, UnitOfWork.Object, AccessScopes.Object, CurrentMember.Object);
 

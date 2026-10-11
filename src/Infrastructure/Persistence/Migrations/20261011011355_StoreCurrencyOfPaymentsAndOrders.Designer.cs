@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261011015312_AddCountries")]
-    partial class AddCountries
+    [Migration("20261011011355_StoreCurrencyOfPaymentsAndOrders")]
+    partial class StoreCurrencyOfPaymentsAndOrders
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,12 +129,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
-                    b.Property<string>("CountryCode")
-                        .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("nchar(2)")
-                        .IsFixedLength();
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -191,8 +185,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CountryCode");
 
                     b.HasIndex("OrganizationId");
 
@@ -485,6 +477,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nchar(3)")
+                        .IsFixedLength();
+
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("datetimeoffset");
 
@@ -706,149 +704,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("ClientInvitations");
                 });
 
-            modelBuilder.Entity("ClassManager.Core.Domain.Countries.Country", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasMaxLength(2)
-                        .HasColumnType("nchar(2)")
-                        .IsFixedLength();
-
-                    b.Property<string>("CallingCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("CurrencyCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nchar(3)")
-                        .IsFixedLength();
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OwnAccountMinimumAge")
-                        .HasColumnType("int");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Countries");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = "AR",
-                            CallingCode = "54",
-                            CurrencyCode = "ARS",
-                            DisplayOrder = 1,
-                            OwnAccountMinimumAge = 13
-                        },
-                        new
-                        {
-                            Code = "UY",
-                            CallingCode = "598",
-                            CurrencyCode = "UYU",
-                            DisplayOrder = 2,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "CL",
-                            CallingCode = "56",
-                            CurrencyCode = "CLP",
-                            DisplayOrder = 3,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "PY",
-                            CallingCode = "595",
-                            CurrencyCode = "PYG",
-                            DisplayOrder = 4,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "BO",
-                            CallingCode = "591",
-                            CurrencyCode = "BOB",
-                            DisplayOrder = 5,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "PE",
-                            CallingCode = "51",
-                            CurrencyCode = "PEN",
-                            DisplayOrder = 6,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "EC",
-                            CallingCode = "593",
-                            CurrencyCode = "USD",
-                            DisplayOrder = 7,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "CO",
-                            CallingCode = "57",
-                            CurrencyCode = "COP",
-                            DisplayOrder = 8,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "VE",
-                            CallingCode = "58",
-                            CurrencyCode = "VES",
-                            DisplayOrder = 9,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "PA",
-                            CallingCode = "507",
-                            CurrencyCode = "USD",
-                            DisplayOrder = 10,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "CR",
-                            CallingCode = "506",
-                            CurrencyCode = "CRC",
-                            DisplayOrder = 11,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "GT",
-                            CallingCode = "502",
-                            CurrencyCode = "GTQ",
-                            DisplayOrder = 12,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "MX",
-                            CallingCode = "52",
-                            CurrencyCode = "MXN",
-                            DisplayOrder = 13,
-                            OwnAccountMinimumAge = 16
-                        },
-                        new
-                        {
-                            Code = "ES",
-                            CallingCode = "34",
-                            CurrencyCode = "EUR",
-                            DisplayOrder = 14,
-                            OwnAccountMinimumAge = 14
-                        });
-                });
-
             modelBuilder.Entity("ClassManager.Core.Domain.Documents.Document", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1019,6 +874,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nchar(3)")
+                        .IsFixedLength();
 
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("datetimeoffset");
@@ -1235,6 +1096,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nchar(3)")
+                        .IsFixedLength();
 
                     b.Property<DateTimeOffset?>("DeliveredAt")
                         .HasColumnType("datetimeoffset");
@@ -2493,19 +2360,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.Business", b =>
                 {
-                    b.HasOne("ClassManager.Core.Domain.Countries.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("ClassManager.Core.Domain.Organizations.Organization", null)
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BusinessMember", b =>
@@ -2694,161 +2553,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Countries.Country", b =>
-                {
-                    b.OwnsMany("ClassManager.Core.Domain.Countries.CountryTimeZone", "TimeZones", b1 =>
-                        {
-                            b1.Property<string>("CountryCode")
-                                .HasMaxLength(2)
-                                .HasColumnType("nchar(2)")
-                                .IsFixedLength();
-
-                            b1.Property<string>("TimeZoneId")
-                                .HasMaxLength(64)
-                                .HasColumnType("nvarchar(64)");
-
-                            b1.Property<int>("DisplayOrder")
-                                .HasColumnType("int");
-
-                            b1.HasKey("CountryCode", "TimeZoneId");
-
-                            b1.ToTable("CountryTimeZones", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("CountryCode");
-
-                            b1.HasData(
-                                new
-                                {
-                                    CountryCode = "AR",
-                                    TimeZoneId = "America/Argentina/Buenos_Aires",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "UY",
-                                    TimeZoneId = "America/Montevideo",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "CL",
-                                    TimeZoneId = "America/Santiago",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "CL",
-                                    TimeZoneId = "Pacific/Easter",
-                                    DisplayOrder = 2
-                                },
-                                new
-                                {
-                                    CountryCode = "PY",
-                                    TimeZoneId = "America/Asuncion",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "BO",
-                                    TimeZoneId = "America/La_Paz",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "PE",
-                                    TimeZoneId = "America/Lima",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "EC",
-                                    TimeZoneId = "America/Guayaquil",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "EC",
-                                    TimeZoneId = "Pacific/Galapagos",
-                                    DisplayOrder = 2
-                                },
-                                new
-                                {
-                                    CountryCode = "CO",
-                                    TimeZoneId = "America/Bogota",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "VE",
-                                    TimeZoneId = "America/Caracas",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "PA",
-                                    TimeZoneId = "America/Panama",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "CR",
-                                    TimeZoneId = "America/Costa_Rica",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "GT",
-                                    TimeZoneId = "America/Guatemala",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "MX",
-                                    TimeZoneId = "America/Mexico_City",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "MX",
-                                    TimeZoneId = "America/Cancun",
-                                    DisplayOrder = 2
-                                },
-                                new
-                                {
-                                    CountryCode = "MX",
-                                    TimeZoneId = "America/Mazatlan",
-                                    DisplayOrder = 3
-                                },
-                                new
-                                {
-                                    CountryCode = "MX",
-                                    TimeZoneId = "America/Hermosillo",
-                                    DisplayOrder = 4
-                                },
-                                new
-                                {
-                                    CountryCode = "MX",
-                                    TimeZoneId = "America/Tijuana",
-                                    DisplayOrder = 5
-                                },
-                                new
-                                {
-                                    CountryCode = "ES",
-                                    TimeZoneId = "Europe/Madrid",
-                                    DisplayOrder = 1
-                                },
-                                new
-                                {
-                                    CountryCode = "ES",
-                                    TimeZoneId = "Atlantic/Canary",
-                                    DisplayOrder = 2
-                                });
-                        });
-
-                    b.Navigation("TimeZones");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Documents.Document", b =>

@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
@@ -24,6 +25,7 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IOrderRepository> Orders { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
+    public Mock<IBusinessCurrencyService> BusinessCurrency { get; } = new();
     public ClassPack Pack { get; } = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!;
     public List<ClassPackPurchase> ClientPurchases { get; } = [];
     public List<ClientAttendedClass> ClientAttendedClasses { get; } = [];
@@ -34,6 +36,7 @@ internal sealed class ClassPackUseCaseBuilder
     public ClassPackUseCaseBuilder()
     {
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
+        BusinessCurrency.Setup(currency => currency.CurrencyCodeAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.CurrencyCode);
         UnitOfWork
             .Setup(unitOfWork => unitOfWork.BeginTransactionAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Mock<IUnitOfWorkTransaction>().Object);
@@ -81,6 +84,7 @@ internal sealed class ClassPackUseCaseBuilder
             Orders.Object,
             UnitOfWork.Object,
             BusinessCalendar.Object,
+            BusinessCurrency.Object,
             new FakeTimeProvider(TestData.Now),
             new EveryAccessScopes(),
             new Mock<ICurrentMember>().Object);

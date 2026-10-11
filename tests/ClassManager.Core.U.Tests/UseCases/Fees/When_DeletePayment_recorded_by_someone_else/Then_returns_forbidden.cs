@@ -12,7 +12,7 @@ public sealed class Then_returns_forbidden
         var builder = new FeeUseCaseBuilder();
         var clientId = Guid.CreateVersion7();
         var payment = Payment.Create(
-            clientId, 12000m, builder.CurrentMonth, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now, Guid.CreateVersion7()).Value!;
+            clientId, 12000m, TestData.CurrencyCode, builder.CurrentMonth, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now, Guid.CreateVersion7()).Value!;
         builder.Payments.Setup(repository => repository.GetForUpdateAsync(payment.Id, It.IsAny<CancellationToken>())).ReturnsAsync(payment);
         builder.ActAsCollector(clientId);
 

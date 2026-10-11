@@ -38,6 +38,7 @@ public sealed class Order : ITenantOwned
     public int Number { get; private set; }
     public Guid? ClientId { get; private set; }
     public OrderChannel Channel { get; private set; }
+    public string CurrencyCode { get; private set; } = string.Empty;
     public OrderStatus Status { get; private set; }
     public PaymentMethod? Method { get; private set; }
     public DateOnly? PaidOn { get; private set; }
@@ -67,6 +68,7 @@ public sealed class Order : ITenantOwned
     public static Result<Order> CounterSale(
         Guid? clientId,
         IReadOnlyList<OrderLine> lines,
+        string currencyCode,
         PaymentMethod? method,
         DateOnly paidOn,
         string? notes,
@@ -75,7 +77,7 @@ public sealed class Order : ITenantOwned
         Guid? recordedByUserId,
         DateTimeOffset createdAt)
     {
-        var order = Create(clientId, OrderChannel.Counter, lines, notes, recordedByUserId, createdAt);
+        var order = Create(clientId, OrderChannel.Counter, lines, currencyCode, notes, recordedByUserId, createdAt);
         if (order.IsFailure)
         {
             return order;
@@ -95,8 +97,13 @@ public sealed class Order : ITenantOwned
         return order;
     }
 
-    public static Result<Order> Request(Guid clientId, IReadOnlyList<OrderLine> lines, Guid? requestedByUserId, DateTimeOffset createdAt) =>
-        Create(clientId, OrderChannel.App, lines, null, requestedByUserId, createdAt);
+    public static Result<Order> Request(
+        Guid clientId,
+        IReadOnlyList<OrderLine> lines,
+        string currencyCode,
+        Guid? requestedByUserId,
+        DateTimeOffset createdAt) =>
+        Create(clientId, OrderChannel.App, lines, currencyCode, null, requestedByUserId, createdAt);
 
     public void AssignNumber(int number)
     {
@@ -151,6 +158,7 @@ public sealed class Order : ITenantOwned
         Guid? clientId,
         OrderChannel channel,
         IReadOnlyList<OrderLine> lines,
+        string currencyCode,
         string? notes,
         Guid? createdByUserId,
         DateTimeOffset createdAt)
@@ -176,6 +184,7 @@ public sealed class Order : ITenantOwned
             Id = Guid.CreateVersion7(),
             ClientId = clientId,
             Channel = channel,
+            CurrencyCode = currencyCode,
             Status = OrderStatus.Requested,
             Notes = trimmedNotes,
             CreatedByUserId = createdByUserId,

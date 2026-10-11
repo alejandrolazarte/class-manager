@@ -7,7 +7,6 @@ import {
   isOrderOpen,
   matchesOrderFilter,
 } from "@/features/studentApp/studentAppOrderStage";
-import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { useStudentAppOrders } from "@/features/studentApp/useStudentAppShop";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate, TranslationKey } from "@/i18n/translate";
@@ -29,12 +28,10 @@ const filterLabels: Record<StudentAppOrderFilter, TranslationKey> = {
 export function StudentAppOrdersScreen() {
   const { data: orders = [], isPending, isError, refetch } = useStudentAppOrders();
   useRefetchOnFocus(refetch);
-  const { data: home, isPending: isHomePending } = useStudentAppHome();
   const [chosenFilter, setChosenFilter] = useState<StudentAppOrderFilter | null>(null);
 
   const filter = chosenFilter ?? (orders.some(isOrderOpen) ? "open" : "all");
   const visibleOrders = orders.filter((order) => matchesOrderFilter(order, filter));
-  const isLoading = isPending || isHomePending;
 
   return (
     <ScrollScreen
@@ -46,7 +43,7 @@ export function StudentAppOrdersScreen() {
         />
       }
     >
-      {isLoading ? <Spinner className="mt-6" /> : null}
+      {isPending ? <Spinner className="mt-6" /> : null}
       {isError ? (
         <Banner message={translate("student.loadError")}>
           <Button
@@ -57,7 +54,7 @@ export function StudentAppOrdersScreen() {
           />
         </Banner>
       ) : null}
-      {!isLoading && !isError && orders.length > 0 ? (
+      {!isPending && !isError && orders.length > 0 ? (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -79,7 +76,7 @@ export function StudentAppOrdersScreen() {
           ))}
         </ScrollView>
       ) : null}
-      {!isLoading && !isError && visibleOrders.length === 0 ? (
+      {!isPending && !isError && visibleOrders.length === 0 ? (
         <Card>
           <EmptyState
             icon="orders"
@@ -90,11 +87,9 @@ export function StudentAppOrdersScreen() {
           />
         </Card>
       ) : null}
-      {home === undefined
-        ? null
-        : visibleOrders.map((order) => (
-            <StudentAppOrderCard key={order.id} order={order} currencyCode={home.currencyCode} />
-          ))}
+      {visibleOrders.map((order) => (
+        <StudentAppOrderCard key={order.id} order={order} />
+      ))}
     </ScrollScreen>
   );
 }

@@ -14,7 +14,7 @@ public interface IPaymentRepository
 
     Task<IReadOnlyList<Payment>> ListByClientAsync(Guid clientId, int limit, CancellationToken cancellationToken);
 
-    Task<IReadOnlyDictionary<Guid, decimal>> SumByClientForMonthAsync(DateOnly monthFirstDay, CancellationToken cancellationToken);
+    Task<IReadOnlyDictionary<Guid, decimal>> SumByClientForMonthAsync(DateOnly monthFirstDay, string currencyCode, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClientPaidMonth>> ListPaidMonthsByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 }

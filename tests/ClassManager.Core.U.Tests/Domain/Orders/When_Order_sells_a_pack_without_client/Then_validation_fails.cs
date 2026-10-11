@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     public void Then_validation_fails_Run()
     {
         var order = Order.CounterSale(
-            null, [OrderTestData.PackLine()], PaymentMethod.Cash, TestData.Today, null, true, TestData.Today, null, TestData.Now);
+            null, [OrderTestData.PackLine()], TestData.CurrencyCode, PaymentMethod.Cash, TestData.Today, null, true, TestData.Today, null, TestData.Now);
 
         order.Error!.Code.ShouldBe(OrderErrorCodes.ClientRequired);
     }

@@ -16,6 +16,7 @@ const basePayment: Payment = {
   id: "payment-own",
   clientId: client.id,
   amount: 12000,
+  currencyCode: "ARS",
   month: "2026-09",
   paidOn: "2026-09-10",
   method: "Cash",
