@@ -19,7 +19,7 @@ import { Button } from "@/ui/Button";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { ScreenFooter, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
@@ -45,7 +45,7 @@ export function EditMyProfileScreen() {
           />
         </Banner>
       ) : (
-        <Spinner className="mt-6" />
+        <SkeletonDetail />
       )}
     </ScrollScreen>
   );

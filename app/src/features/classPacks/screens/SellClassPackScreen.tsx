@@ -30,7 +30,7 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { PickerField } from "@/ui/PickerField";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
@@ -97,7 +97,7 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
   });
 
   if (isPending) {
-    return <LoadingScreen />;
+    return <SkeletonScreen />;
   }
   if (classPacks.length === 0) {
     return (

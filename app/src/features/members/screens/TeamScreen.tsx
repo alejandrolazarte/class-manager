@@ -23,7 +23,7 @@ import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { TitleWithPills } from "@/ui/TitleWithPills";
@@ -168,7 +168,7 @@ export function TeamScreen() {
       {hasMemberPermission && isAtTeamLimit ? (
         <LockedFeatureNotice message={translate("subscriptions.locked.team")} />
       ) : null}
-      {teamQuery.isPending ? <Spinner className="mt-6" /> : null}
+      {teamQuery.isPending ? <SkeletonList /> : null}
       {teamQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button

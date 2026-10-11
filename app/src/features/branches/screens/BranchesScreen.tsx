@@ -17,6 +17,7 @@ import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { TitleWithPills } from "@/ui/TitleWithPills";
@@ -82,7 +83,7 @@ export function BranchesScreen() {
         <LockedFeatureNotice message={translate("subscriptions.locked.branches")} />
       ) : null}
       {hasSwitchFailed ? <Banner message={translate("branches.switchFailed")} /> : null}
-      {branchesQuery.isPending ? <Spinner className="mt-6" /> : null}
+      {branchesQuery.isPending ? <SkeletonList /> : null}
       {branchesQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button

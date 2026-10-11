@@ -16,7 +16,7 @@ import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { OptionCard } from "@/ui/OptionCard";
 import { ScreenFooter, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -148,7 +148,7 @@ function BillingPlanEditor({ client }: BillingPlanEditorProps) {
 export function ClientBillingPlanScreen({ clientId }: ClientBillingPlanScreenProps) {
   const { data: client } = useClient(clientId);
   if (client === undefined) {
-    return <LoadingScreen />;
+    return <SkeletonScreen />;
   }
   return <BillingPlanEditor client={client} />;
 }

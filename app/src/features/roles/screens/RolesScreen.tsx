@@ -16,7 +16,7 @@ import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
@@ -70,7 +70,7 @@ export function RolesScreen() {
       {!hasCustomRoles ? (
         <LockedFeatureNotice message={translate("subscriptions.locked.customRoles")} />
       ) : null}
-      {rolesQuery.isPending ? <Spinner className="mt-6" /> : null}
+      {rolesQuery.isPending ? <SkeletonList /> : null}
       {rolesQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button

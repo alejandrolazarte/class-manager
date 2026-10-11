@@ -47,7 +47,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { NumberStepper } from "@/ui/NumberStepper";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
@@ -388,7 +388,7 @@ export function PrivateLessonFormScreen({
   const canManageEveryLesson = useCan(permissions.privateLessonsManageAll);
   const { instructorId: ownInstructorId } = useCurrentMember();
   if (instructorsQuery.isPending) {
-    return <LoadingScreen />;
+    return <SkeletonScreen />;
   }
   const instructors = (instructorsQuery.data ?? []).filter(
     (instructor) => canManageEveryLesson || instructor.id === ownInstructorId,
