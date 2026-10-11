@@ -45,6 +45,10 @@ interface MarkButtonProps {
 }
 
 const swipeActivationDistance = 10;
+const rowTintClassNames: Record<AttendanceStatus, string> = {
+  Present: "bg-success-soft/50",
+  Absent: "bg-danger-soft/50",
+};
 const avatarTones: Record<AttendanceStatus | "Unmarked", AvatarTone> = {
   Present: "success",
   Absent: "danger",
@@ -68,12 +72,12 @@ function MarkButton({
       accessibilityState={{ selected: isSelected, disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={`h-11 w-11 items-center justify-center overflow-hidden rounded-full border-[1.5px] bg-transparent ${isSelected ? selectedBorderClassName : "border-border"} ${disabled ? "opacity-40" : ""}`}
+      className={`h-10 w-10 items-center justify-center overflow-hidden rounded-full border-[1.5px] bg-transparent ${isSelected ? selectedBorderClassName : "border-border"} ${disabled ? "opacity-40" : ""}`}
     >
       {isSelected ? (
         <Entrance kind="pop" className={`absolute inset-0 rounded-full ${selectedFillClassName}`} />
       ) : null}
-      <Icon name={icon} tone={isSelected ? selectedIconTone : "subtle-foreground"} />
+      <Icon name={icon} size="medium" tone={isSelected ? selectedIconTone : "subtle-foreground"} />
     </PressableScale>
   );
 }
@@ -136,8 +140,8 @@ export function AttendanceRow({
   });
 
   return (
-    <View className="overflow-hidden rounded-[18px] bg-muted">
-      <View className="absolute inset-0 flex-row items-center justify-between px-5">
+    <View className="-mx-2 overflow-hidden bg-muted">
+      <View className="absolute inset-0 flex-row items-center justify-between px-4">
         <Animated.View style={{ opacity: presentHintOpacity }}>
           <View className="flex-row items-center gap-1.5">
             <Icon name="present" tone="success" />
@@ -159,27 +163,38 @@ export function AttendanceRow({
         style={{ transform: [{ translateX: horizontalOffset }] }}
         {...panResponder.panHandlers}
       >
-        <View className="flex-row items-center gap-3 rounded-[18px] bg-surface py-3 pl-3.5 pr-3">
-          <Avatar name={student.studentFullName} tone={avatarTones[status ?? "Unmarked"]} />
+        <View className="flex-row items-center gap-2.5 border-b border-border-subtle bg-background px-2 py-2.5">
+          {status === null ? null : (
+            <Entrance
+              key={status}
+              kind="fade"
+              className={`absolute inset-0 ${rowTintClassNames[status]}`}
+            />
+          )}
+          <Avatar
+            name={student.studentFullName}
+            tone={avatarTones[status ?? "Unmarked"]}
+            size="small"
+          />
           <View className="min-w-0 flex-1 gap-0.5">
             <AppText variant="bodyStrong">{student.studentFullName}</AppText>
-            <AppText variant="caption" tone="subtle">
+            <AppText variant="footnote" tone="subtle">
               {isOwnClient
                 ? statusLabel
                 : `${statusLabel} · ${translate("students.list.responsible", { name: student.clientFullName })}`}
             </AppText>
             {student.absenceNotified ? (
-              <AppText variant="caption" tone="warning" className="font-label">
+              <AppText variant="badge" tone="warning">
                 {translate("sessions.attendance.absenceNotified")}
               </AppText>
             ) : null}
             {student.isMakeup ? (
-              <AppText variant="caption" tone="primary" className="font-label">
+              <AppText variant="badge" tone="primary">
                 {translate("sessions.attendance.makeup")}
               </AppText>
             ) : null}
             {student.isPackBooking ? (
-              <AppText variant="caption" tone="primary" className="font-label">
+              <AppText variant="badge" tone="primary">
                 {translate("sessions.attendance.packBooking")}
               </AppText>
             ) : null}

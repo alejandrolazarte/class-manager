@@ -1,4 +1,4 @@
-import { LayoutChangeEvent, Pressable, View } from "react-native";
+import { View } from "react-native";
 import {
   weekdayLongLabel,
   weekdayOf,
@@ -15,9 +15,9 @@ import {
 import { CalendarDay } from "@/features/sessions/types";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
-import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
+import { DayStrip } from "@/ui/DayStrip";
+import { MonthCalendar, MonthDayMarker } from "@/ui/MonthCalendar";
+import { StepArrow } from "@/ui/StepArrow";
 
 export type AgendaView = "day" | "month";
 
@@ -33,7 +33,6 @@ interface AgendaCalendarProps {
   onNext: () => void;
 }
 
-const daysPerWeek = 7;
 const labelSeparator = " · ";
 const shortMonthLength = 3;
 
@@ -68,65 +67,11 @@ function monthDayLabel(isoDate: string, calendarDay: CalendarDay | undefined): s
   return parts.join(labelSeparator);
 }
 
-interface DayCellProps {
-  isoDate: string;
-  accessibilityLabel: string;
-  isSelected: boolean;
-  isToday: boolean;
-  isOutside: boolean;
-  hasClasses: boolean;
-  hasPendingAttendance: boolean;
-  hasCancellation: boolean;
-  hasSlidingSelection: boolean;
-  onPress: () => void;
-  onLayout?: (event: LayoutChangeEvent) => void;
-}
-
-function DayCell({
-  isoDate,
-  accessibilityLabel,
-  isSelected,
-  isToday,
-  isOutside,
-  hasClasses,
-  hasPendingAttendance,
-  hasCancellation,
-  hasSlidingSelection,
-  onPress,
-  onLayout,
-}: DayCellProps) {
-  const backgroundClassName = isSelected
-    ? hasSlidingSelection
-      ? "bg-transparent"
-      : "bg-primary"
-    : hasCancellation
-      ? "bg-danger-soft"
-      : "bg-transparent";
-  const dotClassName = hasPendingAttendance
-    ? "bg-warning"
-    : hasClasses
-      ? isSelected
-        ? "bg-primary-foreground"
-        : "bg-primary"
-      : "bg-transparent";
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ selected: isSelected }}
-      onPress={onPress}
-      onLayout={onLayout}
-      className={`h-11 flex-1 items-center justify-center gap-[3px] rounded-xl border-[1.5px] ${isToday && !isSelected ? "border-primary" : "border-transparent"} ${backgroundClassName} ${isOutside ? "opacity-40" : ""}`}
-    >
-      <AppText
-        variant="bodyStrong"
-        tone={isSelected ? "onPrimary" : hasCancellation ? "dangerSoft" : "default"}
-      >
-        {dayOfMonth(isoDate)}
-      </AppText>
-      <View className={`h-1.5 w-1.5 rounded-full ${dotClassName}`} />
-    </Pressable>
-  );
+function markerOf(calendarDay: CalendarDay | undefined): MonthDayMarker {
+  if ((calendarDay?.pendingAttendanceCount ?? 0) > 0) {
+    return "pending";
+  }
+  return (calendarDay?.classCount ?? 0) > 0 ? "classes" : "none";
 }
 
 export function AgendaCalendar({
@@ -141,86 +86,62 @@ export function AgendaCalendar({
   onNext,
 }: AgendaCalendarProps) {
   const isMonth = view === "month";
-  const { layouts, onOptionLayout } = useOptionLayouts<string>();
   const calendarDays = new Map(monthDays.map((calendarDay) => [calendarDay.date, calendarDay]));
-  const dates = isMonth ? monthGridOf(month) : weekOf(selectedDate);
-  const weeks = Array.from({ length: dates.length / daysPerWeek }, (_, weekIndex) =>
-    dates.slice(weekIndex * daysPerWeek, (weekIndex + 1) * daysPerWeek),
-  );
-  const previousLabel = translate(
-    isMonth ? "sessions.calendar.previousMonth" : "sessions.calendar.previousWeek",
-  );
-  const nextLabel = translate(
-    isMonth ? "sessions.calendar.nextMonth" : "sessions.calendar.nextWeek",
-  );
+  const week = weekOf(selectedDate);
   return (
-    <Card className="gap-1 p-2">
-      <View className="h-9 flex-row items-center gap-1">
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={previousLabel}
-          onPress={onPrevious}
-          className="h-9 w-9 items-center justify-center rounded-full active:bg-muted"
-        >
-          <Icon name="previous" tone="primary" />
-        </Pressable>
-        <AppText variant="bodyStrong" tone="muted" className="flex-1 text-center">
-          {isMonth ? translate("sessions.calendar.pickDay") : weekRangeLabel(dates)}
-        </AppText>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={nextLabel}
-          onPress={onNext}
-          className="h-9 w-9 items-center justify-center rounded-full active:bg-muted"
-        >
-          <Icon name="next" tone="primary" />
-        </Pressable>
-      </View>
-      <View className="flex-row gap-1">
-        {weekOrder.map((weekday) => (
-          <AppText
-            key={weekday}
-            variant="footnote"
-            tone="subtle"
-            className="flex-1 pb-0.5 text-center font-label"
-          >
-            {weekdayShortLabel(weekday)}
-          </AppText>
-        ))}
-      </View>
-      {weeks.map((week) => (
-        <View key={week[0]} className="relative flex-row gap-1">
-          {isMonth ? null : (
-            <SlidingIndicator layout={layouts[selectedDate]} className="rounded-xl bg-primary" />
+    <View className="gap-1.5">
+      <View className="flex-row items-center gap-1">
+        <StepArrow
+          direction="previous"
+          label={translate(
+            isMonth ? "sessions.calendar.previousMonth" : "sessions.calendar.previousWeek",
           )}
-          {week.map((isoDate) => {
+          onPress={onPrevious}
+        />
+        <AppText variant="caption" tone="subtle" className="flex-1 text-center">
+          {isMonth ? translate("sessions.calendar.pickDay") : weekRangeLabel(week)}
+        </AppText>
+        <StepArrow
+          direction="next"
+          label={translate(isMonth ? "sessions.calendar.nextMonth" : "sessions.calendar.nextWeek")}
+          onPress={onNext}
+        />
+      </View>
+      {isMonth ? (
+        <MonthCalendar
+          weekdayLabels={weekOrder.map(weekdayShortLabel)}
+          days={monthGridOf(month).map((isoDate) => {
             const calendarDay = calendarDays.get(isoDate);
-            return (
-              <DayCell
-                key={isoDate}
-                isoDate={isoDate}
-                accessibilityLabel={
-                  isMonth
-                    ? monthDayLabel(isoDate, calendarDay)
-                    : translate("sessions.day.pickDay", {
-                        weekday: weekdayLongLabel(weekdayOf(parseIsoDate(isoDate))),
-                        day: dayOfMonth(isoDate),
-                      })
-                }
-                isSelected={isoDate === selectedDate}
-                isToday={isoDate === today}
-                isOutside={isMonth && monthOfDate(isoDate) !== month}
-                hasClasses={isMonth ? (calendarDay?.classCount ?? 0) > 0 : hasClassesOn(isoDate)}
-                hasPendingAttendance={isMonth && (calendarDay?.pendingAttendanceCount ?? 0) > 0}
-                hasCancellation={isMonth && (calendarDay?.cancelledCount ?? 0) > 0}
-                hasSlidingSelection={!isMonth}
-                onPress={() => onSelectDate(isoDate)}
-                onLayout={isMonth ? undefined : onOptionLayout(isoDate)}
-              />
-            );
+            return {
+              key: isoDate,
+              dayNumber: dayOfMonth(isoDate),
+              accessibilityLabel: monthDayLabel(isoDate, calendarDay),
+              isSelected: isoDate === selectedDate,
+              isToday: isoDate === today,
+              isOutside: monthOfDate(isoDate) !== month,
+              isCancelled: (calendarDay?.cancelledCount ?? 0) > 0,
+              marker: markerOf(calendarDay),
+            };
           })}
-        </View>
-      ))}
-    </Card>
+          onSelect={onSelectDate}
+        />
+      ) : (
+        <DayStrip
+          days={week.map((isoDate) => ({
+            key: isoDate,
+            label: weekdayShortLabel(weekdayOf(parseIsoDate(isoDate))),
+            accessibilityLabel: translate("sessions.day.pickDay", {
+              weekday: weekdayLongLabel(weekdayOf(parseIsoDate(isoDate))),
+              day: dayOfMonth(isoDate),
+            }),
+            dayNumber: dayOfMonth(isoDate),
+            hasClasses: hasClassesOn(isoDate),
+            isToday: isoDate === today,
+          }))}
+          selectedKeys={[selectedDate]}
+          onSelect={onSelectDate}
+        />
+      )}
+    </View>
   );
 }

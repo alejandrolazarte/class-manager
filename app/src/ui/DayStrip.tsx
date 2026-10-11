@@ -1,6 +1,5 @@
-import { Pressable, View } from "react-native";
+import { LayoutRectangle, Pressable, View } from "react-native";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 export interface DayStripDay {
@@ -19,60 +18,80 @@ interface DayStripProps {
   showsClassDots?: boolean;
 }
 
+const circleSize = 36;
+const labelRowHeight = 16;
+
+function circleLayoutOf(
+  cellLayout: LayoutRectangle | undefined,
+  hasDayNumbers: boolean,
+): LayoutRectangle | undefined {
+  if (cellLayout === undefined) {
+    return undefined;
+  }
+  return {
+    x: cellLayout.x + (cellLayout.width - circleSize) / 2,
+    y: cellLayout.y + (hasDayNumbers ? labelRowHeight : 0),
+    width: circleSize,
+    height: circleSize,
+  };
+}
+
 function dotClassName(hasClasses: boolean, isSelected: boolean): string {
   if (!hasClasses) {
     return "bg-transparent";
   }
-  return isSelected ? "bg-primary-foreground" : "bg-primary";
+  return isSelected ? "bg-primary" : "bg-subtle-foreground";
 }
 
 export function DayStrip({ days, selectedKeys, onSelect, showsClassDots = true }: DayStripProps) {
   const { layouts, onOptionLayout } = useOptionLayouts<string>();
   const slidingKey = selectedKeys.length === 1 ? selectedKeys[0] : undefined;
+  const hasDayNumbers = days.some((day) => day.dayNumber !== undefined);
   return (
-    <Card className="p-2">
-      <View className="relative flex-row gap-1">
-        <SlidingIndicator
-          layout={slidingKey === undefined ? undefined : layouts[slidingKey]}
-          className="rounded-[14px] bg-primary"
-        />
-        {days.map((day) => {
-          const isSelected = selectedKeys.includes(day.key);
-          const selectedBackground = slidingKey === undefined ? "bg-primary" : "";
-          const hasDayNumber = day.dayNumber !== undefined;
-          return (
-            <Pressable
-              key={day.key}
-              accessibilityRole="button"
-              accessibilityLabel={day.accessibilityLabel}
-              accessibilityState={{ selected: isSelected }}
-              onPress={() => onSelect(day.key)}
-              onLayout={onOptionLayout(day.key)}
-              className={`flex-1 items-center gap-[3px] rounded-[14px] py-2 ${isSelected ? selectedBackground : day.isToday ? "bg-muted" : "active:bg-muted"}`}
+    <View className="relative flex-row">
+      <SlidingIndicator
+        layout={
+          slidingKey === undefined ? undefined : circleLayoutOf(layouts[slidingKey], hasDayNumbers)
+        }
+        className="rounded-full bg-primary"
+      />
+      {days.map((day) => {
+        const isSelected = selectedKeys.includes(day.key);
+        const circleBackground = isSelected && slidingKey === undefined ? "bg-primary" : "";
+        const circleText = day.dayNumber === undefined ? day.label : String(day.dayNumber);
+        return (
+          <Pressable
+            key={day.key}
+            accessibilityRole="button"
+            accessibilityLabel={day.accessibilityLabel}
+            accessibilityState={{ selected: isSelected }}
+            onPress={() => onSelect(day.key)}
+            onLayout={onOptionLayout(day.key)}
+            className="flex-1 items-center"
+          >
+            {hasDayNumbers ? (
+              <AppText variant="tab" tone="subtle" className="h-4">
+                {day.label}
+              </AppText>
+            ) : null}
+            <View
+              className={`h-9 w-9 items-center justify-center rounded-full ${circleBackground}`}
             >
-              {hasDayNumber ? (
-                <>
-                  <AppText variant="label" tone={isSelected ? "onPrimary" : "subtle"}>
-                    {day.label}
-                  </AppText>
-                  <AppText variant="heading" tone={isSelected ? "onPrimary" : "default"}>
-                    {day.dayNumber}
-                  </AppText>
-                </>
-              ) : (
-                <AppText variant="heading" tone={isSelected ? "onPrimary" : "default"}>
-                  {day.label}
-                </AppText>
-              )}
-              {showsClassDots ? (
-                <View
-                  className={`h-1.5 w-1.5 rounded-full ${dotClassName(day.hasClasses ?? false, isSelected)}`}
-                />
-              ) : null}
-            </Pressable>
-          );
-        })}
-      </View>
-    </Card>
+              <AppText
+                variant={isSelected || day.isToday ? "bodyStrong" : "body"}
+                tone={isSelected ? "onPrimary" : day.isToday ? "primary" : "default"}
+              >
+                {circleText}
+              </AppText>
+            </View>
+            {showsClassDots ? (
+              <View
+                className={`mt-0.5 h-1 w-1 rounded-full ${dotClassName(day.hasClasses ?? false, isSelected)}`}
+              />
+            ) : null}
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }

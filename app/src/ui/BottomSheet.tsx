@@ -25,7 +25,7 @@ export function BottomSheet({ onClose, header, children }: BottomSheetProps) {
         <Entrance kind="slideUp" className="max-h-[92%] w-full max-w-2xl self-center">
           <SafeAreaView
             edges={["bottom"]}
-            className="w-full shrink overflow-hidden rounded-t-[28px] bg-background"
+            className="w-full shrink overflow-hidden rounded-t-[20px] bg-background"
           >
             {header}
             <ScrollView

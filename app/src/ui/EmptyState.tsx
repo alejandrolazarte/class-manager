@@ -2,7 +2,8 @@ import { View } from "react-native";
 import { translate } from "@/i18n/translate";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { AppText } from "@/ui/AppText";
-import { Icon, IconName } from "@/ui/Icon";
+import { IconName } from "@/ui/Icon";
+import { IconCircle } from "@/ui/IconCircle";
 
 interface EmptyStateProps {
   message: string;
@@ -14,17 +15,17 @@ interface EmptyStateProps {
 export function EmptyState({
   message,
   icon,
-  iconTone = "primary",
+  iconTone = "muted-foreground",
   createActionLabel,
 }: EmptyStateProps) {
   return (
-    <View className="items-center gap-3 px-5 py-9">
-      <Icon name={icon} size="huge" tone={iconTone} />
-      <AppText variant="bodyStrong" tone="muted" className="text-center font-label">
+    <View className="items-center gap-2 px-5 py-10">
+      <IconCircle icon={icon} tone={iconTone} />
+      <AppText variant="bodyStrong" className="text-center">
         {message}
       </AppText>
       {createActionLabel ? (
-        <AppText variant="body" tone="subtle" className="text-center">
+        <AppText variant="caption" tone="subtle" className="text-center">
           {translate("common.emptyStateHint", { action: createActionLabel })}
         </AppText>
       ) : null}

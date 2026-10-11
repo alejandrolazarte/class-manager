@@ -4,7 +4,7 @@ import { FlatList, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { ClassPackClientRow } from "@/features/fees/components/ClassPackClientRow";
 import { ClientFeeRow } from "@/features/fees/components/ClientFeeRow";
-import { MonthlySummaryCard } from "@/features/fees/components/MonthlySummaryCard";
+import { MonthlySummary } from "@/features/fees/components/MonthlySummary";
 import { formatMoney } from "@/features/fees/money";
 import { addMonths, formatMonth, monthOf } from "@/features/fees/months";
 import { ClientFee } from "@/features/fees/types";
@@ -63,7 +63,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
   }));
 
   const header = (
-    <View className="gap-4 pb-3">
+    <View className="gap-4 pb-1">
       <ScreenHeader
         eyebrow={translate(canViewEveryPayment ? "fees.month.title" : "fees.month.ownTitle")}
         title={formatMonth(month)}
@@ -95,7 +95,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
           </Banner>
         ) : null}
         {monthlyFees ? (
-          <MonthlySummaryCard
+          <MonthlySummary
             monthlyFees={monthlyFees}
             debtorCount={debtors.length}
             owedAmount={debtors.reduce((total, debtor) => total + debtor.balance, 0)}
@@ -124,7 +124,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
         keyExtractor={(clientFee) => clientFee.clientId}
         ListHeaderComponent={header}
         renderItem={({ item: clientFee, index }) => (
-          <AnimatedListItem index={index} className="px-5 pb-2.5">
+          <AnimatedListItem index={index} className="px-5">
             <ClientFeeRow
               clientFee={clientFee}
               onPress={() => router.push(routes.recordPayment("fees", clientFee.clientId, month))}
@@ -146,7 +146,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
         }
         ListFooterComponent={
           classPackClients.length > 0 ? (
-            <View className="gap-2.5 px-5 pt-4">
+            <View className="px-5 pt-5">
               <SectionTitle title={translate("fees.month.classPacksTitle")} isOverline />
               {classPackClients.map((classPackClient) => (
                 <ClassPackClientRow

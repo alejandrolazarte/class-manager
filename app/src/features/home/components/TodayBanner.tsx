@@ -1,11 +1,7 @@
-import { Pressable, View } from "react-native";
 import { startsInLabel, TodayHighlight } from "@/features/home/agenda";
 import { DaySession } from "@/features/sessions/types";
 import { translate } from "@/i18n/translate";
-import { AppText } from "@/ui/AppText";
-import { Icon } from "@/ui/Icon";
-import { useFloatingShadowStyle } from "@/ui/elevation";
-import { LivePulse } from "@/ui/motion/LivePulse";
+import { Highlight } from "@/ui/Highlight";
 
 interface TodayBannerProps {
   highlight: TodayHighlight;
@@ -14,40 +10,18 @@ interface TodayBannerProps {
   onOpen: (session: DaySession) => void;
 }
 
-const bannerClassName = "h-[72px] flex-row items-center gap-3 rounded-[20px] px-4";
-
 export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBannerProps) {
-  const floatingStyle = useFloatingShadowStyle();
-
   if (highlight.kind === "live") {
     const { session } = highlight;
     return (
-      <View style={floatingStyle} className={`${bannerClassName} bg-primary`}>
-        <LivePulse ringClassName="rounded-xl bg-primary-foreground/40">
-          <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground/20">
-            <Icon name="live" tone="primary-foreground" />
-          </View>
-        </LivePulse>
-        <View className="min-w-0 flex-1">
-          <AppText variant="overline" tone="onPrimary" className="opacity-85" numberOfLines={1}>
-            {translate("home.banner.live", { end: session.endTime })}
-          </AppText>
-          <AppText variant="bodyStrong" tone="onPrimary" numberOfLines={1}>
-            {titleOf(session)}
-          </AppText>
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={translate("home.banner.attendance")}
-          onPress={() => onOpen(session)}
-          className="h-9 flex-row items-center gap-1 rounded-xl bg-surface px-3 active:opacity-80"
-        >
-          <Icon name="attendance" size="medium" tone="primary-strong" />
-          <AppText variant="bodyStrong" tone="primary">
-            {translate("home.banner.attendance")}
-          </AppText>
-        </Pressable>
-      </View>
+      <Highlight
+        isLive
+        eyebrow={translate("home.banner.live", { end: session.endTime })}
+        title={titleOf(session)}
+        actionLabel={translate("home.banner.attendance")}
+        accessibilityLabel={translate("home.banner.attendance")}
+        onPress={() => onOpen(session)}
+      />
     );
   }
 
@@ -55,41 +29,22 @@ export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBanner
     const { session } = highlight;
     const label = `${session.startTime} · ${titleOf(session)}`;
     return (
-      <Pressable
-        accessibilityRole="button"
+      <Highlight
+        icon="schedule"
+        eyebrow={`${translate("home.banner.next")} · ${startsInLabel(session.startTime, timeNow)}`}
+        title={label}
         accessibilityLabel={`${translate("home.banner.next")}: ${label}`}
         onPress={() => onOpen(session)}
-        className={`${bannerClassName} bg-surface active:bg-muted`}
-      >
-        <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
-          <Icon name="schedule" tone="primary-soft-foreground" />
-        </View>
-        <View className="min-w-0 flex-1">
-          <AppText variant="overline" tone="subtle" numberOfLines={1}>
-            {`${translate("home.banner.next")} · ${startsInLabel(session.startTime, timeNow)}`}
-          </AppText>
-          <AppText variant="bodyStrong" numberOfLines={1}>
-            {label}
-          </AppText>
-        </View>
-        <Icon name="next" tone="subtle-foreground" />
-      </Pressable>
+      />
     );
   }
 
   return (
-    <View className={`${bannerClassName} bg-surface`}>
-      <View className="h-10 w-10 items-center justify-center rounded-xl bg-muted">
-        <Icon name="dayDone" tone="muted-foreground" />
-      </View>
-      <View className="min-w-0 flex-1">
-        <AppText variant="overline" tone="subtle">
-          {translate("home.banner.next")}
-        </AppText>
-        <AppText variant="bodyStrong" numberOfLines={1}>
-          {translate("home.banner.noneLeft")}
-        </AppText>
-      </View>
-    </View>
+    <Highlight
+      tone="muted"
+      icon="dayDone"
+      eyebrow={translate("home.banner.next")}
+      title={translate("home.banner.noneLeft")}
+    />
   );
 }

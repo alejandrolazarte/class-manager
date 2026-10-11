@@ -10,7 +10,8 @@ import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useO
 import { formatLongDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
+import { InsetPanel } from "@/ui/InsetPanel";
 import { Spinner } from "@/ui/Spinner";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
@@ -20,7 +21,7 @@ const isoDateLength = 10;
 
 type OrderPanel = "payment" | "refund";
 
-interface OrderCardProps {
+interface OrderRowProps {
   order: Order;
   canManage: boolean;
 }
@@ -53,17 +54,17 @@ function OrderAction({ label, onPress, isLoading = false, isExpanded }: OrderAct
       accessibilityState={{ busy: isLoading, expanded: isExpanded }}
       disabled={isLoading}
       onPress={onPress}
-      className="min-h-10 flex-row items-center gap-1.5 rounded-full px-2 active:bg-muted"
+      className="min-h-9 flex-row items-center gap-1.5 rounded-lg px-2 active:bg-muted"
     >
       {isLoading ? <Spinner tone="primary" /> : null}
-      <AppText variant="bodyStrong" tone="primary">
+      <AppText variant="link" tone="primary">
         {label}
       </AppText>
     </Pressable>
   );
 }
 
-export function OrderCard({ order, canManage }: OrderCardProps) {
+export function OrderRow({ order, canManage }: OrderRowProps) {
   const { showToast } = useToast();
   const markOrderDeliveredMutation = useMarkOrderDelivered();
   const markOrderReadyMutation = useMarkOrderReady();
@@ -102,14 +103,14 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
     .join(", ");
 
   return (
-    <Card className="gap-2 p-4" accessibilityLabel={orderClientLabel(order)}>
+    <HairlineRow className="gap-1 py-3">
       <View className="flex-row items-start justify-between gap-3">
         <AppText variant="bodyStrong" className="min-w-0 flex-1">
           {orderClientLabel(order)}
         </AppText>
         <AppText variant="bodyStrong">{money(order.total)}</AppText>
       </View>
-      <AppText variant="caption" tone="subtle">
+      <AppText variant="footnote" tone="subtle">
         {[
           translate("orders.number", { number: order.number }),
           formatLongDate(order.paidOn ?? order.createdAt.slice(0, isoDateLength)),
@@ -120,16 +121,16 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
           .join(" · ")}
       </AppText>
       {order.refundedAmount > 0 ? (
-        <AppText variant="caption" tone="subtle">
+        <AppText variant="footnote" tone="subtle">
           {translate("orders.refundedTotal", { amount: money(order.refundedAmount) })}
         </AppText>
       ) : null}
       {hasProducts && (order.awaitsPickup || order.status === "Requested") ? (
-        <AppText variant="caption" tone="subtle">
+        <AppText variant="footnote" tone="subtle">
           {deliveryLabel}
         </AppText>
       ) : null}
-      <View className="flex-row flex-wrap items-center justify-between gap-x-2 gap-y-1">
+      <View className="mt-1 flex-row flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <View className="flex-row flex-wrap items-center gap-1.5">
           <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
           {order.awaitsPickup && order.readyAt !== null ? (
@@ -169,14 +170,18 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
       </View>
       {canManage && order.status === "Requested" ? (
         <Collapsible isExpanded={openPanel === "payment"}>
-          <PaymentPanel order={order} />
+          <InsetPanel>
+            <PaymentPanel order={order} />
+          </InsetPanel>
         </Collapsible>
       ) : null}
       {canManage && isSettled && hasRefundableLines ? (
         <Collapsible isExpanded={openPanel === "refund"}>
-          <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
+          <InsetPanel>
+            <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
+          </InsetPanel>
         </Collapsible>
       ) : null}
-    </Card>
+    </HairlineRow>
   );
 }

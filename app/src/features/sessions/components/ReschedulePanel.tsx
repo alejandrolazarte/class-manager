@@ -82,12 +82,11 @@ export function ReschedulePanel({
         onPress={toggle}
       />
       <Collapsible isExpanded={isOpen}>
-        <View className="gap-2.5 px-4 pb-4">
+        <View className="gap-2.5 pb-3.5 pt-0.5">
           {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
           <TimeField
             label={translate("sessions.reschedule.startTime")}
             isRequired
-            fieldSurface="background"
             value={startTime}
             onChangeText={setStartTime}
           />
