@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react";
 import { Pressable, View } from "react-native";
-import { useElevationStyle } from "@/ui/elevation";
 
 interface CardProps extends PropsWithChildren {
   className?: string;
@@ -18,11 +17,10 @@ export function Card({
   testID,
   children,
 }: CardProps) {
-  const elevationStyle = useElevationStyle();
-  const classNames = `overflow-hidden rounded-[20px] bg-surface ${className ?? ""}`;
+  const classNames = `overflow-hidden rounded-[14px] border border-border-subtle bg-surface ${className ?? ""}`;
   if (onPress === undefined) {
     return (
-      <View style={elevationStyle} className={classNames} testID={testID}>
+      <View className={classNames} testID={testID}>
         {children}
       </View>
     );
@@ -34,7 +32,6 @@ export function Card({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={elevationStyle}
       className={`${classNames} active:opacity-80`}
       testID={testID}
     >

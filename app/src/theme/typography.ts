@@ -1,22 +1,22 @@
 import { iconFontAssets } from "@/ui/iconFont";
-import { Nunito_600SemiBold } from "@expo-google-fonts/nunito/600SemiBold";
-import { Nunito_700Bold } from "@expo-google-fonts/nunito/700Bold";
-import { Nunito_800ExtraBold } from "@expo-google-fonts/nunito/800ExtraBold";
-import { Nunito_900Black } from "@expo-google-fonts/nunito/900Black";
+import { Figtree_400Regular } from "@expo-google-fonts/figtree/400Regular";
+import { Figtree_500Medium } from "@expo-google-fonts/figtree/500Medium";
+import { Figtree_600SemiBold } from "@expo-google-fonts/figtree/600SemiBold";
+import { Figtree_700Bold } from "@expo-google-fonts/figtree/700Bold";
 
 export const fontFamilies = {
-  text: "Nunito_600SemiBold",
-  label: "Nunito_700Bold",
-  strong: "Nunito_800ExtraBold",
-  heavy: "Nunito_900Black",
+  text: "Figtree_400Regular",
+  label: "Figtree_500Medium",
+  strong: "Figtree_600SemiBold",
+  heavy: "Figtree_700Bold",
 } as const;
 
 export const fontAssets = {
   ...iconFontAssets,
-  [fontFamilies.text]: Nunito_600SemiBold,
-  [fontFamilies.label]: Nunito_700Bold,
-  [fontFamilies.strong]: Nunito_800ExtraBold,
-  [fontFamilies.heavy]: Nunito_900Black,
+  [fontFamilies.text]: Figtree_400Regular,
+  [fontFamilies.label]: Figtree_500Medium,
+  [fontFamilies.strong]: Figtree_600SemiBold,
+  [fontFamilies.heavy]: Figtree_700Bold,
 };
 
 export const typeScale = {
@@ -26,6 +26,6 @@ export const typeScale = {
   body: { fontSize: 15, lineHeight: 21 },
   large: { fontSize: 17, lineHeight: 22 },
   title: { fontSize: 20, lineHeight: 24 },
-  display: { fontSize: 26, lineHeight: 30 },
-  hero: { fontSize: 32, lineHeight: 36 },
+  display: { fontSize: 24, lineHeight: 30 },
+  hero: { fontSize: 28, lineHeight: 34 },
 } as const;

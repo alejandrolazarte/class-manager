@@ -26,7 +26,6 @@ import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { Spinner } from "@/ui/Spinner";
-import { useElevationStyle } from "@/ui/elevation";
 
 type ShopCategory = "all" | "packs" | "products";
 
@@ -51,12 +50,10 @@ function rowsOf(products: readonly StudentAppShopProduct[]): StudentAppShopProdu
 }
 
 function MyOrdersButton({ onPress }: { onPress: () => void }) {
-  const elevationStyle = useElevationStyle();
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={elevationStyle}
       className="h-10 flex-row items-center gap-1.5 rounded-full bg-surface px-3 active:bg-muted"
     >
       <Icon name="orders" size="medium" tone="primary" />

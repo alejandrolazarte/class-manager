@@ -15,6 +15,8 @@ interface ListRowProps {
   accessibilityLabel?: string;
 }
 
+const rowClassName = "min-h-[46px] flex-row items-center gap-3 px-4 py-3";
+
 export function ListRow({
   label,
   detail,
@@ -27,7 +29,7 @@ export function ListRow({
 }: ListRowProps) {
   const content = (
     <>
-      {icon ? <Icon name={icon} tone={iconTone} /> : null}
+      {icon ? <Icon name={icon} size="medium" tone={iconTone} /> : null}
       <View className="min-w-0 flex-1 gap-px">
         <AppText variant="bodyStrong">{label}</AppText>
         {detail ? (
@@ -40,13 +42,14 @@ export function ListRow({
         (onPress ? (
           <Icon
             name={isExpanded === undefined ? "next" : isExpanded ? "collapse" : "expand"}
+            size="medium"
             tone="subtle-foreground"
           />
         ) : null)}
     </>
   );
   if (onPress === undefined) {
-    return <View className="flex-row items-center gap-3.5 px-4 py-3.5">{content}</View>;
+    return <View className={rowClassName}>{content}</View>;
   }
   return (
     <Pressable
@@ -54,7 +57,7 @@ export function ListRow({
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={isExpanded === undefined ? undefined : { expanded: isExpanded }}
       onPress={onPress}
-      className="flex-row items-center gap-3.5 px-4 py-3.5 active:bg-muted"
+      className={`${rowClassName} active:bg-muted`}
     >
       {content}
     </Pressable>
@@ -62,5 +65,5 @@ export function ListRow({
 }
 
 export function ListDivider() {
-  return <View className="mx-4 h-px bg-border" />;
+  return <View className="mx-4 h-px bg-border-subtle" />;
 }

@@ -106,9 +106,7 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
         <AppText variant="bodyStrong" className="min-w-0 flex-1">
           {orderClientLabel(order)}
         </AppText>
-        <AppText variant="bodyStrong" className="font-heavy">
-          {money(order.total)}
-        </AppText>
+        <AppText variant="bodyStrong">{money(order.total)}</AppText>
       </View>
       <AppText variant="caption" tone="subtle">
         {[

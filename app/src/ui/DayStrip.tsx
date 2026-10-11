@@ -45,20 +45,12 @@ export function DayStrip({ days, selectedKeys, onSelect, showsClassDots = true }
                 <AppText variant="label" tone={isSelected ? "onPrimary" : "subtle"}>
                   {day.label}
                 </AppText>
-                <AppText
-                  variant="heading"
-                  tone={isSelected ? "onPrimary" : "default"}
-                  className="font-heavy"
-                >
+                <AppText variant="heading" tone={isSelected ? "onPrimary" : "default"}>
                   {day.dayNumber}
                 </AppText>
               </>
             ) : (
-              <AppText
-                variant="heading"
-                tone={isSelected ? "onPrimary" : "default"}
-                className="font-heavy"
-              >
+              <AppText variant="heading" tone={isSelected ? "onPrimary" : "default"}>
                 {day.label}
               </AppText>
             )}

@@ -63,7 +63,7 @@ export function Avatar({ name, tone = "primarySoft", size = "medium" }: AvatarPr
       accessibilityElementsHidden
       className={`items-center justify-center rounded-full ${sizeClassNames[size]} ${toneClassNames[tone]}`}
     >
-      <AppText variant={textVariants[size]} tone={textTones[tone]}>
+      <AppText variant={textVariants[size]} tone={textTones[tone]} className="font-heavy">
         {initialsOf(name)}
       </AppText>
     </View>

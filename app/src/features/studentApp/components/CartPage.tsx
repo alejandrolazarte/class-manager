@@ -108,9 +108,7 @@ function CartLine({ item, currencyCode, onChangeUnits }: CartLineProps) {
               {cartItemSubtitle(item, currencyCode)}
             </AppText>
           </View>
-          <AppText variant="bodyStrong" className="font-heavy">
-            {formatMoney(item.total, currencyCode)}
-          </AppText>
+          <AppText variant="bodyStrong">{formatMoney(item.total, currencyCode)}</AppText>
         </View>
         <View className="self-start rounded-xl border-[1.5px] border-border">
           <QuantityStepper

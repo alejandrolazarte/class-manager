@@ -46,38 +46,38 @@
                 ]
               },
               {
-                "fontFamily": "Nunito_600SemiBold",
+                "fontFamily": "Figtree_400Regular",
                 "fontDefinitions": [
                   {
-                    "path": "./node_modules/@expo-google-fonts/nunito/600SemiBold/Nunito_600SemiBold.ttf",
+                    "path": "./node_modules/@expo-google-fonts/figtree/400Regular/Figtree_400Regular.ttf",
+                    "weight": 400
+                  }
+                ]
+              },
+              {
+                "fontFamily": "Figtree_500Medium",
+                "fontDefinitions": [
+                  {
+                    "path": "./node_modules/@expo-google-fonts/figtree/500Medium/Figtree_500Medium.ttf",
+                    "weight": 500
+                  }
+                ]
+              },
+              {
+                "fontFamily": "Figtree_600SemiBold",
+                "fontDefinitions": [
+                  {
+                    "path": "./node_modules/@expo-google-fonts/figtree/600SemiBold/Figtree_600SemiBold.ttf",
                     "weight": 600
                   }
                 ]
               },
               {
-                "fontFamily": "Nunito_700Bold",
+                "fontFamily": "Figtree_700Bold",
                 "fontDefinitions": [
                   {
-                    "path": "./node_modules/@expo-google-fonts/nunito/700Bold/Nunito_700Bold.ttf",
+                    "path": "./node_modules/@expo-google-fonts/figtree/700Bold/Figtree_700Bold.ttf",
                     "weight": 700
-                  }
-                ]
-              },
-              {
-                "fontFamily": "Nunito_800ExtraBold",
-                "fontDefinitions": [
-                  {
-                    "path": "./node_modules/@expo-google-fonts/nunito/800ExtraBold/Nunito_800ExtraBold.ttf",
-                    "weight": 800
-                  }
-                ]
-              },
-              {
-                "fontFamily": "Nunito_900Black",
-                "fontDefinitions": [
-                  {
-                    "path": "./node_modules/@expo-google-fonts/nunito/900Black/Nunito_900Black.ttf",
-                    "weight": 900
                   }
                 ]
               }

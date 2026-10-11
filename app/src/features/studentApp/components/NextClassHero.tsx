@@ -12,7 +12,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
-import { useElevationStyle } from "@/ui/elevation";
+import { useFloatingShadowStyle } from "@/ui/elevation";
 
 interface NextClassHeroProps {
   student: AccountStudent;
@@ -20,7 +20,7 @@ interface NextClassHeroProps {
 }
 
 export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
-  const floatingStyle = useElevationStyle("floating");
+  const floatingStyle = useFloatingShadowStyle();
   const { toggleAbsence, isPending } = useAbsenceNotice();
   const nextClass = nextClassOf(student);
   if (nextClass === null) {

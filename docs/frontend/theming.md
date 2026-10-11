@@ -3,19 +3,22 @@
 The app supports several visual themes, each in light and dark, without touching screens. Styles are organized in four layers:
 
 1. **Palette** (`app/src/theme/palette.ts`) — raw colors. Only themes use it.
-2. **Semantic tokens** (`app/src/theme/themeColorTokens.ts`) — colors named by intent: `background`, `surface`, `foreground`, `muted-foreground`, `primary`, `primary-foreground`, `danger`, `success-foreground`, `warning-soft`, `inverse`, `shadow`, ... Every theme defines every token (enforced by the `ThemeColors` type).
-3. **Typography** (`app/src/theme/typography.ts`) — font roles (`text`, `label`, `strong`, `heavy`) mapped to font families (Nunito 600/700/800/900 today) and loaded in the root layout with `expo-font`.
+2. **Semantic tokens** (`app/src/theme/themeColorTokens.ts`) — colors named by intent: `background`, `surface`, `foreground`, `muted-foreground`, `primary`, `primary-foreground`, `danger`, `success-foreground`, `warning-soft`, `inverse`, ... Every theme defines every token (enforced by the `ThemeColors` type).
+3. **Typography** (`app/src/theme/typography.ts`) — font roles (`text`, `label`, `strong`, `heavy`) mapped to font families (Figtree 400/500/600/700) and loaded in the root layout with `expo-font`.
 4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `BrandMark`. Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes.
 
 ## Visual language
 
-The default theme, `aqua`, comes from the Claude Design handoff "Brazada App" (fresh, aquatic, rounded):
+The look is **Calma** ([redesign plan](20261011-calma-redesign/plan.md)) on the colors of the default theme, `aqua`, which come from the Claude Design handoff "Brazada App":
 
-- Light: pale water-blue background, white cards with a soft blue-tinted shadow, lagoon-blue primary. Dark: deep navy surfaces, cyan primary, no shadows.
-- Nunito for all text: 900 for screen titles and amounts, 800 for names and buttons, 700 for labels, 600 for body copy.
-- Material Icons (`@expo/vector-icons/MaterialIcons`) behind semantic names.
-- Large radii: 16px inputs and buttons, 18–20px cards, 24px highlight cards, pills for chips and status.
-- Screens have their own header (`ScreenHeader`): optional back / close button, a small primary "eyebrow", a 26px title (`display`) and an optional subtitle. Native stack headers are hidden; the `Stack.Screen` titles stay for the web document title.
+- Light: pale water-blue background, white surfaces, lagoon-blue primary. Dark: deep navy surfaces, cyan primary.
+- Figtree for all text: 600 for screen titles, amounts, names and buttons, 500 for labels and the tab bar, 400 for body copy and typed text, 700 only for initials and the numbers in badges.
+- No shadows on cards: a `Card` is flat, with a 1px `border-subtle` line. Only floating elements (the floating button, the cart bar, the brand mark, the live class banner) keep a shadow. `ListRow`s are separated by 1px `ListDivider` lines in `border-subtle`.
+- Material Icons (`@expo/vector-icons/MaterialIcons`) behind semantic names, 20–22px in rows, buttons and the tab bar.
+- Radii: 10px inputs, 12px buttons, 14px cards, pills for chips, status and the floating button.
+- Sizes: buttons 48px (`large`) and 44px (`medium`), inputs 46px, icon buttons 44px (40px outlined), floating button 48px.
+- Tab bar: the active tab takes the primary color and a small dot under its icon; the badge stays red.
+- Screens have their own header (`ScreenHeader`): optional back / close button, a small primary "eyebrow", a 24px title (`display`) and an optional subtitle. Native stack headers are hidden; the `Stack.Screen` titles stay for the web document title.
 
 The design's oklch colors were converted to hex. A few light-mode values were darkened slightly so every text pair reaches WCAG AA (4.5:1).
 
@@ -26,7 +29,7 @@ The design's oklch colors were converted to hex. A few light-mode values were da
 - `tailwind.config.js` maps each token to `rgb(var(--color-<token>) / <alpha-value>)` (`bg-surface`, `text-muted-foreground`, `bg-primary/20`) and each font role to a family (`font-strong`, `font-heavy`).
 - `accent*` tokens are for small highlights (the eyebrow above titles, chips), never for buttons. Built-in themes set them to their `primary*` values.
 - `useTheme()` exposes `colors` (hex values for props that are not classes: `placeholderTextColor`, icon colors, shadows), `colorScheme`, `colorSchemePreference`, `themeName` (`business` when the business theme applies), `setBrandTheme` and `setColorSchemePreference`.
-- `useElevationStyle()` (`src/ui/elevation.ts`) builds card and floating shadows from the `shadow` / `primary` tokens and drops card shadows in dark mode.
+- `useFloatingShadowStyle()` (`src/ui/elevation.ts`) builds the shadow of floating elements from the `primary` token. Cards have no shadow.
 - `PersistedThemePreferences` (root layout) restores and saves the color scheme (`expo-secure-store` on native, `localStorage` on web); a theme name stored by older versions is ignored. **Ajustes → Apariencia** only offers Automático / Claro / Oscuro: the colors are the business's ([branding and plans](../branding-and-plans.md)).
 
 ## Typography
@@ -35,14 +38,14 @@ Every text size comes from one type scale, `typeScale` in `typography.ts`. Each 
 
 | Step | Size / line height | Variants |
 |---|---|---|
-| `hero` | 32 / 36 | `hero`, `amount` |
-| `display` | 26 / 30 | `display` |
+| `hero` | 28 / 34 | `hero`, `amount` |
+| `display` | 24 / 30 | `display` |
 | `title` | 20 / 24 | `headline` |
-| `large` | 17 / 22 | `heading`, `lead`, `button`, `input` |
-| `body` | 15 / 21 | `body`, `bodyStrong` |
+| `large` | 17 / 22 | `heading`, `lead` |
+| `body` | 15 / 21 | `body`, `bodyStrong`, `button`, `input` |
 | `caption` | 13 / 17 | `link`, `eyebrow`, `label`, `caption` |
 | `small` | 12 / 16 | `footnote`, `badge`, `overline` |
-| `micro` | 11 / 14 | `counter` (numbers in small badges) |
+| `micro` | 11 / 14 | `counter` (numbers in small badges), `tab` (tab bar labels in the brand preview; the tab bar itself reads `typeScale`) |
 
 Steps are at least 2px apart from `caption` up: two texts that differ by one pixel don't read as a hierarchy, they look like a mistake. `small` and `micro` only go in compact spots (badges, footnotes) where the next step does not fit.
 
@@ -50,12 +53,12 @@ Steps are at least 2px apart from `caption` up: two texts that differ by one pix
 
 `AppText` replaces `Text`. It takes:
 
-- `variant` — font role, size step and tracking: `hero`, `amount`, `display`, `headline`, `heading`, `lead`, `button`, `input`, `body`, `bodyStrong`, `link`, `eyebrow`, `label`, `caption`, `footnote`, `badge`, `overline`, `counter`.
+- `variant` — font role, size step and tracking: `hero`, `amount`, `display`, `headline`, `heading`, `lead`, `button`, `input`, `body`, `bodyStrong`, `link`, `eyebrow`, `label`, `caption`, `footnote`, `badge`, `overline`, `counter`, `tab`.
 - `tone` — theme color: `default`, `muted`, `subtle`, `disabled`, `primary`, `primarySoft`, `onPrimary`, `danger`, `warning`, `success`, `onSuccess`, `inverse`, ...
 
 Text inputs use the same variants through `textVariantClassNames` (`input` for `TextField`, `SearchInput` and `NumberStepper`, `amount` for `AmountField`), so typed text matches across forms. Styles that are not classes (the tab bar) read `typeScale` directly.
 
-The same element always uses the same variant: row and card names `bodyStrong`, the line under them `caption`, the identity card at the top of Ajustes or an account `heading`, sheet titles and totals `headline`. Screens may change the weight (`font-heavy`) or the color, never the size: when a new size is really needed, add a variant to `AppText`.
+The same element always uses the same variant: row and card names `bodyStrong`, the line under them `caption`, the identity card at the top of Ajustes or an account `heading`, sheet titles and totals `headline`. Screens may change the color, never the size or the weight: when a new size is really needed, add a variant to `AppText`. `font-heavy` (700) is only for initials (`Avatar`) and badge numbers (`counter`).
 
 To change fonts, update the families and assets in `typography.ts` and the `fontFamilies` list in `tailwind.config.js`; `When_tailwind_config_is_loaded` fails until both match.
 

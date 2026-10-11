@@ -71,9 +71,7 @@ export function CounterSaleItemRow({
             </AppText>
           </View>
           {showsLineTotal ? (
-            <AppText variant="bodyStrong" className="font-heavy">
-              {formatMoney(item.price * units, currencyCode)}
-            </AppText>
+            <AppText variant="bodyStrong">{formatMoney(item.price * units, currencyCode)}</AppText>
           ) : null}
         </View>
         {showsLineTotal && units > 0 ? stepper : null}
