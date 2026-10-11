@@ -5,7 +5,7 @@ The app supports several visual themes, each in light and dark, without touching
 1. **Palette** (`app/src/theme/palette.ts`) — raw colors. Only themes use it.
 2. **Semantic tokens** (`app/src/theme/themeColorTokens.ts`) — colors named by intent: `background`, `surface`, `foreground`, `muted-foreground`, `primary`, `primary-foreground`, `danger`, `success-foreground`, `warning-soft`, `inverse`, ... Every theme defines every token (enforced by the `ThemeColors` type).
 3. **Typography** (`app/src/theme/typography.ts`) — font roles (`text`, `label`, `strong`, `heavy`) mapped to font families (Figtree 400/500/600/700) and loaded in the root layout with `expo-font`.
-4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `BrandMark`. Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes.
+4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `ChipGroup`, `BrandMark`, and the motion primitives in `app/src/ui/motion/` ([Motion](#motion)). Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes, and never animate on their own.
 
 ## Visual language
 
@@ -61,6 +61,29 @@ Text inputs use the same variants through `textVariantClassNames` (`input` for `
 The same element always uses the same variant: row and card names `bodyStrong`, the line under them `caption`, the identity card at the top of Ajustes or an account `heading`, sheet titles and totals `headline`. Screens may change the color, never the size or the weight: when a new size is really needed, add a variant to `AppText`. `font-heavy` (700) is only for initials (`Avatar`) and badge numbers (`counter`).
 
 To change fonts, update the families and assets in `typography.ts` and the `fontFamilies` list in `tailwind.config.js`; `When_tailwind_config_is_loaded` fails until both match.
+
+## Motion
+
+Animations are short and live only in `app/src/ui/motion/`, built on Reanimated. Screens ask for a primitive; they never call `withTiming` or `withSpring` themselves.
+
+- `motion.ts` holds every duration (140 ms for a press up to 380 ms for a list row, 800 ms for progress bars, 1.8 s for the live pulse), the one easing curve (`cubic-bezier(.2,.8,.2,1)`) and the soft spring used for toasts and selected marks.
+- `useReducedMotion` wraps Reanimated's hook. With the device's "Reduce motion" on, every primitive shows its content in its final state, without movement; tests mock it to prove that.
+- Primitives and where they are used:
+
+| Primitive | What it does | Used by |
+|---|---|---|
+| `PressableScale` | Scales to 0.97 while pressed | `Button`, `ListRow`, `Card`, `Chip`, `FloatingActionButton`, attendance marks |
+| `AnimatedListItem` | Fades in and rises 8 px, 45 ms apart, only the first 8 rows | Inicio, Clases, Alumnos, Cuotas, Pedidos, settings lists, avisos, Mis pedidos |
+| `SlidingIndicator` + `useOptionLayouts` | Moves the selected background or line between options | `SegmentedControl`, `Tabs`, `DayStrip`, `ChipGroup`, the Inicio week strip |
+| `GrowingFill` | Grows a bar to its value | `ProgressBar`, `StepProgress` |
+| `LivePulse` | A ring that pulses in a loop | The live class banner in Inicio (the only looping animation) |
+| `Entrance` | Fade, scale from 0.96, slide up, spring rise or pop when a view appears | `ConfirmDialog`, `BottomSheet`, `ToastProvider`, the tab bar dot, attendance marks |
+| `Collapsible` | Opens and closes a panel by height; closing content is hidden from screen readers at once | Asistencia panels, private lesson cancel, order payment and refund |
+| `SkeletonList` | Placeholder rows that breathe while a list loads, announced as "Cargando…" | List screens instead of a spinner |
+
+Stack screens slide in from the right on native (`useStackScreenOptions`, none with reduced motion). Nothing animates while the user reads: numbers in lists stay still, and layouts keep their heights.
+
+`className` works on the animated components through `cssInterop` (`animatedComponents.ts`). Shared values are read and written with `.get()` and `.set()`, as the React Compiler lint requires. Jest resolves `react-native-worklets` with its own resolver (`jest.config.js`).
 
 ## Icons
 

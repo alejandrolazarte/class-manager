@@ -1,4 +1,5 @@
 import { View } from "react-native";
+import { GrowingFill } from "@/ui/motion/GrowingFill";
 
 type ProgressTone = "primary" | "success" | "onPrimary";
 
@@ -30,10 +31,7 @@ export function ProgressBar({ ratio, tone = "primary", isThin = false }: Progres
       accessibilityValue={{ min: 0, max: fullPercentage, now: percentage }}
       className={`flex-1 overflow-hidden rounded-full ${isThin ? "h-1.5" : "h-2"} ${trackClassNames[tone]}`}
     >
-      <View
-        style={{ width: `${percentage}%` }}
-        className={`h-full rounded-full ${fillClassNames[tone]}`}
-      />
+      <GrowingFill ratio={ratio} className={`rounded-full ${fillClassNames[tone]}`} />
     </View>
   );
 }

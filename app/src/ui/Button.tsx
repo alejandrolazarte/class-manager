@@ -1,7 +1,7 @@
-import { Pressable } from "react-native";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { Spinner } from "@/ui/Spinner";
 
 type ButtonVariant =
@@ -88,7 +88,7 @@ export function Button({
     ? "disabled-foreground"
     : contentColorTokens[variant];
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       testID={testID}
@@ -106,6 +106,6 @@ export function Button({
         {label}
       </AppText>
       {trailingIcon ? <Icon name={trailingIcon} size="medium" tone={contentColorToken} /> : null}
-    </Pressable>
+    </PressableScale>
   );
 }

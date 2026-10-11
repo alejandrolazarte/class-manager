@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 import { translate } from "@/i18n/translate";
+import { useStackScreenOptions } from "@/navigation/stackScreenOptions";
 
 export const unstable_settings = { initialRouteName: "index" };
 
 export default function StudentsLayout() {
+  const stackScreenOptions = useStackScreenOptions();
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={stackScreenOptions}>
       <Stack.Screen name="index" options={{ title: translate("students.list.title") }} />
       <Stack.Screen name="new" options={{ title: translate("clients.register.title") }} />
       <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />

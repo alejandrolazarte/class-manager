@@ -8,7 +8,8 @@ import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { IconName } from "@/ui/Icon";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 interface SettingsListScreenLayoutProps<TItem> {
   title: string;
@@ -64,12 +65,16 @@ export function SettingsListScreenLayout<TItem>({
         ) : null}
       </View>
       {isPending ? (
-        <Spinner className="mt-6" />
+        <SkeletonList className="px-5" />
       ) : (
         <FlatList
           data={items}
           keyExtractor={keyExtractor}
-          renderItem={({ item }) => <View className="px-5 pb-3.5">{renderItem(item)}</View>}
+          renderItem={({ item, index }) => (
+            <AnimatedListItem index={index} className="px-5 pb-3.5">
+              {renderItem(item)}
+            </AnimatedListItem>
+          )}
           ListEmptyComponent={
             isError ? null : (
               <EmptyState

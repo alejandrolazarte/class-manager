@@ -5,6 +5,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
 import { useFloatingShadowStyle } from "@/ui/elevation";
+import { LivePulse } from "@/ui/motion/LivePulse";
 
 interface TodayBannerProps {
   highlight: TodayHighlight;
@@ -22,9 +23,11 @@ export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBanner
     const { session } = highlight;
     return (
       <View style={floatingStyle} className={`${bannerClassName} bg-primary`}>
-        <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground/20">
-          <Icon name="live" tone="primary-foreground" />
-        </View>
+        <LivePulse ringClassName="rounded-xl bg-primary-foreground/40">
+          <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground/20">
+            <Icon name="live" tone="primary-foreground" />
+          </View>
+        </LivePulse>
         <View className="min-w-0 flex-1">
           <AppText variant="overline" tone="onPrimary" className="opacity-85" numberOfLines={1}>
             {translate("home.banner.live", { end: session.endTime })}

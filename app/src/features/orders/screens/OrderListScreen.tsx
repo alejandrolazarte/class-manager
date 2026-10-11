@@ -1,6 +1,5 @@
 import { useRouter } from "expo-router";
 import { ReactNode, useState } from "react";
-import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
 import { monthOf } from "@/features/fees/months";
@@ -16,11 +15,12 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Chip } from "@/ui/Chip";
+import { ChipGroup } from "@/ui/ChipGroup";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
-import { Spinner } from "@/ui/Spinner";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 interface OrderListScreenProps {
   viewSwitcher?: ReactNode;
@@ -69,17 +69,15 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
       {canManageOrders && !isInCollections ? (
         <Button icon="add" label={translate("orders.counterSale.open")} onPress={openCounterSale} />
       ) : null}
-      <View className="flex-row flex-wrap gap-2">
-        {orderFilters.map((orderFilter) => (
-          <Chip
-            key={orderFilter}
-            label={translate(`orders.filter.${orderFilter}` as TranslationKey)}
-            isSelected={filter === orderFilter}
-            onPress={() => setFilter(orderFilter)}
-          />
-        ))}
-      </View>
-      {isPending ? <Spinner /> : null}
+      <ChipGroup
+        options={orderFilters.map((orderFilter) => ({
+          value: orderFilter,
+          label: translate(`orders.filter.${orderFilter}` as TranslationKey),
+        }))}
+        selectedValue={filter}
+        onChange={setFilter}
+      />
+      {isPending ? <SkeletonList /> : null}
       {isError ? (
         <Banner tone="error" message={translate("orders.loadError")}>
           <Button variant="secondary" label={translate("common.retry")} onPress={() => refetch()} />
@@ -90,8 +88,10 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
           {translate(`orders.emptyFilter.${filter}` as TranslationKey)}
         </AppText>
       ) : null}
-      {orders.map((order) => (
-        <OrderCard key={order.id} order={order} canManage={canManageOrders} />
+      {orders.map((order, index) => (
+        <AnimatedListItem key={order.id} index={index}>
+          <OrderCard order={order} canManage={canManageOrders} />
+        </AnimatedListItem>
       ))}
     </ScrollScreen>
   );

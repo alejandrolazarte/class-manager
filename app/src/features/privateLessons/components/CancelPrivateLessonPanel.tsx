@@ -7,6 +7,7 @@ import { Button } from "@/ui/Button";
 import { ListRow } from "@/ui/ListRow";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { Collapsible } from "@/ui/motion/Collapsible";
 
 interface CancelPrivateLessonPanelProps {
   privateLessonId: string;
@@ -41,7 +42,7 @@ export function CancelPrivateLessonPanel({ privateLessonId }: CancelPrivateLesso
         isExpanded={isOpen}
         onPress={() => setIsOpen(!isOpen)}
       />
-      {isOpen ? (
+      <Collapsible isExpanded={isOpen}>
         <View className="gap-2.5 px-4 pb-4">
           {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
           <TextField
@@ -59,7 +60,7 @@ export function CancelPrivateLessonPanel({ privateLessonId }: CancelPrivateLesso
             isLoading={cancelMutation.isPending}
           />
         </View>
-      ) : null}
+      </Collapsible>
     </View>
   );
 }

@@ -23,7 +23,7 @@ import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 export function StudentAppNewsScreen() {
   const router = useRouter();
@@ -61,7 +61,7 @@ export function StudentAppNewsScreen() {
     <ScrollScreen
       header={<ScreenHeader navigation="back" title={translate("student.news.title")} />}
     >
-      {isPending ? <Spinner className="mt-6" /> : null}
+      {isPending ? <SkeletonList /> : null}
       {isError ? (
         <Banner message={translate("student.loadError")}>
           <Button

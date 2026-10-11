@@ -1,6 +1,7 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
+import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 export interface TabOption<TValue extends string> {
   value: TValue;
@@ -8,6 +9,8 @@ export interface TabOption<TValue extends string> {
   icon?: IconName;
   accessibilityLabel?: string;
 }
+
+const selectedTabLineHeight = 3;
 
 interface TabsProps<TValue extends string> {
   options: readonly TabOption<TValue>[];
@@ -20,8 +23,10 @@ export function Tabs<TValue extends string>({
   selectedValue,
   onChange,
 }: TabsProps<TValue>) {
+  const { layouts, onOptionLayout } = useOptionLayouts<TValue>();
+  const selectedLayout = layouts[selectedValue];
   return (
-    <View accessibilityRole="tablist" className="flex-row border-b border-border">
+    <View accessibilityRole="tablist" className="relative flex-row border-b border-border">
       {options.map((option) => {
         const isSelected = option.value === selectedValue;
         return (
@@ -31,7 +36,8 @@ export function Tabs<TValue extends string>({
             accessibilityLabel={option.accessibilityLabel ?? option.label}
             accessibilityState={{ selected: isSelected }}
             onPress={() => onChange(option.value)}
-            className={`-mb-px h-12 flex-1 flex-row items-center justify-center gap-1.5 border-b-[3px] px-2 ${isSelected ? "border-primary" : "border-transparent active:bg-muted"}`}
+            onLayout={onOptionLayout(option.value)}
+            className={`h-12 flex-1 flex-row items-center justify-center gap-1.5 px-2 ${isSelected ? "" : "active:bg-muted"}`}
           >
             {option.icon ? (
               <Icon
@@ -46,6 +52,16 @@ export function Tabs<TValue extends string>({
           </Pressable>
         );
       })}
+      <SlidingIndicator
+        layout={
+          selectedLayout && {
+            ...selectedLayout,
+            y: selectedLayout.y + selectedLayout.height - selectedTabLineHeight,
+            height: selectedTabLineHeight,
+          }
+        }
+        className="rounded-full bg-primary"
+      />
     </View>
   );
 }
