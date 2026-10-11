@@ -12,6 +12,8 @@ import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateF
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import { isEmailOfAnotherPerson, normalizeStudentName } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
+import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { subscriptionErrorCodes } from "@/features/subscriptions/subscriptionCodes";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { TranslationKey, translate } from "@/i18n/translate";
@@ -86,6 +88,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const [hasFailed, setHasFailed] = useState(false);
   const [isMissingGuardianEmail, setIsMissingGuardianEmail] = useState(false);
   const [isMinorContact, setIsMinorContact] = useState(false);
+  const [isNotInPlan, setIsNotInPlan] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
   const askAgain = (emailMessage: string | undefined, birthDateMessage: string | undefined) => {
@@ -98,6 +101,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     setHasFailed(false);
     setIsMissingGuardianEmail(false);
     setIsMinorContact(false);
+    setIsNotInPlan(false);
     const emailMessage = !emailAddressPattern.test(recipientEmail)
       ? translate("student.invite.emailInvalid")
       : isEmailOfAnotherPerson(recipientEmail, otherPeopleEmails(client, student))
@@ -148,6 +152,11 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
       if (isApiError(inviteError) && inviteError.hasCode(clientErrorCodes.contactMustBeAdult)) {
         setIsAskingEmail(false);
         setIsMinorContact(true);
+        return;
+      }
+      if (isApiError(inviteError) && inviteError.hasCode(subscriptionErrorCodes.featureNotInPlan)) {
+        setIsAskingEmail(false);
+        setIsNotInPlan(true);
         return;
       }
       setHasFailed(true);
@@ -203,6 +212,9 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
       </View>
       {student ? actionButton : null}
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
+      {isNotInPlan ? (
+        <LockedFeatureNotice message={translate("subscriptions.locked.studentApp")} />
+      ) : null}
       {isMinorContact ? (
         <Banner
           tone="warning"
