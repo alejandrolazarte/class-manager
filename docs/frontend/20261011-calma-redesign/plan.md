@@ -42,9 +42,20 @@ Every PR shows how the app looked before and after it:
 4. The PR description has a table with one row per screen that changed: name, before, after.
 5. When the whole plan is done, the last PR collects the first "before" and the last "after" of every screen in one table, to show the full change.
 
-A screen that is not in the capture scripts gets added to them in the same PR, before the "before" capture.
+A screen that is not in the capture scripts gets added to them in the same PR, before the "before" capture. Emails are captured the same way through the email previews (step 0): every email type, at phone and desktop width.
 
-### 4. Motion is short and optional
+### 4. Nothing of the old design is left, and nothing unused
+
+The redesign replaces, it does not pile up. Each PR deletes what it replaces, in the same PR:
+
+- Old variants, class names, styles and props that no screen uses anymore (for example the card level of `elevation.ts`, `Card` once no screen needs it, `AppText` variants or font roles nobody uses, unused icons in `iconGlyphs`, unused theme tokens).
+- Fonts and packages that are no longer loaded (`@expo-google-fonts/nunito` and its assets once Figtree is in).
+- Components, hooks, helpers, translation keys (`es.json`) and email fragments that lost their last user, with the tests that only covered them.
+- No commented-out code, no `Old`/`Legacy`/`V2` copies, no feature flags to switch back to the old look.
+
+How it is checked: before opening the PR, search for every name the PR replaced (`git grep`) and remove what has no users left; TypeScript, ESLint (`no-unused-vars`) and `dotnet build -warnaserror` stay clean. Step 0 also proposes a check for unused translation keys and unused files and exports (for example `knip`), raised in its PR before adding the dependency.
+
+### 5. Motion is short and optional
 
 - 140 to 420 ms, one easing curve (`cubic-bezier(.2,.8,.2,1)`), a soft spring only for toasts and selected marks.
 - Every animation is off when the device has "Reduce motion" on (Reanimated `useReducedMotion`). Content still appears, just without movement.
@@ -71,6 +82,16 @@ A screen that is not in the capture scripts gets added to them in the same PR, b
 
 Colors do not change: the aqua tokens, the other built-in themes and the brand theme keep working. Contrast rules (`When_any_theme_is_defined`) still apply.
 
+## Emails
+
+Every email the app sends follows Calma too. They share one layout (`src/Notifications/Email/Templates/BrandedEmail.html` and the fragments in `BrandedEmailHtml`, see [Branded emails](../../backend/20261002-branded-emails/plan.md)), so the change happens there and every email takes it:
+
+- Figtree with a safe fallback (`Figtree, Arial, Helvetica, sans-serif`): many email clients block web fonts, so the email must still look right in Arial.
+- Weight 600 instead of `bold`, lighter headings, the same type steps as the app.
+- Items and totals separated by 1 px lines instead of boxes; the note as a tonal block; button 12 px radius and 44 px high; header with the logo or initials kept.
+- Kept as they are: brand colors from `EmailPalette` (darkened until white text reads), logo as an inline attachment, plain-text alternative, link fallback under the button, HTML encoding, sender name, and every email type in the table of that plan.
+- No motion in emails.
+
 ## Animations
 
 | Animation | Where | Primitive |
@@ -92,12 +113,13 @@ Colors do not change: the aqua tokens, the other built-in themes and the brand t
 
 Each step is its own PR, with its before/after screenshots.
 
-0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. No visual change.
+0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color) to HTML files, and a capture that screenshots them at phone and desktop width. Propose the unused-code check (rule 4). No visual change.
 1. **Base.** Figtree (`@expo-google-fonts/figtree`) and the new weights in `typography.ts` and `tailwind.config.js`, the smaller type scale, no card shadows (`elevation.ts`), flat `Card`, hairline `ListRow` and `ListDivider`, button, input, icon and tab bar sizes. Update [Theming](../theming.md) (visual language and type scale tables). This step alone changes every screen.
 2. **Motion primitives.** `src/ui/motion/` with the durations and easing constants, `useReducedMotion`, and the primitives in the table above, wired into the existing `src/ui` components. Tests prove each primitive renders its content with reduced motion on.
 3. **Team screens with their own layout.** Inicio (timeline, live strip, calendar), Asistencia (counts row, marks, panels), Clases, Alumnos, client card, Cobros (Cuotas and Pedidos), Registrar pago, Ajustes, sign-in and sign-up. New patterns go to `src/ui` first.
 4. **Student app.** The student app follows Calma too, through the same primitives (it already shares `src/ui`). Its screens (home, clases, novedades, tienda, carrito, pedidos, logros, ajustes) are drawn in Calma in the design artifact first, reviewed by the owner, then built.
-5. **Sweep.** Walk every screenshot of both apps, light and dark and every built-in theme, and fix what still looks like the old style (secondary forms: nueva clase, editar alumno, packs, productos, equipo, roles, sedes, importar y exportar, mi perfil, venta en mostrador).
+5. **Emails.** The Calma layout for every email (see [Emails](#emails)), with before/after previews of each email type.
+6. **Sweep and cleanup.** Walk every screenshot of both apps and every email, light and dark and every built-in theme, and fix what still looks like the old style (secondary forms: nueva clase, editar alumno, packs, productos, equipo, roles, sedes, importar y exportar, mi perfil, venta en mostrador). Then remove whatever the old design left behind (rule 4), so the plan ends with no unused code, and update [Theming](../theming.md) and [Branded emails](../../backend/20261002-branded-emails/plan.md) to describe only Calma.
 
 ## Feature checklist
 
@@ -159,6 +181,11 @@ What each screen does today, read from the code on 2026-10-11. The Calma version
 ### Student app
 
 Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshots.md#student-app-screens) keeps its content and actions: student picker, next class, streak, monthly fee, comments, news, "No voy" and "Voy a ir igual", makeups, pack bookings, shop with search, categories, sizes, sold-out items and cart, orders in progress and past, achievements, settings and account choice.
+
+### Emails
+
+- Team invitation and resend, family invitation, password reset (app brand), new order for the team, payment confirmed, order ready and order cancelled for families, sign-in and email-change emails, and any email added later.
+- Each keeps its eyebrow, title, intro, items and total, note, button with link fallback, footer note, subject, sender name, logo or initials, brand colors and plain-text part.
 
 ## Open questions
 
