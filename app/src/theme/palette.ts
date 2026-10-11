@@ -16,6 +16,7 @@ export const palette = {
   violet200: "#ddd6fe",
   violet300: "#c4b5fd",
   violet600: "#7c3aed",
+  violet700: "#6d28d9",
   violet800: "#5b21b6",
   violet950: "#2e1065",
   sky100: "#e0f2fe",

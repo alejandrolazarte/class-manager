@@ -5,7 +5,7 @@ The app supports several visual themes, each in light and dark, without touching
 1. **Palette** (`app/src/theme/palette.ts`) — raw colors. Only themes use it.
 2. **Semantic tokens** (`app/src/theme/themeColorTokens.ts`) — colors named by intent: `background`, `surface`, `foreground`, `muted-foreground`, `primary`, `primary-foreground`, `danger`, `success-foreground`, `warning-soft`, `inverse`, ... Every theme defines every token (enforced by the `ThemeColors` type).
 3. **Typography** (`app/src/theme/typography.ts`) — font roles (`text`, `label`, `strong`, `heavy`) mapped to font families (Figtree 400/500/600/700) and loaded in the root layout with `expo-font`.
-4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `ChipGroup`, `BrandMark`, and the motion primitives in `app/src/ui/motion/` ([Motion](#motion)). Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes, and never animate on their own.
+4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `ChipGroup`, `BrandMark` (the Laztty mark, [Laztty brand](../brand.md)), and the motion primitives in `app/src/ui/motion/` ([Motion](#motion)). Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes, and never animate on their own.
 
 ## Visual language
 
@@ -76,7 +76,8 @@ Animations are short and live only in `app/src/ui/motion/`, built on Reanimated.
 | `AnimatedListItem` | Fades in and rises 8 px, 45 ms apart, only the first 8 rows | Inicio, Clases, Alumnos, Cuotas, Pedidos, settings lists, avisos, Mis pedidos |
 | `SlidingIndicator` + `useOptionLayouts` | Moves the selected background or line between options | `SegmentedControl`, `Tabs`, `DayStrip`, `ChipGroup`, the Inicio week strip |
 | `GrowingFill` | Grows a bar to its value | `ProgressBar`, `StepProgress` |
-| `LivePulse` | A ring that pulses in a loop | The live class banner in Inicio (the only looping animation) |
+| `LivePulse` | A ring that pulses in a loop | The live class banner in Inicio |
+| `Breathing` | Scales to 94 % and fades to 60 % in a loop, still with reduced motion | The Laztty mark on the loading screen while the session and the business load ([Laztty brand](../brand.md)) |
 | `Entrance` | Fade, scale from 0.96, slide up, spring rise or pop when a view appears | `ConfirmDialog`, `BottomSheet`, `ToastProvider`, the tab bar dot, attendance marks |
 | `Collapsible` | Opens and closes a panel by height; closing content is hidden from screen readers at once | Asistencia panels, private lesson cancel, order payment and refund |
 | `SkeletonList` | Placeholder rows that breathe while a list loads, announced as "Cargando…" | Every list screen while it loads |

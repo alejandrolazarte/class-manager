@@ -1,6 +1,6 @@
 # class-manager
 
-Multi-tenant management app for class-based businesses (swimming, yoga, pilates, functional training): students, weekly group classes, enrollments, attendance and monthly fees. Each business (an instructor or a studio) signs up and gets its own tenant; all businesses share one database, isolated by `TenantId`.
+Multi-tenant management app for class-based businesses (swimming, yoga, pilates, functional training): students, weekly group classes, enrollments, attendance and monthly fees. Each business (an instructor or a studio) signs up and gets its own tenant; all businesses share one database, isolated by `TenantId`. Users know the product as Laztty, see [Laztty brand](docs/brand.md).
 
 Generated from [app-template](https://github.com/alejandrolazarte/app-template) on 2026-09-25. Fix platform bugs (`Security`, `Tenancy`, analyzers) in the template first, then port them here. What the MVP includes: [MVP plan](docs/mvp-plan.md).
 
@@ -98,6 +98,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Use case behaviors](docs/backend/use-case-behaviors.md) — the pipeline around every use case: commands run in a transaction, queries don't track, and how to add a behavior
 - [Local development](docs/backend/local-development.md) — migrations, JWT signing key, demo seed data and owner
 - [Running the Expo app](docs/frontend/running-the-app.md) — configuration and frontend tests
+- [Laztty brand](docs/brand.md) — the product name, the mark, its color, where Laztty shows and where the business brand does, and how to render the app icons
 - [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, the type scale, AppText, Icon and the lint rules that keep screens on the theme
 - [Navigation](docs/frontend/navigation.md) — screens stay in their tab, shared screens per tab, ✕ for forms and ← for navigation, and the tests that enforce it
 - [Content Security Policy](docs/frontend/content-security-policy.md) — the web app's report-only policy, what it allows and why, how it was tested, and how to enforce it

@@ -42,7 +42,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-const defaultNotificationTitle = "Class Manager";
+const defaultNotificationTitle = "Laztty";
 const notificationIconPath = "/icons/icon-192.png";
 const defaultNotificationUrl = "/";
 
