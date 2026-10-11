@@ -4,9 +4,9 @@ import { ClassGroupFormValues } from "@/features/classGroups/classGroupSchema";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { TextField } from "@/ui/TextField";
+import { TonalBlock } from "@/ui/TonalBlock";
 
 const bytesPerMegabyte = 1024 * 1024;
 
@@ -39,36 +39,38 @@ function MaterialFileRow({
 }) {
   const { url } = materialFile;
   return (
-    <Card className="flex-row items-center gap-3 px-4 py-3">
-      <Icon name="material" tone="primary" />
-      <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="bodyStrong" numberOfLines={1}>
-          {materialFile.name}
-        </AppText>
-        {materialFile.sizeInBytes === undefined ? null : (
-          <AppText variant="caption" tone="muted">
-            {formatMegabytes(materialFile.sizeInBytes)}
+    <TonalBlock tone="muted" isCompact>
+      <View className="flex-row items-center gap-3">
+        <Icon name="material" tone="primary" />
+        <View className="min-w-0 flex-1 gap-0.5">
+          <AppText variant="bodyStrong" numberOfLines={1}>
+            {materialFile.name}
           </AppText>
-        )}
-        {url === null ? null : (
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => Linking.openURL(url)}
-            className="self-start active:opacity-70"
-          >
-            <AppText variant="link" tone="primary">
-              {translate("classGroups.form.openMaterialFile")}
+          {materialFile.sizeInBytes === undefined ? null : (
+            <AppText variant="caption" tone="muted">
+              {formatMegabytes(materialFile.sizeInBytes)}
             </AppText>
-          </Pressable>
-        )}
+          )}
+          {url === null ? null : (
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => Linking.openURL(url)}
+              className="self-start active:opacity-70"
+            >
+              <AppText variant="link" tone="primary">
+                {translate("classGroups.form.openMaterialFile")}
+              </AppText>
+            </Pressable>
+          )}
+        </View>
+        <Button
+          variant="dangerOutline"
+          size="medium"
+          label={translate("classGroups.form.removeMaterialFile")}
+          onPress={onRemoveFile}
+        />
       </View>
-      <Button
-        variant="dangerOutline"
-        size="medium"
-        label={translate("classGroups.form.removeMaterialFile")}
-        onPress={onRemoveFile}
-      />
-    </Card>
+    </TonalBlock>
   );
 }
 

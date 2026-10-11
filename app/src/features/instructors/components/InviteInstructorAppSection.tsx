@@ -13,10 +13,10 @@ import { translate } from "@/i18n/translate";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { Spinner } from "@/ui/Spinner";
 import { TextField } from "@/ui/TextField";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { useToast } from "@/ui/ToastProvider";
 
 const instructorRole = "Instructor";
@@ -120,19 +120,18 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
   };
 
   return (
-    <Card className="gap-3 p-3.5">
-      <View className="flex-row items-center gap-3">
-        <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
-          <Icon name="instructors" size="medium" tone="primary" />
-        </View>
+    <View className="gap-2.5 border-y border-border-subtle py-2.5">
+      <View className="flex-row items-center gap-2.5">
+        <Icon name="instructors" size="medium" tone="muted-foreground" />
         <View className="min-w-0 flex-1 gap-0.5">
           <AppText variant="bodyStrong">{translate("instructors.app.title")}</AppText>
-          <AppText variant="caption" tone={statusTones[access.status]}>
+          <AppText variant="footnote" tone={statusTones[access.status]}>
             {translate(`instructors.app.${access.status}`, { email: accessEmail })}
           </AppText>
         </View>
         {access.status === "Active" || isAskingEmail ? null : (
           <Button
+            variant="ghost"
             size="medium"
             label={translate(
               access.status === "Invited" ? "instructors.app.resend" : "instructors.app.invite",
@@ -149,7 +148,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
       </View>
       {failureMessage ? <Banner message={failureMessage} /> : null}
       {isAskingEmail ? (
-        <View className="gap-2.5 rounded-2xl bg-muted p-3">
+        <TonalBlock tone="muted">
           <AppText variant="caption" tone="subtle">
             {translate(
               emailOnFile.length > 0
@@ -163,7 +162,6 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
-            fieldSurface="background"
             value={email}
             onChangeText={setEmail}
             errorMessage={emailError}
@@ -181,8 +179,8 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
             label={translate("common.cancel")}
             onPress={cancel}
           />
-        </View>
+        </TonalBlock>
       ) : null}
-    </Card>
+    </View>
   );
 }

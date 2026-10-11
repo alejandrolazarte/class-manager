@@ -5,23 +5,15 @@ import { AppText, textVariantClassNames } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
 import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
-export type TextFieldSurface = "surface" | "background";
-
 interface TextFieldProps extends TextInputProps {
   label: string;
   errorMessage?: string;
   hint?: string;
   isHintSatisfied?: boolean;
   prefix?: string;
-  fieldSurface?: TextFieldSurface;
   isRequired?: boolean;
   accessory?: ReactNode;
 }
-
-const fieldSurfaceClassNames: Record<TextFieldSurface, string> = {
-  surface: "bg-surface",
-  background: "bg-background",
-};
 
 export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
   {
@@ -30,7 +22,6 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     hint,
     isHintSatisfied = false,
     prefix,
-    fieldSurface = "surface",
     isRequired = false,
     accessory,
     multiline,
@@ -43,7 +34,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
   const isLocked = textInputProps.editable === false;
   const surfaceClassName = isLocked
     ? "bg-muted text-muted-foreground"
-    : `text-foreground ${fieldSurfaceClassNames[fieldSurface]}`;
+    : "bg-surface text-foreground";
   return (
     <View className="gap-1.5">
       <AppText variant="label" tone="muted">

@@ -1,6 +1,7 @@
 import { Href, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { TeamNotificationCard } from "@/features/teamNotifications/components/TeamNotificationCard";
+import { View } from "react-native";
+import { TeamNotificationRow } from "@/features/teamNotifications/components/TeamNotificationRow";
 import {
   useMarkTeamNotificationsSeen,
   useTeamNotifications,
@@ -9,7 +10,6 @@ import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -45,22 +45,22 @@ export function TeamNotificationsScreen() {
         </Banner>
       ) : null}
       {notifications !== undefined && notifications.items.length === 0 ? (
-        <Card>
-          <EmptyState
-            icon="notifications"
-            iconTone="disabled-foreground"
-            message={translate("teamNotifications.empty")}
-          />
-        </Card>
+        <EmptyState
+          icon="notifications"
+          iconTone="disabled-foreground"
+          message={translate("teamNotifications.empty")}
+        />
       ) : null}
-      {notifications?.items.map((notification, index) => (
-        <AnimatedListItem key={notification.id} index={index}>
-          <TeamNotificationCard
-            notification={notification}
-            onPress={() => router.push(notification.url as Href)}
-          />
-        </AnimatedListItem>
-      ))}
+      <View>
+        {notifications?.items.map((notification, index) => (
+          <AnimatedListItem key={notification.id} index={index}>
+            <TeamNotificationRow
+              notification={notification}
+              onPress={() => router.push(notification.url as Href)}
+            />
+          </AnimatedListItem>
+        ))}
+      </View>
     </ScrollScreen>
   );
 }

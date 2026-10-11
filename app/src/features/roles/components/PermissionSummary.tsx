@@ -3,7 +3,7 @@ import { Permission } from "@/features/members/permissions";
 import { permissionGroups } from "@/features/roles/permissionGroups";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
+import { HairlineSection } from "@/ui/HairlineSection";
 
 interface PermissionSummaryProps {
   granted: readonly Permission[];
@@ -27,7 +27,7 @@ export function PermissionSummary({ granted }: PermissionSummaryProps) {
           return null;
         }
         return (
-          <Card key={group.titleKey} className="gap-1.5 px-4 py-3">
+          <HairlineSection key={group.titleKey} isCompact>
             <AppText variant="eyebrow" tone="muted">
               {translate(group.titleKey)}
             </AppText>
@@ -36,7 +36,7 @@ export function PermissionSummary({ granted }: PermissionSummaryProps) {
                 {line}
               </AppText>
             ))}
-          </Card>
+          </HairlineSection>
         );
       })}
     </View>

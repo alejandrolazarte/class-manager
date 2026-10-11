@@ -8,6 +8,7 @@ import { InactiveChip } from "@/features/settings/components/InactiveChip";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { ActionTile } from "@/ui/ActionTile";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Icon } from "@/ui/Icon";
@@ -73,17 +74,13 @@ export function InstructorDetailScreen({ instructorId }: InstructorDetailScreenP
         </View>
       )}
       {instructor.email ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={translate("instructors.detail.email")}
-          onPress={() => Linking.openURL(`${emailScheme}${instructor.email}`)}
-          className="min-h-[60px] items-center justify-center gap-1 rounded-2xl border-[1.5px] border-border bg-surface px-2 py-2.5 active:bg-muted"
-        >
-          <Icon name="email" size="medium" tone="primary" />
-          <AppText variant="link" numberOfLines={1}>
-            {translate("instructors.detail.email")}
-          </AppText>
-        </Pressable>
+        <View className="flex-row">
+          <ActionTile
+            icon="email"
+            label={translate("instructors.detail.email")}
+            onPress={() => Linking.openURL(`${emailScheme}${instructor.email}`)}
+          />
+        </View>
       ) : null}
       {canManageMembers && instructor.isActive ? (
         <InviteInstructorAppSection instructor={instructor} />

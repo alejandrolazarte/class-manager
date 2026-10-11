@@ -71,7 +71,7 @@ export function SettingsListScreenLayout<TItem>({
           data={items}
           keyExtractor={keyExtractor}
           renderItem={({ item, index }) => (
-            <AnimatedListItem index={index} className="px-5 pb-3.5">
+            <AnimatedListItem index={index} className="px-5">
               {renderItem(item)}
             </AnimatedListItem>
           )}

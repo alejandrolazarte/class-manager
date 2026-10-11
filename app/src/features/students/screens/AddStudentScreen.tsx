@@ -20,12 +20,11 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
-import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { useClient } from "@/features/clients/useClient";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { HairlineSection } from "@/ui/HairlineSection";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
@@ -121,17 +120,13 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
       <RequiredFieldsLegend />
-      <Card className="gap-3 p-4">
-        <AppText variant="link" tone="primary">
-          {translate("students.add.studentCard")}
-        </AppText>
+      <HairlineSection title={translate("students.add.studentCard")}>
         <StudentFields
           control={form.control}
           paths={{ fullName: "fullName", birthDate: "birthDate", notes: "notes", email: "email" }}
           autoFocus
-          isInsideCard
         />
-      </Card>
+      </HairlineSection>
       <Button
         label={translate("students.add.submit")}
         onPress={submit}

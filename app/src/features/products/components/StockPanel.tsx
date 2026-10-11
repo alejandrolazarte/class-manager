@@ -8,10 +8,10 @@ import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { Chip } from "@/ui/Chip";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { HairlineSection } from "@/ui/HairlineSection";
 import { isFilled } from "@/forms/requiredFields";
 
 interface StockPanelProps {
@@ -58,8 +58,7 @@ export function StockPanel({ product }: StockPanelProps) {
   };
 
   return (
-    <Card className="gap-3 p-4">
-      <AppText variant="bodyStrong">{translate("products.stock.title")}</AppText>
+    <HairlineSection title={translate("products.stock.title")}>
       {product.variants.map((variant) => (
         <View key={variant.id} className="flex-row justify-between">
           <AppText variant="body">{variantLabel(variant)}</AppText>
@@ -135,6 +134,6 @@ export function StockPanel({ product }: StockPanelProps) {
           })}
         </View>
       ) : null}
-    </Card>
+    </HairlineSection>
   );
 }

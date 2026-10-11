@@ -6,7 +6,7 @@ import { formatMoney } from "@/features/fees/money";
 import { InactiveChip } from "@/features/settings/components/InactiveChip";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
 
 interface ClassPackListItemProps {
@@ -24,33 +24,28 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
       ? translate("classPacks.list.noExpiry")
       : translateCount("classPacks.list.validity", classPack.validityMonths);
   return (
-    <View className={classPack.isActive ? "" : "opacity-60"}>
-      <Card
-        onPress={onPress ? () => onPress(classPack) : undefined}
-        accessibilityLabel={classPack.name}
-        className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
-      >
-        <CatalogThumbnail
-          imageUrl={classPack.images[0]?.url ?? null}
-          placeholderIcon="classPacks"
-        />
-        <View className="flex-1 gap-1">
-          <AppText variant="bodyStrong">{classPack.name}</AppText>
-          <AppText variant="caption" tone="subtle">
-            {[
-              summary,
-              classPack.classDurationMinutes
-                ? translate("classPacks.list.duration", { minutes: classPack.classDurationMinutes })
-                : null,
-              validity,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </AppText>
-        </View>
-        {classPack.isActive ? null : <InactiveChip />}
-        {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
-      </Card>
-    </View>
+    <HairlineRow
+      isDimmed={!classPack.isActive}
+      onPress={onPress ? () => onPress(classPack) : undefined}
+      accessibilityLabel={classPack.name}
+    >
+      <CatalogThumbnail imageUrl={classPack.images[0]?.url ?? null} placeholderIcon="classPacks" />
+      <View className="flex-1 gap-1">
+        <AppText variant="bodyStrong">{classPack.name}</AppText>
+        <AppText variant="caption" tone="subtle">
+          {[
+            summary,
+            classPack.classDurationMinutes
+              ? translate("classPacks.list.duration", { minutes: classPack.classDurationMinutes })
+              : null,
+            validity,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </AppText>
+      </View>
+      {classPack.isActive ? null : <InactiveChip />}
+      {onPress ? <Icon name="next" size="medium" tone="subtle-foreground" /> : null}
+    </HairlineRow>
   );
 }

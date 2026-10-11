@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ImportColumnsCard } from "@/features/importExport/components/ImportColumnsCard";
-import { ImportPreviewCard } from "@/features/importExport/components/ImportPreviewCard";
+import { View } from "react-native";
+import { ImportColumnsSection } from "@/features/importExport/components/ImportColumnsSection";
+import { ImportPreviewSection } from "@/features/importExport/components/ImportPreviewSection";
 import { fileModuleName } from "@/features/importExport/spreadsheetFileNames";
 import { fileErrorMessage } from "@/features/importExport/importMessages";
 import { PickedImportFile, pickImportFile } from "@/features/importExport/pickImportFile";
@@ -16,7 +17,6 @@ import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
@@ -89,7 +89,7 @@ function ImportExportWorkspace() {
       header={<ScreenHeader navigation="back" title={translate("importExport.title")} />}
     >
       <SegmentedControl options={moduleOptions} selectedValue={module} onChange={changeModule} />
-      <ImportColumnsCard module={module} schema={schema.data} />
+      <ImportColumnsSection module={module} schema={schema.data} />
 
       <SectionTitle title={translate("importExport.importTitle")} />
       {importedRowCount !== null ? (
@@ -101,7 +101,7 @@ function ImportExportWorkspace() {
       ) : null}
       {requestError !== null ? <Banner message={fileErrorMessage(requestError)} /> : null}
       {previewedFile !== null ? (
-        <ImportPreviewCard
+        <ImportPreviewSection
           fileName={previewedFile.file.name}
           report={previewedFile.report}
           isImporting={importFile.isPending}
@@ -109,7 +109,7 @@ function ImportExportWorkspace() {
           onChooseAnother={chooseFile}
         />
       ) : (
-        <Card className="gap-3 p-4">
+        <View className="gap-3">
           <Button
             icon="upload"
             label={translate("importExport.chooseFile")}
@@ -124,14 +124,14 @@ function ImportExportWorkspace() {
             isLoading={downloadTemplate.isPending}
             onPress={() => downloadTemplate.mutate(module)}
           />
-        </Card>
+        </View>
       )}
 
       <SectionTitle title={translate("importExport.exportTitle")} />
       {downloadError !== null ? (
         <Banner message={translate("importExport.downloadFailed")} />
       ) : null}
-      <Card className="gap-3 p-4">
+      <View className="gap-3">
         <AppText variant="caption" tone="subtle">
           {translate("importExport.exportHint")}
         </AppText>
@@ -143,7 +143,7 @@ function ImportExportWorkspace() {
           isLoading={downloadExport.isPending}
           onPress={() => downloadExport.mutate(module)}
         />
-      </Card>
+      </View>
     </ScrollScreen>
   );
 }

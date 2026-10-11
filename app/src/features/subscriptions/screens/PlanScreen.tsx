@@ -15,10 +15,10 @@ import {
 } from "@/features/subscriptions/useSubscription";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { TonalBlock } from "@/ui/TonalBlock";
 
 function statusLabel(subscription: CurrentSubscription): string {
   if (!subscription.isActive) {
@@ -47,7 +47,7 @@ export function PlanScreen() {
     <ScrollScreen
       header={<ScreenHeader navigation="back" title={translate("subscriptions.title")} />}
     >
-      <Card className="gap-2.5 px-4 py-3.5">
+      <TonalBlock tone="muted">
         <AppText variant="eyebrow" tone="accent">
           {translate("subscriptions.yourPlan")}
         </AppText>
@@ -63,7 +63,7 @@ export function PlanScreen() {
           </AppText>
         ) : null}
         <FeatureList features={subscription.features} />
-      </Card>
+      </TonalBlock>
       <PlansContact />
       <SectionTitle title={translate("subscriptions.availablePlans")} />
       <PlanCatalog currentPlanCode={subscription.planCode} />

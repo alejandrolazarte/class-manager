@@ -5,8 +5,8 @@ import { TeamNotification } from "@/features/teamNotifications/types";
 import { addDays, todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
+import { HairlineRow } from "@/ui/HairlineRow";
+import { IconCircle } from "@/ui/IconCircle";
 
 const timeDigits = 2;
 
@@ -19,36 +19,36 @@ function whenLabel(createdAt: string, today: string = todayIsoDate()): string {
   return date === addDays(today, -1) ? translate("student.news.yesterday") : shortDayLabel(date);
 }
 
-interface TeamNotificationCardProps {
+interface TeamNotificationRowProps {
   notification: TeamNotification;
   onPress: () => void;
 }
 
-export function TeamNotificationCard({ notification, onPress }: TeamNotificationCardProps) {
+export function TeamNotificationRow({ notification, onPress }: TeamNotificationRowProps) {
   return (
-    <Card
+    <HairlineRow
       onPress={onPress}
       accessibilityLabel={notification.title}
-      className="flex-row gap-3 px-4 py-3.5"
+      className={`flex-row gap-3 py-3 ${notification.isUnread ? "" : "opacity-85"}`}
     >
-      <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
-        <Icon name="notifications" tone="primary-soft-foreground" />
-      </View>
-      <View className="min-w-0 flex-1 gap-0.5 pr-3">
+      <IconCircle icon="notifications" tone="primary" />
+      <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{notification.title}</AppText>
         <AppText variant="caption" tone="muted">
           {notification.body}
         </AppText>
-        <AppText variant="footnote" tone="subtle" className="mt-1 font-label">
+        <AppText variant="footnote" tone="subtle" className="mt-1">
           {whenLabel(notification.createdAt)}
         </AppText>
       </View>
       {notification.isUnread ? (
         <View
           accessibilityLabel={translate("student.news.unread")}
-          className="absolute right-4 top-[18px] h-2.5 w-2.5 rounded-full bg-primary"
+          className="mt-1.5 h-2 w-2 rounded-full bg-primary"
         />
-      ) : null}
-    </Card>
+      ) : (
+        <View className="h-2 w-2" />
+      )}
+    </HairlineRow>
   );
 }

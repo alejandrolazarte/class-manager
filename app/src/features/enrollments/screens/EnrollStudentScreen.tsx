@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { FlatList, Pressable, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import { enrollmentErrorCodes } from "@/features/enrollments/enrollmentErrorCodes";
@@ -15,6 +15,7 @@ import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { EmptyState } from "@/ui/EmptyState";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
@@ -102,7 +103,7 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
           keyExtractor={(student) => student.id}
           keyboardShouldPersistTaps="handled"
           contentContainerClassName="w-full max-w-2xl self-center px-5 pb-8"
-          renderItem={({ item: student, index }) => {
+          renderItem={({ item: student }) => {
             const isEnrolled = enrolledStudentIds.has(student.id);
             const isOwnClient =
               normalizeStudentName(student.fullName) ===
@@ -114,13 +115,12 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
                 : translate("students.list.responsible", { name: student.clientFullName }),
             ].filter((detail): detail is string => Boolean(detail));
             return (
-              <Pressable
-                accessibilityRole="button"
+              <HairlineRow
                 accessibilityLabel={student.fullName}
                 accessibilityState={{ disabled: isEnrolled }}
                 disabled={isEnrolled || enrollStudentMutation.isPending}
+                isDimmed={isEnrolled}
                 onPress={() => enroll(student)}
-                className={`flex-row items-center gap-3 border-b border-border bg-surface px-4 py-3 active:bg-muted ${index === 0 ? "rounded-t-[20px]" : ""} ${index === students.length - 1 ? "rounded-b-[20px] border-b-0" : ""} ${isEnrolled ? "opacity-50" : ""}`}
               >
                 <Avatar name={student.fullName} size="small" tone="muted" />
                 <View className="min-w-0 flex-1 gap-0.5">
@@ -136,7 +136,7 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
                     isEnrolled ? "enrollments.enroll.alreadyEnrolled" : "enrollments.enroll.enroll",
                   )}
                 </AppText>
-              </Pressable>
+              </HairlineRow>
             );
           }}
           ListEmptyComponent={

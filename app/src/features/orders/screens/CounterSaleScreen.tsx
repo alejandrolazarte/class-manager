@@ -33,7 +33,6 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { OptionCard } from "@/ui/OptionCard";
@@ -43,6 +42,7 @@ import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { TotalBar } from "@/ui/TotalBar";
 import { useToast } from "@/ui/ToastProvider";
+import { TonalBlock } from "@/ui/TonalBlock";
 
 interface CounterSaleScreenProps {
   clientId?: string;
@@ -209,15 +209,17 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
           <AppText variant="label" tone="muted">
             {translate("orders.counterSale.items")}
           </AppText>
-          {saleItems.map((item) => (
-            <CounterSaleItemRow
-              key={item.key}
-              item={item}
-              units={unitsOf(unitsByItem, item)}
-              onChangeUnits={(units) => changeUnits(item, units)}
-              showsLineTotal
-            />
-          ))}
+          <View>
+            {saleItems.map((item) => (
+              <CounterSaleItemRow
+                key={item.key}
+                item={item}
+                units={unitsOf(unitsByItem, item)}
+                onChangeUnits={(units) => changeUnits(item, units)}
+                showsLineTotal
+              />
+            ))}
+          </View>
           <Button
             variant="dashed"
             size="medium"
@@ -314,7 +316,7 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
         <AppText variant="label" tone="muted">
           {translate("orders.counterSale.summary")}
         </AppText>
-        <Card className="gap-2.5 p-4">
+        <TonalBlock tone="muted">
           <View className="flex-row items-center gap-2.5">
             <Icon name="privateLesson" size="medium" tone="muted-foreground" />
             <AppText variant="bodyStrong" className="min-w-0 flex-1">
@@ -326,7 +328,7 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
             return (
               <View
                 key={item.key}
-                className="flex-row items-center gap-2 border-t border-border pt-2.5"
+                className="flex-row items-center gap-2 border-t border-border-subtle pt-2.5"
               >
                 <AppText variant="body" className="min-w-0 flex-1">
                   {translate("orders.counterSale.lineQuantity", {
@@ -340,7 +342,7 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
               </View>
             );
           })}
-        </Card>
+        </TonalBlock>
       </View>
     </StepScreen>
   );
