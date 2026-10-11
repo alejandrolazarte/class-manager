@@ -45,9 +45,23 @@ jobs:
 
       - run: dotnet build class-manager.slnx --no-restore -warnaserror
 
-      - run: dotnet format class-manager.slnx --verify-no-changes --no-restore
-
       - run: dotnet test class-manager.slnx --no-build --verbosity normal
+
+  backend-format:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.backend != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - run: dotnet restore class-manager.slnx
+
+      - run: dotnet format class-manager.slnx --verify-no-changes --no-restore
 
   container:
     needs: changes
