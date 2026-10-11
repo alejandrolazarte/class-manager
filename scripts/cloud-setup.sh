@@ -1,7 +1,8 @@
 #!/bin/bash
-# Prepares a Claude Code on the web container: .NET 10 SDK, frontend tooling,
-# the Playwright browser for the e2e tests, a container engine for Testcontainers
-# and the SQL Server image it uses.
+# Prepares a Claude Code on the web container: .NET 10 SDK, frontend tooling and
+# the Playwright browser for the e2e tests. The backend and the frontend are
+# prepared in parallel. The SQL Server image is not pulled here: the SessionStart
+# hook (cloud-session-start.sh) pulls it in the background when it is missing.
 # Meant to be run from the cloud environment's Setup script. Idempotent.
 set -euo pipefail
 
@@ -9,9 +10,6 @@ readonly PROJECT_DIRECTORY="$(cd "$(dirname "$0")/.." && pwd)"
 readonly DOTNET_SDK_PACKAGE="dotnet-sdk-10.0"
 readonly DOTNET_CHANNEL="10.0"
 readonly DOTNET_USER_DIRECTORY="$HOME/.dotnet"
-readonly SQL_SERVER_IMAGE="mcr.microsoft.com/mssql/server:2022-latest"
-readonly DOCKER_SOCKET="/var/run/docker.sock"
-readonly DOCKER_LOG_FILE="/tmp/dockerd.log"
 readonly FRONTEND_DIRECTORY="$PROJECT_DIRECTORY/app"
 readonly E2E_DIRECTORY="$PROJECT_DIRECTORY/e2e"
 readonly GIT_HOOKS_DIRECTORY=".githooks"
@@ -42,8 +40,8 @@ install_dotnet() {
   fi
 
   log "Installing .NET 10 SDK from apt"
-  run_as_root apt-get update -qq || true
-  if run_as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$DOTNET_SDK_PACKAGE"; then
+  run_as_root apt-get -o DPkg::Lock::Timeout=300 update -qq || true
+  if run_as_root env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 install -y -qq "$DOTNET_SDK_PACKAGE"; then
     return
   fi
 
@@ -68,7 +66,7 @@ restore_dotnet_packages() {
 install_frontend_tooling() {
   if ! command -v node >/dev/null 2>&1; then
     log "Node.js not found, installing from apt"
-    run_as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nodejs npm
+    run_as_root env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 install -y -qq nodejs npm
   fi
   log "Enabling pnpm through corepack (version pinned by packageManager)"
   persist_environment_variable COREPACK_ENABLE_DOWNLOAD_PROMPT "0"
@@ -99,59 +97,27 @@ install_playwright_browser() {
     || log "Playwright browser download failed, allow $PLAYWRIGHT_DOWNLOAD_HOST in the environment's network access"
 }
 
-docker_daemon_is_running() {
-  docker info >/dev/null 2>&1
-}
-
-start_container_engine() {
-  if docker_daemon_is_running; then
-    log "Docker daemon already running"
-    return
-  fi
-  if ! command -v dockerd >/dev/null 2>&1; then
-    log "dockerd not available, integration tests will not run"
-    return
-  fi
-
-  log "Starting Docker daemon"
-  run_as_root bash -c "nohup dockerd > '$DOCKER_LOG_FILE' 2>&1 &"
-  for _ in $(seq 1 30); do
-    if docker_daemon_is_running; then
-      return
-    fi
-    sleep 1
-  done
-  log "Docker daemon did not start, see $DOCKER_LOG_FILE"
-}
-
-configure_testcontainers() {
-  persist_environment_variable DOCKER_HOST "unix://$DOCKER_SOCKET"
-}
-
-pull_sql_server_image() {
-  if ! docker_daemon_is_running; then
-    return
-  fi
-  if docker image inspect "$SQL_SERVER_IMAGE" >/dev/null 2>&1; then
-    log "SQL Server image already present"
-    return
-  fi
-  log "Pulling $SQL_SERVER_IMAGE"
-  docker pull "$SQL_SERVER_IMAGE"
-}
-
 enable_git_hooks() {
   log "Enabling repository git hooks ($GIT_HOOKS_DIRECTORY)"
   git -C "$PROJECT_DIRECTORY" config core.hooksPath "$GIT_HOOKS_DIRECTORY"
 }
 
+prepare_backend() {
+  install_dotnet
+  restore_dotnet_packages
+}
+
+prepare_frontend() {
+  install_frontend_tooling
+  install_playwright_browser
+}
+
 enable_git_hooks
-install_dotnet
 configure_dotnet_environment
-restore_dotnet_packages
-install_frontend_tooling
-install_playwright_browser
-start_container_engine
-configure_testcontainers
-pull_sql_server_image
+prepare_backend &
+readonly BACKEND_PROCESS_ID=$!
+prepare_frontend &
+readonly FRONTEND_PROCESS_ID=$!
+wait "$BACKEND_PROCESS_ID"
+wait "$FRONTEND_PROCESS_ID"
 log "Done"

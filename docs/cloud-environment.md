@@ -16,8 +16,7 @@ bash /home/user/class-manager/scripts/cloud-setup.sh
 3. Restores NuGet packages for `class-manager.slnx`.
 4. Ensures Node.js exists, enables pnpm through corepack (so the version pinned by `packageManager` is used) and runs `pnpm install` in `app/` and `e2e/`.
 5. Installs the Chromium revision that the e2e Playwright version expects (`pnpm exec playwright install chromium`, into `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`). The Chromium preinstalled in the cloud image is older than the one Playwright pins. The download comes from `cdn.playwright.dev`, which must be in the environment's allowed domains (Network access).
-6. Starts the Docker daemon. Podman is not available in the cloud container; Testcontainers talks to Docker through `/var/run/docker.sock` instead.
-7. Pre-pulls `mcr.microsoft.com/mssql/server:2022-latest`, the image used by `SqlServerContainerFixture`.
+Steps 2–3 (backend) and 4–5 (frontend) run in parallel; the apt calls wait for the dpkg lock instead of failing. The script does not start Docker nor pull the SQL Server image (about 2.3 GB): that was the slowest part of the setup, and the session hook below does it in the background.
 
 The script is idempotent.
 
@@ -25,11 +24,10 @@ The script is idempotent.
 
 Processes started by the Setup script do not survive into the session. `scripts/cloud-session-start.sh` runs as a `SessionStart` hook (`.claude/settings.json`) and does nothing outside the cloud (`CLAUDE_CODE_REMOTE` is not `true`). In the cloud it:
 
-1. Starts the Docker daemon if `docker info` fails.
-2. Creates or starts the `class-manager-sql` SQL Server container on port 1433, with a throwaway SA password, and waits until it accepts connections.
-3. Exports `E2E_DATABASE_CONNECTION_STRING` pointing to the `ClassManagerE2E` database on that container.
+1. Exports `E2E_DATABASE_CONNECTION_STRING` pointing to the `ClassManagerE2E` database on the `class-manager-sql` container.
+2. In the background, so the session starts without waiting: starts the Docker daemon if `docker info` fails (Podman is not available in the cloud container; Testcontainers talks to Docker through `/var/run/docker.sock`), then creates or starts the `class-manager-sql` SQL Server container on port 1433 with a throwaway SA password, pulling the image the first time. Output goes to `/tmp/cloud-session-start.log`.
 
-With that, the e2e suite runs as described in [running-e2e-tests.md](e2e/running-e2e-tests.md): `cd e2e; pnpm db:migrate; pnpm test`. Integration tests still create their own containers through Testcontainers. If the hook failed, run `bash scripts/cloud-session-start.sh` again.
+Before the e2e suite, wait until SQL Server is ready with `bash scripts/cloud-session-start.sh --wait`, then run it as described in [running-e2e-tests.md](e2e/running-e2e-tests.md): `cd e2e; pnpm db:migrate; pnpm test`. Integration tests create their own containers through Testcontainers and only need the Docker daemon, which `--wait` also ensures.
 
 ## Relation to local development
 
