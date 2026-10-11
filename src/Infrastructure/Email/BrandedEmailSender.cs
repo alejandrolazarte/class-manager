@@ -3,7 +3,7 @@ using ClassManager.Notifications.Email;
 
 namespace ClassManager.Infrastructure.Email;
 
-internal sealed class BrandedEmailSender(EmailBrandReader brandReader, IEmailTransport transport) : IEmailSender
+internal sealed class BrandedEmailSender(EmailBrandReader brandReader, WebAppLinks webAppLinks, IEmailTransport transport) : IEmailSender
 {
     public const string AppDisplayName = "Class Manager";
 
@@ -18,7 +18,7 @@ internal sealed class BrandedEmailSender(EmailBrandReader brandReader, IEmailTra
             message.Subject,
             businessBrand?.DisplayName,
             message.TextBody,
-            BrandedEmailHtml.Render(message.Content, brand),
+            BrandedEmailHtml.Render(message.Content, brand, webAppLinks.WebFonts()),
             brand.Logo is null ? [] : [brand.Logo]);
         await transport.SendAsync(email, cancellationToken);
     }

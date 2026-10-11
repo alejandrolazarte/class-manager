@@ -13,6 +13,7 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public const string AuthorizeStudentAppPath = "/authorize-student-app?token=";
     public const string StudentAppOrdersPath = "/student-app/orders";
     public const string TeamOrdersPath = "/today/orders";
+    public const string WebFontsPath = "/fonts/";
 
     private const string MissingWebAppUrlMessage = "Set " + WebAppUrlSetting + " to the web app address.";
 
@@ -34,6 +35,8 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public string StudentAppOrders() => WebAppUrl() + StudentAppOrdersPath;
 
     public string TeamOrders() => WebAppUrl() + TeamOrdersPath;
+
+    public Uri WebFonts() => new(WebAppUrl() + WebFontsPath);
 
     private string WebAppUrl() =>
         (configuration[WebAppUrlSetting] is { Length: > 0 } webAppUrl

@@ -7,7 +7,7 @@ public sealed class Then_the_email_shows_its_initials
     {
         var brand = new EmailBrand("Df Swimming Valencia", null, null, null);
 
-        var html = BrandedEmailHtml.Render(new EmailContent("Eyebrow", "Title", "Intro", "Footer"), brand);
+        var html = BrandedEmailHtml.Render(new EmailContent("Eyebrow", "Title", "Intro", "Footer"), brand, new Uri("https://app.example.com/fonts/"));
 
         html.ShouldContain(">DS</td>");
     }

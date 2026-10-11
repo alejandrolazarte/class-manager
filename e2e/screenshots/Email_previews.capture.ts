@@ -1,7 +1,7 @@
 import { Browser, test } from "@playwright/test";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 interface EmailPreviewFile {
@@ -22,6 +22,7 @@ const htmlDirectory = resolve(emailsDirectory, "html");
 const emailPreviewsProject = "../tools/EmailPreviews/EmailPreviews.csproj";
 const manifestFileName = "manifest.json";
 const webFontRequests = /\.(woff2?|ttf|otf)(\?.*)?$/;
+const webAppFontsDirectory = resolve("../app/public/fonts");
 const widths: [folderName: string, width: number, height: number][] = [
   ["telefono", 390, 844],
   ["escritorio", 1280, 900],
@@ -59,9 +60,14 @@ async function captureAtWidth(
   height: number,
 ): Promise<void> {
   const context = await browser.newContext({ viewport: { width, height }, locale: "es-AR" });
-  if (isWebFontBlocked) {
-    await context.route(webFontRequests, (route) => route.abort());
-  }
+  await context.route(webFontRequests, (route) =>
+    isWebFontBlocked
+      ? route.abort()
+      : route.fulfill({
+          path: join(webAppFontsDirectory, basename(new URL(route.request().url()).pathname)),
+          headers: { "Access-Control-Allow-Origin": "*" },
+        }),
+  );
   const page = await context.newPage();
   const screenshotsDirectory = join(emailsDirectory, folderName);
   mkdirSync(screenshotsDirectory, { recursive: true });

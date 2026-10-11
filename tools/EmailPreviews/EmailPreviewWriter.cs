@@ -41,7 +41,7 @@ internal static class EmailPreviewWriter
 
     private static string RenderForBrowser(EmailContent content, EmailBrand brand)
     {
-        var html = BrandedEmailHtml.Render(content, brand);
+        var html = BrandedEmailHtml.Render(content, brand, EmailPreviewCatalog.WebFontsUrl);
         return brand.Logo is null
             ? html
             : html.Replace(ContentIdScheme + brand.Logo.ContentId, InlineDataUri(brand.Logo), StringComparison.Ordinal);

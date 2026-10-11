@@ -18,6 +18,6 @@ public sealed class Then_the_email_header_uses_it(ApiFixture fixture)
         await business.HttpClient.InviteAsync(email, BusinessRole.Viewer);
 
         var sentEmail = fixture.ApiFactory.EmailTransport.SentTo(email)[^1];
-        sentEmail.HtmlBody.ShouldContain($"background:{EmailPalette.From(ThemeColor, null).Primary};padding:28px 32px");
+        sentEmail.HtmlBody.ShouldContain($"background:{EmailPalette.From(ThemeColor, null).Primary};padding:24px 32px");
     }
 }

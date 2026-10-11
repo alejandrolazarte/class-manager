@@ -4,6 +4,11 @@ const { join } = require("node:path");
 const headersFileName = "_headers";
 const everyPathPattern = "/*";
 const reportOnlyPolicyHeader = "Content-Security-Policy-Report-Only";
+const emailFontsPathPattern = "/fonts/*";
+const emailFontsHeaders = [
+  "Access-Control-Allow-Origin: *",
+  "Cache-Control: public, max-age=31536000, immutable",
+];
 const defaultOutputDirectory = "dist";
 const defaultApiBaseUrl = "http://localhost:5000";
 
@@ -31,7 +36,9 @@ function contentSecurityPolicy(apiBaseUrl, filesBaseUrl) {
 }
 
 function writeWebHeaders(outputDirectory, apiBaseUrl, filesBaseUrl) {
-  const headers = `${everyPathPattern}\n  ${reportOnlyPolicyHeader}: ${contentSecurityPolicy(apiBaseUrl, filesBaseUrl)}\n`;
+  const policyHeaders = `${everyPathPattern}\n  ${reportOnlyPolicyHeader}: ${contentSecurityPolicy(apiBaseUrl, filesBaseUrl)}\n`;
+  const fontHeaders = `${emailFontsPathPattern}\n${emailFontsHeaders.map((header) => `  ${header}\n`).join("")}`;
+  const headers = policyHeaders + fontHeaders;
   writeFileSync(join(outputDirectory, headersFileName), headers);
 }
 

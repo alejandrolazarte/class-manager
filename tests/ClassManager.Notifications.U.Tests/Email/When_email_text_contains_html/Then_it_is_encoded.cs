@@ -7,7 +7,7 @@ public sealed class Then_it_is_encoded
     {
         var brand = new EmailBrand("<b>Club</b> {{Sections}}", null, null, null);
 
-        var html = BrandedEmailHtml.Render(new EmailContent("Eyebrow", "<script>alert(1)</script>", "Intro", "Footer"), brand);
+        var html = BrandedEmailHtml.Render(new EmailContent("Eyebrow", "<script>alert(1)</script>", "Intro", "Footer"), brand, new Uri("https://app.example.com/fonts/"));
 
         html.ShouldNotContain("<script>");
         html.ShouldContain("&lt;b&gt;Club&lt;/b&gt; {{Sections}}");

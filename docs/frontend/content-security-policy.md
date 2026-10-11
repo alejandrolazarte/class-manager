@@ -10,6 +10,8 @@ It is deployed in **report-only** mode: the browser only reports what it would b
 
 `pnpm export:web` runs `app/scripts/writeWebHeaders.js` after the export. It writes `dist/_headers`, which Cloudflare Pages applies to every path. The API origin comes from `EXPO_PUBLIC_API_BASE_URL`, the same variable the app uses, so no host is hardcoded.
 
+It also sends `Access-Control-Allow-Origin: *` and a one-year immutable cache for `/fonts/*`, the Figtree files that emails load from the web app (see [Branded emails](../backend/20261002-branded-emails/plan.md)).
+
 ## The policy
 
 | Directive | Value | Why |
