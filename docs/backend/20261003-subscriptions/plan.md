@@ -197,7 +197,7 @@ The daily core — students, families, class groups, enrollments, attendance, mo
 | `family-app` (family accounts, avisos) | | | | ✓ | ✓ | yes |
 | `shop` (products and orders) | | | | ✓ | ✓ | yes |
 | `brand` (brand theme, logo, theme lock) | | | | ✓ | ✓ | yes |
-| `catalog-photos` (photos per product or class pack, see [storage](../../storage.md)) | yes | 1 | 5 | 5 | 5 | yes, raises the limit |
+| `document-storage` (MB of uploaded files: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 10 GB | yes, US$ 2 per 10 GB more |
 | Future paid features (online payments, reports, …) | | | | | | yes, priced |
 
 ## Library or part of Core?

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261011102848_IncludeStudentAppInEveryPlan")]
+    [Migration("20261011104445_IncludeStudentAppInEveryPlan")]
     partial class IncludeStudentAppInEveryPlan
     {
         /// <inheritdoc />
@@ -2115,8 +2115,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Code = "catalog-photos",
-                            AddOnListPrice = 3m,
+                            Code = "document-storage",
+                            AddOnListPrice = 2m,
                             Currency = "USD",
                             IsAddOn = true,
                             IsCounted = true
@@ -2249,8 +2249,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "free",
-                            FeatureCode = "catalog-photos",
-                            Limit = 1
+                            FeatureCode = "document-storage",
+                            Limit = 100
                         },
                         new
                         {
@@ -2288,8 +2288,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "lite",
-                            FeatureCode = "catalog-photos",
-                            Limit = 5
+                            FeatureCode = "document-storage",
+                            Limit = 1024
                         },
                         new
                         {
@@ -2341,8 +2341,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "pro",
-                            FeatureCode = "catalog-photos",
-                            Limit = 5
+                            FeatureCode = "document-storage",
+                            Limit = 5120
                         },
                         new
                         {
@@ -2392,8 +2392,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "enterprise",
-                            FeatureCode = "catalog-photos",
-                            Limit = 5
+                            FeatureCode = "document-storage",
+                            Limit = 10240
                         });
                 });
 

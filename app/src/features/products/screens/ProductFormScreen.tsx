@@ -12,6 +12,7 @@ import { productErrorCodes } from "@/features/products/productErrorCodes";
 import {
   productFieldNames,
   ProductFormValues,
+  productLimits,
   productSchema,
   toProductFormValues,
   toSaveProductRequest,
@@ -174,7 +175,11 @@ function ProductEditor({ product }: ProductEditorProps) {
         labelKey: "products.form.description",
         isMultiline: true,
       })}
-      <CatalogImageField images={images} placeholderIcon="products" />
+      <CatalogImageField
+        images={images}
+        placeholderIcon="products"
+        maximumImageCount={productLimits.maximumImageCount}
+      />
       <Controller
         control={form.control}
         name="stockMode"

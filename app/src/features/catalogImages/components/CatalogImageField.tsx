@@ -12,10 +12,20 @@ import { IconName } from "@/ui/Icon";
 interface CatalogImageFieldProps {
   images: CatalogImageDraftState;
   placeholderIcon: IconName;
+  maximumImageCount: number;
 }
 
-export function CatalogImageField({ images, placeholderIcon }: CatalogImageFieldProps) {
+export function CatalogImageField({
+  images,
+  placeholderIcon,
+  maximumImageCount,
+}: CatalogImageFieldProps) {
   const { items } = images.draft;
+  const canAddImage = items.length < maximumImageCount;
+  const hint =
+    maximumImageCount === 1
+      ? translate("catalogImages.singleHint")
+      : translate("catalogImages.hint", { maximum: maximumImageCount });
   return (
     <Card className="gap-3 p-4">
       <AppText variant="bodyStrong">{translate("catalogImages.photos")}</AppText>
@@ -63,16 +73,18 @@ export function CatalogImageField({ images, placeholderIcon }: CatalogImageField
           })}
         </ScrollView>
       )}
-      <View className="flex-row">
-        <Button
-          size="medium"
-          icon="upload"
-          label={translate("catalogImages.add")}
-          onPress={images.pick}
-        />
-      </View>
+      {canAddImage ? (
+        <View className="flex-row">
+          <Button
+            size="medium"
+            icon="upload"
+            label={translate("catalogImages.add")}
+            onPress={images.pick}
+          />
+        </View>
+      ) : null}
       <AppText variant="caption" tone={images.errorMessage === null ? "subtle" : "danger"}>
-        {images.errorMessage ?? translate("catalogImages.hint")}
+        {images.errorMessage ?? hint}
       </AppText>
     </Card>
   );

@@ -17,6 +17,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Ignore(product => product.TracksStock);
         builder.Ignore(product => product.ImagesInOrder);
         builder.Ignore(product => product.ImageCount);
+        builder.Ignore(product => product.MaximumImageCount);
 
         builder.HasMany(product => product.Variants)
             .WithOne()

@@ -16,6 +16,6 @@ internal sealed class FeatureUsage<TDbContext>(
     {
         var registration = limits.Registrations.FirstOrDefault(candidate => candidate.FeatureCode == featureCode)
             ?? throw new ArgumentException($"No limit is registered for '{featureCode}'.", nameof(featureCode));
-        return registration.CountCurrent(context, services, cancellationToken);
+        return registration.UsageInLimitUnitsAsync(context, services, cancellationToken);
     }
 }

@@ -1,3 +1,4 @@
+using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Documents;
 using ClassManager.Core.Domain.Products;
 
@@ -28,5 +29,16 @@ internal static class CatalogImageSamples
         }
 
         return product;
+    }
+
+    public static ClassPack ClassPackWithImages(int imageCount)
+    {
+        var classPack = ClassPack.Create("4 clases", 4, 80m, null, TestData.Now).Value!;
+        for (var index = 0; index < imageCount; index++)
+        {
+            classPack.AddImage(PublicDocument());
+        }
+
+        return classPack;
     }
 }
