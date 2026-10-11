@@ -6,6 +6,7 @@ import { CounterSaleItem } from "@/features/orders/counterSale";
 import { QuantityStepper } from "@/features/studentApp/components/QuantityStepper";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { IconButton } from "@/ui/IconButton";
 
 interface CounterSaleItemRowProps {
@@ -27,7 +28,7 @@ export function CounterSaleItemRow({
   const price = formatMoney(item.price, currencyCode);
   const isUnavailable = isLocked || item.maximumUnits === 0;
   const stepper = (
-    <View className="self-start rounded-xl border-[1.5px] border-border">
+    <View className="self-start rounded-[10px] border border-border bg-surface">
       <QuantityStepper
         units={units}
         minimum={0}
@@ -53,14 +54,15 @@ export function CounterSaleItemRow({
       stepper
     );
   return (
-    <View
-      className={`flex-row items-center gap-3 rounded-[20px] border-[1.5px] border-border bg-surface p-2.5 ${isUnavailable && units === 0 ? "opacity-50" : ""}`}
+    <HairlineRow
+      isDimmed={isUnavailable && units === 0}
+      className="flex-row items-center gap-3 py-3"
     >
       <CatalogImage
         imageUri={item.imageUrl}
         placeholderIcon={item.kind === "pack" ? "classPacks" : "products"}
         placeholderIconSize="large"
-        className={`${showsLineTotal ? "h-[76px] w-[76px]" : "h-14 w-14"} self-start rounded-[14px]`}
+        className={`${showsLineTotal ? "h-[76px] w-[76px]" : "h-14 w-14"} self-start rounded-xl`}
       />
       <View className="min-w-0 flex-1 gap-1.5">
         <View className="flex-row items-start justify-between gap-2">
@@ -77,6 +79,6 @@ export function CounterSaleItemRow({
         {showsLineTotal && units > 0 ? stepper : null}
       </View>
       {trailing}
-    </View>
+    </HairlineRow>
   );
 }

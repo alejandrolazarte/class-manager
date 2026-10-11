@@ -9,10 +9,10 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { Spinner } from "@/ui/Spinner";
 import { StatusPill } from "@/ui/StatusPill";
 import { TitleWithPills } from "@/ui/TitleWithPills";
+import { HairlineRow } from "@/ui/HairlineRow";
 
 function priceLabel(plan: Plan): string {
   if (plan.durationInDays !== null && plan.listPrice === 0) {
@@ -49,11 +49,11 @@ export function PlanCatalog({ currentPlanCode, includesTrial = true }: PlanCatal
     );
   }
   return (
-    <View className="gap-3">
+    <View>
       {plansQuery.data
         .filter((plan) => includesTrial || plan.code !== planCodes.free)
         .map((plan) => (
-          <Card key={plan.code} className="gap-2.5 px-4 py-3.5">
+          <HairlineRow key={plan.code} className="gap-2.5 py-3.5">
             <TitleWithPills title={planLabel(plan.code)}>
               {plan.code === currentPlanCode ? (
                 <StatusPill label={translate("subscriptions.currentPlan")} tone="primary" isSmall />
@@ -63,7 +63,7 @@ export function PlanCatalog({ currentPlanCode, includesTrial = true }: PlanCatal
               {priceLabel(plan)}
             </AppText>
             <FeatureList features={plan.features} />
-          </Card>
+          </HairlineRow>
         ))}
     </View>
   );

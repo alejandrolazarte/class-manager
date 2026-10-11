@@ -1,20 +1,20 @@
 import { ImportModule, ImportSchema } from "@/features/importExport/types";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { Spinner } from "@/ui/Spinner";
+import { HairlineSection } from "@/ui/HairlineSection";
 
 const columnSeparator = " · ";
 
-interface ImportColumnsCardProps {
+interface ImportColumnsSectionProps {
   module: ImportModule;
   schema: ImportSchema | undefined;
 }
 
-export function ImportColumnsCard({ module, schema }: ImportColumnsCardProps) {
+export function ImportColumnsSection({ module, schema }: ImportColumnsSectionProps) {
   return (
-    <Card className="gap-2 p-4">
+    <HairlineSection>
       <SectionTitle title={translate("importExport.columnsTitle")} isOverline />
       {schema === undefined ? (
         <Spinner />
@@ -37,6 +37,6 @@ export function ImportColumnsCard({ module, schema }: ImportColumnsCardProps) {
           {translate("importExport.studentsHint")}
         </AppText>
       ) : null}
-    </Card>
+    </HairlineSection>
   );
 }

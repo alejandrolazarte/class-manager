@@ -5,15 +5,15 @@ import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { ListDivider } from "@/ui/ListRow";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { StatusPill } from "@/ui/StatusPill";
+import { HairlineSection } from "@/ui/HairlineSection";
 
 const maximumProblemRowsShown = 50;
 const ignoredColumnSeparator = ", ";
 
-interface ImportPreviewCardProps {
+interface ImportPreviewSectionProps {
   fileName: string;
   report: ImportReport;
   isImporting: boolean;
@@ -21,13 +21,13 @@ interface ImportPreviewCardProps {
   onChooseAnother: () => void;
 }
 
-export function ImportPreviewCard({
+export function ImportPreviewSection({
   fileName,
   report,
   isImporting,
   onImport,
   onChooseAnother,
-}: ImportPreviewCardProps) {
+}: ImportPreviewSectionProps) {
   const problemRows = report.rows.filter((row) => row.status !== "Valid");
   const shownProblemRows = problemRows.slice(0, maximumProblemRowsShown);
   const hiddenProblemRowCount = problemRows.length - shownProblemRows.length;
@@ -36,7 +36,7 @@ export function ImportPreviewCard({
     .map((column) => column.header);
 
   return (
-    <Card className="gap-3 p-4">
+    <HairlineSection>
       <AppText variant="caption" tone="subtle">
         {translate("importExport.preview.file", { fileName })}
       </AppText>
@@ -116,6 +116,6 @@ export function ImportPreviewCard({
         label={translate("importExport.preview.chooseAnother")}
         onPress={onChooseAnother}
       />
-    </Card>
+    </HairlineSection>
   );
 }

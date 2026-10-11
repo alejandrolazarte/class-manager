@@ -13,7 +13,6 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
@@ -96,7 +95,7 @@ function AchievementSettingsForm({ settings }: { settings: AchievementSettings }
         {translate("achievements.settings.levelsHint")}
       </AppText>
       <RequiredFieldsLegend />
-      <Card className="gap-3 p-4">
+      <View className="gap-3">
         {levels.map((level, index) => (
           <LevelRow
             key={index}
@@ -117,7 +116,7 @@ function AchievementSettingsForm({ settings }: { settings: AchievementSettings }
             onPress={() => setLevels((current) => [...current, emptyLevel])}
           />
         ) : null}
-      </Card>
+      </View>
       {levelError === null ? null : (
         <AppText variant="body" tone="danger">
           {translate(levelError)}

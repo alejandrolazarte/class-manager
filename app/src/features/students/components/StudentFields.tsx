@@ -15,7 +15,6 @@ interface StudentFieldsProps<TFormValues extends FieldValues> {
   control: Control<TFormValues>;
   paths: StudentFieldPaths<TFormValues>;
   autoFocus?: boolean;
-  isInsideCard?: boolean;
 }
 
 function toText(value: unknown): string {
@@ -26,9 +25,7 @@ export function StudentFields<TFormValues extends FieldValues>({
   control,
   paths,
   autoFocus = false,
-  isInsideCard = false,
 }: StudentFieldsProps<TFormValues>) {
-  const fieldSurface = isInsideCard ? "background" : "surface";
   return (
     <View className="gap-3">
       <Controller
@@ -38,7 +35,6 @@ export function StudentFields<TFormValues extends FieldValues>({
           <TextField
             label={translate("students.fields.fullName")}
             isRequired
-            fieldSurface={fieldSurface}
             autoFocus={autoFocus}
             autoCapitalize="words"
             value={toText(field.value)}
@@ -55,7 +51,6 @@ export function StudentFields<TFormValues extends FieldValues>({
           <BirthDateField
             label={translate("students.fields.birthDate")}
             isRequired={false}
-            fieldSurface={fieldSurface}
             value={toText(field.value)}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
@@ -70,7 +65,6 @@ export function StudentFields<TFormValues extends FieldValues>({
           <TextField
             label={translate("students.fields.email")}
             hint={translate("students.fields.emailHint")}
-            fieldSurface={fieldSurface}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="off"
@@ -87,7 +81,6 @@ export function StudentFields<TFormValues extends FieldValues>({
         render={({ field, fieldState }) => (
           <TextField
             label={translate("students.fields.notes")}
-            fieldSurface={fieldSurface}
             placeholder={translate("students.fields.notesPlaceholder")}
             multiline
             value={toText(field.value)}

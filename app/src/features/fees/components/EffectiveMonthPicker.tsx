@@ -17,7 +17,7 @@ export function EffectiveMonthPicker({ month, onChange, label }: EffectiveMonthP
       <AppText variant="label" tone="muted">
         {label ?? translate("fees.effectiveMonth.label")}
       </AppText>
-      <View className="h-[52px] flex-row items-center justify-between rounded-2xl border-[1.5px] border-border bg-surface px-1">
+      <View className="h-[46px] flex-row items-center justify-between rounded-[10px] border border-border bg-surface px-1">
         <IconButton
           icon="previous"
           tone="primary"

@@ -7,7 +7,7 @@ import {
 } from "@/features/classGroups/startTimeFormatting";
 import { translate } from "@/i18n/translate";
 import { IconButton } from "@/ui/IconButton";
-import { TextField, TextFieldSurface } from "@/ui/TextField";
+import { TextField } from "@/ui/TextField";
 
 interface TimeFieldProps {
   label: string;
@@ -17,7 +17,6 @@ interface TimeFieldProps {
   onBlur?: () => void;
   errorMessage?: string;
   isRequired?: boolean;
-  fieldSurface?: TextFieldSurface;
   minuteStep?: number;
 }
 
@@ -44,7 +43,6 @@ export function TimeField({
   onBlur,
   errorMessage,
   isRequired = false,
-  fieldSurface,
   minuteStep = defaultMinuteStep,
 }: TimeFieldProps) {
   const [pickedHour, setPickedHour] = useState<number | null>(null);
@@ -74,7 +72,6 @@ export function TimeField({
         isRequired={isRequired}
         placeholder={translate("timeField.placeholder")}
         keyboardType="number-pad"
-        fieldSurface={fieldSurface}
         value={value}
         onChangeText={(typedText) => onChangeText(formatStartTimeAsTyped(typedText))}
         onBlur={onBlur}

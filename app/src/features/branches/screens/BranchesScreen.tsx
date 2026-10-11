@@ -12,11 +12,12 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
@@ -94,26 +95,28 @@ export function BranchesScreen() {
           />
         </Banner>
       ) : null}
-      {(branchesQuery.data ?? []).map((branch) => (
-        <Card
-          key={branch.businessId}
-          onPress={branch.isCurrent ? undefined : () => openBranch(branch)}
-          accessibilityLabel={branch.isCurrent ? undefined : branch.name}
-          className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
-        >
-          <View className="min-w-0 flex-1 gap-0.5">
-            <TitleWithPills title={branch.name}>
-              {branch.isCurrent ? (
-                <StatusPill label={translate("branches.current")} tone="primary" isSmall />
-              ) : null}
-            </TitleWithPills>
-            <AppText variant="caption" tone="subtle">
-              {branchRoleDescription(branch)}
-            </AppText>
-          </View>
-          {switchingBranchId === branch.businessId ? <Spinner /> : null}
-        </Card>
-      ))}
+      <View>
+        {(branchesQuery.data ?? []).map((branch, index) => (
+          <AnimatedListItem key={branch.businessId} index={index}>
+            <HairlineRow
+              onPress={branch.isCurrent ? undefined : () => openBranch(branch)}
+              accessibilityLabel={branch.isCurrent ? undefined : branch.name}
+            >
+              <View className="min-w-0 flex-1 gap-0.5">
+                <TitleWithPills title={branch.name}>
+                  {branch.isCurrent ? (
+                    <StatusPill label={translate("branches.current")} tone="primary" isSmall />
+                  ) : null}
+                </TitleWithPills>
+                <AppText variant="caption" tone="subtle">
+                  {branchRoleDescription(branch)}
+                </AppText>
+              </View>
+              {switchingBranchId === branch.businessId ? <Spinner /> : null}
+            </HairlineRow>
+          </AnimatedListItem>
+        ))}
+      </View>
     </ScrollScreen>
   );
 }

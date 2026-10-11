@@ -29,7 +29,6 @@ import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { Chip } from "@/ui/Chip";
 import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { TextField } from "@/ui/TextField";
@@ -39,6 +38,7 @@ import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { HairlineSection } from "@/ui/HairlineSection";
 
 const hexColorPattern = /^#[0-9a-f]{6}$/i;
 
@@ -204,7 +204,7 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
         submissionFailure={submissionFailure}
         onRetry={save}
       >
-        <Card className="flex-row items-center gap-3.5 p-4">
+        <View className="flex-row items-center gap-3.5">
           <BrandLogo displayName={displayName} logoUri={logoUri} size="medium" />
           <View className="min-w-0 flex-1 gap-2">
             <AppText variant="bodyStrong">{translate("brand.settings.logo")}</AppText>
@@ -232,7 +232,7 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
               {logoError ?? translate("brand.settings.logoHint")}
             </AppText>
           </View>
-        </Card>
+        </View>
         <TextField
           label={translate("brand.settings.name")}
           hint={translate("brand.settings.nameHint")}
@@ -241,26 +241,20 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
           value={draft.brandName}
           onChangeText={(brandName) => updateDraft({ brandName })}
         />
-        <Card className="gap-3 p-4">
-          <View className="gap-0.5">
-            <AppText variant="bodyStrong">{translate("brand.settings.theme")}</AppText>
-            <AppText variant="caption" tone="muted">
-              {translate("brand.settings.themeHint")}
-            </AppText>
-          </View>
+        <HairlineSection
+          title={translate("brand.settings.theme")}
+          hint={translate("brand.settings.themeHint")}
+        >
           <ThemeOptionGrid
             selectedThemeName={selectedThemeName}
             colorScheme={colorScheme}
             onSelect={selectBuiltInTheme}
           />
-        </Card>
-        <Card className="gap-3 p-4">
-          <View className="gap-0.5">
-            <AppText variant="bodyStrong">{translate("brand.settings.mainColor")}</AppText>
-            <AppText variant="caption" tone="muted">
-              {translate("brand.settings.mainColorHint")}
-            </AppText>
-          </View>
+        </HairlineSection>
+        <HairlineSection
+          title={translate("brand.settings.mainColor")}
+          hint={translate("brand.settings.mainColorHint")}
+        >
           <ColorSwatchGrid
             colors={mainBrandSwatches}
             selectedColor={draft.themeColor}
@@ -286,15 +280,12 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
               {translate("brand.settings.adjusted")}
             </AppText>
           ) : null}
-        </Card>
+        </HairlineSection>
         {draft.themeColor === null ? null : (
-          <Card className="gap-3 p-4">
-            <View className="gap-0.5">
-              <AppText variant="bodyStrong">{translate("brand.settings.accentColor")}</AppText>
-              <AppText variant="caption" tone="muted">
-                {translate("brand.settings.accentColorHint")}
-              </AppText>
-            </View>
+          <HairlineSection
+            title={translate("brand.settings.accentColor")}
+            hint={translate("brand.settings.accentColorHint")}
+          >
             <ColorSwatchGrid
               colors={accentBrandSwatches}
               selectedColor={draft.accentColor}
@@ -308,7 +299,7 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
                 onPress={() => updateDraft({ accentColor: null })}
               />
             </View>
-          </Card>
+          </HairlineSection>
         )}
         <View className="gap-2">
           <AppText variant="label" tone="muted">
