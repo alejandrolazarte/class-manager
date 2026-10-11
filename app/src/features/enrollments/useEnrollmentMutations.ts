@@ -3,6 +3,7 @@ import { classGroupQueryKeys } from "@/features/classGroups/classGroupQueryKeys"
 import { enrollmentQueryKeys } from "@/features/enrollments/enrollmentQueryKeys";
 import { endEnrollment, enrollStudent } from "@/features/enrollments/enrollmentsApi";
 import { EnrollStudentRequest } from "@/features/enrollments/types";
+import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
 
 function useInvalidateEnrollments() {
   const queryClient = useQueryClient();
@@ -10,6 +11,7 @@ function useInvalidateEnrollments() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: enrollmentQueryKeys.all }),
       queryClient.invalidateQueries({ queryKey: classGroupQueryKeys.all }),
+      queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
     ]);
 }
 

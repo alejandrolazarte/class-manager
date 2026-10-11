@@ -11,6 +11,7 @@ import { ClientFee } from "@/features/fees/types";
 import { useMonthlyFees } from "@/features/fees/useFees";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
+import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
@@ -39,6 +40,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
   const [month, setMonth] = useState(initialMonth ?? monthOf());
   const [filter, setFilter] = useState<FeeFilter>("debtors");
   const { data: monthlyFees, isPending, isError, isRefetching, refetch } = useMonthlyFees(month);
+  useRefetchOnFocus(refetch);
   const money = (amount: number) => formatMoney(amount, business.currencyCode);
   const allClients = monthlyFees?.clients ?? [];
   const debtors = allClients.filter((clientFee: ClientFee) => debtorStatuses.has(clientFee.status));
