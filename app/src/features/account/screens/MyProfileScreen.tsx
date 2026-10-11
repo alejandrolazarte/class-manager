@@ -12,7 +12,6 @@ import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { PasswordField } from "@/ui/PasswordField";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
@@ -119,15 +118,15 @@ export function MyProfileScreen({ editProfileRoute }: MyProfileScreenProps) {
         </Banner>
       ) : null}
       {accountQuery.data ? (
-        <Card className="flex-row items-center gap-3.5 p-4">
+        <View className="flex-row items-center gap-3 py-1">
           <Avatar name={accountQuery.data.fullName} />
           <View className="min-w-0 flex-1 gap-0.5">
             <AppText variant="heading">{accountQuery.data.fullName}</AppText>
-            <AppText variant="caption" tone="subtle">
+            <AppText variant="caption" tone="muted">
               {translate("profile.signsInWith", { email: accountQuery.data.email })}
             </AppText>
           </View>
-        </Card>
+        </View>
       ) : null}
       <View className="gap-3">
         <SectionTitle title={translate("profile.email.title")} />

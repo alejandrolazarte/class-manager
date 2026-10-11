@@ -10,6 +10,8 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { FullScreenPage } from "@/ui/FullScreenPage";
+import { Notice } from "@/ui/Notice";
+import { Collapsible } from "@/ui/motion/Collapsible";
 
 interface ProductDetailPageProps {
   product: StudentAppShopProduct;
@@ -42,8 +44,8 @@ export function ProductDetailPage({
       title={product.name}
       onClose={onClose}
       footer={
-        <View className="flex-row items-center gap-2.5 border-t border-border bg-background px-5 py-3">
-          <View className="h-[52px] justify-center rounded-2xl border-[1.5px] border-border bg-surface">
+        <View className="flex-row items-center gap-2.5 border-t border-border-subtle bg-background px-5 pb-4 pt-3">
+          <View className="h-12 justify-center rounded-xl border border-border bg-surface">
             <QuantityStepper
               units={units}
               minimum={1}
@@ -100,13 +102,9 @@ export function ProductDetailPage({
             </View>
           </View>
         ) : null}
-        {note === null ? null : (
-          <View className="rounded-[14px] bg-warning-soft px-3 py-2.5">
-            <AppText variant="label" tone="warningSoft">
-              {note}
-            </AppText>
-          </View>
-        )}
+        <Collapsible isExpanded={note !== null}>
+          {note === null ? null : <Notice tone="warning" message={note} />}
+        </Collapsible>
       </View>
     </FullScreenPage>
   );

@@ -8,7 +8,7 @@ import { useSession } from "@/features/authentication/useSession";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -62,36 +62,38 @@ export function ChooseAccountScreen() {
     >
       {hasFailed ? <Banner message={translate("accounts.switchFailed")} /> : null}
       {isPending ? <Spinner className="mt-6" /> : null}
-      {(accounts ?? []).map((account) => {
-        const key = `${account.kind}-${account.businessId}`;
-        return (
-          <Card
-            key={key}
-            onPress={() => open(account)}
-            accessibilityLabel={accountLabel(account)}
-            className="flex-row items-center gap-3.5 p-4"
-          >
-            <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
-              <Icon name={account.kind === "student" ? "home" : "business"} tone="primary" />
-            </View>
-            <View className="min-w-0 flex-1 gap-0.5">
-              <AppText variant="heading">{account.businessName}</AppText>
-              <AppText variant="caption" tone="subtle">
-                {translate(
-                  account.kind === "student" ? "accounts.studentHint" : "accounts.teamHint",
-                )}
-              </AppText>
-            </View>
-            {switchingKey === key ? (
-              <Spinner />
-            ) : account.isCurrent ? (
-              <StatusPill label={translate("accounts.current")} tone="primary" />
-            ) : (
-              <Icon name="next" tone="subtle-foreground" />
-            )}
-          </Card>
-        );
-      })}
+      <View>
+        {(accounts ?? []).map((account) => {
+          const key = `${account.kind}-${account.businessId}`;
+          return (
+            <HairlineRow
+              key={key}
+              onPress={() => open(account)}
+              accessibilityLabel={accountLabel(account)}
+              className="flex-row items-center gap-3"
+            >
+              <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
+                <Icon name={account.kind === "student" ? "home" : "business"} tone="primary" />
+              </View>
+              <View className="min-w-0 flex-1 gap-0.5">
+                <AppText variant="heading">{account.businessName}</AppText>
+                <AppText variant="caption" tone="subtle">
+                  {translate(
+                    account.kind === "student" ? "accounts.studentHint" : "accounts.teamHint",
+                  )}
+                </AppText>
+              </View>
+              {switchingKey === key ? (
+                <Spinner />
+              ) : account.isCurrent ? (
+                <StatusPill isSmall label={translate("accounts.current")} tone="primary" />
+              ) : (
+                <Icon name="next" size="medium" tone="subtle-foreground" />
+              )}
+            </HairlineRow>
+          );
+        })}
+      </View>
     </ScrollScreen>
   );
 }
