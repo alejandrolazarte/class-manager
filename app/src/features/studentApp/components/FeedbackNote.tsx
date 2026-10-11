@@ -4,7 +4,7 @@ import { translate } from "@/i18n/translate";
 import { AccentNote } from "@/ui/AccentNote";
 import { AppText } from "@/ui/AppText";
 
-export function FeedbackCard({ feedback }: { feedback: StudentAppFeedback }) {
+export function FeedbackNote({ feedback }: { feedback: StudentAppFeedback }) {
   return (
     <AccentNote tone="primary">
       <AppText variant="bodyStrong">

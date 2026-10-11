@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { BillingTile, hasBillingTile } from "@/features/studentApp/components/BillingTile";
-import { FeedbackCard } from "@/features/studentApp/components/FeedbackCard";
+import { FeedbackNote } from "@/features/studentApp/components/FeedbackNote";
 import { GuardianConsentCard } from "@/features/studentApp/components/GuardianConsentCard";
 import { NewsBell } from "@/features/studentApp/components/NewsBell";
 import { NewsRow } from "@/features/studentApp/components/NewsRow";
@@ -130,7 +130,7 @@ export function StudentAppHomeScreen() {
       )}
       {student?.latestFeedback ? (
         <AnimatedListItem index={2}>
-          <FeedbackCard feedback={student.latestFeedback} />
+          <FeedbackNote feedback={student.latestFeedback} />
         </AnimatedListItem>
       ) : null}
       {announcements.length === 0 ? null : (
