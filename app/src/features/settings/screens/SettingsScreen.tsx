@@ -29,7 +29,7 @@ import { routes } from "@/navigation/routes";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -74,7 +74,6 @@ export function SettingsScreen() {
   const groups: SettingsGroup[] = [
     {
       titleKey: "settings.group.business",
-      tone: "primary",
       items: [
         {
           key: "brand",
@@ -115,7 +114,6 @@ export function SettingsScreen() {
     },
     {
       titleKey: "settings.group.people",
-      tone: "accent",
       items: [
         {
           key: "team",
@@ -156,7 +154,6 @@ export function SettingsScreen() {
     },
     {
       titleKey: "settings.group.shop",
-      tone: "primary",
       items: [
         {
           key: "classPacks",
@@ -185,7 +182,6 @@ export function SettingsScreen() {
     },
     {
       titleKey: "settings.group.device",
-      tone: "neutral",
       items: [
         {
           key: "appearance",
@@ -214,7 +210,6 @@ export function SettingsScreen() {
     },
     {
       titleKey: "settings.group.account",
-      tone: "neutral",
       items: [
         {
           key: "profile",
@@ -245,10 +240,11 @@ export function SettingsScreen() {
 
   return (
     <ScrollScreen header={<ScreenHeader title={translate("settings.title")} />}>
-      <Card
+      <HairlineRow
         onPress={canManageBusiness ? () => router.push(routes.businessSettings) : undefined}
         accessibilityLabel={canManageBusiness ? translate("settings.business") : undefined}
-        className="flex-row items-center gap-3.5 p-4"
+        hasDivider={false}
+        className="flex-row items-center gap-3 py-2.5"
       >
         {currentBrand?.brand ? <CurrentBrandLogo /> : <BrandMark size="small" />}
         <View className="min-w-0 flex-1 gap-0.5">
@@ -257,8 +253,8 @@ export function SettingsScreen() {
             {translate("settings.businessSummary", { currency: business.currencyCode })}
           </AppText>
         </View>
-        {canManageBusiness ? <Icon name="next" tone="subtle-foreground" /> : null}
-      </Card>
+        {canManageBusiness ? <Icon name="next" size="medium" tone="subtle-foreground" /> : null}
+      </HairlineRow>
       <SettingsGroupList groups={groups} />
       {appVersion ? (
         <AppText variant="caption" tone="subtle" className="text-center">

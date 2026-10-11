@@ -157,6 +157,17 @@ export function SignUpScreen() {
       )}
       onBack={() => (step === 2 ? setStep(1) : router.replace(routes.welcome))}
       progress={<StepProgress segmentFills={segmentFills} />}
+      footer={
+        <Pressable
+          accessibilityRole="link"
+          className="py-1.5"
+          onPress={() => router.replace(routes.signIn)}
+        >
+          <AppText tone="primary" variant="link" className="text-center">
+            {translate("authentication.signUp.goToSignIn")}
+          </AppText>
+        </Pressable>
+      }
     >
       {signUpFailure?.kind === "emailTaken" ? (
         <Banner tone="warning" message={translate("authentication.signUp.emailTaken")}>
@@ -287,15 +298,6 @@ export function SignUpScreen() {
           />
         </View>
       )}
-      <Pressable
-        accessibilityRole="link"
-        className="py-1.5"
-        onPress={() => router.replace(routes.signIn)}
-      >
-        <AppText tone="primary" variant="link" className="text-center">
-          {translate("authentication.signUp.goToSignIn")}
-        </AppText>
-      </Pressable>
     </AuthenticationScreenLayout>
   );
 }
