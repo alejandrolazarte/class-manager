@@ -30,7 +30,6 @@ export const themeColorTokens = [
   "success-soft-foreground",
   "inverse",
   "inverse-foreground",
-  "shadow",
 ] as const;
 
 export type ThemeColorToken = (typeof themeColorTokens)[number];

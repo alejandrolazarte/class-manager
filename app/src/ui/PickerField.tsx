@@ -34,7 +34,7 @@ export function PickerChooseButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-3.5 py-3 active:bg-muted"
+      className="flex-row items-center gap-3 rounded-[10px] border border-border bg-surface px-3.5 py-3 active:bg-muted"
     >
       <Icon name={icon} tone="muted-foreground" />
       <View className="min-w-0 flex-1">
@@ -52,7 +52,7 @@ export function PickerChooseButton({
 
 export function PickedItemRow({ name, detail, removeLabel, onRemove }: PickedItemRowProps) {
   return (
-    <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
+    <View className="flex-row items-center gap-3 rounded-[10px] border border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
       <Avatar name={name} size="small" />
       <View className="min-w-0 flex-1 py-1.5">
         <AppText variant="bodyStrong">{name}</AppText>
@@ -103,7 +103,7 @@ export function PickerField({
       {picked === null ? (
         <PickerChooseButton label={chooseLabel} hint={hint} icon={chooseIcon} onPress={onChoose} />
       ) : (
-        <View className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
+        <View className="flex-row items-center gap-3 rounded-[10px] border border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
           <Avatar name={picked.name} size="small" />
           <Pressable
             accessibilityRole="button"

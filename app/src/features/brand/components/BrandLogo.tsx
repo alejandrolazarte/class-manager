@@ -1,7 +1,6 @@
 import { Image, StyleSheet, View } from "react-native";
 import { brandInitials } from "@/features/brand/brandInitials";
 import { AppText, TextVariant } from "@/ui/AppText";
-import { useElevationStyle } from "@/ui/elevation";
 
 export type BrandLogoSize = "small" | "medium" | "large";
 
@@ -30,14 +29,12 @@ export function BrandLogo({
   size = "small",
   onPrimary = false,
 }: BrandLogoProps) {
-  const elevationStyle = useElevationStyle("card");
   const backgroundClassName =
     logoUri !== null ? "bg-surface" : onPrimary ? "bg-primary-foreground/15" : "bg-primary";
   return (
     <View
       accessibilityRole="image"
       accessibilityLabel={displayName}
-      style={onPrimary ? undefined : elevationStyle}
       className={`items-center justify-center overflow-hidden ${backgroundClassName} ${sizeClassNames[size]}`}
     >
       {logoUri !== null ? (

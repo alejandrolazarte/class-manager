@@ -33,7 +33,7 @@ export function BrandPreview({ colors }: { colors: ThemeColors }) {
         {previewTabs.map((tab, index) => (
           <View key={tab.icon} className="items-center gap-1">
             <TabIcon icon={tab.icon} isFocused={index === 0} />
-            <AppText variant="badge" tone={index === 0 ? "default" : "muted"}>
+            <AppText variant="tab" tone={index === 0 ? "primary" : "muted"}>
               {translate(tab.labelKey)}
             </AppText>
           </View>

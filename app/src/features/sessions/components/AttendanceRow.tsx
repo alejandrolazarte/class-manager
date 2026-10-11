@@ -10,7 +10,6 @@ import { normalizeStudentName } from "@/features/students/studentSchema";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Avatar, AvatarTone } from "@/ui/Avatar";
-import { useElevationStyle } from "@/ui/elevation";
 import { Icon, IconName } from "@/ui/Icon";
 
 type AttendanceRowStudent = Omit<
@@ -80,7 +79,6 @@ export function AttendanceRow({
   onChangeStatus,
   onOpenFeedback,
 }: AttendanceRowProps) {
-  const elevationStyle = useElevationStyle();
   const [horizontalOffset] = useState(() => new Animated.Value(0));
   const canSwipe = isSwipeEnabled && !disabled;
 
@@ -154,10 +152,7 @@ export function AttendanceRow({
         style={{ transform: [{ translateX: horizontalOffset }] }}
         {...panResponder.panHandlers}
       >
-        <View
-          style={elevationStyle}
-          className="flex-row items-center gap-3 rounded-[18px] bg-surface py-3 pl-3.5 pr-3"
-        >
+        <View className="flex-row items-center gap-3 rounded-[18px] bg-surface py-3 pl-3.5 pr-3">
           <Avatar name={student.studentFullName} tone={avatarTones[status ?? "Unmarked"]} />
           <View className="min-w-0 flex-1 gap-0.5">
             <AppText variant="bodyStrong">{student.studentFullName}</AppText>

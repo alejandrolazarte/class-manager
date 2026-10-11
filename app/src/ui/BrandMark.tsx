@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { Icon } from "@/ui/Icon";
-import { useElevationStyle } from "@/ui/elevation";
+import { useFloatingShadowStyle } from "@/ui/elevation";
 
 type BrandMarkSize = "small" | "medium" | "large";
 
@@ -11,7 +11,7 @@ const sizeClassNames: Record<BrandMarkSize, string> = {
 };
 
 export function BrandMark({ size = "medium" }: { size?: BrandMarkSize }) {
-  const elevationStyle = useElevationStyle("floating");
+  const elevationStyle = useFloatingShadowStyle();
   return (
     <View
       style={size === "large" ? elevationStyle : undefined}
@@ -19,7 +19,7 @@ export function BrandMark({ size = "medium" }: { size?: BrandMarkSize }) {
     >
       <Icon
         name="brand"
-        size={size === "large" ? "hero" : size === "medium" ? "huge" : "extraLarge"}
+        size={size === "large" ? "hero" : size === "medium" ? "huge" : "large"}
         tone="primary-foreground"
       />
     </View>

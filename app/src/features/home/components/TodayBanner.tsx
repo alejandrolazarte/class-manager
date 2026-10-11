@@ -4,7 +4,7 @@ import { DaySession } from "@/features/sessions/types";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
-import { useElevationStyle } from "@/ui/elevation";
+import { useFloatingShadowStyle } from "@/ui/elevation";
 
 interface TodayBannerProps {
   highlight: TodayHighlight;
@@ -16,8 +16,7 @@ interface TodayBannerProps {
 const bannerClassName = "h-[72px] flex-row items-center gap-3 rounded-[20px] px-4";
 
 export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBannerProps) {
-  const cardStyle = useElevationStyle();
-  const floatingStyle = useElevationStyle("floating");
+  const floatingStyle = useFloatingShadowStyle();
 
   if (highlight.kind === "live") {
     const { session } = highlight;
@@ -57,7 +56,6 @@ export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBanner
         accessibilityRole="button"
         accessibilityLabel={`${translate("home.banner.next")}: ${label}`}
         onPress={() => onOpen(session)}
-        style={cardStyle}
         className={`${bannerClassName} bg-surface active:bg-muted`}
       >
         <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
@@ -77,7 +75,7 @@ export function TodayBanner({ highlight, timeNow, titleOf, onOpen }: TodayBanner
   }
 
   return (
-    <View style={cardStyle} className={`${bannerClassName} bg-surface`}>
+    <View className={`${bannerClassName} bg-surface`}>
       <View className="h-10 w-10 items-center justify-center rounded-xl bg-muted">
         <Icon name="dayDone" tone="muted-foreground" />
       </View>

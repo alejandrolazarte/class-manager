@@ -11,21 +11,21 @@ type TabScreenOptions = Exclude<
   (...parameters: never[]) => unknown
 >;
 
-const tabBarContentHeight = 66;
-const tabBarTopPadding = 10;
+const tabBarContentHeight = 64;
+const tabBarTopPadding = 6;
 const tabBarMinimumBottomPadding = 12;
 const tabLabelTopMargin = 4;
+const activeMarkClassName = "h-1 w-1 rounded-full";
 
 export function TabIcon({ icon, isFocused }: { icon: IconName; isFocused: boolean }) {
   return (
-    <View
-      className={`h-8 w-[60px] items-center justify-center rounded-2xl ${isFocused ? "bg-primary-soft" : ""}`}
-    >
-      <Icon
-        name={icon}
-        size="extraLarge"
-        tone={isFocused ? "primary-soft-foreground" : "muted-foreground"}
-      />
+    <View className="items-center gap-[3px]">
+      <Icon name={icon} size="large" tone={isFocused ? "primary" : "muted-foreground"} />
+      {isFocused ? (
+        <View testID="tab-active-mark" className={`${activeMarkClassName} bg-primary`} />
+      ) : (
+        <View className={activeMarkClassName} />
+      )}
     </View>
   );
 }
@@ -36,24 +36,24 @@ export function useTabBarScreenOptions(): TabScreenOptions {
   const bottomPadding = Math.max(bottom, tabBarMinimumBottomPadding);
   return {
     headerShown: false,
-    tabBarActiveTintColor: colors.foreground,
+    tabBarActiveTintColor: colors.primary,
     tabBarInactiveTintColor: colors["muted-foreground"],
     tabBarStyle: {
       backgroundColor: colors.surface,
-      borderTopColor: colors.border,
+      borderTopColor: colors["border-subtle"],
       height: tabBarContentHeight + bottomPadding,
       paddingTop: tabBarTopPadding,
       paddingBottom: bottomPadding,
     },
     tabBarLabelStyle: {
-      fontFamily: fontFamilies.strong,
-      fontSize: typeScale.small.fontSize,
+      fontFamily: fontFamilies.label,
+      fontSize: typeScale.micro.fontSize,
       marginTop: tabLabelTopMargin,
     },
     tabBarBadgeStyle: {
       backgroundColor: colors.danger,
       color: colors["danger-foreground"],
-      fontFamily: fontFamilies.strong,
+      fontFamily: fontFamilies.heavy,
       fontSize: typeScale.micro.fontSize,
     },
   };
