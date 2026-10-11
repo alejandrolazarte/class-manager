@@ -1,7 +1,7 @@
-import { Pressable } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { useFloatingShadowStyle } from "@/ui/elevation";
 import { Icon } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 interface FloatingActionButtonProps {
   label: string;
@@ -11,7 +11,7 @@ interface FloatingActionButtonProps {
 export function FloatingActionButton({ label, onPress }: FloatingActionButtonProps) {
   const elevationStyle = useFloatingShadowStyle();
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
@@ -22,6 +22,6 @@ export function FloatingActionButton({ label, onPress }: FloatingActionButtonPro
       <AppText variant="bodyStrong" tone="onPrimary">
         {label}
       </AppText>
-    </Pressable>
+    </PressableScale>
   );
 }

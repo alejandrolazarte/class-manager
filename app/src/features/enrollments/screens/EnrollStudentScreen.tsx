@@ -13,13 +13,13 @@ import { Banner } from "@/ui/Banner";
 import { SearchInput } from "@/ui/SearchInput";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
-import { Spinner } from "@/ui/Spinner";
 import { Avatar } from "@/ui/Avatar";
 import { EmptyState } from "@/ui/EmptyState";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { normalizeStudentName } from "@/features/students/studentSchema";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 interface EnrollStudentScreenProps {
   classGroupId: string;
@@ -95,7 +95,7 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
         </View>
       </View>
       {isPending ? (
-        <Spinner className="mt-6" />
+        <SkeletonList className="px-5" />
       ) : (
         <FlatList
           data={students}

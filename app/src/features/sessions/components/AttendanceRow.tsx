@@ -11,6 +11,8 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Avatar, AvatarTone } from "@/ui/Avatar";
 import { Icon, IconName } from "@/ui/Icon";
+import { Entrance } from "@/ui/motion/Entrance";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 type AttendanceRowStudent = Omit<
   SessionStudent,
@@ -35,7 +37,8 @@ interface MarkButtonProps {
   icon: IconName;
   accessibilityLabel: string;
   isSelected: boolean;
-  selectedClassName: string;
+  selectedBorderClassName: string;
+  selectedFillClassName: string;
   selectedIconTone: "success-foreground" | "danger-foreground";
   disabled: boolean;
   onPress: () => void;
@@ -52,22 +55,26 @@ function MarkButton({
   icon,
   accessibilityLabel,
   isSelected,
-  selectedClassName,
+  selectedBorderClassName,
+  selectedFillClassName,
   selectedIconTone,
   disabled,
   onPress,
 }: MarkButtonProps) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ selected: isSelected, disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={`h-11 w-11 items-center justify-center rounded-full border-[1.5px] ${isSelected ? selectedClassName : "border-border bg-transparent"} ${disabled ? "opacity-40" : ""}`}
+      className={`h-11 w-11 items-center justify-center overflow-hidden rounded-full border-[1.5px] bg-transparent ${isSelected ? selectedBorderClassName : "border-border"} ${disabled ? "opacity-40" : ""}`}
     >
+      {isSelected ? (
+        <Entrance kind="pop" className={`absolute inset-0 rounded-full ${selectedFillClassName}`} />
+      ) : null}
       <Icon name={icon} tone={isSelected ? selectedIconTone : "subtle-foreground"} />
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -201,7 +208,8 @@ export function AttendanceRow({
               name: student.studentFullName,
             })}
             isSelected={status === "Present"}
-            selectedClassName="border-success bg-success"
+            selectedBorderClassName="border-success"
+            selectedFillClassName="bg-success"
             selectedIconTone="success-foreground"
             disabled={disabled}
             onPress={() => toggle("Present")}
@@ -212,7 +220,8 @@ export function AttendanceRow({
               name: student.studentFullName,
             })}
             isSelected={status === "Absent"}
-            selectedClassName="border-danger bg-danger"
+            selectedBorderClassName="border-danger"
+            selectedFillClassName="bg-danger"
             selectedIconTone="danger-foreground"
             disabled={disabled}
             onPress={() => toggle("Absent")}

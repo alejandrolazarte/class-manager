@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { ScrollView } from "react-native";
 import { StudentAppOrderCard } from "@/features/studentApp/components/StudentAppOrderCard";
 import {
   StudentAppOrderFilter,
@@ -13,11 +12,12 @@ import { translate, TranslationKey } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Card } from "@/ui/Card";
-import { Chip } from "@/ui/Chip";
+import { ChipGroup } from "@/ui/ChipGroup";
 import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 const filterLabels: Record<StudentAppOrderFilter, TranslationKey> = {
   open: "student.orders.filter.open",
@@ -43,7 +43,7 @@ export function StudentAppOrdersScreen() {
         />
       }
     >
-      {isPending ? <Spinner className="mt-6" /> : null}
+      {isPending ? <SkeletonList /> : null}
       {isError ? (
         <Banner message={translate("student.loadError")}>
           <Button
@@ -55,26 +55,19 @@ export function StudentAppOrdersScreen() {
         </Banner>
       ) : null}
       {!isPending && !isError && orders.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="-mx-5"
-          contentContainerClassName="gap-2 px-5"
-        >
-          {studentAppOrderFilters.map((orderFilter) => (
-            <Chip
-              key={orderFilter}
-              label={translate(filterLabels[orderFilter])}
-              count={
-                orderFilter === "all"
-                  ? undefined
-                  : orders.filter((order) => matchesOrderFilter(order, orderFilter)).length
-              }
-              isSelected={filter === orderFilter}
-              onPress={() => setChosenFilter(orderFilter)}
-            />
-          ))}
-        </ScrollView>
+        <ChipGroup
+          isScrollable
+          options={studentAppOrderFilters.map((orderFilter) => ({
+            value: orderFilter,
+            label: translate(filterLabels[orderFilter]),
+            count:
+              orderFilter === "all"
+                ? undefined
+                : orders.filter((order) => matchesOrderFilter(order, orderFilter)).length,
+          }))}
+          selectedValue={filter}
+          onChange={setChosenFilter}
+        />
       ) : null}
       {!isPending && !isError && visibleOrders.length === 0 ? (
         <Card>
@@ -87,8 +80,10 @@ export function StudentAppOrdersScreen() {
           />
         </Card>
       ) : null}
-      {visibleOrders.map((order) => (
-        <StudentAppOrderCard key={order.id} order={order} />
+      {visibleOrders.map((order, index) => (
+        <AnimatedListItem key={order.id} index={index}>
+          <StudentAppOrderCard order={order} />
+        </AnimatedListItem>
       ))}
     </ScrollScreen>
   );

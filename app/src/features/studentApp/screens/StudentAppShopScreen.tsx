@@ -18,7 +18,7 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Chip } from "@/ui/Chip";
+import { ChipGroup } from "@/ui/ChipGroup";
 import { EmptyState } from "@/ui/EmptyState";
 import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
@@ -148,21 +148,15 @@ export function StudentAppShopScreen() {
             placeholder={translate("student.shop.search")}
           />
           {shop.packs.length > 0 && shop.products.length > 0 ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="-mx-5"
-              contentContainerClassName="gap-2 px-5"
-            >
-              {(Object.keys(shopCategories) as ShopCategory[]).map((shopCategory) => (
-                <Chip
-                  key={shopCategory}
-                  label={translate(shopCategories[shopCategory])}
-                  isSelected={category === shopCategory}
-                  onPress={() => setCategory(shopCategory)}
-                />
-              ))}
-            </ScrollView>
+            <ChipGroup
+              isScrollable
+              options={(Object.keys(shopCategories) as ShopCategory[]).map((shopCategory) => ({
+                value: shopCategory,
+                label: translate(shopCategories[shopCategory]),
+              }))}
+              selectedValue={category}
+              onChange={setCategory}
+            />
           ) : null}
         </>
       )}

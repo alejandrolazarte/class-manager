@@ -12,6 +12,7 @@ import { Button } from "@/ui/Button";
 import { ListRow } from "@/ui/ListRow";
 import { PickerField } from "@/ui/PickerField";
 import { useToast } from "@/ui/ToastProvider";
+import { Collapsible } from "@/ui/motion/Collapsible";
 
 interface SubstitutePanelProps {
   classGroupId: string;
@@ -77,7 +78,7 @@ export function SubstitutePanel({
         isExpanded={isOpen}
         onPress={toggle}
       />
-      {isOpen ? (
+      <Collapsible isExpanded={isOpen}>
         <View className="gap-2.5 px-4 pb-4">
           {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
           <PickerField
@@ -99,7 +100,7 @@ export function SubstitutePanel({
             isLoading={assignSubstituteMutation.isPending}
           />
         </View>
-      ) : null}
+      </Collapsible>
       {isPickerOpen ? (
         <InstructorPicker
           testID="substitute-instructor-picker"

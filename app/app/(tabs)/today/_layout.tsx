@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 import { translate } from "@/i18n/translate";
+import { useStackScreenOptions } from "@/navigation/stackScreenOptions";
 
 export const unstable_settings = { initialRouteName: "index" };
 
 export default function TodayLayout() {
+  const stackScreenOptions = useStackScreenOptions();
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={stackScreenOptions}>
       <Stack.Screen name="index" options={{ title: translate("sessions.day.title") }} />
       <Stack.Screen
         name="[classGroupId]/[sessionDate]"

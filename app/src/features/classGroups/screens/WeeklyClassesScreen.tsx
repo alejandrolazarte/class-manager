@@ -22,7 +22,8 @@ import { EmptyState } from "@/ui/EmptyState";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 export function WeeklyClassesScreen() {
   const router = useRouter();
@@ -109,20 +110,20 @@ export function WeeklyClassesScreen() {
       {isPending ? (
         <View>
           {header}
-          <Spinner className="mt-6" />
+          <SkeletonList className="px-5" />
         </View>
       ) : (
         <FlatList
           data={dayClassGroups}
           keyExtractor={(classGroup) => classGroup.id}
           ListHeaderComponent={header}
-          renderItem={({ item: classGroup }) => (
-            <View className="px-5 pb-3">
+          renderItem={({ item: classGroup, index }) => (
+            <AnimatedListItem index={index} className="px-5 pb-3">
               <ClassGroupCard
                 classGroup={classGroup}
                 onPress={() => router.push(routes.classGroup(classGroup.id))}
               />
-            </View>
+            </AnimatedListItem>
           )}
           ListEmptyComponent={isError ? null : emptyState}
           refreshing={isRefetching}

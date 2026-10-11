@@ -10,6 +10,7 @@ import {
 import { Pressable, View } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
+import { Entrance } from "@/ui/motion/Entrance";
 
 const toastDurationMilliseconds = 3000;
 const toastWithActionDurationMilliseconds = 6000;
@@ -20,6 +21,7 @@ export interface ToastAction {
 }
 
 interface VisibleToast {
+  id: number;
   message: string;
   action?: ToastAction;
 }
@@ -45,7 +47,8 @@ export function ToastProvider({ children }: PropsWithChildren) {
   }, [visibleToast]);
 
   const showToast = useCallback(
-    (message: string, action?: ToastAction) => setVisibleToast({ message, action }),
+    (message: string, action?: ToastAction) =>
+      setVisibleToast((current) => ({ id: (current?.id ?? 0) + 1, message, action })),
     [],
   );
   const runAction = (action: ToastAction) => {
@@ -62,18 +65,20 @@ export function ToastProvider({ children }: PropsWithChildren) {
           pointerEvents={visibleToast.action ? "box-none" : "none"}
           className="absolute bottom-24 left-0 right-0 items-center px-4"
         >
-          <View
-            accessibilityRole="alert"
-            className="flex-row items-center gap-2 rounded-[14px] bg-inverse px-[18px] py-3"
-          >
-            <Icon name="paid" size="medium" tone="success" />
-            <AppText variant="bodyStrong" tone="inverse" className="font-label">
-              {visibleToast.message}
-            </AppText>
-            {visibleToast.action ? (
-              <ToastActionButton action={visibleToast.action} onPress={runAction} />
-            ) : null}
-          </View>
+          <Entrance key={visibleToast.id} kind="springRise">
+            <View
+              accessibilityRole="alert"
+              className="flex-row items-center gap-2 rounded-[14px] bg-inverse px-[18px] py-3"
+            >
+              <Icon name="paid" size="medium" tone="success" />
+              <AppText variant="bodyStrong" tone="inverse" className="font-label">
+                {visibleToast.message}
+              </AppText>
+              {visibleToast.action ? (
+                <ToastActionButton action={visibleToast.action} onPress={runAction} />
+              ) : null}
+            </View>
+          </Entrance>
         </View>
       ) : null}
     </ToastContext.Provider>

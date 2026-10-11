@@ -13,7 +13,8 @@ import { Card } from "@/ui/Card";
 import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { Spinner } from "@/ui/Spinner";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 export function TeamNotificationsScreen() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export function TeamNotificationsScreen() {
     <ScrollScreen
       header={<ScreenHeader navigation="back" title={translate("teamNotifications.title")} />}
     >
-      {isPending ? <Spinner className="mt-6" /> : null}
+      {isPending ? <SkeletonList /> : null}
       {isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button
@@ -52,12 +53,13 @@ export function TeamNotificationsScreen() {
           />
         </Card>
       ) : null}
-      {notifications?.items.map((notification) => (
-        <TeamNotificationCard
-          key={notification.id}
-          notification={notification}
-          onPress={() => router.push(notification.url as Href)}
-        />
+      {notifications?.items.map((notification, index) => (
+        <AnimatedListItem key={notification.id} index={index}>
+          <TeamNotificationCard
+            notification={notification}
+            onPress={() => router.push(notification.url as Href)}
+          />
+        </AnimatedListItem>
       ))}
     </ScrollScreen>
   );

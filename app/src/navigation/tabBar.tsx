@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fontFamilies, typeScale } from "@/theme/typography";
 import { useTheme } from "@/theme/useTheme";
 import { Icon, IconName } from "@/ui/Icon";
+import { Entrance } from "@/ui/motion/Entrance";
 
 type TabScreenOptions = Exclude<
   NonNullable<ComponentProps<typeof Tabs.Screen>["options"]>,
@@ -22,7 +23,9 @@ export function TabIcon({ icon, isFocused }: { icon: IconName; isFocused: boolea
     <View className="items-center gap-[3px]">
       <Icon name={icon} size="large" tone={isFocused ? "primary" : "muted-foreground"} />
       {isFocused ? (
-        <View testID="tab-active-mark" className={`${activeMarkClassName} bg-primary`} />
+        <Entrance kind="pop">
+          <View testID="tab-active-mark" className={`${activeMarkClassName} bg-primary`} />
+        </Entrance>
       ) : (
         <View className={activeMarkClassName} />
       )}

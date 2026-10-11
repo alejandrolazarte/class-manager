@@ -11,6 +11,7 @@ import { ListRow } from "@/ui/ListRow";
 import { useToast } from "@/ui/ToastProvider";
 import { isFilled } from "@/forms/requiredFields";
 import { TimeField } from "@/forms/TimeField";
+import { Collapsible } from "@/ui/motion/Collapsible";
 
 interface ReschedulePanelProps {
   classGroupId: string;
@@ -80,7 +81,7 @@ export function ReschedulePanel({
         isExpanded={isOpen}
         onPress={toggle}
       />
-      {isOpen ? (
+      <Collapsible isExpanded={isOpen}>
         <View className="gap-2.5 px-4 pb-4">
           {failure ? <Banner tone="warning" message={translate(failureMessages[failure])} /> : null}
           <TimeField
@@ -98,7 +99,7 @@ export function ReschedulePanel({
             isLoading={rescheduleSessionMutation.isPending}
           />
         </View>
-      ) : null}
+      </Collapsible>
     </View>
   );
 }

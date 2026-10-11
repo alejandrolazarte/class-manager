@@ -16,13 +16,14 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Chip } from "@/ui/Chip";
+import { ChipGroup } from "@/ui/ChipGroup";
 import { EmptyState } from "@/ui/EmptyState";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
 import { StepArrow } from "@/ui/StepArrow";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 interface MonthlyFeesScreenProps {
   initialMonth?: string;
@@ -101,17 +102,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
             money={money}
           />
         ) : null}
-        <View className="flex-row flex-wrap gap-2">
-          {filterOptions.map((filterOption) => (
-            <Chip
-              key={filterOption.value}
-              label={filterOption.label}
-              accessibilityLabel={filterOption.accessibilityLabel}
-              isSelected={filter === filterOption.value}
-              onPress={() => setFilter(filterOption.value)}
-            />
-          ))}
-        </View>
+        <ChipGroup options={filterOptions} selectedValue={filter} onChange={setFilter} />
         {isError ? (
           <Banner message={translate("common.unexpectedError")}>
             <Button
@@ -132,17 +123,17 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
         data={isPending ? [] : clients}
         keyExtractor={(clientFee) => clientFee.clientId}
         ListHeaderComponent={header}
-        renderItem={({ item: clientFee }) => (
-          <View className="px-5 pb-2.5">
+        renderItem={({ item: clientFee, index }) => (
+          <AnimatedListItem index={index} className="px-5 pb-2.5">
             <ClientFeeRow
               clientFee={clientFee}
               onPress={() => router.push(routes.recordPayment("fees", clientFee.clientId, month))}
             />
-          </View>
+          </AnimatedListItem>
         )}
         ListEmptyComponent={
           isPending ? (
-            <Spinner className="mt-6" />
+            <SkeletonList className="px-5" />
           ) : isError || classPackClients.length > 0 ? null : filter === "debtors" ? (
             <EmptyState
               icon="celebration"

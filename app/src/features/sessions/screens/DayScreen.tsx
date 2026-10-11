@@ -42,8 +42,9 @@ import { Icon } from "@/ui/Icon";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SegmentedControl } from "@/ui/SegmentedControl";
-import { Spinner } from "@/ui/Spinner";
 import { SubscriptionNotice } from "@/features/subscriptions/components/SubscriptionNotice";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 interface DayScreenProps {
   initialDate?: string;
@@ -232,7 +233,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
           </View>
         </View>
         <View className={`min-h-[276px] gap-3 px-5 ${isPlaceholderData ? "opacity-50" : ""}`}>
-          {isPending ? <Spinner className="mt-6" /> : null}
+          {isPending ? <SkeletonList /> : null}
           {!isPending && !isError && sessions.length === 0 ? (
             <Card className="h-[84px] flex-row items-center gap-3 px-4">
               <View className="h-10 w-10 items-center justify-center rounded-xl bg-muted">
@@ -246,16 +247,20 @@ export function DayScreen({ initialDate }: DayScreenProps) {
               </View>
             </Card>
           ) : null}
-          {sessions.map((session) => (
-            <AgendaSessionCard
+          {sessions.map((session, index) => (
+            <AnimatedListItem
               key={session.privateLessonId ?? session.classGroupId ?? session.startTime}
-              session={session}
-              title={sessionTitle(session)}
-              timing={sessionTimingOf(session, today, timeNow)}
-              timeNow={timeNow}
-              isToday={session.date === today}
-              onPress={() => openSession(session)}
-            />
+              index={index}
+            >
+              <AgendaSessionCard
+                session={session}
+                title={sessionTitle(session)}
+                timing={sessionTimingOf(session, today, timeNow)}
+                timeNow={timeNow}
+                isToday={session.date === today}
+                onPress={() => openSession(session)}
+              />
+            </AnimatedListItem>
           ))}
         </View>
       </ScrollView>

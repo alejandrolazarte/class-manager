@@ -18,12 +18,12 @@ import { Button } from "@/ui/Button";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
-import { Spinner } from "@/ui/Spinner";
 import { Card } from "@/ui/Card";
 import { ProgressBar } from "@/ui/ProgressBar";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 interface ClassGroupDetailScreenProps {
   classGroupId: string;
@@ -150,7 +150,7 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
       {hasUnenrollFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
       <SectionTitle title={translate("enrollments.detail.students")} />
       <Card>
-        {rosterQuery.isPending ? <Spinner className="my-4" /> : null}
+        {rosterQuery.isPending ? <SkeletonList className="px-4" rowCount={3} /> : null}
         {rosterQuery.data && roster.length === 0 ? (
           <AppText variant="body" tone="muted" className="px-4 py-[18px]">
             {translate("enrollments.detail.noStudents")}

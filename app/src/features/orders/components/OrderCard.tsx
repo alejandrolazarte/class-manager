@@ -14,6 +14,7 @@ import { Card } from "@/ui/Card";
 import { Spinner } from "@/ui/Spinner";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
+import { Collapsible } from "@/ui/motion/Collapsible";
 
 const isoDateLength = 10;
 
@@ -166,11 +167,15 @@ export function OrderCard({ order, canManage }: OrderCardProps) {
           ) : null}
         </View>
       </View>
-      {canManage && order.status === "Requested" && openPanel === "payment" ? (
-        <PaymentPanel order={order} />
+      {canManage && order.status === "Requested" ? (
+        <Collapsible isExpanded={openPanel === "payment"}>
+          <PaymentPanel order={order} />
+        </Collapsible>
       ) : null}
-      {canManage && isSettled && hasRefundableLines && openPanel === "refund" ? (
-        <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
+      {canManage && isSettled && hasRefundableLines ? (
+        <Collapsible isExpanded={openPanel === "refund"}>
+          <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
+        </Collapsible>
       ) : null}
     </Card>
   );

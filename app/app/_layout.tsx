@@ -14,11 +14,13 @@ import { ThemedStatusBar } from "@/theme/ThemedStatusBar";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { fontAssets } from "@/theme/typography";
 import { ToastProvider } from "@/ui/ToastProvider";
+import { useStackScreenOptions } from "@/navigation/stackScreenOptions";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 refetchWhenAppReturns();
 
 function RootNavigator() {
+  const stackScreenOptions = useStackScreenOptions();
   const { session } = useSession();
   const [areFontsLoaded, fontLoadingError] = useFonts(fontAssets);
   const isRestoringSession = session.status === "restoring";
@@ -34,7 +36,7 @@ function RootNavigator() {
     return null;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack screenOptions={stackScreenOptions} />;
 }
 
 export default function RootLayout() {
