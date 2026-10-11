@@ -2055,7 +2055,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "branches",
                             AddOnListPrice = 10m,
-                            Currency = "USD",
+                            Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = true
                         },
@@ -2075,7 +2075,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "import-export",
                             AddOnListPrice = 3m,
-                            Currency = "USD",
+                            Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = false
                         },
@@ -2095,7 +2095,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "shop",
                             AddOnListPrice = 5m,
-                            Currency = "USD",
+                            Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = false
                         },
@@ -2103,7 +2103,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "brand",
                             AddOnListPrice = 5m,
-                            Currency = "USD",
+                            Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = false
                         },
@@ -2111,7 +2111,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "document-storage",
                             AddOnListPrice = 2m,
-                            Currency = "USD",
+                            Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = true
                         });
@@ -2159,7 +2159,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "free",
                             BillingPeriod = "Monthly",
-                            Currency = "USD",
+                            Currency = "EUR",
                             DisplayOrder = 1,
                             DurationInDays = 30,
                             IsActive = true,
@@ -2170,7 +2170,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "lite",
                             BillingPeriod = "Monthly",
-                            Currency = "USD",
+                            Currency = "EUR",
                             DisplayOrder = 2,
                             IsActive = true,
                             IsDefault = false,
@@ -2180,7 +2180,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "pro",
                             BillingPeriod = "Monthly",
-                            Currency = "USD",
+                            Currency = "EUR",
                             DisplayOrder = 3,
                             IsActive = true,
                             IsDefault = false,
@@ -2190,7 +2190,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             Code = "enterprise",
                             BillingPeriod = "Monthly",
-                            Currency = "USD",
+                            Currency = "EUR",
                             DisplayOrder = 4,
                             IsActive = true,
                             IsDefault = false

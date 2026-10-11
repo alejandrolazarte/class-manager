@@ -44,7 +44,7 @@ Four is enough: fewer and `Lite` and `Pro` merge into one plan that is either to
 - `Plan.ListPrice` is what the app shows before subscribing ("desde …").
 - `Subscription.Price` is what this brand actually pays, copied from the list price when the subscription is created and editable afterwards. Changing a list price never changes what existing customers pay.
 - That is how the pilot instructor gets **`Enterprise` at 0**: a normal subscription with `Price = 0` and a `Note` ("Pilot, DF Swimming"). No special case in code, and later it becomes a discount or an expiry (`ExpiredOn`) without a migration.
-- Every price has a currency (`ARS`, `EUR`, `USD`): the pilot is in Spain and the target market is Argentina.
+- Every price has a currency (`ARS`, `EUR`, `USD`): the pilot is in Spain and the target market is Argentina. List prices of plans and add-ons are in euros (`SubscriptionCatalogSeed.ListPriceCurrency`, changed from dollars on 2026-10-11 by `ListPlanPricesInEuros`, which also relabels current subscriptions at 0 from `USD` to `EUR`; the amounts stayed the same placeholders).
 
 ### Features, and an add-on is a feature with a price
 
