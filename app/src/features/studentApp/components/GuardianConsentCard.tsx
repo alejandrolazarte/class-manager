@@ -12,7 +12,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Highlight } from "@/ui/Highlight";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { useToast } from "@/ui/ToastProvider";
 
 type GuardianAnswer = "authorized" | "refused";
@@ -49,7 +49,7 @@ export function GuardianConsentCard({ consent }: GuardianConsentCardProps) {
   };
 
   return (
-    <Highlight tone="warning">
+    <TonalBlock tone="warning">
       <AppText variant="bodyStrong">
         {translate("guardianConsent.cardTitle", { name: firstName })}
       </AppText>
@@ -81,6 +81,6 @@ export function GuardianConsentCard({ consent }: GuardianConsentCardProps) {
           />
         </View>
       </View>
-    </Highlight>
+    </TonalBlock>
   );
 }

@@ -6,36 +6,23 @@ import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
-import { Icon } from "@/ui/Icon";
+import { IconCircle } from "@/ui/IconCircle";
 
 interface NewsRowProps {
   item: StudentAppNewsItem;
   action?: { label: string; onPress: () => void };
 }
 
-interface NewsIconTone {
-  background: string;
-  icon: ThemeColorToken;
-}
-
-const primaryIconTone: NewsIconTone = {
-  background: "bg-primary-soft",
-  icon: "primary-soft-foreground",
-};
-
-const iconTones: Partial<Record<StudentAppNewsKind, NewsIconTone>> = {
-  ClassCancelled: { background: "bg-danger-soft", icon: "danger-soft-foreground" },
-  ClassChanged: { background: "bg-warning-soft", icon: "warning-soft-foreground" },
+const iconTones: Partial<Record<StudentAppNewsKind, ThemeColorToken>> = {
+  ClassCancelled: "danger",
+  ClassChanged: "warning",
 };
 
 export function NewsRow({ item, action }: NewsRowProps) {
   const { icon, title, body } = presentNews(item);
-  const iconTone = iconTones[item.kind] ?? primaryIconTone;
   return (
-    <HairlineRow className={`flex-row gap-3 ${item.isUnread ? "" : "opacity-85"}`}>
-      <View className={`h-9 w-9 items-center justify-center rounded-full ${iconTone.background}`}>
-        <Icon name={icon} size="medium" tone={iconTone.icon} />
-      </View>
+    <HairlineRow className={`flex-row gap-3 py-3 ${item.isUnread ? "" : "opacity-85"}`}>
+      <IconCircle icon={icon} tone={iconTones[item.kind] ?? "primary"} />
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{title}</AppText>
         {body === null ? null : (

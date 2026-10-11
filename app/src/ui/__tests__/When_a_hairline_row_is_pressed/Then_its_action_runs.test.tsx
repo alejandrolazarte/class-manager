@@ -4,22 +4,18 @@ import { AppText } from "@/ui/AppText";
 import { HairlineRow } from "@/ui/HairlineRow";
 
 describe("When a hairline row is pressed", () => {
-  it("Then it runs its action", async () => {
-    const openMaterial = jest.fn();
+  it("Then its action runs", async () => {
+    const open = jest.fn();
     await render(
       <ThemeProvider initialColorSchemePreference="light">
-        <HairlineRow
-          accessibilityRole="link"
-          accessibilityLabel="Abrir material"
-          onPress={openMaterial}
-        >
-          <AppText>Nivel inicial</AppText>
+        <HairlineRow onPress={open} accessibilityLabel="Ana Torres">
+          <AppText>Ana Torres</AppText>
         </HairlineRow>
       </ThemeProvider>,
     );
 
-    await fireEvent.press(screen.getByRole("link", { name: "Abrir material" }));
+    await fireEvent.press(screen.getByRole("button", { name: "Ana Torres" }));
 
-    expect(openMaterial).toHaveBeenCalledTimes(1);
+    expect(open).toHaveBeenCalledTimes(1);
   });
 });

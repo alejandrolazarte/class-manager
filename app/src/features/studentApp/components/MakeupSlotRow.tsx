@@ -31,7 +31,7 @@ export function MakeupSlotRow({
 }: MakeupSlotRowProps) {
   const isFull = slot.spotsLeft === 0 && !slot.isBooked;
   return (
-    <HairlineRow className="flex-row items-center gap-3">
+    <HairlineRow>
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">
           {`${shortDayLabel(slot.date)} · ${slot.startTime}–${slot.endTime}`}

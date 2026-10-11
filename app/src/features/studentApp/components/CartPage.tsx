@@ -99,7 +99,7 @@ interface CartLineProps {
 function CartLine({ item, currencyCode, onChangeUnits }: CartLineProps) {
   const removesItem = item.units <= 1;
   return (
-    <HairlineRow className="flex-row gap-3">
+    <HairlineRow className="flex-row gap-3 py-3">
       <CatalogImage
         imageUri={item.imageUrl}
         placeholderIcon={item.isPack ? "classPacks" : "products"}

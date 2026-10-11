@@ -1,15 +1,15 @@
 import { PropsWithChildren } from "react";
 import { View } from "react-native";
 
-export type HighlightTone = "primary" | "warning" | "success" | "danger" | "muted";
+export type TonalBlockTone = "primary" | "warning" | "success" | "danger" | "muted";
 
-interface HighlightProps extends PropsWithChildren {
-  tone: HighlightTone;
+interface TonalBlockProps extends PropsWithChildren {
+  tone: TonalBlockTone;
   isCompact?: boolean;
   testID?: string;
 }
 
-const toneClassNames: Record<HighlightTone, string> = {
+const toneClassNames: Record<TonalBlockTone, string> = {
   primary: "bg-primary-soft",
   warning: "bg-warning-soft",
   success: "bg-success-soft",
@@ -17,7 +17,7 @@ const toneClassNames: Record<HighlightTone, string> = {
   muted: "bg-muted",
 };
 
-export function Highlight({ tone, isCompact = false, testID, children }: HighlightProps) {
+export function TonalBlock({ tone, isCompact = false, testID, children }: TonalBlockProps) {
   return (
     <View
       testID={testID}

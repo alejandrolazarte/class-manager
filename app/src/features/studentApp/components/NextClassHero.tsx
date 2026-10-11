@@ -11,7 +11,7 @@ import { useAbsenceNotice } from "@/features/studentApp/useAbsenceNotice";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Highlight } from "@/ui/Highlight";
+import { TonalBlock } from "@/ui/TonalBlock";
 
 interface NextClassHeroProps {
   student: AccountStudent;
@@ -23,14 +23,14 @@ export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
   const nextClass = nextClassOf(student);
   if (nextClass === null) {
     return (
-      <Highlight tone="muted">
+      <TonalBlock tone="muted">
         <AppText variant="badge" tone="muted">
           {translate("student.nextClass.title")}
         </AppText>
         <AppText variant="body" tone="muted">
           {translate("student.student.noClasses")}
         </AppText>
-      </Highlight>
+      </TonalBlock>
     );
   }
   const { absenceNotified } = nextClass;
@@ -41,7 +41,7 @@ export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
     absenceNotified ? "student.absence.undo" : "student.absence.notGoing",
   );
   return (
-    <Highlight tone="primary">
+    <TonalBlock tone="primary">
       <View className="flex-row items-center justify-between gap-2">
         <AppText variant="badge" tone="primarySoft">
           {translate("student.nextClass.title")}
@@ -86,6 +86,6 @@ export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
           </View>
         ) : null}
       </View>
-    </Highlight>
+    </TonalBlock>
   );
 }

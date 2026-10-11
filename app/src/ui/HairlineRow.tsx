@@ -1,30 +1,38 @@
 import { PropsWithChildren } from "react";
-import { AccessibilityRole, AccessibilityState, View } from "react-native";
+import { AccessibilityState, View } from "react-native";
 import { PressableScale } from "@/ui/motion/PressableScale";
 
 interface HairlineRowProps extends PropsWithChildren {
   onPress?: () => void;
   accessibilityLabel?: string;
-  accessibilityRole?: AccessibilityRole;
+  accessibilityHint?: string;
   accessibilityState?: AccessibilityState;
-  disabled?: boolean;
+  hasDivider?: boolean;
   isDimmed?: boolean;
   className?: string;
   testID?: string;
 }
 
+const rowClassName = "-mx-2 px-2";
+const defaultLayoutClassName = "flex-row items-center gap-3 py-3";
+
 export function HairlineRow({
   onPress,
   accessibilityLabel,
-  accessibilityRole = "button",
+  accessibilityHint,
   accessibilityState,
-  disabled = false,
+  hasDivider = true,
   isDimmed = false,
   className,
   testID,
   children,
 }: HairlineRowProps) {
-  const classNames = `border-b border-border-subtle py-3 ${isDimmed ? "opacity-70" : ""} ${className ?? ""}`;
+  const classNames = [
+    rowClassName,
+    hasDivider ? "border-b border-border-subtle" : "",
+    isDimmed ? "opacity-60" : "",
+    className ?? defaultLayoutClassName,
+  ].join(" ");
   if (onPress === undefined) {
     return (
       <View className={classNames} testID={testID}>
@@ -34,13 +42,13 @@ export function HairlineRow({
   }
   return (
     <PressableScale
-      accessibilityRole={accessibilityRole}
+      accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={accessibilityState ?? { disabled }}
-      disabled={disabled}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={accessibilityState}
       onPress={onPress}
-      className={`${classNames} active:bg-muted`}
       testID={testID}
+      className={`${classNames} active:bg-muted`}
     >
       {children}
     </PressableScale>

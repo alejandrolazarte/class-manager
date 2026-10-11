@@ -25,8 +25,8 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Spinner } from "@/ui/Spinner";
 import { PressableScale } from "@/ui/motion/PressableScale";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 type ShopCategory = "all" | "packs" | "products";
 
@@ -93,7 +93,7 @@ export function StudentAppShopScreen() {
   if (isPending) {
     return (
       <ScrollScreen header={header}>
-        <Spinner className="mt-6" />
+        <SkeletonList />
       </ScrollScreen>
     );
   }

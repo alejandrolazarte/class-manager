@@ -10,6 +10,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
+import { IconCircle } from "@/ui/IconCircle";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { Spinner } from "@/ui/Spinner";
@@ -70,11 +71,8 @@ export function ChooseAccountScreen() {
               key={key}
               onPress={() => open(account)}
               accessibilityLabel={accountLabel(account)}
-              className="flex-row items-center gap-3"
             >
-              <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-soft">
-                <Icon name={account.kind === "student" ? "home" : "business"} tone="primary" />
-              </View>
+              <IconCircle icon={account.kind === "student" ? "home" : "business"} tone="primary" />
               <View className="min-w-0 flex-1 gap-0.5">
                 <AppText variant="heading">{account.businessName}</AppText>
                 <AppText variant="caption" tone="subtle">

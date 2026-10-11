@@ -1,7 +1,8 @@
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 interface NewsBellProps {
   unreadCount: number;
@@ -10,7 +11,7 @@ interface NewsBellProps {
 
 export function NewsBell({ unreadCount, onPress }: NewsBellProps) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={
         unreadCount > 0
@@ -18,16 +19,16 @@ export function NewsBell({ unreadCount, onPress }: NewsBellProps) {
           : translate("student.news.bellEmpty")
       }
       onPress={onPress}
-      className="h-11 w-11 items-center justify-center rounded-full bg-surface active:bg-muted"
+      className="-mr-2.5 h-11 w-11 items-center justify-center rounded-full active:bg-muted"
     >
       <Icon name="notifications" />
       {unreadCount > 0 ? (
-        <View className="absolute right-1.5 top-1.5 h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-surface bg-danger px-0.5">
+        <View className="absolute right-1.5 top-1.5 h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-danger px-0.5">
           <AppText variant="counter" tone="onDanger">
             {unreadCount}
           </AppText>
         </View>
       ) : null}
-    </Pressable>
+    </PressableScale>
   );
 }

@@ -4,6 +4,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { SectionTitle } from "@/ui/SectionTitle";
 
 interface ClassMaterialSectionProps {
@@ -20,23 +21,25 @@ export function ClassMaterialSection({ materials }: ClassMaterialSectionProps) {
       <SectionTitle title={translate("student.materials.title")} />
       <View>
         {materials.map((material) => (
-          <HairlineRow
+          <PressableScale
             key={material.classGroupId}
             accessibilityRole="link"
             accessibilityLabel={translate("student.materials.open", {
               className: material.className,
             })}
             onPress={() => Linking.openURL(material.url)}
-            className="flex-row items-center gap-3"
+            className="active:opacity-70"
           >
-            <View className="min-w-0 flex-1 gap-0.5">
-              <AppText variant="bodyStrong">{material.className}</AppText>
-              <AppText variant="link" tone="primary">
-                {translate("student.materials.see")}
-              </AppText>
-            </View>
-            <Icon name="next" size="small" tone="primary" />
-          </HairlineRow>
+            <HairlineRow>
+              <View className="min-w-0 flex-1 gap-0.5">
+                <AppText variant="bodyStrong">{material.className}</AppText>
+                <AppText variant="link" tone="primary">
+                  {translate("student.materials.see")}
+                </AppText>
+              </View>
+              <Icon name="next" size="small" tone="primary" />
+            </HairlineRow>
+          </PressableScale>
         ))}
       </View>
     </View>

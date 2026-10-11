@@ -5,7 +5,7 @@ import { StudentAppBilling } from "@/features/studentApp/types";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { ProgressBar } from "@/ui/ProgressBar";
-import { StatusPill } from "@/ui/StatusPill";
+import { StatusText } from "@/ui/StatusText";
 import { TextLink } from "@/ui/TextLink";
 
 interface BillingTileProps {
@@ -31,8 +31,7 @@ export function BillingTile({ billing, currencyCode, onBuyClasses }: BillingTile
         <AppText variant="headline">
           {monthlyFee.fee === null ? "—" : formatMoney(monthlyFee.fee, currencyCode)}
         </AppText>
-        <StatusPill
-          isSmall
+        <StatusText
           label={feeStatusLabel(monthlyFee, currencyCode)}
           tone={feeStatusTones[monthlyFee.status]}
         />

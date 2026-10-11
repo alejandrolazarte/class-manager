@@ -14,7 +14,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
-import { HighlightTone } from "@/ui/Highlight";
+import { TonalBlockTone } from "@/ui/TonalBlock";
 import { Icon } from "@/ui/Icon";
 import { Notice } from "@/ui/Notice";
 import { ProgressSteps } from "@/ui/ProgressSteps";
@@ -30,7 +30,7 @@ function inlineDate(isoDateTime: string): string {
 
 interface OrderNotice {
   message: string;
-  tone: HighlightTone;
+  tone: TonalBlockTone;
 }
 
 function deliveryPlace(order: StudentAppOrder): string {

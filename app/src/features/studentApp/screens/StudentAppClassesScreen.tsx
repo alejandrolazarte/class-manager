@@ -19,8 +19,8 @@ import { EmptyState } from "@/ui/EmptyState";
 import { IconButton } from "@/ui/IconButton";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { Spinner } from "@/ui/Spinner";
 import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 const daysPerWeek = 7;
 const lastWeekOffset = 2;
@@ -66,7 +66,7 @@ export function StudentAppClassesScreen() {
   if (isPending) {
     return (
       <ScrollScreen header={header}>
-        <Spinner className="mt-6" />
+        <SkeletonList />
       </ScrollScreen>
     );
   }

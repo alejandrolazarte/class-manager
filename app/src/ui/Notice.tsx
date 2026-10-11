@@ -1,12 +1,12 @@
 import { AppText, TextTone } from "@/ui/AppText";
-import { Highlight, HighlightTone } from "@/ui/Highlight";
+import { TonalBlock, TonalBlockTone } from "@/ui/TonalBlock";
 
 interface NoticeProps {
   message: string;
-  tone: HighlightTone;
+  tone: TonalBlockTone;
 }
 
-const textTones: Record<HighlightTone, TextTone> = {
+const textTones: Record<TonalBlockTone, TextTone> = {
   primary: "primarySoft",
   warning: "warningSoft",
   success: "successSoft",
@@ -16,10 +16,10 @@ const textTones: Record<HighlightTone, TextTone> = {
 
 export function Notice({ message, tone }: NoticeProps) {
   return (
-    <Highlight tone={tone} isCompact>
+    <TonalBlock tone={tone} isCompact>
       <AppText variant="caption" tone={textTones[tone]}>
         {message}
       </AppText>
-    </Highlight>
+    </TonalBlock>
   );
 }

@@ -2,15 +2,15 @@ import { render, screen } from "@testing-library/react-native";
 import { StyleSheet } from "react-native";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { AppText } from "@/ui/AppText";
-import { Highlight } from "@/ui/Highlight";
+import { TonalBlock } from "@/ui/TonalBlock";
 
-describe("When a highlight is drawn", () => {
-  it("Then it shows its content without a shadow", async () => {
+describe("When a tonal block is drawn", () => {
+  it("Then it shows its content", async () => {
     await render(
       <ThemeProvider initialColorSchemePreference="light">
-        <Highlight tone="primary" testID="next-class">
+        <TonalBlock tone="primary" testID="next-class">
           <AppText>Próxima clase</AppText>
-        </Highlight>
+        </TonalBlock>
       </ThemeProvider>,
     );
 

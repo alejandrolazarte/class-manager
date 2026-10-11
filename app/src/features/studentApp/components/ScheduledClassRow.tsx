@@ -45,7 +45,7 @@ export function ScheduledClassRow({ studentId, scheduledClass, isToday }: Schedu
   const [statusLabel, statusTone] = statusOf(scheduledClass, isToday);
   const isDimmed = isCancelled || absenceNotified;
   return (
-    <HairlineRow isDimmed={isDimmed} className="gap-2.5">
+    <HairlineRow isDimmed={isDimmed} className="gap-2.5 py-3">
       <View className="flex-row items-start gap-3">
         <View className="min-w-0 flex-1 gap-0.5">
           <AppText
