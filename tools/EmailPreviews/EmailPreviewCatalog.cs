@@ -26,6 +26,8 @@ internal static class EmailPreviewCatalog
     private const int GuardianConsentMinimumAge = 13;
     private const int OrderNumber = 1042;
 
+    public static Uri WebFontsUrl { get; } = new(WebAppUrl + WebAppLinks.WebFontsPath);
+
     private static readonly Guid BusinessId = Guid.Parse("0192f0c0-0000-7000-8000-0000000000aa");
 
     public static IReadOnlyList<EmailPreview> All()

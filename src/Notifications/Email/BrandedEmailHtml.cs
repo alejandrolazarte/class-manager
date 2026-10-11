@@ -7,11 +7,17 @@ namespace ClassManager.Notifications.Email;
 public static partial class BrandedEmailHtml
 {
     public const string TemplateResourceName = "ClassManager.Notifications.Email.Templates.BrandedEmail.html";
+    public const string FontFamily = "Figtree,Arial,Helvetica,sans-serif";
 
     private const string PreheaderPlaceholder = "Preheader";
     private const string BrandBadgePlaceholder = "BrandBadge";
     private const string BrandNamePlaceholder = "BrandName";
     private const string SectionsPlaceholder = "Sections";
+    private const string WebFontFacesPlaceholder = "WebFontFaces";
+    private const string FontFamilyPlaceholder = "FontFamily";
+    private const string WebFontFamilyName = "Figtree";
+    private const string WebFontFormat = "woff2";
+    private const string UrlPathSeparator = "/";
     private const string InitialsPlaceholder = "Initials";
     private const string LogoContentIdPlaceholder = "LogoContentId";
     private const string UrlPlaceholder = "Url";
@@ -21,30 +27,30 @@ public static partial class BrandedEmailHtml
     private const char NameSeparator = ' ';
 
     private const string LogoBadge =
-        """<td style="background:#ffffff;border-radius:10px;padding:4px"><img src="cid:{{LogoContentId}}" height="40" alt="{{BrandName}}" style="display:block;height:40px;width:auto;max-width:160px;border:0;border-radius:6px"></td>""";
+        """<td style="background:#ffffff;border-radius:10px;padding:4px"><img src="cid:{{LogoContentId}}" height="36" alt="{{BrandName}}" style="display:block;height:36px;width:auto;max-width:160px;border:0;border-radius:6px"></td>""";
 
     private const string InitialsBadge =
-        """<td width="48" height="48" align="center" style="width:48px;height:48px;background:#ffffff;border-radius:10px;font-weight:bold;font-size:18px;color:{{Primary}}">{{Initials}}</td>""";
+        """<td width="44" height="44" align="center" style="width:44px;height:44px;background:#ffffff;border-radius:10px;font-weight:700;font-size:17px;color:{{Primary}}">{{Initials}}</td>""";
 
     private const string ButtonSection =
         """
         <tr><td style="padding:28px 32px 0">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="{{Primary}}" style="border-radius:10px"><a href="{{Url}}" style="display:block;white-space:nowrap;padding:14px 26px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none">{{Label}}</a></td></tr></table>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="{{Primary}}" style="border-radius:12px"><a href="{{Url}}" style="display:block;white-space:nowrap;padding:12px 24px;font-family:{{FontFamily}};font-size:15px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px">{{Label}}</a></td></tr></table>
         </td></tr>
         """;
 
     private const string NoteSection =
         """
         <tr><td style="padding:20px 32px 0">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:{{PrimarySoft}};border-radius:10px"><tr><td style="padding:14px 18px;font-size:14px;line-height:20px;color:#10212f">{{Text}}</td></tr></table>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:{{PrimarySoft}};border-radius:14px"><tr><td style="padding:14px 18px;font-size:15px;line-height:22px;color:#10212f">{{Text}}</td></tr></table>
         </td></tr>
         """;
 
     private const string LabeledNoteSection =
         """
         <tr><td style="padding:8px 32px 0">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:{{PrimarySoft}};border-radius:10px"><tr><td style="padding:16px 18px">
-        <p style="margin:0 0 4px;font-size:13px;font-weight:bold;color:{{NoteLabel}}">{{Label}}</p>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:{{PrimarySoft}};border-radius:14px"><tr><td style="padding:14px 18px">
+        <p style="margin:0 0 4px;font-size:13px;line-height:18px;font-weight:600;color:{{NoteLabel}}">{{Label}}</p>
         <p style="margin:0;font-size:15px;line-height:22px;color:#10212f">{{Text}}</p>
         </td></tr></table>
         </td></tr>
@@ -63,12 +69,12 @@ public static partial class BrandedEmailHtml
 
     private const string LineRow =
         """
-        <tr><td style="padding:14px 0;font-size:15px;border-bottom:1px solid #dfe5ea">{{Description}}</td><td align="right" style="padding:14px 0;font-size:15px;white-space:nowrap;border-bottom:1px solid #dfe5ea">{{Amount}}</td></tr>
+        <tr><td style="padding:12px 0;font-size:15px;line-height:22px;border-bottom:1px solid #dfe5ea">{{Description}}</td><td align="right" style="padding:12px 0 12px 16px;font-size:15px;line-height:22px;white-space:nowrap;border-bottom:1px solid #dfe5ea">{{Amount}}</td></tr>
         """;
 
     private const string TotalRow =
         """
-        <tr><td style="padding:16px 0;font-size:16px;font-weight:bold">{{Label}}</td><td align="right" style="padding:16px 0;font-size:18px;font-weight:bold;white-space:nowrap;color:{{Primary}}">{{Amount}}</td></tr>
+        <tr><td style="padding:14px 0;font-size:15px;line-height:22px;font-weight:600">{{Label}}</td><td align="right" style="padding:14px 0 14px 16px;font-size:17px;line-height:22px;font-weight:600;white-space:nowrap;color:{{Primary}}">{{Amount}}</td></tr>
         """;
 
     private const string LinesEnd =
@@ -77,9 +83,18 @@ public static partial class BrandedEmailHtml
         </td></tr>
         """;
 
+    private static readonly WebFont[] WebFonts =
+    [
+        new(400, "figtree-400-v1.woff2"),
+        new(600, "figtree-600-v1.woff2"),
+        new(700, "figtree-700-v1.woff2"),
+    ];
+
     private static readonly Lazy<string> Template = new(LoadTemplate);
 
-    public static string Render(EmailContent content, EmailBrand brand)
+    public static IReadOnlyList<string> WebFontFileNames { get; } = [.. WebFonts.Select(font => font.FileName)];
+
+    public static string Render(EmailContent content, EmailBrand brand, Uri webFontsUrl)
     {
         var palette = EmailPalette.From(brand.ThemeColor, brand.AccentColor);
         var colors = new Dictionary<string, string>
@@ -89,10 +104,12 @@ public static partial class BrandedEmailHtml
             [nameof(EmailPalette.PrimarySoft)] = palette.PrimarySoft,
             [nameof(EmailPalette.NoteLabel)] = palette.NoteLabel,
             [nameof(EmailPalette.Accent)] = palette.Accent,
+            [FontFamilyPlaceholder] = FontFamily,
         };
 
         var values = new Dictionary<string, string>(colors)
         {
+            [WebFontFacesPlaceholder] = WebFontFaces(webFontsUrl),
             [PreheaderPlaceholder] = Encode(content.Intro),
             [BrandBadgePlaceholder] = BrandBadge(brand, colors),
             [BrandNamePlaceholder] = Encode(brand.DisplayName),
@@ -110,6 +127,15 @@ public static partial class BrandedEmailHtml
             .Split(NameSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Take(MaximumInitials)
             .Select(word => char.ToUpperInvariant(word[0])));
+
+    private static string WebFontFaces(Uri webFontsUrl)
+    {
+        var folderUrl = webFontsUrl.AbsoluteUri.EndsWith(UrlPathSeparator, StringComparison.Ordinal)
+            ? webFontsUrl
+            : new Uri(webFontsUrl.AbsoluteUri + UrlPathSeparator);
+        return string.Concat(WebFonts.Select(font =>
+            $"@font-face{{font-family:'{WebFontFamilyName}';font-style:normal;font-weight:{font.Weight};font-display:swap;src:url('{new Uri(folderUrl, font.FileName).AbsoluteUri}') format('{WebFontFormat}')}}"));
+    }
 
     private static string BrandBadge(EmailBrand brand, Dictionary<string, string> colors) =>
         brand.Logo is null
@@ -196,4 +222,6 @@ public static partial class BrandedEmailHtml
 
     [GeneratedRegex(@"\{\{(\w+)\}\}")]
     private static partial Regex PlaceholderPattern();
+
+    private sealed record WebFont(int Weight, string FileName);
 }

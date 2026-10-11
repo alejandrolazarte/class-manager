@@ -154,6 +154,8 @@ $env:SCREENSHOTS_EMAIL_FONT = "blocked"; pnpm screenshots:emails   # web font bl
 
 The images land in `e2e/screenshots-output/correos/telefono/` and `.../correos/escritorio/` (`correos-sin-fuente-web/` with the font blocked), next to the HTML files and a plain-text file per email in `html/`. To only get the HTML: `dotnet run --project tools/EmailPreviews -- <folder>`.
 
+The previews point the web font at `https://app.classmanager.example/fonts/`; the capture answers those requests with the files in `app/public/fonts/`, the same ones the web app serves to real emails, or blocks them with `SCREENSHOTS_EMAIL_FONT=blocked`. Opening an HTML file directly in a browser shows the Arial fallback.
+
 Business emails are rendered with four brands of "Escuela Brazada": `sin-marca` (no color, initials), `color` (main color and accent), `logo` (logo, no color) and `color-y-logo`. Account emails use the app brand (`app`), as they do when sent. The logo, an inline attachment (`cid:`) in a real email, is inlined as a data URI so a browser shows it.
 
 | File | Email |

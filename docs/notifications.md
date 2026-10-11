@@ -12,7 +12,7 @@ Date: 2026-10-02
 |---|---|---|
 | `Email` | `EmailContent`, `EmailLine`, `EmailNote`, `EmailAction` | What an email says: eyebrow, title, intro, items and total, note, button, footer note. `ToPlainText()` is the `text/plain` part |
 | `Email` | `EmailBrand`, `EmailPalette` | Who it comes from: name, main and accent colors, logo. `EmailPalette` derives AA-readable colors like the app's `deriveBrandTheme` |
-| `Email` | `BrandedEmailHtml`, `Templates/BrandedEmail.html` | Renders content and brand into the HTML layout (embedded resource, HTML-encoded single-pass placeholders) |
+| `Email` | `BrandedEmailHtml`, `Templates/BrandedEmail.html` | Renders content and brand into the HTML layout (embedded resource, HTML-encoded single-pass placeholders). The layout uses Figtree with Arial as the fallback; the caller passes the URL of the folder that serves the font files (`WebFontFileNames`) |
 | `Email` | `IEmailTransport`, `OutgoingEmail`, `EmailInlineImage` | The boundary to whatever sends the email |
 | `WebPush` | `PushMessage`, `PushTarget`, `PushDelivery`, `IWebPushSender` | One push message, one subscription, and the result (`Delivered`, `Gone`, `Failed`) |
 | `WebPush` | `VapidOptions`, `VapidKeys`, `VapidAuthorization`, `WebPushEncryption`, `EcKeys` | VAPID keys and tokens (RFC 8292) and payload encryption (RFC 8291, `aes128gcm`) |
@@ -49,8 +49,8 @@ This is how emails are sent today. It reflects the current needs and can change 
 
 1. Reference `Notifications.Delivery` (it brings `Notifications`).
 2. Call `services.AddEmailTransport()` and, for push, `services.AddWebPushSender()`; configure `Email:Smtp` and `WebPush:Vapid`.
-3. Build an `EmailContent` and an `EmailBrand`, render with `BrandedEmailHtml.Render`, and send an `OutgoingEmail` with `IEmailTransport`. For push, send a serialized `PushMessage` to each `PushTarget` with `IWebPushSender` and delete the subscriptions that answer `Gone`.
+3. Serve the files in `BrandedEmailHtml.WebFontFileNames` (Figtree, SIL Open Font License) from a folder of your own site, readable from any origin. Build an `EmailContent` and an `EmailBrand`, render with `BrandedEmailHtml.Render` and the URL of that folder, and send an `OutgoingEmail` with `IEmailTransport`. For push, send a serialized `PushMessage` to each `PushTarget` with `IWebPushSender` and delete the subscriptions that answer `Gone`.
 
 ## Tests
 
-`tests/ClassManager.Notifications.U.Tests`: rendering (initials, HTML encoding, items before total), color contrast, plain text, VAPID token, RFC 8291 encryption example and the `Gone` answer. Delivery through the API (brand color, logo, sender name, every email and push flow) stays in `tests/ClassManager.Api.I.Tests`.
+`tests/ClassManager.Notifications.U.Tests`: rendering (initials, HTML encoding, items before total, the web font URL and the Arial fallbacks), color contrast, plain text, VAPID token, RFC 8291 encryption example and the `Gone` answer. Delivery through the API (brand color, logo, sender name, every email and push flow) stays in `tests/ClassManager.Api.I.Tests`.

@@ -101,7 +101,8 @@ public static class InfrastructureServiceCollectionExtensions
     private static IServiceCollection AddEmail(this IServiceCollection services)
     {
         services.AddEmailTransport();
-        services.AddSingleton<IWebAppLinks, WebAppLinks>();
+        services.AddSingleton<WebAppLinks>();
+        services.AddSingleton<IWebAppLinks>(serviceProvider => serviceProvider.GetRequiredService<WebAppLinks>());
         services.AddScoped<EmailBrandReader>();
         services.AddScoped<IEmailSender, BrandedEmailSender>();
         services.AddBackgroundTask<SendEmailBackgroundTaskCommand, SendEmailBackgroundTaskHandler>();
