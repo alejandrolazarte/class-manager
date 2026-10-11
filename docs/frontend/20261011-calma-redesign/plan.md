@@ -8,7 +8,7 @@ Designs (Claude artifacts, private to the owner):
 
 - [Calma, app completa](https://claude.ai/artifact/MGjmVNd9Qav63zCt7WfueM): every main team screen, sign-in and sign-up, a component sheet and a clickable prototype.
 - [Rediseño minimalista](https://claude.ai/artifact/8VsXqgpt8sphR6wDya5hzU): the three directions that were compared, the animation catalog and the font comparison.
-- [Calma, antes y después](https://claude.ai/artifact/AMoHSyDZQNwkEszSW6NqkJ): the before/after screenshots of every step (rule 4); step 0 holds the baseline of every screen of both apps, light and dark, and every email.
+- [Calma, antes y después](https://claude.ai/artifact/AMoHSyDZQNwkEszSW6NqkJ): the before/after screenshots of the steps with important changes (rule 4); step 0 holds the baseline of every screen of both apps, light and dark, and every email.
 
 ## Rules
 
@@ -41,17 +41,19 @@ Screens never style things on their own. Everything visual comes from `app/src/u
 - Motion lives in shared primitives and constants (durations, easing), never in a screen. A screen asks for "a list that enters", "a pressable row" or "a sliding indicator"; it does not write `withTiming` itself.
 - The lint rules in `app/eslint/themeRules.js` still apply: no raw colors, no raw font sizes, no `Text` outside `src/ui`.
 
-### 4. Before and after screenshots for every change
+### 4. Before and after screenshots for important changes
 
-Every PR shows how the app looked before and after it:
+Screenshots go in the gallery only when a change is important: a screen whose layout changes (a list that becomes a timeline, a card that becomes rows, a panel that moves), a new pattern, or an email. A change applied the same way everywhere through shared primitives and tokens (fonts, sizes, shadows, radii, motion), with no change in functionality, does not need them: the PR says which screens it checked by eye.
 
-1. Before changing anything, capture the screens on `main` with [Demo screenshots](../../e2e/demo-screenshots.md): `pnpm screenshots` (team app), `pnpm screenshots:no-build Student_screens` (student app) and `pnpm screenshots:invitations` when sign-up or invitations are touched. Capture light and dark (`SCREENSHOTS_COLOR_SCHEME=dark`).
+When a PR needs them:
+
+1. Before changing anything, capture on `main` the screens the PR changes, with [Demo screenshots](../../e2e/demo-screenshots.md): `pnpm screenshots` (team app), `pnpm screenshots:no-build Student_screens` (student app) and `pnpm screenshots:invitations` when sign-up or invitations are touched. Capture light and dark (`SCREENSHOTS_COLOR_SCHEME=dark`).
 2. Make the change and capture the same screens again on the branch.
-3. Publish both sets, at phone size, in one private Claude artifact for the redesign: a gallery with one section per step and, inside it, each screen that changed with its before and after side by side (light and dark). The images are not committed to the repository; `e2e/screenshots-output/` stays git-ignored.
-4. The PR description links the artifact section of its step and lists the screens that changed.
-5. When the whole plan is done, the artifact gets a final section with the first "before" and the last "after" of every screen and email, to show the full change, and the last PR links it.
+3. Publish only the screens that changed, at phone size, in the [Calma, antes y después](https://claude.ai/artifact/AMoHSyDZQNwkEszSW6NqkJ) gallery: one section per step, each screen with its before and after side by side (light and dark). The images are not committed to the repository; `e2e/screenshots-output/` stays git-ignored.
+4. The PR description links the gallery section of its step and lists the screens that changed.
+5. When the whole plan is done, the gallery gets a final section with the first "before" and the last "after" of every main screen and email, to show the full change, and the last PR links it.
 
-A screen that is not in the capture scripts gets added to them in the same PR, before the "before" capture. Emails are captured the same way through the email previews (step 0): every email type, at phone and desktop width.
+A changed screen that is not in the capture scripts gets added to them in the same PR, before the "before" capture. Emails are captured the same way through the email previews (step 0), at phone and desktop width.
 
 ### 5. Nothing of the old design is left, and nothing unused
 
@@ -123,7 +125,7 @@ Every email the app sends follows Calma too. They share one layout (`src/Notific
 
 ## Steps
 
-Each step is its own PR, with its before/after screenshots.
+Each step is its own PR, with before/after screenshots when its changes are important (rule 4).
 
 0. **Screenshot coverage.** Add the screens that the capture scripts miss: welcome, sign-in (and its error), both sign-up steps, forgot password and its confirmation, Inicio in month view, a private lesson, team notifications, order list with an open payment panel, and a confirm dialog. Add email previews: a small tool that renders every email type with demo data (with and without logo, with and without brand color, with the web font and with it blocked) to HTML files, and a capture that screenshots them at phone and desktop width. Add knip and the unused translation keys test (rule 5), removing what they find unused today in its own commit. Create the screenshots artifact with the baseline of every screen and email. No visual change.
 1. **Base.** Figtree (`@expo-google-fonts/figtree`) and the new weights in `typography.ts` and `tailwind.config.js`, the smaller type scale, no card shadows (`elevation.ts`), flat `Card`, hairline `ListRow` and `ListDivider`, button, input, icon and tab bar sizes. Update [Theming](../theming.md) (visual language and type scale tables). This step alone changes every screen.
@@ -219,3 +221,4 @@ Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshot
 - 2026-10-11 (step 1): buttons and typed text use the `body` step (15 px), as the component sheet draws them, instead of `large`; the tab bar labels are 11 px at 500 (`tab` variant in the brand preview).
 - 2026-10-11 (step 1): the active tab's dot goes under its icon, not under its label as the design draws it: a custom `tabBarLabel` would drop the accessibility label React Navigation gives each tab on iOS, and rule 1 keeps it.
 - 2026-10-11 (step 1): until step 3 turns lists into hairline rows, `Card` stays as a flat surface with a 1 px `border-subtle` line and a 14 px radius, so items still read as separate on the tinted background. The card level of `elevation.ts` is gone; `useFloatingShadowStyle` is the only shadow.
+- 2026-10-11 (step 1): screenshots only for important changes (rule 4). Step 1 changes fonts, sizes and shadows the same way on every screen without changing functionality, so it adds no gallery section; steps 3, 4 and 5 (screen layouts, the student app and emails) do, with only the screens they change.

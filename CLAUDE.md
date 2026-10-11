@@ -157,7 +157,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - Screens only compose `src/ui` primitives and theme tokens. A new visual pattern or animation becomes a primitive in `src/ui` (motion in `src/ui/motion`) and every screen with that pattern uses it; no screen keeps an older version of a pattern.
 - Emails follow the same design as the app, through the one layout in `src/Notifications/Email`.
 - A redesign replaces, it does not pile up: each PR deletes the old styles, variants, components, fonts, packages, translation keys and email fragments it left without users, with their tests. No commented-out code, no `Old`/`Legacy` copies, no flag to switch back.
-- Every PR that changes how a screen or an email looks captures before and after screenshots (`pnpm screenshots`, see [docs/e2e/demo-screenshots.md](docs/e2e/demo-screenshots.md)), publishes them side by side in the redesign screenshots artifact (not in the repository) and links them from the PR description.
+- A PR with an important visual change (a screen whose layout changes, a new pattern, an email) captures before and after screenshots of the screens it changes (`pnpm screenshots`, see [docs/e2e/demo-screenshots.md](docs/e2e/demo-screenshots.md)), publishes them side by side in the redesign screenshots artifact (not in the repository) and links them from the PR description. Changes applied the same way everywhere through primitives and tokens (fonts, sizes, shadows, motion) that keep functionality don't need them.
 - The redesign in progress, its rules and the feature checklist per screen: [docs/frontend/20261011-calma-redesign/plan.md](docs/frontend/20261011-calma-redesign/plan.md).
 
 ### Documentation
