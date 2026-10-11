@@ -7,7 +7,6 @@ public sealed record BrandResponse(
     string? BrandName,
     string? ThemeColor,
     string? AccentColor,
-    bool LocksTheme,
     DateTimeOffset? LogoUpdatedAt)
 {
     public static BrandResponse From(Business business) =>
@@ -16,9 +15,8 @@ public sealed record BrandResponse(
             business.BrandName,
             business.ThemeColor,
             business.AccentColor,
-            business.LocksTheme,
             business.LogoUpdatedAt);
 
     public BrandResponse WithoutPaidBranding() =>
-        this with { ThemeColor = null, AccentColor = null, LocksTheme = false, LogoUpdatedAt = null };
+        this with { ThemeColor = null, AccentColor = null, LogoUpdatedAt = null };
 }

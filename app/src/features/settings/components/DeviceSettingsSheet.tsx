@@ -1,6 +1,6 @@
 import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
 import { PushNotifications } from "@/features/notifications/usePushNotifications";
-import { AppearanceSettings } from "@/features/settings/components/ThemePicker";
+import { AppearanceSettings } from "@/features/settings/components/AppearanceSettings";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { ColorSchemePreference } from "@/theme/ThemeContext";
 import { BottomSheet } from "@/ui/BottomSheet";
@@ -34,6 +34,7 @@ interface DeviceSettingsSheetProps {
   kind: DeviceSettingsSheetKind | null;
   notifications: PushNotifications;
   notificationsHint: string;
+  colorsHint: string;
   onClose: () => void;
 }
 
@@ -41,6 +42,7 @@ export function DeviceSettingsSheet({
   kind,
   notifications,
   notificationsHint,
+  colorsHint,
   onClose,
 }: DeviceSettingsSheetProps) {
   if (kind === null) {
@@ -50,7 +52,7 @@ export function DeviceSettingsSheet({
     <BottomSheet onClose={onClose}>
       {kind === "appearance" ? (
         <Card>
-          <AppearanceSettings />
+          <AppearanceSettings colorsHint={colorsHint} />
         </Card>
       ) : (
         <NotificationSettings notifications={notifications} hint={notificationsHint} />

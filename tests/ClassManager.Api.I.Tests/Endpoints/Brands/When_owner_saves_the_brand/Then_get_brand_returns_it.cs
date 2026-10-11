@@ -13,6 +13,6 @@ public sealed class Then_get_brand_returns_it(ApiFixture fixture)
         (await business.HttpClient.PutBrandAsync(BrandRequests.DeltaBrand())).EnsureSuccessStatusCode();
 
         var brand = await business.HttpClient.GetBrandAsync();
-        brand.ShouldBe(new BrandResponse("Club Delta", "Club Delta", "#0076b4", "#efb062", LocksTheme: true, LogoUpdatedAt: null));
+        brand.ShouldBe(new BrandResponse("Club Delta", "Club Delta", "#0076b4", "#efb062", LogoUpdatedAt: null));
     }
 }

@@ -7,7 +7,7 @@ public sealed class Then_business_name_is_shown
     {
         var business = TestData.Business();
 
-        business.UpdateBrand("   ", themeColor: null, accentColor: null, locksTheme: false);
+        business.UpdateBrand("   ", themeColor: null, accentColor: null);
 
         business.BrandName.ShouldBeNull();
         business.BrandDisplayName.ShouldBe(business.Name);

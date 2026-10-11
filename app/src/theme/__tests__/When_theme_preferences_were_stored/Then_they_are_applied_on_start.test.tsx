@@ -20,9 +20,7 @@ describe("When theme preferences were stored", () => {
   it("Then they are applied on start", async () => {
     jest
       .mocked(themePreferenceStorage.read)
-      .mockResolvedValue(
-        serializeThemePreferences({ themeName: "violet", colorSchemePreference: "dark" }),
-      );
+      .mockResolvedValue(serializeThemePreferences({ colorSchemePreference: "dark" }));
     jest.mocked(themePreferenceStorage.write).mockResolvedValue();
 
     await render(
@@ -32,6 +30,6 @@ describe("When theme preferences were stored", () => {
       </ThemeProvider>,
     );
 
-    expect(await screen.findByText(themes.violet.dark.background)).toBeTruthy();
+    expect(await screen.findByText(themes.aqua.dark.background)).toBeTruthy();
   });
 });

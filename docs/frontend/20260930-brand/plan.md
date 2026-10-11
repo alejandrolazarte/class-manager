@@ -1,5 +1,7 @@
 # Plan — Brand: logo, brand theme and welcome screen
 
+> **Update 2026-10-11:** the theme lock and per-user theme choice were removed. The business theme (a built-in theme or own colors) applies to everyone; each person only picks light or dark. See [branding and plans](../../branding-and-plans.md#what-each-user-sees). `LocksTheme` was dropped from the API and the database (migration `RemoveBusinessLocksTheme`). The rest of this plan is kept as built.
+
 Follow-up to the Claude Design exploration "Marca Propia" (Ajustes → Marca, the branded student app and its welcome screen). It delivers the "business theme" of [themes and business icon](../20260928-themes-and-business-icon/plan.md) (Part 4), the accent color and the theme lock from [branding and plans](../../branding-and-plans.md), and the custom logo that plan left out of scope.
 
 ## What each person sees

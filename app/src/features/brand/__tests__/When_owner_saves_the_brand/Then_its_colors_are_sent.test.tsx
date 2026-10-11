@@ -17,7 +17,7 @@ describe("When owner saves the brand", () => {
     jest.mocked(updateBrand).mockResolvedValue(buildBrand({ themeColor: chosenColor }));
   });
 
-  it("Then colors and lock are sent", async () => {
+  it("Then its colors are sent", async () => {
     await renderWithProviders(
       <BrandProvider audience="team">
         <BrandSettingsScreen />
@@ -29,7 +29,6 @@ describe("When owner saves the brand", () => {
         name: `${translate("brand.settings.mainColor")} ${chosenColor}`,
       }),
     );
-    await fireEvent.press(screen.getByRole("switch", { name: translate("brand.settings.lock") }));
     await fireEvent.press(screen.getByRole("button", { name: translate("brand.settings.save") }));
 
     await waitFor(() =>
@@ -37,7 +36,6 @@ describe("When owner saves the brand", () => {
         brandName: null,
         themeColor: chosenColor,
         accentColor: null,
-        locksTheme: true,
       }),
     );
   });

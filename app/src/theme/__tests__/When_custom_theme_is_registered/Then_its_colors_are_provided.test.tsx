@@ -13,8 +13,8 @@ const customTheme: ThemeDefinition = {
 };
 
 function PrimaryColorProbe() {
-  const { colors, themeNames } = useTheme();
-  return <Text>{`${colors.primary} ${themeNames.join(",")}`}</Text>;
+  const { colors } = useTheme();
+  return <Text>{colors.primary}</Text>;
 }
 
 describe("When custom theme is registered", () => {
@@ -22,17 +22,13 @@ describe("When custom theme is registered", () => {
     await render(
       <ThemeProvider
         customThemes={{ [customThemeName]: customTheme }}
-        initialThemeName={customThemeName}
+        baseThemeName={customThemeName}
         initialColorSchemePreference="light"
       >
         <PrimaryColorProbe />
       </ThemeProvider>,
     );
 
-    expect(
-      screen.getByText(
-        `${customPrimaryColor} ${[...Object.keys(themes), customThemeName].join(",")}`,
-      ),
-    ).toBeTruthy();
+    expect(screen.getByText(customPrimaryColor)).toBeTruthy();
   });
 });

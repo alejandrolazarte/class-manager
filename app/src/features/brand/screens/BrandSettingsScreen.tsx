@@ -7,7 +7,9 @@ import { BrandLogo } from "@/features/brand/components/BrandLogo";
 import { BrandPreview } from "@/features/brand/components/BrandPreview";
 import { BrandWelcome } from "@/features/brand/components/BrandWelcome";
 import { ColorSwatchGrid } from "@/features/brand/components/ColorSwatchGrid";
+import { ThemeOptionGrid } from "@/features/brand/components/ThemeOptionGrid";
 import { logoMaximumSizeInBytes, pickLogoFile } from "@/features/brand/pickLogoFile";
+import { toBrandTheme } from "@/features/brand/brandTheme";
 import { Brand } from "@/features/brand/types";
 import {
   useRemoveBrandLogo,
@@ -20,8 +22,9 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { translate, TranslationKey } from "@/i18n/translate";
 import { findBrandColorClash, StatusColorName } from "@/theme/brandColorClash";
 import { accentBrandSwatches, mainBrandSwatches } from "@/theme/brandSwatches";
-import { deriveBrandTheme } from "@/theme/deriveBrandTheme";
+import { builtInThemeColor, findBuiltInThemeName } from "@/theme/builtInThemeColors";
 import { ThemePreviewScope } from "@/theme/ThemePreviewScope";
+import { BuiltInThemeName, defaultThemeName, themes } from "@/theme/themes";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
@@ -30,7 +33,6 @@ import { Card } from "@/ui/Card";
 import { Chip } from "@/ui/Chip";
 import { LoadingScreen } from "@/ui/LoadingScreen";
 import { TextField } from "@/ui/TextField";
-import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
 import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
@@ -56,7 +58,6 @@ interface BrandDraft {
   themeColor: string | null;
   themeColorInput: string;
   accentColor: string | null;
-  locksTheme: boolean;
 }
 
 function draftOf(brand: Brand): BrandDraft {
@@ -65,7 +66,6 @@ function draftOf(brand: Brand): BrandDraft {
     themeColor: brand.themeColor,
     themeColorInput: brand.themeColor ?? "",
     accentColor: brand.accentColor,
-    locksTheme: brand.locksTheme,
   };
 }
 
@@ -97,7 +97,7 @@ export function BrandSettingsScreen() {
 
 function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string | null }) {
   const business = useCurrentBusiness();
-  const { colors, colorScheme } = useTheme();
+  const { colorScheme } = useTheme();
   const { showToast } = useToast();
   const updateBrandMutation = useUpdateBrand();
   const uploadLogoMutation = useUploadBrandLogo();
@@ -120,13 +120,14 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
 
   const previewColors = useMemo(
     () =>
-      draft.themeColor === null
-        ? colors
-        : deriveBrandTheme({ themeColor: draft.themeColor, accentColor: draft.accentColor })[
-            colorScheme
-          ],
-    [draft.themeColor, draft.accentColor, colors, colorScheme],
+      (toBrandTheme({ themeColor: draft.themeColor, accentColor: draft.accentColor }) ??
+        themes[defaultThemeName])[colorScheme],
+    [draft.themeColor, draft.accentColor, colorScheme],
   );
+  const selectedThemeName =
+    draft.themeColor === null
+      ? defaultThemeName
+      : findBuiltInThemeName(draft.themeColor, draft.accentColor);
   const displayName = draft.brandName.trim() === "" ? business.name : draft.brandName.trim();
   const clash = draft.themeColor === null ? null : findBrandColorClash(draft.themeColor);
   const isAdjusted =
@@ -145,11 +146,13 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
       hexColorPattern.test(themeColorInput)
         ? { themeColorInput, themeColor: themeColorInput.toLowerCase() }
         : themeColorInput === ""
-          ? { themeColorInput, themeColor: null, locksTheme: false }
+          ? { themeColorInput, themeColor: null }
           : { themeColorInput },
     );
-  const clearThemeColor = () =>
-    updateDraft({ themeColor: null, themeColorInput: "", locksTheme: false });
+  const selectBuiltInTheme = (themeName: BuiltInThemeName) => {
+    const themeColor = themeName === defaultThemeName ? null : builtInThemeColor(themeName);
+    updateDraft({ themeColor, themeColorInput: themeColor ?? "", accentColor: null });
+  };
 
   const uploadLogo = async () => {
     setLogoError(null);
@@ -185,7 +188,6 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
         brandName: draft.brandName.trim() === "" ? null : draft.brandName.trim(),
         themeColor: draft.themeColor,
         accentColor: draft.accentColor,
-        locksTheme: draft.themeColor !== null && draft.locksTheme,
       });
       showToast(translate("brand.settings.saved"));
     } catch (saveError) {
@@ -241,6 +243,19 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
         />
         <Card className="gap-3 p-4">
           <View className="gap-0.5">
+            <AppText variant="bodyStrong">{translate("brand.settings.theme")}</AppText>
+            <AppText variant="caption" tone="muted">
+              {translate("brand.settings.themeHint")}
+            </AppText>
+          </View>
+          <ThemeOptionGrid
+            selectedThemeName={selectedThemeName}
+            colorScheme={colorScheme}
+            onSelect={selectBuiltInTheme}
+          />
+        </Card>
+        <Card className="gap-3 p-4">
+          <View className="gap-0.5">
             <AppText variant="bodyStrong">{translate("brand.settings.mainColor")}</AppText>
             <AppText variant="caption" tone="muted">
               {translate("brand.settings.mainColorHint")}
@@ -271,14 +286,6 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
               {translate("brand.settings.adjusted")}
             </AppText>
           ) : null}
-          {draft.themeColor === null ? null : (
-            <Button
-              variant="ghost"
-              size="medium"
-              label={translate("brand.settings.useAppColors")}
-              onPress={clearThemeColor}
-            />
-          )}
         </Card>
         {draft.themeColor === null ? null : (
           <Card className="gap-3 p-4">
@@ -309,18 +316,6 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
           </AppText>
           <BrandPreview colors={previewColors} />
         </View>
-        {draft.themeColor === null ? null : (
-          <View className="gap-1.5">
-            <ToggleSwitch
-              label={translate("brand.settings.lock")}
-              value={draft.locksTheme}
-              onValueChange={(locksTheme) => updateDraft({ locksTheme })}
-            />
-            <AppText variant="caption" tone="muted" className="px-1">
-              {translate("brand.settings.lockHint")}
-            </AppText>
-          </View>
-        )}
         <Button
           variant="secondary"
           icon="welcome"

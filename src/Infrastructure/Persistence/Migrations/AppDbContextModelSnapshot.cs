@@ -150,9 +150,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
-                    b.Property<bool>("LocksTheme")
-                        .HasColumnType("bit");
-
                     b.Property<DateTimeOffset?>("LogoUpdatedAt")
                         .HasColumnType("datetimeoffset");
 

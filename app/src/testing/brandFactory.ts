@@ -8,7 +8,6 @@ export function buildBrand(overrides: Partial<Brand> = {}): Brand {
     brandName: "Club Delta",
     themeColor: null,
     accentColor: null,
-    locksTheme: false,
     logoUpdatedAt: null,
     ...overrides,
   };

@@ -269,6 +269,9 @@ export function SettingsScreen() {
         kind={openSheet}
         notifications={pushNotifications}
         notificationsHint={translate("teamNotifications.hint")}
+        colorsHint={translate(
+          canManageBusiness ? "settings.colorsHint.owner" : "settings.colorsHint.team",
+        )}
         onClose={() => setOpenSheet(null)}
       />
     </ScrollScreen>

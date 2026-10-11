@@ -120,8 +120,8 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Student app, shop and online payments plan](docs/backend/20260929-online-shop-and-payments/plan.md) — accounts for parents and adult students, products and stock, orders paid at the branch, then Stripe Connect per branch (steps 1–4 built, the rest is a proposal)
 - [Subscriptions plan](docs/backend/20261003-subscriptions/plan.md) — one subscription per brand, plans Free (30-day trial, read-only once it ends)/Lite/Pro/Enterprise, features and add-ons checked like permissions, and the `Subscriptions` library, enforced centrally (steps 1–4 built)
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
-- [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes chosen by each user, a theme created by the business from its color, and a business icon
-- [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, brand colors with accent, theme lock, welcome screen, and where students and the team see the brand
+- [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes (now chosen by the business, not each user), a theme created by the business from its color, and a business icon
+- [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, business theme (built-in or own colors with accent), welcome screen, and where students and the team see the brand
 - [Team notifications](docs/backend/20261001-team-notifications/plan.md) — avisos for instructors and owners (no voy, makeups, new orders), who gets each one, and web push for the team
 - [Background tasks](docs/backend/20261007-background-tasks/plan.md) — order emails and push notifications queued in the `BackgroundTasks` table, sent and retried by one worker that sleeps until there is work instead of polling the database
 - [Team home](docs/frontend/20261001-team-home/plan.md) — Inicio replaces Hoy for the team: greeting, next class, tiles and the full day agenda

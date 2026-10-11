@@ -106,10 +106,10 @@ test("App screens", async ({ page, request }) => {
   await page.screenshot({ path: join(outputDirectory, "10c-cobros-pedidos.png") });
 
   await openAppearance(page);
-  await page.getByRole("button", { name: "Grafito", exact: true }).scrollIntoViewIfNeeded();
+  await page.getByText("Automático").filter({ visible: true }).first().waitFor();
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);
-  await page.screenshot({ path: join(outputDirectory, "18-colores.png") });
+  await page.screenshot({ path: join(outputDirectory, "18-apariencia.png") });
 
   const themes: [fileName: string, themeName: string][] = [
     ["19-hoy-tema-violeta", "Violeta"],
@@ -122,8 +122,7 @@ test("App screens", async ({ page, request }) => {
   ];
 
   for (const [fileName, themeName] of themes) {
-    await openAppearance(page);
-    await page.getByRole("button", { name: themeName, exact: true }).click();
+    await chooseBusinessTheme(page, themeName);
     await page.goto("/today");
     await page
       .getByText("Próxima clase")
@@ -136,6 +135,14 @@ test("App screens", async ({ page, request }) => {
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
 });
+
+async function chooseBusinessTheme(page: Page, themeName: string): Promise<void> {
+  await page.goto("/settings/brand");
+  await waitForBrandWelcomeToClose(page);
+  await page.getByRole("button", { name: themeName, exact: true }).click();
+  await page.getByRole("button", { name: "Guardar marca" }).click();
+  await page.getByText("Marca guardada", { exact: false }).waitFor();
+}
 
 async function openAppearance(page: Page): Promise<void> {
   await page.goto("/settings");

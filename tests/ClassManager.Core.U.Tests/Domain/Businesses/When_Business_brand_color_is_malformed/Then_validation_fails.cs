@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         var business = TestData.Business();
 
-        var result = business.UpdateBrand(brandName: null, themeColor: "blue", accentColor: null, locksTheme: false);
+        var result = business.UpdateBrand(brandName: null, themeColor: "blue", accentColor: null);
 
         result.Error!.FieldName.ShouldBe(nameof(Business.ThemeColor));
         business.ThemeColor.ShouldBeNull();

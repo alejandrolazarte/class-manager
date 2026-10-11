@@ -25,7 +25,6 @@ public sealed partial class Business
     private const string CurrencyCodeUnknownMessage = "Currency code is not a known ISO 4217 code.";
     private const string BrandNameLengthMessage = "Brand name must be between 2 and 120 characters.";
     private const string BrandColorFormatMessage = "Brand colors must be # followed by 6 hexadecimal digits.";
-    private const string LockWithoutThemeColorMessage = "Choose a main color before locking the brand theme.";
 
     private static readonly Lazy<FrozenSet<string>> KnownCurrencyCodes = new(LoadKnownCurrencyCodes);
 
@@ -46,7 +45,6 @@ public sealed partial class Business
     public string? BrandName { get; private set; }
     public string? ThemeColor { get; private set; }
     public string? AccentColor { get; private set; }
-    public bool LocksTheme { get; private set; }
     public DateTimeOffset? LogoUpdatedAt { get; private set; }
     public string BrandDisplayName => BrandName ?? Name;
     public DateTimeOffset CreatedAt { get; private set; }
@@ -112,7 +110,7 @@ public sealed partial class Business
         return Result.Success();
     }
 
-    public Result UpdateBrand(string? brandName, string? themeColor, string? accentColor, bool locksTheme)
+    public Result UpdateBrand(string? brandName, string? themeColor, string? accentColor)
     {
         var trimmedBrandName = string.IsNullOrWhiteSpace(brandName) ? null : brandName.Trim();
         if (trimmedBrandName is { Length: < NameMinLength or > NameMaxLength })
@@ -130,15 +128,9 @@ public sealed partial class Business
             return Result.Failure(ValidationError(BrandColorFormatMessage, nameof(AccentColor)));
         }
 
-        if (locksTheme && themeColor is null)
-        {
-            return Result.Failure(ValidationError(LockWithoutThemeColorMessage, nameof(LocksTheme)));
-        }
-
         BrandName = trimmedBrandName;
         ThemeColor = themeColor?.ToLowerInvariant();
         AccentColor = accentColor?.ToLowerInvariant();
-        LocksTheme = locksTheme;
         return Result.Success();
     }
 
