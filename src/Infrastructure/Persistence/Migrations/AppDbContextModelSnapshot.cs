@@ -1963,8 +1963,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Code = "catalog-photos",
-                            AddOnListPrice = 3m,
+                            Code = "document-storage",
+                            AddOnListPrice = 2m,
                             Currency = "USD",
                             IsAddOn = true,
                             IsCounted = true
@@ -2092,8 +2092,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "free",
-                            FeatureCode = "catalog-photos",
-                            Limit = 1
+                            FeatureCode = "document-storage",
+                            Limit = 100
                         },
                         new
                         {
@@ -2126,8 +2126,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "lite",
-                            FeatureCode = "catalog-photos",
-                            Limit = 5
+                            FeatureCode = "document-storage",
+                            Limit = 1024
                         },
                         new
                         {
@@ -2179,8 +2179,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "pro",
-                            FeatureCode = "catalog-photos",
-                            Limit = 5
+                            FeatureCode = "document-storage",
+                            Limit = 5120
                         },
                         new
                         {
@@ -2230,8 +2230,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "enterprise",
-                            FeatureCode = "catalog-photos",
-                            Limit = 5
+                            FeatureCode = "document-storage",
+                            Limit = 10240
                         });
                 });
 

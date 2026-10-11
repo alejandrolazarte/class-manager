@@ -9,6 +9,8 @@ public interface IHasCatalogImages
 
     int ImageCount { get; }
 
+    int MaximumImageCount { get; }
+
     void AddImage(Document document);
 
     Document? RemoveImage(Guid documentId);

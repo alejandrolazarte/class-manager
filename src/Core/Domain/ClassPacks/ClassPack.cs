@@ -16,6 +16,7 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
     public const int MinimumValidityMonths = 1;
     public const int MaximumValidityMonths = 24;
     public const int DescriptionMaxLength = 500;
+    public const int MaximumImages = 1;
 
     private const string NameLengthMessage = "The name must be between 2 and 60 characters.";
     private const string ClassCountRangeMessage = "The number of classes must be between 1 and 100.";
@@ -43,6 +44,7 @@ public sealed class ClassPack : ITenantOwned, IHasCatalogImages
     public IReadOnlyList<ClassPackImage> Images => _images;
     public IReadOnlyList<Document> ImagesInOrder => CatalogImageGallery.InOrder(_images);
     public int ImageCount => _images.Count;
+    public int MaximumImageCount => MaximumImages;
     public IReadOnlyList<ClassPackClassGroup> ClassGroups => _classGroups;
     public IReadOnlyList<Guid> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
 

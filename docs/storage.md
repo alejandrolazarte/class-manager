@@ -58,7 +58,8 @@ erDiagram
 - **The path is stored, not the URL.** URLs are built when answering (`PublicUrlOf`). Moving to a CDN or another provider changes configuration, not data, and private documents can get signed links later without a migration.
 - **Visibility.** Shop photos are `Public`. `Private` exists so private documents (medical certificates, IDs) can use the same table and storage later: they go to the private container, and serving them needs short-lived signed links (SAS), which are not built yet. `PublicUrlOf` refuses private documents.
 - **Paths** are `<tenantId>/<products|class-packs>/<ownerId>/<documentId>.<extension>`. Each upload gets a new name, so the long cache header is safe.
-- **Plan limit.** The number of photos per product or pack is the `catalog-photos` feature: 1 on `Free`, 5 on the other plans, and an add-on can raise it ([subscriptions plan](backend/20261003-subscriptions/plan.md)). Like every limit, it blocks adding past it, never existing photos.
+- **How many photos.** A fixed rule, not a plan limit: up to 5 per product (`Product.MaximumImages`) and 1 per class pack (`ClassPack.MaximumImages`). It needs no column or table, and a pack that already had more photos keeps them.
+- **How much space.** The plan limit is the total size of the business's files, the `document-storage` feature, in MB (see [Document storage limit](#document-storage-limit)).
 
 ### Endpoints
 
@@ -66,13 +67,13 @@ Same for `/api/class-packs/{id}`, with the permissions to edit the product or th
 
 | Endpoint | What it does |
 |---|---|
-| `POST /api/products/{id}/images` | Adds a photo at the end. 400 `image.unsupported` or `image.too_large`, 403 `feature.limit_reached` |
+| `POST /api/products/{id}/images` | Adds a photo at the end. 400 `image.unsupported` or `image.too_large`, 409 `image.limit_reached` when the product or pack has the most photos allowed, 403 `feature.limit_reached` when the business has no space left |
 | `DELETE /api/products/{id}/images/{documentId}` | Removes the link, the `Documents` row and the file. 404 `image.not_found` if the photo is not this product's |
 | `PUT /api/products/{id}/images/order` | `{ "documentIds": [...] }` with every photo exactly once; the first is the main photo. 400 `image.order_mismatch` otherwise |
 
 Responses carry `images: [{ id, url }]` in order. Adding uploads the file first and then saves the rows; if saving fails, the file just uploaded is deleted. Tenant query filters make another business's product, pack or document a 404.
 
-The app keeps photo changes in the form and sends them when the user taps Guardar: removals, then additions in order, then the order if it changed. If the plan limit stops an addition, the product is saved and a message says some photos were not uploaded.
+The app keeps photo changes in the form and sends them when the user taps Guardar: removals, then additions in order, then the order if it changed. The form hides "Agregar foto" once the product or pack has the most photos allowed. If the space limit stops an addition, the product is saved and a message says some photos were not uploaded.
 
 **Public photos can be opened by anyone with the URL.** URLs contain random ids and can't be guessed or listed, and shop photos are meant to be seen by students.
 
@@ -82,7 +83,7 @@ A class has one optional material for its students: a link (`MaterialUrl`) or an
 
 | Endpoint | What it does |
 |---|---|
-| `POST /api/class-groups/{id}/material` | Uploads a PDF (detected by its `%PDF-` signature, never by name, up to 20 MB). Clears the link and deletes the previous file. 400 `class_group.material_unsupported` or `class_group.material_too_large` |
+| `POST /api/class-groups/{id}/material` | Uploads a PDF (detected by its `%PDF-` signature, never by name, up to 20 MB). Clears the link and deletes the previous file. 400 `class_group.material_unsupported` or `class_group.material_too_large`, 403 `feature.limit_reached` when the business has no space left |
 | `DELETE /api/class-groups/{id}/material` | Removes the file. 404 `class_group.material_file_not_found` if there is none |
 | `PUT /api/class-groups/{id}` with a `materialUrl` | Sets the link and deletes the file, if any |
 
@@ -91,6 +92,19 @@ Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student
 **Material files are public, like shop photos.** Decision (2026-10-08): a signed, short-lived link would only stop students from sharing the URL; they can still download the PDF and pass it on, as they can with printed material or a public Drive link. Private files stay for sensitive documents (medical certificates, IDs).
 
 The app keeps the file change in the form and sends it on Guardar: the removal first, then the class, then the upload. If the upload fails the class is still saved and a message says the PDF was not uploaded.
+
+## Document storage limit
+
+Every file a business uploads (product and pack photos, class PDFs) counts against the `document-storage` feature of its plan. The brand logo doesn't: it lives in the database.
+
+| `Free` | `Lite` | `Pro` | `Enterprise` | Add-on |
+|---|---|---|---|---|
+| 100 MB | 1 GB | 5 GB | 10 GB | US$ 2 per month for 10 GB more |
+
+- **Measured from `Documents.SizeInBytes`.** The space used is the sum of the business's documents, so it needs no new column. The limit is stored in MB; usage is shown rounded up to the next MB.
+- **Checked when saving.** `FeatureLimits.Sum<Document>` registers it, and `FeatureLimitSaveChangesInterceptor` adds the new documents, subtracts the ones deleted in the same save (replacing a class PDF) and refuses with `feature.limit_reached` past the limit. The file was already uploaded, so the use case deletes it, as it does for any failed save.
+- **Why this limit and not a number of photos.** Keeping files is close to free: about US$ 0.02 per GB a month, so a full `Pro` costs about US$ 0.10, 0.5 % of its price. The limit stops abuse and gives something to sell. Egress (each view of a public photo or PDF) costs more than storage, so the next saving is shrinking photos when they are uploaded, not a tighter limit.
+- **On `Free`**, which has neither the shop nor class packs, the space is only usable for class PDFs.
 
 ## Configuration
 

@@ -12,6 +12,7 @@ import { classPackErrorCodes } from "@/features/classPacks/classPackErrorCodes";
 import {
   classPackFieldNames,
   ClassPackFormValues,
+  classPackLimits,
   classPackSchema,
   toClassPackFormValues,
   toSaveClassPackRequest,
@@ -227,7 +228,11 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           )}
         />
       ) : null}
-      <CatalogImageField images={images} placeholderIcon="classPacks" />
+      <CatalogImageField
+        images={images}
+        placeholderIcon="classPacks"
+        maximumImageCount={classPackLimits.maximumImageCount}
+      />
       <View className="gap-3">
         <Button
           label={translate("common.save")}

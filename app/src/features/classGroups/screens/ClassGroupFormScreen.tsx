@@ -22,6 +22,7 @@ import { ClassGroup, Weekday } from "@/features/classGroups/types";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import {
   ClassMaterialFileChange,
+  SaveClassGroupOutcome,
   useSaveClassGroup,
   useSetClassGroupActive,
 } from "@/features/classGroups/useClassGroupMutations";
@@ -38,7 +39,7 @@ import { SettingsFormScreenLayout } from "@/features/settings/components/Setting
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
-import { translate, translateCount } from "@/i18n/translate";
+import { TranslationKey, translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -48,6 +49,11 @@ import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 const singleInstructorCount = 1;
+const savedMessageKeys: Record<SaveClassGroupOutcome, TranslationKey> = {
+  saved: "classGroups.form.saved",
+  savedWithoutMaterialFile: "classGroups.form.savedWithoutMaterialFile",
+  savedWithDocumentStorageFull: "classGroups.form.savedWithDocumentStorageFull",
+};
 
 interface ClassGroupFormScreenProps {
   classGroupId?: string;
@@ -155,13 +161,7 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
         request: toSaveClassGroupRequest(formValues),
         materialFileChange,
       });
-      showToast(
-        translate(
-          outcome === "saved"
-            ? "classGroups.form.saved"
-            : "classGroups.form.savedWithoutMaterialFile",
-        ),
-      );
+      showToast(translate(savedMessageKeys[outcome]));
       router.back();
     } catch (saveError) {
       handleSaveError(saveError);

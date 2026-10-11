@@ -10,6 +10,7 @@ export const productLimits = {
   descriptionMaximumLength: 500,
   variantNameMaximumLength: 30,
   maximumVariantCount: 20,
+  maximumImageCount: 5,
 } as const;
 
 const variantSeparator = ",";
