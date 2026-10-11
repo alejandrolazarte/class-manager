@@ -2,7 +2,6 @@ import { z } from "zod";
 import { emailAddressSchema } from "@/forms/emailAddress";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 import { SignUpRequest } from "@/features/authentication/types";
-import { CountryCode, getCountryPreset } from "@/features/business/countryPresets";
 import {
   ageInYears,
   isValidBirthDate,
@@ -59,7 +58,7 @@ export const signUpSchema = z.object({
       authenticationLimits.businessNameMaximumLength,
       translate("authentication.validation.businessNameTooLong"),
     ),
-  countryCode: z.custom<CountryCode>((countryCode) => typeof countryCode === "string"),
+  countryCode: z.string(),
   timeZoneId: z.string().min(1, translate("authentication.validation.timeZoneRequired")),
 });
 
@@ -74,16 +73,15 @@ export const signUpFieldNames = [
   "timeZoneId",
 ] as const satisfies readonly (keyof SignUpFormValues)[];
 
-export function toSignUpRequest(formValues: SignUpFormValues): SignUpRequest {
-  const countryPreset = getCountryPreset(formValues.countryCode);
+export function toSignUpRequest(formValues: SignUpFormValues, currencyCode: string): SignUpRequest {
   return {
     ownerFullName: formValues.ownerFullName.trim(),
     email: formValues.email.trim(),
     password: formValues.password,
     businessName: formValues.businessName.trim(),
+    countryCode: formValues.countryCode,
     timeZoneId: formValues.timeZoneId,
-    currencyCode: countryPreset.currencyCode,
-    defaultCountryCallingCode: countryPreset.callingCode,
+    currencyCode,
     ownerBirthDate: parseBirthDate(formValues.ownerBirthDate) ?? "",
   };
 }

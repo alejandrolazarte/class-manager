@@ -11,7 +11,7 @@ export interface Branch {
 
 export interface CreateBranchRequest {
   name: string;
+  countryCode: string;
   timeZoneId: string;
   currencyCode: string;
-  defaultCountryCallingCode: string;
 }

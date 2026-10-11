@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Pressable, View } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
@@ -13,11 +13,13 @@ import {
   toSignUpRequest,
 } from "@/features/authentication/signUpSchema";
 import { useSession } from "@/features/authentication/useSession";
-import { CountryPicker } from "@/features/business/components/CountryPicker";
+import { CountryPicker } from "@/features/countries/CountryPicker";
 import {
-  getCountrySelectionForTimeZone,
+  countrySelectionForTimeZone,
+  findCountry,
   getDeviceTimeZone,
-} from "@/features/business/countryPresets";
+} from "@/features/countries/countrySelection";
+import { useCountries } from "@/features/countries/useCountries";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { isValidBirthDate } from "@/features/students/birthDateFormatting";
@@ -56,9 +58,7 @@ export function SignUpScreen() {
   const { signUp } = useSession();
   const [signUpFailure, setSignUpFailure] = useState<SignUpFailure | null>(null);
   const [step, setStep] = useState<SignUpStep>(1);
-  const [initialCountrySelection] = useState(() =>
-    getCountrySelectionForTimeZone(getDeviceTimeZone()),
-  );
+  const { data: countries = [] } = useCountries();
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -67,7 +67,8 @@ export function SignUpScreen() {
       email: "",
       password: "",
       businessName: "",
-      ...initialCountrySelection,
+      countryCode: "",
+      timeZoneId: "",
     },
     mode: "onTouched",
   });
@@ -84,6 +85,16 @@ export function SignUpScreen() {
         "businessName",
       ],
     });
+  const countryCurrencyCode = findCountry(countries, countryCode)?.currencyCode ?? "";
+
+  useEffect(() => {
+    const deviceCountrySelection = countrySelectionForTimeZone(countries, getDeviceTimeZone());
+    if (form.getValues("countryCode") === "" && deviceCountrySelection) {
+      form.setValue("countryCode", deviceCountrySelection.countryCode);
+      form.setValue("timeZoneId", deviceCountrySelection.timeZoneId);
+    }
+  }, [countries, form]);
+
   const hasLongEnoughPassword = password.length >= authenticationLimits.passwordMinimumLength;
   const isAccountStepFilled = useRequiredFieldsFilled(form.control, accountStepFieldNames);
   const isBusinessStepFilled = useRequiredFieldsFilled(form.control, businessStepFieldNames);
@@ -128,7 +139,7 @@ export function SignUpScreen() {
 
   const submit = form.handleSubmit(async (formValues) => {
     setSignUpFailure(null);
-    const signUpRequest = toSignUpRequest(formValues);
+    const signUpRequest = toSignUpRequest(formValues, countryCurrencyCode);
     try {
       await signUp(signUpRequest);
     } catch (signUpError) {
@@ -271,7 +282,7 @@ export function SignUpScreen() {
           <Button
             label={translate("authentication.signUp.submit")}
             onPress={submit}
-            disabled={!isBusinessStepFilled}
+            disabled={!isBusinessStepFilled || countryCurrencyCode === ""}
             isLoading={form.formState.isSubmitting}
           />
         </View>

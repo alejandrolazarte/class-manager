@@ -19,15 +19,15 @@ describe("When country is selected", () => {
   it("Then time zone and currency are filled", async () => {
     await renderWithSession(<SignUpScreen />);
     await fillSignUpForm();
-    await fireEvent.press(screen.getByRole("button", { name: translate("countries.UY") }));
+    await fireEvent.press(await screen.findByRole("button", { name: translate("countries.UY") }));
     await submitSignUpForm();
 
     await waitFor(() =>
       expect(signUp).toHaveBeenCalledWith(
         expect.objectContaining({
+          countryCode: "UY",
           timeZoneId: "America/Montevideo",
           currencyCode: "UYU",
-          defaultCountryCallingCode: "598",
           ownerBirthDate: "1990-04-12",
         }),
       ),

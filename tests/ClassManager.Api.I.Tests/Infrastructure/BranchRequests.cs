@@ -8,7 +8,7 @@ public static class BranchRequests
     public const string SwitchBranchRoute = ApiRoutes.Authentication + ApiRoutes.SwitchBranch;
 
     public static CreateBranchCommand BranchCommand(string name) =>
-        new(name, "Atlantic/Canary", "EUR", "34");
+        new(name, "ES", "Atlantic/Canary", "EUR");
 
     public static Task<HttpResponseMessage> PostBranchAsync(this HttpClient httpClient, string name) =>
         httpClient.PostAsJsonAsync(ApiRoutes.OrganizationBranches, BranchCommand(name), ApiRequests.JsonOptions);

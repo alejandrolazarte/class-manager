@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Core.Domain.Countries;
 
 namespace ClassManager.Core.U.Tests;
 
@@ -9,6 +10,13 @@ internal static class TestData
     public const string DefaultCountryCallingCode = "54";
     public const string BuenosAiresTimeZoneId = "America/Argentina/Buenos_Aires";
     public const string CurrencyCode = "ARS";
+    public const string ArgentinaCountryCode = "AR";
+    public const string SpainCountryCode = "ES";
+    public const string SpainCallingCode = "34";
+    public const string MadridTimeZoneId = "Europe/Madrid";
+    public const string EuroCurrencyCode = "EUR";
+    public const int ArgentinaOwnAccountMinimumAge = 13;
+    public const int SpainOwnAccountMinimumAge = 14;
     public const string ClientFullName = "Ana Pérez";
     public const string ClientPhoneNumber = "11 2233-4455";
     public const string NormalizedClientPhoneNumber = "+541122334455";
@@ -23,8 +31,14 @@ internal static class TestData
     public static readonly DateTimeOffset Now = new(2026, 9, 24, 12, 0, 0, TimeSpan.Zero);
     public static readonly DateOnly Today = DateOnly.FromDateTime(Now.UtcDateTime);
 
+    public static Country Argentina() =>
+        Country.Create(ArgentinaCountryCode, 1, DefaultCountryCallingCode, CurrencyCode, ArgentinaOwnAccountMinimumAge, BuenosAiresTimeZoneId);
+
+    public static Country Spain() =>
+        Country.Create(SpainCountryCode, 2, SpainCallingCode, EuroCurrencyCode, SpainOwnAccountMinimumAge, MadridTimeZoneId);
+
     public static Business Business() =>
-        ClassManager.Core.Domain.Businesses.Business.Create(Guid.CreateVersion7(), "Demo business", "demo-business", BuenosAiresTimeZoneId, CurrencyCode, DefaultCountryCallingCode, Now).Value!;
+        ClassManager.Core.Domain.Businesses.Business.Create(Guid.CreateVersion7(), "Demo business", "demo-business", Argentina(), BuenosAiresTimeZoneId, CurrencyCode, Now).Value!;
 
     public static PhoneNumber PhoneNumber() =>
         ClassManager.Core.Domain.Clients.PhoneNumber.Create(ClientPhoneNumber, DefaultCountryCallingCode).Value!;

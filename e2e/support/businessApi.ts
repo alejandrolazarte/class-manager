@@ -39,7 +39,7 @@ export async function signUpBusiness(request: APIRequestContext): Promise<Busine
       businessName: `Negocio E2E ${randomUUID().slice(0, 8)}`,
       timeZoneId: "America/Argentina/Buenos_Aires",
       currencyCode: "ARS",
-      defaultCountryCallingCode: "54",
+      countryCode: "AR",
       ownerBirthDate: "1985-06-20",
     },
   });

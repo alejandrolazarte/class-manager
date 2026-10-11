@@ -3,7 +3,6 @@ using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
-using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Tenancy;
@@ -120,7 +119,7 @@ public sealed class CheckGuardianConsentUseCase(
             student.FullName,
             invitation.Email,
             invitation.GuardianEmail ?? string.Empty,
-            PersonAge.OwnAccountMinimumAge(business.DefaultCountryCallingCode));
+            business.Country.OwnAccountMinimumAge);
     }
 }
 

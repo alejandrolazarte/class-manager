@@ -11,6 +11,7 @@ public sealed record GetCurrentBusinessQuery : IQuery;
 
 public sealed record BusinessResponse(
     string Name,
+    string CountryCode,
     string TimeZoneId,
     string CurrencyCode,
     string DefaultCountryCallingCode,
@@ -20,6 +21,7 @@ public sealed record BusinessResponse(
     public static BusinessResponse From(Business business, IReadOnlyCollection<DefaultMonthlyFeeChange> feeChanges, DateOnly today) =>
         new(
             business.Name,
+            business.CountryCode,
             business.TimeZoneId,
             business.CurrencyCode,
             business.DefaultCountryCallingCode,

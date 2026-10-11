@@ -2,6 +2,7 @@ import { MonthlyFeeChange } from "@/features/fees/types";
 
 export interface Business {
   name: string;
+  countryCode: string;
   timeZoneId: string;
   currencyCode: string;
   defaultCountryCallingCode: string;
@@ -11,9 +12,9 @@ export interface Business {
 
 export interface UpdateBusinessSettingsRequest {
   name: string;
+  countryCode: string;
   timeZoneId: string;
   currencyCode: string;
-  defaultCountryCallingCode: string;
 }
 
 export type UpdateBusinessSettingsResponse = Omit<

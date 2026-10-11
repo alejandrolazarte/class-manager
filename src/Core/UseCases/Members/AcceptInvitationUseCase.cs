@@ -70,7 +70,7 @@ public sealed class AcceptInvitationUseCase(
                 return account.Error!;
             }
 
-            if (business is not null && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.DefaultCountryCallingCode))
+            if (business is not null && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.Country))
             {
                 return Result.Validation<TokenResponse>(
                     AuthenticationErrorCodes.TooYoungForOwnAccountMessage,

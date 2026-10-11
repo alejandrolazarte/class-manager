@@ -55,8 +55,8 @@ await ExecuteAsync(
 await ExecuteAsync(
     """
     IF NOT EXISTS (SELECT 1 FROM Businesses WHERE Id = @Id)
-        INSERT INTO Businesses (Id, OrganizationId, Name, Slug, TimeZoneId, CurrencyCode, DefaultCountryCallingCode, CreatedAt)
-        VALUES (@Id, @OrganizationId, N'Demo business', N'demo-business', N'America/Argentina/Buenos_Aires', N'ARS', N'54', SYSDATETIMEOFFSET());
+        INSERT INTO Businesses (Id, OrganizationId, Name, Slug, CountryCode, TimeZoneId, CurrencyCode, DefaultCountryCallingCode, CreatedAt)
+        VALUES (@Id, @OrganizationId, N'Demo business', N'demo-business', N'AR', N'America/Argentina/Buenos_Aires', N'ARS', N'54', SYSDATETIMEOFFSET());
     """,
     ("@Id", demoBusinessId), ("@OrganizationId", demoOrganizationId));
 

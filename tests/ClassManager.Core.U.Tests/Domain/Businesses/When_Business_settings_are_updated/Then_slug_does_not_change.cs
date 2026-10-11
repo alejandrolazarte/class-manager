@@ -8,7 +8,7 @@ public sealed class Then_slug_does_not_change
         var business = TestData.Business();
         var originalSlug = business.Slug;
 
-        var result = business.UpdateSettings("Panadería Nueva", "Europe/Madrid", "eur", "34");
+        var result = business.UpdateSettings("Panadería Nueva", TestData.Spain(), TestData.MadridTimeZoneId, "eur");
 
         result.IsSuccess.ShouldBeTrue();
         business.Slug.ShouldBe(originalSlug);
