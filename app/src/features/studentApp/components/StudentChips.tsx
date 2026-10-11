@@ -1,8 +1,10 @@
-import { Pressable, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { firstNameOf } from "@/features/studentApp/studentAppSchedule";
 import { AccountStudent } from "@/features/studentApp/types";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
+import { PressableScale } from "@/ui/motion/PressableScale";
+import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 interface StudentChipsProps {
   students: readonly AccountStudent[];
@@ -11,6 +13,7 @@ interface StudentChipsProps {
 }
 
 export function StudentChips({ students, selectedStudentId, onSelect }: StudentChipsProps) {
+  const { layouts, onOptionLayout } = useOptionLayouts<string>();
   if (students.length < 2) {
     return null;
   }
@@ -19,29 +22,31 @@ export function StudentChips({ students, selectedStudentId, onSelect }: StudentC
       horizontal
       showsHorizontalScrollIndicator={false}
       className="-mx-5"
-      contentContainerClassName="gap-2 px-5"
+      contentContainerClassName="relative gap-1.5 px-5"
     >
+      <SlidingIndicator layout={layouts[selectedStudentId]} className="rounded-full bg-primary" />
       {students.map((student) => {
         const isSelected = student.id === selectedStudentId;
         const firstName = firstNameOf(student.fullName);
         return (
-          <Pressable
+          <PressableScale
             key={student.id}
             accessibilityRole="button"
             accessibilityLabel={firstName}
             accessibilityState={{ selected: isSelected }}
             onPress={() => onSelect(student.id)}
-            className={`h-11 flex-row items-center gap-2 rounded-full border-[1.5px] pl-[5px] pr-3.5 ${isSelected ? "border-primary bg-primary" : "border-border bg-surface active:bg-muted"}`}
+            onLayout={onOptionLayout(student.id)}
+            className={`h-10 flex-row items-center gap-2 rounded-full pl-[5px] pr-3.5 ${isSelected ? "" : "active:bg-muted"}`}
           >
             <Avatar
               name={student.fullName}
               size="tiny"
               tone={isSelected ? "onPrimary" : "primarySoft"}
             />
-            <AppText variant="link" tone={isSelected ? "onPrimary" : "default"}>
+            <AppText variant="bodyStrong" tone={isSelected ? "onPrimary" : "default"}>
               {firstName}
             </AppText>
-          </Pressable>
+          </PressableScale>
         );
       })}
     </ScrollView>

@@ -66,8 +66,6 @@ const iconGlyphs = {
   delivered: "inventory",
   refund: "undo",
   home: "home",
-  selected: "radio-button-checked",
-  unselected: "radio-button-unchecked",
   noClasses: "event-available",
   photo: "image",
   streak: "local-fire-department",

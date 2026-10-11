@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { View } from "react-native";
-import { NewsCard } from "@/features/studentApp/components/NewsCard";
+import { NewsRow } from "@/features/studentApp/components/NewsRow";
 import {
   NewsGroup,
   newsGroupLabels,
@@ -18,11 +17,11 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 export function StudentAppNewsScreen() {
@@ -73,25 +72,22 @@ export function StudentAppNewsScreen() {
         </Banner>
       ) : null}
       {news !== undefined && news.items.length === 0 ? (
-        <Card>
-          <EmptyState
-            icon="notifications"
-            iconTone="disabled-foreground"
-            message={translate("student.news.empty")}
-          />
-        </Card>
+        <EmptyState
+          icon="notifications"
+          iconTone="disabled-foreground"
+          message={translate("student.news.empty")}
+        />
       ) : null}
-      {newsGroups.map((group) => {
-        const items = itemsByGroup(group);
-        return items.length === 0 ? null : (
-          <View key={group} className="gap-2.5">
+      {newsGroups
+        .filter((group) => itemsByGroup(group).length > 0)
+        .map((group, groupIndex) => (
+          <AnimatedListItem key={group} index={groupIndex} className="mt-1">
             <SectionTitle isOverline title={translate(newsGroupLabels[group])} />
-            {items.map((item) => (
-              <NewsCard key={item.id} item={item} action={actionFor(item)} />
+            {itemsByGroup(group).map((item) => (
+              <NewsRow key={item.id} item={item} action={actionFor(item)} />
             ))}
-          </View>
-        );
-      })}
+          </AnimatedListItem>
+        ))}
     </ScrollScreen>
   );
 }

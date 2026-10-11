@@ -12,8 +12,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { useToast } from "@/ui/ToastProvider";
 
 type GuardianAnswer = "authorized" | "refused";
@@ -50,35 +49,38 @@ export function GuardianConsentCard({ consent }: GuardianConsentCardProps) {
   };
 
   return (
-    <Card className="gap-3 p-4">
-      <View className="flex-row items-center gap-3">
-        <View className="h-10 w-10 items-center justify-center rounded-xl bg-warning-soft">
-          <Icon name="studentApp" size="medium" tone="warning-soft-foreground" />
-        </View>
-        <AppText variant="bodyStrong" className="min-w-0 flex-1">
-          {translate("guardianConsent.cardTitle", { name: firstName })}
-        </AppText>
-      </View>
-      <AppText variant="body" tone="muted">
+    <TonalBlock tone="warning">
+      <AppText variant="bodyStrong">
+        {translate("guardianConsent.cardTitle", { name: firstName })}
+      </AppText>
+      <AppText variant="caption" tone="warningSoft">
         {translate("guardianConsent.details", {
           name: consent.studentFullName,
           email: consent.studentEmail,
         })}
       </AppText>
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
-      <Button
-        label={translate("guardianConsent.authorize")}
-        onPress={() => void respond("authorized")}
-        disabled={pendingAnswer === "refused"}
-        isLoading={pendingAnswer === "authorized"}
-      />
-      <Button
-        variant="outline"
-        label={translate("guardianConsent.refuse")}
-        onPress={() => void respond("refused")}
-        disabled={pendingAnswer === "authorized"}
-        isLoading={pendingAnswer === "refused"}
-      />
-    </Card>
+      <View className="flex-row gap-2">
+        <View className="flex-1">
+          <Button
+            size="medium"
+            label={translate("guardianConsent.authorize")}
+            onPress={() => void respond("authorized")}
+            disabled={pendingAnswer === "refused"}
+            isLoading={pendingAnswer === "authorized"}
+          />
+        </View>
+        <View className="flex-1">
+          <Button
+            size="medium"
+            variant="outline"
+            label={translate("guardianConsent.refuse")}
+            onPress={() => void respond("refused")}
+            disabled={pendingAnswer === "authorized"}
+            isLoading={pendingAnswer === "refused"}
+          />
+        </View>
+      </View>
+    </TonalBlock>
   );
 }

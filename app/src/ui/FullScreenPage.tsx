@@ -24,14 +24,14 @@ export function FullScreenPage({
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <ThemeScope className="flex-1 bg-background">
         <SafeAreaView edges={["top", "bottom"]} className="w-full max-w-2xl flex-1 self-center">
-          <View className="flex-row items-center gap-1 p-2">
+          <View className="h-[52px] flex-row items-center gap-1 px-2">
             <IconButton
               icon="back"
               accessibilityLabel={translate("common.back")}
               onPress={onClose}
             />
             <AppText
-              variant="headline"
+              variant="heading"
               accessibilityRole="header"
               numberOfLines={1}
               className="min-w-0 flex-1"

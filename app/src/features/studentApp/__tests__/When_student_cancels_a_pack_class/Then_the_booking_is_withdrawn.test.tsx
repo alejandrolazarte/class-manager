@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { cancelPackClass } from "@/features/studentApp/studentAppApi";
-import { ScheduledClassCard } from "@/features/studentApp/components/ScheduledClassCard";
+import { ScheduledClassRow } from "@/features/studentApp/components/ScheduledClassRow";
 import { addDays, todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { buildStudentAppNextClass } from "@/testing/studentAppFactory";
@@ -17,7 +17,7 @@ describe("When student cancels a pack class", () => {
 
   it("Then the booking is withdrawn", async () => {
     await renderStudentAppScreen(
-      <ScheduledClassCard
+      <ScheduledClassRow
         studentId="student-tomas"
         scheduledClass={buildStudentAppNextClass({
           date: tomorrow,

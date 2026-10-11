@@ -1,11 +1,12 @@
-import { Pressable, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { ProductPhoto } from "@/features/studentApp/components/ProductPhoto";
 import { StudentAppShop } from "@/features/studentApp/types";
 import { formatMoney } from "@/features/fees/money";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { TextLink } from "@/ui/TextLink";
 
 const previewProductLimit = 6;
 
@@ -20,38 +21,36 @@ export function ShopPreview({ shop, onSeeAll, onOpenProduct }: ShopPreviewProps)
     return null;
   }
   return (
-    <View className="gap-3">
-      <View className="flex-row items-baseline justify-between">
+    <View className="gap-2">
+      <View className="flex-row items-center justify-between">
         <SectionTitle title={translate("student.home.shop")} />
-        <Pressable accessibilityRole="button" onPress={onSeeAll} className="active:opacity-70">
-          <AppText variant="link" tone="primary">
-            {translate("student.home.seeAll")}
-          </AppText>
-        </Pressable>
+        <TextLink label={translate("student.home.seeAll")} onPress={onSeeAll} />
       </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         className="-mx-5"
-        contentContainerClassName="gap-3 px-5 pb-1.5"
+        contentContainerClassName="gap-2.5 px-5 pb-1.5"
       >
         {shop.products.slice(0, previewProductLimit).map((product) => (
-          <Card
+          <PressableScale
             key={product.id}
-            className="w-[150px]"
+            accessibilityRole="button"
             accessibilityLabel={product.name}
             onPress={() => onOpenProduct(product.id)}
+            className="w-[112px] gap-0.5 active:opacity-80"
           >
-            <ProductPhoto imageUrl={product.images[0]?.url ?? null} heightClassName="h-[120px]" />
-            <View className="gap-0.5 px-3 pb-3 pt-2.5">
-              <AppText variant="bodyStrong" numberOfLines={1}>
-                {product.name}
-              </AppText>
-              <AppText variant="bodyStrong" tone="primary">
-                {formatMoney(product.price, shop.currencyCode)}
-              </AppText>
-            </View>
-          </Card>
+            <ProductPhoto
+              imageUrl={product.images[0]?.url ?? null}
+              className="mb-1 h-[100px] rounded-xl"
+            />
+            <AppText variant="link" numberOfLines={1}>
+              {product.name}
+            </AppText>
+            <AppText variant="link" tone="primary">
+              {formatMoney(product.price, shop.currencyCode)}
+            </AppText>
+          </PressableScale>
         ))}
       </ScrollView>
     </View>

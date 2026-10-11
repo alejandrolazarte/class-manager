@@ -2,8 +2,8 @@ import { View } from "react-native";
 import { StudentAppLevel } from "@/features/studentApp/types";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
+import { StatusPill } from "@/ui/StatusPill";
 
 interface LevelPathProps {
   levels: readonly StudentAppLevel[];
@@ -12,55 +12,69 @@ interface LevelPathProps {
 
 function markerClassName(number: number, currentLevel: number): string {
   if (number < currentLevel) {
-    return "bg-success";
+    return "bg-primary";
   }
-  return number === currentLevel ? "bg-primary" : "border-2 border-border bg-surface";
+  return number === currentLevel
+    ? "border-4 border-primary-soft bg-primary"
+    : "border-2 border-border-strong bg-background";
+}
+
+function lineClassName(isReached: boolean): string {
+  return `w-0.5 flex-1 ${isReached ? "bg-primary" : "bg-border"}`;
 }
 
 export function LevelPath({ levels, currentLevel }: LevelPathProps) {
   return (
-    <Card className="px-4 py-3">
+    <View>
       {levels.map((level, index) => {
         const number = index + 1;
+        const isFirst = index === 0;
         const isLast = index === levels.length - 1;
+        const isCurrent = number === currentLevel;
         return (
           <View key={level.name} className="flex-row gap-3">
-            <View className="w-8 items-center">
+            <View className="w-7 items-center">
+              <View className={isFirst ? "w-0.5 flex-1" : lineClassName(number <= currentLevel)} />
               <View
-                className={`h-8 w-8 items-center justify-center rounded-full ${markerClassName(number, currentLevel)}`}
+                className={`h-7 w-7 items-center justify-center rounded-full ${markerClassName(number, currentLevel)}`}
               >
                 {number < currentLevel ? (
-                  <Icon name="present" size="medium" tone="success-foreground" />
+                  <Icon name="present" size="small" tone="primary-foreground" />
                 ) : (
-                  <AppText
-                    variant="bodyStrong"
-                    tone={number === currentLevel ? "onPrimary" : "subtle"}
-                  >
+                  <AppText variant="badge" tone={isCurrent ? "onPrimary" : "subtle"}>
                     {number}
                   </AppText>
                 )}
               </View>
-              {isLast ? null : (
-                <View
-                  className={`min-h-3 w-0.5 flex-1 ${number < currentLevel ? "bg-success" : "bg-border"}`}
-                />
-              )}
+              <View className={isLast ? "w-0.5 flex-1" : lineClassName(number < currentLevel)} />
             </View>
-            <View className={`min-w-0 flex-1 gap-0.5 pt-1 ${isLast ? "" : "pb-3"}`}>
-              <AppText variant="bodyStrong" tone={number > currentLevel ? "subtle" : "default"}>
-                {level.name}
-              </AppText>
-              <AppText variant="caption" tone="muted">
-                {number === currentLevel
-                  ? translate("student.progress.currentLevel")
-                  : level.requiredClasses === 0
-                    ? translate("student.progress.levelStart")
-                    : translateCount("student.progress.levelFrom", level.requiredClasses)}
-              </AppText>
+            <View className="min-w-0 flex-1 flex-row items-center gap-2 py-2.5">
+              <View className="min-w-0 flex-1 gap-px">
+                <AppText
+                  variant={isCurrent ? "bodyStrong" : "body"}
+                  tone={number > currentLevel ? "subtle" : "default"}
+                >
+                  {level.name}
+                </AppText>
+                {isCurrent ? null : (
+                  <AppText variant="footnote" tone="muted">
+                    {level.requiredClasses === 0
+                      ? translate("student.progress.levelStart")
+                      : translateCount("student.progress.levelFrom", level.requiredClasses)}
+                  </AppText>
+                )}
+              </View>
+              {isCurrent ? (
+                <StatusPill
+                  isSmall
+                  label={translate("student.progress.currentLevel")}
+                  tone="primary"
+                />
+              ) : null}
             </View>
           </View>
         );
       })}
-    </Card>
+    </View>
   );
 }

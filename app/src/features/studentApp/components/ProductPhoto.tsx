@@ -2,17 +2,15 @@ import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
 
 interface ProductPhotoProps {
   imageUrl: string | null;
-  heightClassName: string;
-  isDimmed?: boolean;
+  className: string;
 }
 
-export function ProductPhoto({ imageUrl, heightClassName, isDimmed = false }: ProductPhotoProps) {
+export function ProductPhoto({ imageUrl, className }: ProductPhotoProps) {
   return (
     <CatalogImage
       imageUri={imageUrl}
       placeholderIcon="products"
-      className={`w-full ${heightClassName}`}
-      isDimmed={isDimmed}
+      className={`w-full ${className}`}
     />
   );
 }

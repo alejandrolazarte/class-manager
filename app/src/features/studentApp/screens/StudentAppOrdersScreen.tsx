@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { StudentAppOrderCard } from "@/features/studentApp/components/StudentAppOrderCard";
+import { View } from "react-native";
+import { StudentAppOrderRow } from "@/features/studentApp/components/StudentAppOrderRow";
 import {
   StudentAppOrderFilter,
   studentAppOrderFilters,
@@ -11,7 +12,6 @@ import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { ChipGroup } from "@/ui/ChipGroup";
 import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
@@ -70,21 +70,21 @@ export function StudentAppOrdersScreen() {
         />
       ) : null}
       {!isPending && !isError && visibleOrders.length === 0 ? (
-        <Card>
-          <EmptyState
-            icon="orders"
-            iconTone="disabled-foreground"
-            message={translate(
-              orders.length === 0 ? "student.orders.empty" : "student.orders.emptyFilter",
-            )}
-          />
-        </Card>
+        <EmptyState
+          icon="orders"
+          iconTone="disabled-foreground"
+          message={translate(
+            orders.length === 0 ? "student.orders.empty" : "student.orders.emptyFilter",
+          )}
+        />
       ) : null}
-      {visibleOrders.map((order, index) => (
-        <AnimatedListItem key={order.id} index={index}>
-          <StudentAppOrderCard order={order} />
-        </AnimatedListItem>
-      ))}
+      <View key={filter}>
+        {visibleOrders.map((order, index) => (
+          <AnimatedListItem key={order.id} index={index}>
+            <StudentAppOrderRow order={order} />
+          </AnimatedListItem>
+        ))}
+      </View>
     </ScrollScreen>
   );
 }

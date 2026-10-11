@@ -1,25 +1,29 @@
 import { View } from "react-native";
 import { newsWhenLabel, presentNews } from "@/features/studentApp/studentAppNewsPresentation";
-import { StudentAppNewsItem } from "@/features/studentApp/types";
+import { StudentAppNewsItem, StudentAppNewsKind } from "@/features/studentApp/types";
 import { translate } from "@/i18n/translate";
+import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
+import { HairlineRow } from "@/ui/HairlineRow";
+import { IconCircle } from "@/ui/IconCircle";
 
-interface NewsCardProps {
+interface NewsRowProps {
   item: StudentAppNewsItem;
   action?: { label: string; onPress: () => void };
 }
 
-export function NewsCard({ item, action }: NewsCardProps) {
+const iconTones: Partial<Record<StudentAppNewsKind, ThemeColorToken>> = {
+  ClassCancelled: "danger",
+  ClassChanged: "warning",
+};
+
+export function NewsRow({ item, action }: NewsRowProps) {
   const { icon, title, body } = presentNews(item);
   return (
-    <Card className={`flex-row gap-3 px-4 py-3.5 ${item.isUnread ? "" : "opacity-90"}`}>
-      <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
-        <Icon name={icon} tone="primary-soft-foreground" />
-      </View>
-      <View className="min-w-0 flex-1 gap-0.5 pr-3">
+    <HairlineRow className={`flex-row gap-3 py-3 ${item.isUnread ? "" : "opacity-85"}`}>
+      <IconCircle icon={icon} tone={iconTones[item.kind] ?? "primary"} />
+      <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{title}</AppText>
         {body === null ? null : (
           <AppText variant="caption" tone="muted">
@@ -31,16 +35,18 @@ export function NewsCard({ item, action }: NewsCardProps) {
             <Button size="medium" label={action.label} onPress={action.onPress} />
           </View>
         )}
-        <AppText variant="footnote" tone="subtle" className="mt-1 font-label">
+        <AppText variant="footnote" tone="subtle" className="mt-1">
           {newsWhenLabel(item)}
         </AppText>
       </View>
       {item.isUnread ? (
         <View
           accessibilityLabel={translate("student.news.unread")}
-          className="absolute right-4 top-[18px] h-2.5 w-2.5 rounded-full bg-primary"
+          className="mt-1.5 h-2 w-2 rounded-full bg-primary"
         />
-      ) : null}
-    </Card>
+      ) : (
+        <View className="h-2 w-2" />
+      )}
+    </HairlineRow>
   );
 }
