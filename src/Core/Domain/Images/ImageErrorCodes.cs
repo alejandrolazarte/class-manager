@@ -6,4 +6,5 @@ public static class ImageErrorCodes
     public const string TooLarge = "image.too_large";
     public const string NotFound = "image.not_found";
     public const string OrderMismatch = "image.order_mismatch";
+    public const string LimitReached = "image.limit_reached";
 }

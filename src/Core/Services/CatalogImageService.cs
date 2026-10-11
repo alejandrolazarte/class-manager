@@ -4,20 +4,17 @@ using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Documents;
 using ClassManager.Core.Domain.Images;
-using ClassManager.Core.Domain.Subscriptions;
-using ClassManager.Core.UseCases.Subscriptions;
-using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.Services;
 
 public sealed class CatalogImageService(
-    IFeatureAccess featureAccess,
     IDocumentStorageService documentStorage,
     IDocumentRepository documentRepository,
     IUnitOfWork unitOfWork)
     : ICatalogImageService
 {
     private const string ImageNotFoundMessage = "The photo does not exist.";
+    private const string ImageLimitReachedMessage = "No more photos can be added here.";
 
     public async Task<Result> AddAsync(IHasCatalogImages imageHolder, DocumentOwner owner, byte[] content, CancellationToken cancellationToken)
     {
@@ -27,10 +24,9 @@ public sealed class CatalogImageService(
             return Result.Failure(image.Error!);
         }
 
-        var features = await featureAccess.GetCurrentAsync(cancellationToken);
-        if (!features.AllowsAnother(Features.CatalogPhotos, imageHolder.ImageCount))
+        if (imageHolder.ImageCount >= imageHolder.MaximumImageCount)
         {
-            return Result.Failure(FeatureErrors.LimitReached(Features.CatalogPhotos));
+            return Result.Conflict(ImageLimitReachedMessage, ImageErrorCodes.LimitReached);
         }
 
         var document = await documentStorage.StoreAsync(owner, imageHolder.Id, image.Value!, DocumentVisibility.Public, cancellationToken);

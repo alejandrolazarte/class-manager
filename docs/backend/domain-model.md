@@ -250,7 +250,7 @@ Anything a branch sells besides classes: caps, swimsuits, brand merchandise.
 | `IsVisibleInApp` | `bool` | Shown in the client app (step 3) or only at the counter |
 | `IsActive` | `bool` | Inactive products can't be sold |
 
-A product and a class pack have an ordered list of **photos** (`ProductImage`, `ClassPackImage`: owner, `DocumentId`, `Position`); the first is the main photo. How many is a plan limit (`catalog-photos`). See [Document](#document-added-with-catalog-photos).
+A product and a class pack have an ordered list of **photos** (`ProductImage`, `ClassPackImage`: owner, `DocumentId`, `Position`); the first is the main photo. Up to 5 per product and 1 per class pack, a fixed rule; the plan limits the total size of the files (`document-storage`). See [Document](#document-added-with-catalog-photos).
 
 A product has 1–20 **variants** (sizes or colors, names up to 30 characters, unique per product ignoring case). A product without sizes has one unnamed variant. Removing a size deactivates it, so its history stays.
 

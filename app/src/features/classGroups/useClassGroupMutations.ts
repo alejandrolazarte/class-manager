@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PickedFile } from "@/api/fileForm";
+import { isApiError } from "@/api/httpClient";
 import { classGroupQueryKeys } from "@/features/classGroups/classGroupQueryKeys";
 import {
   createClassGroup,
@@ -9,11 +10,13 @@ import {
   uploadClassMaterialFile,
 } from "@/features/classGroups/classGroupsApi";
 import { SaveClassGroupRequest } from "@/features/classGroups/types";
+import { subscriptionErrorCodes } from "@/features/subscriptions/subscriptionCodes";
 
 export type ClassMaterialFileChange =
   { kind: "unchanged" } | { kind: "picked"; file: PickedFile } | { kind: "removed" };
 
-export type SaveClassGroupOutcome = "saved" | "savedWithoutMaterialFile";
+export type SaveClassGroupOutcome =
+  "saved" | "savedWithoutMaterialFile" | "savedWithDocumentStorageFull";
 
 interface SaveClassGroupVariables {
   classGroupId?: string;
@@ -41,8 +44,11 @@ async function saveClassGroup({
   try {
     await uploadClassMaterialFile(savedClassGroup.id, materialFileChange.file);
     return "saved";
-  } catch {
-    return "savedWithoutMaterialFile";
+  } catch (uploadError) {
+    return isApiError(uploadError) &&
+      uploadError.hasCode(subscriptionErrorCodes.featureLimitReached)
+      ? "savedWithDocumentStorageFull"
+      : "savedWithoutMaterialFile";
   }
 }
 

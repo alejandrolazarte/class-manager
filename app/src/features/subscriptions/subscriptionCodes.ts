@@ -17,6 +17,7 @@ export const featureCodes = {
   studentApp: "student-app",
   shop: "shop",
   brand: "brand",
+  documentStorage: "document-storage",
 } as const;
 
 export type FeatureCode = (typeof featureCodes)[keyof typeof featureCodes];
@@ -27,6 +28,7 @@ export const countedFeatureCodes: readonly string[] = [
   featureCodes.students,
   featureCodes.branches,
   featureCodes.team,
+  featureCodes.documentStorage,
 ];
 
 export const subscriptionErrorCodes = {

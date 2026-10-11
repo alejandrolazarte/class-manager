@@ -29,20 +29,18 @@ public sealed class FeatureLimitSaveChangesInterceptor<TDbContext>(
 
     private async Task EnsureWithinLimitsAsync(TDbContext context, CancellationToken cancellationToken)
     {
-        var addedEntities = context.ChangeTracker.Entries()
-            .Where(entry => entry.State == EntityState.Added)
-            .Select(entry => entry.Entity)
-            .ToList();
+        var addedEntities = EntitiesIn(context, EntityState.Added);
         if (addedEntities.Count == 0)
         {
             return;
         }
 
+        var removedEntities = EntitiesIn(context, EntityState.Deleted);
         EffectiveFeatures? features = null;
         foreach (var registration in limits.Registrations)
         {
-            var addedCount = addedEntities.Count(registration.CountsWhenAdded);
-            if (addedCount == 0)
+            var addedAmount = addedEntities.Sum(registration.AmountWhenAdded);
+            if (addedAmount == 0)
             {
                 continue;
             }
@@ -53,11 +51,18 @@ public sealed class FeatureLimitSaveChangesInterceptor<TDbContext>(
                 continue;
             }
 
-            var currentCount = await registration.CountCurrent(context, services, cancellationToken);
-            if (currentCount + addedCount > limit)
+            var removedAmount = registration.AmountWhenRemoved is { } amountWhenRemoved ? removedEntities.Sum(amountWhenRemoved) : 0;
+            var currentAmount = await registration.MeasureCurrent(context, services, cancellationToken);
+            if (currentAmount + addedAmount - removedAmount > limit * registration.AmountPerLimitUnit)
             {
                 throw new FeatureLimitReachedException(registration.FeatureCode);
             }
         }
     }
+
+    private static List<object> EntitiesIn(TDbContext context, EntityState state) =>
+        context.ChangeTracker.Entries()
+            .Where(entry => entry.State == state)
+            .Select(entry => entry.Entity)
+            .ToList();
 }

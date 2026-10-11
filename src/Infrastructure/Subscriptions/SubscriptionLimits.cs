@@ -7,6 +7,8 @@ namespace ClassManager.Infrastructure.Subscriptions;
 
 internal static class SubscriptionLimits
 {
+    private const long BytesPerMegabyte = 1024 * 1024;
+
     public static void Configure(FeatureLimits<AppDbContext> limits)
     {
         limits.Count<Student>(
@@ -21,6 +23,12 @@ internal static class SubscriptionLimits
         limits.Count<Business>(
             Features.Branches,
             CountBranchesOfCurrentOrganizationAsync);
+
+        limits.Sum<Document>(
+            Features.DocumentStorage,
+            async (context, _, cancellationToken) => await context.Documents.SumAsync(document => (long?)document.SizeInBytes, cancellationToken) ?? 0,
+            document => document.SizeInBytes,
+            BytesPerMegabyte);
     }
 
     private static async Task<int> CountTeamAsync(AppDbContext context, IServiceProvider services, CancellationToken cancellationToken)

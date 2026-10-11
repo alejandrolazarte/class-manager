@@ -12,6 +12,7 @@ export const classPackLimits = {
   minimumValidityMonths: 1,
   maximumValidityMonths: 24,
   descriptionMaximumLength: 500,
+  maximumImageCount: 1,
 } as const;
 
 const wholeNumberPattern = /^\d+$/;
