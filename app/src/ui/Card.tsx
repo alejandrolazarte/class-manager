@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 interface CardProps extends PropsWithChildren {
   className?: string;
@@ -26,7 +27,7 @@ export function Card({
     );
   }
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}
@@ -36,6 +37,6 @@ export function Card({
       testID={testID}
     >
       {children}
-    </Pressable>
+    </PressableScale>
   );
 }

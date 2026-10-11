@@ -1,11 +1,8 @@
 import { View } from "react-native";
+import { GrowingFill } from "@/ui/motion/GrowingFill";
 
 interface StepProgressProps {
   segmentFills: readonly number[];
-}
-
-function percentOf(fill: number): `${number}%` {
-  return `${Math.round(Math.min(1, Math.max(0, fill)) * 100)}%`;
 }
 
 export function StepProgress({ segmentFills }: StepProgressProps) {
@@ -16,7 +13,7 @@ export function StepProgress({ segmentFills }: StepProgressProps) {
           key={segmentIndex}
           className="h-2.5 flex-1 overflow-hidden rounded-full bg-primary-soft"
         >
-          <View className="h-full rounded-full bg-primary" style={{ width: percentOf(fill) }} />
+          <GrowingFill ratio={fill} className="rounded-full bg-primary" />
         </View>
       ))}
     </View>

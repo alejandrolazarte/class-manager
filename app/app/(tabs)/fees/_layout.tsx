@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 import { translate } from "@/i18n/translate";
+import { useStackScreenOptions } from "@/navigation/stackScreenOptions";
 
 export const unstable_settings = { initialRouteName: "index" };
 
 export default function FeesLayout() {
+  const stackScreenOptions = useStackScreenOptions();
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={stackScreenOptions}>
       <Stack.Screen name="index" options={{ title: translate("fees.month.title") }} />
       <Stack.Screen name="monthly-fee" options={{ title: translate("fees.defaultFee.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />

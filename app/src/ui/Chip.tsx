@@ -1,6 +1,7 @@
-import { Pressable, View } from "react-native";
+import { LayoutChangeEvent, View } from "react-native";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 type ChipShape = "pill" | "tile";
 
@@ -14,6 +15,8 @@ interface ChipProps {
   shape?: ChipShape;
   className?: string;
   count?: number;
+  hasSlidingSelection?: boolean;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }
 
 const shapeClassNames: Record<ChipShape, string> = {
@@ -31,20 +34,27 @@ export function Chip({
   shape = "pill",
   className,
   count,
+  hasSlidingSelection = false,
+  onLayout,
 }: ChipProps) {
   const stateClassName = isSelected
-    ? "border-primary bg-primary"
+    ? hasSlidingSelection
+      ? "border-primary bg-transparent"
+      : "border-primary bg-primary"
     : disabled
       ? "border-border bg-muted"
-      : "border-border bg-surface active:bg-muted";
+      : hasSlidingSelection
+        ? "border-border bg-transparent active:bg-muted"
+        : "border-border bg-surface active:bg-muted";
   const labelTone: TextTone = isSelected ? "onPrimary" : disabled ? "disabled" : "default";
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ selected: isSelected, disabled }}
       disabled={disabled}
       onPress={onPress}
+      onLayout={onLayout}
       className={`flex-row items-center justify-center gap-1.5 border-[1.5px] ${shapeClassNames[shape]} ${stateClassName} ${className ?? ""}`}
     >
       {icon ? (
@@ -69,6 +79,6 @@ export function Chip({
           </AppText>
         </View>
       )}
-    </Pressable>
+    </PressableScale>
   );
 }

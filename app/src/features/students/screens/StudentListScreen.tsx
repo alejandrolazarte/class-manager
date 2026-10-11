@@ -14,10 +14,11 @@ import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
-import { Spinner } from "@/ui/Spinner";
 import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 export function StudentListScreen() {
   const router = useRouter();
@@ -84,19 +85,19 @@ export function StudentListScreen() {
         </View>
       </View>
       {isPending ? (
-        <Spinner className="mt-6" />
+        <SkeletonList className="px-5" />
       ) : (
         <FlatList
           data={students}
           keyExtractor={(student) => student.id}
           keyboardShouldPersistTaps="handled"
-          renderItem={({ item: student }) => (
-            <View className="px-5 pb-2.5">
+          renderItem={({ item: student, index }) => (
+            <AnimatedListItem index={index} className="px-5 pb-2.5">
               <StudentListItem
                 student={student}
                 onPress={() => router.push(routes.clientDetail("students", student.clientId))}
               />
-            </View>
+            </AnimatedListItem>
           )}
           ListEmptyComponent={isError ? null : emptyState}
           refreshing={isRefetching}

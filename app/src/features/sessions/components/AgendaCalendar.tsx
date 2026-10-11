@@ -1,4 +1,4 @@
-import { Pressable, View } from "react-native";
+import { LayoutChangeEvent, Pressable, View } from "react-native";
 import {
   weekdayLongLabel,
   weekdayOf,
@@ -17,6 +17,7 @@ import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
+import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 export type AgendaView = "day" | "month";
 
@@ -76,7 +77,9 @@ interface DayCellProps {
   hasClasses: boolean;
   hasPendingAttendance: boolean;
   hasCancellation: boolean;
+  hasSlidingSelection: boolean;
   onPress: () => void;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }
 
 function DayCell({
@@ -88,10 +91,14 @@ function DayCell({
   hasClasses,
   hasPendingAttendance,
   hasCancellation,
+  hasSlidingSelection,
   onPress,
+  onLayout,
 }: DayCellProps) {
   const backgroundClassName = isSelected
-    ? "bg-primary"
+    ? hasSlidingSelection
+      ? "bg-transparent"
+      : "bg-primary"
     : hasCancellation
       ? "bg-danger-soft"
       : "bg-transparent";
@@ -108,6 +115,7 @@ function DayCell({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ selected: isSelected }}
       onPress={onPress}
+      onLayout={onLayout}
       className={`h-11 flex-1 items-center justify-center gap-[3px] rounded-xl border-[1.5px] ${isToday && !isSelected ? "border-primary" : "border-transparent"} ${backgroundClassName} ${isOutside ? "opacity-40" : ""}`}
     >
       <AppText
@@ -133,6 +141,7 @@ export function AgendaCalendar({
   onNext,
 }: AgendaCalendarProps) {
   const isMonth = view === "month";
+  const { layouts, onOptionLayout } = useOptionLayouts<string>();
   const calendarDays = new Map(monthDays.map((calendarDay) => [calendarDay.date, calendarDay]));
   const dates = isMonth ? monthGridOf(month) : weekOf(selectedDate);
   const weeks = Array.from({ length: dates.length / daysPerWeek }, (_, weekIndex) =>
@@ -180,7 +189,10 @@ export function AgendaCalendar({
         ))}
       </View>
       {weeks.map((week) => (
-        <View key={week[0]} className="flex-row gap-1">
+        <View key={week[0]} className="relative flex-row gap-1">
+          {isMonth ? null : (
+            <SlidingIndicator layout={layouts[selectedDate]} className="rounded-xl bg-primary" />
+          )}
           {week.map((isoDate) => {
             const calendarDay = calendarDays.get(isoDate);
             return (
@@ -201,7 +213,9 @@ export function AgendaCalendar({
                 hasClasses={isMonth ? (calendarDay?.classCount ?? 0) > 0 : hasClassesOn(isoDate)}
                 hasPendingAttendance={isMonth && (calendarDay?.pendingAttendanceCount ?? 0) > 0}
                 hasCancellation={isMonth && (calendarDay?.cancelledCount ?? 0) > 0}
+                hasSlidingSelection={!isMonth}
                 onPress={() => onSelectDate(isoDate)}
+                onLayout={isMonth ? undefined : onOptionLayout(isoDate)}
               />
             );
           })}

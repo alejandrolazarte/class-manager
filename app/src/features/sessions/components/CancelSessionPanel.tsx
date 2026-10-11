@@ -10,6 +10,7 @@ import { Button } from "@/ui/Button";
 import { ListRow } from "@/ui/ListRow";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+import { Collapsible } from "@/ui/motion/Collapsible";
 
 interface CancelSessionPanelProps {
   classGroupId: string;
@@ -59,7 +60,7 @@ export function CancelSessionPanel({
           setIsOpen(!isOpen);
         }}
       />
-      {isOpen ? (
+      <Collapsible isExpanded={isOpen}>
         <View className="gap-2.5 px-4 pb-4">
           {hasAttendance ? (
             <AppText variant="label" tone="warning">
@@ -94,7 +95,7 @@ export function CancelSessionPanel({
             </>
           )}
         </View>
-      ) : null}
+      </Collapsible>
     </View>
   );
 }

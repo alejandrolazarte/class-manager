@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 
 interface ListRowProps {
@@ -52,7 +53,7 @@ export function ListRow({
     return <View className={rowClassName}>{content}</View>;
   }
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={isExpanded === undefined ? undefined : { expanded: isExpanded }}
@@ -60,7 +61,7 @@ export function ListRow({
       className={`${rowClassName} active:bg-muted`}
     >
       {content}
-    </Pressable>
+    </PressableScale>
   );
 }
 
