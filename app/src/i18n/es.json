@@ -195,7 +195,7 @@
   "settings.notificationsOff": "Desactivadas",
   "settings.notificationsBlocked": "Bloqueadas",
   "settings.notificationsUnsupported": "No disponibles",
-  "settings.version": "Class Manager · versión {version}",
+  "settings.version": "Laztty · versión {version}",
   "businessSettings.title": "Negocio",
   "businessSettings.name": "Nombre del negocio",
   "businessSettings.currency": "Moneda",

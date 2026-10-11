@@ -5,7 +5,7 @@ namespace ClassManager.Infrastructure.Email;
 
 internal sealed class BrandedEmailSender(EmailBrandReader brandReader, WebAppLinks webAppLinks, IEmailTransport transport) : IEmailSender
 {
-    public const string AppDisplayName = "Class Manager";
+    public const string AppDisplayName = "Laztty";
 
     public static readonly EmailBrand AppBrand = new(AppDisplayName, null, null, null);
 
