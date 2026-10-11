@@ -209,3 +209,6 @@ Every screen listed in [Demo screenshots, student app](../../e2e/demo-screenshot
 - 2026-10-11: `knip` and an unused translation keys test are added in step 0, so unused code fails CI instead of depending on a manual search.
 - 2026-10-11: the student app is drawn in Calma and reviewed by the owner before it is built (step 4).
 - 2026-10-11: emails use Figtree with Arial as the fallback, the font served from our own web app (not Google Fonts) and Arial forced for Outlook for Windows.
+- 2026-10-11 (step 0): email previews are a console project in the solution (`tools/EmailPreviews`), so it builds in CI and breaks when an email changes shape; the capture runs it, so emails need neither the API nor a database. The screenshots of the web font blocked are taken with `SCREENSHOTS_EMAIL_FONT=blocked`; until step 5 adds the web font they are identical to the others.
+- 2026-10-11 (step 0): knip treats an export used only in its own file as used (`ignoreExportsUsedInFile`), and two Expo dependencies its plugin expects are ignored because the app does not use them; the reasons are in [Unused code](../unused-code.md).
+- 2026-10-11 (step 0): team notifications and the order payment panel are captured in `Student_screens.capture.ts`, which seeds the student activity they need.

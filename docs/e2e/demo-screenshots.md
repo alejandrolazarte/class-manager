@@ -13,6 +13,7 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 - Six students, nine enrollments from the first day of the current month, and attendance for today.
 - A default fee of $25.000, one student with its own fee, and payments that leave students paid, partially paid and owing.
 - A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
+- A private lesson for Valentina Fernández with Martín today at 21:00.
 
 Every run signs up a new business with a unique email, so it can run against the same database many times.
 
@@ -34,11 +35,18 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 
 | File | Screen |
 |---|---|
-| `01-hoy` | Today's classes with present counts |
+| `00a-bienvenida` | Welcome, before signing in |
+| `00b-ingresar`, `00c-ingresar-error` | Sign-in, and the banner after a wrong password |
+| `00d-olvide-mi-contrasena`, `00e-olvide-mi-contrasena-enviado` | Forgot password, and the message after the link is sent |
+| `00f-registro-tu-cuenta`, `00g-registro-tu-negocio` | Sign-up, both steps filled in (nothing is submitted) |
+| `01-inicio` | Inicio: next class and today's agenda |
+| `01b-inicio-mes` | Inicio in month view |
+| `01d-clase-particular` | A private lesson |
 | `02-asistencia` | Attendance of Natación inicial |
 | `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
 | `03-clases-semana` | Weekly classes |
 | `04-clase-alumnos` | Class roster |
+| `04b-confirmar-dar-de-baja` | The confirm dialog before unenrolling a student (closed with "Volver") |
 | `05-clase-editar` | Class form |
 | `06-inscribir` | Enroll a student |
 | `07-alumnos` | Student list |
@@ -56,8 +64,10 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `16-packs` | Class pack catalog |
 | `16b-pack-nuevo` | New class pack form, with the classes where the pack can be booked |
 | `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
-| `18-colores` | Color picker in Ajustes |
+| `18-apariencia` | Appearance sheet in Ajustes |
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
+
+The forgot password request sends an email, so this capture starts the same SMTP sink as the student app screens.
 
 When a new screen is added, add a row to `screens` in `e2e/screenshots/App_screens.capture.ts` with the path and a text that proves it finished loading. When a built-in theme is added, add it to `themes` in the same file.
 
@@ -96,6 +106,13 @@ The student signs in through the sign-in screen, then the test captures:
 | `29-alumno-ajustes` | Settings grouped like the team app: your phone (appearance, notifications) and account (sign out) |
 | `29b-alumno-ajustes-notificaciones`, `29c-alumno-ajustes-apariencia` | Notifications and appearance sheets opened from Ajustes |
 | `30-elegir-cuenta` | Choosing between the team and the student account when the same email has both |
+
+The same file also captures two team screens that need student activity, signed in as the owner of a second demo business with the same data:
+
+| File | Screen |
+|---|---|
+| `01c-avisos` | Team notifications (avisos): the "No voy", the makeup and the orders |
+| `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment panel of an order open |
 
 Run only these with `pnpm screenshots:no-build Student_screens`.
 

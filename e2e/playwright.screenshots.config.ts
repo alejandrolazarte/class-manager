@@ -13,6 +13,7 @@ export default defineConfig({
   ...baseConfig,
   testDir: "./screenshots",
   testMatch: "**/*.capture.ts",
+  testIgnore: "Email_previews.capture.ts",
   timeout: captureTimeoutMilliseconds,
   retries: 0,
   workers: 1,
