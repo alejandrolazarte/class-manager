@@ -11,7 +11,7 @@ import { formatLongDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { HairlineRow } from "@/ui/HairlineRow";
-import { InsetPanel } from "@/ui/InsetPanel";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { Spinner } from "@/ui/Spinner";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
@@ -170,16 +170,16 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       </View>
       {canManage && order.status === "Requested" ? (
         <Collapsible isExpanded={openPanel === "payment"}>
-          <InsetPanel>
+          <TonalBlock tone="muted">
             <PaymentPanel order={order} />
-          </InsetPanel>
+          </TonalBlock>
         </Collapsible>
       ) : null}
       {canManage && isSettled && hasRefundableLines ? (
         <Collapsible isExpanded={openPanel === "refund"}>
-          <InsetPanel>
+          <TonalBlock tone="muted">
             <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
-          </InsetPanel>
+          </TonalBlock>
         </Collapsible>
       ) : null}
     </HairlineRow>

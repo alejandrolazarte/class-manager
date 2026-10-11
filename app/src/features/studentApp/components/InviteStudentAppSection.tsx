@@ -20,7 +20,7 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { InsetPanel } from "@/ui/InsetPanel";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { Icon } from "@/ui/Icon";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
@@ -224,7 +224,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
         </Banner>
       ) : null}
       {isAskingEmail ? (
-        <InsetPanel>
+        <TonalBlock tone="muted">
           <AppText variant="caption" tone="subtle">
             {translate(
               emailOnFile.length > 0
@@ -270,7 +270,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             label={translate("common.cancel")}
             onPress={cancel}
           />
-        </InsetPanel>
+        </TonalBlock>
       ) : null}
     </View>
   );

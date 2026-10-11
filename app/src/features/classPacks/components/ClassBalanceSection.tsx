@@ -14,7 +14,7 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
-import { InsetPanel } from "@/ui/InsetPanel";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { Icon } from "@/ui/Icon";
@@ -204,7 +204,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
           count: group.purchases.length,
         });
         return (
-          <InsetPanel key={group.key}>
+          <TonalBlock key={group.key} tone="muted">
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={translate(
@@ -249,7 +249,7 @@ export function ClassBalanceSection({ clientId, isMonthlyPlan = false }: ClassBa
                   </View>
                 ))
               : null}
-          </InsetPanel>
+          </TonalBlock>
         );
       })}
       {purchasePendingDeletion ? (

@@ -23,7 +23,7 @@ import { AppText } from "@/ui/AppText";
 import { Spinner } from "@/ui/Spinner";
 import { Avatar } from "@/ui/Avatar";
 import { ActionTile } from "@/ui/ActionTile";
-import { InsetPanel } from "@/ui/InsetPanel";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
@@ -214,10 +214,10 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
         ) : null}
       </View>
       {client.notes ? (
-        <InsetPanel>
+        <TonalBlock tone="muted" isCompact>
           <SectionTitle title={translate("clients.detail.notes")} isOverline />
           <AppText variant="body">{client.notes}</AppText>
-        </InsetPanel>
+        </TonalBlock>
       ) : null}
       {canManageStudents ? <InviteStudentAppSection client={client} /> : null}
       {canViewPayments ? (

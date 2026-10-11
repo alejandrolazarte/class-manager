@@ -23,7 +23,7 @@ import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { InsetPanel } from "@/ui/InsetPanel";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { TonalButton } from "@/ui/TonalButton";
 import { StatusPill } from "@/ui/StatusPill";
@@ -133,10 +133,10 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
         />
       ) : null}
       {lesson.notes ? (
-        <InsetPanel>
+        <TonalBlock tone="muted" isCompact>
           <SectionTitle title={translate("clients.detail.notes")} isOverline />
           <AppText variant="body">{lesson.notes}</AppText>
-        </InsetPanel>
+        </TonalBlock>
       ) : null}
       {lesson.isCancelled ? (
         <Banner

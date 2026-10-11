@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { AppText, TextTone } from "@/ui/AppText";
+import { HairlineColumns } from "@/ui/HairlineColumns";
 
 export type CountTone = "success" | "danger" | "default";
 
@@ -21,24 +22,19 @@ function countTone(item: CountsRowItem): TextTone {
 
 export function CountsRow({ items, accessibilityLabel }: CountsRowProps) {
   return (
-    <View
-      accessible
-      accessibilityLabel={accessibilityLabel}
-      className="flex-row border-y border-border-subtle"
-    >
-      {items.map((item, index) => (
-        <View
-          key={item.key}
-          className={`flex-1 py-3 ${index > 0 ? "border-l border-border-subtle pl-3.5" : ""}`}
-        >
-          <AppText variant="display" tone={countTone(item)}>
-            {item.count}
-          </AppText>
-          <AppText variant="footnote" tone="subtle">
-            {item.label}
-          </AppText>
-        </View>
-      ))}
+    <View accessible accessibilityLabel={accessibilityLabel}>
+      <HairlineColumns>
+        {items.map((item) => (
+          <View key={item.key}>
+            <AppText variant="display" tone={countTone(item)}>
+              {item.count}
+            </AppText>
+            <AppText variant="footnote" tone="subtle">
+              {item.label}
+            </AppText>
+          </View>
+        ))}
+      </HairlineColumns>
     </View>
   );
 }
