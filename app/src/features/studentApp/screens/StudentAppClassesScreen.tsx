@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { ClassMaterialSection } from "@/features/studentApp/components/ClassMaterialSection";
 import { MakeupSection } from "@/features/studentApp/components/MakeupSection";
 import { PackClassSection } from "@/features/studentApp/components/PackClassSection";
-import { ScheduledClassCard } from "@/features/studentApp/components/ScheduledClassCard";
+import { ScheduledClassRow } from "@/features/studentApp/components/ScheduledClassRow";
 import { StudentChips } from "@/features/studentApp/components/StudentChips";
 import { WeekStrip } from "@/features/studentApp/components/WeekStrip";
 import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider";
@@ -15,12 +15,11 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { EmptyState } from "@/ui/EmptyState";
 import { IconButton } from "@/ui/IconButton";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { SectionTitle } from "@/ui/SectionTitle";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 const daysPerWeek = 7;
@@ -110,31 +109,35 @@ export function StudentAppClassesScreen() {
         hasClassesOn={(isoDate) => classesOn(student, isoDate).length > 0}
         onSelect={setSelectedDate}
       />
-      <SectionTitle
-        title={
-          selectedDate === today
+      <View>
+        <AppText variant="link" tone="muted" accessibilityRole="header">
+          {selectedDate === today
             ? translate("student.day.todayWithDate", { day: shortDayLabel(selectedDate) })
-            : shortDayLabel(selectedDate)
-        }
-      />
-      {dayClasses.length === 0 ? (
-        <Card>
+            : shortDayLabel(selectedDate)}
+        </AppText>
+        {dayClasses.length === 0 ? (
           <EmptyState
             icon="noClasses"
             iconTone="disabled-foreground"
             message={translate("student.schedule.empty")}
           />
-        </Card>
-      ) : (
-        dayClasses.map((scheduledClass) => (
-          <ScheduledClassCard
-            key={`${scheduledClass.date}-${scheduledClass.startTime}-${scheduledClass.name}`}
-            studentId={student.id}
-            scheduledClass={scheduledClass}
-            isToday={selectedDate === today}
-          />
-        ))
-      )}
+        ) : (
+          <View key={`${student.id}-${selectedDate}`}>
+            {dayClasses.map((scheduledClass, index) => (
+              <AnimatedListItem
+                key={`${scheduledClass.date}-${scheduledClass.startTime}-${scheduledClass.name}`}
+                index={index}
+              >
+                <ScheduledClassRow
+                  studentId={student.id}
+                  scheduledClass={scheduledClass}
+                  isToday={selectedDate === today}
+                />
+              </AnimatedListItem>
+            ))}
+          </View>
+        )}
+      </View>
       <ClassMaterialSection materials={student.materials} />
       <PackClassSection studentId={student.id} days={days} />
       <MakeupSection studentId={student.id} days={days} />

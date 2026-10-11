@@ -22,7 +22,8 @@ import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatti
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
+import { SectionTitle } from "@/ui/SectionTitle";
 import { Icon } from "@/ui/Icon";
 import { IconButton } from "@/ui/IconButton";
 import { useToast } from "@/ui/ToastProvider";
@@ -108,14 +109,12 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   };
 
   return (
-    <View className="gap-3">
-      <Card className="gap-3 p-4">
+    <View className="gap-4">
+      <View className="gap-2.5 border-b border-border-subtle pb-3">
         <View className="flex-row items-start gap-3">
           <View className="min-w-0 flex-1 gap-0.5">
-            <AppText variant="overline" tone="subtle">
-              {translate("fees.client.planOverline")}
-            </AppText>
-            <AppText variant="headline">{describePlan(client.billingPlan)}</AppText>
+            <SectionTitle title={translate("fees.client.planOverline")} isOverline />
+            <AppText variant="body">{describePlan(client.billingPlan)}</AppText>
             {planStart ? (
               <AppText variant="caption" tone="muted">
                 {translate("fees.client.since", { month: formatMonth(planStart) })}
@@ -123,16 +122,13 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
             ) : null}
           </View>
           {canRecordPayments ? (
-            <Pressable
-              accessibilityRole="button"
+            <Button
+              variant="ghost"
+              size="medium"
+              label={translate("common.change")}
               accessibilityLabel={translate("fees.client.changePlanAccessibility")}
               onPress={() => router.push(routes.clientBillingPlan(clientTab, client.id))}
-              className="rounded-full bg-primary-soft px-3.5 py-2 active:opacity-80"
-            >
-              <AppText variant="link" tone="primarySoft">
-                {translate("common.change")}
-              </AppText>
-            </Pressable>
+            />
           ) : null}
         </View>
         {upcomingChanges.length > 0 ? (
@@ -185,26 +181,24 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
             onPress={() => router.push(routes.recordPayment(clientTab, client.id, currentMonth))}
           />
         ) : null}
-      </Card>
+      </View>
       {canViewClassPacks ? (
         <ClassBalanceSection clientId={client.id} isMonthlyPlan={isMonthlyPlan} />
       ) : null}
-      <Card className="gap-3 p-4">
-        <AppText variant="overline" tone="subtle">
-          {translate("fees.client.payments")}
-        </AppText>
+      <View>
+        <SectionTitle title={translate("fees.client.payments")} isOverline />
         {payments.length === 0 ? (
-          <AppText variant="body" tone="muted">
+          <AppText variant="body" tone="muted" className="py-2.5">
             {translate("fees.client.noPayments")}
           </AppText>
         ) : (
           payments.map((payment) => (
-            <View key={payment.id} className="flex-row items-center gap-2">
-              <View className="min-w-0 flex-1 gap-px">
+            <HairlineRow key={payment.id} className="flex-row items-center gap-2 py-2">
+              <View className="min-w-0 flex-1">
                 <AppText variant="bodyStrong">
                   {formatMoney(payment.amount, payment.currencyCode)}
                 </AppText>
-                <AppText variant="caption" tone="subtle">
+                <AppText variant="footnote" tone="subtle">
                   {[
                     formatBirthDateForDisplay(payment.paidOn),
                     translate(`fees.methods.${payment.method}` as TranslationKey),
@@ -228,10 +222,10 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
                   onPress={() => deletePayment(payment)}
                 />
               ) : null}
-            </View>
+            </HairlineRow>
           ))
         )}
-      </Card>
+      </View>
     </View>
   );
 }

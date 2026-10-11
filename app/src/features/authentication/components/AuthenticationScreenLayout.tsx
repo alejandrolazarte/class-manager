@@ -11,6 +11,7 @@ interface AuthenticationScreenLayoutProps extends PropsWithChildren {
   onBack?: () => void;
   progress?: ReactNode;
   mark?: ReactNode;
+  footer?: ReactNode;
 }
 
 export function AuthenticationScreenLayout({
@@ -19,8 +20,10 @@ export function AuthenticationScreenLayout({
   onBack,
   progress,
   mark,
+  footer,
   children,
 }: AuthenticationScreenLayoutProps) {
+  const isMarkInBackRow = onBack !== undefined && progress === undefined;
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
@@ -28,24 +31,25 @@ export function AuthenticationScreenLayout({
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
-          contentContainerClassName="w-full max-w-md self-center pb-7"
+          contentContainerClassName="w-full max-w-md flex-grow self-center pb-7"
           keyboardShouldPersistTaps="handled"
         >
           {onBack ? (
-            <View className="flex-row items-center gap-2 px-2 pt-2">
+            <View className="flex-row items-center gap-1 px-3 pt-2">
               <IconButton
                 icon="back"
                 accessibilityLabel={translate("common.back")}
                 onPress={onBack}
               />
-              {progress ? <View className="flex-1 pr-5">{progress}</View> : null}
+              <View className="flex-1 pr-3">{progress}</View>
+              {isMarkInBackRow ? <View className="mr-3">{mark}</View> : null}
             </View>
           ) : null}
-          <View className="gap-[18px] px-6 pt-2">
-            {mark}
-            <View className="gap-1">
+          <View className="gap-4 px-6 pt-4">
+            {isMarkInBackRow ? null : mark}
+            <View className="gap-0.5">
               {eyebrow ? (
-                <AppText variant="eyebrow" tone="primary">
+                <AppText variant="label" tone="primary">
                   {eyebrow}
                 </AppText>
               ) : null}
@@ -55,6 +59,7 @@ export function AuthenticationScreenLayout({
             </View>
             {children}
           </View>
+          {footer ? <View className="mt-auto items-center px-6 pt-6">{footer}</View> : null}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -1,13 +1,13 @@
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
-import { BillingTile } from "@/features/studentApp/components/BillingTile";
-import { FeedbackCard } from "@/features/studentApp/components/FeedbackCard";
+import { BillingTile, hasBillingTile } from "@/features/studentApp/components/BillingTile";
+import { FeedbackNote } from "@/features/studentApp/components/FeedbackNote";
 import { GuardianConsentCard } from "@/features/studentApp/components/GuardianConsentCard";
 import { NewsBell } from "@/features/studentApp/components/NewsBell";
-import { NewsCard } from "@/features/studentApp/components/NewsCard";
+import { NewsRow } from "@/features/studentApp/components/NewsRow";
 import { NextClassHero } from "@/features/studentApp/components/NextClassHero";
 import { ShopPreview } from "@/features/studentApp/components/ShopPreview";
 import { StreakTile } from "@/features/studentApp/components/StreakTile";
@@ -23,9 +23,13 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { HairlineColumns } from "@/ui/HairlineColumns";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { TextLink } from "@/ui/TextLink";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
+import { Entrance } from "@/ui/motion/Entrance";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 
 const homeAnnouncementLimit = 2;
@@ -96,52 +100,61 @@ export function StudentAppHomeScreen() {
           {translate("student.students.empty")}
         </AppText>
       ) : (
-        <>
+        <AnimatedListItem index={0} className="gap-4">
           <StudentChips
             students={home.students}
             selectedStudentId={student.id}
             onSelect={selectStudent}
           />
-          <NextClassHero
-            student={student}
-            onSeeWeek={() => router.navigate(routes.studentAppClasses)}
-          />
-        </>
+          <Entrance key={student.id} kind="fade">
+            <NextClassHero
+              student={student}
+              onSeeWeek={() => router.navigate(routes.studentAppClasses)}
+            />
+          </Entrance>
+        </AnimatedListItem>
       )}
-      <View className="flex-row gap-3">
-        {student === null ? null : <StreakTile attendance={student.attendance} />}
-        <BillingTile
-          billing={home.billing}
-          currencyCode={home.currencyCode}
-          onBuyClasses={() => router.navigate(routes.studentAppShop)}
-        />
-      </View>
-      {student?.latestFeedback ? <FeedbackCard feedback={student.latestFeedback} /> : null}
+      {student === null && !hasBillingTile(home.billing) ? null : (
+        <AnimatedListItem index={1}>
+          <HairlineColumns>
+            {student === null ? null : <StreakTile attendance={student.attendance} />}
+            {hasBillingTile(home.billing) ? (
+              <BillingTile
+                billing={home.billing}
+                currencyCode={home.currencyCode}
+                onBuyClasses={() => router.navigate(routes.studentAppShop)}
+              />
+            ) : null}
+          </HairlineColumns>
+        </AnimatedListItem>
+      )}
+      {student?.latestFeedback ? (
+        <AnimatedListItem index={2}>
+          <FeedbackNote feedback={student.latestFeedback} />
+        </AnimatedListItem>
+      ) : null}
       {announcements.length === 0 ? null : (
-        <View className="gap-3">
-          <View className="flex-row items-baseline justify-between">
+        <AnimatedListItem index={3} className="mt-1.5">
+          <View className="flex-row items-center justify-between">
             <SectionTitle title={translate("student.news.homeTitle")} />
-            <Pressable
-              accessibilityRole="button"
+            <TextLink
+              label={translate("student.news.seeAll")}
               onPress={() => router.navigate(routes.studentAppNews)}
-              className="active:opacity-70"
-            >
-              <AppText variant="link" tone="primary">
-                {translate("student.news.seeAll")}
-              </AppText>
-            </Pressable>
+            />
           </View>
           {announcements.map((item) => (
-            <NewsCard key={item.id} item={item} />
+            <NewsRow key={item.id} item={item} />
           ))}
-        </View>
+        </AnimatedListItem>
       )}
       {shop === undefined ? null : (
-        <ShopPreview
-          shop={shop}
-          onSeeAll={() => router.navigate(routes.studentAppShop)}
-          onOpenProduct={(productId) => router.navigate(routes.studentAppProduct(productId))}
-        />
+        <AnimatedListItem index={4} className="mt-1">
+          <ShopPreview
+            shop={shop}
+            onSeeAll={() => router.navigate(routes.studentAppShop)}
+            onOpenProduct={(productId) => router.navigate(routes.studentAppProduct(productId))}
+          />
+        </AnimatedListItem>
       )}
     </ScrollScreen>
   );

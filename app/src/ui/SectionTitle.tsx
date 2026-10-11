@@ -8,7 +8,7 @@ interface SectionTitleProps {
 export function SectionTitle({ title, isOverline = false }: SectionTitleProps) {
   return (
     <AppText
-      variant={isOverline ? "overline" : "heading"}
+      variant={isOverline ? "badge" : "heading"}
       tone={isOverline ? "subtle" : "default"}
       accessibilityRole="header"
       className={isOverline ? "" : "mt-1"}

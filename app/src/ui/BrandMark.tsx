@@ -2,17 +2,17 @@ import { View, ViewStyle } from "react-native";
 import { appBrandColor, appBrandMarkColor } from "@/theme/appBrand";
 import { useFloatingShadowStyle } from "@/ui/elevation";
 
-type BrandMarkSize = "small" | "medium" | "large";
+type BrandMarkSize = "tiny" | "small" | "large";
 
 const sizeClassNames: Record<BrandMarkSize, string> = {
+  tiny: "h-8 w-8 rounded-[9px]",
   small: "h-[52px] w-[52px] rounded-2xl",
-  medium: "h-16 w-16 rounded-[22px]",
   large: "h-28 w-28 rounded-[36px]",
 };
 
 const sizeInPixels: Record<BrandMarkSize, number> = {
+  tiny: 32,
   small: 52,
-  medium: 64,
   large: 112,
 };
 
@@ -36,7 +36,7 @@ function scaledPiece(piece: typeof stem, gridUnit: number): ViewStyle {
   };
 }
 
-export function BrandMark({ size = "medium" }: { size?: BrandMarkSize }) {
+export function BrandMark({ size = "tiny" }: { size?: BrandMarkSize }) {
   const elevationStyle = useFloatingShadowStyle();
   const markSize = sizeInPixels[size] * markToTileRatio;
   const gridUnit = markSize / markGridSize;

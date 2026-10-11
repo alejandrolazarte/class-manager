@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { CancelPrivateLessonPanel } from "@/features/privateLessons/components/CancelPrivateLessonPanel";
@@ -19,12 +19,13 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
-import { Icon } from "@/ui/Icon";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { TonalBlock } from "@/ui/TonalBlock";
+import { SectionTitle } from "@/ui/SectionTitle";
+import { TonalButton } from "@/ui/TonalButton";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
@@ -132,12 +133,10 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
         />
       ) : null}
       {lesson.notes ? (
-        <View className="gap-0.5 rounded-2xl bg-muted px-3.5 py-3">
-          <AppText variant="overline" tone="subtle">
-            {translate("clients.detail.notes")}
-          </AppText>
+        <TonalBlock tone="muted" isCompact>
+          <SectionTitle title={translate("clients.detail.notes")} isOverline />
           <AppText variant="body">{lesson.notes}</AppText>
-        </View>
+        </TonalBlock>
       ) : null}
       {lesson.isCancelled ? (
         <Banner
@@ -172,21 +171,16 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
                 {translate("sessions.attendance.swipeHint")}
               </AppText>
               {unmarkedStudents.length > 1 ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={translate("sessions.attendance.allPresent")}
+                <TonalButton
+                  tone="success"
+                  icon="allPresent"
+                  label={translate("sessions.attendance.allPresent")}
                   onPress={() =>
                     Promise.all(
                       unmarkedStudents.map((student) => changeStatus(student.studentId, "Present")),
                     )
                   }
-                  className="flex-row items-center gap-1.5 rounded-full bg-success-soft px-3.5 py-2 active:opacity-80"
-                >
-                  <Icon name="allPresent" size="medium" tone="success-soft-foreground" />
-                  <AppText variant="eyebrow" tone="successSoft">
-                    {translate("sessions.attendance.allPresent")}
-                  </AppText>
-                </Pressable>
+                />
               ) : null}
             </View>
           ) : null}
@@ -216,7 +210,7 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
           {translate("privateLessons.lockedByAttendance")}
         </AppText>
       ) : (
-        <Card className="mt-1">
+        <View className="mt-1 border-y border-border-subtle">
           <ListRow
             icon="schedule"
             label={translate("privateLessons.move")}
@@ -232,10 +226,11 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
           <ListRow
             icon="delete"
             iconTone="danger"
+            isDestructive
             label={translate("privateLessons.delete")}
             onPress={() => setIsConfirmingDelete(true)}
           />
-        </Card>
+        </View>
       )}
     </ScrollScreen>
   );

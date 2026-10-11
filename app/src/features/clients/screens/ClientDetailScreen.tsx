@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Linking, Pressable, View } from "react-native";
+import { Linking, View } from "react-native";
 import {
   formatPhoneNumberForDisplay,
   toDialableDigits,
@@ -22,8 +22,8 @@ import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { Avatar } from "@/ui/Avatar";
-import { Card } from "@/ui/Card";
-import { Icon, IconName } from "@/ui/Icon";
+import { ActionTile } from "@/ui/ActionTile";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
@@ -51,28 +51,6 @@ function isClientTheOnlyStudent(client: ClientDetails): boolean {
   );
 }
 
-interface ContactActionProps {
-  icon: IconName;
-  label: string;
-  onPress: () => void;
-}
-
-function ContactAction({ icon, label, onPress }: ContactActionProps) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      className="min-h-[60px] flex-1 items-center justify-center gap-1 rounded-2xl border-[1.5px] border-border bg-surface px-2 py-2.5 active:bg-muted"
-    >
-      <Icon name={icon} size="medium" tone="primary" />
-      <AppText variant="link" numberOfLines={1}>
-        {label}
-      </AppText>
-    </Pressable>
-  );
-}
-
 interface ClientClassesProps {
   client: ClientDetails;
   clientIsTheOnlyStudent: boolean;
@@ -89,21 +67,21 @@ function ClientClasses({
   if (clientIsTheOnlyStudent) {
     return (
       <>
-        {hasTitle ? <SectionTitle title={translate("clients.detail.classes")} /> : null}
-        <Card className="gap-2.5 px-4 py-3.5">
+        {hasTitle ? <SectionTitle title={translate("clients.detail.classes")} isOverline /> : null}
+        <View className="gap-2 border-b border-border-subtle pb-3">
           {client.students[0].notes ? (
-            <AppText variant="caption" tone="subtle">
+            <AppText variant="footnote" tone="subtle">
               {client.students[0].notes}
             </AppText>
           ) : null}
           <StudentClasses studentId={client.students[0].id} />
-        </Card>
+        </View>
       </>
     );
   }
   return (
     <>
-      <SectionTitle title={translate("clients.detail.students")} />
+      <SectionTitle title={translate("clients.detail.students")} isOverline />
       {client.students.length === 0 ? (
         <AppText variant="body" tone="muted">
           {translate("clients.detail.noStudents")}
@@ -112,16 +90,16 @@ function ClientClasses({
         client.students.map((student) => {
           const ageLabel = studentAgeLabel(student.birthDate);
           return (
-            <Card key={student.id} className="gap-2.5 px-4 py-3.5">
-              <View className="gap-0.5">
+            <View key={student.id} className="gap-2 border-b border-border-subtle pb-3">
+              <View>
                 <AppText variant="bodyStrong">{student.fullName}</AppText>
                 {student.birthDate && ageLabel ? (
-                  <AppText variant="caption" tone="muted">
+                  <AppText variant="footnote" tone="subtle">
                     {`${formatBirthDateForDisplay(student.birthDate)} · ${ageLabel}`}
                   </AppText>
                 ) : null}
                 {student.notes ? (
-                  <AppText variant="caption" tone="subtle">
+                  <AppText variant="footnote" tone="subtle">
                     {student.notes}
                   </AppText>
                 ) : null}
@@ -131,7 +109,7 @@ function ClientClasses({
               normalizedName(student.fullName) !== normalizedName(client.fullName) ? (
                 <InviteStudentAppSection client={client} student={student} />
               ) : null}
-            </Card>
+            </View>
           );
         })
       )}
@@ -194,19 +172,16 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           navigation="back"
           navigationAction={
             canManageStudents ? (
-              <Pressable
-                accessibilityRole="button"
+              <Button
+                variant="ghost"
+                size="medium"
+                icon="edit"
+                label={translate("clients.detail.edit")}
                 accessibilityLabel={translate("clients.detail.editAccessibility", {
                   name: client.fullName,
                 })}
                 onPress={() => router.push(routes.editClient(clientTab, client.id))}
-                className="flex-row items-center gap-1 rounded-full px-3 py-2.5 active:bg-muted"
-              >
-                <Icon name="edit" size="medium" tone="primary" />
-                <AppText variant="bodyStrong" tone="primary">
-                  {translate("clients.detail.edit")}
-                </AppText>
-              </Pressable>
+              />
             ) : undefined
           }
           leading={<Avatar name={client.fullName} tone="primary" size="large" />}
@@ -217,13 +192,13 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
         />
       }
     >
-      <View className="flex-row gap-2.5">
-        <ContactAction
+      <View className="flex-row gap-2">
+        <ActionTile
           icon="call"
           label={translate("clients.detail.call")}
           onPress={() => Linking.openURL(`${telephoneScheme}${client.phoneNumber}`)}
         />
-        <ContactAction
+        <ActionTile
           icon="whatsApp"
           label={translate("clients.detail.whatsApp")}
           onPress={() =>
@@ -231,7 +206,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           }
         />
         {email ? (
-          <ContactAction
+          <ActionTile
             icon="email"
             label={translate("clients.detail.email")}
             onPress={() => Linking.openURL(`${emailScheme}${email}`)}
@@ -239,25 +214,21 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
         ) : null}
       </View>
       {client.notes ? (
-        <View className="gap-0.5 rounded-2xl bg-muted px-3.5 py-3">
-          <AppText variant="overline" tone="subtle">
-            {translate("clients.detail.notes")}
-          </AppText>
+        <TonalBlock tone="muted" isCompact>
+          <SectionTitle title={translate("clients.detail.notes")} isOverline />
           <AppText variant="body">{client.notes}</AppText>
-        </View>
+        </TonalBlock>
       ) : null}
       {canManageStudents ? <InviteStudentAppSection client={client} /> : null}
       {canViewPayments ? (
-        <View className="-mx-5">
-          <Tabs
-            options={[
-              { value: "classes", label: translate("clients.detail.classes"), icon: "classes" },
-              { value: "billing", label: translate("fees.client.title"), icon: "fees" },
-            ]}
-            selectedValue={visibleSection}
-            onChange={setSection}
-          />
-        </View>
+        <Tabs
+          options={[
+            { value: "classes", label: translate("clients.detail.classes") },
+            { value: "billing", label: translate("fees.client.title") },
+          ]}
+          selectedValue={visibleSection}
+          onChange={setSection}
+        />
       ) : null}
       {visibleSection === "classes" ? (
         <>

@@ -1,51 +1,53 @@
 import { MonthlyFees } from "@/features/fees/types";
 import { translate, translateCount } from "@/i18n/translate";
-import { AppText } from "@/ui/AppText";
-import { CollectedSummaryCard } from "@/ui/CollectedSummaryCard";
+import { AppText, TextTone } from "@/ui/AppText";
+import { SummaryBlock } from "@/ui/SummaryBlock";
 
-interface MonthlySummaryCardProps {
+interface MonthlySummaryProps {
   monthlyFees: MonthlyFees;
   debtorCount: number;
   owedAmount: number;
   money: (amount: number) => string;
 }
 
-export function MonthlySummaryCard({
+export function MonthlySummary({
   monthlyFees,
   debtorCount,
   owedAmount,
   money,
-}: MonthlySummaryCardProps) {
+}: MonthlySummaryProps) {
   const paidByMonthlyClients = monthlyFees.clients.reduce(
     (total, client) => total + client.paid,
     0,
   );
   const paidByClassPackClients = monthlyFees.totalPaid - paidByMonthlyClients;
+  const hasFeeDue = monthlyFees.totalDue > 0;
   const statusMessage =
     debtorCount > 0
       ? translateCount("fees.month.owing", debtorCount, { amount: money(owedAmount) })
-      : translate(monthlyFees.totalDue > 0 ? "fees.month.everybodyPaid" : "fees.month.noFeeDue");
+      : translate(hasFeeDue ? "fees.month.everybodyPaid" : "fees.month.noFeeDue");
+  const statusTone: TextTone = debtorCount > 0 ? "warning" : hasFeeDue ? "success" : "muted";
   return (
-    <CollectedSummaryCard
+    <SummaryBlock
       label={translate("fees.month.collected")}
-      collected={money(monthlyFees.totalPaid)}
+      amount={money(monthlyFees.totalPaid)}
       total={translate("fees.month.total", { due: money(monthlyFees.totalDue) })}
-      ratio={monthlyFees.totalDue > 0 ? monthlyFees.totalPaid / monthlyFees.totalDue : 0}
+      ratio={hasFeeDue ? monthlyFees.totalPaid / monthlyFees.totalDue : 0}
       accessibilityLabel={translate("fees.month.summary", {
         paid: money(monthlyFees.totalPaid),
         due: money(monthlyFees.totalDue),
       })}
     >
-      <AppText variant="label" tone="onPrimary" className="opacity-90">
+      <AppText variant="label" tone={statusTone}>
         {statusMessage}
       </AppText>
       {paidByClassPackClients > 0 ? (
-        <AppText variant="caption" tone="onPrimary" className="opacity-90">
+        <AppText variant="footnote" tone="subtle">
           {translate("fees.month.paidByClassPackClients", {
             amount: money(paidByClassPackClients),
           })}
         </AppText>
       ) : null}
-    </CollectedSummaryCard>
+    </SummaryBlock>
   );
 }

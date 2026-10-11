@@ -38,17 +38,17 @@ export function CancelPrivateLessonPanel({ privateLessonId }: CancelPrivateLesso
       <ListRow
         icon="cancelled"
         iconTone="danger"
+        isDestructive
         label={translate("privateLessons.cancel")}
         isExpanded={isOpen}
         onPress={() => setIsOpen(!isOpen)}
       />
       <Collapsible isExpanded={isOpen}>
-        <View className="gap-2.5 px-4 pb-4">
+        <View className="gap-2.5 pb-3.5 pt-0.5">
           {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
           <TextField
             label={translate("sessions.session.cancelReason")}
             placeholder={translate("sessions.session.cancelReasonPlaceholder")}
-            fieldSurface="background"
             value={reason}
             onChangeText={setReason}
           />

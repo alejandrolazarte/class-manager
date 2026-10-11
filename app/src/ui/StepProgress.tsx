@@ -7,12 +7,9 @@ interface StepProgressProps {
 
 export function StepProgress({ segmentFills }: StepProgressProps) {
   return (
-    <View className="flex-row gap-2" accessibilityElementsHidden>
+    <View className="flex-row gap-1.5" accessibilityElementsHidden>
       {segmentFills.map((fill, segmentIndex) => (
-        <View
-          key={segmentIndex}
-          className="h-2.5 flex-1 overflow-hidden rounded-full bg-primary-soft"
-        >
+        <View key={segmentIndex} className="h-[3px] flex-1 overflow-hidden rounded-full bg-muted">
           <GrowingFill ratio={fill} className="rounded-full bg-primary" />
         </View>
       ))}

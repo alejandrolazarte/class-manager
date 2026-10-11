@@ -1,16 +1,16 @@
-import { View } from "react-native";
 import { SessionTiming, startsInLabel } from "@/features/home/agenda";
 import { DaySession } from "@/features/sessions/types";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
-import { AppText, TextTone } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
+import { TimelineRow, TimelineTone } from "@/ui/TimelineRow";
 
-interface AgendaSessionCardProps {
+interface AgendaSessionRowProps {
   session: DaySession;
   title: string;
   timing: SessionTiming;
   timeNow: string;
   isToday: boolean;
+  isFirst: boolean;
+  isLast: boolean;
   onPress: () => void;
 }
 
@@ -27,31 +27,13 @@ const statusLabelKeys: Record<AgendaStatus, TranslationKey> = {
   scheduled: "home.status.scheduled",
 };
 
-const statusPillClassNames: Record<AgendaStatus, string> = {
-  cancelled: "bg-danger-soft",
-  live: "bg-primary",
-  taken: "bg-success-soft",
-  pending: "bg-warning-soft",
-  private: "bg-accent-soft",
-  scheduled: "bg-primary-soft",
-};
-
-const statusTextTones: Record<AgendaStatus, TextTone> = {
-  cancelled: "dangerSoft",
-  live: "onPrimary",
-  taken: "successSoft",
-  pending: "warningSoft",
-  private: "accentSoft",
-  scheduled: "primarySoft",
-};
-
-const statusBarClassNames: Record<AgendaStatus, string> = {
-  cancelled: "bg-disabled-foreground",
-  live: "bg-primary",
-  taken: "bg-success",
-  pending: "bg-warning",
-  private: "bg-accent",
-  scheduled: "bg-primary",
+const statusTones: Record<AgendaStatus, TimelineTone> = {
+  cancelled: "cancelled",
+  live: "live",
+  taken: "done",
+  pending: "pending",
+  private: "upcoming",
+  scheduled: "upcoming",
 };
 
 function statusOf(session: DaySession, timing: SessionTiming): AgendaStatus {
@@ -91,14 +73,16 @@ function detailOf(
   return "";
 }
 
-export function AgendaSessionCard({
+export function AgendaSessionRow({
   session,
   title,
   timing,
   timeNow,
   isToday,
+  isFirst,
+  isLast,
   onPress,
-}: AgendaSessionCardProps) {
+}: AgendaSessionRowProps) {
   const status = statusOf(session, timing);
   const meta = [
     session.kind === "Private"
@@ -112,36 +96,18 @@ export function AgendaSessionCard({
       : session.instructorFullName,
   ].join(metaSeparator);
   return (
-    <Card
+    <TimelineRow
+      startTime={session.startTime}
+      endTime={session.endTime}
+      title={title}
+      meta={meta}
+      status={translate(statusLabelKeys[status])}
+      detail={detailOf(session, status, timeNow, isToday)}
+      tone={statusTones[status]}
+      isFirst={isFirst}
+      isLast={isLast}
       onPress={onPress}
       accessibilityLabel={`${session.startTime} ${title}`}
-      className={`h-[84px] flex-row items-center gap-3 px-4 py-3.5 ${status === "cancelled" ? "opacity-70" : ""}`}
-    >
-      <View className={`w-1 self-stretch rounded-sm ${statusBarClassNames[status]}`} />
-      <View className="w-[52px]">
-        <AppText variant="heading">{session.startTime}</AppText>
-        <AppText variant="footnote" tone="subtle" className="font-label">
-          {session.endTime}
-        </AppText>
-      </View>
-      <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="bodyStrong" numberOfLines={1}>
-          {title}
-        </AppText>
-        <AppText variant="caption" tone="subtle" numberOfLines={1}>
-          {meta}
-        </AppText>
-      </View>
-      <View className="items-end gap-1.5">
-        <View className={`rounded-full px-2.5 py-[5px] ${statusPillClassNames[status]}`}>
-          <AppText variant="badge" tone={statusTextTones[status]}>
-            {translate(statusLabelKeys[status])}
-          </AppText>
-        </View>
-        <AppText variant="footnote" tone="subtle" className="font-label">
-          {detailOf(session, status, timeNow, isToday)}
-        </AppText>
-      </View>
-    </Card>
+    />
   );
 }

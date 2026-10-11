@@ -3,7 +3,7 @@ import { LevelHero } from "@/features/studentApp/components/LevelHero";
 import { LevelPath } from "@/features/studentApp/components/LevelPath";
 import { MedalGrid } from "@/features/studentApp/components/MedalGrid";
 import { StudentChips } from "@/features/studentApp/components/StudentChips";
-import { WeeksCard } from "@/features/studentApp/components/WeeksCard";
+import { RecentWeeks } from "@/features/studentApp/components/RecentWeeks";
 import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider";
 import { allMedals, levelProgress } from "@/features/studentApp/studentAppAchievements";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
@@ -12,7 +12,7 @@ import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
+import { HairlineColumns } from "@/ui/HairlineColumns";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
@@ -20,12 +20,12 @@ import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 
 function Stat({ value, label }: { value: number | string; label: string }) {
   return (
-    <View className="flex-1 items-center gap-0.5">
+    <>
       <AppText variant="headline">{value}</AppText>
-      <AppText variant="caption" tone="muted" className="text-center">
+      <AppText variant="footnote" tone="muted">
         {label}
       </AppText>
-    </View>
+    </>
   );
 }
 
@@ -78,7 +78,7 @@ export function StudentAppProgressScreen() {
         level={attendance.level}
         progress={levelProgress(home.levels, attendance.level, attendance.attendedClasses)}
       />
-      <Card className="flex-row px-2 py-3.5">
+      <HairlineColumns>
         <Stat
           value={attendance.attendedClasses}
           label={translateCount("student.progress.stats.classes", attendance.attendedClasses)}
@@ -91,13 +91,19 @@ export function StudentAppProgressScreen() {
           value={`${attendance.medals.length}/${allMedals.length}`}
           label={translate("student.progress.stats.medals")}
         />
-      </Card>
-      <SectionTitle title={translate("student.progress.path")} />
-      <LevelPath levels={home.levels} currentLevel={attendance.level} />
-      <SectionTitle title={translate("student.progress.medals")} />
-      <MedalGrid earned={attendance.medals} />
-      <SectionTitle title={translate("student.progress.recentWeeks")} />
-      <WeeksCard attendance={attendance} />
+      </HairlineColumns>
+      <View className="gap-1">
+        <SectionTitle title={translate("student.progress.path")} />
+        <LevelPath levels={home.levels} currentLevel={attendance.level} />
+      </View>
+      <View className="gap-2.5">
+        <SectionTitle title={translate("student.progress.medals")} />
+        <MedalGrid earned={attendance.medals} />
+      </View>
+      <View className="gap-2.5">
+        <SectionTitle title={translate("student.progress.recentWeeks")} />
+        <RecentWeeks attendance={attendance} />
+      </View>
     </ScrollScreen>
   );
 }

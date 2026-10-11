@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { CartBar } from "@/features/studentApp/components/CartBar";
 import { CartPage } from "@/features/studentApp/components/CartPage";
 import { PackCard } from "@/features/studentApp/components/PackCard";
@@ -25,6 +25,7 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 type ShopCategory = "all" | "packs" | "products";
@@ -51,14 +52,15 @@ function rowsOf(products: readonly StudentAppShopProduct[]): StudentAppShopProdu
 
 function MyOrdersButton({ onPress }: { onPress: () => void }) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
+      accessibilityLabel={translate("student.orders.title")}
       onPress={onPress}
-      className="h-10 flex-row items-center gap-1.5 rounded-full bg-surface px-3 active:bg-muted"
+      className="h-9 flex-row items-center gap-1.5 rounded-full bg-muted px-3 active:opacity-80"
     >
-      <Icon name="orders" size="medium" tone="primary" />
+      <Icon name="orders" size="small" />
       <AppText variant="link">{translate("student.orders.title")}</AppText>
-    </Pressable>
+    </PressableScale>
   );
 }
 

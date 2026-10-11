@@ -2,7 +2,6 @@ import { View } from "react-native";
 import { StudentAppAttendance } from "@/features/studentApp/types";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 
 const weekClassNames = {
   Attended: "bg-success",
@@ -10,14 +9,14 @@ const weekClassNames = {
   NoClasses: "bg-muted",
 } as const;
 
-export function WeeksCard({ attendance }: { attendance: StudentAppAttendance }) {
+export function RecentWeeks({ attendance }: { attendance: StudentAppAttendance }) {
   return (
-    <Card className="gap-3 p-4">
-      <View className="flex-row gap-1.5">
+    <View className="gap-2">
+      <View className="flex-row gap-[5px]">
         {attendance.recentWeeks.map((week) => (
           <View
             key={week.weekStart}
-            className={`h-7 flex-1 rounded-md ${weekClassNames[week.attendance] ?? "bg-muted"}`}
+            className={`h-7 flex-1 rounded-[5px] ${weekClassNames[week.attendance] ?? "bg-muted"}`}
           />
         ))}
       </View>
@@ -26,6 +25,6 @@ export function WeeksCard({ attendance }: { attendance: StudentAppAttendance }) 
           ? translateCount("student.progress.bestStreak", attendance.bestStreakWeeks)
           : translate("student.streak.start")}
       </AppText>
-    </Card>
+    </View>
   );
 }

@@ -5,7 +5,7 @@ The app supports several visual themes, each in light and dark, without touching
 1. **Palette** (`app/src/theme/palette.ts`) — raw colors. Only themes use it.
 2. **Semantic tokens** (`app/src/theme/themeColorTokens.ts`) — colors named by intent: `background`, `surface`, `foreground`, `muted-foreground`, `primary`, `primary-foreground`, `danger`, `success-foreground`, `warning-soft`, `inverse`, ... Every theme defines every token (enforced by the `ThemeColors` type).
 3. **Typography** (`app/src/theme/typography.ts`) — font roles (`text`, `label`, `strong`, `heavy`) mapped to font families (Figtree 400/500/600/700) and loaded in the root layout with `expo-font`.
-4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `Button`, `IconButton`, `Chip`, `SegmentedControl`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `ProgressBar`, `Banner`, `ListRow`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `ChipGroup`, `BrandMark` (the Laztty mark, [Laztty brand](../brand.md)), and the motion primitives in `app/src/ui/motion/` ([Motion](#motion)). Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes, and never animate on their own.
+4. **UI primitives** (`app/src/ui/`) — `AppText`, `Icon`, `IconCircle`, `Button`, `IconButton`, `TonalButton`, `ActionTile`, `Chip`, `SegmentedControl`, `Tabs`, `TextField`, `SearchInput`, `NumberStepper`, `ToggleSwitch`, `Card`, `Avatar`, `StatusPill`, `StatusText`, `ProgressBar`, `Banner`, `Highlight`, `TonalBlock`, `ListRow`, `HairlineRow`, `HairlineColumns`, `TimelineRow`, `BulletRow`, `CountsRow`, `SummaryBlock`, `EmptyState`, `SectionTitle`, `Screen` / `ScrollScreen`, `ScreenHeader`, `FloatingActionButton`, `DayStrip`, `MonthCalendar`, `ChipGroup`, `BrandMark` (the Laztty mark, [Laztty brand](../brand.md)), and the motion primitives in `app/src/ui/motion/` ([Motion](#motion)). Screens compose primitives and semantic classes; they never pick raw colors, font families or sizes, and never animate on their own.
 
 ## Visual language
 
@@ -13,10 +13,14 @@ The look is **Calma** ([redesign plan](20261011-calma-redesign/plan.md)) on the 
 
 - Light: pale water-blue background, white surfaces, lagoon-blue primary. Dark: deep navy surfaces, cyan primary.
 - Figtree for all text: 600 for screen titles, amounts, names and buttons, 500 for labels and the tab bar, 400 for body copy and typed text, 700 only for initials and the numbers in badges.
-- No shadows on cards: a `Card` is flat, with a 1px `border-subtle` line. Only floating elements (the floating button, the cart bar, the brand mark, the live class banner) keep a shadow. `ListRow`s are separated by 1px `ListDivider` lines in `border-subtle`.
+- No cards in lists: items are rows separated by 1px `border-subtle` hairlines, flush with the screen padding (`HairlineRow`, `ListRow` with `ListDivider`, `TimelineRow`), and groups get a small section title (`SectionTitle` with `isOverline`: 12 px, 600, sentence case). The few `Card`s left are flat, with a 1px `border-subtle` line. Only floating elements (the floating button, the cart bar, the large brand mark) keep a shadow.
+- Agenda rows are a timeline (`TimelineRow`): start and end time, a dot on a vertical line (filled and pulsing when live, filled in the status color when done or pending, hollow when upcoming or cancelled), title, meta and the status as colored text.
+- Summaries (Cuotas, Pedidos) are a `SummaryBlock`: a label, a large number with the total next to it, a thin progress bar (green when complete) and status lines in color.
+- Highlights and banners are tonal: `Highlight` (the live or next class in Inicio, 14 px radius) and `Banner` (12 px radius, the tone's soft background and text, no border). Inset content (notes, order payment and refund, the invite form, grouped packs) sits in a `TonalBlock` with the `muted` tone. Attendance counts are a `CountsRow` built on `HairlineColumns`.
+- Selection: chip groups slide a dark `inverse` thumb under borderless chips; `Tabs` are text with a 2px `foreground` underline; the compact `SegmentedControl` (Día / Mes) is text with a short sliding line.
 - Material Icons (`@expo/vector-icons/MaterialIcons`) behind semantic names, 20–22px in rows, buttons and the tab bar.
-- Radii: 10px inputs, 12px buttons, 14px cards, pills for chips, status and the floating button.
-- Sizes: buttons 48px (`large`) and 44px (`medium`), inputs 46px, icon buttons 44px (40px outlined), floating button 48px.
+- Radii: 10px inputs, 12px buttons and banners, 14px highlights and cards, 20px sheets, pills for chips, status and the floating button.
+- Sizes: buttons 48px (`large`) and 44px (`medium`), inputs 46px (the amount input 52px), icon buttons 44px (40px outlined, 36px compact for steppers such as month and week arrows), floating button 48px.
 - Tab bar: the active tab takes the primary color and a small dot under its icon; the badge stays red.
 - Screens have their own header (`ScreenHeader`): optional back / close button, a small primary "eyebrow", a 24px title (`display`) and an optional subtitle. Native stack headers are hidden; the `Stack.Screen` titles stay for the web document title.
 
@@ -45,7 +49,7 @@ Every text size comes from one type scale, `typeScale` in `typography.ts`. Each 
 | `body` | 15 / 21 | `body`, `bodyStrong`, `button`, `input` |
 | `caption` | 13 / 17 | `link`, `eyebrow`, `label`, `caption` |
 | `small` | 12 / 16 | `footnote`, `badge`, `overline` |
-| `micro` | 11 / 14 | `counter` (numbers in small badges), `tab` (tab bar labels in the brand preview; the tab bar itself reads `typeScale`) |
+| `micro` | 11 / 14 | `pill` (status pills), `counter` (numbers in small badges), `tab` (tab bar labels in the brand preview, day letters in `DayStrip` and `MonthCalendar`; the tab bar itself reads `typeScale`) |
 
 Steps are at least 2px apart from `caption` up: two texts that differ by one pixel don't read as a hierarchy, they look like a mistake. `small` and `micro` only go in compact spots (badges, footnotes) where the next step does not fit.
 
@@ -53,10 +57,10 @@ Steps are at least 2px apart from `caption` up: two texts that differ by one pix
 
 `AppText` replaces `Text`. It takes:
 
-- `variant` — font role, size step and tracking: `hero`, `amount`, `display`, `headline`, `heading`, `lead`, `button`, `input`, `body`, `bodyStrong`, `link`, `eyebrow`, `label`, `caption`, `footnote`, `badge`, `overline`, `counter`, `tab`.
+- `variant` — font role, size step and tracking: `hero`, `amount`, `display`, `headline`, `heading`, `lead`, `button`, `input`, `body`, `bodyStrong`, `link`, `eyebrow`, `label`, `caption`, `footnote`, `badge`, `overline`, `pill`, `counter`, `tab`.
 - `tone` — theme color: `default`, `muted`, `subtle`, `disabled`, `primary`, `primarySoft`, `onPrimary`, `danger`, `warning`, `success`, `onSuccess`, `inverse`, ...
 
-Text inputs use the same variants through `textVariantClassNames` (`input` for `TextField`, `SearchInput` and `NumberStepper`, `amount` for `AmountField`), so typed text matches across forms. Styles that are not classes (the tab bar) read `typeScale` directly.
+Text inputs use the same variants through `textVariantClassNames` (`input` for `TextField`, `SearchInput` and `NumberStepper`, `headline` for `AmountField`), so typed text matches across forms. `amount` is the large number of a `SummaryBlock`. Styles that are not classes (the tab bar) read `typeScale` directly.
 
 The same element always uses the same variant: row and card names `bodyStrong`, the line under them `caption`, the identity card at the top of Ajustes or an account `heading`, sheet titles and totals `headline`. Screens may change the color, never the size or the weight: when a new size is really needed, add a variant to `AppText`. `font-heavy` (700) is only for initials (`Avatar`) and badge numbers (`counter`).
 
@@ -72,13 +76,13 @@ Animations are short and live only in `app/src/ui/motion/`, built on Reanimated.
 
 | Primitive | What it does | Used by |
 |---|---|---|
-| `PressableScale` | Scales to 0.97 while pressed | `Button`, `ListRow`, `Card`, `Chip`, `FloatingActionButton`, attendance marks |
+| `PressableScale` | Scales to 0.97 while pressed | `Button`, `ListRow`, `HairlineRow`, `TimelineRow`, `Highlight`, `TonalButton`, `ActionTile`, `Card`, `Chip`, `FloatingActionButton`, attendance marks |
 | `AnimatedListItem` | Fades in and rises 8 px, 45 ms apart, only the first 8 rows | Inicio, Clases, Alumnos, Cuotas, Pedidos, settings lists, avisos, Mis pedidos |
-| `SlidingIndicator` + `useOptionLayouts` | Moves the selected background or line between options | `SegmentedControl`, `Tabs`, `DayStrip`, `ChipGroup`, the Inicio week strip |
+| `SlidingIndicator` + `useOptionLayouts` | Moves the selected background or line between options | `SegmentedControl`, `Tabs`, `DayStrip` (Clases and the Inicio week), `ChipGroup` |
 | `GrowingFill` | Grows a bar to its value | `ProgressBar`, `StepProgress` |
-| `LivePulse` | A ring that pulses in a loop | The live class banner in Inicio |
+| `LivePulse` | A ring that pulses in a loop | The live class in Inicio: the dot of its `Highlight` and of its `TimelineRow` |
+| `Entrance` | Fade, scale from 0.96, slide up, spring rise or pop when a view appears | `ConfirmDialog`, `BottomSheet`, `ToastProvider`, the tab bar dot, attendance marks and the row tint behind them, the forgot password confirmation icon |
 | `Breathing` | Scales to 94 % and fades to 60 % in a loop, still with reduced motion | The Laztty mark on the loading screen while the session and the business load ([Laztty brand](../brand.md)) |
-| `Entrance` | Fade, scale from 0.96, slide up, spring rise or pop when a view appears | `ConfirmDialog`, `BottomSheet`, `ToastProvider`, the tab bar dot, attendance marks |
 | `Collapsible` | Opens and closes a panel by height; closing content is hidden from screen readers at once | Asistencia panels, private lesson cancel, order payment and refund |
 | `SkeletonList` | Placeholder rows that breathe while a list loads, announced as "Cargando…" | Every list screen while it loads |
 | `SkeletonDetail` | A header and field blocks that breathe while a detail or form loads, announced as "Cargando…" (`SkeletonScreen` wraps it in a full screen) | Every detail and form screen while it loads |

@@ -13,26 +13,30 @@ interface ListRowProps {
   onPress?: () => void;
   trailing?: ReactNode;
   isExpanded?: boolean;
+  isDestructive?: boolean;
   accessibilityLabel?: string;
 }
 
-const rowClassName = "min-h-[46px] flex-row items-center gap-3 px-4 py-3";
+const rowClassName = "-mx-2 min-h-12 flex-row items-center gap-3 px-2 py-3";
 
 export function ListRow({
   label,
   detail,
   icon,
-  iconTone = "primary",
+  iconTone = "muted-foreground",
   onPress,
   trailing,
   isExpanded,
+  isDestructive = false,
   accessibilityLabel,
 }: ListRowProps) {
   const content = (
     <>
       {icon ? <Icon name={icon} size="medium" tone={iconTone} /> : null}
       <View className="min-w-0 flex-1 gap-px">
-        <AppText variant="bodyStrong">{label}</AppText>
+        <AppText variant="body" tone={isDestructive ? "danger" : "default"}>
+          {label}
+        </AppText>
         {detail ? (
           <AppText variant="caption" tone="subtle">
             {detail}
@@ -66,5 +70,5 @@ export function ListRow({
 }
 
 export function ListDivider() {
-  return <View className="mx-4 h-px bg-border-subtle" />;
+  return <View className="h-px bg-border-subtle" />;
 }

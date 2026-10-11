@@ -3,8 +3,6 @@ import { StudentAppAttendance } from "@/features/studentApp/types";
 import { parseIsoDate } from "@/features/sessions/dates";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
 
 const visibleWeeks = 6;
 
@@ -15,32 +13,29 @@ function monthOf(isoDate: string): string {
 export function StreakTile({ attendance }: { attendance: StudentAppAttendance }) {
   const lastWeeks = attendance.recentWeeks.slice(-visibleWeeks);
   return (
-    <Card className="flex-1 gap-2 p-3.5">
-      <View className="flex-row items-center gap-1.5">
-        <Icon name="streak" tone="warning" />
-        <AppText variant="overline" tone="subtle">
-          {translate("student.streak.title")}
-        </AppText>
-      </View>
+    <>
+      <AppText variant="badge" tone="muted">
+        {translate("student.streak.title")}
+      </AppText>
       <AppText variant="headline">
         {translateCount("student.streak.weeks", attendance.streakWeeks)}
       </AppText>
-      <View className="flex-row gap-1">
+      <View className="mt-1 flex-row gap-1">
         {Array.from({ length: visibleWeeks }, (_, index) => {
           const week = lastWeeks[index - (visibleWeeks - lastWeeks.length)];
           return (
             <View
               key={week?.weekStart ?? `week-${index}`}
-              className={`h-2 flex-1 rounded ${week?.attendance === "Attended" ? "bg-warning" : "bg-muted"}`}
+              className={`h-[3px] flex-1 rounded-full ${week?.attendance === "Attended" ? "bg-warning" : "bg-muted"}`}
             />
           );
         })}
       </View>
-      <AppText variant="caption" tone="subtle">
+      <AppText variant="footnote" tone="muted">
         {attendance.streakSince === null
           ? translate("student.streak.start")
           : translate("student.streak.since", { month: monthOf(attendance.streakSince) })}
       </AppText>
-    </Card>
+    </>
   );
 }

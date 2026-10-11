@@ -21,7 +21,6 @@ import { routes } from "@/navigation/routes";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
-import { Card } from "@/ui/Card";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 
@@ -41,7 +40,6 @@ export function StudentAppSettingsScreen() {
   const groups: SettingsGroup[] = [
     {
       titleKey: "settings.group.device",
-      tone: "neutral",
       items: [
         {
           key: "appearance",
@@ -63,7 +61,6 @@ export function StudentAppSettingsScreen() {
     },
     {
       titleKey: "settings.group.account",
-      tone: "neutral",
       items: [
         {
           key: "profile",
@@ -95,15 +92,15 @@ export function StudentAppSettingsScreen() {
   return (
     <ScrollScreen header={<ScreenHeader title={translate("settings.title")} />}>
       {home === undefined ? null : (
-        <Card className="flex-row items-center gap-3.5 p-4">
+        <View className="flex-row items-center gap-3 py-1">
           <Avatar name={home.signedInFullName} />
           <View className="min-w-0 flex-1 gap-0.5">
             <AppText variant="heading">{home.signedInFullName}</AppText>
-            <AppText variant="caption" tone="subtle">
+            <AppText variant="caption" tone="muted">
               {home.businessName}
             </AppText>
           </View>
-        </Card>
+        </View>
       )}
       <SettingsGroupList groups={groups} />
       {appVersion ? (

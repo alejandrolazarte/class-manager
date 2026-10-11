@@ -1,9 +1,10 @@
-import { Linking, Pressable, View } from "react-native";
+import { Linking, View } from "react-native";
 import { StudentAppClassMaterial } from "@/features/studentApp/types";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { SectionTitle } from "@/ui/SectionTitle";
 
 interface ClassMaterialSectionProps {
@@ -16,32 +17,31 @@ export function ClassMaterialSection({ materials }: ClassMaterialSectionProps) {
   }
 
   return (
-    <View className="gap-3">
+    <View className="gap-1">
       <SectionTitle title={translate("student.materials.title")} />
-      {materials.map((material) => (
-        <Pressable
-          key={material.classGroupId}
-          accessibilityRole="link"
-          accessibilityLabel={translate("student.materials.open", {
-            className: material.className,
-          })}
-          onPress={() => Linking.openURL(material.url)}
-          className="active:opacity-70"
-        >
-          <Card className="flex-row items-center gap-3 px-4 py-3.5">
-            <View className="h-10 w-10 items-center justify-center rounded-full bg-primary-soft">
-              <Icon name="material" tone="primary" />
-            </View>
-            <View className="min-w-0 flex-1 gap-0.5">
-              <AppText variant="bodyStrong">{material.className}</AppText>
-              <AppText variant="link" tone="primary">
-                {translate("student.materials.see")}
-              </AppText>
-            </View>
-            <Icon name="next" size="small" tone="primary" />
-          </Card>
-        </Pressable>
-      ))}
+      <View>
+        {materials.map((material) => (
+          <PressableScale
+            key={material.classGroupId}
+            accessibilityRole="link"
+            accessibilityLabel={translate("student.materials.open", {
+              className: material.className,
+            })}
+            onPress={() => Linking.openURL(material.url)}
+            className="active:opacity-70"
+          >
+            <HairlineRow>
+              <View className="min-w-0 flex-1 gap-0.5">
+                <AppText variant="bodyStrong">{material.className}</AppText>
+                <AppText variant="link" tone="primary">
+                  {translate("student.materials.see")}
+                </AppText>
+              </View>
+              <Icon name="next" size="small" tone="primary" />
+            </HairlineRow>
+          </PressableScale>
+        ))}
+      </View>
     </View>
   );
 }

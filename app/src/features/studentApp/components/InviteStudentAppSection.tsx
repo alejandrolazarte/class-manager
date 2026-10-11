@@ -20,7 +20,7 @@ import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
+import { TonalBlock } from "@/ui/TonalBlock";
 import { Icon } from "@/ui/Icon";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
@@ -172,11 +172,11 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   };
 
   const isFormFilled = email.trim().length > 0 && (!needsBirthDate || birthDate.length > 0);
-  const Container = student ? View : Card;
 
   const actionButton =
     status === "Active" || isAskingEmail ? null : (
       <Button
+        variant="ghost"
         size="medium"
         label={translate(pendingLabels[status] ?? "student.app.invite")}
         accessibilityLabel={translate(
@@ -188,14 +188,12 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     );
 
   return (
-    <Container className={student ? "gap-3 rounded-2xl bg-muted p-3" : "gap-3 p-3.5"}>
-      <View className="flex-row items-center gap-3">
-        <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
-          <Icon name="studentApp" size="medium" tone="primary" />
-        </View>
+    <View className={student ? "gap-2" : "gap-2.5 border-y border-border-subtle py-2.5"}>
+      <View className="flex-row items-center gap-2.5">
+        <Icon name="studentApp" size="medium" tone="muted-foreground" />
         <View className="min-w-0 flex-1 gap-0.5">
           <AppText variant="bodyStrong">{translate("student.app.title")}</AppText>
-          <AppText variant="caption" tone={statusTones[status]}>
+          <AppText variant="footnote" tone={statusTones[status]}>
             {translate(`student.app.${status}`, { email: invitedEmail ?? "" })}
           </AppText>
         </View>
@@ -226,7 +224,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
         </Banner>
       ) : null}
       {isAskingEmail ? (
-        <View className={student ? "gap-2.5" : "gap-2.5 rounded-2xl bg-muted p-3"}>
+        <TonalBlock tone="muted">
           <AppText variant="caption" tone="subtle">
             {translate(
               emailOnFile.length > 0
@@ -246,7 +244,6 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
-            fieldSurface="background"
             value={email}
             onChangeText={setEmail}
             errorMessage={emailError}
@@ -255,7 +252,6 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             <BirthDateField
               label={translate("student.invite.birthDate")}
               hint={translate("student.invite.birthDateHint")}
-              fieldSurface="background"
               value={birthDate}
               onChangeText={setBirthDate}
               errorMessage={birthDateError}
@@ -274,8 +270,8 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             label={translate("common.cancel")}
             onPress={cancel}
           />
-        </View>
+        </TonalBlock>
       ) : null}
-    </Container>
+    </View>
   );
 }

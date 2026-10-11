@@ -2,7 +2,7 @@ import { Pressable } from "react-native";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { Icon, IconName } from "@/ui/Icon";
 
-type IconButtonVariant = "plain" | "outlined";
+type IconButtonVariant = "plain" | "compact" | "outlined";
 
 interface IconButtonProps {
   icon: IconName;
@@ -16,6 +16,7 @@ interface IconButtonProps {
 
 const variantClassNames: Record<IconButtonVariant, string> = {
   plain: "h-11 w-11 active:bg-muted",
+  compact: "h-9 w-9 active:bg-muted",
   outlined: "h-10 w-10 border border-border bg-surface active:bg-muted",
 };
 

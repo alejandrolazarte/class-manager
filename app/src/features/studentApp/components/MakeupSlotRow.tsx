@@ -4,11 +4,11 @@ import { StudentAppMakeupSlot } from "@/features/studentApp/types";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
 
 const detailSeparator = " · ";
 
-interface MakeupSlotCardProps {
+interface MakeupSlotRowProps {
   slot: StudentAppMakeupSlot;
   canBook: boolean;
   isPending: boolean;
@@ -22,21 +22,21 @@ function spotsLabel(spotsLeft: number): string {
     : translateCount("student.makeup.spots", spotsLeft);
 }
 
-export function MakeupSlotCard({
+export function MakeupSlotRow({
   slot,
   canBook,
   isPending,
   cancelLabelKey = "student.makeup.cancel",
   onToggle,
-}: MakeupSlotCardProps) {
+}: MakeupSlotRowProps) {
   const isFull = slot.spotsLeft === 0 && !slot.isBooked;
   return (
-    <Card className="flex-row items-center gap-3 px-4 py-3.5">
+    <HairlineRow>
       <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="headline">
+        <AppText variant="bodyStrong">
           {`${shortDayLabel(slot.date)} · ${slot.startTime}–${slot.endTime}`}
         </AppText>
-        <AppText variant="body" tone="muted">
+        <AppText variant="caption" tone="muted">
           {[slot.name, slot.instructorFullName, spotsLabel(slot.spotsLeft)]
             .filter(Boolean)
             .join(detailSeparator)}
@@ -56,6 +56,6 @@ export function MakeupSlotCard({
         isLoading={isPending}
         onPress={onToggle}
       />
-    </Card>
+    </HairlineRow>
   );
 }

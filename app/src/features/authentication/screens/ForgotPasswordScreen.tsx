@@ -16,6 +16,8 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
+import { IconCircle } from "@/ui/IconCircle";
+import { Entrance } from "@/ui/motion/Entrance";
 import { TextField } from "@/ui/TextField";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
@@ -54,11 +56,12 @@ export function ForgotPasswordScreen() {
     >
       {sentToEmail ? (
         <>
-          <Banner
-            tone="info"
-            icon="password"
-            message={translate("authentication.forgotPassword.sent", { email: sentToEmail })}
-          />
+          <Entrance kind="pop" className="self-start">
+            <IconCircle icon="email" tone="success" size="large" />
+          </Entrance>
+          <AppText tone="muted" accessibilityRole="alert">
+            {translate("authentication.forgotPassword.sent", { email: sentToEmail })}
+          </AppText>
           <Button
             variant="secondary"
             label={translate("authentication.forgotPassword.backToSignIn")}

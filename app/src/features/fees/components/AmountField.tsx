@@ -25,14 +25,14 @@ export function AmountField({
 }: AmountFieldProps) {
   const { colors } = useTheme();
   return (
-    <View
-      className={`items-center gap-1.5 rounded-3xl border-[1.5px] bg-surface p-[18px] ${errorMessage ? "border-danger" : "border-transparent"}`}
-    >
+    <View className="gap-1.5">
       <AppText variant="label" tone="muted">
         {withRequiredMark(label, isRequired)}
       </AppText>
-      <View className="flex-row items-center justify-center gap-1">
-        <AppText variant="amount" tone="subtle">
+      <View
+        className={`h-[52px] flex-row items-center gap-1.5 rounded-[10px] border bg-surface px-3.5 ${errorMessage ? "border-danger" : "border-border"}`}
+      >
+        <AppText variant="headline" tone="subtle">
           {currencySymbol(currencyCode)}
         </AppText>
         <TextInput
@@ -42,7 +42,7 @@ export function AmountField({
           onChangeText={onChangeText}
           onBlur={onBlur}
           placeholderTextColor={colors["subtle-foreground"]}
-          className={`min-w-[120px] max-w-[220px] text-center ${textVariantClassNames.amount} text-foreground`}
+          className={`h-full min-w-0 flex-1 ${textVariantClassNames.headline} text-foreground`}
         />
       </View>
       {errorMessage ? (

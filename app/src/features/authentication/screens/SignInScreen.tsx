@@ -80,6 +80,17 @@ export function SignInScreen() {
       title={translate("authentication.signIn.title")}
       onBack={() => router.replace(routes.welcome)}
       mark={<BrandMark />}
+      footer={
+        <Pressable
+          accessibilityRole="link"
+          className="py-1.5"
+          onPress={() => router.replace(routes.signUp)}
+        >
+          <AppText tone="primary" variant="link" className="text-center">
+            {translate("authentication.signIn.goToSignUp")}
+          </AppText>
+        </Pressable>
+      }
     >
       {signInFailure === "invalidCredentials" ? (
         <Banner message={translate("authentication.signIn.invalidCredentials")} />
@@ -134,20 +145,11 @@ export function SignInScreen() {
       />
       <Pressable
         accessibilityRole="button"
-        className="py-1.5"
+        className="py-2"
         onPress={() => router.push(routes.forgotPassword(form.getValues("email").trim()))}
       >
         <AppText tone="primary" variant="link" className="text-center">
           {translate("authentication.signIn.forgotPassword")}
-        </AppText>
-      </Pressable>
-      <Pressable
-        accessibilityRole="link"
-        className="py-1.5"
-        onPress={() => router.replace(routes.signUp)}
-      >
-        <AppText tone="primary" variant="link" className="text-center">
-          {translate("authentication.signIn.goToSignUp")}
         </AppText>
       </Pressable>
     </AuthenticationScreenLayout>

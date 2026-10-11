@@ -5,8 +5,7 @@ import { formatMoney } from "@/features/fees/money";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 interface PackCardProps {
   pack: StudentAppShopPack;
@@ -36,9 +35,8 @@ export function PackClassCountPill({ classCount }: { classCount: number }) {
   return (
     <View
       pointerEvents="none"
-      className="absolute left-2.5 top-2.5 h-[26px] flex-row items-center gap-1 rounded-full bg-primary-soft px-[9px]"
+      className="absolute left-2.5 top-2.5 h-6 flex-row items-center rounded-full bg-surface px-2"
     >
-      <Icon name="classPacks" size="small" tone="primary-soft-foreground" />
       <AppText variant="badge" tone="primarySoft">
         {translateCount("student.shop.classCount", classCount)}
       </AppText>
@@ -49,20 +47,29 @@ export function PackClassCountPill({ classCount }: { classCount: number }) {
 export function PackCard({ pack, currencyCode, isInCart, onOpen, onToggle }: PackCardProps) {
   const actionLabel = translate(isInCart ? "student.shop.removePack" : "student.shop.addPack");
   return (
-    <Card className="w-[300px]" accessibilityLabel={pack.name} onPress={onOpen}>
-      <View>
-        <ProductPhotoCarousel
-          images={pack.images}
-          sizeClassName="h-[170px]"
-          placeholderIcon="classPacks"
-        />
-        <PackClassCountPill classCount={pack.classCount} />
-      </View>
-      <View className="flex-1 gap-2 p-3.5">
-        <AppText variant="headline">{pack.name}</AppText>
-        <AppText variant="caption" tone="muted" className="flex-1">
+    <View className="w-[240px] gap-0.5">
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={pack.name}
+        onPress={onOpen}
+        className="gap-0.5 active:opacity-80"
+      >
+        <View className="overflow-hidden rounded-[14px]">
+          <ProductPhotoCarousel
+            images={pack.images}
+            sizeClassName="h-[110px]"
+            placeholderIcon="classPacks"
+          />
+          <PackClassCountPill classCount={pack.classCount} />
+        </View>
+        <AppText variant="bodyStrong" className="mt-1.5">
+          {pack.name}
+        </AppText>
+        <AppText variant="footnote" tone="muted">
           {packDetails(pack, currencyCode)}
         </AppText>
+      </PressableScale>
+      <View className="mt-2">
         <Button
           size="medium"
           variant={isInCart ? "secondary" : "primary"}
@@ -71,6 +78,6 @@ export function PackCard({ pack, currencyCode, isInCart, onOpen, onToggle }: Pac
           onPress={onToggle}
         />
       </View>
-    </Card>
+    </View>
   );
 }

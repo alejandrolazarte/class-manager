@@ -29,7 +29,7 @@ export function PackDetailPage({
       title={pack.name}
       onClose={onClose}
       footer={
-        <View className="border-t border-border bg-background px-5 py-3">
+        <View className="border-t border-border-subtle bg-background px-5 pb-4 pt-3">
           <Button
             variant={isInCart ? "secondary" : "primary"}
             label={

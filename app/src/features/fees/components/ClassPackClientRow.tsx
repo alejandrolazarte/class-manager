@@ -3,8 +3,8 @@ import { summarizeNames } from "@/features/fees/summarizeNames";
 import { ClassPackClient } from "@/features/fees/types";
 import { translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
-import { StatusPill } from "@/ui/StatusPill";
+import { HairlineRow } from "@/ui/HairlineRow";
+import { StatusText } from "@/ui/StatusText";
 
 interface ClassPackClientRowProps {
   classPackClient: ClassPackClient;
@@ -14,18 +14,19 @@ interface ClassPackClientRowProps {
 export function ClassPackClientRow({ classPackClient, onPress }: ClassPackClientRowProps) {
   const owesClasses = classPackClient.unpaidClasses > 0;
   return (
-    <Card
+    <HairlineRow
       onPress={() => onPress(classPackClient)}
       accessibilityLabel={classPackClient.clientFullName}
-      className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-[13px]"
     >
-      <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="bodyStrong">{classPackClient.clientFullName}</AppText>
+      <View className="min-w-0 flex-1">
+        <AppText variant="bodyStrong" numberOfLines={1}>
+          {classPackClient.clientFullName}
+        </AppText>
         <AppText variant="caption" tone="subtle">
           {summarizeNames(classPackClient.studentNames)}
         </AppText>
       </View>
-      <StatusPill
+      <StatusText
         tone={owesClasses ? "danger" : "success"}
         label={
           owesClasses
@@ -33,6 +34,6 @@ export function ClassPackClientRow({ classPackClient, onPress }: ClassPackClient
             : translateCount("classPacks.balance.available", classPackClient.availableClasses)
         }
       />
-    </Card>
+    </HairlineRow>
   );
 }

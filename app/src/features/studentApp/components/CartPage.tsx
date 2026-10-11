@@ -25,7 +25,10 @@ import { EmptyState } from "@/ui/EmptyState";
 import { FullScreenPage } from "@/ui/FullScreenPage";
 import { Icon } from "@/ui/Icon";
 import { OptionCard } from "@/ui/OptionCard";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { TotalBar } from "@/ui/TotalBar";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
+import { Entrance } from "@/ui/motion/Entrance";
 
 type OrderProblem = "outOfStock" | "tooManyOpenOrders" | "unexpected";
 
@@ -53,10 +56,12 @@ interface CartPageProps {
 
 function OrderPlaced({ onClose, onSeeOrders }: Omit<CartPageProps, "shop">) {
   return (
-    <View className="items-center gap-2.5 px-5 pb-2 pt-6">
-      <View className="h-[72px] w-[72px] items-center justify-center rounded-full bg-success-soft">
-        <Icon name="present" size="huge" tone="success" />
-      </View>
+    <View className="items-center gap-2.5 px-5 pb-2 pt-12">
+      <Entrance kind="pop">
+        <View className="h-[72px] w-[72px] items-center justify-center rounded-full bg-success-soft">
+          <Icon name="present" size="huge" tone="success" />
+        </View>
+      </Entrance>
       <AppText variant="headline" accessibilityRole="header">
         {translate("student.cart.ordered")}
       </AppText>
@@ -94,11 +99,11 @@ interface CartLineProps {
 function CartLine({ item, currencyCode, onChangeUnits }: CartLineProps) {
   const removesItem = item.units <= 1;
   return (
-    <View className="flex-row gap-3 rounded-[20px] bg-surface p-2.5">
+    <HairlineRow className="flex-row gap-3 py-3">
       <CatalogImage
         imageUri={item.imageUrl}
         placeholderIcon={item.isPack ? "classPacks" : "products"}
-        className="h-[76px] w-[76px] rounded-[14px]"
+        className="h-[72px] w-[72px] rounded-xl"
       />
       <View className="min-w-0 flex-1 justify-between gap-1.5">
         <View className="flex-row justify-between gap-2">
@@ -110,7 +115,7 @@ function CartLine({ item, currencyCode, onChangeUnits }: CartLineProps) {
           </View>
           <AppText variant="bodyStrong">{formatMoney(item.total, currencyCode)}</AppText>
         </View>
-        <View className="self-start rounded-xl border-[1.5px] border-border">
+        <View className="self-start rounded-[10px] border border-border bg-surface">
           <QuantityStepper
             units={item.units}
             minimum={0}
@@ -127,7 +132,7 @@ function CartLine({ item, currencyCode, onChangeUnits }: CartLineProps) {
           />
         </View>
       </View>
-    </View>
+    </HairlineRow>
   );
 }
 
@@ -200,19 +205,20 @@ export function CartPage({ shop, onClose, onSeeOrders }: CartPageProps) {
       }
     >
       {hasItems ? (
-        <View className="gap-3.5 px-5 pb-5 pt-1">
-          <View className="gap-2.5">
-            {items.map((item) => (
-              <CartLine
-                key={item.itemId}
-                item={item}
-                currencyCode={shop.currencyCode}
-                onChangeUnits={(units) => setUnits(item.itemId, units)}
-              />
+        <View className="gap-5 px-5 pb-5 pt-1">
+          <View>
+            {items.map((item, index) => (
+              <AnimatedListItem key={item.itemId} index={index}>
+                <CartLine
+                  item={item}
+                  currencyCode={shop.currencyCode}
+                  onChangeUnits={(units) => setUnits(item.itemId, units)}
+                />
+              </AnimatedListItem>
             ))}
           </View>
           {hasProducts ? (
-            <View className="gap-2">
+            <View>
               <AppText variant="label" tone="muted">
                 {translate("delivery.title")}
               </AppText>
@@ -236,19 +242,15 @@ export function CartPage({ shop, onClose, onSeeOrders }: CartPageProps) {
               ))}
             </View>
           ) : null}
-          <View className="gap-2">
+          <View>
             <AppText variant="label" tone="muted">
               {translate("student.cart.payment")}
             </AppText>
-            <View className="flex-row items-center gap-2.5 rounded-2xl border-[1.5px] border-primary bg-surface px-3.5 py-3">
-              <Icon name="business" tone="primary" />
-              <View className="min-w-0 flex-1">
-                <AppText variant="bodyStrong">{translate("student.cart.payAtSchool")}</AppText>
-                <AppText variant="caption" tone="subtle">
-                  {translate("student.cart.payAtSchoolHint")}
-                </AppText>
-              </View>
-            </View>
+            <OptionCard
+              label={translate("student.cart.payAtSchool")}
+              hint={translate("student.cart.payAtSchoolHint")}
+              isSelected
+            />
           </View>
         </View>
       ) : (

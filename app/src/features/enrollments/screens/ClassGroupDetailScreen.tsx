@@ -18,7 +18,6 @@ import { Button } from "@/ui/Button";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 import { ProgressBar } from "@/ui/ProgressBar";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -106,7 +105,7 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
         />
       }
     >
-      <Card className="gap-3 p-4">
+      <View className="mt-1 gap-2">
         <View className="flex-row items-baseline justify-between">
           <AppText variant="headline" tone="primary">
             {translate("enrollments.detail.spots", {
@@ -124,17 +123,19 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
           <ProgressBar ratio={classGroup.capacity > 0 ? enrolledCount / classGroup.capacity : 0} />
         </View>
         {canManageEnrollments ? (
-          <Button
-            size="medium"
-            icon="enroll"
-            label={translate(
-              isFull ? "enrollments.detail.classFull" : "enrollments.detail.enrollStudent",
-            )}
-            disabled={isFull}
-            onPress={() => router.push(routes.enrollStudent(classGroup.id))}
-          />
+          <View className="mt-1.5">
+            <Button
+              size="medium"
+              icon="enroll"
+              label={translate(
+                isFull ? "enrollments.detail.classFull" : "enrollments.detail.enrollStudent",
+              )}
+              disabled={isFull}
+              onPress={() => router.push(routes.enrollStudent(classGroup.id))}
+            />
+          </View>
         ) : null}
-      </Card>
+      </View>
       {entryToUnenroll ? (
         <ConfirmDialog
           title={translate("enrollments.detail.unenrollQuestion", {
@@ -148,11 +149,11 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
         />
       ) : null}
       {hasUnenrollFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
-      <SectionTitle title={translate("enrollments.detail.students")} />
-      <Card>
-        {rosterQuery.isPending ? <SkeletonList className="px-4" rowCount={3} /> : null}
+      <View>
+        <SectionTitle title={translate("enrollments.detail.students")} isOverline />
+        {rosterQuery.isPending ? <SkeletonList rowCount={3} /> : null}
         {rosterQuery.data && roster.length === 0 ? (
-          <AppText variant="body" tone="muted" className="px-4 py-[18px]">
+          <AppText variant="body" tone="muted" className="py-[18px]">
             {translate("enrollments.detail.noStudents")}
           </AppText>
         ) : null}
@@ -164,7 +165,7 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
             onUnenroll={canManageEnrollments ? setEntryToUnenroll : undefined}
           />
         ))}
-      </Card>
+      </View>
     </ScrollScreen>
   );
 }
