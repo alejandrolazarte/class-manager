@@ -150,5 +150,13 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - Required fields carry `isRequired` (or `withRequiredMark` for choices), the form shows `RequiredFieldsLegend` at the top (except sign-in and the password screens, which users already know), and the main button stays disabled (grey) until every required field is filled (`useRequiredFieldsFilled`, `isFilled`). Never write "(opcional)" in a label. See [docs/frontend/forms.md](docs/frontend/forms.md).
 - Placeholders and hints give generic examples that fit any business: no sport or discipline ("Natación inicial", "pileta") and no real or customer names.
 
+### UI changes
+- Removing functionality is forbidden. A visual change keeps every action, state, permission check, banner, empty state, toast, undo and confirm dialog; behavior tests are not deleted, skipped or weakened.
+- Screens only compose `src/ui` primitives and theme tokens. A new visual pattern or animation becomes a primitive in `src/ui` (motion in `src/ui/motion`) and every screen with that pattern uses it; no screen keeps an older version of a pattern.
+- Emails follow the same design as the app, through the one layout in `src/Notifications/Email`.
+- A redesign replaces, it does not pile up: each PR deletes the old styles, variants, components, fonts, packages, translation keys and email fragments it left without users, with their tests. No commented-out code, no `Old`/`Legacy` copies, no flag to switch back.
+- Every PR that changes how a screen or an email looks commits before and after screenshots (`pnpm screenshots`, see [docs/e2e/demo-screenshots.md](docs/e2e/demo-screenshots.md)) and shows them side by side in the PR description.
+- The redesign in progress, its rules and the feature checklist per screen: [docs/frontend/20261011-calma-redesign/plan.md](docs/frontend/20261011-calma-redesign/plan.md).
+
 ### Documentation
 - Operational, security or infrastructure decisions go in a Markdown file under `docs/`, linked from `README.md`.
