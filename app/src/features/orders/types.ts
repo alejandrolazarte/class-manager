@@ -39,6 +39,7 @@ export interface Order {
   awaitsPickup: boolean;
   method: PaymentMethod | null;
   paidOn: string | null;
+  currencyCode: string;
   total: number;
   refundedAmount: number;
   notes: string | null;

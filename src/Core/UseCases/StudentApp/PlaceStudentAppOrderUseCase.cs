@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
@@ -29,6 +30,7 @@ public sealed class PlaceStudentAppOrderUseCase(
     IEnrollmentRepository enrollmentRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
+    IBusinessCurrencyService businessCurrency,
     IOrderNotificationService orderNotifications,
     TimeProvider timeProvider)
     : IUseCase<PlaceStudentAppOrderCommand, StudentAppOrderResponse>
@@ -51,7 +53,8 @@ public sealed class PlaceStudentAppOrderUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        var order = Order.Request(access.ClientId, draft.Value!.Lines, access.UserId, now);
+        var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
+        var order = Order.Request(access.ClientId, draft.Value!.Lines, currencyCode, access.UserId, now);
         if (order.IsFailure)
         {
             return order.Error!;

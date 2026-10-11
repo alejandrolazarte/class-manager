@@ -20,6 +20,7 @@ public sealed class Payment : ITenantOwned, ISoftDeletable
     public Guid TenantId { get; private set; }
     public Guid ClientId { get; private set; }
     public decimal Amount { get; private set; }
+    public string CurrencyCode { get; private set; } = string.Empty;
     public DateOnly Month { get; private set; }
     public DateOnly PaidOn { get; private set; }
     public PaymentMethod Method { get; private set; }
@@ -34,6 +35,7 @@ public sealed class Payment : ITenantOwned, ISoftDeletable
     public static Result<Payment> Create(
         Guid clientId,
         decimal? amount,
+        string currencyCode,
         BillingMonth month,
         DateOnly paidOn,
         PaymentMethod? method,
@@ -74,6 +76,7 @@ public sealed class Payment : ITenantOwned, ISoftDeletable
             Id = Guid.CreateVersion7(),
             ClientId = clientId,
             Amount = amount!.Value,
+            CurrencyCode = currencyCode,
             Month = month.FirstDay,
             PaidOn = paidOn,
             Method = method.Value,

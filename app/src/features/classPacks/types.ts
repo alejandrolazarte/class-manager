@@ -30,6 +30,7 @@ export interface ClassPackPurchase {
   name: string;
   classCount: number;
   price: number;
+  currencyCode: string;
   purchasedOn: string;
   expiresOn: string | null;
   method: PaymentMethod;
@@ -54,6 +55,7 @@ export interface ClassPackUsage {
   name: string;
   classCount: number;
   price: number;
+  currencyCode: string;
   purchasedOn: string;
   expiresOn: string | null;
   method: PaymentMethod;

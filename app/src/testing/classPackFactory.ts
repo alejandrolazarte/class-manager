@@ -26,6 +26,7 @@ export function buildClassBalance(overrides: Partial<ClassBalance> = {}): ClassB
         name: "8 clases",
         classCount: 8,
         price: 150,
+        currencyCode: "ARS",
         purchasedOn: "2026-09-05",
         expiresOn: "2026-11-04",
         method: "Cash",

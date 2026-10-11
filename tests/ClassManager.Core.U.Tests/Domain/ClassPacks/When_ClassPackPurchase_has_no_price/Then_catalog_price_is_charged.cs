@@ -10,7 +10,7 @@ public sealed class Then_catalog_price_is_charged
     {
         var pack = ClassPackTestData.Pack(classCount: 8, price: 160m, validityMonths: 2);
 
-        var purchase = ClassPackPurchase.Sell(ClassPackTestData.ClientId, pack, null, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now);
+        var purchase = ClassPackPurchase.Sell(ClassPackTestData.ClientId, pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now);
 
         purchase.Value!.Price.ShouldBe(160m);
     }

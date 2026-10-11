@@ -6,11 +6,12 @@ public static class SettingsRequests
 {
     public const string MadridTimeZoneId = "Europe/Madrid";
 
-    public static UpdateBusinessSettingsCommand SettingsOf(SeededBusiness business, string? timeZoneId = null, string? name = null) =>
+    public static UpdateBusinessSettingsCommand SettingsOf(
+        SeededBusiness business, string? timeZoneId = null, string? name = null, string? currencyCode = null) =>
         new(
             name ?? business.Business.Name,
             timeZoneId ?? business.Business.TimeZoneId,
-            business.Business.CurrencyCode,
+            currencyCode ?? business.Business.CurrencyCode,
             business.Business.DefaultCountryCallingCode);
 
     public static Task<HttpResponseMessage> PutBusinessAsync(this HttpClient httpClient, UpdateBusinessSettingsCommand command) =>

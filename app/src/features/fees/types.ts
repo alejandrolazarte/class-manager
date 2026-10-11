@@ -59,6 +59,7 @@ export interface Payment {
   id: string;
   clientId: string;
   amount: number;
+  currencyCode: string;
   month: string;
   paidOn: string;
   method: PaymentMethod;

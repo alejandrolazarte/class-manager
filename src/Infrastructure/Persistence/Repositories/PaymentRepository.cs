@@ -22,9 +22,9 @@ internal sealed class PaymentRepository(AppDbContext context) : IPaymentReposito
             .Take(limit)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, decimal>> SumByClientForMonthAsync(DateOnly monthFirstDay, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyDictionary<Guid, decimal>> SumByClientForMonthAsync(DateOnly monthFirstDay, string currencyCode, CancellationToken cancellationToken) =>
         await context.Payments.AsNoTracking()
-            .Where(payment => payment.Month == monthFirstDay)
+            .Where(payment => payment.Month == monthFirstDay && payment.CurrencyCode == currencyCode)
             .GroupBy(payment => payment.ClientId)
             .Select(group => new { ClientId = group.Key, Paid = group.Sum(payment => payment.Amount) })
             .ToDictionaryAsync(group => group.ClientId, group => group.Paid, cancellationToken);

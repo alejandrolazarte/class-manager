@@ -31,7 +31,7 @@ public sealed class Then_it_is_cancelled(ApiFixture fixture)
         await using var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id);
         var product = await context.Products.Include(candidate => candidate.Variants).SingleAsync(candidate => candidate.Id == productId);
         var variant = product.Variants[0];
-        var order = Order.Request(scenario.ClientId, [OrderLine.ForProduct(product, variant, 1, null).Value!], null, createdAt).Value!;
+        var order = Order.Request(scenario.ClientId, [OrderLine.ForProduct(product, variant, 1, null).Value!], ApiFixture.CurrencyCode, null, createdAt).Value!;
         context.Orders.Add(order);
         context.StockMovements.Add(StockMovement.Reserve(variant.Id, 1, order.Id, null, createdAt));
         await context.SaveChangesAsync();

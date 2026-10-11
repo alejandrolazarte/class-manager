@@ -61,7 +61,6 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const setPlanMutation = useSetClientBillingPlan(client.id);
   const { showToast } = useToast();
   const [isShowingUpcomingChanges, setIsShowingUpcomingChanges] = useState(false);
-  const money = (amount: number) => formatMoney(amount, business.currencyCode);
   const describePlan = (plan: BillingPlanChange | ClientDetails["billingPlan"]) =>
     describeBillingPlan(plan, business.defaultMonthlyFee, business.currencyCode);
   const currentMonth = monthOf();
@@ -202,7 +201,9 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
           payments.map((payment) => (
             <View key={payment.id} className="flex-row items-center gap-2">
               <View className="min-w-0 flex-1 gap-px">
-                <AppText variant="bodyStrong">{money(payment.amount)}</AppText>
+                <AppText variant="bodyStrong">
+                  {formatMoney(payment.amount, payment.currencyCode)}
+                </AppText>
                 <AppText variant="caption" tone="subtle">
                   {[
                     formatBirthDateForDisplay(payment.paidOn),
@@ -221,7 +222,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
                   icon="delete"
                   tone="subtle-foreground"
                   accessibilityLabel={translate("fees.client.deletePaymentOf", {
-                    amount: money(payment.amount),
+                    amount: formatMoney(payment.amount, payment.currencyCode),
                   })}
                   disabled={deletePaymentMutation.isPending}
                   onPress={() => deletePayment(payment)}

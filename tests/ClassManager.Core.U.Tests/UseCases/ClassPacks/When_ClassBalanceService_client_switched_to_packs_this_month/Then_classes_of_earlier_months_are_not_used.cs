@@ -13,7 +13,7 @@ public sealed class Then_classes_of_earlier_months_are_not_used
         var currentMonth = BillingMonth.From(TestData.Today);
         builder.PayPerClassFrom(clientId, currentMonth);
         builder.ClientPurchases.Add(ClassPackPurchase.Sell(
-            clientId, builder.Pack, null, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
+            clientId, builder.Pack, null, TestData.CurrencyCode, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
         builder.Attend(clientId, currentMonth.FirstDay.AddDays(-7));
         builder.Attend(clientId, currentMonth.FirstDay.AddDays(1));
 

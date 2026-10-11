@@ -189,7 +189,7 @@ public sealed class GetStudentAppHomeUseCase(
             business.CurrencyCode,
             client.FullName,
             studentResponses,
-            await BillingAsync(client.Id, today, cancellationToken),
+            await BillingAsync(client.Id, business.CurrencyCode, today, cancellationToken),
             levels,
             signedInAccounts.Count > 0 ? signedInAccounts[0].FullName : client.FullName,
             pendingGuardianConsents);
@@ -275,7 +275,7 @@ public sealed class GetStudentAppHomeUseCase(
             Medals.Earned(new MedalProgress(attendedClasses, level, streak.BestWeeks), marks, today));
     }
 
-    private async Task<StudentAppBillingResponse> BillingAsync(Guid clientId, DateOnly today, CancellationToken cancellationToken)
+    private async Task<StudentAppBillingResponse> BillingAsync(Guid clientId, string currencyCode, DateOnly today, CancellationToken cancellationToken)
     {
         var month = BillingMonth.From(today);
         var plan = FeeTimeline.PlanIn(await feeScheduleRepository.ListClientPlanChangesAsync([clientId], cancellationToken), month);
@@ -288,7 +288,7 @@ public sealed class GetStudentAppHomeUseCase(
 
         var defaultFee = FeeTimeline.DefaultFeeIn(await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken), month);
         var fee = plan.MonthlyFee(defaultFee);
-        var paid = (await paymentRepository.SumByClientForMonthAsync(month.FirstDay, cancellationToken)).GetValueOrDefault(clientId);
+        var paid = (await paymentRepository.SumByClientForMonthAsync(month.FirstDay, currencyCode, cancellationToken)).GetValueOrDefault(clientId);
         return new StudentAppBillingResponse(
             plan.Kind,
             new StudentAppMonthlyFeeResponse(month.ToString(), fee, paid, fee is null ? 0 : Math.Max(fee.Value - paid, 0), FeeRules.StatusOf(fee, paid)),

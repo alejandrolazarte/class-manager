@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -19,6 +20,7 @@ public sealed class RecordPaymentUseCase(
     IPaymentRepository paymentRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
+    IBusinessCurrencyService businessCurrency,
     TimeProvider timeProvider,
     IAccessScopes accessScopes,
     ICurrentMember currentMember)
@@ -52,6 +54,7 @@ public sealed class RecordPaymentUseCase(
         var payment = Payment.Create(
             client.Id,
             command.Amount,
+            await businessCurrency.CurrencyCodeAsync(cancellationToken),
             month.Value!,
             command.PaidOn ?? today,
             command.Method,

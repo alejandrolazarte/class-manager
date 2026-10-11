@@ -16,6 +16,7 @@ describe("When payment is recorded", () => {
       id: "payment",
       clientId: clientFee.clientId,
       amount: 7000,
+      currencyCode: "ARS",
       month: feeMonth,
       paidOn: "2026-09-05",
       method: "Transfer",

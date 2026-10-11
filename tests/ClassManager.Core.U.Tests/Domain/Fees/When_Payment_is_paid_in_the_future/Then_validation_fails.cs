@@ -8,7 +8,7 @@ public sealed class Then_validation_fails
     public void Then_validation_fails_Run()
     {
         var payment = Payment.Create(
-            Guid.CreateVersion7(), 12000m, BillingMonth.From(TestData.Today), TestData.Today.AddDays(1), PaymentMethod.Cash, null, TestData.Today, TestData.Now);
+            Guid.CreateVersion7(), 12000m, TestData.CurrencyCode, BillingMonth.From(TestData.Today), TestData.Today.AddDays(1), PaymentMethod.Cash, null, TestData.Today, TestData.Now);
 
         payment.Error!.FieldName.ShouldBe(nameof(Payment.PaidOn));
     }
