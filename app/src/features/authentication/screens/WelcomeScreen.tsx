@@ -25,13 +25,13 @@ export function WelcomeScreen() {
             {translate("authentication.welcome.subtitle")}
           </AppText>
         </View>
-        <View className="gap-2.5">
+        <View className="gap-1.5">
           <Button
             label={translate("authentication.welcome.signUp")}
             onPress={() => router.push(routes.signUp)}
           />
           <Button
-            variant="secondary"
+            variant="ghost"
             label={translate("authentication.welcome.signIn")}
             onPress={() => router.push(routes.signIn)}
           />

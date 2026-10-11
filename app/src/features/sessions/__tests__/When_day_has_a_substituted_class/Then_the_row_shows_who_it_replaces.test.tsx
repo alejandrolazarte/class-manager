@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react-native";
-import { AgendaSessionCard } from "@/features/sessions/components/AgendaSessionCard";
+import { AgendaSessionRow } from "@/features/sessions/components/AgendaSessionRow";
 import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildDaySession } from "@/testing/sessionFactory";
@@ -10,14 +10,16 @@ const session = buildDaySession({
 });
 
 describe("When day has a substituted class", () => {
-  it("Then card shows who it replaces", async () => {
+  it("Then the row shows who it replaces", async () => {
     await renderWithProviders(
-      <AgendaSessionCard
+      <AgendaSessionRow
         session={session}
         title={session.classGroupName}
         timing="upcoming"
         timeNow="10:00"
         isToday={false}
+        isFirst
+        isLast
         onPress={jest.fn()}
       />,
     );

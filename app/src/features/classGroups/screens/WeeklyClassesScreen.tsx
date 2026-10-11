@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
-import { ClassGroupCard } from "@/features/classGroups/components/ClassGroupCard";
+import { ClassGroupRow } from "@/features/classGroups/components/ClassGroupRow";
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
 import { Weekday } from "@/features/classGroups/types";
 import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
@@ -59,7 +59,7 @@ export function WeeklyClassesScreen() {
     );
 
   const header = (
-    <View className="gap-[18px] pb-3">
+    <View className="gap-3.5 pb-1.5">
       <ScreenHeader
         eyebrow={
           isPending ? undefined : translateCount("classGroups.week.perWeek", classGroups.length)
@@ -118,8 +118,8 @@ export function WeeklyClassesScreen() {
           keyExtractor={(classGroup) => classGroup.id}
           ListHeaderComponent={header}
           renderItem={({ item: classGroup, index }) => (
-            <AnimatedListItem index={index} className="px-5 pb-3">
-              <ClassGroupCard
+            <AnimatedListItem index={index} className="px-5">
+              <ClassGroupRow
                 classGroup={classGroup}
                 onPress={() => router.push(routes.classGroup(classGroup.id))}
               />

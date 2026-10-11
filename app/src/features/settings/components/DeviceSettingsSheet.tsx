@@ -5,7 +5,6 @@ import { translate, TranslationKey } from "@/i18n/translate";
 import { ColorSchemePreference } from "@/theme/ThemeContext";
 import { BottomSheet } from "@/ui/BottomSheet";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 
 export type DeviceSettingsSheetKind = "appearance" | "notifications";
 
@@ -51,9 +50,7 @@ export function DeviceSettingsSheet({
   return (
     <BottomSheet onClose={onClose}>
       {kind === "appearance" ? (
-        <Card>
-          <AppearanceSettings colorsHint={colorsHint} />
-        </Card>
+        <AppearanceSettings colorsHint={colorsHint} />
       ) : (
         <NotificationSettings notifications={notifications} hint={notificationsHint} />
       )}

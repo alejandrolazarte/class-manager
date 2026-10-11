@@ -4,8 +4,8 @@ import { feeStatusLabel, feeStatusTones } from "@/features/fees/components/feeSt
 import { summarizeNames } from "@/features/fees/summarizeNames";
 import { ClientFee } from "@/features/fees/types";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
-import { StatusPill } from "@/ui/StatusPill";
+import { HairlineRow } from "@/ui/HairlineRow";
+import { StatusText } from "@/ui/StatusText";
 
 interface ClientFeeRowProps {
   clientFee: ClientFee;
@@ -15,21 +15,19 @@ interface ClientFeeRowProps {
 export function ClientFeeRow({ clientFee, onPress }: ClientFeeRowProps) {
   const currencyCode = useBusinessCurrency();
   return (
-    <Card
-      onPress={() => onPress(clientFee)}
-      accessibilityLabel={clientFee.clientFullName}
-      className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-[13px]"
-    >
-      <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="bodyStrong">{clientFee.clientFullName}</AppText>
+    <HairlineRow onPress={() => onPress(clientFee)} accessibilityLabel={clientFee.clientFullName}>
+      <View className="min-w-0 flex-1">
+        <AppText variant="bodyStrong" numberOfLines={1}>
+          {clientFee.clientFullName}
+        </AppText>
         <AppText variant="caption" tone="subtle">
           {summarizeNames(clientFee.studentNames)}
         </AppText>
       </View>
-      <StatusPill
+      <StatusText
         label={feeStatusLabel(clientFee, currencyCode)}
         tone={feeStatusTones[clientFee.status]}
       />
-    </Card>
+    </HairlineRow>
   );
 }

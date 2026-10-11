@@ -53,6 +53,7 @@ export function CancelSessionPanel({
       <ListRow
         icon="cancelled"
         iconTone="danger"
+        isDestructive
         label={translate("sessions.session.cancel")}
         isExpanded={isOpen}
         onPress={() => {
@@ -61,7 +62,7 @@ export function CancelSessionPanel({
         }}
       />
       <Collapsible isExpanded={isOpen}>
-        <View className="gap-2.5 px-4 pb-4">
+        <View className="gap-2.5 pb-3.5 pt-0.5">
           {hasAttendance ? (
             <AppText variant="label" tone="warning">
               {translate("sessions.session.cancelHasAttendance")}
@@ -81,7 +82,6 @@ export function CancelSessionPanel({
               <TextField
                 label={translate("sessions.session.cancelReason")}
                 placeholder={translate("sessions.session.cancelReasonPlaceholder")}
-                fieldSurface="background"
                 value={reason}
                 onChangeText={setReason}
               />

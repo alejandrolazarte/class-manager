@@ -25,7 +25,7 @@ export function ChipGroup<TValue extends string>({
   const { layouts, onOptionLayout } = useOptionLayouts<TValue>();
   const content = (
     <>
-      <SlidingIndicator layout={layouts[selectedValue]} className="rounded-full bg-primary" />
+      <SlidingIndicator layout={layouts[selectedValue]} className="rounded-full bg-inverse" />
       {options.map((option) => (
         <Chip
           key={option.value}
@@ -46,11 +46,11 @@ export function ChipGroup<TValue extends string>({
         horizontal
         showsHorizontalScrollIndicator={false}
         className="-mx-5"
-        contentContainerClassName="relative gap-2 px-5"
+        contentContainerClassName="relative gap-1 px-5"
       >
         {content}
       </ScrollView>
     );
   }
-  return <View className="relative flex-row flex-wrap gap-2">{content}</View>;
+  return <View className="relative flex-row flex-wrap gap-1">{content}</View>;
 }

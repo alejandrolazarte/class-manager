@@ -61,9 +61,9 @@ export function StudentListScreen() {
         ) : undefined
       }
     >
-      <View className="gap-4 pb-4">
+      <View className="gap-3.5 pb-2">
         <ScreenHeader title={translate("students.list.title")} />
-        <View className="gap-4 px-5">
+        <View className="gap-3.5 px-5">
           <SearchInput
             value={searchText}
             onChangeText={setSearchText}
@@ -92,7 +92,7 @@ export function StudentListScreen() {
           keyExtractor={(student) => student.id}
           keyboardShouldPersistTaps="handled"
           renderItem={({ item: student, index }) => (
-            <AnimatedListItem index={index} className="px-5 pb-2.5">
+            <AnimatedListItem index={index} className="px-5">
               <StudentListItem
                 student={student}
                 onPress={() => router.push(routes.clientDetail("students", student.clientId))}

@@ -2,8 +2,6 @@ import { View } from "react-native";
 import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
 interface NotificationSettingsProps {
@@ -17,11 +15,10 @@ export function NotificationSettings({ notifications, hint }: NotificationSettin
     return null;
   }
   return (
-    <Card className="gap-2 p-4" testID="notification-settings">
-      <View className="flex-row items-center gap-2">
-        <Icon name="notifications" tone="primary" />
-        <AppText variant="bodyStrong">{translate("student.notifications.title")}</AppText>
-      </View>
+    <View className="gap-3" testID="notification-settings">
+      <AppText variant="headline" accessibilityRole="header">
+        {translate("student.notifications.title")}
+      </AppText>
       {status === "supported" ? (
         <ToggleSwitch
           label={translate("student.notifications.toggle")}
@@ -38,6 +35,6 @@ export function NotificationSettings({ notifications, hint }: NotificationSettin
                 : "student.notifications.unsupported",
             )}
       </AppText>
-    </Card>
+    </View>
   );
 }

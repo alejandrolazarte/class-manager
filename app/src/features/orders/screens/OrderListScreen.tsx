@@ -1,12 +1,13 @@
 import { useRouter } from "expo-router";
 import { ReactNode, useState } from "react";
+import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/features/fees/money";
 import { monthOf } from "@/features/fees/months";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { OrderCard } from "@/features/orders/components/OrderCard";
-import { OrderSummaryCard } from "@/features/orders/components/OrderSummaryCard";
+import { OrderRow } from "@/features/orders/components/OrderRow";
+import { OrderMonthSummary } from "@/features/orders/components/OrderMonthSummary";
 import { OrderFilter, orderFilters } from "@/features/orders/types";
 import { useOrders, useOrderSummary, usePendingOrders } from "@/features/orders/useOrders";
 import { translate, TranslationKey } from "@/i18n/translate";
@@ -60,7 +61,7 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
     >
       {viewSwitcher}
       {isInCollections && orderSummary ? (
-        <OrderSummaryCard
+        <OrderMonthSummary
           orderSummary={orderSummary}
           pendingOrders={pendingOrders}
           money={(amount) => formatMoney(amount, business.currencyCode)}
@@ -88,11 +89,15 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
           {translate(`orders.emptyFilter.${filter}` as TranslationKey)}
         </AppText>
       ) : null}
-      {orders.map((order, index) => (
-        <AnimatedListItem key={order.id} index={index}>
-          <OrderCard order={order} canManage={canManageOrders} />
-        </AnimatedListItem>
-      ))}
+      {orders.length > 0 ? (
+        <View>
+          {orders.map((order, index) => (
+            <AnimatedListItem key={order.id} index={index}>
+              <OrderRow order={order} canManage={canManageOrders} />
+            </AnimatedListItem>
+          ))}
+        </View>
+      ) : null}
     </ScrollScreen>
   );
 }

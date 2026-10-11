@@ -7,8 +7,6 @@ import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
 import { usePendingOrders } from "@/features/orders/useOrders";
 import { translate } from "@/i18n/translate";
 import { CollectionsView } from "@/navigation/routes";
-import { View } from "react-native";
-import { Card } from "@/ui/Card";
 import { EmptyState } from "@/ui/EmptyState";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -28,13 +26,11 @@ export function CollectionsScreen({ initialMonth, initialView = "fees" }: Collec
   if (!canViewPayments) {
     return (
       <ScrollScreen header={<ScreenHeader title={translate("tabs.fees")} />}>
-        <Card>
-          <EmptyState
-            icon="locked"
-            iconTone="disabled-foreground"
-            message={translate("fees.noAccess")}
-          />
-        </Card>
+        <EmptyState
+          icon="locked"
+          iconTone="disabled-foreground"
+          message={translate("fees.noAccess")}
+        />
       </ScrollScreen>
     );
   }
@@ -44,24 +40,22 @@ export function CollectionsScreen({ initialMonth, initialView = "fees" }: Collec
   }
 
   const viewSwitcher = (
-    <View className="-mx-5">
-      <Tabs
-        options={[
-          { value: "fees" as const, label: translate("collections.fees"), icon: "recurringFee" },
-          {
-            value: "orders" as const,
-            label:
-              pendingOrders.count > 0
-                ? translate("collections.ordersWithCount", { count: pendingOrders.count })
-                : translate("collections.orders"),
-            accessibilityLabel: translate("collections.orders"),
-            icon: "products",
-          },
-        ]}
-        selectedValue={view}
-        onChange={setView}
-      />
-    </View>
+    <Tabs
+      options={[
+        { value: "fees" as const, label: translate("collections.fees"), icon: "recurringFee" },
+        {
+          value: "orders" as const,
+          label:
+            pendingOrders.count > 0
+              ? translate("collections.ordersWithCount", { count: pendingOrders.count })
+              : translate("collections.orders"),
+          accessibilityLabel: translate("collections.orders"),
+          icon: "products",
+        },
+      ]}
+      selectedValue={view}
+      onChange={setView}
+    />
   );
 
   return view === "orders" ? (

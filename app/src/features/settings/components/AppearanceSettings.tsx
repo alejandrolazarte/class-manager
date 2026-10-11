@@ -18,8 +18,10 @@ interface AppearanceSettingsProps {
 export function AppearanceSettings({ colorsHint }: AppearanceSettingsProps) {
   const { colorSchemePreference, setColorSchemePreference } = useTheme();
   return (
-    <View className="gap-2 px-4 py-3.5">
-      <AppText variant="bodyStrong">{translate("settings.appearance")}</AppText>
+    <View className="gap-3">
+      <AppText variant="headline" accessibilityRole="header">
+        {translate("settings.appearance")}
+      </AppText>
       <SegmentedControl
         options={colorSchemeOptions.map(({ value, labelKey }) => ({
           value,

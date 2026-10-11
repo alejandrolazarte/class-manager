@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
 import { CancelSessionPanel } from "@/features/sessions/components/CancelSessionPanel";
 import { FeedbackSheet } from "@/features/sessions/components/FeedbackSheet";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
-import { ClassDeliveriesCard } from "@/features/orders/components/ClassDeliveriesCard";
+import { ClassDeliveriesSection } from "@/features/orders/components/ClassDeliveriesSection";
 import { SubstitutePanel } from "@/features/sessions/components/SubstitutePanel";
 import { formatLongDate } from "@/features/sessions/dates";
 import { AttendanceStatus } from "@/features/sessions/types";
@@ -19,14 +19,14 @@ import {
   useRestoreSessionSchedule,
 } from "@/features/sessions/useSessionMutations";
 import { translate, translateCount } from "@/i18n/translate";
-import { AppText, TextTone } from "@/ui/AppText";
+import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
-import { Icon } from "@/ui/Icon";
+import { CountsRow } from "@/ui/CountsRow";
 import { ListDivider } from "@/ui/ListRow";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { TonalButton } from "@/ui/TonalButton";
 import { Spinner } from "@/ui/Spinner";
 import { useToast } from "@/ui/ToastProvider";
 
@@ -37,27 +37,7 @@ interface SessionScreenProps {
 
 type PendingStatuses = Record<string, AttendanceStatus | null>;
 
-interface CountTileProps {
-  count: number;
-  label: string;
-  className: string;
-  countTone: TextTone;
-}
-
 const summarySeparator = " · ";
-
-function CountTile({ count, label, className, countTone }: CountTileProps) {
-  return (
-    <View className={`flex-1 gap-0.5 rounded-2xl px-3 py-2.5 ${className}`}>
-      <AppText variant="headline" tone={countTone}>
-        {count}
-      </AppText>
-      <AppText variant="footnote" tone="muted" className="font-label">
-        {label}
-      </AppText>
-    </View>
-  );
-}
 
 export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps) {
   const { showToast } = useToast();
@@ -195,36 +175,6 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         />
       }
     >
-      {session.isCancelled ? null : (
-        <View
-          accessible
-          accessibilityLabel={[
-            translateCount("sessions.attendance.presentCount", presentCount),
-            translateCount("sessions.attendance.absentCount", absentCount),
-            translate("sessions.attendance.unmarkedCount", { count: unmarkedCount }),
-          ].join(summarySeparator)}
-          className="flex-row gap-2"
-        >
-          <CountTile
-            count={presentCount}
-            label={translateCount("sessions.attendance.presentLabel", presentCount)}
-            className="bg-success-soft"
-            countTone="success"
-          />
-          <CountTile
-            count={absentCount}
-            label={translateCount("sessions.attendance.absentLabel", absentCount)}
-            className="bg-danger-soft"
-            countTone="danger"
-          />
-          <CountTile
-            count={unmarkedCount}
-            label={translate("sessions.attendance.unmarkedLabel")}
-            className="bg-muted"
-            countTone="default"
-          />
-        </View>
-      )}
       {session.isCancelled ? (
         <Banner
           tone="warning"
@@ -290,24 +240,48 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
       ) : null}
       {hasSaveFailed ? <Banner message={translate("sessions.attendance.saveFailed")} /> : null}
       {session.isCancelled ? null : (
-        <View className="gap-2">
+        <CountsRow
+          accessibilityLabel={[
+            translateCount("sessions.attendance.presentCount", presentCount),
+            translateCount("sessions.attendance.absentCount", absentCount),
+            translate("sessions.attendance.unmarkedCount", { count: unmarkedCount }),
+          ].join(summarySeparator)}
+          items={[
+            {
+              key: "present",
+              count: presentCount,
+              label: translateCount("sessions.attendance.presentLabel", presentCount),
+              tone: "success",
+            },
+            {
+              key: "absent",
+              count: absentCount,
+              label: translateCount("sessions.attendance.absentLabel", absentCount),
+              tone: "danger",
+            },
+            {
+              key: "unmarked",
+              count: unmarkedCount,
+              label: translate("sessions.attendance.unmarkedLabel"),
+              tone: "default",
+            },
+          ]}
+        />
+      )}
+      {session.isCancelled ? null : (
+        <View>
           {canMarkAttendance && session.students.length > 0 ? (
-            <View className="flex-row items-center justify-between gap-2">
-              <AppText variant="caption" tone="subtle" className="flex-1">
+            <View className="h-11 flex-row items-center justify-between gap-2">
+              <AppText variant="footnote" tone="subtle" className="flex-1">
                 {translate("sessions.attendance.swipeHint")}
               </AppText>
               {unmarkedCount > 0 ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={translate("sessions.attendance.allPresent")}
+                <TonalButton
+                  tone="success"
+                  icon="allPresent"
+                  label={translate("sessions.attendance.allPresent")}
                   onPress={markAllPresent}
-                  className="flex-row items-center gap-1.5 rounded-full bg-success-soft px-3.5 py-2 active:opacity-80"
-                >
-                  <Icon name="allPresent" size="medium" tone="success-soft-foreground" />
-                  <AppText variant="eyebrow" tone="successSoft">
-                    {translate("sessions.attendance.allPresent")}
-                  </AppText>
-                </Pressable>
+                />
               ) : null}
             </View>
           ) : null}
@@ -333,10 +307,10 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         </View>
       )}
       {canRecordAttendance && !session.isCancelled ? (
-        <ClassDeliveriesCard classGroupId={classGroupId} />
+        <ClassDeliveriesSection classGroupId={classGroupId} />
       ) : null}
       {session.isCancelled || !canManageSessions ? null : (
-        <Card className="mt-1">
+        <View className="mt-1 border-y border-border-subtle">
           {session.canReschedule ? (
             <>
               <ReschedulePanel
@@ -358,7 +332,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
             sessionDate={sessionDate}
             hasAttendance={presentCount + absentCount > 0}
           />
-        </Card>
+        </View>
       )}
       {feedbackStudent === undefined ? null : (
         <FeedbackSheet

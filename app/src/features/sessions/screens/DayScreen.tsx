@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { RefreshControl, ScrollView, View } from "react-native";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
@@ -19,7 +19,7 @@ import { TodayBanner } from "@/features/home/components/TodayBanner";
 import { useCan, useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { AgendaCalendar, AgendaView } from "@/features/sessions/components/AgendaCalendar";
-import { AgendaSessionCard } from "@/features/sessions/components/AgendaSessionCard";
+import { AgendaSessionRow } from "@/features/sessions/components/AgendaSessionRow";
 import {
   addDays,
   dayOfMonth,
@@ -36,10 +36,11 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
+import { HairlineRow } from "@/ui/HairlineRow";
+import { IconCircle } from "@/ui/IconCircle";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
-import { Icon } from "@/ui/Icon";
 import { Screen } from "@/ui/Screen";
+import { TonalButton } from "@/ui/TonalButton";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SegmentedControl } from "@/ui/SegmentedControl";
 import { SubscriptionNotice } from "@/features/subscriptions/components/SubscriptionNotice";
@@ -169,14 +170,14 @@ export function DayScreen({ initialDate }: DayScreenProps) {
               titleOf={sessionTitle}
               onOpen={openSession}
             />
-            <View className="mt-1.5 h-12 flex-row items-center justify-between gap-3">
+            <View className="mt-1 h-11 flex-row items-end justify-between gap-3">
               <View className="min-w-0 flex-1">
-                <AppText variant="eyebrow" tone="accent" numberOfLines={1}>
+                <AppText variant="eyebrow" tone="subtle" numberOfLines={1}>
                   {isMonthView
                     ? translate("home.view.calendar")
                     : relativeDayLabel(sessionDate, today)}
                 </AppText>
-                <AppText variant="headline" accessibilityRole="header" numberOfLines={1}>
+                <AppText variant="heading" accessibilityRole="header" numberOfLines={1}>
                   {isMonthView ? formatMonth(calendarMonth) : shortDateLabel(sessionDate)}
                 </AppText>
               </View>
@@ -202,23 +203,16 @@ export function DayScreen({ initialDate }: DayScreenProps) {
               onNext={() => step(1)}
             />
             <View className="h-7 flex-row items-center justify-between">
-              <AppText variant="bodyStrong" tone="muted" className="font-strong">
+              <AppText variant="caption" tone="subtle">
                 {isPending ? "" : summary}
               </AppText>
-              <Pressable
-                accessibilityRole="button"
+              <TonalButton
+                label={translate("home.backToToday")}
                 accessibilityLabel={translate("sessions.day.backToToday")}
-                accessibilityElementsHidden={isShowingToday}
-                importantForAccessibility={isShowingToday ? "no-hide-descendants" : "auto"}
-                disabled={isShowingToday}
+                icon="today"
+                isHidden={isShowingToday}
                 onPress={goToToday}
-                className={`h-7 flex-row items-center gap-1 rounded-full bg-primary-soft px-3 ${isShowingToday ? "opacity-0" : ""}`}
-              >
-                <Icon name="today" size="small" tone="primary-soft-foreground" />
-                <AppText variant="badge" tone="primarySoft">
-                  {translate("home.backToToday")}
-                </AppText>
-              </Pressable>
+              />
             </View>
             {isError ? (
               <Banner message={translate("common.unexpectedError")}>
@@ -232,32 +226,32 @@ export function DayScreen({ initialDate }: DayScreenProps) {
             ) : null}
           </View>
         </View>
-        <View className={`min-h-[276px] gap-3 px-5 ${isPlaceholderData ? "opacity-50" : ""}`}>
+        <View className={`min-h-[276px] px-5 ${isPlaceholderData ? "opacity-50" : ""}`}>
           {isPending ? <SkeletonList /> : null}
           {!isPending && !isError && sessions.length === 0 ? (
-            <Card className="h-[84px] flex-row items-center gap-3 px-4">
-              <View className="h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                <Icon name="noClasses" tone="muted-foreground" />
-              </View>
+            <HairlineRow className="flex-row items-center gap-3 py-[18px]">
+              <IconCircle icon="noClasses" />
               <View className="min-w-0 flex-1">
                 <AppText variant="bodyStrong">{translate("home.free.title")}</AppText>
                 <AppText variant="caption" tone="subtle">
                   {translate("home.free.body")}
                 </AppText>
               </View>
-            </Card>
+            </HairlineRow>
           ) : null}
           {sessions.map((session, index) => (
             <AnimatedListItem
               key={session.privateLessonId ?? session.classGroupId ?? session.startTime}
               index={index}
             >
-              <AgendaSessionCard
+              <AgendaSessionRow
                 session={session}
                 title={sessionTitle(session)}
                 timing={sessionTimingOf(session, today, timeNow)}
                 timeNow={timeNow}
                 isToday={session.date === today}
+                isFirst={index === 0}
+                isLast={index === sessions.length - 1}
                 onPress={() => openSession(session)}
               />
             </AnimatedListItem>

@@ -18,6 +18,7 @@ export const textVariantClassNames = {
   footnote: "font-text text-small",
   badge: "font-strong text-small",
   overline: "font-strong text-small uppercase tracking-[0.7px]",
+  pill: "font-strong text-micro",
   counter: "font-heavy text-micro",
   tab: "font-label text-micro",
 } as const;

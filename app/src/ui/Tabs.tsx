@@ -10,7 +10,7 @@ export interface TabOption<TValue extends string> {
   accessibilityLabel?: string;
 }
 
-const selectedTabLineHeight = 3;
+const selectedTabLineHeight = 2;
 
 interface TabsProps<TValue extends string> {
   options: readonly TabOption<TValue>[];
@@ -26,7 +26,7 @@ export function Tabs<TValue extends string>({
   const { layouts, onOptionLayout } = useOptionLayouts<TValue>();
   const selectedLayout = layouts[selectedValue];
   return (
-    <View accessibilityRole="tablist" className="relative flex-row border-b border-border">
+    <View accessibilityRole="tablist" className="relative flex-row border-b border-border-subtle">
       {options.map((option) => {
         const isSelected = option.value === selectedValue;
         return (
@@ -37,16 +37,16 @@ export function Tabs<TValue extends string>({
             accessibilityState={{ selected: isSelected }}
             onPress={() => onChange(option.value)}
             onLayout={onOptionLayout(option.value)}
-            className={`h-12 flex-1 flex-row items-center justify-center gap-1.5 px-2 ${isSelected ? "" : "active:bg-muted"}`}
+            className={`h-11 flex-1 flex-row items-center justify-center gap-1.5 px-2 ${isSelected ? "" : "active:bg-muted"}`}
           >
             {option.icon ? (
               <Icon
                 name={option.icon}
                 size="medium"
-                tone={isSelected ? "primary" : "muted-foreground"}
+                tone={isSelected ? "foreground" : "muted-foreground"}
               />
             ) : null}
-            <AppText variant="bodyStrong" tone={isSelected ? "primary" : "muted"} numberOfLines={1}>
+            <AppText variant="bodyStrong" tone={isSelected ? "default" : "muted"} numberOfLines={1}>
               {option.label}
             </AppText>
           </Pressable>
@@ -60,7 +60,7 @@ export function Tabs<TValue extends string>({
             height: selectedTabLineHeight,
           }
         }
-        className="rounded-full bg-primary"
+        className="rounded-full bg-foreground"
       />
     </View>
   );

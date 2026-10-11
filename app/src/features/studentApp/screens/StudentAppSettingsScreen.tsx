@@ -40,7 +40,6 @@ export function StudentAppSettingsScreen() {
   const groups: SettingsGroup[] = [
     {
       titleKey: "settings.group.device",
-      tone: "neutral",
       items: [
         {
           key: "appearance",
@@ -62,7 +61,6 @@ export function StudentAppSettingsScreen() {
     },
     {
       titleKey: "settings.group.account",
-      tone: "neutral",
       items: [
         {
           key: "profile",

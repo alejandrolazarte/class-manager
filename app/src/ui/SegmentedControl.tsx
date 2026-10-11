@@ -1,4 +1,4 @@
-import { Pressable, View } from "react-native";
+import { LayoutRectangle, Pressable, View } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
@@ -15,6 +15,24 @@ interface SegmentedControlProps<TValue extends string> {
   isCompact?: boolean;
 }
 
+const compactLineWidth = 20;
+const compactLineHeight = 1.5;
+const compactLineBottomGap = 3;
+
+function compactLineLayoutOf(
+  optionLayout: LayoutRectangle | undefined,
+): LayoutRectangle | undefined {
+  if (optionLayout === undefined) {
+    return undefined;
+  }
+  return {
+    x: optionLayout.x + (optionLayout.width - compactLineWidth) / 2,
+    y: optionLayout.y + optionLayout.height - compactLineBottomGap - compactLineHeight,
+    width: compactLineWidth,
+    height: compactLineHeight,
+  };
+}
+
 export function SegmentedControl<TValue extends string>({
   options,
   selectedValue,
@@ -25,9 +43,12 @@ export function SegmentedControl<TValue extends string>({
   return (
     <View
       accessibilityRole="tablist"
-      className={`relative flex-row gap-1 rounded-full bg-muted ${isCompact ? "p-[3px]" : "p-1"}`}
+      className={`relative flex-row ${isCompact ? "" : "gap-1 rounded-xl bg-muted p-[3px]"}`}
     >
-      <SlidingIndicator layout={layouts[selectedValue]} className="rounded-full bg-surface" />
+      <SlidingIndicator
+        layout={isCompact ? compactLineLayoutOf(layouts[selectedValue]) : layouts[selectedValue]}
+        className={isCompact ? "rounded-full bg-foreground" : "rounded-[9px] bg-surface"}
+      />
       {options.map((option) => {
         const isSelected = option.value === selectedValue;
         return (
@@ -38,7 +59,7 @@ export function SegmentedControl<TValue extends string>({
             accessibilityState={{ selected: isSelected }}
             onPress={() => onChange(option.value)}
             onLayout={onOptionLayout(option.value)}
-            className={`items-center justify-center rounded-full ${isCompact ? "h-[34px] px-3.5" : "h-10 flex-1 px-3"}`}
+            className={`items-center justify-center ${isCompact ? "h-8 px-2.5" : "h-[34px] flex-1 rounded-[9px] px-3"}`}
           >
             <AppText
               variant={isCompact ? "eyebrow" : "link"}

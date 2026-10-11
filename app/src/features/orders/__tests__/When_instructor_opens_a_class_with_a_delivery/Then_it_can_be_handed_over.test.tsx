@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { ClassDeliveriesCard } from "@/features/orders/components/ClassDeliveriesCard";
+import { ClassDeliveriesSection } from "@/features/orders/components/ClassDeliveriesSection";
 import { deliverInClass, listClassDeliveries } from "@/features/orders/ordersApi";
 import { translate } from "@/i18n/translate";
 import { buildInstructorMember } from "@/testing/memberFactory";
@@ -21,7 +21,7 @@ describe("When instructor opens a class with a delivery", () => {
   });
 
   it("Then it can be handed over", async () => {
-    await renderWithProviders(<ClassDeliveriesCard classGroupId="class-group-1" />, {
+    await renderWithProviders(<ClassDeliveriesSection classGroupId="class-group-1" />, {
       member: buildInstructorMember(),
     });
 

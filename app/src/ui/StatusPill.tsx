@@ -28,9 +28,9 @@ const textTones: Record<StatusTone, TextTone> = {
 export function StatusPill({ label, tone, isSmall = false }: StatusPillProps) {
   return (
     <View
-      className={`self-start rounded-full ${isSmall ? "px-2 py-0.5" : "px-2.5 py-1.5"} ${toneClassNames[tone]}`}
+      className={`self-start rounded-full ${isSmall ? "px-[7px] py-0.5" : "px-2 py-[3px]"} ${toneClassNames[tone]}`}
     >
-      <AppText variant="badge" tone={textTones[tone]} numberOfLines={1}>
+      <AppText variant="pill" tone={textTones[tone]} numberOfLines={1}>
         {label}
       </AppText>
     </View>

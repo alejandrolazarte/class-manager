@@ -5,7 +5,14 @@ import { PressableScale } from "@/ui/motion/PressableScale";
 import { Spinner } from "@/ui/Spinner";
 
 type ButtonVariant =
-  "primary" | "secondary" | "outline" | "danger" | "dangerOutline" | "dashed" | "ghost";
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "danger"
+  | "dangerOutline"
+  | "dangerGhost"
+  | "dashed"
+  | "ghost";
 
 type ButtonSize = "large" | "medium";
 
@@ -28,6 +35,7 @@ const containerClassNames: Record<ButtonVariant, string> = {
   outline: "border border-primary bg-transparent active:bg-primary-soft",
   danger: "bg-danger",
   dangerOutline: "border border-border bg-surface active:bg-danger-soft",
+  dangerGhost: "bg-transparent active:bg-danger-soft",
   dashed: "border border-dashed border-primary bg-transparent active:bg-primary-soft",
   ghost: "bg-transparent active:bg-primary-soft",
 };
@@ -43,6 +51,7 @@ const contentTones: Record<ButtonVariant, TextTone> = {
   outline: "primary",
   danger: "onDanger",
   dangerOutline: "danger",
+  dangerGhost: "danger",
   dashed: "primary",
   ghost: "primary",
 };
@@ -53,6 +62,7 @@ const disabledContainerClassNames: Record<ButtonVariant, string> = {
   outline: "border border-border bg-transparent",
   danger: "bg-border",
   dangerOutline: "border border-border bg-surface",
+  dangerGhost: "bg-transparent",
   dashed: "border border-dashed border-border bg-transparent",
   ghost: "bg-transparent",
 };
@@ -63,6 +73,7 @@ const contentColorTokens: Record<ButtonVariant, ThemeColorToken> = {
   outline: "primary",
   danger: "danger-foreground",
   dangerOutline: "danger",
+  dangerGhost: "danger",
   dashed: "primary",
   ghost: "primary",
 };

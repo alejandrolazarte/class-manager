@@ -18,8 +18,8 @@ export function SearchInput({
 }: SearchInputProps) {
   const { colors } = useTheme();
   return (
-    <View className="h-[46px] flex-row items-center gap-2.5 rounded-[10px] border border-border bg-surface px-3.5">
-      <Icon name="search" tone="subtle-foreground" />
+    <View className="h-[42px] flex-row items-center gap-2 rounded-xl bg-muted px-3">
+      <Icon name="search" size="medium" tone="subtle-foreground" />
       <TextInput
         accessibilityLabel={placeholder}
         accessibilityRole="search"
@@ -29,7 +29,7 @@ export function SearchInput({
         autoFocus={autoFocus}
         autoCorrect={false}
         clearButtonMode="while-editing"
-        placeholderTextColor={colors["subtle-foreground"]}
+        placeholderTextColor={colors["muted-foreground"]}
         className={`h-full min-w-0 flex-1 ${textVariantClassNames.input} text-foreground`}
       />
     </View>

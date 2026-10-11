@@ -24,6 +24,8 @@ const shapeClassNames: Record<ChipShape, string> = {
   tile: "h-12 rounded-[14px] px-1.5",
 };
 
+const groupedClassName = "h-8 rounded-full px-3.5";
+
 export function Chip({
   label,
   isSelected,
@@ -39,14 +41,28 @@ export function Chip({
 }: ChipProps) {
   const stateClassName = isSelected
     ? hasSlidingSelection
-      ? "border-primary bg-transparent"
+      ? "border-transparent bg-transparent"
       : "border-primary bg-primary"
     : disabled
       ? "border-border bg-muted"
       : hasSlidingSelection
-        ? "border-border bg-transparent active:bg-muted"
+        ? "border-transparent bg-transparent active:bg-muted"
         : "border-border bg-surface active:bg-muted";
-  const labelTone: TextTone = isSelected ? "onPrimary" : disabled ? "disabled" : "default";
+  const labelTone: TextTone = isSelected
+    ? hasSlidingSelection
+      ? "inverse"
+      : "onPrimary"
+    : disabled
+      ? "disabled"
+      : hasSlidingSelection
+        ? "muted"
+        : "default";
+  const countClassName = isSelected
+    ? hasSlidingSelection
+      ? "bg-inverse-foreground/20"
+      : "bg-primary-foreground"
+    : "bg-muted";
+  const countTone: TextTone = isSelected ? (hasSlidingSelection ? "inverse" : "primary") : "muted";
   return (
     <PressableScale
       accessibilityRole="button"
@@ -55,7 +71,7 @@ export function Chip({
       disabled={disabled}
       onPress={onPress}
       onLayout={onLayout}
-      className={`flex-row items-center justify-center gap-1.5 border-[1.5px] ${shapeClassNames[shape]} ${stateClassName} ${className ?? ""}`}
+      className={`flex-row items-center justify-center gap-1.5 border-[1.5px] ${hasSlidingSelection ? groupedClassName : shapeClassNames[shape]} ${stateClassName} ${className ?? ""}`}
     >
       {icon ? (
         <View>
@@ -72,9 +88,9 @@ export function Chip({
       </AppText>
       {count === undefined ? null : (
         <View
-          className={`h-5 min-w-5 items-center justify-center rounded-full px-1.5 ${isSelected ? "bg-primary-foreground" : "bg-muted"}`}
+          className={`h-5 min-w-5 items-center justify-center rounded-full px-1.5 ${countClassName}`}
         >
-          <AppText variant="badge" tone={isSelected ? "primary" : "muted"}>
+          <AppText variant="badge" tone={countTone}>
             {count}
           </AppText>
         </View>

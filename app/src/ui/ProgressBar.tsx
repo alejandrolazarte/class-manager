@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { GrowingFill } from "@/ui/motion/GrowingFill";
 
-type ProgressTone = "primary" | "success" | "onPrimary";
+type ProgressTone = "primary" | "success" | "warning";
 
 interface ProgressBarProps {
   ratio: number;
@@ -12,13 +12,7 @@ interface ProgressBarProps {
 const fillClassNames: Record<ProgressTone, string> = {
   primary: "bg-primary",
   success: "bg-success",
-  onPrimary: "bg-primary-foreground",
-};
-
-const trackClassNames: Record<ProgressTone, string> = {
-  primary: "bg-muted",
-  success: "bg-muted",
-  onPrimary: "bg-primary-foreground/25",
+  warning: "bg-warning",
 };
 
 const fullPercentage = 100;
@@ -29,7 +23,7 @@ export function ProgressBar({ ratio, tone = "primary", isThin = false }: Progres
     <View
       accessibilityRole="progressbar"
       accessibilityValue={{ min: 0, max: fullPercentage, now: percentage }}
-      className={`flex-1 overflow-hidden rounded-full ${isThin ? "h-1.5" : "h-2"} ${trackClassNames[tone]}`}
+      className={`flex-1 overflow-hidden rounded-full bg-muted ${isThin ? "h-[3px]" : "h-1"}`}
     >
       <GrowingFill ratio={ratio} className={`rounded-full ${fillClassNames[tone]}`} />
     </View>

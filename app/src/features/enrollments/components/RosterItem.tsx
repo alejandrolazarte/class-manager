@@ -6,7 +6,8 @@ import { normalizeStudentName } from "@/features/students/studentSchema";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
-import { IconButton } from "@/ui/IconButton";
+import { Button } from "@/ui/Button";
+import { HairlineRow } from "@/ui/HairlineRow";
 
 interface RosterItemProps {
   entry: RosterEntry;
@@ -25,24 +26,24 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
     isOwnClient ? null : translate("students.list.responsible", { name: entry.clientFullName }),
   ].filter((detail): detail is string => Boolean(detail));
   return (
-    <View className="flex-row items-center gap-3 border-b border-border py-3 pl-4 pr-2">
+    <HairlineRow className="flex-row items-center gap-3 py-2.5">
       <Avatar name={entry.studentFullName} size="small" />
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{entry.studentFullName}</AppText>
         {details.length > 0 ? (
-          <AppText variant="caption" tone="subtle">
+          <AppText variant="footnote" tone="subtle">
             {details.join(detailSeparator)}
           </AppText>
         ) : null}
         {entry.startDate > today ? (
-          <AppText variant="caption" tone="primary">
+          <AppText variant="badge" tone="primary">
             {translate("enrollments.detail.startsOn", {
               date: formatBirthDateForDisplay(entry.startDate),
             })}
           </AppText>
         ) : null}
         {entry.endDate !== null ? (
-          <AppText variant="caption" tone="primary">
+          <AppText variant="badge" tone="warning">
             {entry.endDate === today
               ? translate("enrollments.detail.lastDayToday")
               : translate("enrollments.detail.lastDay", {
@@ -52,15 +53,16 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
         ) : null}
       </View>
       {onUnenroll && entry.endDate === null ? (
-        <IconButton
-          icon="unenroll"
-          tone="subtle-foreground"
+        <Button
+          variant="dangerGhost"
+          size="medium"
+          label={translate("enrollments.detail.confirmUnenroll")}
           accessibilityLabel={translate("enrollments.detail.unenrollStudent", {
             name: entry.studentFullName,
           })}
           onPress={() => onUnenroll(entry)}
         />
       ) : null}
-    </View>
+    </HairlineRow>
   );
 }
