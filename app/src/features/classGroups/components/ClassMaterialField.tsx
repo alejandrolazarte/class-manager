@@ -1,14 +1,13 @@
 import { Controller, UseFormReturn } from "react-hook-form";
 import { Linking, Pressable, View } from "react-native";
 import { ClassGroupFormValues } from "@/features/classGroups/classGroupSchema";
+import { materialFileSizeLabel } from "@/features/classGroups/materialFileSize";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Icon } from "@/ui/Icon";
 import { TextField } from "@/ui/TextField";
 import { TonalBlock } from "@/ui/TonalBlock";
-
-const bytesPerMegabyte = 1024 * 1024;
 
 export interface ShownMaterialFile {
   name: string;
@@ -22,12 +21,6 @@ interface ClassMaterialFieldProps {
   errorMessage: string | null;
   onPickFile: () => void;
   onRemoveFile: () => void;
-}
-
-function formatMegabytes(sizeInBytes: number): string {
-  return translate("classGroups.form.materialFileSize", {
-    megabytes: (sizeInBytes / bytesPerMegabyte).toFixed(1).replace(".", ","),
-  });
 }
 
 function MaterialFileRow({
@@ -48,7 +41,7 @@ function MaterialFileRow({
           </AppText>
           {materialFile.sizeInBytes === undefined ? null : (
             <AppText variant="caption" tone="muted">
-              {formatMegabytes(materialFile.sizeInBytes)}
+              {materialFileSizeLabel(materialFile.sizeInBytes)}
             </AppText>
           )}
           {url === null ? null : (
@@ -86,38 +79,36 @@ export function ClassMaterialField({
       <AppText variant="label" tone="muted">
         {translate("classGroups.form.material")}
       </AppText>
+      <Controller
+        control={form.control}
+        name="materialUrl"
+        render={({ field, fieldState }) => (
+          <TextField
+            label={translate("classGroups.form.materialUrl")}
+            placeholder={translate("classGroups.form.materialUrlPlaceholder")}
+            keyboardType="url"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            errorMessage={fieldState.error?.message}
+          />
+        )}
+      />
       {materialFile === null ? (
-        <>
-          <Controller
-            control={form.control}
-            name="materialUrl"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={translate("classGroups.form.materialUrl")}
-                placeholder={translate("classGroups.form.materialUrlPlaceholder")}
-                keyboardType="url"
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                errorMessage={fieldState.error?.message}
-              />
-            )}
-          />
-          <Button
-            variant="secondary"
-            size="medium"
-            label={translate("classGroups.form.uploadMaterialFile")}
-            onPress={onPickFile}
-          />
-          <AppText variant="caption" tone="muted">
-            {translate("classGroups.form.materialHint")}
-          </AppText>
-        </>
+        <Button
+          variant="secondary"
+          size="medium"
+          label={translate("classGroups.form.uploadMaterialFile")}
+          onPress={onPickFile}
+        />
       ) : (
         <MaterialFileRow materialFile={materialFile} onRemoveFile={onRemoveFile} />
       )}
+      <AppText variant="caption" tone="muted">
+        {translate("classGroups.form.materialHint")}
+      </AppText>
       {errorMessage === null ? null : (
         <AppText variant="label" tone="danger" accessibilityRole="alert">
           {errorMessage}

@@ -3,18 +3,19 @@ using ClassManager.Core.Domain.Documents;
 
 namespace ClassManager.Core.U.Tests.Domain.ClassGroups.When_ClassGroup_with_a_material_file_gets_a_link;
 
-public sealed class Then_the_file_is_dropped
+public sealed class Then_the_file_is_kept
 {
     [Fact]
-    public void Then_the_file_is_dropped_Run()
+    public void Then_the_file_is_kept_Run()
     {
         var schedule = ClassSchedule.Create([DayOfWeek.Monday], "18:00", 45).Value!;
         var classGroup = ClassGroup.Create("Natación adultos", Guid.CreateVersion7(), schedule, 8, null).Value!;
-        classGroup.ShareMaterialFile(Document.Create(
-            Guid.CreateVersion7(), "tenant/class-groups/file.pdf", new DocumentContent([1], "application/pdf", ".pdf"), DocumentVisibility.Public, TestData.Now));
+        var file = Document.Create(
+            Guid.CreateVersion7(), "tenant/class-groups/file.pdf", new DocumentContent([1], "application/pdf", ".pdf"), DocumentVisibility.Public, TestData.Now);
+        classGroup.ShareMaterialFile(file);
 
         classGroup.ShareMaterial("https://example.com/adultos.pdf");
 
-        classGroup.MaterialDocument.ShouldBeNull();
+        (classGroup.MaterialUrl, classGroup.MaterialFile).ShouldBe(("https://example.com/adultos.pdf", file));
     }
 }

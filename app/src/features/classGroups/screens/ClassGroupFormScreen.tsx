@@ -119,7 +119,6 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
       return;
     }
     setMaterialFileError(null);
-    form.setValue("materialUrl", "");
     setMaterialFileChange({ kind: "picked", file });
   };
 

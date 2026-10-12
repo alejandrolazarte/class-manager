@@ -29,7 +29,9 @@ public sealed record StudentAppAttendanceResponse(
 
 public sealed record StudentAppFeedbackResponse(DateOnly Date, string ClassName, string? InstructorFullName, string Text);
 
-public sealed record StudentAppClassMaterialResponse(Guid ClassGroupId, string ClassName, string Url);
+public sealed record StudentAppClassMaterialResponse(Guid ClassGroupId, string ClassName, string? LinkUrl, StudentAppClassMaterialFileResponse? File);
+
+public sealed record StudentAppClassMaterialFileResponse(string Url, long SizeInBytes);
 
 public sealed record AccountStudentResponse(
     Guid Id,

@@ -13,7 +13,7 @@ public sealed class Then_the_student_opens_it_from_its_url(ApiFixture fixture)
         var home = await scenario.Student.GetStudentAppHomeAsync();
 
         var material = home!.Students.Single().Materials.Single();
-        using var response = await fixture.AnonymousClient.GetAsync(new Uri(material.Url));
+        using var response = await fixture.AnonymousClient.GetAsync(new Uri(material.File!.Url));
         (await response.Content.ReadAsByteArrayAsync()).ShouldBe(ClassMaterialRequests.Pdf);
     }
 }

@@ -10,6 +10,12 @@ export type PlanTab = (typeof planTabs)[number];
 export const collectionsViews = ["fees", "orders"] as const;
 export type CollectionsView = (typeof collectionsViews)[number];
 
+export interface StudentAppClassRoute {
+  classGroupId: string;
+  date: string;
+  startTime: string;
+}
+
 export const routes = {
   today: "/today",
   session: (classGroupId: string, sessionDate: string) => `/today/${classGroupId}/${sessionDate}`,
@@ -117,6 +123,8 @@ export const routes = {
     `/student-app/measurement?studentId=${encodeURIComponent(studentId)}&measurementId=${encodeURIComponent(measurementId)}`,
   studentAppRecordMeasurement: (studentId: string) =>
     `/student-app/record-measurement?studentId=${encodeURIComponent(studentId)}`,
+  studentAppClass: ({ classGroupId, date, startTime }: StudentAppClassRoute) =>
+    `/student-app/class?classGroupId=${encodeURIComponent(classGroupId)}&date=${date}&startTime=${encodeURIComponent(startTime)}`,
   branches: "/settings/branches",
   newBranch: "/settings/branches/new",
 } as const;

@@ -13,6 +13,8 @@ const beginnersWeekdays = [1, 3, 5];
 const missedWeeksAgo = 2;
 const daysPerWeek = 7;
 const millisecondsPerDay = 86_400_000;
+const classMaterialUrl = "https://www.youtube.com/watch?v=demo-clase";
+const classMaterialPdf = "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n";
 
 function isoDateOf(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -38,12 +40,12 @@ interface Identified {
 }
 
 interface CreatedProduct extends Identified {
-  variants: { id: string; name: string }[];
+  variants: { id: string; size: string }[];
 }
 
 interface StudentAppShop {
   packs: { id: string; name: string }[];
-  products: { name: string; variants: { id: string; name: string }[] }[];
+  products: { name: string; variants: { id: string; size: string }[] }[];
 }
 
 interface ProductSeed {
@@ -235,12 +237,12 @@ export async function seedDemoStudentApp(
       price: seed.price,
       stockMode: seed.stockMode,
       isVisibleInApp: true,
-      variants: seed.sizes.map((size) => ({ id: null, name: size })),
+      variants: seed.sizes.map((size) => ({ id: null, size })),
     });
     for (const variant of product.variants) {
       if (
         seed.stockMode === "Tracked" &&
-        (seed.sizes.length === 0 || seed.restockedSizes.includes(variant.name))
+        (seed.sizes.length === 0 || seed.restockedSizes.includes(variant.size))
       ) {
         await send("POST", `/api/products/${product.id}/stock`, ownerToken, {
           variantId: variant.id,
@@ -275,7 +277,7 @@ export async function seedDemoStudentApp(
   const variantId = (productName: string, size = "") =>
     shop.products
       .find((product) => product.name === productName)!
-      .variants.find((variant) => variant.name === size)!.id;
+      .variants.find((variant) => variant.size === size)!.id;
   const packId = shop.packs.find((pack) => pack.name === "8 clases")!.id;
   const placeOrder = (
     lines: { classPackId: string | null; productVariantId: string | null; quantity: number }[],
@@ -364,6 +366,34 @@ export async function seedDemoStudentApp(
     studentToken,
     {},
   );
+
+  const beginnersClass = await send<Record<string, unknown>>(
+    "GET",
+    `/api/class-groups/${demo.beginnersClassGroupId}`,
+    ownerToken,
+  );
+  await send("PUT", `/api/class-groups/${demo.beginnersClassGroupId}`, ownerToken, {
+    ...beginnersClass,
+    materialUrl: classMaterialUrl,
+  });
+  const materialUpload = await request.post(
+    `${e2eEnvironment.apiUrl}/api/class-groups/${demo.beginnersClassGroupId}/material`,
+    {
+      headers: { Authorization: `Bearer ${ownerToken}` },
+      multipart: {
+        file: {
+          name: "guia.pdf",
+          mimeType: "application/pdf",
+          buffer: Buffer.from(classMaterialPdf),
+        },
+      },
+    },
+  );
+  if (!materialUpload.ok()) {
+    console.warn(
+      `The class material PDF was not uploaded (${materialUpload.status()}): set ConnectionStrings__FileStorage to capture it.`,
+    );
+  }
 
   return { email, absenceDate, makeupDate: makeupSlot.date, packClassDate: packSlot.date };
 }

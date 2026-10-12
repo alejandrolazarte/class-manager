@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261012161942_AddMeasurements")]
-    partial class AddMeasurements
+    [Migration("20261012141421_MoveClassMaterialFilesToTheirOwnTable")]
+    partial class MoveClassMaterialFilesToTheirOwnTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -405,9 +405,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
-                    b.Property<Guid?>("MaterialDocumentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("MaterialUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -430,16 +427,33 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("InstructorId");
 
-                    b.HasIndex("MaterialDocumentId")
-                        .IsUnique()
-                        .HasFilter("[MaterialDocumentId] IS NOT NULL");
-
                     b.HasIndex("TenantId", "IsActive", "StartTime");
 
-                    b.ToTable("ClassGroups", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClassGroups_OneMaterial", "[MaterialUrl] IS NULL OR [MaterialDocumentId] IS NULL");
-                        });
+                    b.ToTable("ClassGroups");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroupMaterialFile", b =>
+                {
+                    b.Property<Guid>("ClassGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClassGroupId", "DocumentId");
+
+                    b.HasIndex("DocumentId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ClassGroupMaterialFiles");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
@@ -1164,147 +1178,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Instructors");
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementDefinition", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("DeletedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ImprovesWhen")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRecordedByStudents")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVisibleToStudents")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "Name")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("MeasurementDefinitions", t =>
-                        {
-                            t.HasCheckConstraint("CK_MeasurementDefinitions_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementGoal", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("MeasurementDefinitionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Value")
-                        .HasPrecision(12, 3)
-                        .HasColumnType("decimal(12,3)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MeasurementDefinitionId");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("TenantId", "StudentId", "MeasurementDefinitionId")
-                        .IsUnique();
-
-                    b.ToTable("MeasurementGoals");
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("DeletedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateOnly>("MeasuredOn")
-                        .HasColumnType("date");
-
-                    b.Property<Guid>("MeasurementDefinitionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("RecordedByStudent")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("RecordedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Value")
-                        .HasPrecision(12, 3)
-                        .HasColumnType("decimal(12,3)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MeasurementDefinitionId");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("TenantId", "StudentId", "MeasurementDefinitionId", "MeasuredOn")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("MeasurementRecords", t =>
-                        {
-                            t.HasCheckConstraint("CK_MeasurementRecords_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
-                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Notifications.MemberPushSubscription", b =>
@@ -2790,10 +2663,26 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "MaterialDocument")
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
-                        .HasForeignKey("MaterialDocumentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroupMaterialFile", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.ClassGroups.ClassGroup", null)
+                        .WithMany("MaterialFiles")
+                        .HasForeignKey("ClassGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
@@ -2801,7 +2690,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("MaterialDocument");
+                    b.Navigation("Document");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
@@ -3158,57 +3047,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Instructors.Instructor", b =>
                 {
-                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementDefinition", b =>
-                {
-                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementGoal", b =>
-                {
-                    b.HasOne("ClassManager.Core.Domain.Measurements.MeasurementDefinition", null)
-                        .WithMany()
-                        .HasForeignKey("MeasurementDefinitionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ClassManager.Core.Domain.Students.Student", null)
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementRecord", b =>
-                {
-                    b.HasOne("ClassManager.Core.Domain.Measurements.MeasurementDefinition", null)
-                        .WithMany()
-                        .HasForeignKey("MeasurementDefinitionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ClassManager.Core.Domain.Students.Student", null)
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3613,6 +3451,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroup", b =>
+                {
+                    b.Navigation("MaterialFiles");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>

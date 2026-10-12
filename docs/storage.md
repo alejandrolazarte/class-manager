@@ -79,15 +79,15 @@ The app keeps photo changes in the form and sends them when the user taps Guarda
 
 ## Class material files
 
-A class has one optional material for its students: a link (`MaterialUrl`) or an uploaded PDF (`MaterialDocumentId`, a nullable foreign key to `Documents`), never both (check constraint `CK_ClassGroups_OneMaterial`). A single file needs no link table, so it is a column on `ClassGroups` with a filtered unique index.
+A class can share a link (`MaterialUrl`) and an uploaded PDF at the same time: the link costs nothing and the PDF counts against the business's document storage. Files live in `ClassGroupMaterialFiles` (class, document, position), the same link table as product and pack photos, so a class can hold more than one file later without moving data (see [Several PDFs per class](backend/20261012-class-material-files/plan.md)). Today `ClassGroup.MaximumMaterialFiles` is 1: uploading a second PDF replaces the first.
 
 | Endpoint | What it does |
 |---|---|
-| `POST /api/class-groups/{id}/material` | Uploads a PDF (detected by its `%PDF-` signature, never by name, up to 20 MB). Clears the link and deletes the previous file. 400 `class_group.material_unsupported` or `class_group.material_too_large`, 403 `feature.limit_reached` when the business has no space left |
+| `POST /api/class-groups/{id}/material` | Uploads a PDF (detected by its `%PDF-` signature, never by name, up to 20 MB). Keeps the link; at the file limit it deletes the oldest file. 400 `class_group.material_unsupported` or `class_group.material_too_large`, 403 `feature.limit_reached` when the business has no space left |
 | `DELETE /api/class-groups/{id}/material` | Removes the file. 404 `class_group.material_file_not_found` if there is none |
-| `PUT /api/class-groups/{id}` with a `materialUrl` | Sets the link and deletes the file, if any |
+| `PUT /api/class-groups/{id}` with a `materialUrl` | Sets or clears the link and keeps the file |
 
-Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student app returns the file's public URL in place of the link, so students open both the same way.
+Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student app returns the link and the file separately (`linkUrl`, `file`), and the student sees both inside the class: in Clases every group class opens its detail, which holds its actions ("Avisar que no voy", cancel a makeup or a pack booking) and its material.
 
 **Material files are public, like shop photos.** Decision (2026-10-08): a signed, short-lived link would only stop students from sharing the URL; they can still download the PDF and pass it on, as they can with printed material or a public Drive link. Private files stay for sensitive documents (medical certificates, IDs).
 
