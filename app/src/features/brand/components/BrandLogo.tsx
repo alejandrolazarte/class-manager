@@ -1,12 +1,14 @@
 import { Image, StyleSheet, View } from "react-native";
 import { brandInitials } from "@/features/brand/brandInitials";
 import { AppText, TextVariant } from "@/ui/AppText";
+import { SkeletonFrame } from "@/ui/motion/SkeletonFrame";
 
 export type BrandLogoSize = "small" | "medium" | "large";
 
 interface BrandLogoProps {
   displayName: string;
   logoUri: string | null;
+  isLogoLoading?: boolean;
   size?: BrandLogoSize;
   onPrimary?: boolean;
 }
@@ -26,9 +28,17 @@ const initialsVariants: Record<BrandLogoSize, TextVariant> = {
 export function BrandLogo({
   displayName,
   logoUri,
+  isLogoLoading = false,
   size = "small",
   onPrimary = false,
 }: BrandLogoProps) {
+  if (logoUri === null && isLogoLoading) {
+    return (
+      <SkeletonFrame
+        className={`${onPrimary ? "bg-primary-foreground/15" : "bg-muted"} ${sizeClassNames[size]}`}
+      />
+    );
+  }
   const backgroundClassName =
     logoUri !== null ? "bg-surface" : onPrimary ? "bg-primary-foreground/15" : "bg-primary";
   return (

@@ -6,10 +6,16 @@ import { AppText } from "@/ui/AppText";
 interface BrandWelcomeProps {
   displayName: string | null;
   logoUri: string | null;
+  isLogoLoading?: boolean;
   onDismiss: () => void;
 }
 
-export function BrandWelcome({ displayName, logoUri, onDismiss }: BrandWelcomeProps) {
+export function BrandWelcome({
+  displayName,
+  logoUri,
+  isLogoLoading,
+  onDismiss,
+}: BrandWelcomeProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -20,7 +26,13 @@ export function BrandWelcome({ displayName, logoUri, onDismiss }: BrandWelcomePr
     >
       {displayName === null ? null : (
         <>
-          <BrandLogo displayName={displayName} logoUri={logoUri} size="large" onPrimary />
+          <BrandLogo
+            displayName={displayName}
+            logoUri={logoUri}
+            isLogoLoading={isLogoLoading}
+            size="large"
+            onPrimary
+          />
           <View className="items-center gap-1.5">
             <AppText variant="display" tone="onPrimary" className="text-center">
               {displayName}
