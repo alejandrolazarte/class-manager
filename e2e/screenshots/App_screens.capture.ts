@@ -93,6 +93,23 @@ test("App screens", async ({ page, request }) => {
     ["16-packs", "/settings/class-packs", "8 clases"],
     ["16b-pack-nuevo", "/settings/class-packs/new", "Clases donde se puede usar"],
     ["17-cuota-mensual", "/settings/monthly-fee", "Cambios de cuota"],
+    [
+      "08c-alumno-medicion",
+      `/students/clients/${demo.studentAppClientId}/measurements/${demo.measuredStudentId}/${demo.timeMeasurementId}`,
+      "Historial",
+    ],
+    [
+      "08d-registrar-medicion",
+      `/students/clients/${demo.studentAppClientId}/record-measurement?studentId=${demo.measuredStudentId}`,
+      "Registrar medición",
+    ],
+    [
+      "02c-dia-de-prueba",
+      `/today/${demo.beginnersClassGroupId}/test-day?date=${demo.today}`,
+      "Presentes",
+    ],
+    ["12e-mediciones", "/settings/measurements", "Nado continuo"],
+    ["12f-medicion-nueva", "/settings/measurements/new", "Tipo de dato"],
   ];
 
   for (const [fileName, path, visibleText] of screens) {
@@ -113,6 +130,11 @@ test("App screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Mes", exact: true }).click();
   await page.getByText("Elegí un día").filter({ visible: true }).first().waitFor();
   await capture(page, "01b-inicio-mes");
+
+  await page.goto(`/students/clients/${demo.studentAppClientId}`);
+  await page.getByRole("tab", { name: "Avance" }).click();
+  await page.getByText("25 m crol").filter({ visible: true }).first().waitFor();
+  await capture(page, "08b-alumno-avance");
 
   await page.goto(`/today/private/${demo.privateLessonId}`);
   await page.getByText("Valentina Fernández").filter({ visible: true }).first().waitFor();

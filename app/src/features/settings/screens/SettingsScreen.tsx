@@ -144,6 +144,13 @@ export function SettingsScreen() {
           onPress: () => router.push(routes.achievementSettings),
         },
         {
+          key: "measurements",
+          isVisible: canManageBusiness,
+          icon: "trendingUp",
+          label: translate("settings.measurements"),
+          onPress: () => router.push(routes.measurementSettings),
+        },
+        {
           key: "announcements",
           isVisible: canManageAnnouncements,
           icon: "announcement",

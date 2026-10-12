@@ -26,6 +26,8 @@ export interface DemoBusiness {
   debtorClientId: string;
   classPackClientId: string;
   privateLessonId: string;
+  measuredStudentId: string;
+  timeMeasurementId: string;
 }
 
 function todayIn(timeZoneId: string): string {
@@ -40,6 +42,12 @@ function nextMonthOf(month: string): string {
   const [year, monthNumber] = month.split("-").map(Number);
   const nextMonth = new Date(Date.UTC(year ?? 2026, monthNumber ?? 1, 1));
   return nextMonth.toISOString().slice(0, 7);
+}
+
+function daysBefore(isoDate: string, days: number): string {
+  const date = new Date(`${isoDate}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() - days);
+  return date.toISOString().slice(0, 10);
 }
 
 function withToday(weekdays: string[], today: string): string[] {
@@ -261,6 +269,77 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     repeatWeeks: null,
   });
 
+  const tomasId = studentId(ana, "Tomás Pérez");
+  const luciaId = studentId(ana, "Lucía Pérez");
+  const crol = await send<Identified>("POST", "/api/measurements", {
+    name: "25 m crol",
+    kind: "Time",
+    unit: "s",
+    improvesWhen: "Decreases",
+    isVisibleToStudents: true,
+    isRecordedByStudents: false,
+  });
+  const continuousSwim = await send<Identified>("POST", "/api/measurements", {
+    name: "Nado continuo",
+    kind: "Distance",
+    unit: "m",
+    improvesWhen: "Increases",
+    isVisibleToStudents: true,
+    isRecordedByStudents: true,
+  });
+  const height = await send<Identified>("POST", "/api/measurements", {
+    name: "Altura",
+    kind: "Length",
+    unit: "cm",
+    improvesWhen: "Neither",
+    isVisibleToStudents: false,
+    isRecordedByStudents: false,
+  });
+  async function measure(
+    studentIdToMeasure: string,
+    measurementId: string,
+    values: [daysAgo: number, value: number, note?: string][],
+  ) {
+    for (const [daysAgo, value, note] of values) {
+      await send(
+        "POST",
+        `/api/students/${studentIdToMeasure}/measurements/${measurementId}/records`,
+        {
+          measuredOn: daysBefore(today, daysAgo),
+          value,
+          note: note ?? null,
+        },
+      );
+    }
+  }
+  await measure(tomasId, crol.id, [
+    [180, 38.4, "Primera prueba"],
+    [150, 35.9],
+    [120, 34.2],
+    [90, 33.1],
+    [60, 31.8, "Mejoró mucho la patada"],
+    [30, 30.9],
+    [6, 29.7, "Buena respiración bilateral"],
+  ]);
+  await measure(tomasId, continuousSwim.id, [
+    [180, 100],
+    [135, 150],
+    [90, 200],
+    [45, 300],
+    [20, 400],
+  ]);
+  await measure(tomasId, height.id, [
+    [200, 132],
+    [110, 134.5],
+    [40, 136],
+  ]);
+  await measure(luciaId, continuousSwim.id, [
+    [120, 25],
+    [60, 50],
+    [10, 75],
+  ]);
+  await send("PUT", `/api/students/${tomasId}/measurements/${crol.id}/goal`, { value: 28 });
+
   return {
     email,
     today,
@@ -271,5 +350,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     debtorClientId: diego.id,
     classPackClientId: paula.id,
     privateLessonId: privateLesson!.id,
+    measuredStudentId: tomasId,
+    timeMeasurementId: crol.id,
   };
 }

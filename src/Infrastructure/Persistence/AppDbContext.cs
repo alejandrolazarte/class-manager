@@ -34,6 +34,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<MakeupBooking> MakeupBookings => Set<MakeupBooking>();
     public DbSet<PackBooking> PackBookings => Set<PackBooking>();
     public DbSet<AchievementLevel> AchievementLevels => Set<AchievementLevel>();
+    public DbSet<MeasurementDefinition> MeasurementDefinitions => Set<MeasurementDefinition>();
+    public DbSet<MeasurementRecord> MeasurementRecords => Set<MeasurementRecord>();
+    public DbSet<MeasurementGoal> MeasurementGoals => Set<MeasurementGoal>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<MemberPushSubscription> MemberPushSubscriptions => Set<MemberPushSubscription>();
     public DbSet<TeamNotification> TeamNotifications => Set<TeamNotification>();

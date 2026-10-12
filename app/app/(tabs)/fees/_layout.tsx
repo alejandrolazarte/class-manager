@@ -43,6 +43,14 @@ export default function FeesLayout() {
         name="clients/[clientId]/new-class-pack"
         options={{ title: translate("classPacks.form.newTitle") }}
       />
+      <Stack.Screen
+        name="clients/[clientId]/measurements/[studentId]/[measurementId]"
+        options={{ title: translate("measurements.title") }}
+      />
+      <Stack.Screen
+        name="clients/[clientId]/record-measurement"
+        options={{ title: translate("measurements.recordForm.title") }}
+      />
     </Stack>
   );
 }

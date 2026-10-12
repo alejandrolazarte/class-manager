@@ -7,6 +7,7 @@ import {
 } from "@/features/clients/phoneNumberFormatting";
 import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
+import { StudentProgressSection } from "@/features/measurements/components/StudentProgressSection";
 import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
 import { InviteStudentAppSection } from "@/features/studentApp/components/InviteStudentAppSection";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
@@ -33,7 +34,7 @@ const telephoneScheme = "tel:";
 const emailScheme = "mailto:";
 const whatsAppBaseUrl = "https://wa.me/";
 
-type ClientDetailSection = "classes" | "billing";
+type ClientDetailSection = "classes" | "billing" | "progress";
 
 const initialSections: Record<ClientTab, ClientDetailSection> = {
   students: "classes",
@@ -129,6 +130,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const canManageStudents = useCan(permissions.studentsManage);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
   const canSellAtCounter = useCan(permissions.ordersManage);
+  const canViewProgress = useCan(permissions.studentsViewAll, permissions.studentsViewOwn);
 
   if (isPending) {
     return (
@@ -154,7 +156,20 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
 
   const clientIsTheOnlyStudent = isClientTheOnlyStudent(client);
   const email = client.appAccess.signInEmail ?? client.email;
-  const visibleSection: ClientDetailSection = canViewPayments ? section : "classes";
+  const sectionOptions = [
+    { value: "classes" as const, label: translate("clients.detail.classes") },
+    ...(canViewPayments
+      ? [{ value: "billing" as const, label: translate("fees.client.title") }]
+      : []),
+    ...(canViewProgress && client.students.length > 0
+      ? [{ value: "progress" as const, label: translate("clients.detail.progress") }]
+      : []),
+  ];
+  const visibleSection: ClientDetailSection = sectionOptions.some(
+    (option) => option.value === section,
+  )
+    ? section
+    : "classes";
   const counterSaleButton = canSellAtCounter ? (
     <Button
       variant="secondary"
@@ -220,22 +235,15 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
         </TonalBlock>
       ) : null}
       {canManageStudents ? <InviteStudentAppSection client={client} /> : null}
-      {canViewPayments ? (
-        <Tabs
-          options={[
-            { value: "classes", label: translate("clients.detail.classes") },
-            { value: "billing", label: translate("fees.client.title") },
-          ]}
-          selectedValue={visibleSection}
-          onChange={setSection}
-        />
+      {sectionOptions.length > 1 ? (
+        <Tabs options={sectionOptions} selectedValue={visibleSection} onChange={setSection} />
       ) : null}
       {visibleSection === "classes" ? (
         <>
           <ClientClasses
             client={client}
             clientIsTheOnlyStudent={clientIsTheOnlyStudent}
-            hasTitle={!canViewPayments}
+            hasTitle={sectionOptions.length === 1}
             canInviteStudents={canManageStudents}
           />
           {canManageStudents ? (
@@ -253,12 +261,16 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           ) : null}
           {canViewPayments ? null : counterSaleButton}
         </>
-      ) : (
+      ) : null}
+      {visibleSection === "billing" ? (
         <>
           <ClientFeeSection client={client} />
           {counterSaleButton}
         </>
-      )}
+      ) : null}
+      {visibleSection === "progress" ? (
+        <StudentProgressSection client={client} clientTab={clientTab} />
+      ) : null}
     </ScrollScreen>
   );
 }

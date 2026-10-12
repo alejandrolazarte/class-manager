@@ -76,6 +76,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
         services.AddScoped<IClassFeedbackRepository, ClassFeedbackRepository>();
         services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+        services.AddScoped<IMeasurementDefinitionRepository, MeasurementDefinitionRepository>();
+        services.AddScoped<IMeasurementRecordRepository, MeasurementRecordRepository>();
+        services.AddScoped<IMeasurementGoalRepository, MeasurementGoalRepository>();
         services.AddScoped<IAbsenceNoticeRepository, AbsenceNoticeRepository>();
         services.AddScoped<IMakeupBookingRepository, MakeupBookingRepository>();
         services.AddScoped<IPackBookingRepository, PackBookingRepository>();

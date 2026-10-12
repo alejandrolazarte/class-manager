@@ -10,6 +10,7 @@ global using ClassManager.Core.Domain.Documents;
 global using ClassManager.Core.Domain.Enrollments;
 global using ClassManager.Core.Domain.Fees;
 global using ClassManager.Core.Domain.Instructors;
+global using ClassManager.Core.Domain.Measurements;
 global using ClassManager.Core.Domain.Notifications;
 global using ClassManager.Core.Domain.Orders;
 global using ClassManager.Core.Domain.Organizations;

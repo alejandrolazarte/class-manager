@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "expo-router";
 import { View } from "react-native";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
@@ -18,6 +19,7 @@ import {
   useRestoreSession,
   useRestoreSessionSchedule,
 } from "@/features/sessions/useSessionMutations";
+import { routes } from "@/navigation/routes";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
@@ -46,6 +48,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
     permissions.attendanceRecordOwn,
   );
   const canManageSessions = useCan(permissions.sessionsManage);
+  const router = useRouter();
   const {
     data: session,
     isPending,
@@ -308,6 +311,15 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
       )}
       {canRecordAttendance && !session.isCancelled ? (
         <ClassDeliveriesSection classGroupId={classGroupId} />
+      ) : null}
+      {canRecordAttendance && !session.isCancelled && session.students.length > 0 ? (
+        <Button
+          variant="secondary"
+          size="medium"
+          icon="trendingUp"
+          label={translate("measurements.testDay.open")}
+          onPress={() => router.push(routes.classTestDay(classGroupId, sessionDate))}
+        />
       ) : null}
       {session.isCancelled || !canManageSessions ? null : (
         <View className="mt-1 border-y border-border-subtle">

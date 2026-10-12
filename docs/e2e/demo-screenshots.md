@@ -14,6 +14,7 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 - A default fee of $25.000, one student with its own fee, and payments that leave students paid, partially paid and owing.
 - A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
 - A private lesson for Valentina Fernández with Martín today at 21:00.
+- Three measurements (25 m crol, Nado continuo that students can record, and Altura only for the team), with half a year of values for Tomás Pérez, a few for Lucía Pérez, and a 28 s goal for Tomás's 25 m crol.
 
 Every run signs up a new business with a unique email, so it can run against the same database many times.
 
@@ -46,6 +47,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `01d-clase-particular` | A private lesson |
 | `02-asistencia` | Attendance of Natación inicial |
 | `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
+| `02c-dia-de-prueba` | Test day of Natación inicial: one measurement for everyone present |
 | `03-clases-semana` | Weekly classes |
 | `04-clase-alumnos` | Class roster |
 | `04b-confirmar-dar-de-baja` | The confirm dialog before unenrolling a student (closed with "Volver") |
@@ -53,6 +55,9 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `06-inscribir` | Enroll a student |
 | `07-alumnos` | Student list |
 | `08-alumno` | Client card with students, classes, fee and payments |
+| `08b-alumno-avance` | Client card on Avance: each measurement with its latest value, change and trend |
+| `08c-alumno-medicion` | A measurement of Tomás: personal best, trend, goal and history |
+| `08d-registrar-medicion` | Record a measurement |
 | `09-nuevo-alumno` | Register form with "¿Quién viene a clase?" |
 | `10-cuotas`, `10b-cuotas-todos` | Month fees, debtors and everyone |
 | `10c-cobros-pedidos` | Cobros on Pedidos: orders summary, filters and order cards |
@@ -61,6 +66,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `12b-novedades` | Publishing an announcement for students |
 | `12c-ajustes-negocio` | Business settings |
 | `12d-logros-y-asistencia` | Levels for students and whether noticed absences keep the streak |
+| `12e-mediciones` | The measurements of the business, with who sees and records each one |
+| `12f-medicion-nueva` | New measurement form |
 | `14-alumno-por-clases` | Student paying per class: classes left and packs |
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
@@ -107,6 +114,9 @@ The student signs in through the sign-in screen, then the test captures:
 | `27-alumno-pedidos`, `28-alumno-pedidos-anteriores` | Orders in progress with tracking, and past orders |
 | `28b-alumno-logros` | Achievements: level, progress to the next one and level path |
 | `28c-alumno-logros-medallas` | Achievements: medals and the last 12 weeks |
+| `28d-alumno-mediciones` | Achievements on Mediciones: the measurements the student sees |
+| `28e-alumno-medicion` | A measurement in the student app: new personal best, goal and history |
+| `28f-alumno-cargar-medicion` | The form a student uses to record a measurement the team opened to them |
 | `29-alumno-ajustes` | Settings grouped like the team app: your phone (appearance, notifications) and account (sign out) |
 | `29b-alumno-ajustes-notificaciones`, `29c-alumno-ajustes-apariencia` | Notifications and appearance sheets opened from Ajustes |
 | `30-elegir-cuenta` | Choosing between the team and the student account when the same email has both |

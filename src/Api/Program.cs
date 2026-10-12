@@ -60,6 +60,7 @@ app.MapClientEndpoints();
 app.MapStudentAppEndpoints();
 app.MapTeamNotificationEndpoints();
 app.MapAnnouncementEndpoints();
+app.MapMeasurementEndpoints();
 app.MapStudentEndpoints();
 app.MapInstructorEndpoints();
 app.MapClassGroupEndpoints();
