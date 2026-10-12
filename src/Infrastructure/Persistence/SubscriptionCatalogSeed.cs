@@ -5,7 +5,7 @@ namespace ClassManager.Infrastructure.Persistence;
 
 internal static class SubscriptionCatalogSeed
 {
-    public const string ListPriceCurrency = "USD";
+    public const string ListPriceCurrency = "EUR";
 
     private const decimal LitePrice = 9m;
     private const decimal ProPrice = 19m;
