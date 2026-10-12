@@ -14,6 +14,7 @@ export interface CurrentBrand {
   audience: BrandAudience;
   brand: Brand | null;
   logoUri: string | null;
+  isLogoLoading: boolean;
 }
 
 const CurrentBrandContext = createContext<CurrentBrand | null>(null);
@@ -37,6 +38,7 @@ export function BrandProvider({ audience, children }: BrandProviderProps) {
     staleTime: Infinity,
   });
   const logoUri = logoUpdatedAt === null ? null : (logoQuery.data ?? null);
+  const isLogoLoading = logoUpdatedAt !== null && logoQuery.isPending;
   const isSettled = !brandQuery.isPending && (logoUpdatedAt === null || !logoQuery.isPending);
   const [isWelcomeVisible, setIsWelcomeVisible] = useState(true);
 
@@ -56,13 +58,14 @@ export function BrandProvider({ audience, children }: BrandProviderProps) {
   }, [isSettled]);
 
   return (
-    <CurrentBrandContext.Provider value={{ audience, brand, logoUri }}>
+    <CurrentBrandContext.Provider value={{ audience, brand, logoUri, isLogoLoading }}>
       <View className="flex-1">
         {children}
         {isWelcomeVisible && !brandQuery.isError ? (
           <BrandWelcome
             displayName={brand?.displayName ?? null}
             logoUri={logoUri}
+            isLogoLoading={isLogoLoading}
             onDismiss={() => setIsWelcomeVisible(false)}
           />
         ) : null}
