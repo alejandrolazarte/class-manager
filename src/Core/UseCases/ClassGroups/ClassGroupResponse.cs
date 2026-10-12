@@ -38,7 +38,7 @@ public sealed record ClassGroupResponse(
             classGroup.Capacity,
             classGroup.Location,
             classGroup.MaterialUrl,
-            classGroup.MaterialDocument is { } materialFile
+            classGroup.MaterialFile is { } materialFile
                 ? new ClassMaterialFileResponse(materialFile.Id, documentStorage.PublicUrlOf(materialFile).ToString(), materialFile.SizeInBytes)
                 : null,
             classGroup.IsActive,

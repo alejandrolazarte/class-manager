@@ -19,6 +19,6 @@ public sealed class Then_only_the_material_of_their_classes_is_shown(ApiFixture 
         var home = await scenario.Student.GetStudentAppHomeAsync();
 
         home!.Students.Single().Materials.ShouldBe(
-            [new StudentAppClassMaterialResponse(instructors.InstructorClassGroup.Id, InstructorScenario.InstructorClassGroupName, StudentClassMaterialUrl)]);
+            [new StudentAppClassMaterialResponse(instructors.InstructorClassGroup.Id, InstructorScenario.InstructorClassGroupName, StudentClassMaterialUrl, null)]);
     }
 }

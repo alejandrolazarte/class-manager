@@ -1,5 +1,9 @@
 import { weekdayShortLabel, weekdayOf } from "@/features/classGroups/weekdays";
-import { StudentAppNextClass, AccountStudent } from "@/features/studentApp/types";
+import {
+  StudentAppClassMaterial,
+  StudentAppNextClass,
+  AccountStudent,
+} from "@/features/studentApp/types";
 import { addDays, dayOfMonth, parseIsoDate, todayIsoDate } from "@/features/sessions/dates";
 import { translate, TranslationKey } from "@/i18n/translate";
 
@@ -67,6 +71,13 @@ export function nextClassOf(
     student.nextClasses.find((nextClass) => !nextClass.isCancelled && !hasEnded(nextClass, now)) ??
     null
   );
+}
+
+export function materialOf(
+  student: AccountStudent,
+  classGroupId: string | null,
+): StudentAppClassMaterial | null {
+  return student.materials.find((material) => material.classGroupId === classGroupId) ?? null;
 }
 
 export function classesOn(student: AccountStudent, isoDate: string): StudentAppNextClass[] {

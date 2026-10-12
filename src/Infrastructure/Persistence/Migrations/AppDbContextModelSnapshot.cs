@@ -402,9 +402,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
-                    b.Property<Guid?>("MaterialDocumentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("MaterialUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -427,16 +424,33 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("InstructorId");
 
-                    b.HasIndex("MaterialDocumentId")
-                        .IsUnique()
-                        .HasFilter("[MaterialDocumentId] IS NOT NULL");
-
                     b.HasIndex("TenantId", "IsActive", "StartTime");
 
-                    b.ToTable("ClassGroups", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClassGroups_OneMaterial", "[MaterialUrl] IS NULL OR [MaterialDocumentId] IS NULL");
-                        });
+                    b.ToTable("ClassGroups");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroupMaterialFile", b =>
+                {
+                    b.Property<Guid>("ClassGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClassGroupId", "DocumentId");
+
+                    b.HasIndex("DocumentId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ClassGroupMaterialFiles");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
@@ -2646,10 +2660,26 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "MaterialDocument")
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
-                        .HasForeignKey("MaterialDocumentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroupMaterialFile", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.ClassGroups.ClassGroup", null)
+                        .WithMany("MaterialFiles")
+                        .HasForeignKey("ClassGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
@@ -2657,7 +2687,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("MaterialDocument");
+                    b.Navigation("Document");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>
@@ -3418,6 +3448,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroup", b =>
+                {
+                    b.Navigation("MaterialFiles");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPack", b =>

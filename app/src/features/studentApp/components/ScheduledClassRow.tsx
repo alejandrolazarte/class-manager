@@ -13,12 +13,17 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
+import { Icon } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
+
+const summaryClassName = "flex-row items-start gap-3";
 
 interface ScheduledClassRowProps {
   studentId: string;
   scheduledClass: StudentAppNextClass;
   isToday: boolean;
+  onOpen?: () => void;
 }
 
 function statusOf(scheduledClass: StudentAppNextClass, isToday: boolean): [string, StatusTone] {
@@ -37,28 +42,50 @@ function statusOf(scheduledClass: StudentAppNextClass, isToday: boolean): [strin
   return [translate(isToday ? "student.day.today" : "student.schedule.upcoming"), "primary"];
 }
 
-export function ScheduledClassRow({ studentId, scheduledClass, isToday }: ScheduledClassRowProps) {
+export function ScheduledClassRow({
+  studentId,
+  scheduledClass,
+  isToday,
+  onOpen,
+}: ScheduledClassRowProps) {
   const { toggleAbsence, isPending } = useAbsenceNotice();
   const { toggleMakeup, pendingKey } = useMakeupBooking();
   const packClassBooking = usePackClassBooking();
   const { isCancelled, absenceNotified } = scheduledClass;
   const [statusLabel, statusTone] = statusOf(scheduledClass, isToday);
   const isDimmed = isCancelled || absenceNotified;
+  const summary = (
+    <>
+      <View className="min-w-0 flex-1 gap-0.5">
+        <AppText
+          variant="heading"
+          tone={isDimmed ? "muted" : "default"}
+          className={isDimmed ? "line-through" : ""}
+        >{`${scheduledClass.startTime}–${scheduledClass.endTime}`}</AppText>
+        <AppText variant="caption" tone="muted">
+          {classDetails(scheduledClass)}
+        </AppText>
+      </View>
+      <StatusPill isSmall label={statusLabel} tone={statusTone} />
+    </>
+  );
   return (
     <HairlineRow isDimmed={isDimmed} className="gap-2.5 py-3">
-      <View className="flex-row items-start gap-3">
-        <View className="min-w-0 flex-1 gap-0.5">
-          <AppText
-            variant="heading"
-            tone={isDimmed ? "muted" : "default"}
-            className={isDimmed ? "line-through" : ""}
-          >{`${scheduledClass.startTime}–${scheduledClass.endTime}`}</AppText>
-          <AppText variant="caption" tone="muted">
-            {classDetails(scheduledClass)}
-          </AppText>
-        </View>
-        <StatusPill isSmall label={statusLabel} tone={statusTone} />
-      </View>
+      {onOpen === undefined ? (
+        <View className={summaryClassName}>{summary}</View>
+      ) : (
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel={translate("student.classDetail.open", {
+            className: scheduledClass.name,
+          })}
+          onPress={onOpen}
+          className={`${summaryClassName} active:opacity-70`}
+        >
+          {summary}
+          <Icon name="next" size="small" tone="subtle-foreground" />
+        </PressableScale>
+      )}
       {canNotifyAbsence(scheduledClass) ? (
         <View className="self-start">
           <Button

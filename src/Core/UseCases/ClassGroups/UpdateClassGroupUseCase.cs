@@ -16,7 +16,6 @@ public sealed class UpdateClassGroupUseCase(
     IPrivateLessonRepository privateLessonRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar,
-    IDocumentRepository documentRepository,
     IDocumentStorageService documentStorage)
     : IUseCase<UpdateClassGroupCommand, ClassGroupResponse>
 {
@@ -71,24 +70,13 @@ public sealed class UpdateClassGroupUseCase(
             return update.Error!;
         }
 
-        var previousMaterialFile = classGroup.MaterialDocument;
         var material = classGroup.ShareMaterial(details.MaterialUrl);
         if (material.IsFailure)
         {
             return material.Error!;
         }
 
-        var droppedMaterialFile = classGroup.MaterialDocument is null ? previousMaterialFile : null;
-        if (droppedMaterialFile is not null)
-        {
-            documentRepository.Remove(droppedMaterialFile);
-        }
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        if (droppedMaterialFile is not null)
-        {
-            await documentStorage.DeleteFileAsync(droppedMaterialFile, cancellationToken);
-        }
 
         return ClassGroupResponse.From(classGroup, instructor.Value.FullName, enrolledCount, documentStorage);
     }

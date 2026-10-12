@@ -1,17 +1,23 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { ClassMaterialSection } from "@/features/studentApp/components/ClassMaterialSection";
 import { MakeupSection } from "@/features/studentApp/components/MakeupSection";
 import { PackClassSection } from "@/features/studentApp/components/PackClassSection";
 import { ScheduledClassRow } from "@/features/studentApp/components/ScheduledClassRow";
 import { StudentChips } from "@/features/studentApp/components/StudentChips";
 import { WeekStrip } from "@/features/studentApp/components/WeekStrip";
 import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider";
-import { classesOn, monthTitle, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
+import {
+  classesOn,
+  materialOf,
+  monthTitle,
+  shortDayLabel,
+} from "@/features/studentApp/studentAppSchedule";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { addDays, todayIsoDate, weekOf } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -26,6 +32,7 @@ const daysPerWeek = 7;
 const lastWeekOffset = 2;
 
 export function StudentAppClassesScreen() {
+  const router = useRouter();
   const today = todayIsoDate();
   const { data: home, isPending, isError, refetch } = useStudentAppHome();
   useRefetchOnFocus(refetch);
@@ -132,13 +139,25 @@ export function StudentAppClassesScreen() {
                   studentId={student.id}
                   scheduledClass={scheduledClass}
                   isToday={selectedDate === today}
+                  onOpen={
+                    scheduledClass.classGroupId !== null &&
+                    materialOf(student, scheduledClass.classGroupId) !== null
+                      ? () =>
+                          router.push(
+                            routes.studentAppClass({
+                              classGroupId: scheduledClass.classGroupId ?? "",
+                              date: scheduledClass.date,
+                              startTime: scheduledClass.startTime,
+                            }),
+                          )
+                      : undefined
+                  }
                 />
               </AnimatedListItem>
             ))}
           </View>
         )}
       </View>
-      <ClassMaterialSection materials={student.materials} />
       <PackClassSection studentId={student.id} days={days} />
       <MakeupSection studentId={student.id} days={days} />
     </ScrollScreen>
