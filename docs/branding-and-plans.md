@@ -9,9 +9,9 @@ Product decisions on what a business can brand, and which parts could be paid. P
 Decided 2026-10-11, replacing "each user picks a theme, unless the business locks it":
 
 - **The colors belong to the business, not to each user.** Students, families and the team see the theme the business chose; nobody else picks colors.
-- A business **without** a theme (or whose plan doesn't include the brand) shows the default theme (`aqua`) to everyone.
+- A business **without** a theme (or whose plan doesn't include the brand) shows the default theme (`violet`, the Laztty color) to everyone.
 - **Each person still picks light, dark or automatic** in Ajustes → Apariencia. That is comfort and accessibility, not branding, so it is never imposed. The sheet says who chooses the colors.
-- Before sign-in and on the account chooser there is no business yet, so those screens use `aqua`. After entering a business, its colors apply; a person in two businesses sees each one in its own colors, which also tells them apart.
+- Before sign-in and on the account chooser there is no business yet, so those screens use `violet`. After entering a business, its colors apply; a person in two businesses sees each one in its own colors, which also tells them apart.
 - **Each branch has its own theme**, because the brand is stored per business (tenant) and every branch is a business. The brand owner, who enters every branch, sets it in each one.
 
 Why: in branded apps for gyms and studios (Mindbody's branded app, for example) the business sets the colors and logo and members don't change them; the brand is what the business pays for. In Messenger the theme belongs to the conversation and everyone in it sees the same one. Per-user themes are typical of work tools used all day (Slack), and where a company imposes its theme (Microsoft 365, "Prevent users from overriding their theme") only an accessibility option stays personal. Letting students pick and later taking it away when the business pays felt like losing something; if they never pick, there is nothing to lose.
@@ -25,7 +25,7 @@ Why: in branded apps for gyms and studios (Mindbody's branded app, for example) 
 | Business icon from the catalog | Free | Same |
 | Custom logo instead of the catalog icon | Paid, later | Students now see it (welcome screen and Inicio in the student app) |
 
-**When a business stops paying:** the colors stay stored but are no longer applied; everyone falls back to `aqua`. Nothing breaks, and paying again brings the theme back.
+**When a business stops paying:** the colors stay stored but are no longer applied; everyone falls back to `violet`. Nothing breaks, and paying again brings the theme back.
 
 **Status (2026-10-11):** logo, business theme (built-in or own colors, with accent) and welcome screen are built and gated by the `brand` feature of the plan ([brand plan](frontend/20260930-brand/plan.md)). The theme lock ("Usar siempre mi marca") was removed: with no personal theme choice there is nothing to lock.
 

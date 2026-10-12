@@ -7,7 +7,7 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/brand/brandApi");
 
-const builtInThemeNames = ["Agua", "Violeta", "Océano", "Rosa", "Ciruela", "Índigo", "Grafito"];
+const builtInThemeNames = ["Violeta", "Agua", "Océano", "Rosa", "Ciruela", "Índigo", "Grafito"];
 
 describe("When owner opens the brand", () => {
   beforeEach(() => {

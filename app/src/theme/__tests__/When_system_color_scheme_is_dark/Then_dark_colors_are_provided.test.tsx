@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react-native";
 import * as ReactNative from "react-native";
 import { ThemeProvider } from "@/theme/ThemeProvider";
-import { themes } from "@/theme/themes";
+import { defaultThemeName, themes } from "@/theme/themes";
 import { useTheme } from "@/theme/useTheme";
 
 function ColorSchemeProbe() {
@@ -25,6 +25,6 @@ describe("When system color scheme is dark", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getByText(`dark ${themes.aqua.dark.background}`)).toBeTruthy();
+    expect(screen.getByText(`dark ${themes[defaultThemeName].dark.background}`)).toBeTruthy();
   });
 });

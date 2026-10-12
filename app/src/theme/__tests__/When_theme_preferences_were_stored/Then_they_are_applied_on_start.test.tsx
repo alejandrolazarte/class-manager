@@ -4,7 +4,7 @@ import { PersistedThemePreferences } from "@/theme/PersistedThemePreferences";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { themePreferenceStorage } from "@/theme/themePreferenceStorage";
 import { serializeThemePreferences } from "@/theme/themePreferences";
-import { themes } from "@/theme/themes";
+import { defaultThemeName, themes } from "@/theme/themes";
 import { useTheme } from "@/theme/useTheme";
 
 jest.mock("@/theme/themePreferenceStorage", () => ({
@@ -30,6 +30,6 @@ describe("When theme preferences were stored", () => {
       </ThemeProvider>,
     );
 
-    expect(await screen.findByText(themes.aqua.dark.background)).toBeTruthy();
+    expect(await screen.findByText(themes[defaultThemeName].dark.background)).toBeTruthy();
   });
 });
