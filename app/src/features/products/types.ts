@@ -24,6 +24,7 @@ export interface Product {
 export interface VariantChange {
   id: string | null;
   name: string;
+  initialStock?: number;
 }
 
 export interface SaveProductRequest {
@@ -36,6 +37,10 @@ export interface SaveProductRequest {
 }
 
 export type StockMovementKind = "Restock" | "Adjustment" | "Sale" | "Refund";
+
+export type StockLoadKind = Extract<StockMovementKind, "Restock" | "Adjustment">;
+
+export const stockLoadKinds: readonly StockLoadKind[] = ["Restock", "Adjustment"];
 
 export interface RecordStockMovementRequest {
   variantId: string;

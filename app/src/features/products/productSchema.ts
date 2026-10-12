@@ -11,25 +11,22 @@ export const productLimits = {
   variantNameMaximumLength: 30,
   maximumVariantCount: 20,
   maximumImageCount: 5,
+  maximumInitialStock: 10_000,
 } as const;
 
-const variantSeparator = ",";
+export const unnamedVariantStockKey = "";
 
-export function splitVariantNames(variantNamesText: string): string[] {
-  return variantNamesText
-    .split(variantSeparator)
-    .map((variantName) => variantName.trim())
-    .filter((variantName) => variantName.length > 0);
-}
+const decimalRadix = 10;
 
-function hasValidVariantNames(variantNamesText: string): boolean {
-  const variantNames = splitVariantNames(variantNamesText);
+function hasValidVariantNames(variantNames: string[]): boolean {
   const distinctNames = new Set(variantNames.map((variantName) => variantName.toLowerCase()));
   return (
     variantNames.length <= productLimits.maximumVariantCount &&
     distinctNames.size === variantNames.length &&
     variantNames.every(
-      (variantName) => variantName.length <= productLimits.variantNameMaximumLength,
+      (variantName) =>
+        variantName.trim().length > 0 &&
+        variantName.length <= productLimits.variantNameMaximumLength,
     )
   );
 }
@@ -51,8 +48,9 @@ export const productSchema = z.object({
   stockMode: z.enum(["Unlimited", "Tracked", "TrackedWithBackorder"]),
   isVisibleInApp: z.boolean(),
   variantNames: z
-    .string()
+    .array(z.string())
     .refine(hasValidVariantNames, translate("products.validation.variantsInvalid")),
+  initialStock: z.record(z.string(), z.string()),
 });
 
 export type ProductFormValues = z.input<typeof productSchema>;
@@ -73,14 +71,13 @@ export function toProductFormValues(product?: Product): ProductFormValues {
     isVisibleInApp: product?.isVisibleInApp ?? true,
     variantNames: (product?.variants ?? [])
       .map((variant) => variant.name)
-      .filter((variantName) => variantName.length > 0)
-      .join(`${variantSeparator} `),
+      .filter((variantName) => variantName.length > 0),
+    initialStock: {},
   };
 }
 
-function toVariantChanges(variantNamesText: string, product?: Product): VariantChange[] {
+function toVariantChanges(variantNames: string[], product?: Product): VariantChange[] {
   const existingVariants = product?.variants ?? [];
-  const variantNames = splitVariantNames(variantNamesText);
   if (variantNames.length === 0) {
     const unnamedVariant = existingVariants.length === 1 ? existingVariants[0] : undefined;
     return [{ id: unnamedVariant?.id ?? null, name: "" }];
@@ -99,6 +96,21 @@ function toVariantChanges(variantNamesText: string, product?: Product): VariantC
   }));
 }
 
+function initialStockOf(initialStockText: string | undefined): number {
+  const initialStock = Number.parseInt(initialStockText ?? "", decimalRadix);
+  return Number.isNaN(initialStock) ? 0 : initialStock;
+}
+
+function withInitialStock(
+  variants: VariantChange[],
+  initialStock: Record<string, string>,
+): VariantChange[] {
+  return variants.map((variant) => ({
+    ...variant,
+    initialStock: initialStockOf(initialStock[variant.name]),
+  }));
+}
+
 export function toSaveProductRequest(
   formValues: ProductFormValues,
   product?: Product,
@@ -110,6 +122,12 @@ export function toSaveProductRequest(
     price: parseAmount(formValues.price) ?? 0,
     stockMode: formValues.stockMode,
     isVisibleInApp: formValues.isVisibleInApp,
-    variants: toVariantChanges(formValues.variantNames, product),
+    variants:
+      product === undefined
+        ? withInitialStock(
+            toVariantChanges(formValues.variantNames),
+            formValues.stockMode === "Unlimited" ? {} : formValues.initialStock,
+          )
+        : toVariantChanges(formValues.variantNames, product),
   };
 }
