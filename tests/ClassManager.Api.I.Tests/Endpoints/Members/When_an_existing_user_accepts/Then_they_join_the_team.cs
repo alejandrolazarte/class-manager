@@ -11,7 +11,7 @@ public sealed class Then_they_join_the_team(ApiFixture fixture)
         var business = await fixture.SeedBusinessAsync();
         var email = AuthenticationRequests.UniqueEmail();
         using var anonymousClient = fixture.ApiFactory.CreateClient();
-        await anonymousClient.SignUpAsync(AuthenticationRequests.SignUpCommand(email));
+        await anonymousClient.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(email));
         await business.HttpClient.InviteAsync(email, BusinessRole.Viewer);
 
         using var response = await anonymousClient.PostAcceptInvitationAsync(

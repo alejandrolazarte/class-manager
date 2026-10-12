@@ -63,6 +63,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IBrandLogoRepository, BrandLogoRepository>();
         services.AddScoped<IBusinessMemberRepository, BusinessMemberRepository>();
         services.AddScoped<IMemberInvitationRepository, MemberInvitationRepository>();
+        services.AddScoped<IPendingSignUpRepository, PendingSignUpRepository>();
         services.AddScoped<ICustomRoleRepository, CustomRoleRepository>();
         services.AddScoped<IClientAccountRepository, ClientAccountRepository>();
         services.AddScoped<IClientInvitationRepository, ClientInvitationRepository>();

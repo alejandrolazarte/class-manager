@@ -9,7 +9,7 @@ public sealed class Then_refresh_token_no_longer_works(ApiFixture fixture)
     public async Task Then_refresh_token_no_longer_works_Run()
     {
         using var client = fixture.ApiFactory.CreateClient();
-        var tokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var signOutResponse = await client.PostSignOutAsync(tokens.RefreshToken);
         using var repeatedSignOutResponse = await client.PostSignOutAsync(tokens.RefreshToken);
 

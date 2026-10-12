@@ -7,7 +7,7 @@ public sealed class Then_they_are_linked_to_their_instructor(ApiFixture fixture)
     public async Task Then_they_are_linked_to_their_instructor_Run()
     {
         using var anonymousClient = fixture.ApiFactory.CreateClient();
-        var tokens = await anonymousClient.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var tokens = await anonymousClient.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var owner = fixture.CreateClientWithToken(tokens.AccessToken);
 
         var member = await owner.GetCurrentMemberAsync();

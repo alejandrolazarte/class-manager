@@ -10,7 +10,7 @@ public sealed class Then_the_email_uses_the_app_brand(ApiFixture fixture)
     {
         var ownerCommand = AuthenticationRequests.SignUpCommand();
         using var anonymous = fixture.ApiFactory.CreateClient();
-        await anonymous.SignUpAsync(ownerCommand);
+        await anonymous.SignUpAsync(fixture.ApiFactory.EmailTransport, ownerCommand);
 
         await anonymous.RequestPasswordResetLinkAsync(fixture.ApiFactory.EmailTransport, ownerCommand.Email!);
 

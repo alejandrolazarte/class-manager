@@ -1,8 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { e2eEnvironment } from "../support/environment";
-import { SmtpSink } from "../support/smtpSink";
+import { linkTokenSentTo } from "../support/mailbox";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
 import { waitForBrandWelcomeToClose } from "./brandWelcome";
 
@@ -11,18 +10,10 @@ const settleMilliseconds = 800;
 const darkColorScheme = "dark";
 const colorScheme = process.env.SCREENSHOTS_COLOR_SCHEME === darkColorScheme ? "dark" : "light";
 const wrongPassword = "not-the-right-password";
+const signUpEmail = "valeria.sosa@example.com";
+const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s]+)/;
 
 test.use({ locale: "es-AR", timezoneId: demoTimeZoneId, colorScheme });
-
-const smtpSink = new SmtpSink();
-
-test.beforeAll(async () => {
-  await smtpSink.start(e2eEnvironment.smtpPort);
-});
-
-test.afterAll(async () => {
-  await smtpSink.stop();
-});
 
 test("App screens", async ({ page, request }) => {
   const demo = await seedDemoBusiness(request);
@@ -57,13 +48,21 @@ test("App screens", async ({ page, request }) => {
   await page.goto("/sign-up");
   await page.getByLabel("Nombre y apellido").fill("Valeria Sosa");
   await page.getByLabel("Fecha de nacimiento").fill("20061985");
-  await page.getByLabel("Email").fill("valeria.sosa@example.com");
-  await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
+  await page.getByLabel("Email").fill(signUpEmail);
   await capture(page, "00f-registro-tu-cuenta");
 
   await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByLabel("Nombre del negocio").fill("Estudio Valeria");
   await capture(page, "00g-registro-tu-negocio");
+
+  await page.getByRole("button", { name: "Crear cuenta" }).click();
+  await page.getByText("Revisá tu email").filter({ visible: true }).first().waitFor();
+  await capture(page, "00h-registro-revisa-tu-email");
+
+  const signUpToken = await linkTokenSentTo(signUpEmail, completeSignUpLinkPattern);
+  await page.goto(`/complete-sign-up?token=${encodeURIComponent(signUpToken)}`);
+  await page.getByText("Elegí tu contraseña").filter({ visible: true }).first().waitFor();
+  await capture(page, "00i-registro-elegir-contrasena");
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(demo.email);

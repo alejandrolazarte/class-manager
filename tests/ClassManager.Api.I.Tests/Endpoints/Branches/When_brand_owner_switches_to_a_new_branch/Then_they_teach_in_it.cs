@@ -11,7 +11,7 @@ public sealed class Then_they_teach_in_it(ApiFixture fixture)
     public async Task Then_they_teach_in_it_Run()
     {
         using var client = fixture.ApiFactory.CreateClient();
-        var tokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
         await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
         var branch = await ownerClient.CreateBranchAsync("DF Valencia");

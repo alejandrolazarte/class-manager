@@ -28,16 +28,6 @@ export const signUpSchema = z.object({
     authenticationLimits.emailMaximumLength,
     translate("authentication.validation.emailInvalid"),
   ),
-  password: z
-    .string()
-    .min(
-      authenticationLimits.passwordMinimumLength,
-      translate("authentication.validation.passwordTooShort"),
-    )
-    .max(
-      authenticationLimits.passwordMaximumLength,
-      translate("authentication.validation.passwordTooLong"),
-    ),
   ownerBirthDate: z
     .string()
     .trim()
@@ -67,7 +57,6 @@ export type SignUpFormValues = z.input<typeof signUpSchema>;
 export const signUpFieldNames = [
   "ownerFullName",
   "email",
-  "password",
   "ownerBirthDate",
   "businessName",
   "timeZoneId",
@@ -77,7 +66,6 @@ export function toSignUpRequest(formValues: SignUpFormValues, currencyCode: stri
   return {
     ownerFullName: formValues.ownerFullName.trim(),
     email: formValues.email.trim(),
-    password: formValues.password,
     businessName: formValues.businessName.trim(),
     countryCode: formValues.countryCode,
     timeZoneId: formValues.timeZoneId,

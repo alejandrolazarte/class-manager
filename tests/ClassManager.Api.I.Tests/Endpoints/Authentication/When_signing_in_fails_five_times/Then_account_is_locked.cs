@@ -12,7 +12,7 @@ public sealed class Then_account_is_locked(ApiFixture fixture)
     {
         using var client = fixture.ApiFactory.CreateClient();
         var command = AuthenticationRequests.SignUpCommand();
-        await client.SignUpAsync(command);
+        await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         for (var attempt = 0; attempt < MaximumFailedAttempts; attempt++)
         {
             using var failedResponse = await client.PostSignInAsync(command.Email!, AuthenticationRequests.WrongPassword);

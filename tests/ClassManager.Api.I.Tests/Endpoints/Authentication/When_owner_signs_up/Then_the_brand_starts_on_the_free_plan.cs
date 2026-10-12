@@ -12,7 +12,7 @@ public sealed class Then_the_brand_starts_on_the_free_plan(ApiFixture fixture)
         var businessName = $"Free brand {Guid.NewGuid():N}";
         using var anonymousClient = fixture.ApiFactory.CreateClient();
 
-        await anonymousClient.SignUpAsync(AuthenticationRequests.SignUpCommand(businessName: businessName));
+        await anonymousClient.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(businessName: businessName));
 
         await using var context = fixture.CreateDbContext(Guid.Empty);
         var organizationId = await context.Organizations.Where(organization => organization.Name == businessName).Select(organization => organization.Id).SingleAsync();

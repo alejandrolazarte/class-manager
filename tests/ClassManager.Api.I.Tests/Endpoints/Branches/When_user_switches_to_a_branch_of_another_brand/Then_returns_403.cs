@@ -7,7 +7,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
     public async Task Then_returns_403_Run()
     {
         using var client = fixture.ApiFactory.CreateClient();
-        var tokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         var otherBusiness = await fixture.SeedBusinessAsync();
 
         using var response = await client.PostSwitchBranchAsync(tokens.RefreshToken, otherBusiness.Business.Id);

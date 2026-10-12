@@ -31,6 +31,7 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
             Id = Guid.CreateVersion7(),
             UserName = account.Email,
             Email = account.Email,
+            EmailConfirmed = true,
             FullName = account.FullName,
             BirthDate = account.BirthDate,
         };

@@ -6,6 +6,8 @@ namespace ClassManager.Infrastructure.Email;
 internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
 {
     public const string WebAppUrlSetting = "WebApp:Url";
+    public const string SignInPath = "/sign-in";
+    public const string CompleteSignUpPath = "/complete-sign-up?token=";
     public const string ResetPasswordPath = "/reset-password?token=";
     public const string ConfirmEmailChangePath = "/confirm-email-change?token=";
     public const string AcceptInvitationPath = "/accept-invitation?token=";
@@ -16,6 +18,11 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public const string WebFontsPath = "/fonts/";
 
     private const string MissingWebAppUrlMessage = "Set " + WebAppUrlSetting + " to the web app address.";
+
+    public string SignIn() => WebAppUrl() + SignInPath;
+
+    public string CompleteSignUp(string token) =>
+        WebAppUrl() + CompleteSignUpPath + Uri.EscapeDataString(token);
 
     public string ResetPassword(string token) =>
         WebAppUrl() + ResetPasswordPath + Uri.EscapeDataString(token);

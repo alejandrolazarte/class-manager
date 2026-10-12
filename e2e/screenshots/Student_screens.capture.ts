@@ -1,8 +1,6 @@
 import { expect, Page, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { e2eEnvironment } from "../support/environment";
-import { SmtpSink } from "../support/smtpSink";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
 import {
   inviteOwnerAsStudent,
@@ -23,16 +21,6 @@ test.use({
   timezoneId: demoTimeZoneId,
   colorScheme,
   permissions: ["notifications"],
-});
-
-const smtpSink = new SmtpSink();
-
-test.beforeAll(async () => {
-  await smtpSink.start(e2eEnvironment.smtpPort);
-});
-
-test.afterAll(async () => {
-  await smtpSink.stop();
 });
 
 const shortWeekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
@@ -79,7 +67,7 @@ async function askForNotificationsLikeAFreshBrowser(page: Page): Promise<void> {
 test("Student screens", async ({ page, request }) => {
   await askForNotificationsLikeAFreshBrowser(page);
   const demo = await seedDemoBusiness(request);
-  const student = await seedDemoStudentApp(request, demo, smtpSink);
+  const student = await seedDemoStudentApp(request, demo);
   mkdirSync(outputDirectory, { recursive: true });
 
   await page.goto("/sign-in");
@@ -167,7 +155,7 @@ test("Student screens", async ({ page, request }) => {
 
 test("Account chooser", async ({ page, request }) => {
   const demo = await seedDemoBusiness(request);
-  await inviteOwnerAsStudent(request, demo, smtpSink);
+  await inviteOwnerAsStudent(request, demo);
   mkdirSync(outputDirectory, { recursive: true });
 
   await page.goto("/sign-in");
@@ -185,7 +173,7 @@ test("Account chooser", async ({ page, request }) => {
 
 test("Team screens with student activity", async ({ page, request }) => {
   const demo = await seedDemoBusiness(request);
-  await seedDemoStudentApp(request, demo, smtpSink);
+  await seedDemoStudentApp(request, demo);
   mkdirSync(outputDirectory, { recursive: true });
 
   await page.goto("/sign-in");

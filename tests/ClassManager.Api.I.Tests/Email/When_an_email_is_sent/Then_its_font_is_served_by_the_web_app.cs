@@ -12,7 +12,7 @@ public sealed class Then_its_font_is_served_by_the_web_app(ApiFixture fixture)
     {
         var ownerCommand = AuthenticationRequests.SignUpCommand();
         using var anonymous = fixture.ApiFactory.CreateClient();
-        await anonymous.SignUpAsync(ownerCommand);
+        await anonymous.SignUpAsync(fixture.ApiFactory.EmailTransport, ownerCommand);
         var webAppUrl = fixture.ApiFactory.Services.GetRequiredService<IConfiguration>()[WebAppLinks.WebAppUrlSetting]!.TrimEnd('/');
 
         await anonymous.RequestPasswordResetLinkAsync(fixture.ApiFactory.EmailTransport, ownerCommand.Email!);

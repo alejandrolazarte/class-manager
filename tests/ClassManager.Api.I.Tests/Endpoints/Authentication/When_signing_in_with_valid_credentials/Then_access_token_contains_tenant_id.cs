@@ -13,7 +13,7 @@ public sealed class Then_access_token_contains_tenant_id(ApiFixture fixture)
     {
         using var client = fixture.ApiFactory.CreateClient();
         var command = AuthenticationRequests.SignUpCommand();
-        await client.SignUpAsync(command);
+        await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         await using var context = fixture.CreateDbContext(Guid.Empty);
         var business = await context.Businesses.SingleAsync(business => business.Name == command.BusinessName);
 
