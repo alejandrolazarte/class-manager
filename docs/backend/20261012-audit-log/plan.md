@@ -22,7 +22,17 @@ Prices are approximate (checked 2026-10-12). Check the Azure Table Storage prici
 
 The account is the same storage account as Blob Storage ([storage](../../storage.md)), so there is nothing new to deploy except the tables. In development and tests it runs on Azurite, which already runs for blob tests.
 
-The trade-off: the command log is written outside the SQL transaction. If the process dies between the commit and the write, the row is lost; if the write fails, the command still succeeded. That is acceptable for an operational audit. If an audit with legal weight is ever needed, write the row to an outbox table in the same transaction (as the [background tasks](../20261007-background-tasks/plan.md) do) and copy it to Table Storage from the worker.
+The trade-off: the command log is written outside the SQL transaction. If the process dies between the commit and the write, the row is lost; if the write fails, the command still succeeded. That is acceptable for an operational audit. If an audit with legal weight is ever needed, the [background tasks](../20261007-background-tasks/plan.md) already give the guarantee: queue a `WriteAuditEntryBackgroundTaskCommand` and its handler writes the row to Table Storage.
+
+### Why not the background tasks today
+
+The app already has a durable queue: the `BackgroundTasks` table, its worker and the doorbell. Reusing it was considered and left for later:
+
+- **It costs SQL writes on every command.** A task is inserted, claimed (`ExecuteUpdate`) and deleted: three writes in Azure SQL per command, in the free offer whose allowance is the reason the log goes to Table Storage. Today the table only gets order emails and pushes, a few per day; the log would be every command.
+- **In the transaction it can't see the outcome.** To commit with the command, the audit behavior would have to run inside `CommandTransactionBehavior`. Then an exception rolls back the entry too, and the log never shows the commands that threw. Outside the transaction it is a separate save and the guarantee is gone, so it is only the cost.
+- **Losing a few seconds of entries in a crash is acceptable** for an operational log. Losing an order email is not, which is why emails use the table.
+
+The in-memory channel follows the same shape as the background tasks (queued by the request, written by one worker, drained on shutdown) without touching the database. If the guarantee becomes necessary, switching is one change in the behavior: queue a background task instead of writing to the channel.
 
 ## 1. Audit columns
 
@@ -212,7 +222,7 @@ The writer is a `BackgroundService` inside the API, like the [background tasks](
 - **Scale to zero is not a problem for the writer.** Entries are only produced while the API handles requests, so the container is running exactly when there is something to write, and it drains the channel on shutdown.
 - **The only timed job is retention**, and it runs on the first write of each month instead of on a timer (see [Retention](#retention)).
 
-Move to a Function (fed by a queue) only if the API runs several replicas that should not each write, or if the log has to survive a crash of the API, which the in-memory channel can't promise. In that second case the outbox table in SQL described above is the better fit.
+Move to a Function (fed by a queue) only if the API runs several replicas that should not each write, or if the log has to survive a crash of the API, which the in-memory channel can't promise. In that second case the background tasks described above are the better fit: they already exist and survive a crash.
 
 ## Reading it
 
