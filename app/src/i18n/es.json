@@ -1620,6 +1620,8 @@
   "measurements.form.recorderStudents": "También el alumno",
   "measurements.form.recorderNeedsVisibility": "Para que la cargue el alumno, primero tiene que verla.",
   "measurements.form.create": "Crear medición",
+  "measurements.form.previewTitle": "Así se va a ver el progreso de un alumno",
+  "measurements.form.previewRange": "{from} → {to}",
   "measurements.created": "Medición creada",
   "measurements.duplicateName": "Ya hay una medición con ese nombre",
   "clients.detail.progress": "Avance",

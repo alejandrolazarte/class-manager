@@ -220,15 +220,20 @@ export function NewMeasurementScreen() {
         }
       />
       {preview === null ? null : (
-        <TonalBlock tone="muted" isCompact>
-          <View className="flex-row flex-wrap items-center gap-2">
-            <AppText variant="bodyStrong">
-              {name.trim() || translate("measurements.form.name")}
-            </AppText>
-            <AppText variant="bodyStrong">{preview.value}</AppText>
-            <StatusPill tone={preview.tone} isSmall label={preview.change} />
-          </View>
-        </TonalBlock>
+        <View className="gap-1.5">
+          <AppText variant="label" tone="muted">
+            {translate("measurements.form.previewTitle")}
+          </AppText>
+          <TonalBlock tone="muted" isCompact>
+            <View className="flex-row flex-wrap items-center gap-2">
+              <AppText variant="bodyStrong">
+                {name.trim() || translate("measurements.form.name")}
+              </AppText>
+              <AppText variant="bodyStrong">{preview.range}</AppText>
+              <StatusPill tone={preview.tone} isSmall label={preview.change} />
+            </View>
+          </TonalBlock>
+        </View>
       )}
       <Button
         label={translate("measurements.form.create")}
@@ -245,7 +250,10 @@ function previewOf(kind: MeasurementKind, unit: string, improvesWhen: Improvemen
   const [from, to] = improvesWhen === "Decreases" ? [higher, lower] : [lower, higher];
   const measurement = { kind, unit };
   return {
-    value: formatMeasurementValue(measurement, to),
+    range: translate("measurements.form.previewRange", {
+      from: formatMeasurementValue(measurement, from),
+      to: formatMeasurementValue(measurement, to),
+    }),
     change: formatMeasurementChange(measurement, to - from),
     tone: improvesWhen === "Neither" ? ("neutral" as const) : ("success" as const),
   };
