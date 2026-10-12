@@ -18,7 +18,8 @@ internal static class AuthenticationEndpoints
             .AllowAnonymous()
             .RequireRateLimiting(SecurityServiceCollectionExtensions.AuthenticationRateLimitPolicy);
 
-        authentication.MapPost(ApiRoutes.SignUp, SignUpAsync);
+        authentication.MapPost(ApiRoutes.SignUp, RequestSignUpAsync);
+        authentication.MapPost(ApiRoutes.CompleteSignUp, CompleteSignUpAsync);
         authentication.MapPost(ApiRoutes.SignIn, SignInAsync);
         authentication.MapPost(ApiRoutes.Refresh, RefreshAsync);
         authentication.MapPost(ApiRoutes.SignOut, SignOutAsync);
@@ -45,9 +46,19 @@ internal static class AuthenticationEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> SignUpAsync(
-        SignUpOwnerCommand command,
-        IUseCase<SignUpOwnerCommand, TokenResponse> useCase,
+    private static async Task<IResult> RequestSignUpAsync(
+        RequestSignUpCommand command,
+        IUseCase<RequestSignUpCommand, RequestSignUpResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.Accepted((string?)null));
+    }
+
+    private static async Task<IResult> CompleteSignUpAsync(
+        CompleteSignUpCommand command,
+        IUseCase<CompleteSignUpCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);

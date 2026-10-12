@@ -16,14 +16,17 @@ public sealed class Then_no_user_is_left_behind(ApiFixture fixture)
     {
         var businessName = AuthenticationRequests.UniqueBusinessName();
         using var client = fixture.ApiFactory.CreateClient();
-        await client.SignUpAsync(AuthenticationRequests.SignUpCommand(businessName: businessName));
+        await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(businessName: businessName));
         using var factoryWithoutSlugCheck = fixture.ApiFactory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
             services.Replace(ServiceDescriptor.Scoped<IBusinessRepository>(serviceProvider =>
                 new SlugCheckSkippingBusinessRepository(ActivatorUtilities.CreateInstance<BusinessRepository>(serviceProvider))))));
         using var clientWithoutSlugCheck = factoryWithoutSlugCheck.CreateClient();
         var email = AuthenticationRequests.UniqueEmail();
+        var token = await clientWithoutSlugCheck.RequestSignUpLinkAsync(
+            fixture.ApiFactory.EmailTransport,
+            AuthenticationRequests.SignUpCommand(email, businessName));
 
-        using var response = await clientWithoutSlugCheck.PostSignUpAsync(AuthenticationRequests.SignUpCommand(email, businessName));
+        using var response = await clientWithoutSlugCheck.PostCompleteSignUpAsync(token);
 
         response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         await using var securityContext = fixture.CreateSecurityDbContext();

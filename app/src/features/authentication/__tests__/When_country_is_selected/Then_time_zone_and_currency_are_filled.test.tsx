@@ -1,8 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { signUp } from "@/features/authentication/authenticationApi";
+import { requestSignUp } from "@/features/authentication/authenticationApi";
 import { SignUpScreen } from "@/features/authentication/screens/SignUpScreen";
 import { translate } from "@/i18n/translate";
-import { buildTokenResponse } from "@/testing/authenticationFactory";
 import { fillSignUpForm, submitSignUpForm } from "@/testing/fillAuthenticationForms";
 import { mockRefreshTokenStorage } from "@/testing/refreshTokenStorageMock";
 import { renderWithSession } from "@/testing/renderWithSession";
@@ -13,7 +12,7 @@ jest.mock("@/features/authentication/sessionStorage");
 describe("When country is selected", () => {
   beforeEach(() => {
     mockRefreshTokenStorage(null);
-    jest.mocked(signUp).mockResolvedValue(buildTokenResponse());
+    jest.mocked(requestSignUp).mockResolvedValue(undefined);
   });
 
   it("Then time zone and currency are filled", async () => {
@@ -23,7 +22,7 @@ describe("When country is selected", () => {
     await submitSignUpForm();
 
     await waitFor(() =>
-      expect(signUp).toHaveBeenCalledWith(
+      expect(requestSignUp).toHaveBeenCalledWith(
         expect.objectContaining({
           countryCode: "UY",
           timeZoneId: "America/Montevideo",

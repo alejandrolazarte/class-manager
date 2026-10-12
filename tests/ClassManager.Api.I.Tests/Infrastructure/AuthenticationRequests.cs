@@ -10,34 +10,53 @@ public static class AuthenticationRequests
     public const string WrongPassword = "not the right passphrase";
 
     public const string SignUpRoute = ApiRoutes.Authentication + ApiRoutes.SignUp;
+    public const string CompleteSignUpRoute = ApiRoutes.Authentication + ApiRoutes.CompleteSignUp;
     public const string SignInRoute = ApiRoutes.Authentication + ApiRoutes.SignIn;
     public const string RefreshRoute = ApiRoutes.Authentication + ApiRoutes.Refresh;
     public const string SignOutRoute = ApiRoutes.Authentication + ApiRoutes.SignOut;
     public const string PasswordResetRoute = ApiRoutes.Authentication + ApiRoutes.PasswordReset;
     public const string PasswordResetRequestRoute = ApiRoutes.Authentication + ApiRoutes.PasswordResetRequest;
     public const string WebAppResetPasswordUrl = "http://localhost:8081/reset-password?token=";
+    public const string WebAppCompleteSignUpUrl = "http://localhost:8081/complete-sign-up?token=";
 
     public static string UniqueEmail() => $"owner-{Guid.NewGuid():N}@example.com";
 
     public static string UniqueBusinessName() => $"Panadería {Guid.NewGuid():N}";
 
-    public static SignUpOwnerCommand SignUpCommand(string? email = null, string? businessName = null) =>
+    public static RequestSignUpCommand SignUpCommand(string? email = null, string? businessName = null) =>
         new(
             OwnerFullName,
             email ?? UniqueEmail(),
-            OwnerPassword,
             businessName ?? UniqueBusinessName(),
             ApiFixture.ArgentinaCountryCode,
             ApiFixture.BuenosAiresTimeZoneId,
             ApiFixture.CurrencyCode,
             AdultBirthDate);
 
-    public static Task<HttpResponseMessage> PostSignUpAsync(this HttpClient httpClient, SignUpOwnerCommand command) =>
+    public static Task<HttpResponseMessage> PostSignUpAsync(this HttpClient httpClient, RequestSignUpCommand command) =>
         httpClient.PostAsJsonAsync(SignUpRoute, command, ApiRequests.JsonOptions);
 
-    public static async Task<TokenResponse> SignUpAsync(this HttpClient httpClient, SignUpOwnerCommand command)
+    public static Task<HttpResponseMessage> PostCompleteSignUpAsync(this HttpClient httpClient, string token, string password = OwnerPassword) =>
+        httpClient.PostAsJsonAsync(CompleteSignUpRoute, new CompleteSignUpCommand(token, password), ApiRequests.JsonOptions);
+
+    public static async Task<string> RequestSignUpLinkAsync(this HttpClient httpClient, RecordingEmailTransport emailTransport, RequestSignUpCommand command)
     {
         using var response = await httpClient.PostSignUpAsync(command);
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
+        return emailTransport.SignUpTokenSentTo(command.Email!);
+    }
+
+    public static string SignUpTokenSentTo(this RecordingEmailTransport emailTransport, string email)
+    {
+        var body = emailTransport.SentTo(email)[^1].TextBody;
+        var link = body.Split('\n').Single(line => line.StartsWith(WebAppCompleteSignUpUrl, StringComparison.Ordinal));
+        return Uri.UnescapeDataString(link[WebAppCompleteSignUpUrl.Length..]);
+    }
+
+    public static async Task<TokenResponse> SignUpAsync(this HttpClient httpClient, RecordingEmailTransport emailTransport, RequestSignUpCommand command)
+    {
+        var token = await httpClient.RequestSignUpLinkAsync(emailTransport, command);
+        using var response = await httpClient.PostCompleteSignUpAsync(token);
         response.EnsureSuccessStatusCode();
         return await response.ReadTokensAsync();
     }

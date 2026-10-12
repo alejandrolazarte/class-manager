@@ -18,7 +18,7 @@ public sealed class Then_the_brand_starts_on_that_plan(ApiFixture fixture)
             new Dictionary<string, string> { [SubscriptionSettings.SignUpPlan] = PlanCodes.Pro });
         using var anonymousClient = apiFactory.CreateClient();
 
-        await anonymousClient.SignUpAsync(AuthenticationRequests.SignUpCommand(businessName: businessName));
+        await anonymousClient.SignUpAsync(apiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(businessName: businessName));
 
         await using var context = fixture.CreateDbContext(Guid.Empty);
         var organizationId = await context.Organizations.Where(organization => organization.Name == businessName).Select(organization => organization.Id).SingleAsync();

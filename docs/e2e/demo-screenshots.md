@@ -38,7 +38,9 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `00a-bienvenida` | Welcome, before signing in |
 | `00b-ingresar`, `00c-ingresar-error` | Sign-in, and the banner after a wrong password |
 | `00d-olvide-mi-contrasena`, `00e-olvide-mi-contrasena-enviado` | Forgot password, and the message after the link is sent |
-| `00f-registro-tu-cuenta`, `00g-registro-tu-negocio` | Sign-up, both steps filled in (nothing is submitted) |
+| `00f-registro-tu-cuenta`, `00g-registro-tu-negocio` | Sign-up, both steps filled in |
+| `00h-registro-revisa-tu-email` | After sending the sign-up: the email to confirm |
+| `00i-registro-elegir-contrasena` | The confirmation link: choose the password (not submitted, so no account is created) |
 | `01-inicio` | Inicio: next class and today's agenda |
 | `01b-inicio-mes` | Inicio in month view |
 | `01d-clase-particular` | A private lesson |
@@ -67,7 +69,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `18-apariencia` | Appearance sheet in Ajustes |
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
 
-The forgot password request sends an email, so this capture starts the same SMTP sink as the student app screens.
+Emails (forgot password, the sign-up link) go to the SMTP sink every run starts (see [Running the e2e tests](running-e2e-tests.md)).
 
 When a new screen is added, add a row to `screens` in `e2e/screenshots/App_screens.capture.ts` with the path and a text that proves it finished loading. When a built-in theme is added, add it to `themes` in the same file.
 
@@ -76,7 +78,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 `e2e/screenshots/Student_screens.capture.ts` captures the app that students and parents use. On top of the demo business it loads (`demoStudentApp.ts`):
 
 - Five shop products: a T-shirt with sizes and one size sold out, a cap and a bottle with unlimited stock, a hoodie made to order, and a sold-out towel.
-- An app invitation for the Pérez client, accepted through the API. The invitation link only travels by email, so the test starts a small SMTP sink (`e2e/support/smtpSink.ts`) and the screenshots config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
+- An app invitation for the Pérez client, accepted through the API. The invitation link only travels by email, so it is read from the SMTP sink every run starts (`e2e/support/globalSetup.ts`, `e2e/support/mailbox.ts`); the Playwright config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
 - Attendance in Natación inicial for every past class of the month: Lucía never misses, Tomás missed the class two weeks ago, so each shows a different streak.
 - A comment from the instructor for each student: Lucía's on her last past class, Tomás's on today's class.
 - Two announcements from the school, and next week's Natación inicial class cancelled for a holiday.
@@ -118,7 +120,7 @@ Run only these with `pnpm screenshots:no-build Student_screens`.
 
 ## Invitation flows
 
-`e2e/screenshots/Invitation_flows.capture.ts` captures who can use the app and how each person gets in (see [Ages and minors](../ages-and-minors.md)). It signs up its own business ("Natación Olas") with the Pérez family: Ana, the client who pays and already uses the app, Lucía (14) and Tomás (11), plus Marta Ruiz, who is invited with an email that already has an account. Emails go through the same SMTP sink as the student app screens.
+`e2e/screenshots/Invitation_flows.capture.ts` captures who can use the app and how each person gets in (see [Ages and minors](../ages-and-minors.md)). It signs up its own business ("Natación Olas") with the Pérez family: Ana, the client who pays and already uses the app, Lucía (14) and Tomás (11), plus Marta Ruiz, who is invited with an email that already has an account. Emails go through the same SMTP sink.
 
 ```powershell
 cd e2e
@@ -173,5 +175,7 @@ Business emails are rendered with four brands of "Escuela Brazada": `sin-marca` 
 | `11-elegir-contrasena` | Password reset (app brand) |
 | `12-confirmar-email-nuevo` | Confirm a new sign-in email (app brand) |
 | `13-email-cambiado` | Notice to the old address after the email changed (app brand) |
+| `14-confirmar-registro` | Confirm the email and choose a password to create the business (app brand) |
+| `15-registro-con-cuenta-existente` | Sign-up with an email that already has an account (app brand) |
 
 When a new email is added, add it to `EmailPreviewCatalog` in `tools/EmailPreviews` and to this table.

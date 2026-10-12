@@ -38,10 +38,6 @@ export async function fillSignUpForm(): Promise<void> {
     screen.getByLabelText(translate("authentication.signUp.email")),
     ownerEmail,
   );
-  await fireEvent.changeText(
-    screen.getByLabelText(translate("authentication.signUp.password")),
-    ownerPassword,
-  );
   await fireEvent.press(screen.getByRole("button", { name: translate("common.continue") }));
   await fireEvent.changeText(
     await screen.findByLabelText(translate("authentication.signUp.businessName")),

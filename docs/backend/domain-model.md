@@ -106,7 +106,7 @@ Indexes: unique `(TenantId, ClientId, FullName)` and `(TenantId, FullName)` for 
 | `FullName` | `string` | Required, trimmed, 2–120 characters, **unique per business** |
 | `IsActive` | `bool` | Can't be deactivated while teaching active class groups |
 
-Sign up creates the owner as the first instructor.
+Completing the sign-up (the link in the confirmation email) creates the owner as the first instructor.
 
 ### ClassGroup (added in M2)
 
@@ -326,7 +326,7 @@ Rules:
 - `IgnoreQueryFilters()` is forbidden outside `Infrastructure`. Enforced by the Roslyn analyzer ARCH002 (see [analyzers.md](../analyzers.md)).
 - Every new tenant-owned entity needs an integration test in `When_<entity>_belongs_to_another_business/Then_it_is_not_returned.cs`.
 - `ITenantContext` is `ClaimsTenantContext`: it reads the `tenant_id` claim of the signed-in user in every environment. HTTP tests authenticate with a real token issued for a test owner; `FixedTenantContext` is used for direct database access.
-- Sign up creates a business before any token exists, so the use case calls `ITenantScope.Establish(tenantId)` for the new business; the stamping interceptor then accepts the owner's `BusinessMember`. A request can only establish one business.
+- Completing the sign-up creates a business before any token exists, so the use case calls `ITenantScope.Establish(tenantId)` for the new business; the stamping interceptor then accepts the owner's `BusinessMember`. A request can only establish one business.
 - Sign in and refresh look up `BusinessMember` by user id with `IgnoreQueryFilters()` inside `Infrastructure` (`BusinessMemberRepository`), because there is no tenant yet.
 - A missing or invalid tenant surfaces as `TenantNotResolvedException`, which the global exception handler maps to `401 ProblemDetails`.
 

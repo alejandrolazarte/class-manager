@@ -8,7 +8,7 @@ public sealed class Then_all_sessions_are_revoked(ApiFixture fixture)
     {
         using var client = fixture.ApiFactory.CreateClient();
         var command = AuthenticationRequests.SignUpCommand();
-        var firstSession = await client.SignUpAsync(command);
+        var firstSession = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         var secondSession = await client.SignInAsync(command.Email!);
         using var rotationResponse = await client.PostRefreshAsync(firstSession.RefreshToken);
         var rotatedFirstSession = await rotationResponse.ReadTokensAsync();

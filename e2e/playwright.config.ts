@@ -9,6 +9,7 @@ const businessTimeZoneId = "America/Argentina/Buenos_Aires";
 export default defineConfig({
   testDir: "./tests",
   testMatch: "**/*.spec.ts",
+  globalSetup: "./support/globalSetup.ts",
   timeout: testTimeoutMilliseconds,
   forbidOnly: e2eEnvironment.isContinuousIntegration,
   retries: e2eEnvironment.isContinuousIntegration ? 1 : 0,
@@ -41,6 +42,9 @@ export default defineConfig({
         WebPush__Vapid__Subject: e2eEnvironment.vapidSubject,
         WebPush__Vapid__PublicKey: e2eEnvironment.vapidKeys.publicKey,
         WebPush__Vapid__PrivateKey: e2eEnvironment.vapidKeys.privateKey,
+        Email__Smtp__Host: e2eEnvironment.smtpHost,
+        Email__Smtp__Port: String(e2eEnvironment.smtpPort),
+        Email__Smtp__FromAddress: e2eEnvironment.smtpFromAddress,
       },
     },
     {

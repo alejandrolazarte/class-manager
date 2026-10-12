@@ -12,7 +12,7 @@ public sealed class Then_the_branch_owner_is_emailed(ApiFixture fixture)
     {
         var ownerCommand = AuthenticationRequests.SignUpCommand();
         using var anonymous = fixture.ApiFactory.CreateClient();
-        var ownerTokens = await anonymous.SignUpAsync(ownerCommand);
+        var ownerTokens = await anonymous.SignUpAsync(fixture.ApiFactory.EmailTransport, ownerCommand);
         using var owner = fixture.CreateClientWithToken(ownerTokens.AccessToken);
         await fixture.ChangePlanAsync((await owner.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
         var client = await owner.RegisterClientAsync(students: [new NewStudent(ApiRequests.StudentFullName, null, null)]);

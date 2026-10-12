@@ -3,12 +3,16 @@ import { SessionKind } from "@/features/authentication/sessionKind";
 export interface SignUpRequest {
   ownerFullName: string;
   email: string;
-  password: string;
   businessName: string;
   countryCode: string;
   timeZoneId: string;
   currencyCode: string;
   ownerBirthDate: string;
+}
+
+export interface CompleteSignUpRequest {
+  token: string;
+  password: string;
 }
 
 export interface SignInRequest {

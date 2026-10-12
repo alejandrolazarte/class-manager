@@ -27,7 +27,7 @@ public static class AccountRequests
         var instructors = await fixture.SeedInstructorScenarioAsync();
         var email = AuthenticationRequests.UniqueEmail();
         using var anonymous = fixture.ApiFactory.CreateClient();
-        var signUp = await anonymous.SignUpAsync(AuthenticationRequests.SignUpCommand(email));
+        var signUp = await anonymous.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(email));
         using var ownerClient = fixture.CreateClientWithToken(signUp.AccessToken);
         var ownBusiness = (await ownerClient.ListBranchesAsync()).Single();
 

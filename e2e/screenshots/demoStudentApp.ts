@@ -1,7 +1,7 @@
 import { APIRequestContext, expect } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { e2eEnvironment } from "../support/environment";
-import { SmtpSink } from "../support/smtpSink";
+import { waitForEmailTo } from "../support/mailbox";
 import { DemoBusiness, demoPassword } from "./demoBusiness";
 
 export const demoStudentAppPassword = "demo-student-password";
@@ -135,7 +135,6 @@ function nextClassDateAfter(today: string, skippedDate: string): string {
 export async function seedDemoStudentApp(
   request: APIRequestContext,
   demo: DemoBusiness,
-  smtpSink: SmtpSink,
 ): Promise<DemoStudentApp> {
   async function send<TResponse>(
     method: string,
@@ -257,7 +256,7 @@ export async function seedDemoStudentApp(
   await send("POST", `/api/clients/${demo.studentAppClientId}/app-invitation`, ownerToken, {
     email,
   });
-  const invitation = await smtpSink.waitForEmailTo(email);
+  const invitation = await waitForEmailTo(email, invitationTokenPattern);
   const invitationToken = invitationTokenPattern.exec(invitation.body)?.[1];
   expect(invitationToken, "the invitation email has the accept link").toBeTruthy();
   const { accessToken: studentToken } = await send<{ accessToken: string }>(
@@ -372,7 +371,6 @@ export async function seedDemoStudentApp(
 export async function inviteOwnerAsStudent(
   request: APIRequestContext,
   demo: DemoBusiness,
-  smtpSink: SmtpSink,
 ): Promise<void> {
   const signIn = await request.post(`${e2eEnvironment.apiUrl}/api/auth/sign-in`, {
     data: { email: demo.email, password: demoPassword },
@@ -384,7 +382,7 @@ export async function inviteOwnerAsStudent(
     { data: { email: demo.email }, headers: { Authorization: `Bearer ${accessToken}` } },
   );
   expect(invitation.ok(), "the owner is invited as a student").toBeTruthy();
-  const email = await smtpSink.waitForEmailTo(demo.email);
+  const email = await waitForEmailTo(demo.email, invitationTokenPattern);
   const token = invitationTokenPattern.exec(email.body)?.[1];
   expect(token, "the invitation email has the accept link").toBeTruthy();
   const accepted = await request.post(

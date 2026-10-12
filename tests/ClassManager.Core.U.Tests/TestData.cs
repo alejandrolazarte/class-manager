@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Countries;
@@ -45,6 +46,13 @@ internal static class TestData
 
     public static Client Client() =>
         ClassManager.Core.Domain.Clients.Client.Create(ClientFullName, PhoneNumber(), null, null, Now).Value!;
+
+    public static PendingSignUp PendingSignUp(string tokenHash, DateTimeOffset? createdAt = null) =>
+        ClassManager.Core.Domain.Accounts.PendingSignUp.Start(
+            OwnerProfile.Create(OwnerFullName, OwnerEmail, OwnerBirthDate, Today).Value!,
+            new PendingBusiness(BusinessName, ArgentinaCountryCode, BuenosAiresTimeZoneId, CurrencyCode),
+            tokenHash,
+            createdAt ?? Now);
 
     public static IssuedTokens IssuedTokens() =>
         new("access-token", Now.AddMinutes(15), "refresh-token", Now.AddDays(30));

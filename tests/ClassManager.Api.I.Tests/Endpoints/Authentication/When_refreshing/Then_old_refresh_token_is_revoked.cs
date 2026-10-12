@@ -7,7 +7,7 @@ public sealed class Then_old_refresh_token_is_revoked(ApiFixture fixture)
     public async Task Then_old_refresh_token_is_revoked_Run()
     {
         using var client = fixture.ApiFactory.CreateClient();
-        var signUpTokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var signUpTokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var refreshResponse = await client.PostRefreshAsync(signUpTokens.RefreshToken);
         var refreshedTokens = await refreshResponse.ReadTokensAsync();
 
