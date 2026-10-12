@@ -105,4 +105,7 @@ Nuevo producto, Editar producto, the stock and color sheets and the student prod
 ## Open questions
 
 - The initial stock creates `Restock` movements with no note. If the owner wants to tell them apart in the history, add a note such as "Stock inicial" (a new text) or a movement kind.
-- Whether a combination the business never sells (L Blanco) should be hidden from students instead of shown as sold out. The proposal shows it as sold out; hiding it needs a switch per cell.
+
+## Decided
+
+- Every combination of the sizes and colors the instructor adds is sold; there is no "combination that doesn't exist" to hide (owner, 2026-10-12). Students see all of them: with "Con stock" a combination at 0 shows as sold out, with "Con stock y a pedido" it can still be ordered, and with "Sin stock" it is always available.
