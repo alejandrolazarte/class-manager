@@ -2,7 +2,7 @@
 
 Date: 2026-10-12
 
-Status: proposal, not built. Two pull requests: first the stock in the product form and the size chips, then colors.
+Status: part 1 (stock in the form and size chips) built; part 2 (colors) is a proposal for its own pull request.
 
 Design (Claude artifact, private to the owner): [Stock de productos](https://claude.ai/artifact/1dDSgjMRaLAZ1fkKUApuxv). Boards 1–3 are PR 1, boards 4–7 are PR 2. The texts in the boards are proposals; the ones marked as new below need the owner's OK.
 
@@ -38,14 +38,14 @@ Boards 1, 2 and 3 of the design. No change to how variants are stored.
 - `ProductFormScreen`:
   - "Talles o variantes" uses `TagInput` with the "XS a XXL" and "35 a 45" sets.
   - Below the "Stock" chips, the **Unidades** block, hidden when the stock mode is "Sin stock". Creating: one `NumberStepper` row per size (one row titled "Unidades" when there are no sizes), with the total. Editing: the units per size, "Agotado" in danger tone for 0, **Cargar stock**, **Ajustar stock** and "Últimos movimientos".
-- `StockMovementSheet` (new, in `features/products/components`): the restock or adjustment form of today's `StockPanel` in a `BottomSheet`, with a `SegmentedControl` for Cargar / Ajustar, the size chips with their current units, a `NumberStepper`, the note (required as "Motivo" when adjusting, button disabled until it is filled) and the preview "L: 0 → 10". It keeps today's validation messages and the "Stock actualizado" toast.
-- `StockPanel` is deleted with its tests that only covered its layout; the behavior tests move to the sheet.
+- `StockMovementSheet` (new, in `features/products/components`): the restock or adjustment form of today's `StockPanel` in a `BottomSheet`, with a `SegmentedControl` for Cargar / Ajustar, the size chips with their current units, the quantity and note fields of today's panel (the note is required as "Motivo" when adjusting, and the button stays disabled until it is filled). It keeps today's validation messages and the "Stock actualizado" toast, and closes after saving. The design's stepper and "L: 0 → 10" preview were left out to keep today's fields and texts; they can come later.
+- `StockPanel` is deleted (it had no tests); the new behavior tests cover loading stock from the sheet and the disabled adjustment without a reason.
 
 ### Texts
 
 Reused as they are: "Stock", "Unidades", "{count} unidades", "Agotado", "Cargar", "Ajustar", "Cargar stock", "Ajustar stock", "Unidades que llegaron", "Diferencia (por ejemplo -1)", "Nota", "Motivo", "Últimos movimientos", "Stock actualizado".
 
-New (to confirm): "Las que tenés hoy de cada talle.", "Agregar", "Por ejemplo: XL o 38" (replaces "S, M, L" as the placeholder), "XS a XXL", "35 a 45", "Ya agregaste {name}". `products.form.variantsPlaceholder` is removed.
+New (to confirm): "Las que tenés hoy de cada talle.", "Agregar", "Por ejemplo: XL o 38" (replaces "S, M, L" as the placeholder), "XS a XXL", "35 a 45", "Ya agregaste {name}", and the accessibility labels "Quitar {name}", "Restar a {name}" and "Sumar a {name}". The sizes validation drops "separados por comas": "Hasta 20 talles distintos, de hasta 30 caracteres cada uno". `products.stock.title` ("Stock", used only by the old panel) is removed.
 
 ### Tests
 

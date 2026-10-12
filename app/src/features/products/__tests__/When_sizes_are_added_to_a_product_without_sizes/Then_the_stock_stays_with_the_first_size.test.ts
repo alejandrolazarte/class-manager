@@ -6,7 +6,7 @@ describe("When sizes are added to a product without sizes", () => {
     const product = buildProduct();
 
     const request = toSaveProductRequest(
-      { ...toProductFormValues(product), variantNames: "Único, XL" },
+      { ...toProductFormValues(product), variantNames: ["Único", "XL"] },
       product,
     );
 

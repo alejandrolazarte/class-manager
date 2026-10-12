@@ -1,13 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { catalogImageSaveMessageKey } from "@/features/catalogImages/catalogImageSaveMessage";
 import { CatalogImageField } from "@/features/catalogImages/components/CatalogImageField";
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
-import { StockPanel } from "@/features/products/components/StockPanel";
+import { InitialStockFields } from "@/features/products/components/InitialStockFields";
+import { ProductStockSection } from "@/features/products/components/ProductStockSection";
 import { productErrorCodes } from "@/features/products/productErrorCodes";
 import {
   productFieldNames,
@@ -32,6 +33,7 @@ import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
+import { TagInput } from "@/ui/TagInput";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
@@ -39,6 +41,17 @@ import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
+const letterSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+const firstNumberSize = 35;
+const lastNumberSize = 45;
+const numberSizes = Array.from({ length: lastNumberSize - firstNumberSize + 1 }, (_, index) =>
+  String(firstNumberSize + index),
+);
+const sizeSuggestions = [...letterSizes, ...numberSizes];
+const sizePresets = [
+  { label: translate("products.form.variantsLetters"), values: letterSizes },
+  { label: translate("products.form.variantsNumbers"), values: numberSizes },
+];
 
 interface ProductFormScreenProps {
   productId?: string;
@@ -49,7 +62,7 @@ interface ProductEditorProps {
 }
 
 interface ProductFieldOptions {
-  name: "name" | "description" | "price" | "variantNames";
+  name: "name" | "description" | "price";
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
   isMultiline?: boolean;
@@ -71,6 +84,8 @@ function ProductEditor({ product }: ProductEditorProps) {
     mode: "onTouched",
   });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["name", "price"]);
+  const stockMode = useWatch({ control: form.control, name: "stockMode" });
+  const variantNames = useWatch({ control: form.control, name: "variantNames" });
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -165,11 +180,25 @@ function ProductEditor({ product }: ProductEditorProps) {
         keyboardType: "decimal-pad",
         isRequired: true,
       })}
-      {renderField({
-        name: "variantNames",
-        labelKey: "products.form.variants",
-        placeholderKey: "products.form.variantsPlaceholder",
-      })}
+      <Controller
+        control={form.control}
+        name="variantNames"
+        render={({ field, fieldState }) => (
+          <TagInput
+            label={translate("products.form.variants")}
+            values={field.value}
+            onChange={field.onChange}
+            addLabel={translate("products.form.variantsAdd")}
+            removeLabelOf={(name) => translate("products.form.variantRemove", { name })}
+            duplicateMessageOf={(name) => translate("products.form.variantRepeated", { name })}
+            placeholder={translate("products.form.variantsPlaceholder")}
+            suggestions={sizeSuggestions}
+            presets={sizePresets}
+            maximumLength={productLimits.variantNameMaximumLength}
+            errorMessage={fieldState.error?.message}
+          />
+        )}
+      />
       {renderField({
         name: "description",
         labelKey: "products.form.description",
@@ -204,6 +233,22 @@ function ProductEditor({ product }: ProductEditorProps) {
           </View>
         )}
       />
+      {product === undefined && stockMode !== "Unlimited" ? (
+        <Controller
+          control={form.control}
+          name="initialStock"
+          render={({ field }) => (
+            <InitialStockFields
+              variantNames={variantNames}
+              initialStock={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      ) : null}
+      {product && product.stockMode !== "Unlimited" ? (
+        <ProductStockSection product={product} />
+      ) : null}
       <Controller
         control={form.control}
         name="isVisibleInApp"
@@ -234,7 +279,6 @@ function ProductEditor({ product }: ProductEditorProps) {
           />
         ) : null}
       </View>
-      {product && product.stockMode !== "Unlimited" ? <StockPanel product={product} /> : null}
     </SettingsFormScreenLayout>
   );
 }

@@ -21,6 +21,9 @@ describe("When product is created with sizes", () => {
       screen.getByLabelText(translate("products.form.variants")),
       "S, M, L",
     );
+    await fireEvent.press(
+      screen.getByRole("button", { name: translate("products.form.variantsAdd") }),
+    );
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     await waitFor(() =>
@@ -31,9 +34,9 @@ describe("When product is created with sizes", () => {
         stockMode: "Tracked",
         isVisibleInApp: true,
         variants: [
-          { id: null, name: "S" },
-          { id: null, name: "M" },
-          { id: null, name: "L" },
+          { id: null, name: "S", initialStock: 0 },
+          { id: null, name: "M", initialStock: 0 },
+          { id: null, name: "L", initialStock: 0 },
         ],
       }),
     );
