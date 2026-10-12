@@ -85,6 +85,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - A "No voy" notice for Tomás on his next class after today (skipping the cancelled one).
 - A "Pack Aquagym" of 4 classes valid for Aquagym, sold to the Pérez client, with one Aquagym class booked for Lucía this week.
 - Three student orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
+- Material for Natación inicial: a link and a PDF. The PDF needs file storage: start Azurite and set `ConnectionStrings__FileStorage=UseDevelopmentStorage=true` before running (see [Storage, local development](../storage.md#local-development)); without it the run warns and the class only has the link.
 
 The student signs in through the sign-in screen, then the test captures:
 
@@ -98,6 +99,7 @@ The student signs in through the sign-in screen, then the test captures:
 | `22c-alumno-clase-de-recuperacion` | A booked makeup class in the student schedule |
 | `22d-alumno-recuperar-clases` | Classes to make up, with open slots to book |
 | `22e-alumno-clase-del-pack` | Lucía's booked Aquagym class from her pack, with "Reservar clases del pack": classes left and open dates |
+| `22f-alumno-clase-material` | Today's Natación inicial opened from Clases: the class and its material, link and PDF |
 | `23-alumno-tienda`, `23b-alumno-tienda-productos` | Shop: search, categories, packs and product grid |
 | `24-alumno-producto` | Product sheet with sizes, a sold-out size and quantity |
 | `25-alumno-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |
@@ -114,6 +116,7 @@ The same file also captures two team screens that need student activity, signed 
 | File | Screen |
 |---|---|
 | `01c-avisos` | Team notifications (avisos): the "No voy", the makeup and the orders |
+| `05b-clase-editar-material` | The class form scrolled to "Material para los alumnos", with the link and the PDF |
 | `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment panel of an order open |
 
 Run only these with `pnpm screenshots:no-build Student_screens`.
