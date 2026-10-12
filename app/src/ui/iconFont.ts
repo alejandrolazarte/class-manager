@@ -1,3 +1,3 @@
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-export const iconFontAssets = MaterialIcons.font;
+export const iconFontAssets = Ionicons.font;
