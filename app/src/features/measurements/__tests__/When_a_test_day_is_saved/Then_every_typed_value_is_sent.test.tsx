@@ -7,14 +7,14 @@ import {
 import { ClassTestDayScreen } from "@/features/measurements/screens/ClassTestDayScreen";
 import { getSession } from "@/features/sessions/sessionsApi";
 import { translate, translateCount } from "@/i18n/translate";
-import { buildTimeMeasurement } from "@/testing/measurementFactory";
+import { buildDistanceMeasurement } from "@/testing/measurementFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildSessionDetails, buildSessionStudent, sessionDate } from "@/testing/sessionFactory";
 
 jest.mock("@/features/measurements/measurementsApi");
 jest.mock("@/features/sessions/sessionsApi");
 
-const measurement = buildTimeMeasurement();
+const measurement = buildDistanceMeasurement();
 const firstStudent = buildSessionStudent({
   studentId: "student-1",
   studentFullName: "Tomás Pérez",
@@ -55,7 +55,7 @@ describe("When a test day is saved", () => {
           name: secondStudent.studentFullName,
         }),
       ),
-      "1:02",
+      "12",
     );
     await fireEvent.press(
       screen.getByRole("button", { name: translateCount("measurements.testDay.save", 2) }),
@@ -64,7 +64,7 @@ describe("When a test day is saved", () => {
     await waitFor(() =>
       expect(recordClassMeasurements).toHaveBeenCalledWith(measurement.id, sessionDate, [
         { studentId: firstStudent.studentId, value: 29.7 },
-        { studentId: secondStudent.studentId, value: 62 },
+        { studentId: secondStudent.studentId, value: 12 },
       ]),
     );
   });

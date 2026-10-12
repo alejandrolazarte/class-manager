@@ -1,14 +1,14 @@
 import { ReactNode, useState } from "react";
 import { View } from "react-native";
 import { DateField } from "@/forms/DateField";
-import { areFilled } from "@/forms/requiredFields";
+import { DurationFields } from "@/forms/DurationFields";
+import { isFilled } from "@/forms/requiredFields";
 import {
   formatMeasurementDate,
   formatMeasurementValue,
   kindLabel,
   measurementTrend,
   parseMeasurementNumber,
-  secondsFromTyped,
 } from "@/features/measurements/measurementFormatting";
 import {
   Measurement,
@@ -51,16 +51,13 @@ interface MeasurementRecordFormProps {
 
 function valueOf(
   measurement: Measurement | undefined,
-  minutes: string,
-  seconds: string,
+  timeInSeconds: number | null,
   amount: string,
 ): number | null {
   if (measurement === undefined) {
     return null;
   }
-  return measurement.kind === "Time"
-    ? secondsFromTyped(minutes, seconds)
-    : parseMeasurementNumber(amount);
+  return measurement.kind === "Time" ? timeInSeconds : parseMeasurementNumber(amount);
 }
 
 export function MeasurementRecordForm({
@@ -80,19 +77,15 @@ export function MeasurementRecordForm({
     initialMeasurementId ?? measurements[0]?.id ?? "",
   );
   const [typedDate, setTypedDate] = useState(formatBirthDateForDisplay(todayIsoDate()));
-  const [minutes, setMinutes] = useState("");
-  const [seconds, setSeconds] = useState("");
+  const [timeInSeconds, setTimeInSeconds] = useState<number | null>(null);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [dateError, setDateError] = useState<string | undefined>(undefined);
 
   const measurement = measurements.find((candidate) => candidate.id === measurementId);
-  const value = valueOf(measurement, minutes, seconds, amount);
+  const value = valueOf(measurement, timeInSeconds, amount);
   const isTime = measurement?.kind === "Time";
-  const isReady =
-    measurement !== undefined &&
-    value !== null &&
-    areFilled([typedDate, isTime ? seconds : amount]);
+  const isReady = measurement !== undefined && value !== null && isFilled(typedDate);
   const lastRecord = measurementTrend(
     { improvesWhen: measurement?.improvesWhen ?? "Neither" },
     studentMeasurementsOf(studentId).find((item) => item.measurement.id === measurementId)
@@ -105,8 +98,7 @@ export function MeasurementRecordForm({
   };
   const chooseMeasurement = (chosenMeasurementId: string) => {
     setMeasurementId(chosenMeasurementId);
-    setMinutes("");
-    setSeconds("");
+    setTimeInSeconds(null);
     setAmount("");
   };
 
@@ -180,25 +172,13 @@ export function MeasurementRecordForm({
       />
       {measurement === undefined ? null : isTime ? (
         <View className="gap-1.5">
-          <View className="flex-row gap-2">
-            <View className="flex-1">
-              <TextField
-                label={translate("measurements.recordForm.minutes")}
-                keyboardType="number-pad"
-                value={minutes}
-                onChangeText={setMinutes}
-              />
-            </View>
-            <View className="flex-1">
-              <TextField
-                label={translate("measurements.recordForm.seconds")}
-                isRequired
-                keyboardType="decimal-pad"
-                value={seconds}
-                onChangeText={setSeconds}
-              />
-            </View>
-          </View>
+          <DurationFields
+            minutesLabel={translate("measurements.recordForm.minutes")}
+            secondsLabel={translate("measurements.recordForm.seconds")}
+            isRequired
+            valueInSeconds={timeInSeconds}
+            onChange={setTimeInSeconds}
+          />
           {lastHint ? (
             <AppText variant="caption" tone="subtle">
               {lastHint}
