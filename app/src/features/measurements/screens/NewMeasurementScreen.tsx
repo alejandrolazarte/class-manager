@@ -241,8 +241,8 @@ export function NewMeasurementScreen() {
 }
 
 function previewOf(kind: MeasurementKind, unit: string, improvesWhen: ImprovementDirection) {
-  const [first, second] = previewSamples[kind];
-  const [from, to] = improvesWhen === "Decreases" ? [second, first] : [first, second];
+  const [lower, higher] = [...previewSamples[kind]].sort((first, second) => first - second);
+  const [from, to] = improvesWhen === "Decreases" ? [higher, lower] : [lower, higher];
   const measurement = { kind, unit };
   return {
     value: formatMeasurementValue(measurement, to),
