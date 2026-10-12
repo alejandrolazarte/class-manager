@@ -19,7 +19,7 @@ public sealed class Then_each_size_has_its_units(ApiFixture fixture)
                 ProductRequests.ProductPrice,
                 StockMode.Tracked,
                 true,
-                [new VariantChange(null, "S", 3), new VariantChange(null, "M", 0), new VariantChange(null, "L", 2)]),
+                [new VariantChange(null, "S", InitialStock: 3), new VariantChange(null, "M", InitialStock: 0), new VariantChange(null, "L", InitialStock: 2)]),
             ApiRequests.JsonOptions);
 
         var created = (await response.Content.ReadFromJsonAsync<ProductResponse>(ApiRequests.JsonOptions))!;

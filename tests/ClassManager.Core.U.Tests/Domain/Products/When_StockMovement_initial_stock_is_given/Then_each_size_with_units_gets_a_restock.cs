@@ -10,7 +10,7 @@ public sealed class Then_each_size_with_units_gets_a_restock
         var product = ProductTestData.Product(StockMode.Tracked, "S", "M", "L");
 
         var movements = StockMovement.InitialStock(
-            product, [new VariantChange(null, "S", 3), new VariantChange(null, "M", 0), new VariantChange(null, "L", 2)], null, TestData.Now);
+            product, [new VariantChange(null, "S", InitialStock: 3), new VariantChange(null, "M", InitialStock: 0), new VariantChange(null, "L", InitialStock: 2)], null, TestData.Now);
 
         movements.Value!.Select(movement => (movement.ProductVariantId, movement.Kind, movement.Quantity)).ShouldBe(
         [
