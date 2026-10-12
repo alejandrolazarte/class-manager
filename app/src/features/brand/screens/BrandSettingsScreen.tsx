@@ -198,7 +198,6 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
   return (
     <View className="flex-1">
       <SettingsFormScreenLayout
-        eyebrow={translate("settings.title")}
         title={translate("brand.settings.title")}
         subtitle={translate("brand.settings.subtitle")}
         submissionFailure={submissionFailure}
