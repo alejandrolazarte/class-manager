@@ -1,9 +1,10 @@
 import { Tabs } from "expo-router";
 import { ComponentProps } from "react";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fontFamilies, typeScale } from "@/theme/typography";
 import { useTheme } from "@/theme/useTheme";
+import { AppText } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
 import { Entrance } from "@/ui/motion/Entrance";
 
@@ -12,16 +13,27 @@ type TabScreenOptions = Exclude<
   (...parameters: never[]) => unknown
 >;
 
+interface TabNavigatorState {
+  getState: () => { routes: readonly { key: string }[] };
+}
+
 const tabBarContentHeight = 64;
 const tabBarTopPadding = 6;
 const tabBarMinimumBottomPadding = 12;
-const tabLabelTopMargin = 4;
 const activeMarkClassName = "h-1 w-1 rounded-full";
+const iosTabRoleDescription = "tab";
+const iosTabPositionSeparator = "of";
 
 export function TabIcon({ icon, isFocused }: { icon: IconName; isFocused: boolean }) {
+  return <Icon name={icon} size="large" tone={isFocused ? "primary" : "muted-foreground"} />;
+}
+
+export function TabLabel({ label, isFocused }: { label: string; isFocused: boolean }) {
   return (
-    <View className="items-center gap-[3px]">
-      <Icon name={icon} size="large" tone={isFocused ? "primary" : "muted-foreground"} />
+    <View className="mt-1 items-center gap-[3px]">
+      <AppText variant="tab" tone={isFocused ? "primary" : "muted"} numberOfLines={1}>
+        {label}
+      </AppText>
       {isFocused ? (
         <Entrance kind="pop">
           <View testID="tab-active-mark" className={`${activeMarkClassName} bg-primary`} />
@@ -31,6 +43,19 @@ export function TabIcon({ icon, isFocused }: { icon: IconName; isFocused: boolea
       )}
     </View>
   );
+}
+
+export function tabAccessibilityLabel(
+  title: string,
+  navigation: TabNavigatorState,
+  routeKey: string,
+): string | undefined {
+  if (Platform.OS !== "ios") {
+    return undefined;
+  }
+  const { routes } = navigation.getState();
+  const position = routes.findIndex((route) => route.key === routeKey) + 1;
+  return `${title}, ${iosTabRoleDescription}, ${position} ${iosTabPositionSeparator} ${routes.length}`;
 }
 
 export function useTabBarScreenOptions(): TabScreenOptions {
@@ -48,11 +73,7 @@ export function useTabBarScreenOptions(): TabScreenOptions {
       paddingTop: tabBarTopPadding,
       paddingBottom: bottomPadding,
     },
-    tabBarLabelStyle: {
-      fontFamily: fontFamilies.label,
-      fontSize: typeScale.micro.fontSize,
-      marginTop: tabLabelTopMargin,
-    },
+    tabBarLabel: ({ focused, children }) => <TabLabel label={children} isFocused={focused} />,
     tabBarBadgeStyle: {
       backgroundColor: colors.danger,
       color: colors["danger-foreground"],

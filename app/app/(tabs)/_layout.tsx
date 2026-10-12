@@ -8,7 +8,7 @@ import { permissions as memberPermissions } from "@/features/members/permissions
 import { usePendingOrders } from "@/features/orders/useOrders";
 import { SubscriptionGate } from "@/features/subscriptions/components/SubscriptionGate";
 import { translate } from "@/i18n/translate";
-import { TabIcon, useTabBarScreenOptions } from "@/navigation/tabBar";
+import { TabIcon, tabAccessibilityLabel, useTabBarScreenOptions } from "@/navigation/tabBar";
 import { isTabVisible, tabDefinitions } from "@/navigation/tabDefinitions";
 
 function MemberTabs() {
@@ -24,13 +24,18 @@ function MemberTabs() {
         <Tabs.Screen
           key={tab.name}
           name={tab.name}
-          options={{
+          options={({ navigation, route }) => ({
             title: translate(tab.titleKey),
+            tabBarAccessibilityLabel: tabAccessibilityLabel(
+              translate(tab.titleKey),
+              navigation,
+              route.key,
+            ),
             href: isTabVisible(tab, permissions) ? undefined : null,
             tabBarBadge:
               tab.showsPendingOrders && pendingOrders.count > 0 ? pendingOrders.count : undefined,
             tabBarIcon: ({ focused }) => <TabIcon icon={tab.icon} isFocused={focused} />,
-          }}
+          })}
         />
       ))}
     </Tabs>
