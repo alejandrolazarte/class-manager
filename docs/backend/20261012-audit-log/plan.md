@@ -201,7 +201,18 @@ Table Storage has no expiry per row, and deleting rows one by one costs a write 
 | `Commands{yyyyMM}` | 24 months | Enough to answer a business's questions about payments and fees of the previous year |
 | `SecurityEvents{yyyyMM}` | 6 months | Enough to investigate an incident; IPs are not kept longer than needed |
 
-The worker creates the table of the month on its first write and, once a day, deletes the tables older than the retention. When a person asks to be erased, their ids stay in the command log (no personal values are stored there) and their rows in security events expire with the table.
+The worker creates the table of the month on its first write of that month and, at that same moment, deletes the tables older than the retention. It needs no timer: with `minReplicas 0` the container is often stopped, and a daily timer would not run while it is. When a person asks to be erased, their ids stay in the command log (no personal values are stored there) and their rows in security events expire with the table.
+
+## Why a background service and not an Azure Function
+
+The writer is a `BackgroundService` inside the API, like the [background tasks](../20261007-background-tasks/plan.md) worker.
+
+- **A Function needs a hop.** The entries are in the API's memory. To reach a Function, the API would first write them to a Storage Queue, which costs one write per entry, the same as writing the row to Table Storage directly. The Function would then pay a second write. Double the operations, for the same result.
+- **Cost.** Both are close to free at pilot scale: the Functions consumption plans include a monthly free grant of executions, and the background service runs in the container that is already paid for. The difference is not money, it is one more resource to deploy, configure, monitor and keep on a supported plan.
+- **Scale to zero is not a problem for the writer.** Entries are only produced while the API handles requests, so the container is running exactly when there is something to write, and it drains the channel on shutdown.
+- **The only timed job is retention**, and it runs on the first write of each month instead of on a timer (see [Retention](#retention)).
+
+Move to a Function (fed by a queue) only if the API runs several replicas that should not each write, or if the log has to survive a crash of the API, which the in-memory channel can't promise. In that second case the outbox table in SQL described above is the better fit.
 
 ## Reading it
 
