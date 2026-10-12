@@ -1,6 +1,25 @@
 import { useState } from "react";
 import { View } from "react-native";
 import {
+  CatalogFilter,
+  CatalogFilterValues,
+  chosenValues,
+  hasActiveFilters,
+  isChosenOrUnfiltered,
+  noCatalogFilterValues,
+} from "@/features/catalogFilters/catalogFilters";
+import {
+  CatalogFilterControls,
+  CatalogFilterSummary,
+} from "@/features/catalogFilters/components/CatalogFilterControls";
+import {
+  availabilityFilter,
+  availabilityValues,
+  colorFilter,
+  productFilterIds,
+  sizeFilter,
+} from "@/features/catalogFilters/productFilters";
+import {
   CounterSaleItem,
   CounterSaleItemKind,
   counterSaleUnitCount,
@@ -12,19 +31,16 @@ import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Chip } from "@/ui/Chip";
+import { EmptyState } from "@/ui/EmptyState";
 import { ScreenFooter } from "@/ui/Screen";
 import { SearchPage } from "@/ui/SearchPage";
 
-type CatalogFilter = "all" | "packs" | "products";
+const itemKinds: readonly CounterSaleItemKind[] = ["pack", "product"];
 
-const catalogFilters: readonly CatalogFilter[] = ["all", "packs", "products"];
-
-const filterKinds: Record<CatalogFilter, CounterSaleItemKind | null> = {
-  all: null,
-  packs: "pack",
-  products: "product",
-};
+const kindLabelKeys = {
+  pack: "orders.counterSale.filter.packs",
+  product: "orders.counterSale.filter.products",
+} as const;
 
 interface CounterSaleCatalogPickerProps {
   items: readonly CounterSaleItem[];
@@ -39,6 +55,50 @@ function matchesSearch(item: CounterSaleItem, searchText: string): boolean {
   return normalizedSearch.length === 0 || item.name.toLocaleLowerCase().includes(normalizedSearch);
 }
 
+function availabilityOf(item: CounterSaleItem): string {
+  return item.isSoldOut ? availabilityValues.soldOut : availabilityValues.available;
+}
+
+function matchesFilters(item: CounterSaleItem, values: CatalogFilterValues): boolean {
+  return (
+    isChosenOrUnfiltered(values, productFilterIds.kind, item.kind) &&
+    isChosenOrUnfiltered(values, productFilterIds.availability, availabilityOf(item)) &&
+    isChosenOrUnfiltered(values, productFilterIds.size, item.size) &&
+    isChosenOrUnfiltered(values, productFilterIds.color, item.color)
+  );
+}
+
+function catalogFiltersOf(items: readonly CounterSaleItem[]): CatalogFilter[] {
+  const products = items.filter((item) => item.kind === "product");
+  const hasPacks = items.some((item) => item.kind === "pack");
+  return [
+    ...(hasPacks && products.length > 0
+      ? [
+          {
+            id: productFilterIds.kind,
+            title: translate("filters.kind"),
+            choice: "single" as const,
+            allLabel: translate("orders.counterSale.filter.all"),
+            options: itemKinds.map((kind) => ({
+              value: kind,
+              label: translate(kindLabelKeys[kind]),
+            })),
+          },
+        ]
+      : []),
+    ...(products.length > 0
+      ? [
+          availabilityFilter({
+            offersSoldOut: true,
+            hint: hasPacks ? translate("orders.counterSale.packsAlwaysAvailable") : undefined,
+          }),
+        ]
+      : []),
+    ...sizeFilter(products.map((item) => item.size ?? "")),
+    ...colorFilter(products.map((item) => item.color)),
+  ];
+}
+
 export function CounterSaleCatalogPicker({
   items,
   unitsByItem,
@@ -47,11 +107,12 @@ export function CounterSaleCatalogPicker({
   onClose,
 }: CounterSaleCatalogPickerProps) {
   const [searchText, setSearchText] = useState("");
-  const [filter, setFilter] = useState<CatalogFilter>("all");
-  const filterKind = filterKinds[filter];
-  const visibleItems = items.filter(
-    (item) => (filterKind === null || item.kind === filterKind) && matchesSearch(item, searchText),
-  );
+  const [filterValues, setFilterValues] = useState<CatalogFilterValues>(noCatalogFilterValues);
+  const itemsMatching = (values: CatalogFilterValues) =>
+    items.filter((item) => matchesFilters(item, values) && matchesSearch(item, searchText));
+  const visibleItems = itemsMatching(filterValues);
+  const isFiltered = hasActiveFilters(filterValues);
+  const showsPacks = !chosenValues(filterValues, productFilterIds.kind).includes("product");
   const hasPacks = items.some((item) => item.kind === "pack");
   const unitCount = counterSaleUnitCount(items, unitsByItem);
 
@@ -63,16 +124,12 @@ export function CounterSaleCatalogPicker({
       searchPlaceholder={translate("orders.counterSale.catalogSearch")}
       onClose={onClose}
       filters={
-        <View className="flex-row flex-wrap gap-2">
-          {catalogFilters.map((catalogFilter) => (
-            <Chip
-              key={catalogFilter}
-              label={translate(`orders.counterSale.filter.${catalogFilter}`)}
-              isSelected={filter === catalogFilter}
-              onPress={() => setFilter(catalogFilter)}
-            />
-          ))}
-        </View>
+        <CatalogFilterControls
+          filters={catalogFiltersOf(items)}
+          values={filterValues}
+          onChange={setFilterValues}
+          countMatching={(values) => itemsMatching(values).length}
+        />
       }
       footer={
         <ScreenFooter>
@@ -88,7 +145,7 @@ export function CounterSaleCatalogPicker({
         </ScreenFooter>
       }
     >
-      {hasPacks && !hasStudent && filter !== "products" ? (
+      {hasPacks && !hasStudent && showsPacks ? (
         <Banner tone="warning" message={translate("orders.counterSale.packsNeedStudent")} />
       ) : null}
       {items.length === 0 ? (
@@ -96,7 +153,13 @@ export function CounterSaleCatalogPicker({
           {translate("orders.counterSale.noProducts")}
         </AppText>
       ) : null}
-      {items.length > 0 && visibleItems.length === 0 ? (
+      {isFiltered ? (
+        <CatalogFilterSummary shownCount={visibleItems.length} totalCount={items.length} />
+      ) : null}
+      {items.length > 0 && visibleItems.length === 0 && isFiltered ? (
+        <EmptyState icon="filter" message={translate("filters.noResults")} />
+      ) : null}
+      {items.length > 0 && visibleItems.length === 0 && !isFiltered ? (
         <AppText variant="body" tone="muted">
           {translate("orders.counterSale.noCatalogResults", { search: searchText.trim() })}
         </AppText>

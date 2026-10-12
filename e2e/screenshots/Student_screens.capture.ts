@@ -229,4 +229,13 @@ test("Team screens with student activity", async ({ page, request }) => {
   await page.getByRole("button", { name: "Cobrar" }).first().click();
   await page.getByRole("button", { name: "Confirmar pago" }).waitFor();
   await capture(page, "10d-cobros-pedidos-cobrar");
+
+  await page.goto(`/students/clients/${demo.studentAppClientId}/counter-sale`);
+  await page.getByRole("button", { name: "Agregar productos o packs" }).click();
+  await page.getByText("Remera del club").filter({ visible: true }).first().waitFor();
+  await capture(page, "10e-venta-en-mostrador-catalogo");
+
+  await page.goto("/settings/products");
+  await page.getByText("Toalla microfibra").filter({ visible: true }).first().waitFor();
+  await capture(page, "12g-productos");
 });

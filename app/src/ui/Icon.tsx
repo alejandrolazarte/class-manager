@@ -44,6 +44,7 @@ const iconGlyphs = {
   signOut: "log-out-outline",
   password: "key-outline",
   search: "search-outline",
+  filter: "options-outline",
   call: "call-outline",
   whatsApp: "chatbubble-ellipses-outline",
   celebration: "sparkles-outline",

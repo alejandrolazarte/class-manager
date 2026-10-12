@@ -3,7 +3,7 @@ import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider
 import { CatalogThumbnail } from "@/features/catalogImages/components/CatalogThumbnail";
 import { formatMoney } from "@/features/fees/money";
 import { productColorName } from "@/features/products/productColors";
-import { stockSummary } from "@/features/products/stockLabels";
+import { stockSummary, variantLabel } from "@/features/products/stockLabels";
 import { Product } from "@/features/products/types";
 import { colorsOf, sizesOf } from "@/features/products/variantOptions";
 import { InactiveChip } from "@/features/settings/components/InactiveChip";
@@ -17,10 +17,20 @@ interface ProductListItemProps {
   onPress?: (product: Product) => void;
 }
 
+function soldOutVariantLabelsOf(product: Product): string[] {
+  const soldOutVariants = product.variants.filter((variant) => (variant.stock ?? 0) <= 0);
+  const isPartlySoldOut =
+    soldOutVariants.length > 0 && soldOutVariants.length < product.variants.length;
+  return product.stockMode === "Unlimited" || !isPartlySoldOut
+    ? []
+    : soldOutVariants.map(variantLabel);
+}
+
 export function ProductListItem({ product, onPress }: ProductListItemProps) {
   const currencyCode = useBusinessCurrency();
   const sizes = sizesOf(product.variants);
   const colorNames = colorsOf(product.variants).map(productColorName);
+  const soldOutVariantLabels = soldOutVariantLabelsOf(product);
   return (
     <HairlineRow
       isDimmed={!product.isActive}
@@ -41,6 +51,11 @@ export function ProductListItem({ product, onPress }: ProductListItemProps) {
             .filter(Boolean)
             .join(" · ")}
         </AppText>
+        {soldOutVariantLabels.length > 0 ? (
+          <AppText variant="caption" tone="danger">
+            {translate("products.stock.soldOutItems", { items: soldOutVariantLabels.join(", ") })}
+          </AppText>
+        ) : null}
       </View>
       {product.isActive ? null : <InactiveChip />}
       {onPress ? <Icon name="next" size="medium" tone="subtle-foreground" /> : null}

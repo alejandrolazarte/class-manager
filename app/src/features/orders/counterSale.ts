@@ -18,6 +18,9 @@ export interface CounterSaleItem {
   detail: string;
   imageUrl: string | null;
   maximumUnits: number;
+  size: string | null;
+  color: string | null;
+  isSoldOut: boolean;
 }
 
 export type UnitsByItem = Readonly<Record<string, number>>;
@@ -64,6 +67,9 @@ export function counterSaleItems(
       detail: translateCount("student.shop.classCount", classPack.classCount),
       imageUrl: classPack.images[0]?.url ?? null,
       maximumUnits: 1,
+      size: null,
+      color: null,
+      isSoldOut: false,
     })),
     ...products.flatMap((product) =>
       product.variants.map((variant) => ({
@@ -74,6 +80,9 @@ export function counterSaleItems(
         detail: variantStockDetail(product, variant) ?? "",
         imageUrl: product.images[0]?.url ?? null,
         maximumUnits: maximumUnitsOf(product, variant),
+        size: variant.size.length > 0 ? variant.size : null,
+        color: variant.color,
+        isSoldOut: maximumUnitsOf(product, variant) === 0,
       })),
     ),
   ];

@@ -25,6 +25,8 @@ interface SettingsListScreenLayoutProps<TItem> {
   newItemLabel: string;
   onNewItem?: () => void;
   notice?: ReactNode;
+  filters?: ReactNode;
+  noResultsMessage?: string;
 }
 
 export function SettingsListScreenLayout<TItem>({
@@ -41,6 +43,8 @@ export function SettingsListScreenLayout<TItem>({
   newItemLabel,
   onNewItem,
   notice,
+  filters,
+  noResultsMessage,
 }: SettingsListScreenLayoutProps<TItem>) {
   return (
     <Screen
@@ -51,6 +55,7 @@ export function SettingsListScreenLayout<TItem>({
       <View className="gap-3.5 pb-3.5">
         <ScreenHeader navigation="back" title={title} />
         {notice ? <View className="px-5">{notice}</View> : null}
+        {filters ? <View className="gap-2.5 px-5">{filters}</View> : null}
         {isError ? (
           <View className="px-5">
             <Banner message={translate("common.unexpectedError")}>
@@ -76,7 +81,9 @@ export function SettingsListScreenLayout<TItem>({
             </AnimatedListItem>
           )}
           ListEmptyComponent={
-            isError ? null : (
+            isError ? null : noResultsMessage !== undefined ? (
+              <EmptyState icon="filter" message={noResultsMessage} />
+            ) : (
               <EmptyState
                 icon={emptyIcon}
                 message={emptyMessage}
