@@ -17,7 +17,12 @@ describe("When the profile is edited", () => {
   });
 
   it("Then the edit screen opens", async () => {
-    await renderWithProviders(<MyProfileScreen editProfileRoute={routes.studentAppEditProfile} />);
+    await renderWithProviders(
+      <MyProfileScreen
+        editProfileRoute={routes.studentAppEditProfile}
+        changeEmailRoute={routes.studentAppChangeEmail}
+      />,
+    );
 
     await fireEvent.press(
       screen.getByRole("button", { name: translate("profile.editAccessibility") }),

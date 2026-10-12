@@ -12,6 +12,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="business" options={{ title: translate("businessSettings.title") }} />
       <Stack.Screen name="profile" options={{ title: translate("profile.title") }} />
       <Stack.Screen name="edit-profile" options={{ title: translate("profile.edit.title") }} />
+      <Stack.Screen name="change-email" options={{ title: translate("profile.email.title") }} />
       <Stack.Screen name="brand" options={{ title: translate("brand.settings.title") }} />
       <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />
       <Stack.Screen

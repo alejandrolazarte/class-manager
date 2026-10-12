@@ -22,4 +22,5 @@ export const studentAppHiddenRouteNames: readonly string[] = [
   "news",
   "profile",
   "edit-profile",
+  "change-email",
 ];
