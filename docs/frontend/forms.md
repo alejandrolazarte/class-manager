@@ -34,6 +34,7 @@ const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["fullName
 ## Dates and times
 
 - Every date is a `DateField` (`BirthDateField` for birth dates) and every time is a `TimeField`, both from `app/src/forms`. Never a bare `TextField` with a date or time mask.
+- A duration (minutes and seconds, such as a timed measurement) is picked, never typed: `DurationFields` (a minutes field and a seconds field) or a `SelectField` that opens `DurationPickerSheet`, both from `app/src/forms`. Only valid values (0 to 59) can be chosen, so there is nothing to validate.
 - The user can always type: the field keeps the `dd/mm/aaaa` or `hh:mm` mask and the number keyboard, which is the fastest way for a known date (a birth date) or an odd time (18:47).
 - Typing only takes digits that can still make a real date or time: `44:33` can't be typed (the 4 after the 4 is ignored), and a first digit that can only be one digit long gets its zero (`9` becomes `09`). Day-month combinations (31/02) are still caught by validation.
 - The button inside the field, at the right, opens a bottom sheet to pick instead: a month calendar (tap the month title to pick a year from a short scrolling list, then a month, and you are back on that month's days) or two columns that scroll vertically, hours and minutes (every 5 minutes by default, `minuteStep`), opened on the current value. **Cancelar** leaves the typed value untouched; **Listo** writes the picked value back as text, so validation and the form values don't change.

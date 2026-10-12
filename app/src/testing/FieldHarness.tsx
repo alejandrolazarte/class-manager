@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { DateField } from "@/forms/DateField";
+import { DurationFields } from "@/forms/DurationFields";
 import { TimeField } from "@/forms/TimeField";
 
 export const harnessDateLabel = "Fecha";
 export const harnessTimeLabel = "Hora";
+export const harnessMinutesLabel = "Minutos";
+export const harnessSecondsLabel = "Segundos";
 
 interface FieldHarnessProps {
   initialValue?: string;
@@ -23,4 +26,16 @@ export function BirthDateFieldHarness({ initialValue = "" }: FieldHarnessProps) 
 export function TimeFieldHarness({ initialValue = "" }: FieldHarnessProps) {
   const [typedTime, setTypedTime] = useState(initialValue);
   return <TimeField label={harnessTimeLabel} value={typedTime} onChangeText={setTypedTime} />;
+}
+
+export function DurationFieldsHarness() {
+  const [timeInSeconds, setTimeInSeconds] = useState<number | null>(null);
+  return (
+    <DurationFields
+      minutesLabel={harnessMinutesLabel}
+      secondsLabel={harnessSecondsLabel}
+      valueInSeconds={timeInSeconds}
+      onChange={setTimeInSeconds}
+    />
+  );
 }

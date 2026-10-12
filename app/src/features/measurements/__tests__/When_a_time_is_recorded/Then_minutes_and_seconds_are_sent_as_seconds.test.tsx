@@ -24,7 +24,7 @@ describe("When a time is recorded", () => {
     jest.mocked(getClient).mockResolvedValue(buildClient({ students: [student] }));
     jest.mocked(listMeasurements).mockResolvedValue([measurement]);
     jest.mocked(getStudentMeasurements).mockResolvedValue([]);
-    jest.mocked(recordMeasurement).mockResolvedValue(buildMeasurementRecord(todayIsoDate(), 65.3));
+    jest.mocked(recordMeasurement).mockResolvedValue(buildMeasurementRecord(todayIsoDate(), 65));
   });
 
   it("Then minutes and seconds are sent as seconds", async () => {
@@ -32,20 +32,22 @@ describe("When a time is recorded", () => {
       <RecordMeasurementScreen clientId="client-1" studentId={student.id} />,
     );
 
-    await fireEvent.changeText(
-      await screen.findByLabelText(translate("measurements.recordForm.minutes")),
-      "1",
+    await fireEvent.press(
+      await screen.findByRole("button", { name: translate("measurements.recordForm.minutes") }),
     );
-    await fireEvent.changeText(
-      screen.getByLabelText(translate("measurements.recordForm.seconds")),
-      "5,3",
+    await fireEvent.press(
+      screen.getByRole("button", { name: `${translate("durationField.minutes")} 01` }),
     );
+    await fireEvent.press(
+      screen.getByRole("button", { name: `${translate("durationField.seconds")} 05` }),
+    );
+    await fireEvent.press(screen.getByRole("button", { name: translate("dateField.done") }));
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     await waitFor(() =>
       expect(recordMeasurement).toHaveBeenCalledWith(student.id, measurement.id, {
         measuredOn: todayIsoDate(),
-        value: 65.3,
+        value: 65,
         note: null,
       }),
     );
