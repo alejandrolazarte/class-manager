@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
@@ -15,7 +16,9 @@ public sealed record CreateProductCommand(
 
 public sealed class CreateProductUseCase(
     IProductRepository productRepository,
+    IStockMovementRepository stockMovementRepository,
     IUnitOfWork unitOfWork,
+    ICurrentMember currentMember,
     TimeProvider timeProvider,
     IDocumentStorageService documentStorage)
     : IUseCase<CreateProductCommand, ProductResponse>
@@ -25,11 +28,19 @@ public sealed class CreateProductUseCase(
     public async Task<Result<ProductResponse>> ExecuteAsync(CreateProductCommand command, CancellationToken cancellationToken)
     {
         var variants = command.Variants is null or { Count: 0 } ? SingleVariant : command.Variants;
+        var now = timeProvider.GetUtcNow();
         var product = Product.Create(
-            command.Name, command.Description, command.Price, command.StockMode, command.IsVisibleInApp, variants, timeProvider.GetUtcNow());
+            command.Name, command.Description, command.Price, command.StockMode, command.IsVisibleInApp, variants, now);
         if (product.IsFailure)
         {
             return product.Error!;
+        }
+
+        var access = await currentMember.GetAccessAsync(cancellationToken);
+        var initialStock = StockMovement.InitialStock(product.Value!, variants, access?.UserId, now);
+        if (initialStock.IsFailure)
+        {
+            return initialStock.Error!;
         }
 
         if (await productRepository.FindByNameAsync(product.Value!.Name, cancellationToken) is not null)
@@ -38,6 +49,11 @@ public sealed class CreateProductUseCase(
         }
 
         productRepository.Add(product.Value);
+        foreach (var movement in initialStock.Value!)
+        {
+            stockMovementRepository.Add(movement);
+        }
+
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -47,6 +63,7 @@ public sealed class CreateProductUseCase(
             return ProductFailures.NameTaken();
         }
 
-        return ProductResponse.From(product.Value, new Dictionary<Guid, int>(), documentStorage);
+        var stockByVariant = initialStock.Value!.ToDictionary(movement => movement.ProductVariantId, movement => movement.Quantity);
+        return ProductResponse.From(product.Value, stockByVariant, documentStorage);
     }
 }

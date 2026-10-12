@@ -14,6 +14,7 @@ public sealed class StockMovement : ITenantOwned
     private const string NoteLengthMessage = "The note must be at most 200 characters.";
     private const string NegativeStockMessage = "The stock can't go below 0.";
     private const string StockNotTrackedMessage = "This product doesn't keep stock.";
+    private const string InitialStockMessage = "The initial stock of each size must be between 0 and 10,000 units.";
 
     private StockMovement()
     {
@@ -65,6 +66,29 @@ public sealed class StockMovement : ITenantOwned
             default:
                 return Result.Validation<StockMovement>(RestockQuantityMessage, fieldName: nameof(Kind));
         }
+    }
+
+    public static Result<IReadOnlyList<StockMovement>> InitialStock(
+        Product product,
+        IReadOnlyList<VariantChange> variants,
+        Guid? recordedByUserId,
+        DateTimeOffset createdAt)
+    {
+        if (variants.Any(variant => variant.InitialStock is < 0 or > MaximumQuantity))
+        {
+            return Result.Validation<IReadOnlyList<StockMovement>>(InitialStockMessage, fieldName: Product.VariantsFieldName);
+        }
+
+        if (!product.TracksStock && variants.Any(variant => variant.InitialStock > 0))
+        {
+            return Result.Validation<IReadOnlyList<StockMovement>>(StockNotTrackedMessage, ProductErrorCodes.StockNotTracked);
+        }
+
+        return Result.Success<IReadOnlyList<StockMovement>>([.. variants
+            .Select((variant, position) => (product.Variants[position].Id, Quantity: variant.InitialStock ?? 0))
+            .Where(initialStock => initialStock.Quantity > 0)
+            .Select(initialStock => Create(
+                initialStock.Id, StockMovementKind.Restock, initialStock.Quantity, null, null, recordedByUserId, createdAt))]);
     }
 
     public static StockMovement Sale(Guid variantId, int quantity, Guid orderId, Guid? recordedByUserId, DateTimeOffset createdAt) =>
