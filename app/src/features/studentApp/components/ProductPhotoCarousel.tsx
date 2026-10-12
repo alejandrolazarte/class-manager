@@ -90,7 +90,7 @@ export function ProductPhotoCarousel({
   size = "card",
   isDimmed = false,
 }: ProductPhotoCarouselProps) {
-  const [width, setWidth] = useState(0);
+  const [pageSize, setPageSize] = useState({ width: 0, height: 0 });
   const [position, setPosition] = useState(0);
   if (images.length <= 1) {
     return (
@@ -103,10 +103,10 @@ export function ProductPhotoCarousel({
     );
   }
   const followScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (width === 0) {
+    if (pageSize.width === 0) {
       return;
     }
-    const scrolledPosition = Math.round(event.nativeEvent.contentOffset.x / width);
+    const scrolledPosition = Math.round(event.nativeEvent.contentOffset.x / pageSize.width);
     setPosition(Math.min(Math.max(scrolledPosition, 0), images.length - 1));
   };
   const positionLabel = translate("student.shop.photoPosition", {
@@ -116,7 +116,11 @@ export function ProductPhotoCarousel({
   return (
     <View
       className={`w-full ${sizeClassName} ${isDimmed ? "opacity-50" : ""}`}
-      onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
+      testID="photo-carousel"
+      onLayout={(event) => {
+        const { width, height } = event.nativeEvent.layout;
+        setPageSize({ width, height });
+      }}
     >
       <ScrollView
         horizontal
@@ -127,7 +131,7 @@ export function ProductPhotoCarousel({
         className="flex-1"
       >
         {images.map((image) => (
-          <View key={image.id} style={{ width }}>
+          <View key={image.id} testID="photo-carousel-page" style={pageSize}>
             <CatalogImageView
               imageUri={image.url}
               placeholderIcon={placeholderIcon}
