@@ -139,6 +139,25 @@ test("Student screens", async ({ page, request }) => {
   await scrollToBottom(page);
   await capture(page, "28c-alumno-logros-medallas");
 
+  await page.goto("/student-app/progress");
+  await page.getByRole("tab", { name: "Mediciones" }).click();
+  await page.getByText("Nado continuo").filter({ visible: true }).first().waitFor();
+  await capture(page, "28d-alumno-mediciones");
+
+  await page.getByRole("button", { name: "25 m crol" }).click();
+  await page.getByText("¡Nueva mejor marca!").filter({ visible: true }).first().waitFor();
+  await capture(page, "28e-alumno-medicion");
+
+  await page.goto("/student-app/progress");
+  await page.getByRole("tab", { name: "Mediciones" }).click();
+  await page.getByRole("button", { name: "Cargar medición" }).click();
+  await page
+    .getByText("Tu profe la ve en tu ficha", { exact: false })
+    .filter({ visible: true })
+    .first()
+    .waitFor();
+  await capture(page, "28f-alumno-cargar-medicion");
+
   await page.goto("/student-app/settings");
   await page.getByRole("button", { name: "Notificaciones" }).waitFor();
   await capture(page, "29-alumno-ajustes");
