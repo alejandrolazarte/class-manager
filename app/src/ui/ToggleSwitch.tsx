@@ -8,13 +8,21 @@ interface ToggleSwitchProps {
   onValueChange: (value: boolean) => void;
   hint?: string;
   icon?: IconName;
+  accessibilityLabel?: string;
 }
 
-export function ToggleSwitch({ label, value, onValueChange, hint, icon }: ToggleSwitchProps) {
+export function ToggleSwitch({
+  label,
+  value,
+  onValueChange,
+  hint,
+  icon,
+  accessibilityLabel,
+}: ToggleSwitchProps) {
   return (
     <Pressable
       accessibilityRole="switch"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={hint}
       accessibilityState={{ checked: value }}
       onPress={() => onValueChange(!value)}

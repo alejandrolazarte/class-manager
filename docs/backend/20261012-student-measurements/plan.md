@@ -2,7 +2,7 @@
 
 Date: 2026-10-12
 
-Status: in progress. Design: the "Avance del alumno" rows of the [Calma design artifact](https://claude.ai/artifact/MGjmVNd9Qav63zCt7WfueM).
+Status: steps 1–3 built. Design: the "Avance del alumno" rows of the [Calma design artifact](https://claude.ai/artifact/MGjmVNd9Qav63zCt7WfueM).
 
 ## Goal
 

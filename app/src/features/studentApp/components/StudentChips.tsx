@@ -7,7 +7,7 @@ import { PressableScale } from "@/ui/motion/PressableScale";
 import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 interface StudentChipsProps {
-  students: readonly AccountStudent[];
+  students: readonly Pick<AccountStudent, "id" | "fullName">[];
   selectedStudentId: string;
   onSelect: (studentId: string) => void;
 }

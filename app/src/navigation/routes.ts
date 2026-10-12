@@ -15,6 +15,8 @@ export const routes = {
   session: (classGroupId: string, sessionDate: string) => `/today/${classGroupId}/${sessionDate}`,
   newPrivateLesson: (date: string) => `/today/private/new?date=${encodeURIComponent(date)}`,
   privateLesson: (privateLessonId: string) => `/today/private/${privateLessonId}`,
+  classTestDay: (classGroupId: string, sessionDate: string) =>
+    `/today/${classGroupId}/test-day?date=${encodeURIComponent(sessionDate)}`,
   editPrivateLesson: (privateLessonId: string) => `/today/private/${privateLessonId}/edit`,
   classes: "/classes",
   newClassGroup: (weekday?: string) =>
@@ -34,6 +36,21 @@ export const routes = {
     `/${tab}/clients/${clientId}/counter-sale`,
   clientNewClassPack: (tab: ClientTab, clientId: string) =>
     `/${tab}/clients/${clientId}/new-class-pack`,
+  studentMeasurement: (
+    tab: ClientTab,
+    clientId: string,
+    studentId: string,
+    measurementId: string,
+  ) => `/${tab}/clients/${clientId}/measurements/${studentId}/${measurementId}`,
+  recordMeasurement: (
+    tab: ClientTab,
+    clientId: string,
+    studentId: string,
+    measurementId?: string,
+  ) =>
+    measurementId
+      ? `/${tab}/clients/${clientId}/record-measurement?studentId=${encodeURIComponent(studentId)}&measurementId=${encodeURIComponent(measurementId)}`
+      : `/${tab}/clients/${clientId}/record-measurement?studentId=${encodeURIComponent(studentId)}`,
   recordPayment: (tab: ClientTab, clientId: string, month: string) =>
     `/${tab}/clients/${clientId}/pay?month=${encodeURIComponent(month)}`,
   fees: "/fees",
@@ -58,6 +75,8 @@ export const routes = {
   brandSettings: "/settings/brand",
   chooseAccount: "/choose-account",
   achievementSettings: "/settings/achievements",
+  measurementSettings: "/settings/measurements",
+  newMeasurement: "/settings/measurements/new",
   defaultMonthlyFee: "/settings/monthly-fee",
   instructors: "/settings/instructors",
   newInstructor: "/settings/instructors/new",
@@ -94,6 +113,10 @@ export const routes = {
   studentAppProduct: (productId: string) =>
     `/student-app/shop?productId=${encodeURIComponent(productId)}`,
   studentAppOrders: "/student-app/orders",
+  studentAppMeasurement: (studentId: string, measurementId: string) =>
+    `/student-app/measurement?studentId=${encodeURIComponent(studentId)}&measurementId=${encodeURIComponent(measurementId)}`,
+  studentAppRecordMeasurement: (studentId: string) =>
+    `/student-app/record-measurement?studentId=${encodeURIComponent(studentId)}`,
   branches: "/settings/branches",
   newBranch: "/settings/branches/new",
 } as const;
