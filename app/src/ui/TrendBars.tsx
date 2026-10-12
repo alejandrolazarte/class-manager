@@ -5,6 +5,7 @@ export type TrendBarsSize = "compact" | "full";
 interface TrendBarsProps {
   values: readonly number[];
   size?: TrendBarsSize;
+  isLowerBetter?: boolean;
   accessibilityLabel?: string;
 }
 
@@ -35,8 +36,15 @@ function barShares(values: readonly number[]): number[] {
   );
 }
 
-export function TrendBars({ values, size = "compact", accessibilityLabel }: TrendBarsProps) {
-  const shownValues = values.slice(-(size === "full" ? fullSizeBarCount : compactBarCount));
+export function TrendBars({
+  values,
+  size = "compact",
+  isLowerBetter = false,
+  accessibilityLabel,
+}: TrendBarsProps) {
+  const shownValues = values
+    .slice(-(size === "full" ? fullSizeBarCount : compactBarCount))
+    .map((value) => (isLowerBetter ? -value : value));
   const shares = barShares(shownValues);
   return (
     <View

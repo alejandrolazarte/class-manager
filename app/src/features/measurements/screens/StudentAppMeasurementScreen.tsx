@@ -118,6 +118,7 @@ export function StudentAppMeasurementScreen({
           ) : null}
           {records.length > 1 ? (
             <TrendBars
+              isLowerBetter={measurement.improvesWhen === "Decreases"}
               size="full"
               values={records.map((record) => record.value)}
               accessibilityLabel={translate("measurements.detail.trend", {

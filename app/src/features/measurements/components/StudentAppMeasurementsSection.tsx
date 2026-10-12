@@ -57,7 +57,12 @@ function StudentAppMeasurementRow({ studentMeasurement, onPress }: StudentAppMea
           </AppText>
         ) : null}
       </View>
-      {records.length > 1 ? <TrendBars values={records.map((record) => record.value)} /> : null}
+      {records.length > 1 ? (
+        <TrendBars
+          isLowerBetter={measurement.improvesWhen === "Decreases"}
+          values={records.map((record) => record.value)}
+        />
+      ) : null}
       <AppText variant="bodyStrong" tone={trend === null ? "subtle" : "default"}>
         {trend === null ? "—" : formatMeasurementValue(measurement, trend.last.value)}
       </AppText>

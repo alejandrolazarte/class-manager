@@ -67,7 +67,12 @@ export function StudentMeasurementRow({ studentMeasurement, onPress }: StudentMe
           />
         ) : null}
       </View>
-      {records.length > 1 ? <TrendBars values={records.map((record) => record.value)} /> : null}
+      {records.length > 1 ? (
+        <TrendBars
+          isLowerBetter={measurement.improvesWhen === "Decreases"}
+          values={records.map((record) => record.value)}
+        />
+      ) : null}
       <AppText variant="bodyStrong" tone={lastRecord === undefined ? "subtle" : "default"}>
         {lastRecord === undefined ? "—" : formatMeasurementValue(measurement, lastRecord.value)}
       </AppText>

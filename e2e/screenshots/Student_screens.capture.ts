@@ -146,7 +146,8 @@ test("Student screens", async ({ page, request }) => {
 
   await page.goto("/student-app/progress");
   await page.getByRole("tab", { name: "Mediciones" }).click();
-  await page.getByText("Nado continuo").filter({ visible: true }).first().waitFor();
+  await page.getByRole("button", { name: "Tomás", exact: true }).click();
+  await page.getByText("25 m crol").filter({ visible: true }).first().waitFor();
   await capture(page, "28d-alumno-mediciones");
 
   await page.getByRole("button", { name: "25 m crol" }).click();
