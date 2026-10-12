@@ -993,6 +993,7 @@
   "products.stock.kind.Adjustment": "Ajustar",
   "products.stock.kind.Sale": "Venta",
   "products.stock.kind.Refund": "Devolución",
+  "products.stock.kind.InitialStock": "Stock inicial",
   "products.stock.quantity": "Unidades que llegaron",
   "products.stock.adjustment": "Diferencia (por ejemplo -1)",
   "products.stock.note": "Motivo",

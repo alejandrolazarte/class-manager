@@ -2,10 +2,10 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.U.Tests.Domain.Products.When_StockMovement_initial_stock_is_given;
 
-public sealed class Then_each_size_with_units_gets_a_restock
+public sealed class Then_each_size_with_units_gets_its_initial_stock
 {
     [Fact]
-    public void Then_each_size_with_units_gets_a_restock_Run()
+    public void Then_each_size_with_units_gets_its_initial_stock_Run()
     {
         var product = ProductTestData.Product(StockMode.Tracked, "S", "M", "L");
 
@@ -14,8 +14,8 @@ public sealed class Then_each_size_with_units_gets_a_restock
 
         movements.Value!.Select(movement => (movement.ProductVariantId, movement.Kind, movement.Quantity)).ShouldBe(
         [
-            (product.Variants[0].Id, StockMovementKind.Restock, 3),
-            (product.Variants[2].Id, StockMovementKind.Restock, 2),
+            (product.Variants[0].Id, StockMovementKind.InitialStock, 3),
+            (product.Variants[2].Id, StockMovementKind.InitialStock, 2),
         ]);
     }
 }
