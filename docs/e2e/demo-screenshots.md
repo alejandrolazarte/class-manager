@@ -107,7 +107,7 @@ The student signs in through the sign-in screen, then the test captures:
 | `22d-alumno-recuperar-clases` | Classes to make up, with open slots to book |
 | `22e-alumno-clase-del-pack` | Lucía's booked Aquagym class from her pack, with "Reservar clases del pack": classes left and open dates |
 | `22f-alumno-clase-material` | Today's Natación inicial opened from Clases: the class, "Avisar que no voy" and its material, link and PDF |
-| `23-alumno-tienda`, `23b-alumno-tienda-productos` | Shop: search, categories, packs and product grid |
+| `23-alumno-tienda`, `23b-alumno-tienda-productos` | Shop: search, filters, packs and product grid |
 | `24-alumno-producto` | Product sheet with sizes, a sold-out size and quantity |
 | `25-alumno-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |
 | `26-alumno-carrito` | Cart: lines, delivery place, payment and total |
@@ -128,6 +128,8 @@ The same file also captures two team screens that need student activity, signed 
 | `01c-avisos` | Team notifications (avisos): the "No voy", the makeup and the orders |
 | `05b-clase-editar-material` | The class form scrolled to "Material para los alumnos", with the link and the PDF |
 | `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment panel of an order open |
+| `10e-venta-en-mostrador-catalogo` | Counter sale: the catalog of products and packs with its filters |
+| `12g-productos` | Ajustes › Productos with search and filters |
 
 Run only these with `pnpm screenshots:no-build Student_screens`.
 

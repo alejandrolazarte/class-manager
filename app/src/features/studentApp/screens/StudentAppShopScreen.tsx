@@ -1,6 +1,25 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
+import {
+  CatalogFilter,
+  CatalogFilterValues,
+  chosenValues,
+  hasActiveFilters,
+  isChosenOrUnfiltered,
+  noCatalogFilterValues,
+} from "@/features/catalogFilters/catalogFilters";
+import {
+  CatalogFilterControls,
+  CatalogFilterSummary,
+} from "@/features/catalogFilters/components/CatalogFilterControls";
+import {
+  availabilityFilter,
+  availabilityValues,
+  colorFilter,
+  productFilterIds,
+  sizeFilter,
+} from "@/features/catalogFilters/productFilters";
 import { CartBar } from "@/features/studentApp/components/CartBar";
 import { CartPage } from "@/features/studentApp/components/CartPage";
 import { PackCard } from "@/features/studentApp/components/PackCard";
@@ -9,16 +28,20 @@ import { ProductDetailPage } from "@/features/studentApp/components/ProductDetai
 import { ShopProductCard } from "@/features/studentApp/components/ShopProductCard";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
 import { cartTotal } from "@/features/studentApp/studentAppCart";
-import { StudentAppShopPack, StudentAppShopProduct } from "@/features/studentApp/types";
+import {
+  StudentAppShop,
+  StudentAppShopPack,
+  StudentAppShopProduct,
+  StudentAppShopVariant,
+} from "@/features/studentApp/types";
 import { useStudentAppShop } from "@/features/studentApp/useStudentAppShop";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { formatMoney } from "@/features/fees/money";
-import { translate, TranslationKey } from "@/i18n/translate";
+import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { ChipGroup } from "@/ui/ChipGroup";
 import { EmptyState } from "@/ui/EmptyState";
 import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
@@ -28,18 +51,77 @@ import { SectionTitle } from "@/ui/SectionTitle";
 import { PressableScale } from "@/ui/motion/PressableScale";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 
-type ShopCategory = "all" | "packs" | "products";
-
-const shopCategories: Record<ShopCategory, TranslationKey> = {
-  all: "student.shop.all",
-  packs: "student.shop.packs",
-  products: "student.shop.products",
-};
+const shopKinds = {
+  packs: "packs",
+  products: "products",
+} as const;
 
 const productsPerRow = 2;
 
 function matchesSearch(name: string, searchText: string): boolean {
   return name.toLocaleLowerCase().includes(searchText.trim().toLocaleLowerCase());
+}
+
+function availabilityOf(variant: StudentAppShopVariant): string {
+  return variant.availability === "SoldOut"
+    ? availabilityValues.soldOut
+    : availabilityValues.available;
+}
+
+function hasMatchingVariant(product: StudentAppShopProduct, values: CatalogFilterValues): boolean {
+  return product.variants.some(
+    (variant) =>
+      isChosenOrUnfiltered(values, productFilterIds.availability, availabilityOf(variant)) &&
+      isChosenOrUnfiltered(values, productFilterIds.size, variant.size) &&
+      isChosenOrUnfiltered(values, productFilterIds.color, variant.color),
+  );
+}
+
+function filteredPacks(
+  packs: readonly StudentAppShopPack[],
+  values: CatalogFilterValues,
+): StudentAppShopPack[] {
+  const isFilteredByVariant =
+    chosenValues(values, productFilterIds.size).length > 0 ||
+    chosenValues(values, productFilterIds.color).length > 0;
+  return isFilteredByVariant ||
+    !isChosenOrUnfiltered(values, productFilterIds.kind, shopKinds.packs)
+    ? []
+    : [...packs];
+}
+
+function filteredProducts(
+  products: readonly StudentAppShopProduct[],
+  values: CatalogFilterValues,
+): StudentAppShopProduct[] {
+  return isChosenOrUnfiltered(values, productFilterIds.kind, shopKinds.products)
+    ? products.filter((product) => hasMatchingVariant(product, values))
+    : [];
+}
+
+function shopFiltersOf(shop: StudentAppShop): CatalogFilter[] {
+  const variants = shop.products.flatMap((product) => product.variants);
+  return [
+    ...(shop.packs.length > 0 && shop.products.length > 0
+      ? [
+          {
+            id: productFilterIds.kind,
+            title: translate("filters.kind"),
+            choice: "single" as const,
+            allLabel: translate("student.shop.all"),
+            options: [
+              { value: shopKinds.packs, label: translate("student.shop.packs") },
+              { value: shopKinds.products, label: translate("student.shop.products") },
+            ],
+          },
+        ]
+      : []),
+    ...(variants.some((variant) => variant.availability === "SoldOut")
+      ? [availabilityFilter({ offersSoldOut: false })]
+      : []),
+    ...sizeFilter(variants.map((variant) => variant.size)),
+    ...colorFilter(variants.map((variant) => variant.color)),
+  ];
 }
 
 function rowsOf(products: readonly StudentAppShopProduct[]): StudentAppShopProduct[][] {
@@ -71,7 +153,7 @@ export function StudentAppShopScreen() {
   useRefetchOnFocus(refetch);
   const { cart, units, setUnits, addUnits } = useStudentAppCart();
   const [searchText, setSearchText] = useState("");
-  const [category, setCategory] = useState<ShopCategory>("all");
+  const [filterValues, setFilterValues] = useState<CatalogFilterValues>(noCatalogFilterValues);
   const [openProductId, setOpenProductId] = useState<string | null>(null);
   const [openPackId, setOpenPackId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -112,10 +194,17 @@ export function StudentAppShopScreen() {
     );
   }
 
-  const packs = shop.packs.filter((pack) => matchesSearch(pack.name, searchText));
-  const products = shop.products.filter((product) => matchesSearch(product.name, searchText));
-  const showsPacks = category !== "products" && packs.length > 0;
-  const showsProducts = category !== "packs" && products.length > 0;
+  const packsMatching = (values: CatalogFilterValues) =>
+    filteredPacks(shop.packs, values).filter((pack) => matchesSearch(pack.name, searchText));
+  const productsMatching = (values: CatalogFilterValues) =>
+    filteredProducts(shop.products, values).filter((product) =>
+      matchesSearch(product.name, searchText),
+    );
+  const packs = packsMatching(filterValues);
+  const products = productsMatching(filterValues);
+  const isFiltered = hasActiveFilters(filterValues);
+  const showsPacks = packs.length > 0;
+  const showsProducts = products.length > 0;
   const shownProductId = openProductId ?? productId ?? null;
   const openProduct = shop.products.find((product) => product.id === shownProductId);
   const openPack = shop.packs.find((pack) => pack.id === openPackId);
@@ -149,15 +238,18 @@ export function StudentAppShopScreen() {
             onChangeText={setSearchText}
             placeholder={translate("student.shop.search")}
           />
-          {shop.packs.length > 0 && shop.products.length > 0 ? (
-            <ChipGroup
-              isScrollable
-              options={(Object.keys(shopCategories) as ShopCategory[]).map((shopCategory) => ({
-                value: shopCategory,
-                label: translate(shopCategories[shopCategory]),
-              }))}
-              selectedValue={category}
-              onChange={setCategory}
+          <CatalogFilterControls
+            filters={shopFiltersOf(shop)}
+            values={filterValues}
+            onChange={setFilterValues}
+            countMatching={(values) =>
+              packsMatching(values).length + productsMatching(values).length
+            }
+          />
+          {isFiltered ? (
+            <CatalogFilterSummary
+              shownCount={packs.length + products.length}
+              totalCount={shop.packs.length + shop.products.length}
             />
           ) : null}
         </>
@@ -203,7 +295,13 @@ export function StudentAppShopScreen() {
           ))}
         </>
       ) : null}
-      {searchText.trim().length > 0 && packs.length === 0 && products.length === 0 ? (
+      {isFiltered && packs.length === 0 && products.length === 0 ? (
+        <EmptyState icon="filter" message={translate("filters.noResults")} />
+      ) : null}
+      {!isFiltered &&
+      searchText.trim().length > 0 &&
+      packs.length === 0 &&
+      products.length === 0 ? (
         <EmptyState icon="search" message={translate("student.shop.noResults")} />
       ) : null}
       {openProduct === undefined ? null : (
