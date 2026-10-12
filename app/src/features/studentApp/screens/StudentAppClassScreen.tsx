@@ -13,19 +13,26 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 
-interface StudentAppClassParameters extends Record<string, string> {
-  classGroupId: string;
-  date: string;
-  startTime: string;
+function dayLabel(date: string | undefined, today: string): string | undefined {
+  if (date === undefined) {
+    return undefined;
+  }
+  return date === today
+    ? translate("student.day.todayWithDate", { day: shortDayLabel(date) })
+    : shortDayLabel(date);
 }
 
 export function StudentAppClassScreen() {
-  const { classGroupId, date, startTime } = useLocalSearchParams<StudentAppClassParameters>();
+  const { classGroupId, date, startTime } = useLocalSearchParams<{
+    classGroupId?: string;
+    date?: string;
+    startTime?: string;
+  }>();
   const today = todayIsoDate();
   const { data: home, isPending, isError, refetch } = useStudentAppHome();
   useRefetchOnFocus(refetch);
   const { student } = useSelectedStudent(home?.students ?? []);
-  const material = student === null ? null : materialOf(student, classGroupId);
+  const material = student === null ? null : materialOf(student, classGroupId ?? null);
   const scheduledClass =
     student?.nextClasses.find(
       (nextClass) =>
@@ -37,11 +44,7 @@ export function StudentAppClassScreen() {
   const header = (
     <ScreenHeader
       navigation="back"
-      eyebrow={
-        date === today
-          ? translate("student.day.todayWithDate", { day: shortDayLabel(date) })
-          : shortDayLabel(date)
-      }
+      eyebrow={dayLabel(date, today)}
       title={scheduledClass?.name ?? material?.className ?? translate("student.tabs.classes")}
     />
   );
