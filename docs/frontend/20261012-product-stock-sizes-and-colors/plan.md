@@ -55,7 +55,7 @@ New (to confirm): "Las que tenés hoy de cada talle.", "Agregar", "Por ejemplo: 
 
 ### Screenshots
 
-The product form changes layout, so the PR captures before and after of Nuevo producto and Editar producto (light and dark) and publishes them in the redesign screenshots artifact, following the rule in `CLAUDE.md`.
+The product form changes layout, so Nuevo producto and Editar producto are captured before and after (light and dark) and shown to the owner, following the rule in `CLAUDE.md`.
 
 ## PR 2: colors
 
@@ -100,9 +100,10 @@ New (to confirm): "Talles", "Colores", "Elegir colores", "Tocá los colores en q
 
 ### Screenshots
 
-Before and after of Nuevo producto, Editar producto, the stock sheet and the student product page, light and dark.
+Nuevo producto, Editar producto, the stock and color sheets and the student product page are captured before and after (light and dark) and shown to the owner.
 
-## Open questions
 
-- The initial stock creates `Restock` movements with no note. If the owner wants to tell them apart in the history, add a note such as "Stock inicial" (a new text) or a movement kind.
-- Whether a combination the business never sells (L Blanco) should be hidden from students instead of shown as sold out. The proposal shows it as sold out; hiding it needs a switch per cell.
+## Decided
+
+- The initial stock is its own movement kind, `InitialStock`, shown as "Stock inicial" in the history (owner, 2026-10-12). It is stored as text like the other kinds, so no migration is needed, and it can't be recorded through `POST /products/{id}/stock`.
+- Every combination of the sizes and colors the instructor adds is sold; there is no "combination that doesn't exist" to hide (owner, 2026-10-12). Students see all of them: with "Con stock" a combination at 0 shows as sold out, with "Con stock y a pedido" it can still be ordered, and with "Sin stock" it is always available.

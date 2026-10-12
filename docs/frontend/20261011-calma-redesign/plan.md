@@ -43,15 +43,13 @@ Screens never style things on their own. Everything visual comes from `app/src/u
 
 ### 4. Before and after screenshots for important changes
 
-Screenshots go in the gallery only when a change is important: a screen whose layout changes (a list that becomes a timeline, a card that becomes rows, a panel that moves), a new pattern, or an email. A change applied the same way everywhere through shared primitives and tokens (fonts, sizes, shadows, radii, motion), with no change in functionality, does not need them: the PR says which screens it checked by eye.
+Screenshots are taken only when a change is important: a screen whose layout changes (a list that becomes a timeline, a card that becomes rows, a panel that moves), a new pattern, or an email. A change applied the same way everywhere through shared primitives and tokens (fonts, sizes, shadows, radii, motion), with no change in functionality, does not need them: the PR says which screens it checked by eye.
 
 When a PR needs them:
 
 1. Before changing anything, capture on `main` the screens the PR changes, with [Demo screenshots](../../e2e/demo-screenshots.md): `pnpm screenshots` (team app), `pnpm screenshots:no-build Student_screens` (student app) and `pnpm screenshots:invitations` when sign-up or invitations are touched. Capture light and dark (`SCREENSHOTS_COLOR_SCHEME=dark`).
 2. Make the change and capture the same screens again on the branch.
-3. Publish only the screens that changed, at phone size, in the [Calma, antes y después](https://claude.ai/artifact/AMoHSyDZQNwkEszSW6NqkJ) gallery: one section per step, each screen with its before and after side by side (light and dark). The images are not committed to the repository; `e2e/screenshots-output/` stays git-ignored.
-4. The PR description links the gallery section of its step and lists the screens that changed.
-5. When the whole plan is done, the gallery gets a final section with the first "before" and the last "after" of every main screen and email, to show the full change, and the last PR links it.
+3. Show the screens that changed, before and after, to the owner in the session before opening the PR. They are not committed, published or linked from the PR; `e2e/screenshots-output/` stays git-ignored. The PR description lists the screens that changed.
 
 A changed screen that is not in the capture scripts gets added to them in the same PR, before the "before" capture. Emails are captured the same way through the email previews (step 0), at phone and desktop width.
 

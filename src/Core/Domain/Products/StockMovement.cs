@@ -88,7 +88,7 @@ public sealed class StockMovement : ITenantOwned
             .Select((variant, position) => (product.Variants[position].Id, Quantity: variant.InitialStock ?? 0))
             .Where(initialStock => initialStock.Quantity > 0)
             .Select(initialStock => Create(
-                initialStock.Id, StockMovementKind.Restock, initialStock.Quantity, null, null, recordedByUserId, createdAt))]);
+                initialStock.Id, StockMovementKind.InitialStock, initialStock.Quantity, null, null, recordedByUserId, createdAt))]);
     }
 
     public static StockMovement Sale(Guid variantId, int quantity, Guid orderId, Guid? recordedByUserId, DateTimeOffset createdAt) =>

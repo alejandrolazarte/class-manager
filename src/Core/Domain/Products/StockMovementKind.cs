@@ -8,4 +8,5 @@ public enum StockMovementKind
     Refund,
     Reservation,
     Cancellation,
+    InitialStock,
 }
