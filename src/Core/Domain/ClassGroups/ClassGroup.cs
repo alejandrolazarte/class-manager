@@ -12,11 +12,14 @@ public sealed class ClassGroup : ITenantOwned
     public const int MaximumCapacity = 100;
     public const int LocationMaxLength = 80;
     public const int MaterialUrlMaxLength = 500;
+    public const int MaximumMaterialFiles = 1;
 
     private const string NameLengthMessage = "Name must be between 2 and 80 characters.";
     private const string CapacityRangeMessage = "Capacity must be between 1 and 100.";
     private const string LocationLengthMessage = "Location must be at most 80 characters.";
     private const string MaterialUrlMessage = "The material link must be an https address of at most 500 characters.";
+
+    private readonly List<ClassGroupMaterialFile> _materialFiles = [];
 
     private ClassGroup()
     {
@@ -32,8 +35,8 @@ public sealed class ClassGroup : ITenantOwned
     public int Capacity { get; private set; }
     public string? Location { get; private set; }
     public string? MaterialUrl { get; private set; }
-    public Guid? MaterialDocumentId { get; private set; }
-    public Document? MaterialDocument { get; private set; }
+    public IReadOnlyList<ClassGroupMaterialFile> MaterialFiles => _materialFiles;
+    public Document? MaterialFile => _materialFiles.MinBy(materialFile => materialFile.Position)?.Document;
     public bool IsActive { get; private set; }
 
     public ClassSchedule Schedule => ClassSchedule.FromStored(Weekdays, StartTime, DurationMinutes);
@@ -87,29 +90,27 @@ public sealed class ClassGroup : ITenantOwned
         }
 
         MaterialUrl = trimmedUrl;
-        if (trimmedUrl is not null)
-        {
-            RemoveMaterialFile();
-        }
-
         return Result.Success();
     }
 
     public Document? ShareMaterialFile(Document file)
     {
-        var replacedFile = RemoveMaterialFile();
-        MaterialUrl = null;
-        MaterialDocumentId = file.Id;
-        MaterialDocument = file;
+        var replacedFile = _materialFiles.Count < MaximumMaterialFiles ? null : RemoveMaterialFile();
+        var position = _materialFiles.Count == 0 ? 0 : _materialFiles.Max(materialFile => materialFile.Position) + 1;
+        _materialFiles.Add(ClassGroupMaterialFile.Create(Id, file, position));
         return replacedFile;
     }
 
     public Document? RemoveMaterialFile()
     {
-        var removedFile = MaterialDocument;
-        MaterialDocumentId = null;
-        MaterialDocument = null;
-        return removedFile;
+        var removedFile = _materialFiles.MinBy(materialFile => materialFile.Position);
+        if (removedFile is null)
+        {
+            return null;
+        }
+
+        _materialFiles.Remove(removedFile);
+        return removedFile.Document;
     }
 
     public void Activate() => IsActive = true;

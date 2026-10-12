@@ -248,13 +248,16 @@ public sealed class GetStudentAppHomeUseCase(
     private List<StudentAppClassMaterialResponse> Materials(IEnumerable<ClassGroup> classGroups) =>
     [
         .. classGroups
-            .Where(classGroup => classGroup.MaterialUrl is not null || classGroup.MaterialDocument is not null)
+            .Where(classGroup => classGroup.MaterialUrl is not null || classGroup.MaterialFile is not null)
             .DistinctBy(classGroup => classGroup.Id)
             .OrderBy(classGroup => classGroup.Name, StringComparer.CurrentCultureIgnoreCase)
             .Select(classGroup => new StudentAppClassMaterialResponse(
                 classGroup.Id,
                 classGroup.Name,
-                classGroup.MaterialUrl ?? documentStorage.PublicUrlOf(classGroup.MaterialDocument!).ToString())),
+                classGroup.MaterialUrl,
+                classGroup.MaterialFile is { } materialFile
+                    ? new StudentAppClassMaterialFileResponse(documentStorage.PublicUrlOf(materialFile).ToString(), materialFile.SizeInBytes)
+                    : null)),
     ];
 
     private static StudentAppAttendanceResponse Attendance(

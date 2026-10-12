@@ -15,7 +15,6 @@ internal sealed class ClassGroupUseCaseBuilder
     public Mock<IEnrollmentRepository> Enrollments { get; } = new();
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
-    public Mock<IDocumentRepository> Documents { get; } = new();
     public Mock<IDocumentStorageService> DocumentStorage { get; } = new();
     public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
 
@@ -39,7 +38,7 @@ internal sealed class ClassGroupUseCaseBuilder
         new(Instructors.Object, ClassGroups.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, DocumentStorage.Object);
 
     public UpdateClassGroupUseCase BuildUpdate() =>
-        new(Instructors.Object, ClassGroups.Object, Enrollments.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, Documents.Object, DocumentStorage.Object);
+        new(Instructors.Object, ClassGroups.Object, Enrollments.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, DocumentStorage.Object);
 
     public SetClassGroupActiveUseCase BuildSetActive() =>
         new(Instructors.Object, ClassGroups.Object, Enrollments.Object, UnitOfWork.Object, BusinessCalendar.Object, DocumentStorage.Object);

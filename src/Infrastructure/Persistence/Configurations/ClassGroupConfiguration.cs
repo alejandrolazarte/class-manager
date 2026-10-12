@@ -13,14 +13,12 @@ internal sealed class ClassGroupConfiguration : IEntityTypeConfiguration<ClassGr
         builder.Property(classGroup => classGroup.Location).HasMaxLength(ClassGroup.LocationMaxLength);
         builder.Property(classGroup => classGroup.MaterialUrl).HasMaxLength(ClassGroup.MaterialUrlMaxLength);
         builder.Ignore(classGroup => classGroup.Schedule);
-        builder.HasOne(classGroup => classGroup.MaterialDocument)
-            .WithMany()
-            .HasForeignKey(classGroup => classGroup.MaterialDocumentId)
-            .OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(classGroup => classGroup.MaterialDocumentId).IsUnique().HasFilter("[MaterialDocumentId] IS NOT NULL");
-        builder.Navigation(classGroup => classGroup.MaterialDocument).AutoInclude();
-        builder.ToTable(table => table.HasCheckConstraint(
-            "CK_ClassGroups_OneMaterial", "[MaterialUrl] IS NULL OR [MaterialDocumentId] IS NULL"));
+        builder.Ignore(classGroup => classGroup.MaterialFile);
+        builder.HasMany(classGroup => classGroup.MaterialFiles)
+            .WithOne()
+            .HasForeignKey(materialFile => materialFile.ClassGroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(classGroup => classGroup.MaterialFiles).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
 
         builder.HasOne<Business>().WithMany().HasForeignKey(classGroup => classGroup.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Instructor>().WithMany().HasForeignKey(classGroup => classGroup.InstructorId).OnDelete(DeleteBehavior.Restrict);

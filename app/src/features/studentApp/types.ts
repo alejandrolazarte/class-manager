@@ -82,10 +82,16 @@ export interface StudentAppFeedback {
   text: string;
 }
 
+export interface StudentAppClassMaterialFile {
+  url: string;
+  sizeInBytes: number;
+}
+
 export interface StudentAppClassMaterial {
   classGroupId: string;
   className: string;
-  url: string;
+  linkUrl: string | null;
+  file: StudentAppClassMaterialFile | null;
 }
 
 export interface AccountStudent {

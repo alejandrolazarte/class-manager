@@ -88,6 +88,9 @@ const iconGlyphs = {
   fieldError: "alert-circle-outline",
   fieldValid: "checkmark-circle-outline",
   material: "book-outline",
+  link: "link-outline",
+  document: "document-text-outline",
+  openExternal: "open-outline",
 } as const satisfies Record<string, IoniconsGlyph>;
 
 export const iconSizes = {

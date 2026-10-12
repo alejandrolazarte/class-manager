@@ -90,6 +90,11 @@ test("Student screens", async ({ page, request }) => {
   await page.getByText("Hoy,", { exact: false }).filter({ visible: true }).first().waitFor();
   await capture(page, "22-alumno-clases");
 
+  await openClassesDay(page, demo.today, demo.today);
+  await page.getByRole("button", { name: "Ver clase de Natación inicial" }).first().click();
+  await page.getByText("Material de la clase").filter({ visible: true }).first().waitFor();
+  await capture(page, "22f-alumno-clase-material");
+
   await openClassesDay(page, student.absenceDate, demo.today);
   await page.getByText("No va", { exact: true }).filter({ visible: true }).first().waitFor();
   await capture(page, "22b-alumno-clases-no-voy");
@@ -190,6 +195,15 @@ test("Team screens with student activity", async ({ page, request }) => {
     .first()
     .waitFor();
   await capture(page, "01c-avisos");
+
+  await page.goto(`/classes/${demo.beginnersClassGroupId}/edit`);
+  await page.getByText("Nombre de la clase").filter({ visible: true }).first().waitFor();
+  await page
+    .getByText("Material para los alumnos")
+    .filter({ visible: true })
+    .first()
+    .evaluate((label) => label.scrollIntoView({ block: "start" }));
+  await capture(page, "05b-clase-editar-material");
 
   await page.goto("/fees?view=orders");
   await page.getByRole("button", { name: "Cobrar" }).first().click();
