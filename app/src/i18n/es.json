@@ -1285,7 +1285,7 @@
   "student.materials.openLink": "Abrir link al material de {className}",
   "student.materials.file": "Ver PDF",
   "student.materials.openFile": "Ver PDF de {className}",
-  "student.classDetail.open": "Ver material de {className}",
+  "student.classDetail.open": "Ver clase de {className}",
   "student.packClasses.available.one": "Te queda 1 clase para reservar",
   "student.packClasses.available.other": "Te quedan {count} clases para reservar",
   "student.packClasses.none": "No te quedan clases en el pack",

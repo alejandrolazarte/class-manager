@@ -99,7 +99,7 @@ The student signs in through the sign-in screen, then the test captures:
 | `22c-alumno-clase-de-recuperacion` | A booked makeup class in the student schedule |
 | `22d-alumno-recuperar-clases` | Classes to make up, with open slots to book |
 | `22e-alumno-clase-del-pack` | Lucía's booked Aquagym class from her pack, with "Reservar clases del pack": classes left and open dates |
-| `22f-alumno-clase-material` | Today's Natación inicial opened from Clases: the class and its material, link and PDF |
+| `22f-alumno-clase-material` | Today's Natación inicial opened from Clases: the class, "Avisar que no voy" and its material, link and PDF |
 | `23-alumno-tienda`, `23b-alumno-tienda-productos` | Shop: search, categories, packs and product grid |
 | `24-alumno-producto` | Product sheet with sizes, a sold-out size and quantity |
 | `25-alumno-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |

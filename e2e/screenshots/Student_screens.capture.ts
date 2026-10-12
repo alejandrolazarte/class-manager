@@ -91,7 +91,7 @@ test("Student screens", async ({ page, request }) => {
   await capture(page, "22-alumno-clases");
 
   await openClassesDay(page, demo.today, demo.today);
-  await page.getByRole("button", { name: "Ver material de Natación inicial" }).first().click();
+  await page.getByRole("button", { name: "Ver clase de Natación inicial" }).first().click();
   await page.getByText("Material de la clase").filter({ visible: true }).first().waitFor();
   await capture(page, "22f-alumno-clase-material");
 

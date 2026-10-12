@@ -7,12 +7,7 @@ import { ScheduledClassRow } from "@/features/studentApp/components/ScheduledCla
 import { StudentChips } from "@/features/studentApp/components/StudentChips";
 import { WeekStrip } from "@/features/studentApp/components/WeekStrip";
 import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider";
-import {
-  classesOn,
-  materialOf,
-  monthTitle,
-  shortDayLabel,
-} from "@/features/studentApp/studentAppSchedule";
+import { classesOn, monthTitle, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { addDays, todayIsoDate, weekOf } from "@/features/sessions/dates";
@@ -140,9 +135,9 @@ export function StudentAppClassesScreen() {
                   scheduledClass={scheduledClass}
                   isToday={selectedDate === today}
                   onOpen={
-                    scheduledClass.classGroupId !== null &&
-                    materialOf(student, scheduledClass.classGroupId) !== null
-                      ? () =>
+                    scheduledClass.classGroupId === null
+                      ? undefined
+                      : () =>
                           router.push(
                             routes.studentAppClass({
                               classGroupId: scheduledClass.classGroupId ?? "",
@@ -150,7 +145,6 @@ export function StudentAppClassesScreen() {
                               startTime: scheduledClass.startTime,
                             }),
                           )
-                      : undefined
                   }
                 />
               </AnimatedListItem>

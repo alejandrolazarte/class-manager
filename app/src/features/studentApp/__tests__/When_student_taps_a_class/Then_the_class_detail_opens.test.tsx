@@ -18,7 +18,7 @@ const classGroupId = "0192f0c5-0000-7000-8000-000000000010";
 const className = "Grupo inicial";
 const today = todayIsoDate();
 
-describe("When student taps a class with material", () => {
+describe("When student taps a class", () => {
   beforeEach(() => {
     jest.mocked(getStudentAppHome).mockResolvedValue(
       buildStudentAppHome({
@@ -31,9 +31,6 @@ describe("When student taps a class with material", () => {
                 date: today,
                 startTime: "18:00",
               }),
-            ],
-            materials: [
-              { classGroupId, className, linkUrl: "https://example.com/video", file: null },
             ],
           }),
         ],

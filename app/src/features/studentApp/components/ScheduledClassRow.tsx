@@ -14,10 +14,7 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
-import { PressableScale } from "@/ui/motion/PressableScale";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
-
-const summaryClassName = "flex-row items-start gap-3";
 
 interface ScheduledClassRowProps {
   studentId: string;
@@ -69,23 +66,23 @@ export function ScheduledClassRow({
       <StatusPill isSmall label={statusLabel} tone={statusTone} />
     </>
   );
+  if (onOpen !== undefined) {
+    return (
+      <HairlineRow
+        isDimmed={isDimmed}
+        accessibilityLabel={translate("student.classDetail.open", {
+          className: scheduledClass.name,
+        })}
+        onPress={onOpen}
+      >
+        {summary}
+        <Icon name="next" size="small" tone="subtle-foreground" />
+      </HairlineRow>
+    );
+  }
   return (
     <HairlineRow isDimmed={isDimmed} className="gap-2.5 py-3">
-      {onOpen === undefined ? (
-        <View className={summaryClassName}>{summary}</View>
-      ) : (
-        <PressableScale
-          accessibilityRole="button"
-          accessibilityLabel={translate("student.classDetail.open", {
-            className: scheduledClass.name,
-          })}
-          onPress={onOpen}
-          className={`${summaryClassName} active:opacity-70`}
-        >
-          {summary}
-          <Icon name="next" size="small" tone="subtle-foreground" />
-        </PressableScale>
-      )}
+      <View className="flex-row items-start gap-3">{summary}</View>
       {canNotifyAbsence(scheduledClass) ? (
         <View className="self-start">
           <Button

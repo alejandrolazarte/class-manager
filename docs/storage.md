@@ -87,7 +87,7 @@ A class can share a link (`MaterialUrl`) and an uploaded PDF at the same time: t
 | `DELETE /api/class-groups/{id}/material` | Removes the file. 404 `class_group.material_file_not_found` if there is none |
 | `PUT /api/class-groups/{id}` with a `materialUrl` | Sets or clears the link and keeps the file |
 
-Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student app returns the link and the file separately (`linkUrl`, `file`), and the student sees both inside the class: tapping a class with material in Clases opens its detail.
+Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student app returns the link and the file separately (`linkUrl`, `file`), and the student sees both inside the class: in Clases every group class opens its detail, which holds its actions ("Avisar que no voy", cancel a makeup or a pack booking) and its material.
 
 **Material files are public, like shop photos.** Decision (2026-10-08): a signed, short-lived link would only stop students from sharing the URL; they can still download the PDF and pass it on, as they can with printed material or a public Drive link. Private files stay for sensitive documents (medical certificates, IDs).
 
