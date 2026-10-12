@@ -18,7 +18,7 @@ The look is **Calma** ([redesign plan](20261011-calma-redesign/plan.md)). The de
 - Summaries (Cuotas, Pedidos) are a `SummaryBlock`: a label, a large number with the total next to it, a thin progress bar (green when complete) and status lines in color.
 - Highlights and banners are tonal: `Highlight` (the live or next class in Inicio, 14 px radius) and `Banner` (12 px radius, the tone's soft background and text, no border). Inset content (notes, order payment and refund, the invite forms, grouped packs, the counter sale summary, the current plan, an attached class file) sits in a `TonalBlock` with the `muted` tone. Attendance counts are a `CountsRow` built on `HairlineColumns`.
 - Selection: chip groups slide a dark `inverse` thumb under borderless chips; `Tabs` are text with a 2px `foreground` underline; the compact `SegmentedControl` (Día / Mes) is text with a short sliding line.
-- Material Icons (`@expo/vector-icons/MaterialIcons`) behind semantic names, 20–22px in rows, buttons and the tab bar.
+- Outline icons (Ionicons `-outline` glyphs from `@expo/vector-icons/Ionicons`, thin stroke with round ends, as the design draws them) behind semantic names, 20–22px in rows, buttons and the tab bar. No filled glyphs.
 - Radii: 10px inputs, 12px buttons and banners, 14px highlights and photos, 20px sheets, pills for chips, status and the floating button.
 - Sizes: buttons 48px (`large`) and 44px (`medium`), inputs 46px (the amount input 52px), icon buttons 44px (40px outlined, 36px compact for steppers such as month and week arrows), floating button 48px.
 - Tab bar: the active tab takes the primary color and a small dot under its icon; the badge stays red.
@@ -96,7 +96,7 @@ Stack screens slide in from the right on native (`useStackScreenOptions`, none w
 
 ## Icons
 
-`Icon` wraps Material Icons behind semantic names (`today`, `classes`, `students`, `fees`, `settings`, `brand`, `present`, `absent`, `enroll`, `cash`, ...). Add a name to `iconGlyphs` to use a new icon; swapping the icon set only touches `Icon.tsx`. Icons without `accessibilityLabel` are decorative and hidden from screen readers.
+`Icon` wraps Ionicons outline glyphs behind semantic names (`today`, `classes`, `students`, `fees`, `settings`, `brand`, `present`, `absent`, `enroll`, `cash`, ...). Add a name to `iconGlyphs` to use a new icon; swapping the icon set only touches `Icon.tsx`. Icons without `accessibilityLabel` are decorative and hidden from screen readers.
 
 ## Rules enforced by lint
 
