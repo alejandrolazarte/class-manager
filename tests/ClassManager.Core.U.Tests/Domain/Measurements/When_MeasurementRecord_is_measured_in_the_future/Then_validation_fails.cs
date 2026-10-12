@@ -1,0 +1,15 @@
+using ClassManager.Core.Domain.Measurements;
+
+namespace ClassManager.Core.U.Tests.Domain.Measurements.When_MeasurementRecord_is_measured_in_the_future;
+
+public sealed class Then_validation_fails
+{
+    [Fact]
+    public void Then_validation_fails_Run()
+    {
+        var record = MeasurementRecord.Create(
+            Guid.NewGuid(), MeasurementSamples.Time(), TestData.Today.AddDays(1), 29.7m, null, TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false);
+
+        record.Error!.FieldName.ShouldBe(nameof(MeasurementRecord.MeasuredOn));
+    }
+}

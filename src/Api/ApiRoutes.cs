@@ -22,6 +22,15 @@ public static class ApiRoutes
     public const string Seen = "/seen";
     public const string Announcements = "/api/announcements";
     public const string AnnouncementById = "/{announcementId:guid}";
+    public const string Measurements = "/api/measurements";
+    public const string MeasurementById = "/{measurementId:guid}";
+    public const string MeasurementRecords = "/api/measurement-records";
+    public const string MeasurementRecordById = "/{recordId:guid}";
+    public const string StudentMeasurements = "/measurements";
+    public const string Records = "/records";
+    public const string Goal = "/goal";
+    public const string StudentAppMeasurements = "/measurements";
+    public const string StudentAppMeasurementRecords = "/students/{studentId:guid}/measurements/{measurementId:guid}/records";
     public const string AppInvitation = "/app-invitation";
     public const string ClientById = "/{clientId:guid}";
     public const string StudentsOfClient = "/students";
