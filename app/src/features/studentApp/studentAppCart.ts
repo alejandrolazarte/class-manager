@@ -1,3 +1,4 @@
+import { variantDisplayName } from "@/features/products/productColors";
 import {
   StudentAppShop,
   StudentAppShopProduct,
@@ -73,7 +74,8 @@ export function variantName(
   product: StudentAppShopProduct,
   variant: StudentAppShopVariant,
 ): string {
-  return variant.name.length === 0 ? product.name : `${product.name} · ${variant.name}`;
+  const displayName = variantDisplayName(variant.size, variant.color);
+  return displayName.length === 0 ? product.name : `${product.name} · ${displayName}`;
 }
 
 export function cartItems(shop: StudentAppShop, cart: StudentAppCart): StudentAppCartItem[] {
@@ -98,7 +100,7 @@ export function cartItems(shop: StudentAppShop, cart: StudentAppCart): StudentAp
         itemId: variant.id,
         name: variantName(product, variant),
         title: product.name,
-        sizeName: variant.name.length === 0 ? null : variant.name,
+        sizeName: variantDisplayName(variant.size, variant.color) || null,
         classCount: null,
         imageUrl: product.images[0]?.url ?? null,
         unitPrice: product.price,

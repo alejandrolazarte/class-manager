@@ -9,7 +9,7 @@ public sealed class Then_stock_is_not_tracked
     {
         var product = ProductTestData.Product(StockMode.Unlimited);
 
-        var movements = StockMovement.InitialStock(product, [new VariantChange(null, string.Empty, 5)], null, TestData.Now);
+        var movements = StockMovement.InitialStock(product, [new VariantChange(null, string.Empty, InitialStock: 5)], null, TestData.Now);
 
         movements.Error!.Code.ShouldBe(ProductErrorCodes.StockNotTracked);
     }

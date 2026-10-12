@@ -5,7 +5,8 @@ export const stockModes: readonly StockMode[] = ["Tracked", "TrackedWithBackorde
 
 export interface ProductVariant {
   id: string;
-  name: string;
+  size: string;
+  color: string | null;
   stock: number | null;
 }
 
@@ -23,7 +24,8 @@ export interface Product {
 
 export interface VariantChange {
   id: string | null;
-  name: string;
+  size: string;
+  color: string | null;
   initialStock?: number;
 }
 

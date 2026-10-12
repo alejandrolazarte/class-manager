@@ -1,5 +1,6 @@
 import { ClassPack } from "@/features/classPacks/types";
 import { CounterSaleLine } from "@/features/orders/types";
+import { variantDisplayName } from "@/features/products/productColors";
 import { Product, ProductVariant } from "@/features/products/types";
 import { groupDeliveryClasses } from "@/features/studentApp/deliveryClassGroups";
 import { DeliveryClass } from "@/features/studentApp/types";
@@ -44,8 +45,9 @@ function variantStockDetail(product: Product, variant: ProductVariant): string |
 }
 
 function productItemName(product: Product, variant: ProductVariant): string {
-  return product.variants.length > 1 && variant.name.length > 0
-    ? `${product.name} · ${variant.name}`
+  const displayName = variantDisplayName(variant.size, variant.color);
+  return product.variants.length > 1 && displayName.length > 0
+    ? `${product.name} · ${displayName}`
     : product.name;
 }
 

@@ -13,7 +13,7 @@ public sealed class Then_each_size_starts_without_stock(ApiFixture fixture)
         await business.HttpClient.CreateProductAsync(StockMode.Tracked, "S", "M", "L");
 
         var product = (await business.HttpClient.ListProductsAsync()).Single();
-        product.Variants.Select(variant => variant.Name).ShouldBe(["S", "M", "L"]);
+        product.Variants.Select(variant => variant.Size).ShouldBe(["S", "M", "L"]);
         product.Variants.ShouldAllBe(variant => variant.Stock == 0);
     }
 }

@@ -2,8 +2,10 @@ import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { CatalogThumbnail } from "@/features/catalogImages/components/CatalogThumbnail";
 import { formatMoney } from "@/features/fees/money";
+import { productColorName } from "@/features/products/productColors";
 import { stockSummary } from "@/features/products/stockLabels";
 import { Product } from "@/features/products/types";
+import { colorsOf, sizesOf } from "@/features/products/variantOptions";
 import { InactiveChip } from "@/features/settings/components/InactiveChip";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -17,7 +19,8 @@ interface ProductListItemProps {
 
 export function ProductListItem({ product, onPress }: ProductListItemProps) {
   const currencyCode = useBusinessCurrency();
-  const namedVariants = product.variants.filter((variant) => variant.name.length > 0);
+  const sizes = sizesOf(product.variants);
+  const colorNames = colorsOf(product.variants).map(productColorName);
   return (
     <HairlineRow
       isDimmed={!product.isActive}
@@ -30,9 +33,8 @@ export function ProductListItem({ product, onPress }: ProductListItemProps) {
         <AppText variant="caption" tone="subtle">
           {[
             formatMoney(product.price, currencyCode),
-            namedVariants.length > 0
-              ? namedVariants.map((variant) => variant.name).join(", ")
-              : null,
+            sizes.length > 0 ? sizes.join(", ") : null,
+            colorNames.length > 0 ? colorNames.join(", ") : null,
             stockSummary(product),
             product.isVisibleInApp ? null : translate("products.list.counterOnly"),
           ]

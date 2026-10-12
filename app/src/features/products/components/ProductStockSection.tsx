@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { ProductColorRowLabel } from "@/features/products/components/ProductColorRowLabel";
 import { StockMovementSheet } from "@/features/products/components/StockMovementSheet";
+import { productColorName, variantDisplayName } from "@/features/products/productColors";
 import { variantLabel } from "@/features/products/stockLabels";
 import { Product, StockLoadKind } from "@/features/products/types";
+import { colorsOf, sizesOf } from "@/features/products/variantOptions";
 import { useStockMovements } from "@/features/products/useProducts";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { HairlineSection } from "@/ui/HairlineSection";
+import { StockGrid } from "@/ui/StockGrid";
 
 interface ProductStockSectionProps {
   product: Product;
@@ -24,6 +28,12 @@ export function ProductStockSection({ product }: ProductStockSectionProps) {
     product.stockMode === "TrackedWithBackorder"
       ? "products.stock.onOrder"
       : "products.stock.soldOut";
+  const sizes = sizesOf(product.variants);
+  const colors = colorsOf(product.variants);
+  const isGrid = sizes.length > 0 && colors.length > 0;
+  const emptyVariantLabels = product.variants
+    .filter((variant) => (variant.stock ?? 0) <= 0)
+    .map(variantLabel);
   return (
     <HairlineSection
       title={translate("products.stock.single")}
@@ -33,23 +43,47 @@ export function ProductStockSection({ product }: ProductStockSectionProps) {
         </AppText>
       }
     >
-      {product.variants.map((variant) => {
-        const units = variant.stock ?? 0;
-        return (
-          <View key={variant.id} className="flex-row justify-between">
-            <AppText variant="body">{variantLabel(variant)}</AppText>
-            {units > 0 ? (
-              <AppText variant="bodyStrong">
-                {translateCount("products.stock.units", units)}
-              </AppText>
-            ) : (
-              <AppText variant="bodyStrong" tone="danger">
-                {translate(emptyStockKey)}
-              </AppText>
-            )}
-          </View>
-        );
-      })}
+      {isGrid ? (
+        <StockGrid
+          columnLabels={sizes}
+          rows={colors.map((color) => ({
+            key: color,
+            label: productColorName(color),
+            leading: <ProductColorRowLabel color={color} />,
+            cells: product.variants
+              .filter((variant) => variant.color === color)
+              .map((variant) => ({
+                key: variant.id,
+                value: variant.stock ?? 0,
+                accessibilityLabel: variantLabel(variant),
+              })),
+          }))}
+        />
+      ) : null}
+      {isGrid && emptyVariantLabels.length > 0 ? (
+        <AppText variant="label" tone="danger">
+          {translate("products.stock.soldOutItems", { items: emptyVariantLabels.join(", ") })}
+        </AppText>
+      ) : null}
+      {isGrid
+        ? null
+        : product.variants.map((variant) => {
+            const units = variant.stock ?? 0;
+            return (
+              <View key={variant.id} className="flex-row justify-between">
+                <AppText variant="body">{variantLabel(variant)}</AppText>
+                {units > 0 ? (
+                  <AppText variant="bodyStrong">
+                    {translateCount("products.stock.units", units)}
+                  </AppText>
+                ) : (
+                  <AppText variant="bodyStrong" tone="danger">
+                    {translate(emptyStockKey)}
+                  </AppText>
+                )}
+              </View>
+            );
+          })}
       <View className="flex-row gap-2">
         <View className="flex-1">
           <Button
@@ -80,7 +114,7 @@ export function ProductStockSection({ product }: ProductStockSectionProps) {
                 {[
                   translate(`products.stock.kind.${movement.kind}` as TranslationKey),
                   `${movement.quantity > 0 ? "+" : ""}${movement.quantity}`,
-                  variant && variant.name.length > 0 ? variant.name : null,
+                  variant ? variantDisplayName(variant.size, variant.color) : null,
                   movement.note,
                 ]
                   .filter(Boolean)

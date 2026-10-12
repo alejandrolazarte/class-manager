@@ -10,7 +10,7 @@ export function buildProduct(overrides: Partial<Product> = {}): Product {
     stockMode: "Tracked",
     isVisibleInApp: true,
     isActive: true,
-    variants: [{ id: "0192f0c4-0000-7000-8000-00000000b0a1", name: "", stock: 3 }],
+    variants: [{ id: "0192f0c4-0000-7000-8000-00000000b0a1", size: "", color: null, stock: 3 }],
     images: [],
     ...overrides,
   };

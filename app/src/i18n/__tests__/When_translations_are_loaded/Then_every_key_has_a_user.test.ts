@@ -27,6 +27,7 @@ const keysBuiltFromOneValue = [
   "orders.emptyFilter.",
   "orders.filter.",
   "orders.status.",
+  "products.color.",
   "products.stock.kind.",
   "products.stockMode.",
   "products.stockModeHint.",

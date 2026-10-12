@@ -139,8 +139,8 @@ export function buildStudentAppShop(overrides: Partial<StudentAppShop> = {}): St
         description: null,
         price: 12,
         variants: [
-          { id: "variant-s", name: "S", availability: "Available" },
-          { id: "variant-m", name: "M", availability: "SoldOut" },
+          { id: "variant-s", size: "S", color: null, availability: "Available" },
+          { id: "variant-m", size: "M", color: null, availability: "SoldOut" },
         ],
         images: [],
       },

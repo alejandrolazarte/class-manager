@@ -4,7 +4,7 @@ using ClassManager.Core.UseCases.Images;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record ProductVariantResponse(Guid Id, string Name, int? Stock);
+public sealed record ProductVariantResponse(Guid Id, string Size, string? Color, int? Stock);
 
 public sealed record ProductResponse(
     Guid Id,
@@ -35,7 +35,8 @@ public sealed record ProductResponse(
                     .OrderBy(variant => variant.Position)
                     .Select(variant => new ProductVariantResponse(
                         variant.Id,
-                        variant.Name,
+                        variant.Size,
+                        variant.Color,
                         product.TracksStock ? stockByVariant.GetValueOrDefault(variant.Id) : null)),
             ],
             CatalogImageResponse.ListFrom(product.ImagesInOrder, documentStorage));
