@@ -12,7 +12,7 @@ import {
   studentAppTabDefinitions,
 } from "@/features/studentApp/studentAppTabDefinitions";
 import { translate } from "@/i18n/translate";
-import { TabIcon, useTabBarScreenOptions } from "@/navigation/tabBar";
+import { TabIcon, tabAccessibilityLabel, useTabBarScreenOptions } from "@/navigation/tabBar";
 
 function StudentAppTabs() {
   const screenOptions = useTabBarScreenOptions();
@@ -23,11 +23,16 @@ function StudentAppTabs() {
         <Tabs.Screen
           key={tab.name}
           name={tab.name}
-          options={{
+          options={({ navigation, route }) => ({
             title: translate(tab.titleKey),
+            tabBarAccessibilityLabel: tabAccessibilityLabel(
+              translate(tab.titleKey),
+              navigation,
+              route.key,
+            ),
             tabBarBadge: tab.name === studentAppShopTabName && units > 0 ? units : undefined,
             tabBarIcon: ({ focused }) => <TabIcon icon={tab.icon} isFocused={focused} />,
-          }}
+          })}
         />
       ))}
       {studentAppHiddenRouteNames.map((routeName) => (

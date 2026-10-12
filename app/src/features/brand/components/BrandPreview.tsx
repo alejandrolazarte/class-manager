@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { translate } from "@/i18n/translate";
-import { TabIcon } from "@/navigation/tabBar";
+import { TabIcon, TabLabel } from "@/navigation/tabBar";
 import { ThemeColors } from "@/theme/themeColorTokens";
 import { ThemePreviewScope } from "@/theme/ThemePreviewScope";
 import { AppText } from "@/ui/AppText";
@@ -31,11 +31,9 @@ export function BrandPreview({ colors }: { colors: ThemeColors }) {
       </View>
       <View className="flex-row justify-between rounded-2xl bg-surface px-2 py-2.5">
         {previewTabs.map((tab, index) => (
-          <View key={tab.icon} className="items-center gap-1">
+          <View key={tab.icon} className="items-center">
             <TabIcon icon={tab.icon} isFocused={index === 0} />
-            <AppText variant="tab" tone={index === 0 ? "primary" : "muted"}>
-              {translate(tab.labelKey)}
-            </AppText>
+            <TabLabel label={translate(tab.labelKey)} isFocused={index === 0} />
           </View>
         ))}
       </View>
