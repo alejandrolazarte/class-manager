@@ -55,7 +55,7 @@ New (to confirm): "Las que tenés hoy de cada talle.", "Agregar", "Por ejemplo: 
 
 ### Screenshots
 
-The product form changes layout, so the PR captures before and after of Nuevo producto and Editar producto (light and dark) and publishes them in the redesign screenshots artifact, following the rule in `CLAUDE.md`.
+The product form changes layout, so Nuevo producto and Editar producto are captured before and after (light and dark) and shown to the owner, following the rule in `CLAUDE.md`.
 
 ## PR 2: colors
 
@@ -100,7 +100,7 @@ New (to confirm): "Talles", "Colores", "Elegir colores", "Tocá los colores en q
 
 ### Screenshots
 
-Before and after of Nuevo producto, Editar producto, the stock sheet and the student product page, light and dark.
+Nuevo producto, Editar producto, the stock and color sheets and the student product page are captured before and after (light and dark) and shown to the owner.
 
 ## Open questions
 
