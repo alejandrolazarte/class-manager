@@ -283,8 +283,8 @@ const graphiteTheme: ThemeDefinition = {
 };
 
 export const themes = {
-  aqua: aquaTheme,
   violet: violetTheme,
+  aqua: aquaTheme,
   ocean: oceanTheme,
   rose: roseTheme,
   plum: plumTheme,
@@ -294,6 +294,6 @@ export const themes = {
 
 export type BuiltInThemeName = keyof typeof themes;
 
-export const defaultThemeName: BuiltInThemeName = "aqua";
+export const defaultThemeName: BuiltInThemeName = "violet";
 
 export const brandThemeName = "business";

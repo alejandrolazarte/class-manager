@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react-native";
 import { AppearanceSettings } from "@/features/settings/components/AppearanceSettings";
 import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
-import { themes } from "@/theme/themes";
+import { defaultThemeName, themes } from "@/theme/themes";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 
@@ -24,6 +24,6 @@ describe("When dark appearance is chosen", () => {
       screen.getByRole("button", { name: translate("settings.appearance.dark") }),
     );
 
-    expect(screen.getByText(themes.aqua.dark.background)).toBeOnTheScreen();
+    expect(screen.getByText(themes[defaultThemeName].dark.background)).toBeOnTheScreen();
   });
 });

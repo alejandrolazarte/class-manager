@@ -9,9 +9,9 @@ The app supports several visual themes, each in light and dark, without touching
 
 ## Visual language
 
-The look is **Calma** ([redesign plan](20261011-calma-redesign/plan.md)) on the colors of the default theme, `aqua`, which come from the Claude Design handoff "Brazada App":
+The look is **Calma** ([redesign plan](20261011-calma-redesign/plan.md)). The default theme is `violet`, the violet of the Laztty logo, on neutral grays. The `aqua` theme keeps the colors of the Claude Design handoff "Brazada App":
 
-- Light: pale water-blue background, white surfaces, lagoon-blue primary. Dark: deep navy surfaces, cyan primary.
+- Default (`violet`): light gray background, white surfaces, violet primary; dark: near-black surfaces, light violet primary. `aqua`: pale water-blue background and lagoon-blue primary; dark: deep navy surfaces, cyan primary.
 - Figtree for all text: 600 for screen titles, amounts, names and buttons, 500 for labels and the tab bar, 400 for body copy and typed text, 700 only for initials and the numbers in badges.
 - No cards: list items are rows separated by 1px `border-subtle` hairlines, flush with the screen padding (`HairlineRow`, `ListRow` with `ListDivider`, `TimelineRow`), and groups get a small section title (`SectionTitle` with `isOverline`: 12 px, 600, sentence case). The parts of a form or a detail (the photos of a product, its stock, each color in Marca, each extra student) are a `HairlineSection`: a hairline above, an optional title and hint, and the content. Switches (`ToggleSwitch`) are flat rows. Only floating elements (the floating button, the cart bar, the large brand mark) keep a shadow.
 - Agenda rows are a timeline (`TimelineRow`): start and end time, a dot on a vertical line (filled and pulsing when live, filled in the status color when done or pending, hollow when upcoming or cancelled), title, meta and the status as colored text.
@@ -28,7 +28,7 @@ The design's oklch colors were converted to hex. A few light-mode values were da
 
 ## How it works
 
-- `themes.ts` defines each built-in theme as `{ light, dark }` maps of token → hex. Today: `aqua` (default, Agua), `violet` (Violeta), `ocean` (Océano), `rose` (Rosa), `plum` (Ciruela), `indigo` (Índigo) and `graphite` (Grafito). Every theme except `aqua` uses neutral grays and only changes the `primary*` tokens. Theme names describe colors, never an activity.
+- `themes.ts` defines each built-in theme as `{ light, dark }` maps of token → hex. Today: `violet` (default, Violeta, the Laztty color), `aqua` (Agua), `ocean` (Océano), `rose` (Rosa), `plum` (Ciruela), `indigo` (Índigo) and `graphite` (Grafito). Every theme except `aqua` uses neutral grays and only changes the `primary*` tokens. Theme names describe colors, never an activity.
 - `ThemeProvider` (root layout) merges the built-in themes with optional `customThemes`, resolves the color scheme (`system` by default, or a forced `light` / `dark`), turns the active colors into CSS variables (`--color-primary: 0 118 180`) with NativeWind's [`vars()`](https://www.nativewind.dev/docs/api/vars) and sets them on a root `View`, so Android, iOS and web inherit them. It also feeds the navigation theme, so the tab bar follows the theme.
 - `tailwind.config.js` maps each token to `rgb(var(--color-<token>) / <alpha-value>)` (`bg-surface`, `text-muted-foreground`, `bg-primary/20`) and each font role to a family (`font-strong`, `font-heavy`).
 - `accent*` tokens are for small highlights (the eyebrow above titles, chips), never for buttons. Built-in themes set them to their `primary*` values.
@@ -125,7 +125,7 @@ In **Ajustes → Marca** ([brand plan](20260930-brand/plan.md)) the owner picks 
 
 - A color equal to a built-in theme's seed with no accent (`findBuiltInThemeName`) uses that built-in theme as designed.
 - Any other color builds the theme with `deriveBrandTheme` (neutral grays plus `primary*` and `accent*` derived so every pair passes AA).
-- `setBrandTheme` applies it to everyone in the business under the name `business`. Signing out or removing the colors clears it and `aqua` applies again.
+- `setBrandTheme` applies it to everyone in the business under the name `business`. Signing out or removing the colors clears it and `violet` applies again.
 
 `ThemePreviewScope` applies another set of colors (and the matching `useTheme().colors`) to a subtree; Ajustes → Marca uses it for the live preview and the welcome preview.
 

@@ -177,13 +177,13 @@ test("App screens", async ({ page, request }) => {
   await page.screenshot({ path: join(outputDirectory, "18-apariencia.png") });
 
   const themes: [fileName: string, themeName: string][] = [
-    ["19-hoy-tema-violeta", "Violeta"],
+    ["19-hoy-tema-agua", "Agua"],
     ["19-hoy-tema-oceano", "Océano"],
     ["19-hoy-tema-rosa", "Rosa"],
     ["19-hoy-tema-ciruela", "Ciruela"],
     ["19-hoy-tema-indigo", "Índigo"],
     ["19-hoy-tema-grafito", "Grafito"],
-    ["19-hoy-tema-agua", "Agua"],
+    ["19-hoy-tema-violeta", "Violeta"],
   ];
 
   for (const [fileName, themeName] of themes) {

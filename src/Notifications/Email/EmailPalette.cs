@@ -4,7 +4,7 @@ namespace ClassManager.Notifications.Email;
 
 public sealed record EmailPalette(string Primary, string PrimaryStrong, string PrimarySoft, string NoteLabel, string Accent)
 {
-    public const string DefaultThemeColor = "#0076b4";
+    public const string DefaultThemeColor = "#7c3aed";
     public const string White = "#ffffff";
     public const string Black = "#000000";
 
