@@ -1,5 +1,6 @@
 import { APIRequestContext, expect } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+import { signUpOwner } from "../support/businessApi";
 import { e2eEnvironment } from "../support/environment";
 
 export const demoPassword = "demo-owner-password";
@@ -64,17 +65,19 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
       : ((await response.json()) as TResponse);
   }
 
-  const tokens = await send<{ accessToken: string }>("POST", "/api/auth/sign-up", {
-    ownerFullName: "Laura Gómez",
-    email,
-    password: demoPassword,
-    businessName: "Escuela de Natación Brazada",
-    timeZoneId: demoTimeZoneId,
-    currencyCode: "ARS",
-    countryCode: "AR",
-    ownerBirthDate: "1985-06-20",
-  });
-  accessToken = tokens.accessToken;
+  ({ accessToken } = await signUpOwner(
+    request,
+    {
+      ownerFullName: "Laura Gómez",
+      email,
+      businessName: "Escuela de Natación Brazada",
+      timeZoneId: demoTimeZoneId,
+      currencyCode: "ARS",
+      countryCode: "AR",
+      ownerBirthDate: "1985-06-20",
+    },
+    demoPassword,
+  ));
 
   const [laura] = await send<Identified[]>("GET", "/api/instructors");
   const martin = await send<Identified>("POST", "/api/instructors", { fullName: "Martín Díaz" });

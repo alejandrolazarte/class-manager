@@ -10,7 +10,7 @@ public sealed class Then_every_permission_is_returned(ApiFixture fixture)
     public async Task Then_every_permission_is_returned_Run()
     {
         using var client = fixture.ApiFactory.CreateClient();
-        var tokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
 
         var member = await ownerClient.GetCurrentMemberAsync();

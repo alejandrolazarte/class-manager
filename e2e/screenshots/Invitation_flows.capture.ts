@@ -11,7 +11,8 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { e2eEnvironment } from "../support/environment";
-import { SmtpSink } from "../support/smtpSink";
+import { signUpOwner } from "../support/businessApi";
+import { linkTokenSentTo } from "../support/mailbox";
 import { waitForBrandWelcomeToClose } from "./brandWelcome";
 
 const outputDirectory = join(process.env.SCREENSHOTS_DIR ?? "screenshots-output", "invitaciones");
@@ -25,15 +26,8 @@ const authorizeStudentAppPattern = /authorize-student-app\?token=([^\s]+)/;
 
 test.use({ locale: "es-AR", timezoneId: timeZoneId });
 
-const smtpSink = new SmtpSink();
-
-test.beforeAll(async () => {
-  await smtpSink.start(e2eEnvironment.smtpPort);
+test.beforeAll(() => {
   mkdirSync(outputDirectory, { recursive: true });
-});
-
-test.afterAll(async () => {
-  await smtpSink.stop();
 });
 
 interface FlowBusiness {
@@ -73,13 +67,6 @@ async function newPhone(browser: Browser): Promise<BrowserContext> {
   return browser.newContext({ ...devices["Pixel 7"], locale: "es-AR", timezoneId: timeZoneId });
 }
 
-async function linkSentTo(email: string, pattern: RegExp): Promise<string> {
-  const message = await smtpSink.waitForEmailTo(email, undefined, pattern);
-  const token = pattern.exec(message.body)?.[1];
-  expect(token, `the email to ${email} has the link`).toBeTruthy();
-  return decodeURIComponent(token!);
-}
-
 async function seedFlowBusiness(request: APIRequestContext): Promise<FlowBusiness> {
   const suffix = randomUUID().slice(0, 8);
   const ownerEmail = `duena-${suffix}@flows.local`;
@@ -96,16 +83,19 @@ async function seedFlowBusiness(request: APIRequestContext): Promise<FlowBusines
     return (await response.json()) as TResponse;
   }
 
-  ({ accessToken: ownerToken } = await send<{ accessToken: string }>("POST", "/api/auth/sign-up", {
-    ownerFullName: "Laura Gómez",
-    email: ownerEmail,
-    password: ownerPassword,
-    businessName: "Natación Olas",
-    timeZoneId,
-    currencyCode: "ARS",
-    countryCode: "AR",
-    ownerBirthDate: "1985-06-20",
-  }));
+  ({ accessToken: ownerToken } = await signUpOwner(
+    request,
+    {
+      ownerFullName: "Laura Gómez",
+      email: ownerEmail,
+      businessName: "Natación Olas",
+      timeZoneId,
+      currencyCode: "ARS",
+      countryCode: "AR",
+      ownerBirthDate: "1985-06-20",
+    },
+    ownerPassword,
+  ));
 
   const guardianEmail = `ana-${suffix}@flows.local`;
   const family = await send<{ id: string; students: { id: string; fullName: string }[] }>(
@@ -131,7 +121,10 @@ async function seedFlowBusiness(request: APIRequestContext): Promise<FlowBusines
   });
 
   await send("POST", `/api/clients/${family.id}/app-invitation`, { email: guardianEmail });
-  const guardianInvitationToken = await linkSentTo(guardianEmail, acceptStudentInvitationPattern);
+  const guardianInvitationToken = await linkTokenSentTo(
+    guardianEmail,
+    acceptStudentInvitationPattern,
+  );
   ownerTokenBeforeGuardian = ownerToken;
   ownerToken = "";
   await send("POST", "/api/auth/student-app-invitations/accept", {
@@ -216,7 +209,7 @@ test("Invitation flows", async ({ page, request, browser }) => {
   const guardianEmailPhone = await newPhone(browser);
   const guardianEmailPage = await guardianEmailPhone.newPage();
   await guardianEmailPage.goto(
-    `/authorize-student-app?token=${encodeURIComponent(await linkSentTo(business.guardianEmail, authorizeStudentAppPattern))}`,
+    `/authorize-student-app?token=${encodeURIComponent(await linkTokenSentTo(business.guardianEmail, authorizeStudentAppPattern))}`,
   );
   await guardianEmailPage.getByRole("button", { name: "Autorizar", exact: true }).waitFor();
   await capture(guardianEmailPage, "06-responsable-autoriza-desde-el-mail");
@@ -239,7 +232,7 @@ test("Invitation flows", async ({ page, request, browser }) => {
   const childPhone = await newPhone(browser);
   const childPage = await childPhone.newPage();
   await childPage.goto(
-    `/accept-student-invitation?token=${encodeURIComponent(await linkSentTo(childEmail, acceptStudentInvitationPattern))}`,
+    `/accept-student-invitation?token=${encodeURIComponent(await linkTokenSentTo(childEmail, acceptStudentInvitationPattern))}`,
   );
   await childPage.getByText(/Hola, Tomás Pérez/).waitFor();
   await capture(childPage, "09-tomas-crea-su-cuenta");
@@ -254,7 +247,7 @@ test("Invitation flows", async ({ page, request, browser }) => {
   const teenPhone = await newPhone(browser);
   const teenPage = await teenPhone.newPage();
   await teenPage.goto(
-    `/accept-student-invitation?token=${encodeURIComponent(await linkSentTo(teenEmail, acceptStudentInvitationPattern))}`,
+    `/accept-student-invitation?token=${encodeURIComponent(await linkTokenSentTo(teenEmail, acceptStudentInvitationPattern))}`,
   );
   await teenPage.getByText(/Hola, Lucía Pérez/).waitFor();
   await capture(teenPage, "11-lucia-crea-su-cuenta-sin-autorizacion");
@@ -274,7 +267,7 @@ test("Invitation flows", async ({ page, request, browser }) => {
   const existingAccountPhone = await newPhone(browser);
   const existingAccountPage = await existingAccountPhone.newPage();
   await existingAccountPage.goto(
-    `/accept-student-invitation?token=${encodeURIComponent(await linkSentTo(business.ownerEmail, acceptStudentInvitationPattern))}`,
+    `/accept-student-invitation?token=${encodeURIComponent(await linkTokenSentTo(business.ownerEmail, acceptStudentInvitationPattern))}`,
   );
   await existingAccountPage.getByRole("button", { name: "Rechazar" }).waitFor();
   await capture(existingAccountPage, "12-ya-tiene-cuenta-aceptar-o-rechazar");

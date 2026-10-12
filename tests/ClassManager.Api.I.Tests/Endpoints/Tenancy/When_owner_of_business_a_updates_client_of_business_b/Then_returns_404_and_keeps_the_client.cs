@@ -9,8 +9,8 @@ public sealed class Then_returns_404_and_keeps_the_client(ApiFixture fixture)
     public async Task Then_returns_404_and_keeps_the_client_Run()
     {
         using var client = fixture.ApiFactory.CreateClient();
-        var businessATokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
-        var businessBTokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var businessATokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
+        var businessBTokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var businessAClient = fixture.CreateClientWithToken(businessATokens.AccessToken);
         using var businessBClient = fixture.CreateClientWithToken(businessBTokens.AccessToken);
         var businessBClientRecord = await businessBClient.RegisterClientAsync();

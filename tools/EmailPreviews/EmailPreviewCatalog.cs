@@ -84,6 +84,14 @@ internal static class EmailPreviewCatalog
                 "13-email-cambiado",
                 ConfirmEmailChangeUseCase.NoticeSubject,
                 ConfirmEmailChangeUseCase.NoticeContentFor(NewRecipientEmail)),
+            App(
+                "14-confirmar-registro",
+                RequestSignUpUseCase.EmailSubject,
+                RequestSignUpUseCase.EmailContentFor(PreviewBrands.BusinessName, Link(WebAppLinks.CompleteSignUpPath))),
+            App(
+                "15-registro-con-cuenta-existente",
+                RequestSignUpUseCase.AccountExistsEmailSubject,
+                RequestSignUpUseCase.AccountExistsEmailContentFor(WebAppUrl + WebAppLinks.SignInPath)),
         ];
     }
 

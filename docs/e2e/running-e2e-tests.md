@@ -6,9 +6,9 @@ The suite in `e2e/` drives the **Expo web build** with Playwright against the **
 
 1. `pnpm db:migrate` applies both EF Core migrations (`AppDbContext` and `SecurityDbContext`) to the database in `E2E_DATABASE_CONNECTION_STRING`, using the `dotnet-ef` version pinned in `dotnet-tools.json`.
 2. `pnpm web:build` exports the web app (`expo export --platform web`) into `e2e/.web-build`, pointing it at the API URL, and moves package assets out of `node_modules` the same way the production build does.
-3. `playwright test` starts the API (`dotnet run`, `Development` environment, random JWT key, high auth rate limit) and a static server for the web build (`serve --single`), then runs the tests.
+3. `playwright test` starts an SMTP sink (`support/globalSetup.ts`), the API (`dotnet run`, `Development` environment, random JWT key, high auth rate limit, emails sent to the sink) and a static server for the web build (`serve --single`), then runs the tests.
 
-Every test signs up its own business with a unique email, so the database never needs to be cleaned and tests don't depend on each other.
+Every test signs up its own business with a unique email, so the database never needs to be cleaned and tests don't depend on each other. Signing up needs the link from the confirmation email (see [Sign-up confirmed by email](../backend/20261011-sign-up-confirmation/plan.md)): the sink saves every email the API sends to `e2e/.mailbox/` (emptied at the start of each run), and `support/mailbox.ts` waits for an email and reads its link, from any test worker.
 
 ## Locally
 
@@ -26,8 +26,9 @@ pnpm test:no-build   # reuses the last web build
 ```
 
 - If the API or the web server is already running on ports 5000 and 8081, Playwright reuses them (locally only). Stop them if they point to another database.
+- A reused API must send its emails to the sink (`Email:Smtp:Host` `localhost`, `Email:Smtp:Port` 2525, `Email:Smtp:FromAddress`), or seeding a business times out waiting for the confirmation email.
 - `pnpm exec playwright show-report` opens the last HTML report; failed tests keep a trace (`pnpm exec playwright show-trace <path>`).
-- Optional variables: `E2E_API_URL` (default `http://localhost:5000`), `E2E_WEB_URL` / `E2E_WEB_PORT` (default `http://localhost:8081`), `E2E_JWT_SIGNING_KEY` (random by default).
+- Optional variables: `E2E_API_URL` (default `http://localhost:5000`), `E2E_WEB_URL` / `E2E_WEB_PORT` (default `http://localhost:8081`), `E2E_JWT_SIGNING_KEY` (random by default), `E2E_SMTP_PORT` (default 2525), `E2E_MAILBOX_DIR` (default `e2e/.mailbox`).
 
 ## In CI
 

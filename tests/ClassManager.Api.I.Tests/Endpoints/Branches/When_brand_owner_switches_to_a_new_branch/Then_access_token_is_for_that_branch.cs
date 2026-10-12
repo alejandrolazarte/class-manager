@@ -10,7 +10,7 @@ public sealed class Then_access_token_is_for_that_branch(ApiFixture fixture)
     public async Task Then_access_token_is_for_that_branch_Run()
     {
         using var client = fixture.ApiFactory.CreateClient();
-        var tokens = await client.SignUpAsync(AuthenticationRequests.SignUpCommand());
+        var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
         await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
         var branch = await ownerClient.CreateBranchAsync("DF Valencia");

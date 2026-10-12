@@ -2,6 +2,10 @@ namespace ClassManager.Core.Abstractions.Email;
 
 public interface IWebAppLinks
 {
+    string SignIn();
+
+    string CompleteSignUp(string token);
+
     string ResetPassword(string token);
 
     string ConfirmEmailChange(string token);

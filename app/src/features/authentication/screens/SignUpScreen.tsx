@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Pressable, View } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
-import { authenticationErrorCodes } from "@/features/authentication/authenticationErrorCodes";
+import { requestSignUp } from "@/features/authentication/authenticationApi";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
 import {
   SignUpFormValues,
@@ -12,7 +12,6 @@ import {
   signUpSchema,
   toSignUpRequest,
 } from "@/features/authentication/signUpSchema";
-import { useSession } from "@/features/authentication/useSession";
 import { CountryPicker } from "@/features/countries/CountryPicker";
 import {
   countrySelectionForTimeZone,
@@ -27,10 +26,10 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { PasswordField } from "@/ui/PasswordField";
+import { IconCircle } from "@/ui/IconCircle";
+import { Entrance } from "@/ui/motion/Entrance";
 import { TextField } from "@/ui/TextField";
 import { AppText } from "@/ui/AppText";
-import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { StepProgress } from "@/ui/StepProgress";
 import { emailAddressPattern } from "@/forms/emailAddress";
@@ -38,13 +37,12 @@ import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 
-type SignUpFailure =
-  { kind: "emailTaken"; email: string } | { kind: "network" } | { kind: "unexpected" };
+type SignUpFailure = "network" | "unexpected";
 
 type SignUpStep = 1 | 2;
 
 const signUpStepCount = 2;
-const accountStepFieldNames = ["ownerFullName", "ownerBirthDate", "email", "password"] as const;
+const accountStepFieldNames = ["ownerFullName", "ownerBirthDate", "email"] as const;
 const businessStepFieldNames = ["businessName"] as const;
 const startedStepFill = 0.15;
 const completedStepFill = 1;
@@ -55,8 +53,8 @@ function stepFill(completedFields: number, fieldCount: number): number {
 
 export function SignUpScreen() {
   const router = useRouter();
-  const { signUp } = useSession();
   const [signUpFailure, setSignUpFailure] = useState<SignUpFailure | null>(null);
+  const [sentToEmail, setSentToEmail] = useState<string | null>(null);
   const [step, setStep] = useState<SignUpStep>(1);
   const { data: countries = [] } = useCountries();
   const form = useForm<SignUpFormValues>({
@@ -65,26 +63,16 @@ export function SignUpScreen() {
       ownerFullName: "",
       ownerBirthDate: "",
       email: "",
-      password: "",
       businessName: "",
       countryCode: "",
       timeZoneId: "",
     },
     mode: "onTouched",
   });
-  const [countryCode, timeZoneId, ownerFullName, ownerBirthDate, email, password, businessName] =
-    useWatch({
-      control: form.control,
-      name: [
-        "countryCode",
-        "timeZoneId",
-        "ownerFullName",
-        "ownerBirthDate",
-        "email",
-        "password",
-        "businessName",
-      ],
-    });
+  const [countryCode, timeZoneId, ownerFullName, ownerBirthDate, email, businessName] = useWatch({
+    control: form.control,
+    name: ["countryCode", "timeZoneId", "ownerFullName", "ownerBirthDate", "email", "businessName"],
+  });
   const countryCurrencyCode = findCountry(countries, countryCode)?.currencyCode ?? "";
 
   useEffect(() => {
@@ -95,14 +83,12 @@ export function SignUpScreen() {
     }
   }, [countries, form]);
 
-  const hasLongEnoughPassword = password.length >= authenticationLimits.passwordMinimumLength;
   const isAccountStepFilled = useRequiredFieldsFilled(form.control, accountStepFieldNames);
   const isBusinessStepFilled = useRequiredFieldsFilled(form.control, businessStepFieldNames);
   const completedAccountFields = [
     ownerFullName.trim().length > 0,
     isValidBirthDate(ownerBirthDate),
     emailAddressPattern.test(email.trim()),
-    hasLongEnoughPassword,
   ].filter(Boolean).length;
   const segmentFills =
     step === 1
@@ -115,13 +101,9 @@ export function SignUpScreen() {
     }
   };
 
-  const handleSignUpError = (signUpError: unknown, email: string) => {
+  const handleSignUpError = (signUpError: unknown) => {
     if (isNetworkError(signUpError)) {
-      setSignUpFailure({ kind: "network" });
-      return;
-    }
-    if (isApiError(signUpError) && signUpError.hasCode(authenticationErrorCodes.emailTaken)) {
-      setSignUpFailure({ kind: "emailTaken", email });
+      setSignUpFailure("network");
       return;
     }
     if (
@@ -134,18 +116,45 @@ export function SignUpScreen() {
       }
       return;
     }
-    setSignUpFailure({ kind: "unexpected" });
+    setSignUpFailure("unexpected");
   };
 
   const submit = form.handleSubmit(async (formValues) => {
     setSignUpFailure(null);
     const signUpRequest = toSignUpRequest(formValues, countryCurrencyCode);
     try {
-      await signUp(signUpRequest);
+      await requestSignUp(signUpRequest);
+      setSentToEmail(signUpRequest.email);
     } catch (signUpError) {
-      handleSignUpError(signUpError, signUpRequest.email);
+      handleSignUpError(signUpError);
     }
   });
+
+  const changeEmail = () => {
+    setSentToEmail(null);
+    setStep(1);
+  };
+
+  if (sentToEmail) {
+    return (
+      <AuthenticationScreenLayout
+        title={translate("authentication.signUp.checkEmailTitle")}
+        onBack={changeEmail}
+      >
+        <Entrance kind="pop" className="self-start">
+          <IconCircle icon="email" tone="success" size="large" />
+        </Entrance>
+        <AppText tone="muted" accessibilityRole="alert">
+          {translate("authentication.signUp.checkEmail", { email: sentToEmail })}
+        </AppText>
+        <Button
+          variant="secondary"
+          label={translate("authentication.signUp.changeEmail")}
+          onPress={changeEmail}
+        />
+      </AuthenticationScreenLayout>
+    );
+  }
 
   return (
     <AuthenticationScreenLayout
@@ -169,23 +178,12 @@ export function SignUpScreen() {
         </Pressable>
       }
     >
-      {signUpFailure?.kind === "emailTaken" ? (
-        <Banner tone="warning" message={translate("authentication.signUp.emailTaken")}>
-          <Button
-            variant="secondary"
-            label={translate("authentication.signUp.signInWithEmail")}
-            onPress={() =>
-              router.replace({ pathname: routes.signIn, params: { email: signUpFailure.email } })
-            }
-          />
-        </Banner>
-      ) : null}
-      {signUpFailure?.kind === "network" ? (
+      {signUpFailure === "network" ? (
         <Banner message={translate("common.networkError")}>
           <Button variant="secondary" label={translate("common.retry")} onPress={submit} />
         </Banner>
       ) : null}
-      {signUpFailure?.kind === "unexpected" ? (
+      {signUpFailure === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
       <RequiredFieldsLegend />
@@ -232,23 +230,6 @@ export function SignUpScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                errorMessage={fieldState.error?.message}
-              />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="password"
-            render={({ field, fieldState }) => (
-              <PasswordField
-                label={translate("authentication.signUp.password")}
-                isRequired
-                hint={translate("authentication.signUp.passwordHint")}
-                isHintSatisfied={hasLongEnoughPassword}
-                autoComplete="new-password"
                 value={field.value}
                 onChangeText={field.onChange}
                 onBlur={field.onBlur}

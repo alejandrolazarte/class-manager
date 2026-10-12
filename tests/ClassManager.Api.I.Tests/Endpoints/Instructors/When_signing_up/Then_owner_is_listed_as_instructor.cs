@@ -10,7 +10,7 @@ public sealed class Then_owner_is_listed_as_instructor(ApiFixture fixture)
     {
         using var client = fixture.ApiFactory.CreateClient();
         var command = AuthenticationRequests.SignUpCommand();
-        var tokens = await client.SignUpAsync(command);
+        var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
 
         var instructors = await ownerClient.GetFromJsonAsync<List<InstructorResponse>>(

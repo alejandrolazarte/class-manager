@@ -127,6 +127,7 @@ public static class ApiRoutes
     public const string BrandOwnerSegment = "/brand-owner";
     public const string Authentication = "/api/auth";
     public const string SignUp = "/sign-up";
+    public const string CompleteSignUp = "/sign-up/complete";
     public const string SignIn = "/sign-in";
     public const string Refresh = "/refresh";
     public const string SignOut = "/sign-out";

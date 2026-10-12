@@ -1,10 +1,11 @@
+import { randomUUID } from "node:crypto";
+import { writeFileSync } from "node:fs";
 import { createServer, Server, Socket } from "node:net";
+import { join } from "node:path";
 
 const lineBreak = "\r\n";
 const endOfData = `${lineBreak}.${lineBreak}`;
 const headerBodySeparator = `${lineBreak}${lineBreak}`;
-const pollIntervalMilliseconds = 100;
-const defaultWaitMilliseconds = 15_000;
 const recipientPattern = /^RCPT TO:\s*<([^>]+)>/i;
 const quotedPrintableSoftBreakPattern = /=\r\n/g;
 const quotedPrintableBytePattern = /=([0-9A-F]{2})/gi;
@@ -18,6 +19,8 @@ export interface ReceivedEmail {
   to: string[];
   body: string;
 }
+
+type EmailReceiver = (email: ReceivedEmail) => void;
 
 function decodeQuotedPrintable(encodedBody: string): string {
   const bytes = encodedBody
@@ -54,7 +57,7 @@ function decodeBody(message: string): string {
   return encodedBody;
 }
 
-function serveConnection(socket: Socket, received: ReceivedEmail[]): void {
+function serveConnection(socket: Socket, receive: EmailReceiver): void {
   let buffer = "";
   let isReadingData = false;
   let recipients: string[] = [];
@@ -69,7 +72,7 @@ function serveConnection(socket: Socket, received: ReceivedEmail[]): void {
         if (dataEnd === -1) {
           return;
         }
-        received.push({ to: recipients, body: decodeBody(buffer.slice(0, dataEnd)) });
+        receive({ to: recipients, body: decodeBody(buffer.slice(0, dataEnd)) });
         buffer = buffer.slice(dataEnd + endOfData.length);
         isReadingData = false;
         recipients = [];
@@ -106,10 +109,18 @@ function serveConnection(socket: Socket, received: ReceivedEmail[]): void {
 }
 
 export class SmtpSink {
-  private readonly received: ReceivedEmail[] = [];
-  private readonly server: Server = createServer((socket) =>
-    serveConnection(socket, this.received),
-  );
+  private readonly server: Server;
+
+  constructor(mailboxDirectory: string) {
+    this.server = createServer((socket) =>
+      serveConnection(socket, (email) =>
+        writeFileSync(
+          join(mailboxDirectory, `${Date.now()}-${randomUUID()}.json`),
+          JSON.stringify(email),
+        ),
+      ),
+    );
+  }
 
   async start(port: number): Promise<void> {
     await new Promise<void>((resolve, reject) => {
@@ -120,25 +131,5 @@ export class SmtpSink {
 
   async stop(): Promise<void> {
     await new Promise<void>((resolve) => this.server.close(() => resolve()));
-  }
-
-  async waitForEmailTo(
-    recipient: string,
-    timeoutMilliseconds = defaultWaitMilliseconds,
-    bodyPattern?: RegExp,
-  ): Promise<ReceivedEmail> {
-    const deadline = Date.now() + timeoutMilliseconds;
-    while (Date.now() < deadline) {
-      const email = this.received.find(
-        (candidate) =>
-          candidate.to.includes(recipient) &&
-          (bodyPattern === undefined || bodyPattern.test(candidate.body)),
-      );
-      if (email !== undefined) {
-        return email;
-      }
-      await new Promise((resolve) => setTimeout(resolve, pollIntervalMilliseconds));
-    }
-    throw new Error(`No email reached ${recipient} within ${timeoutMilliseconds} ms.`);
   }
 }

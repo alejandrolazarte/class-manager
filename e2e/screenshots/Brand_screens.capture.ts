@@ -1,8 +1,6 @@
 import { Browser, expect, Page, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { e2eEnvironment } from "../support/environment";
-import { SmtpSink } from "../support/smtpSink";
 import { waitForBrandWelcomeToClose } from "./brandWelcome";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
 import { demoStudentAppPassword, seedDemoStudentApp } from "./demoStudentApp";
@@ -28,16 +26,6 @@ const logoMarkup = `
 
 test.use({ locale: "es-AR", timezoneId: demoTimeZoneId, colorScheme });
 
-const smtpSink = new SmtpSink();
-
-test.beforeAll(async () => {
-  await smtpSink.start(e2eEnvironment.smtpPort);
-});
-
-test.afterAll(async () => {
-  await smtpSink.stop();
-});
-
 async function capture(page: Page, fileName: string): Promise<void> {
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
@@ -62,7 +50,7 @@ async function signIn(page: Page, email: string, password: string): Promise<void
 
 test("Brand screens", async ({ browser, page, request }) => {
   const demo = await seedDemoBusiness(request);
-  const student = await seedDemoStudentApp(request, demo, smtpSink);
+  const student = await seedDemoStudentApp(request, demo);
   const logo = await renderLogo(browser);
   mkdirSync(outputDirectory, { recursive: true });
 

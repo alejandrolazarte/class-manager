@@ -4,6 +4,7 @@ import {
   AcceptStudentAppInvitationRequest,
   AcceptInvitationRequest,
   CheckInvitationRequest,
+  CompleteSignUpRequest,
   CheckedInvitation,
   GuardianConsentRequest,
   PasswordResetRequest,
@@ -18,6 +19,7 @@ import {
 
 const authenticationPaths = {
   signUp: "/api/auth/sign-up",
+  completeSignUp: "/api/auth/sign-up/complete",
   signIn: "/api/auth/sign-in",
   refresh: "/api/auth/refresh",
   signOut: "/api/auth/sign-out",
@@ -36,8 +38,12 @@ const authenticationPaths = {
   accounts: "/api/me/accounts",
 } as const;
 
-export function signUp(request: SignUpRequest): Promise<TokenResponse> {
-  return anonymousHttpClient.post<TokenResponse>(authenticationPaths.signUp, request);
+export function requestSignUp(request: SignUpRequest): Promise<void> {
+  return anonymousHttpClient.post<void>(authenticationPaths.signUp, request);
+}
+
+export function completeSignUp(request: CompleteSignUpRequest): Promise<TokenResponse> {
+  return anonymousHttpClient.post<TokenResponse>(authenticationPaths.completeSignUp, request);
 }
 
 export function signIn(request: SignInRequest): Promise<TokenResponse> {

@@ -4,11 +4,11 @@ import { authenticationSession } from "@/api/authenticationSession";
 import {
   acceptStudentAppInvitation as acceptStudentAppInvitationRequest,
   acceptInvitation as acceptInvitationRequest,
+  completeSignUp as completeSignUpRequest,
   refreshSession,
   signIn as signInRequest,
   listAccounts,
   signOut as signOutRequest,
-  signUp as signUpRequest,
   switchBranch as switchBranchRequest,
 } from "@/features/authentication/authenticationApi";
 import { SessionKind, sessionKindOf } from "@/features/authentication/sessionKind";
@@ -16,8 +16,8 @@ import { refreshTokenStorage } from "@/features/authentication/sessionStorage";
 import {
   AcceptStudentAppInvitationRequest,
   AcceptInvitationRequest,
+  CompleteSignUpRequest,
   SignInRequest,
-  SignUpRequest,
   TokenResponse,
 } from "@/features/authentication/types";
 
@@ -37,14 +37,13 @@ export type SessionState =
       status: "signedIn";
       startedBy: SessionStartReason;
       kind: SessionKind;
-      ownerFullName?: string;
       mustChooseAccount?: boolean;
     };
 
 export interface SessionContextValue {
   session: SessionState;
   signIn: (request: SignInRequest) => Promise<void>;
-  signUp: (request: SignUpRequest) => Promise<void>;
+  completeSignUp: (request: CompleteSignUpRequest) => Promise<void>;
   acceptInvitation: (request: AcceptInvitationRequest) => Promise<void>;
   acceptStudentAppInvitation: (request: AcceptStudentAppInvitationRequest) => Promise<void>;
   switchBranch: (businessId: string) => Promise<void>;
@@ -128,7 +127,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
     async (
       tokens: TokenResponse,
       startedBy: SessionStartReason,
-      ownerFullName?: string,
       askForAccount: boolean = false,
     ) => {
       authenticationSession.startSession(tokens.accessToken);
@@ -138,7 +136,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
         status: "signedIn",
         startedBy,
         kind: sessionKindOf(tokens.accessToken),
-        ownerFullName,
         mustChooseAccount,
       });
     },
@@ -146,14 +143,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
   );
 
   const signIn = useCallback(
-    async (request: SignInRequest) =>
-      startSession(await signInRequest(request), "signIn", undefined, true),
+    async (request: SignInRequest) => startSession(await signInRequest(request), "signIn", true),
     [startSession],
   );
 
-  const signUp = useCallback(
-    async (request: SignUpRequest) =>
-      startSession(await signUpRequest(request), "signUp", request.ownerFullName),
+  const completeSignUp = useCallback(
+    async (request: CompleteSignUpRequest) =>
+      startSession(await completeSignUpRequest(request), "signUp"),
     [startSession],
   );
 
@@ -216,7 +212,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     () => ({
       session,
       signIn,
-      signUp,
+      completeSignUp,
       acceptInvitation,
       acceptStudentAppInvitation,
       switchBranch,
@@ -227,7 +223,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     [
       session,
       signIn,
-      signUp,
+      completeSignUp,
       acceptInvitation,
       acceptStudentAppInvitation,
       switchBranch,

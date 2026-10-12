@@ -23,10 +23,6 @@ describe("When account step has an invalid email", () => {
       screen.getByLabelText(translate("authentication.signUp.email")),
       "laura@",
     );
-    await fireEvent.changeText(
-      screen.getByLabelText(translate("authentication.signUp.password")),
-      "a long passphrase",
-    );
 
     await fireEvent.press(screen.getByRole("button", { name: translate("common.continue") }));
 

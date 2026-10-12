@@ -57,7 +57,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandTransactionBehavior<,>));
         services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,>));
 
-        services.AddUseCase<SignUpOwnerCommand, TokenResponse, SignUpOwnerUseCase>();
+        services.AddUseCase<RequestSignUpCommand, RequestSignUpResponse, RequestSignUpUseCase>();
+        services.AddUseCase<CompleteSignUpCommand, TokenResponse, CompleteSignUpUseCase>();
         services.AddUseCase<GetImportSchemaQuery, ImportSchemaResponse, GetImportSchemaUseCase>();
         services.AddUseCase<PreviewImportCommand, ImportReport, PreviewImportUseCase>();
         services.AddUseCase<ImportFileCommand, ImportReport, ImportFileUseCase>();

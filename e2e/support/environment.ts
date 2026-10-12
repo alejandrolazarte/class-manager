@@ -1,4 +1,5 @@
 import { generateKeyPairSync, randomBytes } from "node:crypto";
+import { join } from "node:path";
 
 const jwtSigningKeyBytes = 48;
 const uncompressedPointPrefix = 0x04;
@@ -27,6 +28,9 @@ export const e2eEnvironment = {
     process.env.E2E_JWT_SIGNING_KEY ?? randomBytes(jwtSigningKeyBytes).toString("base64"),
   authenticationPermitLimit: "10000",
   smtpPort: Number(process.env.E2E_SMTP_PORT ?? "2525"),
+  smtpHost: "localhost",
+  smtpFromAddress: "e2e@e2e.local",
+  mailboxDirectory: process.env.E2E_MAILBOX_DIR ?? join(process.cwd(), ".mailbox"),
   vapidSubject,
   vapidKeys: generateVapidKeys(),
 };
