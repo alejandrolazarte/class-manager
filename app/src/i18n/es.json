@@ -1348,6 +1348,8 @@
   "profile.edit": "Editar",
   "profile.editAccessibility": "Editar mi perfil",
   "profile.edit.title": "Editar perfil",
+  "profile.personalData": "Datos personales",
+  "profile.access": "Acceso",
   "profile.edit.submit": "Guardar cambios",
   "profile.edit.saved": "Datos guardados",
   "profile.name.fullName": "Nombre y apellido",

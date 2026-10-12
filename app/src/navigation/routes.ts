@@ -48,6 +48,8 @@ export const routes = {
   studentAppProfile: "/student-app/profile",
   studentAppEditProfile: "/student-app/edit-profile",
   editMyProfile: "/settings/edit-profile",
+  changeMyEmail: "/settings/change-email",
+  studentAppChangeEmail: "/student-app/change-email",
   forgotPassword: (email: string) =>
     email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
   settings: "/settings",
