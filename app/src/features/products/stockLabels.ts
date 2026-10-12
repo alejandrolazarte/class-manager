@@ -1,8 +1,10 @@
+import { variantDisplayName } from "@/features/products/productColors";
 import { Product, ProductVariant } from "@/features/products/types";
 import { translate, translateCount } from "@/i18n/translate";
 
 export function variantLabel(variant: ProductVariant): string {
-  return variant.name.length === 0 ? translate("products.stock.single") : variant.name;
+  const displayName = variantDisplayName(variant.size, variant.color);
+  return displayName.length === 0 ? translate("products.stock.single") : displayName;
 }
 
 export function stockSummary(product: Product): string {

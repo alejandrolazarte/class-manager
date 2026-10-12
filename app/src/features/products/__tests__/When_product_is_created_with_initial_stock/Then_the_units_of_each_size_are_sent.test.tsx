@@ -30,12 +30,12 @@ describe("When product is created with initial stock", () => {
 
     await waitFor(() =>
       expect(jest.mocked(createProduct).mock.calls[0][0].variants).toEqual([
-        { id: null, name: "XS", initialStock: 0 },
-        { id: null, name: "S", initialStock: 2 },
-        { id: null, name: "M", initialStock: 0 },
-        { id: null, name: "L", initialStock: 4 },
-        { id: null, name: "XL", initialStock: 0 },
-        { id: null, name: "XXL", initialStock: 0 },
+        { id: null, size: "XS", color: null, initialStock: 0 },
+        { id: null, size: "S", color: null, initialStock: 2 },
+        { id: null, size: "M", color: null, initialStock: 0 },
+        { id: null, size: "L", color: null, initialStock: 4 },
+        { id: null, size: "XL", color: null, initialStock: 0 },
+        { id: null, size: "XXL", color: null, initialStock: 0 },
       ]),
     );
   });

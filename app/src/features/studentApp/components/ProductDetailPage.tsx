@@ -5,10 +5,14 @@ import { maximumUnitsPerItem } from "@/features/studentApp/studentAppCart";
 import { QuantityStepper } from "@/features/studentApp/components/QuantityStepper";
 import { StudentAppShopProduct } from "@/features/studentApp/types";
 import { formatMoney } from "@/features/fees/money";
+import { productColorName, productColorSwatch } from "@/features/products/productColors";
+import { colorsOf } from "@/features/products/variantOptions";
+import { checkColorOn } from "@/theme/productColorSwatches";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
+import { ColorSwatchOption } from "@/ui/ColorSwatch";
 import { FullScreenPage } from "@/ui/FullScreenPage";
 import { Notice } from "@/ui/Notice";
 import { Collapsible } from "@/ui/motion/Collapsible";
@@ -30,8 +34,28 @@ export function ProductDetailPage({
     product.variants.find((variant) => variant.availability !== "SoldOut")?.id ?? null,
   );
   const [units, setUnits] = useState(1);
+  const colors = colorsOf(product.variants);
+  const [selectedColor, setSelectedColor] = useState(
+    product.variants.find((variant) => variant.id === selectedVariantId)?.color ??
+      colors[0] ??
+      null,
+  );
   const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId);
-  const hasSizes = product.variants.length > 1 || (product.variants[0]?.name.length ?? 0) > 0;
+  const variantsOfColor = product.variants.filter((variant) => variant.color === selectedColor);
+  const hasSizes = variantsOfColor.some((variant) => variant.size.length > 0);
+  const pickColor = (color: string) => {
+    setSelectedColor(color);
+    const sameSize = product.variants.find(
+      (variant) =>
+        variant.color === color &&
+        variant.size === selectedVariant?.size &&
+        variant.availability !== "SoldOut",
+    );
+    const firstAvailable = product.variants.find(
+      (variant) => variant.color === color && variant.availability !== "SoldOut",
+    );
+    setSelectedVariantId((sameSize ?? firstAvailable)?.id ?? null);
+  };
   const note =
     selectedVariant === undefined
       ? translate("student.shop.soldOutNote")
@@ -82,18 +106,40 @@ export function ProductDetailPage({
             {product.description}
           </AppText>
         ) : null}
+        {colors.length > 0 ? (
+          <View className="gap-2">
+            <AppText variant="label" tone="muted">
+              {translate("student.shop.color")}
+            </AppText>
+            <View className="flex-row flex-wrap">
+              {colors.map((color) => {
+                const swatch = productColorSwatch(color);
+                return swatch === null ? null : (
+                  <ColorSwatchOption
+                    key={color}
+                    swatch={swatch}
+                    label={productColorName(color)}
+                    isSelected={color === selectedColor}
+                    checkColor={checkColorOn(swatch)}
+                    onPress={() => pickColor(color)}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
         {hasSizes ? (
           <View className="gap-2">
             <AppText variant="label" tone="muted">
               {translate("student.shop.size")}
             </AppText>
             <View className="flex-row flex-wrap gap-2">
-              {product.variants.map((variant) => (
+              {variantsOfColor.map((variant) => (
                 <Chip
                   key={variant.id}
                   shape="tile"
                   className="min-w-[52px] px-3"
-                  label={variant.name}
+                  label={variant.size}
                   isSelected={variant.id === selectedVariantId}
                   disabled={variant.availability === "SoldOut"}
                   onPress={() => setSelectedVariantId(variant.id)}

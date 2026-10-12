@@ -6,13 +6,13 @@ describe("When sizes are added to a product without sizes", () => {
     const product = buildProduct();
 
     const request = toSaveProductRequest(
-      { ...toProductFormValues(product), variantNames: ["Único", "XL"] },
+      { ...toProductFormValues(product), sizes: ["Único", "XL"] },
       product,
     );
 
     expect(request.variants).toEqual([
-      { id: product.variants[0].id, name: "Único" },
-      { id: null, name: "XL" },
+      { id: product.variants[0].id, size: "Único", color: null },
+      { id: null, size: "XL", color: null },
     ]);
   });
 });

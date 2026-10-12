@@ -8,6 +8,7 @@ import { catalogImageSaveMessageKey } from "@/features/catalogImages/catalogImag
 import { CatalogImageField } from "@/features/catalogImages/components/CatalogImageField";
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
 import { InitialStockFields } from "@/features/products/components/InitialStockFields";
+import { ProductColorsField } from "@/features/products/components/ProductColorsField";
 import { ProductStockSection } from "@/features/products/components/ProductStockSection";
 import { productErrorCodes } from "@/features/products/productErrorCodes";
 import {
@@ -85,7 +86,8 @@ function ProductEditor({ product }: ProductEditorProps) {
   });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, ["name", "price"]);
   const stockMode = useWatch({ control: form.control, name: "stockMode" });
-  const variantNames = useWatch({ control: form.control, name: "variantNames" });
+  const sizes = useWatch({ control: form.control, name: "sizes" });
+  const colors = useWatch({ control: form.control, name: "colors" });
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -182,10 +184,10 @@ function ProductEditor({ product }: ProductEditorProps) {
       })}
       <Controller
         control={form.control}
-        name="variantNames"
+        name="sizes"
         render={({ field, fieldState }) => (
           <TagInput
-            label={translate("products.form.variants")}
+            label={translate("products.form.sizes")}
             values={field.value}
             onChange={field.onChange}
             addLabel={translate("products.form.variantsAdd")}
@@ -194,9 +196,16 @@ function ProductEditor({ product }: ProductEditorProps) {
             placeholder={translate("products.form.variantsPlaceholder")}
             suggestions={sizeSuggestions}
             presets={sizePresets}
-            maximumLength={productLimits.variantNameMaximumLength}
+            maximumLength={productLimits.sizeMaximumLength}
             errorMessage={fieldState.error?.message}
           />
+        )}
+      />
+      <Controller
+        control={form.control}
+        name="colors"
+        render={({ field }) => (
+          <ProductColorsField colors={field.value} onChange={field.onChange} />
         )}
       />
       {renderField({
@@ -239,7 +248,8 @@ function ProductEditor({ product }: ProductEditorProps) {
           name="initialStock"
           render={({ field }) => (
             <InitialStockFields
-              variantNames={variantNames}
+              sizes={sizes}
+              colors={colors}
               initialStock={field.value}
               onChange={field.onChange}
             />
