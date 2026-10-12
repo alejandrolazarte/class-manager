@@ -1,10 +1,12 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
+import { formatDuration } from "@/forms/duration";
+import { DurationPickerSheet } from "@/forms/DurationPickerSheet";
 import {
   formatMeasurementValue,
   measurementTrend,
-  measurementValueFromTyped,
+  parseMeasurementNumber,
 } from "@/features/measurements/measurementFormatting";
 import { Measurement } from "@/features/measurements/types";
 import {
@@ -26,6 +28,7 @@ import { Chip } from "@/ui/Chip";
 import { EmptyState } from "@/ui/EmptyState";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { SelectField } from "@/ui/SelectField";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
@@ -41,6 +44,12 @@ function TestDayRow({ student, measurement, typedValue, onChange }: TestDayRowPr
   const records =
     studentMeasurements.find((item) => item.measurement.id === measurement.id)?.records ?? [];
   const lastRecord = measurementTrend(measurement, records)?.last;
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const valueLabel = translate("measurements.testDay.valueOf", {
+    measurement: measurement.name,
+    name: student.studentFullName,
+  });
+  const timeInSeconds = parseMeasurementNumber(typedValue);
   return (
     <HairlineRow>
       <Avatar name={student.studentFullName} />
@@ -55,17 +64,36 @@ function TestDayRow({ student, measurement, typedValue, onChange }: TestDayRowPr
         </AppText>
       </View>
       <View className="w-32">
-        <TextField
-          label={measurement.unit}
-          accessibilityLabel={translate("measurements.testDay.valueOf", {
-            measurement: measurement.name,
-            name: student.studentFullName,
-          })}
-          keyboardType="numbers-and-punctuation"
-          value={typedValue}
-          onChangeText={onChange}
-        />
+        {measurement.kind === "Time" ? (
+          <SelectField
+            label={measurement.unit}
+            icon="pickTime"
+            accessibilityLabel={valueLabel}
+            accessibilityHint={translate("durationField.openPicker")}
+            value={timeInSeconds === null ? null : formatDuration(timeInSeconds)}
+            placeholder={translate("durationField.placeholder")}
+            onPress={() => setIsPickerOpen(true)}
+          />
+        ) : (
+          <TextField
+            label={measurement.unit}
+            accessibilityLabel={valueLabel}
+            keyboardType="numbers-and-punctuation"
+            value={typedValue}
+            onChangeText={onChange}
+          />
+        )}
       </View>
+      {isPickerOpen ? (
+        <DurationPickerSheet
+          initialValueInSeconds={timeInSeconds}
+          onCancel={() => setIsPickerOpen(false)}
+          onDone={(pickedValueInSeconds) => {
+            onChange(String(pickedValueInSeconds));
+            setIsPickerOpen(false);
+          }}
+        />
+      ) : null}
     </HairlineRow>
   );
 }
@@ -108,10 +136,7 @@ export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDaySc
     measurement === undefined
       ? []
       : students.flatMap((student) => {
-          const value = measurementValueFromTyped(
-            measurement.kind,
-            typedValues[student.studentId] ?? "",
-          );
+          const value = parseMeasurementNumber(typedValues[student.studentId] ?? "");
           return value === null ? [] : [{ studentId: student.studentId, value }];
         });
 

@@ -18,7 +18,6 @@ const decimalComma = ",";
 const decimalPoint = ".";
 const whitespacePattern = /\s/g;
 const typedNumberPattern = /^-?\d+([.,]\d+)?$/;
-const minutesSeparator = ":";
 
 export type MeasurementTone = "good" | "bad" | "neutral";
 
@@ -177,26 +176,6 @@ export function parseMeasurementNumber(typedValue: string): number | null {
     return null;
   }
   return Number(compact.replace(decimalComma, decimalPoint));
-}
-
-export function secondsFromTyped(typedMinutes: string, typedSeconds: string): number | null {
-  const seconds = parseMeasurementNumber(typedSeconds);
-  const minutes = typedMinutes.trim().length === 0 ? 0 : parseMeasurementNumber(typedMinutes);
-  if (seconds === null || minutes === null || seconds < 0 || minutes < 0) {
-    return null;
-  }
-  return minutes * secondsPerMinute + seconds;
-}
-
-export function measurementValueFromTyped(
-  kind: MeasurementKind,
-  typedValue: string,
-): number | null {
-  if (kind !== "Time" || !typedValue.includes(minutesSeparator)) {
-    return parseMeasurementNumber(typedValue);
-  }
-  const [typedMinutes = "", typedSeconds = ""] = typedValue.split(minutesSeparator);
-  return secondsFromTyped(typedMinutes, typedSeconds);
 }
 
 export function studentChangeText(

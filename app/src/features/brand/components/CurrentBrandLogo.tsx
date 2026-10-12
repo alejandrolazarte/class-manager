@@ -7,6 +7,7 @@ export function CurrentBrandLogo({ size = "small" }: { size?: BrandLogoSize }) {
     <BrandLogo
       displayName={currentBrand.brand.displayName}
       logoUri={currentBrand.logoUri}
+      isLogoLoading={currentBrand.isLogoLoading}
       size={size}
     />
   ) : null;
