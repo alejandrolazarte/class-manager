@@ -2,7 +2,6 @@ import { DateField } from "@/forms/DateField";
 import { earliestBirthDate } from "@/features/students/birthDateFormatting";
 import { todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
-import { TextFieldSurface } from "@/ui/TextField";
 
 interface BirthDateFieldProps {
   label?: string;
@@ -12,7 +11,6 @@ interface BirthDateFieldProps {
   onBlur?: () => void;
   errorMessage?: string;
   isRequired?: boolean;
-  fieldSurface?: TextFieldSurface;
 }
 
 export function BirthDateField({
@@ -23,7 +21,6 @@ export function BirthDateField({
   onBlur,
   errorMessage,
   isRequired = true,
-  fieldSurface,
 }: BirthDateFieldProps) {
   return (
     <DateField
@@ -31,7 +28,6 @@ export function BirthDateField({
       hint={hint}
       isRequired={isRequired}
       placeholder={translate("birthDate.placeholder")}
-      fieldSurface={fieldSurface}
       value={value}
       onChangeText={onChangeText}
       onBlur={onBlur}

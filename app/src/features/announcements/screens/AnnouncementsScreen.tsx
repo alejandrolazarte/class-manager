@@ -12,12 +12,13 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { EmptyState } from "@/ui/EmptyState";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { IconButton } from "@/ui/IconButton";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
+import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
@@ -26,38 +27,36 @@ import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 const titleMaxLength = 80;
 const bodyMaxLength = 500;
 
-interface AnnouncementCardProps {
+interface AnnouncementRowProps {
   announcement: Announcement;
   isDeleting: boolean;
   onDelete: (announcement: Announcement) => void;
 }
 
-function AnnouncementCard({ announcement, isDeleting, onDelete }: AnnouncementCardProps) {
+function AnnouncementRow({ announcement, isDeleting, onDelete }: AnnouncementRowProps) {
   return (
-    <View className="gap-2">
-      <Card className="flex-row items-start gap-3 px-4 py-3.5">
-        <View className="min-w-0 flex-1 gap-0.5">
-          <AppText variant="bodyStrong">{announcement.title}</AppText>
-          {announcement.body === null ? null : (
-            <AppText variant="caption" tone="muted">
-              {announcement.body}
-            </AppText>
-          )}
-          <AppText variant="footnote" tone="subtle" className="mt-1">
-            {translate("announcements.publishedOn", {
-              date: formatLongDate(toIsoDate(new Date(announcement.publishedAt))),
-            })}
+    <HairlineRow className="flex-row items-start gap-3 py-3">
+      <View className="min-w-0 flex-1 gap-0.5">
+        <AppText variant="bodyStrong">{announcement.title}</AppText>
+        {announcement.body === null ? null : (
+          <AppText variant="caption" tone="muted">
+            {announcement.body}
           </AppText>
-        </View>
-        <IconButton
-          icon="delete"
-          tone="danger"
-          accessibilityLabel={translate("announcements.delete", { title: announcement.title })}
-          disabled={isDeleting}
-          onPress={() => onDelete(announcement)}
-        />
-      </Card>
-    </View>
+        )}
+        <AppText variant="footnote" tone="subtle" className="mt-1">
+          {translate("announcements.publishedOn", {
+            date: formatLongDate(toIsoDate(new Date(announcement.publishedAt))),
+          })}
+        </AppText>
+      </View>
+      <IconButton
+        icon="delete"
+        tone="danger"
+        accessibilityLabel={translate("announcements.delete", { title: announcement.title })}
+        disabled={isDeleting}
+        onPress={() => onDelete(announcement)}
+      />
+    </HairlineRow>
   );
 }
 
@@ -109,7 +108,7 @@ export function AnnouncementsScreen() {
         />
       }
     >
-      <Card className="gap-3 p-4">
+      <View className="gap-3">
         <SectionTitle title={translate("announcements.newTitle")} />
         <RequiredFieldsLegend />
         <TextField
@@ -119,7 +118,6 @@ export function AnnouncementsScreen() {
           value={title}
           onChangeText={setTitle}
           maxLength={titleMaxLength}
-          fieldSurface="background"
         />
         <TextField
           label={translate("announcements.form.body")}
@@ -128,7 +126,6 @@ export function AnnouncementsScreen() {
           onChangeText={setBody}
           maxLength={bodyMaxLength}
           multiline
-          fieldSurface="background"
         />
         <Button
           icon="announcement"
@@ -137,7 +134,7 @@ export function AnnouncementsScreen() {
           isLoading={createAnnouncementMutation.isPending}
           onPress={publish}
         />
-      </Card>
+      </View>
       {isPending ? <SkeletonList /> : null}
       {isError ? (
         <Banner message={translate("common.unexpectedError")}>
@@ -156,14 +153,17 @@ export function AnnouncementsScreen() {
           message={translate("announcements.empty")}
         />
       ) : null}
-      {announcements.map((announcement) => (
-        <AnnouncementCard
-          key={announcement.id}
-          announcement={announcement}
-          isDeleting={deleteAnnouncementMutation.isPending}
-          onDelete={deleteAnnouncement}
-        />
-      ))}
+      <View>
+        {announcements.map((announcement, index) => (
+          <AnimatedListItem key={announcement.id} index={index}>
+            <AnnouncementRow
+              announcement={announcement}
+              isDeleting={deleteAnnouncementMutation.isPending}
+              onDelete={deleteAnnouncement}
+            />
+          </AnimatedListItem>
+        ))}
+      </View>
     </ScrollScreen>
   );
 }

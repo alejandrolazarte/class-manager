@@ -10,8 +10,8 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -21,27 +21,23 @@ import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedF
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
 
-interface RoleCardProps {
+interface RoleRowProps {
   role: Role;
   onPress: () => void;
 }
 
-function RoleCard({ role, onPress }: RoleCardProps) {
+function RoleRow({ role, onPress }: RoleRowProps) {
   const name = roleName(role);
   return (
-    <Card
-      onPress={onPress}
-      accessibilityLabel={name}
-      className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
-    >
+    <HairlineRow onPress={onPress} accessibilityLabel={name}>
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{name}</AppText>
         <AppText variant="caption" tone="muted">
           {translateCount("roles.memberCount", role.memberCount)}
         </AppText>
       </View>
-      <Icon name="next" tone="subtle-foreground" />
-    </Card>
+      <Icon name="next" size="medium" tone="subtle-foreground" />
+    </HairlineRow>
   );
 }
 
@@ -89,16 +85,20 @@ export function RolesScreen() {
               {translate("roles.customEmpty")}
             </AppText>
           ) : null}
-          {customRoles.map((role) => (
-            <RoleCard key={roleKeyOfRole(role)} role={role} onPress={() => openRole(role)} />
-          ))}
+          <View>
+            {customRoles.map((role) => (
+              <RoleRow key={roleKeyOfRole(role)} role={role} onPress={() => openRole(role)} />
+            ))}
+          </View>
           <SectionTitle title={translate("roles.system")} />
           <AppText variant="caption" tone="subtle">
             {translate("roles.systemHint")}
           </AppText>
-          {systemRoles.map((role) => (
-            <RoleCard key={roleKeyOfRole(role)} role={role} onPress={() => openRole(role)} />
-          ))}
+          <View>
+            {systemRoles.map((role) => (
+              <RoleRow key={roleKeyOfRole(role)} role={role} onPress={() => openRole(role)} />
+            ))}
+          </View>
         </>
       ) : null}
     </ScrollScreen>

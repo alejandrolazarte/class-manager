@@ -5,9 +5,9 @@ import { CatalogImageDraftState } from "@/features/catalogImages/useCatalogImage
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { IconButton } from "@/ui/IconButton";
 import { IconName } from "@/ui/Icon";
+import { HairlineSection } from "@/ui/HairlineSection";
 
 interface CatalogImageFieldProps {
   images: CatalogImageDraftState;
@@ -27,13 +27,12 @@ export function CatalogImageField({
       ? translate("catalogImages.singleHint")
       : translate("catalogImages.hint", { maximum: maximumImageCount });
   return (
-    <Card className="gap-3 p-4">
-      <AppText variant="bodyStrong">{translate("catalogImages.photos")}</AppText>
+    <HairlineSection title={translate("catalogImages.photos")}>
       {items.length === 0 ? (
         <CatalogImage
           imageUri={null}
           placeholderIcon={placeholderIcon}
-          className="h-[76px] w-[76px] rounded-3xl"
+          className="h-[76px] w-[76px] rounded-[14px]"
         />
       ) : (
         <ScrollView
@@ -55,7 +54,7 @@ export function CatalogImageField({
                   <CatalogImage
                     imageUri={previewUriOf(item)}
                     placeholderIcon={placeholderIcon}
-                    className="h-[76px] w-[76px] rounded-3xl"
+                    className="h-[76px] w-[76px] rounded-[14px]"
                   />
                 </Pressable>
                 <View className="absolute -right-2 -top-2 rounded-full bg-surface">
@@ -86,6 +85,6 @@ export function CatalogImageField({
       <AppText variant="caption" tone={images.errorMessage === null ? "subtle" : "danger"}>
         {images.errorMessage ?? hint}
       </AppText>
-    </Card>
+    </HairlineSection>
   );
 }

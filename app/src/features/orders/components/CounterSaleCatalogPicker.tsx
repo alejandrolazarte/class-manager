@@ -101,15 +101,17 @@ export function CounterSaleCatalogPicker({
           {translate("orders.counterSale.noCatalogResults", { search: searchText.trim() })}
         </AppText>
       ) : null}
-      {visibleItems.map((item) => (
-        <CounterSaleItemRow
-          key={item.key}
-          item={item}
-          units={unitsOf(unitsByItem, item)}
-          onChangeUnits={(units) => onChangeUnits(item, units)}
-          isLocked={item.kind === "pack" && !hasStudent}
-        />
-      ))}
+      <View>
+        {visibleItems.map((item) => (
+          <CounterSaleItemRow
+            key={item.key}
+            item={item}
+            units={unitsOf(unitsByItem, item)}
+            onChangeUnits={(units) => onChangeUnits(item, units)}
+            isLocked={item.kind === "pack" && !hasStudent}
+          />
+        ))}
+      </View>
     </SearchPage>
   );
 }

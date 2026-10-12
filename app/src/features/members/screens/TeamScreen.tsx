@@ -17,8 +17,8 @@ import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { Card } from "@/ui/Card";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
+import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -33,21 +33,17 @@ import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
 
 const isoDateLength = 10;
 
-interface MemberCardProps {
+interface MemberRowProps {
   member: Member;
   roles: Role[] | undefined;
   instructorFullName: string | undefined;
   onPress?: () => void;
 }
 
-function MemberCard({ member, roles, instructorFullName, onPress }: MemberCardProps) {
+function MemberRow({ member, roles, instructorFullName, onPress }: MemberRowProps) {
   return (
-    <Card
-      onPress={onPress}
-      accessibilityLabel={onPress ? member.fullName : undefined}
-      className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3"
-    >
-      <Avatar name={member.fullName} />
+    <HairlineRow onPress={onPress} accessibilityLabel={onPress ? member.fullName : undefined}>
+      <Avatar name={member.fullName} size="small" />
       <View className="min-w-0 flex-1 gap-0.5">
         <TitleWithPills title={member.fullName}>
           {member.isBrandOwner ? (
@@ -64,12 +60,12 @@ function MemberCard({ member, roles, instructorFullName, onPress }: MemberCardPr
           {roleDescription(member.role, member.customRoleId, roles, instructorFullName)}
         </AppText>
       </View>
-      {onPress ? <Icon name="next" tone="subtle-foreground" /> : null}
-    </Card>
+      {onPress ? <Icon name="next" size="medium" tone="subtle-foreground" /> : null}
+    </HairlineRow>
   );
 }
 
-interface InvitationCardProps {
+interface InvitationRowProps {
   invitation: Invitation;
   roles: Role[] | undefined;
   canRevoke: boolean;
@@ -79,7 +75,7 @@ interface InvitationCardProps {
   onResend: () => void;
 }
 
-function InvitationCard({
+function InvitationRow({
   invitation,
   roles,
   canRevoke,
@@ -87,9 +83,9 @@ function InvitationCard({
   isResending,
   onRevoke,
   onResend,
-}: InvitationCardProps) {
+}: InvitationRowProps) {
   return (
-    <Card className="flex-row items-center gap-3 rounded-[18px] px-3.5 py-3">
+    <HairlineRow>
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{invitation.email}</AppText>
         <AppText variant="caption" tone="subtle">
@@ -121,7 +117,7 @@ function InvitationCard({
           />
         </View>
       ) : null}
-    </Card>
+    </HairlineRow>
   );
 }
 
@@ -182,38 +178,42 @@ export function TeamScreen() {
       {teamQuery.data ? (
         <>
           <SectionTitle title={translate("team.members")} />
-          {teamQuery.data.members.map((member) => (
-            <MemberCard
-              key={member.id}
-              member={member}
-              roles={roles}
-              instructorFullName={instructorNameOf(member.instructorId)}
-              onPress={
-                canManageMembers && !member.isCurrentUser
-                  ? () => router.push(routes.teamMember(member.id))
-                  : undefined
-              }
-            />
-          ))}
+          <View>
+            {teamQuery.data.members.map((member) => (
+              <MemberRow
+                key={member.id}
+                member={member}
+                roles={roles}
+                instructorFullName={instructorNameOf(member.instructorId)}
+                onPress={
+                  canManageMembers && !member.isCurrentUser
+                    ? () => router.push(routes.teamMember(member.id))
+                    : undefined
+                }
+              />
+            ))}
+          </View>
           {teamQuery.data.invitations.length > 0 ? (
             <>
               <SectionTitle title={translate("team.invitations")} />
-              {teamQuery.data.invitations.map((invitation) => (
-                <InvitationCard
-                  key={invitation.id}
-                  invitation={invitation}
-                  roles={roles}
-                  canRevoke={canManageMembers}
-                  isRevoking={
-                    revokeMutation.isPending && revokeMutation.variables === invitation.id
-                  }
-                  isResending={
-                    resendMutation.isPending && resendMutation.variables === invitation.id
-                  }
-                  onRevoke={() => revoke(invitation.id)}
-                  onResend={() => resend(invitation.id)}
-                />
-              ))}
+              <View>
+                {teamQuery.data.invitations.map((invitation) => (
+                  <InvitationRow
+                    key={invitation.id}
+                    invitation={invitation}
+                    roles={roles}
+                    canRevoke={canManageMembers}
+                    isRevoking={
+                      revokeMutation.isPending && revokeMutation.variables === invitation.id
+                    }
+                    isResending={
+                      resendMutation.isPending && resendMutation.variables === invitation.id
+                    }
+                    onRevoke={() => revoke(invitation.id)}
+                    onResend={() => resend(invitation.id)}
+                  />
+                ))}
+              </View>
             </>
           ) : null}
         </>

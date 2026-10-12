@@ -9,7 +9,7 @@ import {
 import { todayIsoDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { IconButton } from "@/ui/IconButton";
-import { TextField, TextFieldSurface } from "@/ui/TextField";
+import { TextField } from "@/ui/TextField";
 
 interface DateFieldProps {
   label: string;
@@ -20,7 +20,6 @@ interface DateFieldProps {
   onBlur?: () => void;
   errorMessage?: string;
   isRequired?: boolean;
-  fieldSurface?: TextFieldSurface;
   earliestIsoDate?: string;
   latestIsoDate?: string;
 }
@@ -44,7 +43,6 @@ export function DateField({
   onBlur,
   errorMessage,
   isRequired = false,
-  fieldSurface,
   earliestIsoDate = yearsFromToday(-yearsBeforeToday, firstDayOfYear),
   latestIsoDate = yearsFromToday(yearsAfterToday, lastDayOfYear),
 }: DateFieldProps) {
@@ -72,7 +70,6 @@ export function DateField({
         isRequired={isRequired}
         placeholder={placeholder}
         keyboardType="number-pad"
-        fieldSurface={fieldSurface}
         value={value}
         onChangeText={(typedText) => onChangeText(formatBirthDateAsTyped(typedText))}
         onBlur={onBlur}

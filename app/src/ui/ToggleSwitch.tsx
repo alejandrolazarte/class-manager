@@ -18,13 +18,11 @@ export function ToggleSwitch({ label, value, onValueChange, hint, icon }: Toggle
       accessibilityHint={hint}
       accessibilityState={{ checked: value }}
       onPress={() => onValueChange(!value)}
-      className="flex-row items-center gap-3 rounded-2xl border-[1.5px] border-border bg-surface px-4 py-3.5"
+      className="min-h-12 flex-row items-center gap-3 py-2"
     >
-      {icon ? <Icon name={icon} tone="primary" /> : null}
+      {icon ? <Icon name={icon} size="medium" tone="muted-foreground" /> : null}
       <View className="min-w-0 flex-1">
-        <AppText variant="bodyStrong" className="font-label">
-          {label}
-        </AppText>
+        <AppText variant="body">{label}</AppText>
         {hint ? (
           <AppText variant="caption" tone="subtle">
             {hint}

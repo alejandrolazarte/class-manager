@@ -9,6 +9,7 @@ interface HairlineRowProps extends PropsWithChildren {
   accessibilityState?: AccessibilityState;
   hasDivider?: boolean;
   isDimmed?: boolean;
+  disabled?: boolean;
   className?: string;
   testID?: string;
 }
@@ -23,6 +24,7 @@ export function HairlineRow({
   accessibilityState,
   hasDivider = true,
   isDimmed = false,
+  disabled = false,
   className,
   testID,
   children,
@@ -46,6 +48,7 @@ export function HairlineRow({
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
       accessibilityState={accessibilityState}
+      disabled={disabled}
       onPress={onPress}
       testID={testID}
       className={`${classNames} active:bg-muted`}

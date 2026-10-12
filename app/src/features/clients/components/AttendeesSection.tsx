@@ -10,9 +10,9 @@ import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { AppText } from "@/ui/AppText";
-import { Card } from "@/ui/Card";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
+import { HairlineSection } from "@/ui/HairlineSection";
 
 interface AttendeesSectionProps {
   form: UseFormReturn<RegisterClientFormValues>;
@@ -59,17 +59,17 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
         />
       ) : null}
       {fields.map((additionalStudentField, index) => (
-        <Card key={additionalStudentField.id} className="gap-3 p-4">
-          <View className="flex-row items-center justify-between">
-            <AppText variant="link" tone="primary">
-              {translate("clients.register.attendeeCard")}
-            </AppText>
+        <HairlineSection
+          key={additionalStudentField.id}
+          title={translate("clients.register.attendeeCard")}
+          trailing={
             <Pressable accessibilityRole="button" className="p-1" onPress={() => remove(index)}>
               <AppText tone="danger" variant="link">
                 {translate("common.remove")}
               </AppText>
             </Pressable>
-          </View>
+          }
+        >
           <StudentFields
             control={control}
             paths={{
@@ -79,9 +79,8 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
               email: `additionalStudents.${index}.email`,
             }}
             autoFocus
-            isInsideCard
           />
-        </Card>
+        </HairlineSection>
       ))}
       {attendeeCount < maximumStudentsPerRegistration ? (
         <Button
