@@ -17,10 +17,7 @@ describe("When product is created with sizes", () => {
 
     await fireEvent.changeText(screen.getByLabelText(translate("products.form.name")), "Malla");
     await fireEvent.changeText(screen.getByLabelText(translate("products.form.price")), "35,5");
-    await fireEvent.changeText(
-      screen.getByLabelText(translate("products.form.variants")),
-      "S, M, L",
-    );
+    await fireEvent.changeText(screen.getByLabelText(translate("products.form.sizes")), "S, M, L");
     await fireEvent.press(
       screen.getByRole("button", { name: translate("products.form.variantsAdd") }),
     );
@@ -34,9 +31,9 @@ describe("When product is created with sizes", () => {
         stockMode: "Tracked",
         isVisibleInApp: true,
         variants: [
-          { id: null, name: "S", initialStock: 0 },
-          { id: null, name: "M", initialStock: 0 },
-          { id: null, name: "L", initialStock: 0 },
+          { id: null, size: "S", color: null, initialStock: 0 },
+          { id: null, size: "M", color: null, initialStock: 0 },
+          { id: null, size: "L", color: null, initialStock: 0 },
         ],
       }),
     );

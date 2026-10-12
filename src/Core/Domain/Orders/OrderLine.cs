@@ -8,7 +8,7 @@ namespace ClassManager.Core.Domain.Orders;
 
 public sealed class OrderLine : ITenantOwned
 {
-    public const int NameMaxLength = Product.NameMaxLength + ProductVariant.NameMaxLength + 3;
+    public const int NameMaxLength = Product.NameMaxLength + ProductVariant.SizeMaxLength + ProductColors.NameMaxLength + 6;
     public const int MaximumQuantity = 99;
     public const string LinesFieldName = "Lines";
 

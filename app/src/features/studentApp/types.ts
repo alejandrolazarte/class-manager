@@ -160,7 +160,8 @@ export interface StudentAppShopPack {
 
 export interface StudentAppShopVariant {
   id: string;
-  name: string;
+  size: string;
+  color: string | null;
   availability: StockAvailability;
 }
 

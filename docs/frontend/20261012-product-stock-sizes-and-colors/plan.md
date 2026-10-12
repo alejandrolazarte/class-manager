@@ -2,7 +2,7 @@
 
 Date: 2026-10-12
 
-Status: part 1 (stock in the form and size chips) built; part 2 (colors) is a proposal for its own pull request.
+Status: built. Part 1 (stock in the form and size chips) in PR #167, part 2 (colors) in its own pull request.
 
 Design (Claude artifact, private to the owner): [Stock de productos](https://claude.ai/artifact/1dDSgjMRaLAZ1fkKUApuxv). Boards 1–3 are PR 1, boards 4–7 are PR 2. The texts in the boards are proposals; the ones marked as new below need the owner's OK.
 
@@ -66,12 +66,14 @@ Boards 4–7 of the design. Changes how variants are stored.
 25 colors, in this order: Negro, Gris oscuro, Gris, Gris claro, Blanco, Crema, Beige, Camel, Marrón, Bordó, Rojo, Coral, Rosa, Fucsia, Lila, Violeta, Azul marino, Azul, Celeste, Turquesa, Verde agua, Verde, Verde oliva, Amarillo, Naranja.
 
 - The API stores a stable key per color (`black`, `navy`, `mint`…), never the Spanish name, so the palette can be translated. The list of keys lives in `Core` (`ProductColors`) and is what the API validates against.
-- The app keeps one module with the key, the `es.json` name and the swatch value of each color. Swatches are product colors, not theme colors: they look the same in every theme and in dark mode, with a thin border so white and light colors stay visible. Check how `eslint/themeRules.js` treats this module and raise the exception in the PR instead of disabling the rule elsewhere.
+- `ProductColors` also keeps the Spanish name of each key, used only for the order line name that is saved with the order ("Remera · M · Negro") and for the stock movement label; the screens take the names from `es.json` (`products.color.*`).
+- The swatch values live in `app/src/theme/productColorSwatches.ts`, next to `brandSwatches.ts`: `src/theme` is where raw colors are allowed, so no lint rule changes. Swatches are product colors, not theme colors: they look the same in every theme and in dark mode, with a thin border so white and light colors stay visible.
 
 ### Backend
 
-- `ProductVariant` gets `Size` (today's `Name`, at most 30 characters) and `Color` (a palette key or null). A migration renames `Name` to `Size`, so every existing variant becomes a size without color and keeps its id, stock and order lines.
-- `VariantChange` becomes `(Id, Size, Color, InitialStock)`. `Product` validates sizes (distinct, at most 20) and colors (palette keys, distinct, at most 10), and the variants are exactly the combinations; at most 200 (20 × 10). Removing a size or a color deactivates its variants, as removing a size does today.
+- `ProductVariant` gets `Size` (today's `Name`, at most 30 characters) and `Color` (a palette key or null). The migration `AddProductVariantColors` renames `Name` to `Size`, so every existing variant becomes a size without color and keeps its id, stock and order lines.
+- `VariantChange` becomes `(Id, Size, Color, InitialStock)`. `Product` validates sizes (distinct, at most 20) and colors (palette keys, all variants or none, at most 10), and the variants are exactly the combinations; at most 200 (20 × 10). Removing a size or a color deactivates its variants, as removing a size does today.
+- When colors are added to a product with sizes (or sizes to one with colors), the app reuses the existing variant of each size for the first color, so its stock and history stay.
 - Today there is no unique index on variants (the domain checks repeated names). Keep it that way: `Product` rejects a repeated size or color, so a combination can't appear twice.
 - `SaleNameOf` and `OrderLine.NameMaxLength` include the color: "Remera · M · Negro". Order lines keep the name they were saved with, so past orders don't change.
 - `ProductResponse`, `StudentAppShopVariantResponse` and the stock movement response return `size` and `color` instead of `name`.

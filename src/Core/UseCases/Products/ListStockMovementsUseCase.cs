@@ -29,7 +29,7 @@ public sealed class ListStockMovementsUseCase(IProductRepository productReposito
             return ProductFailures.NotFound();
         }
 
-        var variantNames = product.Variants.ToDictionary(variant => variant.Id, variant => variant.Name);
+        var variantNames = product.Variants.ToDictionary(variant => variant.Id, variant => variant.Label);
         var movements = await stockMovementRepository.ListByProductAsync(product.Id, MovementLimit, cancellationToken);
         return Result.Success<IReadOnlyList<StockMovementResponse>>(
         [

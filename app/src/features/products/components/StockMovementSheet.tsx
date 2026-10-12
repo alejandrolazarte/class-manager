@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { productColorName } from "@/features/products/productColors";
 import { variantLabel } from "@/features/products/stockLabels";
+import { colorsOf } from "@/features/products/variantOptions";
 import { Product, StockLoadKind, stockLoadKinds } from "@/features/products/types";
 import { useRecordStockMovement } from "@/features/products/useProductMutations";
 import { translate, TranslationKey } from "@/i18n/translate";
@@ -31,6 +33,20 @@ export function StockMovementSheet({ product, initialKind, onClose }: StockMovem
   const [note, setNote] = useState("");
   const [hasFailed, setHasFailed] = useState(false);
   const isRestock = kind === "Restock";
+  const colors = colorsOf(product.variants);
+  const selectedVariant = product.variants.find((variant) => variant.id === variantId);
+  const selectedColor = selectedVariant?.color ?? null;
+  const pickColor = (color: string) => {
+    const sameSize = product.variants.find(
+      (variant) => variant.color === color && variant.size === selectedVariant?.size,
+    );
+    const firstOfColor = product.variants.find((variant) => variant.color === color);
+    setVariantId((sameSize ?? firstOfColor)?.id ?? variantId);
+  };
+  const variantsToPick =
+    colors.length > 0
+      ? product.variants.filter((variant) => variant.color === selectedColor)
+      : product.variants;
 
   const submit = async () => {
     setHasFailed(false);
@@ -66,17 +82,44 @@ export function StockMovementSheet({ product, initialKind, onClose }: StockMovem
         selectedValue={kind}
         onChange={setKind}
       />
-      {product.variants.length > 1 ? (
-        <View className="flex-row flex-wrap gap-2">
-          {product.variants.map((variant) => (
-            <Chip
-              key={variant.id}
-              label={`${variantLabel(variant)} · ${variant.stock ?? 0}`}
-              accessibilityLabel={variantLabel(variant)}
-              isSelected={variantId === variant.id}
-              onPress={() => setVariantId(variant.id)}
-            />
-          ))}
+      {colors.length > 1 ? (
+        <View className="gap-2">
+          <AppText variant="label" tone="muted">
+            {translate("products.stock.color")}
+          </AppText>
+          <View className="flex-row flex-wrap gap-2">
+            {colors.map((color) => (
+              <Chip
+                key={color}
+                label={productColorName(color)}
+                isSelected={selectedColor === color}
+                onPress={() => pickColor(color)}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
+      {variantsToPick.length > 1 ? (
+        <View className="gap-2">
+          {colors.length > 0 ? (
+            <AppText variant="label" tone="muted">
+              {translate("products.stock.size")}
+            </AppText>
+          ) : null}
+          <View className="flex-row flex-wrap gap-2">
+            {variantsToPick.map((variant) => {
+              const label = colors.length > 0 ? variant.size : variantLabel(variant);
+              return (
+                <Chip
+                  key={variant.id}
+                  label={`${label} · ${variant.stock ?? 0}`}
+                  accessibilityLabel={label}
+                  isSelected={variantId === variant.id}
+                  onPress={() => setVariantId(variant.id)}
+                />
+              );
+            })}
+          </View>
         </View>
       ) : null}
       <TextField

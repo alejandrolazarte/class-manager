@@ -10,7 +10,7 @@ public sealed class Then_validation_fails
         var product = ProductTestData.Product();
 
         var movements = StockMovement.InitialStock(
-            product, [new VariantChange(null, string.Empty, StockMovement.MaximumQuantity + 1)], null, TestData.Now);
+            product, [new VariantChange(null, string.Empty, InitialStock: StockMovement.MaximumQuantity + 1)], null, TestData.Now);
 
         movements.Error!.FieldName.ShouldBe(Product.VariantsFieldName);
     }

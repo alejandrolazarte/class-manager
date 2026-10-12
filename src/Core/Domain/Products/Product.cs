@@ -11,16 +11,21 @@ public sealed class Product : ITenantOwned, IHasCatalogImages
     public const int NameMinLength = 2;
     public const int NameMaxLength = 60;
     public const int DescriptionMaxLength = 500;
-    public const int MaximumVariantCount = 20;
+    public const int MaximumSizeCount = 20;
+    public const int MaximumColorCount = 10;
+    public const int MaximumVariantCount = MaximumSizeCount * MaximumColorCount;
     public const int MaximumImages = 5;
     public const string VariantsFieldName = "Variants";
 
     private const string NameLengthMessage = "The name must be between 2 and 60 characters.";
     private const string DescriptionLengthMessage = "The description must be at most 500 characters.";
     private const string StockModeRequiredMessage = "Choose how stock is kept.";
-    private const string VariantCountMessage = "A product needs between 1 and 20 sizes or variants.";
-    private const string VariantNameMessage = "Each size or variant needs a name of at most 30 characters.";
-    private const string VariantNamesRepeatedMessage = "Two sizes or variants have the same name.";
+    private const string VariantCountMessage = "A product needs at least one variant, up to 20 sizes and 10 colors.";
+    private const string VariantNameMessage = "Each size needs a name of at most 30 characters.";
+    private const string VariantNamesRepeatedMessage = "Two variants have the same size and color.";
+    private const string VariantColorMessage = "Each color must be one of the palette, and every variant needs one when any has it.";
+    private const string VariantCombinationsMessage = "The variants must be every combination of the sizes and colors.";
+    private const string SaleNameSeparator = " · ";
     private const string VariantUnknownMessage = "A size or variant does not belong to this product.";
 
     private readonly List<ProductVariant> _variants = [];
@@ -115,7 +120,7 @@ public sealed class Product : ITenantOwned, IHasCatalogImages
     public ProductVariant? FindVariant(Guid variantId) => _variants.FirstOrDefault(variant => variant.Id == variantId);
 
     public string SaleNameOf(ProductVariant variant) =>
-        string.IsNullOrEmpty(variant.Name) ? Name : $"{Name} · {variant.Name}";
+        variant.Label.Length == 0 ? Name : $"{Name}{SaleNameSeparator}{variant.Label}";
 
     public void AddImage(Document document) => _images.Add(ProductImage.Create(Id, document, _images.Count));
 
@@ -127,6 +132,10 @@ public sealed class Product : ITenantOwned, IHasCatalogImages
 
     public void Deactivate() => IsActive = false;
 
+    private static string SizeOf(VariantChange variant) => variant.Size?.Trim() ?? string.Empty;
+
+    private static string? ColorOf(VariantChange variant) => string.IsNullOrWhiteSpace(variant.Color) ? null : variant.Color.Trim();
+
     private Result ValidateVariants(IReadOnlyList<VariantChange>? variants)
     {
         if (variants is null || variants.Count is 0 or > MaximumVariantCount)
@@ -134,16 +143,37 @@ public sealed class Product : ITenantOwned, IHasCatalogImages
             return Result.Validation(VariantCountMessage, fieldName: VariantsFieldName);
         }
 
-        var names = variants.Select(variant => variant.Name?.Trim() ?? string.Empty).ToList();
-        var needsNames = variants.Count > 1;
-        if (names.Any(variantName => variantName.Length > ProductVariant.NameMaxLength || (needsNames && variantName.Length == 0)))
+        var sizes = variants.Select(SizeOf).ToList();
+        var colors = variants.Select(ColorOf).ToList();
+        var hasColors = colors.Any(color => color is not null);
+        if (hasColors && colors.Any(color => color is null || !ProductColors.IsKnown(color)))
+        {
+            return Result.Validation(VariantColorMessage, fieldName: VariantsFieldName);
+        }
+
+        var hasSizes = sizes.Any(size => size.Length > 0);
+        var needsSizes = hasSizes || (!hasColors && variants.Count > 1);
+        if (sizes.Any(size => size.Length > ProductVariant.SizeMaxLength || (needsSizes && size.Length == 0)))
         {
             return Result.Validation(VariantNameMessage, fieldName: VariantsFieldName);
         }
 
-        if (names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count)
+        var distinctSizeCount = sizes.Distinct(StringComparer.OrdinalIgnoreCase).Count();
+        var distinctColorCount = colors.Distinct().Count();
+        if (distinctSizeCount > MaximumSizeCount || distinctColorCount > MaximumColorCount)
+        {
+            return Result.Validation(VariantCountMessage, fieldName: VariantsFieldName);
+        }
+
+        var combinations = variants.Select(variant => $"{SizeOf(variant).ToUpperInvariant()}|{ColorOf(variant)}").ToList();
+        if (combinations.Distinct().Count() != combinations.Count)
         {
             return Result.Validation(VariantNamesRepeatedMessage, fieldName: VariantsFieldName);
+        }
+
+        if (distinctSizeCount * distinctColorCount != variants.Count)
+        {
+            return Result.Validation(VariantCombinationsMessage, fieldName: VariantsFieldName);
         }
 
         var variantIds = variants.Where(variant => variant.Id is not null).Select(variant => variant.Id!.Value).ToList();
@@ -166,14 +196,13 @@ public sealed class Product : ITenantOwned, IHasCatalogImages
         for (var position = 0; position < variants.Count; position++)
         {
             var change = variants[position];
-            var variantName = change.Name?.Trim() ?? string.Empty;
             if (change.Id is { } variantId)
             {
-                FindVariant(variantId)!.Rename(variantName, position);
+                FindVariant(variantId)!.Change(SizeOf(change), ColorOf(change), position);
                 continue;
             }
 
-            _variants.Add(ProductVariant.Create(Id, variantName, position));
+            _variants.Add(ProductVariant.Create(Id, SizeOf(change), ColorOf(change), position));
         }
     }
 }

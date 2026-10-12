@@ -59,7 +59,8 @@ public sealed class GetStudentAppShopUseCase(
                             .OrderBy(variant => variant.Position)
                             .Select(variant => new StudentAppShopVariantResponse(
                                 variant.Id,
-                                variant.Name,
+                                variant.Size,
+                                variant.Color,
                                 StockRules.AvailabilityOf(product, stockByVariant.GetValueOrDefault(variant.Id)))),
                     ],
                     CatalogImageResponse.ListFrom(product.ImagesInOrder, documentStorage))),
