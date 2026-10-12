@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fontFamilies, typeScale } from "@/theme/typography";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
-import { Icon, IconName } from "@/ui/Icon";
+import { Icon, IconName, iconSizes } from "@/ui/Icon";
 import { Entrance } from "@/ui/motion/Entrance";
 
 type TabScreenOptions = Exclude<
@@ -18,7 +18,7 @@ interface TabNavigatorState {
 }
 
 const tabBarContentHeight = 64;
-const tabBarTopPadding = 6;
+const tabBarTopPadding = 7;
 const tabBarMinimumBottomPadding = 12;
 const activeMarkClassName = "h-1 w-1 rounded-full";
 const iosTabRoleDescription = "tab";
@@ -30,7 +30,7 @@ export function TabIcon({ icon, isFocused }: { icon: IconName; isFocused: boolea
 
 export function TabLabel({ label, isFocused }: { label: string; isFocused: boolean }) {
   return (
-    <View className="mt-1 items-center gap-[3px]">
+    <View className="mt-[3px] items-center gap-[3px]">
       <AppText variant="tab" tone={isFocused ? "primary" : "muted"} numberOfLines={1}>
         {label}
       </AppText>
@@ -73,6 +73,7 @@ export function useTabBarScreenOptions(): TabScreenOptions {
       paddingTop: tabBarTopPadding,
       paddingBottom: bottomPadding,
     },
+    tabBarIconStyle: { height: iconSizes.large },
     tabBarLabel: ({ focused, children }) => <TabLabel label={children} isFocused={focused} />,
     tabBarBadgeStyle: {
       backgroundColor: colors.danger,

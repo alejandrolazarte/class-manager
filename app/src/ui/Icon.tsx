@@ -90,7 +90,7 @@ const iconGlyphs = {
   material: "menu-book",
 } as const satisfies Record<string, MaterialIconsGlyph>;
 
-const iconSizes = {
+export const iconSizes = {
   small: 16,
   medium: 20,
   large: 22,
