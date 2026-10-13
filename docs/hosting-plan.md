@@ -20,7 +20,7 @@ Limits checked on 2026-09-24. Free offers change often: re-check them before rel
 ```mermaid
 flowchart LR
     Phone[Android / iOS app<br/>EAS Build] --> Api
-    Browser[Web app<br/>Cloudflare Pages] --> Api
+    Browser[Web app<br/>Azure Static Web Apps] --> Api
     Api[API .NET 10<br/>Azure Container Apps] -->|managed identity| Sql[(Azure SQL Database<br/>free offer)]
     Api -->|connection string| Blob[(Azure Blob Storage<br/>photos)]
     Browser -.photos.-> Blob
@@ -34,7 +34,7 @@ flowchart LR
 | API | Azure Container Apps, consumption plan | 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per subscription per month; nothing is billed while scaled to zero |
 | Photos | Azure Blob Storage, hot LRS | Not free, but cents per month at pilot scale; see [storage](storage.md) |
 | Container image | GitHub Container Registry (`ghcr.io`), private package | Included in the GitHub plan's Packages storage; avoids Azure Container Registry, which has no free tier |
-| Web app | Cloudflare Pages | 500 builds per month, 1 concurrent build |
+| Web app | Azure Static Web Apps, Free plan | 100 GB of bandwidth per subscription per month, 2 custom domains per app, free certificates, no SLA |
 | Mobile builds | Expo EAS, free plan | 15 Android + 15 iOS builds per month |
 
 ## What "free" really means here
@@ -119,12 +119,14 @@ Run EF Core migrations as an explicit step (`scripts/migrate-database.mjs`, from
 
 Don't run `scripts/seed-demo-business.cs` against the pilot database: businesses sign up themselves.
 
-### 6. Web app (Cloudflare Pages)
+### 6. Web app (Azure Static Web Apps)
 
-- Build: `pnpm export:web` (`expo export --platform web` plus moving package assets out of `node_modules`, see [pilot deployment](pilot-deployment.md)), output `dist/`.
-- Connect the GitHub repository through the Cloudflare Pages GitHub integration; it builds on Cloudflare, so no extra GitHub Action is needed.
-- `EXPO_PUBLIC_API_BASE_URL` set to the Container Apps URL.
-- Add the Pages domain to the API's CORS allowlist (configuration, not a hardcoded string).
+- Build: `pnpm export:web` (`expo export --platform web` plus moving package assets out of `node_modules` and writing `staticwebapp.config.json`, see [pilot deployment](pilot-deployment.md#9-web-app-azure-static-web-apps)), output `dist/`.
+- The `web` job in `deploy.yml` builds it on GitHub and uploads it with the Static Web Apps CLI. The deployment token is read from Azure on every run with the pipeline's OpenID Connect sign-in, so GitHub stores no secret. The portal's **GitHub** source is not used: it commits a workflow straight to `main` that uses `Azure/static-web-apps-deploy`, which the repository doesn't allow.
+- `EXPO_PUBLIC_API_BASE_URL` set to the API's domain.
+- Add the web app's domain to the API's CORS allowlist (configuration, not a hardcoded string).
+
+**Decision (2026-10-14): Azure Static Web Apps instead of Cloudflare Pages.** Spanish ISPs block Cloudflare addresses during football matches (see [Domain and DNS](domain-and-dns.md#why-dns-only)), which would take the web app offline for Spanish customers. GitHub Pages was ruled out too: its terms don't allow running a commercial SaaS on it, and it can't send custom headers (the Content Security Policy).
 
 ### 7. Mobile app (pilot)
 
@@ -174,5 +176,5 @@ At that point: move the database to the Basic tier (about USD 5 a month, online 
 - [Azure SQL Database free offer](https://learn.microsoft.com/en-us/azure/azure-sql/database/free-offer?view=azuresql)
 - [Azure SQL Database free offer FAQ](https://learn.microsoft.com/en-us/azure/azure-sql/database/free-offer-faq?view=azuresql)
 - [Billing in Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/billing)
-- [Cloudflare Pages limits](https://developers.cloudflare.com/pages/platform/limits)
+- [Azure Static Web Apps plans](https://learn.microsoft.com/en-us/azure/static-web-apps/plans)
 - [Expo plans](https://docs.expo.dev/billing/plans/)
