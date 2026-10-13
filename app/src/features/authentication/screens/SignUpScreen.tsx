@@ -13,6 +13,7 @@ import {
   toSignUpRequest,
 } from "@/features/authentication/signUpSchema";
 import { CountryPicker } from "@/features/countries/CountryPicker";
+import { LegalTermsConsent } from "@/features/legal/components/LegalTermsConsent";
 import {
   countrySelectionForTimeZone,
   findCountry,
@@ -66,12 +67,29 @@ export function SignUpScreen() {
       businessName: "",
       countryCode: "",
       timeZoneId: "",
+      acceptsLegalTerms: false,
     },
     mode: "onTouched",
   });
-  const [countryCode, timeZoneId, ownerFullName, ownerBirthDate, email, businessName] = useWatch({
+  const [
+    countryCode,
+    timeZoneId,
+    ownerFullName,
+    ownerBirthDate,
+    email,
+    businessName,
+    acceptsLegalTerms,
+  ] = useWatch({
     control: form.control,
-    name: ["countryCode", "timeZoneId", "ownerFullName", "ownerBirthDate", "email", "businessName"],
+    name: [
+      "countryCode",
+      "timeZoneId",
+      "ownerFullName",
+      "ownerBirthDate",
+      "email",
+      "businessName",
+      "acceptsLegalTerms",
+    ],
   });
   const countryCurrencyCode = findCountry(countries, countryCode)?.currencyCode ?? "";
 
@@ -271,10 +289,14 @@ export function SignUpScreen() {
               });
             }}
           />
+          <LegalTermsConsent
+            isAccepted={acceptsLegalTerms}
+            onAcceptedChange={(isAccepted) => form.setValue("acceptsLegalTerms", isAccepted)}
+          />
           <Button
             label={translate("authentication.signUp.submit")}
             onPress={submit}
-            disabled={!isBusinessStepFilled || countryCurrencyCode === ""}
+            disabled={!isBusinessStepFilled || countryCurrencyCode === "" || !acceptsLegalTerms}
             isLoading={form.formState.isSubmitting}
           />
         </View>

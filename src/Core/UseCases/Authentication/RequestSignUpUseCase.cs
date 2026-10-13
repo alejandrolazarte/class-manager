@@ -14,7 +14,8 @@ public sealed record RequestSignUpCommand(
     string? CountryCode,
     string? TimeZoneId,
     string? CurrencyCode,
-    DateOnly? OwnerBirthDate) : ICommand;
+    DateOnly? OwnerBirthDate,
+    bool AcceptsLegalTerms = false) : ICommand;
 
 public sealed record RequestSignUpResponse;
 
@@ -90,6 +91,11 @@ public sealed class RequestSignUpUseCase(
             return brand.Error!;
         }
 
+        if (!command.AcceptsLegalTerms)
+        {
+            return LegalTermsNotAccepted.For<RequestSignUpResponse>(nameof(RequestSignUpCommand.AcceptsLegalTerms));
+        }
+
         if (await identityService.IsEmailRegisteredAsync(owner.Value.Email, cancellationToken))
         {
             await emailSender.SendAsync(
@@ -104,7 +110,7 @@ public sealed class RequestSignUpUseCase(
         }
 
         var token = secretTokenGenerator.Create();
-        var pendingSignUp = PendingSignUp.Start(owner.Value, brand.Value!.Requested, token.Hash, now);
+        var pendingSignUp = PendingSignUp.Start(owner.Value, brand.Value!.Requested, token.Hash, now, LegalTerms.CurrentVersion);
         pendingSignUpRepository.Add(pendingSignUp);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

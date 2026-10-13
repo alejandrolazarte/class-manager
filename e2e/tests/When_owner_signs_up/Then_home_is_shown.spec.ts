@@ -12,6 +12,9 @@ test("Then home is shown", async ({ page }) => {
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByLabel("Nombre del negocio").fill("Panadería Valeria");
+  await page
+    .getByRole("checkbox", { name: "Acepto los términos de uso y la política de privacidad" })
+    .click();
   await page.getByRole("button", { name: "Crear cuenta" }).click();
   await expect(page.getByText("Revisá tu email")).toBeVisible();
 

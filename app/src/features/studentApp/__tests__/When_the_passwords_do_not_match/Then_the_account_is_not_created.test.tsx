@@ -35,6 +35,7 @@ describe("When the passwords do not match", () => {
       "another passphrase",
     );
 
+    await fireEvent.press(screen.getByRole("checkbox", { name: translate("legal.consent.label") }));
     await fireEvent.press(
       screen.getByRole("button", { name: translate("studentAppInvitation.submit") }),
     );

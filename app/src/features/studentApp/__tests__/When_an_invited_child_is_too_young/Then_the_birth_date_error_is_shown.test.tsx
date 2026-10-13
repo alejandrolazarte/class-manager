@@ -49,6 +49,7 @@ describe("When an invited child is too young", () => {
       password,
     );
 
+    await fireEvent.press(screen.getByRole("checkbox", { name: translate("legal.consent.label") }));
     await fireEvent.press(
       screen.getByRole("button", { name: translate("studentAppInvitation.submit") }),
     );

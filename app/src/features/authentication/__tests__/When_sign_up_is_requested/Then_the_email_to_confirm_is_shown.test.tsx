@@ -24,7 +24,9 @@ describe("When sign up is requested", () => {
     expect(
       await screen.findByText(translate("authentication.signUp.checkEmail", { email: ownerEmail })),
     ).toBeOnTheScreen();
-    expect(requestSignUp).toHaveBeenCalledWith(expect.objectContaining({ email: ownerEmail }));
+    expect(requestSignUp).toHaveBeenCalledWith(
+      expect.objectContaining({ email: ownerEmail, acceptsLegalTerms: true }),
+    );
     expect(refreshTokenStorage.write).not.toHaveBeenCalled();
   });
 });

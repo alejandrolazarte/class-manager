@@ -52,7 +52,8 @@ internal sealed class RequestSignUpUseCaseBuilder
             TestData.ArgentinaCountryCode,
             TestData.BuenosAiresTimeZoneId,
             TestData.CurrencyCode,
-            TestData.OwnerBirthDate);
+            TestData.OwnerBirthDate,
+            AcceptsLegalTerms: true);
 
     public RequestSignUpUseCase Build() =>
         new(

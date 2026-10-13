@@ -1689,5 +1689,18 @@
   "student.measurements.recorded": "Medición guardada",
   "student.measurements.onlyTeam": "Solo tu profe puede cargar un valor en esa fecha.",
   "measurements.recordedByStudentsAccessibility": "Los alumnos cargan {name}",
-  "measurements.recordForm.invalidDate": "Ingresá una fecha válida que no sea futura (dd/mm/aaaa)"
+  "measurements.recordForm.invalidDate": "Ingresá una fecha válida que no sea futura (dd/mm/aaaa)",
+  "legal.notice.title": "Aviso legal",
+  "legal.terms.title": "Términos de uso",
+  "legal.privacy.title": "Política de privacidad",
+  "legal.updatedOn": "Última actualización: {date}",
+  "legal.section": "Legal",
+  "legal.consent.label": "Acepto los términos de uso y la política de privacidad",
+  "legal.consent.template": "Acepto los {terms} y la {privacy}",
+  "legal.consent.terms": "términos de uso",
+  "legal.consent.privacy": "política de privacidad",
+  "legal.update.title": "Actualizamos los términos",
+  "legal.update.message": "Para seguir usando la app, leé y aceptá los términos de uso y la política de privacidad.",
+  "legal.update.submit": "Aceptar y continuar",
+  "legal.update.signOut": "Salir"
 }

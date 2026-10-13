@@ -270,6 +270,7 @@ export async function seedDemoStudentApp(
       fullName: studentAppFullName,
       password: demoStudentAppPassword,
       birthDate: "1988-03-02",
+      acceptsLegalTerms: true,
     },
   );
 

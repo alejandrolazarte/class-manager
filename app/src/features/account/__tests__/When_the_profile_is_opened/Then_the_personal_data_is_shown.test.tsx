@@ -12,6 +12,7 @@ describe("When the profile is opened", () => {
       email: "tomas@example.com",
       fullName: "Tomas Perez",
       birthDate: "1990-04-12",
+      hasAcceptedCurrentLegalTerms: true,
     });
   });
 

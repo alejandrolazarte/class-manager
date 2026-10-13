@@ -65,6 +65,7 @@ export const routes = {
   welcome: "/welcome",
   signIn: "/sign-in",
   signUp: "/sign-up",
+  legalDocument: (kind: "notice" | "terms" | "privacy") => `/legal/${kind}`,
   resetPassword: "/reset-password",
   appEntry: "/",
   myProfile: "/settings/profile",

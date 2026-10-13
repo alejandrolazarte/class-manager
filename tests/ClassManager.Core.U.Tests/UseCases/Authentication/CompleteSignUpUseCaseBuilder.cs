@@ -24,6 +24,7 @@ internal sealed class CompleteSignUpUseCaseBuilder
     public BusinessMember? AddedMember { get; private set; }
     public Instructor? AddedInstructor { get; private set; }
     public Subscription? AddedSubscription { get; private set; }
+    public LegalTermsAcceptance? AddedLegalTermsAcceptance { get; private set; }
     public Plan SignUpPlan { get; } = Plan.Create("free", displayOrder: 1, 0m, "USD", BillingPeriod.Monthly, isDefault: true);
 
     public PendingSignUp PendingSignUp { get; } = TestData.PendingSignUp(TokenHash);
@@ -37,6 +38,7 @@ internal sealed class CompleteSignUpUseCaseBuilder
     public Mock<IBusinessMemberRepository> BusinessMembers { get; } = new();
     public Mock<IInstructorRepository> Instructors { get; } = new();
     public Mock<ISubscriptionRepository> Subscriptions { get; } = new();
+    public Mock<ILegalTermsAcceptanceRepository> LegalTermsAcceptances { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IUnitOfWorkTransaction> Transaction { get; } = new();
     public Mock<ITenantScope> TenantScope { get; } = new();
@@ -80,6 +82,9 @@ internal sealed class CompleteSignUpUseCaseBuilder
         Subscriptions
             .Setup(repository => repository.Add(It.IsAny<Subscription>()))
             .Callback<Subscription>(subscription => AddedSubscription = subscription);
+        LegalTermsAcceptances
+            .Setup(repository => repository.Add(It.IsAny<LegalTermsAcceptance>()))
+            .Callback<LegalTermsAcceptance>(acceptance => AddedLegalTermsAcceptance = acceptance);
         UnitOfWork
             .Setup(unitOfWork => unitOfWork.BeginTransactionAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Transaction.Object);
@@ -100,6 +105,7 @@ internal sealed class CompleteSignUpUseCaseBuilder
             BusinessMembers.Object,
             Instructors.Object,
             Subscriptions.Object,
+            LegalTermsAcceptances.Object,
             UnitOfWork.Object,
             TenantScope.Object,
             new FakeTimeProvider(TestData.Now));

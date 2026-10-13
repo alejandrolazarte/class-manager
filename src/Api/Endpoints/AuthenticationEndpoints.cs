@@ -39,6 +39,7 @@ internal static class AuthenticationEndpoints
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
         endpoints.MapGet(ApiRoutes.MyAccount, GetMyAccountAsync).RequireAnyAccount();
         endpoints.MapPut(ApiRoutes.MyAccount, UpdateMyProfileAsync).RequireAnyAccount();
+        endpoints.MapPost(ApiRoutes.MyLegalTermsAcceptance, AcceptLegalTermsAsync).RequireAnyAccount();
         endpoints.MapPost(ApiRoutes.MyEmailChange, RequestEmailChangeAsync)
             .RequireAnyAccount()
             .RequireRateLimiting(SecurityServiceCollectionExtensions.AuthenticationRateLimitPolicy);
@@ -131,6 +132,15 @@ internal static class AuthenticationEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> AcceptLegalTermsAsync(
+        IUseCase<AcceptLegalTermsCommand, AcceptLegalTermsResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new AcceptLegalTermsCommand(), cancellationToken);
 
         return result.ToOkResult();
     }

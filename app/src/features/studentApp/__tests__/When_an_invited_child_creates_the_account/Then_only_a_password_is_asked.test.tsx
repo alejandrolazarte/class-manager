@@ -45,6 +45,7 @@ describe("When an invited child creates the account", () => {
       password,
     );
 
+    await fireEvent.press(screen.getByRole("checkbox", { name: translate("legal.consent.label") }));
     await fireEvent.press(
       screen.getByRole("button", { name: translate("studentAppInvitation.submit") }),
     );
@@ -55,6 +56,7 @@ describe("When an invited child creates the account", () => {
         fullName: "Tomás Pérez",
         password,
         birthDate: "2012-05-01",
+        acceptsLegalTerms: true,
       }),
     );
   });

@@ -52,7 +52,8 @@ internal static class TestData
             OwnerProfile.Create(OwnerFullName, OwnerEmail, OwnerBirthDate, Today).Value!,
             new PendingBusiness(BusinessName, ArgentinaCountryCode, BuenosAiresTimeZoneId, CurrencyCode),
             tokenHash,
-            createdAt ?? Now);
+            createdAt ?? Now,
+            LegalTerms.CurrentVersion);
 
     public static IssuedTokens IssuedTokens() =>
         new("access-token", Now.AddMinutes(15), "refresh-token", Now.AddDays(30));
