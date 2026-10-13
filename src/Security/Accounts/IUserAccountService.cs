@@ -12,5 +12,7 @@ public interface IUserAccountService
 
     Task<bool> UpdateProfileAsync(Guid userId, string fullName, DateOnly birthDate, CancellationToken cancellationToken);
 
+    Task<bool> RecordLegalTermsConsentAsync(Guid userId, LegalTermsConsent consent, CancellationToken cancellationToken);
+
     Task<CredentialCheck> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken);
 }

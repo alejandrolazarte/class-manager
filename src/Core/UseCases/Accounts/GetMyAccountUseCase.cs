@@ -1,14 +1,16 @@
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Accounts;
 
 public sealed record GetMyAccountQuery : IQuery;
 
-public sealed record MyAccountResponse(string Email, string FullName, DateOnly? BirthDate)
+public sealed record MyAccountResponse(string Email, string FullName, DateOnly? BirthDate, bool HasAcceptedCurrentLegalTerms)
 {
-    public static MyAccountResponse From(UserAccount account) => new(account.Email, account.FullName, account.BirthDate);
+    public static MyAccountResponse From(UserAccount account) =>
+        new(account.Email, account.FullName, account.BirthDate, LegalTermsAcceptance.IsCurrent(account.AcceptedLegalTermsVersion));
 }
 
 public sealed class GetMyAccountUseCase(ICurrentUser currentUser, IIdentityService identityService)

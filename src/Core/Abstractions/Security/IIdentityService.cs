@@ -11,7 +11,9 @@ public interface IIdentityService
 
     Task<IReadOnlyList<UserAccount>> ListAccountsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
 
-    Task<Result<Guid>> CreateOwnerAsync(OwnerAccount account, CancellationToken cancellationToken);
+    Task<Result<Guid>> CreateOwnerAsync(OwnerAccount account, LegalTermsAcceptance? legalTermsAcceptance, CancellationToken cancellationToken);
+
+    Task<bool> RecordLegalTermsAcceptanceAsync(Guid userId, LegalTermsAcceptance legalTermsAcceptance, CancellationToken cancellationToken);
 
     Task<bool> UpdateProfileAsync(Guid userId, string fullName, DateOnly birthDate, CancellationToken cancellationToken);
 

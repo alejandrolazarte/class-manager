@@ -27,6 +27,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("AcceptedLegalTermsOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("AcceptedLegalTermsVersion")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("BusinessName")
                         .IsRequired()
                         .HasMaxLength(120)

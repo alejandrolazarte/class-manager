@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { RequireSessionKind } from "@/features/authentication/components/RequireSessionKind";
 import { BrandProvider } from "@/features/brand/BrandProvider";
 import { BusinessProvider } from "@/features/business/BusinessProvider";
+import { LegalTermsGate } from "@/features/legal/components/LegalTermsGate";
 import { useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { MemberProvider } from "@/features/members/MemberProvider";
 import { permissions as memberPermissions } from "@/features/members/permissions";
@@ -45,15 +46,17 @@ function MemberTabs() {
 export default function TabsLayout() {
   return (
     <RequireSessionKind kind="team">
-      <BusinessProvider>
-        <MemberProvider>
-          <BrandProvider audience="team">
-            <SubscriptionGate>
-              <MemberTabs />
-            </SubscriptionGate>
-          </BrandProvider>
-        </MemberProvider>
-      </BusinessProvider>
+      <LegalTermsGate>
+        <BusinessProvider>
+          <MemberProvider>
+            <BrandProvider audience="team">
+              <SubscriptionGate>
+                <MemberTabs />
+              </SubscriptionGate>
+            </BrandProvider>
+          </MemberProvider>
+        </BusinessProvider>
+      </LegalTermsGate>
     </RequireSessionKind>
   );
 }

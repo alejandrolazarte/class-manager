@@ -79,7 +79,7 @@ public sealed class CompleteSignUpUseCase(
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var userId = await identityService.CreateOwnerAsync(account.Value, cancellationToken);
+        var userId = await identityService.CreateOwnerAsync(account.Value, pendingSignUp.LegalTermsAcceptance, cancellationToken);
         if (userId.IsFailure)
         {
             return userId.Error!;

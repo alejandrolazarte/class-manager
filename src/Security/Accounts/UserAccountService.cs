@@ -21,7 +21,7 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
             : await userManager.Users
                 .AsNoTracking()
                 .Where(user => userIds.Contains(user.Id))
-                .Select(user => new UserAccountSummary(user.Id, user.Email ?? string.Empty, user.FullName, user.BirthDate))
+                .Select(user => new UserAccountSummary(user.Id, user.Email ?? string.Empty, user.FullName, user.BirthDate, user.AcceptedLegalTermsVersion))
                 .ToListAsync(cancellationToken);
 
     public async Task<UserAccountCreation> CreateAsync(NewUserAccount account, CancellationToken cancellationToken)
@@ -34,6 +34,8 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
             EmailConfirmed = true,
             FullName = account.FullName,
             BirthDate = account.BirthDate,
+            AcceptedLegalTermsVersion = account.LegalTermsConsent?.Version,
+            AcceptedLegalTermsOn = account.LegalTermsConsent?.AcceptedOn,
         };
 
         var creation = await userManager.CreateAsync(user, account.Password);
@@ -64,6 +66,20 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
 
         user.FullName = fullName;
         user.BirthDate = birthDate;
+        return (await userManager.UpdateAsync(user)).Succeeded;
+    }
+
+    public async Task<bool> RecordLegalTermsConsentAsync(Guid userId, LegalTermsConsent consent, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(consent);
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return false;
+        }
+
+        user.AcceptedLegalTermsVersion = consent.Version;
+        user.AcceptedLegalTermsOn = consent.AcceptedOn;
         return (await userManager.UpdateAsync(user)).Succeeded;
     }
 

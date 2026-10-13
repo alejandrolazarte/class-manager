@@ -8,7 +8,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record AcceptInvitationCommand(string? Token, string? FullName, string? Password, DateOnly? BirthDate = null) : ICommand;
+public sealed record AcceptInvitationCommand(string? Token, string? FullName, string? Password, DateOnly? BirthDate = null, bool AcceptsLegalTerms = false) : ICommand;
 
 public sealed class AcceptInvitationUseCase(
     IMemberInvitationRepository invitationRepository,
@@ -70,6 +70,11 @@ public sealed class AcceptInvitationUseCase(
                 return account.Error!;
             }
 
+            if (!command.AcceptsLegalTerms)
+            {
+                return LegalTermsNotAccepted.For<TokenResponse>(nameof(AcceptInvitationCommand.AcceptsLegalTerms));
+            }
+
             if (business is not null && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.Country))
             {
                 return Result.Validation<TokenResponse>(
@@ -78,7 +83,7 @@ public sealed class AcceptInvitationUseCase(
                     nameof(OwnerAccount.BirthDate));
             }
 
-            var createdUserId = await identityService.CreateOwnerAsync(account.Value!, cancellationToken);
+            var createdUserId = await identityService.CreateOwnerAsync(account.Value!, LegalTermsAcceptance.CurrentAt(now), cancellationToken);
             if (createdUserId.IsFailure)
             {
                 return createdUserId.Error!;

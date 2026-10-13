@@ -16,7 +16,7 @@ public sealed class Then_returns_validation
         response.Error!.Kind.ShouldBe(ErrorKind.Validation);
         response.Error.FieldName.ShouldBe(nameof(CompleteSignUpCommand.Password));
         builder.Identity.Verify(
-            service => service.CreateOwnerAsync(It.IsAny<OwnerAccount>(), It.IsAny<CancellationToken>()),
+            service => service.CreateOwnerAsync(It.IsAny<OwnerAccount>(), It.IsAny<LegalTermsAcceptance?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 }

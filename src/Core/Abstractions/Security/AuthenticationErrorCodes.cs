@@ -13,6 +13,7 @@ public static class AuthenticationErrorCodes
     public const string TooYoungForOwnAccount = "auth.too_young_for_own_account";
     public const string OwnerMustBeAdult = "auth.owner_must_be_adult";
     public const string InvalidSignUpToken = "auth.invalid_sign_up_token";
+    public const string LegalTermsNotAccepted = "auth.legal_terms_not_accepted";
 
     public const string EmailTakenMessage = "An account with this email already exists.";
     public const string InvalidRefreshTokenMessage = "The session has expired. Sign in again.";
@@ -22,5 +23,6 @@ public static class AuthenticationErrorCodes
     public const string TooYoungForOwnAccountMessage = "This person is too young for an account of their own; the client who pays sees their classes.";
     public const string OwnerMustBeAdultMessage = "The owner of a business must be an adult.";
     public const string InvalidSignUpTokenMessage = "The link is invalid, expired or already used. Sign up again.";
+    public const string LegalTermsNotAcceptedMessage = "Accept the terms of use and the privacy policy to create an account.";
     public const string InvalidEmailChangeTokenMessage = "The link is invalid, expired or already used. Ask for the change again.";
 }

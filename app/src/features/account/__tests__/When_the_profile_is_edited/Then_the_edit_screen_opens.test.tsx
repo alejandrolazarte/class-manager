@@ -13,6 +13,7 @@ describe("When the profile is edited", () => {
     jest.mocked(getMyAccount).mockResolvedValue({
       email: "tomas@example.com",
       fullName: "Tomas Perez",
+      hasAcceptedCurrentLegalTerms: true,
     });
   });
 

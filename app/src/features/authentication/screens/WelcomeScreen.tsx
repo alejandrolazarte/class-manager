@@ -6,6 +6,7 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
+import { TextLink } from "@/ui/TextLink";
 
 export function WelcomeScreen() {
   const router = useRouter();
@@ -34,6 +35,23 @@ export function WelcomeScreen() {
             variant="ghost"
             label={translate("authentication.welcome.signIn")}
             onPress={() => router.push(routes.signIn)}
+          />
+        </View>
+        <View className="flex-row flex-wrap justify-center gap-x-4">
+          <TextLink
+            label={translate("legal.notice.title")}
+            accessibilityRole="link"
+            onPress={() => router.push(routes.legalDocument("notice"))}
+          />
+          <TextLink
+            label={translate("legal.privacy.title")}
+            accessibilityRole="link"
+            onPress={() => router.push(routes.legalDocument("privacy"))}
+          />
+          <TextLink
+            label={translate("legal.terms.title")}
+            accessibilityRole="link"
+            onPress={() => router.push(routes.legalDocument("terms"))}
           />
         </View>
       </ScrollView>

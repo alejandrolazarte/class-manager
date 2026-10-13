@@ -22,6 +22,7 @@ export interface AcceptInvitationAnswer {
   fullName: string;
   password: string;
   birthDate?: string;
+  acceptsLegalTerms?: boolean;
 }
 
 interface InvitationScreenProps {
@@ -132,7 +133,12 @@ export function InvitationScreen({
     return { kind: "message", message: translate("common.unexpectedError") };
   };
 
-  const acceptInvitation = async (fullName: string, password: string, birthDate?: string) => {
+  const acceptInvitation = async (
+    fullName: string,
+    password: string,
+    birthDate?: string,
+    acceptsLegalTerms?: boolean,
+  ) => {
     if (!token) {
       return;
     }
@@ -140,11 +146,20 @@ export function InvitationScreen({
     setFieldErrors({});
     setIsAccepting(true);
     try {
-      await accept({ token, fullName, password, ...(birthDate ? { birthDate } : {}) });
+      await accept({
+        token,
+        fullName,
+        password,
+        ...(birthDate ? { birthDate } : {}),
+        ...(acceptsLegalTerms ? { acceptsLegalTerms } : {}),
+      });
       router.replace(successRoute);
     } catch (acceptError) {
       setFailure(
-        failureOf(acceptError, () => void acceptInvitation(fullName, password, birthDate)),
+        failureOf(
+          acceptError,
+          () => void acceptInvitation(fullName, password, birthDate, acceptsLegalTerms),
+        ),
       );
     } finally {
       setIsAccepting(false);
@@ -207,8 +222,8 @@ export function InvitationScreen({
           fieldErrors={fieldErrors}
           isAccepting={isAccepting}
           isDeclining={isDeclining}
-          onAccept={(fullName, password, birthDate) =>
-            void acceptInvitation(fullName, password, birthDate)
+          onAccept={(fullName, password, birthDate, acceptsLegalTerms) =>
+            void acceptInvitation(fullName, password, birthDate, acceptsLegalTerms)
           }
           onDecline={() => void declineInvitation()}
         />

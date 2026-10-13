@@ -23,6 +23,7 @@ export interface OwnerSignUp {
   currencyCode: string;
   countryCode: string;
   ownerBirthDate: string;
+  acceptsLegalTerms: boolean;
 }
 
 export interface SeededBusiness extends BusinessAccount {
@@ -68,6 +69,7 @@ export async function signUpBusiness(request: APIRequestContext): Promise<Busine
       currencyCode: "ARS",
       countryCode: "AR",
       ownerBirthDate: "1985-06-20",
+      acceptsLegalTerms: true,
     },
     ownerPassword,
   );

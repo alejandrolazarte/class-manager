@@ -51,7 +51,7 @@ internal sealed class CompleteSignUpUseCaseBuilder
             .Setup(service => service.IsEmailRegisteredAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         Identity
-            .Setup(service => service.CreateOwnerAsync(It.IsAny<OwnerAccount>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.CreateOwnerAsync(It.IsAny<OwnerAccount>(), It.IsAny<LegalTermsAcceptance?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(UserId));
         Tokens
             .Setup(service => service.IssueAsync(It.IsAny<SessionUser>(), It.IsAny<CancellationToken>()))

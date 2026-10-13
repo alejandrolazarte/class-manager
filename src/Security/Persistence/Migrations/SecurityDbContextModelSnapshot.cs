@@ -57,6 +57,13 @@ namespace ClassManager.Security.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("AcceptedLegalTermsOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("AcceptedLegalTermsVersion")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 

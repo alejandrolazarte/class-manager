@@ -43,6 +43,7 @@ export async function fillSignUpForm(): Promise<void> {
     await screen.findByLabelText(translate("authentication.signUp.businessName")),
     "Panadería Laura",
   );
+  await fireEvent.press(screen.getByRole("checkbox", { name: translate("legal.consent.label") }));
 }
 
 export async function submitSignUpForm(): Promise<void> {

@@ -2,6 +2,7 @@ export interface MyAccount {
   email: string;
   fullName: string;
   birthDate?: string | null;
+  hasAcceptedCurrentLegalTerms: boolean;
 }
 
 export interface UpdateMyProfileRequest {
