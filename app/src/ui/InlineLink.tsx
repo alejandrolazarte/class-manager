@@ -17,7 +17,6 @@ export function InlineLink({ label, onPress }: InlineLinkProps) {
       tone="primary"
       accessibilityRole="link"
       onPress={openLink}
-      className="underline"
     >
       {label}
     </AppText>
