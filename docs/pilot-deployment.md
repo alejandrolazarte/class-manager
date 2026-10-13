@@ -12,14 +12,14 @@ Step-by-step commands to put class-manager online for the pilot, following the [
 | Migrations | `scripts/migrate-database.mjs` applies `AppDbContext` and `SecurityDbContext` to the database in `MIGRATIONS_CONNECTION_STRING` |
 | Deploy pipeline | `.github/workflows/deploy.yml`, runs after CI passes on `main`; skipped until the `AZURE_CLIENT_ID` variable exists |
 | Installable web app (PWA) | `app/public/`: `index.html` template, `manifest.webmanifest`, icons, `service-worker.js` and `register-service-worker.js`, copied into `dist/` by `expo export` |
-| Web security headers | `app/scripts/writeWebHeaders.js` writes `dist/_headers` with a report-only Content Security Policy ([details](frontend/content-security-policy.md)) |
+| Web hosting config | `app/scripts/writeStaticWebAppConfig.js` writes `dist/staticwebapp.config.json`: the single-page fallback and a report-only Content Security Policy ([details](frontend/content-security-policy.md)) |
 | Android pilot build | `app/eas.json`, profile `pilot`: an APK installed from a link (optional, see step 11) |
 
 ## Before starting
 
 - An Azure account with a subscription (the free account is enough).
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli), .NET 10 SDK and Node.js 22 on the PC.
-- A Cloudflare account and an Expo account.
+- A Cloudflare account (domain and DNS, see [Domain and DNS](domain-and-dns.md)) and an Expo account.
 
 ## 1. Names and sign-in
 
@@ -107,7 +107,7 @@ az role assignment list --assignee-object-id $deployObjectId --all --query "[].[
 
 GitHub sends the subject with the owner's and the repository's numeric ids (`repo:alejandrolazarte@55626992/class-manager@1388192765:ref:refs/heads/main`), not just their names, so a repository recreated with the same name can't reuse this trust. `$deploySubject` must print that shape. Entra can take a minute or two to apply a new or changed credential: a deploy started right after fails with `AADSTS700213` and works when re-run.
 
-Assigning by object id avoids a race with the service principal that was just created. The last command must print `Contributor` and the resource group. `Contributor` on the resource group only: the pipeline updates the container app and opens a temporary firewall rule; it can't touch anything outside `class-manager-rg`.
+Assigning by object id avoids a race with the service principal that was just created. The last command must print `Contributor` and the resource group. `Contributor` on the resource group only: the pipeline updates the container app, opens a temporary firewall rule and reads the static web app's deployment token; it can't touch anything outside `class-manager-rg`.
 
 ## 5. Container Apps
 
@@ -203,39 +203,43 @@ Check it: `https://<api host>/health` answers `Healthy`.
 
 The first image push creates the `class-manager-api` package on GitHub as private and linked to the repository. Leave it private.
 
-## 9. Web app (Cloudflare Pages)
+## 9. Web app (Azure Static Web Apps)
 
-In Cloudflare: **Compute → Workers & Pages → Create**. The create screen defaults to Workers; use **Continue to Pages** (the "legacy Pages workflow" link at the bottom), then **Connect to Git** with access to `alejandrolazarte/class-manager` only, project name `class-manager`. The pilot got `class-manager-3cm.pages.dev` because `class-manager` was taken.
+Create the static web app on the Free plan. Don't connect it to GitHub from the portal (source **Other**): the **GitHub** source commits a workflow straight to `main` with an action the repository doesn't allow. The region only holds the resource's metadata; the files are served from Azure's global network.
 
-| Setting | Value |
+```powershell
+$staticWebApp = "class-manager-web"
+az staticwebapp create --name $staticWebApp --resource-group $resourceGroup --location westeurope --sku Free
+gh variable set AZURE_STATIC_WEB_APP --repo $repository --body $staticWebApp
+gh variable set EXPO_PUBLIC_API_BASE_URL --repo $repository --body "https://api.laztty.com"
+gh variable set FILES_BASE_URL --repo $repository --body "https://<storage account>.blob.core.windows.net"
+```
+
+| Variable | Value |
 |---|---|
-| Production branch | `main` |
-| Root directory | `app` |
-| Build command | `corepack enable && pnpm install --frozen-lockfile && pnpm export:web` |
-| Build output directory | `dist` |
-| Environment variable `NODE_VERSION` | `22` |
-| Environment variable `EXPO_PUBLIC_API_BASE_URL` | `https://<api host>` |
-| Environment variable `FILES_BASE_URL` | `https://<storage account>.blob.core.windows.net` (photos, see [storage](storage.md)) |
-| Environment variable `EXPO_PUBLIC_PLANS_CONTACT_URL` (optional) | Where "Quiero cambiar de plan" opens, for example `https://wa.me/<number>`; without it the plan screens show "escribinos" as text |
+| `AZURE_STATIC_WEB_APP` | The static web app's name. The `web` job is skipped until it exists |
+| `EXPO_PUBLIC_API_BASE_URL` | The API's address |
+| `FILES_BASE_URL` | The blob endpoint for photos (see [storage](storage.md)); optional |
+| `EXPO_PUBLIC_PLANS_CONTACT_URL` (optional) | Where "Quiero cambiar de plan" opens, for example `https://wa.me/<number>`; without it the plan screens show "escribinos" as text |
 
-Cloudflare builds on its own servers on every push to `main`; no GitHub Action is involved. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and Pages does not publish folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. It then runs `scripts/writeWebHeaders.js`, which writes `dist/_headers` with the [Content Security Policy](frontend/content-security-policy.md) in report-only mode, allowing requests only to the API in `EXPO_PUBLIC_API_BASE_URL`. Pages serves `index.html` for any path, which is what the single-page web build needs.
+The pipeline's identity is `Contributor` on the resource group ([step 4](#4-deploy-identity-for-github-actions)), which is enough to read the deployment token, so nothing is stored in GitHub.
 
-Then allow the Pages domain in the API's CORS list:
+After every API deploy, the `web` job runs `pnpm export:web` and uploads `app/dist` with the Static Web Apps CLI. `pnpm export:web` runs `expo export --platform web` and then `scripts/relocateNodeModulesAssets.js`: Expo writes package assets (the Ionicons font, navigation icons) under `dist/assets/node_modules/`, and hosts and upload tools commonly skip folders named `node_modules`, so the script moves them to `dist/assets/vendor/` and rewrites the references. Without it the icons render as empty boxes. It then runs `scripts/writeStaticWebAppConfig.js`, which writes `dist/staticwebapp.config.json`: `index.html` for any path that isn't a file (the single-page web build needs it), the [Content Security Policy](frontend/content-security-policy.md) in report-only mode allowing requests only to the API in `EXPO_PUBLIC_API_BASE_URL`, and the headers for the email fonts.
+
+Add the domain (`app.laztty.com`, see [Domain and DNS](domain-and-dns.md)), then allow it in the API's CORS list and point the email links at it:
 
 ```powershell
 az containerapp update --name $containerApp --resource-group $resourceGroup `
-  --set-env-vars "Cors__AllowedOrigins__0=https://class-manager.pages.dev" "WebApp__Url=https://class-manager.pages.dev"
+  --set-env-vars "Cors__AllowedOrigins__0=https://app.laztty.com" "WebApp__Url=https://app.laztty.com"
 ```
 
-`WebApp__Url` is where the links in emails point (see [Email](#email)).
-
-Use the domain Cloudflare actually assigned if `class-manager` was taken.
+`WebApp__Url` is where the links in emails point (see [Email](#email)), and where emails load their fonts from, so change it only once the web app answers on that domain.
 
 ## 10. Installing the app on phones (PWA)
 
-The web app from step 9 is also an installable app (a Progressive Web App). Instructors install it from the browser: no APK, no "allow installs from unknown sources", no store. It updates itself: every push to `main` rebuilds Pages, and the next time the app opens it loads the new version. An installed app is rarely closed, though: phones keep it in the background, and coming back to it doesn't reload the page. So whenever the app becomes visible again (and every 15 minutes while it stays open) it fetches `index.html` without cache and compares its `entry-<hash>.js` bundle with the one it is running. When they differ it shows a "new version" banner whose **Actualizar** button reloads the page. It asks instead of reloading on its own so a half-filled form is never lost (`app/src/features/appUpdate/`).
+The web app from step 9 is also an installable app (a Progressive Web App). Instructors install it from the browser: no APK, no "allow installs from unknown sources", no store. It updates itself: every deploy publishes a new web app, and the next time the app opens it loads the new version. An installed app is rarely closed, though: phones keep it in the background, and coming back to it doesn't reload the page. So whenever the app becomes visible again (and every 15 minutes while it stays open) it fetches `index.html` without cache and compares its `entry-<hash>.js` bundle with the one it is running. When they differ it shows a "new version" banner whose **Actualizar** button reloads the page. It asks instead of reloading on its own so a half-filled form is never lost (`app/src/features/appUpdate/`).
 
-**Android (Chrome):** open `https://<pages domain>`, then **⋮ → Install app** (or the "Install" banner Chrome shows). The app appears in the launcher with its icon and opens full screen.
+**Android (Chrome):** open `https://app.laztty.com`, then **⋮ → Install app** (or the "Install" banner Chrome shows). The app appears in the launcher with its icon and opens full screen.
 
 **iPhone:** open the same link in Safari, tap **Share → Add to Home Screen → Add**. Since iOS 16.4 the Share menu in other browsers (Chrome, Edge) offers it too.
 
@@ -311,12 +315,11 @@ Without these settings the API sends nothing and the app hides the option. On iP
 | On | What happens |
 |---|---|
 | Pull request | CI builds and tests; also builds the API image (without pushing) |
-| Merge to `main`, CI green | `deploy.yml`: image to `ghcr.io`, migrations, container app updated |
-| Push to `main` | Cloudflare Pages rebuilds the web app |
+| Merge to `main`, CI green | `deploy.yml`: image to `ghcr.io`, migrations, container app updated, then the web app built and uploaded to Static Web Apps |
 | Push to `main` | Installed PWAs pick up the new web app the next time they open |
 | New APK (optional) | Manual: `eas build --profile pilot`, only when native behaviour needs testing |
 
-Migrations run before the new image starts, while the previous version is still serving. If a migration fails, the new image is never deployed but Cloudflare Pages still publishes the new web app, so the web and the API can be out of step until the next successful deploy: check the **Deploy** run after every merge. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys.
+Migrations run before the new image starts, while the previous version is still serving. If a migration fails, neither the new image nor the new web app is deployed, so the web never runs ahead of the API: check the **Deploy** run after every merge. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys.
 
 ## Audit commands
 

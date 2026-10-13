@@ -1,4 +1,4 @@
-const { contentSecurityPolicy } = jest.requireActual("../../writeWebHeaders.js");
+const { contentSecurityPolicy } = jest.requireActual("../../writeStaticWebAppConfig.js");
 
 describe("When api base url has a path", () => {
   it("Then only the api origin is allowed", () => {

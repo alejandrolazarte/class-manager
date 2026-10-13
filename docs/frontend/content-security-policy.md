@@ -8,7 +8,7 @@ It is deployed in **report-only** mode: the browser only reports what it would b
 
 ## Where it comes from
 
-`pnpm export:web` runs `app/scripts/writeWebHeaders.js` after the export. It writes `dist/_headers`, which Cloudflare Pages applies to every path. The API origin comes from `EXPO_PUBLIC_API_BASE_URL`, the same variable the app uses, so no host is hardcoded.
+`pnpm export:web` runs `app/scripts/writeStaticWebAppConfig.js` after the export. It writes `dist/staticwebapp.config.json`, whose `globalHeaders` Azure Static Web Apps sends on every path. The API origin comes from `EXPO_PUBLIC_API_BASE_URL`, the same variable the app uses, so no host is hardcoded.
 
 It also sends `Access-Control-Allow-Origin: *` and a one-year immutable cache for `/fonts/*`, the Figtree files that emails load from the web app (see [Branded emails](../backend/20261002-branded-emails/plan.md)).
 
@@ -48,11 +48,11 @@ On 2026-10-03, with the policy **enforced** (not report-only) on the e2e web ser
 
 After the pilot has used the app for a while with no unexpected reports in the console:
 
-1. In `app/scripts/writeWebHeaders.js`, change the header name from `Content-Security-Policy-Report-Only` to `Content-Security-Policy` and update its tests.
+1. In `app/scripts/writeStaticWebAppConfig.js`, change the header name from `Content-Security-Policy-Report-Only` to `Content-Security-Policy` and update its tests.
 2. Deploy and open the app on Android and iPhone (installed PWA): sign in, open a few screens, submit a form.
 
 To roll back, change the header name back. The policy itself doesn't change.
 
 ## Refresh token in a cookie (not done)
 
-The stronger fix is to keep the web refresh token in an `HttpOnly` cookie that scripts can't read. It needs the app and the API on the same site (for example `app.example.com` and `api.example.com`): today they are on `pages.dev` and the Azure Container Apps domain, and Safari on iPhone blocks cross-site cookies, which would break the installed PWA. Do it together with a custom domain.
+The stronger fix is to keep the web refresh token in an `HttpOnly` cookie that scripts can't read. It needs the app and the API on the same site (for example `app.example.com` and `api.example.com`): Safari on iPhone blocks cross-site cookies, which would break the installed PWA. Since 2026-10-14 they are `app.laztty.com` and `api.laztty.com` (see [Domain and DNS](../domain-and-dns.md)), so this is now possible.

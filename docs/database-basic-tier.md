@@ -63,7 +63,7 @@ The price is **only the database**. It is billed per hour while the database exi
 
 Not included, and only billed if turned on: long-term backup retention, geo-replication, and data leaving Azure beyond the free monthly allowance.
 
-The rest of the hosting is unchanged and still costs nothing or cents (see [hosting plan](hosting-plan.md#architecture)): the API on Container Apps, the web app on Cloudflare Pages, photos on Blob Storage. Moving to Basic adds about USD 5 a month to the bill and nothing else.
+The rest of the hosting is unchanged and still costs nothing or cents (see [hosting plan](hosting-plan.md#architecture)): the API on Container Apps, the web app on Azure Static Web Apps, photos on Blob Storage. Moving to Basic adds about USD 5 a month to the bill and nothing else.
 
 ## Things that can't be undone
 
