@@ -17,6 +17,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<BusinessMember> BusinessMembers => Set<BusinessMember>();
     public DbSet<MemberInvitation> MemberInvitations => Set<MemberInvitation>();
     public DbSet<PendingSignUp> PendingSignUps => Set<PendingSignUp>();
+    public DbSet<LegalTermsAcceptance> LegalTermsAcceptances => Set<LegalTermsAcceptance>();
     public DbSet<CustomRole> CustomRoles => Set<CustomRole>();
     public DbSet<ClientAccount> ClientAccounts => Set<ClientAccount>();
     public DbSet<ClientInvitation> ClientInvitations => Set<ClientInvitation>();

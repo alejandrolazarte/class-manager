@@ -10,6 +10,7 @@ import {
 const accountPaths = {
   myAccount: "/api/me/account",
   emailChange: "/api/me/account/email-change",
+  legalTermsAcceptance: "/api/me/account/legal-terms-acceptance",
   confirmEmailChange: "/api/auth/email-change/confirm",
 } as const;
 
@@ -19,6 +20,10 @@ export function getMyAccount(): Promise<MyAccount> {
 
 export function updateMyProfile(request: UpdateMyProfileRequest): Promise<MyAccount> {
   return httpClient.put<MyAccount>(accountPaths.myAccount, request);
+}
+
+export function acceptLegalTerms(): Promise<void> {
+  return httpClient.post<void>(accountPaths.legalTermsAcceptance, {});
 }
 
 export function requestEmailChange(

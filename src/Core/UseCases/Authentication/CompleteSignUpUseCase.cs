@@ -24,6 +24,7 @@ public sealed class CompleteSignUpUseCase(
     IBusinessMemberRepository businessMemberRepository,
     IInstructorRepository instructorRepository,
     ISubscriptionRepository subscriptionRepository,
+    ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
     IUnitOfWork unitOfWork,
     ITenantScope tenantScope,
     TimeProvider timeProvider)
@@ -95,6 +96,11 @@ public sealed class CompleteSignUpUseCase(
         businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Id, userId.Value, ownerInstructor.Id));
         var signUpPlan = await subscriptionRepository.GetSignUpPlanAsync(cancellationToken);
         subscriptionRepository.Add(Subscription.StartAtListPrice(organization.Id, signUpPlan, now));
+        if (pendingSignUp.LegalTermsAcceptanceOf(userId.Value) is { } legalTermsAcceptance)
+        {
+            legalTermsAcceptanceRepository.Add(legalTermsAcceptance);
+        }
+
         pendingSignUp.Complete(now);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -26,7 +26,8 @@ public sealed class Then_returns_400(ApiFixture fixture)
                 fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(childEmail),
                 null,
                 StudentAppRequests.StudentAppPassword,
-                tenYearsAgo),
+                tenYearsAgo,
+                AcceptsLegalTerms: true),
             ApiRequests.JsonOptions);
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);

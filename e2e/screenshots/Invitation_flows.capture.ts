@@ -93,6 +93,7 @@ async function seedFlowBusiness(request: APIRequestContext): Promise<FlowBusines
       currencyCode: "ARS",
       countryCode: "AR",
       ownerBirthDate: "1985-06-20",
+      acceptsLegalTerms: true,
     },
     ownerPassword,
   ));
@@ -132,6 +133,7 @@ async function seedFlowBusiness(request: APIRequestContext): Promise<FlowBusines
     fullName: null,
     password: guardianPassword,
     birthDate: "1984-02-11",
+    acceptsLegalTerms: true,
   });
   ownerToken = ownerTokenBeforeGuardian;
 
@@ -238,6 +240,9 @@ test("Invitation flows", async ({ page, request, browser }) => {
   await capture(childPage, "09-tomas-crea-su-cuenta");
   await childPage.getByLabel("Contraseña", { exact: true }).fill(invitedPassword);
   await childPage.getByLabel("Repetí la contraseña").fill(invitedPassword);
+  await childPage
+    .getByRole("checkbox", { name: "Acepto los términos de uso y la política de privacidad" })
+    .click();
   await childPage.getByRole("button", { name: "Crear cuenta" }).click();
   await expect(childPage).toHaveURL(/\/student-app/);
   await childPage.getByText("Próxima clase").or(childPage.getByText("Tomás")).first().waitFor();

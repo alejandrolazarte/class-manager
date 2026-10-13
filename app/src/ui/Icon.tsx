@@ -22,6 +22,7 @@ const iconGlyphs = {
   expand: "chevron-down",
   collapse: "chevron-up",
   present: "checkmark",
+  checked: "checkmark",
   absent: "close",
   allPresent: "checkmark-done",
   paid: "checkmark-circle-outline",

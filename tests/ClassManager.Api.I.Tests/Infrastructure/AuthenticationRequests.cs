@@ -31,7 +31,8 @@ public static class AuthenticationRequests
             ApiFixture.ArgentinaCountryCode,
             ApiFixture.BuenosAiresTimeZoneId,
             ApiFixture.CurrencyCode,
-            AdultBirthDate);
+            AdultBirthDate,
+            AcceptsLegalTerms: true);
 
     public static Task<HttpResponseMessage> PostSignUpAsync(this HttpClient httpClient, RequestSignUpCommand command) =>
         httpClient.PostAsJsonAsync(SignUpRoute, command, ApiRequests.JsonOptions);

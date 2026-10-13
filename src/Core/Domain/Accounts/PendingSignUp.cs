@@ -23,12 +23,15 @@ public sealed class PendingSignUp
     public DateTimeOffset ExpiresAt { get; private set; }
     public DateTimeOffset? CompletedAt { get; private set; }
     public DateTimeOffset? RevokedAt { get; private set; }
+    public string? AcceptedLegalTermsVersion { get; private set; }
+    public DateTimeOffset? AcceptedLegalTermsOn { get; private set; }
 
     public static PendingSignUp Start(
         OwnerProfile owner,
         PendingBusiness business,
         string tokenHash,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        string acceptedLegalTermsVersion)
     {
         ArgumentNullException.ThrowIfNull(owner);
         ArgumentNullException.ThrowIfNull(business);
@@ -46,10 +49,17 @@ public sealed class PendingSignUp
             TokenHash = tokenHash,
             CreatedAt = createdAt.ToUniversalTime(),
             ExpiresAt = (createdAt + Lifetime).ToUniversalTime(),
+            AcceptedLegalTermsVersion = acceptedLegalTermsVersion,
+            AcceptedLegalTermsOn = createdAt.ToUniversalTime(),
         };
     }
 
     public PendingBusiness Business => new(BusinessName, CountryCode, TimeZoneId, CurrencyCode);
+
+    public LegalTermsAcceptance? LegalTermsAcceptanceOf(Guid userId) =>
+        AcceptedLegalTermsVersion is { } version && AcceptedLegalTermsOn is { } acceptedOn
+            ? LegalTermsAcceptance.Record(userId, version, acceptedOn)
+            : null;
 
     public bool IsPendingAt(DateTimeOffset now) => CompletedAt is null && RevokedAt is null && ExpiresAt > now;
 

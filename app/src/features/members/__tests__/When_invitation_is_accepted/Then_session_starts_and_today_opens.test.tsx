@@ -36,6 +36,7 @@ describe("When invitation is accepted", () => {
       password,
     );
 
+    await fireEvent.press(screen.getByRole("checkbox", { name: translate("legal.consent.label") }));
     await fireEvent.press(screen.getByRole("button", { name: translate("invitation.submit") }));
 
     await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith(routes.today));
@@ -44,6 +45,7 @@ describe("When invitation is accepted", () => {
       fullName,
       password,
       birthDate: "1990-04-12",
+      acceptsLegalTerms: true,
     });
   });
 });

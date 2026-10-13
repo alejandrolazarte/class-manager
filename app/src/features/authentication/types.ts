@@ -8,6 +8,7 @@ export interface SignUpRequest {
   timeZoneId: string;
   currencyCode: string;
   ownerBirthDate: string;
+  acceptsLegalTerms: boolean;
 }
 
 export interface CompleteSignUpRequest {
@@ -38,6 +39,7 @@ export interface AcceptInvitationRequest {
   fullName: string;
   password: string;
   birthDate?: string;
+  acceptsLegalTerms?: boolean;
 }
 
 export interface AcceptStudentAppInvitationRequest {
@@ -45,6 +47,7 @@ export interface AcceptStudentAppInvitationRequest {
   fullName: string;
   password: string;
   birthDate?: string;
+  acceptsLegalTerms?: boolean;
 }
 
 export interface CheckInvitationRequest {

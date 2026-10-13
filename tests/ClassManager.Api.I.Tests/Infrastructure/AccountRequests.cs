@@ -19,6 +19,9 @@ public static class AccountRequests
     public static Task<MyAccountResponse?> GetMyAccountAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<MyAccountResponse>(new Uri(ApiRoutes.MyAccount, UriKind.Relative), ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PostLegalTermsAcceptanceAsync(this HttpClient httpClient) =>
+        httpClient.PostAsync(new Uri(ApiRoutes.MyLegalTermsAcceptance, UriKind.Relative), null);
+
     public static Task<HttpResponseMessage> PostSwitchAccountAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string kind) =>
         httpClient.PostAsJsonAsync(SwitchRoute, new SwitchBranchCommand(refreshToken, businessId, kind), ApiRequests.JsonOptions);
 

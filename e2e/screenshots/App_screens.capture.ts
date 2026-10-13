@@ -55,6 +55,9 @@ test("App screens", async ({ page, request }) => {
   await page.getByLabel("Nombre del negocio").fill("Estudio Valeria");
   await capture(page, "00g-registro-tu-negocio");
 
+  await page
+    .getByRole("checkbox", { name: "Acepto los términos de uso y la política de privacidad" })
+    .click();
   await page.getByRole("button", { name: "Crear cuenta" }).click();
   await page.getByText("Revisá tu email").filter({ visible: true }).first().waitFor();
   await capture(page, "00h-registro-revisa-tu-email");

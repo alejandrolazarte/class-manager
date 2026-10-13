@@ -50,6 +50,7 @@ export const signUpSchema = z.object({
     ),
   countryCode: z.string(),
   timeZoneId: z.string().min(1, translate("authentication.validation.timeZoneRequired")),
+  acceptsLegalTerms: z.boolean().refine((isAccepted) => isAccepted),
 });
 
 export type SignUpFormValues = z.input<typeof signUpSchema>;
@@ -71,5 +72,6 @@ export function toSignUpRequest(formValues: SignUpFormValues, currencyCode: stri
     timeZoneId: formValues.timeZoneId,
     currencyCode,
     ownerBirthDate: parseBirthDate(formValues.ownerBirthDate) ?? "",
+    acceptsLegalTerms: formValues.acceptsLegalTerms,
   };
 }

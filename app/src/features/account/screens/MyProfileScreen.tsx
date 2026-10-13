@@ -3,6 +3,7 @@ import { Pressable, View } from "react-native";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { useMyAccount } from "@/features/account/useMyAccount";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
@@ -88,6 +89,24 @@ export function MyProfileScreen({ editProfileRoute, changeEmailRoute }: MyProfil
               label={translate("profile.email.title")}
               detail={translate("profile.signsInWith", { email: account.email })}
               onPress={() => router.push(changeEmailRoute)}
+            />
+          </View>
+          <View className="gap-0.5">
+            <SectionTitle title={translate("legal.section")} isOverline />
+            <ListRow
+              icon="document"
+              label={translate("legal.terms.title")}
+              onPress={() => router.push(routes.legalDocument("terms"))}
+            />
+            <ListRow
+              icon="locked"
+              label={translate("legal.privacy.title")}
+              onPress={() => router.push(routes.legalDocument("privacy"))}
+            />
+            <ListRow
+              icon="info"
+              label={translate("legal.notice.title")}
+              onPress={() => router.push(routes.legalDocument("notice"))}
             />
           </View>
         </>

@@ -15,6 +15,7 @@ describe("When the current password is wrong", () => {
     jest.mocked(getMyAccount).mockResolvedValue({
       email: "laura@example.com",
       fullName: "Laura Gómez",
+      hasAcceptedCurrentLegalTerms: true,
     });
     jest
       .mocked(requestEmailChange)

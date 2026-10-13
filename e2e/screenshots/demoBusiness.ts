@@ -83,6 +83,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
       currencyCode: "ARS",
       countryCode: "AR",
       ownerBirthDate: "1985-06-20",
+      acceptsLegalTerms: true,
     },
     demoPassword,
   ));

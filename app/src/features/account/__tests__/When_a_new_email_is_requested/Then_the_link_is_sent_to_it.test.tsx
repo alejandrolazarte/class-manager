@@ -11,6 +11,7 @@ describe("When a new email is requested", () => {
     jest.mocked(getMyAccount).mockResolvedValue({
       email: "laura@example.com",
       fullName: "Laura Gómez",
+      hasAcceptedCurrentLegalTerms: true,
     });
     jest.mocked(requestEmailChange).mockResolvedValue({ newEmail: "laura.nueva@example.com" });
   });

@@ -5,6 +5,7 @@ import {
   isValidBirthDate,
   parseBirthDate,
 } from "@/features/students/birthDateFormatting";
+import { LegalTermsConsent } from "@/features/legal/components/LegalTermsConsent";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -33,7 +34,12 @@ interface InvitationAnswerFormProps {
   fieldErrors: InvitationFieldErrors;
   isAccepting: boolean;
   isDeclining: boolean;
-  onAccept: (fullName: string, password: string, birthDate?: string) => void;
+  onAccept: (
+    fullName: string,
+    password: string,
+    birthDate?: string,
+    acceptsLegalTerms?: boolean,
+  ) => void;
   onDecline: () => void;
 }
 
@@ -55,11 +61,13 @@ export function InvitationAnswerForm({
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [confirmationError, setConfirmationError] = useState<string | undefined>();
+  const [acceptsLegalTerms, setAcceptsLegalTerms] = useState(false);
   const isFilled =
     invitation.hasAccount ||
     (password.length > 0 &&
       passwordConfirmation.length > 0 &&
       birthDate.length > 0 &&
+      acceptsLegalTerms &&
       (knownFullName !== null || fullName.trim().length > 0));
 
   const accept = () => {
@@ -76,7 +84,12 @@ export function InvitationAnswerForm({
     if (!hasValidBirthDate || !passwordsMatch) {
       return;
     }
-    onAccept(knownFullName ?? fullName.trim(), password, parseBirthDate(birthDate) ?? undefined);
+    onAccept(
+      knownFullName ?? fullName.trim(),
+      password,
+      parseBirthDate(birthDate) ?? undefined,
+      acceptsLegalTerms,
+    );
   };
 
   return (
@@ -132,6 +145,10 @@ export function InvitationAnswerForm({
           <AppText variant="caption" tone="subtle">
             {knownFullName ? translate("invitationAnswer.nameHint") : texts.passwordHint}
           </AppText>
+          <LegalTermsConsent
+            isAccepted={acceptsLegalTerms}
+            onAcceptedChange={setAcceptsLegalTerms}
+          />
         </>
       )}
       <Button

@@ -16,6 +16,7 @@ internal sealed class PendingSignUpConfiguration : IEntityTypeConfiguration<Pend
         builder.Property(pendingSignUp => pendingSignUp.TimeZoneId).HasMaxLength(Business.TimeZoneIdMaxLength).IsRequired();
         builder.Property(pendingSignUp => pendingSignUp.CurrencyCode).HasMaxLength(Business.CurrencyCodeLength).IsFixedLength().IsRequired();
         builder.Property(pendingSignUp => pendingSignUp.TokenHash).HasMaxLength(PendingSignUp.TokenHashLength).IsFixedLength().IsRequired();
+        builder.Property(pendingSignUp => pendingSignUp.AcceptedLegalTermsVersion).HasMaxLength(LegalTerms.VersionMaxLength);
         builder.Ignore(pendingSignUp => pendingSignUp.Business);
         builder.HasIndex(pendingSignUp => pendingSignUp.TokenHash).IsUnique();
         builder.HasIndex(pendingSignUp => pendingSignUp.Email);
