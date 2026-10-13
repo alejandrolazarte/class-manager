@@ -1694,7 +1694,6 @@
   "legal.terms.title": "Términos de uso",
   "legal.privacy.title": "Política de privacidad",
   "legal.updatedOn": "Última actualización: {date}",
-  "legal.section": "Legal",
   "legal.consent.label": "Acepto los términos de uso y la política de privacidad",
   "legal.consent.template": "Acepto los {terms} y la {privacy}",
   "legal.consent.terms": "términos de uso",
