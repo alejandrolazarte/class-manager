@@ -110,7 +110,7 @@ public sealed class RequestSignUpUseCase(
         }
 
         var token = secretTokenGenerator.Create();
-        var pendingSignUp = PendingSignUp.Start(owner.Value, brand.Value!.Requested, token.Hash, now, LegalTermsAcceptance.CurrentAt(now));
+        var pendingSignUp = PendingSignUp.Start(owner.Value, brand.Value!.Requested, token.Hash, now, LegalTerms.CurrentVersion);
         pendingSignUpRepository.Add(pendingSignUp);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
@@ -7,7 +8,11 @@ namespace ClassManager.Core.UseCases.Accounts;
 
 public sealed record UpdateMyProfileCommand(string? FullName, DateOnly? BirthDate) : ICommand;
 
-public sealed class UpdateMyProfileUseCase(ICurrentUser currentUser, IIdentityService identityService, TimeProvider timeProvider)
+public sealed class UpdateMyProfileUseCase(
+    ICurrentUser currentUser,
+    IIdentityService identityService,
+    ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
+    TimeProvider timeProvider)
     : IUseCase<UpdateMyProfileCommand, MyAccountResponse>
 {
     private const string FullNameLengthMessage = "Full name must be between 2 and 120 characters.";
@@ -38,7 +43,7 @@ public sealed class UpdateMyProfileUseCase(ICurrentUser currentUser, IIdentitySe
         }
 
         var accounts = await identityService.ListAccountsAsync([userId], cancellationToken);
-        return MyAccountResponse.From(accounts[0]);
+        return await MyAccountResponse.ForAsync(accounts[0], legalTermsAcceptanceRepository, cancellationToken);
     }
 
     private static Result<MyAccountResponse> NoAccess() =>

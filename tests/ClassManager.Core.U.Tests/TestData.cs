@@ -53,7 +53,7 @@ internal static class TestData
             new PendingBusiness(BusinessName, ArgentinaCountryCode, BuenosAiresTimeZoneId, CurrencyCode),
             tokenHash,
             createdAt ?? Now,
-            LegalTermsAcceptance.CurrentAt(createdAt ?? Now));
+            LegalTerms.CurrentVersion);
 
     public static IssuedTokens IssuedTokens() =>
         new("access-token", Now.AddMinutes(15), "refresh-token", Now.AddDays(30));

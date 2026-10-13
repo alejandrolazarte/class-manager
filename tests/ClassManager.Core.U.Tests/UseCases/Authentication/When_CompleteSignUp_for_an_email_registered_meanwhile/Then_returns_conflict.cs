@@ -18,7 +18,7 @@ public sealed class Then_returns_conflict
         response.Error!.Code.ShouldBe(AuthenticationErrorCodes.EmailTaken);
         response.Error.Kind.ShouldBe(ErrorKind.Conflict);
         builder.Identity.Verify(
-            service => service.CreateOwnerAsync(It.IsAny<OwnerAccount>(), It.IsAny<LegalTermsAcceptance?>(), It.IsAny<CancellationToken>()),
+            service => service.CreateOwnerAsync(It.IsAny<OwnerAccount>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 }

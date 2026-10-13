@@ -21,16 +21,13 @@ internal sealed class IdentityService(
     public async Task<IReadOnlyList<UserAccount>> ListAccountsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
         [
             .. (await userAccountService.ListAsync(userIds, cancellationToken))
-                .Select(account => new UserAccount(account.UserId, account.Email, account.FullName, account.BirthDate, account.AcceptedLegalTermsVersion)),
+                .Select(account => new UserAccount(account.UserId, account.Email, account.FullName, account.BirthDate)),
         ];
 
-    public async Task<Result<Guid>> CreateOwnerAsync(
-        OwnerAccount account,
-        LegalTermsAcceptance? legalTermsAcceptance,
-        CancellationToken cancellationToken)
+    public async Task<Result<Guid>> CreateOwnerAsync(OwnerAccount account, CancellationToken cancellationToken)
     {
         var creation = await userAccountService.CreateAsync(
-            new NewUserAccount(account.Email, account.Password, account.FullName, account.BirthDate, ConsentOf(legalTermsAcceptance)),
+            new NewUserAccount(account.Email, account.Password, account.FullName, account.BirthDate),
             cancellationToken);
 
         return creation.Status switch
@@ -43,12 +40,6 @@ internal sealed class IdentityService(
             _ => Result.Validation<Guid>(creation.ErrorDescription!),
         };
     }
-
-    public Task<bool> RecordLegalTermsAcceptanceAsync(
-        Guid userId,
-        LegalTermsAcceptance legalTermsAcceptance,
-        CancellationToken cancellationToken) =>
-        userAccountService.RecordLegalTermsConsentAsync(userId, ConsentOf(legalTermsAcceptance)!, cancellationToken);
 
     public Task<bool> UpdateProfileAsync(Guid userId, string fullName, DateOnly birthDate, CancellationToken cancellationToken) =>
         userAccountService.UpdateProfileAsync(userId, fullName, birthDate, cancellationToken);
@@ -122,7 +113,4 @@ internal sealed class IdentityService(
                 AuthenticationErrorCodes.InvalidEmailChangeTokenMessage, AuthenticationErrorCodes.InvalidEmailChangeToken),
         };
     }
-
-    private static LegalTermsConsent? ConsentOf(LegalTermsAcceptance? legalTermsAcceptance) =>
-        legalTermsAcceptance is null ? null : new LegalTermsConsent(legalTermsAcceptance.Version, legalTermsAcceptance.AcceptedOn);
 }

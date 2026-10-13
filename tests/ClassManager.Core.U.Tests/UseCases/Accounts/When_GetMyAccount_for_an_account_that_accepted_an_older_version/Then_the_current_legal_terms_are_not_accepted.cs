@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.UseCases.Accounts;
 
@@ -16,9 +17,13 @@ public sealed class Then_the_current_legal_terms_are_not_accepted
         var identity = new Mock<IIdentityService>();
         identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new UserAccount(userId, TestData.OwnerEmail, TestData.OwnerFullName, TestData.OwnerBirthDate, OlderVersion)]);
+            .ReturnsAsync([new UserAccount(userId, TestData.OwnerEmail, TestData.OwnerFullName, TestData.OwnerBirthDate)]);
+        var acceptances = new Mock<ILegalTermsAcceptanceRepository>();
+        acceptances
+            .Setup(repository => repository.HasAcceptedAsync(userId, OlderVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-        var response = await new GetMyAccountUseCase(currentUser.Object, identity.Object)
+        var response = await new GetMyAccountUseCase(currentUser.Object, identity.Object, acceptances.Object)
             .ExecuteAsync(new GetMyAccountQuery(), CancellationToken.None);
 
         response.Value!.HasAcceptedCurrentLegalTerms.ShouldBeFalse();

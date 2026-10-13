@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
@@ -9,11 +10,21 @@ public sealed record GetMyAccountQuery : IQuery;
 
 public sealed record MyAccountResponse(string Email, string FullName, DateOnly? BirthDate, bool HasAcceptedCurrentLegalTerms)
 {
-    public static MyAccountResponse From(UserAccount account) =>
-        new(account.Email, account.FullName, account.BirthDate, LegalTermsAcceptance.IsCurrent(account.AcceptedLegalTermsVersion));
+    public static async Task<MyAccountResponse> ForAsync(
+        UserAccount account,
+        ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
+        CancellationToken cancellationToken) =>
+        new(
+            account.Email,
+            account.FullName,
+            account.BirthDate,
+            await legalTermsAcceptanceRepository.HasAcceptedAsync(account.UserId, LegalTerms.CurrentVersion, cancellationToken));
 }
 
-public sealed class GetMyAccountUseCase(ICurrentUser currentUser, IIdentityService identityService)
+public sealed class GetMyAccountUseCase(
+    ICurrentUser currentUser,
+    IIdentityService identityService,
+    ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository)
     : IUseCase<GetMyAccountQuery, MyAccountResponse>
 {
     public async Task<Result<MyAccountResponse>> ExecuteAsync(GetMyAccountQuery command, CancellationToken cancellationToken)
@@ -29,6 +40,6 @@ public sealed class GetMyAccountUseCase(ICurrentUser currentUser, IIdentityServi
             return Result.Unauthorized<MyAccountResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
 
-        return MyAccountResponse.From(accounts[0]);
+        return await MyAccountResponse.ForAsync(accounts[0], legalTermsAcceptanceRepository, cancellationToken);
     }
 }

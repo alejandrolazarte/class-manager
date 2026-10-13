@@ -11,11 +11,9 @@ public sealed class Then_the_account_records_the_accepted_legal_terms
 
         await builder.Build().ExecuteAsync(CompleteSignUpUseCaseBuilder.ValidCommand(), CancellationToken.None);
 
-        builder.Identity.Verify(
-            service => service.CreateOwnerAsync(
-                It.IsAny<OwnerAccount>(),
-                new LegalTermsAcceptance(LegalTerms.CurrentVersion, TestData.Now),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        var acceptance = builder.AddedLegalTermsAcceptance!;
+        acceptance.UserId.ShouldBe(builder.UserId);
+        acceptance.Version.ShouldBe(LegalTerms.CurrentVersion);
+        acceptance.AcceptedOn.ShouldBe(TestData.Now);
     }
 }

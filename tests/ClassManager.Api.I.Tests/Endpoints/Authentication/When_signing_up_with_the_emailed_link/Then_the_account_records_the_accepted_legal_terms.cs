@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.Accounts;
-using Microsoft.EntityFrameworkCore;
 
 namespace ClassManager.Api.I.Tests.Endpoints.Authentication.When_signing_up_with_the_emailed_link;
 
@@ -14,9 +13,8 @@ public sealed class Then_the_account_records_the_accepted_legal_terms(ApiFixture
 
         await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
 
-        await using var securityContext = fixture.CreateSecurityDbContext();
-        var user = await securityContext.Users.SingleAsync(user => user.Email == command.Email);
-        user.AcceptedLegalTermsVersion.ShouldBe(LegalTerms.CurrentVersion);
-        user.AcceptedLegalTermsOn.ShouldBe(BusinessApiFactory.Now);
+        var acceptance = (await fixture.LegalTermsAcceptancesOfAsync(command.Email!)).ShouldHaveSingleItem();
+        acceptance.Version.ShouldBe(LegalTerms.CurrentVersion);
+        acceptance.AcceptedOn.ShouldBe(BusinessApiFactory.Now);
     }
 }

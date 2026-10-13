@@ -1,10 +1,25 @@
 namespace ClassManager.Core.Domain.Accounts;
 
-public sealed record LegalTermsAcceptance(string Version, DateTimeOffset AcceptedOn)
+public sealed class LegalTermsAcceptance
 {
-    public static LegalTermsAcceptance CurrentAt(DateTimeOffset acceptedOn) =>
-        new(LegalTerms.CurrentVersion, acceptedOn.ToUniversalTime());
+    private LegalTermsAcceptance()
+    {
+    }
 
-    public static bool IsCurrent(string? acceptedVersion) =>
-        string.Equals(acceptedVersion, LegalTerms.CurrentVersion, StringComparison.Ordinal);
+    public Guid Id { get; private set; }
+    public Guid UserId { get; private set; }
+    public string Version { get; private set; } = string.Empty;
+    public DateTimeOffset AcceptedOn { get; private set; }
+
+    public static LegalTermsAcceptance Record(Guid userId, string version, DateTimeOffset acceptedOn) =>
+        new()
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = userId,
+            Version = version,
+            AcceptedOn = acceptedOn.ToUniversalTime(),
+        };
+
+    public static LegalTermsAcceptance RecordCurrent(Guid userId, DateTimeOffset acceptedOn) =>
+        Record(userId, LegalTerms.CurrentVersion, acceptedOn);
 }

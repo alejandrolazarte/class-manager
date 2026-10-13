@@ -16,7 +16,6 @@ public sealed class Then_user_business_and_membership_are_created
         builder.Identity.Verify(
             service => service.CreateOwnerAsync(
                 It.Is<OwnerAccount>(account => account.Email == TestData.OwnerEmail),
-                It.IsAny<LegalTermsAcceptance?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         builder.AddedBusiness!.Name.ShouldBe(TestData.BusinessName);

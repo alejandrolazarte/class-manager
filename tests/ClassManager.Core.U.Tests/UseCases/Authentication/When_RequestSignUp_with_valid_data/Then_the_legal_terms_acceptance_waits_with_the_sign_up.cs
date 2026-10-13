@@ -11,6 +11,7 @@ public sealed class Then_the_legal_terms_acceptance_waits_with_the_sign_up
 
         await builder.Build().ExecuteAsync(RequestSignUpUseCaseBuilder.ValidCommand(), CancellationToken.None);
 
-        builder.AddedPendingSignUp!.LegalTermsAcceptance.ShouldBe(new LegalTermsAcceptance(LegalTerms.CurrentVersion, TestData.Now));
+        builder.AddedPendingSignUp!.AcceptedLegalTermsVersion.ShouldBe(LegalTerms.CurrentVersion);
+        builder.AddedPendingSignUp.AcceptedLegalTermsOn.ShouldBe(TestData.Now);
     }
 }

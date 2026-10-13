@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.UseCases.Accounts;
@@ -13,20 +14,20 @@ public sealed class Then_the_current_version_is_recorded
         var userId = Guid.CreateVersion7();
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(user => user.UserId).Returns(userId);
-        var identity = new Mock<IIdentityService>();
-        identity
-            .Setup(service => service.RecordLegalTermsAcceptanceAsync(userId, It.IsAny<LegalTermsAcceptance>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        var useCase = new AcceptLegalTermsUseCase(currentUser.Object, identity.Object, new FakeTimeProvider(TestData.Now));
+        var acceptances = new Mock<ILegalTermsAcceptanceRepository>();
+        LegalTermsAcceptance? added = null;
+        acceptances
+            .Setup(repository => repository.Add(It.IsAny<LegalTermsAcceptance>()))
+            .Callback<LegalTermsAcceptance>(acceptance => added = acceptance);
+        var unitOfWork = new Mock<IUnitOfWork>();
+        var useCase = new AcceptLegalTermsUseCase(currentUser.Object, acceptances.Object, unitOfWork.Object, new FakeTimeProvider(TestData.Now));
 
         var response = await useCase.ExecuteAsync(new AcceptLegalTermsCommand(), CancellationToken.None);
 
         response.IsSuccess.ShouldBeTrue();
-        identity.Verify(
-            service => service.RecordLegalTermsAcceptanceAsync(
-                userId,
-                new LegalTermsAcceptance(LegalTerms.CurrentVersion, TestData.Now),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        added!.UserId.ShouldBe(userId);
+        added.Version.ShouldBe(LegalTerms.CurrentVersion);
+        added.AcceptedOn.ShouldBe(TestData.Now);
+        unitOfWork.Verify(work => work.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

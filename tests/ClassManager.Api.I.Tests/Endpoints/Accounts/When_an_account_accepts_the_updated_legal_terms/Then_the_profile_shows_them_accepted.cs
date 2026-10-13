@@ -1,3 +1,4 @@
+using ClassManager.Core.Domain.Accounts;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassManager.Api.I.Tests.Endpoints.Accounts.When_an_account_accepts_the_updated_legal_terms;
@@ -14,11 +15,12 @@ public sealed class Then_the_profile_shows_them_accepted(ApiFixture fixture)
         var command = AuthenticationRequests.SignUpCommand();
         var tokens = await anonymous.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         using var owner = fixture.CreateClientWithToken(tokens.AccessToken);
-        await using (var securityContext = fixture.CreateSecurityDbContext())
+        var acceptanceId = (await fixture.LegalTermsAcceptancesOfAsync(command.Email!)).Single().Id;
+        await using (var context = fixture.CreateDbContext(Guid.Empty))
         {
-            await securityContext.Users
-                .Where(user => user.Email == command.Email)
-                .ExecuteUpdateAsync(user => user.SetProperty(account => account.AcceptedLegalTermsVersion, OlderVersion));
+            await context.LegalTermsAcceptances
+                .Where(acceptance => acceptance.Id == acceptanceId)
+                .ExecuteUpdateAsync(acceptance => acceptance.SetProperty(row => row.Version, OlderVersion));
         }
 
         (await owner.GetMyAccountAsync())!.HasAcceptedCurrentLegalTerms.ShouldBeFalse();
@@ -29,5 +31,7 @@ public sealed class Then_the_profile_shows_them_accepted(ApiFixture fixture)
         }
 
         (await owner.GetMyAccountAsync())!.HasAcceptedCurrentLegalTerms.ShouldBeTrue();
+        (await fixture.LegalTermsAcceptancesOfAsync(command.Email!)).Select(acceptance => acceptance.Version)
+            .ShouldBe([OlderVersion, LegalTerms.CurrentVersion], ignoreOrder: true);
     }
 }

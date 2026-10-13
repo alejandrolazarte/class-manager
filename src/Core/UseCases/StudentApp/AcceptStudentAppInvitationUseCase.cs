@@ -17,6 +17,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
     IStudentRepository studentRepository,
     IIdentityService identityService,
     IBusinessRepository businessRepository,
+    ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
     ITokenService tokenService,
     ISecretTokenGenerator secretTokenGenerator,
     ITenantScope tenantScope,
@@ -72,13 +73,14 @@ public sealed class AcceptStudentAppInvitationUseCase(
                     nameof(OwnerAccount.BirthDate));
             }
 
-            var createdUserId = await identityService.CreateOwnerAsync(account.Value!, LegalTermsAcceptance.CurrentAt(now), cancellationToken);
+            var createdUserId = await identityService.CreateOwnerAsync(account.Value!, cancellationToken);
             if (createdUserId.IsFailure)
             {
                 return createdUserId.Error!;
             }
 
             userId = createdUserId.Value;
+            legalTermsAcceptanceRepository.Add(LegalTermsAcceptance.RecordCurrent(createdUserId.Value, now));
         }
         else
         {

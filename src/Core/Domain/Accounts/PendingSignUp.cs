@@ -31,11 +31,10 @@ public sealed class PendingSignUp
         PendingBusiness business,
         string tokenHash,
         DateTimeOffset createdAt,
-        LegalTermsAcceptance legalTermsAcceptance)
+        string acceptedLegalTermsVersion)
     {
         ArgumentNullException.ThrowIfNull(owner);
         ArgumentNullException.ThrowIfNull(business);
-        ArgumentNullException.ThrowIfNull(legalTermsAcceptance);
 
         return new PendingSignUp
         {
@@ -50,16 +49,16 @@ public sealed class PendingSignUp
             TokenHash = tokenHash,
             CreatedAt = createdAt.ToUniversalTime(),
             ExpiresAt = (createdAt + Lifetime).ToUniversalTime(),
-            AcceptedLegalTermsVersion = legalTermsAcceptance.Version,
-            AcceptedLegalTermsOn = legalTermsAcceptance.AcceptedOn.ToUniversalTime(),
+            AcceptedLegalTermsVersion = acceptedLegalTermsVersion,
+            AcceptedLegalTermsOn = createdAt.ToUniversalTime(),
         };
     }
 
     public PendingBusiness Business => new(BusinessName, CountryCode, TimeZoneId, CurrencyCode);
 
-    public LegalTermsAcceptance? LegalTermsAcceptance =>
+    public LegalTermsAcceptance? LegalTermsAcceptanceOf(Guid userId) =>
         AcceptedLegalTermsVersion is { } version && AcceptedLegalTermsOn is { } acceptedOn
-            ? new LegalTermsAcceptance(version, acceptedOn)
+            ? LegalTermsAcceptance.Record(userId, version, acceptedOn)
             : null;
 
     public bool IsPendingAt(DateTimeOffset now) => CompletedAt is null && RevokedAt is null && ExpiresAt > now;
