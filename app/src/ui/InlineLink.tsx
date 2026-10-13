@@ -12,12 +12,7 @@ export function InlineLink({ label, onPress }: InlineLinkProps) {
     onPress();
   };
   return (
-    <AppText
-      variant="bodyStrong"
-      tone="primary"
-      accessibilityRole="link"
-      onPress={openLink}
-    >
+    <AppText variant="bodyStrong" tone="primary" accessibilityRole="link" onPress={openLink}>
       {label}
     </AppText>
   );
