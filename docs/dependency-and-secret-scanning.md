@@ -82,7 +82,7 @@ The API sets these response headers on every request, from `SecurityHeadersMiddl
 | `X-Frame-Options` | `DENY` | The API's responses can't be embedded in a frame (clickjacking). |
 | `Referrer-Policy` | `no-referrer` | No referrer is leaked to other sites. |
 
-HSTS is not set here: the Container Apps ingress already serves HTTPS only, and the web app is served from Cloudflare Pages, not from this API. Add `Strict-Transport-Security` if the API ever serves pages on its own domain.
+HSTS is not set here: the Container Apps ingress already serves HTTPS only, and the web app is served from Azure Static Web Apps, not from this API. Add `Strict-Transport-Security` if the API ever serves pages on its own domain.
 
 ## Dynamic scanning (OWASP ZAP)
 

@@ -134,7 +134,7 @@ az containerapp secret set --name <api app> --resource-group <group> --secrets f
 az containerapp update --name <api app> --resource-group <group> --set-env-vars ConnectionStrings__FileStorage=secretref:file-storage
 ```
 
-New storage accounts block anonymous access by default. `--allow-blob-public-access true` turns it on for the account; it only applies to containers created with public access, so `private-files` stays private. The API creates both containers on first use. Then set `FILES_BASE_URL` in Cloudflare Pages to `https://<account>.blob.core.windows.net`.
+New storage accounts block anonymous access by default. `--allow-blob-public-access true` turns it on for the account; it only applies to containers created with public access, so `private-files` stays private. The API creates both containers on first use. Then set the GitHub variable `FILES_BASE_URL` to `https://<account>.blob.core.windows.net`; the `web` deploy job passes it to the build.
 
 Costs to watch: storage used and egress, both in the Azure cost analysis of the storage account. Orphaned files only appear when a delete fails (see the `could not be deleted and stays orphaned` warning in the logs). They cost almost nothing and can be removed by hand.
 

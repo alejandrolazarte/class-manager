@@ -1,4 +1,4 @@
-const { contentSecurityPolicy } = jest.requireActual("../../writeWebHeaders.js");
+const { contentSecurityPolicy } = jest.requireActual("../../writeStaticWebAppConfig.js");
 
 describe("When files base url is set", () => {
   it("Then images from its origin are allowed", () => {

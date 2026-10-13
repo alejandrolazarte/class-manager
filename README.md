@@ -92,7 +92,8 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Demo screenshots](docs/e2e/demo-screenshots.md) — load a demo business and capture every screen at phone size
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
 - [Hosting plan](docs/hosting-plan.md) — free Azure setup for a pilot, limits and costs to watch
-- [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Cloudflare Pages, the installable web app (PWA) and the Android APK
+- [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Azure Static Web Apps, the installable web app (PWA) and the Android APK
+- [Domain and DNS](docs/domain-and-dns.md) — `laztty.com` on Cloudflare Registrar, `app.` and `api.` records, and why no record goes through the Cloudflare proxy (LaLiga blocks in Spain)
 - [Database on the Basic tier](docs/database-basic-tier.md) — DTU vs vCore, what Basic costs and includes, and the runbook to move the pilot database from the free offer to Basic and back
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
 - [Use case behaviors](docs/backend/use-case-behaviors.md) — the pipeline around every use case: commands run in a transaction, queries don't track, and how to add a behavior
