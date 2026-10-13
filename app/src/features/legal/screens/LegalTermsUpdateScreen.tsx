@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { View } from "react-native";
 import { acceptLegalTerms } from "@/features/account/accountApi";
 import { accountQueryKeys } from "@/features/account/accountQueryKeys";
 import { MyAccount } from "@/features/account/types";
 import { useSession } from "@/features/authentication/useSession";
+import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { LegalTermsConsent } from "@/features/legal/components/LegalTermsConsent";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -25,7 +27,14 @@ export function LegalTermsUpdateScreen() {
   });
 
   return (
-    <ScrollScreen header={<ScreenHeader title={translate("legal.update.title")} />}>
+    <ScrollScreen
+      header={<ScreenHeader title={translate("legal.update.title")} />}
+      footer={
+        <View className="pb-3">
+          <LegalLinks />
+        </View>
+      }
+    >
       {acceptance.isError ? <Banner message={translate("common.unexpectedError")} /> : null}
       <AppText variant="lead" tone="muted">
         {translate("legal.update.message")}

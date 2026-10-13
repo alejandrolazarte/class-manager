@@ -28,6 +28,11 @@ export function MyProfileScreen({ editProfileRoute, changeEmailRoute }: MyProfil
 
   return (
     <ScrollScreen
+      footer={
+        <View className="pb-3">
+          <LegalLinks />
+        </View>
+      }
       header={
         <ScreenHeader
           navigation="back"
@@ -90,9 +95,6 @@ export function MyProfileScreen({ editProfileRoute, changeEmailRoute }: MyProfil
               detail={translate("profile.signsInWith", { email: account.email })}
               onPress={() => router.push(changeEmailRoute)}
             />
-          </View>
-          <View className="pt-6">
-            <LegalLinks />
           </View>
         </>
       ) : null}
