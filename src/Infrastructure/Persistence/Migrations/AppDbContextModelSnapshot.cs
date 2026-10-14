@@ -153,13 +153,21 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Body")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPinned")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset>("PublishedAt")
@@ -173,14 +181,65 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
+                    b.Property<DateOnly?>("VisibleUntil")
+                        .HasColumnType("date");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId", "PublishedAt");
+
+                    b.HasIndex(new[] { "TenantId" }, "IX_Announcements_TenantId_Pinned")
+                        .IsUnique()
+                        .HasFilter("[IsPinned] = 1 AND [IsDeleted] = 0");
 
                     b.ToTable("Announcements", t =>
                         {
                             t.HasCheckConstraint("CK_Announcements_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
                         });
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementClassGroup", b =>
+                {
+                    b.Property<Guid>("AnnouncementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClassGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AnnouncementId", "ClassGroupId");
+
+                    b.HasIndex("ClassGroupId");
+
+                    b.HasIndex("TenantId", "ClassGroupId");
+
+                    b.ToTable("AnnouncementClassGroups");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementImage", b =>
+                {
+                    b.Property<Guid>("AnnouncementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AnnouncementId", "DocumentId");
+
+                    b.HasIndex("DocumentId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("AnnouncementImages");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BrandLogo", b =>
@@ -2760,6 +2819,50 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementClassGroup", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Announcements.Announcement", null)
+                        .WithMany("ClassGroups")
+                        .HasForeignKey("AnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.ClassGroups.ClassGroup", null)
+                        .WithMany()
+                        .HasForeignKey("ClassGroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementImage", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Announcements.Announcement", null)
+                        .WithMany("Images")
+                        .HasForeignKey("AnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Documents.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BrandLogo", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
@@ -3671,6 +3774,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.Announcement", b =>
+                {
+                    b.Navigation("ClassGroups");
+
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassGroups.ClassGroup", b =>

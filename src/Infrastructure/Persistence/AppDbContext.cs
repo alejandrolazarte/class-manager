@@ -31,6 +31,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<ClassFeedback> ClassFeedbacks => Set<ClassFeedback>();
     public DbSet<Announcement> Announcements => Set<Announcement>();
+    public DbSet<AnnouncementClassGroup> AnnouncementClassGroups => Set<AnnouncementClassGroup>();
+    public DbSet<AnnouncementImage> AnnouncementImages => Set<AnnouncementImage>();
     public DbSet<AbsenceNotice> AbsenceNotices => Set<AbsenceNotice>();
     public DbSet<MakeupBooking> MakeupBookings => Set<MakeupBooking>();
     public DbSet<PackBooking> PackBookings => Set<PackBooking>();

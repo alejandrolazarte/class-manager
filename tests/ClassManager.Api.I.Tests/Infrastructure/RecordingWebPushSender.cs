@@ -18,6 +18,9 @@ internal sealed class RecordingWebPushSender : IWebPushSender
         return Task.FromResult(_expiredEndpoints.ContainsKey(target.Endpoint) ? PushDelivery.Gone : PushDelivery.Delivered);
     }
 
+    public IReadOnlyList<PushMessage> SentTo(string endpoint) =>
+        [.. _sent.Where(push => push.Endpoint == endpoint).Select(push => JsonSerializer.Deserialize<PushMessage>(push.Payload, PayloadOptions)!)];
+
     public void Expire(string endpoint) => _expiredEndpoints[endpoint] = true;
 
     public async Task<PushMessage> WaitForPushToAsync(string endpoint)

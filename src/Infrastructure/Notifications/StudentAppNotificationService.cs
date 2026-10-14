@@ -8,9 +8,9 @@ namespace ClassManager.Infrastructure.Notifications;
 internal sealed class StudentAppNotificationService(AppDbContext context, PushPublisher publisher, TimeProvider timeProvider)
     : IStudentAppNotificationService
 {
-    public Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken) =>
-        publisher.PublishToStudentsAsync(
-            clientIds: null,
+    public async Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken) =>
+        await publisher.PublishToStudentsAsync(
+            announcement.IsForEveryone ? null : await ClientIdsEnrolledInAsync(announcement.ClassGroupIds, cancellationToken),
             new PushMessage(announcement.Title, StudentAppPushTexts.Shorten(announcement.Body ?? string.Empty), StudentAppPushTexts.NewsUrl),
             cancellationToken);
 
@@ -103,6 +103,22 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
 
         return await context.ClassGroups.AsNoTracking()
             .FirstOrDefaultAsync(candidate => candidate.Id == session.ClassGroupId, cancellationToken);
+    }
+
+    private async Task<List<Guid>> ClientIdsEnrolledInAsync(IReadOnlyList<Guid> classGroupIds, CancellationToken cancellationToken)
+    {
+        var business = await context.Businesses.AsNoTracking()
+            .FirstAsync(candidate => candidate.Id == context.CurrentTenantId, cancellationToken);
+        var today = business.TodayAt(timeProvider.GetUtcNow());
+        return await (
+            from enrollment in context.Enrollments.AsNoTracking()
+            where classGroupIds.Contains(enrollment.ClassGroupId)
+                && enrollment.StartDate <= today
+                && (enrollment.EndDate == null || enrollment.EndDate >= today)
+            join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
+            select student.ClientId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
     }
 
     private Task<List<Guid>> EnrolledClientIdsAsync(ClassSession session, CancellationToken cancellationToken) =>

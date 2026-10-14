@@ -162,6 +162,10 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<ListAnnouncementsQuery, IReadOnlyList<AnnouncementResponse>, ListAnnouncementsUseCase>();
         services.AddUseCase<DeleteAnnouncementCommand, bool, DeleteAnnouncementUseCase>();
         services.AddUseCase<RestoreAnnouncementCommand, bool, RestoreAnnouncementUseCase>();
+        services.AddUseCase<PinAnnouncementCommand, bool, PinAnnouncementUseCase>();
+        services.AddUseCase<UnpinAnnouncementCommand, bool, UnpinAnnouncementUseCase>();
+        services.AddUseCase<AddAnnouncementImageCommand, AnnouncementResponse, AddAnnouncementImageUseCase>();
+        services.AddUseCase<RemoveAnnouncementImageCommand, AnnouncementResponse, RemoveAnnouncementImageUseCase>();
         services.AddUseCase<ListMeasurementsQuery, IReadOnlyList<MeasurementResponse>, ListMeasurementsUseCase>();
         services.AddUseCase<CreateMeasurementCommand, MeasurementResponse, CreateMeasurementUseCase>();
         services.AddUseCase<UpdateMeasurementCommand, MeasurementResponse, UpdateMeasurementUseCase>();

@@ -14,9 +14,12 @@ internal sealed class AnnouncementRepository(AppDbContext context) : IAnnounceme
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             .FirstOrDefaultAsync(announcement => announcement.Id == announcementId && announcement.IsDeleted, cancellationToken);
 
-    public async Task<IReadOnlyList<Announcement>> ListPublishedSinceAsync(DateTimeOffset since, CancellationToken cancellationToken) =>
+    public Task<Announcement?> FindPinnedForUpdateAsync(CancellationToken cancellationToken) =>
+        context.Announcements.FirstOrDefaultAsync(announcement => announcement.IsPinned, cancellationToken);
+
+    public async Task<IReadOnlyList<Announcement>> ListRecentOrPinnedAsync(DateTimeOffset publishedSince, CancellationToken cancellationToken) =>
         await context.Announcements.AsNoTracking()
-            .Where(announcement => announcement.PublishedAt >= since)
+            .Where(announcement => announcement.PublishedAt >= publishedSince || announcement.IsPinned)
             .OrderByDescending(announcement => announcement.PublishedAt)
             .ToListAsync(cancellationToken);
 }
