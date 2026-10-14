@@ -235,6 +235,21 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
 
 `WebApp__Url` is where the links in emails point (see [Email](#email)), and where emails load their fonts from, so change it only once the web app answers on that domain.
 
+### The previous host (Cloudflare Pages)
+
+Until 2026-10-14 the web app was on Cloudflare Pages, at `class-manager-3cm.pages.dev` (see the [hosting plan](hosting-plan.md#6-web-app-azure-static-web-apps) for why it moved). The switch was done in this order:
+
+1. The new web app deployed to `app.laztty.com` while Pages kept serving, with both origins allowed in CORS (`Cors__AllowedOrigins__0` the new one, `Cors__AllowedOrigins__1` the old one).
+2. `WebApp__Url` changed to `https://app.laztty.com`, so new emails link to the new domain. Emails sent before keep the old links.
+3. Pilot businesses were told to reinstall the app from `app.laztty.com`: an installed PWA and its session belong to the domain it was installed from.
+4. `Cors__AllowedOrigins__1` removed:
+
+   ```powershell
+   az containerapp update --name $containerApp --resource-group $resourceGroup --remove-env-vars Cors__AllowedOrigins__1
+   ```
+
+The Pages project was **disconnected from the repository and its variables deleted, not deleted**: Cloudflare refuses to delete a project with many deployments from the dashboard (they have to be deleted one by one through its API first), and an idle project costs nothing. `class-manager-3cm.pages.dev` still serves the last build it published, but that build can't sign in or load data because the API no longer allows its origin. Deleting the project later is optional; Cloudflare's guide is linked from the delete dialog.
+
 ## 10. Installing the app on phones (PWA)
 
 The web app from step 9 is also an installable app (a Progressive Web App). Instructors install it from the browser: no APK, no "allow installs from unknown sources", no store. It updates itself: every deploy publishes a new web app, and the next time the app opens it loads the new version. An installed app is rarely closed, though: phones keep it in the background, and coming back to it doesn't reload the page. So whenever the app becomes visible again (and every 15 minutes while it stays open) it fetches `index.html` without cache and compares its `entry-<hash>.js` bundle with the one it is running. When they differ it shows a "new version" banner whose **Actualizar** button reloads the page. It asks instead of reloading on its own so a half-filled form is never lost (`app/src/features/appUpdate/`).
@@ -326,13 +341,14 @@ Migrations run before the new image starts, while the previous version is still 
 ```powershell
 az containerapp show --name $containerApp --resource-group $resourceGroup --query "{image:properties.template.containers[0].image, minReplicas:properties.template.scale.minReplicas, identity:identity.type}"
 az containerapp secret list --name $containerApp --resource-group $resourceGroup --query "[].name"
+az containerapp show --name $containerApp --resource-group $resourceGroup --query "properties.template.containers[0].env[?starts_with(name, 'Cors') || starts_with(name, 'WebApp')]" --output table
 az sql server firewall-rule list --server $sqlServer --resource-group $resourceGroup --output table
 az sql db show --name $database --server $sqlServer --resource-group $resourceGroup --query "{free:useFreeLimit, whenExhausted:freeLimitExhaustionBehavior}"
 az role assignment list --assignee-object-id $deployObjectId --all --output table
 gh variable list --repo $repository
 ```
 
-Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, and the database uses the free limit with `AutoPause`.
+Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, the database uses the free limit with `AutoPause`, and the only CORS origin is `https://app.laztty.com`.
 
 ## Rotating secrets
 
