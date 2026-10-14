@@ -45,6 +45,18 @@ Rules:
 
 Violet is a common color with no owner in this market. What sets Laztty apart is the name, the slanted L and the color together.
 
+## Doodle pattern
+
+A repeating pattern of line drawings, in the spirit of the WhatsApp chat wallpaper: people of every body type, age and look doing yoga, pilates, swimming and functional training, with sport objects (kettlebell, dumbbell, rolled mat, bottle, stopwatch, goggles and swim cap) and small dots, stars, hearts and waves filling the gaps. It is part of the Laztty brand, so it only appears where Laztty speaks.
+
+| Where | How |
+|---|---|
+| Welcome, behind the mark in the hero | `DoodlePattern` (`app/src/ui/DoodlePattern.tsx`), tinted with the theme `primary` at 30 % |
+
+- Files: `app/assets/images/doodle-pattern.png` (420 × 420, a 420 pt tile) with `@2x` and `@3x`. Black lines on a transparent background, so the app tints them with `tintColor`; the tile repeats with no visible seam.
+- The figures were generated with Figma AI (one line drawing per person or object, same prompt style), their backgrounds removed, line weights evened out and laid out on a seamless tile. The 1024 × 1024 originals are kept with the design canvas, outside the repository.
+- Keep it decorative: it is hidden from screen readers and never sits behind text that has to be read. Lists, forms and day-to-day work screens don't use it.
+
 ## Name and type
 
 - Written **Laztty**, capital L only, in running text and in UI copy. The lockup writes it lowercase: `laztty`.
