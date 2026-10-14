@@ -7,6 +7,7 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
+import { DoodlePattern } from "@/ui/DoodlePattern";
 
 export function WelcomeScreen() {
   const router = useRouter();
@@ -14,8 +15,7 @@ export function WelcomeScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView contentContainerClassName="w-full max-w-md flex-grow gap-6 self-center px-6 pb-7 pt-5">
         <View className="min-h-[340px] flex-1 items-center justify-center overflow-hidden rounded-[32px] bg-primary-soft">
-          <View className="absolute -bottom-10 -left-[10%] -right-[10%] h-[150px] rounded-full bg-primary/20" />
-          <View className="absolute -bottom-20 -left-[20%] right-0 h-[150px] rounded-full bg-primary/20" />
+          <DoodlePattern />
           <BrandMark size="large" />
         </View>
         <View className="gap-2.5">
