@@ -34,6 +34,7 @@ import { useToast } from "@/ui/ToastProvider";
 const titleMaxLength = 80;
 const bodyMaxLength = 1000;
 const maximumImageCount = 1;
+const typedDateLength = 10;
 
 type Audience = "everyone" | "classes";
 
@@ -166,7 +167,9 @@ export function NewAnnouncementScreen() {
         onChangeText={setVisibleUntil}
         earliestIsoDate={todayIsoDate()}
         errorMessage={
-          hasInvalidVisibleUntil ? translate("announcements.validation.visibleUntil") : undefined
+          hasInvalidVisibleUntil && visibleUntil.trim().length >= typedDateLength
+            ? translate("announcements.validation.visibleUntil")
+            : undefined
         }
       />
       <ToggleSwitch
