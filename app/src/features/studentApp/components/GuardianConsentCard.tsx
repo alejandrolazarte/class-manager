@@ -73,7 +73,7 @@ export function GuardianConsentCard({ consent }: GuardianConsentCardProps) {
         <View className="flex-1">
           <Button
             size="medium"
-            variant="outline"
+            variant="secondary"
             label={translate("guardianConsent.refuse")}
             onPress={() => void respond("refused")}
             disabled={pendingAnswer === "authorized"}

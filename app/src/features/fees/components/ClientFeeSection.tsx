@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { ClassBalanceSection } from "@/features/classPacks/components/ClassBalanceSection";
 import { ClientDetails } from "@/features/clients/types";
@@ -24,8 +24,8 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { Icon } from "@/ui/Icon";
 import { IconButton } from "@/ui/IconButton";
+import { TextLink } from "@/ui/TextLink";
 import { useToast } from "@/ui/ToastProvider";
 import { clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -133,21 +133,12 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
         </View>
         {upcomingChanges.length > 0 ? (
           <View className="gap-1.5">
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ expanded: isShowingUpcomingChanges }}
+            <TextLink
+              label={translateCount("fees.client.upcomingChanges", upcomingChanges.length)}
+              trailingIcon={isShowingUpcomingChanges ? "collapse" : "expand"}
+              isExpanded={isShowingUpcomingChanges}
               onPress={() => setIsShowingUpcomingChanges(!isShowingUpcomingChanges)}
-              className="flex-row items-center gap-1 self-start py-1"
-            >
-              <AppText variant="link" tone="primary">
-                {translateCount("fees.client.upcomingChanges", upcomingChanges.length)}
-              </AppText>
-              <Icon
-                name={isShowingUpcomingChanges ? "collapse" : "expand"}
-                size="medium"
-                tone="primary"
-              />
-            </Pressable>
+            />
             {isShowingUpcomingChanges
               ? upcomingChanges.map((change) => (
                   <View key={change.effectiveFrom} className="flex-row items-center gap-2">

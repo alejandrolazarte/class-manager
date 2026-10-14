@@ -265,7 +265,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             isLoading={isSending}
           />
           <Button
-            variant="ghost"
+            variant="secondary"
             size="medium"
             label={translate("common.cancel")}
             onPress={cancel}

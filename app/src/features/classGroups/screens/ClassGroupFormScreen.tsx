@@ -229,7 +229,7 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
         />
         {classGroup ? (
           <Button
-            variant={classGroup.isActive ? "dangerOutline" : "outline"}
+            variant={classGroup.isActive ? "dangerOutline" : "secondary"}
             size="medium"
             label={translate(
               classGroup.isActive ? "classGroups.form.deactivate" : "classGroups.form.activate",

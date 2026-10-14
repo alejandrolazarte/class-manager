@@ -1,6 +1,6 @@
-import { Pressable } from "react-native";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { Icon, IconName } from "@/ui/Icon";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 type IconButtonVariant = "plain" | "compact" | "outlined";
 
@@ -30,7 +30,7 @@ export function IconButton({
   disabled = false,
 }: IconButtonProps) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
@@ -38,9 +38,13 @@ export function IconButton({
       disabled={disabled}
       onPress={onPress}
       hitSlop={4}
-      className={`items-center justify-center rounded-full ${variantClassNames[variant]} ${disabled ? "opacity-40" : ""}`}
+      className={`items-center justify-center rounded-full ${variantClassNames[variant]}`}
     >
-      <Icon name={icon} size={variant === "plain" ? "large" : "medium"} tone={tone} />
-    </Pressable>
+      <Icon
+        name={icon}
+        size={variant === "plain" ? "large" : "medium"}
+        tone={disabled ? "disabled-foreground" : tone}
+      />
+    </PressableScale>
   );
 }

@@ -87,7 +87,7 @@ export function ProductStockSection({ product }: ProductStockSectionProps) {
       <View className="flex-row gap-2">
         <View className="flex-1">
           <Button
-            variant="outline"
+            variant="secondary"
             size="medium"
             label={translate("products.stock.load")}
             onPress={() => setSheetKind("Restock")}

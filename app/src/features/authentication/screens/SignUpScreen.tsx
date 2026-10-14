@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { requestSignUp } from "@/features/authentication/authenticationApi";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
@@ -27,6 +27,7 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { TextLink } from "@/ui/TextLink";
 import { IconCircle } from "@/ui/IconCircle";
 import { Entrance } from "@/ui/motion/Entrance";
 import { TextField } from "@/ui/TextField";
@@ -185,15 +186,12 @@ export function SignUpScreen() {
       onBack={() => (step === 2 ? setStep(1) : router.replace(routes.welcome))}
       progress={<StepProgress segmentFills={segmentFills} />}
       footer={
-        <Pressable
+        <TextLink
           accessibilityRole="link"
-          className="py-1.5"
+          alignment="center"
+          label={translate("authentication.signUp.goToSignIn")}
           onPress={() => router.replace(routes.signIn)}
-        >
-          <AppText tone="primary" variant="link" className="text-center">
-            {translate("authentication.signUp.goToSignIn")}
-          </AppText>
-        </Pressable>
+        />
       }
     >
       {signUpFailure === "network" ? (

@@ -174,7 +174,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
             isLoading={isSending}
           />
           <Button
-            variant="ghost"
+            variant="secondary"
             size="medium"
             label={translate("common.cancel")}
             onPress={cancel}
