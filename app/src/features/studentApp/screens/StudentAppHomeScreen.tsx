@@ -8,6 +8,8 @@ import { FeedbackNote } from "@/features/studentApp/components/FeedbackNote";
 import { GuardianConsentCard } from "@/features/studentApp/components/GuardianConsentCard";
 import { NewsBell } from "@/features/studentApp/components/NewsBell";
 import { NewsRow } from "@/features/studentApp/components/NewsRow";
+import { PinnedNews } from "@/features/studentApp/components/PinnedNews";
+import { isPinnedAnnouncement } from "@/features/studentApp/studentAppNewsPresentation";
 import { NextClassHero } from "@/features/studentApp/components/NextClassHero";
 import { ShopPreview } from "@/features/studentApp/components/ShopPreview";
 import { StreakTile } from "@/features/studentApp/components/StreakTile";
@@ -47,8 +49,9 @@ export function StudentAppHomeScreen() {
       refetchNews();
     }, [refetch, refetchShop, refetchNews]),
   );
+  const pinnedAnnouncement = (news?.items ?? []).find(isPinnedAnnouncement);
   const announcements = (news?.items ?? [])
-    .filter((item) => item.kind === "Announcement")
+    .filter((item) => item.kind === "Announcement" && item !== pinnedAnnouncement)
     .slice(0, homeAnnouncementLimit);
   const { student, selectStudent } = useSelectedStudent(home?.students ?? []);
 
@@ -95,6 +98,11 @@ export function StudentAppHomeScreen() {
       {home.pendingGuardianConsents.map((consent) => (
         <GuardianConsentCard key={consent.invitationId} consent={consent} />
       ))}
+      {pinnedAnnouncement === undefined ? null : (
+        <AnimatedListItem index={0}>
+          <PinnedNews item={pinnedAnnouncement} />
+        </AnimatedListItem>
+      )}
       {student === null ? (
         <AppText variant="body" tone="muted">
           {translate("student.students.empty")}

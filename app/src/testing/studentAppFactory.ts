@@ -201,6 +201,10 @@ export function buildStudentAppNewsItem(
     classDate: null,
     orderId: null,
     classStartTime: null,
+    category: null,
+    isPinned: false,
+    imageUrl: null,
+    audienceClassNames: [],
     ...overrides,
   };
 }

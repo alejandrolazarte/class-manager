@@ -13,6 +13,7 @@ import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
 interface SettingsListScreenLayoutProps<TItem> {
   title: string;
+  subtitle?: string;
   items: TItem[];
   isPending: boolean;
   isError: boolean;
@@ -31,6 +32,7 @@ interface SettingsListScreenLayoutProps<TItem> {
 
 export function SettingsListScreenLayout<TItem>({
   title,
+  subtitle,
   items,
   isPending,
   isError,
@@ -53,7 +55,7 @@ export function SettingsListScreenLayout<TItem>({
       }
     >
       <View className="gap-3.5 pb-3.5">
-        <ScreenHeader navigation="back" title={title} />
+        <ScreenHeader navigation="back" title={title} subtitle={subtitle} />
         {notice ? <View className="px-5">{notice}</View> : null}
         {filters ? <View className="gap-2.5 px-5">{filters}</View> : null}
         {isError ? (
