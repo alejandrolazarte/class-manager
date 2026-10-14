@@ -19,6 +19,7 @@ describe("When the current legal terms are accepted", () => {
       fullName: "Laura Gómez",
       birthDate: "1990-04-12",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
   });
 

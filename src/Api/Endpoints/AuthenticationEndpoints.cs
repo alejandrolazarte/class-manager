@@ -39,6 +39,7 @@ internal static class AuthenticationEndpoints
         endpoints.MapGet(ApiRoutes.MyAccounts, ListAccountsAsync).RequireAnyAccount();
         endpoints.MapGet(ApiRoutes.MyAccount, GetMyAccountAsync).RequireAnyAccount();
         endpoints.MapPut(ApiRoutes.MyAccount, UpdateMyProfileAsync).RequireAnyAccount();
+        endpoints.MapPut(ApiRoutes.MyLanguage, UpdateMyLanguageAsync).RequireAnyAccount();
         endpoints.MapPost(ApiRoutes.MyLegalTermsAcceptance, AcceptLegalTermsAsync).RequireAnyAccount();
         endpoints.MapPost(ApiRoutes.MyEmailChange, RequestEmailChangeAsync)
             .RequireAnyAccount()
@@ -129,6 +130,16 @@ internal static class AuthenticationEndpoints
     private static async Task<IResult> UpdateMyProfileAsync(
         UpdateMyProfileCommand command,
         IUseCase<UpdateMyProfileCommand, MyAccountResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> UpdateMyLanguageAsync(
+        UpdateMyLanguageCommand command,
+        IUseCase<UpdateMyLanguageCommand, MyAccountResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);

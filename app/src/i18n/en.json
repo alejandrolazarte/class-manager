@@ -625,7 +625,7 @@
   "settings.language": "Language",
   "settings.language.es": "Español",
   "settings.language.en": "English",
-  "settings.language.hint": "Changes the app's language on this device only. Emails are still sent in Spanish.",
+  "settings.language.hint": "It's saved to your account: the app shows in this language on any device you sign in to. Emails are still sent in Spanish.",
   "settings.colorsHint.student": "Your school chooses the colors.",
   "settings.colorsHint.team": "The business chooses the app's colors.",
   "settings.colorsHint.owner": "The app's colors are chosen in Brand.",

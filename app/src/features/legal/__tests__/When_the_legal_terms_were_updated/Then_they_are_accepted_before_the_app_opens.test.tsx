@@ -19,6 +19,7 @@ describe("When the legal terms were updated", () => {
       fullName: "Laura Gómez",
       birthDate: "1990-04-12",
       hasAcceptedCurrentLegalTerms: false,
+      preferredLanguage: "es",
     });
     jest.mocked(acceptLegalTerms).mockResolvedValue(undefined);
   });

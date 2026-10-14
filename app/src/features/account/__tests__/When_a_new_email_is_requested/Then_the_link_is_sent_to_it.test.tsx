@@ -12,6 +12,7 @@ describe("When a new email is requested", () => {
       email: "laura@example.com",
       fullName: "Laura Gómez",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
     jest.mocked(requestEmailChange).mockResolvedValue({ newEmail: "laura.nueva@example.com" });
   });

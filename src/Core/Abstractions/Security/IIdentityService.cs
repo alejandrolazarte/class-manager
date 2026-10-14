@@ -15,6 +15,8 @@ public interface IIdentityService
 
     Task<bool> UpdateProfileAsync(Guid userId, string fullName, DateOnly birthDate, CancellationToken cancellationToken);
 
+    Task<bool> UpdatePreferredLanguageAsync(Guid userId, string preferredLanguage, CancellationToken cancellationToken);
+
     Task<CredentialVerification> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken);
 
     Task<string?> CreatePasswordResetTokenAsync(string email, CancellationToken cancellationToken);

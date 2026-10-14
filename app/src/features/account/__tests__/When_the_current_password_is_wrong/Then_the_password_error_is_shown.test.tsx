@@ -16,6 +16,7 @@ describe("When the current password is wrong", () => {
       email: "laura@example.com",
       fullName: "Laura Gómez",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
     jest
       .mocked(requestEmailChange)

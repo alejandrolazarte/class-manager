@@ -32,6 +32,10 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
         builder.Entity<ApplicationUser>(user =>
         {
             user.Property(applicationUser => applicationUser.FullName).HasMaxLength(ApplicationUser.FullNameMaxLength).IsRequired();
+            user.Property(applicationUser => applicationUser.PreferredLanguage)
+                .HasMaxLength(ApplicationUser.PreferredLanguageMaxLength)
+                .HasDefaultValue(ApplicationUser.DefaultPreferredLanguage)
+                .IsRequired();
             user.HasIndex(applicationUser => applicationUser.NormalizedEmail)
                 .IsUnique()
                 .HasDatabaseName(EmailIndexName)
