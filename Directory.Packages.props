@@ -32,6 +32,10 @@
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
   </ItemGroup>
 
+  <ItemGroup Label="Transitive security fixes">
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+  </ItemGroup>
+
   <ItemGroup Label="Analyzers">
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers"    Version="3.11.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp"       Version="4.14.0" />
