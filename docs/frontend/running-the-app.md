@@ -60,6 +60,7 @@ app/
     (tabs)/               ← signed-in area; redirects to sign in without a session
   src/api/                ← httpClient + ProblemDetails helpers
   src/features/<feature>/ ← types, API module, hooks, components, screens, tests
-  src/i18n/es.json        ← user-facing copy (code stays in English)
+  src/i18n/es.json        ← user-facing copy in Spanish (code stays in English)
+  src/i18n/en.json        ← the same keys in English, see languages.md
   src/ui/                 ← shared presentational components (Button, TextField, Banner, Chip, Toast)
 ```

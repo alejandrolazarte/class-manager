@@ -106,6 +106,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Empty states](docs/frontend/empty-states.md) — an empty list keeps the floating "New…" button as its only create action, and the tests that enforce it
 - [Deleting data](docs/deleting-data.md) — every delete asks for confirmation, and data with business meaning is soft deleted with `IsDeleted` and `DeletedOn`
 - [Currencies and time zones](docs/currencies-and-time-zones.md) — payments, pack sales and orders keep the currency they were charged in, prices are not converted, and classes keep their local time when the business changes its time zone
+- [Languages](docs/frontend/languages.md) — Spanish and English UI texts, the per-device language setting, and what stays in Spanish (emails, legal texts)
 - [Forms](docs/frontend/forms.md) — required fields marked with an asterisk, the main button grey until they are filled, and the shared step header and total bar
 - [Unused code](docs/frontend/unused-code.md) — knip and the translation keys test fail CI when a file, export, dependency or `es.json` key has no user, and what their configuration allows
 - [Continuous integration](docs/ci.md) — the CI jobs, which files run backend or frontend checks on a pull request, and why e2e always runs
