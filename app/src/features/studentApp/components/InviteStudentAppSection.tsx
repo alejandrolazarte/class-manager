@@ -10,7 +10,7 @@ import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
-import { isEmailOfAnotherPerson, normalizeStudentName } from "@/features/students/studentSchema";
+import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { emailAddressPattern } from "@/forms/emailAddress";
@@ -71,13 +71,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     (student ? student.email : client.email) ??
     ""
   ).trim();
-  const contactAsStudent = student
-    ? undefined
-    : client.students.find(
-        (familyStudent) =>
-          normalizeStudentName(familyStudent.fullName) === normalizeStudentName(client.fullName),
-      );
-  const needsBirthDate = (student ?? contactAsStudent)?.birthDate === null;
+  const needsBirthDate = student?.birthDate === null;
   const [isAskingEmail, setIsAskingEmail] = useState(false);
   const [email, setEmail] = useState(emailOnFile);
   const [emailError, setEmailError] = useState<string | undefined>();

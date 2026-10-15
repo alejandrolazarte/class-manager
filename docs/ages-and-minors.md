@@ -19,7 +19,7 @@ Sources: Law 25.326 and the AAIP criteria (Argentina); LOPDGDD art. 7, GDPR art.
 
 - **Every new account** asks for it: the owner when signing up, and anyone accepting an invitation without an account (client, student, instructor, team member). It is stored on the account (`AspNetUsers.BirthDate`) and the person can correct it from Editar perfil.
 - **Students** also have a birth date typed by the team (`Students.BirthDate`). Inviting a student to the app requires it, and the invitation screen comes with it filled in so the person confirms or corrects it.
-- **A client who attends class** (the contact has a student with their own name) gives their birth date in the registration form, stored on that student. Contacts registered before this rule are asked for it when they are invited to the app.
+- **The client (contact)** is never asked for it by the team: neither the registration form nor the app invitation has the field. The contact gives it when they create their account, and a contact who already uses the app has it on their account. When the contact attends class (they have a student with their own name) and that student has no birth date, accepting the invitation copies the account's onto it.
 - **Accounts created before this change** have no birth date; they add it from Editar perfil (the form requires it to save).
 
 ## Rules
@@ -29,7 +29,7 @@ All of them live in `PersonAge` (`src/Core/Domain/Accounts`).
 | Rule | Where | Error |
 |---|---|---|
 | The owner of a business is an adult (18) | Sign-up | `auth.owner_must_be_adult` |
-| The client (contact) is an adult (18): they pay and get the reminders, and both countries need 18 to contract. A minor is registered as a student of an adult client, never as the client | Registering a client who attends class; importing a student without Responsable (the student becomes the client); inviting such a client to the app (`AttendingContact` in `src/Core/UseCases/Clients`) | `client.contact_must_be_adult` |
+| The client (contact) is an adult (18): they pay and get the reminders, and both countries need 18 to contract. A minor is registered as a student of an adult client, never as the client | Accepting the app invitation of the client, with the birth date of their account (new or existing); registering or inviting a client who attends class when the team already has a birth date for them; importing a student without Responsable (the student becomes the client) (`AttendingContact` in `src/Core/UseCases/Clients`) | `client.contact_must_be_adult` |
 | Below the minimum age of the branch's country (`Countries.OwnAccountMinimumAge`: 13 in Argentina, 14 in Spain, 16 in the other countries, the GDPR maximum) a person still gets an account of their own, but only after the client who pays authorizes it | Inviting a student | — |
 | Anyone accepting an invitation below that age needs that authorization | Accepting any invitation | `auth.too_young_for_own_account` |
 
