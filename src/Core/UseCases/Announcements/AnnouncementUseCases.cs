@@ -15,7 +15,9 @@ public sealed record CreateAnnouncementCommand(
     IReadOnlyList<Guid>? ClassGroupIds = null,
     bool IsPinned = false,
     DateOnly? VisibleUntil = null,
-    DateTimeOffset? PublishOn = null) : ICommand;
+    DateTimeOffset? PublishOn = null,
+    AnnouncementAction? Action = null,
+    string? ActionUrl = null) : ICommand;
 
 public sealed record DeleteAnnouncementCommand(Guid AnnouncementId) : ICommand;
 
@@ -92,7 +94,9 @@ public sealed class CreateAnnouncementUseCase(
             await businessCalendar.TodayAsync(cancellationToken),
             command.Category ?? AnnouncementCategory.News,
             command.ClassGroupIds,
-            command.VisibleUntil);
+            command.VisibleUntil,
+            command.Action ?? AnnouncementAction.None,
+            command.ActionUrl);
         if (announcement.IsFailure)
         {
             return announcement.Error!;

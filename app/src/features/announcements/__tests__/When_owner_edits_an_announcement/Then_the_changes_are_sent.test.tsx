@@ -34,6 +34,8 @@ describe("When owner edits an announcement", () => {
         isPinned: true,
         visibleUntil: null,
         publishOn: null,
+        action: "None",
+        actionUrl: null,
       }),
     );
   });

@@ -16,6 +16,8 @@ export function buildAnnouncement(overrides: Partial<Announcement> = {}): Announ
     seenCount: 0,
     goingCount: 0,
     notGoingCount: 0,
+    action: "None",
+    actionUrl: null,
     ...overrides,
   };
 }

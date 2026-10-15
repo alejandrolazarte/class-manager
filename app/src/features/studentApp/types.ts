@@ -1,4 +1,4 @@
-import { AnnouncementCategory } from "@/features/announcements/types";
+import { AnnouncementAction, AnnouncementCategory } from "@/features/announcements/types";
 import { CatalogImage } from "@/features/catalogImages/types";
 import { FeeStatus } from "@/features/fees/types";
 
@@ -257,6 +257,8 @@ export interface StudentAppNewsItem {
   isGoing: boolean | null;
   imageUrl: string | null;
   audienceClassNames: string[];
+  action: AnnouncementAction | null;
+  actionUrl: string | null;
 }
 
 export interface StudentAppNews {
