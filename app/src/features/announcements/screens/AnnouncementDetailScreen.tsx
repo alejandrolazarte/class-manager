@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { announcementCategoryPresentations } from "@/features/announcements/announcementCategories";
@@ -10,6 +11,7 @@ import {
 import { formatLongDate, toIsoDate } from "@/features/sessions/dates";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
@@ -201,6 +203,7 @@ function AnnouncementRecipients({ announcement }: AnnouncementRecipientsProps) {
 }
 
 export function AnnouncementDetailScreen({ announcementId }: AnnouncementDetailScreenProps) {
+  const router = useRouter();
   const announcementsQuery = useAnnouncements();
   const announcement = announcementsQuery.data?.find(
     (candidate) => candidate.id === announcementId,
@@ -220,6 +223,15 @@ export function AnnouncementDetailScreen({ announcementId }: AnnouncementDetailS
       header={
         <ScreenHeader
           navigation="back"
+          navigationAction={
+            <Button
+              variant="ghost"
+              size="medium"
+              icon="edit"
+              label={translate("announcements.detail.edit")}
+              onPress={() => router.push(routes.editAnnouncement(announcement.id))}
+            />
+          }
           eyebrow={translate(announcementCategoryPresentations[announcement.category].labelKey)}
           title={announcement.title}
         />

@@ -66,8 +66,12 @@ export default function SettingsLayout() {
         options={{ title: translate("announcements.newTitle") }}
       />
       <Stack.Screen
-        name="announcements/[announcementId]"
+        name="announcements/[announcementId]/index"
         options={{ title: translate("announcements.title") }}
+      />
+      <Stack.Screen
+        name="announcements/[announcementId]/edit"
+        options={{ title: translate("announcements.editTitle") }}
       />
       <Stack.Screen
         name="measurements/index"

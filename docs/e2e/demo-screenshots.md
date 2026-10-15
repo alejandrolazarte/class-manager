@@ -65,6 +65,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `12-ajustes`, `13-profes` | Settings and instructors |
 | `12b-novedades` | Announcements for students, empty, with the "Nuevo aviso" button |
 | `12b2-novedad-nueva`, `12b3-novedad-nueva-final`, `12b4-novedad-programada` | New announcement: kind, title and text, then photo, audience, "Visible hasta" and pin, then the day and time when it is scheduled |
+| `12b5-novedad-vista-previa`, `12b6-novedad-editar` | The preview of the announcement as a push and in the student news, and the edit screen of the published announcement |
 | `12h-novedades-vistas`, `12i-novedad-quien-lo-vio` | Announcements with how many families saw them, and who saw the event and who answered (from the student activity run) |
 | `12c-ajustes-negocio` | Business settings |
 | `12d-logros-y-asistencia` | Levels for students and whether noticed absences keep the streak |

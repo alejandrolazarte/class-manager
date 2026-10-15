@@ -79,7 +79,20 @@ The team endpoints require `announcements.manage`. The student news items carry 
 - **Scheduled = published in the future.** `POST /api/announcements` takes `publishOn`; a time in the future becomes the announcement's `PublishedAt`, a past or missing one means now. No new column: every list already filters and orders by `PublishedAt`, and `isScheduled` in the response is `PublishedAt` after now.
 - **The push waits in the background tasks table.** Publishing a scheduled announcement queues `PublishScheduledAnnouncementBackgroundTaskCommand` with its first attempt at the publish time (`IBackgroundTaskOutbox.EnqueueAsync(command, runOn)`), and the worker's existing wait-until-the-next-due-task wakes it then, with no polling ([background tasks](../../backend/20261007-background-tasks/plan.md)). The handler works out the audience at that moment, so families that enroll in the meantime get it, and skips an announcement deleted before its time. If the container is stopped at the publish time, the push goes out when it starts again; students see the announcement in the app at its time either way.
 
+## Step 4 (built): preview and editing
+
+### What changes
+
+- The announcement form has a **Vista previa** button that opens a sheet with the announcement as the push notification (business name, title and the text cut like the real push) and as the student sees it in Novedades (the pinned card when it is pinned, the "¿Vas a ir?" buttons when it is an event, the chosen photo). Answering in the preview sends nothing.
+- Every row of the team list has **Editar**, and the who-saw-it screen has it in its header. It opens the same form (`/settings/announcements/{id}/edit`, "Editar aviso", Guardar) with the announcement's kind, title, text, photo, audience, "Visible hasta" and pin.
+- A published announcement keeps its date: the form doesn't offer "Cuándo se publica". A scheduled one offers it with its day and time, so it can be moved or published now.
+
+### Decisions
+
+- **Editing doesn't notify.** Saving a published announcement sends no push and keeps its views and answers, so a typo fix doesn't ring every family again; changing it into or out of an event keeps the answers stored, and the team sees them only while it is an event. Publishing a scheduled one now sends its push then.
+- **`PUT /api/announcements/{id}`** takes the same fields as the create. A "Visible hasta" that already passed is accepted while it is unchanged, so an old announcement can still be corrected; a new one can't be before today. Only classes added to the audience are checked against the business.
+- **Moving a scheduled push cancels the queued one.** Rescheduling or publishing now deletes the pending `PublishScheduledAnnouncementBackgroundTaskCommand` (`IBackgroundTaskOutbox.CancelPendingAsync`: same type and payload, never attempted, not yet due) and queues the new time, so families never get it twice.
+
 ## Next steps (proposal)
 
 1. **A button in the announcement.** Take the student to the shop, their week or a link.
-2. **Preview and editing.** See the announcement as the student and as a push before publishing, and fix a published one without deleting it.

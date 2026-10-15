@@ -10,12 +10,14 @@ import {
   removeAnnouncementImage,
   restoreAnnouncement,
   unpinAnnouncement,
+  updateAnnouncement,
 } from "@/features/announcements/announcementsApi";
-import { CreateAnnouncementRequest } from "@/features/announcements/types";
+import { AnnouncementRequest } from "@/features/announcements/types";
 import {
   applyCatalogImageDraft,
   CatalogImageDraft,
 } from "@/features/catalogImages/catalogImageDraft";
+import { CatalogImage } from "@/features/catalogImages/types";
 
 const announcementsQueryKey = ["announcements"] as const;
 
@@ -31,16 +33,36 @@ function useInvalidateAnnouncements() {
 export function useCreateAnnouncement() {
   const invalidate = useInvalidateAnnouncements();
   return useMutation({
-    mutationFn: (request: CreateAnnouncementRequest) => createAnnouncement(request),
+    mutationFn: (request: AnnouncementRequest) => createAnnouncement(request),
     onSuccess: invalidate,
   });
+}
+
+export function useUpdateAnnouncement() {
+  const invalidate = useInvalidateAnnouncements();
+  return useMutation({
+    mutationFn: ({
+      announcementId,
+      request,
+    }: {
+      announcementId: string;
+      request: AnnouncementRequest;
+    }) => updateAnnouncement(announcementId, request),
+    onSuccess: invalidate,
+  });
+}
+
+interface ApplyAnnouncementImagesInput {
+  announcementId: string;
+  draft: CatalogImageDraft;
+  savedImages: CatalogImage[];
 }
 
 export function useApplyAnnouncementImages() {
   const invalidate = useInvalidateAnnouncements();
   return useMutation({
-    mutationFn: ({ announcementId, draft }: { announcementId: string; draft: CatalogImageDraft }) =>
-      applyCatalogImageDraft(draft, announcementId, [], {
+    mutationFn: ({ announcementId, draft, savedImages }: ApplyAnnouncementImagesInput) =>
+      applyCatalogImageDraft(draft, announcementId, savedImages, {
         add: addAnnouncementImage,
         remove: removeAnnouncementImage,
       }),

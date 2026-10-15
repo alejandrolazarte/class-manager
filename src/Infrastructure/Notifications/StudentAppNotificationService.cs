@@ -31,6 +31,13 @@ internal sealed class StudentAppNotificationService(
             cancellationToken);
     }
 
+    public async Task AnnouncementRescheduledAsync(Announcement announcement, CancellationToken cancellationToken)
+    {
+        await backgroundTasks.CancelPendingAsync(
+            new PublishScheduledAnnouncementBackgroundTaskCommand(context.CurrentTenantId, announcement.Id), cancellationToken);
+        await AnnouncementPublishedAsync(announcement, cancellationToken);
+    }
+
     public Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
         publisher.PublishToStudentsAsync(
             clientIds,

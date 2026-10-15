@@ -180,6 +180,21 @@ test("App screens", async ({ page, request }) => {
   await page.getByText("Cuándo se publica").scrollIntoViewIfNeeded();
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, "12b4-novedad-programada.png") });
+  await page.getByRole("button", { name: "Ahora" }).click();
+  await page.getByRole("button", { name: "Vista previa" }).click();
+  await page.getByTestId("push-notification-preview").waitFor();
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "12b5-novedad-vista-previa.png") });
+  await page.getByRole("button", { name: "Cerrar" }).last().click();
+  await page.getByRole("button", { name: "Publicar" }).click();
+  await page
+    .getByRole("button", { name: /^Editar aviso / })
+    .filter({ visible: true })
+    .first()
+    .click();
+  await page.getByText("Editar aviso").filter({ visible: true }).first().waitFor();
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "12b6-novedad-editar.png") });
 
   await page.goto("/settings/business");
   await page.getByText("Moneda").filter({ visible: true }).first().waitFor();

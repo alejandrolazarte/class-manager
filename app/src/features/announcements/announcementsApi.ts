@@ -4,7 +4,7 @@ import {
   Announcement,
   AnnouncementRecipient,
   AnnouncementReminder,
-  CreateAnnouncementRequest,
+  AnnouncementRequest,
 } from "@/features/announcements/types";
 
 const announcementsPath = "/api/announcements";
@@ -22,8 +22,15 @@ export function listAnnouncements(): Promise<Announcement[]> {
   return httpClient.get<Announcement[]>(announcementsPath);
 }
 
-export function createAnnouncement(request: CreateAnnouncementRequest): Promise<Announcement> {
+export function createAnnouncement(request: AnnouncementRequest): Promise<Announcement> {
   return httpClient.post<Announcement>(announcementsPath, request);
+}
+
+export function updateAnnouncement(
+  announcementId: string,
+  request: AnnouncementRequest,
+): Promise<Announcement> {
+  return httpClient.put<Announcement>(announcementPath(announcementId), request);
 }
 
 export function deleteAnnouncement(announcementId: string): Promise<void> {

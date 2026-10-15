@@ -35,7 +35,7 @@ export interface AnnouncementReminder {
   remindedCount: number;
 }
 
-export interface CreateAnnouncementRequest {
+export interface AnnouncementRequest {
   title: string;
   body: string | null;
   category: AnnouncementCategory;

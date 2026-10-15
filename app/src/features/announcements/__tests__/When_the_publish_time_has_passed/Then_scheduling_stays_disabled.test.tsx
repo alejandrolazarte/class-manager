@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { NewAnnouncementScreen } from "@/features/announcements/screens/NewAnnouncementScreen";
+import { AnnouncementFormScreen } from "@/features/announcements/screens/AnnouncementFormScreen";
 import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
@@ -8,7 +8,7 @@ jest.mock("@/features/classGroups/classGroupsApi");
 
 describe("When the publish time has passed", () => {
   it("Then scheduling stays disabled", async () => {
-    await renderWithProviders(<NewAnnouncementScreen />);
+    await renderWithProviders(<AnnouncementFormScreen />);
     await fireEvent.changeText(
       await screen.findByLabelText(translate("announcements.form.title")),
       "Feriado",

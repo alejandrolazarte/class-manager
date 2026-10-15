@@ -39,7 +39,7 @@ export function PinnedNews({ item }: PinnedNewsProps) {
             {body}
           </AppText>
         )}
-        {item.category === "Event" && item.announcementId !== null ? (
+        {item.category === "Event" ? (
           <EventReplyButtons announcementId={item.announcementId} isGoing={item.isGoing} />
         ) : null}
       </View>
