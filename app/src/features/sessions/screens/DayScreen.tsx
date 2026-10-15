@@ -171,7 +171,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
               titleOf={sessionTitle}
               onOpen={openSession}
             />
-            <OutlinedBlock className="gap-3">
+            <OutlinedBlock className="mt-1 gap-3">
               <View className="h-11 flex-row items-end justify-between gap-3">
                 <View className="min-w-0 flex-1">
                   <AppText variant="eyebrow" tone="subtle" numberOfLines={1}>
@@ -205,10 +205,6 @@ export function DayScreen({ initialDate }: DayScreenProps) {
                 onNext={() => step(1)}
               />
             </OutlinedBlock>
-          </View>
-        </View>
-        <View className={`px-5 ${isPlaceholderData ? "opacity-50" : ""}`}>
-          <OutlinedBlock className="min-h-[276px] pb-0">
             <View className="h-7 flex-row items-center justify-between">
               <AppText variant="caption" tone="subtle">
                 {isPending ? "" : summary}
@@ -231,36 +227,38 @@ export function DayScreen({ initialDate }: DayScreenProps) {
                 />
               </Banner>
             ) : null}
-            {isPending ? <SkeletonList /> : null}
-            {!isPending && !isError && sessions.length === 0 ? (
-              <HairlineRow className="flex-row items-center gap-3 py-[18px]">
-                <IconCircle icon="noClasses" />
-                <View className="min-w-0 flex-1">
-                  <AppText variant="bodyStrong">{translate("home.free.title")}</AppText>
-                  <AppText variant="caption" tone="subtle">
-                    {translate("home.free.body")}
-                  </AppText>
-                </View>
-              </HairlineRow>
-            ) : null}
-            {sessions.map((session, index) => (
-              <AnimatedListItem
-                key={session.privateLessonId ?? session.classGroupId ?? session.startTime}
-                index={index}
-              >
-                <AgendaSessionRow
-                  session={session}
-                  title={sessionTitle(session)}
-                  timing={sessionTimingOf(session, today, timeNow)}
-                  timeNow={timeNow}
-                  isToday={session.date === today}
-                  isFirst={index === 0}
-                  isLast={index === sessions.length - 1}
-                  onPress={() => openSession(session)}
-                />
-              </AnimatedListItem>
-            ))}
-          </OutlinedBlock>
+          </View>
+        </View>
+        <View className={`min-h-[276px] px-5 ${isPlaceholderData ? "opacity-50" : ""}`}>
+          {isPending ? <SkeletonList /> : null}
+          {!isPending && !isError && sessions.length === 0 ? (
+            <HairlineRow className="flex-row items-center gap-3 py-[18px]">
+              <IconCircle icon="noClasses" />
+              <View className="min-w-0 flex-1">
+                <AppText variant="bodyStrong">{translate("home.free.title")}</AppText>
+                <AppText variant="caption" tone="subtle">
+                  {translate("home.free.body")}
+                </AppText>
+              </View>
+            </HairlineRow>
+          ) : null}
+          {sessions.map((session, index) => (
+            <AnimatedListItem
+              key={session.privateLessonId ?? session.classGroupId ?? session.startTime}
+              index={index}
+            >
+              <AgendaSessionRow
+                session={session}
+                title={sessionTitle(session)}
+                timing={sessionTimingOf(session, today, timeNow)}
+                timeNow={timeNow}
+                isToday={session.date === today}
+                isFirst={index === 0}
+                isLast={index === sessions.length - 1}
+                onPress={() => openSession(session)}
+              />
+            </AnimatedListItem>
+          ))}
         </View>
       </ScrollView>
     </Screen>

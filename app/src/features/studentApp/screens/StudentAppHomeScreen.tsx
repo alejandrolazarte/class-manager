@@ -142,19 +142,17 @@ export function StudentAppHomeScreen() {
         </AnimatedListItem>
       ) : null}
       {announcements.length === 0 ? null : (
-        <AnimatedListItem index={3}>
-          <OutlinedBlock className="pb-0 pt-1">
-            <View className="flex-row items-center justify-between">
-              <SectionTitle title={translate("student.news.homeTitle")} />
-              <TextLink
-                label={translate("student.news.seeAll")}
-                onPress={() => router.navigate(routes.studentAppNews)}
-              />
-            </View>
-            {announcements.map((item) => (
-              <NewsRow key={item.id} item={item} />
-            ))}
-          </OutlinedBlock>
+        <AnimatedListItem index={3} className="mt-1.5">
+          <View className="flex-row items-center justify-between">
+            <SectionTitle title={translate("student.news.homeTitle")} />
+            <TextLink
+              label={translate("student.news.seeAll")}
+              onPress={() => router.navigate(routes.studentAppNews)}
+            />
+          </View>
+          {announcements.map((item) => (
+            <NewsRow key={item.id} item={item} />
+          ))}
         </AnimatedListItem>
       )}
       {shop === undefined ? null : (
