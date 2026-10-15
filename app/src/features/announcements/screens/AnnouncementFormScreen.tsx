@@ -4,6 +4,7 @@ import { View } from "react-native";
 import {
   announcementCategories,
   announcementCategoryPresentations,
+  defaultAnnouncementCategory,
 } from "@/features/announcements/announcementCategories";
 import { AnnouncementPreviewSheet } from "@/features/announcements/components/AnnouncementPreviewSheet";
 import {
@@ -105,7 +106,9 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
   const savedVisibleUntil = announcement?.visibleUntil ?? null;
   const savedPublishedAt =
     announcement?.isScheduled === true ? new Date(announcement.publishedAt) : null;
-  const [category, setCategory] = useState<AnnouncementCategory>(announcement?.category ?? "News");
+  const [category, setCategory] = useState<AnnouncementCategory>(
+    announcement?.category ?? defaultAnnouncementCategory,
+  );
   const [title, setTitle] = useState(announcement?.title ?? "");
   const [body, setBody] = useState(announcement?.body ?? "");
   const [audience, setAudience] = useState<Audience>(

@@ -1,7 +1,10 @@
 import { firstNameOf, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { StudentAppNewsItem } from "@/features/studentApp/types";
 import { addDays, formatClockTime, toIsoDate, todayIsoDate } from "@/features/sessions/dates";
-import { announcementCategoryPresentations } from "@/features/announcements/announcementCategories";
+import {
+  announcementCategoryPresentations,
+  hasCategoryPill,
+} from "@/features/announcements/announcementCategories";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { IconName } from "@/ui/Icon";
@@ -128,7 +131,9 @@ function presentAnnouncement(item: StudentAppNewsItem): NewsPresentation {
     title: item.title ?? "",
     body: item.body,
     categoryPill:
-      category === null ? undefined : { label: translate(category.labelKey), tone: category.tone },
+      item.category === null || category === null || !hasCategoryPill(item.category)
+        ? undefined
+        : { label: translate(category.labelKey), tone: category.tone },
     audience:
       item.audienceClassNames.length === 0
         ? undefined

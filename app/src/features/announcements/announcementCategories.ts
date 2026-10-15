@@ -19,6 +19,12 @@ export const announcementCategories: readonly AnnouncementCategory[] = [
   "Reminder",
 ];
 
+export const defaultAnnouncementCategory: AnnouncementCategory = "News";
+
+export function hasCategoryPill(category: AnnouncementCategory): boolean {
+  return category !== defaultAnnouncementCategory;
+}
+
 export const announcementCategoryPresentations: Record<
   AnnouncementCategory,
   AnnouncementCategoryPresentation
