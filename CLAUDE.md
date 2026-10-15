@@ -48,6 +48,7 @@ Everything is written in English: code, identifiers, comments in config files, c
 
 - Never push to `main`, never merge pull requests (`gh pr merge`), never use `--no-verify`.
 - Work on a branch (`feature/...`, `fix/...`, `chore/...`, `docs/...`), push it and open a PR with `gh pr create`.
+- When the work is finished (checks from "Before pushing" pass and the branch is pushed), open the pull request right away, without asking. If a PR is already open for the branch, push to it instead of opening another.
 - The owner reviews and merges on GitHub. Stop after opening the PR.
 - Enforcement: `.githooks/pre-push` blocks pushes to `main`, and `.claude/settings.json` denies the commands above. See [docs/github-protection.md](docs/github-protection.md).
 
