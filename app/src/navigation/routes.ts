@@ -101,6 +101,7 @@ export const routes = {
   newCounterSale: (tab: OrderTab) => `/${tab}/orders/new`,
   importExport: "/settings/import-export",
   announcements: "/settings/announcements",
+  newAnnouncement: "/settings/announcements/new",
   team: "/settings/team",
   inviteMember: "/settings/team/invite",
   teamMember: (memberId: string) => `/settings/team/${memberId}`,

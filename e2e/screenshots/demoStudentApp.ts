@@ -207,18 +207,24 @@ export async function seedDemoStudentApp(
     );
   }
 
-  const announcements: [title: string, body: string][] = [
-    [
-      "Muestra de fin de año",
-      "Sábado 13 de diciembre en la pileta grande. Anotá a tu familia en la recepción.",
-    ],
-    [
-      "Lunes 12 de octubre cerrado",
-      "Feriado. Las clases de ese día se pueden recuperar durante la semana.",
-    ],
+  const announcements = [
+    {
+      title: "Muestra de fin de año",
+      body: "Sábado 13 de diciembre en la pileta grande. Anotá a tu familia en la recepción.",
+      category: "Event",
+      classGroupIds: [],
+      isPinned: false,
+    },
+    {
+      title: "Lunes 12 de octubre cerrado",
+      body: "Feriado. Las clases de ese día se pueden recuperar durante la semana.",
+      category: "Important",
+      classGroupIds: [demo.beginnersClassGroupId],
+      isPinned: true,
+    },
   ];
-  for (const [title, body] of announcements) {
-    await send("POST", "/api/announcements", ownerToken, { title, body });
+  for (const announcement of announcements) {
+    await send("POST", "/api/announcements", ownerToken, announcement);
   }
   const nextWeekClass = isoDateOf(
     new Date(new Date(`${demo.today}T12:00:00Z`).getTime() + daysPerWeek * millisecondsPerDay),

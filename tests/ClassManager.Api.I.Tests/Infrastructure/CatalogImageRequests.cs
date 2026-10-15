@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 
 using ClassManager.Core.Domain.Images;
+using ClassManager.Core.UseCases.Announcements;
 using ClassManager.Core.UseCases.ClassPacks;
 using ClassManager.Core.UseCases.Images;
 using ClassManager.Core.UseCases.Products;
@@ -45,6 +46,16 @@ public static class CatalogImageRequests
 
     public static Task<HttpResponseMessage> DeleteClassPackImageAsync(this HttpClient httpClient, Guid classPackId, Guid documentId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.ClassPacks}/{classPackId}{ApiRoutes.Images}/{documentId}", UriKind.Relative));
+
+    public static Task<HttpResponseMessage> PostAnnouncementImageAsync(this HttpClient httpClient, Guid announcementId, byte[] content) =>
+        httpClient.PostAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Images}", UriKind.Relative), ImageForm(content));
+
+    public static async Task<AnnouncementResponse> AddAnnouncementImageAsync(this HttpClient httpClient, Guid announcementId)
+    {
+        using var response = await httpClient.PostAnnouncementImageAsync(announcementId, PngImage);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        return (await response.Content.ReadFromJsonAsync<AnnouncementResponse>(ApiRequests.JsonOptions))!;
+    }
 
     private static MultipartFormDataContent ImageForm(byte[] content)
     {

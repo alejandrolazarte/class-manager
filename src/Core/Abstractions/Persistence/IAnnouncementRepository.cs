@@ -12,5 +12,7 @@ public interface IAnnouncementRepository
 
     Task<Announcement?> FindDeletedForUpdateAsync(Guid announcementId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Announcement>> ListPublishedSinceAsync(DateTimeOffset since, CancellationToken cancellationToken);
+    Task<Announcement?> FindPinnedForUpdateAsync(CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Announcement>> ListRecentOrPinnedAsync(DateTimeOffset publishedSince, CancellationToken cancellationToken);
 }

@@ -1,8 +1,11 @@
 import { firstNameOf, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { StudentAppNewsItem } from "@/features/studentApp/types";
 import { addDays, toIsoDate, todayIsoDate } from "@/features/sessions/dates";
-import { translate, TranslationKey } from "@/i18n/translate";
+import { announcementCategoryPresentations } from "@/features/announcements/announcementCategories";
+import { translate, translateCount, TranslationKey } from "@/i18n/translate";
+import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { IconName } from "@/ui/Icon";
+import { StatusTone } from "@/ui/StatusPill";
 
 export type NewsGroup = "today" | "week" | "earlier";
 
@@ -37,10 +40,18 @@ export function newsWhenLabel(item: StudentAppNewsItem, today: string = todayIso
   return date === addDays(today, -1) ? translate("student.news.yesterday") : shortDayLabel(date);
 }
 
+export interface NewsCategoryPill {
+  label: string;
+  tone: StatusTone;
+}
+
 export interface NewsPresentation {
   icon: IconName;
   title: string;
   body: string | null;
+  iconTone?: ThemeColorToken;
+  categoryPill?: NewsCategoryPill;
+  audience?: string;
 }
 
 export function joinNames(names: readonly string[]): string {
@@ -106,6 +117,28 @@ export function presentNews(item: StudentAppNewsItem): NewsPresentation {
             .join(" · ") || null,
       };
     default:
-      return { icon: "announcement", title: item.title ?? "", body: item.body };
+      return presentAnnouncement(item);
   }
+}
+
+function presentAnnouncement(item: StudentAppNewsItem): NewsPresentation {
+  const category = item.category === null ? null : announcementCategoryPresentations[item.category];
+  return {
+    icon: category?.icon ?? "announcement",
+    iconTone: category?.tone,
+    title: item.title ?? "",
+    body: item.body,
+    categoryPill:
+      category === null ? undefined : { label: translate(category.labelKey), tone: category.tone },
+    audience:
+      item.audienceClassNames.length === 0
+        ? undefined
+        : translateCount("student.news.audience", item.audienceClassNames.length, {
+            classes: joinNames(item.audienceClassNames),
+          }),
+  };
+}
+
+export function isPinnedAnnouncement(item: StudentAppNewsItem): boolean {
+  return item.kind === "Announcement" && item.isPinned;
 }

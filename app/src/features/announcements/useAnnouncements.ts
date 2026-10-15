@@ -1,11 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  addAnnouncementImage,
   createAnnouncement,
   deleteAnnouncement,
   listAnnouncements,
+  pinAnnouncement,
+  removeAnnouncementImage,
   restoreAnnouncement,
+  unpinAnnouncement,
 } from "@/features/announcements/announcementsApi";
 import { CreateAnnouncementRequest } from "@/features/announcements/types";
+import {
+  applyCatalogImageDraft,
+  CatalogImageDraft,
+} from "@/features/catalogImages/catalogImageDraft";
 
 const announcementsQueryKey = ["announcements"] as const;
 
@@ -26,6 +34,18 @@ export function useCreateAnnouncement() {
   });
 }
 
+export function useApplyAnnouncementImages() {
+  const invalidate = useInvalidateAnnouncements();
+  return useMutation({
+    mutationFn: ({ announcementId, draft }: { announcementId: string; draft: CatalogImageDraft }) =>
+      applyCatalogImageDraft(draft, announcementId, [], {
+        add: addAnnouncementImage,
+        remove: removeAnnouncementImage,
+      }),
+    onSettled: invalidate,
+  });
+}
+
 export function useDeleteAnnouncement() {
   const invalidate = useInvalidateAnnouncements();
   return useMutation({
@@ -38,6 +58,15 @@ export function useRestoreAnnouncement() {
   const invalidate = useInvalidateAnnouncements();
   return useMutation({
     mutationFn: (announcementId: string) => restoreAnnouncement(announcementId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSetAnnouncementPinned() {
+  const invalidate = useInvalidateAnnouncements();
+  return useMutation({
+    mutationFn: ({ announcementId, isPinned }: { announcementId: string; isPinned: boolean }) =>
+      isPinned ? pinAnnouncement(announcementId) : unpinAnnouncement(announcementId),
     onSuccess: invalidate,
   });
 }

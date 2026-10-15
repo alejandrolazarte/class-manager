@@ -1,6 +1,7 @@
 using System.Globalization;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
@@ -20,6 +21,7 @@ public sealed class GetStudentAppNewsUseCase(
     IAnnouncementRepository announcementRepository,
     IOrderRepository orderRepository,
     IInstructorRepository instructorRepository,
+    IDocumentStorageService documentStorage,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider)
     : IUseCase<GetStudentAppNewsQuery, StudentAppNewsResponse>
@@ -79,9 +81,31 @@ public sealed class GetStudentAppNewsUseCase(
                 orderId,
                 classStartTime);
 
-        items.AddRange((await announcementRepository.ListPublishedSinceAsync(now.AddDays(-AnnouncementDays), cancellationToken))
+        var enrolledClassGroupIds = await EnrolledClassGroupIdsAsync(studentIds, today, cancellationToken);
+        var enrolledClassGroupNames = new Dictionary<Guid, string>();
+        foreach (var classGroupId in enrolledClassGroupIds)
+        {
+            if (await classGroupRepository.GetByIdAsync(classGroupId, cancellationToken) is { } classGroup)
+            {
+                enrolledClassGroupNames[classGroupId] = classGroup.Name;
+            }
+        }
+
+        items.AddRange((await announcementRepository.ListRecentOrPinnedAsync(now.AddDays(-AnnouncementDays), cancellationToken))
+            .Where(announcement => announcement.IsVisibleOn(today) && announcement.IsFor(enrolledClassGroupIds))
             .Select(announcement => Item(
-                StudentAppNewsKind.Announcement, announcement.Id.ToString(), announcement.PublishedAt, announcement.Title, announcement.Body)));
+                StudentAppNewsKind.Announcement, announcement.Id.ToString(), announcement.PublishedAt, announcement.Title, announcement.Body) with
+            {
+                Category = announcement.Category,
+                IsPinned = announcement.IsPinned,
+                ImageUrl = announcement.ImagesInOrder.Count == 0 ? null : documentStorage.PublicUrlOf(announcement.ImagesInOrder[0]).AbsoluteUri,
+                AudienceClassNames =
+                [
+                    .. announcement.ClassGroupIds
+                        .Where(enrolledClassGroupNames.ContainsKey)
+                        .Select(classGroupId => enrolledClassGroupNames[classGroupId]),
+                ],
+            }));
 
         items.AddRange((await orderRepository.ListAsync(new OrderSearchCriteria(access.ClientId, true, OrderLimit), null, cancellationToken))
             .Where(order => order.ReadyAt is not null)
@@ -121,8 +145,20 @@ public sealed class GetStudentAppNewsUseCase(
                     classStartTime: session.RescheduledStartTime?.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture)),
             cancellationToken));
 
-        var newestItems = items.OrderByDescending(item => item.OccurredAt).Take(ItemLimit).ToList();
+        var newestItems = items.OrderByDescending(item => item.IsPinned).ThenByDescending(item => item.OccurredAt).Take(ItemLimit).ToList();
         return new StudentAppNewsResponse(newestItems, newestItems.Count(item => item.IsUnread));
+    }
+
+    private async Task<HashSet<Guid>> EnrolledClassGroupIdsAsync(IReadOnlyList<Guid> studentIds, DateOnly today, CancellationToken cancellationToken)
+    {
+        var classGroupIds = new HashSet<Guid>();
+        foreach (var studentId in studentIds)
+        {
+            classGroupIds.UnionWith((await enrollmentRepository.ListCurrentByStudentAsync(studentId, today, cancellationToken))
+                .Select(enrollment => enrollment.ClassGroupId));
+        }
+
+        return classGroupIds;
     }
 
     private async Task<IReadOnlyList<StudentAppNewsItemResponse>> UpcomingClassChangesAsync(

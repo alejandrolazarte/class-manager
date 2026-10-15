@@ -13,7 +13,7 @@ The delete runs on the first tap. The toast says what happened and carries a **D
 | What | How Deshacer brings it back |
 | --- | --- |
 | Payment | `POST /api/payments/{id}/restore` restores the soft deleted row (same id, same "cobró") |
-| Announcement | `POST /api/announcements/{id}/restore` restores the row without notifying the students again |
+| Announcement | `POST /api/announcements/{id}/restore` restores the row without notifying the students again; a pinned one comes back unpinned if another was pinned meanwhile |
 | Upcoming fee change (default or a client's) | Saves the same change again |
 | Class comment | Saves the same text again |
 | Custom role | Creates it again with the same name and permissions (it could only be deleted while unused) |

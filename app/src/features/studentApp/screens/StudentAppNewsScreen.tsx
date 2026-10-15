@@ -1,7 +1,9 @@
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { NewsRow } from "@/features/studentApp/components/NewsRow";
+import { PinnedNews } from "@/features/studentApp/components/PinnedNews";
 import {
+  isPinnedAnnouncement,
   NewsGroup,
   newsGroupLabels,
   newsGroupOf,
@@ -53,8 +55,9 @@ export function StudentAppNewsScreen() {
     return undefined;
   };
 
+  const pinnedItem = (news?.items ?? []).find(isPinnedAnnouncement);
   const itemsByGroup = (group: NewsGroup) =>
-    (news?.items ?? []).filter((item) => newsGroupOf(item) === group);
+    (news?.items ?? []).filter((item) => item !== pinnedItem && newsGroupOf(item) === group);
 
   return (
     <ScrollScreen
@@ -78,6 +81,11 @@ export function StudentAppNewsScreen() {
           message={translate("student.news.empty")}
         />
       ) : null}
+      {pinnedItem === undefined ? null : (
+        <AnimatedListItem index={0}>
+          <PinnedNews item={pinnedItem} />
+        </AnimatedListItem>
+      )}
       {newsGroups
         .filter((group) => itemsByGroup(group).length > 0)
         .map((group, groupIndex) => (

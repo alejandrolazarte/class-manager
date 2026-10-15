@@ -16,7 +16,7 @@ export type CatalogImageSaveOutcome = "saved" | "limitReached" | "failed";
 export interface CatalogImageActions {
   add: (ownerId: string, file: PickedFile) => Promise<CatalogImageOwner>;
   remove: (ownerId: string, imageId: string) => Promise<CatalogImageOwner>;
-  reorder: (ownerId: string, imageIds: string[]) => Promise<CatalogImageOwner>;
+  reorder?: (ownerId: string, imageIds: string[]) => Promise<CatalogImageOwner>;
 }
 
 export const featureLimitReachedCode = "feature.limit_reached";
@@ -68,7 +68,7 @@ export async function applyCatalogImageDraft(
     const wantedIds = draft.items
       .map((item) => (item.kind === "stored" ? item.image.id : addedIdsByKey.get(item.key)))
       .filter((imageId): imageId is string => imageId !== undefined);
-    if (!haveSameOrder(wantedIds, currentIds)) {
+    if (actions.reorder !== undefined && !haveSameOrder(wantedIds, currentIds)) {
       await actions.reorder(ownerId, wantedIds);
     }
     return "saved";

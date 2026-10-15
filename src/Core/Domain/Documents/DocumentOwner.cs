@@ -5,4 +5,5 @@ public enum DocumentOwner
     Product,
     ClassPack,
     ClassGroup,
+    Announcement,
 }
