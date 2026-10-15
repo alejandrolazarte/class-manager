@@ -23,6 +23,8 @@ internal sealed class EnglishNotificationTexts : INotificationTexts
 
     public string TeamInvitationDeclinedBody => "If it was a mistake, you can invite them again from Team.";
 
+    public string AnnouncementReminderTitle(string announcementTitle) => $"Reminder: {announcementTitle}";
+
     public string GuardianConsentTitle(string studentFullName) => $"{PersonNames.FirstNameOf(studentFullName)} wants to use the app";
 
     public string ClassCancelledTitle(string classGroupName) => $"{classGroupName} is cancelled";

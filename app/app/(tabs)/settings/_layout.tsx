@@ -57,7 +57,18 @@ export default function SettingsLayout() {
       <Stack.Screen name="orders/index" options={{ title: translate("orders.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
       <Stack.Screen name="import-export" options={{ title: translate("importExport.title") }} />
-      <Stack.Screen name="announcements" options={{ title: translate("announcements.title") }} />
+      <Stack.Screen
+        name="announcements/index"
+        options={{ title: translate("announcements.title") }}
+      />
+      <Stack.Screen
+        name="announcements/new"
+        options={{ title: translate("announcements.newTitle") }}
+      />
+      <Stack.Screen
+        name="announcements/[announcementId]"
+        options={{ title: translate("announcements.title") }}
+      />
       <Stack.Screen
         name="measurements/index"
         options={{ title: translate("measurements.title") }}

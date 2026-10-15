@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var announcement = Announcement.Create("  ", "Las clases se recuperan durante la semana.", TestData.Now);
+        var announcement = Announcement.Create("  ", "Las clases se recuperan durante la semana.", TestData.Now, TestData.Today);
 
         announcement.Error!.FieldName.ShouldBe(nameof(Announcement.Title));
     }

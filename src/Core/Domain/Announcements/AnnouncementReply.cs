@@ -1,0 +1,43 @@
+using ClassManager.Core.Common;
+using ClassManager.Tenancy;
+
+namespace ClassManager.Core.Domain.Announcements;
+
+public sealed class AnnouncementReply : ITenantOwned
+{
+    public const string NotAnEventCode = "announcement.not_an_event";
+
+    private const string NotAnEventMessage = "Only events can be answered.";
+
+    private AnnouncementReply()
+    {
+    }
+
+    public Guid TenantId { get; private set; }
+    public Guid AnnouncementId { get; private set; }
+    public Guid ClientId { get; private set; }
+    public bool IsGoing { get; private set; }
+    public DateTimeOffset RepliedAt { get; private set; }
+
+    public static Result<AnnouncementReply> Create(Announcement announcement, Guid clientId, bool isGoing, DateTimeOffset repliedAt)
+    {
+        if (announcement.Category != AnnouncementCategory.Event)
+        {
+            return Result.Validation<AnnouncementReply>(NotAnEventMessage, NotAnEventCode);
+        }
+
+        var reply = new AnnouncementReply
+        {
+            AnnouncementId = announcement.Id,
+            ClientId = clientId,
+        };
+        reply.Change(isGoing, repliedAt);
+        return reply;
+    }
+
+    public void Change(bool isGoing, DateTimeOffset repliedAt)
+    {
+        IsGoing = isGoing;
+        RepliedAt = repliedAt.ToUniversalTime();
+    }
+}

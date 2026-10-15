@@ -8,9 +8,21 @@ public interface IAnnouncementRepository
 
     void Remove(Announcement announcement);
 
+    void AddView(AnnouncementView view);
+
+    void AddReply(AnnouncementReply reply);
+
     Task<Announcement?> FindForUpdateAsync(Guid announcementId, CancellationToken cancellationToken);
 
     Task<Announcement?> FindDeletedForUpdateAsync(Guid announcementId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Announcement>> ListPublishedSinceAsync(DateTimeOffset since, CancellationToken cancellationToken);
+    Task<Announcement?> FindPinnedForUpdateAsync(CancellationToken cancellationToken);
+
+    Task<AnnouncementReply?> FindReplyForUpdateAsync(Guid announcementId, Guid clientId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Announcement>> ListRecentOrPinnedAsync(DateTimeOffset publishedSince, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<AnnouncementView>> ListViewsAsync(IReadOnlyCollection<Guid> announcementIds, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<AnnouncementReply>> ListRepliesAsync(IReadOnlyCollection<Guid> announcementIds, CancellationToken cancellationToken);
 }

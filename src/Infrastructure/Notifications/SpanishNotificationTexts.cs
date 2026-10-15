@@ -22,6 +22,8 @@ internal sealed class SpanishNotificationTexts : INotificationTexts
 
     public string TeamInvitationDeclinedBody => "Si fue un error, podés volver a invitar desde Equipo.";
 
+    public string AnnouncementReminderTitle(string announcementTitle) => $"Recordatorio: {announcementTitle}";
+
     public string GuardianConsentTitle(string studentFullName) => $"{PersonNames.FirstNameOf(studentFullName)} quiere usar la app";
 
     public string ClassCancelledTitle(string classGroupName) => $"Se suspende {classGroupName}";

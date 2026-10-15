@@ -7,7 +7,6 @@ import { isApiError } from "@/api/httpClient";
 import { catalogImageSaveMessageKey } from "@/features/catalogImages/catalogImageSaveMessage";
 import { CatalogImageField } from "@/features/catalogImages/components/CatalogImageField";
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
-import { ClassPackClassGroupsField } from "@/features/classPacks/components/ClassPackClassGroupsField";
 import { classPackErrorCodes } from "@/features/classPacks/classPackErrorCodes";
 import {
   classPackFieldNames,
@@ -30,6 +29,7 @@ import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/subm
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { commonDurationsInMinutes } from "@/features/classGroups/classGroupSchema";
+import { ClassGroupsField } from "@/features/classGroups/components/ClassGroupsField";
 import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
@@ -220,10 +220,20 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           control={form.control}
           name="classGroupIds"
           render={({ field }) => (
-            <ClassPackClassGroupsField
+            <ClassGroupsField
               classGroups={classGroups}
               classGroupIds={field.value}
               onChange={field.onChange}
+              label={translate("classPacks.form.classGroups")}
+              chooseLabel={translate("classPacks.form.chooseClassGroup")}
+              addLabel={translate("classPacks.form.addClassGroup")}
+              removeLabel={(name) => translate("classPacks.form.removeClassGroup", { name })}
+              hint={translate(
+                field.value.length === 0
+                  ? "classPacks.form.classGroupsNoneHint"
+                  : "classPacks.form.classGroupsHint",
+              )}
+              pickerTestID="class-pack-class-group-picker"
             />
           )}
         />

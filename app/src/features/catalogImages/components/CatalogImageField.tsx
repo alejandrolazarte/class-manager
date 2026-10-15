@@ -13,19 +13,22 @@ interface CatalogImageFieldProps {
   images: CatalogImageDraftState;
   placeholderIcon: IconName;
   maximumImageCount: number;
+  hint?: string;
 }
 
 export function CatalogImageField({
   images,
   placeholderIcon,
   maximumImageCount,
+  hint: customHint,
 }: CatalogImageFieldProps) {
   const { items } = images.draft;
   const canAddImage = items.length < maximumImageCount;
   const hint =
-    maximumImageCount === 1
+    customHint ??
+    (maximumImageCount === 1
       ? translate("catalogImages.singleHint")
-      : translate("catalogImages.hint", { maximum: maximumImageCount });
+      : translate("catalogImages.hint", { maximum: maximumImageCount }));
   return (
     <HairlineSection title={translate("catalogImages.photos")}>
       {items.length === 0 ? (

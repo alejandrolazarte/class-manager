@@ -93,9 +93,13 @@ Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student
 
 The app keeps the file change in the form and sends it on Guardar: the removal first, then the class, then the upload. If the upload fails the class is still saved and a message says the PDF was not uploaded.
 
+## Announcement photos
+
+An announcement can carry one photo (`AnnouncementImages`, the same link table shape as `ClassPackImages`), at `<tenantId>/announcements/<announcementId>/<documentId>.<extension>`, public like shop photos and counted against the document storage limit. `POST /api/announcements/{id}/images` and `DELETE /api/announcements/{id}/images/{documentId}` add and remove it. See [Better announcements](frontend/20261014-better-announcements/plan.md).
+
 ## Document storage limit
 
-Every file a business uploads (product and pack photos, class PDFs) counts against the `document-storage` feature of its plan. The brand logo doesn't: it lives in the database.
+Every file a business uploads (product, pack and announcement photos, class PDFs) counts against the `document-storage` feature of its plan. The brand logo doesn't: it lives in the database.
 
 | `Free` | `Lite` | `Pro` | `Enterprise` | Add-on |
 |---|---|---|---|---|

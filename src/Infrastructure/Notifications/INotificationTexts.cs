@@ -14,6 +14,8 @@ internal interface INotificationTexts
 
     string TeamInvitationDeclinedBody { get; }
 
+    string AnnouncementReminderTitle(string announcementTitle);
+
     string GuardianConsentTitle(string studentFullName);
 
     string ClassCancelledTitle(string classGroupName);

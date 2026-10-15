@@ -14,6 +14,7 @@ internal sealed partial class DocumentStorageService(
     private const string ProductsFolder = "products";
     private const string ClassPacksFolder = "class-packs";
     private const string ClassGroupsFolder = "class-groups";
+    private const string AnnouncementsFolder = "announcements";
     private const string GuidWithoutHyphensFormat = "N";
     private const string PrivateDocumentUrlMessage = "Private documents have no public URL.";
 
@@ -57,6 +58,7 @@ internal sealed partial class DocumentStorageService(
         DocumentOwner.Product => ProductsFolder,
         DocumentOwner.ClassPack => ClassPacksFolder,
         DocumentOwner.ClassGroup => ClassGroupsFolder,
+        DocumentOwner.Announcement => AnnouncementsFolder,
         _ => throw new ArgumentOutOfRangeException(nameof(owner), owner, null),
     };
 
