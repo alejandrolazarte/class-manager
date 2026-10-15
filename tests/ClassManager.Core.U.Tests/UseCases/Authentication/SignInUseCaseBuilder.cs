@@ -15,6 +15,8 @@ internal sealed class SignInUseCaseBuilder
     public Mock<IBranchDirectory> Branches { get; } = new();
     public Mock<IStudentAppDirectory> StudentApp { get; } = new();
     public StudentAppLink Student { get; } = new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7());
+    public BranchAccess LastUsedBranch { get; } =
+        new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7(), BusinessRole.BranchOwner, IsBrandOwner: true);
 
     public SignInUseCaseBuilder()
     {
@@ -36,6 +38,16 @@ internal sealed class SignInUseCaseBuilder
 
     public void WithStudentAccount() =>
         StudentApp.Setup(directory => directory.FindDefaultAsync(UserId, It.IsAny<CancellationToken>())).ReturnsAsync(Student);
+
+    public void WithLastSessionIn(Guid businessId, string kind) =>
+        Tokens
+            .Setup(service => service.FindLastSessionAsync(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new LastSession(businessId, kind));
+
+    public void WithAccessToLastUsedBranch() =>
+        Branches
+            .Setup(directory => directory.FindAsync(UserId, LastUsedBranch.BusinessId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(LastUsedBranch);
 
     public SignInUseCase Build() => new(Identity.Object, Tokens.Object, Branches.Object, StudentApp.Object);
 }

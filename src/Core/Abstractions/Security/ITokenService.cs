@@ -10,5 +10,7 @@ public interface ITokenService
 
     Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, string? kind, CancellationToken cancellationToken);
 
+    Task<LastSession?> FindLastSessionAsync(Guid userId, CancellationToken cancellationToken);
+
     Task RevokeAsync(string refreshToken, CancellationToken cancellationToken);
 }

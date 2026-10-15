@@ -147,6 +147,7 @@ The `role` claim in the token is informational; authorization never reads it.
 - `branches.create`, `brandOwners.manage` and `branchOwners.manage` belong only to brand owners (`Permissions.BrandOnly`).
 - `IBranchDirectory` answers every branch question from the user id: the branches they can open (their `BusinessMembers` rows plus every business of an organization where they are `BrandOwner`), one branch, and the default one. Sign-in, refresh and switching all go through it.
 - Refresh tokens store the business they were issued for. Refreshing keeps that business; switching asks for another one and fails with `403` (`branch.unavailable`) when the user has no access. A session whose branch was taken away ends on its next refresh.
+- Sign-in reopens the account of the user's most recent session (the newest refresh token, signed out or not: same branch, and the student app when that was the last one used). When the user no longer has access to it (removed from that team, branch gone), sign-in falls back to the default: the oldest branch the user is a member of, then the oldest branch of their brand, then their student app.
 - The brand always keeps at least one brand owner (`brand_owner.last`), and nobody changes their own brand owner status.
 
 ## In the app
