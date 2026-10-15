@@ -37,9 +37,37 @@ Announcements ("Novedades") were a title and a text sent to every student. This 
 
 All of them require `announcements.manage`. The student news items carry `category`, `isPinned`, `imageUrl` and `audienceClassNames`.
 
+## Step 2 (built): who saw it and answers
+
+### What changes
+
+| | Before | Now |
+|---|---|---|
+| Team list | Category, audience, pin and photo | Also "Vista por N de M" with a thin bar and, for events, "Van N · No van M". Tapping a row opens who saw it |
+| Who saw it | Unknown | A screen per announcement: counts (La vieron, Sin ver, and for events Van and No van), the families that saw it and when, the ones that didn't, and their answers |
+| Remind | Publish again | "Recordar a quienes no lo vieron" sends the push again ("Recordatorio: …") only to the families that haven't seen it |
+| Events | Read only | Students answer "¿Vas a ir?" with Voy or No voy, and can change it |
+
+### Decisions
+
+- **Seen is per family, not per person.** The team thinks in families (a client), and a family with two accounts has seen it once someone opened it. `AnnouncementViews` (`AnnouncementId`, `ClientId`, `SeenAt`) keeps one row per family the first time it opens Novedades while the announcement is visible to it; answering an event counts as seeing it.
+- **"Out of M" counts families that can see it in the app.** Families without an app account can't see an announcement, so they don't count: M is the families with at least one app account that are in the audience today (everyone, or a current enrollment in one of its classes). Views and answers from a family that left the audience no longer count.
+- **One answer per family, the last one wins.** `AnnouncementReplies` (`AnnouncementId`, `ClientId`, `IsGoing`, `RepliedAt`) is edited in place; only events can be answered (400 `announcement.not_an_event`), and only by families that can see the announcement (404 otherwise).
+- **The reminder doesn't change the announcement.** It is a push, not a new announcement, so the date and the order in the news stay the same.
+
+### Endpoints
+
+| Endpoint | What it does |
+|---|---|
+| `GET /api/announcements` | Each announcement now carries `recipientCount`, `seenCount`, `goingCount` and `notGoingCount` |
+| `GET /api/announcements/{id}/recipients` | The families in the audience with the app, with `seenAt` and `isGoing` |
+| `POST /api/announcements/{id}/reminder` | Pushes the announcement again to the families that haven't seen it; returns `remindedCount` |
+| `PUT /api/student-app/news/announcements/{id}/reply` | `{ "isGoing": true }`: the family's answer to an event |
+
+The team endpoints require `announcements.manage`. The student news items carry `announcementId` and `isGoing`.
+
 ## Next steps (proposal)
 
-1. **Reads and answers.** "Vista por N de M" in the team list, who saw it and who didn't, a reminder push to those who didn't, and "Voy / No voy" for events. Needs a per-account read table, because `NewsSeenAt` is one date per account.
-2. **Schedule.** Publish at a date and time, with "Programados" in the team list. Runs on the background tasks worker.
-3. **A button in the announcement.** Take the student to the shop, their week or a link.
-4. **Preview and editing.** See the announcement as the student and as a push before publishing, and fix a published one without deleting it.
+1. **Schedule.** Publish at a date and time, with "Programados" in the team list. Runs on the background tasks worker.
+2. **A button in the announcement.** Take the student to the shop, their week or a link.
+3. **Preview and editing.** See the announcement as the student and as a push before publishing, and fix a published one without deleting it.

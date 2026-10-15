@@ -17,6 +17,21 @@ export interface Announcement {
   visibleUntil: string | null;
   classGroups: AnnouncementClassGroup[];
   images: CatalogImage[];
+  recipientCount: number;
+  seenCount: number;
+  goingCount: number;
+  notGoingCount: number;
+}
+
+export interface AnnouncementRecipient {
+  clientId: string;
+  fullName: string;
+  seenAt: string | null;
+  isGoing: boolean | null;
+}
+
+export interface AnnouncementReminder {
+  remindedCount: number;
 }
 
 export interface CreateAnnouncementRequest {

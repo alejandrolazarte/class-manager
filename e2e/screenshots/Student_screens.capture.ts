@@ -238,4 +238,16 @@ test("Team screens with student activity", async ({ page, request }) => {
   await page.goto("/settings/products");
   await page.getByText("Toalla microfibra").filter({ visible: true }).first().waitFor();
   await capture(page, "12g-productos");
+
+  await page.goto("/settings/announcements");
+  await page.getByText("Muestra de fin de año").filter({ visible: true }).first().waitFor();
+  await capture(page, "12h-novedades-vistas");
+
+  await page.getByRole("button", { name: "Ver quién vio Muestra de fin de año" }).click();
+  await page
+    .getByText("Recordar a quienes no lo vieron")
+    .filter({ visible: true })
+    .first()
+    .waitFor();
+  await capture(page, "12i-novedad-quien-lo-vio");
 });

@@ -18,6 +18,7 @@ internal static class StudentAppEndpoints
         student.MapPost(ApiRoutes.StudentAppGuardianConsent + ApiRoutes.Authorization, GiveGuardianConsentInAppAsync);
         student.MapPost(ApiRoutes.StudentAppGuardianConsent + ApiRoutes.Refusal, RefuseGuardianConsentInAppAsync);
         student.MapPut(ApiRoutes.StudentAppNews + ApiRoutes.Seen, MarkStudentAppNewsSeenAsync);
+        student.MapPut(ApiRoutes.StudentAppNewsAnnouncements + ApiRoutes.AnnouncementById + ApiRoutes.Reply, ReplyToAnnouncementAsync);
         student.MapPut(ApiRoutes.StudentAbsence, NotifyAbsenceAsync);
         student.MapDelete(ApiRoutes.StudentAbsence, WithdrawAbsenceAsync);
         student.MapGet(ApiRoutes.StudentMakeups, GetStudentAppMakeupsAsync);
@@ -248,5 +249,16 @@ internal static class StudentAppEndpoints
         var result = await useCase.ExecuteAsync(request.ToCommand(clientId), cancellationToken);
 
         return result.ToHttpResult(invitation => TypedResults.Created($"{ApiRoutes.Clients}/{clientId}", invitation));
+    }
+
+    private static async Task<IResult> ReplyToAnnouncementAsync(
+        Guid announcementId,
+        ReplyToAnnouncementRequest request,
+        IUseCase<ReplyToAnnouncementCommand, bool> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ReplyToAnnouncementCommand(announcementId, request.IsGoing), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
     }
 }

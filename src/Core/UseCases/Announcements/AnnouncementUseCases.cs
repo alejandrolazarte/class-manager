@@ -1,7 +1,6 @@
 using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
-using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Announcements;
@@ -31,6 +30,10 @@ public sealed record RemoveAnnouncementImageCommand(Guid AnnouncementId, Guid Do
 
 public sealed record ListAnnouncementsQuery : IQuery;
 
+public sealed record ListAnnouncementRecipientsQuery(Guid AnnouncementId) : IQuery;
+
+public sealed record RemindAnnouncementCommand(Guid AnnouncementId) : ICommand;
+
 public static class AnnouncementErrorCodes
 {
     public const string NotFound = "announcement.not_found";
@@ -57,7 +60,7 @@ internal static class AnnouncementFailures
 public sealed class CreateAnnouncementUseCase(
     IAnnouncementRepository announcementRepository,
     IClassGroupRepository classGroupRepository,
-    IDocumentStorageService documentStorage,
+    IAnnouncementResponseService responses,
     IUnitOfWork unitOfWork,
     IStudentAppNotificationService studentAppNotifications,
     IBusinessCalendarService businessCalendar,
@@ -96,14 +99,13 @@ public sealed class CreateAnnouncementUseCase(
         announcementRepository.Add(announcement.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await studentAppNotifications.AnnouncementPublishedAsync(announcement.Value, cancellationToken);
-        return await AnnouncementResponse.FromAsync(announcement.Value, classGroupRepository, documentStorage, cancellationToken);
+        return await responses.FromAsync(announcement.Value, cancellationToken);
     }
 }
 
 public sealed class ListAnnouncementsUseCase(
     IAnnouncementRepository announcementRepository,
-    IClassGroupRepository classGroupRepository,
-    IDocumentStorageService documentStorage,
+    IAnnouncementResponseService responses,
     TimeProvider timeProvider)
     : IUseCase<ListAnnouncementsQuery, IReadOnlyList<AnnouncementResponse>>
 {
@@ -113,7 +115,7 @@ public sealed class ListAnnouncementsUseCase(
     {
         var announcements = await announcementRepository.ListRecentOrPinnedAsync(
             timeProvider.GetUtcNow().AddDays(-ListedDays), cancellationToken);
-        return Result.Success(await AnnouncementResponse.ListFromAsync(announcements, classGroupRepository, documentStorage, cancellationToken));
+        return Result.Success(await responses.ListFromAsync(announcements, cancellationToken));
     }
 }
 
@@ -198,16 +200,14 @@ public sealed class UnpinAnnouncementUseCase(IAnnouncementRepository announcemen
 
 public sealed class AddAnnouncementImageUseCase(
     IAnnouncementRepository announcementRepository,
-    IClassGroupRepository classGroupRepository,
-    IDocumentStorageService documentStorage,
+    IAnnouncementResponseService responses,
     ICatalogImageService catalogImageService)
     : IUseCase<AddAnnouncementImageCommand, AnnouncementResponse>
 {
     public Task<Result<AnnouncementResponse>> ExecuteAsync(AddAnnouncementImageCommand command, CancellationToken cancellationToken) =>
         AnnouncementImageEditing.ChangeAsync(
             announcementRepository,
-            classGroupRepository,
-            documentStorage,
+            responses,
             command.AnnouncementId,
             announcement => catalogImageService.AddAsync(announcement, DocumentOwner.Announcement, command.Content, cancellationToken),
             cancellationToken);
@@ -215,16 +215,14 @@ public sealed class AddAnnouncementImageUseCase(
 
 public sealed class RemoveAnnouncementImageUseCase(
     IAnnouncementRepository announcementRepository,
-    IClassGroupRepository classGroupRepository,
-    IDocumentStorageService documentStorage,
+    IAnnouncementResponseService responses,
     ICatalogImageService catalogImageService)
     : IUseCase<RemoveAnnouncementImageCommand, AnnouncementResponse>
 {
     public Task<Result<AnnouncementResponse>> ExecuteAsync(RemoveAnnouncementImageCommand command, CancellationToken cancellationToken) =>
         AnnouncementImageEditing.ChangeAsync(
             announcementRepository,
-            classGroupRepository,
-            documentStorage,
+            responses,
             command.AnnouncementId,
             announcement => catalogImageService.RemoveAsync(announcement, command.DocumentId, cancellationToken),
             cancellationToken);
@@ -249,8 +247,7 @@ internal static class AnnouncementImageEditing
 {
     public static async Task<Result<AnnouncementResponse>> ChangeAsync(
         IAnnouncementRepository announcementRepository,
-        IClassGroupRepository classGroupRepository,
-        IDocumentStorageService documentStorage,
+        IAnnouncementResponseService responses,
         Guid announcementId,
         Func<Announcement, Task<Result>> change,
         CancellationToken cancellationToken)
@@ -267,6 +264,66 @@ internal static class AnnouncementImageEditing
             return result.Error!;
         }
 
-        return await AnnouncementResponse.FromAsync(announcement, classGroupRepository, documentStorage, cancellationToken);
+        return await responses.FromAsync(announcement, cancellationToken);
+    }
+}
+
+public sealed class ListAnnouncementRecipientsUseCase(
+    IAnnouncementRepository announcementRepository,
+    IAnnouncementAudienceService audienceService)
+    : IUseCase<ListAnnouncementRecipientsQuery, IReadOnlyList<AnnouncementRecipientResponse>>
+{
+    public async Task<Result<IReadOnlyList<AnnouncementRecipientResponse>>> ExecuteAsync(
+        ListAnnouncementRecipientsQuery command, CancellationToken cancellationToken)
+    {
+        var announcement = await announcementRepository.FindForUpdateAsync(command.AnnouncementId, cancellationToken);
+        if (announcement is null)
+        {
+            return AnnouncementFailures.NotFound();
+        }
+
+        var recipients = (await audienceService.RecipientsOfAsync([announcement], cancellationToken))[announcement.Id];
+        var seenAtByClient = (await announcementRepository.ListViewsAsync([announcement.Id], cancellationToken))
+            .ToDictionary(view => view.ClientId, view => view.SeenAt);
+        var isGoingByClient = (await announcementRepository.ListRepliesAsync([announcement.Id], cancellationToken))
+            .ToDictionary(reply => reply.ClientId, reply => reply.IsGoing);
+        return Result.Success<IReadOnlyList<AnnouncementRecipientResponse>>(
+        [
+            .. recipients.Select(recipient => new AnnouncementRecipientResponse(
+                recipient.ClientId,
+                recipient.FullName,
+                seenAtByClient.TryGetValue(recipient.ClientId, out var seenAt) ? seenAt : null,
+                isGoingByClient.TryGetValue(recipient.ClientId, out var isGoing) ? isGoing : null)),
+        ]);
+    }
+}
+
+public sealed class RemindAnnouncementUseCase(
+    IAnnouncementRepository announcementRepository,
+    IAnnouncementAudienceService audienceService,
+    IStudentAppNotificationService studentAppNotifications)
+    : IUseCase<RemindAnnouncementCommand, AnnouncementReminderResponse>
+{
+    public async Task<Result<AnnouncementReminderResponse>> ExecuteAsync(RemindAnnouncementCommand command, CancellationToken cancellationToken)
+    {
+        var announcement = await announcementRepository.FindForUpdateAsync(command.AnnouncementId, cancellationToken);
+        if (announcement is null)
+        {
+            return AnnouncementFailures.NotFound();
+        }
+
+        var viewerIds = (await announcementRepository.ListViewsAsync([announcement.Id], cancellationToken))
+            .Select(view => view.ClientId)
+            .ToHashSet();
+        var unseenClientIds = (await audienceService.RecipientsOfAsync([announcement], cancellationToken))[announcement.Id]
+            .Select(recipient => recipient.ClientId)
+            .Where(clientId => !viewerIds.Contains(clientId))
+            .ToList();
+        if (unseenClientIds.Count > 0)
+        {
+            await studentAppNotifications.AnnouncementReminderAsync(announcement, unseenClientIds, cancellationToken);
+        }
+
+        return new AnnouncementReminderResponse(unseenClientIds.Count);
     }
 }

@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Domain.Accounts;
+using ClassManager.Infrastructure.Announcements;
 using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Notifications;
@@ -77,6 +78,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
         services.AddScoped<IClassFeedbackRepository, ClassFeedbackRepository>();
         services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+        services.AddScoped<IAnnouncementAudienceService, AnnouncementAudienceService>();
         services.AddScoped<IMeasurementDefinitionRepository, MeasurementDefinitionRepository>();
         services.AddScoped<IMeasurementRecordRepository, MeasurementRecordRepository>();
         services.AddScoped<IMeasurementGoalRepository, MeasurementGoalRepository>();

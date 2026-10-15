@@ -17,6 +17,8 @@ internal static class StudentAppPushTexts
 
     private static readonly string[] Weekdays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
+    public static string AnnouncementReminderTitle(string announcementTitle) => $"Recordatorio: {announcementTitle}";
+
     public static string GuardianConsentTitle(string studentFullName) => $"{FirstNameOf(studentFullName)} quiere usar la app";
 
     public static string ClassCancelledTitle(string classGroupName) => $"Se suspende {classGroupName}";

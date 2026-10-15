@@ -242,6 +242,55 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("AnnouncementImages");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementReply", b =>
+                {
+                    b.Property<Guid>("AnnouncementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsGoing")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("RepliedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AnnouncementId", "ClientId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("TenantId", "ClientId");
+
+                    b.ToTable("AnnouncementReplies");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementView", b =>
+                {
+                    b.Property<Guid>("AnnouncementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("SeenAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AnnouncementId", "ClientId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("TenantId", "ClientId");
+
+                    b.ToTable("AnnouncementViews");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BrandLogo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2861,6 +2910,48 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Document");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementReply", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Announcements.Announcement", null)
+                        .WithMany()
+                        .HasForeignKey("AnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Announcements.AnnouncementView", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Announcements.Announcement", null)
+                        .WithMany()
+                        .HasForeignKey("AnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.BrandLogo", b =>

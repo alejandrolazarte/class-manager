@@ -223,8 +223,11 @@ export async function seedDemoStudentApp(
       isPinned: true,
     },
   ];
+  const publishedAnnouncements: Identified[] = [];
   for (const announcement of announcements) {
-    await send("POST", "/api/announcements", ownerToken, announcement);
+    publishedAnnouncements.push(
+      await send<Identified>("POST", "/api/announcements", ownerToken, announcement),
+    );
   }
   const nextWeekClass = isoDateOf(
     new Date(new Date(`${demo.today}T12:00:00Z`).getTime() + daysPerWeek * millisecondsPerDay),
@@ -341,6 +344,13 @@ export async function seedDemoStudentApp(
     `/api/student-app/students/${tomas.id}/makeups/${makeupSlot.classGroupId}/${makeupSlot.date}`,
     studentToken,
     {},
+  );
+
+  await send(
+    "PUT",
+    `/api/student-app/news/announcements/${publishedAnnouncements[0]!.id}/reply`,
+    studentToken,
+    { isGoing: true },
   );
 
   const aquagymPack = await send<{ id: string }>("POST", "/api/class-packs", ownerToken, {

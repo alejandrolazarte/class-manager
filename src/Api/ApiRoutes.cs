@@ -8,6 +8,7 @@ public static class ApiRoutes
     public const string Team = "/api/team";
     public const string Notifications = "/notifications";
     public const string StudentAppNews = "/news";
+    public const string StudentAppNewsAnnouncements = "/news/announcements";
     public const string AccountStudents = "/students";
     public const string Absences = "/absences";
     public const string StudentAbsence = "/students/{studentId:guid}/absences/{classGroupId:guid}/{sessionDate}";
@@ -57,6 +58,9 @@ public static class ApiRoutes
     public const string Cancellation = "/cancellation";
     public const string Restore = "/restore";
     public const string Pin = "/pin";
+    public const string Recipients = "/recipients";
+    public const string Reminder = "/reminder";
+    public const string Reply = "/reply";
     public const string Schedule = "/schedule";
     public const string Substitute = "/substitute";
     public const string MonthlyFee = "/monthly-fee";

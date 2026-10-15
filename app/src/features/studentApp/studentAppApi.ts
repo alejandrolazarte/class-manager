@@ -21,6 +21,8 @@ const shopPath = `${studentAppPath}/shop`;
 const ordersPath = `${studentAppPath}/orders`;
 const cancellationSegment = "cancellation";
 const newsPath = `${studentAppPath}/news`;
+const announcementsSegment = "announcements";
+const replySegment = "reply";
 const seenSegment = "seen";
 
 export function getStudentAppHome(): Promise<StudentAppHome> {
@@ -79,6 +81,13 @@ export function cancelStudentAppOrder(orderId: string): Promise<StudentAppOrder>
 
 export function getStudentAppNews(): Promise<StudentAppNews> {
   return httpClient.get<StudentAppNews>(newsPath);
+}
+
+export function replyToAnnouncement(announcementId: string, isGoing: boolean): Promise<void> {
+  return httpClient.put<void>(
+    `${newsPath}/${announcementsSegment}/${encodeURIComponent(announcementId)}/${replySegment}`,
+    { isGoing },
+  );
 }
 
 export function markStudentAppNewsSeen(): Promise<void> {

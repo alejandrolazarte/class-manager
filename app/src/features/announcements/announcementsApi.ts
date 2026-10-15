@@ -1,11 +1,18 @@
 import { PickedFile, toFileForm } from "@/api/fileForm";
 import { httpClient } from "@/api/httpClient";
-import { Announcement, CreateAnnouncementRequest } from "@/features/announcements/types";
+import {
+  Announcement,
+  AnnouncementRecipient,
+  AnnouncementReminder,
+  CreateAnnouncementRequest,
+} from "@/features/announcements/types";
 
 const announcementsPath = "/api/announcements";
 const restoreSegment = "restore";
 const pinSegment = "pin";
 const imagesSegment = "images";
+const recipientsSegment = "recipients";
+const reminderSegment = "reminder";
 
 function announcementPath(announcementId: string): string {
   return `${announcementsPath}/${encodeURIComponent(announcementId)}`;
@@ -51,5 +58,20 @@ export function removeAnnouncementImage(
 ): Promise<Announcement> {
   return httpClient.delete<Announcement>(
     `${announcementPath(announcementId)}/${imagesSegment}/${encodeURIComponent(imageId)}`,
+  );
+}
+
+export function listAnnouncementRecipients(
+  announcementId: string,
+): Promise<AnnouncementRecipient[]> {
+  return httpClient.get<AnnouncementRecipient[]>(
+    `${announcementPath(announcementId)}/${recipientsSegment}`,
+  );
+}
+
+export function remindAnnouncement(announcementId: string): Promise<AnnouncementReminder> {
+  return httpClient.post<AnnouncementReminder>(
+    `${announcementPath(announcementId)}/${reminderSegment}`,
+    {},
   );
 }

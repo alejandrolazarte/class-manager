@@ -3,8 +3,10 @@ import {
   addAnnouncementImage,
   createAnnouncement,
   deleteAnnouncement,
+  listAnnouncementRecipients,
   listAnnouncements,
   pinAnnouncement,
+  remindAnnouncement,
   removeAnnouncementImage,
   restoreAnnouncement,
   unpinAnnouncement,
@@ -68,5 +70,18 @@ export function useSetAnnouncementPinned() {
     mutationFn: ({ announcementId, isPinned }: { announcementId: string; isPinned: boolean }) =>
       isPinned ? pinAnnouncement(announcementId) : unpinAnnouncement(announcementId),
     onSuccess: invalidate,
+  });
+}
+
+export function useAnnouncementRecipients(announcementId: string) {
+  return useQuery({
+    queryKey: [...announcementsQueryKey, announcementId, "recipients"],
+    queryFn: () => listAnnouncementRecipients(announcementId),
+  });
+}
+
+export function useRemindAnnouncement() {
+  return useMutation({
+    mutationFn: (announcementId: string) => remindAnnouncement(announcementId),
   });
 }

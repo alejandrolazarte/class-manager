@@ -11,6 +11,10 @@ export function buildAnnouncement(overrides: Partial<Announcement> = {}): Announ
     visibleUntil: null,
     classGroups: [],
     images: [],
+    recipientCount: 0,
+    seenCount: 0,
+    goingCount: 0,
+    notGoingCount: 0,
     ...overrides,
   };
 }

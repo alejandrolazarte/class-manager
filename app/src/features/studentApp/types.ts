@@ -251,8 +251,10 @@ export interface StudentAppNewsItem {
   classDate: string | null;
   orderId: string | null;
   classStartTime: string | null;
+  announcementId: string | null;
   category: AnnouncementCategory | null;
   isPinned: boolean;
+  isGoing: boolean | null;
   imageUrl: string | null;
   audienceClassNames: string[];
 }
