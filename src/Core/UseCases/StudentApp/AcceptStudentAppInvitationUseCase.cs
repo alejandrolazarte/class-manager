@@ -3,7 +3,9 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.Authentication;
+using ClassManager.Core.UseCases.Clients;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
@@ -45,17 +47,24 @@ public sealed class AcceptStudentAppInvitationUseCase(
         tenantScope.Establish(invitation.TenantId);
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
+        var business = await businessRepository.GetCurrentAsync(cancellationToken);
+        var today = business?.TodayAt(now) ?? DateOnly.FromDateTime(now.UtcDateTime);
         var userId = await identityService.FindUserIdByEmailAsync(invitation.Email, cancellationToken);
         ClientAccount? existingAccount = null;
+        DateOnly? accountBirthDate;
         if (userId is null)
         {
             var invitedName = (await InvitedStudent.FindAsync(invitation, clientRepository, studentRepository, cancellationToken)).FullName;
-            var business = await businessRepository.GetCurrentAsync(cancellationToken);
-            var today = business?.TodayAt(now) ?? DateOnly.FromDateTime(now.UtcDateTime);
             var account = OwnerAccount.Create(invitedName ?? command.FullName, invitation.Email, command.Password, command.BirthDate, today);
             if (account.IsFailure)
             {
                 return account.Error!;
+            }
+
+            accountBirthDate = account.Value!.BirthDate;
+            if (await ContactMinorErrorAsync(invitation, accountBirthDate, today, cancellationToken) is { } minorContact)
+            {
+                return minorContact;
             }
 
             if (!command.AcceptsLegalTerms)
@@ -84,6 +93,12 @@ public sealed class AcceptStudentAppInvitationUseCase(
         }
         else
         {
+            accountBirthDate = (await identityService.ListAccountsAsync([userId.Value], cancellationToken)).SingleOrDefault()?.BirthDate;
+            if (await ContactMinorErrorAsync(invitation, accountBirthDate, today, cancellationToken) is { } minorContact)
+            {
+                return minorContact;
+            }
+
             existingAccount = await accountRepository.FindByUserAsync(userId.Value, cancellationToken);
         }
 
@@ -97,6 +112,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
             accountRepository.Add(ClientAccount.Create(invitation.ClientId, userId!.Value, now, invitation.StudentId));
         }
 
+        await CompleteContactBirthDateAsync(invitation, accountBirthDate, today, cancellationToken);
         invitation.Accept(now);
         try
         {
@@ -113,6 +129,46 @@ public sealed class AcceptStudentAppInvitationUseCase(
         await transaction.CommitAsync(cancellationToken);
 
         return TokenResponse.From(tokens);
+    }
+
+    private async Task<Student?> AttendingContactAsync(ClientInvitation invitation, CancellationToken cancellationToken)
+    {
+        var client = await clientRepository.GetByIdAsync(invitation.ClientId, cancellationToken);
+        if (client is null)
+        {
+            return null;
+        }
+
+        var familyStudents = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
+        return familyStudents.FirstOrDefault(student => AttendingContact.IsTheContact(client.FullName, student.FullName));
+    }
+
+    private async Task<ResultError?> ContactMinorErrorAsync(ClientInvitation invitation, DateOnly? accountBirthDate, DateOnly today, CancellationToken cancellationToken)
+    {
+        if (invitation.StudentId is not null)
+        {
+            return null;
+        }
+
+        var birthDate = accountBirthDate ?? (await AttendingContactAsync(invitation, cancellationToken))?.BirthDate;
+        return AttendingContact.MinorError(birthDate, today, nameof(AcceptStudentAppInvitationCommand.BirthDate));
+    }
+
+    private async Task CompleteContactBirthDateAsync(ClientInvitation invitation, DateOnly? accountBirthDate, DateOnly today, CancellationToken cancellationToken)
+    {
+        if (invitation.StudentId is not null || accountBirthDate is null)
+        {
+            return;
+        }
+
+        var contactAsStudent = await AttendingContactAsync(invitation, cancellationToken);
+        if (contactAsStudent is null || contactAsStudent.BirthDate is not null)
+        {
+            return;
+        }
+
+        var trackedStudent = await studentRepository.FindForUpdateAsync(contactAsStudent.Id, cancellationToken);
+        trackedStudent?.ChangeBirthDate(accountBirthDate, today);
     }
 
     private static Result<TokenResponse> InvalidInvitation() =>

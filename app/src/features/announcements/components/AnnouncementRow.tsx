@@ -1,5 +1,8 @@
 import { View } from "react-native";
-import { announcementCategoryPresentations } from "@/features/announcements/announcementCategories";
+import {
+  announcementCategoryPresentations,
+  hasCategoryPill,
+} from "@/features/announcements/announcementCategories";
 import { Announcement } from "@/features/announcements/types";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
 import { formatClockTime, formatLongDate, toIsoDate } from "@/features/sessions/dates";
@@ -57,12 +60,16 @@ export function AnnouncementRow({
         />
       )}
       <View className="min-w-0 flex-1 gap-0.5">
-        <View className="mb-1 flex-row flex-wrap gap-1.5">
-          <StatusPill label={translate(category.labelKey)} tone={category.tone} isSmall />
-          {announcement.isPinned ? (
-            <StatusPill label={translate("announcements.pinnedPill")} tone="neutral" isSmall />
-          ) : null}
-        </View>
+        {hasCategoryPill(announcement.category) || announcement.isPinned ? (
+          <View className="mb-1 flex-row flex-wrap gap-1.5">
+            {hasCategoryPill(announcement.category) ? (
+              <StatusPill label={translate(category.labelKey)} tone={category.tone} isSmall />
+            ) : null}
+            {announcement.isPinned ? (
+              <StatusPill label={translate("announcements.pinnedPill")} tone="neutral" isSmall />
+            ) : null}
+          </View>
+        ) : null}
         <AppText variant="bodyStrong">{announcement.title}</AppText>
         {announcement.body === null ? null : (
           <AppText variant="caption" tone="muted" numberOfLines={2}>
