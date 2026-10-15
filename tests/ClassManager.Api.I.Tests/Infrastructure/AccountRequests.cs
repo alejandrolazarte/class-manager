@@ -16,6 +16,9 @@ public static class AccountRequests
     public static Task<HttpResponseMessage> PutMyProfileAsync(this HttpClient httpClient, string fullName, DateOnly? birthDate) =>
         httpClient.PutAsJsonAsync(ApiRoutes.MyAccount, new UpdateMyProfileCommand(fullName, birthDate), ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PutMyLanguageAsync(this HttpClient httpClient, string preferredLanguage) =>
+        httpClient.PutAsJsonAsync(ApiRoutes.MyLanguage, new UpdateMyLanguageCommand(preferredLanguage), ApiRequests.JsonOptions);
+
     public static Task<MyAccountResponse?> GetMyAccountAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<MyAccountResponse>(new Uri(ApiRoutes.MyAccount, UriKind.Relative), ApiRequests.JsonOptions);
 

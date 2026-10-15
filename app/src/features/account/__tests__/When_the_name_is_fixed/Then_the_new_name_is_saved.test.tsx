@@ -14,11 +14,13 @@ describe("When the name is fixed", () => {
       fullName: "Tomas Perez",
       birthDate: "1990-04-12",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
     jest.mocked(updateMyProfile).mockResolvedValue({
       email: "tomas@example.com",
       fullName: "Tomás Pérez",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
   });
 

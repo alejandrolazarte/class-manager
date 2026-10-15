@@ -1,12 +1,13 @@
 import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
 import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import { AppearanceSettings } from "@/features/settings/components/AppearanceSettings";
+import { LanguageSettings } from "@/features/settings/components/LanguageSettings";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { ColorSchemePreference } from "@/theme/ThemeContext";
 import { BottomSheet } from "@/ui/BottomSheet";
 import { Button } from "@/ui/Button";
 
-export type DeviceSettingsSheetKind = "appearance" | "notifications";
+export type DeviceSettingsSheetKind = "appearance" | "language" | "notifications";
 
 const colorSchemeLabelKeys: Record<ColorSchemePreference, TranslationKey> = {
   system: "settings.appearance.system",
@@ -49,11 +50,11 @@ export function DeviceSettingsSheet({
   }
   return (
     <BottomSheet onClose={onClose}>
-      {kind === "appearance" ? (
-        <AppearanceSettings colorsHint={colorsHint} />
-      ) : (
+      {kind === "appearance" ? <AppearanceSettings colorsHint={colorsHint} /> : null}
+      {kind === "language" ? <LanguageSettings /> : null}
+      {kind === "notifications" ? (
         <NotificationSettings notifications={notifications} hint={notificationsHint} />
-      )}
+      ) : null}
       <Button label={translate("common.done")} onPress={onClose} />
     </BottomSheet>
   );

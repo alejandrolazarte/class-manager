@@ -9,6 +9,7 @@ import { AppUpdateBanner } from "@/features/appUpdate/AppUpdateBanner";
 import { SessionProvider } from "@/features/authentication/SessionProvider";
 import { useSession } from "@/features/authentication/useSession";
 import { createAppQueryClient } from "@/features/subscriptions/appQueryClient";
+import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { PersistedThemePreferences } from "@/theme/PersistedThemePreferences";
 import { ThemedStatusBar } from "@/theme/ThemedStatusBar";
 import { ThemeProvider } from "@/theme/ThemeProvider";
@@ -49,8 +50,10 @@ export default function RootLayout() {
             <ToastProvider>
               <PersistedThemePreferences />
               <ThemedStatusBar />
-              <RootNavigator />
-              <AppUpdateBanner />
+              <LanguageProvider>
+                <RootNavigator />
+                <AppUpdateBanner />
+              </LanguageProvider>
             </ToastProvider>
           </SessionProvider>
         </QueryClientProvider>

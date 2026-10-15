@@ -15,6 +15,7 @@ describe("When the privacy link is pressed in the profile", () => {
       fullName: "Tomas Perez",
       birthDate: "1990-04-12",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
   });
 

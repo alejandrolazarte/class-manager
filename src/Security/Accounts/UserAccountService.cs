@@ -21,7 +21,7 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
             : await userManager.Users
                 .AsNoTracking()
                 .Where(user => userIds.Contains(user.Id))
-                .Select(user => new UserAccountSummary(user.Id, user.Email ?? string.Empty, user.FullName, user.BirthDate))
+                .Select(user => new UserAccountSummary(user.Id, user.Email ?? string.Empty, user.FullName, user.BirthDate, user.PreferredLanguage))
                 .ToListAsync(cancellationToken);
 
     public async Task<UserAccountCreation> CreateAsync(NewUserAccount account, CancellationToken cancellationToken)
@@ -64,6 +64,18 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
 
         user.FullName = fullName;
         user.BirthDate = birthDate;
+        return (await userManager.UpdateAsync(user)).Succeeded;
+    }
+
+    public async Task<bool> UpdatePreferredLanguageAsync(Guid userId, string preferredLanguage, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return false;
+        }
+
+        user.PreferredLanguage = preferredLanguage;
         return (await userManager.UpdateAsync(user)).Succeeded;
     }
 

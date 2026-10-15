@@ -103,6 +103,10 @@ Line endings are LF everywhere (`.editorconfig` and `.gitattributes`). Constants
 
 Integration tests start SQL Server and Azurite (Blob Storage emulator) through Testcontainers, which talks to Podman via the `\\.\pipe\docker_engine` pipe. The Podman machine must be running (`podman machine start`).
 
+## UI languages
+
+User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Emails and legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
+
 ## Multi-tenancy
 
 - Every tenant-owned table has a `TenantId` column (the business), even when it could be derived through a relationship.
@@ -159,7 +163,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ### UI changes
 - Removing functionality is forbidden. A visual change keeps every action, state, permission check, banner, empty state, toast, undo and confirm dialog; behavior tests are not deleted, skipped or weakened.
-- A visual change never changes texts: every value in `es.json`, in emails and in accessibility labels stays word for word, and no text or information that only a design shows is added. Texts in design artifacts are illustrative; the app's current text wins.
+- A visual change never changes texts: every value in `es.json` and `en.json`, in emails and in accessibility labels stays word for word, and no text or information that only a design shows is added. Texts in design artifacts are illustrative; the app's current text wins.
 - Screens only compose `src/ui` primitives and theme tokens. A new visual pattern or animation becomes a primitive in `src/ui` (motion in `src/ui/motion`) and every screen with that pattern uses it; no screen keeps an older version of a pattern.
 - Emails follow the same design as the app, through the one layout in `src/Notifications/Email`.
 - A redesign replaces, it does not pile up: each PR deletes the old styles, variants, components, fonts, packages, translation keys and email fragments it left without users, with their tests. No commented-out code, no `Old`/`Legacy` copies, no flag to switch back.
