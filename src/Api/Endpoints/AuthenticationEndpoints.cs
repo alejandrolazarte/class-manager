@@ -60,40 +60,49 @@ internal static class AuthenticationEndpoints
 
     private static async Task<IResult> CompleteSignUpAsync(
         CompleteSignUpCommand command,
+        HttpContext httpContext,
         IUseCase<CompleteSignUpCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
-        return result.ToHttpResult(tokens => TypedResults.Created(ApiRoutes.Business, tokens));
+        return result.ToHttpResult(tokens => TypedResults.Created(ApiRoutes.Business, RefreshTokenCookie.Keep(httpContext, tokens)));
     }
 
     private static async Task<IResult> SignInAsync(
         SignInCommand command,
+        HttpContext httpContext,
         IUseCase<SignInCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
-        return result.ToOkResult();
+        return result.ToHttpResult(tokens => TypedResults.Ok(RefreshTokenCookie.Keep(httpContext, tokens)));
     }
 
     private static async Task<IResult> RefreshAsync(
         RefreshSessionCommand command,
+        HttpContext httpContext,
         IUseCase<RefreshSessionCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(command, cancellationToken);
+        var result = await useCase.ExecuteAsync(
+            command with { RefreshToken = RefreshTokenCookie.RefreshTokenOf(httpContext.Request, command.RefreshToken) },
+            cancellationToken);
 
-        return result.ToOkResult();
+        return result.ToHttpResult(tokens => TypedResults.Ok(RefreshTokenCookie.Keep(httpContext, tokens)));
     }
 
     private static async Task<IResult> SignOutAsync(
         SignOutCommand command,
+        HttpContext httpContext,
         IUseCase<SignOutCommand, SignOutResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(command, cancellationToken);
+        var result = await useCase.ExecuteAsync(
+            command with { RefreshToken = RefreshTokenCookie.RefreshTokenOf(httpContext.Request, command.RefreshToken) },
+            cancellationToken);
+        RefreshTokenCookie.Forget(httpContext);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
     }
@@ -188,32 +197,37 @@ internal static class AuthenticationEndpoints
 
     private static async Task<IResult> SwitchBranchAsync(
         SwitchBranchCommand command,
+        HttpContext httpContext,
         IUseCase<SwitchBranchCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(command, cancellationToken);
+        var result = await useCase.ExecuteAsync(
+            command with { RefreshToken = RefreshTokenCookie.RefreshTokenOf(httpContext.Request, command.RefreshToken) },
+            cancellationToken);
 
-        return result.ToOkResult();
+        return result.ToHttpResult(tokens => TypedResults.Ok(RefreshTokenCookie.Keep(httpContext, tokens)));
     }
 
     private static async Task<IResult> AcceptStudentAppInvitationAsync(
         AcceptStudentAppInvitationCommand command,
+        HttpContext httpContext,
         IUseCase<AcceptStudentAppInvitationCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
-        return result.ToOkResult();
+        return result.ToHttpResult(tokens => TypedResults.Ok(RefreshTokenCookie.Keep(httpContext, tokens)));
     }
 
     private static async Task<IResult> AcceptInvitationAsync(
         AcceptInvitationCommand command,
+        HttpContext httpContext,
         IUseCase<AcceptInvitationCommand, TokenResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
-        return result.ToOkResult();
+        return result.ToHttpResult(tokens => TypedResults.Ok(RefreshTokenCookie.Keep(httpContext, tokens)));
     }
 
     private static async Task<IResult> CheckInvitationAsync(

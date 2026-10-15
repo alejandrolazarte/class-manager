@@ -26,7 +26,7 @@ describe("When app starts with stored refresh token", () => {
 
     expect(await screen.findByText("signedIn")).toBeOnTheScreen();
     expect(refreshSession).toHaveBeenCalledWith({ refreshToken: storedRefreshToken });
-    expect(refreshTokenStorage.write).toHaveBeenCalledWith(rotatedTokens.refreshToken);
+    expect(refreshTokenStorage.write).toHaveBeenCalledWith(rotatedTokens);
     expect(authenticationSession.getAccessToken()).toBe(rotatedTokens.accessToken);
   });
 });
