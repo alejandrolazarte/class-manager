@@ -188,7 +188,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     );
 
   return (
-    <View className={student ? "gap-2" : "gap-2.5 border-y border-border-subtle py-2.5"}>
+    <View className={student ? "gap-2" : "gap-2.5 rounded-2xl border border-border px-4 py-3"}>
       <View className="flex-row items-center gap-2.5">
         <Icon name="studentApp" size="medium" tone="muted-foreground" />
         <View className="min-w-0 flex-1 gap-0.5">
