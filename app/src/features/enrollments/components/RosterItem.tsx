@@ -55,7 +55,7 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
       {onUnenroll && entry.endDate === null ? (
         <Button
           variant="dangerGhost"
-          size="medium"
+          size="small"
           label={translate("enrollments.detail.confirmUnenroll")}
           accessibilityLabel={translate("enrollments.detail.unenrollStudent", {
             name: entry.studentFullName,

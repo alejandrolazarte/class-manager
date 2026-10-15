@@ -65,7 +65,7 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
           trailing={
             <Button
               variant="dangerGhost"
-              size="medium"
+              size="small"
               label={translate("common.remove")}
               onPress={() => remove(index)}
             />

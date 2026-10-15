@@ -124,7 +124,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
           {canRecordPayments ? (
             <Button
               variant="ghost"
-              size="medium"
+              size="small"
               label={translate("common.change")}
               accessibilityLabel={translate("fees.client.changePlanAccessibility")}
               onPress={() => router.push(routes.clientBillingPlan(clientTab, client.id))}

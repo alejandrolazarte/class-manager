@@ -50,7 +50,7 @@ function OrderAction({ label, onPress, isLoading = false, isExpanded }: OrderAct
   return (
     <Button
       variant="ghost"
-      size="medium"
+      size="small"
       label={label}
       onPress={onPress}
       isLoading={isLoading}

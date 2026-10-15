@@ -12,7 +12,7 @@ Every button in the app comes from `app/src/ui`. Each role has exactly one butto
 
 ### `Button`
 
-Three levels in two tones, plus one for adding another item. Sizes: `large` (48 px) for the main button of a form or a screen, `medium` (44 px) everywhere else.
+Three levels in two tones, plus one for adding another item. Sizes: `large` (48 px) for the main button of a form or a screen, `small` (32 px, 13 px text, touch area stretched to 44 px) for an action inside a row next to its text (Cobrar, Devolver, Dar de baja, Cambiar, Reenviar), and `medium` (44 px) everywhere else (headers, sheets, dialogs, buttons under a section).
 
 | Variant | Role | Examples |
 |---|---|---|
@@ -69,4 +69,4 @@ A visual variant of an existing role (another border, another color for the same
 
 ## History
 
-- 2026-10-14: the button inventory (eight `Button` variants, seven other primitives and buttons built by hand in screens) was reduced to one button per role. `outline` was removed (its uses are `secondary`), "Cancelar" in `ghost` became `secondary`, the hand-made links and text buttons became `TextLink`, `Button` (`ghost`, `dangerGhost`) or `TonalButton` (`neutral`), the news bell an `IconButton`, the cart bar the `FloatingBarButton` primitive, and `IconButton` and `FooterLinks` got the press feedback and the grey disabled state. The Calma design draws an outlined button ("Contorno") and a borderless "Volver" in the dialog; the app keeps one line instead (see the [Calma plan](20261011-calma-redesign/plan.md) log).
+- 2026-10-14: the button inventory (eight `Button` variants, seven other primitives and buttons built by hand in screens) was reduced to one button per role. `outline` was removed (its uses are `secondary`), "Cancelar" in `ghost` became `secondary`, the hand-made links and text buttons became `TextLink`, `Button` (`ghost`, `dangerGhost`) or `TonalButton` (`neutral`), the news bell an `IconButton`, the cart bar the `FloatingBarButton` primitive, and `IconButton` and `FooterLinks` got the press feedback and the grey disabled state. `Button` got the `small` size for actions inside rows, as the Calma boards draw them. The Calma design draws an outlined button ("Contorno") and a borderless "Volver" in the dialog; the app keeps one line instead (see the [Calma plan](20261011-calma-redesign/plan.md) log).

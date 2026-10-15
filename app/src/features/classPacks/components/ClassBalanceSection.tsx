@@ -87,7 +87,7 @@ function PurchaseRow({ usage, title, details, canUndo, onUndo }: PurchaseRowProp
       {canUndo ? (
         <Button
           variant="dangerGhost"
-          size="medium"
+          size="small"
           label={translate("classPacks.balance.deletePurchase")}
           accessibilityLabel={`${translate("classPacks.balance.deletePurchase")} ${usage.name}`}
           onPress={onUndo}

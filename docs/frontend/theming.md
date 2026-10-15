@@ -20,7 +20,7 @@ The look is **Calma** ([redesign plan](20261011-calma-redesign/plan.md)). The de
 - Selection: chip groups slide a dark `inverse` thumb under borderless chips; `Tabs` are text with a 2px `foreground` underline; the compact `SegmentedControl` (Día / Mes) is text with a short sliding line.
 - Outline icons (Ionicons `-outline` glyphs from `@expo/vector-icons/Ionicons`, thin stroke with round ends, as the design draws them) behind semantic names, 20–22px in rows, buttons and the tab bar. No filled glyphs.
 - Radii: 10px inputs, 12px buttons and banners, 14px highlights and photos, 20px sheets, pills for chips, status and the floating button.
-- Sizes: buttons 48px (`large`) and 44px (`medium`), inputs 46px (the amount input 52px), icon buttons 44px (40px outlined, 36px compact for steppers such as month and week arrows), floating button 48px.
+- Sizes: buttons 48px (`large`), 44px (`medium`) and 32px (`small`, actions inside rows, with a 44px touch area), inputs 46px (the amount input 52px), icon buttons 44px (40px outlined, 36px compact for steppers such as month and week arrows), floating button 48px.
 - Tab bar: the active tab takes the primary color and a small dot under its icon; the badge stays red.
 - Screens have their own header (`ScreenHeader`): optional back / close button, a small primary "eyebrow", a 24px title (`display`) and an optional subtitle. Native stack headers are hidden; the `Stack.Screen` titles stay for the web document title.
 

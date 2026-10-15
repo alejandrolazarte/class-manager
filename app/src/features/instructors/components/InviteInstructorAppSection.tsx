@@ -132,7 +132,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
         {access.status === "Active" || isAskingEmail ? null : (
           <Button
             variant="ghost"
-            size="medium"
+            size="small"
             label={translate(
               access.status === "Invited" ? "instructors.app.resend" : "instructors.app.invite",
             )}

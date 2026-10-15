@@ -121,7 +121,7 @@ function GoalRow({ studentId, studentMeasurement, canChange }: GoalRowProps) {
       {canChange ? (
         <Button
           variant="ghost"
-          size="medium"
+          size="small"
           label={translate(
             goal === null ? "measurements.detail.setGoal" : "measurements.detail.changeGoal",
           )}

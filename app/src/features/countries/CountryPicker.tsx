@@ -57,7 +57,7 @@ export function CountryPicker({ selection, onSelectionChange }: CountryPickerPro
           {hasSeveralTimeZones && !isTimeZoneListExpanded ? (
             <Button
               variant="ghost"
-              size="medium"
+              size="small"
               label={translate("common.change")}
               accessibilityLabel={translate("business.changeTimeZone")}
               onPress={() => setIsTimeZoneListExpanded(true)}
