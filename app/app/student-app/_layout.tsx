@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { RequireSessionKind } from "@/features/authentication/components/RequireSessionKind";
 import { BrandProvider } from "@/features/brand/BrandProvider";
+import { AccountLanguageSync } from "@/features/account/components/AccountLanguageSync";
 import { LegalTermsGate } from "@/features/legal/components/LegalTermsGate";
 import {
   StudentAppCartProvider,
@@ -46,6 +47,7 @@ function StudentAppTabs() {
 export default function StudentAppLayout() {
   return (
     <RequireSessionKind kind="student">
+      <AccountLanguageSync />
       <LegalTermsGate>
         <BrandProvider audience="student">
           <AccountStudentProvider>

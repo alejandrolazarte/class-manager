@@ -41,6 +41,7 @@ const iconGlyphs = {
   business: "storefront-outline",
   classPacks: "ticket-outline",
   appearance: "contrast-outline",
+  language: "language-outline",
   palette: "color-palette-outline",
   signOut: "log-out-outline",
   password: "key-outline",

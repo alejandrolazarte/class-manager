@@ -14,6 +14,7 @@ describe("When change email is pressed", () => {
       email: "tomas@example.com",
       fullName: "Tomas Perez",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
   });
 

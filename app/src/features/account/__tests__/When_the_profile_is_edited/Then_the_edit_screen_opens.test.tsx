@@ -14,6 +14,7 @@ describe("When the profile is edited", () => {
       email: "tomas@example.com",
       fullName: "Tomas Perez",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
   });
 

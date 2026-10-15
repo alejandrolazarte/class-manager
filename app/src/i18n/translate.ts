@@ -1,3 +1,4 @@
+import { defaultLanguage, Language, translationsByLanguage } from "@/i18n/languages";
 import spanishTranslations from "@/i18n/es.json";
 
 export type TranslationKey = keyof typeof spanishTranslations;
@@ -12,9 +13,17 @@ export type PluralTranslationKey = {
 
 const placeholderPattern = /\{(\w+)\}/g;
 
+let currentLanguage: Language = defaultLanguage;
+
+export function setTranslationLanguage(language: Language): void {
+  currentLanguage = language;
+}
+
 export function translate(key: TranslationKey, values: TranslationValues = {}): string {
-  return spanishTranslations[key].replace(placeholderPattern, (placeholder, valueName: string) =>
-    valueName in values ? String(values[valueName]) : placeholder,
+  return translationsByLanguage[currentLanguage][key].replace(
+    placeholderPattern,
+    (placeholder, valueName: string) =>
+      valueName in values ? String(values[valueName]) : placeholder,
   );
 }
 

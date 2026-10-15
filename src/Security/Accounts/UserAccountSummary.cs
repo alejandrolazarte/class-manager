@@ -1,3 +1,8 @@
 namespace ClassManager.Security.Accounts;
 
-public sealed record UserAccountSummary(Guid UserId, string Email, string FullName, DateOnly? BirthDate = null);
+public sealed record UserAccountSummary(
+    Guid UserId,
+    string Email,
+    string FullName,
+    DateOnly? BirthDate = null,
+    string PreferredLanguage = ApplicationUser.DefaultPreferredLanguage);

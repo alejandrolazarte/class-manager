@@ -15,8 +15,10 @@ import {
   DeviceSettingsSheetKind,
   notificationsValue,
 } from "@/features/settings/components/DeviceSettingsSheet";
+import { languageValue } from "@/features/settings/components/languageValue";
 import { SettingsGroup, SettingsGroupList } from "@/features/settings/components/SettingsGroupList";
 import { translate } from "@/i18n/translate";
+import { useLanguage } from "@/i18n/useLanguage";
 import { routes } from "@/navigation/routes";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
@@ -29,6 +31,7 @@ export function StudentAppSettingsScreen() {
   const { signOut } = useSession();
   const { data: home } = useStudentAppHome();
   const { colorSchemePreference } = useTheme();
+  const { language } = useLanguage();
   const hasTeamAccount = useHasOtherAccountKind("student");
   const notifications = useStudentAppNotifications();
   const [openSheet, setOpenSheet] = useState<DeviceSettingsSheetKind | null>(null);
@@ -48,6 +51,14 @@ export function StudentAppSettingsScreen() {
           label: translate("settings.appearance"),
           value: colorSchemeValue(colorSchemePreference),
           onPress: () => setOpenSheet("appearance"),
+        },
+        {
+          key: "language",
+          isVisible: true,
+          icon: "language",
+          label: translate("settings.language"),
+          value: languageValue(language),
+          onPress: () => setOpenSheet("language"),
         },
         {
           key: "notifications",
