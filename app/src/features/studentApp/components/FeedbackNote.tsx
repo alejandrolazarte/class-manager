@@ -1,12 +1,12 @@
 import { firstNameOf, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { StudentAppFeedback } from "@/features/studentApp/types";
 import { translate } from "@/i18n/translate";
-import { AccentNote } from "@/ui/AccentNote";
+import { View } from "react-native";
 import { AppText } from "@/ui/AppText";
 
 export function FeedbackNote({ feedback }: { feedback: StudentAppFeedback }) {
   return (
-    <AccentNote tone="primary">
+    <View className="gap-0.5">
       <AppText variant="bodyStrong">
         {feedback.instructorFullName === null
           ? translate("student.feedback.titleWithoutInstructor")
@@ -21,6 +21,6 @@ export function FeedbackNote({ feedback }: { feedback: StudentAppFeedback }) {
           className: feedback.className,
         })}
       </AppText>
-    </AccentNote>
+    </View>
   );
 }

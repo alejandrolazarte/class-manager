@@ -23,7 +23,7 @@ import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { HairlineColumns } from "@/ui/HairlineColumns";
+import { OutlinedBlock } from "@/ui/OutlinedBlock";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
@@ -116,39 +116,49 @@ export function StudentAppHomeScreen() {
       )}
       {student === null && !hasBillingTile(home.billing) ? null : (
         <AnimatedListItem index={1}>
-          <HairlineColumns>
-            {student === null ? null : <StreakTile attendance={student.attendance} />}
+          <View className="flex-row gap-3">
+            {student === null ? null : (
+              <OutlinedBlock className="min-w-0 flex-1 gap-1">
+                <StreakTile attendance={student.attendance} />
+              </OutlinedBlock>
+            )}
             {hasBillingTile(home.billing) ? (
-              <BillingTile
-                billing={home.billing}
-                currencyCode={home.currencyCode}
-                onBuyClasses={() => router.navigate(routes.studentAppShop)}
-              />
+              <OutlinedBlock className="min-w-0 flex-1 gap-1">
+                <BillingTile
+                  billing={home.billing}
+                  currencyCode={home.currencyCode}
+                  onBuyClasses={() => router.navigate(routes.studentAppShop)}
+                />
+              </OutlinedBlock>
             ) : null}
-          </HairlineColumns>
+          </View>
         </AnimatedListItem>
       )}
       {student?.latestFeedback ? (
         <AnimatedListItem index={2}>
-          <FeedbackNote feedback={student.latestFeedback} />
+          <OutlinedBlock>
+            <FeedbackNote feedback={student.latestFeedback} />
+          </OutlinedBlock>
         </AnimatedListItem>
       ) : null}
       {announcements.length === 0 ? null : (
-        <AnimatedListItem index={3} className="mt-1.5">
-          <View className="flex-row items-center justify-between">
-            <SectionTitle title={translate("student.news.homeTitle")} />
-            <TextLink
-              label={translate("student.news.seeAll")}
-              onPress={() => router.navigate(routes.studentAppNews)}
-            />
-          </View>
-          {announcements.map((item) => (
-            <NewsRow key={item.id} item={item} />
-          ))}
+        <AnimatedListItem index={3}>
+          <OutlinedBlock className="pb-0 pt-1">
+            <View className="flex-row items-center justify-between">
+              <SectionTitle title={translate("student.news.homeTitle")} />
+              <TextLink
+                label={translate("student.news.seeAll")}
+                onPress={() => router.navigate(routes.studentAppNews)}
+              />
+            </View>
+            {announcements.map((item) => (
+              <NewsRow key={item.id} item={item} />
+            ))}
+          </OutlinedBlock>
         </AnimatedListItem>
       )}
       {shop === undefined ? null : (
-        <AnimatedListItem index={4} className="mt-1">
+        <AnimatedListItem index={4}>
           <ShopPreview
             shop={shop}
             onSeeAll={() => router.navigate(routes.studentAppShop)}
