@@ -13,7 +13,7 @@ Announcements ("Novedades") were a title and a text sent to every student. This 
 | Who sees it | Every student | Every student, or only the students enrolled today in the chosen classes. The push follows the same rule |
 | Kind | None | `News` (Novedad), `Important` (Importante), `Event` (Evento) or `Reminder` (Recordatorio): a pill, an icon and a tone from the existing status colors |
 | Photo | None | One photo, stored like a class pack photo |
-| On top | None | One pinned announcement per business, shown first in Inicio and Novedades of the student app |
+| On top | None | One pinned announcement per business, shown first in the student app's news: at the top of Novedades, and leading "Novedades de la sede" in Inicio, below the next class (an event keeps its "¿Vas a ir?") |
 | Until when | Shown for 60 days | Optional "Visible hasta": students stop seeing it the day after |
 | Text | 500 characters | 1000 characters |
 | Team screen | The form above the list | The list with the floating "Nuevo aviso" button, and the form on its own screen (`/settings/announcements/new`). Each row pins or unpins and deletes with undo, as before |

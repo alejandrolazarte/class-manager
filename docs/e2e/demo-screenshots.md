@@ -100,7 +100,7 @@ The student signs in through the sign-in screen, then the test captures:
 
 | File | Screen |
 |---|---|
-| `20-alumno-inicio` | Home: the pinned announcement, next class, streak, monthly fee, instructor comment and shop preview |
+| `20-alumno-inicio` | Home: next class, streak, monthly fee, instructor comment, the school's news led by the pinned announcement, and shop preview |
 | `21-alumno-inicio-otro-alumno` | Home after picking the other student |
 | `21b-alumno-novedades` | News: announcements, ready order, instructor comments and the cancelled class, grouped by day |
 | `22-alumno-clases` | Week of classes for the selected student |
