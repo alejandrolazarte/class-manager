@@ -5,6 +5,8 @@ import { CurrentBusinessProvider } from "@/features/business/CurrentBusinessProv
 import { Business } from "@/features/business/types";
 import { CurrentMemberProvider } from "@/features/members/CurrentMemberProvider";
 import { CurrentMember } from "@/features/members/types";
+import { defaultLanguage } from "@/i18n/languages";
+import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { buildBusiness } from "@/testing/businessFactory";
 import { buildCurrentMember } from "@/testing/memberFactory";
 import { createTestQueryClient } from "@/testing/testQueryClients";
@@ -32,7 +34,9 @@ export async function renderWithProviders(
       <QueryClientProvider client={queryClient}>
         <CurrentBusinessProvider business={business}>
           <CurrentMemberProvider member={member}>
-            <ToastProvider>{element}</ToastProvider>
+            <ToastProvider>
+              <LanguageProvider initialLanguage={defaultLanguage}>{element}</LanguageProvider>
+            </ToastProvider>
           </CurrentMemberProvider>
         </CurrentBusinessProvider>
       </QueryClientProvider>

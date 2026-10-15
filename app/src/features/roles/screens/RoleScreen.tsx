@@ -72,7 +72,7 @@ export function RoleScreen({ roleKey }: RoleScreenProps) {
       <PermissionSummary granted={role.permissions} />
       {canManageRoles && hasCustomRoles ? (
         <Button
-          variant="outline"
+          variant="secondary"
           label={translate("roles.copy")}
           onPress={() => router.push(routes.newRole(roleKey))}
         />

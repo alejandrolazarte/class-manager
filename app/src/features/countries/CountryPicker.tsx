@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import {
   countryName,
   findCountry,
@@ -11,6 +11,7 @@ import { useCountries } from "@/features/countries/useCountries";
 import { translate } from "@/i18n/translate";
 import { Chip } from "@/ui/Chip";
 import { AppText } from "@/ui/AppText";
+import { Button } from "@/ui/Button";
 import { withRequiredMark } from "@/ui/RequiredFieldsLegend";
 import { Spinner } from "@/ui/Spinner";
 
@@ -54,15 +55,13 @@ export function CountryPicker({ selection, onSelectionChange }: CountryPickerPro
             })}
           </AppText>
           {hasSeveralTimeZones && !isTimeZoneListExpanded ? (
-            <Pressable
-              accessibilityRole="button"
+            <Button
+              variant="ghost"
+              size="small"
+              label={translate("common.change")}
               accessibilityLabel={translate("business.changeTimeZone")}
               onPress={() => setIsTimeZoneListExpanded(true)}
-            >
-              <AppText variant="label" tone="primary">
-                {translate("common.change")}
-              </AppText>
-            </Pressable>
+            />
           ) : null}
         </View>
       ) : null}

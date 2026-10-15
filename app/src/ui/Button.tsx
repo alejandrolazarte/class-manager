@@ -1,20 +1,13 @@
 import { ThemeColorToken } from "@/theme/themeColorTokens";
-import { AppText, TextTone } from "@/ui/AppText";
-import { Icon, IconName } from "@/ui/Icon";
+import { AppText, TextTone, TextVariant } from "@/ui/AppText";
+import { Icon, IconName, IconSize } from "@/ui/Icon";
 import { PressableScale } from "@/ui/motion/PressableScale";
 import { Spinner } from "@/ui/Spinner";
 
 type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "outline"
-  | "danger"
-  | "dangerOutline"
-  | "dangerGhost"
-  | "dashed"
-  | "ghost";
+  "primary" | "secondary" | "danger" | "dangerOutline" | "dangerGhost" | "dashed" | "ghost";
 
-type ButtonSize = "large" | "medium";
+type ButtonSize = "large" | "medium" | "small";
 
 interface ButtonProps {
   label: string;
@@ -25,6 +18,7 @@ interface ButtonProps {
   trailingIcon?: IconName;
   disabled?: boolean;
   isLoading?: boolean;
+  isExpanded?: boolean;
   accessibilityLabel?: string;
   testID?: string;
 }
@@ -32,23 +26,36 @@ interface ButtonProps {
 const containerClassNames: Record<ButtonVariant, string> = {
   primary: "bg-primary active:bg-primary-strong",
   secondary: "border border-border bg-surface active:bg-muted",
-  outline: "border border-primary bg-transparent active:bg-primary-soft",
   danger: "bg-danger",
   dangerOutline: "border border-border bg-surface active:bg-danger-soft",
   dangerGhost: "bg-transparent active:bg-danger-soft",
-  dashed: "border border-dashed border-primary bg-transparent active:bg-primary-soft",
+  dashed: "border border-dashed border-primary/40 bg-transparent active:bg-primary-soft",
   ghost: "bg-transparent active:bg-primary-soft",
 };
 
 const sizeClassNames: Record<ButtonSize, string> = {
   large: "min-h-12 rounded-xl px-5",
   medium: "min-h-11 rounded-xl px-4",
+  small: "min-h-8 rounded-lg px-2",
 };
+
+const textVariantsBySize: Record<ButtonSize, TextVariant> = {
+  large: "button",
+  medium: "button",
+  small: "link",
+};
+
+const iconSizesBySize: Record<ButtonSize, IconSize> = {
+  large: "medium",
+  medium: "medium",
+  small: "small",
+};
+
+const smallButtonHitSlop = { top: 6, bottom: 6, left: 4, right: 4 };
 
 const contentTones: Record<ButtonVariant, TextTone> = {
   primary: "onPrimary",
   secondary: "default",
-  outline: "primary",
   danger: "onDanger",
   dangerOutline: "danger",
   dangerGhost: "danger",
@@ -59,7 +66,6 @@ const contentTones: Record<ButtonVariant, TextTone> = {
 const disabledContainerClassNames: Record<ButtonVariant, string> = {
   primary: "bg-border",
   secondary: "border border-border bg-surface",
-  outline: "border border-border bg-transparent",
   danger: "bg-border",
   dangerOutline: "border border-border bg-surface",
   dangerGhost: "bg-transparent",
@@ -70,7 +76,6 @@ const disabledContainerClassNames: Record<ButtonVariant, string> = {
 const contentColorTokens: Record<ButtonVariant, ThemeColorToken> = {
   primary: "primary-foreground",
   secondary: "primary",
-  outline: "primary",
   danger: "danger-foreground",
   dangerOutline: "danger",
   dangerGhost: "danger",
@@ -87,6 +92,7 @@ export function Button({
   trailingIcon,
   disabled = false,
   isLoading = false,
+  isExpanded,
   accessibilityLabel,
   testID,
 }: ButtonProps) {
@@ -103,20 +109,26 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       testID={testID}
-      accessibilityState={{ disabled: isInactive, busy: isLoading }}
+      accessibilityState={{ disabled: isInactive, busy: isLoading, expanded: isExpanded }}
       disabled={isInactive}
       onPress={onPress}
+      hitSlop={size === "small" ? smallButtonHitSlop : undefined}
       className={`flex-row items-center justify-center gap-2 ${sizeClassNames[size]} ${containerClassName}`}
     >
       {isLoading ? (
         <Spinner tone={contentColorToken} testID="button-spinner" />
       ) : icon ? (
-        <Icon name={icon} size="medium" tone={contentColorToken} />
+        <Icon name={icon} size={iconSizesBySize[size]} tone={contentColorToken} />
       ) : null}
-      <AppText variant="button" tone={isDisabled ? "disabled" : contentTones[variant]}>
+      <AppText
+        variant={textVariantsBySize[size]}
+        tone={isDisabled ? "disabled" : contentTones[variant]}
+      >
         {label}
       </AppText>
-      {trailingIcon ? <Icon name={trailingIcon} size="medium" tone={contentColorToken} /> : null}
+      {trailingIcon ? (
+        <Icon name={trailingIcon} size={iconSizesBySize[size]} tone={contentColorToken} />
+      ) : null}
     </PressableScale>
   );
 }

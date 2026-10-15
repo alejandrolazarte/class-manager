@@ -279,7 +279,7 @@ function ProductEditor({ product }: ProductEditorProps) {
         />
         {product ? (
           <Button
-            variant={product.isActive ? "dangerOutline" : "outline"}
+            variant={product.isActive ? "dangerOutline" : "secondary"}
             size="medium"
             label={translate(
               product.isActive ? "products.form.deactivate" : "products.form.activate",

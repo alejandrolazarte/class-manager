@@ -13,6 +13,7 @@ describe("When the profile is opened", () => {
       fullName: "Tomas Perez",
       birthDate: "1990-04-12",
       hasAcceptedCurrentLegalTerms: true,
+      preferredLanguage: "es",
     });
   });
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Animated, PanResponder, Pressable, View } from "react-native";
+import { Animated, PanResponder, View } from "react-native";
 import {
   attendanceStatusForSwipe,
   attendanceSwipeLimit,
@@ -13,6 +13,7 @@ import { Avatar, AvatarTone } from "@/ui/Avatar";
 import { Icon, IconName } from "@/ui/Icon";
 import { Entrance } from "@/ui/motion/Entrance";
 import { PressableScale } from "@/ui/motion/PressableScale";
+import { TextLink } from "@/ui/TextLink";
 
 type AttendanceRowStudent = Omit<
   SessionStudent,
@@ -199,22 +200,18 @@ export function AttendanceRow({
               </AppText>
             ) : null}
             {onOpenFeedback === undefined ? null : (
-              <Pressable
-                accessibilityRole="button"
+              <TextLink
+                icon="comment"
+                label={
+                  student.feedback
+                    ? translate("sessions.feedback.edit")
+                    : translate("sessions.feedback.open")
+                }
                 accessibilityLabel={translate("sessions.feedback.openFor", {
                   name: student.studentFullName,
                 })}
                 onPress={onOpenFeedback}
-                hitSlop={8}
-                className="flex-row items-center gap-1 self-start active:opacity-70"
-              >
-                <Icon name="comment" size="small" tone="primary" />
-                <AppText variant="link" tone="primary" numberOfLines={1} className="flex-shrink">
-                  {student.feedback
-                    ? translate("sessions.feedback.edit")
-                    : translate("sessions.feedback.open")}
-                </AppText>
-              </Pressable>
+              />
             )}
           </View>
           <MarkButton

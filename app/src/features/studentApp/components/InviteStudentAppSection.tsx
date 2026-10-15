@@ -177,7 +177,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     status === "Active" || isAskingEmail ? null : (
       <Button
         variant="ghost"
-        size="medium"
+        size="small"
         label={translate(pendingLabels[status] ?? "student.app.invite")}
         accessibilityLabel={translate(
           pendingAccessibilityLabels[status] ?? "student.app.inviteAccessibility",
@@ -265,7 +265,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
             isLoading={isSending}
           />
           <Button
-            variant="ghost"
+            variant="secondary"
             size="medium"
             label={translate("common.cancel")}
             onPress={cancel}

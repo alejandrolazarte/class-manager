@@ -252,7 +252,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         />
         {classPack ? (
           <Button
-            variant={classPack.isActive ? "dangerOutline" : "outline"}
+            variant={classPack.isActive ? "dangerOutline" : "secondary"}
             size="medium"
             label={translate(
               classPack.isActive ? "classPacks.form.deactivate" : "classPacks.form.activate",

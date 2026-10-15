@@ -238,7 +238,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
         />
         {instructor ? (
           <Button
-            variant={instructor.isActive ? "dangerOutline" : "outline"}
+            variant={instructor.isActive ? "dangerOutline" : "secondary"}
             size="medium"
             label={translate(instructor.isActive ? "common.deactivate" : "common.activate")}
             onPress={toggleActive}

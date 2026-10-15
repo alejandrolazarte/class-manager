@@ -8,7 +8,12 @@ namespace ClassManager.Core.UseCases.Accounts;
 
 public sealed record GetMyAccountQuery : IQuery;
 
-public sealed record MyAccountResponse(string Email, string FullName, DateOnly? BirthDate, bool HasAcceptedCurrentLegalTerms)
+public sealed record MyAccountResponse(
+    string Email,
+    string FullName,
+    DateOnly? BirthDate,
+    bool HasAcceptedCurrentLegalTerms,
+    string PreferredLanguage)
 {
     public static async Task<MyAccountResponse> ForAsync(
         UserAccount account,
@@ -18,7 +23,8 @@ public sealed record MyAccountResponse(string Email, string FullName, DateOnly? 
             account.Email,
             account.FullName,
             account.BirthDate,
-            await legalTermsAcceptanceRepository.HasAcceptedAsync(account.UserId, LegalTerms.CurrentVersion, cancellationToken));
+            await legalTermsAcceptanceRepository.HasAcceptedAsync(account.UserId, LegalTerms.CurrentVersion, cancellationToken),
+            account.PreferredLanguage);
 }
 
 public sealed class GetMyAccountUseCase(

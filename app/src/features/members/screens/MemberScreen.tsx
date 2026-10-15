@@ -153,7 +153,7 @@ function MemberEditor({ member, team }: MemberEditorProps) {
             />
           ) : null}
           <Button
-            variant="outline"
+            variant="secondary"
             size="medium"
             label={translate(
               member.isBrandOwner ? "team.member.removeBrandOwner" : "team.member.makeBrandOwner",

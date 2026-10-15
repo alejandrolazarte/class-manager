@@ -103,6 +103,10 @@ Line endings are LF everywhere (`.editorconfig` and `.gitattributes`). Constants
 
 Integration tests start SQL Server and Azurite (Blob Storage emulator) through Testcontainers, which talks to Podman via the `\\.\pipe\docker_engine` pipe. The Podman machine must be running (`podman machine start`).
 
+## UI languages
+
+User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Emails and legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
+
 ## Multi-tenancy
 
 - Every tenant-owned table has a `TenantId` column (the business), even when it could be derived through a relationship.
@@ -144,6 +148,9 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 - An action that can't be undone, or that touches other people or money (cancelling a class, removing someone from the team, voiding a pack sale, deleting a private lesson, unenrolling), asks first with `ConfirmDialog` (a modal: short question, optional consequence, **Volver** and a verb, never "Sí, …"), and a test proves nothing happens until the user confirms.
 - Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`IsDeleted`, a stored `bit`; `DeletedOn`, the date and time it was deleted; `Delete(now)` sets both, and a check constraint keeps them in sync). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`, `[IsDeleted] = 0`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[IsDeleted] = 0`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
 
+### Buttons
+- Every button comes from `src/ui`, one per role: `Button` (`primary`, `secondary` for any other action and every Cancelar/Volver, `ghost`, `danger` only to confirm, `dangerOutline`, `dangerGhost`, `dashed` to add another item; `small` size for actions inside rows), `IconButton`, `FloatingActionButton`, `FloatingBarButton`, `TonalButton`, `ActionTile`, `TextLink`, `InlineLink`, `FooterLinks`. Screens never build a button from `Pressable`, and a new button or variant needs a missing role, justified in the PR. See [docs/frontend/buttons.md](docs/frontend/buttons.md).
+
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).
 
@@ -156,7 +163,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ### UI changes
 - Removing functionality is forbidden. A visual change keeps every action, state, permission check, banner, empty state, toast, undo and confirm dialog; behavior tests are not deleted, skipped or weakened.
-- A visual change never changes texts: every value in `es.json`, in emails and in accessibility labels stays word for word, and no text or information that only a design shows is added. Texts in design artifacts are illustrative; the app's current text wins.
+- A visual change never changes texts: every value in `es.json` and `en.json`, in emails and in accessibility labels stays word for word, and no text or information that only a design shows is added. Texts in design artifacts are illustrative; the app's current text wins.
 - Screens only compose `src/ui` primitives and theme tokens. A new visual pattern or animation becomes a primitive in `src/ui` (motion in `src/ui/motion`) and every screen with that pattern uses it; no screen keeps an older version of a pattern.
 - Emails follow the same design as the app, through the one layout in `src/Notifications/Email`.
 - A redesign replaces, it does not pile up: each PR deletes the old styles, variants, components, fonts, packages, translation keys and email fragments it left without users, with their tests. No commented-out code, no `Old`/`Legacy` copies, no flag to switch back.

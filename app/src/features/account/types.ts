@@ -3,6 +3,7 @@ export interface MyAccount {
   fullName: string;
   birthDate?: string | null;
   hasAcceptedCurrentLegalTerms: boolean;
+  preferredLanguage: string;
 }
 
 export interface UpdateMyProfileRequest {

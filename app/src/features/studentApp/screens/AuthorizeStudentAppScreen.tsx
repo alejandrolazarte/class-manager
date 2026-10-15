@@ -127,7 +127,7 @@ export function AuthorizeStudentAppScreen() {
             isLoading={pendingAnswer === "authorized"}
           />
           <Button
-            variant="outline"
+            variant="secondary"
             label={translate("guardianConsent.refuse")}
             onPress={() => void respond("refused")}
             disabled={pendingAnswer === "authorized"}
