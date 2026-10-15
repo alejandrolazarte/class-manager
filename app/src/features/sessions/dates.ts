@@ -14,6 +14,10 @@ export function toIsoDate(date: Date): string {
   return `${date.getFullYear()}${isoDateSeparator}${month}${isoDateSeparator}${day}`;
 }
 
+export function formatClockTime(date: Date): string {
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
 export function todayIsoDate(today: Date = new Date()): string {
   return toIsoDate(today);
 }

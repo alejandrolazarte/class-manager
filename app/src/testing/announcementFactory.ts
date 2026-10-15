@@ -6,6 +6,7 @@ export function buildAnnouncement(overrides: Partial<Announcement> = {}): Announ
     title: "Lunes 12 cerrado",
     body: null,
     publishedAt: "2026-09-30T10:00:00Z",
+    isScheduled: false,
     category: "News",
     isPinned: false,
     visibleUntil: null,
