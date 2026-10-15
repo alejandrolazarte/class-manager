@@ -4,6 +4,7 @@ import { View } from "react-native";
 import {
   announcementCategories,
   announcementCategoryPresentations,
+  defaultAnnouncementCategory,
 } from "@/features/announcements/announcementCategories";
 import { AnnouncementCategory } from "@/features/announcements/types";
 import {
@@ -67,7 +68,7 @@ export function NewAnnouncementScreen() {
   const applyImagesMutation = useApplyAnnouncementImages();
   const images = useCatalogImageDraft([]);
   const { data: classGroups = [] } = useActiveClassGroups();
-  const [category, setCategory] = useState<AnnouncementCategory>("News");
+  const [category, setCategory] = useState<AnnouncementCategory>(defaultAnnouncementCategory);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [audience, setAudience] = useState<Audience>("everyone");
