@@ -2,7 +2,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
-using ClassManager.Notifications.Email;
+using ClassManager.Core.Emails;
 
 namespace ClassManager.Core.UseCases.Accounts;
 
@@ -17,15 +17,6 @@ public sealed class ConfirmEmailChangeUseCase(
     IEmailSender emailSender)
     : IUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse>
 {
-    public const string NoticeSubject = "Cambiaste el email de tu cuenta";
-
-    public static EmailContent NoticeContentFor(string newEmail) =>
-        new(
-            "Tu cuenta",
-            NoticeSubject,
-            $"Desde ahora entrás a la app con {newEmail}.",
-            "Si no fuiste vos, avisá enseguida al lugar donde tomás clases o trabajás.");
-
     public async Task<Result<ConfirmEmailChangeResponse>> ExecuteAsync(ConfirmEmailChangeCommand command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(command.Token))
@@ -43,7 +34,9 @@ public sealed class ConfirmEmailChangeUseCase(
         var (userId, previousEmail, newEmail) = change.Value!;
         await clientRepository.ChangeEmailInEveryBusinessByAccountUserAsync(userId, newEmail, cancellationToken);
         await instructorRepository.ChangeEmailInEveryBusinessByMemberUserAsync(userId, newEmail, cancellationToken);
-        await emailSender.SendAsync(new EmailMessage(previousEmail, NoticeSubject, NoticeContentFor(newEmail)), cancellationToken);
+        var emailTexts = await RecipientEmailTexts.OfUserAsync(identityService, userId, cancellationToken);
+        var notice = emailTexts.EmailChangedNotice(newEmail);
+        await emailSender.SendAsync(new EmailMessage(previousEmail, notice.Subject, notice.Content), cancellationToken);
 
         return new ConfirmEmailChangeResponse(newEmail);
     }

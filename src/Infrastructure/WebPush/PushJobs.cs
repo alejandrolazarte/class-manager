@@ -5,7 +5,13 @@ namespace ClassManager.Infrastructure.WebPush;
 
 [JsonDerivedType(typeof(StudentAppPush), StudentAppPush.Discriminator)]
 [JsonDerivedType(typeof(TeamPush), TeamPush.Discriminator)]
-public abstract record PushJob(Guid TenantId, PushMessage Message);
+public abstract record PushJob(Guid TenantId, PushMessage Message)
+{
+    public IReadOnlyDictionary<string, PushMessage>? MessagesByLanguage { get; init; }
+
+    public PushMessage MessageIn(string? language) =>
+        language is not null && MessagesByLanguage?.TryGetValue(language, out var message) == true ? message : Message;
+}
 
 public sealed record StudentAppPush(Guid TenantId, IReadOnlyCollection<Guid>? ClientIds, PushMessage Message, IReadOnlyCollection<Guid>? UserIds = null)
     : PushJob(TenantId, Message)

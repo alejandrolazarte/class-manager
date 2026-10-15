@@ -1,7 +1,7 @@
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
-using ClassManager.Notifications.Email;
+using ClassManager.Core.Emails;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
@@ -15,19 +15,6 @@ public sealed class RequestPasswordResetUseCase(
     IWebAppLinks webAppLinks)
     : IUseCase<RequestPasswordResetCommand, RequestPasswordResetResponse>
 {
-    public const string EmailSubject = "Elegí una contraseña nueva";
-
-    public static EmailContent EmailContentFor(string resetPasswordLink) =>
-        new(
-            "Tu cuenta",
-            EmailSubject,
-            "Pediste cambiar tu contraseña. Tocá el botón para elegir una nueva.",
-            "Si no lo pediste, ignorá este mail: tu contraseña no cambia.")
-        {
-            Action = new EmailAction("Elegir contraseña", resetPasswordLink, ShowsLinkFallback: true),
-            Note = new EmailNote("El link sirve una sola vez y vence en 24 horas."),
-        };
-
     public async Task<Result<RequestPasswordResetResponse>> ExecuteAsync(
         RequestPasswordResetCommand command,
         CancellationToken cancellationToken)
@@ -41,8 +28,9 @@ public sealed class RequestPasswordResetUseCase(
         var token = await identityService.CreatePasswordResetTokenAsync(email, cancellationToken);
         if (token is not null)
         {
-            var content = EmailContentFor(webAppLinks.ResetPassword(token));
-            await emailSender.SendAsync(new EmailMessage(email, EmailSubject, content), cancellationToken);
+            var emailTexts = await RecipientEmailTexts.OfEmailAsync(identityService, email, cancellationToken);
+            var passwordReset = emailTexts.PasswordReset(webAppLinks.ResetPassword(token));
+            await emailSender.SendAsync(new EmailMessage(email, passwordReset.Subject, passwordReset.Content), cancellationToken);
         }
 
         return new RequestPasswordResetResponse();

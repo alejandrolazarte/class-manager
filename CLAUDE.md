@@ -48,6 +48,8 @@ Everything is written in English: code, identifiers, comments in config files, c
 
 - Never push to `main`, never merge pull requests (`gh pr merge`), never use `--no-verify`.
 - Work on a branch (`feature/...`, `fix/...`, `chore/...`, `docs/...`), push it and open a PR with `gh pr create`.
+- When the work is finished (checks from "Before pushing" pass and the branch is pushed), open the pull request right away, without asking. If a PR is already open for the branch, push to it instead of opening another.
+- After opening or pushing to a PR, follow it until it is green and mergeable, without asking: check its CI runs and fix any failure, and when `main` moved and the PR has conflicts, merge `main` into the branch, resolve them keeping both sides' behavior, run the "Before pushing" checks again and push. Never force-push a branch someone else also pushes to.
 - The owner reviews and merges on GitHub. Stop after opening the PR.
 - Enforcement: `.githooks/pre-push` blocks pushes to `main`, and `.claude/settings.json` denies the commands above. See [docs/github-protection.md](docs/github-protection.md).
 
@@ -105,7 +107,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ## UI languages
 
-User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Emails and legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
+User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Email texts live in `src/Core/Emails` (`IEmailTexts`, one class per language) and follow the recipient account's language; a new or changed email goes in every language. Push notification and team notice texts follow the same rule through `INotificationTexts` in `src/Infrastructure/Notifications`; what the team writes (announcements, comments, reasons) is never translated. Legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
 
 ## Multi-tenancy
 

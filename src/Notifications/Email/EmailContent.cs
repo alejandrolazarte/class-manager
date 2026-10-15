@@ -4,13 +4,13 @@ namespace ClassManager.Notifications.Email;
 
 public sealed record EmailContent(string Eyebrow, string Title, string Intro, string FooterNote)
 {
-    public const string TotalLabel = "Total";
-
     private const string ParagraphBreak = "\n\n";
     private const char LineBreak = '\n';
     private const char ActionLabelEnd = ':';
     private const string ListItemPrefix = "- ";
     private const string LabelSeparator = ": ";
+
+    public EmailLayoutTexts Layout { get; init; } = EmailLayoutTexts.Spanish;
 
     public IReadOnlyList<EmailLine> Lines { get; init; } = [];
 
@@ -36,7 +36,7 @@ public sealed record EmailContent(string Eyebrow, string Title, string Intro, st
 
             if (Total is not null)
             {
-                text.Append(TotalLabel).Append(LabelSeparator).Append(Total).Append(LineBreak);
+                text.Append(Layout.TotalLabel).Append(LabelSeparator).Append(Total).Append(LineBreak);
             }
 
             text.Append(LineBreak);

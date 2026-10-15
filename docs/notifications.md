@@ -32,7 +32,7 @@ Date: 2026-10-02
 
 | In `Core` | In `Infrastructure` |
 |---|---|
-| `IEmailSender`, `EmailMessage` (content + `BusinessId`), `IWebAppLinks`, the texts of invitation and password emails | `BrandedEmailSender` (reads the business brand, renders, hands the email to the transport), `EmailBrandReader`, `WebAppLinks`, `OrderEmails`, push jobs, the background tasks that send them, dispatcher, subscriptions and who gets each notification |
+| `IEmailSender`, `EmailMessage` (content + `BusinessId`), `IWebAppLinks`, the texts of every email in each language (`src/Core/Emails`, see [Languages](frontend/languages.md#emails)) | `BrandedEmailSender` (reads the business brand, renders, hands the email to the transport), `EmailBrandReader`, `WebAppLinks`, `OrderEmails`, push jobs, the background tasks that send them, dispatcher, subscriptions and who gets each notification |
 
 Order emails (placed, paid, ready, cancelled) and every push are queued as background tasks (`SendEmailBackgroundTaskCommand`, `SendPushBackgroundTaskCommand`) in the `BackgroundTasks` table, in the same transaction as the change that caused them, and `BackgroundTaskWorker` in the API sends them. The request that places or updates an order never waits for SMTP or a push service: a slow or stuck mail server only delays the email. A failed send is tried again up to five times (after 1, 4, 16 and 64 minutes), and a restart doesn't lose what was queued. Invitation and password emails are still sent inline, because their screens report whether the email went out. How the tasks are stored, claimed and retried, and why the worker never polls the database: [background tasks plan](backend/20261007-background-tasks/plan.md).
 
