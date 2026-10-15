@@ -99,6 +99,8 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
     public bool IsFor(IReadOnlyCollection<Guid> enrolledClassGroupIds) =>
         IsForEveryone || _classGroups.Any(classGroup => enrolledClassGroupIds.Contains(classGroup.ClassGroupId));
 
+    public bool IsPublishedBy(DateTimeOffset now) => PublishedAt <= now;
+
     public bool IsVisibleOn(DateOnly date) => VisibleUntil is not { } lastDay || date <= lastDay;
 
     public void AddImage(Document document) => _images.Add(AnnouncementImage.Create(Id, document, _images.Count));

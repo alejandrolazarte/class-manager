@@ -16,7 +16,8 @@ public sealed class AnnouncementResponseService(
     IAnnouncementRepository announcementRepository,
     IAnnouncementAudienceService audienceService,
     IClassGroupRepository classGroupRepository,
-    IDocumentStorageService documentStorage)
+    IDocumentStorageService documentStorage,
+    TimeProvider timeProvider)
     : IAnnouncementResponseService
 {
     public async Task<AnnouncementResponse> FromAsync(Announcement announcement, CancellationToken cancellationToken) =>
@@ -28,6 +29,7 @@ public sealed class AnnouncementResponseService(
         var classGroupNames = announcements.Any(announcement => !announcement.IsForEveryone)
             ? (await classGroupRepository.ListAllAsync(cancellationToken)).ToDictionary(classGroup => classGroup.Id, classGroup => classGroup.Name)
             : [];
+        var now = timeProvider.GetUtcNow();
         var announcementIds = announcements.Select(announcement => announcement.Id).ToList();
         var recipients = await audienceService.RecipientsOfAsync(announcements, cancellationToken);
         var views = await announcementRepository.ListViewsAsync(announcementIds, cancellationToken);
@@ -46,6 +48,7 @@ public sealed class AnnouncementResponseService(
                     announcement.Title,
                     announcement.Body,
                     announcement.PublishedAt,
+                    !announcement.IsPublishedBy(now),
                     announcement.Category,
                     announcement.IsPinned,
                     announcement.VisibleUntil,
