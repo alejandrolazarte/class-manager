@@ -8,26 +8,25 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
 {
     public async Task<BranchAccess?> FindDefaultAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var firstMembership = await context.BusinessMembers
+        var memberBusinessIds = await context.BusinessMembers
             .IgnoreTenantFilter()
             .AsNoTracking()
             .Where(member => member.UserId == userId)
-            .OrderBy(member => member.Id)
-            .Select(member => (Guid?)member.TenantId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (firstMembership is { } businessId)
+            .Select(member => member.TenantId)
+            .ToListAsync(cancellationToken);
+        var oldestMemberBusiness = await OldestBusinessIdAsync(
+            context.Businesses.Where(business => memberBusinessIds.Contains(business.Id)),
+            cancellationToken);
+        if (oldestMemberBusiness is { } businessId)
         {
             return await FindAsync(userId, businessId, cancellationToken);
         }
 
-        var firstBrandBusiness = await context.Businesses
-            .AsNoTracking()
-            .Where(business => BrandOrganizationIds(userId).Contains(business.OrganizationId))
-            .OrderBy(business => business.CreatedAt)
-            .Select(business => (Guid?)business.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+        var oldestBrandBusiness = await OldestBusinessIdAsync(
+            context.Businesses.Where(business => BrandOrganizationIds(userId).Contains(business.OrganizationId)),
+            cancellationToken);
 
-        return firstBrandBusiness is { } brandBusinessId ? await FindAsync(userId, brandBusinessId, cancellationToken) : null;
+        return oldestBrandBusiness is { } brandBusinessId ? await FindAsync(userId, brandBusinessId, cancellationToken) : null;
     }
 
     public async Task<BranchAccess?> FindAsync(Guid userId, Guid businessId, CancellationToken cancellationToken)
@@ -80,6 +79,20 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
                     membership?.CustomRoleId is { } customRoleId ? customRoleNames.GetValueOrDefault(customRoleId) : null);
             }),
         ];
+    }
+
+    private static async Task<Guid?> OldestBusinessIdAsync(IQueryable<Business> businesses, CancellationToken cancellationToken)
+    {
+        var candidates = await businesses
+            .AsNoTracking()
+            .Select(business => new { business.Id, business.CreatedAt })
+            .ToListAsync(cancellationToken);
+
+        return candidates
+            .OrderBy(business => business.CreatedAt)
+            .ThenBy(business => business.Id)
+            .Select(business => (Guid?)business.Id)
+            .FirstOrDefault();
     }
 
     private IQueryable<Guid> BrandOrganizationIds(Guid userId) =>

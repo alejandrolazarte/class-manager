@@ -14,5 +14,11 @@ public interface ITokenIssuer
 
     Task<IssuedTokenPair?> SwitchAsync(string refreshToken, Guid tenantId, string? kind, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The tenant and kind of the most recent session issued to the user, signed out or not, so a new sign-in can
+    /// resume where the user left off. Returns <see langword="null"/> when no session had a tenant.
+    /// </summary>
+    Task<LastTokenSession?> FindLastSessionAsync(Guid userId, CancellationToken cancellationToken);
+
     Task RevokeAsync(string refreshToken, CancellationToken cancellationToken);
 }

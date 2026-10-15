@@ -88,6 +88,15 @@ internal sealed class JwtTokenIssuer(
         return new IssuedTokenPair(accessToken.Token, accessToken.ExpiresAt, replacementTokenValue, replacementToken.ExpiresAt, subject.Kind);
     }
 
+    public Task<LastTokenSession?> FindLastSessionAsync(Guid userId, CancellationToken cancellationToken) =>
+        securityContext.RefreshTokens
+            .AsNoTracking()
+            .Where(token => token.UserId == userId && token.TenantId != null)
+            .OrderByDescending(token => token.CreatedAt)
+            .ThenBy(token => token.ReplacedByTokenId != null)
+            .Select(token => new LastTokenSession(token.TenantId!.Value, token.Kind))
+            .FirstOrDefaultAsync(cancellationToken);
+
     public async Task RevokeAsync(string refreshToken, CancellationToken cancellationToken)
     {
         var tokenHash = Hash(refreshToken);
