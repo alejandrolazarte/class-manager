@@ -1,6 +1,6 @@
 import { firstNameOf, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { StudentAppNewsItem } from "@/features/studentApp/types";
-import { addDays, toIsoDate, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, formatClockTime, toIsoDate, todayIsoDate } from "@/features/sessions/dates";
 import { announcementCategoryPresentations } from "@/features/announcements/announcementCategories";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
@@ -34,8 +34,7 @@ export function newsGroupOf(item: StudentAppNewsItem, today: string = todayIsoDa
 export function newsWhenLabel(item: StudentAppNewsItem, today: string = todayIsoDate()): string {
   const date = localDateOf(item.occurredAt);
   if (date === today) {
-    const occurredAt = new Date(item.occurredAt);
-    return `${String(occurredAt.getHours()).padStart(2, "0")}:${String(occurredAt.getMinutes()).padStart(2, "0")}`;
+    return formatClockTime(new Date(item.occurredAt));
   }
   return date === addDays(today, -1) ? translate("student.news.yesterday") : shortDayLabel(date);
 }

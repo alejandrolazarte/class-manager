@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { AnnouncementRow } from "@/features/announcements/components/AnnouncementRow";
 import { Announcement } from "@/features/announcements/types";
 import {
@@ -10,7 +11,10 @@ import {
 import { SettingsListScreenLayout } from "@/features/settings/components/SettingsListScreenLayout";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { ChipGroup } from "@/ui/ChipGroup";
 import { useToast } from "@/ui/ToastProvider";
+
+type AnnouncementFilter = "published" | "scheduled";
 
 export function AnnouncementsScreen() {
   const router = useRouter();
@@ -25,6 +29,12 @@ export function AnnouncementsScreen() {
   const deleteAnnouncementMutation = useDeleteAnnouncement();
   const restoreAnnouncementMutation = useRestoreAnnouncement();
   const setPinnedMutation = useSetAnnouncementPinned();
+  const [filter, setFilter] = useState<AnnouncementFilter>("published");
+  const scheduledCount = announcements.filter((announcement) => announcement.isScheduled).length;
+  const shownFilter = scheduledCount === 0 ? "published" : filter;
+  const shownAnnouncements = announcements.filter(
+    (announcement) => announcement.isScheduled === (shownFilter === "scheduled"),
+  );
 
   const deleteAnnouncement = async (announcement: Announcement) => {
     try {
@@ -56,7 +66,27 @@ export function AnnouncementsScreen() {
     <SettingsListScreenLayout
       title={translate("announcements.title")}
       subtitle={translate("announcements.hint")}
-      items={announcements}
+      items={shownAnnouncements}
+      filters={
+        scheduledCount === 0 ? undefined : (
+          <ChipGroup
+            options={[
+              {
+                value: "published",
+                label: translate("announcements.filter.published"),
+                count: announcements.length - scheduledCount,
+              },
+              {
+                value: "scheduled",
+                label: translate("announcements.filter.scheduled"),
+                count: scheduledCount,
+              },
+            ]}
+            selectedValue={shownFilter}
+            onChange={setFilter}
+          />
+        )
+      }
       isPending={isPending}
       isError={isError}
       isRefetching={isRefetching}

@@ -14,7 +14,8 @@ public sealed record CreateAnnouncementCommand(
     AnnouncementCategory? Category = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
     bool IsPinned = false,
-    DateOnly? VisibleUntil = null) : ICommand;
+    DateOnly? VisibleUntil = null,
+    DateTimeOffset? PublishOn = null) : ICommand;
 
 public sealed record DeleteAnnouncementCommand(Guid AnnouncementId) : ICommand;
 
@@ -38,6 +39,7 @@ public static class AnnouncementErrorCodes
 {
     public const string NotFound = "announcement.not_found";
     public const string ClassGroupNotFound = "announcement.class_group_not_found";
+    public const string ScheduledCannotBePinned = "announcement.scheduled_cannot_be_pinned";
 }
 
 internal static class AnnouncementFailures
@@ -45,10 +47,17 @@ internal static class AnnouncementFailures
     private const string NotFoundMessage = "The announcement doesn't exist.";
     private const string DeletedNotFoundMessage = "The deleted announcement doesn't exist.";
     private const string ClassGroupNotFoundMessage = "One of the classes does not exist.";
+    private const string ScheduledCannotBePinnedMessage = "A scheduled announcement can be pinned once it is published.";
 
     public static ResultError NotFound() => new(AnnouncementErrorCodes.NotFound, NotFoundMessage, ErrorKind.NotFound);
 
     public static ResultError DeletedNotFound() => new(AnnouncementErrorCodes.NotFound, DeletedNotFoundMessage, ErrorKind.NotFound);
+
+    public static ResultError ScheduledCannotBePinned() =>
+        new(AnnouncementErrorCodes.ScheduledCannotBePinned, ScheduledCannotBePinnedMessage, ErrorKind.Validation)
+        {
+            FieldName = nameof(CreateAnnouncementCommand.IsPinned),
+        };
 
     public static ResultError ClassGroupNotFound() =>
         new(AnnouncementErrorCodes.ClassGroupNotFound, ClassGroupNotFoundMessage, ErrorKind.Validation)
@@ -69,10 +78,17 @@ public sealed class CreateAnnouncementUseCase(
 {
     public async Task<Result<AnnouncementResponse>> ExecuteAsync(CreateAnnouncementCommand command, CancellationToken cancellationToken)
     {
+        var now = timeProvider.GetUtcNow();
+        var isScheduled = command.PublishOn > now;
+        if (isScheduled && command.IsPinned)
+        {
+            return AnnouncementFailures.ScheduledCannotBePinned();
+        }
+
         var announcement = Announcement.Create(
             command.Title,
             command.Body,
-            timeProvider.GetUtcNow(),
+            isScheduled ? command.PublishOn!.Value : now,
             await businessCalendar.TodayAsync(cancellationToken),
             command.Category ?? AnnouncementCategory.News,
             command.ClassGroupIds,
@@ -158,7 +174,7 @@ public sealed class RestoreAnnouncementUseCase(IAnnouncementRepository announcem
     }
 }
 
-public sealed class PinAnnouncementUseCase(IAnnouncementRepository announcementRepository, IUnitOfWork unitOfWork)
+public sealed class PinAnnouncementUseCase(IAnnouncementRepository announcementRepository, IUnitOfWork unitOfWork, TimeProvider timeProvider)
     : IUseCase<PinAnnouncementCommand, bool>
 {
     public async Task<Result<bool>> ExecuteAsync(PinAnnouncementCommand command, CancellationToken cancellationToken)
@@ -172,6 +188,11 @@ public sealed class PinAnnouncementUseCase(IAnnouncementRepository announcementR
         if (announcement.IsPinned)
         {
             return true;
+        }
+
+        if (!announcement.IsPublishedBy(timeProvider.GetUtcNow()))
+        {
+            return AnnouncementFailures.ScheduledCannotBePinned();
         }
 
         await AnnouncementPins.UnpinCurrentAsync(announcementRepository, unitOfWork, cancellationToken);

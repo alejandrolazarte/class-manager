@@ -176,6 +176,10 @@ test("App screens", async ({ page, request }) => {
   await page.getByText("Fijar arriba").scrollIntoViewIfNeeded();
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, "12b3-novedad-nueva-final.png") });
+  await page.getByRole("button", { name: "Más tarde" }).click();
+  await page.getByText("Cuándo se publica").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "12b4-novedad-programada.png") });
 
   await page.goto("/settings/business");
   await page.getByText("Moneda").filter({ visible: true }).first().waitFor();

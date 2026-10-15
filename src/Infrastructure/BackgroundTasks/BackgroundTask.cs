@@ -31,14 +31,14 @@ public sealed class BackgroundTask
 
     public DateTimeOffset? FailedOn { get; private set; }
 
-    public static BackgroundTask Create(string type, string payload, Guid? tenantId, DateTimeOffset now) =>
+    public static BackgroundTask Create(string type, string payload, Guid? tenantId, DateTimeOffset now, DateTimeOffset runOn) =>
         new()
         {
             Id = Guid.NewGuid(),
             Type = type,
             Payload = payload,
             TenantId = tenantId,
-            NextAttemptOn = now,
+            NextAttemptOn = runOn > now ? runOn : now,
             EnqueuedOn = now,
         };
 

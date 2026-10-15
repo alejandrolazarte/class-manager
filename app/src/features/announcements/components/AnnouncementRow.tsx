@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { announcementCategoryPresentations } from "@/features/announcements/announcementCategories";
 import { Announcement } from "@/features/announcements/types";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
-import { formatLongDate, toIsoDate } from "@/features/sessions/dates";
+import { formatClockTime, formatLongDate, toIsoDate } from "@/features/sessions/dates";
 import { joinNames } from "@/features/studentApp/studentAppNewsPresentation";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -38,8 +38,12 @@ export function AnnouncementRow({
   return (
     <HairlineRow
       className="flex-row items-start gap-3 py-3.5"
-      accessibilityLabel={translate("announcements.open", { title: announcement.title })}
-      onPress={() => onOpen(announcement)}
+      accessibilityLabel={
+        announcement.isScheduled
+          ? undefined
+          : translate("announcements.open", { title: announcement.title })
+      }
+      onPress={announcement.isScheduled ? undefined : () => onOpen(announcement)}
     >
       {photo === undefined ? (
         <IconCircle icon={category.icon} tone={category.tone} />
@@ -67,9 +71,14 @@ export function AnnouncementRow({
           {audienceOf(announcement)}
         </AppText>
         <AppText variant="footnote" tone="subtle" className="mt-1">
-          {translate("announcements.publishedOn", {
-            date: formatLongDate(toIsoDate(new Date(announcement.publishedAt))),
-          })}
+          {announcement.isScheduled
+            ? translate("announcements.scheduledFor", {
+                date: formatLongDate(toIsoDate(new Date(announcement.publishedAt))),
+                time: formatClockTime(new Date(announcement.publishedAt)),
+              })
+            : translate("announcements.publishedOn", {
+                date: formatLongDate(toIsoDate(new Date(announcement.publishedAt))),
+              })}
         </AppText>
         {announcement.visibleUntil === null ? null : (
           <AppText variant="footnote" tone="subtle">
@@ -78,7 +87,7 @@ export function AnnouncementRow({
             })}
           </AppText>
         )}
-        {announcement.recipientCount === 0 ? null : (
+        {announcement.isScheduled || announcement.recipientCount === 0 ? null : (
           <View className="mt-2 flex-row items-center gap-2.5">
             <ProgressBar isThin ratio={announcement.seenCount / announcement.recipientCount} />
             <AppText variant="badge" tone="muted">
@@ -100,16 +109,18 @@ export function AnnouncementRow({
         ) : null}
       </View>
       <View className="flex-row">
-        <IconButton
-          icon="pin"
-          tone={announcement.isPinned ? "primary" : "muted-foreground"}
-          accessibilityLabel={translate(
-            announcement.isPinned ? "announcements.unpin" : "announcements.pin",
-            { title: announcement.title },
-          )}
-          disabled={isBusy}
-          onPress={() => onTogglePinned(announcement)}
-        />
+        {announcement.isScheduled ? null : (
+          <IconButton
+            icon="pin"
+            tone={announcement.isPinned ? "primary" : "muted-foreground"}
+            accessibilityLabel={translate(
+              announcement.isPinned ? "announcements.unpin" : "announcements.pin",
+              { title: announcement.title },
+            )}
+            disabled={isBusy}
+            onPress={() => onTogglePinned(announcement)}
+          />
+        )}
         <IconButton
           icon="delete"
           tone="danger"

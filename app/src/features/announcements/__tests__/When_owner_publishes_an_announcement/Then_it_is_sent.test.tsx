@@ -30,6 +30,7 @@ describe("When owner publishes an announcement", () => {
         classGroupIds: [],
         isPinned: false,
         visibleUntil: null,
+        publishOn: null,
       }),
     );
   });

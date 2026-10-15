@@ -128,6 +128,7 @@ public static class InfrastructureServiceCollectionExtensions
             serviceProvider.GetRequiredService<IWebPushSender>(),
             serviceProvider.GetRequiredService<IIdentityService>()));
         services.AddScoped<IStudentAppNotificationService, StudentAppNotificationService>();
+        services.AddBackgroundTask<PublishScheduledAnnouncementBackgroundTaskCommand, PublishScheduledAnnouncementBackgroundTaskHandler>();
         services.AddScoped<TeamNotifier>();
         services.AddScoped<ITeamNotificationService, TeamNotificationService>();
 

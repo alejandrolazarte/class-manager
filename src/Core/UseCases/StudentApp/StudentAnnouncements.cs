@@ -28,6 +28,8 @@ internal static class StudentAnnouncements
         CancellationToken cancellationToken) =>
         [
             .. (await announcementRepository.ListRecentOrPinnedAsync(now.AddDays(-ListedDays), cancellationToken))
-                .Where(announcement => announcement.IsVisibleOn(today) && announcement.IsFor(enrolledClassGroupIds)),
+                .Where(announcement => announcement.IsPublishedBy(now)
+                    && announcement.IsVisibleOn(today)
+                    && announcement.IsFor(enrolledClassGroupIds)),
         ];
 }

@@ -66,8 +66,20 @@ All of them require `announcements.manage`. The student news items carry `catego
 
 The team endpoints require `announcements.manage`. The student news items carry `announcementId` and `isGoing`.
 
+## Step 3 (built): scheduling
+
+### What changes
+
+- The new announcement screen asks **Cuándo se publica**: Ahora, or Más tarde with a day and a time (the device's local time). The button reads Programar and the toast "Aviso programado".
+- A scheduled announcement is hidden from students (news, answers and views) until its time, and can't be pinned before it is published (400 `announcement.scheduled_cannot_be_pinned`, from `POST /api/announcements` with `isPinned` or from `POST .../pin`); the pin toggle is hidden while scheduling.
+- The team list splits **Publicados** and **Programados** once there is a scheduled one. A scheduled row says when it goes out ("Se publica el … a las …") and has no pin, reads or who-saw-it screen; it can be deleted, with Deshacer, as before.
+
+### Decisions
+
+- **Scheduled = published in the future.** `POST /api/announcements` takes `publishOn`; a time in the future becomes the announcement's `PublishedAt`, a past or missing one means now. No new column: every list already filters and orders by `PublishedAt`, and `isScheduled` in the response is `PublishedAt` after now.
+- **The push waits in the background tasks table.** Publishing a scheduled announcement queues `PublishScheduledAnnouncementBackgroundTaskCommand` with its first attempt at the publish time (`IBackgroundTaskOutbox.EnqueueAsync(command, runOn)`), and the worker's existing wait-until-the-next-due-task wakes it then, with no polling ([background tasks](../../backend/20261007-background-tasks/plan.md)). The handler works out the audience at that moment, so families that enroll in the meantime get it, and skips an announcement deleted before its time. If the container is stopped at the publish time, the push goes out when it starts again; students see the announcement in the app at its time either way.
+
 ## Next steps (proposal)
 
-1. **Schedule.** Publish at a date and time, with "Programados" in the team list. Runs on the background tasks worker.
-2. **A button in the announcement.** Take the student to the shop, their week or a link.
-3. **Preview and editing.** See the announcement as the student and as a push before publishing, and fix a published one without deleting it.
+1. **A button in the announcement.** Take the student to the shop, their week or a link.
+2. **Preview and editing.** See the announcement as the student and as a push before publishing, and fix a published one without deleting it.

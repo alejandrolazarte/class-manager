@@ -37,6 +37,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
+import { OutlinedBlock } from "@/ui/OutlinedBlock";
 import { IconCircle } from "@/ui/IconCircle";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { Screen } from "@/ui/Screen";
@@ -170,38 +171,40 @@ export function DayScreen({ initialDate }: DayScreenProps) {
               titleOf={sessionTitle}
               onOpen={openSession}
             />
-            <View className="mt-1 h-11 flex-row items-end justify-between gap-3">
-              <View className="min-w-0 flex-1">
-                <AppText variant="eyebrow" tone="subtle" numberOfLines={1}>
-                  {isMonthView
-                    ? translate("home.view.calendar")
-                    : relativeDayLabel(sessionDate, today)}
-                </AppText>
-                <AppText variant="heading" accessibilityRole="header" numberOfLines={1}>
-                  {isMonthView ? formatMonth(calendarMonth) : shortDateLabel(sessionDate)}
-                </AppText>
+            <OutlinedBlock className="mt-1 gap-3">
+              <View className="h-11 flex-row items-end justify-between gap-3">
+                <View className="min-w-0 flex-1">
+                  <AppText variant="eyebrow" tone="subtle" numberOfLines={1}>
+                    {isMonthView
+                      ? translate("home.view.calendar")
+                      : relativeDayLabel(sessionDate, today)}
+                  </AppText>
+                  <AppText variant="heading" accessibilityRole="header" numberOfLines={1}>
+                    {isMonthView ? formatMonth(calendarMonth) : shortDateLabel(sessionDate)}
+                  </AppText>
+                </View>
+                <SegmentedControl
+                  isCompact
+                  options={[
+                    { value: "day", label: translate("home.view.day") },
+                    { value: "month", label: translate("home.view.month") },
+                  ]}
+                  selectedValue={view}
+                  onChange={changeView}
+                />
               </View>
-              <SegmentedControl
-                isCompact
-                options={[
-                  { value: "day", label: translate("home.view.day") },
-                  { value: "month", label: translate("home.view.month") },
-                ]}
-                selectedValue={view}
-                onChange={changeView}
+              <AgendaCalendar
+                view={view}
+                selectedDate={sessionDate}
+                today={today}
+                month={calendarMonth}
+                monthDays={monthCalendar?.days ?? []}
+                hasClassesOn={hasClassesOn}
+                onSelectDate={selectDate}
+                onPrevious={() => step(-1)}
+                onNext={() => step(1)}
               />
-            </View>
-            <AgendaCalendar
-              view={view}
-              selectedDate={sessionDate}
-              today={today}
-              month={calendarMonth}
-              monthDays={monthCalendar?.days ?? []}
-              hasClassesOn={hasClassesOn}
-              onSelectDate={selectDate}
-              onPrevious={() => step(-1)}
-              onNext={() => step(1)}
-            />
+            </OutlinedBlock>
             <View className="h-7 flex-row items-center justify-between">
               <AppText variant="caption" tone="subtle">
                 {isPending ? "" : summary}

@@ -15,11 +15,12 @@ import { CatalogImageField } from "@/features/catalogImages/components/CatalogIm
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
 import { ClassGroupsField } from "@/features/classGroups/components/ClassGroupsField";
 import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { parseIsoDate, todayIsoDate } from "@/features/sessions/dates";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { parseBirthDate } from "@/features/students/birthDateFormatting";
 import { DateField } from "@/forms/DateField";
+import { TimeField } from "@/forms/TimeField";
 import { isFilled } from "@/forms/requiredFields";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -38,11 +39,26 @@ const typedDateLength = 10;
 
 type Audience = "everyone" | "classes";
 
+type PublishTime = "now" | "scheduled";
+
 const publishedMessageKeys: Record<CatalogImageSaveOutcome, TranslationKey> = {
   saved: "announcements.published",
   limitReached: "announcements.publishedWithLimitReached",
   failed: "announcements.publishedWithoutPhoto",
 };
+
+const timePattern = /^(\d{2}):(\d{2})$/;
+
+function scheduledInstantOf(typedDate: string, typedTime: string): Date | null {
+  const isoDate = parseBirthDate(typedDate);
+  const timeMatch = timePattern.exec(typedTime.trim());
+  if (isoDate === null || timeMatch === null) {
+    return null;
+  }
+  const date = parseIsoDate(isoDate);
+  date.setHours(Number(timeMatch[1]), Number(timeMatch[2]), 0, 0);
+  return date;
+}
 
 export function NewAnnouncementScreen() {
   const router = useRouter();
@@ -58,16 +74,24 @@ export function NewAnnouncementScreen() {
   const [classGroupIds, setClassGroupIds] = useState<string[]>([]);
   const [visibleUntil, setVisibleUntil] = useState("");
   const [isPinned, setIsPinned] = useState(false);
+  const [publishTime, setPublishTime] = useState<PublishTime>("now");
+  const [publishDate, setPublishDate] = useState("");
+  const [publishClockTime, setPublishClockTime] = useState("");
+  const [openedAt] = useState(() => Date.now());
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
 
   const visibleUntilIsoDate = parseBirthDate(visibleUntil);
   const hasInvalidVisibleUntil =
     isFilled(visibleUntil) &&
     (visibleUntilIsoDate === null || visibleUntilIsoDate < todayIsoDate());
+  const isScheduled = publishTime === "scheduled";
+  const publishOn = scheduledInstantOf(publishDate, publishClockTime);
+  const hasInvalidPublishOn = isScheduled && publishOn !== null && publishOn.getTime() <= openedAt;
   const canPublish =
     isFilled(title) &&
     (audience === "everyone" || classGroupIds.length > 0) &&
-    !hasInvalidVisibleUntil;
+    !hasInvalidVisibleUntil &&
+    (!isScheduled || (publishOn !== null && !hasInvalidPublishOn));
 
   const publish = async () => {
     setSubmissionFailure(null);
@@ -77,14 +101,21 @@ export function NewAnnouncementScreen() {
         body: isFilled(body) ? body.trim() : null,
         category,
         classGroupIds: audience === "classes" ? classGroupIds : [],
-        isPinned,
+        isPinned: isPinned && !isScheduled,
         visibleUntil: visibleUntilIsoDate,
+        publishOn: isScheduled && publishOn !== null ? publishOn.toISOString() : null,
       });
       const imagesOutcome = await applyImagesMutation.mutateAsync({
         announcementId: announcement.id,
         draft: images.draft,
       });
-      showToast(translate(publishedMessageKeys[imagesOutcome]));
+      showToast(
+        translate(
+          isScheduled && imagesOutcome === "saved"
+            ? "announcements.scheduled"
+            : publishedMessageKeys[imagesOutcome],
+        ),
+      );
       router.back();
     } catch (publishError) {
       setSubmissionFailure(toSubmissionFailure(publishError));
@@ -172,16 +203,56 @@ export function NewAnnouncementScreen() {
             : undefined
         }
       />
-      <ToggleSwitch
-        icon="pin"
-        label={translate("announcements.pinToggle")}
-        hint={translate("announcements.pinToggleHint")}
-        value={isPinned}
-        onValueChange={setIsPinned}
-      />
+      <View className="gap-2">
+        <AppText variant="label" tone="muted">
+          {translate("announcements.publishTime.label")}
+        </AppText>
+        <SegmentedControl
+          options={[
+            { value: "now", label: translate("announcements.publishTime.now") },
+            { value: "scheduled", label: translate("announcements.publishTime.scheduled") },
+          ]}
+          selectedValue={publishTime}
+          onChange={setPublishTime}
+        />
+        {isScheduled ? (
+          <View className="gap-3">
+            <DateField
+              label={translate("announcements.publishTime.date")}
+              isRequired
+              value={publishDate}
+              onChangeText={setPublishDate}
+              earliestIsoDate={todayIsoDate()}
+            />
+            <TimeField
+              label={translate("announcements.publishTime.time")}
+              isRequired
+              value={publishClockTime}
+              onChangeText={setPublishClockTime}
+              errorMessage={
+                hasInvalidPublishOn
+                  ? translate("announcements.validation.publishTimeInThePast")
+                  : undefined
+              }
+            />
+            <AppText variant="caption" tone="muted">
+              {translate("announcements.publishTime.hint")}
+            </AppText>
+          </View>
+        ) : null}
+      </View>
+      {isScheduled ? null : (
+        <ToggleSwitch
+          icon="pin"
+          label={translate("announcements.pinToggle")}
+          hint={translate("announcements.pinToggleHint")}
+          value={isPinned}
+          onValueChange={setIsPinned}
+        />
+      )}
       <Button
         icon="announcement"
-        label={translate("announcements.publish")}
+        label={translate(isScheduled ? "announcements.schedule" : "announcements.publish")}
         disabled={!canPublish}
         isLoading={createAnnouncementMutation.isPending || applyImagesMutation.isPending}
         onPress={publish}
