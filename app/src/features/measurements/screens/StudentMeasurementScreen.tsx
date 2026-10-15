@@ -90,7 +90,7 @@ function GoalRow({ studentId, studentMeasurement, canChange }: GoalRowProps) {
         />
         <View className="flex-row justify-end gap-2">
           <Button
-            variant="ghost"
+            variant="secondary"
             size="medium"
             label={translate("common.cancel")}
             onPress={() => setDraft(null)}
@@ -121,7 +121,7 @@ function GoalRow({ studentId, studentMeasurement, canChange }: GoalRowProps) {
       {canChange ? (
         <Button
           variant="ghost"
-          size="medium"
+          size="small"
           label={translate(
             goal === null ? "measurements.detail.setGoal" : "measurements.detail.changeGoal",
           )}

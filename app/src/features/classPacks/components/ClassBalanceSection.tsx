@@ -85,16 +85,13 @@ function PurchaseRow({ usage, title, details, canUndo, onUndo }: PurchaseRowProp
         </AppText>
       </View>
       {canUndo ? (
-        <Pressable
-          accessibilityRole="button"
+        <Button
+          variant="dangerGhost"
+          size="small"
+          label={translate("classPacks.balance.deletePurchase")}
           accessibilityLabel={`${translate("classPacks.balance.deletePurchase")} ${usage.name}`}
           onPress={onUndo}
-          className="py-2"
-        >
-          <AppText variant="label" tone="danger">
-            {translate("classPacks.balance.deletePurchase")}
-          </AppText>
-        </Pressable>
+        />
       ) : null}
     </View>
   );

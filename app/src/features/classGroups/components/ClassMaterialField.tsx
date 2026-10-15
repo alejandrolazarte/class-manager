@@ -1,11 +1,12 @@
 import { Controller, UseFormReturn } from "react-hook-form";
-import { Linking, Pressable, View } from "react-native";
+import { Linking, View } from "react-native";
 import { ClassGroupFormValues } from "@/features/classGroups/classGroupSchema";
 import { materialFileSizeLabel } from "@/features/classGroups/materialFileSize";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Icon } from "@/ui/Icon";
+import { TextLink } from "@/ui/TextLink";
 import { TextField } from "@/ui/TextField";
 import { TonalBlock } from "@/ui/TonalBlock";
 
@@ -45,15 +46,11 @@ function MaterialFileRow({
             </AppText>
           )}
           {url === null ? null : (
-            <Pressable
+            <TextLink
               accessibilityRole="link"
+              label={translate("classGroups.form.openMaterialFile")}
               onPress={() => Linking.openURL(url)}
-              className="self-start active:opacity-70"
-            >
-              <AppText variant="link" tone="primary">
-                {translate("classGroups.form.openMaterialFile")}
-              </AppText>
-            </Pressable>
+            />
           )}
         </View>
         <Button

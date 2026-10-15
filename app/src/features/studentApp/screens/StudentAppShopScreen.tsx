@@ -43,12 +43,11 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { EmptyState } from "@/ui/EmptyState";
-import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
 import { SectionTitle } from "@/ui/SectionTitle";
-import { PressableScale } from "@/ui/motion/PressableScale";
+import { TonalButton } from "@/ui/TonalButton";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 
 const shopKinds = {
@@ -134,15 +133,12 @@ function rowsOf(products: readonly StudentAppShopProduct[]): StudentAppShopProdu
 
 function MyOrdersButton({ onPress }: { onPress: () => void }) {
   return (
-    <PressableScale
-      accessibilityRole="button"
-      accessibilityLabel={translate("student.orders.title")}
+    <TonalButton
+      tone="neutral"
+      icon="orders"
+      label={translate("student.orders.title")}
       onPress={onPress}
-      className="h-9 flex-row items-center gap-1.5 rounded-full bg-muted px-3 active:opacity-80"
-    >
-      <Icon name="orders" size="small" />
-      <AppText variant="link">{translate("student.orders.title")}</AppText>
-    </PressableScale>
+    />
   );
 }
 

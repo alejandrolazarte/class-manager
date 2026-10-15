@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Linking, Pressable, View } from "react-native";
+import { Linking, View } from "react-native";
 import { InviteInstructorAppSection } from "@/features/instructors/components/InviteInstructorAppSection";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
 import { useCan } from "@/features/members/CurrentMemberProvider";
@@ -9,9 +9,8 @@ import { SettingsItemState } from "@/features/settings/components/SettingsItemSt
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { ActionTile } from "@/ui/ActionTile";
-import { AppText } from "@/ui/AppText";
+import { Button } from "@/ui/Button";
 import { Avatar } from "@/ui/Avatar";
-import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 
@@ -46,19 +45,16 @@ export function InstructorDetailScreen({ instructorId }: InstructorDetailScreenP
           navigation="back"
           navigationAction={
             canManageInstructors ? (
-              <Pressable
-                accessibilityRole="button"
+              <Button
+                variant="ghost"
+                size="medium"
+                icon="edit"
+                label={translate("instructors.detail.edit")}
                 accessibilityLabel={translate("instructors.detail.editAccessibility", {
                   name: instructor.fullName,
                 })}
                 onPress={() => router.push(routes.editInstructor(instructor.id))}
-                className="flex-row items-center gap-1 rounded-full px-3 py-2.5 active:bg-muted"
-              >
-                <Icon name="edit" size="medium" tone="primary" />
-                <AppText variant="bodyStrong" tone="primary">
-                  {translate("instructors.detail.edit")}
-                </AppText>
-              </Pressable>
+              />
             ) : undefined
           }
           leading={<Avatar name={instructor.fullName} tone="primary" size="large" />}

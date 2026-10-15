@@ -101,7 +101,7 @@ function InvitationRow({
         <View className="items-end">
           <Button
             variant="ghost"
-            size="medium"
+            size="small"
             label={translate("team.resend")}
             accessibilityLabel={`${translate("team.resend")} ${invitation.email}`}
             onPress={onResend}
@@ -109,7 +109,7 @@ function InvitationRow({
           />
           <Button
             variant="ghost"
-            size="medium"
+            size="small"
             label={translate("team.revoke")}
             accessibilityLabel={`${translate("team.revoke")} ${invitation.email}`}
             onPress={onRevoke}

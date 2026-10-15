@@ -1,5 +1,5 @@
 import { Controller, useFieldArray, UseFormReturn } from "react-hook-form";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import {
   maximumStudentsPerRegistration,
   RegisterClientFormValues,
@@ -63,11 +63,12 @@ export function AttendeesSection({ form }: AttendeesSectionProps) {
           key={additionalStudentField.id}
           title={translate("clients.register.attendeeCard")}
           trailing={
-            <Pressable accessibilityRole="button" className="p-1" onPress={() => remove(index)}>
-              <AppText tone="danger" variant="link">
-                {translate("common.remove")}
-              </AppText>
-            </Pressable>
+            <Button
+              variant="dangerGhost"
+              size="small"
+              label={translate("common.remove")}
+              onPress={() => remove(index)}
+            />
           }
         >
           <StudentFields

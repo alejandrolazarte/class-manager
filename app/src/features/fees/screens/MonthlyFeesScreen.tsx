@@ -87,7 +87,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
         {business.defaultMonthlyFee === null ? (
           <Banner tone="warning" message={translate("fees.month.noDefaultFee")}>
             <Button
-              variant="outline"
+              variant="secondary"
               size="medium"
               label={translate("fees.month.setDefaultFee")}
               onPress={() => router.push(routes.feesDefaultMonthlyFee)}

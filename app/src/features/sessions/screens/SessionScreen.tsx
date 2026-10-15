@@ -190,7 +190,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         >
           {canManageSessions ? (
             <Button
-              variant="outline"
+              variant="secondary"
               size="medium"
               label={translate("sessions.session.restore")}
               onPress={restoreSession}
@@ -209,7 +209,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         >
           {session.canReschedule && canManageSessions ? (
             <Button
-              variant="outline"
+              variant="secondary"
               size="medium"
               label={translate("sessions.reschedule.restore")}
               onPress={() => restoreSessionScheduleMutation.mutate()}
@@ -229,7 +229,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         >
           {canManageSessions ? (
             <Button
-              variant="outline"
+              variant="secondary"
               size="medium"
               label={translate("sessions.substitute.remove")}
               onPress={removeSubstitute}

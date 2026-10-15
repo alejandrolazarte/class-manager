@@ -103,6 +103,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, the type scale, AppText, Icon and the lint rules that keep screens on the theme
 - [Navigation](docs/frontend/navigation.md) — screens stay in their tab, shared screens per tab, ✕ for forms and ← for navigation, and the tests that enforce it
 - [Content Security Policy](docs/frontend/content-security-policy.md) — the web app's report-only policy, what it allows and why, how it was tested, and how to enforce it
+- [Buttons](docs/frontend/buttons.md) — one button per role (`Button` variants, icon, floating, tonal, links), how to choose, when a new button is justified, and the test that keeps screens from building their own
 - [Empty states](docs/frontend/empty-states.md) — an empty list keeps the floating "New…" button as its only create action, and the tests that enforce it
 - [Deleting data](docs/deleting-data.md) — every delete asks for confirmation, and data with business meaning is soft deleted with `IsDeleted` and `DeletedOn`
 - [Currencies and time zones](docs/currencies-and-time-zones.md) — payments, pack sales and orders keep the currency they were charged in, prices are not converted, and classes keep their local time when the business changes its time zone

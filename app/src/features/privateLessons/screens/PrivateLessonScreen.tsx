@@ -150,7 +150,7 @@ export function PrivateLessonScreen({ privateLessonId }: PrivateLessonScreenProp
         >
           {canManageLessons ? (
             <Button
-              variant="outline"
+              variant="secondary"
               size="medium"
               label={translate("sessions.session.restore")}
               onPress={() => restoreMutation.mutate()}
