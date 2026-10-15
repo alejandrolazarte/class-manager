@@ -64,7 +64,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-profes` | Settings and instructors |
 | `12b-novedades` | Announcements for students, empty, with the "Nuevo aviso" button |
-| `12b2-novedad-nueva`, `12b3-novedad-nueva-final` | New announcement: kind, title and text, then photo, audience, "Visible hasta" and pin |
+| `12b2-novedad-nueva`, `12b3-novedad-nueva-final`, `12b4-novedad-programada` | New announcement: kind, title and text, then photo, audience, "Visible hasta" and pin, then the day and time when it is scheduled |
 | `12h-novedades-vistas`, `12i-novedad-quien-lo-vio` | Announcements with how many families saw them, and who saw the event and who answered (from the student activity run) |
 | `12c-ajustes-negocio` | Business settings |
 | `12d-logros-y-asistencia` | Levels for students and whether noticed absences keep the streak |
@@ -90,7 +90,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - An app invitation for the Pérez client, accepted through the API. The invitation link only travels by email, so it is read from the SMTP sink every run starts (`e2e/support/globalSetup.ts`, `e2e/support/mailbox.ts`); the Playwright config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
 - Attendance in Natación inicial for every past class of the month: Lucía never misses, Tomás missed the class two weeks ago, so each shows a different streak.
 - A comment from the instructor for each student: Lucía's on her last past class, Tomás's on today's class.
-- Two announcements from the school (an event for everyone, and an important one for Natación inicial, pinned; the family answers that it goes to the event), and next week's Natación inicial class cancelled for a holiday.
+- Two announcements from the school (an event for everyone, and an important one for Natación inicial, pinned; the family answers that it goes to the event; and a reminder scheduled for next week), and next week's Natación inicial class cancelled for a holiday.
 - A "No voy" notice for Tomás on his next class after today (skipping the cancelled one).
 - A "Pack Aquagym" of 4 classes valid for Aquagym, sold to the Pérez client, with one Aquagym class booked for Lucía this week.
 - Three student orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.

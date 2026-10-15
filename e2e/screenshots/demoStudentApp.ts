@@ -223,6 +223,14 @@ export async function seedDemoStudentApp(
       isPinned: true,
     },
   ];
+  await send("POST", "/api/announcements", ownerToken, {
+    title: "Feriado del 8 de diciembre",
+    body: "Ese día no hay clases. Se pueden recuperar durante la semana.",
+    category: "Reminder",
+    classGroupIds: [],
+    isPinned: false,
+    publishOn: new Date(Date.now() + daysPerWeek * millisecondsPerDay).toISOString(),
+  });
   const publishedAnnouncements: Identified[] = [];
   for (const announcement of announcements) {
     publishedAnnouncements.push(
