@@ -9,12 +9,14 @@ import {
 } from "@/features/authentication/components/InvitationScreen";
 import { CheckedInvitation } from "@/features/authentication/types";
 import { useSession } from "@/features/authentication/useSession";
+import { clientErrorCodes } from "@/features/clients/clientErrorCodes";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 
 const conflictMessages = {
   [studentAppErrorCodes.alreadyLinked]: translate("studentAppInvitation.alreadyLinked"),
+  [clientErrorCodes.contactMustBeAdult]: translate("studentAppInvitation.contactMustBeAdult"),
 };
 
 function textsFor(invitation: CheckedInvitation) {

@@ -24,23 +24,16 @@ describe("When a contact who attends without birth date is invited", () => {
     });
   });
 
-  it("Then the birth date is sent", async () => {
+  it("Then no birth date is asked", async () => {
     await renderWithProviders(<InviteStudentAppSection client={client} />);
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("student.app.inviteAccessibility") }),
     );
-    await fireEvent.changeText(
-      screen.getByLabelText(translate("student.invite.birthDate")),
-      "20061985",
-    );
 
+    expect(screen.queryByLabelText(translate("student.invite.birthDate"))).toBeNull();
     await fireEvent.press(screen.getByRole("button", { name: translate("student.invite.send") }));
-
     await waitFor(() =>
-      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, {
-        email: "juan@example.com",
-        birthDate: "1985-06-20",
-      }),
+      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, { email: "juan@example.com" }),
     );
   });
 });
