@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 
-The web app (and the installed PWA) sends a Content Security Policy that tells the browser where scripts, styles, images and requests may come from. Its main job is to protect the refresh token, which the web app keeps in `localStorage` (see [running the app](running-the-app.md)): if a script were ever injected into the page, the policy keeps it from running and from sending anything to another server.
+The web app (and the installed PWA) sends a Content Security Policy that tells the browser where scripts, styles, images and requests may come from. Its main job is to keep injected scripts from running: if a script were ever injected into the page, the policy keeps it from running and from sending anything to another server. The refresh token itself is out of reach of scripts, in an `HttpOnly` cookie (see [Web session cookie](../web-session-cookie.md)).
 
 It is deployed in **report-only** mode: the browser only reports what it would block, in the developer console, and never blocks anything.
 
@@ -53,6 +53,6 @@ After the pilot has used the app for a while with no unexpected reports in the c
 
 To roll back, change the header name back. The policy itself doesn't change.
 
-## Refresh token in a cookie (not done)
+## Refresh token in a cookie
 
-The stronger fix is to keep the web refresh token in an `HttpOnly` cookie that scripts can't read. It needs the app and the API on the same site (for example `app.example.com` and `api.example.com`): Safari on iPhone blocks cross-site cookies, which would break the installed PWA. Since 2026-10-14 they are `app.laztty.com` and `api.laztty.com` (see [Domain and DNS](../domain-and-dns.md)), so this is now possible.
+Since 2026-10-15 the web refresh token lives in an `HttpOnly` cookie that scripts can't read. See [Web session cookie](../web-session-cookie.md).

@@ -1,6 +1,10 @@
 import { ApiError, NetworkError } from "@/api/apiErrors";
 import { authenticationSession } from "@/api/authenticationSession";
 import { ProblemDetails } from "@/api/problemDetails";
+import {
+  refreshTokenCookieCredentials,
+  refreshTokenCookieHeaders,
+} from "@/api/refreshTokenCookieRequest";
 import { appConfiguration } from "@/config/appConfiguration";
 
 export { ApiError, isApiError, isNetworkError, NetworkError } from "@/api/apiErrors";
@@ -54,6 +58,7 @@ async function fetchWithHeaders(
   url: string,
   requestInit: RequestInit,
   accessToken: string | null,
+  extraHeaders: Record<string, string> = {},
 ): Promise<Response> {
   const isFormBody = requestInit.body instanceof FormData;
   try {
@@ -62,6 +67,7 @@ async function fetchWithHeaders(
       headers: {
         Accept: jsonContentType,
         ...(isFormBody ? {} : { "Content-Type": jsonContentType }),
+        ...extraHeaders,
         ...(accessToken !== null
           ? { [authorizationHeader]: `${bearerScheme} ${accessToken}` }
           : {}),
@@ -101,7 +107,12 @@ async function send<TResponse>(
   readResponse: ResponseReader<TResponse> = readJson,
 ): Promise<TResponse> {
   const response = isAnonymous
-    ? await fetchWithHeaders(url, requestInit, null)
+    ? await fetchWithHeaders(
+        url,
+        { ...requestInit, ...refreshTokenCookieCredentials },
+        null,
+        refreshTokenCookieHeaders,
+      )
     : await fetchAuthenticated(url, requestInit);
 
   if (!response.ok) {

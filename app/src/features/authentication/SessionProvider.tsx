@@ -17,6 +17,7 @@ import {
   AcceptStudentAppInvitationRequest,
   AcceptInvitationRequest,
   CompleteSignUpRequest,
+  RefreshSessionRequest,
   SignInRequest,
   TokenResponse,
 } from "@/features/authentication/types";
@@ -72,19 +73,22 @@ async function hasTeamAndStudentAccounts(): Promise<boolean> {
 
 export const SessionContext = createContext<SessionContextValue | null>(null);
 
-async function refreshAccessToken(): Promise<string> {
+async function readStoredRefreshToken(): Promise<RefreshSessionRequest> {
   const storedRefreshToken = await refreshTokenStorage.read();
   if (storedRefreshToken === null) {
     throw new MissingRefreshTokenError();
   }
-  const rotatedTokens = await refreshSession({ refreshToken: storedRefreshToken });
-  await refreshTokenStorage.write(rotatedTokens.refreshToken);
+  return storedRefreshToken;
+}
+
+async function refreshAccessToken(): Promise<string> {
+  const rotatedTokens = await refreshSession(await readStoredRefreshToken());
+  await refreshTokenStorage.write(rotatedTokens);
   return rotatedTokens.accessToken;
 }
 
 async function restoreSession(): Promise<SessionState> {
-  const storedRefreshToken = await refreshTokenStorage.read();
-  if (storedRefreshToken === null) {
+  if ((await refreshTokenStorage.read()) === null) {
     return signedOutSession;
   }
   try {
@@ -130,7 +134,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       askForAccount: boolean = false,
     ) => {
       authenticationSession.startSession(tokens.accessToken);
-      await refreshTokenStorage.write(tokens.refreshToken);
+      await refreshTokenStorage.write(tokens);
       const mustChooseAccount = askForAccount && (await hasTeamAndStudentAccounts());
       setSession({
         status: "signedIn",
@@ -167,14 +171,11 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
   const switchTo = useCallback(
     async (businessId: string, kind: SessionKind | undefined, startedBy: SessionStartReason) => {
-      const storedRefreshToken = await refreshTokenStorage.read();
-      if (storedRefreshToken === null) {
-        throw new MissingRefreshTokenError();
-      }
+      const storedRefreshToken = await readStoredRefreshToken();
       const tokens = await switchBranchRequest(
         kind === undefined
-          ? { refreshToken: storedRefreshToken, businessId }
-          : { refreshToken: storedRefreshToken, businessId, kind },
+          ? { ...storedRefreshToken, businessId }
+          : { ...storedRefreshToken, businessId, kind },
       );
       await startSession(tokens, startedBy);
       await queryClient.resetQueries();
@@ -203,7 +204,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const signOut = useCallback(async () => {
     const storedRefreshToken = await refreshTokenStorage.read();
     if (storedRefreshToken !== null) {
-      await signOutRequest({ refreshToken: storedRefreshToken }).catch(() => undefined);
+      await signOutRequest(storedRefreshToken).catch(() => undefined);
     }
     authenticationSession.endSession();
   }, []);

@@ -32,7 +32,7 @@ describe("When branch is switched", () => {
       }),
     );
     await waitFor(async () =>
-      expect(await refreshTokenStorage.read()).toBe(branchTokens.refreshToken),
+      expect(await refreshTokenStorage.read()).toEqual({ refreshToken: branchTokens.refreshToken }),
     );
   });
 });

@@ -102,6 +102,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Laztty brand](docs/brand.md) — the product name, the mark, its color, where Laztty shows and where the business brand does, and how to render the app icons
 - [Theming and design tokens](docs/frontend/theming.md) — themes, light/dark, semantic tokens, the type scale, AppText, Icon and the lint rules that keep screens on the theme
 - [Navigation](docs/frontend/navigation.md) — screens stay in their tab, shared screens per tab, ✕ for forms and ← for navigation, and the tests that enforce it
+- [Web session cookie](docs/web-session-cookie.md) — on the web the refresh token lives in an `HttpOnly` cookie set by the API, the mobile app keeps it in secure storage, and how cross-site requests are refused
 - [Content Security Policy](docs/frontend/content-security-policy.md) — the web app's report-only policy, what it allows and why, how it was tested, and how to enforce it
 - [Buttons](docs/frontend/buttons.md) — one button per role (`Button` variants, icon, floating, tonal, links), how to choose, when a new button is justified, and the test that keeps screens from building their own
 - [Empty states](docs/frontend/empty-states.md) — an empty list keeps the floating "New…" button as its only create action, and the tests that enforce it
