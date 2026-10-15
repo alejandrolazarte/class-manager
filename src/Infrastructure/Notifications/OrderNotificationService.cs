@@ -41,10 +41,10 @@ internal sealed class OrderNotificationService(
 
         await teamNotifier.NotifyAsync(
             staffUserIds,
-            new PushMessage(
-                TeamNotificationTexts.OrderPlacedTitle(EmailTexts.Spanish.OrderNumber(order.Number), client.FullName),
+            LocalizedPushMessage.Build(texts => new PushMessage(
+                texts.OrderPlacedTitle(EmailTexts.For(texts.Language).OrderNumber(order.Number), client.FullName),
                 total,
-                TeamNotificationTexts.OrdersUrl),
+                TeamNotificationLinks.OrdersUrl)),
             cancellationToken);
     }
 
@@ -64,7 +64,7 @@ internal sealed class OrderNotificationService(
         var deliveryClassName = order.HasProducts && order.IsReady ? await DeliveryClassNameAsync(order, cancellationToken) : null;
         if (order.HasProducts && order.IsReady)
         {
-            await PushReadyAsync(order, WhereToGetIt(EmailTexts.Spanish, business, deliveryClassName), cancellationToken);
+            await PushReadyAsync(order, business, deliveryClassName, cancellationToken);
         }
 
         foreach (var recipient in await ClientRecipientsAsync(order, cancellationToken))
@@ -86,7 +86,7 @@ internal sealed class OrderNotificationService(
         }
 
         var deliveryClassName = await DeliveryClassNameAsync(order, cancellationToken);
-        await PushReadyAsync(order, WhereToGetIt(EmailTexts.Spanish, business, deliveryClassName), cancellationToken);
+        await PushReadyAsync(order, business, deliveryClassName, cancellationToken);
         foreach (var recipient in await ClientRecipientsAsync(order, cancellationToken))
         {
             var ready = recipient.Texts.OrderReady(
@@ -119,12 +119,17 @@ internal sealed class OrderNotificationService(
             [.. order.Lines.Select(line => OrderEmails.Line(line.Quantity, line.Name, line.Total, order.CurrencyCode))],
             OrderEmails.Amount(order.Total, order.CurrencyCode));
 
-    private async Task PushReadyAsync(Order order, string whereToGetIt, CancellationToken cancellationToken)
+    private async Task PushReadyAsync(Order order, Business business, string? deliveryClassName, CancellationToken cancellationToken)
     {
         if (order.ClientId is { } clientId)
         {
             await pushPublisher.PublishToStudentsAsync(
-                [clientId], new PushMessage(StudentAppPushTexts.OrderReadyTitle, whereToGetIt, StudentAppPushTexts.OrdersUrl), cancellationToken);
+                [clientId],
+                LocalizedPushMessage.Build(texts => new PushMessage(
+                    texts.OrderReadyTitle,
+                    WhereToGetIt(EmailTexts.For(texts.Language), business, deliveryClassName),
+                    StudentAppPushLinks.OrdersUrl)),
+                cancellationToken);
         }
     }
 

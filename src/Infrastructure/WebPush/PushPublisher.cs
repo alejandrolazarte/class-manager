@@ -1,4 +1,5 @@
 using ClassManager.Infrastructure.BackgroundTasks;
+using ClassManager.Infrastructure.Notifications;
 using ClassManager.Notifications.WebPush;
 using Microsoft.Extensions.Options;
 
@@ -6,35 +7,42 @@ namespace ClassManager.Infrastructure.WebPush;
 
 internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTaskOutbox queue, IOptions<VapidOptions> options)
 {
-    public async Task PublishToStudentsAsync(IReadOnlyCollection<Guid>? clientIds, PushMessage message, CancellationToken cancellationToken)
+    public async Task PublishToStudentsAsync(IReadOnlyCollection<Guid>? clientIds, LocalizedPushMessage message, CancellationToken cancellationToken)
     {
         if (!options.Value.IsConfigured || clientIds?.Count == 0)
         {
             return;
         }
 
-        await queue.EnqueueAsync(new SendPushBackgroundTaskCommand(new StudentAppPush(tenantContext.TenantId, clientIds, message)), cancellationToken);
+        await EnqueueAsync(new StudentAppPush(tenantContext.TenantId, clientIds, message.Default) { MessagesByLanguage = message.ByLanguage }, cancellationToken);
     }
 
-    public async Task PublishToStudentAccountsAsync(Guid clientId, IReadOnlyCollection<Guid> userIds, PushMessage message, CancellationToken cancellationToken)
+    public async Task PublishToStudentAccountsAsync(
+        Guid clientId,
+        IReadOnlyCollection<Guid> userIds,
+        LocalizedPushMessage message,
+        CancellationToken cancellationToken)
     {
         if (!options.Value.IsConfigured || userIds.Count == 0)
         {
             return;
         }
 
-        await queue.EnqueueAsync(
-            new SendPushBackgroundTaskCommand(new StudentAppPush(tenantContext.TenantId, [clientId], message, userIds)),
+        await EnqueueAsync(
+            new StudentAppPush(tenantContext.TenantId, [clientId], message.Default, userIds) { MessagesByLanguage = message.ByLanguage },
             cancellationToken);
     }
 
-    public async Task PublishToMembersAsync(IReadOnlyCollection<Guid> userIds, PushMessage message, CancellationToken cancellationToken)
+    public async Task PublishToMembersAsync(IReadOnlyCollection<Guid> userIds, LocalizedPushMessage message, CancellationToken cancellationToken)
     {
         if (!options.Value.IsConfigured || userIds.Count == 0)
         {
             return;
         }
 
-        await queue.EnqueueAsync(new SendPushBackgroundTaskCommand(new TeamPush(tenantContext.TenantId, userIds, message)), cancellationToken);
+        await EnqueueAsync(new TeamPush(tenantContext.TenantId, userIds, message.Default) { MessagesByLanguage = message.ByLanguage }, cancellationToken);
     }
+
+    private Task EnqueueAsync(PushJob push, CancellationToken cancellationToken) =>
+        queue.EnqueueAsync(new SendPushBackgroundTaskCommand(push), cancellationToken);
 }

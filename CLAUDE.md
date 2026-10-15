@@ -105,7 +105,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ## UI languages
 
-User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Email texts live in `src/Core/Emails` (`IEmailTexts`, one class per language) and follow the recipient account's language; a new or changed email goes in every language. Legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
+User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Email texts live in `src/Core/Emails` (`IEmailTexts`, one class per language) and follow the recipient account's language; a new or changed email goes in every language. Push notification and team notice texts follow the same rule through `INotificationTexts` in `src/Infrastructure/Notifications`; what the team writes (announcements, comments, reasons) is never translated. Legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
 
 ## Multi-tenancy
 

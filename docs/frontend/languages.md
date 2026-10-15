@@ -30,9 +30,15 @@ Adding or changing a text means writing it in both files in the same pull reques
 - Who gets which language: an email to an account uses that account's `PreferredLanguage` (`RecipientEmailTexts`): password reset, the "you already have an account" email, email change confirmation and notice, and every order email (each team member or student account gets its own language). Unknown codes fall back to Spanish.
 - Still in Spanish, on purpose for now: invitations (team, student app, guardian consent) and the sign-up confirmation. They go to people who may not have an account yet; once they choose English, every later email reaches them in English.
 
+## Push notifications and team notices
+
+- The texts the system writes around a notification live in `src/Infrastructure/Notifications`: `INotificationTexts`, implemented by `SpanishNotificationTexts` and `EnglishNotificationTexts` ("Se suspende {clase}" / "{clase} is cancelled", "{alumno} avisó que no viene", weekdays and dates). Links stay in `StudentAppPushLinks` and `TeamNotificationLinks`.
+- What the team writes is shown as written, in whatever language they wrote it: announcements (title and body), class comments and the reason for a cancelled class. Nothing is machine translated: the team doesn't see what reaches the student, and a wrong translation of a time or a place is worse than the original. A business with English-speaking students can write those texts in English, or in both languages.
+- Each notification is built in every language (`LocalizedPushMessage`). The push job carries all of them (`PushJob.MessagesByLanguage`, with `Message` as the Spanish default for jobs queued before this change), and `PushDispatcher` sends each subscription the message in its account's `PreferredLanguage`.
+- Team notices ("Avisos") are stored as text, one row per person, so `TeamNotifier` writes each row in that person's language. A notice already stored keeps the language it was written in.
+
 ## What stays in Spanish
 
-- **Push notifications and the team's notices** ("Avisos"): their texts are still built in Spanish in `src/Infrastructure/Notifications`.
 - **Legal texts** (`legalDocuments.ts`): the terms of use and the privacy policy are legal documents for Argentina and Spain; translating them is a legal decision, not a UI one. Their titles are translated.
 - **Import and export column names**: the API defines them, so hints keep naming the column `Responsable`.
 - **Numbers and money** keep the `es-AR` format (`1.234,50`) in both languages.
