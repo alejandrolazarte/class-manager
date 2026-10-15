@@ -31,6 +31,11 @@ internal sealed class TokenService(ITokenIssuer tokenIssuer) : ITokenService
             : ToIssuedTokens(tokens);
     }
 
+    public async Task<LastSession?> FindLastSessionAsync(Guid userId, CancellationToken cancellationToken) =>
+        await tokenIssuer.FindLastSessionAsync(userId, cancellationToken) is { } session
+            ? new LastSession(session.TenantId, session.Kind)
+            : null;
+
     public Task RevokeAsync(string refreshToken, CancellationToken cancellationToken) =>
         tokenIssuer.RevokeAsync(refreshToken, cancellationToken);
 

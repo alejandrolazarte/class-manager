@@ -23,12 +23,12 @@ public static class BranchRequests
     public static async Task<List<BranchResponse>> ListBranchesAsync(this HttpClient httpClient) =>
         (await httpClient.GetFromJsonAsync<List<BranchResponse>>(new Uri(ApiRoutes.MyBranches, UriKind.Relative), ApiRequests.JsonOptions))!;
 
-    public static Task<HttpResponseMessage> PostSwitchBranchAsync(this HttpClient httpClient, string refreshToken, Guid businessId) =>
-        httpClient.PostAsJsonAsync(SwitchBranchRoute, new SwitchBranchCommand(refreshToken, businessId), ApiRequests.JsonOptions);
+    public static Task<HttpResponseMessage> PostSwitchBranchAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string? kind = null) =>
+        httpClient.PostAsJsonAsync(SwitchBranchRoute, new SwitchBranchCommand(refreshToken, businessId, kind), ApiRequests.JsonOptions);
 
-    public static async Task<TokenResponse> SwitchBranchAsync(this HttpClient httpClient, string refreshToken, Guid businessId)
+    public static async Task<TokenResponse> SwitchBranchAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string? kind = null)
     {
-        using var response = await httpClient.PostSwitchBranchAsync(refreshToken, businessId);
+        using var response = await httpClient.PostSwitchBranchAsync(refreshToken, businessId, kind);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return await response.ReadTokensAsync();
     }

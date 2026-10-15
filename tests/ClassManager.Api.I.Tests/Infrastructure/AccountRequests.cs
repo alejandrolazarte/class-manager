@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.UseCases.Accounts;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Branches;
@@ -40,7 +41,10 @@ public static class AccountRequests
         var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
         var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.InstructorStudentFullName)).ClientId;
         (await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email)).EnsureSuccessStatusCode();
-        (await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email))).EnsureSuccessStatusCode();
+        using var accepted = await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email));
+        accepted.EnsureSuccessStatusCode();
+        var studentTokens = await accepted.ReadTokensAsync();
+        await anonymous.SwitchBranchAsync(studentTokens.RefreshToken, ownBusiness.BusinessId, AccountKinds.Team);
 
         var ownerTokens = await anonymous.SignInAsync(email);
         var student = new StudentAppScenario(instructors, clientId, email, ownerTokens, fixture.CreateClientWithToken(ownerTokens.AccessToken));

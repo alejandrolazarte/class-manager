@@ -33,12 +33,16 @@ public sealed class SignInUseCase(
             return InvalidCredentials();
         }
 
+        var lastSessionUser = await FindLastSessionUserAsync(verification.UserId, verification.Email, cancellationToken);
+        if (lastSessionUser is not null)
+        {
+            return TokenResponse.From(await tokenService.IssueAsync(lastSessionUser, cancellationToken));
+        }
+
         var branch = await branchDirectory.FindDefaultAsync(verification.UserId, cancellationToken);
         if (branch is not null)
         {
-            return TokenResponse.From(await tokenService.IssueAsync(
-                new SessionUser(verification.UserId, verification.Email, branch.BusinessId, branch.RoleName),
-                cancellationToken));
+            return TokenResponse.From(await tokenService.IssueAsync(TeamUser(verification.UserId, verification.Email, branch), cancellationToken));
         }
 
         var student = await studentAppDirectory.FindDefaultAsync(verification.UserId, cancellationToken);
@@ -47,10 +51,31 @@ public sealed class SignInUseCase(
             return InvalidCredentials();
         }
 
-        return TokenResponse.From(await tokenService.IssueAsync(
-            new SessionUser(verification.UserId, verification.Email, student.BusinessId, AccountKinds.StudentRoleName, AccountKinds.Student),
-            cancellationToken));
+        return TokenResponse.From(await tokenService.IssueAsync(StudentUser(verification.UserId, verification.Email, student), cancellationToken));
     }
+
+    private async Task<SessionUser?> FindLastSessionUserAsync(Guid userId, string email, CancellationToken cancellationToken)
+    {
+        if (await tokenService.FindLastSessionAsync(userId, cancellationToken) is not { } lastSession)
+        {
+            return null;
+        }
+
+        if (AccountKinds.IsStudent(lastSession.Kind))
+        {
+            var student = await studentAppDirectory.FindAsync(userId, lastSession.BusinessId, cancellationToken);
+            return student is null ? null : StudentUser(userId, email, student);
+        }
+
+        var branch = await branchDirectory.FindAsync(userId, lastSession.BusinessId, cancellationToken);
+        return branch is null ? null : TeamUser(userId, email, branch);
+    }
+
+    private static SessionUser TeamUser(Guid userId, string email, BranchAccess branch) =>
+        new(userId, email, branch.BusinessId, branch.RoleName);
+
+    private static SessionUser StudentUser(Guid userId, string email, StudentAppLink student) =>
+        new(userId, email, student.BusinessId, AccountKinds.StudentRoleName, AccountKinds.Student);
 
     private static Result<TokenResponse> InvalidCredentials() =>
         Result.Unauthorized<TokenResponse>(InvalidCredentialsMessage, AuthenticationErrorCodes.InvalidCredentials);
