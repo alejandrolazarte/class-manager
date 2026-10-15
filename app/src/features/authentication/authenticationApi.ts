@@ -11,7 +11,6 @@ import {
   RefreshSessionRequest,
   ResetPasswordRequest,
   SignInRequest,
-  SignOutRequest,
   SignUpRequest,
   SwitchBranchRequest,
   TokenResponse,
@@ -54,7 +53,7 @@ export function refreshSession(request: RefreshSessionRequest): Promise<TokenRes
   return anonymousHttpClient.post<TokenResponse>(authenticationPaths.refresh, request);
 }
 
-export function signOut(request: SignOutRequest): Promise<void> {
+export function signOut(request: RefreshSessionRequest): Promise<void> {
   return anonymousHttpClient.post<void>(authenticationPaths.signOut, request);
 }
 

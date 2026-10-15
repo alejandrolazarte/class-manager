@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { formatMoney } from "@/features/fees/money";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
@@ -10,9 +10,9 @@ import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useO
 import { formatLongDate } from "@/features/sessions/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { TonalBlock } from "@/ui/TonalBlock";
-import { Spinner } from "@/ui/Spinner";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { Collapsible } from "@/ui/motion/Collapsible";
@@ -48,19 +48,14 @@ interface OrderActionProps {
 
 function OrderAction({ label, onPress, isLoading = false, isExpanded }: OrderActionProps) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ busy: isLoading, expanded: isExpanded }}
-      disabled={isLoading}
+    <Button
+      variant="ghost"
+      size="small"
+      label={label}
       onPress={onPress}
-      className="min-h-9 flex-row items-center gap-1.5 rounded-lg px-2 active:bg-muted"
-    >
-      {isLoading ? <Spinner tone="primary" /> : null}
-      <AppText variant="link" tone="primary">
-        {label}
-      </AppText>
-    </Pressable>
+      isLoading={isLoading}
+      isExpanded={isExpanded}
+    />
   );
 }
 

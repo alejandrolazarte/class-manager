@@ -1,6 +1,7 @@
 import { Fragment } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { AppText } from "@/ui/AppText";
+import { PressableScale } from "@/ui/motion/PressableScale";
 
 interface FooterLink {
   label: string;
@@ -17,7 +18,7 @@ export function FooterLinks({ links }: FooterLinksProps) {
       {links.map((link, index) => (
         <Fragment key={link.label}>
           {index > 0 ? <View className="h-3 w-px bg-border" /> : null}
-          <Pressable
+          <PressableScale
             accessibilityRole="link"
             onPress={link.onPress}
             hitSlop={8}
@@ -26,7 +27,7 @@ export function FooterLinks({ links }: FooterLinksProps) {
             <AppText variant="caption" tone="muted">
               {link.label}
             </AppText>
-          </Pressable>
+          </PressableScale>
         </Fragment>
       ))}
     </View>

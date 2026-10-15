@@ -8,7 +8,7 @@ public sealed class Then_validation_fails
     public void Then_validation_fails_Run()
     {
         var announcement = Announcement.Create(
-            "Feriado", new string('x', Announcement.BodyMaxLength + 1), TestData.Now);
+            "Feriado", new string('x', Announcement.BodyMaxLength + 1), TestData.Now, TestData.Today);
 
         announcement.Error!.FieldName.ShouldBe(nameof(Announcement.Body));
     }

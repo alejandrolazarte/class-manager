@@ -3,7 +3,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
-using ClassManager.Notifications.Email;
+using ClassManager.Core.Emails;
 
 namespace ClassManager.Core.UseCases.Members;
 
@@ -24,22 +24,7 @@ public sealed class InviteMemberUseCase(
     TimeProvider timeProvider)
     : IUseCase<InviteMemberCommand, InvitationResponse>
 {
-    public const string EmailHeading = "Te invitaron a sumarte al equipo";
-
     private const string AlreadyMemberMessage = "This person is already part of the team.";
-
-    public static string EmailSubjectFor(string businessName) => $"{businessName} te invita a su equipo";
-
-    public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
-        new(
-            "Invitación al equipo",
-            EmailHeading,
-            $"Te invitaron a sumarte al equipo de {businessName}. Tocá el botón para aceptar.",
-            "Si no esperabas esta invitación, podés ignorar este mail.")
-        {
-            Action = new EmailAction("Aceptar invitación", acceptInvitationLink, ShowsLinkFallback: true),
-            Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
-        };
 
     public async Task<Result<InvitationResponse>> ExecuteAsync(InviteMemberCommand command, CancellationToken cancellationToken)
     {
@@ -105,8 +90,8 @@ public sealed class InviteMemberUseCase(
         invitationRepository.Add(invitation.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptInvitation(token.Value));
-        await emailSender.SendAsync(new EmailMessage(invitation.Value.Email, EmailSubjectFor(business.BrandDisplayName), content, business.Id), cancellationToken);
+        var teamInvitation = EmailTexts.Spanish.TeamInvitation(business.BrandDisplayName, webAppLinks.AcceptInvitation(token.Value));
+        await emailSender.SendAsync(new EmailMessage(invitation.Value.Email, teamInvitation.Subject, teamInvitation.Content, business.Id), cancellationToken);
 
         return InvitationResponse.From(invitation.Value);
     }

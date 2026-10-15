@@ -63,7 +63,9 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `10c-cobros-pedidos` | Cobros on Pedidos: orders summary, filters and order cards |
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-profes` | Settings and instructors |
-| `12b-novedades` | Publishing an announcement for students |
+| `12b-novedades` | Announcements for students, empty, with the "Nuevo aviso" button |
+| `12b2-novedad-nueva`, `12b3-novedad-nueva-final` | New announcement: kind, title and text, then photo, audience, "Visible hasta" and pin |
+| `12h-novedades-vistas`, `12i-novedad-quien-lo-vio` | Announcements with how many families saw them, and who saw the event and who answered (from the student activity run) |
 | `12c-ajustes-negocio` | Business settings |
 | `12d-logros-y-asistencia` | Levels for students and whether noticed absences keep the streak |
 | `12e-mediciones` | The measurements of the business, with who sees and records each one |
@@ -88,7 +90,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - An app invitation for the Pérez client, accepted through the API. The invitation link only travels by email, so it is read from the SMTP sink every run starts (`e2e/support/globalSetup.ts`, `e2e/support/mailbox.ts`); the Playwright config points the API at it (`Email:Smtp`, port `E2E_SMTP_PORT`, 2525 by default). If you reuse an API that is already running, start it with that SMTP setting.
 - Attendance in Natación inicial for every past class of the month: Lucía never misses, Tomás missed the class two weeks ago, so each shows a different streak.
 - A comment from the instructor for each student: Lucía's on her last past class, Tomás's on today's class.
-- Two announcements from the school, and next week's Natación inicial class cancelled for a holiday.
+- Two announcements from the school (an event for everyone, and an important one for Natación inicial, pinned; the family answers that it goes to the event), and next week's Natación inicial class cancelled for a holiday.
 - A "No voy" notice for Tomás on his next class after today (skipping the cancelled one).
 - A "Pack Aquagym" of 4 classes valid for Aquagym, sold to the Pérez client, with one Aquagym class booked for Lucía this week.
 - Three student orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
@@ -98,7 +100,7 @@ The student signs in through the sign-in screen, then the test captures:
 
 | File | Screen |
 |---|---|
-| `20-alumno-inicio` | Home: next class, streak, monthly fee, instructor comment and shop preview |
+| `20-alumno-inicio` | Home: the pinned announcement, next class, streak, monthly fee, instructor comment and shop preview |
 | `21-alumno-inicio-otro-alumno` | Home after picking the other student |
 | `21b-alumno-novedades` | News: announcements, ready order, instructor comments and the cancelled class, grouped by day |
 | `22-alumno-clases` | Week of classes for the selected student |
@@ -161,7 +163,7 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 
 ## Email previews
 
-`e2e/screenshots/Email_previews.capture.ts` captures every email the app sends, without the API or a database. It runs `tools/EmailPreviews`, a small console project in the solution that builds each email with the same code the app uses (`EmailContentFor` of each use case, `OrderEmails`) and renders it with `BrandedEmailHtml`, then screenshots each HTML file at phone (390 px) and desktop (1280 px) width.
+`e2e/screenshots/Email_previews.capture.ts` captures every email the app sends, without the API or a database. It runs `tools/EmailPreviews`, a small console project in the solution that builds each email with the same code the app uses (`EmailTexts` in `src/Core/Emails`, `OrderEmails` for amounts) and renders it with `BrandedEmailHtml`, then screenshots each HTML file at phone (390 px) and desktop (1280 px) width.
 
 ```powershell
 cd e2e
@@ -193,4 +195,6 @@ Business emails are rendered with four brands of "Escuela Brazada": `sin-marca` 
 | `14-confirmar-registro` | Confirm the email and choose a password to create the business (app brand) |
 | `15-registro-con-cuenta-existente` | Sign-up with an email that already has an account (app brand) |
 
-When a new email is added, add it to `EmailPreviewCatalog` in `tools/EmailPreviews` and to this table.
+Each email is rendered once per language: the Spanish files keep these names and the English ones end in `-en` (`01-invitacion-al-equipo-en--color.html`).
+
+When a new email is added, add it to `IEmailTexts`, to `EmailPreviewCatalog` in `tools/EmailPreviews` and to this table.

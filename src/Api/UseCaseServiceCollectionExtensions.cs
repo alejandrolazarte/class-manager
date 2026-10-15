@@ -47,6 +47,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
         services.AddScoped<IBusinessCurrencyService, BusinessCurrencyService>();
         services.AddScoped<ICatalogImageService, CatalogImageService>();
+        services.AddScoped<IAnnouncementResponseService, AnnouncementResponseService>();
         services.AddScoped<IAccessScopes, AccessScopes>();
         services.AddSingleton<CsvTabularReader>();
         services.AddSingleton(new XlsxTabularReader());
@@ -141,6 +142,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<GetStudentAppHomeQuery, StudentAppHomeResponse, GetStudentAppHomeUseCase>();
         services.AddUseCase<GetStudentAppNewsQuery, StudentAppNewsResponse, GetStudentAppNewsUseCase>();
         services.AddUseCase<MarkStudentAppNewsSeenCommand, bool, MarkStudentAppNewsSeenUseCase>();
+        services.AddUseCase<ReplyToAnnouncementCommand, bool, ReplyToAnnouncementUseCase>();
         services.AddUseCase<NotifyAbsenceCommand, bool, NotifyAbsenceUseCase>();
         services.AddScoped<MakeupRepositories>();
         services.AddScoped<PackCreditRepositories>();
@@ -163,6 +165,12 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<ListAnnouncementsQuery, IReadOnlyList<AnnouncementResponse>, ListAnnouncementsUseCase>();
         services.AddUseCase<DeleteAnnouncementCommand, bool, DeleteAnnouncementUseCase>();
         services.AddUseCase<RestoreAnnouncementCommand, bool, RestoreAnnouncementUseCase>();
+        services.AddUseCase<PinAnnouncementCommand, bool, PinAnnouncementUseCase>();
+        services.AddUseCase<ListAnnouncementRecipientsQuery, IReadOnlyList<AnnouncementRecipientResponse>, ListAnnouncementRecipientsUseCase>();
+        services.AddUseCase<RemindAnnouncementCommand, AnnouncementReminderResponse, RemindAnnouncementUseCase>();
+        services.AddUseCase<UnpinAnnouncementCommand, bool, UnpinAnnouncementUseCase>();
+        services.AddUseCase<AddAnnouncementImageCommand, AnnouncementResponse, AddAnnouncementImageUseCase>();
+        services.AddUseCase<RemoveAnnouncementImageCommand, AnnouncementResponse, RemoveAnnouncementImageUseCase>();
         services.AddUseCase<ListMeasurementsQuery, IReadOnlyList<MeasurementResponse>, ListMeasurementsUseCase>();
         services.AddUseCase<CreateMeasurementCommand, MeasurementResponse, CreateMeasurementUseCase>();
         services.AddUseCase<UpdateMeasurementCommand, MeasurementResponse, UpdateMeasurementUseCase>();

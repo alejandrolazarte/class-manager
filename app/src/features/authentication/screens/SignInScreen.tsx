@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Pressable } from "react-native";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import { authenticationErrorCodes } from "@/features/authentication/authenticationErrorCodes";
 import { AuthenticationScreenLayout } from "@/features/authentication/components/AuthenticationScreenLayout";
@@ -18,9 +17,9 @@ import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { TextLink } from "@/ui/TextLink";
 import { PasswordField } from "@/ui/PasswordField";
 import { TextField } from "@/ui/TextField";
-import { AppText } from "@/ui/AppText";
 import { BrandMark } from "@/ui/BrandMark";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
@@ -81,15 +80,12 @@ export function SignInScreen() {
       onBack={() => router.replace(routes.welcome)}
       mark={<BrandMark />}
       footer={
-        <Pressable
+        <TextLink
           accessibilityRole="link"
-          className="py-1.5"
+          alignment="center"
+          label={translate("authentication.signIn.goToSignUp")}
           onPress={() => router.replace(routes.signUp)}
-        >
-          <AppText tone="primary" variant="link" className="text-center">
-            {translate("authentication.signIn.goToSignUp")}
-          </AppText>
-        </Pressable>
+        />
       }
     >
       {signInFailure === "invalidCredentials" ? (
@@ -143,15 +139,11 @@ export function SignInScreen() {
         disabled={!areRequiredFieldsFilled}
         isLoading={form.formState.isSubmitting}
       />
-      <Pressable
-        accessibilityRole="button"
-        className="py-2"
+      <TextLink
+        alignment="center"
+        label={translate("authentication.signIn.forgotPassword")}
         onPress={() => router.push(routes.forgotPassword(form.getValues("email").trim()))}
-      >
-        <AppText tone="primary" variant="link" className="text-center">
-          {translate("authentication.signIn.forgotPassword")}
-        </AppText>
-      </Pressable>
+      />
     </AuthenticationScreenLayout>
   );
 }

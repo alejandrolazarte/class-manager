@@ -48,6 +48,8 @@ Everything is written in English: code, identifiers, comments in config files, c
 
 - Never push to `main`, never merge pull requests (`gh pr merge`), never use `--no-verify`.
 - Work on a branch (`feature/...`, `fix/...`, `chore/...`, `docs/...`), push it and open a PR with `gh pr create`.
+- When the work is finished (checks from "Before pushing" pass and the branch is pushed), open the pull request right away, without asking. If a PR is already open for the branch, push to it instead of opening another.
+- After opening or pushing to a PR, follow it until it is green and mergeable, without asking: check its CI runs and fix any failure, and when `main` moved and the PR has conflicts, merge `main` into the branch, resolve them keeping both sides' behavior, run the "Before pushing" checks again and push. Never force-push a branch someone else also pushes to.
 - The owner reviews and merges on GitHub. Stop after opening the PR.
 - Enforcement: `.githooks/pre-push` blocks pushes to `main`, and `.claude/settings.json` denies the commands above. See [docs/github-protection.md](docs/github-protection.md).
 
@@ -105,7 +107,7 @@ Integration tests start SQL Server and Azurite (Blob Storage emulator) through T
 
 ## UI languages
 
-User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Emails and legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
+User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with the same keys: every new or changed text goes in both in the same PR (typecheck fails on a missing English key). Each person picks the language in Ajustes; it is saved in `identity.AspNetUsers.PreferredLanguage`. Email texts live in `src/Core/Emails` (`IEmailTexts`, one class per language) and follow the recipient account's language; a new or changed email goes in every language. Push notification and team notice texts follow the same rule through `INotificationTexts` in `src/Infrastructure/Notifications`; what the team writes (announcements, comments, reasons) is never translated. Legal texts stay in Spanish. See [docs/frontend/languages.md](docs/frontend/languages.md).
 
 ## Multi-tenancy
 
@@ -147,6 +149,9 @@ User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with
 - A delete that can be brought back runs on the first tap and the toast offers **Deshacer** (`showToast(message, action)`), which restores it; a test proves the undo restores it. Payments and announcements have a restore endpoint (`POST .../{id}/restore`); fee changes, class comments and custom roles are undone by saving them again.
 - An action that can't be undone, or that touches other people or money (cancelling a class, removing someone from the team, voiding a pack sale, deleting a private lesson, unenrolling), asks first with `ConfirmDialog` (a modal: short question, optional consequence, **Volver** and a verb, never "Sí, …"), and a test proves nothing happens until the user confirms.
 - Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`IsDeleted`, a stored `bit`; `DeletedOn`, the date and time it was deleted; `Delete(now)` sets both, and a check constraint keeps them in sync). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`, `[IsDeleted] = 0`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[IsDeleted] = 0`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
+
+### Buttons
+- Every button comes from `src/ui`, one per role: `Button` (`primary`, `secondary` for any other action and every Cancelar/Volver, `ghost`, `danger` only to confirm, `dangerOutline`, `dangerGhost`, `dashed` to add another item; `small` size for actions inside rows), `IconButton`, `FloatingActionButton`, `FloatingBarButton`, `TonalButton`, `ActionTile`, `TextLink`, `InlineLink`, `FooterLinks`. Screens never build a button from `Pressable`, and a new button or variant needs a missing role, justified in the PR. See [docs/frontend/buttons.md](docs/frontend/buttons.md).
 
 ### Empty states
 - The create action of a list lives only in its floating action button, which stays visible when the list is empty. `EmptyState` holds no buttons: pass `createActionLabel` to point to the floating button. Every `EmptyState` has an icon (`icon` is required). See [docs/frontend/empty-states.md](docs/frontend/empty-states.md).

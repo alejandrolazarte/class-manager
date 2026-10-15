@@ -13,6 +13,6 @@ public sealed class Then_the_total_is_shown_after_the_items
 
         var html = BrandedEmailHtml.Render(content, new EmailBrand("Laztty", null, null, null), new Uri("https://app.example.com/fonts/"));
 
-        html.IndexOf("3 Remeras", StringComparison.Ordinal).ShouldBeLessThan(html.IndexOf(EmailContent.TotalLabel + "</td>", StringComparison.Ordinal));
+        html.IndexOf("3 Remeras", StringComparison.Ordinal).ShouldBeLessThan(html.IndexOf(EmailLayoutTexts.Spanish.TotalLabel + "</td>", StringComparison.Ordinal));
     }
 }

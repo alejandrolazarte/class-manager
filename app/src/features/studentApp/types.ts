@@ -1,3 +1,4 @@
+import { AnnouncementCategory } from "@/features/announcements/types";
 import { CatalogImage } from "@/features/catalogImages/types";
 import { FeeStatus } from "@/features/fees/types";
 
@@ -250,6 +251,12 @@ export interface StudentAppNewsItem {
   classDate: string | null;
   orderId: string | null;
   classStartTime: string | null;
+  announcementId: string | null;
+  category: AnnouncementCategory | null;
+  isPinned: boolean;
+  isGoing: boolean | null;
+  imageUrl: string | null;
+  audienceClassNames: string[];
 }
 
 export interface StudentAppNews {

@@ -159,13 +159,23 @@ test("App screens", async ({ page, request }) => {
   await page.screenshot({ path: join(outputDirectory, "02b-comentario-del-profe.png") });
 
   await page.goto("/settings/announcements");
+  await page.getByText("Todavía no publicaste avisos").filter({ visible: true }).first().waitFor();
+  await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
+  await page.screenshot({ path: join(outputDirectory, "12b-novedades.png") });
+
+  await page.getByRole("button", { name: "Nuevo aviso" }).click();
   await page.getByLabel("Título").fill("Lunes 12 de octubre cerrado");
   await page
     .getByLabel("Detalle")
     .fill("Feriado. Las clases de ese día se pueden recuperar durante la semana.");
+  await page.getByRole("button", { name: "Importante" }).click();
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);
-  await page.screenshot({ path: join(outputDirectory, "12b-novedades.png") });
+  await page.screenshot({ path: join(outputDirectory, "12b2-novedad-nueva.png") });
+  await page.getByText("Fijar arriba").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(settleMilliseconds);
+  await page.screenshot({ path: join(outputDirectory, "12b3-novedad-nueva-final.png") });
 
   await page.goto("/settings/business");
   await page.getByText("Moneda").filter({ visible: true }).first().waitFor();

@@ -1,5 +1,5 @@
 import { Href, useRouter } from "expo-router";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
 import { useMyAccount } from "@/features/account/useMyAccount";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
@@ -9,7 +9,6 @@ import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
-import { Icon } from "@/ui/Icon";
 import { ListRow } from "@/ui/ListRow";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -38,17 +37,14 @@ export function MyProfileScreen({ editProfileRoute, changeEmailRoute }: MyProfil
           navigation="back"
           title={translate("profile.title")}
           navigationAction={
-            <Pressable
-              accessibilityRole="button"
+            <Button
+              variant="ghost"
+              size="medium"
+              icon="edit"
+              label={translate("profile.edit")}
               accessibilityLabel={translate("profile.editAccessibility")}
               onPress={() => router.push(editProfileRoute)}
-              className="flex-row items-center gap-1 rounded-full px-3 py-2.5 active:bg-muted"
-            >
-              <Icon name="edit" size="medium" tone="primary" />
-              <AppText variant="bodyStrong" tone="primary">
-                {translate("profile.edit")}
-              </AppText>
-            </Pressable>
+            />
           }
         />
       }

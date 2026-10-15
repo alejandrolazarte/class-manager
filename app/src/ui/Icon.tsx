@@ -94,6 +94,7 @@ const iconGlyphs = {
   link: "link-outline",
   document: "document-text-outline",
   openExternal: "open-outline",
+  pin: "pin-outline",
 } as const satisfies Record<string, IoniconsGlyph>;
 
 export const iconSizes = {

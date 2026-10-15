@@ -8,10 +8,20 @@ namespace ClassManager.Infrastructure.Notifications;
 internal sealed class StudentAppNotificationService(AppDbContext context, PushPublisher publisher, TimeProvider timeProvider)
     : IStudentAppNotificationService
 {
-    public Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken) =>
+    public async Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken) =>
+        await publisher.PublishToStudentsAsync(
+            announcement.IsForEveryone ? null : await ClientIdsEnrolledInAsync(announcement.ClassGroupIds, cancellationToken),
+            LocalizedPushMessage.SameInEveryLanguage(
+                new PushMessage(announcement.Title, PushBodies.Shorten(announcement.Body ?? string.Empty), StudentAppPushLinks.NewsUrl)),
+            cancellationToken);
+
+    public Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
         publisher.PublishToStudentsAsync(
-            clientIds: null,
-            new PushMessage(announcement.Title, StudentAppPushTexts.Shorten(announcement.Body ?? string.Empty), StudentAppPushTexts.NewsUrl),
+            clientIds,
+            LocalizedPushMessage.Build(texts => new PushMessage(
+                texts.AnnouncementReminderTitle(announcement.Title),
+                PushBodies.Shorten(announcement.Body ?? string.Empty),
+                StudentAppPushLinks.NewsUrl)),
             cancellationToken);
 
     public async Task GuardianConsentRequestedAsync(ClientInvitation invitation, string studentFullName, CancellationToken cancellationToken)
@@ -23,10 +33,10 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
         await publisher.PublishToStudentAccountsAsync(
             invitation.ClientId,
             clientUserIds,
-            new PushMessage(
-                StudentAppPushTexts.GuardianConsentTitle(studentFullName),
-                StudentAppPushTexts.GuardianConsentBody,
-                StudentAppPushTexts.HomeUrl),
+            LocalizedPushMessage.Build(texts => new PushMessage(
+                texts.GuardianConsentTitle(studentFullName),
+                texts.GuardianConsentBody,
+                StudentAppPushLinks.HomeUrl)),
             cancellationToken);
     }
 
@@ -40,10 +50,10 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
 
         await publisher.PublishToStudentsAsync(
             await EnrolledClientIdsAsync(session, cancellationToken),
-            new PushMessage(
-                StudentAppPushTexts.ClassCancelledTitle(classGroup.Name),
-                StudentAppPushTexts.ClassCancelledBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), session.CancellationReason),
-                StudentAppPushTexts.NewsUrl),
+            LocalizedPushMessage.Build(texts => new PushMessage(
+                texts.ClassCancelledTitle(classGroup.Name),
+                texts.ClassCancelledBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), session.CancellationReason),
+                StudentAppPushLinks.NewsUrl)),
             cancellationToken);
     }
 
@@ -63,10 +73,10 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
                 .FirstOrDefaultAsync(cancellationToken);
         await publisher.PublishToStudentsAsync(
             await EnrolledClientIdsAsync(session, cancellationToken),
-            new PushMessage(
-                StudentAppPushTexts.ClassChangedTitle(classGroup.Name),
-                StudentAppPushTexts.ClassChangedBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), substituteFullName),
-                StudentAppPushTexts.NewsUrl),
+            LocalizedPushMessage.Build(texts => new PushMessage(
+                texts.ClassChangedTitle(classGroup.Name),
+                texts.ClassChangedBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), substituteFullName),
+                StudentAppPushLinks.NewsUrl)),
             cancellationToken);
     }
 
@@ -85,10 +95,10 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
             .FirstOrDefaultAsync(cancellationToken);
         await publisher.PublishToStudentsAsync(
             [student.ClientId],
-            new PushMessage(
-                StudentAppPushTexts.FeedbackTitle(instructorFullName, student.FullName),
-                StudentAppPushTexts.Shorten(feedback.Text),
-                StudentAppPushTexts.NewsUrl),
+            LocalizedPushMessage.Build(texts => new PushMessage(
+                texts.FeedbackTitle(instructorFullName, student.FullName),
+                PushBodies.Shorten(feedback.Text),
+                StudentAppPushLinks.NewsUrl)),
             cancellationToken);
     }
 
@@ -103,6 +113,22 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
 
         return await context.ClassGroups.AsNoTracking()
             .FirstOrDefaultAsync(candidate => candidate.Id == session.ClassGroupId, cancellationToken);
+    }
+
+    private async Task<List<Guid>> ClientIdsEnrolledInAsync(IReadOnlyList<Guid> classGroupIds, CancellationToken cancellationToken)
+    {
+        var business = await context.Businesses.AsNoTracking()
+            .FirstAsync(candidate => candidate.Id == context.CurrentTenantId, cancellationToken);
+        var today = business.TodayAt(timeProvider.GetUtcNow());
+        return await (
+            from enrollment in context.Enrollments.AsNoTracking()
+            where classGroupIds.Contains(enrollment.ClassGroupId)
+                && enrollment.StartDate <= today
+                && (enrollment.EndDate == null || enrollment.EndDate >= today)
+            join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
+            select student.ClientId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
     }
 
     private Task<List<Guid>> EnrolledClientIdsAsync(ClassSession session, CancellationToken cancellationToken) =>

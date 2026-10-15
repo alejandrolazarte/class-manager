@@ -159,7 +159,7 @@ export function InvitationAnswerForm({
       />
       {invitation.hasAccount ? (
         <Button
-          variant="outline"
+          variant="secondary"
           label={translate("invitationAnswer.decline")}
           onPress={onDecline}
           disabled={isAccepting}
