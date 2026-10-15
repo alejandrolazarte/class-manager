@@ -98,11 +98,6 @@ export function StudentAppHomeScreen() {
       {home.pendingGuardianConsents.map((consent) => (
         <GuardianConsentCard key={consent.invitationId} consent={consent} />
       ))}
-      {pinnedAnnouncement === undefined ? null : (
-        <AnimatedListItem index={0}>
-          <PinnedNews item={pinnedAnnouncement} />
-        </AnimatedListItem>
-      )}
       {student === null ? (
         <AppText variant="body" tone="muted">
           {translate("student.students.empty")}
@@ -149,7 +144,7 @@ export function StudentAppHomeScreen() {
           </OutlinedBlock>
         </AnimatedListItem>
       ) : null}
-      {announcements.length === 0 ? null : (
+      {pinnedAnnouncement === undefined && announcements.length === 0 ? null : (
         <AnimatedListItem index={3} className="mt-1.5">
           <View className="flex-row items-center justify-between">
             <SectionTitle title={translate("student.news.homeTitle")} />
@@ -158,6 +153,11 @@ export function StudentAppHomeScreen() {
               onPress={() => router.navigate(routes.studentAppNews)}
             />
           </View>
+          {pinnedAnnouncement === undefined ? null : (
+            <View className="mt-1">
+              <PinnedNews item={pinnedAnnouncement} />
+            </View>
+          )}
           {announcements.map((item) => (
             <NewsRow key={item.id} item={item} />
           ))}

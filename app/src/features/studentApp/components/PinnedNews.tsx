@@ -1,6 +1,7 @@
 import { View } from "react-native";
 import { announcementCategoryPresentations } from "@/features/announcements/announcementCategories";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
+import { EventReplyButtons } from "@/features/studentApp/components/EventReplyButtons";
 import { presentNews } from "@/features/studentApp/studentAppNewsPresentation";
 import { StudentAppNewsItem } from "@/features/studentApp/types";
 import { translate } from "@/i18n/translate";
@@ -38,6 +39,9 @@ export function PinnedNews({ item }: PinnedNewsProps) {
             {body}
           </AppText>
         )}
+        {item.category === "Event" && item.announcementId !== null ? (
+          <EventReplyButtons announcementId={item.announcementId} isGoing={item.isGoing} />
+        ) : null}
       </View>
     </TonalBlock>
   );

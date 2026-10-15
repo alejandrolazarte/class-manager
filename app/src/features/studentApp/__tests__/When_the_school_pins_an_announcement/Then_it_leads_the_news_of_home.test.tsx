@@ -34,11 +34,12 @@ describe("When the school pins an announcement", () => {
     );
   });
 
-  it("Then it is shown first on home", async () => {
+  it("Then it leads the news of home", async () => {
     await renderStudentAppScreen(<StudentAppHomeScreen />);
 
     const pinned = within(await screen.findByTestId("pinned-news"));
     expect(pinned.getByText("Horarios de verano")).toBeOnTheScreen();
     expect(pinned.getByText(translate("student.news.pinned"))).toBeOnTheScreen();
+    expect(screen.getByText(translate("student.news.homeTitle"))).toBeOnTheScreen();
   });
 });
