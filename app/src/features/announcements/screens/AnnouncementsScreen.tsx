@@ -66,6 +66,7 @@ export function AnnouncementsScreen() {
         <AnnouncementRow
           announcement={announcement}
           isBusy={deleteAnnouncementMutation.isPending || setPinnedMutation.isPending}
+          onOpen={(opened) => router.push(routes.announcement(opened.id))}
           onTogglePinned={togglePinned}
           onDelete={deleteAnnouncement}
         />

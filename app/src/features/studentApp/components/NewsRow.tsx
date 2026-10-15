@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
+import { EventReplyButtons } from "@/features/studentApp/components/EventReplyButtons";
 import { newsWhenLabel, presentNews } from "@/features/studentApp/studentAppNewsPresentation";
 import { StudentAppNewsItem, StudentAppNewsKind } from "@/features/studentApp/types";
 import { translate } from "@/i18n/translate";
@@ -52,6 +53,9 @@ export function NewsRow({ item, action }: NewsRowProps) {
               {body}
             </AppText>
           )}
+          {item.category === "Event" && item.announcementId !== null ? (
+            <EventReplyButtons announcementId={item.announcementId} isGoing={item.isGoing} />
+          ) : null}
           {action === undefined ? null : (
             <View className="mt-2 self-start">
               <Button size="medium" label={action.label} onPress={action.onPress} />

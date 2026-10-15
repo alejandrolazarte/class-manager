@@ -102,6 +102,7 @@ export const routes = {
   importExport: "/settings/import-export",
   announcements: "/settings/announcements",
   newAnnouncement: "/settings/announcements/new",
+  announcement: (announcementId: string) => `/settings/announcements/${announcementId}`,
   team: "/settings/team",
   inviteMember: "/settings/team/invite",
   teamMember: (memberId: string) => `/settings/team/${memberId}`,

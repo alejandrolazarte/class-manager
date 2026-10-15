@@ -9,11 +9,13 @@ import { AppText } from "@/ui/AppText";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { IconButton } from "@/ui/IconButton";
 import { IconCircle } from "@/ui/IconCircle";
+import { ProgressBar } from "@/ui/ProgressBar";
 import { StatusPill } from "@/ui/StatusPill";
 
 interface AnnouncementRowProps {
   announcement: Announcement;
   isBusy: boolean;
+  onOpen: (announcement: Announcement) => void;
   onTogglePinned: (announcement: Announcement) => void;
   onDelete: (announcement: Announcement) => void;
 }
@@ -27,13 +29,18 @@ function audienceOf(announcement: Announcement): string {
 export function AnnouncementRow({
   announcement,
   isBusy,
+  onOpen,
   onTogglePinned,
   onDelete,
 }: AnnouncementRowProps) {
   const category = announcementCategoryPresentations[announcement.category];
   const photo = announcement.images[0];
   return (
-    <HairlineRow className="flex-row items-start gap-3 py-3.5">
+    <HairlineRow
+      className="flex-row items-start gap-3 py-3.5"
+      accessibilityLabel={translate("announcements.open", { title: announcement.title })}
+      onPress={() => onOpen(announcement)}
+    >
       {photo === undefined ? (
         <IconCircle icon={category.icon} tone={category.tone} />
       ) : (
@@ -71,6 +78,26 @@ export function AnnouncementRow({
             })}
           </AppText>
         )}
+        {announcement.recipientCount === 0 ? null : (
+          <View className="mt-2 flex-row items-center gap-2.5">
+            <ProgressBar isThin ratio={announcement.seenCount / announcement.recipientCount} />
+            <AppText variant="badge" tone="muted">
+              {translate("announcements.readsLine", {
+                seen: announcement.seenCount,
+                total: announcement.recipientCount,
+              })}
+            </AppText>
+          </View>
+        )}
+        {announcement.category === "Event" &&
+        announcement.goingCount + announcement.notGoingCount > 0 ? (
+          <AppText variant="footnote" tone="success">
+            {translate("announcements.repliesLine", {
+              going: announcement.goingCount,
+              notGoing: announcement.notGoingCount,
+            })}
+          </AppText>
+        ) : null}
       </View>
       <View className="flex-row">
         <IconButton
