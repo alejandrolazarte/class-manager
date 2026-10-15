@@ -49,7 +49,7 @@ What we need is small: a handful of task types, one replica, retries. A table an
 
 ### Queuing
 
-`IBackgroundTaskOutbox.EnqueueAsync(command)` adds the row and saves the `AppDbContext`, like `TeamNotifier` already does after the business change. Inside a use case, that save joins the transaction of `CommandTransactionBehavior`, so the task commits or rolls back with the order. If the transaction rolls back after queuing (an exception, or a step that abandons its transaction), nothing is sent, where the in-memory outbox would have sent it anyway.
+`IBackgroundTaskOutbox.EnqueueAsync(command)` adds the row and saves the `AppDbContext` (`EnqueueAsync(command, runOn)` sets its first attempt at a later time, used to publish scheduled announcements), like `TeamNotifier` already does after the business change. Inside a use case, that save joins the transaction of `CommandTransactionBehavior`, so the task commits or rolls back with the order. If the transaction rolls back after queuing (an exception, or a step that abandons its transaction), nothing is sent, where the in-memory outbox would have sent it anyway.
 
 ### Waking the worker: a doorbell, not a timer
 

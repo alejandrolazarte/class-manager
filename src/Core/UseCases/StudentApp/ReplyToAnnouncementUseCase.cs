@@ -38,7 +38,10 @@ public sealed class ReplyToAnnouncementUseCase(
         var studentIds = (await studentRepository.ListByClientAsync(access.ClientId, cancellationToken)).Select(student => student.Id);
         var enrolledClassGroupIds = await StudentAnnouncements.EnrolledClassGroupIdsAsync(enrollmentRepository, studentIds, today, cancellationToken);
         var announcement = await announcementRepository.FindForUpdateAsync(command.AnnouncementId, cancellationToken);
-        if (announcement is null || !announcement.IsVisibleOn(today) || !announcement.IsFor(enrolledClassGroupIds))
+        if (announcement is null
+            || !announcement.IsPublishedBy(now)
+            || !announcement.IsVisibleOn(today)
+            || !announcement.IsFor(enrolledClassGroupIds))
         {
             return Result.NotFound<bool>(NotFoundMessage, AnnouncementErrorCodes.NotFound);
         }

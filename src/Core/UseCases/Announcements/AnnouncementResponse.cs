@@ -10,6 +10,7 @@ public sealed record AnnouncementResponse(
     string Title,
     string? Body,
     DateTimeOffset PublishedAt,
+    bool IsScheduled,
     AnnouncementCategory Category,
     bool IsPinned,
     DateOnly? VisibleUntil,

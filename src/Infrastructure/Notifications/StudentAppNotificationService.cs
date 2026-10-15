@@ -1,19 +1,35 @@
 using ClassManager.Core.Abstractions.Notifications;
+using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.WebPush;
 using ClassManager.Notifications.WebPush;
 
 namespace ClassManager.Infrastructure.Notifications;
 
-internal sealed class StudentAppNotificationService(AppDbContext context, PushPublisher publisher, TimeProvider timeProvider)
+internal sealed class StudentAppNotificationService(
+    AppDbContext context,
+    PushPublisher publisher,
+    IBackgroundTaskOutbox backgroundTasks,
+    TimeProvider timeProvider)
     : IStudentAppNotificationService
 {
-    public async Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken) =>
+    public async Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken)
+    {
+        if (!announcement.IsPublishedBy(timeProvider.GetUtcNow()))
+        {
+            await backgroundTasks.EnqueueAsync(
+                new PublishScheduledAnnouncementBackgroundTaskCommand(context.CurrentTenantId, announcement.Id),
+                announcement.PublishedAt,
+                cancellationToken);
+            return;
+        }
+
         await publisher.PublishToStudentsAsync(
             announcement.IsForEveryone ? null : await ClientIdsEnrolledInAsync(announcement.ClassGroupIds, cancellationToken),
             LocalizedPushMessage.SameInEveryLanguage(
                 new PushMessage(announcement.Title, PushBodies.Shorten(announcement.Body ?? string.Empty), StudentAppPushLinks.NewsUrl)),
             cancellationToken);
+    }
 
     public Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
         publisher.PublishToStudentsAsync(

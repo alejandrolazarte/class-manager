@@ -12,6 +12,7 @@ export interface Announcement {
   title: string;
   body: string | null;
   publishedAt: string;
+  isScheduled: boolean;
   category: AnnouncementCategory;
   isPinned: boolean;
   visibleUntil: string | null;
@@ -41,4 +42,5 @@ export interface CreateAnnouncementRequest {
   classGroupIds: string[];
   isPinned: boolean;
   visibleUntil: string | null;
+  publishOn: string | null;
 }
