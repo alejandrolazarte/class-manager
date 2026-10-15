@@ -124,7 +124,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IWebPushKeyProvider, WebPushKeyProvider>();
         services.AddScoped<PushPublisher>();
         services.AddScoped(serviceProvider => new PushDispatcher(
-            serviceProvider.GetRequiredService<AppDbContext>(), serviceProvider.GetRequiredService<IWebPushSender>()));
+            serviceProvider.GetRequiredService<AppDbContext>(),
+            serviceProvider.GetRequiredService<IWebPushSender>(),
+            serviceProvider.GetRequiredService<IIdentityService>()));
         services.AddScoped<IStudentAppNotificationService, StudentAppNotificationService>();
         services.AddBackgroundTask<PublishScheduledAnnouncementBackgroundTaskCommand, PublishScheduledAnnouncementBackgroundTaskHandler>();
         services.AddScoped<TeamNotifier>();

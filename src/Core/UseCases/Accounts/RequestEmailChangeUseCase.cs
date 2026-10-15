@@ -3,7 +3,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
-using ClassManager.Notifications.Email;
+using ClassManager.Core.Emails;
 
 namespace ClassManager.Core.UseCases.Accounts;
 
@@ -18,22 +18,10 @@ public sealed class RequestEmailChangeUseCase(
     IWebAppLinks webAppLinks)
     : IUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse>
 {
-    public const string EmailSubject = "Confirmá tu nuevo email";
     public const int EmailMaxLength = 254;
 
     private const string EmailFormatMessage = "Email must be a valid address of at most 254 characters.";
     private const string CurrentPasswordRequiredMessage = "Write your current password.";
-
-    public static EmailContent EmailContentFor(string confirmEmailChangeLink) =>
-        new(
-            "Tu cuenta",
-            EmailSubject,
-            "Pediste usar este email para entrar a la app. Tocá el botón para confirmarlo.",
-            "Si no lo pediste, ignorá este mail: tu cuenta sigue igual.")
-        {
-            Action = new EmailAction("Confirmar email", confirmEmailChangeLink, ShowsLinkFallback: true),
-            Note = new EmailNote("El link sirve una sola vez y vence en 24 horas."),
-        };
 
     public async Task<Result<RequestEmailChangeResponse>> ExecuteAsync(RequestEmailChangeCommand command, CancellationToken cancellationToken)
     {
@@ -60,8 +48,9 @@ public sealed class RequestEmailChangeUseCase(
             return request.Error!;
         }
 
-        var content = EmailContentFor(webAppLinks.ConfirmEmailChange(request.Value!.Token));
-        await emailSender.SendAsync(new EmailMessage(newEmail, EmailSubject, content), cancellationToken);
+        var emailTexts = await RecipientEmailTexts.OfUserAsync(identityService, userId, cancellationToken);
+        var confirmation = emailTexts.EmailChangeConfirmation(webAppLinks.ConfirmEmailChange(request.Value!.Token));
+        await emailSender.SendAsync(new EmailMessage(newEmail, confirmation.Subject, confirmation.Content), cancellationToken);
 
         return new RequestEmailChangeResponse(newEmail);
     }

@@ -36,6 +36,6 @@ describe("When sign up link is valid", () => {
 
     await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith(routes.today));
     expect(completeSignUp).toHaveBeenCalledWith({ token: signUpToken, password: ownerPassword });
-    expect(refreshTokenStorage.write).toHaveBeenCalledWith(issuedTokens.refreshToken);
+    expect(refreshTokenStorage.write).toHaveBeenCalledWith(issuedTokens);
   });
 });

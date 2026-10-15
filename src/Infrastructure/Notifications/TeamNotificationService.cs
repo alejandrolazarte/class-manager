@@ -7,29 +7,31 @@ namespace ClassManager.Infrastructure.Notifications;
 internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier notifier) : ITeamNotificationService
 {
     public Task AbsenceNotifiedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
-        NotifyInstructorAsync(studentId, classGroup, session, TeamNotificationTexts.AbsenceTitle, cancellationToken);
+        NotifyInstructorAsync(studentId, classGroup, session, (texts, name) => texts.AbsenceTitle(name), cancellationToken);
 
     public Task MakeupBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
-        NotifyInstructorAsync(studentId, classGroup, session, TeamNotificationTexts.MakeupTitle, cancellationToken);
+        NotifyInstructorAsync(studentId, classGroup, session, (texts, name) => texts.MakeupTitle(name), cancellationToken);
 
     public Task PackClassBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
-        NotifyInstructorAsync(studentId, classGroup, session, TeamNotificationTexts.PackClassTitle, cancellationToken);
+        NotifyInstructorAsync(studentId, classGroup, session, (texts, name) => texts.PackClassTitle(name), cancellationToken);
 
     public async Task StudentAppInvitationDeclinedAsync(ClientInvitation invitation, CancellationToken cancellationToken)
     {
-        var message = new PushMessage(
-            TeamNotificationTexts.StudentAppInvitationDeclinedTitle(await InvitedFullNameAsync(invitation, cancellationToken)),
-            TeamNotificationTexts.StudentAppInvitationDeclinedBody,
-            TeamNotificationTexts.ClientUrl(invitation.ClientId));
+        var invitedFullName = await InvitedFullNameAsync(invitation, cancellationToken);
+        var message = LocalizedPushMessage.Build(texts => new PushMessage(
+            texts.StudentAppInvitationDeclinedTitle(invitedFullName),
+            texts.StudentAppInvitationDeclinedBody,
+            TeamNotificationLinks.ClientUrl(invitation.ClientId)));
         await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
     }
 
     public async Task GuardianConsentRefusedAsync(ClientInvitation invitation, CancellationToken cancellationToken)
     {
-        var message = new PushMessage(
-            TeamNotificationTexts.GuardianConsentRefusedTitle(await InvitedFullNameAsync(invitation, cancellationToken)),
-            TeamNotificationTexts.GuardianConsentRefusedBody,
-            TeamNotificationTexts.ClientUrl(invitation.ClientId));
+        var invitedFullName = await InvitedFullNameAsync(invitation, cancellationToken);
+        var message = LocalizedPushMessage.Build(texts => new PushMessage(
+            texts.GuardianConsentRefusedTitle(invitedFullName),
+            texts.GuardianConsentRefusedBody,
+            TeamNotificationLinks.ClientUrl(invitation.ClientId)));
         await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
     }
 
@@ -43,10 +45,10 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
 
     public async Task TeamInvitationDeclinedAsync(MemberInvitation invitation, CancellationToken cancellationToken)
     {
-        var message = new PushMessage(
-            TeamNotificationTexts.TeamInvitationDeclinedTitle(invitation.Email),
-            TeamNotificationTexts.TeamInvitationDeclinedBody,
-            TeamNotificationTexts.TeamUrl);
+        var message = LocalizedPushMessage.Build(texts => new PushMessage(
+            texts.TeamInvitationDeclinedTitle(invitation.Email),
+            texts.TeamInvitationDeclinedBody,
+            TeamNotificationLinks.TeamUrl));
         await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
     }
 
@@ -66,7 +68,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
         Guid studentId,
         ClassGroup classGroup,
         ClassSession session,
-        Func<string, string> title,
+        Func<INotificationTexts, string, string> title,
         CancellationToken cancellationToken)
     {
         var student = await context.Students.AsNoTracking().FirstOrDefaultAsync(candidate => candidate.Id == studentId, cancellationToken);
@@ -76,10 +78,10 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
         }
 
         var userIds = await RecipientsAsync(session.EffectiveInstructorId(classGroup.InstructorId), cancellationToken);
-        var message = new PushMessage(
-            title(student.FullName),
-            TeamNotificationTexts.ClassBody(classGroup.Name, session.Date, session.EffectiveStartTime(classGroup.StartTime)),
-            TeamNotificationTexts.SessionUrl(classGroup.Id, session.Date));
+        var message = LocalizedPushMessage.Build(texts => new PushMessage(
+            title(texts, student.FullName),
+            texts.ClassBody(classGroup.Name, session.Date, session.EffectiveStartTime(classGroup.StartTime)),
+            TeamNotificationLinks.SessionUrl(classGroup.Id, session.Date)));
         await notifier.NotifyAsync(userIds, message, cancellationToken);
     }
 

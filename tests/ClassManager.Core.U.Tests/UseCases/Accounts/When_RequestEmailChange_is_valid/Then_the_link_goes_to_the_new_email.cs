@@ -21,6 +21,9 @@ public sealed class Then_the_link_goes_to_the_new_email
         identity
             .Setup(service => service.RequestEmailChangeAsync(userId, Password, NewEmail, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new EmailChangeRequested(Token, TestData.OwnerEmail));
+        identity
+            .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         var webAppLinks = new Mock<IWebAppLinks>();
         webAppLinks.Setup(links => links.ConfirmEmailChange(Token)).Returns(Link);
         var emailSender = new Mock<IEmailSender>();

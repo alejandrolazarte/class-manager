@@ -3,7 +3,14 @@ import { refreshTokenStorageKey } from "@/features/authentication/sessionStorage
 import { RefreshTokenStorage } from "@/features/authentication/types";
 
 export const refreshTokenStorage: RefreshTokenStorage = {
-  read: () => SecureStore.getItemAsync(refreshTokenStorageKey),
-  write: (refreshToken) => SecureStore.setItemAsync(refreshTokenStorageKey, refreshToken),
+  read: async () => {
+    const storedRefreshToken = await SecureStore.getItemAsync(refreshTokenStorageKey);
+    return storedRefreshToken === null ? null : { refreshToken: storedRefreshToken };
+  },
+  write: async ({ refreshToken }) => {
+    if (refreshToken !== undefined) {
+      await SecureStore.setItemAsync(refreshTokenStorageKey, refreshToken);
+    }
+  },
   clear: () => SecureStore.deleteItemAsync(refreshTokenStorageKey),
 };

@@ -23,6 +23,8 @@ public static partial class BrandedEmailHtml
     private const string UrlPlaceholder = "Url";
     private const string LabelPlaceholder = "Label";
     private const string AmountPlaceholder = "Amount";
+    private const string LanguagePlaceholder = "Language";
+    private const string LinkFallbackPlaceholder = "LinkFallback";
     private const int MaximumInitials = 2;
     private const char NameSeparator = ' ';
 
@@ -58,7 +60,7 @@ public static partial class BrandedEmailHtml
 
     private const string LinkFallbackSection =
         """
-        <tr><td style="padding:20px 32px 0;font-size:12px;line-height:18px;color:#657179">Si el botón no funciona, copiá este link en el navegador:<br><a href="{{Url}}" style="color:{{Primary}};word-break:break-all">{{Url}}</a></td></tr>
+        <tr><td style="padding:20px 32px 0;font-size:12px;line-height:18px;color:#657179">{{LinkFallback}}<br><a href="{{Url}}" style="color:{{Primary}};word-break:break-all">{{Url}}</a></td></tr>
         """;
 
     private const string LinesStart =
@@ -109,6 +111,7 @@ public static partial class BrandedEmailHtml
 
         var values = new Dictionary<string, string>(colors)
         {
+            [LanguagePlaceholder] = Encode(content.Layout.LanguageCode),
             [WebFontFacesPlaceholder] = WebFontFaces(webFontsUrl),
             [PreheaderPlaceholder] = Encode(content.Intro),
             [BrandBadgePlaceholder] = BrandBadge(brand, colors),
@@ -158,7 +161,11 @@ public static partial class BrandedEmailHtml
             sections.Append(Button(content.Action, colors)).Append(Note(content.Note, colors));
             if (content.Action is { ShowsLinkFallback: true })
             {
-                sections.Append(Fill(LinkFallbackSection, new Dictionary<string, string>(colors) { [UrlPlaceholder] = Encode(content.Action.Url) }));
+                sections.Append(Fill(LinkFallbackSection, new Dictionary<string, string>(colors)
+                {
+                    [UrlPlaceholder] = Encode(content.Action.Url),
+                    [LinkFallbackPlaceholder] = Encode(content.Layout.LinkFallback),
+                }));
             }
         }
 
@@ -181,7 +188,7 @@ public static partial class BrandedEmailHtml
         {
             lines.Append(Fill(TotalRow, new Dictionary<string, string>(colors)
             {
-                [LabelPlaceholder] = Encode(EmailContent.TotalLabel),
+                [LabelPlaceholder] = Encode(content.Layout.TotalLabel),
                 [AmountPlaceholder] = Encode(content.Total),
             }));
         }

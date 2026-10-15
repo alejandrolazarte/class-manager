@@ -22,7 +22,7 @@ export interface SignInRequest {
 }
 
 export interface RefreshSessionRequest {
-  refreshToken: string;
+  refreshToken?: string;
 }
 
 export interface PasswordResetRequest {
@@ -70,8 +70,7 @@ export interface CheckedInvitation {
   birthDate?: string | null;
 }
 
-export interface SwitchBranchRequest {
-  refreshToken: string;
+export interface SwitchBranchRequest extends RefreshSessionRequest {
   businessId: string;
   kind?: SessionKind;
 }
@@ -83,19 +82,15 @@ export interface Account {
   isCurrent: boolean;
 }
 
-export interface SignOutRequest {
-  refreshToken: string;
-}
-
 export interface TokenResponse {
   accessToken: string;
   accessTokenExpiresAt: string;
-  refreshToken: string;
+  refreshToken?: string;
   refreshTokenExpiresAt: string;
 }
 
 export interface RefreshTokenStorage {
-  read(): Promise<string | null>;
-  write(refreshToken: string): Promise<void>;
+  read(): Promise<RefreshSessionRequest | null>;
+  write(tokens: TokenResponse): Promise<void>;
   clear(): Promise<void>;
 }

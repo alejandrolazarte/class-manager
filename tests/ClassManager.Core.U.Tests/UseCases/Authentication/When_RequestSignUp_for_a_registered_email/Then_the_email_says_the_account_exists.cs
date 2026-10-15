@@ -1,5 +1,5 @@
 using ClassManager.Core.Abstractions.Email;
-using ClassManager.Core.UseCases.Authentication;
+using ClassManager.Core.Emails;
 
 namespace ClassManager.Core.U.Tests.UseCases.Authentication.When_RequestSignUp_for_a_registered_email;
 
@@ -17,7 +17,7 @@ public sealed class Then_the_email_says_the_account_exists
 
         response.IsSuccess.ShouldBeTrue();
         builder.EmailSender.Verify(sender => sender.SendAsync(
-            It.Is<EmailMessage>(message => message.Subject == RequestSignUpUseCase.AccountExistsEmailSubject
+            It.Is<EmailMessage>(message => message.Subject == EmailTexts.Spanish.SignUpAccountExists(RequestSignUpUseCaseBuilder.SignInLink).Subject
                 && message.TextBody.Contains(RequestSignUpUseCaseBuilder.SignInLink)),
             It.IsAny<CancellationToken>()));
         builder.AddedPendingSignUp.ShouldBeNull();

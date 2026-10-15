@@ -3,7 +3,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
-using ClassManager.Notifications.Email;
+using ClassManager.Core.Emails;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
@@ -31,31 +31,6 @@ public sealed class RequestSignUpUseCase(
     TimeProvider timeProvider)
     : IUseCase<RequestSignUpCommand, RequestSignUpResponse>
 {
-    public const string EmailSubject = "Confirmá tu email";
-    public const string AccountExistsEmailSubject = "Ya tenés una cuenta";
-
-    public static EmailContent EmailContentFor(string businessName, string completeSignUpLink) =>
-        new(
-            "Tu cuenta",
-            EmailSubject,
-            $"Pediste crear la cuenta de {businessName}. Tocá el botón para confirmar tu email y elegir tu contraseña.",
-            "Si no lo pediste, ignorá este mail: no se crea ninguna cuenta.")
-        {
-            Action = new EmailAction("Confirmar email", completeSignUpLink, ShowsLinkFallback: true),
-            Note = new EmailNote("El link sirve una sola vez y vence en 24 horas."),
-        };
-
-    public static EmailContent AccountExistsEmailContentFor(string signInLink) =>
-        new(
-            "Tu cuenta",
-            AccountExistsEmailSubject,
-            "Alguien pidió crear una cuenta nueva con este email, pero ya tenés una. Entrá con tu email y tu contraseña.",
-            "Si no lo pediste, ignorá este mail: tu cuenta no cambia.")
-        {
-            Action = new EmailAction("Ingresar", signInLink, ShowsLinkFallback: true),
-            Note = new EmailNote("Si no recordás la contraseña, tocá \"¿Olvidaste tu contraseña?\" al ingresar."),
-        };
-
     public async Task<Result<RequestSignUpResponse>> ExecuteAsync(RequestSignUpCommand command, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
@@ -98,9 +73,9 @@ public sealed class RequestSignUpUseCase(
 
         if (await identityService.IsEmailRegisteredAsync(owner.Value.Email, cancellationToken))
         {
-            await emailSender.SendAsync(
-                new EmailMessage(owner.Value.Email, AccountExistsEmailSubject, AccountExistsEmailContentFor(webAppLinks.SignIn())),
-                cancellationToken);
+            var emailTexts = await RecipientEmailTexts.OfEmailAsync(identityService, owner.Value.Email, cancellationToken);
+            var accountExists = emailTexts.SignUpAccountExists(webAppLinks.SignIn());
+            await emailSender.SendAsync(new EmailMessage(owner.Value.Email, accountExists.Subject, accountExists.Content), cancellationToken);
             return new RequestSignUpResponse();
         }
 
@@ -114,12 +89,8 @@ public sealed class RequestSignUpUseCase(
         pendingSignUpRepository.Add(pendingSignUp);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await emailSender.SendAsync(
-            new EmailMessage(
-                pendingSignUp.Email,
-                EmailSubject,
-                EmailContentFor(pendingSignUp.BusinessName, webAppLinks.CompleteSignUp(token.Value))),
-            cancellationToken);
+        var confirmation = EmailTexts.Spanish.SignUpConfirmation(pendingSignUp.BusinessName, webAppLinks.CompleteSignUp(token.Value));
+        await emailSender.SendAsync(new EmailMessage(pendingSignUp.Email, confirmation.Subject, confirmation.Content), cancellationToken);
 
         return new RequestSignUpResponse();
     }
