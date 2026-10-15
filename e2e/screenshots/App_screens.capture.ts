@@ -182,8 +182,8 @@ test("App screens", async ({ page, request }) => {
   await page.screenshot({ path: join(outputDirectory, "12b4-novedad-programada.png") });
   await page.getByRole("button", { name: "Ahora" }).click();
   await page.getByRole("button", { name: "Un link" }).click();
-  await page.getByLabel("Link").fill("https://example.com/inscripcion");
-  await page.getByText("Botón").scrollIntoViewIfNeeded();
+  await page.getByLabel("Link", { exact: true }).fill("https://example.com/inscripcion");
+  await page.getByText("Botón", { exact: true }).scrollIntoViewIfNeeded();
   await page.waitForTimeout(settleMilliseconds);
   await page.screenshot({ path: join(outputDirectory, "12b4b-novedad-boton.png") });
   await page.getByRole("button", { name: "Vista previa" }).click();
