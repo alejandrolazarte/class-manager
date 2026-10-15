@@ -16,6 +16,7 @@ interface AnnouncementRowProps {
   announcement: Announcement;
   isBusy: boolean;
   onOpen: (announcement: Announcement) => void;
+  onEdit: (announcement: Announcement) => void;
   onTogglePinned: (announcement: Announcement) => void;
   onDelete: (announcement: Announcement) => void;
 }
@@ -30,6 +31,7 @@ export function AnnouncementRow({
   announcement,
   isBusy,
   onOpen,
+  onEdit,
   onTogglePinned,
   onDelete,
 }: AnnouncementRowProps) {
@@ -109,6 +111,13 @@ export function AnnouncementRow({
         ) : null}
       </View>
       <View className="flex-row">
+        <IconButton
+          icon="edit"
+          tone="muted-foreground"
+          accessibilityLabel={translate("announcements.edit", { title: announcement.title })}
+          disabled={isBusy}
+          onPress={() => onEdit(announcement)}
+        />
         {announcement.isScheduled ? null : (
           <IconButton
             icon="pin"

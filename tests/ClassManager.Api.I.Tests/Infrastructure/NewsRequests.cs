@@ -26,6 +26,17 @@ public static class NewsRequests
         return (await response.Content.ReadFromJsonAsync<AnnouncementResponse>(ApiRequests.JsonOptions))!;
     }
 
+    public static Task<HttpResponseMessage> PutAnnouncementAsync(this HttpClient httpClient, Guid announcementId, UpdateAnnouncementRequest request) =>
+        httpClient.PutAsJsonAsync($"{ApiRoutes.Announcements}/{announcementId}", request, ApiRequests.JsonOptions);
+
+    public static async Task<AnnouncementResponse> UpdateAnnouncementAsync(
+        this HttpClient httpClient, Guid announcementId, UpdateAnnouncementRequest request)
+    {
+        using var response = await httpClient.PutAnnouncementAsync(announcementId, request);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        return (await response.Content.ReadFromJsonAsync<AnnouncementResponse>(ApiRequests.JsonOptions))!;
+    }
+
     public static Task<HttpResponseMessage> PinAnnouncementAsync(this HttpClient httpClient, Guid announcementId) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Pin}", UriKind.Relative), null);
 

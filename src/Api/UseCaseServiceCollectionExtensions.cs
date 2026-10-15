@@ -162,6 +162,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<CancelPackClassCommand, bool, CancelPackClassUseCase>();
         services.AddUseCase<WithdrawAbsenceCommand, bool, WithdrawAbsenceUseCase>();
         services.AddUseCase<CreateAnnouncementCommand, AnnouncementResponse, CreateAnnouncementUseCase>();
+        services.AddUseCase<UpdateAnnouncementCommand, AnnouncementResponse, UpdateAnnouncementUseCase>();
         services.AddUseCase<ListAnnouncementsQuery, IReadOnlyList<AnnouncementResponse>, ListAnnouncementsUseCase>();
         services.AddUseCase<DeleteAnnouncementCommand, bool, DeleteAnnouncementUseCase>();
         services.AddUseCase<RestoreAnnouncementCommand, bool, RestoreAnnouncementUseCase>();

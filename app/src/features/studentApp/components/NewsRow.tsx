@@ -53,7 +53,7 @@ export function NewsRow({ item, action }: NewsRowProps) {
               {body}
             </AppText>
           )}
-          {item.category === "Event" && item.announcementId !== null ? (
+          {item.category === "Event" ? (
             <EventReplyButtons announcementId={item.announcementId} isGoing={item.isGoing} />
           ) : null}
           {action === undefined ? null : (

@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { createAnnouncement } from "@/features/announcements/announcementsApi";
-import { NewAnnouncementScreen } from "@/features/announcements/screens/NewAnnouncementScreen";
+import { AnnouncementFormScreen } from "@/features/announcements/screens/AnnouncementFormScreen";
 import { translate } from "@/i18n/translate";
 import { buildAnnouncement } from "@/testing/announcementFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -14,7 +14,7 @@ describe("When owner publishes a pinned event", () => {
   });
 
   it("Then category and pin are sent", async () => {
-    await renderWithProviders(<NewAnnouncementScreen />);
+    await renderWithProviders(<AnnouncementFormScreen />);
     await fireEvent.changeText(
       await screen.findByLabelText(translate("announcements.form.title")),
       "Muestra de fin de año",

@@ -6,7 +6,7 @@ import { Button } from "@/ui/Button";
 import { useToast } from "@/ui/ToastProvider";
 
 interface EventReplyButtonsProps {
-  announcementId: string;
+  announcementId: string | null;
   isGoing: boolean | null;
 }
 
@@ -15,6 +15,9 @@ export function EventReplyButtons({ announcementId, isGoing }: EventReplyButtons
   const replyMutation = useReplyToAnnouncement();
 
   const reply = async (answer: boolean) => {
+    if (announcementId === null) {
+      return;
+    }
     try {
       await replyMutation.mutateAsync({ announcementId, isGoing: answer });
       showToast(translate("student.news.reply.saved"));

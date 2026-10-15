@@ -1,5 +1,5 @@
-import { NewAnnouncementScreen } from "@/features/announcements/screens/NewAnnouncementScreen";
+import { AnnouncementFormScreen } from "@/features/announcements/screens/AnnouncementFormScreen";
 
 export default function NewAnnouncementRoute() {
-  return <NewAnnouncementScreen />;
+  return <AnnouncementFormScreen />;
 }
