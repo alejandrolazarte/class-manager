@@ -1,5 +1,3 @@
-using ClassManager.Core.Abstractions.Persistence;
-using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Domain.Announcements;
 using ClassManager.Core.UseCases.Images;
 
@@ -16,40 +14,12 @@ public sealed record AnnouncementResponse(
     bool IsPinned,
     DateOnly? VisibleUntil,
     IReadOnlyList<AnnouncementClassGroupResponse> ClassGroups,
-    IReadOnlyList<CatalogImageResponse> Images)
-{
-    public static async Task<AnnouncementResponse> FromAsync(
-        Announcement announcement,
-        IClassGroupRepository classGroupRepository,
-        IDocumentStorageService documentStorage,
-        CancellationToken cancellationToken) =>
-        (await ListFromAsync([announcement], classGroupRepository, documentStorage, cancellationToken))[0];
+    IReadOnlyList<CatalogImageResponse> Images,
+    int RecipientCount,
+    int SeenCount,
+    int GoingCount,
+    int NotGoingCount);
 
-    public static async Task<IReadOnlyList<AnnouncementResponse>> ListFromAsync(
-        IReadOnlyList<Announcement> announcements,
-        IClassGroupRepository classGroupRepository,
-        IDocumentStorageService documentStorage,
-        CancellationToken cancellationToken)
-    {
-        var classGroupNames = announcements.Any(announcement => !announcement.IsForEveryone)
-            ? (await classGroupRepository.ListAllAsync(cancellationToken)).ToDictionary(classGroup => classGroup.Id, classGroup => classGroup.Name)
-            : [];
-        return
-        [
-            .. announcements.Select(announcement => new AnnouncementResponse(
-                announcement.Id,
-                announcement.Title,
-                announcement.Body,
-                announcement.PublishedAt,
-                announcement.Category,
-                announcement.IsPinned,
-                announcement.VisibleUntil,
-                [
-                    .. announcement.ClassGroupIds
-                        .Where(classGroupNames.ContainsKey)
-                        .Select(classGroupId => new AnnouncementClassGroupResponse(classGroupId, classGroupNames[classGroupId])),
-                ],
-                CatalogImageResponse.ListFrom(announcement.ImagesInOrder, documentStorage))),
-        ];
-    }
-}
+public sealed record AnnouncementRecipientResponse(Guid ClientId, string FullName, DateTimeOffset? SeenAt, bool? IsGoing);
+
+public sealed record AnnouncementReminderResponse(int RemindedCount);

@@ -26,7 +26,6 @@ public sealed class GetStudentAppNewsUseCase(
     TimeProvider timeProvider)
     : IUseCase<GetStudentAppNewsQuery, StudentAppNewsResponse>
 {
-    public const int AnnouncementDays = 60;
     public const int FeedbackDays = 30;
     public const int ClassChangeLookAheadDays = 14;
     public const int ItemLimit = 30;
@@ -81,7 +80,7 @@ public sealed class GetStudentAppNewsUseCase(
                 orderId,
                 classStartTime);
 
-        var enrolledClassGroupIds = await EnrolledClassGroupIdsAsync(studentIds, today, cancellationToken);
+        var enrolledClassGroupIds = await StudentAnnouncements.EnrolledClassGroupIdsAsync(enrollmentRepository, studentIds, today, cancellationToken);
         var enrolledClassGroupNames = new Dictionary<Guid, string>();
         foreach (var classGroupId in enrolledClassGroupIds)
         {
@@ -91,13 +90,19 @@ public sealed class GetStudentAppNewsUseCase(
             }
         }
 
-        items.AddRange((await announcementRepository.ListRecentOrPinnedAsync(now.AddDays(-AnnouncementDays), cancellationToken))
-            .Where(announcement => announcement.IsVisibleOn(today) && announcement.IsFor(enrolledClassGroupIds))
+        var announcements = await StudentAnnouncements.VisibleAsync(announcementRepository, enrolledClassGroupIds, today, now, cancellationToken);
+        var isGoingByAnnouncement = (await announcementRepository.ListRepliesAsync(
+                [.. announcements.Select(announcement => announcement.Id)], cancellationToken))
+            .Where(reply => reply.ClientId == access.ClientId)
+            .ToDictionary(reply => reply.AnnouncementId, reply => reply.IsGoing);
+        items.AddRange(announcements
             .Select(announcement => Item(
                 StudentAppNewsKind.Announcement, announcement.Id.ToString(), announcement.PublishedAt, announcement.Title, announcement.Body) with
             {
+                AnnouncementId = announcement.Id,
                 Category = announcement.Category,
                 IsPinned = announcement.IsPinned,
+                IsGoing = isGoingByAnnouncement.TryGetValue(announcement.Id, out var isGoing) ? isGoing : null,
                 ImageUrl = announcement.ImagesInOrder.Count == 0 ? null : documentStorage.PublicUrlOf(announcement.ImagesInOrder[0]).AbsoluteUri,
                 AudienceClassNames =
                 [
@@ -147,18 +152,6 @@ public sealed class GetStudentAppNewsUseCase(
 
         var newestItems = items.OrderByDescending(item => item.IsPinned).ThenByDescending(item => item.OccurredAt).Take(ItemLimit).ToList();
         return new StudentAppNewsResponse(newestItems, newestItems.Count(item => item.IsUnread));
-    }
-
-    private async Task<HashSet<Guid>> EnrolledClassGroupIdsAsync(IReadOnlyList<Guid> studentIds, DateOnly today, CancellationToken cancellationToken)
-    {
-        var classGroupIds = new HashSet<Guid>();
-        foreach (var studentId in studentIds)
-        {
-            classGroupIds.UnionWith((await enrollmentRepository.ListCurrentByStudentAsync(studentId, today, cancellationToken))
-                .Select(enrollment => enrollment.ClassGroupId));
-        }
-
-        return classGroupIds;
     }
 
     private async Task<IReadOnlyList<StudentAppNewsItemResponse>> UpcomingClassChangesAsync(

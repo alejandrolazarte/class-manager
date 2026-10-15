@@ -25,7 +25,11 @@ public sealed record StudentAppNewsItemResponse(
     Guid? OrderId,
     string? ClassStartTime = null)
 {
+    public Guid? AnnouncementId { get; init; }
+
     public AnnouncementCategory? Category { get; init; }
+
+    public bool? IsGoing { get; init; }
 
     public bool IsPinned { get; init; }
 

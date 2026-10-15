@@ -15,6 +15,10 @@ internal static class AnnouncementEndpoints
         announcements.MapPost(ApiRoutes.AnnouncementById + ApiRoutes.Restore, RestoreAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapPost(ApiRoutes.AnnouncementById + ApiRoutes.Pin, PinAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapDelete(ApiRoutes.AnnouncementById + ApiRoutes.Pin, UnpinAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
+        announcements.MapGet(ApiRoutes.AnnouncementById + ApiRoutes.Recipients, ListAnnouncementRecipientsAsync)
+            .RequirePermission(Permissions.Announcements.Manage);
+        announcements.MapPost(ApiRoutes.AnnouncementById + ApiRoutes.Reminder, RemindAnnouncementAsync)
+            .RequirePermission(Permissions.Announcements.Manage);
         announcements.MapPost(ApiRoutes.AnnouncementById + ApiRoutes.Images, AddAnnouncementImageAsync)
             .RequirePermission(Permissions.Announcements.Manage)
             .AcceptsImageUpload();
@@ -102,6 +106,26 @@ internal static class AnnouncementEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new RemoveAnnouncementImageCommand(announcementId, documentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> ListAnnouncementRecipientsAsync(
+        Guid announcementId,
+        IUseCase<ListAnnouncementRecipientsQuery, IReadOnlyList<AnnouncementRecipientResponse>> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ListAnnouncementRecipientsQuery(announcementId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> RemindAnnouncementAsync(
+        Guid announcementId,
+        IUseCase<RemindAnnouncementCommand, AnnouncementReminderResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RemindAnnouncementCommand(announcementId), cancellationToken);
 
         return result.ToOkResult();
     }

@@ -14,6 +14,15 @@ internal sealed class StudentAppNotificationService(AppDbContext context, PushPu
             new PushMessage(announcement.Title, StudentAppPushTexts.Shorten(announcement.Body ?? string.Empty), StudentAppPushTexts.NewsUrl),
             cancellationToken);
 
+    public Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
+        publisher.PublishToStudentsAsync(
+            clientIds,
+            new PushMessage(
+                StudentAppPushTexts.AnnouncementReminderTitle(announcement.Title),
+                StudentAppPushTexts.Shorten(announcement.Body ?? string.Empty),
+                StudentAppPushTexts.NewsUrl),
+            cancellationToken);
+
     public async Task GuardianConsentRequestedAsync(ClientInvitation invitation, string studentFullName, CancellationToken cancellationToken)
     {
         var clientUserIds = await context.ClientAccounts.AsNoTracking()
