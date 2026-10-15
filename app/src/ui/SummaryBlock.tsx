@@ -22,7 +22,11 @@ export function SummaryBlock({
   children,
 }: SummaryBlockProps) {
   return (
-    <View accessible accessibilityLabel={accessibilityLabel} className="gap-2.5">
+    <View
+      accessible
+      accessibilityLabel={accessibilityLabel}
+      className="gap-2.5 rounded-2xl border border-border px-4 py-3.5"
+    >
       <View>
         <AppText variant="caption" tone="subtle">
           {label}

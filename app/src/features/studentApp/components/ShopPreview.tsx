@@ -4,6 +4,7 @@ import { StudentAppShop } from "@/features/studentApp/types";
 import { formatMoney } from "@/features/fees/money";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { OutlinedBlock } from "@/ui/OutlinedBlock";
 import { PressableScale } from "@/ui/motion/PressableScale";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { TextLink } from "@/ui/TextLink";
@@ -21,7 +22,7 @@ export function ShopPreview({ shop, onSeeAll, onOpenProduct }: ShopPreviewProps)
     return null;
   }
   return (
-    <View className="gap-2">
+    <OutlinedBlock className="gap-2 pt-1">
       <View className="flex-row items-center justify-between">
         <SectionTitle title={translate("student.home.shop")} />
         <TextLink label={translate("student.home.seeAll")} onPress={onSeeAll} />
@@ -29,8 +30,8 @@ export function ShopPreview({ shop, onSeeAll, onOpenProduct }: ShopPreviewProps)
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="-mx-5"
-        contentContainerClassName="gap-2.5 px-5 pb-1.5"
+        className="-mx-4"
+        contentContainerClassName="gap-2.5 px-4 pb-1.5"
       >
         {shop.products.slice(0, previewProductLimit).map((product) => (
           <PressableScale
@@ -53,6 +54,6 @@ export function ShopPreview({ shop, onSeeAll, onOpenProduct }: ShopPreviewProps)
           </PressableScale>
         ))}
       </ScrollView>
-    </View>
+    </OutlinedBlock>
   );
 }
