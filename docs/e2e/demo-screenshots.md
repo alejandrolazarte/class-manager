@@ -161,7 +161,7 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 
 ## Email previews
 
-`e2e/screenshots/Email_previews.capture.ts` captures every email the app sends, without the API or a database. It runs `tools/EmailPreviews`, a small console project in the solution that builds each email with the same code the app uses (`EmailContentFor` of each use case, `OrderEmails`) and renders it with `BrandedEmailHtml`, then screenshots each HTML file at phone (390 px) and desktop (1280 px) width.
+`e2e/screenshots/Email_previews.capture.ts` captures every email the app sends, without the API or a database. It runs `tools/EmailPreviews`, a small console project in the solution that builds each email with the same code the app uses (`EmailTexts` in `src/Core/Emails`, `OrderEmails` for amounts) and renders it with `BrandedEmailHtml`, then screenshots each HTML file at phone (390 px) and desktop (1280 px) width.
 
 ```powershell
 cd e2e
@@ -193,4 +193,6 @@ Business emails are rendered with four brands of "Escuela Brazada": `sin-marca` 
 | `14-confirmar-registro` | Confirm the email and choose a password to create the business (app brand) |
 | `15-registro-con-cuenta-existente` | Sign-up with an email that already has an account (app brand) |
 
-When a new email is added, add it to `EmailPreviewCatalog` in `tools/EmailPreviews` and to this table.
+Each email is rendered once per language: the Spanish files keep these names and the English ones end in `-en` (`01-invitacion-al-equipo-en--color.html`).
+
+When a new email is added, add it to `IEmailTexts`, to `EmailPreviewCatalog` in `tools/EmailPreviews` and to this table.

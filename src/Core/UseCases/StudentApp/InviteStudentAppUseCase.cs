@@ -7,9 +7,9 @@ using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
+using ClassManager.Core.Emails;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Students;
-using ClassManager.Notifications.Email;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
@@ -36,41 +36,12 @@ public sealed class InviteStudentAppUseCase(
     TimeProvider timeProvider)
     : IUseCase<InviteStudentAppCommand, StudentAppInvitationResponse>
 {
-    public const string EmailHeading = "Te invitaron a la app";
-    public const string GuardianEmailHeading = "Pedido de autorización para la app";
-
     private const string ClientNotFoundMessage = "The client does not exist.";
     private const string EmailRequiredMessage = "Write the email of the person who will use the app.";
     private const string AlreadyUsesTheAppMessage = "The client already uses the app.";
     private const string StudentNotFoundMessage = "The student is not part of this client.";
     private const string GuardianEmailRequiredMessage = "Write the email of the client: a student this young needs their authorization.";
     private const string BirthDateRequiredMessage = "Write the birth date of the person who will use the app.";
-
-    public static string EmailSubjectFor(string businessName) => $"{businessName} te invita a su app";
-
-    public static string GuardianEmailSubjectFor(string businessName) => $"{businessName} pide tu autorización para su app";
-
-    public static EmailContent EmailContentFor(string businessName, string acceptInvitationLink) =>
-        new(
-            "Invitación a la app",
-            EmailHeading,
-            $"{businessName} te invita a su app para ver las clases, tus saldos y hacer pedidos. Tocá el botón para aceptar: si ya usás la app con este email, entrás con tu cuenta de siempre.",
-            "Si no esperabas esta invitación, podés ignorar este mail.")
-        {
-            Action = new EmailAction("Aceptar invitación", acceptInvitationLink, ShowsLinkFallback: true),
-            Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
-        };
-
-    public static EmailContent GuardianEmailContentFor(string businessName, string studentFullName, int minimumAge, string authorizeLink) =>
-        new(
-            "Autorización para la app",
-            GuardianEmailHeading,
-            $"{businessName} quiere invitar a {studentFullName} a su app para ver sus clases. Como es menor de {minimumAge} años, necesitamos tu autorización.",
-            "Si no esperabas este pedido, podés ignorar este mail.")
-        {
-            Action = new EmailAction("Revisar y autorizar", authorizeLink, ShowsLinkFallback: true),
-            Note = new EmailNote("El link sirve una sola vez y vence en 7 días."),
-        };
 
     public async Task<Result<StudentAppInvitationResponse>> ExecuteAsync(InviteStudentAppCommand command, CancellationToken cancellationToken)
     {
@@ -125,18 +96,22 @@ public sealed class InviteStudentAppUseCase(
 
         if (guardianToken is not null)
         {
-            var guardianContent = GuardianEmailContentFor(
+            var guardianConsentRequest = EmailTexts.Spanish.GuardianConsentRequest(
                 business.BrandDisplayName,
                 recipient.Value.StudentFullName ?? string.Empty,
                 business.Country.OwnAccountMinimumAge,
                 webAppLinks.AuthorizeStudentApp(guardianToken.Value));
-            await emailSender.SendAsync(new EmailMessage(client.Email!, GuardianEmailSubjectFor(business.BrandDisplayName), guardianContent, business.Id), cancellationToken);
+            await emailSender.SendAsync(
+                new EmailMessage(client.Email!, guardianConsentRequest.Subject, guardianConsentRequest.Content, business.Id),
+                cancellationToken);
             await studentAppNotificationService.GuardianConsentRequestedAsync(invitation.Value!, recipient.Value.StudentFullName ?? string.Empty, cancellationToken);
         }
         else
         {
-            var content = EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
-            await emailSender.SendAsync(new EmailMessage(invitation.Value!.Email, EmailSubjectFor(business.BrandDisplayName), content, business.Id), cancellationToken);
+            var studentAppInvitation = EmailTexts.Spanish.StudentAppInvitation(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
+            await emailSender.SendAsync(
+                new EmailMessage(invitation.Value!.Email, studentAppInvitation.Subject, studentAppInvitation.Content, business.Id),
+                cancellationToken);
         }
 
         return new StudentAppInvitationResponse(invitation.Value!.Id, invitation.Value.Email, invitation.Value.ExpiresAt, invitation.Value.AwaitsGuardianConsent);

@@ -22,9 +22,17 @@ Adding or changing a text means writing it in both files in the same pull reques
 - `LanguageProvider` (in `app/_layout.tsx`) reads the device copy before the navigator renders, so the splash screen covers the restore and nothing flashes in Spanish first.
 - Changing the language remounts everything under `LanguageProvider`, so every screen renders again with the new texts. On web the URL keeps the current screen; it was checked by switching on `/forgot-password` and reloading. On web it also sets `<html lang>` for screen readers.
 
+## Emails
+
+- Every email text lives in code, in `src/Core/Emails`: `IEmailTexts` has one method per email (subject and content, with typed parameters), implemented by `SpanishEmailTexts` and `EnglishEmailTexts`. A language missing an email doesn't compile, and `EmailTexts.All` must cover `AccountLanguage.Supported` (unit test).
+- They are in code and not in the database because nobody edits them without a deploy: they change in the same pull request as the code that fills them, are reviewed and tested, and are rendered by `tools/EmailPreviews` in both languages (English files end in `-en`).
+- The layout's own texts (the link fallback under the button, "Total", `<html lang>`) come from `EmailLayoutTexts`, which each language sets on the content.
+- Who gets which language: an email to an account uses that account's `PreferredLanguage` (`RecipientEmailTexts`): password reset, the "you already have an account" email, email change confirmation and notice, and every order email (each team member or student account gets its own language). Unknown codes fall back to Spanish.
+- Still in Spanish, on purpose for now: invitations (team, student app, guardian consent) and the sign-up confirmation. They go to people who may not have an account yet; once they choose English, every later email reaches them in English.
+
 ## What stays in Spanish
 
-- **Emails** (invitations, password reset, receipts): they are rendered by the API from `src/Notifications` with Spanish templates only. The account's `PreferredLanguage` is the input for translating them later; invitations to people without an account will also need a language (from the invitation or a business default). The language hint in the app says so.
+- **Push notifications and the team's notices** ("Avisos"): their texts are still built in Spanish in `src/Infrastructure/Notifications`.
 - **Legal texts** (`legalDocuments.ts`): the terms of use and the privacy policy are legal documents for Argentina and Spain; translating them is a legal decision, not a UI one. Their titles are translated.
 - **Import and export column names**: the API defines them, so hints keep naming the column `Responsable`.
 - **Numbers and money** keep the `es-AR` format (`1.234,50`) in both languages.
@@ -35,4 +43,5 @@ Adding or changing a text means writing it in both files in the same pull reques
 1. Add the code to `languages` and its file to `translationsByLanguage` in `languages.ts`.
 2. Create `<code>.json` with every key (typecheck lists the missing ones).
 3. Add the code to `AccountLanguage.Supported` in `src/Core/Domain/Accounts/AccountLanguage.cs`.
-4. Add `settings.language.<code>` to every file, written in that language's own name ("Português"), and to `languageLabelKeys` in `languageValue.ts`.
+4. Add a `<Language>EmailTexts` class implementing `IEmailTexts` and list it in `EmailTexts.All`.
+5. Add `settings.language.<code>` to every file, written in that language's own name ("Português"), and to `languageLabelKeys` in `languageValue.ts`.

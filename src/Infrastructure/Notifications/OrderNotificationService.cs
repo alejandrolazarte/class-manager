@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Authorization;
+using ClassManager.Core.Emails;
 using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Persistence;
@@ -29,16 +30,21 @@ internal sealed class OrderNotificationService(
         }
 
         var total = OrderEmails.Amount(order.Total, order.CurrencyCode);
-        var delivery = order.HasProducts ? OrderEmails.DeliveryForBranch(await DeliveryClassNameAsync(order, cancellationToken)) : null;
+        var deliveryClassName = order.HasProducts ? await DeliveryClassNameAsync(order, cancellationToken) : null;
         var staffUserIds = await StaffUserIdsAsync(business, cancellationToken);
-        foreach (var email in await EmailsOfAsync(staffUserIds, cancellationToken))
+        foreach (var recipient in await RecipientsOfAsync(staffUserIds, cancellationToken))
         {
-            await SendAsync(OrderEmails.Placed(EmailContextOf(order, business, email), client.FullName, delivery, webAppLinks.TeamOrders()), cancellationToken);
+            var delivery = order.HasProducts ? recipient.Texts.OrderDeliveryForBranch(deliveryClassName) : null;
+            var placed = recipient.Texts.OrderPlaced(DetailsOf(order, business), client.FullName, delivery, webAppLinks.TeamOrders());
+            await SendAsync(OrderEmails.To(recipient, business.Id, placed), cancellationToken);
         }
 
         await teamNotifier.NotifyAsync(
             staffUserIds,
-            new PushMessage(TeamNotificationTexts.OrderPlacedTitle(OrderEmails.NumberOf(order.Number), client.FullName), total, TeamNotificationTexts.OrdersUrl),
+            new PushMessage(
+                TeamNotificationTexts.OrderPlacedTitle(EmailTexts.Spanish.OrderNumber(order.Number), client.FullName),
+                total,
+                TeamNotificationTexts.OrdersUrl),
             cancellationToken);
     }
 
@@ -55,19 +61,19 @@ internal sealed class OrderNotificationService(
             return;
         }
 
-        var nextStep = !order.HasProducts ? OrderEmails.ClassesCredited
-            : order.IsReady ? await WhereToGetItAsync(order, business, cancellationToken)
-            : OrderEmails.WillNotifyWhenReady;
+        var deliveryClassName = order.HasProducts && order.IsReady ? await DeliveryClassNameAsync(order, cancellationToken) : null;
         if (order.HasProducts && order.IsReady)
         {
-            await PushReadyAsync(order, nextStep, cancellationToken);
+            await PushReadyAsync(order, WhereToGetIt(EmailTexts.Spanish, business, deliveryClassName), cancellationToken);
         }
 
-        foreach (var email in await ClientEmailsAsync(order, cancellationToken))
+        foreach (var recipient in await ClientRecipientsAsync(order, cancellationToken))
         {
-            await SendAsync(
-                OrderEmails.Paid(EmailContextOf(order, business, email), nextStep, order.HasProducts, webAppLinks.StudentAppOrders()),
-                cancellationToken);
+            var nextStep = !order.HasProducts ? recipient.Texts.OrderClassesCredited
+                : order.IsReady ? WhereToGetIt(recipient.Texts, business, deliveryClassName)
+                : recipient.Texts.OrderWillNotifyWhenReady;
+            var paid = recipient.Texts.OrderPaid(DetailsOf(order, business), nextStep, order.HasProducts, webAppLinks.StudentAppOrders());
+            await SendAsync(OrderEmails.To(recipient, business.Id, paid), cancellationToken);
         }
     }
 
@@ -79,11 +85,13 @@ internal sealed class OrderNotificationService(
             return;
         }
 
-        var whereToGetIt = await WhereToGetItAsync(order, business, cancellationToken);
-        await PushReadyAsync(order, whereToGetIt, cancellationToken);
-        foreach (var email in await ClientEmailsAsync(order, cancellationToken))
+        var deliveryClassName = await DeliveryClassNameAsync(order, cancellationToken);
+        await PushReadyAsync(order, WhereToGetIt(EmailTexts.Spanish, business, deliveryClassName), cancellationToken);
+        foreach (var recipient in await ClientRecipientsAsync(order, cancellationToken))
         {
-            await SendAsync(OrderEmails.Ready(EmailContextOf(order, business, email), whereToGetIt, webAppLinks.StudentAppOrders()), cancellationToken);
+            var ready = recipient.Texts.OrderReady(
+                DetailsOf(order, business), WhereToGetIt(recipient.Texts, business, deliveryClassName), webAppLinks.StudentAppOrders());
+            await SendAsync(OrderEmails.To(recipient, business.Id, ready), cancellationToken);
         }
     }
 
@@ -95,21 +103,18 @@ internal sealed class OrderNotificationService(
             return;
         }
 
-        foreach (var email in await ClientEmailsAsync(order, cancellationToken))
+        foreach (var recipient in await ClientRecipientsAsync(order, cancellationToken))
         {
-            var emailContext = EmailContextOf(order, business, email);
-            var message = reason == OrderCancellationReason.Unpaid
-                ? OrderEmails.CancelledUnpaid(emailContext, webAppLinks.StudentAppOrders())
-                : OrderEmails.CancelledByBranch(emailContext, webAppLinks.StudentAppOrders());
-            await SendAsync(message, cancellationToken);
+            var cancelled = reason == OrderCancellationReason.Unpaid
+                ? recipient.Texts.OrderCancelledUnpaid(DetailsOf(order, business), webAppLinks.StudentAppOrders())
+                : recipient.Texts.OrderCancelledByBranch(DetailsOf(order, business), webAppLinks.StudentAppOrders());
+            await SendAsync(OrderEmails.To(recipient, business.Id, cancelled), cancellationToken);
         }
     }
 
-    private static OrderEmailContext EmailContextOf(Order order, Business business, string to) =>
+    private static OrderEmailDetails DetailsOf(Order order, Business business) =>
         new(
-            to,
             order.Number,
-            business.Id,
             business.BrandDisplayName,
             [.. order.Lines.Select(line => OrderEmails.Line(line.Quantity, line.Name, line.Total, order.CurrencyCode))],
             OrderEmails.Amount(order.Total, order.CurrencyCode));
@@ -139,12 +144,10 @@ internal sealed class OrderNotificationService(
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
-    private async Task<string> WhereToGetItAsync(Order order, Business business, CancellationToken cancellationToken) =>
-        await DeliveryClassNameAsync(order, cancellationToken) is { } classGroupName
-            ? OrderEmails.InClass(classGroupName)
-            : OrderEmails.PickupAt(business.Name);
+    private static string WhereToGetIt(IEmailTexts texts, Business business, string? deliveryClassName) =>
+        deliveryClassName is null ? texts.OrderPickupAt(business.Name) : texts.OrderInClass(deliveryClassName);
 
-    private async Task<IReadOnlyList<string>> ClientEmailsAsync(Order order, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<OrderEmailRecipient>> ClientRecipientsAsync(Order order, CancellationToken cancellationToken)
     {
         if (order.ClientId is not { } clientId)
         {
@@ -157,11 +160,11 @@ internal sealed class OrderNotificationService(
             .ToListAsync(cancellationToken);
         if (userIds.Count > 0)
         {
-            return [.. (await identityService.ListAccountsAsync(userIds, cancellationToken)).Select(account => account.Email).Distinct()];
+            return await RecipientsOfAsync(userIds, cancellationToken);
         }
 
         var clientEmail = (await ClientOfAsync(order, cancellationToken))?.Email;
-        return clientEmail is null ? [] : [clientEmail];
+        return clientEmail is null ? [] : [new OrderEmailRecipient(clientEmail, EmailTexts.Spanish)];
     }
 
     private async Task<IReadOnlyCollection<Guid>> StaffUserIdsAsync(Business business, CancellationToken cancellationToken)
@@ -179,10 +182,14 @@ internal sealed class OrderNotificationService(
         return userIds;
     }
 
-    private async Task<IReadOnlyList<string>> EmailsOfAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+    private async Task<IReadOnlyList<OrderEmailRecipient>> RecipientsOfAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
         userIds.Count == 0
             ? []
-            : [.. (await identityService.ListAccountsAsync(userIds, cancellationToken)).Select(account => account.Email).Distinct()];
+            : [
+                .. (await identityService.ListAccountsAsync(userIds, cancellationToken))
+                    .DistinctBy(account => account.Email)
+                    .Select(account => new OrderEmailRecipient(account.Email, EmailTexts.For(account.PreferredLanguage))),
+            ];
 
     private static IReadOnlySet<string> PermissionsOf(BusinessMember member, Dictionary<Guid, CustomRole> customRoles) =>
         member.CustomRoleId is { } customRoleId

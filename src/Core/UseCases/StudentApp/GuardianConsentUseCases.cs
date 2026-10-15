@@ -5,6 +5,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Core.Emails;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
@@ -42,9 +43,9 @@ internal static class GuardianConsentActions
         invitation.ConsentByGuardian(token.Hash, now);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var content = InviteStudentAppUseCase.EmailContentFor(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
+        var studentAppInvitation = EmailTexts.Spanish.StudentAppInvitation(business.BrandDisplayName, webAppLinks.AcceptStudentAppInvitation(token.Value));
         await emailSender.SendAsync(
-            new EmailMessage(invitation.Email, InviteStudentAppUseCase.EmailSubjectFor(business.BrandDisplayName), content, business.Id),
+            new EmailMessage(invitation.Email, studentAppInvitation.Subject, studentAppInvitation.Content, business.Id),
             cancellationToken);
 
         return new GivenGuardianConsentResponse(invitation.Email);
