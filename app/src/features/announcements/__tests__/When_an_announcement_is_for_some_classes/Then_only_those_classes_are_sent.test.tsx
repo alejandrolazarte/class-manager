@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { createAnnouncement } from "@/features/announcements/announcementsApi";
-import { NewAnnouncementScreen } from "@/features/announcements/screens/NewAnnouncementScreen";
+import { AnnouncementFormScreen } from "@/features/announcements/screens/AnnouncementFormScreen";
 import { listActiveClassGroups } from "@/features/classGroups/classGroupsApi";
 import { translate } from "@/i18n/translate";
 import { buildAnnouncement } from "@/testing/announcementFactory";
@@ -19,7 +19,7 @@ describe("When an announcement is for some classes", () => {
   });
 
   it("Then only those classes are sent", async () => {
-    await renderWithProviders(<NewAnnouncementScreen />);
+    await renderWithProviders(<AnnouncementFormScreen />);
     await fireEvent.changeText(
       await screen.findByLabelText(translate("announcements.form.title")),
       "Cambia el horario",

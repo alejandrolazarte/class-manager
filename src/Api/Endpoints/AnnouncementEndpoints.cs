@@ -11,6 +11,7 @@ internal static class AnnouncementEndpoints
         var announcements = endpoints.MapGroup(ApiRoutes.Announcements);
         announcements.MapGet("/", ListAnnouncementsAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapPost("/", CreateAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
+        announcements.MapPut(ApiRoutes.AnnouncementById, UpdateAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapDelete(ApiRoutes.AnnouncementById, DeleteAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapPost(ApiRoutes.AnnouncementById + ApiRoutes.Restore, RestoreAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
         announcements.MapPost(ApiRoutes.AnnouncementById + ApiRoutes.Pin, PinAnnouncementAsync).RequirePermission(Permissions.Announcements.Manage);
@@ -45,6 +46,17 @@ internal static class AnnouncementEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(announcement => TypedResults.Created($"{ApiRoutes.Announcements}/{announcement.Id}", announcement));
+    }
+
+    private static async Task<IResult> UpdateAnnouncementAsync(
+        Guid announcementId,
+        UpdateAnnouncementRequest request,
+        IUseCase<UpdateAnnouncementCommand, AnnouncementResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(request.ToCommand(announcementId), cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> DeleteAnnouncementAsync(

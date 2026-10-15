@@ -12,12 +12,6 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
     public const int BodyMaxLength = 1000;
     public const int MaximumImages = 1;
 
-    private const string TitleRequiredMessage = "Write a title.";
-    private const string TitleLengthMessage = "The title must be at most 80 characters.";
-    private const string BodyLengthMessage = "The text must be at most 1000 characters.";
-    private const string CategoryMessage = "Choose the kind of announcement.";
-    private const string VisibleUntilMessage = "The announcement can't be hidden before today.";
-
     private readonly List<AnnouncementClassGroup> _classGroups = [];
     private readonly List<AnnouncementImage> _images = [];
 
@@ -52,49 +46,40 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
         IReadOnlyCollection<Guid>? classGroupIds = null,
         DateOnly? visibleUntil = null)
     {
-        var trimmedTitle = title?.Trim() ?? string.Empty;
-        if (trimmedTitle.Length == 0)
+        var content = AnnouncementContent.From(title, body, category, visibleUntil, today);
+        if (content.IsFailure)
         {
-            return Result.Validation<Announcement>(TitleRequiredMessage, fieldName: nameof(Title));
-        }
-
-        if (trimmedTitle.Length > TitleMaxLength)
-        {
-            return Result.Validation<Announcement>(TitleLengthMessage, fieldName: nameof(Title));
-        }
-
-        var trimmedBody = string.IsNullOrWhiteSpace(body) ? null : body.Trim();
-        if (trimmedBody?.Length > BodyMaxLength)
-        {
-            return Result.Validation<Announcement>(BodyLengthMessage, fieldName: nameof(Body));
-        }
-
-        if (!Enum.IsDefined(category))
-        {
-            return Result.Validation<Announcement>(CategoryMessage, fieldName: nameof(Category));
-        }
-
-        if (visibleUntil < today)
-        {
-            return Result.Validation<Announcement>(VisibleUntilMessage, fieldName: nameof(VisibleUntil));
+            return content.Error!;
         }
 
         var announcement = new Announcement
         {
             Id = Guid.CreateVersion7(),
-            Title = trimmedTitle,
-            Body = trimmedBody,
-            Category = category,
-            VisibleUntil = visibleUntil,
             PublishedAt = publishedAt.ToUniversalTime(),
         };
-        foreach (var classGroupId in (classGroupIds ?? []).Distinct())
-        {
-            announcement._classGroups.Add(AnnouncementClassGroup.Create(announcement.Id, classGroupId));
-        }
-
+        announcement.Apply(content.Value!, classGroupIds);
         return announcement;
     }
+
+    public Result Edit(
+        string? title,
+        string? body,
+        AnnouncementCategory category,
+        IReadOnlyCollection<Guid>? classGroupIds,
+        DateOnly? visibleUntil,
+        DateOnly today)
+    {
+        var content = AnnouncementContent.From(title, body, category, visibleUntil == VisibleUntil ? null : visibleUntil, today);
+        if (content.IsFailure)
+        {
+            return Result.Failure(content.Error!);
+        }
+
+        Apply(content.Value! with { VisibleUntil = visibleUntil }, classGroupIds);
+        return Result.Success();
+    }
+
+    public void Reschedule(DateTimeOffset publishedAt) => PublishedAt = publishedAt.ToUniversalTime();
 
     public bool IsFor(IReadOnlyCollection<Guid> enrolledClassGroupIds) =>
         IsForEveryone || _classGroups.Any(classGroup => enrolledClassGroupIds.Contains(classGroup.ClassGroupId));
@@ -123,5 +108,19 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
     {
         DeletedOn = null;
         IsDeleted = false;
+    }
+
+    private void Apply(AnnouncementContent content, IReadOnlyCollection<Guid>? classGroupIds)
+    {
+        Title = content.Title;
+        Body = content.Body;
+        Category = content.Category;
+        VisibleUntil = content.VisibleUntil;
+        var wantedClassGroupIds = (classGroupIds ?? []).Distinct().ToList();
+        _classGroups.RemoveAll(classGroup => !wantedClassGroupIds.Contains(classGroup.ClassGroupId));
+        foreach (var classGroupId in wantedClassGroupIds.Where(classGroupId => _classGroups.All(classGroup => classGroup.ClassGroupId != classGroupId)))
+        {
+            _classGroups.Add(AnnouncementClassGroup.Create(Id, classGroupId));
+        }
     }
 }

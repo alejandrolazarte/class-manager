@@ -103,6 +103,7 @@ export const routes = {
   announcements: "/settings/announcements",
   newAnnouncement: "/settings/announcements/new",
   announcement: (announcementId: string) => `/settings/announcements/${announcementId}`,
+  editAnnouncement: (announcementId: string) => `/settings/announcements/${announcementId}/edit`,
   team: "/settings/team",
   inviteMember: "/settings/team/invite",
   teamMember: (memberId: string) => `/settings/team/${memberId}`,

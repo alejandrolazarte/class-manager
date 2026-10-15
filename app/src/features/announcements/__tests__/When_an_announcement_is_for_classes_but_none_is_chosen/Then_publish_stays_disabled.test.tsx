@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { NewAnnouncementScreen } from "@/features/announcements/screens/NewAnnouncementScreen";
+import { AnnouncementFormScreen } from "@/features/announcements/screens/AnnouncementFormScreen";
 import { listActiveClassGroups } from "@/features/classGroups/classGroupsApi";
 import { translate } from "@/i18n/translate";
 import { buildClassGroup } from "@/testing/classGroupFactory";
@@ -14,7 +14,7 @@ describe("When an announcement is for classes but none is chosen", () => {
   });
 
   it("Then publish stays disabled", async () => {
-    await renderWithProviders(<NewAnnouncementScreen />);
+    await renderWithProviders(<AnnouncementFormScreen />);
     await fireEvent.changeText(
       await screen.findByLabelText(translate("announcements.form.title")),
       "Cambia el horario",

@@ -3,7 +3,7 @@ import {
   addAnnouncementImage,
   createAnnouncement,
 } from "@/features/announcements/announcementsApi";
-import { NewAnnouncementScreen } from "@/features/announcements/screens/NewAnnouncementScreen";
+import { AnnouncementFormScreen } from "@/features/announcements/screens/AnnouncementFormScreen";
 import { pickCatalogImage } from "@/features/catalogImages/pickCatalogImage";
 import { translate } from "@/i18n/translate";
 import { buildAnnouncement } from "@/testing/announcementFactory";
@@ -30,7 +30,7 @@ describe("When an announcement is published with a photo", () => {
   });
 
   it("Then the photo is uploaded", async () => {
-    await renderWithProviders(<NewAnnouncementScreen />);
+    await renderWithProviders(<AnnouncementFormScreen />);
     await fireEvent.changeText(
       await screen.findByLabelText(translate("announcements.form.title")),
       "Muestra de fin de año",

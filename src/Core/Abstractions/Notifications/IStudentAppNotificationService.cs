@@ -8,6 +8,8 @@ public interface IStudentAppNotificationService
 {
     Task AnnouncementPublishedAsync(Announcement announcement, CancellationToken cancellationToken);
 
+    Task AnnouncementRescheduledAsync(Announcement announcement, CancellationToken cancellationToken);
+
     Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 
     Task ClassCancelledAsync(ClassSession session, CancellationToken cancellationToken);
