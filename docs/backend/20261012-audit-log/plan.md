@@ -6,9 +6,9 @@ Three pieces answer "who did what, and who tried what they were not allowed to":
 
 1. **Audit columns** on every table: who created and who last changed a row, and who deleted it when it is soft deleted.
 2. **Command log**: every command (`ICommand`) that ran, by whom, with its input after removing sensitive fields, written by a use case behavior to Azure Table Storage.
-3. **Security events**: 403 responses and the 401 that matter (failed sign-ins, invalid refresh tokens), written by a middleware to Azure Table Storage.
+3. **Security events**: 403 responses and the 401 that matter (failed sign-ins, invalid refresh tokens), written by a middleware to append blobs under a time-based retention policy, so nobody can change or delete them until they expire.
 
-The history lives in the command log, not in SQL. The columns only keep the latest state.
+The history lives in the command log, not in SQL. The columns only keep the latest state. Both logs live in their own storage account that only accepts Microsoft Entra identities (no account key, no anonymous access), and the API can add entries but never change or delete them ([Access](#access-private-and-append-only)).
 
 ## Why Azure Table Storage and not SQL
 
@@ -20,7 +20,7 @@ The history lives in the command log, not in SQL. The columns only keep the late
 
 Prices are approximate (checked 2026-10-12). Check the Azure Table Storage pricing page before relying on them.
 
-The account is the same storage account as Blob Storage ([storage](../../storage.md)), so there is nothing new to deploy except the tables. In development and tests it runs on Azurite, which already runs for blob tests.
+The logs get their own storage account, separate from the one with the photos ([storage](../../storage.md)); an account costs nothing by itself, only what it stores, and the reasons are in [Access](#access-private-and-append-only). In development and tests it runs on Azurite, which already runs for blob tests.
 
 The trade-off: the command log is written outside the SQL transaction. If the process dies between the commit and the write, the row is lost; if the write fails, the command still succeeded. That is acceptable for an operational audit. If an audit with legal weight is ever needed, the [background tasks](../20261007-background-tasks/plan.md) already give the guarantee: queue a `WriteAuditEntryBackgroundTaskCommand` and its handler writes the row to Table Storage.
 
@@ -184,34 +184,75 @@ Not recorded:
 - `SignInFailed` and `RefreshTokenRejected` are queued by the use cases themselves through `ISecurityEventRecorder`, because the middleware can't tell a wrong password from an expired token.
 - The sign-in, refresh and password reset endpoints keep their rate limiting (`UseRateLimiter`); the events don't replace it.
 
-### Row
+### Entry
 
-Table `SecurityEvents{yyyyMM}`.
+One append blob per day in the container `security-events`: `{yyyy}/{MM}/{dd}.jsonl`, one JSON object per line. Blobs and not a table because only blobs can be immutable in Azure Storage ([Access](#access-private-and-append-only)). There are few events a day, so reading a whole day is cheap.
 
-| Property | Value |
+| Field | Value |
 |---|---|
-| `PartitionKey` | `TenantId`, or `anonymous` |
-| `RowKey` | Inverted ticks + `_` + `Guid` |
-| `Event` | `Forbidden`, `SignInFailed`, `RefreshTokenRejected`, `UnauthorizedBurst` |
-| `UserId` | When known |
-| `Route`, `Method` | Route template and HTTP method |
-| `IpAddress` | The client IP (from `X-Forwarded-For` as configured for Container Apps) |
-| `UserAgent` | Cut to 256 characters |
-| `Count` | For `UnauthorizedBurst` |
-| `TraceId` | Same as the command log |
+| `occurredAt` | Date and time, UTC |
+| `tenantId` | When known, otherwise empty |
+| `event` | `Forbidden`, `SignInFailed`, `RefreshTokenRejected`, `UnauthorizedBurst` |
+| `userId` | When known |
+| `route`, `method` | Route template and HTTP method |
+| `ipAddress` | The client IP (from `X-Forwarded-For` as configured for Container Apps) |
+| `userAgent` | Cut to 256 characters |
+| `count` | For `UnauthorizedBurst` |
+| `traceId` | Same as the command log |
 
-The IP address is personal data under the GDPR; security logs are a legitimate interest, which is why these tables have a short retention.
+- The worker appends each batch as one block (`AppendBlockAsync`), creating the day's blob on its first write of the day. An append blob takes up to 50,000 blocks, far more than a day of batches, and the per-IP cap keeps it that way.
+- The IP address is personal data under the GDPR; security logs are a legitimate interest, which is why these entries have a short retention.
 
 ## Retention
 
-Table Storage has no expiry per row, and deleting rows one by one costs a write each. So each month has its own table (`Commands202610`, `SecurityEvents202610`) and a whole table is deleted when it gets old, which is one operation.
+| Log | Where | Kept | Why |
+|---|---|---|---|
+| Commands | Table `Commands{yyyyMM}` | 24 months | Enough to answer a business's questions about payments and fees of the previous year |
+| Security events | Container `security-events`, a blob per day | 6 months | Enough to investigate an incident; IPs are not kept longer than needed |
 
-| Table | Kept | Why |
-|---|---|---|
-| `Commands{yyyyMM}` | 24 months | Enough to answer a business's questions about payments and fees of the previous year |
-| `SecurityEvents{yyyyMM}` | 6 months | Enough to investigate an incident; IPs are not kept longer than needed |
+- **Commands.** Table Storage has no expiry per row, and deleting rows one by one costs a write each. So each month has its own table (`Commands202610`) and a whole table is deleted when it gets old, which is one operation. The worker creates the table of the month on its first write of that month. It does **not** delete old tables: the API's identity can't delete anything ([Access](#access-private-and-append-only)). The operator deletes them with their own identity (`az storage table delete --auth-mode login`), from a runbook. The first table to delete is 24 months old, so the runbook is first needed at the end of 2028; a scheduled Container Apps job with its own identity can replace it if remembering becomes a problem.
+- **Security events.** The container has a time-based retention policy of 183 days: a blob can't be changed or deleted, by anyone, until 183 days after it was created. A lifecycle management rule deletes blobs older than 190 days in `security-events/`, so nothing needs to run in the API or by hand.
 
-The worker creates the table of the month on its first write of that month and, at that same moment, deletes the tables older than the retention. It needs no timer: with `minReplicas 0` the container is often stopped, and a daily timer would not run while it is. When a person asks to be erased, their ids stay in the command log (no personal values are stored there) and their rows in security events expire with the table.
+When a person asks to be erased, their ids stay in the command log (no personal values are stored there) and their security events expire with their day's blob.
+
+## Access: private and append only
+
+The logs answer "who did what" after something went wrong, so whoever compromises the API, or steals its credentials, must not be able to read other businesses' logs through them or erase their own tracks.
+
+### A storage account of its own
+
+- **Separate from the photos account.** The photos account allows anonymous reads on its public container (shop photos) and the API reaches it with a connection string, which carries the account key: full access to everything, tables included. The logs account has neither.
+- **No anonymous access** (`--allow-blob-public-access false`). Tables never have anonymous access; the setting covers the `security-events` container.
+- **No account key** (`--allow-shared-key-access false`). Only Microsoft Entra identities with a role can reach the data, so there is no key that can leak. The API uses its system-assigned managed identity, the one it already uses for SQL ([pilot deployment](../../pilot-deployment.md)), through `DefaultAzureCredential` (new package `Azure.Identity`). The configuration holds only the service URIs, never a secret. Azurite in development and tests keeps its connection string.
+- **Public endpoint, no private endpoint.** A private endpoint costs about USD 7 a month plus a virtual network for Container Apps. Without keys and anonymous access, the public endpoint only answers identities with a role.
+- **LRS**, like the photos account. Geo-redundancy doubles the price and a lost region is not a risk worth paying for in an operational log.
+
+### Roles: the API can only add
+
+Built-in roles such as Storage Table Data Contributor allow updating and deleting. The API gets one custom role, `Audit Log Writer`, assigned on the logs account only:
+
+| Permission | Why |
+|---|---|
+| `Microsoft.Storage/storageAccounts/tableServices/tables/read`, `.../tables/write` | Create the table of the month. No `.../tables/delete` |
+| Data action `Microsoft.Storage/storageAccounts/tableServices/tables/entities/add/action` | Insert rows. No `read`, `write` (upsert), `update/action` or `delete`, so a row can't be read, replaced or removed through the API |
+| Data actions `Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write`, `.../blobs/add/action` | Create the day's blob and append to it. Overwriting or deleting a blob under the retention policy is refused anyway |
+
+- Rows are inserted with `TableTransactionActionType.Add` (`AddEntity`), never upsert: the `RowKey` is new every time, and an upsert would need the update permission.
+- The exact permission names are checked against Azure's list of storage operations when the role is created, and the role is proved by hand: inserting works, while reading, updating and deleting a row, and deleting a table, answer 403.
+- Reading the logs is a separate person's role: the owner gets Storage Table Data Reader and Storage Blob Data Reader on the account and reads with Azure Storage Explorer signed in with Entra.
+
+### Immutable security events
+
+Azure Storage only has immutable storage (WORM) for blobs, not for tables, which is why security events are append blobs:
+
+- Container-level **time-based retention policy** of 183 days with **protected append writes** allowed (`--allow-protected-append-writes true`): new blocks can be appended, existing ones can't be changed, and the blob can't be deleted until the period ends.
+- The policy starts **unlocked**, so it can be tested and changed. Once the writer has been proved in production it is **locked**: from then on the period can only be extended, never shortened or removed, not even by the subscription owner, and the account can't be deleted while it holds protected blobs. That is the reason the logs account is separate: the photos account stays free to change or be deleted.
+- Azurite has no immutability policies, so integration tests cover the format and the writer, and the policy is checked with the audit commands of the runbook.
+
+### What stays mutable
+
+- **Command rows are protected from the API, not from the operator.** Whoever holds Owner on the subscription can delete a table. That is acceptable for an operational log; if commands ever need to be immutable too, they move to append blobs like security events, at the cost of filtering by business and date.
+- **The in-memory channel** still loses the last seconds of entries in a crash (see [the trade-off](#why-azure-table-storage-and-not-sql)).
 
 ## Why a background service and not an Azure Function
 
@@ -220,20 +261,21 @@ The writer is a `BackgroundService` inside the API, like the [background tasks](
 - **A Function needs a hop.** The entries are in the API's memory. To reach a Function, the API would first write them to a Storage Queue, which costs one write per entry, the same as writing the row to Table Storage directly. The Function would then pay a second write. Double the operations, for the same result.
 - **Cost.** Both are close to free at pilot scale: the Functions consumption plans include a monthly free grant of executions, and the background service runs in the container that is already paid for. The difference is not money, it is one more resource to deploy, configure, monitor and keep on a supported plan.
 - **Scale to zero is not a problem for the writer.** Entries are only produced while the API handles requests, so the container is running exactly when there is something to write, and it drains the channel on shutdown.
-- **The only timed job is retention**, and it runs on the first write of each month instead of on a timer (see [Retention](#retention)).
+- **No timed job.** Security events expire through the retention policy and a lifecycle rule; old command tables are deleted by the operator, who has the permission the API lacks (see [Retention](#retention)).
 
 Move to a Function (fed by a queue) only if the API runs several replicas that should not each write, or if the log has to survive a crash of the API, which the in-memory channel can't promise. In that second case the background tasks described above are the better fit: they already exist and survive a crash.
 
 ## Reading it
 
-At first, only the owner reads it, from Azure Storage Explorer or the portal, filtering by `PartitionKey` (the business) and by `RowKey` range (dates). A screen in the app ("Actividad" for the business owner) can come later and reads one partition, newest first, which is the order the `RowKey` already gives.
+At first, only the owner reads it, from Azure Storage Explorer signed in with Entra (there is no account key): commands filtered by `PartitionKey` (the business) and by `RowKey` range (dates), security events by downloading a day's blob. A screen in the app ("Actividad" for the business owner) can come later and reads one partition, newest first, which is the order the `RowKey` already gives; it needs a read role for a separate identity, never for the API's writer.
 
 ## Steps
 
 1. Rename soft delete to `DeletedAt` and add `DeletedByUserId`, with the migration and the record columns test. One PR, no behavior change.
 2. `IAudited`, `ICurrentUser` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it.
-3. Table Storage client (`Azure.Data.Tables`) next to the blob client, Azurite in the integration tests, `AuditWorker` with the monthly tables and retention.
+3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands. Table client (`Azure.Data.Tables`) and blob client through `DefaultAzureCredential` with Azurite in the integration tests, `AuditWorker` with the monthly tables.
 4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules).
-5. `SecurityEventMiddleware`, `ISecurityEventRecorder` in sign-in and refresh, the plan-limit marker.
+5. `SecurityEventMiddleware`, `ISecurityEventRecorder` in sign-in and refresh, the plan-limit marker, the daily append blobs, the retention policy (unlocked) and the lifecycle rule.
+6. Lock the retention policy once security events have been written in production for a while and the runbook's audit commands pass.
 
 Each step starts with its failing tests, as every change in the repository.
