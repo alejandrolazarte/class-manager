@@ -61,7 +61,9 @@ public sealed class AnnouncementResponseService(
                     recipientIds.Count,
                     views.Count(view => view.AnnouncementId == announcement.Id && recipientIds.Contains(view.ClientId)),
                     recipientReplies.Count(reply => reply.IsGoing),
-                    recipientReplies.Count(reply => !reply.IsGoing));
+                    recipientReplies.Count(reply => !reply.IsGoing),
+                    announcement.Action,
+                    announcement.ActionUrl);
             }),
         ];
     }

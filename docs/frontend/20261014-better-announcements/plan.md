@@ -93,6 +93,18 @@ The team endpoints require `announcements.manage`. The student news items carry 
 - **`PUT /api/announcements/{id}`** takes the same fields as the create. A "Visible hasta" that already passed is accepted while it is unchanged, so an old announcement can still be corrected; a new one can't be before today. Only classes added to the audience are checked against the business.
 - **Moving a scheduled push cancels the queued one.** Rescheduling or publishing now deletes the pending `PublishScheduledAnnouncementBackgroundTaskCommand` (`IBackgroundTaskOutbox.CancelPendingAsync`: same type and payload, never attempted, not yet due) and queues the new time, so families never get it twice.
 
+## Step 5 (built): a button in the announcement
+
+### What changes
+
+- The announcement form has an optional **Botón**: Sin botón (the default), Tienda, Mis clases or Un link. A link asks for the address, which must start with `https://`.
+- Students see the button below the announcement, in Novedades and in the pinned card: "Ver la tienda" opens the shop, "Ver mis clases" their classes, and "Abrir link" opens the link outside the app. The preview shows it too, and does nothing when pressed.
+
+### Decisions
+
+- **Fixed destinations, fixed labels.** `Announcements.Action` (`None`, `Shop`, `Classes`, `Link`, stored as text, existing rows `None`) and `ActionUrl` (only for `Link`, up to 500 characters, `https` only like class materials). The labels come from the app's texts, so they follow each student's language; the team doesn't write them.
+- **The push doesn't change.** It still opens Novedades, where the button is.
+
 ## Next steps (proposal)
 
-1. **A button in the announcement.** Take the student to the shop, their week or a link.
+None pending for now.

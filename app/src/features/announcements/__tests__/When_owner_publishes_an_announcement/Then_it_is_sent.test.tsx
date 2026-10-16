@@ -31,6 +31,8 @@ describe("When owner publishes an announcement", () => {
         isPinned: false,
         visibleUntil: null,
         publishOn: null,
+        action: "None",
+        actionUrl: null,
       }),
     );
   });

@@ -36,6 +36,10 @@ public sealed record StudentAppNewsItemResponse(
     public string? ImageUrl { get; init; }
 
     public IReadOnlyList<string> AudienceClassNames { get; init; } = [];
+
+    public AnnouncementAction? Action { get; init; }
+
+    public string? ActionUrl { get; init; }
 }
 
 public sealed record StudentAppNewsResponse(IReadOnlyList<StudentAppNewsItemResponse> Items, int UnreadCount);
