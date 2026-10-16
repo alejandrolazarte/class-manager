@@ -6,9 +6,16 @@ import {
   announcementCategoryPresentations,
   defaultAnnouncementCategory,
 } from "@/features/announcements/announcementCategories";
+import {
+  announcementActionOptionKeys,
+  announcementActions,
+  announcementActionUrlMaxLength,
+  isHttpsLink,
+} from "@/features/announcements/announcementActions";
 import { AnnouncementPreviewSheet } from "@/features/announcements/components/AnnouncementPreviewSheet";
 import {
   Announcement,
+  AnnouncementAction,
   AnnouncementCategory,
   AnnouncementRequest,
 } from "@/features/announcements/types";
@@ -120,6 +127,8 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
   const [visibleUntil, setVisibleUntil] = useState(
     savedVisibleUntil === null ? "" : formatBirthDateForDisplay(savedVisibleUntil),
   );
+  const [action, setAction] = useState<AnnouncementAction>(announcement?.action ?? "None");
+  const [actionUrl, setActionUrl] = useState(announcement?.actionUrl ?? "");
   const [isPinned, setIsPinned] = useState(announcement?.isPinned ?? false);
   const [publishTime, setPublishTime] = useState<PublishTime>(
     savedPublishedAt === null ? "now" : "scheduled",
@@ -143,8 +152,12 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
   const isScheduled = canChoosePublishTime && publishTime === "scheduled";
   const publishOn = scheduledInstantOf(publishDate, publishClockTime);
   const hasInvalidPublishOn = isScheduled && publishOn !== null && publishOn.getTime() <= openedAt;
+  const chosenActionUrl = action === "Link" ? actionUrl.trim() : null;
+  const hasInvalidActionUrl =
+    chosenActionUrl !== null && isFilled(chosenActionUrl) && !isHttpsLink(chosenActionUrl);
   const canPublish =
     isFilled(title) &&
+    (chosenActionUrl === null || isHttpsLink(chosenActionUrl)) &&
     (audience === "everyone" || classGroupIds.length > 0) &&
     !hasInvalidVisibleUntil &&
     (!isScheduled || (publishOn !== null && !hasInvalidPublishOn));
@@ -173,6 +186,8 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
     isPinned: isPinned && !isScheduled,
     isGoing: null,
     imageUrl: firstImage === undefined ? null : previewUriOf(firstImage),
+    action,
+    actionUrl: chosenActionUrl,
     audienceClassNames: classGroups
       .filter((classGroup) => chosenClassGroupIds.includes(classGroup.id))
       .map((classGroup) => classGroup.name),
@@ -188,6 +203,8 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
       isPinned: isPinned && !isScheduled,
       visibleUntil: visibleUntilIsoDate,
       publishOn: isScheduled && publishOn !== null ? publishOn.toISOString() : null,
+      action,
+      actionUrl: chosenActionUrl,
     };
     try {
       const savedAnnouncement =
@@ -290,6 +307,38 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
             : undefined
         }
       />
+      <View className="gap-2">
+        <AppText variant="label" tone="muted">
+          {translate("announcements.action.label")}
+        </AppText>
+        <ChipGroup
+          isScrollable
+          options={announcementActions.map((option) => ({
+            value: option,
+            label: translate(announcementActionOptionKeys[option]),
+          }))}
+          selectedValue={action}
+          onChange={setAction}
+        />
+        {action === "Link" ? (
+          <TextField
+            label={translate("announcements.action.url")}
+            isRequired
+            placeholder={translate("announcements.action.urlPlaceholder")}
+            value={actionUrl}
+            onChangeText={setActionUrl}
+            maxLength={announcementActionUrlMaxLength}
+            autoCapitalize="none"
+            keyboardType="url"
+            errorMessage={
+              hasInvalidActionUrl ? translate("announcements.validation.actionUrl") : undefined
+            }
+          />
+        ) : null}
+        <AppText variant="caption" tone="muted">
+          {translate("announcements.action.hint")}
+        </AppText>
+      </View>
       {canChoosePublishTime ? (
         <View className="gap-2">
           <AppText variant="label" tone="muted">

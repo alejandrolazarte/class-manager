@@ -2,6 +2,8 @@ import { CatalogImage } from "@/features/catalogImages/types";
 
 export type AnnouncementCategory = "News" | "Important" | "Event" | "Reminder";
 
+export type AnnouncementAction = "None" | "Shop" | "Classes" | "Link";
+
 export interface AnnouncementClassGroup {
   id: string;
   name: string;
@@ -22,6 +24,8 @@ export interface Announcement {
   seenCount: number;
   goingCount: number;
   notGoingCount: number;
+  action: AnnouncementAction;
+  actionUrl: string | null;
 }
 
 export interface AnnouncementRecipient {
@@ -43,4 +47,6 @@ export interface AnnouncementRequest {
   isPinned: boolean;
   visibleUntil: string | null;
   publishOn: string | null;
+  action: AnnouncementAction;
+  actionUrl: string | null;
 }

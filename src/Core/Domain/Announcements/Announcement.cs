@@ -11,6 +11,7 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
     public const int TitleMaxLength = 80;
     public const int BodyMaxLength = 1000;
     public const int MaximumImages = 1;
+    public const int ActionUrlMaxLength = 500;
 
     private readonly List<AnnouncementClassGroup> _classGroups = [];
     private readonly List<AnnouncementImage> _images = [];
@@ -26,6 +27,8 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
     public AnnouncementCategory Category { get; private set; }
     public bool IsPinned { get; private set; }
     public DateOnly? VisibleUntil { get; private set; }
+    public AnnouncementAction Action { get; private set; }
+    public string? ActionUrl { get; private set; }
     public DateTimeOffset PublishedAt { get; private set; }
     public DateTimeOffset? DeletedOn { get; private set; }
     public bool IsDeleted { get; private set; }
@@ -44,9 +47,11 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
         DateOnly today,
         AnnouncementCategory category = AnnouncementCategory.News,
         IReadOnlyCollection<Guid>? classGroupIds = null,
-        DateOnly? visibleUntil = null)
+        DateOnly? visibleUntil = null,
+        AnnouncementAction action = AnnouncementAction.None,
+        string? actionUrl = null)
     {
-        var content = AnnouncementContent.From(title, body, category, visibleUntil, today);
+        var content = AnnouncementContent.From(title, body, category, visibleUntil, today, action, actionUrl);
         if (content.IsFailure)
         {
             return content.Error!;
@@ -67,9 +72,12 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
         AnnouncementCategory category,
         IReadOnlyCollection<Guid>? classGroupIds,
         DateOnly? visibleUntil,
-        DateOnly today)
+        DateOnly today,
+        AnnouncementAction action = AnnouncementAction.None,
+        string? actionUrl = null)
     {
-        var content = AnnouncementContent.From(title, body, category, visibleUntil == VisibleUntil ? null : visibleUntil, today);
+        var content = AnnouncementContent.From(
+            title, body, category, visibleUntil == VisibleUntil ? null : visibleUntil, today, action, actionUrl);
         if (content.IsFailure)
         {
             return Result.Failure(content.Error!);
@@ -116,6 +124,8 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
         Body = content.Body;
         Category = content.Category;
         VisibleUntil = content.VisibleUntil;
+        Action = content.Action;
+        ActionUrl = content.ActionUrl;
         var wantedClassGroupIds = (classGroupIds ?? []).Distinct().ToList();
         _classGroups.RemoveAll(classGroup => !wantedClassGroupIds.Contains(classGroup.ClassGroupId));
         foreach (var classGroupId in wantedClassGroupIds.Where(classGroupId => _classGroups.All(classGroup => classGroup.ClassGroupId != classGroupId)))

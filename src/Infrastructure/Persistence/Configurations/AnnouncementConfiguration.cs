@@ -5,6 +5,7 @@ namespace ClassManager.Infrastructure.Persistence.Configurations;
 internal sealed class AnnouncementConfiguration : IEntityTypeConfiguration<Announcement>
 {
     private const int CategoryMaxLength = 20;
+    private const int ActionMaxLength = 20;
     private const string SinglePinnedIndexName = "IX_Announcements_TenantId_Pinned";
     private const string SinglePinnedFilter = $"[IsPinned] = 1 AND {SoftDeleteModelBuilderExtensions.NotDeletedFilter}";
 
@@ -15,6 +16,8 @@ internal sealed class AnnouncementConfiguration : IEntityTypeConfiguration<Annou
         builder.Property(announcement => announcement.Title).HasMaxLength(Announcement.TitleMaxLength).IsRequired();
         builder.Property(announcement => announcement.Body).HasMaxLength(Announcement.BodyMaxLength);
         builder.Property(announcement => announcement.Category).HasConversion<string>().HasMaxLength(CategoryMaxLength);
+        builder.Property(announcement => announcement.Action).HasConversion<string>().HasMaxLength(ActionMaxLength);
+        builder.Property(announcement => announcement.ActionUrl).HasMaxLength(Announcement.ActionUrlMaxLength);
         builder.Ignore(announcement => announcement.ClassGroupIds);
         builder.Ignore(announcement => announcement.IsForEveryone);
         builder.Ignore(announcement => announcement.ImagesInOrder);

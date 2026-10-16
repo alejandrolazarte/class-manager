@@ -102,6 +102,8 @@ public sealed class GetStudentAppNewsUseCase(
                 AnnouncementId = announcement.Id,
                 Category = announcement.Category,
                 IsPinned = announcement.IsPinned,
+                Action = announcement.Action,
+                ActionUrl = announcement.ActionUrl,
                 IsGoing = isGoingByAnnouncement.TryGetValue(announcement.Id, out var isGoing) ? isGoing : null,
                 ImageUrl = announcement.ImagesInOrder.Count == 0 ? null : documentStorage.PublicUrlOf(announcement.ImagesInOrder[0]).AbsoluteUri,
                 AudienceClassNames =

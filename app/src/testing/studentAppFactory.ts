@@ -207,6 +207,8 @@ export function buildStudentAppNewsItem(
     isGoing: null,
     imageUrl: null,
     audienceClassNames: [],
+    action: null,
+    actionUrl: null,
     ...overrides,
   };
 }

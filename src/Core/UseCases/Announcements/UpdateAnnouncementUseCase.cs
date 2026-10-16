@@ -13,10 +13,12 @@ public sealed record UpdateAnnouncementRequest(
     IReadOnlyList<Guid>? ClassGroupIds = null,
     bool IsPinned = false,
     DateOnly? VisibleUntil = null,
-    DateTimeOffset? PublishOn = null)
+    DateTimeOffset? PublishOn = null,
+    AnnouncementAction? Action = null,
+    string? ActionUrl = null)
 {
     public UpdateAnnouncementCommand ToCommand(Guid announcementId) =>
-        new(announcementId, Title, Body, Category, ClassGroupIds, IsPinned, VisibleUntil, PublishOn);
+        new(announcementId, Title, Body, Category, ClassGroupIds, IsPinned, VisibleUntil, PublishOn, Action, ActionUrl);
 }
 
 public sealed record UpdateAnnouncementCommand(
@@ -27,7 +29,9 @@ public sealed record UpdateAnnouncementCommand(
     IReadOnlyList<Guid>? ClassGroupIds = null,
     bool IsPinned = false,
     DateOnly? VisibleUntil = null,
-    DateTimeOffset? PublishOn = null) : ICommand;
+    DateTimeOffset? PublishOn = null,
+    AnnouncementAction? Action = null,
+    string? ActionUrl = null) : ICommand;
 
 public sealed class UpdateAnnouncementUseCase(
     IAnnouncementRepository announcementRepository,
@@ -69,7 +73,9 @@ public sealed class UpdateAnnouncementUseCase(
             command.Category ?? announcement.Category,
             command.ClassGroupIds,
             command.VisibleUntil,
-            await businessCalendar.TodayAsync(cancellationToken));
+            await businessCalendar.TodayAsync(cancellationToken),
+            command.Action ?? AnnouncementAction.None,
+            command.ActionUrl);
         if (edited.IsFailure)
         {
             return edited.Error!;

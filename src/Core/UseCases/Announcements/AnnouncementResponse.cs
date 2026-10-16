@@ -19,7 +19,9 @@ public sealed record AnnouncementResponse(
     int RecipientCount,
     int SeenCount,
     int GoingCount,
-    int NotGoingCount);
+    int NotGoingCount,
+    AnnouncementAction Action,
+    string? ActionUrl);
 
 public sealed record AnnouncementRecipientResponse(Guid ClientId, string FullName, DateTimeOffset? SeenAt, bool? IsGoing);
 
