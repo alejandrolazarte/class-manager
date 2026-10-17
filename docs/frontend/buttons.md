@@ -38,6 +38,7 @@ A button that switches between two states takes the variant of each state (`clas
 | `TextLink` | Go somewhere, or show and hide a section, as text | Ver todo, ¿Olvidaste tu contraseña?, Ver PDF |
 | `InlineLink` | A link inside a sentence | the terms in the legal consent |
 | `FooterLinks` | The legal links at the bottom of a screen | Términos, Privacidad |
+| `RingButton` | Open the account switcher from the business logo, marked by a thin gradient ring in the theme colors; `accessibilityLabel` is required | the logo in the Inicio headers (team and student) when the person has more than one branch or account |
 
 `ghost` and `TextLink` look alike on purpose. Choose by what happens: `ghost` does something (edits, resends, changes), `TextLink` takes the user somewhere or opens a section.
 
@@ -70,3 +71,4 @@ A visual variant of an existing role (another border, another color for the same
 ## History
 
 - 2026-10-14: the button inventory (eight `Button` variants, seven other primitives and buttons built by hand in screens) was reduced to one button per role. `outline` was removed (its uses are `secondary`), "Cancelar" in `ghost` became `secondary`, the hand-made links and text buttons became `TextLink`, `Button` (`ghost`, `dangerGhost`) or `TonalButton` (`neutral`), the news bell an `IconButton`, the cart bar the `FloatingBarButton` primitive, and `IconButton` and `FooterLinks` got the press feedback and the grey disabled state. `Button` got the `small` size for actions inside rows, as the Calma boards draw them. The Calma design draws an outlined button ("Contorno") and a borderless "Volver" in the dialog; the app keeps one line instead (see the [Calma plan](20261011-calma-redesign/plan.md) log).
+- 2026-10-17: `RingButton` was added. Switching branch or account only lived in Ajustes; the logo in the Inicio header now opens the switcher. No existing role covers it: `IconButton` draws an icon, and the logo is an image the person already recognizes, so the ring marks it as pressable without adding an arrow or text.
