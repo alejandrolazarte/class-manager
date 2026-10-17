@@ -45,7 +45,7 @@ internal static class TestData
         ClassManager.Core.Domain.Clients.PhoneNumber.Create(ClientPhoneNumber, DefaultCountryCallingCode).Value!;
 
     public static Client Client() =>
-        ClassManager.Core.Domain.Clients.Client.Create(ClientFullName, PhoneNumber(), null, null, Now).Value!;
+        ClassManager.Core.Domain.Clients.Client.Create(ClientFullName, PhoneNumber(), null, null, Now).Value!.WithUser();
 
     public static PendingSignUp PendingSignUp(string tokenHash, DateTimeOffset? createdAt = null) =>
         ClassManager.Core.Domain.Accounts.PendingSignUp.Start(

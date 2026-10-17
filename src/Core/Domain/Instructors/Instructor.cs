@@ -1,5 +1,6 @@
 using System.Net.Mail;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Instructors;
@@ -23,6 +24,7 @@ public sealed class Instructor : ITenantOwned
     public string? Email { get; private set; }
     public bool IsActive { get; private set; }
     public Guid? UserId { get; private set; }
+    public User User { get; private set; } = null!;
 
     public static Result<Instructor> Create(string? fullName, string? email = null)
     {
@@ -60,6 +62,12 @@ public sealed class Instructor : ITenantOwned
     public void Activate() => IsActive = true;
 
     public void Deactivate() => IsActive = false;
+
+    public void LinkUser(User user)
+    {
+        User = user;
+        UserId = user.Id;
+    }
 
     private static Result<ValidatedDetails> ValidDetails(string? fullName, string? email)
     {

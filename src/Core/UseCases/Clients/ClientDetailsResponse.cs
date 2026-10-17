@@ -27,15 +27,30 @@ public sealed record ClientDetailsResponse(
         IReadOnlyDictionary<Guid, StudentAppAccessResponse> studentAppAccesses) =>
         new(
             client.Id,
-            client.FullName,
-            client.PhoneNumber.Value,
-            client.Email,
+            client.User.FullName,
+            client.User.PhoneNumber!.Value,
+            client.User.Email,
             client.Notes,
             client.CreatedAt,
             BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, BillingMonth.From(today))),
             BillingPlanChangeResponse.From(billingPlanChanges),
             [.. students
-                .OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase)
+                .OrderBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase)
                 .Select(student => StudentResponse.From(student, studentAppAccesses.GetValueOrDefault(student.Id, StudentAppAccessResponse.NotInvited)))],
             appAccess);
+
+    public static ClientDetailsResponse FromWritten(Client client, IEnumerable<Student> students, DateOnly today) =>
+        new(
+            client.Id,
+            client.FullName,
+            client.PhoneNumber.Value,
+            client.Email,
+            client.Notes,
+            client.CreatedAt,
+            BillingPlanResponse.From(FeeTimeline.PlanIn([], BillingMonth.From(today))),
+            BillingPlanChangeResponse.From([]),
+            [.. students
+                .OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase)
+                .Select(StudentResponse.FromWritten)],
+            StudentAppAccessResponse.NotInvited);
 }

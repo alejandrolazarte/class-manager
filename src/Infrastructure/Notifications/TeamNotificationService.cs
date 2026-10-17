@@ -38,8 +38,8 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     private async Task<string> InvitedFullNameAsync(ClientInvitation invitation, CancellationToken cancellationToken)
     {
         var fullName = invitation.StudentId is { } studentId
-            ? await context.Students.AsNoTracking().Where(student => student.Id == studentId).Select(student => student.FullName).FirstOrDefaultAsync(cancellationToken)
-            : await context.Clients.AsNoTracking().Where(client => client.Id == invitation.ClientId).Select(client => client.FullName).FirstOrDefaultAsync(cancellationToken);
+            ? await context.Students.AsNoTracking().Where(student => student.Id == studentId).Select(student => student.User.FullName).FirstOrDefaultAsync(cancellationToken)
+            : await context.Clients.AsNoTracking().Where(client => client.Id == invitation.ClientId).Select(client => client.User.FullName).FirstOrDefaultAsync(cancellationToken);
         return fullName ?? invitation.Email;
     }
 
@@ -71,7 +71,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
         Func<INotificationTexts, string, string> title,
         CancellationToken cancellationToken)
     {
-        var student = await context.Students.AsNoTracking().FirstOrDefaultAsync(candidate => candidate.Id == studentId, cancellationToken);
+        var student = await context.Students.AsNoTracking().Include(candidate => candidate.User).FirstOrDefaultAsync(candidate => candidate.Id == studentId, cancellationToken);
         if (student is null)
         {
             return;
@@ -79,7 +79,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
 
         var userIds = await RecipientsAsync(session.EffectiveInstructorId(classGroup.InstructorId), cancellationToken);
         var message = LocalizedPushMessage.Build(texts => new PushMessage(
-            title(texts, student.FullName),
+            title(texts, student.User.FullName),
             texts.ClassBody(classGroup.Name, session.Date, session.EffectiveStartTime(classGroup.StartTime)),
             TeamNotificationLinks.SessionUrl(classGroup.Id, session.Date)));
         await notifier.NotifyAsync(userIds, message, cancellationToken);

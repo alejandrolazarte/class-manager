@@ -87,7 +87,7 @@ public sealed class UpdateClientUseCase(
             return PhoneNumberTaken(winnerClient?.Id);
         }
 
-        return ClientResponse.From(client);
+        return ClientResponse.FromWritten(client);
     }
 
     private static Result<ClientResponse> PhoneNumberTaken(Guid? existingClientId) =>

@@ -8,7 +8,7 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
     public void Add(Student student) => context.Students.Add(student);
 
     public Task<Student?> FindForUpdateAsync(Guid studentId, CancellationToken cancellationToken) =>
-        context.Students.FirstOrDefaultAsync(student => student.Id == studentId, cancellationToken);
+        context.Students.Include(student => student.User).FirstOrDefaultAsync(student => student.Id == studentId, cancellationToken);
 
     public Task<Student?> FindByClientAndNameAsync(Guid clientId, string fullName, CancellationToken cancellationToken) =>
         context.Students.AsNoTracking().FirstOrDefaultAsync(
@@ -16,14 +16,14 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
             cancellationToken);
 
     public async Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
-        await context.Students.AsNoTracking()
+        await context.Students.AsNoTracking().Include(student => student.User)
             .Where(student => student.ClientId == clientId)
-            .OrderBy(student => student.FullName)
+            .OrderBy(student => student.User.FullName)
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Student>> ListAllAsync(CancellationToken cancellationToken) =>
-        await context.Students.AsNoTracking()
-            .OrderBy(student => student.FullName)
+        await context.Students.AsNoTracking().Include(student => student.User)
+            .OrderBy(student => student.User.FullName)
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Student>> ListByClientIdsAsync(
@@ -31,7 +31,7 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
         CancellationToken cancellationToken) =>
         clientIds.Count == 0
             ? []
-            : await context.Students.AsNoTracking()
+            : await context.Students.AsNoTracking().Include(student => student.User)
                 .Where(student => clientIds.Contains(student.ClientId))
                 .ToListAsync(cancellationToken);
 
@@ -66,14 +66,14 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
             var phoneNumberPattern = LikePatterns.StartsWith(criteria.ClientPhoneNumberPrefix);
 
             studentsWithClient = studentsWithClient.Where(studentWithClient =>
-                EF.Functions.Like(studentWithClient.Student.FullName, fullNamePattern, LikePatterns.EscapeCharacter)
-                || EF.Functions.Like(studentWithClient.Client.FullName, fullNamePattern, LikePatterns.EscapeCharacter)
+                EF.Functions.Like(studentWithClient.Student.User.FullName, fullNamePattern, LikePatterns.EscapeCharacter)
+                || EF.Functions.Like(studentWithClient.Client.User.FullName, fullNamePattern, LikePatterns.EscapeCharacter)
                 || (phoneNumberPattern != null
-                    && EF.Functions.Like((string)(object)studentWithClient.Client.PhoneNumber, phoneNumberPattern, LikePatterns.EscapeCharacter)));
+                    && EF.Functions.Like((string)(object)studentWithClient.Client.User.PhoneNumber!, phoneNumberPattern, LikePatterns.EscapeCharacter)));
         }
 
         return await studentsWithClient
-            .OrderBy(studentWithClient => studentWithClient.Student.FullName)
+            .OrderBy(studentWithClient => studentWithClient.Student.User.FullName)
             .Take(criteria.Limit)
             .Select(ToSummary)
             .ToListAsync(cancellationToken);
@@ -82,12 +82,12 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
     private static readonly Expression<Func<StudentWithClient, StudentSummary>> ToSummary =
         studentWithClient => new StudentSummary(
             studentWithClient.Student.Id,
-            studentWithClient.Student.FullName,
-            studentWithClient.Student.BirthDate,
+            studentWithClient.Student.User.FullName,
+            studentWithClient.Student.User.BirthDate,
             studentWithClient.Student.Notes,
             studentWithClient.Client.Id,
-            studentWithClient.Client.FullName,
-            studentWithClient.Client.PhoneNumber.Value);
+            studentWithClient.Client.User.FullName,
+            studentWithClient.Client.User.PhoneNumber!.Value);
 
     private IQueryable<StudentWithClient> StudentsWithClient() =>
         context.Students.AsNoTracking().Join(

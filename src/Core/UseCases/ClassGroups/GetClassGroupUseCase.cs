@@ -31,6 +31,6 @@ public sealed class GetClassGroupUseCase(
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var enrolledCount = await enrollmentRepository.CountCurrentAsync(classGroup.Id, today, cancellationToken);
 
-        return ClassGroupResponse.From(classGroup, instructor?.FullName ?? string.Empty, enrolledCount, documentStorage);
+        return ClassGroupResponse.From(classGroup, instructor?.User.FullName ?? string.Empty, enrolledCount, documentStorage);
     }
 }

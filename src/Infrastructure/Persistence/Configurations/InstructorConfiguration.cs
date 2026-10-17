@@ -12,7 +12,7 @@ internal sealed class InstructorConfiguration : IEntityTypeConfiguration<Instruc
         builder.Property(instructor => instructor.Email).HasMaxLength(Instructor.EmailMaxLength);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(instructor => instructor.TenantId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne<User>().WithMany().HasForeignKey(instructor => instructor.UserId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(instructor => instructor.User).WithMany().HasForeignKey(instructor => instructor.UserId).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(instructor => new { instructor.TenantId, instructor.FullName }).IsUnique();
     }
 }

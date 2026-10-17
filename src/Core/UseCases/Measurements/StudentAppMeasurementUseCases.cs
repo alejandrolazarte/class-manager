@@ -47,7 +47,7 @@ public sealed class GetStudentAppMeasurementsUseCase(
         [
             .. students.Select(student => new StudentAppStudentMeasurements(
                 student.Id,
-                student.FullName,
+                student.User.FullName,
                 [
                     .. StudentMeasurements.For(student.Id, definitions, records, goals, recorderNames)
                         .Where(measurement => measurement.Records.Count > 0 || measurement.Measurement.IsRecordedByStudents),

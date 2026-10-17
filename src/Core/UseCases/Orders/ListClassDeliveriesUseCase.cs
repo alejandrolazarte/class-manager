@@ -23,7 +23,7 @@ public sealed class ListClassDeliveriesUseCase(
 
         var orders = await orderRepository.ListToDeliverInClassAsync(classGroup.Value!.Id, cancellationToken);
         var clientNames = (await clientRepository.ListByIdsAsync([.. orders.Select(order => order.ClientId).OfType<Guid>().Distinct()], cancellationToken))
-            .ToDictionary(client => client.Id, client => client.FullName);
+            .ToDictionary(client => client.Id, client => client.User.FullName);
         return Result.Success<IReadOnlyList<ClassDeliveryResponse>>(
         [
             .. orders.Select(order => ClassDeliveries.ResponseOf(

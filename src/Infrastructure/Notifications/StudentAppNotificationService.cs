@@ -92,7 +92,7 @@ internal sealed class StudentAppNotificationService(
             ? null
             : await context.Instructors.AsNoTracking()
                 .Where(instructor => instructor.Id == substituteId)
-                .Select(instructor => instructor.FullName)
+                .Select(instructor => instructor.User.FullName)
                 .FirstOrDefaultAsync(cancellationToken);
         await publisher.PublishToStudentsAsync(
             await EnrolledClientIdsAsync(session, cancellationToken),
@@ -105,7 +105,7 @@ internal sealed class StudentAppNotificationService(
 
     public async Task FeedbackLeftAsync(ClassFeedback feedback, CancellationToken cancellationToken)
     {
-        var student = await context.Students.AsNoTracking()
+        var student = await context.Students.AsNoTracking().Include(candidate => candidate.User)
             .FirstOrDefaultAsync(candidate => candidate.Id == feedback.StudentId, cancellationToken);
         if (student is null)
         {
@@ -114,12 +114,12 @@ internal sealed class StudentAppNotificationService(
 
         var instructorFullName = await context.Instructors.AsNoTracking()
             .Where(instructor => instructor.Id == feedback.InstructorId)
-            .Select(instructor => instructor.FullName)
+            .Select(instructor => instructor.User.FullName)
             .FirstOrDefaultAsync(cancellationToken);
         await publisher.PublishToStudentsAsync(
             [student.ClientId],
             LocalizedPushMessage.Build(texts => new PushMessage(
-                texts.FeedbackTitle(instructorFullName, student.FullName),
+                texts.FeedbackTitle(instructorFullName, student.User.FullName),
                 PushBodies.Shorten(feedback.Text),
                 StudentAppPushLinks.NewsUrl)),
             cancellationToken);

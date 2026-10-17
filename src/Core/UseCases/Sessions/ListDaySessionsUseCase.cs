@@ -69,7 +69,7 @@ public sealed class ListDaySessionsUseCase(
                 && SessionRules.IsListedOn(date, today, sessions.GetValueOrDefault(classGroup.Id), enrolledCounts.GetValueOrDefault(classGroup.Id)))
             .ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
+            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
         IReadOnlyCollection<Guid> sessionIds = [.. sessions.Values.Select(session => session.Id)];
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(sessionIds, cancellationToken);
         var makeupCounts = await makeupBookingRepository.CountBySessionsAsync(sessionIds, cancellationToken);

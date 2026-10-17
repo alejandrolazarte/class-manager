@@ -57,13 +57,13 @@ internal sealed class StudentImportBuilder
 
     public Client AddExistingClient(string fullName, string phoneNumber, string? email, string? notes)
     {
-        var client = Client.Create(fullName, PhoneNumber.Create(phoneNumber, TestData.DefaultCountryCallingCode).Value!, email, notes, TestData.Now).Value!;
+        var client = Client.Create(fullName, PhoneNumber.Create(phoneNumber, TestData.DefaultCountryCallingCode).Value!, email, notes, TestData.Now).Value!.WithUser();
         ExistingClients.Add(client);
         return client;
     }
 
     public void AddExistingStudent(Client client, string fullName, DateOnly? birthDate, string? notes = null, string? email = null) =>
-        ExistingStudents.Add(Student.Create(client.Id, fullName, birthDate, notes, TestData.Today, TestData.Now, email).Value!);
+        ExistingStudents.Add(Student.Create(client.Id, fullName, birthDate, notes, TestData.Today, TestData.Now, email).Value!.WithUser(client));
 
     public async Task<Result<ImportPlan>> PlanAsync(string rowsText, string header = Header)
     {

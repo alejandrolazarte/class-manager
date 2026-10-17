@@ -63,7 +63,7 @@ public sealed class GetStudentAppHomeUseCase(
         var lastDate = today.AddDays(LookAheadDays);
         var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
+            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
         var sessions = (await sessionRepository.ListBetweenAsync(today, lastDate, cancellationToken))
             .ToDictionary(session => (session.ClassGroupId, session.Date));
         var privateLessons = (await privateLessonRepository.ListBetweenAsync(today, lastDate, cancellationToken))
@@ -88,7 +88,7 @@ public sealed class GetStudentAppHomeUseCase(
         var studentResponses = new List<AccountStudentResponse>();
         foreach (var student in students
             .OrderBy(student => student.CreatedAt)
-            .ThenBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase))
+            .ThenBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase))
         {
             var enrollments = await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken);
             var nextClasses = new List<StudentAppNextClassResponse>();
@@ -170,7 +170,7 @@ public sealed class GetStudentAppHomeUseCase(
 
             studentResponses.Add(new AccountStudentResponse(
                 student.Id,
-                student.FullName,
+                student.User.FullName,
                 [
                     .. nextClasses
                         .OrderBy(nextClass => nextClass.Date)
@@ -189,11 +189,11 @@ public sealed class GetStudentAppHomeUseCase(
         return new StudentAppHomeResponse(
             business.Name,
             business.CurrencyCode,
-            client.FullName,
+            client.User.FullName,
             studentResponses,
             await BillingAsync(client.Id, business.CurrencyCode, today, cancellationToken),
             levels,
-            signedInAccounts.Count > 0 ? signedInAccounts[0].FullName : client.FullName,
+            signedInAccounts.Count > 0 ? signedInAccounts[0].FullName : client.User.FullName,
             pendingGuardianConsents);
     }
 
@@ -215,7 +215,7 @@ public sealed class GetStudentAppHomeUseCase(
                 .Where(invitation => invitation.AwaitsGuardianConsent)
                 .Select(invitation => new StudentAppGuardianConsentResponse(
                     invitation.Id,
-                    students.FirstOrDefault(student => student.Id == invitation.StudentId)?.FullName ?? invitation.Email,
+                    students.FirstOrDefault(student => student.Id == invitation.StudentId)?.User.FullName ?? invitation.Email,
                     invitation.Email)),
         ];
     }

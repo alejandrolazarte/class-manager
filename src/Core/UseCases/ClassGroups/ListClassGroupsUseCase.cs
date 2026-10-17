@@ -26,7 +26,7 @@ public sealed class ListClassGroupsUseCase(
             : await classGroupRepository.ListActiveAsync(cancellationToken))
             .Where(classGroup => scope.Includes(classGroup.InstructorId));
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
+            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var enrolledCounts = await enrollmentRepository.CountCurrentByClassGroupAsync(today, cancellationToken);
 

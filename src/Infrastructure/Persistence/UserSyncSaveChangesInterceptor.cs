@@ -64,7 +64,8 @@ internal sealed class UserSyncSaveChangesInterceptor(TimeProvider timeProvider, 
     private async Task SyncClientAsync(AppDbContext context, EntityEntry<Client> entry, CancellationToken cancellationToken)
     {
         var client = entry.Entity;
-        var user = await FindUserAsync(context, client.UserId, cancellationToken) ?? AddUser(context, entry, client.TenantId, client.FullName);
+        var user = await FindUserAsync(context, client.UserId, cancellationToken) ?? AddUser(context, client.TenantId, client.FullName);
+        client.LinkUser(user);
         user.Rename(client.FullName);
         user.ChangeEmail(client.Email);
         user.ChangePhoneNumber(client.PhoneNumber);
@@ -79,8 +80,8 @@ internal sealed class UserSyncSaveChangesInterceptor(TimeProvider timeProvider, 
             : null;
         var user = await FindUserAsync(context, student.UserId, cancellationToken)
             ?? attendingContactUser
-            ?? AddUser(context, entry, student.TenantId, student.FullName);
-        SetUserId(entry, user);
+            ?? AddUser(context, student.TenantId, student.FullName);
+        student.LinkUser(user);
         if (user != attendingContactUser)
         {
             user.Rename(student.FullName);
@@ -93,7 +94,8 @@ internal sealed class UserSyncSaveChangesInterceptor(TimeProvider timeProvider, 
     private async Task SyncInstructorAsync(AppDbContext context, EntityEntry<Instructor> entry, CancellationToken cancellationToken)
     {
         var instructor = entry.Entity;
-        var user = await FindUserAsync(context, instructor.UserId, cancellationToken) ?? AddUser(context, entry, instructor.TenantId, instructor.FullName);
+        var user = await FindUserAsync(context, instructor.UserId, cancellationToken) ?? AddUser(context, instructor.TenantId, instructor.FullName);
+        instructor.LinkUser(user);
         user.Rename(instructor.FullName);
         user.ChangeEmail(instructor.Email);
     }
@@ -118,7 +120,7 @@ internal sealed class UserSyncSaveChangesInterceptor(TimeProvider timeProvider, 
                 return;
             }
 
-            user = AddUser(context, entry, member.TenantId, account.FullName);
+            user = AddUser(context, member.TenantId, account.FullName);
             user.ChangeEmail(account.Email);
         }
 
@@ -157,12 +159,10 @@ internal sealed class UserSyncSaveChangesInterceptor(TimeProvider timeProvider, 
         user.LinkAccount(accountId);
     }
 
-    private User AddUser<TEntity>(AppDbContext context, EntityEntry<TEntity> entry, Guid tenantId, string fullName)
-        where TEntity : class
+    private User AddUser(AppDbContext context, Guid tenantId, string fullName)
     {
         var user = User.Create(tenantId, fullName, timeProvider.GetUtcNow());
         context.Users.Add(user);
-        SetUserId(entry, user);
         return user;
     }
 

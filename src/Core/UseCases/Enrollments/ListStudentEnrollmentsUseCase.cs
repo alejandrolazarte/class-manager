@@ -45,7 +45,7 @@ public sealed class ListStudentEnrollmentsUseCase(
         var enrollments = await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken);
         var classGroups = (await classGroupRepository.ListAllAsync(cancellationToken)).ToDictionary(classGroup => classGroup.Id);
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
+            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
 
         return Result.Success<IReadOnlyList<StudentEnrollmentResponse>>(
         [

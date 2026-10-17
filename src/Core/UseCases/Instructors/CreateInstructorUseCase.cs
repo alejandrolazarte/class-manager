@@ -34,6 +34,6 @@ public sealed class CreateInstructorUseCase(IInstructorRepository instructorRepo
             return InstructorFailures.NameTaken(winnerInstructor?.Id);
         }
 
-        return InstructorResponse.From(instructor.Value);
+        return InstructorResponse.FromWritten(instructor.Value);
     }
 }

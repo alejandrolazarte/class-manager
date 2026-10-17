@@ -70,7 +70,7 @@ public sealed class AddStudentUseCase(
             return AlreadyRegistered(winnerStudent?.Id);
         }
 
-        return StudentResponse.From(student.Value);
+        return StudentResponse.FromWritten(student.Value);
     }
 
     private static Result<StudentResponse> AlreadyRegistered(Guid? existingStudentId) =>

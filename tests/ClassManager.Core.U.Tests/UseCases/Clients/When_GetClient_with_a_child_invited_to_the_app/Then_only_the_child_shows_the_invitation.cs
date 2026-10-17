@@ -10,7 +10,7 @@ public sealed class Then_only_the_child_shows_the_invitation
     public async Task Then_only_the_child_shows_the_invitation_Run()
     {
         var builder = new GetClientUseCaseBuilder();
-        var child = Student.Create(builder.Client.Id, TestData.StudentFullName, new DateOnly(2012, 5, 1), null, TestData.Today, TestData.Now, "tomas@example.com").Value!;
+        var child = Student.Create(builder.Client.Id, TestData.StudentFullName, new DateOnly(2012, 5, 1), null, TestData.Today, TestData.Now, "tomas@example.com").Value!.WithUser(builder.Client);
         builder.Students.Setup(repository => repository.ListByClientAsync(builder.Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([child]);
         builder.Invitations
             .Setup(repository => repository.ListPendingByClientAsync(builder.Client.Id, TestData.Now, It.IsAny<CancellationToken>()))

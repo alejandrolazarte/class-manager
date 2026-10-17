@@ -20,6 +20,6 @@ internal static class PrivateLessonRules
         var instructor = await instructorRepository.GetByIdAsync(lesson.InstructorId, cancellationToken);
         var students = await studentRepository.ListSummariesByIdsAsync(
             [.. lesson.Students.Select(lessonStudent => lessonStudent.StudentId)], cancellationToken);
-        return PrivateLessonResponse.From(lesson, instructor?.FullName ?? string.Empty, students, today);
+        return PrivateLessonResponse.From(lesson, instructor?.User.FullName ?? string.Empty, students, today);
     }
 }

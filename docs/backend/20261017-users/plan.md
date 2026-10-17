@@ -1,6 +1,6 @@
 # Users per business
 
-Status: step 1 built; the rest are the next PRs.
+Status: steps 1 and 2 built; the rest are the next PRs.
 
 ## Why
 
@@ -183,7 +183,11 @@ Each step is one PR, starts with failing tests, and ships with its migration and
    - `BusinessMembers.UserId` and `ClientAccounts.UserId` (the account) are renamed to `AccountId`.
    - Old columns stay and keep working. While they are the source, `UserSyncSaveChangesInterceptor` keeps `Users` in step on every save: it creates the user of a new client, student or instructor, copies name, email, phone and birth date when they change, shares the user of a contact who attends class, links a new team member to their instructor's user (or to the user of their account in that branch, or to a new user named after the account), and links a new student app account to its person. Changing the sign-in email updates `Users` too. The interceptor goes away in step 5.
    - A person already linked to an account in a branch keeps it: another row of the same person is not linked to that account again (one user per account and branch).
-2. **Read from `Users`.** Screens, exports and emails read name, email and phone from the user.
+2. **Read from `Users` (built).**
+   - `Client`, `Student` and `Instructor` have a `User` navigation, set by `LinkUser` (the interceptor links it on save). Repositories include it, and their projections (rosters, bookings, attended classes, fees, announcement audiences) join it.
+   - Screens, searches, exports, emails, push and team notices read name, email, phone and birth date from the user. The student export leaves the contact columns empty when the student is the contact's own user, instead of comparing names.
+   - What still reads the copies: the commands that write a client, student or instructor answer with what they wrote (`FromWritten`), and the write rules stay on the columns they protect (unique phone and names, `AttendingContact`, `FamilyEmails`, the email locked by the sign-in, the address an app invitation goes to). Both move with the writes in step 5.
+   - Team members and who did what keep the account's name until steps 3 and 4.
 3. **Session.** The `user_id` claim and `ICurrentUser.UserId`. Invitations set `AccountId`. Brand owners get their users.
 4. **Who did what.** The 23 columns become `...ByUserId` with foreign keys, plus the data migration.
 5. **Remove the copies.** Writes go to `Users`, the interceptor goes away, and `Email`, `FullName`, `PhoneNumber`, `BirthDate` are dropped from `Clients`, `Students` and `Instructors`, `AccountId` from `BusinessMembers` and `ClientAccounts`, and `AttendingContact`. `UserId` becomes required, and the email and phone indexes become unique after fixing the repetitions (data migration, step 0).

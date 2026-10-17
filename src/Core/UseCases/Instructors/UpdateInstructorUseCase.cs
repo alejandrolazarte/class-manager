@@ -63,6 +63,6 @@ public sealed class UpdateInstructorUseCase(
             return InstructorFailures.NameTaken(null);
         }
 
-        return InstructorResponse.From(instructor);
+        return InstructorResponse.FromWritten(instructor);
     }
 }

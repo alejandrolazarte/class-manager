@@ -4,5 +4,7 @@ namespace ClassManager.Core.UseCases.Instructors;
 
 public sealed record InstructorResponse(Guid Id, string FullName, string? Email, bool IsActive)
 {
-    public static InstructorResponse From(Instructor instructor) => new(instructor.Id, instructor.FullName, instructor.Email, instructor.IsActive);
+    public static InstructorResponse From(Instructor instructor) => new(instructor.Id, instructor.User.FullName, instructor.User.Email, instructor.IsActive);
+
+    public static InstructorResponse FromWritten(Instructor instructor) => new(instructor.Id, instructor.FullName, instructor.Email, instructor.IsActive);
 }

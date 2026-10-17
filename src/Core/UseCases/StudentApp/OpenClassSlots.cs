@@ -59,7 +59,7 @@ internal static class OpenClassSlots
         var enrollments = await repositories.Enrollments.ListCurrentByStudentAsync(studentId, today, cancellationToken);
         var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken)).Where(isOffered).ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
+            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
 
         var slots = new List<OpenClassSlot>();
         for (var date = today; date <= lastDate; date = date.AddDays(1))

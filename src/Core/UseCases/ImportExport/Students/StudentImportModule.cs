@@ -117,14 +117,14 @@ public sealed class StudentImportModule(
     private static Dictionary<string, string?> ToExportRow(Student student, Client client, string defaultCountryCallingCode) =>
         new Dictionary<string, string?>
         {
-            [StudentNameKey] = student.FullName,
-            [PhoneKey] = ToExportPhoneNumber(client.PhoneNumber, defaultCountryCallingCode),
-            [EmailKey] = client.Email,
-            [BirthDateKey] = student.BirthDate?.ToString(ExportDateFormat, CultureInfo.InvariantCulture),
+            [StudentNameKey] = student.User.FullName,
+            [PhoneKey] = ToExportPhoneNumber(client.User.PhoneNumber!, defaultCountryCallingCode),
+            [EmailKey] = client.User.Email,
+            [BirthDateKey] = student.User.BirthDate?.ToString(ExportDateFormat, CultureInfo.InvariantCulture),
             [StudentNotesKey] = student.Notes,
-            [ContactNameKey] = StringComparer.CurrentCultureIgnoreCase.Equals(client.FullName, student.FullName) ? null : client.FullName,
+            [ContactNameKey] = student.UserId == client.UserId ? null : client.User.FullName,
             [ContactNotesKey] = client.Notes,
-            [StudentEmailKey] = student.Email,
+            [StudentEmailKey] = student.UserId == client.UserId ? null : student.User.Email,
         };
 
     private static string ToExportPhoneNumber(PhoneNumber phoneNumber, string defaultCountryCallingCode)

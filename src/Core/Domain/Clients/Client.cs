@@ -1,5 +1,6 @@
 using System.Net.Mail;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Clients;
@@ -28,6 +29,7 @@ public sealed class Client : ITenantOwned
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? RegisteredByUserId { get; private set; }
     public Guid? UserId { get; private set; }
+    public User User { get; private set; } = null!;
 
     public static Result<Client> Create(
         string? fullName,
@@ -73,6 +75,12 @@ public sealed class Client : ITenantOwned
     public bool HasEmail(string? email) => string.Equals(TrimToNull(email), Email, StringComparison.OrdinalIgnoreCase);
 
     public void RecordRegisteredBy(Guid userId) => RegisteredByUserId = userId;
+
+    public void LinkUser(User user)
+    {
+        User = user;
+        UserId = user.Id;
+    }
 
     private static Result<ValidatedDetails> ValidDetails(string? fullName, string? email, string? notes)
     {
