@@ -42,6 +42,14 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
             .Select(user => (Guid?)user.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
+    public async Task<IReadOnlyDictionary<Guid, string>> ListFullNamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+        userIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await context.Users
+                .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
+                .Where(user => userIds.Contains(user.Id))
+                .ToDictionaryAsync(user => user.Id, user => user.FullName, cancellationToken);
+
     public Task ChangeEmailInEveryBusinessByAccountAsync(Guid accountId, string email, CancellationToken cancellationToken) =>
         context.Users
             .IgnoreTenantFilter()

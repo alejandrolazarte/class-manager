@@ -18,7 +18,8 @@ public sealed class Then_the_confirmation_is_kept(ApiFixture fixture)
 
         await using var context = fixture.CreateDbContext(instructors.Business.Business.Id);
         var invitations = await context.ClientInvitations.AsNoTracking().Where(invitation => invitation.ClientId == clientId).ToListAsync();
+        var ownerUserId = await fixture.FindUserIdByAccountAsync(instructors.Business.Business.Id, instructors.Business.OwnerAccountId);
         resentInvitation.StatusCode.ShouldBe(HttpStatusCode.Created);
-        invitations.Single(invitation => invitation.RevokedAt == null).ContactAdultConfirmedByUserId.ShouldBe(instructors.Business.OwnerUserId);
+        invitations.Single(invitation => invitation.RevokedAt == null).ContactAdultConfirmedByUserId.ShouldBe(ownerUserId);
     }
 }

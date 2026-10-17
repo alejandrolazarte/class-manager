@@ -29,13 +29,13 @@ public sealed class CancelOrderUseCase(
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
         var now = timeProvider.GetUtcNow();
-        var cancellation = order.Cancel(access?.AccountId, now);
+        var cancellation = order.Cancel(access?.UserId, now);
         if (cancellation.IsFailure)
         {
             return cancellation.Error!;
         }
 
-        await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access?.AccountId, now, cancellationToken);
+        await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access?.UserId, now, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await orderNotifications.OrderCancelledAsync(order, OrderCancellationReason.ByBranch, cancellationToken);
 

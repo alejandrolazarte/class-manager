@@ -102,7 +102,7 @@ public sealed class GetStudentMeasurementsUseCase(
     IMeasurementDefinitionRepository definitionRepository,
     IMeasurementRecordRepository recordRepository,
     IMeasurementGoalRepository goalRepository,
-    IIdentityService identityService)
+    IUserRepository userRepository)
     : IUseCase<GetStudentMeasurementsQuery, IReadOnlyList<StudentMeasurementResponse>>
 {
     public async Task<Result<IReadOnlyList<StudentMeasurementResponse>>> ExecuteAsync(GetStudentMeasurementsQuery command, CancellationToken cancellationToken)
@@ -115,9 +115,8 @@ public sealed class GetStudentMeasurementsUseCase(
         var definitions = await definitionRepository.ListAsync(cancellationToken);
         var records = await recordRepository.ListByStudentsAsync([command.StudentId], cancellationToken);
         var goals = await goalRepository.ListByStudentsAsync([command.StudentId], cancellationToken);
-        var recorderNames = (await identityService.ListAccountsAsync(
-                [.. records.Select(record => record.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken))
-            .ToDictionary(account => account.UserId, account => account.FullName);
+        var recorderNames = await userRepository.ListFullNamesAsync(
+            [.. records.Select(record => record.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken);
 
         return Result.Success(StudentMeasurements.For(command.StudentId, definitions, records, goals, recorderNames));
     }
@@ -159,7 +158,7 @@ public sealed class RecordMeasurementUseCase(
             command.Note,
             today,
             timeProvider.GetUtcNow(),
-            access?.AccountId,
+            access?.UserId,
             recordedByStudent: false,
             cancellationToken);
         if (record.IsFailure)
@@ -216,7 +215,7 @@ public sealed class RecordClassMeasurementsUseCase(
         foreach (var entry in entries)
         {
             var record = await MeasurementRecording.RecordAsync(
-                recordRepository, definition, entry.StudentId, command.MeasuredOn ?? today, entry.Value, null, today, now, access?.AccountId, recordedByStudent: false, cancellationToken);
+                recordRepository, definition, entry.StudentId, command.MeasuredOn ?? today, entry.Value, null, today, now, access?.UserId, recordedByStudent: false, cancellationToken);
             if (record.IsFailure)
             {
                 return record.Error!;

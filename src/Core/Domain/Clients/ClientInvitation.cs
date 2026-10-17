@@ -24,7 +24,7 @@ public sealed class ClientInvitation : ITenantOwned
     public Guid? StudentId { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public string TokenHash { get; private set; } = string.Empty;
-    public Guid InvitedByUserId { get; private set; }
+    public Guid? InvitedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset ExpiresAt { get; private set; }
     public DateTimeOffset? AcceptedAt { get; private set; }
@@ -42,7 +42,7 @@ public sealed class ClientInvitation : ITenantOwned
         Guid clientId,
         string? email,
         string tokenHash,
-        Guid invitedByUserId,
+        Guid? invitedByUserId,
         DateTimeOffset createdAt,
         Guid? studentId = null)
     {
@@ -79,7 +79,7 @@ public sealed class ClientInvitation : ITenantOwned
         GuardianTokenHash = guardianTokenHash;
     }
 
-    public void ConfirmContactIsAdult(Guid confirmedByUserId, DateTimeOffset confirmedAt)
+    public void ConfirmContactIsAdult(Guid? confirmedByUserId, DateTimeOffset confirmedAt)
     {
         ContactAdultConfirmedByUserId = confirmedByUserId;
         ContactAdultConfirmedAt = confirmedAt.ToUniversalTime();

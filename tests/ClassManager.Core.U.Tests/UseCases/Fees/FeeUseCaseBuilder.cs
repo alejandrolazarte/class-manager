@@ -28,6 +28,7 @@ internal sealed class FeeUseCaseBuilder
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<ICurrentMember> CurrentMember { get; } = new();
     public Mock<IAccessScopes> AccessScopes { get; } = new();
+    public Guid CurrentAccountId { get; } = Guid.CreateVersion7();
     public Guid CurrentUserId { get; } = Guid.CreateVersion7();
     public ClientScope CollectorScope { get; }
     public Business Business { get; } = TestData.Business();
@@ -65,7 +66,7 @@ internal sealed class FeeUseCaseBuilder
     public void ActAs(IReadOnlySet<string> permissions) =>
         CurrentMember
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemberAccess(CurrentUserId, Business.Id, BusinessRole.Custom, null, IsBrandOwner: false, permissions));
+            .ReturnsAsync(new MemberAccess(CurrentAccountId, CurrentUserId, Business.Id, BusinessRole.Custom, null, IsBrandOwner: false, permissions));
 
     public void ActAsCollector(params Guid[] clientIdsInScope)
     {

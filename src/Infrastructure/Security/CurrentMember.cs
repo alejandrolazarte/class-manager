@@ -22,7 +22,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
 
     private async Task<MemberAccess?> ResolveAsync(CancellationToken cancellationToken)
     {
-        if (currentUser.AccountId is not { } userId)
+        if (currentUser.AccountId is not { } accountId)
         {
             return null;
         }
@@ -30,7 +30,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
         var businessId = tenantContext.TenantId;
         var branchMember = await context.BusinessMembers
             .AsNoTracking()
-            .Where(member => member.AccountId == userId)
+            .Where(member => member.AccountId == accountId)
             .Select(member => new { member.Role, member.CustomRoleId, member.InstructorId })
             .FirstOrDefaultAsync(cancellationToken);
         var isBrandOwner = await context.Businesses
@@ -41,7 +41,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
                 business => business.OrganizationId,
                 member => member.OrganizationId,
                 (_, member) => member)
-            .AnyAsync(member => member.UserId == userId && member.Role == OrganizationRole.BrandOwner, cancellationToken);
+            .AnyAsync(member => member.UserId == accountId && member.Role == OrganizationRole.BrandOwner, cancellationToken);
 
         if (branchMember is null && !isBrandOwner)
         {
@@ -49,7 +49,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
         }
 
         var permissions = isBrandOwner ? SystemRolePermissions.BrandOwner : await BranchPermissionsAsync(branchMember!.Role, branchMember.CustomRoleId, cancellationToken);
-        return new MemberAccess(userId, businessId, branchMember?.Role, branchMember?.InstructorId, isBrandOwner, permissions, branchMember?.CustomRoleId);
+        return new MemberAccess(accountId, currentUser.UserId, businessId, branchMember?.Role, branchMember?.InstructorId, isBrandOwner, permissions, branchMember?.CustomRoleId);
     }
 
     private async Task<IReadOnlySet<string>> BranchPermissionsAsync(BusinessRole role, Guid? customRoleId, CancellationToken cancellationToken)

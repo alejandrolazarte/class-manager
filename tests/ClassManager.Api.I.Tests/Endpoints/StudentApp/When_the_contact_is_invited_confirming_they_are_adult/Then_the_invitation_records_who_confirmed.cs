@@ -15,8 +15,9 @@ public sealed class Then_the_invitation_records_who_confirmed(ApiFixture fixture
 
         await using var context = fixture.CreateDbContext(instructors.Business.Business.Id);
         var invitation = await context.ClientInvitations.AsNoTracking().SingleAsync(clientInvitation => clientInvitation.ClientId == clientId);
+        var ownerUserId = await fixture.FindUserIdByAccountAsync(instructors.Business.Business.Id, instructors.Business.OwnerAccountId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        invitation.ContactAdultConfirmedByUserId.ShouldBe(instructors.Business.OwnerUserId);
+        invitation.ContactAdultConfirmedByUserId.ShouldBe(ownerUserId);
     }
 }

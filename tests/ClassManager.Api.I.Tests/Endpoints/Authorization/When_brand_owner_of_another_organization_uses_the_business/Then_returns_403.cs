@@ -8,7 +8,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync();
         var otherBusiness = await fixture.SeedBusinessAsync();
-        using var httpClient = fixture.CreateClientFor(business.Business.Id, otherBusiness.OwnerUserId);
+        using var httpClient = fixture.CreateClientFor(business.Business.Id, otherBusiness.OwnerAccountId);
 
         using var response = await httpClient.GetAsync(new Uri(ApiRoutes.Clients, UriKind.Relative));
 

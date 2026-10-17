@@ -15,7 +15,7 @@ public sealed class Then_role_and_permissions_are_returned
         var currentMember = new Mock<ICurrentMember>();
         currentMember
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), businessId, BusinessRole.BranchOwner, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
+            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), businessId, BusinessRole.BranchOwner, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
 
         var identityService = new Mock<IIdentityService>();
         identityService

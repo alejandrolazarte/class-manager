@@ -10,7 +10,7 @@ public sealed record ListClientPaymentsQuery(Guid ClientId) : IQuery;
 public sealed class ListClientPaymentsUseCase(
     IClientRepository clientRepository,
     IPaymentRepository paymentRepository,
-    IIdentityService identityService,
+    IUserRepository userRepository,
     IAccessScopes accessScopes)
     : IUseCase<ListClientPaymentsQuery, IReadOnlyList<PaymentResponse>>
 {
@@ -27,9 +27,8 @@ public sealed class ListClientPaymentsUseCase(
         }
 
         var payments = await paymentRepository.ListByClientAsync(client.Id, PaymentLimit, cancellationToken);
-        var recorderNames = (await identityService.ListAccountsAsync(
-                [.. payments.Select(payment => payment.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken))
-            .ToDictionary(account => account.UserId, account => account.FullName);
+        var recorderNames = await userRepository.ListFullNamesAsync(
+            [.. payments.Select(payment => payment.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken);
 
         return Result.Success<IReadOnlyList<PaymentResponse>>(
         [

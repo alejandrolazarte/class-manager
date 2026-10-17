@@ -28,6 +28,6 @@ internal static class MoneyRules
         }
 
         return access.HasPermission(Permissions.Payments.ViewAll)
-            || (recordedByUserId == access.AccountId && await CanCollectFromAsync(accessScopes, clientRepository, clientId, cancellationToken));
+            || (recordedByUserId is not null && recordedByUserId == access.UserId && await CanCollectFromAsync(accessScopes, clientRepository, clientId, cancellationToken));
     }
 }

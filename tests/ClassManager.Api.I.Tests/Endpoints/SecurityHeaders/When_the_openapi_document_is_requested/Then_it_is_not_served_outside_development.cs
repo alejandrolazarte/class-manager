@@ -13,7 +13,7 @@ public sealed class Then_it_is_not_served_outside_development(ApiFixture fixture
     public async Task Then_it_is_not_served_outside_development_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        var accessToken = fixture.CreateAccessToken(business.Business.Id, userId: business.OwnerUserId);
+        var accessToken = fixture.CreateAccessToken(business.Business.Id, accountId: business.OwnerAccountId);
         using var productionFactory = fixture.ApiFactory
             .WithWebHostBuilder(builder => builder.UseSetting(EnvironmentSettingKey, ProductionEnvironment));
         using var client = productionFactory.CreateClient();

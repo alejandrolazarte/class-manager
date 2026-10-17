@@ -86,7 +86,7 @@ public sealed class SellClassPackUseCase(
             command.Notes,
             today,
             now,
-            access?.AccountId);
+            access?.UserId);
         if (purchase.IsFailure)
         {
             return purchase.Error!;

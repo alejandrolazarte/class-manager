@@ -1,9 +1,11 @@
 using System.Net.Http.Headers;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Countries;
 using ClassManager.Core.Domain.Organizations;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Subscriptions;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Students;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Persistence;
@@ -37,6 +39,8 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     private const string ConnectionStringsSection = "ConnectionStrings";
     private const string BusinessName = "Test business";
     private const string TestOwnerEmail = "owner@test.local";
+    private const string SeededOwnerFullName = "Dueña sembrada";
+    private const string SeededMemberFullName = "Miembro sembrado";
 
     private readonly MsSqlContainer _container = new MsSqlBuilder(SqlServerImage).Build();
     private readonly AzuriteContainer _storageContainer = new AzuriteBuilder(AzuriteImage)
@@ -107,7 +111,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         Guid businessId,
         TimeProvider? timeProvider = null,
         string? signingKey = null,
-        Guid? userId = null,
+        Guid? accountId = null,
         string? kind = null)
     {
         var configuredOptions = ApiFactory.Services.GetRequiredService<IOptions<JwtOptions>>().Value;
@@ -121,7 +125,8 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             RefreshTokenLifetime = configuredOptions.RefreshTokenLifetime,
         };
         var accessTokenFactory = new JwtAccessTokenFactory(Options.Create(options), timeProvider ?? new FakeTimeProvider(BusinessApiFactory.Now));
-        var testOwner = new TokenSubject(userId ?? Guid.CreateVersion7(), TestOwnerEmail, businessId, nameof(BusinessRole.BranchOwner), kind);
+        var subjectAccountId = accountId ?? Guid.CreateVersion7();
+        var testOwner = new TokenSubject(subjectAccountId, TestOwnerEmail, businessId, nameof(BusinessRole.BranchOwner), kind, SessionUserClaimsOf(businessId, subjectAccountId));
 
         return accessTokenFactory.Create(testOwner).Token;
     }
@@ -133,19 +138,31 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         return client;
     }
 
-    public HttpClient CreateClientFor(Guid businessId, Guid userId) => CreateClientWithToken(CreateAccessToken(businessId, userId: userId));
+    public HttpClient CreateClientFor(Guid businessId, Guid accountId) => CreateClientWithToken(CreateAccessToken(businessId, accountId: accountId));
 
     public Task<HttpClient> SeedMemberAsync(Guid businessId, BusinessRole role, Guid? instructorId = null) =>
         SeedMemberAsync(businessId, MemberRole.System(role), instructorId);
 
     public async Task<HttpClient> SeedMemberAsync(Guid businessId, MemberRole role, Guid? instructorId = null)
     {
-        var userId = Guid.CreateVersion7();
+        var accountId = Guid.CreateVersion7();
         await using var context = CreateDbContext(businessId);
-        context.BusinessMembers.Add(BusinessMember.Create(businessId, userId, role, instructorId).Value!);
+        var instructorUser = instructorId is null
+            ? null
+            : await context.Instructors.Where(instructor => instructor.Id == instructorId).Select(instructor => instructor.User).SingleOrDefaultAsync();
+        if (instructorUser is { AccountId: null })
+        {
+            instructorUser.LinkAccount(accountId);
+        }
+        else
+        {
+            context.Users.Add(UserOfAccount(businessId, SeededMemberFullName, accountId));
+        }
+
+        context.BusinessMembers.Add(BusinessMember.Create(businessId, accountId, role, instructorId).Value!);
         await context.SaveChangesAsync();
 
-        return CreateClientFor(businessId, userId);
+        return CreateClientFor(businessId, accountId);
     }
 
     public async Task ChangePlanAsync(Guid businessId, string planCode)
@@ -221,7 +238,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     public async Task<SeededBusiness> SeedBusinessAsync(string planCode = PlanCodes.Enterprise)
     {
         var organization = Organization.Create(BusinessName, BusinessApiFactory.Now).Value!;
-        var ownerUserId = Guid.CreateVersion7();
+        var ownerAccountId = Guid.CreateVersion7();
         var argentina = await FindCountryAsync(ArgentinaCountryCode);
         var business = Business.Create(
             organization.Id,
@@ -235,9 +252,10 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         await using var context = CreateDbContext(business.Id);
         context.Countries.Attach(argentina);
         context.Organizations.Add(organization);
-        context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerUserId));
+        context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerAccountId));
         context.Businesses.Add(business);
-        context.BusinessMembers.Add(BusinessMember.CreateBranchOwner(business.Id, ownerUserId));
+        context.Users.Add(UserOfAccount(business.Id, SeededOwnerFullName, ownerAccountId));
+        context.BusinessMembers.Add(BusinessMember.CreateBranchOwner(business.Id, ownerAccountId));
         context.Subscriptions.Add(Subscription.Start(
             organization.Id,
             planCode,
@@ -247,6 +265,23 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             BusinessApiFactory.Now));
         await context.SaveChangesAsync();
 
-        return new SeededBusiness(business, CreateClientFor(business.Id, ownerUserId), ownerUserId);
+        return new SeededBusiness(business, CreateClientFor(business.Id, ownerAccountId), ownerAccountId);
+    }
+
+    private static User UserOfAccount(Guid businessId, string fullName, Guid accountId)
+    {
+        var user = User.Create(businessId, fullName, BusinessApiFactory.Now);
+        user.LinkAccount(accountId);
+        return user;
+    }
+
+    private Dictionary<string, string>? SessionUserClaimsOf(Guid businessId, Guid accountId)
+    {
+        using var context = CreateDbContext(businessId);
+        var userId = context.Users
+            .Where(user => user.AccountId == accountId)
+            .Select(user => (Guid?)user.Id)
+            .FirstOrDefault();
+        return userId is { } linkedUserId ? new Dictionary<string, string> { [SessionClaimTypes.UserId] = linkedUserId.ToString() } : null;
     }
 }

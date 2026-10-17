@@ -20,7 +20,7 @@ public sealed class Then_it_is_kept_as_deleted(ApiFixture fixture)
         await using var context = fixture.CreateDbContext(business.Business.Id);
         (await context.OrganizationMembers
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
-            .SingleAsync(row => row.OrganizationId == business.Business.OrganizationId && row.UserId != business.OwnerUserId))
+            .SingleAsync(row => row.OrganizationId == business.Business.OrganizationId && row.UserId != business.OwnerAccountId))
             .DeletedAt.ShouldBe(BusinessApiFactory.Now);
     }
 }

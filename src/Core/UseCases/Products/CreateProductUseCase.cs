@@ -37,7 +37,7 @@ public sealed class CreateProductUseCase(
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        var initialStock = StockMovement.InitialStock(product.Value!, variants, access?.AccountId, now);
+        var initialStock = StockMovement.InitialStock(product.Value!, variants, access?.UserId, now);
         if (initialStock.IsFailure)
         {
             return initialStock.Error!;

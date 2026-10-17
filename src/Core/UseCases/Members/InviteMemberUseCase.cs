@@ -48,7 +48,7 @@ public sealed class InviteMemberUseCase(
 
         var now = timeProvider.GetUtcNow();
         var token = secretTokenGenerator.Create();
-        var invitation = MemberInvitation.Create(command.Email, role.Value!, command.InstructorId, token.Hash, access.AccountId, now);
+        var invitation = MemberInvitation.Create(command.Email, role.Value!, command.InstructorId, token.Hash, access.UserId, now);
         if (invitation.IsFailure)
         {
             return invitation.Error!;
