@@ -45,6 +45,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `01-inicio` | Inicio: next class and today's agenda |
 | `01b-inicio-mes` | Inicio in month view |
 | `01d-clase-particular` | A private lesson |
+| `01e-inicio-con-sedes`, `01f-cambiar-de-sede` | Inicio after creating a second branch (Sede Norte, at the end of the run), and the account switcher the logo opens |
+| `01e-inicio-con-sedes`, `01f-cambiar-de-sede` | Inicio after creating a second branch (Sede Norte, at the end of the run), and the account switcher the logo opens |
 | `02-asistencia` | Attendance of Natación inicial |
 | `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
 | `02c-dia-de-prueba` | Test day of Natación inicial: one measurement for everyone present |
