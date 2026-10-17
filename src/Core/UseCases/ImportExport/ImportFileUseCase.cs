@@ -11,6 +11,7 @@ public sealed record ImportFileCommand(string Module, Stream File) : ICommand;
 public sealed class ImportFileUseCase(
     IEnumerable<IImportModule> modules,
     IImportParser parser,
+    IPeopleLock peopleLock,
     IUnitOfWork unitOfWork,
     IFeatureAccess featureAccess,
     IFeatureUsage featureUsage)
@@ -20,6 +21,7 @@ public sealed class ImportFileUseCase(
 
     public async Task<Result<ImportReport>> ExecuteAsync(ImportFileCommand command, CancellationToken cancellationToken)
     {
+        await peopleLock.LockAsync(cancellationToken);
         var planned = await ImportFlow.PlanAsync(modules, parser, command.Module, command.File, new PlanLimitCheck(featureAccess, featureUsage), cancellationToken);
         if (planned.IsFailure)
         {

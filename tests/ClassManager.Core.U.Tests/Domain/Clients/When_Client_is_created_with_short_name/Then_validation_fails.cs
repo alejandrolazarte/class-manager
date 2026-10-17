@@ -10,6 +10,6 @@ public sealed class Then_validation_fails
         var client = Client.Create(" A ", TestData.PhoneNumber(), null, null, TestData.Now);
 
         client.Error!.Kind.ShouldBe(ErrorKind.Validation);
-        client.Error.FieldName.ShouldBe(nameof(Client.FullName));
+        client.Error.FieldName.ShouldBe(nameof(User.FullName));
     }
 }

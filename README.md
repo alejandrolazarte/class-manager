@@ -129,6 +129,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Student app, shop and online payments plan](docs/backend/20260929-online-shop-and-payments/plan.md) — accounts for parents and adult students, products and stock, orders paid at the branch, then Stripe Connect per branch (steps 1–4 built, the rest is a proposal)
 - [Subscriptions plan](docs/backend/20261003-subscriptions/plan.md) — one subscription per brand, plans Free (30-day trial, read-only once it ends)/Lite/Pro/Enterprise, features and add-ons checked like permissions, and the `Subscriptions` library, enforced centrally (steps 1–4 built)
 - [Changing a brand's subscription](docs/changing-a-subscription.md) — runbook for `scripts/set-subscription.sql`: plan, price and note of a brand, run in the Azure portal
+- [Repeated emails before removing the people copies](docs/repeated-emails.md) — runbook for `scripts/list-repeated-emails.sql`: find and fix the emails repeated in a business before the migration that makes them unique
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes (now chosen by the business, not each user), a theme created by the business from its color, and a business icon
 - [Brand plan](docs/frontend/20260930-brand/plan.md) — Ajustes → Marca: logo, business theme (built-in or own colors with accent), welcome screen, and where students and the team see the brand

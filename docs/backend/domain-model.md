@@ -8,7 +8,7 @@ Entities, invariants and tenancy rules. Everything here lives in `src/Core/Domai
 - **Identifiers are `Guid` version 7** (`Guid.CreateVersion7()`): sortable by creation time and index-friendly in SQL Server.
 - **Time is stored as UTC `DateTimeOffset`.** Conversions to local time use the business's `TimeZoneId`. Current time always comes from `TimeProvider`, never `DateTimeOffset.UtcNow`, so tests control the clock.
 - **Money is `decimal`**, in the business's currency, with 2 decimal places.
-- **Validation limits are constants** in the entity (for example `Client.FullNameMaxLength`), reused by EF Core configuration and by use case validation.
+- **Validation limits are constants** in the entity (for example `User.FullNameMaxLength`), reused by EF Core configuration and by use case validation.
 
 ## Entities
 
@@ -64,17 +64,24 @@ Links a user account to a business with a role. For now every business has exact
 |---|---|---|
 | `Id` | `Guid` | v7 |
 | `TenantId` | `Guid` | Tenant (the business) |
-| `AccountId` | `Guid` | Identity account id (accounts live in `SecurityDbContext`, schema `identity`) |
-| `UserId` | `Guid?` | The person in this business ([`User`](#user)) |
+| `UserId` | `Guid` | The person in this business ([`User`](#user)), whose `AccountId` is the account that signs in |
 | `Role` | `BusinessRole` | `Owner` for now; add roles as the app needs them |
 
-Unique `(TenantId, AccountId)`. The access token carries the member's `TenantId` as the `tenant_id` claim and the role as `role`.
+Unique `(TenantId, UserId)` among the members not deleted. The access token carries the member's `TenantId` as the `tenant_id` claim and the role as `role`.
 
 ### User
 
-One person in one business: name, contact email, phone, birth date and, when they have one, the account they sign in with (`AccountId`). Clients, students, instructors, team members and student app accounts point to it with `UserId`. It belongs to the business and is soft deleted, so it stays when the person deletes their account. See [Users per business](20261017-users/plan.md).
+One person in one business: name, contact email, phone, birth date and, when they have one, the account they sign in with (`AccountId`). Clients, students, instructors, team members and student app accounts point to it with `UserId` (required). It belongs to the business and is soft deleted, so it stays when the person deletes their account. See [Users per business](20261017-users/plan.md).
 
-`Client`, `Student` and `Instructor` reach it through the `User` navigation. What the business sees of a person (screens, exports, emails, push and team notices) is read from there; their own `FullName`, `Email`, `PhoneNumber` and `BirthDate` columns are the copies the app still writes until they are dropped.
+| Property | Type | Rules |
+|---|---|---|
+| `FullName` | `string` | Required, trimmed, 2–120 characters |
+| `Email` | `string?` | Optional, valid format, max 254 characters, **unique per business** (`user.email_taken`) |
+| `PhoneNumber` | `PhoneNumber?` | Required only for the contact of a client; not unique (two people can share a phone) |
+| `BirthDate` | `DateOnly?` | Optional, from 1900-01-01 to today in the business's time zone |
+| `AccountId` | `Guid?` | Identity account id (accounts live in `SecurityDbContext`, schema `identity`); unique per business |
+
+`Client`, `Student` and `Instructor` reach it through the `User` navigation and have no copy of these columns: they create their user (`Client.Create`, `Student.Create`, `Instructor.Create`), and a contact who attends class is a student that shares the client's user (`Student.CreateAttendingContact`). Use cases that create or change people take `IPeopleLock` (one `sp_getapplock` per business) before checking the rules no index enforces: the contact's phone, the instructor's name and the student's name in the family.
 
 The columns that say who did something (`RecordedByUserId`, `RegisteredByUserId`, `InvitedByUserId`, `DeletedByUserId`...) hold a `User` id with a foreign key, so the name stays after the person deletes their account.
 
@@ -84,27 +91,24 @@ The columns that say who did something (`RecordedByUserId`, `RegisteredByUserId`
 |---|---|---|
 | `Id` | `Guid` | v7 |
 | `TenantId` | `Guid` | Tenant (the business) |
-| `FullName` | `string` | Required, trimmed, 2–120 characters |
-| `PhoneNumber` | `PhoneNumber` | Required, normalized, **unique per business** |
-| `Email` | `string?` | Optional, valid format, max 254 characters |
+| `UserId` | `Guid` | The contact ([`User`](#user)): name, email and phone, **unique phone per business** among contacts (`client.phone_number_taken`) |
 | `Notes` | `string?` | Optional, max 1000 characters  |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 
 ### Student (added in M1)
 
-The person who attends classes. The client is who pays and is contacted; an adult who attends is a client with one student of the same name.
+The person who attends classes. The client is who pays and is contacted; an adult who attends is a client with a student that shares the client's user.
 
 | Property | Type | Rules |
 |---|---|---|
 | `Id` | `Guid` | v7 |
 | `TenantId` | `Guid` | Tenant (the business) |
 | `ClientId` | `Guid` | Required; the client must belong to the same business |
-| `FullName` | `string` | Required, trimmed, 2–120 characters, **unique per client** |
-| `BirthDate` | `DateOnly?` | Optional, from 1900-01-01 to today in the business's time zone |
+| `UserId` | `Guid` | The person ([`User`](#user)): name (**unique per client**), birth date and email |
 | `Notes` | `string?` | Optional, max 1000 characters (for example "afraid of deep water") |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 
-Indexes: unique `(TenantId, ClientId, FullName)` and `(TenantId, FullName)` for search.
+Index: `(TenantId, ClientId)`.
 
 ### Instructor (added in M2)
 
@@ -112,7 +116,7 @@ Indexes: unique `(TenantId, ClientId, FullName)` and `(TenantId, FullName)` for 
 |---|---|---|
 | `Id` | `Guid` | v7 |
 | `TenantId` | `Guid` | Tenant (the business) |
-| `FullName` | `string` | Required, trimmed, 2–120 characters, **unique per business** |
+| `UserId` | `Guid` | The person ([`User`](#user)): name (**unique per business**) and email |
 | `IsActive` | `bool` | Can't be deactivated while teaching active class groups |
 
 Completing the sign-up (the link in the confirmation email) creates the owner as the first instructor.
@@ -330,13 +334,13 @@ The mechanism has no business concepts so other apps can reuse it; see [tenancy.
 
 Rules:
 
-- Every tenant-owned table has a `TenantId` column (the business) and an index that **starts** with `TenantId` (for example `IX_Clients_TenantId_PhoneNumber`, unique).
-- Every unique rule is scoped per business, for example `(TenantId, PhoneNumber)`.
+- Every tenant-owned table has a `TenantId` column (the business) and an index that **starts** with `TenantId` (for example `IX_Users_TenantId_Email`, unique).
+- Every unique rule is scoped per business, for example `(TenantId, Email)`.
 - `IgnoreQueryFilters()` is forbidden outside `Infrastructure`. Enforced by the Roslyn analyzer ARCH002 (see [analyzers.md](../analyzers.md)).
 - Every new tenant-owned entity needs an integration test in `When_<entity>_belongs_to_another_business/Then_it_is_not_returned.cs`.
 - `ITenantContext` is `ClaimsTenantContext`: it reads the `tenant_id` claim of the signed-in user in every environment. HTTP tests authenticate with a real token issued for a test owner; `FixedTenantContext` is used for direct database access.
 - Completing the sign-up creates a business before any token exists, so the use case calls `ITenantScope.Establish(tenantId)` for the new business; the stamping interceptor then accepts the owner's `BusinessMember`. A request can only establish one business.
-- Sign in and refresh look up `BusinessMember` by user id with `IgnoreQueryFilters()` inside `Infrastructure` (`BusinessMemberRepository`), because there is no tenant yet.
+- Sign in and refresh look up `BusinessMember` by the account of its user (`User.AccountId`) with `IgnoreTenantFilter()` inside `Infrastructure` (`BranchDirectory`), because there is no tenant yet.
 - A missing or invalid tenant surfaces as `TenantNotResolvedException`, which the global exception handler maps to `401 ProblemDetails`.
 
 ## Persistence abstractions

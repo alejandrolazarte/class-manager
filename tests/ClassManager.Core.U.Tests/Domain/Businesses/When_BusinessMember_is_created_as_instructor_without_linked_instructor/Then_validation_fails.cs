@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var member = BusinessMember.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), MemberRole.System(BusinessRole.Instructor), instructorId: null);
+        var member = BusinessMember.Create(Guid.CreateVersion7(), TestData.UserOfAccount(Guid.CreateVersion7()), MemberRole.System(BusinessRole.Instructor), instructorId: null);
 
         member.Error!.Code.ShouldBe(MemberErrorCodes.InstructorRequired);
     }

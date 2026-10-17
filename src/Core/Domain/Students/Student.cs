@@ -1,6 +1,5 @@
-using System.Net.Mail;
-
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Users;
 using ClassManager.Tenancy;
 
@@ -8,17 +7,9 @@ namespace ClassManager.Core.Domain.Students;
 
 public sealed class Student : ITenantOwned
 {
-    public const int FullNameMinLength = 2;
-    public const int FullNameMaxLength = 120;
     public const int NotesMaxLength = 1000;
-    public const int EmailMaxLength = 254;
 
-    public static readonly DateOnly EarliestBirthDate = new(1900, 1, 1);
-
-    private const string FullNameLengthMessage = "Full name must be between 2 and 120 characters.";
-    private const string BirthDateRangeMessage = "Birth date must be between 1900-01-01 and today.";
     private const string NotesLengthMessage = "Notes must be at most 1000 characters.";
-    private const string EmailFormatMessage = "Email must be a valid address of at most 254 characters.";
 
     private Student()
     {
@@ -27,12 +18,9 @@ public sealed class Student : ITenantOwned
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
     public Guid ClientId { get; private set; }
-    public string FullName { get; private set; } = string.Empty;
-    public DateOnly? BirthDate { get; private set; }
     public string? Notes { get; private set; }
-    public string? Email { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? UserId { get; private set; }
+    public Guid UserId { get; private set; }
     public User User { get; private set; } = null!;
 
     public static Result<Student> Create(
@@ -44,80 +32,68 @@ public sealed class Student : ITenantOwned
         DateTimeOffset createdAt,
         string? email = null)
     {
-        var trimmedFullName = fullName?.Trim() ?? string.Empty;
-        if (trimmedFullName.Length is < FullNameMinLength or > FullNameMaxLength)
+        var person = User.Create(fullName, null, createdAt);
+        if (person.IsFailure)
         {
-            return Result.Validation<Student>(FullNameLengthMessage, fieldName: nameof(FullName));
+            return person.Error!;
         }
 
-        if (!IsValidBirthDate(birthDate, today))
+        var details = PersonDetails(person.Value!, birthDate, notes, today);
+        if (details.IsFailure)
         {
-            return Result.Validation<Student>(BirthDateRangeMessage, fieldName: nameof(BirthDate));
+            return details.Error!;
         }
 
+        var emailChange = person.Value!.ChangeEmail(email);
+        if (emailChange.IsFailure)
+        {
+            return emailChange.Error!;
+        }
+
+        return New(clientId, person.Value, details.Value, createdAt);
+    }
+
+    public static Result<Student> CreateAttendingContact(
+        Client client,
+        DateOnly? birthDate,
+        string? notes,
+        DateOnly today,
+        DateTimeOffset createdAt)
+    {
+        var validNotes = ValidNotes(notes);
+        if (validNotes.IsFailure)
+        {
+            return validNotes.Error!;
+        }
+
+        var birthDateChange = client.User.ChangeBirthDate(birthDate, today);
+        return birthDateChange.IsFailure ? birthDateChange.Error! : New(client.Id, client.User, validNotes.Value, createdAt);
+    }
+
+    public bool IsTheContactOf(Client client) => UserId == client.UserId;
+
+    private static Result<string?> PersonDetails(User person, DateOnly? birthDate, string? notes, DateOnly today)
+    {
+        var birthDateChange = person.ChangeBirthDate(birthDate, today);
+        return birthDateChange.IsFailure ? birthDateChange.Error! : ValidNotes(notes);
+    }
+
+    private static Result<string?> ValidNotes(string? notes)
+    {
         var trimmedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
-        if (trimmedNotes?.Length > NotesMaxLength)
-        {
-            return Result.Validation<Student>(NotesLengthMessage, fieldName: nameof(Notes));
-        }
+        return trimmedNotes?.Length > NotesMaxLength
+            ? Result.Validation<string?>(NotesLengthMessage, fieldName: nameof(Notes))
+            : trimmedNotes;
+    }
 
-        var trimmedEmail = TrimToNull(email);
-        if (trimmedEmail is not null && !IsValidEmail(trimmedEmail))
-        {
-            return Result.Validation<Student>(EmailFormatMessage, fieldName: nameof(Email));
-        }
-
-        return new Student
+    private static Student New(Guid clientId, User person, string? notes, DateTimeOffset createdAt) =>
+        new()
         {
             Id = Guid.CreateVersion7(),
             ClientId = clientId,
-            FullName = trimmedFullName,
-            BirthDate = birthDate,
-            Notes = trimmedNotes,
-            Email = trimmedEmail,
+            Notes = notes,
             CreatedAt = createdAt.ToUniversalTime(),
+            UserId = person.Id,
+            User = person,
         };
-    }
-
-    public bool HasEmail(string? email) => string.Equals(TrimToNull(email), Email, StringComparison.OrdinalIgnoreCase);
-
-    public Result ChangeEmail(string? email)
-    {
-        var trimmedEmail = TrimToNull(email);
-        if (trimmedEmail is not null && !IsValidEmail(trimmedEmail))
-        {
-            return Result.Validation(EmailFormatMessage, fieldName: nameof(Email));
-        }
-
-        Email = trimmedEmail;
-        return Result.Success();
-    }
-
-    public Result ChangeBirthDate(DateOnly? birthDate, DateOnly today)
-    {
-        if (!IsValidBirthDate(birthDate, today))
-        {
-            return Result.Validation(BirthDateRangeMessage, fieldName: nameof(BirthDate));
-        }
-
-        BirthDate = birthDate;
-        return Result.Success();
-    }
-
-    public void LinkUser(User user)
-    {
-        User = user;
-        UserId = user.Id;
-    }
-
-    private static bool IsValidBirthDate(DateOnly? birthDate, DateOnly today) =>
-        birthDate is null || (birthDate >= EarliestBirthDate && birthDate <= today);
-
-    private static string? TrimToNull(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-
-    private static bool IsValidEmail(string email) =>
-        email.Length <= EmailMaxLength
-        && MailAddress.TryCreate(email, out var mailAddress)
-        && string.Equals(mailAddress.Address, email, StringComparison.OrdinalIgnoreCase);
 }

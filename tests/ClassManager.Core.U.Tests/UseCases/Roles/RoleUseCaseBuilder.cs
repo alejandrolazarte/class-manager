@@ -38,7 +38,7 @@ internal sealed class RoleUseCaseBuilder
             .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), role, null, IsBrandOwner: false, permissions, customRoleId));
 
     public static BusinessMember MemberWith(CustomRole role, Guid? instructorId) =>
-        BusinessMember.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), MemberRole.Custom(role), instructorId).Value!;
+        BusinessMember.Create(Guid.CreateVersion7(), TestData.UserOfAccount(Guid.CreateVersion7()), MemberRole.Custom(role), instructorId).Value!;
 
     public CreateRoleUseCase BuildCreate() => new(CustomRoles.Object, CurrentMember.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
 

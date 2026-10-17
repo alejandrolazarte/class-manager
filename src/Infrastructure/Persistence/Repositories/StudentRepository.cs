@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 
-
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class StudentRepository(AppDbContext context) : IStudentRepository
@@ -12,11 +11,17 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
 
     public Task<Student?> FindByClientAndNameAsync(Guid clientId, string fullName, CancellationToken cancellationToken) =>
         context.Students.AsNoTracking().FirstOrDefaultAsync(
-            student => student.ClientId == clientId && student.FullName == fullName,
+            student => student.ClientId == clientId && student.User.FullName == fullName,
             cancellationToken);
 
     public async Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
         await context.Students.AsNoTracking().Include(student => student.User)
+            .Where(student => student.ClientId == clientId)
+            .OrderBy(student => student.User.FullName)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Student>> ListByClientForUpdateAsync(Guid clientId, CancellationToken cancellationToken) =>
+        await context.Students.Include(student => student.User)
             .Where(student => student.ClientId == clientId)
             .OrderBy(student => student.User.FullName)
             .ToListAsync(cancellationToken);

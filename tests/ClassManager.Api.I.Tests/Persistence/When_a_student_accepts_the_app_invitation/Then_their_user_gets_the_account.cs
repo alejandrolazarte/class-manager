@@ -15,7 +15,7 @@ public sealed class Then_their_user_gets_the_account(ApiFixture fixture)
         var client = await context.Clients.AsNoTracking().SingleAsync(row => row.Id == scenario.ClientId);
         var user = await context.Users.AsNoTracking().SingleAsync(row => row.Id == clientAccount.UserId);
 
-        user.AccountId.ShouldBe(clientAccount.AccountId);
+        user.AccountId.ShouldBe(UserRows.AccountIdOf(scenario.Tokens.AccessToken));
         clientAccount.UserId.ShouldBe(client.UserId);
     }
 }

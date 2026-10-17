@@ -25,21 +25,21 @@ public sealed class SetBrandOwnerUseCase(
     {
         var member = await businessMemberRepository.GetForUpdateAsync(command.MemberId, cancellationToken);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
-        if (member is null || business is null)
+        if (member is null || business is null || member.User.AccountId is not { } memberAccountId)
         {
             return MemberRules.MemberNotFound();
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        if (member.AccountId == access?.AccountId)
+        if (memberAccountId == access?.AccountId)
         {
             return MemberRules.OwnMembership();
         }
 
-        var brandOwner = await organizationMemberRepository.FindForUpdateAsync(business.OrganizationId, member.AccountId, cancellationToken);
+        var brandOwner = await organizationMemberRepository.FindForUpdateAsync(business.OrganizationId, memberAccountId, cancellationToken);
         if (command.IsBrandOwner && brandOwner is null)
         {
-            organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(business.OrganizationId, member.AccountId));
+            organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(business.OrganizationId, memberAccountId));
         }
         else if (!command.IsBrandOwner && brandOwner is not null)
         {
@@ -55,7 +55,7 @@ public sealed class SetBrandOwnerUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         if (command.IsBrandOwner)
         {
-            var account = await identityService.ListAccountsAsync([member.AccountId], cancellationToken);
+            var account = await identityService.ListAccountsAsync([memberAccountId], cancellationToken);
             await userRepository.AddMissingInEveryBranchAsync(business.OrganizationId, account, timeProvider.GetUtcNow(), cancellationToken);
         }
 

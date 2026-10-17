@@ -22,6 +22,6 @@ public sealed class Then_nothing_is_saved(ApiFixture fixture)
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         await using var context = fixture.CreateDbContext(business.Business.Id);
         (await context.Students.CountAsync()).ShouldBe(OneBelowFreeStudentLimit);
-        (await context.Clients.AnyAsync(client => client.FullName == "María Gómez")).ShouldBeFalse();
+        (await context.Clients.AnyAsync(client => client.User.FullName == "María Gómez")).ShouldBeFalse();
     }
 }

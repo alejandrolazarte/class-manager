@@ -14,7 +14,9 @@ internal sealed class InstructorUseCaseBuilder
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessMemberRepository> Members { get; } = new();
     public Mock<IIdentityService> Identity { get; } = new();
-    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
+    public Mock<IUserRepository> Users { get; } = new();
+    public Mock<IPeopleLock> PeopleLock { get; } = new();
+    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName, TestData.Now).Value!;
 
     public InstructorUseCaseBuilder()
     {
@@ -23,13 +25,13 @@ internal sealed class InstructorUseCaseBuilder
 
     public void WithLinkedMember()
     {
-        var userId = Guid.CreateVersion7();
-        Members.Setup(repository => repository.FindUserIdByInstructorAsync(Instructor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(userId);
+        var accountId = Guid.CreateVersion7();
+        Members.Setup(repository => repository.FindAccountIdByInstructorAsync(Instructor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(accountId);
         Identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new UserAccount(userId, SignInEmail, Instructor.FullName)]);
+            .ReturnsAsync([new UserAccount(accountId, SignInEmail, Instructor.User.FullName)]);
     }
 
     public UpdateInstructorUseCase BuildUpdate() =>
-        new(Instructors.Object, Members.Object, Identity.Object, UnitOfWork.Object);
+        new(Instructors.Object, Members.Object, Identity.Object, Users.Object, PeopleLock.Object, UnitOfWork.Object);
 }

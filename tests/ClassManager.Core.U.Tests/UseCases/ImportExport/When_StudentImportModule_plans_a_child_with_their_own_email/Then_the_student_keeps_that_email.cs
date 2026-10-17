@@ -11,7 +11,7 @@ public sealed class Then_the_student_keeps_that_email
             "Lucas Gómez;11 5555-6666;maria@example.com;lucas@example.com;María Gómez\n",
             "Alumno;Teléfono;Email de contacto;Email alumno;Responsable\n");
 
-        builder.AddedStudents.Single().Email.ShouldBe("lucas@example.com");
-        builder.AddedClients.Single().Email.ShouldBe("maria@example.com");
+        builder.AddedStudents.Single().User.Email.ShouldBe("lucas@example.com");
+        builder.AddedClients.Single().User.Email.ShouldBe("maria@example.com");
     }
 }

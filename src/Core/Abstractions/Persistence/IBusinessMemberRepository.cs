@@ -12,11 +12,11 @@ public interface IBusinessMemberRepository
 
     Task<BusinessMember?> GetForUpdateAsync(Guid memberId, CancellationToken cancellationToken);
 
-    Task<bool> IsUserMemberAsync(Guid userId, CancellationToken cancellationToken);
+    Task<bool> IsAccountMemberAsync(Guid accountId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(Guid customRoleId, CancellationToken cancellationToken);
 
     Task<bool> IsInstructorLinkedAsync(Guid instructorId, Guid? exceptMemberId, CancellationToken cancellationToken);
 
-    Task<Guid?> FindUserIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
+    Task<Guid?> FindAccountIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
 }

@@ -23,17 +23,17 @@ internal sealed class ImportUseCaseBuilder
 
     public ImportUseCaseBuilder(params string[] existingInstructorNames)
     {
-        ExistingInstructors = existingInstructorNames.Select(name => Instructor.Create(name).Value!.WithUser()).ToList();
+        ExistingInstructors = existingInstructorNames.Select(name => Instructor.Create(name, TestData.Now).Value!).ToList();
         var existingInstructors = ExistingInstructors;
         Instructors.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(existingInstructors);
         Instructors.Setup(repository => repository.Add(It.IsAny<Instructor>())).Callback<Instructor>(AddedInstructors.Add);
     }
 
-    public InstructorImportModule InstructorModule => new(Instructors.Object);
+    public InstructorImportModule InstructorModule => new(Instructors.Object, new FakeTimeProvider(TestData.Now));
 
     public PreviewImportUseCase PreviewUseCase => new([InstructorModule], Parser, Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>());
 
-    public ImportFileUseCase ImportUseCase => new([InstructorModule], Parser, UnitOfWork.Object, Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>());
+    public ImportFileUseCase ImportUseCase => new([InstructorModule], Parser, Mock.Of<IPeopleLock>(), UnitOfWork.Object, Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>());
 
     public ExportUseCase ExportUseCase => new([InstructorModule], new CsvTabularWriter(), new FakeTimeProvider(TestData.Now));
 

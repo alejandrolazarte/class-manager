@@ -45,7 +45,7 @@ public sealed class GetStudentAppNewsUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        var seenAt = (await clientAccountRepository.FindByUserAsync(access.AccountId, cancellationToken))?.NewsSeenAt;
+        var seenAt = (await clientAccountRepository.FindByAccountAsync(access.AccountId, cancellationToken))?.NewsSeenAt;
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var students = await studentRepository.ListByClientAsync(access.ClientId, cancellationToken);
         var studentIds = students.Select(student => student.Id).ToList();

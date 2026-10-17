@@ -11,7 +11,7 @@ public sealed class Then_validation_fails
     {
         var role = CustomRole.Create("Instructor que cobra", [Permissions.Sessions.ViewOwn, Permissions.Payments.Record], null, TestData.Now).Value!;
 
-        var member = BusinessMember.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), MemberRole.Custom(role), instructorId: null);
+        var member = BusinessMember.Create(Guid.CreateVersion7(), TestData.UserOfAccount(Guid.CreateVersion7()), MemberRole.Custom(role), instructorId: null);
 
         member.Error!.Code.ShouldBe(MemberErrorCodes.InstructorRequired);
     }

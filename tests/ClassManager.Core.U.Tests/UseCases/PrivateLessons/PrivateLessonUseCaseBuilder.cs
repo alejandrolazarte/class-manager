@@ -18,8 +18,8 @@ internal sealed class PrivateLessonUseCaseBuilder
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
-    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
-    public Instructor OtherInstructor { get; } = Instructor.Create("Lucía Díaz").Value!;
+    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName, TestData.Now).Value!;
+    public Instructor OtherInstructor { get; } = Instructor.Create("Lucía Díaz", TestData.Now).Value!;
     public Guid StudentId { get; } = Guid.CreateVersion7();
     public List<PrivateLesson> AddedLessons { get; } = [];
 

@@ -4,6 +4,9 @@ using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
+using ClassManager.Core.Domain.Users;
+using ClassManager.Core.UseCases.Clients;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Students;
 
@@ -18,6 +21,8 @@ public sealed class AddStudentUseCase(
     IBusinessRepository businessRepository,
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
+    IUserRepository userRepository,
+    IPeopleLock peopleLock,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider,
     IAccessScopes accessScopes)
@@ -34,43 +39,43 @@ public sealed class AddStudentUseCase(
             return Result.Unauthorized<StudentResponse>(BusinessErrorCodes.CurrentBusinessNotFoundMessage, BusinessErrorCodes.CurrentBusinessNotFound);
         }
 
-        var client = await clientRepository.GetByIdAsync(command.ClientId, cancellationToken);
+        var client = await clientRepository.GetForUpdateAsync(command.ClientId, cancellationToken);
         if (client is null || !await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [client.Id], cancellationToken))
         {
             return Result.NotFound<StudentResponse>(ClientNotFoundMessage, ClientErrorCodes.NotFound);
         }
 
         var now = timeProvider.GetUtcNow();
-        var student = Student.Create(command.ClientId, command.FullName, command.BirthDate, command.Notes, business.TodayAt(now), now, command.Email);
+        var today = business.TodayAt(now);
+        var student = AttendingContact.NamesTheContact(client, command.FullName)
+            ? Student.CreateAttendingContact(client, command.BirthDate, command.Notes, today, now)
+            : Student.Create(command.ClientId, command.FullName, command.BirthDate, command.Notes, today, now, command.Email);
         if (student.IsFailure)
         {
             return student.Error!;
         }
 
+        await peopleLock.LockAsync(cancellationToken);
         var siblings = await studentRepository.ListByClientAsync(command.ClientId, cancellationToken);
-        if (FamilyEmails.IsTakenByAnotherPerson(student.Value!.Email, client.Email, siblings))
+        if (FamilyEmails.IsTakenByAnotherPerson(student.Value!.User, [client.User, .. siblings.Select(sibling => sibling.User)]))
         {
-            return FamilyEmails.EmailOfAnotherPerson(nameof(Student.Email));
+            return FamilyEmails.EmailOfAnotherPerson(nameof(User.Email));
         }
 
-        var existingStudent = await studentRepository.FindByClientAndNameAsync(command.ClientId, student.Value!.FullName, cancellationToken);
+        var existingStudent = await studentRepository.FindByClientAndNameAsync(command.ClientId, student.Value.User.FullName, cancellationToken);
         if (existingStudent is not null)
         {
             return AlreadyRegistered(existingStudent.Id);
         }
 
-        studentRepository.Add(student.Value);
-        try
+        if (await PeopleEmails.TakenErrorAsync(userRepository, [(student.Value.User, nameof(AddStudentCommand.Email))], cancellationToken) is { } emailTaken)
         {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (UniqueConstraintViolationException)
-        {
-            var winnerStudent = await studentRepository.FindByClientAndNameAsync(command.ClientId, student.Value.FullName, cancellationToken);
-            return AlreadyRegistered(winnerStudent?.Id);
+            return emailTaken;
         }
 
-        return StudentResponse.FromWritten(student.Value);
+        studentRepository.Add(student.Value);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return StudentResponse.NotInvited(student.Value);
     }
 
     private static Result<StudentResponse> AlreadyRegistered(Guid? existingStudentId) =>

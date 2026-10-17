@@ -3,9 +3,10 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Clients;
-using ClassManager.Core.Domain.Students;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Clients;
+using ClassManager.Core.UseCases.Users;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
@@ -17,6 +18,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
     IClientAccountRepository accountRepository,
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
+    IUserRepository userRepository,
     IIdentityService identityService,
     IBusinessRepository businessRepository,
     ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
@@ -99,7 +101,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
                 return minorContact;
             }
 
-            existingAccount = await accountRepository.FindByUserAsync(userId.Value, cancellationToken);
+            existingAccount = await accountRepository.FindByAccountAsync(userId.Value, cancellationToken);
         }
 
         if (existingAccount is not null && (existingAccount.ClientId != invitation.ClientId || existingAccount.StudentId != invitation.StudentId))
@@ -109,7 +111,9 @@ public sealed class AcceptStudentAppInvitationUseCase(
 
         if (existingAccount is null)
         {
-            accountRepository.Add(ClientAccount.Create(invitation.ClientId, userId!.Value, now, invitation.StudentId));
+            var invitedPerson = await InvitedPersonAsync(invitation, cancellationToken);
+            var user = await AccountUsers.ResolveAsync(userRepository, identityService, invitedPerson, userId!.Value, now, cancellationToken);
+            accountRepository.Add(ClientAccount.Create(invitation.ClientId, user, now, invitation.StudentId));
         }
 
         await CompleteContactBirthDateAsync(invitation, accountBirthDate, today, cancellationToken);
@@ -131,16 +135,21 @@ public sealed class AcceptStudentAppInvitationUseCase(
         return TokenResponse.From(tokens);
     }
 
-    private async Task<Student?> AttendingContactAsync(ClientInvitation invitation, CancellationToken cancellationToken)
+    private async Task<User?> InvitedPersonAsync(ClientInvitation invitation, CancellationToken cancellationToken) =>
+        invitation.StudentId is { } studentId
+            ? (await studentRepository.FindForUpdateAsync(studentId, cancellationToken))?.User
+            : (await clientRepository.GetForUpdateAsync(invitation.ClientId, cancellationToken))?.User;
+
+    private async Task<Client?> ClientWhoAttendsAsync(ClientInvitation invitation, CancellationToken cancellationToken)
     {
-        var client = await clientRepository.GetByIdAsync(invitation.ClientId, cancellationToken);
+        var client = await clientRepository.GetForUpdateAsync(invitation.ClientId, cancellationToken);
         if (client is null)
         {
             return null;
         }
 
         var familyStudents = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
-        return familyStudents.FirstOrDefault(student => AttendingContact.IsTheContact(client.FullName, student.FullName));
+        return familyStudents.Any(student => student.IsTheContactOf(client)) ? client : null;
     }
 
     private async Task<ResultError?> ContactMinorErrorAsync(ClientInvitation invitation, DateOnly? accountBirthDate, DateOnly today, CancellationToken cancellationToken)
@@ -150,7 +159,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
             return null;
         }
 
-        var birthDate = accountBirthDate ?? (await AttendingContactAsync(invitation, cancellationToken))?.BirthDate;
+        var birthDate = accountBirthDate ?? (await ClientWhoAttendsAsync(invitation, cancellationToken))?.User.BirthDate;
         return AttendingContact.MinorError(birthDate, today, nameof(AcceptStudentAppInvitationCommand.BirthDate));
     }
 
@@ -161,14 +170,13 @@ public sealed class AcceptStudentAppInvitationUseCase(
             return;
         }
 
-        var contactAsStudent = await AttendingContactAsync(invitation, cancellationToken);
-        if (contactAsStudent is null || contactAsStudent.BirthDate is not null)
+        var clientWhoAttends = await ClientWhoAttendsAsync(invitation, cancellationToken);
+        if (clientWhoAttends is null || clientWhoAttends.User.BirthDate is not null)
         {
             return;
         }
 
-        var trackedStudent = await studentRepository.FindForUpdateAsync(contactAsStudent.Id, cancellationToken);
-        trackedStudent?.ChangeBirthDate(accountBirthDate, today);
+        clientWhoAttends.User.ChangeBirthDate(accountBirthDate, today);
     }
 
     private static Result<TokenResponse> InvalidInvitation() =>

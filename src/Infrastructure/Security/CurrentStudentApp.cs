@@ -29,7 +29,7 @@ internal sealed class CurrentStudentApp(AppDbContext context, ICurrentUser curre
         var businessId = tenantContext.TenantId;
         var clientId = await context.ClientAccounts
             .AsNoTracking()
-            .Where(account => account.AccountId == accountId)
+            .Where(account => account.User.AccountId == accountId)
             .Select(account => (Guid?)account.ClientId)
             .FirstOrDefaultAsync(cancellationToken);
 

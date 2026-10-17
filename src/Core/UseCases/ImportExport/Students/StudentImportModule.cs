@@ -5,6 +5,7 @@ using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Subscriptions;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.ImportExport.Columns;
 using ClassManager.ImportExport.Parsing;
@@ -15,6 +16,7 @@ public sealed class StudentImportModule(
     IBusinessRepository businessRepository,
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
+    IUserRepository userRepository,
     TimeProvider timeProvider)
     : IImportModule
 {
@@ -33,6 +35,7 @@ public sealed class StudentImportModule(
     private const string CountryCodeSeparator = " ";
     private const string AlreadyRegisteredMessage = "The client already has a student with this name.";
     private const string ContactMismatchMessage = "This phone belongs to a client with another Responsable. Check the phone or the Responsable.";
+    private const string EmailTakenMessage = "Another person of the business already uses this email.";
 
     public string Name => ModuleName;
 
@@ -89,7 +92,8 @@ public sealed class StudentImportModule(
 
         var now = timeProvider.GetUtcNow();
         var clients = await LoadExistingClientsAsync(rows, business.DefaultCountryCallingCode, cancellationToken);
-        var context = new StudentImportContext(business.DefaultCountryCallingCode, business.TodayAt(now), now, clients);
+        var takenEmails = await userRepository.ListEmailsAsync(cancellationToken);
+        var context = new StudentImportContext(business.DefaultCountryCallingCode, business.TodayAt(now), now, clients, takenEmails);
         var results = rows.Select(context.Plan).ToList();
 
         return new ImportPlan(results, () => AddValidRows(context));
@@ -151,11 +155,11 @@ public sealed class StudentImportModule(
         var students = await studentRepository.ListByClientIdsAsync(clients.Select(client => client.Id).ToList(), cancellationToken);
 
         return clients.ToDictionary(
-            client => client.PhoneNumber,
+            client => client.User.PhoneNumber!,
             client => new StudentImportClient(
                 client,
                 isNew: false,
-                students.Where(student => student.ClientId == client.Id).Select(student => student.FullName)));
+                students.Where(student => student.ClientId == client.Id).Select(student => student.User.FullName)));
     }
 
     private void AddValidRows(StudentImportContext context)
@@ -175,8 +179,11 @@ public sealed class StudentImportModule(
         string defaultCountryCallingCode,
         DateOnly today,
         DateTimeOffset now,
-        Dictionary<PhoneNumber, StudentImportClient> clientsByPhoneNumber)
+        Dictionary<PhoneNumber, StudentImportClient> clientsByPhoneNumber,
+        IReadOnlySet<string> takenEmails)
     {
+        private readonly HashSet<string> _plannedEmails = new(StringComparer.OrdinalIgnoreCase);
+
         public List<StudentImportClient> NewClients { get; } = [];
 
         public List<Student> NewStudents { get; } = [];
@@ -212,35 +219,38 @@ public sealed class StudentImportModule(
                 importClient = new StudentImportClient(client.Value!, isNew: true, []);
             }
 
-            var student = Student.Create(
-                importClient.Client.Id,
-                row.GetText(StudentNameKey),
-                row.GetDate(BirthDateKey),
-                row.GetText(StudentNotesKey),
-                today,
-                now,
-                row.GetText(StudentEmailKey));
+            var studentName = row.GetText(StudentNameKey);
+            var birthDate = row.GetDate(BirthDateKey);
+            var namesTheContact = AttendingContact.NamesTheContact(importClient.Client, studentName);
+            if (namesTheContact && AttendingContactRowError(row, importClient, birthDate) is { } contactRowError)
+            {
+                return contactRowError;
+            }
+
+            var student = namesTheContact
+                ? Student.CreateAttendingContact(importClient.Client, birthDate, row.GetText(StudentNotesKey), today, now)
+                : Student.Create(importClient.Client.Id, studentName, birthDate, row.GetText(StudentNotesKey), today, now, row.GetText(StudentEmailKey));
             if (student.IsFailure)
             {
                 return Error(row, StudentFieldKey(student.Error!.FieldName), student.Error);
             }
 
-            if (AttendingContact.IsTheContact(importClient.Client.FullName, student.Value!.FullName)
-                && AttendingContact.MinorError(student.Value.BirthDate, today, nameof(Student.BirthDate)) is { } minorError)
-            {
-                return Error(row, BirthDateKey, minorError);
-            }
-
-            if (importClient.HasPlannedStudent(student.Value.FullName))
+            if (importClient.HasPlannedStudent(student.Value!.User.FullName))
             {
                 return ImportRowResult.Error(row.LineNumber, ImportFlow.DuplicateInFile(StudentNameKey));
             }
 
-            if (importClient.HasExistingStudent(student.Value.FullName))
+            if (importClient.HasExistingStudent(student.Value.User.FullName))
             {
                 return ImportRowResult.Skipped(
                     row.LineNumber,
                     new ImportCellError(StudentNameKey, StudentErrorCodes.AlreadyRegistered, AlreadyRegisteredMessage));
+            }
+
+            var newEmails = NewEmails(importClient, student.Value);
+            if (newEmails.FirstOrDefault(newEmail => takenEmails.Contains(newEmail.Email) || _plannedEmails.Contains(newEmail.Email)) is { Email: not null } takenEmail)
+            {
+                return ImportRowResult.Error(row.LineNumber, new ImportCellError(takenEmail.Key, UserErrorCodes.EmailTaken, EmailTakenMessage));
             }
 
             if (importClient.IsNew && clientsByPhoneNumber.TryAdd(phoneNumber.Value!, importClient))
@@ -248,9 +258,46 @@ public sealed class StudentImportModule(
                 NewClients.Add(importClient);
             }
 
-            importClient.PlanStudent(student.Value.FullName);
+            _plannedEmails.UnionWith(newEmails.Select(newEmail => newEmail.Email));
+            importClient.PlanStudent(student.Value.User.FullName);
             NewStudents.Add(student.Value);
             return ImportRowResult.Valid(row.LineNumber);
+        }
+
+        private ImportRowResult? AttendingContactRowError(ImportRow row, StudentImportClient importClient, DateOnly? birthDate)
+        {
+            var contactName = importClient.Client.User.FullName;
+            if (importClient.HasPlannedStudent(contactName))
+            {
+                return ImportRowResult.Error(row.LineNumber, ImportFlow.DuplicateInFile(StudentNameKey));
+            }
+
+            if (importClient.HasExistingStudent(contactName))
+            {
+                return ImportRowResult.Skipped(
+                    row.LineNumber,
+                    new ImportCellError(StudentNameKey, StudentErrorCodes.AlreadyRegistered, AlreadyRegisteredMessage));
+            }
+
+            return User.IsValidBirthDate(birthDate, today) && AttendingContact.MinorError(birthDate, today, nameof(User.BirthDate)) is { } minorError
+                ? Error(row, BirthDateKey, minorError)
+                : null;
+        }
+
+        private List<(string Key, string Email)> NewEmails(StudentImportClient importClient, Student student)
+        {
+            var newEmails = new List<(string Key, string Email)>();
+            if (importClient.IsNew && !NewClients.Contains(importClient) && importClient.Client.User.Email is { } contactEmail)
+            {
+                newEmails.Add((EmailKey, contactEmail));
+            }
+
+            if (!student.IsTheContactOf(importClient.Client) && student.User.Email is { } studentEmail)
+            {
+                newEmails.Add((StudentEmailKey, studentEmail));
+            }
+
+            return newEmails;
         }
 
         private static ImportRowResult Error(ImportRow row, string key, ResultError error) =>
@@ -258,16 +305,16 @@ public sealed class StudentImportModule(
 
         private static string ClientFieldKey(string? fieldName, string? explicitContactName) => fieldName switch
         {
-            nameof(Client.Email) => EmailKey,
+            nameof(User.Email) => EmailKey,
             nameof(Client.Notes) => ContactNotesKey,
             _ => explicitContactName is null ? StudentNameKey : ContactNameKey,
         };
 
         private static string StudentFieldKey(string? fieldName) => fieldName switch
         {
-            nameof(Student.BirthDate) => BirthDateKey,
+            nameof(User.BirthDate) => BirthDateKey,
             nameof(Student.Notes) => StudentNotesKey,
-            nameof(Student.Email) => StudentEmailKey,
+            nameof(User.Email) => StudentEmailKey,
             _ => StudentNameKey,
         };
     }
@@ -282,7 +329,7 @@ public sealed class StudentImportModule(
         public bool IsNew => isNew;
 
         public bool HasContactName(string contactName) =>
-            StringComparer.CurrentCultureIgnoreCase.Equals(client.FullName, contactName.Trim());
+            StringComparer.CurrentCultureIgnoreCase.Equals(client.User.FullName, contactName.Trim());
 
         public bool HasExistingStudent(string fullName) => _existingStudentNames.Contains(fullName);
 

@@ -16,7 +16,7 @@ internal sealed class ClassGroupUseCaseBuilder
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<IDocumentStorageService> DocumentStorage { get; } = new();
-    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
+    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName, TestData.Now).Value!;
 
     public ClassGroupUseCaseBuilder()
     {

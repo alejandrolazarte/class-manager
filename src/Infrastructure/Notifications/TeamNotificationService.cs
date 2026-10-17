@@ -56,7 +56,8 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     {
         var inviterAccountIds = await context.BusinessMembers.AsNoTracking()
             .Where(member => invitedByUserId != null && member.UserId == invitedByUserId)
-            .Select(member => member.AccountId)
+            .Where(member => member.User.AccountId != null)
+            .Select(member => member.User.AccountId!.Value)
             .ToListAsync(cancellationToken);
         return inviterAccountIds.Count > 0
             ? inviterAccountIds
@@ -66,7 +67,8 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     private async Task<List<Guid>> BranchOwnersAsync(CancellationToken cancellationToken) =>
         await context.BusinessMembers.AsNoTracking()
             .Where(member => member.Role == BusinessRole.BranchOwner)
-            .Select(member => member.AccountId)
+            .Where(member => member.User.AccountId != null)
+            .Select(member => member.User.AccountId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);
 
@@ -95,7 +97,8 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     {
         var instructorUserIds = await context.BusinessMembers.AsNoTracking()
             .Where(member => member.InstructorId == instructorId)
-            .Select(member => member.AccountId)
+            .Where(member => member.User.AccountId != null)
+            .Select(member => member.User.AccountId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);
         return instructorUserIds.Count > 0

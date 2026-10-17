@@ -21,7 +21,9 @@ public sealed class Then_their_instructor_user_gets_the_account(ApiFixture fixtu
         var member = await context.BusinessMembers.AsNoTracking().SingleAsync(row => row.InstructorId == instructorProfile.Id);
         var instructor = await context.Instructors.AsNoTracking().SingleAsync(row => row.Id == instructorProfile.Id);
         var user = await context.Users.AsNoTracking().SingleAsync(row => row.Id == member.UserId);
+        await using var securityContext = fixture.CreateSecurityDbContext();
+        var accountId = await securityContext.Users.Where(account => account.Email == email).Select(account => account.Id).SingleAsync();
         member.UserId.ShouldBe(instructor.UserId);
-        user.AccountId.ShouldBe(member.AccountId);
+        user.AccountId.ShouldBe(accountId);
     }
 }

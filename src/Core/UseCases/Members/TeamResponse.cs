@@ -13,7 +13,7 @@ public sealed record MemberResponse(
     bool IsCurrentUser,
     bool IsBrandOwner)
 {
-    public static MemberResponse From(BusinessMember member, UserAccount? account, Guid? currentUserId, bool isBrandOwner) =>
+    public static MemberResponse From(BusinessMember member, UserAccount? account, Guid? currentAccountId, bool isBrandOwner) =>
         new(
             member.Id,
             account?.FullName ?? string.Empty,
@@ -21,7 +21,7 @@ public sealed record MemberResponse(
             member.Role,
             member.CustomRoleId,
             member.InstructorId,
-            member.AccountId == currentUserId,
+            member.User.AccountId == currentAccountId,
             isBrandOwner);
 }
 

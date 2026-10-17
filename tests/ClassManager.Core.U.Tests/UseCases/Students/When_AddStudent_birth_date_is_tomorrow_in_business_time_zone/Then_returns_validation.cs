@@ -1,5 +1,3 @@
-using ClassManager.Core.Domain.Students;
-
 namespace ClassManager.Core.U.Tests.UseCases.Students.When_AddStudent_birth_date_is_tomorrow_in_business_time_zone;
 
 public sealed class Then_returns_validation
@@ -14,6 +12,6 @@ public sealed class Then_returns_validation
 
         var response = await builder.Build().ExecuteAsync(command, CancellationToken.None);
 
-        response.Error!.FieldName.ShouldBe(nameof(Student.BirthDate));
+        response.Error!.FieldName.ShouldBe(nameof(User.BirthDate));
     }
 }

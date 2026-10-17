@@ -9,6 +9,6 @@ public sealed class Then_name_is_trimmed
     {
         var client = Client.Create("  Ana Pérez  ", TestData.PhoneNumber(), "ana@example.com", "Color 6.1 + 20 vol", TestData.Now);
 
-        client.Value!.FullName.ShouldBe(TestData.ClientFullName);
+        client.Value!.User.FullName.ShouldBe(TestData.ClientFullName);
     }
 }

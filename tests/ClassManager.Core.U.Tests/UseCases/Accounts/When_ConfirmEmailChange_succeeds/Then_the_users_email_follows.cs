@@ -21,10 +21,8 @@ public sealed class Then_the_users_email_follows
         identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        var clients = new Mock<IClientRepository>();
-        var instructors = new Mock<IInstructorRepository>();
         var users = new Mock<IUserRepository>();
-        var useCase = new ConfirmEmailChangeUseCase(identity.Object, clients.Object, instructors.Object, users.Object, new Mock<IEmailSender>().Object);
+        var useCase = new ConfirmEmailChangeUseCase(identity.Object, users.Object, new Mock<IEmailSender>().Object);
 
         await useCase.ExecuteAsync(new ConfirmEmailChangeCommand(Token), CancellationToken.None);
 

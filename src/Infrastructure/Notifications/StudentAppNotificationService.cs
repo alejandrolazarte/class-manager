@@ -51,7 +51,8 @@ internal sealed class StudentAppNotificationService(
     {
         var clientUserIds = await context.ClientAccounts.AsNoTracking()
             .Where(account => account.ClientId == invitation.ClientId && account.StudentId == null)
-            .Select(account => account.AccountId)
+            .Where(account => account.User.AccountId != null)
+            .Select(account => account.User.AccountId!.Value)
             .ToListAsync(cancellationToken);
         await publisher.PublishToStudentAccountsAsync(
             invitation.ClientId,

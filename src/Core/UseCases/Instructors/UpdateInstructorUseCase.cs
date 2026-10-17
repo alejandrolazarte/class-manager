@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Instructors;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
@@ -16,6 +17,8 @@ public sealed class UpdateInstructorUseCase(
     IInstructorRepository instructorRepository,
     IBusinessMemberRepository businessMemberRepository,
     IIdentityService identityService,
+    IUserRepository userRepository,
+    IPeopleLock peopleLock,
     IUnitOfWork unitOfWork)
     : IUseCase<UpdateInstructorCommand, InstructorResponse>
 {
@@ -29,10 +32,10 @@ public sealed class UpdateInstructorUseCase(
             return InstructorFailures.NotFound();
         }
 
-        if (!instructor.HasEmail(command.Email)
-            && await businessMemberRepository.FindUserIdByInstructorAsync(instructor.Id, cancellationToken) is { } userId)
+        if (!instructor.User.HasEmail(command.Email)
+            && await businessMemberRepository.FindAccountIdByInstructorAsync(instructor.Id, cancellationToken) is { } accountId)
         {
-            var signInEmail = await SignInEmails.FirstAsync(identityService, [userId], cancellationToken);
+            var signInEmail = await SignInEmails.FirstAsync(identityService, [accountId], cancellationToken);
             if (!string.Equals(command.Email?.Trim(), signInEmail, StringComparison.OrdinalIgnoreCase))
             {
                 return new ResultError(InstructorErrorCodes.EmailUsedToSignIn, EmailUsedToSignInMessage, ErrorKind.Conflict)
@@ -48,21 +51,19 @@ public sealed class UpdateInstructorUseCase(
             return update.Error!;
         }
 
-        var existingInstructor = await instructorRepository.FindByNameAsync(instructor.FullName, cancellationToken);
+        await peopleLock.LockAsync(cancellationToken);
+        var existingInstructor = await instructorRepository.FindByNameAsync(instructor.User.FullName, cancellationToken);
         if (existingInstructor is not null && existingInstructor.Id != instructor.Id)
         {
             return InstructorFailures.NameTaken(existingInstructor.Id);
         }
 
-        try
+        if (await PeopleEmails.TakenErrorAsync(userRepository, [(instructor.User, nameof(UpdateInstructorCommand.Email))], cancellationToken) is { } emailTaken)
         {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (UniqueConstraintViolationException)
-        {
-            return InstructorFailures.NameTaken(null);
+            return emailTaken;
         }
 
-        return InstructorResponse.FromWritten(instructor);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return InstructorResponse.From(instructor);
     }
 }

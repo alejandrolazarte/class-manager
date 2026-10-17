@@ -44,8 +44,10 @@ internal static class TestData
     public static PhoneNumber PhoneNumber() =>
         ClassManager.Core.Domain.Clients.PhoneNumber.Create(ClientPhoneNumber, DefaultCountryCallingCode).Value!;
 
+    public static User UserOfAccount(Guid accountId) => User.CreateForAccount(accountId, ClientFullName, null, Now);
+
     public static Client Client() =>
-        ClassManager.Core.Domain.Clients.Client.Create(ClientFullName, PhoneNumber(), null, null, Now).Value!.WithUser();
+        ClassManager.Core.Domain.Clients.Client.Create(ClientFullName, PhoneNumber(), null, null, Now).Value!;
 
     public static PendingSignUp PendingSignUp(string tokenHash, DateTimeOffset? createdAt = null) =>
         ClassManager.Core.Domain.Accounts.PendingSignUp.Start(

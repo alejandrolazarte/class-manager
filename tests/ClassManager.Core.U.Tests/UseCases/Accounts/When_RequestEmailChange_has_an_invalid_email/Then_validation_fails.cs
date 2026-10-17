@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.UseCases.Accounts;
 
@@ -12,7 +13,7 @@ public sealed class Then_validation_fails
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(user => user.AccountId).Returns(Guid.CreateVersion7());
         var useCase = new RequestEmailChangeUseCase(
-            currentUser.Object, new Mock<IIdentityService>().Object, new Mock<IEmailSender>().Object, new Mock<IWebAppLinks>().Object);
+            currentUser.Object, new Mock<IIdentityService>().Object, new Mock<IUserRepository>().Object, new Mock<IEmailSender>().Object, new Mock<IWebAppLinks>().Object);
 
         var response = await useCase.ExecuteAsync(new RequestEmailChangeCommand("not-an-email", "a long passphrase"), CancellationToken.None);
 

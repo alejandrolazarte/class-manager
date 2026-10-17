@@ -1,5 +1,4 @@
 using ClassManager.Core.Abstractions.Security;
-using ClassManager.Tenancy.AspNetCore.Persistence;
 
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
@@ -8,15 +7,15 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
     public void Add(Client client) => context.Clients.Add(client);
 
     public Task<Client?> FindByPhoneNumberAsync(PhoneNumber phoneNumber, CancellationToken cancellationToken) =>
-        context.Clients.AsNoTracking().FirstOrDefaultAsync(client => client.PhoneNumber == phoneNumber, cancellationToken);
+        context.Clients.AsNoTracking().FirstOrDefaultAsync(client => client.User.PhoneNumber == phoneNumber, cancellationToken);
 
     public async Task<IReadOnlyList<Client>> ListByPhoneNumbersAsync(
         IReadOnlyCollection<PhoneNumber> phoneNumbers,
         CancellationToken cancellationToken) =>
         phoneNumbers.Count == 0
             ? []
-            : await context.Clients.AsNoTracking().Include(client => client.User)
-                .Where(client => phoneNumbers.Contains(client.PhoneNumber))
+            : await context.Clients.Include(client => client.User)
+                .Where(client => phoneNumbers.Contains(client.User.PhoneNumber!))
                 .ToListAsync(cancellationToken);
 
     public Task<Client?> GetByIdAsync(Guid clientId, CancellationToken cancellationToken) =>
@@ -24,14 +23,6 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
 
     public Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken) =>
         context.Clients.Include(client => client.User).FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
-
-    public Task ChangeEmailInEveryBusinessByAccountUserAsync(Guid userId, string email, CancellationToken cancellationToken) =>
-        context.Clients
-            .IgnoreTenantFilter()
-            .Where(client => context.ClientAccounts
-                .IgnoreTenantFilter()
-                .Any(account => account.ClientId == client.Id && account.AccountId == userId))
-            .ExecuteUpdateAsync(setters => setters.SetProperty(client => client.Email, email), cancellationToken);
 
     public async Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken) =>
         await context.Clients.AsNoTracking().Include(client => client.User).ToListAsync(cancellationToken);

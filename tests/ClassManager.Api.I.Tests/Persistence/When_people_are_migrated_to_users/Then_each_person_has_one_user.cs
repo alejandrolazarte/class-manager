@@ -70,13 +70,13 @@ public sealed class Then_each_person_has_one_user(ApiFixture fixture)
         var usersById = users.ToDictionary(user => user.Id);
         var links = new[]
         {
-            ("Ana as client", usersById[client.UserId!.Value].FullName, usersById[client.UserId.Value].AccountId),
-            ("Ana as student", usersById[students[people.AttendingContactId].UserId!.Value].FullName, (Guid?)null),
-            ("Tomás", usersById[students[people.ChildId].UserId!.Value].FullName, usersById[students[people.ChildId].UserId!.Value].AccountId),
-            ("Tomás account", usersById[childClientAccount.UserId!.Value].FullName, childClientAccount.AccountId),
-            ("Laura as instructor", usersById[instructor.UserId!.Value].FullName, usersById[instructor.UserId.Value].AccountId),
-            ("Laura as member", usersById[members[people.InstructorMemberId].UserId!.Value].FullName, members[people.InstructorMemberId].AccountId),
-            ("Marta as member", usersById[members[people.OwnerMemberId].UserId!.Value].FullName, usersById[members[people.OwnerMemberId].UserId!.Value].AccountId),
+            ("Ana as client", usersById[client.UserId].FullName, usersById[client.UserId].AccountId),
+            ("Ana as student", usersById[students[people.AttendingContactId].UserId].FullName, (Guid?)null),
+            ("Tomás", usersById[students[people.ChildId].UserId].FullName, usersById[students[people.ChildId].UserId].AccountId),
+            ("Tomás account", usersById[childClientAccount.UserId].FullName, usersById[childClientAccount.UserId].AccountId),
+            ("Laura as instructor", usersById[instructor.UserId].FullName, usersById[instructor.UserId].AccountId),
+            ("Laura as member", usersById[members[people.InstructorMemberId].UserId].FullName, usersById[members[people.InstructorMemberId].UserId].AccountId),
+            ("Marta as member", usersById[members[people.OwnerMemberId].UserId].FullName, usersById[members[people.OwnerMemberId].UserId].AccountId),
         };
 
         links.ShouldBe(
@@ -91,7 +91,7 @@ public sealed class Then_each_person_has_one_user(ApiFixture fixture)
         ]);
         users.Count.ShouldBe(4);
         students[people.AttendingContactId].UserId.ShouldBe(client.UserId);
-        usersById[client.UserId.Value].BirthDate.ShouldBe(new DateOnly(1990, 5, 10));
+        usersById[client.UserId].BirthDate.ShouldBe(new DateOnly(1990, 5, 10));
     }
 
     private sealed class MigrationPeople

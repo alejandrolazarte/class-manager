@@ -10,8 +10,8 @@ public sealed class Then_one_client_and_one_student_with_the_same_name_are_added
 
         await builder.PlanAndAddAsync("Ana Pérez;11 5555-6666;;;\n");
 
-        builder.AddedClients.Single().FullName.ShouldBe("Ana Pérez");
-        builder.AddedStudents.Single().FullName.ShouldBe("Ana Pérez");
+        builder.AddedClients.Single().User.FullName.ShouldBe("Ana Pérez");
+        builder.AddedStudents.Single().User.FullName.ShouldBe("Ana Pérez");
         builder.AddedStudents.Single().ClientId.ShouldBe(builder.AddedClients.Single().Id);
     }
 }

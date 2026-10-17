@@ -10,6 +10,6 @@ internal static class InvitedPersonName
         IInstructorRepository instructorRepository,
         CancellationToken cancellationToken) =>
         invitation.InstructorId is { } instructorId
-            ? (await instructorRepository.GetByIdAsync(instructorId, cancellationToken))?.FullName
+            ? (await instructorRepository.GetByIdAsync(instructorId, cancellationToken))?.User.FullName
             : null;
 }

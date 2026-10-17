@@ -4,7 +4,9 @@ using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Students;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Clients;
 
@@ -19,6 +21,8 @@ public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
+    IUserRepository userRepository,
+    IPeopleLock peopleLock,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider,
     ICurrentUser currentUser)
@@ -63,10 +67,20 @@ public sealed class RegisterClientUseCase(
             return students.Error!;
         }
 
+        await peopleLock.LockAsync(cancellationToken);
         var existingClient = await clientRepository.FindByPhoneNumberAsync(phoneNumber.Value!, cancellationToken);
         if (existingClient is not null)
         {
             return PhoneNumberTaken(existingClient.Id);
+        }
+
+        var people = new List<(User Person, string FieldName)> { (newClient.User, nameof(RegisterClientCommand.Email)) };
+        people.AddRange(students.Value!
+            .Select((student, index) => (student.User, StudentFieldName(index, nameof(User.Email))))
+            .Where(person => person.User != newClient.User));
+        if (await PeopleEmails.TakenErrorAsync(userRepository, people, cancellationToken) is { } emailTaken)
+        {
+            return emailTaken;
         }
 
         clientRepository.Add(newClient);
@@ -75,17 +89,8 @@ public sealed class RegisterClientUseCase(
             studentRepository.Add(student);
         }
 
-        try
-        {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (UniqueConstraintViolationException)
-        {
-            var winnerClient = await clientRepository.FindByPhoneNumberAsync(phoneNumber.Value!, cancellationToken);
-            return PhoneNumberTaken(winnerClient?.Id);
-        }
-
-        return ClientDetailsResponse.FromWritten(newClient, students.Value!, business.TodayAt(timeProvider.GetUtcNow()));
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return ClientDetailsResponse.Registered(newClient, students.Value!, business.TodayAt(timeProvider.GetUtcNow()));
     }
 
     private static Result<IReadOnlyList<Student>> CreateStudents(
@@ -107,31 +112,33 @@ public sealed class RegisterClientUseCase(
         for (var index = 0; index < newStudents.Count; index++)
         {
             var newStudent = newStudents[index];
-            var student = Student.Create(client.Id, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
+            var student = AttendingContact.NamesTheContact(client, newStudent.FullName)
+                ? Student.CreateAttendingContact(client, newStudent.BirthDate, newStudent.Notes, today, now)
+                : Student.Create(client.Id, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
             if (student.IsFailure)
             {
                 return student.Error! with { FieldName = StudentFieldName(index, student.Error.FieldName) };
             }
 
-            if (!fullNames.Add(student.Value!.FullName))
+            if (!fullNames.Add(student.Value!.User.FullName))
             {
                 return Result.Validation<IReadOnlyList<Student>>(
                     DuplicateStudentNameMessage,
                     StudentErrorCodes.DuplicateName,
-                    StudentFieldName(index, nameof(Student.FullName)));
+                    StudentFieldName(index, nameof(User.FullName)));
             }
 
-            var minorContact = AttendingContact.IsTheContact(client.FullName, student.Value.FullName)
-                ? AttendingContact.MinorError(student.Value.BirthDate, today, StudentFieldName(index, nameof(Student.BirthDate)))
+            var minorContact = student.Value.IsTheContactOf(client)
+                ? AttendingContact.MinorError(student.Value.User.BirthDate, today, StudentFieldName(index, nameof(User.BirthDate)))
                 : null;
             if (minorContact is not null)
             {
                 return minorContact;
             }
 
-            if (FamilyEmails.IsTakenByAnotherPerson(student.Value.Email, client.Email, students))
+            if (FamilyEmails.IsTakenByAnotherPerson(student.Value.User, [client.User, .. students.Select(other => other.User)]))
             {
-                return FamilyEmails.EmailOfAnotherPerson(StudentFieldName(index, nameof(Student.Email)));
+                return FamilyEmails.EmailOfAnotherPerson(StudentFieldName(index, nameof(User.Email)));
             }
 
             students.Add(student.Value);

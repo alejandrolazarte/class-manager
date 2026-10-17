@@ -14,9 +14,9 @@ public sealed class Then_details_are_replaced
 
         update.IsSuccess.ShouldBeTrue();
         client.ShouldSatisfyAllConditions(
-            () => client.FullName.ShouldBe("Ana María Pérez"),
-            () => client.PhoneNumber.ShouldBe(newPhoneNumber),
-            () => client.Email.ShouldBe("ana@example.com"),
+            () => client.User.FullName.ShouldBe("Ana María Pérez"),
+            () => client.User.PhoneNumber.ShouldBe(newPhoneNumber),
+            () => client.User.Email.ShouldBe("ana@example.com"),
             () => client.Notes.ShouldBe("Allergic to chlorine"));
     }
 }

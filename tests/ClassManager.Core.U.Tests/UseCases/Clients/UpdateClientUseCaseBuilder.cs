@@ -18,6 +18,8 @@ internal sealed class UpdateClientUseCaseBuilder
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IClientAccountRepository> ClientAccounts { get; } = new();
     public Mock<IIdentityService> Identity { get; } = new();
+    public Mock<IUserRepository> Users { get; } = new();
+    public Mock<IPeopleLock> PeopleLock { get; } = new();
     public Client Client { get; } = TestData.Client();
 
     public UpdateClientUseCaseBuilder()
@@ -30,7 +32,7 @@ internal sealed class UpdateClientUseCaseBuilder
     public void WithStudentAppAccount()
     {
         var userId = Guid.CreateVersion7();
-        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, userId, TestData.Now)]);
+        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, TestData.UserOfAccount(userId), TestData.Now)]);
         Identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new UserAccount(userId, SignInEmail, NewFullName)]);
@@ -39,5 +41,5 @@ internal sealed class UpdateClientUseCaseBuilder
     public UpdateClientCommand ValidCommand() => new(Client.Id, NewFullName, NewPhoneNumber, NewEmail, NewNotes);
 
     public UpdateClientUseCase Build() =>
-        new(Businesses.Object, Clients.Object, UnitOfWork.Object, new EveryAccessScopes(), ClientAccounts.Object, Identity.Object);
+        new(Businesses.Object, Clients.Object, UnitOfWork.Object, new EveryAccessScopes(), ClientAccounts.Object, Identity.Object, Users.Object, PeopleLock.Object);
 }

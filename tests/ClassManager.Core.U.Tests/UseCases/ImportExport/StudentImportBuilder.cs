@@ -18,6 +18,7 @@ internal sealed class StudentImportBuilder
     public Mock<IBusinessRepository> Businesses { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
+    public Mock<IUserRepository> Users { get; } = new();
     public List<Client> ExistingClients { get; } = [];
     public List<Student> ExistingStudents { get; } = [];
     public List<Client> AddedClients { get; } = [];
@@ -26,10 +27,11 @@ internal sealed class StudentImportBuilder
     public StudentImportBuilder()
     {
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
+        Users.Setup(repository => repository.ListEmailsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new HashSet<string>());
         Clients
             .Setup(repository => repository.ListByPhoneNumbersAsync(It.IsAny<IReadOnlyCollection<PhoneNumber>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyCollection<PhoneNumber> phoneNumbers, CancellationToken _) =>
-                ExistingClients.Where(client => phoneNumbers.Contains(client.PhoneNumber)).ToList());
+                ExistingClients.Where(client => phoneNumbers.Contains(client.User.PhoneNumber)).ToList());
         Students
             .Setup(repository => repository.ListByClientIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyCollection<Guid> clientIds, CancellationToken _) =>
@@ -41,7 +43,7 @@ internal sealed class StudentImportBuilder
     }
 
     public StudentImportModule Module =>
-        new(Businesses.Object, Clients.Object, Students.Object, new FakeTimeProvider(TestData.Now));
+        new(Businesses.Object, Clients.Object, Students.Object, Users.Object, new FakeTimeProvider(TestData.Now));
 
     public Client AddExistingClient(params string[] studentNames)
     {
@@ -57,13 +59,13 @@ internal sealed class StudentImportBuilder
 
     public Client AddExistingClient(string fullName, string phoneNumber, string? email, string? notes)
     {
-        var client = Client.Create(fullName, PhoneNumber.Create(phoneNumber, TestData.DefaultCountryCallingCode).Value!, email, notes, TestData.Now).Value!.WithUser();
+        var client = Client.Create(fullName, PhoneNumber.Create(phoneNumber, TestData.DefaultCountryCallingCode).Value!, email, notes, TestData.Now).Value!;
         ExistingClients.Add(client);
         return client;
     }
 
     public void AddExistingStudent(Client client, string fullName, DateOnly? birthDate, string? notes = null, string? email = null) =>
-        ExistingStudents.Add(Student.Create(client.Id, fullName, birthDate, notes, TestData.Today, TestData.Now, email).Value!.WithUser(client));
+        ExistingStudents.Add(TestUsers.StudentOf(client, fullName, birthDate, notes, email));
 
     public async Task<Result<ImportPlan>> PlanAsync(string rowsText, string header = Header)
     {

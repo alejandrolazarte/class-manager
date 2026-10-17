@@ -1,4 +1,5 @@
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassManager.Api.I.Tests.Persistence.When_BusinessMember_belongs_to_another_business;
@@ -11,7 +12,9 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync();
         var otherBusiness = await fixture.SeedBusinessAsync();
-        var otherBusinessMember = BusinessMember.CreateBranchOwner(otherBusiness.Business.Id, Guid.CreateVersion7());
+        var otherBusinessMember = BusinessMember.CreateBranchOwner(
+            otherBusiness.Business.Id,
+            User.CreateForAccount(Guid.CreateVersion7(), "Ana Pérez", null, BusinessApiFactory.Now));
         await using (var otherBusinessContext = fixture.CreateDbContext(otherBusiness.Business.Id))
         {
             otherBusinessContext.BusinessMembers.Add(otherBusinessMember);

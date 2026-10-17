@@ -13,6 +13,7 @@ import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateF
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
+import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { TranslationKey, translate } from "@/i18n/translate";
@@ -134,6 +135,10 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     } catch (inviteError) {
       if (isApiError(inviteError) && inviteError.hasCode(studentErrorCodes.emailOfAnotherPerson)) {
         askAgain(translate("students.validation.emailOfAnotherPerson"), undefined);
+        return;
+      }
+      if (isApiError(inviteError) && inviteError.hasCode(userErrorCodes.emailTaken)) {
+        askAgain(translate("apiErrors.user.email_taken"), undefined);
         return;
       }
       if (

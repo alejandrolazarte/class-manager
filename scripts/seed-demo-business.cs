@@ -19,6 +19,7 @@ var demoSubscriptionId = Guid.Parse("0192f0c5-0000-7000-8000-000000000001");
 var demoBusinessId = Guid.Parse("0192f0c0-0000-7000-8000-000000000001");
 var demoOwnerId = Guid.Parse("0192f0c1-0000-7000-8000-000000000001");
 var demoOwnerMembershipId = Guid.Parse("0192f0c2-0000-7000-8000-000000000001");
+var demoOwnerUserId = Guid.Parse("0192f0c6-0000-7000-8000-000000000001");
 var connectionString = args.ElementAtOrDefault(0) ?? Environment.GetEnvironmentVariable(ConnectionStringVariable);
 var ownerPassword = args.ElementAtOrDefault(1) ?? Environment.GetEnvironmentVariable(OwnerPasswordVariable);
 if (string.IsNullOrWhiteSpace(connectionString) || string.IsNullOrEmpty(ownerPassword))
@@ -80,10 +81,18 @@ await ExecuteAsync(
 
 await ExecuteAsync(
     """
-    IF NOT EXISTS (SELECT 1 FROM BusinessMembers WHERE Id = @Id)
-        INSERT INTO BusinessMembers (Id, TenantId, AccountId, Role) VALUES (@Id, @TenantId, @UserId, N'BranchOwner');
+    IF NOT EXISTS (SELECT 1 FROM Users WHERE Id = @Id)
+        INSERT INTO Users (Id, TenantId, FullName, Email, AccountId, CreatedAt, IsDeleted)
+        VALUES (@Id, @TenantId, @FullName, @Email, @AccountId, SYSDATETIMEOFFSET(), 0);
     """,
-    ("@Id", demoOwnerMembershipId), ("@TenantId", demoBusinessId), ("@UserId", demoOwnerId));
+    ("@Id", demoOwnerUserId), ("@TenantId", demoBusinessId), ("@FullName", DemoOwnerFullName), ("@Email", DemoOwnerEmail), ("@AccountId", demoOwnerId));
+
+await ExecuteAsync(
+    """
+    IF NOT EXISTS (SELECT 1 FROM BusinessMembers WHERE Id = @Id)
+        INSERT INTO BusinessMembers (Id, TenantId, UserId, Role) VALUES (@Id, @TenantId, @UserId, N'BranchOwner');
+    """,
+    ("@Id", demoOwnerMembershipId), ("@TenantId", demoBusinessId), ("@UserId", demoOwnerUserId));
 
 await ExecuteAsync(
     """

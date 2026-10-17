@@ -10,6 +10,8 @@ public sealed class Then_returns_409(ApiFixture fixture)
         var firstClient = await fixture.InviteStudentAppOfAsync(instructors, InstructorScenario.InstructorStudentFullName);
         var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
         var otherClientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.OtherStudentFullName)).ClientId;
+        await fixture.ChangeUserOfClientAsync(
+            instructors.Business.Business.Id, firstClient.ClientId, InstructorScenario.InstructorStudentFullName, StudentAppRequests.UniqueStudentEmail());
         using (var invitation = await instructors.Business.HttpClient.PostStudentAppInvitationAsync(otherClientId, firstClient.Email))
         {
             invitation.StatusCode.ShouldBe(HttpStatusCode.Created);

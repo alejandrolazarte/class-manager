@@ -10,7 +10,7 @@ public sealed class Then_student_joins_that_client
 
         await builder.PlanAndAddAsync("Ana Pérez;11 5555-6666;;;\nLuis Pérez;11 5555-6666;;;\n");
 
-        builder.AddedClients.Single().FullName.ShouldBe("Ana Pérez");
-        builder.AddedStudents.Select(student => student.FullName).ShouldBe(["Ana Pérez", "Luis Pérez"]);
+        builder.AddedClients.Single().User.FullName.ShouldBe("Ana Pérez");
+        builder.AddedStudents.Select(student => student.User.FullName).ShouldBe(["Ana Pérez", "Luis Pérez"]);
     }
 }

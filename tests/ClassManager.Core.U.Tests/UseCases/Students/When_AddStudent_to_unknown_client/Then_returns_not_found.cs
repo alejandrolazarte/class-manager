@@ -8,7 +8,7 @@ public sealed class Then_returns_not_found
     public async Task Then_returns_not_found_Run()
     {
         var builder = new AddStudentUseCaseBuilder();
-        builder.Clients.Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Client?)null);
+        builder.Clients.Setup(repository => repository.GetForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Client?)null);
 
         var response = await builder.Build().ExecuteAsync(AddStudentUseCaseBuilder.ValidCommand(), CancellationToken.None);
 

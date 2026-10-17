@@ -3,6 +3,7 @@ import { isApiError, isNetworkError } from "@/api/httpClient";
 import { requestEmailChange } from "@/features/account/accountApi";
 import { accountErrorCodes } from "@/features/account/accountErrorCodes";
 import { useMyAccount } from "@/features/account/useMyAccount";
+import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { isFilled } from "@/forms/requiredFields";
 import { translate } from "@/i18n/translate";
@@ -42,6 +43,10 @@ export function ChangeEmailScreen() {
     }
     if (isApiError(requestError) && requestError.hasCode(accountErrorCodes.emailTaken)) {
       setNewEmailError(translate("profile.email.taken"));
+      return;
+    }
+    if (isApiError(requestError) && requestError.hasCode(userErrorCodes.emailTaken)) {
+      setNewEmailError(translate("profile.email.usedByAnotherPerson"));
       return;
     }
     if (isApiError(requestError) && requestError.hasCode(accountErrorCodes.sameEmail)) {

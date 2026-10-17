@@ -122,6 +122,6 @@ public sealed class SchedulePrivateLessonUseCase(
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
         return Result.Success<IReadOnlyList<PrivateLessonResponse>>(
-            [.. lessons.Select(lesson => PrivateLessonResponse.From(lesson, instructor.Value.FullName, students, today))]);
+            [.. lessons.Select(lesson => PrivateLessonResponse.From(lesson, instructor.Value.User.FullName, students, today))]);
     }
 }

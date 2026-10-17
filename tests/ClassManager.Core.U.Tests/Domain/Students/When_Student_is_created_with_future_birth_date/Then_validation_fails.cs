@@ -9,6 +9,6 @@ public sealed class Then_validation_fails
     {
         var student = Student.Create(Guid.CreateVersion7(), TestData.StudentFullName, TestData.Today.AddDays(1), null, TestData.Today, TestData.Now);
 
-        student.Error!.FieldName.ShouldBe(nameof(Student.BirthDate));
+        student.Error!.FieldName.ShouldBe(nameof(User.BirthDate));
     }
 }

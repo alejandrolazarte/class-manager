@@ -12,7 +12,4 @@ public sealed record ClientResponse(
 {
     public static ClientResponse From(Client client) =>
         new(client.Id, client.User.FullName, client.User.PhoneNumber!.Value, client.User.Email, client.Notes, client.CreatedAt);
-
-    public static ClientResponse FromWritten(Client client) =>
-        new(client.Id, client.FullName, client.PhoneNumber.Value, client.Email, client.Notes, client.CreatedAt);
 }

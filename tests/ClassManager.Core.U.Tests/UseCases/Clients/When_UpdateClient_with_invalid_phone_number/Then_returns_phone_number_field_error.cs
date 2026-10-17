@@ -12,6 +12,6 @@ public sealed class Then_returns_phone_number_field_error
         var response = await builder.Build().ExecuteAsync(builder.ValidCommand() with { PhoneNumber = "call me" }, CancellationToken.None);
 
         response.Error!.FieldName.ShouldBe(nameof(UpdateClientCommand.PhoneNumber));
-        builder.Client.FullName.ShouldBe(TestData.ClientFullName);
+        builder.Client.User.FullName.ShouldBe(TestData.ClientFullName);
     }
 }

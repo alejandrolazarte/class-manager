@@ -7,8 +7,8 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var instructor = Instructor.Create(" L ");
+        var instructor = Instructor.Create(" L ", TestData.Now);
 
-        instructor.Error!.FieldName.ShouldBe(nameof(Instructor.FullName));
+        instructor.Error!.FieldName.ShouldBe(nameof(User.FullName));
     }
 }

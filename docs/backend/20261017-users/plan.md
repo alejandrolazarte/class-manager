@@ -1,6 +1,6 @@
 # Users per business
 
-Status: steps 1 to 4 built; the rest are the next PRs.
+Status: steps 1 to 5 built; step 6 is the next PR.
 
 ## Why
 
@@ -64,8 +64,8 @@ erDiagram
 Indexes, all filtered on `[IsDeleted] = 0`:
 
 - Unique (`TenantId`, `AccountId`) where `AccountId` is not null: one person per account in each business.
-- (`TenantId`, `PhoneNumber`): unique once the phone lives only here (step 5). Until then `Clients` keeps today's rule (`client.phone_number_taken`).
-- (`TenantId`, `Email`): unique once the email lives only here (step 5): one email per person in each business, the rule [sign-in emails](../20261006-sign-in-emails/plan.md) already follows. Two rows with the same email are the same person loaded twice. Until then the copies in `Clients`, `Students` and `Instructors` allow repetitions, so the index is not unique yet.
+- (`TenantId`, `PhoneNumber`): not unique. Two people can share a phone (a family phone); the rule that two clients can't have the same contact phone (`client.phone_number_taken`) stays in the use cases (see [step 5](#steps)).
+- (`TenantId`, `Email`): unique where `Email` is not null (step 5): one email per person in each business, the rule [sign-in emails](../20261006-sign-in-emails/plan.md) already follows. Two rows with the same email are the same person loaded twice.
 
 ### What each table keeps
 
@@ -77,7 +77,7 @@ Indexes, all filtered on `[IsDeleted] = 0`:
 | `BusinessMembers` | Role, custom role, instructor | `UserId` | `UserId` |
 | `ClientAccounts` | Client, student, news seen | `UserId` | `UserId` |
 
-- A contact who attends class is **one** user: the `Client` and the `Student` point to the same row. `AttendingContact.IsTheContact` (matching by name) goes away.
+- A contact who attends class is **one** user: the `Client` and the `Student` point to the same row. The name only decides it when the student is created (the app sends the contact's name for "Esta persona viene a clase", and an import row names the student like the contact); after that it is `Student.IsTheContactOf(client)`, the shared user.
 - An owner who teaches is one user: the `BusinessMember` and the `Instructor` point to the same row.
 - A child without email or phone is a user with only a name and a birth date. Not every user has an account.
 
@@ -163,7 +163,7 @@ Nothing points to the account id anymore, so nothing is left pointing nowhere.
 
 One migration per step (see [Steps](#steps)), each with a test that loads data in the previous schema, migrates and checks every row.
 
-0. **Before migrating:** a query lists the emails repeated inside a business (`Clients`, `Students`, `Instructors` together). Each repetition is the same person loaded twice, or two people sharing an email; the operator fixes them in the app before the migration, which fails if any is left (the unique index rejects it).
+0. **Before migrating:** `scripts/list-repeated-emails.sql` lists the emails repeated inside a business, with where each person shows up in the app. Each repetition is the same person loaded twice, or two people sharing an email; the operator fixes them in the app and runs it again until it is empty. Migration `RemovePeopleCopies` stops with an error that names the script if any is left.
 1. **People of each business.** For every tenant:
    - Each `Client` → a user with its name, phone and email.
    - Each `Student` → the contact's user when `AttendingContact.IsTheContact` matches (today's rule, used once more), else a new user with its name, birth date and email.
@@ -186,7 +186,7 @@ Each step is one PR, starts with failing tests, and ships with its migration and
 2. **Read from `Users` (built).**
    - `Client`, `Student` and `Instructor` have a `User` navigation, set by `LinkUser` (the interceptor links it on save). Repositories include it, and their projections (rosters, bookings, attended classes, fees, announcement audiences) join it.
    - Screens, searches, exports, emails, push and team notices read name, email, phone and birth date from the user. The student export leaves the contact columns empty when the student is the contact's own user, instead of comparing names.
-   - What still reads the copies: the commands that write a client, student or instructor answer with what they wrote (`FromWritten`), and the write rules stay on the columns they protect (unique phone and names, `AttendingContact`, `FamilyEmails`, the email locked by the sign-in, the address an app invitation goes to). Both move with the writes in step 5.
+   - What still read the copies (the answers of the commands that write a client, student or instructor, and the write rules) moved with the writes in step 5.
    - Team members and who did what keep the account's name until steps 3 and 4.
 3. **Session (built).**
    - The access token carries `user_id`: `SessionUserClaims` looks up the user with that `AccountId` in the token's branch every time a token is issued, refreshed or switched to another branch. No user in that branch, no claim. `src/Security` stays generic: the application passes it as `TokenSubject.Claims`.
@@ -197,7 +197,13 @@ Each step is one PR, starts with failing tests, and ships with its migration and
    - The 23 columns, plus `DeletedByUserId` of `OrganizationMembers`, `billing.Subscriptions` and `billing.SubscriptionFeatures`, hold a `Users` id with a foreign key (`ApplyWhoDidWhatForeignKeys`: every column named `...ByUserId`; a test fails if one has no foreign key to `Users`). `InvitedByUserId` becomes nullable, like the rest.
    - Use cases save `ICurrentUser.UserId`, `MemberAccess.UserId` or `StudentAppAccess.UserId` (the `user_id` claim). "Registrado por" and "medido por" read the name from `Users` (`IUserRepository.ListFullNamesAsync`, deleted users included); `GET /api/me` returns the user as `userId`, so undoing your own payment still compares the same kind of id; the client scope of `.own` permissions and the push to whoever sent an invitation go through the user.
    - Migration `PointWhoDidWhatToUsers` (`WhoDidWhatBackfill`): each value becomes the user with that `AccountId` in the row's branch, or `null` when there is none. The columns outside a branch keep a value only if it is already a `Users` id; nothing wrote them before, so they were empty.
-5. **Remove the copies.** Writes go to `Users`, the interceptor goes away, and `Email`, `FullName`, `PhoneNumber`, `BirthDate` are dropped from `Clients`, `Students` and `Instructors`, `AccountId` from `BusinessMembers` and `ClientAccounts`, and `AttendingContact`. `UserId` becomes required, and the email and phone indexes become unique after fixing the repetitions (data migration, step 0).
+5. **Remove the copies (built).**
+   - `Client`, `Student` and `Instructor` create their `User` and change it (`Client.Update`, `Instructor.Update`, `user.ChangeEmail`, `user.ChangeBirthDate`); `User` holds the validation of name, email and birth date, with the same messages and field names. `UserSyncSaveChangesInterceptor` is gone.
+   - Team members and student app accounts get their user from `AccountUsers.ResolveAsync` when they are created (sign-up, new branch, accepting an invitation): the person's user if it is free (the instructor, the invited student or contact), else the user of that account in the branch, else a new one named after the account. `BusinessMembers.UserId` and `ClientAccounts.UserId` are the user that signs in, so every query by account goes through `User.AccountId`.
+   - Dropped: `FullName`, `Email`, `PhoneNumber`, `BirthDate` of `Clients`, `Students` and `Instructors`, `AccountId` of `BusinessMembers` and `ClientAccounts`, and their indexes. `UserId` is required in the five tables.
+   - Rules that lived on those indexes stay, checked by the use cases after taking `IPeopleLock` (`sp_getapplock` per business, in the command's transaction): the contact phone of a client, the instructor's name and the student's name in the family. Imports take the same lock.
+   - The email is unique per business (`IX_Users_TenantId_Email`). A form that would repeat it gets `400 user.email_taken` on the email field; an import row gets the same code. A user created for an account (a new team member, a brand owner in another branch) gets the account's email only if nobody in the branch uses it. Changing the sign-in email is refused (`user.email_taken` on `NewEmail`) when another person of one of the account's businesses uses the new one.
+   - Migration `RemovePeopleCopies` (`PeopleCopiesRemoval`): gives a user to any row that has none, links each team member and app account to the user of its account (linking the person's user when it is free, or creating one named after the account), stops if an email is repeated (step 0), and then drops the columns.
 6. **"Eliminar mi cuenta"**, as described above.
 
 Import and export (`src/Core/UseCases/ImportExport`) follow step 2: their columns don't change for the user.
@@ -210,5 +216,6 @@ Taken:
 2. **`DeletedByUserId`** keeps its name and points to `Users` in every table, the billing tables included. No rename.
 3. **Audit:** `Users` and every tenant table implement `IAuditable`. Step 1 gave `Users` only `CreatedAt`; the other three columns come with step 2 of the audit log plan, for every table at once.
 4. **Email:** unique per business. Repetitions are fixed before step 5, when the email lives only in `Users` and its index becomes unique.
-5. **Phone:** it moves to `Users` too, and is required only for the contact of a client.
+5. **Phone:** it moves to `Users` too, and is required only for the contact of a client. It is not unique in `Users`: only two clients can't share a contact phone, checked in the use cases.
 6. **Order:** this goes before "Eliminar mi cuenta", so deleting is written once on the final model.
+7. **Names:** the instructor's name stays unique per business and the student's name unique in the family. With the copies gone no index can hold them, so the use cases check them after taking a lock per business.

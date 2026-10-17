@@ -7,7 +7,7 @@ public sealed class Then_the_seen_time_is_kept
     [Fact]
     public void Then_the_seen_time_is_kept_Run()
     {
-        var account = ClientAccount.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), TestData.Now);
+        var account = ClientAccount.Create(Guid.CreateVersion7(), TestData.UserOfAccount(Guid.CreateVersion7()), TestData.Now);
 
         account.MarkNewsSeen(TestData.Now.AddDays(1));
 

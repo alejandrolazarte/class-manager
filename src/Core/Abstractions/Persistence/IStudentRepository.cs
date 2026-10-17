@@ -12,6 +12,8 @@ public interface IStudentRepository
 
     Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Student>> ListByClientForUpdateAsync(Guid clientId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Student>> ListAllAsync(CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Student>> ListByClientIdsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
