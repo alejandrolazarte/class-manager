@@ -9,9 +9,9 @@ internal static class SoftDeleteModelBuilderExtensions
     public const string NotDeletedFilter = "[IsDeleted] = 0";
 
     private const string CheckConstraintPrefix = "CK_";
-    private const string CheckConstraintSuffix = "_IsDeleted_DeletedOn";
-    private const string IsDeletedMatchesDeletedOnSql =
-        "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)";
+    private const string CheckConstraintSuffix = "_IsDeleted_DeletedAt";
+    private const string IsDeletedMatchesDeletedAtSql =
+        "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)";
 
     public static ModelBuilder ApplySoftDeleteQueryFilters(this ModelBuilder modelBuilder)
     {
@@ -27,7 +27,7 @@ internal static class SoftDeleteModelBuilderExtensions
             var checkConstraintName = CheckConstraintPrefix + entityType.GetTableName() + CheckConstraintSuffix;
 
             var entityBuilder = modelBuilder.Entity(entityType.ClrType);
-            entityBuilder.ToTable(table => table.HasCheckConstraint(checkConstraintName, IsDeletedMatchesDeletedOnSql));
+            entityBuilder.ToTable(table => table.HasCheckConstraint(checkConstraintName, IsDeletedMatchesDeletedAtSql));
             entityBuilder.HasQueryFilter(SoftDeleteQueryFilter, filter);
         }
 

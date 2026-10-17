@@ -2,13 +2,13 @@ namespace ClassManager.Analyzers.Tests.Architecture.When_records_uses_core;
 
 public sealed class Then_ARCH009_is_reported
 {
-    private const string FilePath = "/src/Records/IDeletedOn.cs";
+    private const string FilePath = "/src/Records/ISoftDeletable.cs";
     private const string Source = """
         {|ARCH009:using ClassManager.Core.Domain.Organizations;|}
 
         namespace ClassManager.Records
         {
-            public interface IDeletedOn { }
+            public interface ISoftDeletable { }
         }
 
         namespace ClassManager.Core.Domain.Organizations

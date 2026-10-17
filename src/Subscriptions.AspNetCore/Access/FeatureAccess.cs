@@ -25,7 +25,7 @@ internal sealed class FeatureAccess(
 
         var subscription = await context.Subscriptions
             .AsNoTracking()
-            .WhereCurrent()
+            .WhereNotDeleted()
             .FirstOrDefaultAsync(candidate => candidate.SubscriberId == subscriberId, cancellationToken);
         if (subscription is null || !subscription.IsActiveOn(today))
         {
@@ -38,7 +38,7 @@ internal sealed class FeatureAccess(
             .ToListAsync(cancellationToken);
         var subscriptionFeatures = await context.SubscriptionFeatures
             .AsNoTracking()
-            .WhereCurrent()
+            .WhereNotDeleted()
             .Where(subscriptionFeature => subscriptionFeature.SubscriptionId == subscription.Id)
             .ToListAsync(cancellationToken);
 

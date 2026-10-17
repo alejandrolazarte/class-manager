@@ -3,7 +3,7 @@ using ClassManager.Subscriptions.Catalog;
 
 namespace ClassManager.Subscriptions.Subscribers;
 
-public sealed class SubscriptionFeature : ICreatedOn, IDeletedOn, IExpiredOn
+public sealed class SubscriptionFeature : ICreatedOn, ISoftDeletable, IExpiredOn
 {
     private SubscriptionFeature()
     {
@@ -16,7 +16,9 @@ public sealed class SubscriptionFeature : ICreatedOn, IDeletedOn, IExpiredOn
     public string Currency { get; private set; } = string.Empty;
     public int? Limit { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
+    public bool IsDeleted { get; private set; }
     public DateOnly? ExpiredOn { get; private set; }
 
     public static SubscriptionFeature Create(
@@ -46,5 +48,9 @@ public sealed class SubscriptionFeature : ICreatedOn, IDeletedOn, IExpiredOn
         };
     }
 
-    public void Delete(DateTimeOffset deletedOn) => DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+    public void Delete(DateTimeOffset deletedAt)
+    {
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
+        IsDeleted = true;
+    }
 }

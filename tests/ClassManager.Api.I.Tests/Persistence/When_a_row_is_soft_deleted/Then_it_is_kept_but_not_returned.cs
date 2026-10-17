@@ -21,6 +21,6 @@ public sealed class Then_it_is_kept_but_not_returned(ApiFixture fixture)
         (await context.ClientBillingPlanChanges
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             .SingleAsync(change => change.ClientId == client.Id))
-            .DeletedOn.ShouldNotBeNull();
+            .DeletedAt.ShouldNotBeNull();
     }
 }

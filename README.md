@@ -106,7 +106,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Content Security Policy](docs/frontend/content-security-policy.md) — the web app's report-only policy, what it allows and why, how it was tested, and how to enforce it
 - [Buttons](docs/frontend/buttons.md) — one button per role (`Button` variants, icon, floating, tonal, links), how to choose, when a new button is justified, and the test that keeps screens from building their own
 - [Empty states](docs/frontend/empty-states.md) — an empty list keeps the floating "New…" button as its only create action, and the tests that enforce it
-- [Deleting data](docs/deleting-data.md) — every delete asks for confirmation, and data with business meaning is soft deleted with `IsDeleted` and `DeletedOn`
+- [Deleting data](docs/deleting-data.md) — every delete asks for confirmation, and data with business meaning is soft deleted with `IsDeleted`, `DeletedAt` and `DeletedByUserId`
 - [Currencies and time zones](docs/currencies-and-time-zones.md) — payments, pack sales and orders keep the currency they were charged in, prices are not converted, and classes keep their local time when the business changes its time zone
 - [Languages](docs/frontend/languages.md) — Spanish and English UI texts, the language setting saved to the account, email texts per language (`IEmailTexts`), push notification texts per language (team-written texts stay as written), and what stays in Spanish (invitations, legal texts)
 - [Forms](docs/frontend/forms.md) — required fields marked with an asterisk, the main button grey until they are filled, and the shared step header and total bar

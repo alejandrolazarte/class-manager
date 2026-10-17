@@ -7,10 +7,10 @@ There is no platform admin screen yet (see the [subscriptions plan](backend/2026
 ## What it does
 
 - Finds the brand (organization) by its **brand owner's email**. It stops with an error if the email owns no brand or more than one, or if the plan doesn't exist.
-- In one transaction, ends the current subscription (`DeletedOn = now`) and starts the new one with the given plan, price, currency and note, following the [records convention](../CLAUDE.md#records-that-change-over-time). No row is deleted, so the history stays.
+- In one transaction, ends the current subscription (`IsDeleted = 1`, `DeletedAt = now`) and starts the new one with the given plan, price, currency and note, following the [records convention](../CLAUDE.md#records-that-change-over-time). No row is deleted, so the history stays.
 - The new subscription has no `ExpiredOn`: it lasts until the next change. That includes `free`, which only expires after 30 days when it is created by sign-up.
 - Add-ons belong to the previous subscription and don't carry over.
-- Ends by listing the brand's subscriptions: the new one is the row with an empty `DeletedOn`.
+- Ends by listing the brand's subscriptions: the new one is the row with `IsDeleted = 0`.
 
 ## Running it
 

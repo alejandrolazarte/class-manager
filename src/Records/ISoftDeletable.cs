@@ -2,9 +2,11 @@ namespace ClassManager.Records;
 
 public interface ISoftDeletable
 {
-    DateTimeOffset? DeletedOn { get; }
-
     bool IsDeleted { get; }
 
-    void Delete(DateTimeOffset deletedOn);
+    DateTimeOffset? DeletedAt { get; }
+
+    Guid? DeletedByUserId { get; }
+
+    void Delete(DateTimeOffset deletedAt);
 }

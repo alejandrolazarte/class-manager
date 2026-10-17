@@ -28,16 +28,16 @@ DECLARE @Now datetimeoffset = SYSUTCDATETIME();
 BEGIN TRANSACTION;
 
 UPDATE billing.Subscriptions
-SET DeletedOn = @Now
-WHERE SubscriberId = @OrganizationId AND DeletedOn IS NULL;
+SET IsDeleted = 1, DeletedAt = @Now
+WHERE SubscriberId = @OrganizationId AND IsDeleted = 0;
 
-INSERT INTO billing.Subscriptions (Id, SubscriberId, PlanCode, Price, Currency, Note, CreatedOn, DeletedOn, ExpiredOn)
-VALUES (NEWID(), @OrganizationId, @PlanCode, @Price, UPPER(@Currency), NULLIF(LTRIM(RTRIM(@Note)), N''), @Now, NULL, NULL);
+INSERT INTO billing.Subscriptions (Id, SubscriberId, PlanCode, Price, Currency, Note, CreatedOn, IsDeleted, DeletedAt, DeletedByUserId, ExpiredOn)
+VALUES (NEWID(), @OrganizationId, @PlanCode, @Price, UPPER(@Currency), NULLIF(LTRIM(RTRIM(@Note)), N''), @Now, 0, NULL, NULL, NULL);
 
 COMMIT;
 
 SELECT organization.Name, subscription.PlanCode, subscription.Price, subscription.Currency, subscription.Note,
-       subscription.CreatedOn, subscription.DeletedOn
+       subscription.CreatedOn, subscription.DeletedAt
 FROM billing.Subscriptions subscription
 JOIN Organizations organization ON organization.Id = subscription.SubscriberId
 WHERE subscription.SubscriberId = @OrganizationId

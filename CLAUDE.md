@@ -23,7 +23,7 @@ src/Notifications/   ← reusable email and web push building blocks: email cont
 src/Notifications.Delivery/ ← SMTP (MailKit) and web push senders, DI extensions (ARCH006)
 src/Storage/        ← reusable file storage abstraction and image format detection (no dependencies, ARCH008)
 src/Storage.AzureBlob/ ← Azure Blob Storage implementation, DI extensions (ARCH008)
-src/Records/         ← record conventions: ICreatedOn, IDeletedOn, IExpiredOn and their rules (no dependencies, ARCH009)
+src/Records/         ← record conventions: ISoftDeletable, ICreatedOn, IExpiredOn and their rules (no dependencies, ARCH009)
 src/Subscriptions/   ← reusable plans, features, add-ons and effective features of a subscriber (no dependencies, ARCH007)
 src/Subscriptions.AspNetCore/ ← EF model for the billing schema, per-request feature access, RequireFeature endpoint filter (ARCH007)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
@@ -139,16 +139,15 @@ User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with
 - One main assertion per test (supporting asserts allowed)
 
 ### Records that change over time
-- A record that is replaced instead of edited (a subscription, an add-on) implements the interfaces in `src/Records`: `ICreatedOn` (`CreatedOn`, date and time it applies from), `IDeletedOn` (`DeletedOn`, date and time another record replaced it, `null` = current, and `Delete(now)`) and, when there is an agreed end, `IExpiredOn` (`ExpiredOn`, date, inclusive).
-- Never delete such rows physically and never add an `IsDeleted` column to them (that column belongs to `ISoftDeletable`). Query with `WhereCurrent()` and decide with `IsCurrent()` / `IsActiveOn(date)` from `RecordExtensions`; don't rewrite the rule per entity.
-- Replacing is one save: `Delete(now)` on the current record and add the new one. Active = current, created on or before the date, and `ExpiredOn` empty or not past.
-- Enforced by tests: a column named `CreatedOn`, `DeletedOn` or `ExpiredOn` requires its interface, and every `IDeletedOn` entity needs a unique index filtered on `[DeletedOn] IS NULL`.
+- There is one way to delete: `ISoftDeletable` (see Deleting). A record that is replaced instead of edited (a subscription, an add-on) is soft deleted too, and also implements `ICreatedOn` (`CreatedOn`, date and time it applies from) and, when there is an agreed end, `IExpiredOn` (`ExpiredOn`, date, inclusive), from `src/Records`.
+- Replacing is one save: `Delete(now)` on the current record and add the new one. Active = not deleted, created on or before the date, and `ExpiredOn` empty or not past: decide with `IsActiveOn(date)` from `RecordExtensions`; don't rewrite the rule per entity. A library that can't rely on the app's query filter (`src/Subscriptions`) filters with `WhereNotDeleted()`.
+- Enforced by tests: a column named `CreatedOn`, `ExpiredOn`, `IsDeleted`, `DeletedAt` or `DeletedByUserId` requires its interface, and a column named `DeletedOn` is not allowed.
 - Business dates with their own meaning (a fee that applies from a month) are not this convention and keep their names.
 
 ### Deleting
 - A delete that can be brought back runs on the first tap and the toast offers **Deshacer** (`showToast(message, action)`), which restores it; a test proves the undo restores it. Payments and announcements have a restore endpoint (`POST .../{id}/restore`); fee changes, class comments and custom roles are undone by saving them again.
 - An action that can't be undone, or that touches other people or money (cancelling a class, removing someone from the team, voiding a pack sale, deleting a private lesson, unenrolling), asks first with `ConfirmDialog` (a modal: short question, optional consequence, **Volver** and a verb, never "Sí, …"), and a test proves nothing happens until the user confirms.
-- Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`IsDeleted`, a stored `bit`; `DeletedOn`, the date and time it was deleted; `Delete(now)` sets both, and a check constraint keeps them in sync). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`, `[IsDeleted] = 0`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[IsDeleted] = 0`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
+- Data with business meaning is soft deleted: the entity implements `ISoftDeletable` from `src/Records` (`IsDeleted`, a stored `bit`; `DeletedAt`, the date and time it was deleted; `DeletedByUserId`, who deleted it, `null` for the system or the operator; `Delete(now)` sets `IsDeleted` and `DeletedAt`, and a check constraint keeps them in sync). Removing one is turned into `Delete(now)` by `SoftDeleteSaveChangesInterceptor`, and a global query filter (`SoftDelete`, `[IsDeleted] = 0`) hides deleted rows from every query, so repositories don't filter by hand, and unique indexes are filtered on `[IsDeleted] = 0`. Physical deletes only for rows with no value once gone (push subscriptions, rows the system recreates). See [docs/deleting-data.md](docs/deleting-data.md).
 
 ### Buttons
 - Every button comes from `src/ui`, one per role: `Button` (`primary`, `secondary` for any other action and every Cancelar/Volver, `ghost`, `danger` only to confirm, `dangerOutline`, `dangerGhost`, `dashed` to add another item; `small` size for actions inside rows), `IconButton`, `FloatingActionButton`, `FloatingBarButton`, `TonalButton`, `ActionTile`, `TextLink`, `InlineLink`, `FooterLinks`. Screens never build a button from `Pressable`, and a new button or variant needs a missing role, justified in the PR. See [docs/frontend/buttons.md](docs/frontend/buttons.md).

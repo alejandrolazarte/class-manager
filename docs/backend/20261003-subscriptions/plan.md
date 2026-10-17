@@ -124,7 +124,8 @@ erDiagram
         string Currency
         string Note "why this price"
         DateTimeOffset CreatedOn "applies from"
-        DateTimeOffset DeletedOn "nullable: null = current"
+        bool IsDeleted
+        DateTimeOffset DeletedAt "nullable: null = current"
         date ExpiredOn "nullable: agreed end, inclusive"
     }
     SubscriptionFeature {
@@ -135,20 +136,21 @@ erDiagram
         string Currency
         int Limit "nullable"
         DateTimeOffset CreatedOn "applies from"
-        DateTimeOffset DeletedOn "nullable: null = current"
+        bool IsDeleted
+        DateTimeOffset DeletedAt "nullable: null = current"
         date ExpiredOn "nullable: agreed end, inclusive"
     }
 ```
 
 ### Current records
 
-Subscriptions and subscription features follow the repository's [current record convention](../../../CLAUDE.md#records-that-change-over-time): both implement `ICreatedOn`, `IDeletedOn` and `IExpiredOn` from `src/Records`, and queries use `WhereCurrent()`.
+Subscriptions and subscription features follow the repository's [records convention](../../../CLAUDE.md#records-that-change-over-time): both implement `ICreatedOn`, `ISoftDeletable` and `IExpiredOn` from `src/Records`, and queries use `WhereNotDeleted()` (the library doesn't rely on the app's query filter).
 
 - `CreatedOn` (date and time) is when the row applies from; it applies as soon as it is saved.
-- `DeletedOn` (date and time, `null` = current) is set when another row replaces it. Rows are never physically deleted, so the history of who paid what, and which limits a brand had, stays.
-- A unique index filtered on `DeletedOn IS NULL` lets the database guarantee one current subscription per organization and one current feature per subscription and feature code.
+- `IsDeleted` and `DeletedAt` (date and time, `null` = current) are set when another row replaces it (soft delete, the only way to delete). Rows are never physically deleted, so the history of who paid what, and which limits a brand had, stays.
+- A unique index filtered on `[IsDeleted] = 0` lets the database guarantee one current subscription per organization and one current feature per subscription and feature code.
 - `ExpiredOn` (date, inclusive) is the agreed business end, such as the 30-day trial; it is not the same as being replaced.
-- **Current** is `DeletedOn IS NULL`; **active** is current and `ExpiredOn` empty or not past. An expired trial is still the current subscription, so the app knows it was the `Free` trial that ended without looking for "the last one".
+- **Current** is `IsDeleted = 0`; **active** is current and `ExpiredOn` empty or not past. An expired trial is still the current subscription, so the app knows it was the `Free` trial that ended without looking for "the last one".
 - A plan change calls `Delete(now)` on the current subscription and creates the new one in the same save; a feature change does the same on the current feature. Add-ons belong to a subscription, so a new plan starts without them unless the operator adds them again.
 - None of these tables are tenant-owned: like `Organizations`, they sit above the branches and are never filtered by `TenantId`.
 - `Feature` rows mirror the `Features` class; a test fails when a code exists in one and not the other.
@@ -261,6 +263,6 @@ Built in `app/src/features/subscriptions`:
 
 ## Later, not in the MVP
 
-- Online billing (Mercado Pago / Stripe subscriptions): webhooks set `ExpiredOn` or replace the subscription, and a `Status` column (`PastDue`, grace period) arrives with them; until then `DeletedOn` and `ExpiredOn` say whether a subscription is active.
+- Online billing (Mercado Pago / Stripe subscriptions): webhooks set `ExpiredOn` or replace the subscription, and a `Status` column (`PastDue`, grace period) arrives with them; until then `IsDeleted` and `ExpiredOn` say whether a subscription is active.
 - A trial with `Pro` features instead of `Free` limits, if conversions ask for it: the sign-up plan setting and `DurationInDays` already allow it.
 - Yearly billing (`BillingPeriod = Yearly`), coupons, and a platform admin screen.

@@ -24,6 +24,6 @@ internal sealed class SubscriptionRepository(AppDbContext context, IConfiguratio
     public Task<Subscription?> GetCurrentAsync(Guid subscriberId, CancellationToken cancellationToken) =>
         context.Subscriptions
             .AsNoTracking()
-            .WhereCurrent()
+            .WhereNotDeleted()
             .FirstOrDefaultAsync(subscription => subscription.SubscriberId == subscriberId, cancellationToken);
 }

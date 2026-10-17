@@ -13,7 +13,7 @@ public sealed class Then_no_diagnostic_is_reported
 
         namespace ClassManager.Records
         {
-            public interface IDeletedOn { }
+            public interface ISoftDeletable { }
         }
         """;
 

@@ -28,7 +28,8 @@ public sealed class MeasurementDefinition : ITenantOwned, ISoftDeletable
     public bool IsVisibleToStudents { get; private set; }
     public bool IsRecordedByStudents { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public static Result<MeasurementDefinition> Create(
@@ -92,15 +93,16 @@ public sealed class MeasurementDefinition : ITenantOwned, ISoftDeletable
         return Result.Success();
     }
 
-    public void Delete(DateTimeOffset deletedOn)
+    public void Delete(DateTimeOffset deletedAt)
     {
-        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
 
     public void Restore()
     {
-        DeletedOn = null;
+        DeletedAt = null;
+        DeletedByUserId = null;
         IsDeleted = false;
     }
 }

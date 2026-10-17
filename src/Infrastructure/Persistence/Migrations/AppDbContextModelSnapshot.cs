@@ -170,8 +170,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -203,7 +206,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Announcements", t =>
                         {
-                            t.HasCheckConstraint("CK_Announcements_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_Announcements_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -420,8 +423,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("CustomRoleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("InstructorId")
                         .HasColumnType("uniqueidentifier");
@@ -460,7 +466,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_BusinessMembers_CustomRoleId", "([Role] = 'Custom' AND [CustomRoleId] IS NOT NULL) OR ([Role] <> 'Custom' AND [CustomRoleId] IS NULL)");
 
-                            t.HasCheckConstraint("CK_BusinessMembers_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_BusinessMembers_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -715,8 +721,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("nchar(3)")
                         .IsFixedLength();
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly?>("ExpiresOn")
                         .HasColumnType("date");
@@ -772,7 +781,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ClassPackPurchases", t =>
                         {
-                            t.HasCheckConstraint("CK_ClassPackPurchases_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_ClassPackPurchases_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -1174,8 +1183,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly>("EffectiveFrom")
                         .HasColumnType("date");
@@ -1201,7 +1213,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ClientBillingPlanChanges", t =>
                         {
-                            t.HasCheckConstraint("CK_ClientBillingPlanChanges_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_ClientBillingPlanChanges_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -1217,8 +1229,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly>("EffectiveFrom")
                         .HasColumnType("date");
@@ -1237,7 +1252,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("DefaultMonthlyFeeChanges", t =>
                         {
-                            t.HasCheckConstraint("CK_DefaultMonthlyFeeChanges_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_DefaultMonthlyFeeChanges_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -1262,8 +1277,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("nchar(3)")
                         .IsFixedLength();
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1299,7 +1317,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Payments", t =>
                         {
-                            t.HasCheckConstraint("CK_Payments_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_Payments_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -1339,8 +1357,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ImprovesWhen")
                         .IsRequired()
@@ -1382,7 +1403,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("MeasurementDefinitions", t =>
                         {
-                            t.HasCheckConstraint("CK_MeasurementDefinitions_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_MeasurementDefinitions_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -1424,8 +1445,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1468,7 +1492,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("MeasurementRecords", t =>
                         {
-                            t.HasCheckConstraint("CK_MeasurementRecords_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_MeasurementRecords_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -1774,8 +1798,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1801,7 +1828,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("OrganizationMembers", t =>
                         {
-                            t.HasCheckConstraint("CK_OrganizationMembers_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_OrganizationMembers_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -2053,8 +2080,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -2080,7 +2110,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("CustomRoles", t =>
                         {
-                            t.HasCheckConstraint("CK_CustomRoles_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_CustomRoles_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -2160,8 +2190,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("InstructorId")
                         .HasColumnType("uniqueidentifier");
@@ -2199,7 +2232,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ClassFeedbacks", t =>
                         {
-                            t.HasCheckConstraint("CK_ClassFeedbacks_IsDeleted_DeletedOn", "([IsDeleted] = 0 AND [DeletedOn] IS NULL) OR ([IsDeleted] = 1 AND [DeletedOn] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_ClassFeedbacks_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -2786,11 +2819,17 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("nchar(3)")
                         .IsFixedLength();
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly?>("ExpiredOn")
                         .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .HasMaxLength(200)
@@ -2814,9 +2853,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SubscriberId")
                         .IsUnique()
-                        .HasFilter("[DeletedOn] IS NULL");
+                        .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("Subscriptions", "billing");
+                    b.ToTable("Subscriptions", "billing", t =>
+                        {
+                            t.HasCheckConstraint("CK_Subscriptions_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Subscriptions.Subscribers.SubscriptionFeature", b =>
@@ -2833,8 +2875,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("nchar(3)")
                         .IsFixedLength();
 
-                    b.Property<DateTimeOffset?>("DeletedOn")
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly?>("ExpiredOn")
                         .HasColumnType("date");
@@ -2843,6 +2888,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("Limit")
                         .HasColumnType("int");
@@ -2860,9 +2908,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SubscriptionId", "FeatureCode")
                         .IsUnique()
-                        .HasFilter("[DeletedOn] IS NULL");
+                        .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("SubscriptionFeatures", "billing");
+                    b.ToTable("SubscriptionFeatures", "billing", t =>
+                        {
+                            t.HasCheckConstraint("CK_SubscriptionFeatures_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Achievements.AchievementLevel", b =>

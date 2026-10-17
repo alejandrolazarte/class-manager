@@ -152,7 +152,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     {
         await using var context = CreateDbContext(businessId);
         var organizationId = await context.Businesses.Where(business => business.Id == businessId).Select(business => business.OrganizationId).SingleAsync();
-        var current = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId && subscription.DeletedOn == null);
+        var current = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId && !subscription.IsDeleted);
         current.Delete(BusinessApiFactory.Now);
         context.Subscriptions.Add(Subscription.Start(organizationId, planCode, price: 0m, CurrencyCode, note: null, BusinessApiFactory.Now));
         await context.SaveChangesAsync();
@@ -164,7 +164,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         var today = DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime);
         await using var context = CreateDbContext(businessId);
         var organizationId = await context.Businesses.Where(business => business.Id == businessId).Select(business => business.OrganizationId).SingleAsync();
-        var current = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId && subscription.DeletedOn == null);
+        var current = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId && !subscription.IsDeleted);
         current.Delete(BusinessApiFactory.Now);
         var expiredSubscription = Subscription.Start(
             organizationId,
@@ -198,7 +198,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     {
         await using var context = CreateDbContext(business.Business.Id);
         var subscriptionId = await context.Subscriptions
-            .Where(subscription => subscription.SubscriberId == business.Business.OrganizationId && subscription.DeletedOn == null)
+            .Where(subscription => subscription.SubscriberId == business.Business.OrganizationId && !subscription.IsDeleted)
             .Select(subscription => subscription.Id)
             .SingleAsync();
         context.SubscriptionFeatures.Add(SubscriptionFeature.Create(

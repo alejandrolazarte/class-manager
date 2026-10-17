@@ -21,7 +21,7 @@ public sealed class Then_the_change_is_deleted
         await builder.BuildDeleteClientPlanChange().ExecuteAsync(
             new DeleteClientBillingPlanChangeCommand(client.Id, upcomingMonth.ToString()), CancellationToken.None);
 
-        upcomingChange.DeletedOn.ShouldBe(TestData.Now);
+        upcomingChange.DeletedAt.ShouldBe(TestData.Now);
         builder.UnitOfWork.Verify(unitOfWork => unitOfWork.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -42,7 +42,8 @@ public sealed class CustomRole : ITenantOwned, ISoftDeletable
     public string? CopiedFrom { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public bool IsDeleted { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
 
     public static Result<CustomRole> Create(string? name, IEnumerable<string>? permissions, string? copiedFrom, DateTimeOffset createdAt)
     {
@@ -95,9 +96,9 @@ public sealed class CustomRole : ITenantOwned, ISoftDeletable
         return Result.Success();
     }
 
-    public void Delete(DateTimeOffset deletedOn)
+    public void Delete(DateTimeOffset deletedAt)
     {
-        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
 }

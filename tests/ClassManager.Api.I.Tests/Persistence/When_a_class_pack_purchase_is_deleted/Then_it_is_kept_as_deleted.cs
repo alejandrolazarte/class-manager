@@ -21,6 +21,6 @@ public sealed class Then_it_is_kept_as_deleted(ApiFixture fixture)
         (await context.ClassPackPurchases
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             .SingleAsync(row => row.Id == purchase.Id))
-            .DeletedOn.ShouldBe(BusinessApiFactory.Now);
+            .DeletedAt.ShouldBe(BusinessApiFactory.Now);
     }
 }

@@ -46,9 +46,9 @@ await ExecuteAsync(
 
 await ExecuteAsync(
     """
-    IF NOT EXISTS (SELECT 1 FROM billing.Subscriptions WHERE SubscriberId = @OrganizationId AND DeletedOn IS NULL)
-        INSERT INTO billing.Subscriptions (Id, SubscriberId, PlanCode, Price, Currency, Note, CreatedOn, DeletedOn, ExpiredOn)
-        VALUES (@Id, @OrganizationId, N'enterprise', 0, N'EUR', N'Demo', SYSDATETIMEOFFSET(), NULL, NULL);
+    IF NOT EXISTS (SELECT 1 FROM billing.Subscriptions WHERE SubscriberId = @OrganizationId AND IsDeleted = 0)
+        INSERT INTO billing.Subscriptions (Id, SubscriberId, PlanCode, Price, Currency, Note, CreatedOn, IsDeleted, DeletedAt, DeletedByUserId, ExpiredOn)
+        VALUES (@Id, @OrganizationId, N'enterprise', 0, N'EUR', N'Demo', SYSDATETIMEOFFSET(), 0, NULL, NULL, NULL);
     """,
     ("@Id", demoSubscriptionId), ("@OrganizationId", demoOrganizationId));
 
