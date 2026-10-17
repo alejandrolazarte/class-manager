@@ -13,8 +13,9 @@ public sealed record StudentResponse(
     DateTimeOffset CreatedAt,
     StudentAppAccessResponse AppAccess)
 {
-    public static StudentResponse From(Student student) => From(student, StudentAppAccessResponse.NotInvited);
-
     public static StudentResponse From(Student student, StudentAppAccessResponse appAccess) =>
-        new(student.Id, student.ClientId, student.FullName, student.BirthDate, student.Notes, student.Email, student.CreatedAt, appAccess);
+        new(student.Id, student.ClientId, student.User.FullName, student.User.BirthDate, student.Notes, student.User.Email, student.CreatedAt, appAccess);
+
+    public static StudentResponse FromWritten(Student student) =>
+        new(student.Id, student.ClientId, student.FullName, student.BirthDate, student.Notes, student.Email, student.CreatedAt, StudentAppAccessResponse.NotInvited);
 }

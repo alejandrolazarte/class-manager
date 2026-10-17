@@ -1,6 +1,7 @@
 using System.Net.Mail;
 
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Students;
@@ -32,6 +33,7 @@ public sealed class Student : ITenantOwned
     public string? Email { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? UserId { get; private set; }
+    public User User { get; private set; } = null!;
 
     public static Result<Student> Create(
         Guid clientId,
@@ -100,6 +102,12 @@ public sealed class Student : ITenantOwned
 
         BirthDate = birthDate;
         return Result.Success();
+    }
+
+    public void LinkUser(User user)
+    {
+        User = user;
+        UserId = user.Id;
     }
 
     private static bool IsValidBirthDate(DateOnly? birthDate, DateOnly today) =>

@@ -43,7 +43,7 @@ public sealed class SetClassGroupActiveUseCase(
             classGroup.Deactivate();
             await unitOfWork.SaveChangesAsync(cancellationToken);
             var instructor = await instructorRepository.GetByIdAsync(classGroup.InstructorId, cancellationToken);
-            return ClassGroupResponse.From(classGroup, instructor?.FullName ?? string.Empty, enrolledCount, documentStorage);
+            return ClassGroupResponse.From(classGroup, instructor?.User.FullName ?? string.Empty, enrolledCount, documentStorage);
         }
 
         var activeInstructor = await ClassGroupRules.FindActiveInstructorAsync(instructorRepository, classGroup.InstructorId, cancellationToken);

@@ -29,14 +29,14 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
             where enrollment.ClassGroupId == classGroupId
             join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
-            orderby student.FullName
+            orderby student.User.FullName
             select new RosterEntry(
                 enrollment.Id,
                 student.Id,
-                student.FullName,
-                student.BirthDate,
+                student.User.FullName,
+                student.User.BirthDate,
                 client.Id,
-                client.FullName,
+                client.User.FullName,
                 enrollment.StartDate,
                 enrollment.EndDate))
             .ToListAsync(cancellationToken);
@@ -47,14 +47,14 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
             where enrollment.ClassGroupId == classGroupId
             join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
-            orderby student.FullName
+            orderby student.User.FullName
             select new RosterEntry(
                 enrollment.Id,
                 student.Id,
-                student.FullName,
-                student.BirthDate,
+                student.User.FullName,
+                student.User.BirthDate,
                 client.Id,
-                client.FullName,
+                client.User.FullName,
                 enrollment.StartDate,
                 enrollment.EndDate))
             .ToListAsync(cancellationToken);
@@ -84,10 +84,10 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
             where enrollment.StartDate <= periodEnd && (enrollment.EndDate == null || enrollment.EndDate >= periodStart)
             join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
-            select new { client.Id, client.FullName, client.PhoneNumber, StudentFullName = student.FullName })
+            select new { client.Id, client.User.FullName, client.User.PhoneNumber, StudentFullName = student.User.FullName })
             .ToListAsync(cancellationToken);
 
-        return [.. rows.Select(row => new EnrolledStudentInPeriod(row.Id, row.FullName, row.PhoneNumber.Value, row.StudentFullName))];
+        return [.. rows.Select(row => new EnrolledStudentInPeriod(row.Id, row.FullName, row.PhoneNumber!.Value, row.StudentFullName))];
     }
 
     public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(Guid studentId, DateOnly today, CancellationToken cancellationToken) =>

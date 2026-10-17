@@ -41,6 +41,6 @@ public sealed class DeliverInClassUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var client = order.ClientId is { } clientId ? await clientRepository.GetByIdAsync(clientId, cancellationToken) : null;
-        return ClassDeliveries.ResponseOf(order, client?.FullName);
+        return ClassDeliveries.ResponseOf(order, client?.User.FullName);
     }
 }

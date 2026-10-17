@@ -49,9 +49,9 @@ public sealed class GetStudentAppNewsUseCase(
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var students = await studentRepository.ListByClientAsync(access.ClientId, cancellationToken);
         var studentIds = students.Select(student => student.Id).ToList();
-        var studentNames = students.ToDictionary(student => student.Id, student => student.FullName);
+        var studentNames = students.ToDictionary(student => student.Id, student => student.User.FullName);
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.FullName);
+            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
 
         var items = new List<StudentAppNewsItemResponse>();
         StudentAppNewsItemResponse Item(
@@ -193,7 +193,7 @@ public sealed class GetStudentAppNewsUseCase(
                         studentsBySession[session.Id] = studentFullNames;
                     }
 
-                    studentFullNames.Add(student.FullName);
+                    studentFullNames.Add(student.User.FullName);
                 }
             }
         }

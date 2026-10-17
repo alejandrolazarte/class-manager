@@ -15,8 +15,8 @@ internal sealed class AnnouncementAudienceService(AppDbContext context, TimeProv
         var clientsWithApp = await (
             from client in context.Clients.AsNoTracking()
             where context.ClientAccounts.Any(account => account.ClientId == client.Id)
-            orderby client.FullName
-            select new AnnouncementRecipient(client.Id, client.FullName))
+            orderby client.User.FullName
+            select new AnnouncementRecipient(client.Id, client.User.FullName))
             .ToListAsync(cancellationToken);
         var classGroupIds = announcements.SelectMany(announcement => announcement.ClassGroupIds).Distinct().ToList();
         var clientIdsByClassGroup = await ClientIdsByClassGroupAsync(classGroupIds, cancellationToken);

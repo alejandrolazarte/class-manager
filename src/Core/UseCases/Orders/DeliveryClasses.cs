@@ -27,7 +27,7 @@ internal static class DeliveryClasses
             {
                 if (classGroupNames.TryGetValue(enrollment.ClassGroupId, out var classGroupName))
                 {
-                    deliveryClasses.Add(new DeliveryClassResponse(enrollment.ClassGroupId, classGroupName, student.FullName));
+                    deliveryClasses.Add(new DeliveryClassResponse(enrollment.ClassGroupId, classGroupName, student.User.FullName));
                 }
             }
         }

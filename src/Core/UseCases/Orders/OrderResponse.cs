@@ -43,7 +43,7 @@ public sealed record OrderResponse(
             order.Id,
             order.Number,
             order.ClientId,
-            client?.FullName,
+            client?.User.FullName,
             order.Channel,
             order.Status,
             order.AwaitsPickup,

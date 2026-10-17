@@ -17,8 +17,8 @@ internal sealed class PackBookingRepository(AppDbContext context) : IPackBooking
             where booking.ClassSessionId == classSessionId
             join student in context.Students.AsNoTracking() on booking.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
-            orderby student.FullName
-            select new BookedStudent(student.Id, student.FullName, student.BirthDate, client.FullName))
+            orderby student.User.FullName
+            select new BookedStudent(student.Id, student.User.FullName, student.User.BirthDate, client.User.FullName))
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyDictionary<Guid, int>> CountBySessionsAsync(

@@ -46,7 +46,7 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             join student in context.Students.AsNoTracking() on lessonStudent.StudentId equals student.Id
             where student.ClientId == clientId
             orderby lesson.Date
-            select new PaidTrialLesson(lesson.Id, lesson.Date, student.FullName, lesson.TrialPrice!.Value))
+            select new PaidTrialLesson(lesson.Id, lesson.Date, student.User.FullName, lesson.TrialPrice!.Value))
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(
@@ -66,7 +66,7 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             join lesson in context.PrivateLessons.AsNoTracking() on lessonStudent.PrivateLessonId equals lesson.Id
             where !lesson.IsTrial
             join instructor in context.Instructors.AsNoTracking() on lesson.InstructorId equals instructor.Id
-            select new { student.ClientId, lesson.Date, StudentFullName = student.FullName, InstructorFullName = instructor.FullName })
+            select new { student.ClientId, lesson.Date, StudentFullName = student.User.FullName, InstructorFullName = instructor.User.FullName })
             .ToListAsync(cancellationToken);
 
         return

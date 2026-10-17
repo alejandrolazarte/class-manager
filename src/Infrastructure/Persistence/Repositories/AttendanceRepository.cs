@@ -57,7 +57,7 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
             where clientIds.Contains(student.ClientId)
             join session in context.ClassSessions.AsNoTracking() on attendance.ClassSessionId equals session.Id
             join classGroup in context.ClassGroups.AsNoTracking() on session.ClassGroupId equals classGroup.Id
-            select new { student.ClientId, session.Date, StudentFullName = student.FullName, ClassGroupName = classGroup.Name, IsPackBooking = isPackBooking })
+            select new { student.ClientId, session.Date, StudentFullName = student.User.FullName, ClassGroupName = classGroup.Name, IsPackBooking = isPackBooking })
             .ToListAsync(cancellationToken);
 
         return [.. rows.Select(row => new ClientAttendedClass(

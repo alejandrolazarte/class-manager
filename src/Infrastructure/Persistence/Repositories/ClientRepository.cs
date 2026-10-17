@@ -15,15 +15,15 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
         CancellationToken cancellationToken) =>
         phoneNumbers.Count == 0
             ? []
-            : await context.Clients.AsNoTracking()
+            : await context.Clients.AsNoTracking().Include(client => client.User)
                 .Where(client => phoneNumbers.Contains(client.PhoneNumber))
                 .ToListAsync(cancellationToken);
 
     public Task<Client?> GetByIdAsync(Guid clientId, CancellationToken cancellationToken) =>
-        context.Clients.AsNoTracking().FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
+        context.Clients.AsNoTracking().Include(client => client.User).FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 
     public Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken) =>
-        context.Clients.FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
+        context.Clients.Include(client => client.User).FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 
     public Task ChangeEmailInEveryBusinessByAccountUserAsync(Guid userId, string email, CancellationToken cancellationToken) =>
         context.Clients
@@ -34,7 +34,7 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             .ExecuteUpdateAsync(setters => setters.SetProperty(client => client.Email, email), cancellationToken);
 
     public async Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken) =>
-        await context.Clients.AsNoTracking().ToListAsync(cancellationToken);
+        await context.Clients.AsNoTracking().Include(client => client.User).ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Client>> ListByIdsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken)
     {
@@ -43,12 +43,12 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             return [];
         }
 
-        return await context.Clients.AsNoTracking().Where(client => clientIds.Contains(client.Id)).ToListAsync(cancellationToken);
+        return await context.Clients.AsNoTracking().Include(client => client.User).Where(client => clientIds.Contains(client.Id)).ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken)
     {
-        var clients = context.Clients.AsNoTracking();
+        IQueryable<Client> clients = context.Clients.AsNoTracking().Include(client => client.User);
         if (criteria.Scope is not null)
         {
             var clientIdsInScope = ClientScopeQuery.ClientIdsIn(context, criteria.Scope);
@@ -61,13 +61,13 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             var phoneNumberPattern = LikePatterns.StartsWith(criteria.PhoneNumberPrefix);
 
             clients = clients.Where(client =>
-                EF.Functions.Like(client.FullName, fullNamePattern, LikePatterns.EscapeCharacter)
+                EF.Functions.Like(client.User.FullName, fullNamePattern, LikePatterns.EscapeCharacter)
                 || (phoneNumberPattern != null
-                    && EF.Functions.Like((string)(object)client.PhoneNumber, phoneNumberPattern, LikePatterns.EscapeCharacter)));
+                    && EF.Functions.Like((string)(object)client.User.PhoneNumber!, phoneNumberPattern, LikePatterns.EscapeCharacter)));
         }
 
         return await clients
-            .OrderBy(client => client.FullName)
+            .OrderBy(client => client.User.FullName)
             .Take(criteria.Limit)
             .ToListAsync(cancellationToken);
     }

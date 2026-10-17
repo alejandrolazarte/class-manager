@@ -64,7 +64,7 @@ public sealed class InstructorImportModule(IInstructorRepository instructorRepos
     {
         var instructors = await instructorRepository.ListAllAsync(cancellationToken);
         return instructors
-            .Select(instructor => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?> { [FullNameKey] = instructor.FullName })
+            .Select(instructor => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?> { [FullNameKey] = instructor.User.FullName })
             .ToList();
     }
 }

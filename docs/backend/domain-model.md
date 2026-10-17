@@ -74,6 +74,8 @@ Unique `(TenantId, AccountId)`. The access token carries the member's `TenantId`
 
 One person in one business: name, contact email, phone, birth date and, when they have one, the account they sign in with (`AccountId`). Clients, students, instructors, team members and student app accounts point to it with `UserId`. It belongs to the business and is soft deleted, so it stays when the person deletes their account. See [Users per business](20261017-users/plan.md).
 
+`Client`, `Student` and `Instructor` reach it through the `User` navigation. What the business sees of a person (screens, exports, emails, push and team notices) is read from there; their own `FullName`, `Email`, `PhoneNumber` and `BirthDate` columns are the copies the app still writes until they are dropped.
+
 ### Client
 
 | Property | Type | Rules |

@@ -20,6 +20,6 @@ internal sealed record InvitedStudent(string? FullName, DateOnly? BirthDate)
         }
 
         var client = await clientRepository.GetByIdAsync(invitation.ClientId, cancellationToken);
-        return new InvitedStudent(client?.FullName, null);
+        return new InvitedStudent(client?.User.FullName, null);
     }
 }

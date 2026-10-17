@@ -23,7 +23,7 @@ internal sealed class ImportUseCaseBuilder
 
     public ImportUseCaseBuilder(params string[] existingInstructorNames)
     {
-        ExistingInstructors = existingInstructorNames.Select(name => Instructor.Create(name).Value!).ToList();
+        ExistingInstructors = existingInstructorNames.Select(name => Instructor.Create(name).Value!.WithUser()).ToList();
         var existingInstructors = ExistingInstructors;
         Instructors.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(existingInstructors);
         Instructors.Setup(repository => repository.Add(It.IsAny<Instructor>())).Callback<Instructor>(AddedInstructors.Add);

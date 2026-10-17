@@ -22,8 +22,8 @@ internal sealed class SessionUseCaseBuilder
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
-    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!;
-    public Instructor Substitute { get; } = Instructor.Create("Laura Gómez").Value!;
+    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName).Value!.WithUser();
+    public Instructor Substitute { get; } = Instructor.Create("Laura Gómez").Value!.WithUser();
     public ClassGroup ClassGroup { get; }
     public Guid EnrolledStudentId { get; } = Guid.CreateVersion7();
 

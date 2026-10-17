@@ -35,14 +35,14 @@ internal sealed class OrderNotificationService(
         foreach (var recipient in await RecipientsOfAsync(staffUserIds, cancellationToken))
         {
             var delivery = order.HasProducts ? recipient.Texts.OrderDeliveryForBranch(deliveryClassName) : null;
-            var placed = recipient.Texts.OrderPlaced(DetailsOf(order, business), client.FullName, delivery, webAppLinks.TeamOrders());
+            var placed = recipient.Texts.OrderPlaced(DetailsOf(order, business), client.User.FullName, delivery, webAppLinks.TeamOrders());
             await SendAsync(OrderEmails.To(recipient, business.Id, placed), cancellationToken);
         }
 
         await teamNotifier.NotifyAsync(
             staffUserIds,
             LocalizedPushMessage.Build(texts => new PushMessage(
-                texts.OrderPlacedTitle(EmailTexts.For(texts.Language).OrderNumber(order.Number), client.FullName),
+                texts.OrderPlacedTitle(EmailTexts.For(texts.Language).OrderNumber(order.Number), client.User.FullName),
                 total,
                 TeamNotificationLinks.OrdersUrl)),
             cancellationToken);
@@ -138,7 +138,7 @@ internal sealed class OrderNotificationService(
 
     private async Task<Client?> ClientOfAsync(Order order, CancellationToken cancellationToken) =>
         order.ClientId is { } clientId
-            ? await context.Clients.AsNoTracking().FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken)
+            ? await context.Clients.AsNoTracking().Include(client => client.User).FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken)
             : null;
 
     private async Task<string?> DeliveryClassNameAsync(Order order, CancellationToken cancellationToken) =>
@@ -168,7 +168,7 @@ internal sealed class OrderNotificationService(
             return await RecipientsOfAsync(userIds, cancellationToken);
         }
 
-        var clientEmail = (await ClientOfAsync(order, cancellationToken))?.Email;
+        var clientEmail = (await ClientOfAsync(order, cancellationToken))?.User.Email;
         return clientEmail is null ? [] : [new OrderEmailRecipient(clientEmail, EmailTexts.Spanish)];
     }
 
