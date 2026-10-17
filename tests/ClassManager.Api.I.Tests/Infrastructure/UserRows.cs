@@ -1,11 +1,28 @@
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Infrastructure.Persistence;
+using ClassManager.Security.Tokens;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
 public static class UserRows
 {
+    public static Guid AccountIdOf(string accessToken) =>
+        Guid.Parse(AuthenticationRequests.AccessTokenClaim(accessToken, SecurityClaimTypes.Subject)!);
+
+    public static Guid? UserIdOf(string accessToken) =>
+        AuthenticationRequests.AccessTokenClaim(accessToken, SessionClaimTypes.UserId) is { } userId ? Guid.Parse(userId) : null;
+
+    public static async Task<Guid?> FindUserIdByAccountAsync(this ApiFixture fixture, Guid businessId, Guid accountId)
+    {
+        await using var context = fixture.CreateDbContext(businessId);
+        return await context.Users
+            .Where(user => user.AccountId == accountId)
+            .Select(user => (Guid?)user.Id)
+            .SingleOrDefaultAsync();
+    }
+
     public static async Task ChangeUserOfClientAsync(
         this ApiFixture fixture,
         Guid businessId,

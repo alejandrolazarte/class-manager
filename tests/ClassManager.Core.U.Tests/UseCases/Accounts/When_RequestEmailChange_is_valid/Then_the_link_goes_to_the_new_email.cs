@@ -16,7 +16,7 @@ public sealed class Then_the_link_goes_to_the_new_email
     {
         var userId = Guid.CreateVersion7();
         var currentUser = new Mock<ICurrentUser>();
-        currentUser.Setup(user => user.UserId).Returns(userId);
+        currentUser.Setup(user => user.AccountId).Returns(userId);
         var identity = new Mock<IIdentityService>();
         identity
             .Setup(service => service.RequestEmailChangeAsync(userId, Password, NewEmail, It.IsAny<CancellationToken>()))

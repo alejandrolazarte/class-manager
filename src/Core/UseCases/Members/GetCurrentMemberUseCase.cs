@@ -20,7 +20,7 @@ public sealed record CurrentMemberResponse(
     CurrentSubscriptionResponse? Subscription = null)
 {
     public static CurrentMemberResponse From(MemberAccess access, string? fullName = null, CurrentSubscriptionResponse? subscription = null) =>
-        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.UserId, fullName, subscription);
+        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.AccountId, fullName, subscription);
 }
 
 public sealed class GetCurrentMemberUseCase(
@@ -38,7 +38,7 @@ public sealed class GetCurrentMemberUseCase(
             return Result.Unauthorized<CurrentMemberResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
 
-        var accounts = await identityService.ListAccountsAsync([access.UserId], cancellationToken);
+        var accounts = await identityService.ListAccountsAsync([access.AccountId], cancellationToken);
         var features = await featureAccess.GetCurrentAsync(cancellationToken);
         var usageByFeatureCode = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var featureCode in featureUsage.CountedFeatureCodes.Where(features.Has))

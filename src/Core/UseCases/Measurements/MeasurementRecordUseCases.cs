@@ -159,7 +159,7 @@ public sealed class RecordMeasurementUseCase(
             command.Note,
             today,
             timeProvider.GetUtcNow(),
-            access?.UserId,
+            access?.AccountId,
             recordedByStudent: false,
             cancellationToken);
         if (record.IsFailure)
@@ -216,7 +216,7 @@ public sealed class RecordClassMeasurementsUseCase(
         foreach (var entry in entries)
         {
             var record = await MeasurementRecording.RecordAsync(
-                recordRepository, definition, entry.StudentId, command.MeasuredOn ?? today, entry.Value, null, today, now, access?.UserId, recordedByStudent: false, cancellationToken);
+                recordRepository, definition, entry.StudentId, command.MeasuredOn ?? today, entry.Value, null, today, now, access?.AccountId, recordedByStudent: false, cancellationToken);
             if (record.IsFailure)
             {
                 return record.Error!;

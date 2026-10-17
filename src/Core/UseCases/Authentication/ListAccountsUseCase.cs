@@ -18,7 +18,7 @@ public sealed class ListAccountsUseCase(
 {
     public async Task<Result<IReadOnlyList<AccountResponse>>> ExecuteAsync(ListAccountsQuery command, CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return Result.Unauthorized<IReadOnlyList<AccountResponse>>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }

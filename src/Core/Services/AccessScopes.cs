@@ -31,6 +31,6 @@ public sealed class AccessScopes(ICurrentMember currentMember) : IAccessScopes
 
         return access.HasPermission(everyClientPermission)
             ? null
-            : new ClientScope(access.InstructorId, access.UserId);
+            : new ClientScope(access.InstructorId, access.AccountId);
     }
 }

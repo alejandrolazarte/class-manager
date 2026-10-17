@@ -19,6 +19,8 @@ public sealed class CreateBranchUseCase(
     ICountryRepository countryRepository,
     IBusinessMemberRepository businessMemberRepository,
     IInstructorRepository instructorRepository,
+    IOrganizationMemberRepository organizationMemberRepository,
+    IUserRepository userRepository,
     ICurrentMember currentMember,
     IIdentityService identityService,
     ITenantScope tenantScope,
@@ -50,7 +52,7 @@ public sealed class CreateBranchUseCase(
         }
 
         var newBranch = branch.Value!;
-        var owner = (await identityService.ListAccountsAsync([access.UserId], cancellationToken)).SingleOrDefault();
+        var owner = (await identityService.ListAccountsAsync([access.AccountId], cancellationToken)).SingleOrDefault();
         businessRepository.Add(newBranch);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         if (owner is not null)
@@ -58,9 +60,13 @@ public sealed class CreateBranchUseCase(
             tenantScope.Establish(newBranch.Id);
             var ownerInstructor = Instructor.Create(owner.FullName).Value!;
             instructorRepository.Add(ownerInstructor);
-            businessMemberRepository.Add(BusinessMember.CreateBranchOwner(newBranch.Id, access.UserId, ownerInstructor.Id));
+            businessMemberRepository.Add(BusinessMember.CreateBranchOwner(newBranch.Id, access.AccountId, ownerInstructor.Id));
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
+
+        var brandOwnerAccountIds = await organizationMemberRepository.ListBrandOwnerUserIdsAsync(currentBusiness.OrganizationId, cancellationToken);
+        var brandOwners = await identityService.ListAccountsAsync(brandOwnerAccountIds, cancellationToken);
+        await userRepository.AddMissingInEveryBranchAsync(currentBusiness.OrganizationId, brandOwners, timeProvider.GetUtcNow(), cancellationToken);
 
         return new BranchResponse(
             newBranch.Id,

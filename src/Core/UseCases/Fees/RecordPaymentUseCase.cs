@@ -61,7 +61,7 @@ public sealed class RecordPaymentUseCase(
             command.Notes,
             today,
             timeProvider.GetUtcNow(),
-            access?.UserId);
+            access?.AccountId);
         if (payment.IsFailure)
         {
             return payment.Error!;

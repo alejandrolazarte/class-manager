@@ -184,7 +184,7 @@ public sealed class GetStudentAppHomeUseCase(
                 Materials(studentClassGroups)));
         }
 
-        var signedInAccounts = await identityService.ListAccountsAsync([access.UserId], cancellationToken);
+        var signedInAccounts = await identityService.ListAccountsAsync([access.AccountId], cancellationToken);
         var pendingGuardianConsents = await PendingGuardianConsentsAsync(access, students, cancellationToken);
         return new StudentAppHomeResponse(
             business.Name,
@@ -202,7 +202,7 @@ public sealed class GetStudentAppHomeUseCase(
         IReadOnlyList<Student> students,
         CancellationToken cancellationToken)
     {
-        var signedInClientAccount = await clientAccountRepository.FindByUserAsync(access.UserId, cancellationToken);
+        var signedInClientAccount = await clientAccountRepository.FindByUserAsync(access.AccountId, cancellationToken);
         if (signedInClientAccount is not { StudentId: null })
         {
             return [];

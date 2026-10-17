@@ -13,7 +13,7 @@ public sealed class Then_the_current_version_is_recorded
     {
         var userId = Guid.CreateVersion7();
         var currentUser = new Mock<ICurrentUser>();
-        currentUser.Setup(user => user.UserId).Returns(userId);
+        currentUser.Setup(user => user.AccountId).Returns(userId);
         var acceptances = new Mock<ILegalTermsAcceptanceRepository>();
         LegalTermsAcceptance? added = null;
         acceptances

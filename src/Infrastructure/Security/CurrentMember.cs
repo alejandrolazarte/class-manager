@@ -22,7 +22,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
 
     private async Task<MemberAccess?> ResolveAsync(CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return null;
         }

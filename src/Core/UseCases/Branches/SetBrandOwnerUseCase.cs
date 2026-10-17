@@ -14,8 +14,11 @@ public sealed class SetBrandOwnerUseCase(
     IBusinessRepository businessRepository,
     IBusinessMemberRepository businessMemberRepository,
     IOrganizationMemberRepository organizationMemberRepository,
+    IUserRepository userRepository,
+    IIdentityService identityService,
     ICurrentMember currentMember,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    TimeProvider timeProvider)
     : IUseCase<SetBrandOwnerCommand, BrandOwnerResponse>
 {
     public async Task<Result<BrandOwnerResponse>> ExecuteAsync(SetBrandOwnerCommand command, CancellationToken cancellationToken)
@@ -28,7 +31,7 @@ public sealed class SetBrandOwnerUseCase(
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        if (member.AccountId == access?.UserId)
+        if (member.AccountId == access?.AccountId)
         {
             return MemberRules.OwnMembership();
         }
@@ -50,6 +53,11 @@ public sealed class SetBrandOwnerUseCase(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (command.IsBrandOwner)
+        {
+            var account = await identityService.ListAccountsAsync([member.AccountId], cancellationToken);
+            await userRepository.AddMissingInEveryBranchAsync(business.OrganizationId, account, timeProvider.GetUtcNow(), cancellationToken);
+        }
 
         return new BrandOwnerResponse(member.Id, command.IsBrandOwner);
     }

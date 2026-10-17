@@ -1,4 +1,5 @@
 using ClassManager.Core.UseCases.Authentication;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
@@ -97,4 +98,7 @@ public static class AuthenticationRequests
 
     public static string TokenOf(string passwordResetLink) =>
         Uri.UnescapeDataString(passwordResetLink[WebAppResetPasswordUrl.Length..]);
+
+    public static string? AccessTokenClaim(string accessToken, string claimType) =>
+        new JsonWebTokenHandler().ReadJsonWebToken(accessToken).Claims.FirstOrDefault(claim => claim.Type == claimType)?.Value;
 }

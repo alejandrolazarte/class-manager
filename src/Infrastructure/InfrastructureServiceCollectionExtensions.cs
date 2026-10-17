@@ -160,6 +160,7 @@ public static class InfrastructureServiceCollectionExtensions
                     SecurityDbContext.ConfigureSqlServer);
         });
 
+        services.AddScoped<SessionUserClaims>();
         services.AddScoped<ITokenSubjectResolver, BusinessTokenSubjectResolver>();
         services.AddScoped<IStudentAppDirectory, StudentAppDirectory>();
         services.AddScoped<IStudentAppAccess, CurrentStudentApp>();

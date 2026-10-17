@@ -18,7 +18,7 @@ public sealed class UpdateMyLanguageUseCase(
 
     public async Task<Result<MyAccountResponse>> ExecuteAsync(UpdateMyLanguageCommand command, CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return NoAccess();
         }

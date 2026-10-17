@@ -25,7 +25,7 @@ public sealed class MarkStudentAppNewsSeenUseCase(
     public async Task<Result<bool>> ExecuteAsync(MarkStudentAppNewsSeenCommand command, CancellationToken cancellationToken)
     {
         var access = await studentAppAccess.GetAsync(cancellationToken);
-        var account = access is null ? null : await clientAccountRepository.FindByUserForUpdateAsync(access.UserId, cancellationToken);
+        var account = access is null ? null : await clientAccountRepository.FindByUserForUpdateAsync(access.AccountId, cancellationToken);
         if (access is null || account is null)
         {
             return Result.Unauthorized<bool>(NoAccessMessage, NoAccessCode);

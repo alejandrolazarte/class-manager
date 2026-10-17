@@ -12,7 +12,7 @@ public sealed class ListBranchesUseCase(IBranchDirectory branchDirectory, ICurre
 {
     public async Task<Result<IReadOnlyList<BranchResponse>>> ExecuteAsync(ListBranchesQuery command, CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return Result.Unauthorized<IReadOnlyList<BranchResponse>>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }

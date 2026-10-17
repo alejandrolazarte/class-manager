@@ -19,7 +19,7 @@ The project boundary gives most of the benefit now: business concepts can't leak
 | Persistence | `SecurityDbContext` (schema `identity`) and its migrations |
 | Hosting | `AddSecurityServices`, `AddSecurityAuthentication` (JWT bearer validation + rate limit policy `authentication`) |
 
-Tokens carry `sub`, `email`, `role` and a **tenant claim whose name the application chooses** (`TenantClaimType`, default `tenant_id`). This application uses the default, `tenant_id` (`TenantClaimTypes.TenantId` from the [tenancy library](tenancy.md)).
+Tokens carry `sub`, `email`, `role` and a **tenant claim whose name the application chooses** (`TenantClaimType`, default `tenant_id`). This application uses the default, `tenant_id` (`TenantClaimTypes.TenantId` from the [tenancy library](tenancy.md)). The application can add its own claims through `TokenSubject.Claims`; they never replace the ones Security writes. This application adds `user_id`, the person in the branch (`Users`), found by the account (`sub`) and the branch on every issue, refresh and switch; `ICurrentUser.AccountId` reads `sub` and `ICurrentUser.UserId` reads `user_id` ([users per business](backend/20261017-users/plan.md)).
 
 ## How the application plugs in
 

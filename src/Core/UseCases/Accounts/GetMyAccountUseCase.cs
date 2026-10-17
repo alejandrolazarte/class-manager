@@ -35,7 +35,7 @@ public sealed class GetMyAccountUseCase(
 {
     public async Task<Result<MyAccountResponse>> ExecuteAsync(GetMyAccountQuery command, CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return Result.Unauthorized<MyAccountResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }

@@ -31,13 +31,13 @@ public sealed class CancelStudentAppOrderUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        var cancellation = order.Cancel(access.UserId, now);
+        var cancellation = order.Cancel(access.AccountId, now);
         if (cancellation.IsFailure)
         {
             return cancellation.Error!;
         }
 
-        await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access.UserId, now, cancellationToken);
+        await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access.AccountId, now, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return (await StudentAppOrderResponses.OfAsync([order], classGroupRepository, cancellationToken))[0];

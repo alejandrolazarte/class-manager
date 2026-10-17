@@ -5,8 +5,12 @@ namespace ClassManager.Api.Authentication;
 
 internal sealed class ClaimsCurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    public Guid? UserId =>
-        Guid.TryParse(httpContextAccessor.HttpContext?.User.FindFirst(SecurityClaimTypes.Subject)?.Value, out var userId)
-            ? userId
+    public Guid? AccountId => ClaimAsGuid(SecurityClaimTypes.Subject);
+
+    public Guid? UserId => ClaimAsGuid(SessionClaimTypes.UserId);
+
+    private Guid? ClaimAsGuid(string claimType) =>
+        Guid.TryParse(httpContextAccessor.HttpContext?.User.FindFirst(claimType)?.Value, out var value)
+            ? value
             : null;
 }

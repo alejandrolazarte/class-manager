@@ -20,7 +20,7 @@ public sealed class UpdateMyProfileUseCase(
 
     public async Task<Result<MyAccountResponse>> ExecuteAsync(UpdateMyProfileCommand command, CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return NoAccess();
         }
