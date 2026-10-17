@@ -234,4 +234,17 @@ The model lets a `Student` and an `Instructor` share one user, but no use case l
 | A student is invited to the team as an instructor | `400 user.email_taken` | `Endpoints/Members/When_a_student_is_invited_as_an_instructor` |
 | An instructor is invited to the student app | `400 user.email_taken` | `Endpoints/StudentApp/When_an_instructor_is_invited_to_the_student_app` |
 
-The fix, when it is built, offers to reuse the person who already has that email in the branch instead of refusing, and the last two tests change to expect one user.
+### Proposal: one person, with a question and a way out
+
+Decided: one `Users` row per person, also when the person has several roles in the branch. What someone did as a student or as an instructor was done by that one person. Splitting a person into one row per role would break the account link (one user per account and branch, one `user_id` in the token), the unique email per branch and the single place to change a name.
+
+The business data hangs from the role, not from the person: enrollments, attendance, measurements, bookings and app access from `Students`; classes, sessions, private lessons and the team member from `Instructors`. `Users` only gets the links and who did what. That is what makes a mistake cheap to undo.
+
+1. **"¿Es la misma persona?"** Creating an instructor, inviting someone to the team as an instructor, registering a client or a student, adding a student to a family, or inviting someone to the student app, with an email that another person of the branch already uses, answers `409` with that person in the details (name, email, and what they are today: student of which classes, instructor, team member). The app asks with `ConfirmDialog`, showing that data, so the business confirms with something concrete in front of it.
+   - **Yes:** the request is sent again with that user's id, and the new role points to the existing user: one row. The use case checks that the user belongs to the branch, has that email, and doesn't already have that role.
+   - **No:** as today. The person needs another email, or is loaded without one if they won't use the app. Two people never share an email in a branch.
+   - Reusing a user never links an account. The account is still linked only by accepting an invitation sent to that email.
+2. **"Separar"**, for a "yes" by mistake (two people who share an email). On the student or the instructor, when their user also has another role: the business types the other person's name (and birth date or email if it has them), and the role moves to a new user. Everything that hangs from that role moves with it. Who did what stays with the original user. So does the account, and with it the team membership. The separated person gets their own invitation with their own email. It touches another person, so it asks first with `ConfirmDialog`.
+3. **Nothing is deleted.** The business can't delete the account (only the person can, from "Eliminar mi cuenta"), and fixing a mistake never needs deleting a role and loading it again, which would lose its history.
+
+When this is built, the last two tests in the table change to expect one user after the "yes", and new tests cover the "no", "Separar" and that a reused user gets no account.
