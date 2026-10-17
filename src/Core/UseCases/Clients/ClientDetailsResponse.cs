@@ -16,7 +16,8 @@ public sealed record ClientDetailsResponse(
     BillingPlanResponse BillingPlan,
     IReadOnlyList<BillingPlanChangeResponse> BillingPlanChanges,
     IReadOnlyList<StudentResponse> Students,
-    StudentAppAccessResponse AppAccess)
+    StudentAppAccessResponse AppAccess,
+    bool IsOnTheTeam = false)
 {
     public static ClientDetailsResponse From(
         Client client,

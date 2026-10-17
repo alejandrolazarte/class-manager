@@ -10,6 +10,7 @@ import {
   uploadClassMaterialFile,
 } from "@/features/classGroups/classGroupsApi";
 import { SaveClassGroupRequest } from "@/features/classGroups/types";
+import { sessionQueryKeys } from "@/features/sessions/sessionQueryKeys";
 import { subscriptionErrorCodes } from "@/features/subscriptions/subscriptionCodes";
 
 export type ClassMaterialFileChange =
@@ -59,7 +60,11 @@ interface SetClassGroupActiveVariables {
 
 function useInvalidateClassGroups() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: classGroupQueryKeys.all });
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: classGroupQueryKeys.all }),
+      queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all }),
+    ]);
 }
 
 export function useSaveClassGroup() {

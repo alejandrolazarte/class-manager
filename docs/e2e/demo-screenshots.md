@@ -164,6 +164,8 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `15-editar-perfil` | Editar perfil: name and birth date |
 | `16-mi-perfil` | Mi perfil, with "Eliminar mi cuenta" |
 | `17-eliminar-mi-cuenta`, `18-confirmar-eliminar-cuenta` | Eliminar mi cuenta with the password, and the confirm dialog (closed with "Volver", so the account stays) |
+| `19-es-la-misma-persona` | A new instructor with Ana's email asks whether it is the same person (then "Unir") |
+| `20-tambien-esta-en-alumnos`, `21-separar`, `22-confirmar-separar` | The instructor who is also in Students, the Separar screen, and its confirm dialog (closed with "Volver") |
 
 ## Email previews
 

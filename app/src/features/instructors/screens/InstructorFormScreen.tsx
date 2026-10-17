@@ -20,7 +20,7 @@ import {
   InstructorAppAccess,
   instructorAppAccess,
 } from "@/features/instructors/instructorAppAccess";
-import { Instructor } from "@/features/instructors/types";
+import { Instructor, SaveInstructorRequest } from "@/features/instructors/types";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
 import {
   useSaveInstructor,
@@ -33,6 +33,9 @@ import { useInviteMember } from "@/features/members/useTeamMutations";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
+import { SamePersonDialog } from "@/features/users/components/SamePersonDialog";
+import { SamePerson, samePersonOf } from "@/features/users/samePerson";
+import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate, translateCount } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
@@ -70,6 +73,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
   const canManageMembers = useCan(permissions.membersManage);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
+  const [samePerson, setSamePerson] = useState<SamePerson | null>(null);
   const form = useForm<InstructorFormValues>({
     resolver: zodResolver(instructorSchema),
     defaultValues: toInstructorFormValues(instructor, access.member?.email),
@@ -116,9 +120,10 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
     }
   };
 
-  const save = form.handleSubmit(async (formValues) => {
+  const save = form.handleSubmit((formValues) => saveRequest(toSaveInstructorRequest(formValues)));
+
+  const saveRequest = async (request: SaveInstructorRequest) => {
     setSubmissionFailure(null);
-    const request = toSaveInstructorRequest(formValues);
     try {
       const savedInstructor = await saveInstructorMutation.mutateAsync({
         instructorId: instructor?.id,
@@ -130,8 +135,13 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
         await resendInvitationIfEmailChanged(request.email);
         showToast(translate("instructors.form.saved"));
       }
+      setSamePerson(null);
       router.back();
     } catch (saveError) {
+      setSamePerson(samePersonOf(saveError, request.email ?? ""));
+      if (isApiError(saveError) && saveError.hasCode(userErrorCodes.samePerson)) {
+        return;
+      }
       if (isApiError(saveError) && saveError.hasCode(instructorErrorCodes.emailUsedToSignIn)) {
         form.setError("email", {
           type: "server",
@@ -154,7 +164,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
         setSubmissionFailure(toSubmissionFailure(saveError));
       }
     }
-  });
+  };
 
   const toggleActive = async () => {
     if (instructor === undefined) {
@@ -192,6 +202,26 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
         <Banner
           tone="warning"
           message={translateCount("instructors.form.hasActiveClassGroups", activeClassGroupCount)}
+        />
+      ) : null}
+      {samePerson ? (
+        <SamePersonDialog
+          person={samePerson}
+          messageKey="people.samePerson.inBusiness"
+          onCancel={() => {
+            setSamePerson(null);
+            form.setError("email", {
+              type: "server",
+              message: translate("apiErrors.user.email_taken"),
+            });
+          }}
+          onConfirm={() =>
+            void saveRequest({
+              ...toSaveInstructorRequest(form.getValues()),
+              samePersonUserId: samePerson.userId,
+            })
+          }
+          isConfirming={saveInstructorMutation.isPending}
         />
       ) : null}
       <RequiredFieldsLegend />

@@ -4,8 +4,6 @@ import { RefreshControl, ScrollView, View } from "react-native";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { classesOfDay } from "@/features/classGroups/classesOfDay";
-import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import { weekdayOf, weekdayShortLabel } from "@/features/classGroups/weekdays";
 import { firstNameOf } from "@/features/studentApp/studentAppSchedule";
 import { addMonths, formatMonth } from "@/features/fees/months";
@@ -26,6 +24,7 @@ import {
   monthOfDate,
   parseIsoDate,
   todayIsoDate,
+  weekOf,
 } from "@/features/sessions/dates";
 import { DaySession } from "@/features/sessions/types";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
@@ -99,21 +98,26 @@ export function DayScreen({ initialDate }: DayScreenProps) {
     refetch,
   } = useDaySessions(sessionDate);
   const { data: todaySessions = [] } = useDaySessions(today);
-  const { data: classGroups = [] } = useActiveClassGroups();
   const isMonthView = view === "month";
   const { data: monthCalendar } = useMonthCalendar(calendarMonth, isMonthView);
-  const hasClassesOn = (isoDate: string) =>
-    classesOfDay(classGroups, weekdayOf(parseIsoDate(isoDate))).length > 0;
+  const week = weekOf(sessionDate);
+  const { data: weekStartCalendar } = useMonthCalendar(monthOfDate(week[0]!), !isMonthView);
+  const { data: weekEndCalendar } = useMonthCalendar(
+    monthOfDate(week[week.length - 1]!),
+    !isMonthView,
+  );
+  const datesWithClasses = new Set(
+    [...(weekStartCalendar?.days ?? []), ...(weekEndCalendar?.days ?? [])]
+      .filter((calendarDay) => calendarDay.classCount > 0)
+      .map((calendarDay) => calendarDay.date),
+  );
+  const hasClassesOn = (isoDate: string) => datesWithClasses.has(isoDate);
 
   const openSession = (session: DaySession) => router.push(sessionRoute(session));
   const openNewPrivateLesson = () => router.push(routes.newPrivateLesson(sessionDate));
   const changeView = (nextView: AgendaView) => {
     setCalendarMonth(monthOfDate(sessionDate));
     setView(nextView);
-  };
-  const selectDate = (isoDate: string) => {
-    setSessionDate(isoDate);
-    setView("day");
   };
   const step = (direction: number) =>
     isMonthView
@@ -200,7 +204,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
                 month={calendarMonth}
                 monthDays={monthCalendar?.days ?? []}
                 hasClassesOn={hasClassesOn}
-                onSelectDate={selectDate}
+                onSelectDate={setSessionDate}
                 onPrevious={() => step(-1)}
                 onNext={() => step(1)}
               />

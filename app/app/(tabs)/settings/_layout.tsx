@@ -38,6 +38,10 @@ export default function SettingsLayout() {
         options={{ title: translate("instructors.form.editTitle") }}
       />
       <Stack.Screen
+        name="instructors/[instructorId]/separate"
+        options={{ title: translate("people.separate.title") }}
+      />
+      <Stack.Screen
         name="class-packs/index"
         options={{ title: translate("classPacks.list.title") }}
       />
