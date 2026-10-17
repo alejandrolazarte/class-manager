@@ -223,3 +223,33 @@ Taken:
 5. **Phone:** it moves to `Users` too, and is required only for the contact of a client. It is not unique in `Users`: only two clients can't share a contact phone, checked in the use cases.
 6. **Order:** this goes before "Eliminar mi cuenta", so deleting is written once on the final model.
 7. **Names:** the instructor's name stays unique per business and the student's name unique in the family. With the copies gone no index can hold them, so the use cases check them after taking a lock per business.
+
+## A student who also teaches, in the same branch
+
+The model lets a `Student` and an `Instructor` share one user. Creating an instructor or registering a student always creates a new user; the two invitations, where the email is required, are where both roles meet:
+
+| Flow (same branch, same email) | Today | Test |
+|---|---|---|
+| A student with the app joins the team with a role that needs no instructor | Works: the team member reuses the student's user (one row) | `Endpoints/Members/When_a_student_joins_the_team_without_an_instructor` |
+| A student is invited to the team as an instructor | Asks "¿Es la misma persona?" (`409 user.same_person`); with "Unir", one user | `Endpoints/Members/When_a_student_is_invited_as_an_instructor`, `When_a_student_is_confirmed_as_the_invited_instructor` |
+| An instructor is invited to the student app | Asks "¿Es la misma persona?"; with "Unir", one user | `Endpoints/StudentApp/When_an_instructor_is_invited_to_the_student_app`, `When_an_instructor_is_confirmed_as_the_invited_client` |
+| The email belongs to someone who already has that role (another instructor, another client) | `400 user.email_taken`, as before | `When_an_instructor_is_invited_with_the_email_of_another_instructor`, `When_a_student_app_invitation_uses_the_email_of_another_client` |
+
+### Proposal: one person, with a question and a way out
+
+Decided: one `Users` row per person, also when the person has several roles in the branch. What someone did as a student or as an instructor was done by that one person. Splitting a person into one row per role would break the account link (one user per account and branch, one `user_id` in the token), the unique email per branch and the single place to change a name.
+
+The business data hangs from the role, not from the person: enrollments, attendance, measurements, bookings and app access from `Students`; classes, sessions, private lessons and the team member from `Instructors`. `Users` only gets the links and who did what. That is what makes a mistake cheap to undo.
+
+1. **"¿Es la misma persona?"** Creating an instructor, inviting someone to the team as an instructor, registering a client or a student, adding a student to a family, or inviting someone to the student app, with an email that another person of the branch already uses, answers `409` with that person in the details (name, email, and what they are today: student of which classes, instructor, team member). The app asks with `ConfirmDialog`, showing that data, so the business confirms with something concrete in front of it.
+   - **Yes:** the request is sent again with that user's id, and the new role points to the existing user: one row. The use case checks that the user belongs to the branch, has that email, and doesn't already have that role.
+   - **No:** as today. The person needs another email, or is loaded without one if they won't use the app. Two people never share an email in a branch.
+   - Reusing a user never links an account. The account is still linked only by accepting an invitation sent to that email.
+2. **"Separar"**, for a "yes" by mistake (two people who share an email). On the student or the instructor, when their user also has another role: the business types the other person's name (and birth date or email if it has them), and the role moves to a new user. Everything that hangs from that role moves with it. Who did what stays with the original user. So does the account, and with it the team membership. The separated person gets their own invitation with their own email. It touches another person, so it asks first with `ConfirmDialog`.
+3. **Nothing is deleted.** The business can't delete the account (only the person can, from "Eliminar mi cuenta"), and fixing a mistake never needs deleting a role and loading it again, which would lose its history.
+
+Status:
+
+- [x] **The question in the two invitations** (team invitation as an instructor, student app invitation). `SamePerson.FindAsync` (`src/Core/UseCases/Users`) finds the other person with that email and checks they can take the role: not an instructor or team member yet for the team, not a client or student yet for the student app. Without `SamePersonUserId` it answers `409 user.same_person` with `samePersonUserId` and `samePersonFullName`; with it, the instructor (or the client, and the students that share its user) moves to that user, which keeps its name and email and takes the phone and birth date it lacked (`User.CompleteWith`), and the user left without roles is soft deleted. The app asks with `SamePersonDialog` (**Volver** / **Unir**); **Volver** shows the email error of today.
+- [ ] The question when creating an instructor, registering a client or adding a student with an email. Today these keep `400 user.email_taken`: the business can leave the email empty and use the invitation, which asks.
+- [ ] "Separar".

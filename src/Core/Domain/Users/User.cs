@@ -105,6 +105,12 @@ public sealed class User : ITenantOwned, ISoftDeletable
 
     public void LinkAccount(Guid accountId) => AccountId = accountId;
 
+    public void CompleteWith(User previousPerson)
+    {
+        PhoneNumber ??= previousPerson.PhoneNumber;
+        BirthDate ??= previousPerson.BirthDate;
+    }
+
     public void Delete(DateTimeOffset deletedAt)
     {
         DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);

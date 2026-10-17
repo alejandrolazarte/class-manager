@@ -79,6 +79,12 @@ public sealed class Client : ITenantOwned
 
     public void RecordRegisteredBy(Guid userId) => RegisteredByUserId = userId;
 
+    public void ChangePerson(User person)
+    {
+        UserId = person.Id;
+        User = person;
+    }
+
     private static Result<string?> ValidNotes(string? notes)
     {
         var trimmedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();

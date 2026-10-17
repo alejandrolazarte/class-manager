@@ -7,6 +7,12 @@ public interface IUserRepository
 {
     void Add(User user);
 
+    void Remove(User user);
+
+    Task<User?> FindByEmailForUpdateAsync(string email, Guid exceptUserId, CancellationToken cancellationToken);
+
+    Task<PersonRoles> GetRolesAsync(Guid userId, CancellationToken cancellationToken);
+
     Task<Guid?> FindIdByAccountAsync(Guid businessId, Guid accountId, CancellationToken cancellationToken);
 
     Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken);

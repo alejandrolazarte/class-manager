@@ -49,6 +49,7 @@ export interface InviteMemberRequest {
   role: BusinessRole;
   customRoleId: string | null;
   instructorId: string | null;
+  samePersonUserId?: string;
 }
 
 export interface ChangeMemberRoleRequest {

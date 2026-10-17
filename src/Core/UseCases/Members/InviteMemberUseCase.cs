@@ -8,7 +8,12 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record InviteMemberCommand(string? Email, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null) : ICommand;
+public sealed record InviteMemberCommand(
+    string? Email,
+    BusinessRole? Role,
+    Guid? InstructorId,
+    Guid? CustomRoleId = null,
+    Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class InviteMemberUseCase(
     IBusinessRepository businessRepository,
@@ -79,7 +84,29 @@ public sealed class InviteMemberUseCase(
         {
             await peopleLock.LockAsync(cancellationToken);
             var instructor = await instructorRepository.GetForUpdateAsync(instructorId, cancellationToken);
-            var emailChange = instructor!.User.ChangeEmail(invitation.Value.Email);
+            var samePerson = await SamePerson.FindAsync(
+                userRepository,
+                instructor!.User,
+                invitation.Value.Email,
+                command.SamePersonUserId,
+                roles => !roles.IsInstructor && !roles.IsTeamMember,
+                nameof(InviteMemberCommand.Email),
+                cancellationToken);
+            if (samePerson.IsFailure)
+            {
+                return samePerson.Error!;
+            }
+
+            if (samePerson.Value is { } person)
+            {
+                var previousPerson = instructor.User;
+                instructor.ChangePerson(person);
+                person.CompleteWith(previousPerson);
+                await SamePerson.RemoveIfUnusedAsync(
+                    userRepository, previousPerson, roles => roles.IsClient || roles.IsStudent || roles.IsTeamMember, cancellationToken);
+            }
+
+            var emailChange = instructor.User.ChangeEmail(invitation.Value.Email);
             if (emailChange.IsFailure)
             {
                 return emailChange.Error!;

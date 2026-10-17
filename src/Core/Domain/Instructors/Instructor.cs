@@ -39,6 +39,12 @@ public sealed class Instructor : ITenantOwned
         return rename.IsFailure ? rename : User.ChangeEmail(email);
     }
 
+    public void ChangePerson(User person)
+    {
+        UserId = person.Id;
+        User = person;
+    }
+
     public void Activate() => IsActive = true;
 
     public void Deactivate() => IsActive = false;
