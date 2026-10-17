@@ -11,6 +11,6 @@ public sealed class Then_only_valid_rows_are_added
 
         plan.AddValidRows();
 
-        builder.AddedInstructors.Select(instructor => instructor.FullName).ShouldBe(["Marta Ruiz", "Pedro Sanz"]);
+        builder.AddedInstructors.Select(instructor => instructor.User.FullName).ShouldBe(["Marta Ruiz", "Pedro Sanz"]);
     }
 }

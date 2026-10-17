@@ -10,7 +10,7 @@ public sealed class Then_one_client_with_two_students_is_added
 
         await builder.PlanAndAddAsync("Lucas Gómez;11 5555-6666;;;María Gómez\nSofía Gómez;1155556666;;;María Gómez\n");
 
-        builder.AddedClients.Single().FullName.ShouldBe("María Gómez");
+        builder.AddedClients.Single().User.FullName.ShouldBe("María Gómez");
         builder.AddedStudents.Select(student => student.ClientId).Distinct().ShouldBe([builder.AddedClients.Single().Id]);
         builder.AddedStudents.Count.ShouldBe(2);
     }

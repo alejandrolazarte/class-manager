@@ -202,7 +202,7 @@ public sealed class GetStudentAppHomeUseCase(
         IReadOnlyList<Student> students,
         CancellationToken cancellationToken)
     {
-        var signedInClientAccount = await clientAccountRepository.FindByUserAsync(access.AccountId, cancellationToken);
+        var signedInClientAccount = await clientAccountRepository.FindByAccountAsync(access.AccountId, cancellationToken);
         if (signedInClientAccount is not { StudentId: null })
         {
             return [];

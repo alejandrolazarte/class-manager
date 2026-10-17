@@ -12,8 +12,6 @@ public sealed record ConfirmEmailChangeResponse(string NewEmail);
 
 public sealed class ConfirmEmailChangeUseCase(
     IIdentityService identityService,
-    IClientRepository clientRepository,
-    IInstructorRepository instructorRepository,
     IUserRepository userRepository,
     IEmailSender emailSender)
     : IUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse>
@@ -32,11 +30,9 @@ public sealed class ConfirmEmailChangeUseCase(
             return change.Error!;
         }
 
-        var (userId, previousEmail, newEmail) = change.Value!;
-        await clientRepository.ChangeEmailInEveryBusinessByAccountUserAsync(userId, newEmail, cancellationToken);
-        await instructorRepository.ChangeEmailInEveryBusinessByMemberUserAsync(userId, newEmail, cancellationToken);
-        await userRepository.ChangeEmailInEveryBusinessByAccountAsync(userId, newEmail, cancellationToken);
-        var emailTexts = await RecipientEmailTexts.OfUserAsync(identityService, userId, cancellationToken);
+        var (accountId, previousEmail, newEmail) = change.Value!;
+        await userRepository.ChangeEmailInEveryBusinessByAccountAsync(accountId, newEmail, cancellationToken);
+        var emailTexts = await RecipientEmailTexts.OfUserAsync(identityService, accountId, cancellationToken);
         var notice = emailTexts.EmailChangedNotice(newEmail);
         await emailSender.SendAsync(new EmailMessage(previousEmail, notice.Subject, notice.Content), cancellationToken);
 

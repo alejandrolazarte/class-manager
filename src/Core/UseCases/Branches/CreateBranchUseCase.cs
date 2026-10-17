@@ -58,9 +58,10 @@ public sealed class CreateBranchUseCase(
         if (owner is not null)
         {
             tenantScope.Establish(newBranch.Id);
-            var ownerInstructor = Instructor.Create(owner.FullName).Value!;
+            var ownerInstructor = Instructor.Create(owner.FullName, timeProvider.GetUtcNow()).Value!;
+            ownerInstructor.User.LinkAccount(access.AccountId);
             instructorRepository.Add(ownerInstructor);
-            businessMemberRepository.Add(BusinessMember.CreateBranchOwner(newBranch.Id, access.AccountId, ownerInstructor.Id));
+            businessMemberRepository.Add(BusinessMember.CreateBranchOwner(newBranch.Id, ownerInstructor.User, ownerInstructor.Id));
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 

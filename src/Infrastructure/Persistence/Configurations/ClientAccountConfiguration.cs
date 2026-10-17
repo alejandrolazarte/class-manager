@@ -10,11 +10,10 @@ internal sealed class ClientAccountConfiguration : IEntityTypeConfiguration<Clie
         builder.Property(account => account.Id).ValueGeneratedNever();
 
         builder.HasOne<Business>().WithMany().HasForeignKey(account => account.TenantId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne<User>().WithMany().HasForeignKey(account => account.UserId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(account => account.User).WithMany().HasForeignKey(account => account.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Client>().WithMany().HasForeignKey(account => account.ClientId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Student>().WithMany().HasForeignKey(account => account.StudentId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(account => new { account.TenantId, account.AccountId }).IsUnique();
-        builder.HasIndex(account => account.AccountId);
+        builder.HasIndex(account => new { account.TenantId, account.UserId }).IsUnique();
         builder.HasIndex(account => new { account.TenantId, account.ClientId });
     }
 }

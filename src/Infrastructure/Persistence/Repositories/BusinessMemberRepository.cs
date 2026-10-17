@@ -7,13 +7,13 @@ internal sealed class BusinessMemberRepository(AppDbContext context) : IBusiness
     public void Remove(BusinessMember member) => context.BusinessMembers.Remove(member);
 
     public async Task<IReadOnlyList<BusinessMember>> ListAsync(CancellationToken cancellationToken) =>
-        await context.BusinessMembers.AsNoTracking().ToListAsync(cancellationToken);
+        await context.BusinessMembers.AsNoTracking().Include(member => member.User).ToListAsync(cancellationToken);
 
     public Task<BusinessMember?> GetForUpdateAsync(Guid memberId, CancellationToken cancellationToken) =>
-        context.BusinessMembers.FirstOrDefaultAsync(member => member.Id == memberId, cancellationToken);
+        context.BusinessMembers.Include(member => member.User).FirstOrDefaultAsync(member => member.Id == memberId, cancellationToken);
 
-    public Task<bool> IsUserMemberAsync(Guid userId, CancellationToken cancellationToken) =>
-        context.BusinessMembers.AnyAsync(member => member.AccountId == userId, cancellationToken);
+    public Task<bool> IsAccountMemberAsync(Guid accountId, CancellationToken cancellationToken) =>
+        context.BusinessMembers.AnyAsync(member => member.User.AccountId == accountId, cancellationToken);
 
     public async Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(Guid customRoleId, CancellationToken cancellationToken) =>
         await context.BusinessMembers.AsNoTracking().Where(member => member.CustomRoleId == customRoleId).ToListAsync(cancellationToken);
@@ -23,9 +23,9 @@ internal sealed class BusinessMemberRepository(AppDbContext context) : IBusiness
             member => member.InstructorId == instructorId && member.Id != exceptMemberId,
             cancellationToken);
 
-    public Task<Guid?> FindUserIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken) =>
+    public Task<Guid?> FindAccountIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken) =>
         context.BusinessMembers
             .Where(member => member.InstructorId == instructorId)
-            .Select(member => (Guid?)member.AccountId)
+            .Select(member => member.User.AccountId)
             .FirstOrDefaultAsync(cancellationToken);
 }

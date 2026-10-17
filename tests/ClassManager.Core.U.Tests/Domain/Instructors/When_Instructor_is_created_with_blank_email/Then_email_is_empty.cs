@@ -7,8 +7,8 @@ public sealed class Then_email_is_empty
     [Fact]
     public void Then_email_is_empty_Run()
     {
-        var instructor = Instructor.Create(TestData.InstructorFullName, "   ");
+        var instructor = Instructor.Create(TestData.InstructorFullName, TestData.Now, "   ");
 
-        instructor.Value!.Email.ShouldBeNull();
+        instructor.Value!.User.Email.ShouldBeNull();
     }
 }

@@ -91,9 +91,10 @@ public sealed class CompleteSignUpUseCase(
         organizationRepository.Add(organization);
         organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(organization.Id, userId.Value));
         businessRepository.Add(business);
-        var ownerInstructor = Instructor.Create(account.Value.FullName).Value!;
+        var ownerInstructor = Instructor.Create(account.Value.FullName, now).Value!;
+        ownerInstructor.User.LinkAccount(userId.Value);
         instructorRepository.Add(ownerInstructor);
-        businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Id, userId.Value, ownerInstructor.Id));
+        businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Id, ownerInstructor.User, ownerInstructor.Id));
         var signUpPlan = await subscriptionRepository.GetSignUpPlanAsync(cancellationToken);
         subscriptionRepository.Add(Subscription.StartAtListPrice(organization.Id, signUpPlan, now));
         if (pendingSignUp.LegalTermsAcceptanceOf(userId.Value) is { } legalTermsAcceptance)

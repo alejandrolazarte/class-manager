@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Emails;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Members;
 
@@ -16,6 +17,8 @@ public sealed class InviteMemberUseCase(
     IInstructorRepository instructorRepository,
     ICustomRoleRepository customRoleRepository,
     IIdentityService identityService,
+    IUserRepository userRepository,
+    IPeopleLock peopleLock,
     ICurrentMember currentMember,
     ISecretTokenGenerator secretTokenGenerator,
     IEmailSender emailSender,
@@ -61,8 +64,8 @@ public sealed class InviteMemberUseCase(
             return instructorError;
         }
 
-        var existingUserId = await identityService.FindUserIdByEmailAsync(invitation.Value!.Email, cancellationToken);
-        if (existingUserId is { } userId && await businessMemberRepository.IsUserMemberAsync(userId, cancellationToken))
+        var existingAccountId = await identityService.FindUserIdByEmailAsync(invitation.Value!.Email, cancellationToken);
+        if (existingAccountId is { } accountId && await businessMemberRepository.IsAccountMemberAsync(accountId, cancellationToken))
         {
             return Result.Conflict<InvitationResponse>(AlreadyMemberMessage, MemberErrorCodes.AlreadyMember);
         }
@@ -74,11 +77,17 @@ public sealed class InviteMemberUseCase(
 
         if (command.InstructorId is { } instructorId)
         {
+            await peopleLock.LockAsync(cancellationToken);
             var instructor = await instructorRepository.GetForUpdateAsync(instructorId, cancellationToken);
-            var emailChange = instructor!.Update(instructor.FullName, invitation.Value.Email);
+            var emailChange = instructor!.User.ChangeEmail(invitation.Value.Email);
             if (emailChange.IsFailure)
             {
                 return emailChange.Error!;
+            }
+
+            if (await PeopleEmails.TakenErrorAsync(userRepository, [(instructor.User, nameof(InviteMemberCommand.Email))], cancellationToken) is { } emailTaken)
+            {
+                return emailTaken;
             }
 
             foreach (var previousInvitation in await invitationRepository.ListPendingForUpdateByInstructorAsync(instructorId, now, cancellationToken))

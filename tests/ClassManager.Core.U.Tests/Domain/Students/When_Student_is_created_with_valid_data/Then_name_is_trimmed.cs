@@ -11,7 +11,7 @@ public sealed class Then_name_is_trimmed
 
         var student = Student.Create(clientId, "  Tomás Pérez ", TestData.Today, "  ", TestData.Today, TestData.Now);
 
-        student.Value!.FullName.ShouldBe("Tomás Pérez");
+        student.Value!.User.FullName.ShouldBe("Tomás Pérez");
         student.Value.ClientId.ShouldBe(clientId);
         student.Value.Notes.ShouldBeNull();
     }

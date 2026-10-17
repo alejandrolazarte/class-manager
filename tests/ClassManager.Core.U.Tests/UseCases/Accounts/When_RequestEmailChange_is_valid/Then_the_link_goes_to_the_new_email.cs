@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.UseCases.Accounts;
 
@@ -27,7 +28,7 @@ public sealed class Then_the_link_goes_to_the_new_email
         var webAppLinks = new Mock<IWebAppLinks>();
         webAppLinks.Setup(links => links.ConfirmEmailChange(Token)).Returns(Link);
         var emailSender = new Mock<IEmailSender>();
-        var useCase = new RequestEmailChangeUseCase(currentUser.Object, identity.Object, emailSender.Object, webAppLinks.Object);
+        var useCase = new RequestEmailChangeUseCase(currentUser.Object, identity.Object, new Mock<IUserRepository>().Object, emailSender.Object, webAppLinks.Object);
 
         await useCase.ExecuteAsync(new RequestEmailChangeCommand($" {NewEmail} ", Password), CancellationToken.None);
 

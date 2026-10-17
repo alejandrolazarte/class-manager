@@ -10,6 +10,7 @@ using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Emails;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Students;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
@@ -31,6 +32,8 @@ public sealed class InviteStudentAppUseCase(
     IBusinessRepository businessRepository,
     IClientInvitationRepository invitationRepository,
     IClientAccountRepository clientAccountRepository,
+    IUserRepository userRepository,
+    IPeopleLock peopleLock,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
     ISecretTokenGenerator secretTokenGenerator,
@@ -70,13 +73,20 @@ public sealed class InviteStudentAppUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        var familyStudents = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
+        await peopleLock.LockAsync(cancellationToken);
+        var familyStudents = await studentRepository.ListByClientForUpdateAsync(client.Id, cancellationToken);
         var recipient = command.StudentId is { } studentId
-            ? await StudentRecipientAsync(client, studentId, familyStudents, command, business, business.TodayAt(now), cancellationToken)
-            : await ClientRecipientAsync(client, familyStudents, command, business.TodayAt(now), cancellationToken);
+            ? StudentRecipient(client, studentId, familyStudents, command, business, business.TodayAt(now))
+            : ClientRecipient(client, familyStudents, command, business.TodayAt(now));
         if (recipient.IsFailure)
         {
             return recipient.Error!;
+        }
+
+        var invitedPerson = command.StudentId is { } invitedStudentId ? familyStudents.Single(student => student.Id == invitedStudentId).User : client.User;
+        if (await PeopleEmails.TakenErrorAsync(userRepository, [(invitedPerson, nameof(InviteStudentAppRequest.Email))], cancellationToken) is { } emailTaken)
+        {
+            return emailTaken;
         }
 
         var previousInvitations = await invitationRepository.ListPendingForUpdateByPersonAsync(client.Id, command.StudentId, now, cancellationToken);
@@ -108,7 +118,7 @@ public sealed class InviteStudentAppUseCase(
         var guardianToken = recipient.Value.NeedsGuardianConsent ? secretTokenGenerator.Create() : null;
         if (guardianToken is not null)
         {
-            invitation.Value!.RequireGuardianConsent(client.Email!, guardianToken.Hash);
+            invitation.Value!.RequireGuardianConsent(client.User.Email!, guardianToken.Hash);
         }
 
         foreach (var previousInvitation in previousInvitations)
@@ -127,7 +137,7 @@ public sealed class InviteStudentAppUseCase(
                 business.Country.OwnAccountMinimumAge,
                 webAppLinks.AuthorizeStudentApp(guardianToken.Value));
             await emailSender.SendAsync(
-                new EmailMessage(client.Email!, guardianConsentRequest.Subject, guardianConsentRequest.Content, business.Id),
+                new EmailMessage(client.User.Email!, guardianConsentRequest.Subject, guardianConsentRequest.Content, business.Id),
                 cancellationToken);
             await studentAppNotificationService.GuardianConsentRequestedAsync(invitation.Value!, recipient.Value.StudentFullName ?? string.Empty, cancellationToken);
         }
@@ -142,74 +152,67 @@ public sealed class InviteStudentAppUseCase(
         return new StudentAppInvitationResponse(invitation.Value!.Id, invitation.Value.Email, invitation.Value.ExpiresAt, invitation.Value.AwaitsGuardianConsent);
     }
 
-    private async Task<Result<Recipient>> ClientRecipientAsync(
+    private static Result<Recipient> ClientRecipient(
         Client client,
         IReadOnlyList<Student> familyStudents,
         InviteStudentAppCommand command,
-        DateOnly today,
-        CancellationToken cancellationToken)
+        DateOnly today)
     {
-        var minorContact = await AttendingContactMinorErrorAsync(client, familyStudents, command.BirthDate, today, cancellationToken);
+        var minorContact = AttendingContactMinorError(client, familyStudents, command.BirthDate, today);
         if (minorContact is not null)
         {
             return minorContact;
         }
 
-        if (!string.IsNullOrWhiteSpace(command.Email) && !client.HasEmail(command.Email))
+        if (!string.IsNullOrWhiteSpace(command.Email) && !client.User.HasEmail(command.Email))
         {
-            if (familyStudents.Any(student => student.HasEmail(command.Email)))
-            {
-                return FamilyEmails.EmailOfAnotherPerson(nameof(InviteStudentAppRequest.Email));
-            }
-
-            var emailChange = client.ChangeEmail(command.Email);
+            var emailChange = client.User.ChangeEmail(command.Email);
             if (emailChange.IsFailure)
             {
                 return emailChange.Error! with { FieldName = nameof(InviteStudentAppRequest.Email) };
             }
+
+            if (FamilyEmails.IsTakenByAnotherPerson(client.User, familyStudents.Select(student => student.User)))
+            {
+                return FamilyEmails.EmailOfAnotherPerson(nameof(InviteStudentAppRequest.Email));
+            }
         }
 
-        return client.Email is null ? EmailRequired() : new Recipient(client.Email, NeedsGuardianConsent: false, StudentFullName: null);
+        return client.User.Email is null ? EmailRequired() : new Recipient(client.User.Email, NeedsGuardianConsent: false, StudentFullName: null);
     }
 
-    private async Task<ResultError?> AttendingContactMinorErrorAsync(
+    private static ResultError? AttendingContactMinorError(
         Client client,
         IReadOnlyList<Student> familyStudents,
         DateOnly? typedBirthDate,
-        DateOnly today,
-        CancellationToken cancellationToken)
+        DateOnly today)
     {
-        var contactAsStudent = familyStudents.FirstOrDefault(student => AttendingContact.IsTheContact(client.FullName, student.FullName));
-        if (contactAsStudent is null)
+        if (!familyStudents.Any(student => student.IsTheContactOf(client)))
         {
             return null;
         }
 
         if (typedBirthDate is not null)
         {
-            var trackedStudent = await studentRepository.FindForUpdateAsync(contactAsStudent.Id, cancellationToken);
-            var birthDateChange = trackedStudent?.ChangeBirthDate(typedBirthDate, today);
-            if (birthDateChange?.IsFailure == true)
+            var birthDateChange = client.User.ChangeBirthDate(typedBirthDate, today);
+            if (birthDateChange.IsFailure)
             {
                 return birthDateChange.Error! with { FieldName = nameof(InviteStudentAppRequest.BirthDate) };
             }
         }
 
-        return AttendingContact.MinorError(typedBirthDate ?? contactAsStudent.BirthDate, today, nameof(InviteStudentAppRequest.BirthDate));
+        return AttendingContact.MinorError(client.User.BirthDate, today, nameof(InviteStudentAppRequest.BirthDate));
     }
 
-    private async Task<Result<Recipient>> StudentRecipientAsync(
+    private static Result<Recipient> StudentRecipient(
         Client client,
         Guid studentId,
         IReadOnlyList<Student> familyStudents,
         InviteStudentAppCommand command,
         Business business,
-        DateOnly today,
-        CancellationToken cancellationToken)
+        DateOnly today)
     {
-        var student = familyStudents.Any(familyStudent => familyStudent.Id == studentId)
-            ? await studentRepository.FindForUpdateAsync(studentId, cancellationToken)
-            : null;
+        var student = familyStudents.FirstOrDefault(familyStudent => familyStudent.Id == studentId);
         if (student is null)
         {
             return Result.NotFound<Recipient>(StudentNotFoundMessage, StudentErrorCodes.NotFound);
@@ -217,20 +220,20 @@ public sealed class InviteStudentAppUseCase(
 
         if (command.BirthDate is not null)
         {
-            var birthDateChange = student.ChangeBirthDate(command.BirthDate, today);
+            var birthDateChange = student.User.ChangeBirthDate(command.BirthDate, today);
             if (birthDateChange.IsFailure)
             {
                 return birthDateChange.Error! with { FieldName = nameof(InviteStudentAppRequest.BirthDate) };
             }
         }
 
-        if (student.BirthDate is not { } birthDate)
+        if (student.User.BirthDate is not { } birthDate)
         {
             return Result.Validation<Recipient>(BirthDateRequiredMessage, StudentAppErrorCodes.BirthDateRequired, nameof(InviteStudentAppRequest.BirthDate));
         }
 
         var needsGuardianConsent = !PersonAge.CanHaveOwnAccount(birthDate, today, business.Country);
-        if (needsGuardianConsent && client.Email is null)
+        if (needsGuardianConsent && client.User.Email is null)
         {
             return Result.Validation<Recipient>(
                 GuardianEmailRequiredMessage,
@@ -238,22 +241,21 @@ public sealed class InviteStudentAppUseCase(
                 nameof(InviteStudentAppRequest.Email));
         }
 
-        if (!string.IsNullOrWhiteSpace(command.Email) && !student.HasEmail(command.Email))
+        if (!string.IsNullOrWhiteSpace(command.Email) && !student.User.HasEmail(command.Email))
         {
-            var otherStudents = familyStudents.Where(familyStudent => familyStudent.Id != studentId);
-            if (FamilyEmails.IsTakenByAnotherPerson(command.Email, client.Email, otherStudents))
-            {
-                return FamilyEmails.EmailOfAnotherPerson(nameof(InviteStudentAppRequest.Email));
-            }
-
-            var emailChange = student.ChangeEmail(command.Email);
+            var emailChange = student.User.ChangeEmail(command.Email);
             if (emailChange.IsFailure)
             {
                 return emailChange.Error! with { FieldName = nameof(InviteStudentAppRequest.Email) };
             }
+
+            if (FamilyEmails.IsTakenByAnotherPerson(student.User, [client.User, .. familyStudents.Select(familyStudent => familyStudent.User)]))
+            {
+                return FamilyEmails.EmailOfAnotherPerson(nameof(InviteStudentAppRequest.Email));
+            }
         }
 
-        return student.Email is null ? EmailRequired() : new Recipient(student.Email, needsGuardianConsent, student.FullName);
+        return student.User.Email is null ? EmailRequired() : new Recipient(student.User.Email, needsGuardianConsent, student.User.FullName);
     }
 
     private static Result<Recipient> EmailRequired() =>

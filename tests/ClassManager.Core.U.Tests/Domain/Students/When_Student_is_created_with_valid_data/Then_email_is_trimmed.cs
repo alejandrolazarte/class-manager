@@ -9,6 +9,6 @@ public sealed class Then_email_is_trimmed
     {
         var student = Student.Create(Guid.CreateVersion7(), TestData.StudentFullName, null, null, TestData.Today, TestData.Now, " tomas@example.com ");
 
-        student.Value!.Email.ShouldBe("tomas@example.com");
+        student.Value!.User.Email.ShouldBe("tomas@example.com");
     }
 }

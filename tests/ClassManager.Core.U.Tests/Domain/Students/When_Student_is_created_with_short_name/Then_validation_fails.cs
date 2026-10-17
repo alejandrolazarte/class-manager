@@ -10,6 +10,6 @@ public sealed class Then_validation_fails
         var student = Student.Create(Guid.CreateVersion7(), " T ", null, null, TestData.Today, TestData.Now);
 
         student.Error!.Kind.ShouldBe(ErrorKind.Validation);
-        student.Error.FieldName.ShouldBe(nameof(Student.FullName));
+        student.Error.FieldName.ShouldBe(nameof(User.FullName));
     }
 }

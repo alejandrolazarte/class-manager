@@ -6,17 +6,17 @@ internal static class SignInEmails
 {
     public static async Task<string?> FirstAsync(
         IIdentityService identityService,
-        IReadOnlyList<Guid> userIds,
+        IReadOnlyList<Guid> accountIds,
         CancellationToken cancellationToken)
     {
-        if (userIds.Count == 0)
+        if (accountIds.Count == 0)
         {
             return null;
         }
 
-        var accounts = await identityService.ListAccountsAsync(userIds, cancellationToken);
-        return userIds
-            .Select(userId => accounts.FirstOrDefault(account => account.UserId == userId)?.Email)
+        var accounts = await identityService.ListAccountsAsync(accountIds, cancellationToken);
+        return accountIds
+            .Select(accountId => accounts.FirstOrDefault(account => account.UserId == accountId)?.Email)
             .FirstOrDefault(email => email is not null);
     }
 }

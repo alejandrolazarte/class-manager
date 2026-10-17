@@ -10,11 +10,11 @@ public sealed class Then_returns_email_of_another_person
     {
         var builder = new AddStudentUseCaseBuilder();
         var client = Client.Create(TestData.ClientFullName, TestData.PhoneNumber(), "ana@example.com", null, TestData.Now).Value!;
-        builder.Clients.Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(client);
+        builder.Clients.Setup(repository => repository.GetForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(client);
 
         var response = await builder.Build().ExecuteAsync(AddStudentUseCaseBuilder.ValidCommand() with { Email = "ANA@example.com" }, CancellationToken.None);
 
         response.Error!.Code.ShouldBe(StudentErrorCodes.EmailOfAnotherPerson);
-        response.Error.FieldName.ShouldBe(nameof(Student.Email));
+        response.Error.FieldName.ShouldBe(nameof(User.Email));
     }
 }

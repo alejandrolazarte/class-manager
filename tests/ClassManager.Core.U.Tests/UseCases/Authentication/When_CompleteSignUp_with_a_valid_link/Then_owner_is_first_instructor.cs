@@ -9,6 +9,6 @@ public sealed class Then_owner_is_first_instructor
 
         await builder.Build().ExecuteAsync(CompleteSignUpUseCaseBuilder.ValidCommand(), CancellationToken.None);
 
-        builder.AddedInstructor!.FullName.ShouldBe(TestData.OwnerFullName);
+        builder.AddedInstructor!.User.FullName.ShouldBe(TestData.OwnerFullName);
     }
 }

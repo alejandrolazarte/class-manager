@@ -1,5 +1,3 @@
-using ClassManager.Tenancy.AspNetCore.Persistence;
-
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class InstructorRepository(AppDbContext context) : IInstructorRepository
@@ -12,16 +10,8 @@ internal sealed class InstructorRepository(AppDbContext context) : IInstructorRe
     public Task<Instructor?> GetForUpdateAsync(Guid instructorId, CancellationToken cancellationToken) =>
         context.Instructors.Include(instructor => instructor.User).FirstOrDefaultAsync(instructor => instructor.Id == instructorId, cancellationToken);
 
-    public Task ChangeEmailInEveryBusinessByMemberUserAsync(Guid userId, string email, CancellationToken cancellationToken) =>
-        context.Instructors
-            .IgnoreTenantFilter()
-            .Where(instructor => context.BusinessMembers
-                .IgnoreTenantFilter()
-                .Any(member => member.InstructorId == instructor.Id && member.AccountId == userId))
-            .ExecuteUpdateAsync(setters => setters.SetProperty(instructor => instructor.Email, email), cancellationToken);
-
     public Task<Instructor?> FindByNameAsync(string fullName, CancellationToken cancellationToken) =>
-        context.Instructors.AsNoTracking().FirstOrDefaultAsync(instructor => instructor.FullName == fullName, cancellationToken);
+        context.Instructors.AsNoTracking().FirstOrDefaultAsync(instructor => instructor.User.FullName == fullName, cancellationToken);
 
     public async Task<IReadOnlyList<Instructor>> ListAllAsync(CancellationToken cancellationToken) =>
         await context.Instructors.AsNoTracking().Include(instructor => instructor.User)

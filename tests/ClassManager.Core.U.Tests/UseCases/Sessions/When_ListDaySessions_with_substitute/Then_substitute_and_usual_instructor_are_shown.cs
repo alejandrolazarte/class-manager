@@ -21,7 +21,7 @@ public sealed class Then_substitute_and_usual_instructor_are_shown
 
         var response = await builder.BuildListDay().ExecuteAsync(new ListDaySessionsQuery(null), CancellationToken.None);
 
-        response.Value!.Single().InstructorFullName.ShouldBe(builder.Substitute.FullName);
-        response.Value![0].OriginalInstructorFullName.ShouldBe(builder.Instructor.FullName);
+        response.Value!.Single().InstructorFullName.ShouldBe(builder.Substitute.User.FullName);
+        response.Value![0].OriginalInstructorFullName.ShouldBe(builder.Instructor.User.FullName);
     }
 }

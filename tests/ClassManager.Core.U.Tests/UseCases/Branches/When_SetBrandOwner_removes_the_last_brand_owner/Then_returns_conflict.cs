@@ -13,18 +13,19 @@ public sealed class Then_returns_conflict
     public async Task Then_returns_conflict_Run()
     {
         var business = TestData.Business();
-        var member = BusinessMember.CreateBranchOwner(business.Id, Guid.CreateVersion7());
+        var memberAccountId = Guid.CreateVersion7();
+        var member = BusinessMember.CreateBranchOwner(business.Id, TestData.UserOfAccount(memberAccountId));
         var businesses = new Mock<IBusinessRepository>();
         businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(business);
         var businessMembers = new Mock<IBusinessMemberRepository>();
         businessMembers.Setup(repository => repository.GetForUpdateAsync(member.Id, It.IsAny<CancellationToken>())).ReturnsAsync(member);
         var organizationMembers = new Mock<IOrganizationMemberRepository>();
         organizationMembers
-            .Setup(repository => repository.FindForUpdateAsync(business.OrganizationId, member.AccountId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OrganizationMember.CreateBrandOwner(business.OrganizationId, member.AccountId));
+            .Setup(repository => repository.FindForUpdateAsync(business.OrganizationId, memberAccountId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OrganizationMember.CreateBrandOwner(business.OrganizationId, memberAccountId));
         organizationMembers
             .Setup(repository => repository.ListBrandOwnerUserIdsAsync(business.OrganizationId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([member.AccountId]);
+            .ReturnsAsync([memberAccountId]);
         var currentMember = new Mock<ICurrentMember>();
         currentMember
             .Setup(current => current.GetAccessAsync(It.IsAny<CancellationToken>()))

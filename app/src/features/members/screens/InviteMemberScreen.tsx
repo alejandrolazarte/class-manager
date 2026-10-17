@@ -11,6 +11,7 @@ import { findRoleChoice } from "@/features/roles/roleChoices";
 import { useRoles } from "@/features/roles/useRoles";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
+import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
@@ -63,6 +64,10 @@ export function InviteMemberScreen() {
     } catch (inviteError) {
       if (isApiError(inviteError) && inviteError.hasCode(memberErrorCodes.alreadyMember)) {
         setEmailError(translate("team.invite.alreadyMember"));
+        return;
+      }
+      if (isApiError(inviteError) && inviteError.hasCode(userErrorCodes.emailTaken)) {
+        setEmailError(translate("apiErrors.user.email_taken"));
         return;
       }
       if (isApiError(inviteError) && inviteError.hasCode(memberErrorCodes.instructorTaken)) {

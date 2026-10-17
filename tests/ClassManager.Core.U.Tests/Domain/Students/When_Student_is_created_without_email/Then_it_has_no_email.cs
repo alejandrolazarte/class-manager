@@ -9,6 +9,6 @@ public sealed class Then_it_has_no_email
     {
         var student = Student.Create(Guid.CreateVersion7(), TestData.StudentFullName, null, null, TestData.Today, TestData.Now, "  ");
 
-        student.Value!.Email.ShouldBeNull();
+        student.Value!.User.Email.ShouldBeNull();
     }
 }

@@ -4,6 +4,7 @@ using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.UseCases.Authentication;
+using ClassManager.Core.UseCases.Users;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Members;
@@ -15,6 +16,7 @@ public sealed class AcceptInvitationUseCase(
     IBusinessMemberRepository businessMemberRepository,
     ICustomRoleRepository customRoleRepository,
     IInstructorRepository instructorRepository,
+    IUserRepository userRepository,
     IIdentityService identityService,
     IBusinessRepository businessRepository,
     ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
@@ -93,12 +95,16 @@ public sealed class AcceptInvitationUseCase(
             userId = createdUserId.Value;
             legalTermsAcceptanceRepository.Add(LegalTermsAcceptance.RecordCurrent(createdUserId.Value, now));
         }
-        else if (await businessMemberRepository.IsUserMemberAsync(userId.Value, cancellationToken))
+        else if (await businessMemberRepository.IsAccountMemberAsync(userId.Value, cancellationToken))
         {
             return Result.Conflict<TokenResponse>(AlreadyMemberMessage, MemberErrorCodes.AlreadyMember);
         }
 
-        var member = BusinessMember.Create(invitation.TenantId, userId.Value, role.Value!, invitation.InstructorId);
+        var instructor = invitation.InstructorId is { } invitedInstructorId
+            ? await instructorRepository.GetForUpdateAsync(invitedInstructorId, cancellationToken)
+            : null;
+        var user = await AccountUsers.ResolveAsync(userRepository, identityService, instructor?.User, userId.Value, now, cancellationToken);
+        var member = BusinessMember.Create(invitation.TenantId, user, role.Value!, invitation.InstructorId);
         if (member.IsFailure)
         {
             return member.Error!;

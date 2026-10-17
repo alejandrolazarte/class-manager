@@ -6,9 +6,9 @@ public interface IClientAccountRepository
 {
     void Add(ClientAccount account);
 
-    Task<ClientAccount?> FindByUserAsync(Guid userId, CancellationToken cancellationToken);
+    Task<ClientAccount?> FindByAccountAsync(Guid accountId, CancellationToken cancellationToken);
 
-    Task<ClientAccount?> FindByUserForUpdateAsync(Guid userId, CancellationToken cancellationToken);
+    Task<ClientAccount?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken);
 
     Task<bool> HasAccountAsync(Guid clientId, Guid? studentId, CancellationToken cancellationToken);
 

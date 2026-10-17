@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Clients;
 
@@ -24,7 +25,9 @@ public sealed class UpdateClientUseCase(
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
     IClientAccountRepository clientAccountRepository,
-    IIdentityService identityService)
+    IIdentityService identityService,
+    IUserRepository userRepository,
+    IPeopleLock peopleLock)
     : IUseCase<UpdateClientCommand, ClientResponse>
 {
     private const string NotFoundMessage = "The client does not exist.";
@@ -51,18 +54,23 @@ public sealed class UpdateClientUseCase(
             return phoneNumber.Error! with { FieldName = nameof(UpdateClientCommand.PhoneNumber) };
         }
 
+        await peopleLock.LockAsync(cancellationToken);
         var existingClient = await clientRepository.FindByPhoneNumberAsync(phoneNumber.Value!, cancellationToken);
         if (existingClient is not null && existingClient.Id != client.Id)
         {
             return PhoneNumberTaken(existingClient.Id);
         }
 
-        if (!client.HasEmail(command.Email))
+        if (!client.User.HasEmail(command.Email))
         {
             var accounts = await clientAccountRepository.ListByClientAsync(client.Id, cancellationToken);
-            var accountUserIds = accounts.Where(account => account.StudentId is null).Select(account => account.AccountId).ToList();
-            var signInEmail = await SignInEmails.FirstAsync(identityService, accountUserIds, cancellationToken);
-            if (accountUserIds.Count > 0 && !string.Equals(command.Email?.Trim(), signInEmail, StringComparison.OrdinalIgnoreCase))
+            var accountIds = accounts
+                .Where(account => account.StudentId is null)
+                .Select(account => account.User.AccountId)
+                .OfType<Guid>()
+                .ToList();
+            var signInEmail = await SignInEmails.FirstAsync(identityService, accountIds, cancellationToken);
+            if (accountIds.Count > 0 && !string.Equals(command.Email?.Trim(), signInEmail, StringComparison.OrdinalIgnoreCase))
             {
                 return new ResultError(ClientErrorCodes.EmailUsedToSignIn, EmailUsedToSignInMessage, ErrorKind.Conflict)
                 {
@@ -77,17 +85,13 @@ public sealed class UpdateClientUseCase(
             return update.Error!;
         }
 
-        try
+        if (await PeopleEmails.TakenErrorAsync(userRepository, [(client.User, nameof(UpdateClientCommand.Email))], cancellationToken) is { } emailTaken)
         {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (UniqueConstraintViolationException)
-        {
-            var winnerClient = await clientRepository.FindByPhoneNumberAsync(phoneNumber.Value!, cancellationToken);
-            return PhoneNumberTaken(winnerClient?.Id);
+            return emailTaken;
         }
 
-        return ClientResponse.FromWritten(client);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return ClientResponse.From(client);
     }
 
     private static Result<ClientResponse> PhoneNumberTaken(Guid? existingClientId) =>

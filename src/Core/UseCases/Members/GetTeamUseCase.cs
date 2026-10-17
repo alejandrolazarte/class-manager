@@ -19,11 +19,11 @@ public sealed class GetTeamUseCase(
     public async Task<Result<TeamResponse>> ExecuteAsync(GetTeamQuery command, CancellationToken cancellationToken)
     {
         var members = await businessMemberRepository.ListAsync(cancellationToken);
-        var accounts = (await identityService.ListAccountsAsync([.. members.Select(member => member.AccountId)], cancellationToken))
+        var accounts = (await identityService.ListAccountsAsync([.. members.Select(member => member.User.AccountId).OfType<Guid>()], cancellationToken))
             .ToDictionary(account => account.UserId);
         var invitations = await invitationRepository.ListPendingAsync(timeProvider.GetUtcNow(), cancellationToken);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
-        var brandOwnerUserIds = business is null
+        var brandOwnerAccountIds = business is null
             ? []
             : (await organizationMemberRepository.ListBrandOwnerUserIdsAsync(business.OrganizationId, cancellationToken)).ToHashSet();
 
@@ -32,9 +32,9 @@ public sealed class GetTeamUseCase(
                 .. members
                     .Select(member => MemberResponse.From(
                         member,
-                        accounts.GetValueOrDefault(member.AccountId),
+                        member.User.AccountId is { } accountId ? accounts.GetValueOrDefault(accountId) : null,
                         currentUser.AccountId,
-                        brandOwnerUserIds.Contains(member.AccountId)))
+                        member.User.AccountId is { } memberAccountId && brandOwnerAccountIds.Contains(memberAccountId)))
                     .OrderBy(member => member.FullName, StringComparer.CurrentCultureIgnoreCase),
             ],
             [.. invitations.OrderBy(invitation => invitation.Email, StringComparer.OrdinalIgnoreCase).Select(InvitationResponse.From)]);

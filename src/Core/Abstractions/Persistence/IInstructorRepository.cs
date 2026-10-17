@@ -10,8 +10,6 @@ public interface IInstructorRepository
 
     Task<Instructor?> GetForUpdateAsync(Guid instructorId, CancellationToken cancellationToken);
 
-    Task ChangeEmailInEveryBusinessByMemberUserAsync(Guid userId, string email, CancellationToken cancellationToken);
-
     Task<Instructor?> FindByNameAsync(string fullName, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Instructor>> ListAllAsync(CancellationToken cancellationToken);

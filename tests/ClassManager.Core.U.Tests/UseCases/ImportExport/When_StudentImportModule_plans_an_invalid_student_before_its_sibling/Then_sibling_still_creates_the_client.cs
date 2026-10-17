@@ -10,7 +10,7 @@ public sealed class Then_sibling_still_creates_the_client
 
         await builder.PlanAndAddAsync("L;11 5555-6666;;;María Gómez\nSofía Gómez;1155556666;;;María Gómez\n");
 
-        builder.AddedClients.Single().FullName.ShouldBe("María Gómez");
-        builder.AddedStudents.Single().FullName.ShouldBe("Sofía Gómez");
+        builder.AddedClients.Single().User.FullName.ShouldBe("María Gómez");
+        builder.AddedStudents.Single().User.FullName.ShouldBe("Sofía Gómez");
     }
 }

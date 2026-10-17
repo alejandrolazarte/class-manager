@@ -5,6 +5,34 @@ namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class UserRepository(AppDbContext context) : IUserRepository
 {
+    public void Add(User user) => context.Users.Add(user);
+
+    public Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken) =>
+        context.Users.FirstOrDefaultAsync(user => user.AccountId == accountId, cancellationToken);
+
+    public Task<bool> IsEmailTakenAsync(string email, Guid exceptUserId, CancellationToken cancellationToken) =>
+        context.Users.AnyAsync(user => user.Email == email && user.Id != exceptUserId, cancellationToken);
+
+    public Task<bool> IsEmailTakenByAnotherPersonOfTheAccountsBusinessesAsync(Guid accountId, string email, CancellationToken cancellationToken)
+    {
+        var businessIdsOfTheAccount = context.Users
+            .IgnoreTenantFilter()
+            .Where(user => user.AccountId == accountId)
+            .Select(user => user.TenantId);
+        return context.Users
+            .IgnoreTenantFilter()
+            .AnyAsync(
+                user => businessIdsOfTheAccount.Contains(user.TenantId) && user.Email == email && user.AccountId != accountId,
+                cancellationToken);
+    }
+
+    public async Task<IReadOnlySet<string>> ListEmailsAsync(CancellationToken cancellationToken) =>
+        (await context.Users
+            .Where(user => user.Email != null)
+            .Select(user => user.Email!)
+            .ToListAsync(cancellationToken))
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
     public async Task AddMissingInEveryBranchAsync(
         Guid organizationId,
         IReadOnlyList<UserAccount> accounts,
@@ -28,7 +56,11 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
                 await context.Database.ExecuteSqlInterpolatedAsync(
                     $"""
                     INSERT INTO [Users] ([Id], [TenantId], [FullName], [Email], [AccountId], [CreatedAt], [IsDeleted])
-                    VALUES ({Guid.CreateVersion7()}, {branchId}, {account.FullName}, {account.Email}, {account.UserId}, {createdAt.ToUniversalTime()}, 0)
+                    SELECT {Guid.CreateVersion7()}, {branchId}, {account.FullName},
+                        CASE WHEN EXISTS (
+                            SELECT 1 FROM [Users]
+                            WHERE [TenantId] = {branchId} AND [Email] = {account.Email} AND [IsDeleted] = 0) THEN NULL ELSE {account.Email} END,
+                        {account.UserId}, {createdAt.ToUniversalTime()}, 0
                     """,
                     cancellationToken);
             }
@@ -53,6 +85,7 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
     public Task ChangeEmailInEveryBusinessByAccountAsync(Guid accountId, string email, CancellationToken cancellationToken) =>
         context.Users
             .IgnoreTenantFilter()
-            .Where(user => user.AccountId == accountId)
+            .Where(user => user.AccountId == accountId
+                && !context.Users.IgnoreTenantFilter().Any(other => other.TenantId == user.TenantId && other.Id != user.Id && other.Email == email))
             .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.Email, email), cancellationToken);
 }

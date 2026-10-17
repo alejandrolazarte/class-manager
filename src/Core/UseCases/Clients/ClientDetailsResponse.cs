@@ -39,18 +39,18 @@ public sealed record ClientDetailsResponse(
                 .Select(student => StudentResponse.From(student, studentAppAccesses.GetValueOrDefault(student.Id, StudentAppAccessResponse.NotInvited)))],
             appAccess);
 
-    public static ClientDetailsResponse FromWritten(Client client, IEnumerable<Student> students, DateOnly today) =>
+    public static ClientDetailsResponse Registered(Client client, IEnumerable<Student> students, DateOnly today) =>
         new(
             client.Id,
-            client.FullName,
-            client.PhoneNumber.Value,
-            client.Email,
+            client.User.FullName,
+            client.User.PhoneNumber!.Value,
+            client.User.Email,
             client.Notes,
             client.CreatedAt,
             BillingPlanResponse.From(FeeTimeline.PlanIn([], BillingMonth.From(today))),
             BillingPlanChangeResponse.From([]),
             [.. students
-                .OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase)
-                .Select(StudentResponse.FromWritten)],
+                .OrderBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase)
+                .Select(StudentResponse.NotInvited)],
             StudentAppAccessResponse.NotInvited);
 }

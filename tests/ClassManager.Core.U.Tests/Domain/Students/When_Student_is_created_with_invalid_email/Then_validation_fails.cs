@@ -9,6 +9,6 @@ public sealed class Then_validation_fails
     {
         var student = Student.Create(Guid.CreateVersion7(), TestData.StudentFullName, null, null, TestData.Today, TestData.Now, "not-an-email");
 
-        student.Error!.FieldName.ShouldBe(nameof(Student.Email));
+        student.Error!.FieldName.ShouldBe(nameof(User.Email));
     }
 }

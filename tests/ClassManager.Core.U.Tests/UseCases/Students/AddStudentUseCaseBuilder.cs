@@ -9,13 +9,15 @@ internal sealed class AddStudentUseCaseBuilder
     public Mock<IBusinessRepository> Businesses { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
+    public Mock<IUserRepository> Users { get; } = new();
+    public Mock<IPeopleLock> PeopleLock { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public FakeTimeProvider TimeProvider { get; } = new(TestData.Now);
 
     public AddStudentUseCaseBuilder()
     {
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
-        Clients.Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Client());
+        Clients.Setup(repository => repository.GetForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Client());
         Students.Setup(repository => repository.ListByClientAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
@@ -23,5 +25,5 @@ internal sealed class AddStudentUseCaseBuilder
         new(Guid.CreateVersion7(), TestData.StudentFullName, new DateOnly(2018, 3, 14), "Afraid of deep water");
 
     public AddStudentUseCase Build() =>
-        new(Businesses.Object, Clients.Object, Students.Object, UnitOfWork.Object, TimeProvider, new EveryAccessScopes());
+        new(Businesses.Object, Clients.Object, Students.Object, Users.Object, PeopleLock.Object, UnitOfWork.Object, TimeProvider, new EveryAccessScopes());
 }

@@ -57,6 +57,6 @@ public sealed class CreateClassGroupUseCase(
         classGroupRepository.Add(classGroup.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ClassGroupResponse.From(classGroup.Value, instructor.Value.FullName, enrolledCount: 0, documentStorage);
+        return ClassGroupResponse.From(classGroup.Value, instructor.Value.User.FullName, enrolledCount: 0, documentStorage);
     }
 }

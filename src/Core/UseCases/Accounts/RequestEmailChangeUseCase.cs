@@ -1,9 +1,11 @@
 using System.Net.Mail;
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Emails;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Accounts;
 
@@ -14,6 +16,7 @@ public sealed record RequestEmailChangeResponse(string NewEmail);
 public sealed class RequestEmailChangeUseCase(
     ICurrentUser currentUser,
     IIdentityService identityService,
+    IUserRepository userRepository,
     IEmailSender emailSender,
     IWebAppLinks webAppLinks)
     : IUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse>
@@ -40,6 +43,11 @@ public sealed class RequestEmailChangeUseCase(
         {
             return Result.Validation<RequestEmailChangeResponse>(
                 CurrentPasswordRequiredMessage, fieldName: nameof(RequestEmailChangeCommand.CurrentPassword));
+        }
+
+        if (await userRepository.IsEmailTakenByAnotherPersonOfTheAccountsBusinessesAsync(userId, newEmail, cancellationToken))
+        {
+            return PeopleEmails.EmailTaken(nameof(RequestEmailChangeCommand.NewEmail));
         }
 
         var request = await identityService.RequestEmailChangeAsync(userId, command.CurrentPassword, newEmail, cancellationToken);

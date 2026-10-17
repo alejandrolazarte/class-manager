@@ -6,7 +6,7 @@ using ClassManager.ImportExport.Parsing;
 
 namespace ClassManager.Core.UseCases.ImportExport.Instructors;
 
-public sealed class InstructorImportModule(IInstructorRepository instructorRepository) : IImportModule
+public sealed class InstructorImportModule(IInstructorRepository instructorRepository, TimeProvider timeProvider) : IImportModule
 {
     public const string ModuleName = "instructors";
     public const string FullNameKey = "fullName";
@@ -30,23 +30,24 @@ public sealed class InstructorImportModule(IInstructorRepository instructorRepos
     public async Task<Result<ImportPlan>> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken)
     {
         var existingInstructors = await instructorRepository.ListAllAsync(cancellationToken);
-        var existingNames = existingInstructors.Select(instructor => instructor.FullName).ToHashSet(StringComparer.CurrentCultureIgnoreCase);
+        var existingNames = existingInstructors.Select(instructor => instructor.User.FullName).ToHashSet(StringComparer.CurrentCultureIgnoreCase);
         var namesInFile = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
         var newInstructors = new List<Instructor>();
         var results = new List<ImportRowResult>();
 
+        var now = timeProvider.GetUtcNow();
         foreach (var row in rows)
         {
-            var instructor = Instructor.Create(row.GetText(FullNameKey));
+            var instructor = Instructor.Create(row.GetText(FullNameKey), now);
             if (instructor.IsFailure)
             {
                 results.Add(ImportRowResult.Error(row.LineNumber, new ImportCellError(FullNameKey, instructor.Error!.Code, instructor.Error.Message)));
             }
-            else if (existingNames.Contains(instructor.Value!.FullName))
+            else if (existingNames.Contains(instructor.Value!.User.FullName))
             {
                 results.Add(ImportRowResult.Skipped(row.LineNumber, new ImportCellError(FullNameKey, InstructorErrorCodes.NameTaken, NameTakenMessage)));
             }
-            else if (!namesInFile.Add(instructor.Value.FullName))
+            else if (!namesInFile.Add(instructor.Value.User.FullName))
             {
                 results.Add(ImportRowResult.Error(row.LineNumber, ImportFlow.DuplicateInFile(FullNameKey)));
             }

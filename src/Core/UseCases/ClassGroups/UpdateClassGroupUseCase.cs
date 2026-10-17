@@ -78,6 +78,6 @@ public sealed class UpdateClassGroupUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ClassGroupResponse.From(classGroup, instructor.Value.FullName, enrolledCount, documentStorage);
+        return ClassGroupResponse.From(classGroup, instructor.Value.User.FullName, enrolledCount, documentStorage);
     }
 }

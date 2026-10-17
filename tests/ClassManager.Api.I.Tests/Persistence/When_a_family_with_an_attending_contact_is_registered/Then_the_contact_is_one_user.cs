@@ -26,7 +26,7 @@ public sealed class Then_the_contact_is_one_user(ApiFixture fixture)
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
         var client = await context.Clients.AsNoTracking().SingleAsync(client => client.Id == family.Id);
-        var students = await context.Students.AsNoTracking().Where(student => student.ClientId == family.Id).ToListAsync();
+        var students = await context.Students.AsNoTracking().Include(student => student.User).Where(student => student.ClientId == family.Id).ToListAsync();
         var users = await context.Users.AsNoTracking().Where(user => user.AccountId == null).OrderBy(user => user.FullName).ToListAsync();
 
         users.Select(user => (user.FullName, user.Email, user.BirthDate)).ShouldBe(
@@ -34,6 +34,6 @@ public sealed class Then_the_contact_is_one_user(ApiFixture fixture)
             (ApiRequests.ClientFullName, "ana@example.com", (DateOnly?)null),
             (ChildFullName, null, new DateOnly(2014, 3, 14)),
         ]);
-        students.Single(student => student.FullName == ApiRequests.ClientFullName).UserId.ShouldBe(client.UserId);
+        students.Single(student => student.User.FullName == ApiRequests.ClientFullName).UserId.ShouldBe(client.UserId);
     }
 }

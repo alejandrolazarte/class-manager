@@ -150,16 +150,11 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         var instructorUser = instructorId is null
             ? null
             : await context.Instructors.Where(instructor => instructor.Id == instructorId).Select(instructor => instructor.User).SingleOrDefaultAsync();
-        if (instructorUser is { AccountId: null })
-        {
-            instructorUser.LinkAccount(accountId);
-        }
-        else
-        {
-            context.Users.Add(UserOfAccount(businessId, SeededMemberFullName, accountId));
-        }
-
-        context.BusinessMembers.Add(BusinessMember.Create(businessId, accountId, role, instructorId).Value!);
+        var user = instructorUser is { AccountId: null }
+            ? instructorUser
+            : User.CreateForAccount(accountId, SeededMemberFullName, null, BusinessApiFactory.Now);
+        user.LinkAccount(accountId);
+        context.BusinessMembers.Add(BusinessMember.Create(businessId, user, role, instructorId).Value!);
         await context.SaveChangesAsync();
 
         return CreateClientFor(businessId, accountId);
@@ -254,8 +249,9 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         context.Organizations.Add(organization);
         context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerAccountId));
         context.Businesses.Add(business);
-        context.Users.Add(UserOfAccount(business.Id, SeededOwnerFullName, ownerAccountId));
-        context.BusinessMembers.Add(BusinessMember.CreateBranchOwner(business.Id, ownerAccountId));
+        context.BusinessMembers.Add(BusinessMember.CreateBranchOwner(
+            business.Id,
+            User.CreateForAccount(ownerAccountId, SeededOwnerFullName, null, BusinessApiFactory.Now)));
         context.Subscriptions.Add(Subscription.Start(
             organization.Id,
             planCode,
@@ -266,13 +262,6 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         await context.SaveChangesAsync();
 
         return new SeededBusiness(business, CreateClientFor(business.Id, ownerAccountId), ownerAccountId);
-    }
-
-    private static User UserOfAccount(Guid businessId, string fullName, Guid accountId)
-    {
-        var user = User.Create(businessId, fullName, BusinessApiFactory.Now);
-        user.LinkAccount(accountId);
-        return user;
     }
 
     private Dictionary<string, string>? SessionUserClaimsOf(Guid businessId, Guid accountId)

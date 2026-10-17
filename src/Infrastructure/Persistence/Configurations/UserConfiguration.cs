@@ -5,6 +5,7 @@ namespace ClassManager.Infrastructure.Persistence.Configurations;
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     private const string LinkedAccountFilter = "[AccountId] IS NOT NULL AND [IsDeleted] = 0";
+    private const string ContactEmailFilter = "[Email] IS NOT NULL AND [IsDeleted] = 0";
 
     public void Configure(EntityTypeBuilder<User> builder)
     {
@@ -18,7 +19,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasOne<Business>().WithMany().HasForeignKey(user => user.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(user => new { user.TenantId, user.AccountId }).IsUnique().HasFilter(LinkedAccountFilter);
-        builder.HasIndex(user => new { user.TenantId, user.Email });
+        builder.HasIndex(user => new { user.TenantId, user.Email }).IsUnique().HasFilter(ContactEmailFilter);
         builder.HasIndex(user => new { user.TenantId, user.PhoneNumber });
         builder.HasIndex(user => user.AccountId);
     }

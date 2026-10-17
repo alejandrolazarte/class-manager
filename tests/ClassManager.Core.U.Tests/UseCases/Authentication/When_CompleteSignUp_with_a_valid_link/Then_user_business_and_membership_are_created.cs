@@ -19,15 +19,15 @@ public sealed class Then_user_business_and_membership_are_created
                 It.IsAny<CancellationToken>()),
             Times.Once);
         builder.AddedBusiness!.Name.ShouldBe(TestData.BusinessName);
-        builder.AddedMember.ShouldBe(BusinessMember.CreateBranchOwner(builder.AddedBusiness.Id, builder.UserId), new BusinessMemberLinkComparer());
+        builder.AddedMember.ShouldBe(BusinessMember.CreateBranchOwner(builder.AddedBusiness.Id, TestData.UserOfAccount(builder.UserId)), new BusinessMemberLinkComparer());
         builder.Transaction.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private sealed class BusinessMemberLinkComparer : IEqualityComparer<BusinessMember?>
     {
         public bool Equals(BusinessMember? x, BusinessMember? y) =>
-            x?.TenantId == y?.TenantId && x?.AccountId == y?.AccountId && x?.Role == y?.Role;
+            x?.TenantId == y?.TenantId && x?.User.AccountId == y?.User.AccountId && x?.Role == y?.Role;
 
-        public int GetHashCode(BusinessMember? obj) => HashCode.Combine(obj?.TenantId, obj?.AccountId, obj?.Role);
+        public int GetHashCode(BusinessMember? obj) => HashCode.Combine(obj?.TenantId, obj?.User.AccountId, obj?.Role);
     }
 }

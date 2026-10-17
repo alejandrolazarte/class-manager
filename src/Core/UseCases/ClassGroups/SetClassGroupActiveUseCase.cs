@@ -62,6 +62,6 @@ public sealed class SetClassGroupActiveUseCase(
         classGroup.Activate();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ClassGroupResponse.From(classGroup, activeInstructor.Value!.FullName, enrolledCount, documentStorage);
+        return ClassGroupResponse.From(classGroup, activeInstructor.Value!.User.FullName, enrolledCount, documentStorage);
     }
 }

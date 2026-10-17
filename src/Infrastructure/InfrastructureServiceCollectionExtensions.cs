@@ -49,7 +49,6 @@ public static class InfrastructureServiceCollectionExtensions
                 .UseSqlServer(connectionString)
                 .AddInterceptors(
                     serviceProvider.GetRequiredService<BackgroundTaskSignalInterceptor>(),
-                    new UserSyncSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>(), serviceProvider),
                     new SoftDeleteSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>()),
                     serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>(),
                     serviceProvider.GetRequiredService<FeatureLimitSaveChangesInterceptor<AppDbContext>>());
@@ -99,6 +98,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IStockMovementRepository, StockMovementRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IStockLock, StockLock>();
+        services.AddScoped<IPeopleLock, PeopleLock>();
         services.AddScoped<IOrderNumbers, OrderNumbers>();
         services.AddScoped<IExpiredOrderDirectory, ExpiredOrderDirectory>();
         services.AddScoped<IOrderNotificationService, OrderNotificationService>();

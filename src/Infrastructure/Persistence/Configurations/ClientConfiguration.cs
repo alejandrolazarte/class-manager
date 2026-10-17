@@ -10,19 +10,11 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
     {
         builder.HasKey(client => client.Id);
         builder.Property(client => client.Id).ValueGeneratedNever();
-        builder.Property(client => client.FullName).HasMaxLength(Client.FullNameMaxLength).IsRequired();
-        builder.Property(client => client.PhoneNumber)
-            .HasConversion(phoneNumber => phoneNumber.Value, value => PhoneNumber.FromNormalized(value))
-            .HasMaxLength(PhoneNumber.MaxLength)
-            .IsRequired();
-        builder.Property(client => client.Email).HasMaxLength(Client.EmailMaxLength);
         builder.Property(client => client.Notes).HasMaxLength(Client.NotesMaxLength);
         builder.Property<decimal?>(RetiredMonthlyFeeColumn).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(client => client.TenantId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(client => client.User).WithMany().HasForeignKey(client => client.UserId).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(client => new { client.TenantId, client.PhoneNumber }).IsUnique();
-        builder.HasIndex(client => new { client.TenantId, client.FullName });
+        builder.HasOne(client => client.User).WithMany().HasForeignKey(client => client.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(client => new { client.TenantId, client.RegisteredByUserId });
     }
 }

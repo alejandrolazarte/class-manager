@@ -11,7 +11,7 @@ public sealed class Then_it_is_not_returned(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync();
         var otherBusiness = await fixture.SeedBusinessAsync();
-        var otherUser = User.Create(otherBusiness.Business.Id, "Ana Pérez", BusinessApiFactory.Now);
+        var otherUser = User.Create("Ana Pérez", null, BusinessApiFactory.Now).Value!;
         await using (var otherBusinessContext = fixture.CreateDbContext(otherBusiness.Business.Id))
         {
             otherBusinessContext.Users.Add(otherUser);

@@ -13,6 +13,8 @@ internal sealed class RegisterClientUseCaseBuilder
     public Mock<IStudentRepository> Students { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<ICurrentUser> CurrentUser { get; } = new();
+    public Mock<IUserRepository> Users { get; } = new();
+    public Mock<IPeopleLock> PeopleLock { get; } = new();
 
     public RegisterClientUseCaseBuilder()
     {
@@ -26,5 +28,5 @@ internal sealed class RegisterClientUseCaseBuilder
         ValidCommand() with { Students = [.. studentFullNames.Select(fullName => new NewStudent(fullName, null, null))] };
 
     public RegisterClientUseCase Build() =>
-        new(Businesses.Object, Clients.Object, Students.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now), CurrentUser.Object);
+        new(Businesses.Object, Clients.Object, Students.Object, Users.Object, PeopleLock.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now), CurrentUser.Object);
 }
