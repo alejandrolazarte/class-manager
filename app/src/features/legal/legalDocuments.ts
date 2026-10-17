@@ -108,7 +108,7 @@ const terms: LegalDocument = {
       heading: "7. Baja",
       paragraphs: [
         `Un negocio puede exportar sus datos en cualquier momento desde Ajustes, Importar y exportar, y pedir la baja escribiendo a ${email}. Después de la baja tiene 30 días para pedir una copia; luego sus datos se borran.`,
-        `Cualquier persona puede pedir que se borre su cuenta escribiendo a ${email}.`,
+        `Cualquier persona puede borrar su cuenta desde Mi perfil, Eliminar mi cuenta, o pedirlo escribiendo a ${email}. Se borran su email, su contraseña y su acceso a la app; lo que cada negocio cargó sobre esa persona queda en ese negocio.`,
       ],
     },
     {
@@ -185,14 +185,14 @@ const privacy: LegalDocument = {
     {
       heading: "6. Cuánto tiempo",
       paragraphs: [
-        "La cuenta se guarda mientras exista. Los datos de un negocio se guardan mientras use el servicio y se borran 30 días después de su baja. Lo borrado desaparece también de las copias de seguridad en un máximo de 35 días.",
+        "La cuenta se guarda hasta que la persona la borra desde Mi perfil o pide borrarla. Los datos de un negocio se guardan mientras use el servicio y se borran 30 días después de su baja. Lo borrado desaparece también de las copias de seguridad en un máximo de 35 días.",
       ],
     },
     {
       heading: "7. Tus derechos",
       paragraphs: [
         "Toda persona puede pedir acceder a sus datos, corregirlos, borrarlos, oponerse a un tratamiento, limitarlo o recibirlos en un archivo.",
-        `El nombre, el email y la fecha de nacimiento se corrigen desde Mi perfil. Para lo demás, escribí a ${email}; respondemos en menos de un mes. Si el pedido es sobre datos que cargó un negocio, se lo hacemos llegar a ese negocio.`,
+        `El nombre, el email y la fecha de nacimiento se corrigen desde Mi perfil, y la cuenta se borra desde Mi perfil, Eliminar mi cuenta. Para lo demás, escribí a ${email}; respondemos en menos de un mes. Si el pedido es sobre datos que cargó un negocio, se lo hacemos llegar a ese negocio.`,
         "Si no quedás conforme, podés reclamar ante la autoridad de protección de datos: en España, la Agencia Española de Protección de Datos (aepd.es); en Argentina, la Agencia de Acceso a la Información Pública (argentina.gob.ar/aaip).",
       ],
     },

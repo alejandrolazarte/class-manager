@@ -80,5 +80,6 @@ Example: upcoming fee changes (`DefaultMonthlyFeeChange`, `ClientBillingPlanChan
 | --- | --- | --- |
 | Private lesson | Yes | It can only be deleted while it has no attendance and was not deducted as a trial from a pack sale, so nothing depends on it; it is meant for a lesson loaded by mistake. A lesson that didn't happen is cancelled instead, which keeps it. |
 | Web push subscriptions | No user action | The device subscribes again on its own. |
+| An account and what only that account uses (its push subscriptions and team notices) | Yes, with the current password ("Eliminar mi cuenta") | The person asked for it to be erased. What the businesses recorded about the person stays: their user loses the account, and their team memberships and student app accounts are soft deleted. See [Users per business](backend/20261017-users/plan.md#deleting-an-account). |
 
-Everything else a user can delete is soft deleted: payments, class pack purchases ("Anular"), announcements, class comments, upcoming fee changes, team members, brand owners and custom roles.
+Everything else a user can delete is soft deleted: payments, class pack purchases ("Anular"), announcements, class comments, upcoming fee changes, team members, student app accounts, brand owners and custom roles.

@@ -18,9 +18,14 @@ import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 interface MyProfileScreenProps {
   editProfileRoute: Href;
   changeEmailRoute: Href;
+  deleteAccountRoute: Href;
 }
 
-export function MyProfileScreen({ editProfileRoute, changeEmailRoute }: MyProfileScreenProps) {
+export function MyProfileScreen({
+  editProfileRoute,
+  changeEmailRoute,
+  deleteAccountRoute,
+}: MyProfileScreenProps) {
   const router = useRouter();
   const accountQuery = useMyAccount();
   const account = accountQuery.data;
@@ -90,6 +95,13 @@ export function MyProfileScreen({ editProfileRoute, changeEmailRoute }: MyProfil
               label={translate("profile.email.title")}
               detail={translate("profile.signsInWith", { email: account.email })}
               onPress={() => router.push(changeEmailRoute)}
+            />
+            <ListRow
+              icon="delete"
+              iconTone="danger"
+              label={translate("profile.delete.title")}
+              isDestructive
+              onPress={() => router.push(deleteAccountRoute)}
             />
           </View>
         </>

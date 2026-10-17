@@ -74,6 +74,8 @@ export const routes = {
   editMyProfile: "/settings/edit-profile",
   changeMyEmail: "/settings/change-email",
   studentAppChangeEmail: "/student-app/change-email",
+  deleteMyAccount: "/settings/delete-account",
+  studentAppDeleteAccount: "/student-app/delete-account",
   forgotPassword: (email: string) =>
     email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
   settings: "/settings",

@@ -116,4 +116,10 @@ internal sealed class IdentityService(
                 AuthenticationErrorCodes.InvalidEmailChangeTokenMessage, AuthenticationErrorCodes.InvalidEmailChangeToken),
         };
     }
+
+    public Task<bool> IsPasswordCorrectAsync(Guid userId, string password, CancellationToken cancellationToken) =>
+        userAccountService.IsPasswordCorrectAsync(userId, password, cancellationToken);
+
+    public Task<bool> DeleteAccountAsync(Guid userId, CancellationToken cancellationToken) =>
+        userAccountService.DeleteAsync(userId, cancellationToken);
 }

@@ -23,6 +23,7 @@ describe("When the profile is edited", () => {
       <MyProfileScreen
         editProfileRoute={routes.studentAppEditProfile}
         changeEmailRoute={routes.studentAppChangeEmail}
+        deleteAccountRoute={routes.studentAppDeleteAccount}
       />,
     );
 

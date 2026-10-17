@@ -6,6 +6,7 @@ export default function MyProfileRoute() {
     <MyProfileScreen
       editProfileRoute={routes.editMyProfile}
       changeEmailRoute={routes.changeMyEmail}
+      deleteAccountRoute={routes.deleteMyAccount}
     />
   );
 }

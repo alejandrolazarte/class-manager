@@ -13,7 +13,7 @@ internal sealed class ClientAccountConfiguration : IEntityTypeConfiguration<Clie
         builder.HasOne(account => account.User).WithMany().HasForeignKey(account => account.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Client>().WithMany().HasForeignKey(account => account.ClientId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Student>().WithMany().HasForeignKey(account => account.StudentId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(account => new { account.TenantId, account.UserId }).IsUnique();
+        builder.HasIndex(account => new { account.TenantId, account.UserId }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
         builder.HasIndex(account => new { account.TenantId, account.ClientId });
     }
 }
