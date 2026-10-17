@@ -274,6 +274,7 @@ export async function seedDemoStudentApp(
   const email = `alumno-${randomUUID()}@demo.local`;
   await send("POST", `/api/clients/${demo.studentAppClientId}/app-invitation`, ownerToken, {
     email,
+    confirmsContactIsAdult: true,
   });
   const invitation = await waitForEmailTo(email, invitationTokenPattern);
   const invitationToken = invitationTokenPattern.exec(invitation.body)?.[1];
@@ -434,7 +435,10 @@ export async function inviteOwnerAsStudent(
   const { accessToken } = (await signIn.json()) as { accessToken: string };
   const invitation = await request.post(
     `${e2eEnvironment.apiUrl}/api/clients/${demo.studentAppClientId}/app-invitation`,
-    { data: { email: demo.email }, headers: { Authorization: `Bearer ${accessToken}` } },
+    {
+      data: { email: demo.email, confirmsContactIsAdult: true },
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
   );
   expect(invitation.ok(), "the owner is invited as a student").toBeTruthy();
   const email = await waitForEmailTo(demo.email, invitationTokenPattern);

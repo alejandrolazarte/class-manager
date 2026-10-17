@@ -9,6 +9,7 @@ public static class StudentAppErrorCodes
     public const string BirthDateRequired = "student_invitation.birth_date_required";
     public const string GuardianEmailRequired = "student_invitation.guardian_email_required";
     public const string AwaitsGuardianConsent = "student_invitation.awaits_guardian_consent";
+    public const string ContactAdultConfirmationRequired = "student_invitation.contact_adult_confirmation_required";
 
     public const string InvalidInvitationMessage = "The invitation link is invalid, expired or already used. Ask the school for a new one.";
 }

@@ -6,6 +6,7 @@ import { clientErrorCodes } from "@/features/clients/clientErrorCodes";
 import { clientQueryKeys } from "@/features/clients/clientQueryKeys";
 import { isApiError } from "@/api/httpClient";
 import { ClientDetails, StudentAppAccessStatus } from "@/features/clients/types";
+import { ContactAdultConfirmation } from "@/features/studentApp/components/ContactAdultConfirmation";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
@@ -72,11 +73,13 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     ""
   ).trim();
   const needsBirthDate = student?.birthDate === null;
+  const needsAdultConfirmation = student === undefined;
   const [isAskingEmail, setIsAskingEmail] = useState(false);
   const [email, setEmail] = useState(emailOnFile);
   const [emailError, setEmailError] = useState<string | undefined>();
   const [birthDate, setBirthDate] = useState("");
   const [birthDateError, setBirthDateError] = useState<string | undefined>();
+  const [confirmsContactIsAdult, setConfirmsContactIsAdult] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
   const [isMissingGuardianEmail, setIsMissingGuardianEmail] = useState(false);
   const [isMinorContact, setIsMinorContact] = useState(false);
@@ -113,6 +116,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
         email: recipientEmail,
         ...(student ? { studentId: student.id } : {}),
         ...(needsBirthDate ? { birthDate: parseBirthDate(birthDate) ?? undefined } : {}),
+        ...(needsAdultConfirmation && confirmsContactIsAdult ? { confirmsContactIsAdult } : {}),
       });
       showToast(
         invitation.awaitsGuardianConsent
@@ -125,10 +129,19 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
           : translate("student.invite.sent"),
       );
       setIsAskingEmail(false);
+      setConfirmsContactIsAdult(false);
       await queryClient.invalidateQueries({ queryKey: clientQueryKeys.detail(client.id) });
     } catch (inviteError) {
       if (isApiError(inviteError) && inviteError.hasCode(studentErrorCodes.emailOfAnotherPerson)) {
         askAgain(translate("students.validation.emailOfAnotherPerson"), undefined);
+        return;
+      }
+      if (
+        isApiError(inviteError) &&
+        inviteError.hasCode(studentAppErrorCodes.contactAdultConfirmationRequired)
+      ) {
+        setEmail(recipientEmail);
+        askAgain(undefined, undefined);
         return;
       }
       if (
@@ -162,10 +175,14 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const cancel = () => {
     setEmailError(undefined);
     setBirthDateError(undefined);
+    setConfirmsContactIsAdult(false);
     setIsAskingEmail(false);
   };
 
-  const isFormFilled = email.trim().length > 0 && (!needsBirthDate || birthDate.length > 0);
+  const isFormFilled =
+    email.trim().length > 0 &&
+    (!needsBirthDate || birthDate.length > 0) &&
+    (!needsAdultConfirmation || confirmsContactIsAdult);
 
   const actionButton =
     status === "Active" || isAskingEmail ? null : (
@@ -249,6 +266,13 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
               value={birthDate}
               onChangeText={setBirthDate}
               errorMessage={birthDateError}
+            />
+          ) : null}
+          {needsAdultConfirmation ? (
+            <ContactAdultConfirmation
+              contactFullName={client.fullName}
+              isConfirmed={confirmsContactIsAdult}
+              onConfirmedChange={setConfirmsContactIsAdult}
             />
           ) : null}
           <Button

@@ -13,12 +13,17 @@ using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record InviteStudentAppRequest(string? Email, Guid? StudentId = null, DateOnly? BirthDate = null)
+public sealed record InviteStudentAppRequest(string? Email, Guid? StudentId = null, DateOnly? BirthDate = null, bool ConfirmsContactIsAdult = false)
 {
-    public InviteStudentAppCommand ToCommand(Guid clientId) => new(clientId, Email, StudentId, BirthDate);
+    public InviteStudentAppCommand ToCommand(Guid clientId) => new(clientId, Email, StudentId, BirthDate, ConfirmsContactIsAdult);
 }
 
-public sealed record InviteStudentAppCommand(Guid ClientId, string? Email, Guid? StudentId = null, DateOnly? BirthDate = null) : ICommand;
+public sealed record InviteStudentAppCommand(
+    Guid ClientId,
+    string? Email,
+    Guid? StudentId = null,
+    DateOnly? BirthDate = null,
+    bool ConfirmsContactIsAdult = false) : ICommand;
 
 public sealed class InviteStudentAppUseCase(
     IClientRepository clientRepository,
@@ -42,6 +47,7 @@ public sealed class InviteStudentAppUseCase(
     private const string StudentNotFoundMessage = "The student is not part of this client.";
     private const string GuardianEmailRequiredMessage = "Write the email of the client: a student this young needs their authorization.";
     private const string BirthDateRequiredMessage = "Write the birth date of the person who will use the app.";
+    private const string ContactAdultConfirmationRequiredMessage = "Confirm that the contact is 18 or older: the contact pays for the classes.";
 
     public async Task<Result<StudentAppInvitationResponse>> ExecuteAsync(InviteStudentAppCommand command, CancellationToken cancellationToken)
     {
@@ -73,11 +79,30 @@ public sealed class InviteStudentAppUseCase(
             return recipient.Error!;
         }
 
+        var previousInvitations = await invitationRepository.ListPendingForUpdateByPersonAsync(client.Id, command.StudentId, now, cancellationToken);
+        var confirmedAdultInvitation = previousInvitations.FirstOrDefault(previousInvitation => previousInvitation.ContactAdultConfirmedAt is not null);
+        if (command.StudentId is null && !command.ConfirmsContactIsAdult && confirmedAdultInvitation is null)
+        {
+            return Result.Validation<StudentAppInvitationResponse>(
+                ContactAdultConfirmationRequiredMessage,
+                StudentAppErrorCodes.ContactAdultConfirmationRequired,
+                nameof(InviteStudentAppRequest.ConfirmsContactIsAdult));
+        }
+
         var token = secretTokenGenerator.Create();
         var invitation = ClientInvitation.Create(client.Id, recipient.Value!.Email, token.Hash, access.UserId, now, command.StudentId);
         if (invitation.IsFailure)
         {
             return invitation.Error!;
+        }
+
+        if (command.StudentId is null && command.ConfirmsContactIsAdult)
+        {
+            invitation.Value!.ConfirmContactIsAdult(access.UserId, now);
+        }
+        else if (command.StudentId is null)
+        {
+            invitation.Value!.KeepContactAdultConfirmationOf(confirmedAdultInvitation!);
         }
 
         var guardianToken = recipient.Value.NeedsGuardianConsent ? secretTokenGenerator.Create() : null;
@@ -86,7 +111,7 @@ public sealed class InviteStudentAppUseCase(
             invitation.Value!.RequireGuardianConsent(client.Email!, guardianToken.Hash);
         }
 
-        foreach (var previousInvitation in await invitationRepository.ListPendingForUpdateByPersonAsync(client.Id, command.StudentId, now, cancellationToken))
+        foreach (var previousInvitation in previousInvitations)
         {
             previousInvitation.Revoke(now);
         }

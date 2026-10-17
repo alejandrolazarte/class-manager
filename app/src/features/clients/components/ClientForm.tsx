@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { AttendeesSection } from "@/features/clients/components/AttendeesSection";
 import { formatPhoneNumberAsTyped } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientFormValues } from "@/features/clients/registerClientSchema";
-import { emailAddressPattern } from "@/forms/emailAddress";
+import { ContactAdultConfirmation } from "@/features/studentApp/components/ContactAdultConfirmation";
 import { translate } from "@/i18n/translate";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
@@ -21,12 +21,14 @@ interface ClientFormProps {
 
 export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
   const { control, formState, watch } = form;
-  const isAppInvitationOffered = emailAddressPattern.test(watch("email").trim());
+  const isAppInvitationOffered = watch("email").trim().length > 0;
+  const isAppInvitationOn = isAppInvitationOffered && watch("sendAppInvitation");
   const isSubmitBlockedByErrors = formState.isSubmitted && !formState.isValid;
   const additionalStudents = watch("additionalStudents");
   const areRequiredFieldsFilled =
     areFilled([watch("fullName"), watch("phoneNumber")]) &&
-    areFilled(additionalStudents.map((additionalStudent) => additionalStudent.fullName));
+    areFilled(additionalStudents.map((additionalStudent) => additionalStudent.fullName)) &&
+    (!isAppInvitationOn || watch("confirmsContactIsAdult"));
 
   return (
     <View className="gap-[18px]">
@@ -99,6 +101,19 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
             <AppText variant="caption" tone="subtle">
               {translate("clients.register.sendAppInvitationHint")}
             </AppText>
+            {isAppInvitationOn ? (
+              <Controller
+                control={control}
+                name="confirmsContactIsAdult"
+                render={({ field }) => (
+                  <ContactAdultConfirmation
+                    contactFullName={watch("fullName")}
+                    isConfirmed={field.value}
+                    onConfirmedChange={field.onChange}
+                  />
+                )}
+              />
+            ) : null}
           </View>
         ) : null}
         <Controller

@@ -10,6 +10,7 @@ import {
   fillRegisterClientForm,
   submitRegisterClientForm,
 } from "@/testing/fillRegisterClientForm";
+import { confirmContactIsAdult } from "@/testing/confirmContactIsAdult";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/clients/clientsApi");
@@ -31,11 +32,13 @@ describe("When email is entered", () => {
     await renderWithProviders(<RegisterClientScreen />);
     await fillRegisterClientForm(registeredClient.fullName, "11 2233-4455");
     await fillRegisterClientEmail("ana@example.com");
+    await confirmContactIsAdult(registeredClient.fullName);
     await submitRegisterClientForm();
 
     await waitFor(() =>
       expect(inviteStudentApp).toHaveBeenCalledWith(registeredClient.id, {
         email: "ana@example.com",
+        confirmsContactIsAdult: true,
       }),
     );
     expect(

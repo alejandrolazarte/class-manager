@@ -72,7 +72,10 @@ export function RegisterClientScreen() {
     appInvitationEmail: string,
   ): Promise<string> => {
     try {
-      await inviteStudentApp(registeredClient.id, { email: appInvitationEmail });
+      await inviteStudentApp(registeredClient.id, {
+        email: appInvitationEmail,
+        confirmsContactIsAdult: true,
+      });
       return registrationSuccessMessage(registeredClient, true);
     } catch {
       return translate("clients.register.invitationFailed");

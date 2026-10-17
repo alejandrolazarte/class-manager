@@ -3,6 +3,7 @@ export const studentAppErrorCodes = {
   alreadyLinked: "student.already_linked",
   emailRequired: "student_invitation.email_required",
   guardianEmailRequired: "student_invitation.guardian_email_required",
+  contactAdultConfirmationRequired: "student_invitation.contact_adult_confirmation_required",
   outOfStock: "product.out_of_stock",
   tooManyOpenOrders: "order.too_many_open",
   classStarted: "absence.class_started",

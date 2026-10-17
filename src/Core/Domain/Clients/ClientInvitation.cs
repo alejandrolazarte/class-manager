@@ -33,6 +33,8 @@ public sealed class ClientInvitation : ITenantOwned
     public string? GuardianEmail { get; private set; }
     public string? GuardianTokenHash { get; private set; }
     public DateTimeOffset? GuardianConsentedAt { get; private set; }
+    public Guid? ContactAdultConfirmedByUserId { get; private set; }
+    public DateTimeOffset? ContactAdultConfirmedAt { get; private set; }
 
     public bool AwaitsGuardianConsent => GuardianTokenHash is not null && GuardianConsentedAt is null;
 
@@ -75,6 +77,18 @@ public sealed class ClientInvitation : ITenantOwned
     {
         GuardianEmail = guardianEmail;
         GuardianTokenHash = guardianTokenHash;
+    }
+
+    public void ConfirmContactIsAdult(Guid confirmedByUserId, DateTimeOffset confirmedAt)
+    {
+        ContactAdultConfirmedByUserId = confirmedByUserId;
+        ContactAdultConfirmedAt = confirmedAt.ToUniversalTime();
+    }
+
+    public void KeepContactAdultConfirmationOf(ClientInvitation previousInvitation)
+    {
+        ContactAdultConfirmedByUserId = previousInvitation.ContactAdultConfirmedByUserId;
+        ContactAdultConfirmedAt = previousInvitation.ContactAdultConfirmedAt;
     }
 
     public void ConsentByGuardian(string tokenHash, DateTimeOffset consentedAt)
