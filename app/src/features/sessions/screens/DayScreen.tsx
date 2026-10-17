@@ -6,7 +6,7 @@ import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { weekdayOf, weekdayShortLabel } from "@/features/classGroups/weekdays";
 import { firstNameOf } from "@/features/studentApp/studentAppSchedule";
-import { addMonths, formatMonth } from "@/features/fees/months";
+import { formatMonth } from "@/features/fees/months";
 import {
   currentTimeLabel,
   relativeDayLabel,
@@ -20,6 +20,7 @@ import { AgendaCalendar, AgendaView } from "@/features/sessions/components/Agend
 import { AgendaSessionRow } from "@/features/sessions/components/AgendaSessionRow";
 import {
   addDays,
+  addMonthsToDate,
   dayOfMonth,
   monthOfDate,
   parseIsoDate,
@@ -88,7 +89,6 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   const timeNow = currentTimeLabel();
   const [sessionDate, setSessionDate] = useState(initialDate ?? today);
   const [view, setView] = useState<AgendaView>("day");
-  const [calendarMonth, setCalendarMonth] = useState(() => monthOfDate(sessionDate));
   const {
     data: sessions = [],
     isPending,
@@ -99,6 +99,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
   } = useDaySessions(sessionDate);
   const { data: todaySessions = [] } = useDaySessions(today);
   const isMonthView = view === "month";
+  const calendarMonth = monthOfDate(sessionDate);
   const { data: monthCalendar } = useMonthCalendar(calendarMonth, isMonthView);
   const week = weekOf(sessionDate);
   const { data: weekStartCalendar } = useMonthCalendar(monthOfDate(week[0]!), !isMonthView);
@@ -115,19 +116,13 @@ export function DayScreen({ initialDate }: DayScreenProps) {
 
   const openSession = (session: DaySession) => router.push(sessionRoute(session));
   const openNewPrivateLesson = () => router.push(routes.newPrivateLesson(sessionDate));
-  const changeView = (nextView: AgendaView) => {
-    setCalendarMonth(monthOfDate(sessionDate));
-    setView(nextView);
-  };
   const step = (direction: number) =>
-    isMonthView
-      ? setCalendarMonth(addMonths(calendarMonth, direction))
-      : setSessionDate(addDays(sessionDate, direction * daysPerWeek));
-  const goToToday = () => {
-    setSessionDate(today);
-    setCalendarMonth(monthOfDate(today));
-    setView("day");
-  };
+    setSessionDate(
+      isMonthView
+        ? addMonthsToDate(sessionDate, direction)
+        : addDays(sessionDate, direction * daysPerWeek),
+    );
+  const goToToday = () => setSessionDate(today);
 
   const expectedStudentCount = sessions
     .filter((session) => !session.isCancelled)
@@ -139,7 +134,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
           translateCount("sessions.day.classCount", sessions.length),
           translateCount("sessions.day.studentCount", expectedStudentCount),
         ].join(summarySeparator);
-  const isShowingToday = sessionDate === today && !isMonthView;
+  const isShowingToday = sessionDate === today;
 
   return (
     <Screen
@@ -194,7 +189,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
                     { value: "month", label: translate("home.view.month") },
                   ]}
                   selectedValue={view}
-                  onChange={changeView}
+                  onChange={setView}
                 />
               </View>
               <AgendaCalendar
