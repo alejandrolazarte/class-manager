@@ -26,8 +26,8 @@ public sealed class Then_user_business_and_membership_are_created
     private sealed class BusinessMemberLinkComparer : IEqualityComparer<BusinessMember?>
     {
         public bool Equals(BusinessMember? x, BusinessMember? y) =>
-            x?.TenantId == y?.TenantId && x?.UserId == y?.UserId && x?.Role == y?.Role;
+            x?.TenantId == y?.TenantId && x?.AccountId == y?.AccountId && x?.Role == y?.Role;
 
-        public int GetHashCode(BusinessMember? obj) => HashCode.Combine(obj?.TenantId, obj?.UserId, obj?.Role);
+        public int GetHashCode(BusinessMember? obj) => HashCode.Combine(obj?.TenantId, obj?.AccountId, obj?.Role);
     }
 }

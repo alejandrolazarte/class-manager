@@ -20,11 +20,11 @@ public sealed class Then_returns_conflict
         businessMembers.Setup(repository => repository.GetForUpdateAsync(member.Id, It.IsAny<CancellationToken>())).ReturnsAsync(member);
         var organizationMembers = new Mock<IOrganizationMemberRepository>();
         organizationMembers
-            .Setup(repository => repository.FindForUpdateAsync(business.OrganizationId, member.UserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OrganizationMember.CreateBrandOwner(business.OrganizationId, member.UserId));
+            .Setup(repository => repository.FindForUpdateAsync(business.OrganizationId, member.AccountId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OrganizationMember.CreateBrandOwner(business.OrganizationId, member.AccountId));
         organizationMembers
             .Setup(repository => repository.ListBrandOwnerUserIdsAsync(business.OrganizationId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([member.UserId]);
+            .ReturnsAsync([member.AccountId]);
         var currentMember = new Mock<ICurrentMember>();
         currentMember
             .Setup(current => current.GetAccessAsync(It.IsAny<CancellationToken>()))

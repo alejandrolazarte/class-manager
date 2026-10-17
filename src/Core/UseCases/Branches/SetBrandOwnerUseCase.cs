@@ -28,15 +28,15 @@ public sealed class SetBrandOwnerUseCase(
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        if (member.UserId == access?.UserId)
+        if (member.AccountId == access?.UserId)
         {
             return MemberRules.OwnMembership();
         }
 
-        var brandOwner = await organizationMemberRepository.FindForUpdateAsync(business.OrganizationId, member.UserId, cancellationToken);
+        var brandOwner = await organizationMemberRepository.FindForUpdateAsync(business.OrganizationId, member.AccountId, cancellationToken);
         if (command.IsBrandOwner && brandOwner is null)
         {
-            organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(business.OrganizationId, member.UserId));
+            organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(business.OrganizationId, member.AccountId));
         }
         else if (!command.IsBrandOwner && brandOwner is not null)
         {

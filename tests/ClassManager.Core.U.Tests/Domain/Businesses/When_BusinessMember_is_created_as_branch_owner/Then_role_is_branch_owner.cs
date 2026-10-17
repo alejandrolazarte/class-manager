@@ -14,6 +14,6 @@ public sealed class Then_role_is_branch_owner
 
         member.Role.ShouldBe(BusinessRole.BranchOwner);
         member.TenantId.ShouldBe(businessId);
-        member.UserId.ShouldBe(userId);
+        member.AccountId.ShouldBe(userId);
     }
 }

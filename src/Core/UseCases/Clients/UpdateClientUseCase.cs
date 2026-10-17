@@ -60,7 +60,7 @@ public sealed class UpdateClientUseCase(
         if (!client.HasEmail(command.Email))
         {
             var accounts = await clientAccountRepository.ListByClientAsync(client.Id, cancellationToken);
-            var accountUserIds = accounts.Where(account => account.StudentId is null).Select(account => account.UserId).ToList();
+            var accountUserIds = accounts.Where(account => account.StudentId is null).Select(account => account.AccountId).ToList();
             var signInEmail = await SignInEmails.FirstAsync(identityService, accountUserIds, cancellationToken);
             if (accountUserIds.Count > 0 && !string.Equals(command.Email?.Trim(), signInEmail, StringComparison.OrdinalIgnoreCase))
             {

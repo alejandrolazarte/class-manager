@@ -19,5 +19,6 @@ global using ClassManager.Core.Domain.Products;
 global using ClassManager.Core.Domain.Roles;
 global using ClassManager.Core.Domain.Sessions;
 global using ClassManager.Core.Domain.Students;
+global using ClassManager.Core.Domain.Users;
 global using ClassManager.Tenancy;
 global using Microsoft.EntityFrameworkCore;

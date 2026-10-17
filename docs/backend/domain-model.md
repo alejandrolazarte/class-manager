@@ -64,10 +64,15 @@ Links a user account to a business with a role. For now every business has exact
 |---|---|---|
 | `Id` | `Guid` | v7 |
 | `TenantId` | `Guid` | Tenant (the business) |
-| `UserId` | `Guid` | Identity user id (user accounts live in `SecurityDbContext`, schema `identity`) |
+| `AccountId` | `Guid` | Identity account id (accounts live in `SecurityDbContext`, schema `identity`) |
+| `UserId` | `Guid?` | The person in this business ([`User`](#user)) |
 | `Role` | `BusinessRole` | `Owner` for now; add roles as the app needs them |
 
-Unique `(TenantId, UserId)`. The access token carries the member's `TenantId` as the `tenant_id` claim and the role as `role`.
+Unique `(TenantId, AccountId)`. The access token carries the member's `TenantId` as the `tenant_id` claim and the role as `role`.
+
+### User
+
+One person in one business: name, contact email, phone, birth date and, when they have one, the account they sign in with (`AccountId`). Clients, students, instructors, team members and student app accounts point to it with `UserId`. It belongs to the business and is soft deleted, so it stays when the person deletes their account. See [Users per business](20261017-users/plan.md).
 
 ### Client
 

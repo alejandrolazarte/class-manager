@@ -23,6 +23,6 @@ public sealed class Then_returns_403(ApiFixture fixture)
     private static async Task<Guid?> ClientAccountUserIdAsync(ApiFixture fixture, StudentAppScenario scenario)
     {
         await using var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id);
-        return await context.ClientAccounts.Where(account => account.ClientId == scenario.ClientId).Select(account => (Guid?)account.UserId).FirstOrDefaultAsync();
+        return await context.ClientAccounts.Where(account => account.ClientId == scenario.ClientId).Select(account => (Guid?)account.AccountId).FirstOrDefaultAsync();
     }
 }

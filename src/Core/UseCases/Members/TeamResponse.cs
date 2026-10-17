@@ -21,7 +21,7 @@ public sealed record MemberResponse(
             member.Role,
             member.CustomRoleId,
             member.InstructorId,
-            member.UserId == currentUserId,
+            member.AccountId == currentUserId,
             isBrandOwner);
 }
 

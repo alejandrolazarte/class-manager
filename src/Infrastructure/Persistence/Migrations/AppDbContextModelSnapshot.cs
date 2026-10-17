@@ -420,6 +420,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("CustomRoleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -443,10 +446,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("CustomRoleId");
 
@@ -454,13 +459,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("TenantId", "AccountId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
                     b.HasIndex("TenantId", "InstructorId")
                         .IsUnique()
                         .HasFilter("[InstructorId] IS NOT NULL AND [IsDeleted] = 0");
-
-                    b.HasIndex("TenantId", "UserId")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("BusinessMembers", t =>
                         {
@@ -821,7 +826,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("TenantId", "FullName");
 
@@ -836,6 +846,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.ClientAccount", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ClientId")
@@ -853,10 +866,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("ClientId");
 
@@ -864,10 +879,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("TenantId", "ClientId");
-
-                    b.HasIndex("TenantId", "UserId")
+                    b.HasIndex("TenantId", "AccountId")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "ClientId");
 
                     b.ToTable("ClientAccounts");
                 });
@@ -1341,7 +1356,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("TenantId", "FullName")
                         .IsUnique();
@@ -2380,9 +2400,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("TenantId", "FullName");
 
@@ -2390,6 +2415,63 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("TenantId", "AccountId")
+                        .IsUnique()
+                        .HasFilter("[AccountId] IS NOT NULL AND [IsDeleted] = 0");
+
+                    b.HasIndex("TenantId", "Email");
+
+                    b.HasIndex("TenantId", "PhoneNumber");
+
+                    b.ToTable("Users", t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Infrastructure.BackgroundTasks.BackgroundTask", b =>
@@ -3063,6 +3145,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Businesses.MemberInvitation", b =>
@@ -3208,6 +3295,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.ClientAccount", b =>
@@ -3228,6 +3320,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.ClientInvitation", b =>
@@ -3481,6 +3578,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementDefinition", b =>
@@ -3881,6 +3983,20 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Users.User", b =>
+                {
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")

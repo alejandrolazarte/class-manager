@@ -17,7 +17,7 @@ internal sealed class InstructorRepository(AppDbContext context) : IInstructorRe
             .IgnoreTenantFilter()
             .Where(instructor => context.BusinessMembers
                 .IgnoreTenantFilter()
-                .Any(member => member.InstructorId == instructor.Id && member.UserId == userId))
+                .Any(member => member.InstructorId == instructor.Id && member.AccountId == userId))
             .ExecuteUpdateAsync(setters => setters.SetProperty(instructor => instructor.Email, email), cancellationToken);
 
     public Task<Instructor?> FindByNameAsync(string fullName, CancellationToken cancellationToken) =>

@@ -30,7 +30,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
         var businessId = tenantContext.TenantId;
         var branchMember = await context.BusinessMembers
             .AsNoTracking()
-            .Where(member => member.UserId == userId)
+            .Where(member => member.AccountId == userId)
             .Select(member => new { member.Role, member.CustomRoleId, member.InstructorId })
             .FirstOrDefaultAsync(cancellationToken);
         var isBrandOwner = await context.Businesses

@@ -49,6 +49,7 @@ public static class InfrastructureServiceCollectionExtensions
                 .UseSqlServer(connectionString)
                 .AddInterceptors(
                     serviceProvider.GetRequiredService<BackgroundTaskSignalInterceptor>(),
+                    new UserSyncSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>(), serviceProvider),
                     new SoftDeleteSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>()),
                     serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>(),
                     serviceProvider.GetRequiredService<FeatureLimitSaveChangesInterceptor<AppDbContext>>());
@@ -68,6 +69,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ILegalTermsAcceptanceRepository, LegalTermsAcceptanceRepository>();
         services.AddScoped<ICustomRoleRepository, CustomRoleRepository>();
         services.AddScoped<IClientAccountRepository, ClientAccountRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IClientInvitationRepository, ClientInvitationRepository>();
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IStudentRepository, StudentRepository>();

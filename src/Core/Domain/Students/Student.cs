@@ -31,6 +31,7 @@ public sealed class Student : ITenantOwned
     public string? Notes { get; private set; }
     public string? Email { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? UserId { get; private set; }
 
     public static Result<Student> Create(
         Guid clientId,
