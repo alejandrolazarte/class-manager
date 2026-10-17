@@ -9,35 +9,15 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
 
     public void Remove(User user) => context.Users.Remove(user);
 
-    public Task<User?> GetForUpdateAsync(Guid userId, CancellationToken cancellationToken) =>
-        context.Users.FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
+    public Task<User?> FindByEmailForUpdateAsync(string email, Guid exceptUserId, CancellationToken cancellationToken) =>
+        context.Users.FirstOrDefaultAsync(user => user.Email == email && user.Id != exceptUserId, cancellationToken);
 
-    public async Task<KnownPerson?> FindKnownPersonByEmailAsync(string email, Guid exceptUserId, CancellationToken cancellationToken)
-    {
-        var person = await context.Users
-            .Where(user => user.Email == email && user.Id != exceptUserId)
-            .Select(user => new
-            {
-                user.Id,
-                user.FullName,
-                IsClient = context.Clients.Any(client => client.UserId == user.Id),
-                IsStudent = context.Students.Any(student => student.UserId == user.Id),
-                IsInstructor = context.Instructors.Any(instructor => instructor.UserId == user.Id),
-                IsTeam = context.BusinessMembers.Any(member => member.UserId == user.Id),
-            })
-            .FirstOrDefaultAsync(cancellationToken);
-        if (person is null)
-        {
-            return null;
-        }
-
-        var roles = new List<PersonRole>();
-        AddWhen(roles, person.IsClient, PersonRole.Client);
-        AddWhen(roles, person.IsStudent, PersonRole.Student);
-        AddWhen(roles, person.IsInstructor, PersonRole.Instructor);
-        AddWhen(roles, person.IsTeam, PersonRole.Team);
-        return new KnownPerson(person.Id, person.FullName, roles);
-    }
+    public async Task<PersonRoles> GetRolesAsync(Guid userId, CancellationToken cancellationToken) =>
+        new(
+            await context.Clients.AnyAsync(client => client.UserId == userId, cancellationToken),
+            await context.Students.AnyAsync(student => student.UserId == userId, cancellationToken),
+            await context.Instructors.AnyAsync(instructor => instructor.UserId == userId, cancellationToken),
+            await context.BusinessMembers.AnyAsync(member => member.UserId == userId, cancellationToken));
 
     public Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken) =>
         context.Users.FirstOrDefaultAsync(user => user.AccountId == accountId, cancellationToken);
@@ -120,12 +100,4 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
             .Where(user => user.AccountId == accountId
                 && !context.Users.IgnoreTenantFilter().Any(other => other.TenantId == user.TenantId && other.Id != user.Id && other.Email == email))
             .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.Email, email), cancellationToken);
-
-    private static void AddWhen(List<PersonRole> roles, bool hasRole, PersonRole role)
-    {
-        if (hasRole)
-        {
-            roles.Add(role);
-        }
-    }
 }

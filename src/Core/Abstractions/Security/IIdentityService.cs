@@ -30,4 +30,8 @@ public interface IIdentityService
         CancellationToken cancellationToken);
 
     Task<Result<ConfirmedEmailChange>> ConfirmEmailChangeAsync(string token, CancellationToken cancellationToken);
+
+    Task<bool> IsPasswordCorrectAsync(Guid userId, string password, CancellationToken cancellationToken);
+
+    Task<bool> DeleteAccountAsync(Guid userId, CancellationToken cancellationToken);
 }

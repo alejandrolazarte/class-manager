@@ -90,10 +90,23 @@ public sealed class InviteStudentAppUseCase(
             return recipient.Error!;
         }
 
-        var joining = await JoinSamePersonAsync(client, familyStudents, command, cancellationToken);
-        if (joining is not null)
+        var invitedPerson = command.StudentId is { } invitedStudentId ? familyStudents.Single(student => student.Id == invitedStudentId).User : client.User;
+        var samePerson = await SamePerson.FindAsync(
+            userRepository,
+            invitedPerson,
+            invitedPerson.Email,
+            command.SamePersonUserId,
+            roles => !roles.IsClient && !roles.IsStudent,
+            nameof(InviteStudentAppRequest.Email),
+            cancellationToken);
+        if (samePerson.IsFailure)
         {
-            return joining;
+            return samePerson.Error!;
+        }
+
+        if (samePerson.Value is { } person)
+        {
+            await MoveToAsync(person, invitedPerson, client, familyStudents, cancellationToken);
         }
 
         var previousInvitations = await invitationRepository.ListPendingForUpdateByPersonAsync(client.Id, command.StudentId, now, cancellationToken);
@@ -157,6 +170,28 @@ public sealed class InviteStudentAppUseCase(
         }
 
         return new StudentAppInvitationResponse(invitation.Value!.Id, invitation.Value.Email, invitation.Value.ExpiresAt, invitation.Value.AwaitsGuardianConsent);
+    }
+
+    private async Task MoveToAsync(
+        User person,
+        User previousPerson,
+        Client client,
+        IReadOnlyList<Student> familyStudents,
+        CancellationToken cancellationToken)
+    {
+        if (client.UserId == previousPerson.Id)
+        {
+            client.ChangePerson(person);
+        }
+
+        foreach (var student in familyStudents.Where(student => student.UserId == previousPerson.Id))
+        {
+            student.ChangePerson(person);
+        }
+
+        person.CompleteWith(previousPerson);
+        await SamePerson.RemoveIfUnusedAsync(
+            userRepository, previousPerson, roles => roles.IsInstructor || roles.IsTeamMember, cancellationToken);
     }
 
     private static Result<Recipient> ClientRecipient(
@@ -263,50 +298,6 @@ public sealed class InviteStudentAppUseCase(
         }
 
         return student.User.Email is null ? EmailRequired() : new Recipient(student.User.Email, needsGuardianConsent, student.User.FullName);
-    }
-
-    private async Task<ResultError?> JoinSamePersonAsync(
-        Client client,
-        IReadOnlyList<Student> familyStudents,
-        InviteStudentAppCommand command,
-        CancellationToken cancellationToken)
-    {
-        var invitedStudent = familyStudents.FirstOrDefault(student => student.Id == command.StudentId);
-        var invitedPerson = invitedStudent?.User ?? client.User;
-        var samePerson = await SamePerson.JoinOrAskAsync(
-            userRepository,
-            invitedPerson,
-            invitedStudent is null ? PersonRole.Client : PersonRole.Student,
-            command.SamePersonUserId,
-            nameof(InviteStudentAppRequest.Email),
-            canJoin: invitedPerson.AccountId is null && invitedStudent?.IsTheContactOf(client) != true,
-            cancellationToken);
-        if (samePerson.IsFailure)
-        {
-            return samePerson.Error!;
-        }
-
-        if (samePerson.Value is not { } person)
-        {
-            return null;
-        }
-
-        if (invitedStudent is not null)
-        {
-            invitedStudent.MoveTo(person);
-        }
-        else
-        {
-            foreach (var attendingContact in familyStudents.Where(student => student.IsTheContactOf(client)))
-            {
-                attendingContact.MoveTo(person);
-            }
-
-            client.MoveTo(person);
-        }
-
-        userRepository.Remove(invitedPerson);
-        return null;
     }
 
     private static Result<Recipient> EmailRequired() =>

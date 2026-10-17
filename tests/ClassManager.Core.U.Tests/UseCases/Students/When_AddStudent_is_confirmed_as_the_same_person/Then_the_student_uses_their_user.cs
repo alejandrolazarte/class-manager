@@ -12,10 +12,7 @@ public sealed class Then_the_student_uses_their_user
     {
         var builder = new AddStudentUseCaseBuilder();
         var instructor = User.Create("Laura Gómez", Email, TestData.Now).Value!;
-        builder.Users
-            .Setup(repository => repository.FindKnownPersonByEmailAsync(Email, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new KnownPerson(instructor.Id, instructor.FullName, [PersonRole.Instructor]));
-        builder.Users.Setup(repository => repository.GetForUpdateAsync(instructor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(instructor);
+        builder.Users.HasPersonWithTheirEmail(instructor, new PersonRoles(false, false, true, false));
         Student? addedStudent = null;
         builder.Students.Setup(repository => repository.Add(It.IsAny<Student>())).Callback<Student>(student => addedStudent = student);
         var command = AddStudentUseCaseBuilder.ValidCommand() with { FullName = "Laura Gómez", Email = Email, SamePersonUserId = instructor.Id };

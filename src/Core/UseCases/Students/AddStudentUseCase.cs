@@ -79,13 +79,13 @@ public sealed class AddStudentUseCase(
             return AlreadyRegistered(existingStudent.Id);
         }
 
-        var samePerson = await SamePerson.JoinOrAskAsync(
+        var samePerson = await SamePerson.FindAsync(
             userRepository,
             student.Value.User,
-            PersonRole.Student,
+            student.Value.User.Email,
             command.SamePersonUserId,
+            roles => !roles.IsClient && !roles.IsStudent,
             nameof(AddStudentCommand.Email),
-            canJoin: true,
             cancellationToken);
         if (samePerson.IsFailure)
         {

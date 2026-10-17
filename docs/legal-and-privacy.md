@@ -45,5 +45,5 @@ Each acceptance is a row in `LegalTermsAcceptances` (`UserId`, `Version`, `Accep
 ## Still pending
 
 - Real holder data in `legalHolder.ts`, and a lawyer's review.
-- "Eliminar mi cuenta" inside the app and closing a business (see [Student accounts](student-accounts.md)); today the texts say both are requested by email.
+- Closing a business inside the app; today the texts say it is requested by email. "Eliminar mi cuenta" is in Mi perfil, and the terms and the privacy policy say so (see [Student accounts](student-accounts.md)). Deleting an account keeps its `LegalTermsAcceptances` rows, the proof of the consent it gave.
 - Anonymizing soft deleted students after a retention period ([Deleting data](deleting-data.md) keeps them forever, which is not erasure under the GDPR).

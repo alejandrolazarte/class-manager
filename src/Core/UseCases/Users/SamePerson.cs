@@ -6,46 +6,60 @@ namespace ClassManager.Core.UseCases.Users;
 
 public static class SamePerson
 {
-    private const string SamePersonMessage = "Another person of the business already uses this email; if it is the same person, confirm it to join them.";
+    public const string UserIdDetail = "samePersonUserId";
+    public const string FullNameDetail = "samePersonFullName";
 
-    public static async Task<Result<User?>> JoinOrAskAsync(
+    private const string QuestionMessage =
+        "Another person of the business already uses this email. If it is the same person, send their id as SamePersonUserId.";
+
+    public static async Task<Result<User?>> FindAsync(
         IUserRepository userRepository,
         User person,
-        PersonRole newRole,
-        Guid? confirmedUserId,
+        string? email,
+        Guid? samePersonUserId,
+        Func<PersonRoles, bool> canTakeTheRole,
         string fieldName,
-        bool canJoin,
         CancellationToken cancellationToken)
     {
-        if (person.Email is not { } email
-            || await userRepository.FindKnownPersonByEmailAsync(email, person.Id, cancellationToken) is not { } knownPerson)
+        if (string.IsNullOrWhiteSpace(email))
         {
             return Result.Success<User?>(null);
         }
 
-        if (!canJoin || knownPerson.Roles.Contains(newRole))
+        var otherPerson = await userRepository.FindByEmailForUpdateAsync(email.Trim(), person.Id, cancellationToken);
+        if (otherPerson is null)
+        {
+            return Result.Success<User?>(null);
+        }
+
+        if (!canTakeTheRole(await userRepository.GetRolesAsync(otherPerson.Id, cancellationToken)))
         {
             return PeopleEmails.EmailTaken(fieldName);
         }
 
-        if (confirmedUserId != knownPerson.UserId)
-        {
-            return Question(knownPerson, fieldName);
-        }
-
-        var samePerson = await userRepository.GetForUpdateAsync(knownPerson.UserId, cancellationToken);
-        return samePerson is null ? PeopleEmails.EmailTaken(fieldName) : samePerson;
+        return otherPerson.Id == samePersonUserId ? otherPerson : Question(otherPerson, fieldName);
     }
 
-    private static ResultError Question(KnownPerson knownPerson, string fieldName) =>
-        new(UserErrorCodes.SamePerson, SamePersonMessage, ErrorKind.Conflict)
+    public static async Task RemoveIfUnusedAsync(
+        IUserRepository userRepository,
+        User previousPerson,
+        Func<PersonRoles, bool> isStillUsed,
+        CancellationToken cancellationToken)
+    {
+        if (!isStillUsed(await userRepository.GetRolesAsync(previousPerson.Id, cancellationToken)))
+        {
+            userRepository.Remove(previousPerson);
+        }
+    }
+
+    private static ResultError Question(User otherPerson, string fieldName) =>
+        new(UserErrorCodes.SamePerson, QuestionMessage, ErrorKind.Conflict)
         {
             FieldName = fieldName,
             Details = new Dictionary<string, object?>
             {
-                [UserErrorCodes.UserIdDetail] = knownPerson.UserId,
-                [UserErrorCodes.FullNameDetail] = knownPerson.FullName,
-                [UserErrorCodes.RolesDetail] = knownPerson.Roles.Select(role => role.ToString()).ToList(),
+                [UserIdDetail] = otherPerson.Id,
+                [FullNameDetail] = otherPerson.FullName,
             },
         };
 }

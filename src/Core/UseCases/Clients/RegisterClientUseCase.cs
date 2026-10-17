@@ -70,13 +70,13 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(existingClient.Id);
         }
 
-        var samePerson = await SamePerson.JoinOrAskAsync(
+        var samePerson = await SamePerson.FindAsync(
             userRepository,
             newClient.User,
-            PersonRole.Client,
+            newClient.User.Email,
             command.SamePersonUserId,
+            roles => !roles.IsClient && !roles.IsStudent,
             nameof(RegisterClientCommand.Email),
-            canJoin: true,
             cancellationToken);
         if (samePerson.IsFailure)
         {

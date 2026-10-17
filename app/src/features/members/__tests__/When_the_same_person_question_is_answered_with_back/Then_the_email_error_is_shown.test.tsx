@@ -1,38 +1,41 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react-native";
+import { fireEvent, screen, within } from "@testing-library/react-native";
+import { ApiError } from "@/api/httpClient";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { getTeam, inviteMember } from "@/features/members/membersApi";
 import { InviteMemberScreen } from "@/features/members/screens/InviteMemberScreen";
 import { listRoles } from "@/features/roles/rolesApi";
+import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
-import { buildInvitation } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildSystemRoles } from "@/testing/roleFactory";
-import { buildSamePersonError } from "@/testing/samePersonError";
 
 jest.mock("@/features/members/membersApi");
 jest.mock("@/features/instructors/instructorsApi");
 jest.mock("@/features/roles/rolesApi");
 
-const studentUserId = "0192f0c4-0000-7000-8000-000000000010";
-const freeInstructor = buildInstructor({ id: "instructor-free", fullName: "Marcos Díaz" });
+const conflictStatus = 409;
+const freeInstructor = buildInstructor({ id: "instructor-free", fullName: "Martina Gómez" });
 
-describe("When a student is invited as instructor", () => {
+describe("When the same person question is answered with back", () => {
   beforeEach(() => {
     jest.mocked(listRoles).mockResolvedValue(buildSystemRoles());
     jest.mocked(listActiveInstructors).mockResolvedValue([freeInstructor]);
     jest.mocked(getTeam).mockResolvedValue({ members: [], invitations: [] });
-    jest
-      .mocked(inviteMember)
-      .mockRejectedValueOnce(buildSamePersonError(studentUserId, "Marcos Díaz", ["Student"]))
-      .mockResolvedValueOnce(buildInvitation({ instructorId: freeInstructor.id }));
+    jest.mocked(inviteMember).mockRejectedValue(
+      new ApiError(conflictStatus, {
+        code: userErrorCodes.samePerson,
+        samePersonUserId: "user-of-the-student",
+        samePersonFullName: "Ana Gómez",
+      }),
+    );
   });
 
-  it("Then the invitation joins the student once confirmed", async () => {
+  it("Then the email error is shown", async () => {
     await renderWithProviders(<InviteMemberScreen />);
     await fireEvent.changeText(
       screen.getByLabelText(translate("team.invite.email")),
-      "marcos@example.com",
+      "ana@example.com",
     );
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("instructors.picker.choose") }),
@@ -45,17 +48,10 @@ describe("When a student is invited as instructor", () => {
     await fireEvent.press(screen.getByRole("button", { name: translate("team.invite.submit") }));
 
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("people.samePerson.confirm") }),
+      (await screen.findAllByRole("button", { name: translate("common.back") }))[1]!,
     );
 
-    await waitFor(() =>
-      expect(inviteMember).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          email: "marcos@example.com",
-          instructorId: freeInstructor.id,
-          samePersonUserId: studentUserId,
-        }),
-      ),
-    );
+    expect(await screen.findByText(translate("apiErrors.user.email_taken"))).toBeOnTheScreen();
+    expect(inviteMember).toHaveBeenCalledTimes(1);
   });
 });

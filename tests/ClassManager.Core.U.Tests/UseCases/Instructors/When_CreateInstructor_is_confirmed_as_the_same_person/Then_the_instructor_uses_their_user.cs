@@ -14,10 +14,7 @@ public sealed class Then_the_instructor_uses_their_user
     {
         var builder = new InstructorUseCaseBuilder();
         var student = User.Create("María Gómez", Email, TestData.Now).Value!;
-        builder.Users
-            .Setup(repository => repository.FindKnownPersonByEmailAsync(Email, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new KnownPerson(student.Id, student.FullName, [PersonRole.Student]));
-        builder.Users.Setup(repository => repository.GetForUpdateAsync(student.Id, It.IsAny<CancellationToken>())).ReturnsAsync(student);
+        builder.Users.HasPersonWithTheirEmail(student, new PersonRoles(false, true, false, false));
         Instructor? addedInstructor = null;
         builder.Instructors.Setup(repository => repository.Add(It.IsAny<Instructor>())).Callback<Instructor>(instructor => addedInstructor = instructor);
         var useCase = new CreateInstructorUseCase(builder.Instructors.Object, builder.Users.Object, builder.PeopleLock.Object, builder.UnitOfWork.Object, new FakeTimeProvider(TestData.Now));

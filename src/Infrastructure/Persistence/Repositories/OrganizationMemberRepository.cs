@@ -17,4 +17,12 @@ internal sealed class OrganizationMemberRepository(AppDbContext context) : IOrga
             .Where(member => member.OrganizationId == organizationId && member.Role == OrganizationRole.BrandOwner)
             .Select(member => member.UserId)
             .ToListAsync(cancellationToken);
+
+    public Task<bool> IsTheOnlyBrandOwnerOfABrandAsync(Guid accountId, CancellationToken cancellationToken) =>
+        context.OrganizationMembers
+            .Where(member => member.UserId == accountId && member.Role == OrganizationRole.BrandOwner)
+            .AnyAsync(
+                member => !context.OrganizationMembers.Any(other =>
+                    other.OrganizationId == member.OrganizationId && other.Role == OrganizationRole.BrandOwner && other.UserId != accountId),
+                cancellationToken);
 }

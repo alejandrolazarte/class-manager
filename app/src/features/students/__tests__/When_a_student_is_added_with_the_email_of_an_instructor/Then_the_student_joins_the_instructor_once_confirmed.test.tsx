@@ -15,7 +15,7 @@ describe("When a student is added with the email of an instructor", () => {
   beforeEach(() => {
     jest
       .mocked(addStudent)
-      .mockRejectedValueOnce(buildSamePersonError(instructorUserId, "Laura Gómez", ["Instructor"]))
+      .mockRejectedValueOnce(buildSamePersonError(instructorUserId, "Laura Gómez"))
       .mockResolvedValueOnce(buildStudent({ fullName: "Laura Gómez" }));
   });
 

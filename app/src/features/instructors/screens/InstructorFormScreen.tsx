@@ -71,7 +71,9 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
   const canManageMembers = useCan(permissions.membersManage);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
-  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion(
+    "people.samePerson.inStudents",
+  );
   const form = useForm<InstructorFormValues>({
     resolver: zodResolver(instructorSchema),
     defaultValues: toInstructorFormValues(instructor, access.member?.email),
@@ -138,8 +140,15 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
       router.back();
     } catch (saveError) {
       if (
-        askIfSamePerson(saveError, (samePersonUserId) =>
-          saveInstructor({ ...request, samePersonUserId }),
+        askIfSamePerson(
+          saveError,
+          request.email ?? "",
+          (samePersonUserId) => saveInstructor({ ...request, samePersonUserId }),
+          () =>
+            form.setError("email", {
+              type: "server",
+              message: translate("apiErrors.user.email_taken"),
+            }),
         )
       ) {
         return;

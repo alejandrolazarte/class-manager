@@ -16,6 +16,10 @@ export interface RequestEmailChangeRequest {
   currentPassword: string;
 }
 
+export interface DeleteMyAccountRequest {
+  currentPassword: string;
+}
+
 export interface RequestEmailChangeResponse {
   newEmail: string;
 }

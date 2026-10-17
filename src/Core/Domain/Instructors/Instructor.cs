@@ -42,19 +42,16 @@ public sealed class Instructor : ITenantOwned
             User = person,
         };
 
-    public User MoveTo(User person)
-    {
-        var previousPerson = User;
-        person.FillBlanksFrom(previousPerson);
-        User = person;
-        UserId = person.Id;
-        return previousPerson;
-    }
-
     public Result Update(string? fullName, string? email)
     {
         var rename = User.Rename(fullName);
         return rename.IsFailure ? rename : User.ChangeEmail(email);
+    }
+
+    public void ChangePerson(User person)
+    {
+        UserId = person.Id;
+        User = person;
     }
 
     public void Activate() => IsActive = true;

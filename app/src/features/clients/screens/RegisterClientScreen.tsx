@@ -44,7 +44,7 @@ export function RegisterClientScreen() {
   const { showToast } = useToast();
   const registerClientMutation = useRegisterClient();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
-  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion("people.samePerson.inTeam");
   const form = useForm<RegisterClientFormValues>({
     resolver: zodResolver(registerClientSchema),
     defaultValues: emptyRegisterClientFormValues,
@@ -147,8 +147,15 @@ export function RegisterClientScreen() {
     try {
       registeredClient = await registerClientMutation.mutateAsync(request);
     } catch (registrationError) {
-      const isAsking = askIfSamePerson(registrationError, (samePersonUserId) =>
-        registerClient({ ...request, samePersonUserId }, appInvitationEmail),
+      const isAsking = askIfSamePerson(
+        registrationError,
+        request.email ?? "",
+        (samePersonUserId) => registerClient({ ...request, samePersonUserId }, appInvitationEmail),
+        () =>
+          form.setError("email", {
+            type: "server",
+            message: translate("apiErrors.user.email_taken"),
+          }),
       );
       if (!isAsking) {
         handleRegistrationError(registrationError);

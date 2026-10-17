@@ -1,6 +1,7 @@
 import { anonymousHttpClient, httpClient } from "@/api/httpClient";
 import {
   ConfirmEmailChangeResponse,
+  DeleteMyAccountRequest,
   MyAccount,
   RequestEmailChangeRequest,
   RequestEmailChangeResponse,
@@ -11,6 +12,7 @@ import { Language } from "@/i18n/languages";
 const accountPaths = {
   myAccount: "/api/me/account",
   emailChange: "/api/me/account/email-change",
+  deletion: "/api/me/account/deletion",
   language: "/api/me/account/language",
   legalTermsAcceptance: "/api/me/account/legal-terms-acceptance",
   confirmEmailChange: "/api/auth/email-change/confirm",
@@ -36,6 +38,10 @@ export function requestEmailChange(
   request: RequestEmailChangeRequest,
 ): Promise<RequestEmailChangeResponse> {
   return httpClient.post<RequestEmailChangeResponse>(accountPaths.emailChange, request);
+}
+
+export function deleteMyAccount(request: DeleteMyAccountRequest): Promise<void> {
+  return httpClient.post<void>(accountPaths.deletion, request);
 }
 
 export function confirmEmailChange(token: string): Promise<ConfirmEmailChangeResponse> {

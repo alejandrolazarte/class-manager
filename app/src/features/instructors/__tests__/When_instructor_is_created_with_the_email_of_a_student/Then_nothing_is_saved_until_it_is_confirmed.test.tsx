@@ -16,7 +16,7 @@ describe("When instructor is created with the email of a student", () => {
     jest.mocked(getTeam).mockResolvedValue({ members: [], invitations: [] });
     jest
       .mocked(createInstructor)
-      .mockRejectedValue(buildSamePersonError(studentUserId, "Laura Gómez", ["Student"]));
+      .mockRejectedValue(buildSamePersonError(studentUserId, "Laura Gómez"));
   });
 
   it("Then nothing is saved until it is confirmed", async () => {
@@ -32,12 +32,10 @@ describe("When instructor is created with the email of a student", () => {
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     expect(
-      await screen.findByText(translate("people.samePerson.title", { name: "Laura Gómez" })),
+      await screen.findByText(translate("people.samePerson.question", { name: "Laura Gómez" })),
     ).toBeOnTheScreen();
     await fireEvent.press(screen.getAllByRole("button", { name: translate("common.back") })[0]);
     expect(createInstructor).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByText(translate("people.samePerson.title", { name: "Laura Gómez" })),
-    ).not.toBeOnTheScreen();
+    expect(await screen.findByText(translate("apiErrors.user.email_taken"))).toBeOnTheScreen();
   });
 });

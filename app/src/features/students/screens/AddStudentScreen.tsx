@@ -45,7 +45,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
   const addStudentMutation = useAddStudent(clientId);
   const { data: client } = useClient(clientId);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
-  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion("people.samePerson.inTeam");
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: emptyStudentFormValues,
@@ -104,8 +104,15 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       showToast(translate("students.add.success"));
       router.replace(routes.clientDetail(clientTab, clientId));
     } catch (addError) {
-      const isAsking = askIfSamePerson(addError, (samePersonUserId) =>
-        addStudent({ ...request, samePersonUserId }),
+      const isAsking = askIfSamePerson(
+        addError,
+        request.email ?? "",
+        (samePersonUserId) => addStudent({ ...request, samePersonUserId }),
+        () =>
+          form.setError("email", {
+            type: "server",
+            message: translate("apiErrors.user.email_taken"),
+          }),
       );
       if (!isAsking) {
         handleAddError(addError);

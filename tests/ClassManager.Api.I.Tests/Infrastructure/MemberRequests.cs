@@ -24,8 +24,14 @@ public static class MemberRequests
         return (await response.Content.ReadFromJsonAsync<CurrentMemberResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> PostInvitationAsync(this HttpClient httpClient, string email, BusinessRole role, Guid? instructorId = null) =>
-        httpClient.PostAsJsonAsync(InvitationsRoute, new InviteMemberCommand(email, role, instructorId), ApiRequests.JsonOptions);
+    public static Task<HttpResponseMessage> PostInvitationAsync(
+        this HttpClient httpClient,
+        string email,
+        BusinessRole role,
+        Guid? instructorId = null,
+        Guid? samePersonUserId = null) =>
+        httpClient.PostAsJsonAsync(
+            InvitationsRoute, new InviteMemberCommand(email, role, instructorId, SamePersonUserId: samePersonUserId), ApiRequests.JsonOptions);
 
     public static async Task<InvitationResponse> InviteAsync(this HttpClient httpClient, string email, BusinessRole role, Guid? instructorId = null)
     {

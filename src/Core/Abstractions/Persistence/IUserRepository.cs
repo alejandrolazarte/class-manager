@@ -9,9 +9,9 @@ public interface IUserRepository
 
     void Remove(User user);
 
-    Task<User?> GetForUpdateAsync(Guid userId, CancellationToken cancellationToken);
+    Task<User?> FindByEmailForUpdateAsync(string email, Guid exceptUserId, CancellationToken cancellationToken);
 
-    Task<KnownPerson?> FindKnownPersonByEmailAsync(string email, Guid exceptUserId, CancellationToken cancellationToken);
+    Task<PersonRoles> GetRolesAsync(Guid userId, CancellationToken cancellationToken);
 
     Task<Guid?> FindIdByAccountAsync(Guid businessId, Guid accountId, CancellationToken cancellationToken);
 

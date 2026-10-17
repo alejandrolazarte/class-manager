@@ -1,25 +1,29 @@
 import { useState } from "react";
 import { SamePersonDialog } from "@/features/users/components/SamePersonDialog";
-import { SamePersonQuestion, toSamePersonQuestion } from "@/features/users/samePersonQuestion";
+import { SamePerson, samePersonOf } from "@/features/users/samePerson";
+import { TranslationKey } from "@/i18n/translate";
 
 interface PendingQuestion {
-  question: SamePersonQuestion;
+  person: SamePerson;
   join: (samePersonUserId: string) => Promise<void>;
+  goBack: () => void;
 }
 
-export function useSamePersonQuestion() {
+export function useSamePersonQuestion(messageKey: TranslationKey) {
   const [pendingQuestion, setPendingQuestion] = useState<PendingQuestion | null>(null);
   const [isJoining, setIsJoining] = useState(false);
 
   const askIfSamePerson = (
-    error: unknown,
+    requestError: unknown,
+    email: string,
     join: (samePersonUserId: string) => Promise<void>,
+    goBack: () => void,
   ): boolean => {
-    const question = toSamePersonQuestion(error);
-    if (question === null) {
+    const person = samePersonOf(requestError, email);
+    if (person === null) {
       return false;
     }
-    setPendingQuestion({ question, join });
+    setPendingQuestion({ person, join, goBack });
     return true;
   };
 
@@ -29,7 +33,7 @@ export function useSamePersonQuestion() {
     }
     setIsJoining(true);
     try {
-      await pendingQuestion.join(pendingQuestion.question.userId);
+      await pendingQuestion.join(pendingQuestion.person.userId);
     } finally {
       setIsJoining(false);
       setPendingQuestion((current) => (current === pendingQuestion ? null : current));
@@ -39,8 +43,12 @@ export function useSamePersonQuestion() {
   const samePersonDialog =
     pendingQuestion === null ? null : (
       <SamePersonDialog
-        question={pendingQuestion.question}
-        onCancel={() => setPendingQuestion(null)}
+        person={pendingQuestion.person}
+        messageKey={messageKey}
+        onCancel={() => {
+          setPendingQuestion(null);
+          pendingQuestion.goBack();
+        }}
         onConfirm={() => void confirm()}
         isConfirming={isJoining}
       />

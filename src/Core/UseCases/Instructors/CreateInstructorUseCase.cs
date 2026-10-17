@@ -1,7 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Instructors;
-using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Instructors;
@@ -25,13 +24,13 @@ public sealed class CreateInstructorUseCase(
         }
 
         await peopleLock.LockAsync(cancellationToken);
-        var samePerson = await SamePerson.JoinOrAskAsync(
+        var samePerson = await SamePerson.FindAsync(
             userRepository,
             instructor.Value!.User,
-            PersonRole.Instructor,
+            instructor.Value.User.Email,
             command.SamePersonUserId,
+            roles => !roles.IsInstructor && !roles.IsTeamMember,
             nameof(CreateInstructorCommand.Email),
-            canJoin: true,
             cancellationToken);
         if (samePerson.IsFailure)
         {

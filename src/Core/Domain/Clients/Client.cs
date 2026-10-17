@@ -71,15 +71,6 @@ public sealed class Client : ITenantOwned
         };
     }
 
-    public User MoveTo(User contact)
-    {
-        var previousContact = User;
-        contact.FillBlanksFrom(previousContact);
-        User = contact;
-        UserId = contact.Id;
-        return previousContact;
-    }
-
     public Result Update(string? fullName, PhoneNumber phoneNumber, string? email, string? notes)
     {
         var rename = User.Rename(fullName);
@@ -106,6 +97,12 @@ public sealed class Client : ITenantOwned
     }
 
     public void RecordRegisteredBy(Guid userId) => RegisteredByUserId = userId;
+
+    public void ChangePerson(User person)
+    {
+        UserId = person.Id;
+        User = person;
+    }
 
     private static Result<string?> ValidNotes(string? notes)
     {

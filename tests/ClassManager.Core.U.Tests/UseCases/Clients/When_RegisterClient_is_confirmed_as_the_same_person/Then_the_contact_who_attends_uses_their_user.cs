@@ -11,10 +11,7 @@ public sealed class Then_the_contact_who_attends_uses_their_user
     {
         var builder = new RegisterClientUseCaseBuilder();
         var instructor = User.Create("Ana Pérez", "ana@example.com", TestData.Now).Value!;
-        builder.Users
-            .Setup(repository => repository.FindKnownPersonByEmailAsync("ana@example.com", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new KnownPerson(instructor.Id, instructor.FullName, [PersonRole.Instructor]));
-        builder.Users.Setup(repository => repository.GetForUpdateAsync(instructor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(instructor);
+        builder.Users.HasPersonWithTheirEmail(instructor, new PersonRoles(false, false, true, false));
         Client? addedClient = null;
         Student? addedStudent = null;
         builder.Clients.Setup(repository => repository.Add(It.IsAny<Client>())).Callback<Client>(client => addedClient = client);

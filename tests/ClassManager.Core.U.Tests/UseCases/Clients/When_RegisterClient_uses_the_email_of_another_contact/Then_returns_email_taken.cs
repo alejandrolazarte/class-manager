@@ -8,9 +8,8 @@ public sealed class Then_returns_email_taken
     public async Task Then_returns_email_taken_Run()
     {
         var builder = new RegisterClientUseCaseBuilder();
-        builder.Users
-            .Setup(repository => repository.FindKnownPersonByEmailAsync("ana@example.com", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new KnownPerson(Guid.CreateVersion7(), "Ana María Pérez", [PersonRole.Client]));
+        var otherPerson = User.Create("Ana María Pérez", "ana@example.com", TestData.Now).Value!;
+        builder.Users.HasPersonWithTheirEmail(otherPerson, new PersonRoles(true, false, false, false));
 
         var response = await builder.Build().ExecuteAsync(RegisterClientUseCaseBuilder.ValidCommand(), CancellationToken.None);
 

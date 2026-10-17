@@ -297,4 +297,18 @@ test("Invitation flows", async ({ page, request, browser }) => {
   await page.getByLabel("Fecha de nacimiento").waitFor();
   await capture(page, "15-editar-perfil");
   await page.getByLabel("Fecha de nacimiento").fill(typedDateOf("1985-06-20"));
+
+  await page.goto("/settings/profile");
+  const deleteAccountRow = page
+    .getByRole("button", { name: "Eliminar mi cuenta" })
+    .filter({ visible: true });
+  await deleteAccountRow.waitFor();
+  await capture(page, "16-mi-perfil");
+  await deleteAccountRow.click();
+  await page.getByLabel("Contraseña actual").filter({ visible: true }).fill(ownerPassword);
+  await capture(page, "17-eliminar-mi-cuenta");
+  await page.getByRole("button", { name: "Eliminar mi cuenta" }).filter({ visible: true }).click();
+  await page.getByText("¿Eliminar tu cuenta?").waitFor();
+  await capture(page, "18-confirmar-eliminar-cuenta");
+  await page.getByRole("button", { name: "Volver" }).last().click();
 });

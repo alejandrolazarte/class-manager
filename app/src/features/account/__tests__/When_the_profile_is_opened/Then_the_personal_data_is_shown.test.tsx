@@ -22,6 +22,7 @@ describe("When the profile is opened", () => {
       <MyProfileScreen
         editProfileRoute={routes.editMyProfile}
         changeEmailRoute={routes.changeMyEmail}
+        deleteAccountRoute={routes.deleteMyAccount}
       />,
     );
 

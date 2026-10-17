@@ -101,15 +101,15 @@ public sealed class User : ITenantOwned, ISoftDeletable
         return Result.Success();
     }
 
-    public void FillBlanksFrom(User other)
-    {
-        PhoneNumber ??= other.PhoneNumber;
-        BirthDate ??= other.BirthDate;
-    }
-
     public bool HasEmail(string? email) => string.Equals(TrimToNull(email), Email, StringComparison.OrdinalIgnoreCase);
 
     public void LinkAccount(Guid accountId) => AccountId = accountId;
+
+    public void CompleteWith(User previousPerson)
+    {
+        PhoneNumber ??= previousPerson.PhoneNumber;
+        BirthDate ??= previousPerson.BirthDate;
+    }
 
     public void Delete(DateTimeOffset deletedAt)
     {

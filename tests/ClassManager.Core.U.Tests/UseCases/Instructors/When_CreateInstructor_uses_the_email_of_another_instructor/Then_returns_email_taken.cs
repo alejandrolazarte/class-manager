@@ -12,9 +12,8 @@ public sealed class Then_returns_email_taken
     public async Task Then_returns_email_taken_Run()
     {
         var builder = new InstructorUseCaseBuilder();
-        builder.Users
-            .Setup(repository => repository.FindKnownPersonByEmailAsync(Email, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new KnownPerson(Guid.CreateVersion7(), "Laura Díaz", [PersonRole.Instructor]));
+        var otherPerson = User.Create("Laura Díaz", Email, TestData.Now).Value!;
+        builder.Users.HasPersonWithTheirEmail(otherPerson, new PersonRoles(false, false, true, false));
         var useCase = new CreateInstructorUseCase(builder.Instructors.Object, builder.Users.Object, builder.PeopleLock.Object, builder.UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
 
         var response = await useCase.ExecuteAsync(new CreateInstructorCommand(TestData.InstructorFullName, Email), CancellationToken.None);

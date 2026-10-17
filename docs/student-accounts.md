@@ -1,6 +1,6 @@
 # Student accounts outlive their businesses
 
-Status: decided, not built. Pending work is listed at the end.
+Status: decided. "Eliminar mi cuenta" is built; the rest of the pending work is listed at the end.
 
 ## Decision
 
@@ -31,7 +31,7 @@ A guardian's consent is given for one invitation to one business ([ages and mino
 
 ## Pending
 
-- [ ] **"Eliminar mi cuenta"** in the student app (Mi perfil): confirm with `ConfirmDialog`, delete the account in `Security`, remove its `ClientAccounts` links and push subscriptions, and keep the student data each business owns. Needed before publishing to the stores.
+- [x] **"Eliminar mi cuenta"** in Mi perfil (student app and team app): asks for the current password and confirms with `ConfirmDialog`, deletes the account in `Security`, soft deletes its `ClientAccounts` links and team memberships, deletes its push subscriptions, and keeps the student data each business owns, with the person's user unlinked from the account ([Users per business, step 6](backend/20261017-users/plan.md#steps)). The only brand owner of a brand can't delete their account until someone else is a brand owner.
 - [ ] **Home with no link:** what a signed-in person with no business sees ("Todavía no estás en ninguna escuela") instead of an error.
 - [ ] **Find a business and ask to join:** the self sign-up and search flow. Proposal only; needs its own plan.
 - [ ] **Minors with no link:** block actions that need a guardian's consent until a new one is given.

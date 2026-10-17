@@ -21,7 +21,7 @@ describe("When a contact is registered with the email of an instructor", () => {
   beforeEach(() => {
     jest
       .mocked(registerClient)
-      .mockRejectedValueOnce(buildSamePersonError(instructorUserId, "Ana Pérez", ["Instructor"]))
+      .mockRejectedValueOnce(buildSamePersonError(instructorUserId, "Ana Pérez"))
       .mockResolvedValueOnce(registeredClient);
   });
 

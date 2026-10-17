@@ -20,7 +20,7 @@ describe("When instructor is created with the email of a student", () => {
     jest.mocked(inviteMember).mockResolvedValue(buildInvitation({ instructorId: instructor.id }));
     jest
       .mocked(createInstructor)
-      .mockRejectedValueOnce(buildSamePersonError(studentUserId, "Laura Gómez", ["Student"]))
+      .mockRejectedValueOnce(buildSamePersonError(studentUserId, "Laura Gómez"))
       .mockResolvedValueOnce(instructor);
   });
 
