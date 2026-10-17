@@ -223,3 +223,15 @@ Taken:
 5. **Phone:** it moves to `Users` too, and is required only for the contact of a client. It is not unique in `Users`: only two clients can't share a contact phone, checked in the use cases.
 6. **Order:** this goes before "Eliminar mi cuenta", so deleting is written once on the final model.
 7. **Names:** the instructor's name stays unique per business and the student's name unique in the family. With the copies gone no index can hold them, so the use cases check them after taking a lock per business.
+
+## Open: a student who also teaches, in the same branch
+
+The model lets a `Student` and an `Instructor` share one user, but no use case links them yet. Creating an instructor or registering a student always creates a new user, and the unique email per branch stops the invitation that would give that person a second role:
+
+| Flow (same branch, same email) | Today | Test |
+|---|---|---|
+| A student with the app joins the team with a role that needs no instructor | Works: the team member reuses the student's user (one row) | `Endpoints/Members/When_a_student_joins_the_team_without_an_instructor` |
+| A student is invited to the team as an instructor | `400 user.email_taken` | `Endpoints/Members/When_a_student_is_invited_as_an_instructor` |
+| An instructor is invited to the student app | `400 user.email_taken` | `Endpoints/StudentApp/When_an_instructor_is_invited_to_the_student_app` |
+
+The fix, when it is built, offers to reuse the person who already has that email in the branch instead of refusing, and the last two tests change to expect one user.
