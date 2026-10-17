@@ -1,6 +1,6 @@
 # Users per business
 
-Status: steps 1 to 3 built; the rest are the next PRs.
+Status: steps 1 to 4 built; the rest are the next PRs.
 
 ## Why
 
@@ -193,7 +193,10 @@ Each step is one PR, starts with failing tests, and ships with its migration and
    - `ICurrentUser.AccountId` is the account (`sub`) and `ICurrentUser.UserId` is the user (`user_id`). `MemberAccess`, `StudentAppAccess` and `SessionUser` call the account `AccountId` too. Until step 4, the columns that save who did something keep receiving the account (`AccountId`), so old and new rows hold the same kind of id when step 4 migrates them.
    - Invitations set `AccountId`: accepting a team or app invitation links the account to the person's user (the interceptor from step 1, covered by its tests). Sign-up and the branch creator get theirs the same way, through their team membership.
    - Brand owners get a user in every branch of the brand where they have none, named after the account: when a branch is created, when a member is made brand owner (`IUserRepository.AddMissingInEveryBranchAsync`) and, for the brands that already exist, in migration `AddBrandOwnerUsers`. The tenant interceptor refuses writes to another branch, so these rows are inserted with SQL, like the cross-branch email updates.
-4. **Who did what.** The 23 columns become `...ByUserId` with foreign keys, plus the data migration.
+4. **Who did what (built).**
+   - The 23 columns, plus `DeletedByUserId` of `OrganizationMembers`, `billing.Subscriptions` and `billing.SubscriptionFeatures`, hold a `Users` id with a foreign key (`ApplyWhoDidWhatForeignKeys`: every column named `...ByUserId`; a test fails if one has no foreign key to `Users`). `InvitedByUserId` becomes nullable, like the rest.
+   - Use cases save `ICurrentUser.UserId`, `MemberAccess.UserId` or `StudentAppAccess.UserId` (the `user_id` claim). "Registrado por" and "medido por" read the name from `Users` (`IUserRepository.ListFullNamesAsync`, deleted users included); `GET /api/me` returns the user as `userId`, so undoing your own payment still compares the same kind of id; the client scope of `.own` permissions and the push to whoever sent an invitation go through the user.
+   - Migration `PointWhoDidWhatToUsers` (`WhoDidWhatBackfill`): each value becomes the user with that `AccountId` in the row's branch, or `null` when there is none. The columns outside a branch keep a value only if it is already a `Users` id; nothing wrote them before, so they were empty.
 5. **Remove the copies.** Writes go to `Users`, the interceptor goes away, and `Email`, `FullName`, `PhoneNumber`, `BirthDate` are dropped from `Clients`, `Students` and `Instructors`, `AccountId` from `BusinessMembers` and `ClientAccounts`, and `AttendingContact`. `UserId` becomes required, and the email and phone indexes become unique after fixing the repetitions (data migration, step 0).
 6. **"Eliminar mi cuenta"**, as described above.
 

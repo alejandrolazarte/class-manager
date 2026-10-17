@@ -76,6 +76,8 @@ One person in one business: name, contact email, phone, birth date and, when the
 
 `Client`, `Student` and `Instructor` reach it through the `User` navigation. What the business sees of a person (screens, exports, emails, push and team notices) is read from there; their own `FullName`, `Email`, `PhoneNumber` and `BirthDate` columns are the copies the app still writes until they are dropped.
 
+The columns that say who did something (`RecordedByUserId`, `RegisteredByUserId`, `InvitedByUserId`, `DeletedByUserId`...) hold a `User` id with a foreign key, so the name stays after the person deletes their account.
+
 ### Client
 
 | Property | Type | Rules |

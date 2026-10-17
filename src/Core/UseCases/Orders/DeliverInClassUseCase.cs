@@ -32,7 +32,7 @@ public sealed class DeliverInClassUseCase(
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        var delivery = order.MarkDelivered(access?.AccountId, timeProvider.GetUtcNow());
+        var delivery = order.MarkDelivered(access?.UserId, timeProvider.GetUtcNow());
         if (delivery.IsFailure)
         {
             return delivery.Error!;

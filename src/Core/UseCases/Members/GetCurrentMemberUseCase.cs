@@ -20,7 +20,7 @@ public sealed record CurrentMemberResponse(
     CurrentSubscriptionResponse? Subscription = null)
 {
     public static CurrentMemberResponse From(MemberAccess access, string? fullName = null, CurrentSubscriptionResponse? subscription = null) =>
-        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.AccountId, fullName, subscription);
+        new(access.BusinessId, access.BranchRole, access.InstructorId, access.IsBrandOwner, [.. access.Permissions.Order(StringComparer.Ordinal)], access.CustomRoleId, access.UserId, fullName, subscription);
 }
 
 public sealed class GetCurrentMemberUseCase(

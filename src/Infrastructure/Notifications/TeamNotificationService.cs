@@ -52,10 +52,16 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
         await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
     }
 
-    private async Task<IReadOnlyList<Guid>> InviterOrOwnersAsync(Guid invitedByUserId, CancellationToken cancellationToken) =>
-        await context.BusinessMembers.AsNoTracking().AnyAsync(member => member.AccountId == invitedByUserId, cancellationToken)
-            ? [invitedByUserId]
+    private async Task<IReadOnlyList<Guid>> InviterOrOwnersAsync(Guid? invitedByUserId, CancellationToken cancellationToken)
+    {
+        var inviterAccountIds = await context.BusinessMembers.AsNoTracking()
+            .Where(member => invitedByUserId != null && member.UserId == invitedByUserId)
+            .Select(member => member.AccountId)
+            .ToListAsync(cancellationToken);
+        return inviterAccountIds.Count > 0
+            ? inviterAccountIds
             : await BranchOwnersAsync(cancellationToken);
+    }
 
     private async Task<List<Guid>> BranchOwnersAsync(CancellationToken cancellationToken) =>
         await context.BusinessMembers.AsNoTracking()

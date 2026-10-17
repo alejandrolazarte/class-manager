@@ -50,6 +50,12 @@ public static class UserRows
         await ChangeAsync(context, userId, fullName, null, null);
     }
 
+    public static async Task RenameUserAsync(this ApiFixture fixture, Guid businessId, Guid userId, string fullName)
+    {
+        await using var context = fixture.CreateDbContext(businessId);
+        await ChangeAsync(context, userId, fullName, null, null);
+    }
+
     private static async Task ChangeAsync(AppDbContext context, Guid? userId, string fullName, string? email, string? normalizedPhoneNumber)
     {
         var user = await context.Users.SingleAsync(user => user.Id == userId);

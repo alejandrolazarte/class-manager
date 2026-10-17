@@ -10,7 +10,7 @@ public sealed class Then_team_endpoints_return_403(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync();
         using var studentKindClient = fixture.CreateClientWithToken(
-            fixture.CreateAccessToken(business.Business.Id, userId: business.OwnerUserId, kind: AccountKinds.Student));
+            fixture.CreateAccessToken(business.Business.Id, accountId: business.OwnerAccountId, kind: AccountKinds.Student));
 
         using var teamResponse = await studentKindClient.GetAsync(new Uri(ApiRoutes.Members, UriKind.Relative));
         using var meResponse = await studentKindClient.GetAsync(new Uri(ApiRoutes.Me, UriKind.Relative));

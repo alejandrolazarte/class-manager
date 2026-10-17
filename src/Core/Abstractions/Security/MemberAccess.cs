@@ -4,6 +4,7 @@ namespace ClassManager.Core.Abstractions.Security;
 
 public sealed record MemberAccess(
     Guid AccountId,
+    Guid? UserId,
     Guid BusinessId,
     BusinessRole? BranchRole,
     Guid? InstructorId,

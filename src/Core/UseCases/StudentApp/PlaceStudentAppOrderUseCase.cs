@@ -54,7 +54,7 @@ public sealed class PlaceStudentAppOrderUseCase(
 
         var now = timeProvider.GetUtcNow();
         var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
-        var order = Order.Request(access.ClientId, draft.Value!.Lines, currencyCode, access.AccountId, now);
+        var order = Order.Request(access.ClientId, draft.Value!.Lines, currencyCode, access.UserId, now);
         if (order.IsFailure)
         {
             return order.Error!;
@@ -85,7 +85,7 @@ public sealed class PlaceStudentAppOrderUseCase(
 
         foreach (var line in order.Value!.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))
         {
-            stockMovementRepository.Add(StockMovement.Reserve(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access.AccountId, now));
+            stockMovementRepository.Add(StockMovement.Reserve(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access.UserId, now));
         }
 
         order.Value.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));

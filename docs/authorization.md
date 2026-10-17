@@ -71,7 +71,7 @@ The system `Instructor` role has no money permissions. A custom role can add the
 
 - `payments.view.own` (instead of `payments.view.all`) narrows the monthly fees list, a student's payments and the class pack sales total to the students the member reaches: the same client scope as `students.view.own` (clients they registered and clients of students in their class groups or private lessons). Reading a student outside it returns `404`.
 - With `payments.view.own`, `payments.record` and `classPacks.sell` only work for those students: recording a payment, changing the billing plan or selling a pack for another student returns `403 member.not_yours`.
-- Payments and pack sales store `RecordedByUserId`. A student's payments show who recorded each one (`recordedByUserId`, `recordedByFullName`).
+- Payments and pack sales store `RecordedByUserId`, the member's user in the branch ([users per business](backend/20261017-users/plan.md)). A student's payments show who recorded each one (`recordedByUserId`, `recordedByFullName`, from `Users`); `GET /api/me` returns the same id as `userId`.
 - Without `payments.view.all`, a member only deletes payments and pack sales they recorded themselves.
 - A student's class balance (`GET /api/clients/{id}/class-balance`) follows the student scope.
 

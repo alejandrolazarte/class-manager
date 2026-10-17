@@ -82,6 +82,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
             configurationType => configurationType.Namespace == typeof(Configurations.BusinessConfiguration).Namespace);
         modelBuilder.ApplySubscriptionsModel();
         modelBuilder.Entity<Subscription>().HasOne<Organization>().WithMany().HasForeignKey(subscription => subscription.SubscriberId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.ApplyWhoDidWhatForeignKeys();
         modelBuilder.SeedSubscriptionCatalog();
         modelBuilder.SeedCountryCatalog();
         modelBuilder.ApplyTenantQueryFilters(this);

@@ -198,6 +198,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("TenantId", "PublishedAt");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Announcements_TenantId_Pinned")
@@ -455,6 +457,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CustomRoleId");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("InstructorId");
 
                     b.HasIndex("UserId");
@@ -503,7 +507,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("InstructorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("InvitedByUserId")
+                    b.Property<Guid?>("InvitedByUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("RevokedAt")
@@ -528,6 +532,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("CustomRoleId");
 
                     b.HasIndex("InstructorId");
+
+                    b.HasIndex("InvitedByUserId");
 
                     b.HasIndex("TokenHash")
                         .IsUnique();
@@ -774,6 +780,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("RecordedByUserId");
+
                     b.HasIndex("TrialLessonId");
 
                     b.HasIndex("TenantId", "ClientId");
@@ -830,6 +840,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RegisteredByUserId");
 
                     b.HasIndex("UserId");
 
@@ -930,7 +942,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("nchar(64)")
                         .IsFixedLength();
 
-                    b.Property<Guid>("InvitedByUserId")
+                    b.Property<Guid?>("InvitedByUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("RevokedAt")
@@ -952,9 +964,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("ContactAdultConfirmedByUserId");
+
                     b.HasIndex("GuardianTokenHash")
                         .IsUnique()
                         .HasFilter("[GuardianTokenHash] IS NOT NULL");
+
+                    b.HasIndex("InvitedByUserId");
 
                     b.HasIndex("StudentId");
 
@@ -1222,6 +1238,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("TenantId", "ClientId", "EffectiveFrom")
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
@@ -1260,6 +1278,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeletedByUserId");
 
                     b.HasIndex("TenantId", "EffectiveFrom")
                         .IsUnique()
@@ -1325,6 +1345,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("RecordedByUserId");
 
                     b.HasIndex("TenantId", "ClientId", "PaidOn");
 
@@ -1417,6 +1441,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("TenantId", "Name")
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
@@ -1502,7 +1528,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("MeasurementDefinitionId");
+
+                    b.HasIndex("RecordedByUserId");
 
                     b.HasIndex("StudentId");
 
@@ -1713,9 +1743,17 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CancelledByUserId");
+
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DeliveredByUserId");
+
                     b.HasIndex("DeliveryClassGroupId");
+
+                    b.HasIndex("PaymentRecordedByUserId");
 
                     b.HasIndex("TenantId", "ClientId");
 
@@ -1839,6 +1877,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeletedByUserId");
 
                     b.HasIndex("UserId");
 
@@ -2083,6 +2123,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductVariantId");
 
+                    b.HasIndex("RecordedByUserId");
+
                     b.HasIndex("TenantId", "ProductVariantId");
 
                     b.ToTable("StockMovements");
@@ -2123,6 +2165,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeletedByUserId");
 
                     b.HasIndex("TenantId", "Name")
                         .IsUnique()
@@ -2239,6 +2283,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClassSessionId");
+
+                    b.HasIndex("DeletedByUserId");
 
                     b.HasIndex("InstructorId");
 
@@ -2459,6 +2505,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("DeletedByUserId");
 
                     b.HasIndex("TenantId", "AccountId")
                         .IsUnique()
@@ -2931,6 +2979,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("PlanCode");
 
                     b.HasIndex("SubscriberId")
@@ -2986,6 +3036,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("FeatureCode");
 
                     b.HasIndex("SubscriptionId", "FeatureCode")
@@ -3009,6 +3061,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Announcements.Announcement", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3135,6 +3192,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CustomRoleId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
                         .WithMany()
                         .HasForeignKey("InstructorId")
@@ -3162,6 +3224,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
                         .WithMany()
                         .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("InvitedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
@@ -3276,6 +3343,16 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3290,6 +3367,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.Client", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegisteredByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3336,6 +3418,16 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("ContactAdultConfirmedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("InvitedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Students.Student", null)
                         .WithMany()
@@ -3542,6 +3634,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3551,6 +3648,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Fees.DefaultMonthlyFeeChange", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3565,6 +3667,16 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
@@ -3591,6 +3703,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementDefinition", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3621,11 +3738,21 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementRecord", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Measurements.MeasurementDefinition", null)
                         .WithMany()
                         .HasForeignKey("MeasurementDefinitionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Students.Student", null)
                         .WithMany()
@@ -3675,14 +3802,34 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Orders.Order", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CancelledByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeliveredByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.ClassGroups.ClassGroup", null)
                         .WithMany()
                         .HasForeignKey("DeliveryClassGroupId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentRecordedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
@@ -3729,6 +3876,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Organizations.OrganizationMember", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Organizations.Organization", null)
                         .WithMany()
                         .HasForeignKey("OrganizationId")
@@ -3832,6 +3984,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3841,6 +3998,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Roles.CustomRole", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -3897,6 +4059,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ClassSessionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Instructors.Instructor", null)
                         .WithMany()
@@ -4003,6 +4170,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Users.User", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -4027,6 +4199,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Subscriptions.Subscribers.Subscription", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Subscriptions.Catalog.Plan", null)
                         .WithMany()
                         .HasForeignKey("PlanCode")
@@ -4042,6 +4219,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Subscriptions.Subscribers.SubscriptionFeature", b =>
                 {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Subscriptions.Catalog.Feature", null)
                         .WithMany()
                         .HasForeignKey("FeatureCode")

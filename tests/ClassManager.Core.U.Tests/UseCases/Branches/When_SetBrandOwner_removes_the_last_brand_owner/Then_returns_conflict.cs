@@ -28,7 +28,7 @@ public sealed class Then_returns_conflict
         var currentMember = new Mock<ICurrentMember>();
         currentMember
             .Setup(current => current.GetAccessAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), business.Id, null, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
+            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), business.Id, null, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
         var useCase = new SetBrandOwnerUseCase(
             businesses.Object,
             businessMembers.Object,

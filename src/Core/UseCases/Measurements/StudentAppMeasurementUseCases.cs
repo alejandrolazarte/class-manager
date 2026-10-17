@@ -21,7 +21,7 @@ public sealed class GetStudentAppMeasurementsUseCase(
     IMeasurementDefinitionRepository definitionRepository,
     IMeasurementRecordRepository recordRepository,
     IMeasurementGoalRepository goalRepository,
-    IIdentityService identityService)
+    IUserRepository userRepository)
     : IUseCase<GetStudentAppMeasurementsQuery, StudentAppMeasurementsResponse>
 {
     public async Task<Result<StudentAppMeasurementsResponse>> ExecuteAsync(GetStudentAppMeasurementsQuery command, CancellationToken cancellationToken)
@@ -39,9 +39,8 @@ public sealed class GetStudentAppMeasurementsUseCase(
             .ToList();
         var records = await recordRepository.ListByStudentsAsync(studentIds, cancellationToken);
         var goals = await goalRepository.ListByStudentsAsync(studentIds, cancellationToken);
-        var recorderNames = (await identityService.ListAccountsAsync(
-                [.. records.Select(record => record.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken))
-            .ToDictionary(account => account.UserId, account => account.FullName);
+        var recorderNames = await userRepository.ListFullNamesAsync(
+            [.. records.Select(record => record.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken);
 
         return new StudentAppMeasurementsResponse(
         [

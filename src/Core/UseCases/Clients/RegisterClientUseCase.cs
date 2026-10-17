@@ -52,7 +52,7 @@ public sealed class RegisterClientUseCase(
         }
 
         var newClient = client.Value!;
-        if (currentUser.AccountId is { } userId)
+        if (currentUser.UserId is { } userId)
         {
             newClient.RecordRegisteredBy(userId);
         }

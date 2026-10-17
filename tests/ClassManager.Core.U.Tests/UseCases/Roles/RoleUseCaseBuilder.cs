@@ -35,7 +35,7 @@ internal sealed class RoleUseCaseBuilder
     public void ActAs(IReadOnlySet<string> permissions, BusinessRole role, Guid? customRoleId) =>
         CurrentMember
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), role, null, IsBrandOwner: false, permissions, customRoleId));
+            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), role, null, IsBrandOwner: false, permissions, customRoleId));
 
     public static BusinessMember MemberWith(CustomRole role, Guid? instructorId) =>
         BusinessMember.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), MemberRole.Custom(role), instructorId).Value!;

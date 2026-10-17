@@ -13,7 +13,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var studentUserId = (await ClientAccountUserIdAsync(fixture, scenario)).GetValueOrDefault();
         using var teamKindClient = fixture.CreateClientWithToken(
-            fixture.CreateAccessToken(scenario.Instructors.Business.Business.Id, userId: studentUserId, kind: AccountKinds.Team));
+            fixture.CreateAccessToken(scenario.Instructors.Business.Business.Id, accountId: studentUserId, kind: AccountKinds.Team));
 
         using var response = await teamKindClient.GetAsync(new Uri(ApiRoutes.StudentApp, UriKind.Relative));
 

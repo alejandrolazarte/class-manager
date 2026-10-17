@@ -56,7 +56,7 @@ public sealed class RefundOrderUseCase(
 
             var refund = line.Kind == OrderLineKind.ClassPack
                 ? await OrderRefunds.RefundClassesAsync(order, line, purchaseRepository, classBalanceService, cancellationToken)
-                : await RefundProductAsync(order, line, refundLine, access?.AccountId, now, cancellationToken);
+                : await RefundProductAsync(order, line, refundLine, access?.UserId, now, cancellationToken);
             if (refund.IsFailure)
             {
                 return refund.Error!;

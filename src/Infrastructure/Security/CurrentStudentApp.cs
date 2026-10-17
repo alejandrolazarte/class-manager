@@ -21,7 +21,7 @@ internal sealed class CurrentStudentApp(AppDbContext context, ICurrentUser curre
 
     private async Task<StudentAppAccess?> ResolveAsync(CancellationToken cancellationToken)
     {
-        if (currentUser.AccountId is not { } userId)
+        if (currentUser.AccountId is not { } accountId)
         {
             return null;
         }
@@ -29,10 +29,10 @@ internal sealed class CurrentStudentApp(AppDbContext context, ICurrentUser curre
         var businessId = tenantContext.TenantId;
         var clientId = await context.ClientAccounts
             .AsNoTracking()
-            .Where(account => account.AccountId == userId)
+            .Where(account => account.AccountId == accountId)
             .Select(account => (Guid?)account.ClientId)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return clientId is { } linkedClientId ? new StudentAppAccess(userId, businessId, linkedClientId) : null;
+        return clientId is { } linkedClientId ? new StudentAppAccess(accountId, currentUser.UserId, businessId, linkedClientId) : null;
     }
 }

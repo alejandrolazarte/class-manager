@@ -25,7 +25,7 @@ public sealed class MemberInvitation : ITenantOwned
     public Guid? CustomRoleId { get; private set; }
     public Guid? InstructorId { get; private set; }
     public string TokenHash { get; private set; } = string.Empty;
-    public Guid InvitedByUserId { get; private set; }
+    public Guid? InvitedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset ExpiresAt { get; private set; }
     public DateTimeOffset? AcceptedAt { get; private set; }
@@ -37,7 +37,7 @@ public sealed class MemberInvitation : ITenantOwned
         MemberRole role,
         Guid? instructorId,
         string tokenHash,
-        Guid invitedByUserId,
+        Guid? invitedByUserId,
         DateTimeOffset createdAt)
     {
         var trimmedEmail = email?.Trim() ?? string.Empty;
