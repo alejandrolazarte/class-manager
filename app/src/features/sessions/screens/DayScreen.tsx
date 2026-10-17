@@ -1,8 +1,8 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
+import { AccountSwitcher } from "@/features/authentication/components/AccountSwitcher";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
-import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
 import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
@@ -154,7 +154,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
       >
         <View className="gap-3.5 pb-3">
           <ScreenHeader
-            leading={<CurrentBrandLogo />}
+            leading={<AccountSwitcher displayName={business.name} />}
             eyebrow={brandName}
             title={
               member.fullName

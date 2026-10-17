@@ -1,8 +1,8 @@
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import { View } from "react-native";
+import { AccountSwitcher } from "@/features/authentication/components/AccountSwitcher";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
-import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { BillingTile, hasBillingTile } from "@/features/studentApp/components/BillingTile";
 import { FeedbackNote } from "@/features/studentApp/components/FeedbackNote";
 import { GuardianConsentCard } from "@/features/studentApp/components/GuardianConsentCard";
@@ -81,7 +81,7 @@ export function StudentAppHomeScreen() {
     <ScrollScreen
       header={
         <ScreenHeader
-          leading={<CurrentBrandLogo />}
+          leading={<AccountSwitcher displayName={home.businessName} />}
           eyebrow={brandName ?? home.businessName}
           title={translate("student.greeting", { name: firstNameOf(home.signedInFullName) })}
           accessory={
