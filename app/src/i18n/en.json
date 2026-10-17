@@ -1512,6 +1512,7 @@
   "authentication.signUp.birthDateHint": "You must be an adult to create a business.",
   "authentication.validation.ownerMustBeAdult": "You must be an adult to create a business.",
   "people.samePerson.question": "Is {name} the same person?",
+  "people.samePerson.inBusiness": "{email} already belongs to {name}, in your business. If it is the same person, they keep a single profile with their details.",
   "people.samePerson.inStudents": "{email} already belongs to {name}, who is in Students. If it is the same person, they keep a single profile with their details.",
   "people.samePerson.inTeam": "{email} already belongs to {name}, who is an instructor or on the team. If it is the same person, they keep a single profile with their details.",
   "people.samePerson.confirm": "Merge",

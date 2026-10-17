@@ -1512,6 +1512,7 @@
   "authentication.signUp.birthDateHint": "Para crear un negocio tenés que ser mayor de edad.",
   "authentication.validation.ownerMustBeAdult": "Para crear un negocio tenés que ser mayor de edad.",
   "people.samePerson.question": "¿{name} es la misma persona?",
+  "people.samePerson.inBusiness": "{email} ya es de {name}, en tu negocio. Si es la misma persona, queda una sola ficha con sus datos.",
   "people.samePerson.inStudents": "{email} ya es de {name}, que está en Alumnos. Si es la misma persona, queda una sola ficha con sus datos.",
   "people.samePerson.inTeam": "{email} ya es de {name}, que es profe o está en el equipo. Si es la misma persona, queda una sola ficha con sus datos.",
   "people.samePerson.confirm": "Unir",

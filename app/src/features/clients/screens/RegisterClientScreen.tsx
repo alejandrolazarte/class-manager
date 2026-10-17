@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
-import { getFieldErrors, getStringExtension } from "@/api/problemDetails";
+import { getFieldErrors, getStringExtension, toCamelCase } from "@/api/problemDetails";
 import { isApiError, isNetworkError } from "@/api/httpClient";
 import {
   clientErrorCodes,
@@ -18,10 +18,12 @@ import {
   toRegisterClientFieldName,
   toRegisterClientRequest,
 } from "@/features/clients/registerClientSchema";
-import { ClientDetails } from "@/features/clients/types";
+import { ClientDetails, RegisterClientRequest } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { useRegisterClient } from "@/features/clients/useRegisterClient";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
+import { SamePersonDialog } from "@/features/users/components/SamePersonDialog";
+import { SamePerson, samePersonOf } from "@/features/users/samePerson";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
@@ -32,6 +34,24 @@ import { ScreenHeader } from "@/ui/ScreenHeader";
 
 const badRequestStatus = 400;
 const singleStudent = 1;
+const contactEmailField = "Email";
+
+type ConfirmedSamePeople = Record<string, string>;
+
+function withSamePeople(
+  request: RegisterClientRequest,
+  confirmedSamePeople: ConfirmedSamePeople,
+): RegisterClientRequest {
+  const contactSamePersonUserId = confirmedSamePeople[contactEmailField];
+  return {
+    ...request,
+    ...(contactSamePersonUserId ? { samePersonUserId: contactSamePersonUserId } : {}),
+    students: request.students.map((student, index) => {
+      const samePersonUserId = confirmedSamePeople[`Students[${index}].Email`];
+      return samePersonUserId ? { ...student, samePersonUserId } : student;
+    }),
+  };
+}
 
 type SubmissionFailure =
   | { kind: "phoneNumberTaken"; existingClientId: string }
@@ -43,6 +63,8 @@ export function RegisterClientScreen() {
   const { showToast } = useToast();
   const registerClientMutation = useRegisterClient();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const [samePerson, setSamePerson] = useState<SamePerson | null>(null);
+  const [confirmedSamePeople, setConfirmedSamePeople] = useState<ConfirmedSamePeople>({});
   const form = useForm<RegisterClientFormValues>({
     resolver: zodResolver(registerClientSchema),
     defaultValues: emptyRegisterClientFormValues,
@@ -132,19 +154,55 @@ export function RegisterClientScreen() {
     setSubmissionFailure({ kind: "unexpected" });
   };
 
-  const submit = form.handleSubmit(async (formValues) => {
+  const register = async (
+    formValues: RegisterClientFormValues,
+    samePeople: ConfirmedSamePeople,
+  ) => {
     setSubmissionFailure(null);
+    const request = toRegisterClientRequest(formValues);
     let registeredClient: ClientDetails;
     try {
       registeredClient = await registerClientMutation.mutateAsync(
-        toRegisterClientRequest(formValues),
+        withSamePeople(request, samePeople),
       );
     } catch (registrationError) {
-      handleRegistrationError(registrationError);
+      const conflictingPerson = samePersonOf(registrationError, "");
+      setSamePerson(
+        conflictingPerson && {
+          ...conflictingPerson,
+          email: emailOfField(request, conflictingPerson.field),
+        },
+      );
+      if (conflictingPerson === null) {
+        handleRegistrationError(registrationError);
+      }
       return;
     }
+    setSamePerson(null);
     await navigateAfterRegistration(registeredClient, toAppInvitationEmail(formValues));
-  });
+  };
+
+  const submit = form.handleSubmit((formValues) => register(formValues, confirmedSamePeople));
+
+  const joinSamePerson = (person: SamePerson) => {
+    const samePeople = { ...confirmedSamePeople, [person.field]: person.userId };
+    setConfirmedSamePeople(samePeople);
+    void register(form.getValues(), samePeople);
+  };
+
+  const keepApart = (person: SamePerson) => {
+    setSamePerson(null);
+    const formFieldName = toRegisterClientFieldName(
+      toCamelCase(person.field),
+      form.getValues("clientAttends"),
+    );
+    if (formFieldName !== null) {
+      form.setError(formFieldName, {
+        type: "server",
+        message: translate("apiErrors.user.email_taken"),
+      });
+    }
+  };
 
   return (
     <ScrollScreen
@@ -176,9 +234,26 @@ export function RegisterClientScreen() {
       {submissionFailure?.kind === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
+      {samePerson ? (
+        <SamePersonDialog
+          person={samePerson}
+          messageKey="people.samePerson.inTeam"
+          onCancel={() => keepApart(samePerson)}
+          onConfirm={() => joinSamePerson(samePerson)}
+          isConfirming={registerClientMutation.isPending}
+        />
+      ) : null}
       <View>
         <ClientForm form={form} onSubmit={submit} isSubmitting={form.formState.isSubmitting} />
       </View>
     </ScrollScreen>
   );
+}
+
+function emailOfField(request: RegisterClientRequest, field: string): string {
+  if (field === contactEmailField) {
+    return request.email ?? "";
+  }
+  const studentIndex = Number(/^Students\[(\d+)\]/.exec(field)?.[1] ?? Number.NaN);
+  return request.students[studentIndex]?.email ?? "";
 }

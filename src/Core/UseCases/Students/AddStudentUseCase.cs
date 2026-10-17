@@ -15,7 +15,8 @@ public sealed record AddStudentCommand(
     string? FullName,
     DateOnly? BirthDate,
     string? Notes,
-    string? Email = null) : ICommand;
+    string? Email = null,
+    Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class AddStudentUseCase(
     IBusinessRepository businessRepository,
@@ -68,9 +69,23 @@ public sealed class AddStudentUseCase(
             return AlreadyRegistered(existingStudent.Id);
         }
 
-        if (await PeopleEmails.TakenErrorAsync(userRepository, [(student.Value.User, nameof(AddStudentCommand.Email))], cancellationToken) is { } emailTaken)
+        var samePerson = await SamePerson.FindAsync(
+            userRepository,
+            student.Value.User,
+            student.Value.User.Email,
+            command.SamePersonUserId,
+            roles => !roles.IsClient && !roles.IsStudent,
+            nameof(AddStudentCommand.Email),
+            cancellationToken);
+        if (samePerson.IsFailure)
         {
-            return emailTaken;
+            return samePerson.Error!;
+        }
+
+        if (samePerson.Value is { } person)
+        {
+            person.CompleteWith(student.Value.User);
+            student.Value.ChangePerson(person);
         }
 
         studentRepository.Add(student.Value);

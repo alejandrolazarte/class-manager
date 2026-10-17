@@ -26,6 +26,7 @@ export interface NewStudentRequest {
   birthDate: string | null;
   notes: string | null;
   email: string | null;
+  samePersonUserId?: string;
 }
 
 export interface SearchStudentsRequest {

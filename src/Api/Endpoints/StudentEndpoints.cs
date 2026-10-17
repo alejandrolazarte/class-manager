@@ -24,7 +24,8 @@ internal static class StudentEndpoints
         IUseCase<AddStudentCommand, StudentResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var command = new AddStudentCommand(clientId, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, newStudent.Email);
+        var command = new AddStudentCommand(
+            clientId, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, newStudent.Email, newStudent.SamePersonUserId);
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(student => TypedResults.Created($"{ApiRoutes.Students}/{student.Id}", student));
