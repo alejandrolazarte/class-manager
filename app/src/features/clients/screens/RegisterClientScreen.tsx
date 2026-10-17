@@ -18,10 +18,11 @@ import {
   toRegisterClientFieldName,
   toRegisterClientRequest,
 } from "@/features/clients/registerClientSchema";
-import { ClientDetails } from "@/features/clients/types";
+import { ClientDetails, RegisterClientRequest } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { useRegisterClient } from "@/features/clients/useRegisterClient";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
+import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { Banner } from "@/ui/Banner";
@@ -43,6 +44,7 @@ export function RegisterClientScreen() {
   const { showToast } = useToast();
   const registerClientMutation = useRegisterClient();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
   const form = useForm<RegisterClientFormValues>({
     resolver: zodResolver(registerClientSchema),
     defaultValues: emptyRegisterClientFormValues,
@@ -134,17 +136,27 @@ export function RegisterClientScreen() {
 
   const submit = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
+    await registerClient(toRegisterClientRequest(formValues), toAppInvitationEmail(formValues));
+  });
+
+  const registerClient = async (
+    request: RegisterClientRequest,
+    appInvitationEmail: string | null,
+  ) => {
     let registeredClient: ClientDetails;
     try {
-      registeredClient = await registerClientMutation.mutateAsync(
-        toRegisterClientRequest(formValues),
-      );
+      registeredClient = await registerClientMutation.mutateAsync(request);
     } catch (registrationError) {
-      handleRegistrationError(registrationError);
+      const isAsking = askIfSamePerson(registrationError, (samePersonUserId) =>
+        registerClient({ ...request, samePersonUserId }, appInvitationEmail),
+      );
+      if (!isAsking) {
+        handleRegistrationError(registrationError);
+      }
       return;
     }
-    await navigateAfterRegistration(registeredClient, toAppInvitationEmail(formValues));
-  });
+    await navigateAfterRegistration(registeredClient, appInvitationEmail);
+  };
 
   return (
     <ScrollScreen
@@ -176,6 +188,7 @@ export function RegisterClientScreen() {
       {submissionFailure?.kind === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
+      {samePersonDialog}
       <View>
         <ClientForm form={form} onSubmit={submit} isSubmitting={form.formState.isSubmitting} />
       </View>

@@ -28,6 +28,10 @@ export interface NewStudentRequest {
   email: string | null;
 }
 
+export interface AddStudentRequest extends NewStudentRequest {
+  samePersonUserId?: string;
+}
+
 export interface SearchStudentsRequest {
   search: string;
   limit: number;

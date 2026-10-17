@@ -10,12 +10,23 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Students;
 
+public sealed record AddStudentRequest(
+    string? FullName,
+    DateOnly? BirthDate,
+    string? Notes,
+    string? Email = null,
+    Guid? SamePersonUserId = null)
+{
+    public AddStudentCommand ToCommand(Guid clientId) => new(clientId, FullName, BirthDate, Notes, Email, SamePersonUserId);
+}
+
 public sealed record AddStudentCommand(
     Guid ClientId,
     string? FullName,
     DateOnly? BirthDate,
     string? Notes,
-    string? Email = null) : ICommand;
+    string? Email = null,
+    Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class AddStudentUseCase(
     IBusinessRepository businessRepository,
@@ -47,7 +58,7 @@ public sealed class AddStudentUseCase(
 
         var now = timeProvider.GetUtcNow();
         var today = business.TodayAt(now);
-        var student = AttendingContact.NamesTheContact(client, command.FullName)
+        var student = AttendingContact.NamesTheContact(client.User.FullName, command.FullName)
             ? Student.CreateAttendingContact(client, command.BirthDate, command.Notes, today, now)
             : Student.Create(command.ClientId, command.FullName, command.BirthDate, command.Notes, today, now, command.Email);
         if (student.IsFailure)
@@ -68,14 +79,25 @@ public sealed class AddStudentUseCase(
             return AlreadyRegistered(existingStudent.Id);
         }
 
-        if (await PeopleEmails.TakenErrorAsync(userRepository, [(student.Value.User, nameof(AddStudentCommand.Email))], cancellationToken) is { } emailTaken)
+        var samePerson = await SamePerson.JoinOrAskAsync(
+            userRepository,
+            student.Value.User,
+            PersonRole.Student,
+            command.SamePersonUserId,
+            nameof(AddStudentCommand.Email),
+            canJoin: true,
+            cancellationToken);
+        if (samePerson.IsFailure)
         {
-            return emailTaken;
+            return samePerson.Error!;
         }
 
-        studentRepository.Add(student.Value);
+        var newStudent = samePerson.Value is { } person
+            ? Student.CreateFor(command.ClientId, person, command.BirthDate, command.Notes, today, now).Value!
+            : student.Value;
+        studentRepository.Add(newStudent);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return StudentResponse.NotInvited(student.Value);
+        return StudentResponse.NotInvited(newStudent);
     }
 
     private static Result<StudentResponse> AlreadyRegistered(Guid? existingStudentId) =>

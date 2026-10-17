@@ -5,12 +5,14 @@ import { useActiveInstructors } from "@/features/instructors/useActiveInstructor
 import { RoleFields } from "@/features/members/components/RoleFields";
 import { freeInstructors } from "@/features/members/freeInstructors";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
+import { InviteMemberRequest } from "@/features/members/types";
 import { useTeam } from "@/features/members/useTeam";
 import { useInviteMember } from "@/features/members/useTeamMutations";
 import { findRoleChoice } from "@/features/roles/roleChoices";
 import { useRoles } from "@/features/roles/useRoles";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
+import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
 import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
@@ -35,6 +37,7 @@ export function InviteMemberScreen() {
   const [emailError, setEmailError] = useState<string | undefined>();
   const [instructorError, setInstructorError] = useState<string | undefined>();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
   const instructors = freeInstructors(instructorsQuery.data ?? [], teamQuery.data);
   const needsInstructor = findRoleChoice(roleKey, roles)?.needsInstructor === true;
   const areRequiredFieldsFilled = isFilled(email) && (!needsInstructor || instructorId !== null);
@@ -52,16 +55,27 @@ export function InviteMemberScreen() {
     if (!isEmailValid || isInstructorMissing || roleChoice === undefined) {
       return;
     }
+    await sendInvitation({
+      email: trimmedEmail,
+      role: roleChoice.role,
+      customRoleId: roleChoice.customRoleId,
+      instructorId: roleChoice.needsInstructor ? instructorId : null,
+    });
+  };
+
+  const sendInvitation = async (request: InviteMemberRequest) => {
     try {
-      await inviteMutation.mutateAsync({
-        email: trimmedEmail,
-        role: roleChoice.role,
-        customRoleId: roleChoice.customRoleId,
-        instructorId: roleChoice.needsInstructor ? instructorId : null,
-      });
+      await inviteMutation.mutateAsync(request);
       showToast(translate("team.invite.sent"));
       router.back();
     } catch (inviteError) {
+      if (
+        askIfSamePerson(inviteError, (samePersonUserId) =>
+          sendInvitation({ ...request, samePersonUserId }),
+        )
+      ) {
+        return;
+      }
       if (isApiError(inviteError) && inviteError.hasCode(memberErrorCodes.alreadyMember)) {
         setEmailError(translate("team.invite.alreadyMember"));
         return;
@@ -84,6 +98,7 @@ export function InviteMemberScreen() {
       submissionFailure={submissionFailure}
       onRetry={invite}
     >
+      {samePersonDialog}
       <RequiredFieldsLegend />
       <TextField
         label={translate("team.invite.email")}

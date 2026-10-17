@@ -20,12 +20,11 @@ internal static class StudentEndpoints
 
     private static async Task<IResult> AddStudentAsync(
         Guid clientId,
-        NewStudent newStudent,
+        AddStudentRequest request,
         IUseCase<AddStudentCommand, StudentResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var command = new AddStudentCommand(clientId, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, newStudent.Email);
-        var result = await useCase.ExecuteAsync(command, cancellationToken);
+        var result = await useCase.ExecuteAsync(request.ToCommand(clientId), cancellationToken);
 
         return result.ToHttpResult(student => TypedResults.Created($"{ApiRoutes.Students}/{student.Id}", student));
     }

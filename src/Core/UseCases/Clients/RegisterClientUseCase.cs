@@ -15,7 +15,8 @@ public sealed record RegisterClientCommand(
     string? PhoneNumber,
     string? Email,
     string? Notes,
-    IReadOnlyList<NewStudent>? Students) : ICommand;
+    IReadOnlyList<NewStudent>? Students,
+    Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,
@@ -56,12 +57,7 @@ public sealed class RegisterClientUseCase(
         }
 
         var newClient = client.Value!;
-        if (currentUser.UserId is { } userId)
-        {
-            newClient.RecordRegisteredBy(userId);
-        }
-
-        var students = CreateStudents(newClient, command.Students ?? [], business.TodayAt(now), now);
+        var students = CreateStudents(newClient, command, business.TodayAt(now), now);
         if (students.IsFailure)
         {
             return students.Error!;
@@ -72,6 +68,34 @@ public sealed class RegisterClientUseCase(
         if (existingClient is not null)
         {
             return PhoneNumberTaken(existingClient.Id);
+        }
+
+        var samePerson = await SamePerson.JoinOrAskAsync(
+            userRepository,
+            newClient.User,
+            PersonRole.Client,
+            command.SamePersonUserId,
+            nameof(RegisterClientCommand.Email),
+            canJoin: true,
+            cancellationToken);
+        if (samePerson.IsFailure)
+        {
+            return samePerson.Error!;
+        }
+
+        if (samePerson.Value is { } contact)
+        {
+            newClient = Client.CreateFor(contact, phoneNumber.Value!, command.Notes, now).Value!;
+            students = CreateStudents(newClient, command, business.TodayAt(now), now);
+            if (students.IsFailure)
+            {
+                return students.Error!;
+            }
+        }
+
+        if (currentUser.UserId is { } userId)
+        {
+            newClient.RecordRegisteredBy(userId);
         }
 
         var people = new List<(User Person, string FieldName)> { (newClient.User, nameof(RegisterClientCommand.Email)) };
@@ -95,10 +119,11 @@ public sealed class RegisterClientUseCase(
 
     private static Result<IReadOnlyList<Student>> CreateStudents(
         Client client,
-        IReadOnlyList<NewStudent> newStudents,
+        RegisterClientCommand command,
         DateOnly today,
         DateTimeOffset now)
     {
+        var newStudents = command.Students ?? [];
         if (newStudents.Count > MaximumStudentsPerRegistration)
         {
             return Result.Validation<IReadOnlyList<Student>>(
@@ -112,7 +137,7 @@ public sealed class RegisterClientUseCase(
         for (var index = 0; index < newStudents.Count; index++)
         {
             var newStudent = newStudents[index];
-            var student = AttendingContact.NamesTheContact(client, newStudent.FullName)
+            var student = AttendingContact.NamesTheContact(command.FullName, newStudent.FullName)
                 ? Student.CreateAttendingContact(client, newStudent.BirthDate, newStudent.Notes, today, now)
                 : Student.Create(client.Id, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
             if (student.IsFailure)

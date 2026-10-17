@@ -1,7 +1,7 @@
 import { httpClient } from "@/api/httpClient";
 import { clientsPath } from "@/features/clients/clientsApi";
 import {
-  NewStudentRequest,
+  AddStudentRequest,
   SearchStudentsRequest,
   Student,
   StudentSummary,
@@ -10,7 +10,7 @@ import {
 const studentsPath = "/api/students";
 const studentsOfClientSegment = "students";
 
-export function addStudent(clientId: string, request: NewStudentRequest): Promise<Student> {
+export function addStudent(clientId: string, request: AddStudentRequest): Promise<Student> {
   return httpClient.post<Student>(
     `${clientsPath}/${encodeURIComponent(clientId)}/${studentsOfClientSegment}`,
     request,

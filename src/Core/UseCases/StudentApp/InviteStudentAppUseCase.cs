@@ -7,6 +7,7 @@ using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Students;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Core.Emails;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Students;
@@ -14,9 +15,14 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record InviteStudentAppRequest(string? Email, Guid? StudentId = null, DateOnly? BirthDate = null, bool ConfirmsContactIsAdult = false)
+public sealed record InviteStudentAppRequest(
+    string? Email,
+    Guid? StudentId = null,
+    DateOnly? BirthDate = null,
+    bool ConfirmsContactIsAdult = false,
+    Guid? SamePersonUserId = null)
 {
-    public InviteStudentAppCommand ToCommand(Guid clientId) => new(clientId, Email, StudentId, BirthDate, ConfirmsContactIsAdult);
+    public InviteStudentAppCommand ToCommand(Guid clientId) => new(clientId, Email, StudentId, BirthDate, ConfirmsContactIsAdult, SamePersonUserId);
 }
 
 public sealed record InviteStudentAppCommand(
@@ -24,7 +30,8 @@ public sealed record InviteStudentAppCommand(
     string? Email,
     Guid? StudentId = null,
     DateOnly? BirthDate = null,
-    bool ConfirmsContactIsAdult = false) : ICommand;
+    bool ConfirmsContactIsAdult = false,
+    Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class InviteStudentAppUseCase(
     IClientRepository clientRepository,
@@ -83,10 +90,10 @@ public sealed class InviteStudentAppUseCase(
             return recipient.Error!;
         }
 
-        var invitedPerson = command.StudentId is { } invitedStudentId ? familyStudents.Single(student => student.Id == invitedStudentId).User : client.User;
-        if (await PeopleEmails.TakenErrorAsync(userRepository, [(invitedPerson, nameof(InviteStudentAppRequest.Email))], cancellationToken) is { } emailTaken)
+        var joining = await JoinSamePersonAsync(client, familyStudents, command, cancellationToken);
+        if (joining is not null)
         {
-            return emailTaken;
+            return joining;
         }
 
         var previousInvitations = await invitationRepository.ListPendingForUpdateByPersonAsync(client.Id, command.StudentId, now, cancellationToken);
@@ -256,6 +263,50 @@ public sealed class InviteStudentAppUseCase(
         }
 
         return student.User.Email is null ? EmailRequired() : new Recipient(student.User.Email, needsGuardianConsent, student.User.FullName);
+    }
+
+    private async Task<ResultError?> JoinSamePersonAsync(
+        Client client,
+        IReadOnlyList<Student> familyStudents,
+        InviteStudentAppCommand command,
+        CancellationToken cancellationToken)
+    {
+        var invitedStudent = familyStudents.FirstOrDefault(student => student.Id == command.StudentId);
+        var invitedPerson = invitedStudent?.User ?? client.User;
+        var samePerson = await SamePerson.JoinOrAskAsync(
+            userRepository,
+            invitedPerson,
+            invitedStudent is null ? PersonRole.Client : PersonRole.Student,
+            command.SamePersonUserId,
+            nameof(InviteStudentAppRequest.Email),
+            canJoin: invitedPerson.AccountId is null && invitedStudent?.IsTheContactOf(client) != true,
+            cancellationToken);
+        if (samePerson.IsFailure)
+        {
+            return samePerson.Error!;
+        }
+
+        if (samePerson.Value is not { } person)
+        {
+            return null;
+        }
+
+        if (invitedStudent is not null)
+        {
+            invitedStudent.MoveTo(person);
+        }
+        else
+        {
+            foreach (var attendingContact in familyStudents.Where(student => student.IsTheContactOf(client)))
+            {
+                attendingContact.MoveTo(person);
+            }
+
+            client.MoveTo(person);
+        }
+
+        userRepository.Remove(invitedPerson);
+        return null;
     }
 
     private static Result<Recipient> EmailRequired() =>

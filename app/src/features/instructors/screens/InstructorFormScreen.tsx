@@ -20,7 +20,7 @@ import {
   InstructorAppAccess,
   instructorAppAccess,
 } from "@/features/instructors/instructorAppAccess";
-import { Instructor } from "@/features/instructors/types";
+import { Instructor, SaveInstructorRequest } from "@/features/instructors/types";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
 import {
   useSaveInstructor,
@@ -33,6 +33,7 @@ import { useInviteMember } from "@/features/members/useTeamMutations";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
+import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate, translateCount } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
@@ -70,6 +71,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
   const canManageMembers = useCan(permissions.membersManage);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
   const form = useForm<InstructorFormValues>({
     resolver: zodResolver(instructorSchema),
     defaultValues: toInstructorFormValues(instructor, access.member?.email),
@@ -118,7 +120,10 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
-    const request = toSaveInstructorRequest(formValues);
+    await saveInstructor(toSaveInstructorRequest(formValues));
+  });
+
+  const saveInstructor = async (request: SaveInstructorRequest) => {
     try {
       const savedInstructor = await saveInstructorMutation.mutateAsync({
         instructorId: instructor?.id,
@@ -132,6 +137,13 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
       }
       router.back();
     } catch (saveError) {
+      if (
+        askIfSamePerson(saveError, (samePersonUserId) =>
+          saveInstructor({ ...request, samePersonUserId }),
+        )
+      ) {
+        return;
+      }
       if (isApiError(saveError) && saveError.hasCode(instructorErrorCodes.emailUsedToSignIn)) {
         form.setError("email", {
           type: "server",
@@ -154,7 +166,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
         setSubmissionFailure(toSubmissionFailure(saveError));
       }
     }
-  });
+  };
 
   const toggleActive = async () => {
     if (instructor === undefined) {
@@ -194,6 +206,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
           message={translateCount("instructors.form.hasActiveClassGroups", activeClassGroupCount)}
         />
       ) : null}
+      {samePersonDialog}
       <RequiredFieldsLegend />
       <Controller
         control={form.control}

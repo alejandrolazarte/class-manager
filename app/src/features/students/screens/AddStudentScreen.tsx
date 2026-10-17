@@ -13,7 +13,9 @@ import {
   studentFormSchema,
   toNewStudentRequest,
 } from "@/features/students/studentSchema";
+import { AddStudentRequest } from "@/features/students/types";
 import { useAddStudent } from "@/features/students/useAddStudent";
+import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
 import { translate } from "@/i18n/translate";
 import { clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -43,6 +45,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
   const addStudentMutation = useAddStudent(clientId);
   const { data: client } = useClient(clientId);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: emptyStudentFormValues,
@@ -92,14 +95,23 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       setEmailOfAnotherPersonError();
       return;
     }
+    await addStudent(toNewStudentRequest(formValues));
+  });
+
+  const addStudent = async (request: AddStudentRequest) => {
     try {
-      await addStudentMutation.mutateAsync(toNewStudentRequest(formValues));
+      await addStudentMutation.mutateAsync(request);
       showToast(translate("students.add.success"));
       router.replace(routes.clientDetail(clientTab, clientId));
     } catch (addError) {
-      handleAddError(addError);
+      const isAsking = askIfSamePerson(addError, (samePersonUserId) =>
+        addStudent({ ...request, samePersonUserId }),
+      );
+      if (!isAsking) {
+        handleAddError(addError);
+      }
     }
-  });
+  };
 
   return (
     <ScrollScreen
@@ -119,6 +131,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       {submissionFailure === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
+      {samePersonDialog}
       <RequiredFieldsLegend />
       <HairlineSection title={translate("students.add.studentCard")}>
         <StudentFields

@@ -39,4 +39,5 @@ export interface RegisterClientRequest {
   email?: string;
   notes?: string;
   students: NewStudentRequest[];
+  samePersonUserId?: string;
 }

@@ -8,6 +8,7 @@ export interface Instructor {
 export interface SaveInstructorRequest {
   fullName: string;
   email: string | null;
+  samePersonUserId?: string;
 }
 
 export type InstructorAppAccessStatus = "NotInvited" | "Invited" | "Active";

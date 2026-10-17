@@ -8,12 +8,14 @@ import { isApiError } from "@/api/httpClient";
 import { ClientDetails, StudentAppAccessStatus } from "@/features/clients/types";
 import { ContactAdultConfirmation } from "@/features/studentApp/components/ContactAdultConfirmation";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
+import { InviteStudentAppRequest } from "@/features/studentApp/types";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
 import { userErrorCodes } from "@/features/users/userErrorCodes";
+import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { TranslationKey, translate } from "@/i18n/translate";
@@ -85,6 +87,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const [isMissingGuardianEmail, setIsMissingGuardianEmail] = useState(false);
   const [isMinorContact, setIsMinorContact] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion();
 
   const askAgain = (emailMessage: string | undefined, birthDateMessage: string | undefined) => {
     setIsAskingEmail(true);
@@ -111,14 +114,18 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
     }
     setEmailError(undefined);
     setBirthDateError(undefined);
+    await sendInvitation({
+      email: recipientEmail,
+      ...(student ? { studentId: student.id } : {}),
+      ...(needsBirthDate ? { birthDate: parseBirthDate(birthDate) ?? undefined } : {}),
+      ...(needsAdultConfirmation && confirmsContactIsAdult ? { confirmsContactIsAdult } : {}),
+    });
+  };
+
+  const sendInvitation = async (request: InviteStudentAppRequest) => {
     setIsSending(true);
     try {
-      const invitation = await inviteStudentApp(client.id, {
-        email: recipientEmail,
-        ...(student ? { studentId: student.id } : {}),
-        ...(needsBirthDate ? { birthDate: parseBirthDate(birthDate) ?? undefined } : {}),
-        ...(needsAdultConfirmation && confirmsContactIsAdult ? { confirmsContactIsAdult } : {}),
-      });
+      const invitation = await inviteStudentApp(client.id, request);
       showToast(
         invitation.awaitsGuardianConsent
           ? translate(
@@ -133,6 +140,13 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
       setConfirmsContactIsAdult(false);
       await queryClient.invalidateQueries({ queryKey: clientQueryKeys.detail(client.id) });
     } catch (inviteError) {
+      if (
+        askIfSamePerson(inviteError, (samePersonUserId) =>
+          sendInvitation({ ...request, samePersonUserId }),
+        )
+      ) {
+        return;
+      }
       if (isApiError(inviteError) && inviteError.hasCode(studentErrorCodes.emailOfAnotherPerson)) {
         askAgain(translate("students.validation.emailOfAnotherPerson"), undefined);
         return;
@@ -145,7 +159,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
         isApiError(inviteError) &&
         inviteError.hasCode(studentAppErrorCodes.contactAdultConfirmationRequired)
       ) {
-        setEmail(recipientEmail);
+        setEmail(request.email);
         askAgain(undefined, undefined);
         return;
       }
@@ -216,6 +230,7 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
         {student ? null : actionButton}
       </View>
       {student ? actionButton : null}
+      {samePersonDialog}
       {hasFailed ? <Banner message={translate("common.unexpectedError")} /> : null}
       {isMinorContact ? (
         <Banner

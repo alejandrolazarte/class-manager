@@ -66,11 +66,36 @@ public sealed class Student : ITenantOwned
             return validNotes.Error!;
         }
 
-        var birthDateChange = client.User.ChangeBirthDate(birthDate, today);
+        var birthDateChange = birthDate is null ? Result.Success() : client.User.ChangeBirthDate(birthDate, today);
         return birthDateChange.IsFailure ? birthDateChange.Error! : New(client.Id, client.User, validNotes.Value, createdAt);
     }
 
+    public static Result<Student> CreateFor(
+        Guid clientId,
+        User person,
+        DateOnly? birthDate,
+        string? notes,
+        DateOnly today,
+        DateTimeOffset createdAt)
+    {
+        var validNotes = ValidNotes(notes);
+        if (validNotes.IsFailure)
+        {
+            return validNotes.Error!;
+        }
+
+        var birthDateChange = birthDate is null ? Result.Success() : person.ChangeBirthDate(birthDate, today);
+        return birthDateChange.IsFailure ? birthDateChange.Error! : New(clientId, person, validNotes.Value, createdAt);
+    }
+
     public bool IsTheContactOf(Client client) => UserId == client.UserId;
+
+    public void MoveTo(User person)
+    {
+        person.FillBlanksFrom(User);
+        User = person;
+        UserId = person.Id;
+    }
 
     private static Result<string?> PersonDetails(User person, DateOnly? birthDate, string? notes, DateOnly today)
     {

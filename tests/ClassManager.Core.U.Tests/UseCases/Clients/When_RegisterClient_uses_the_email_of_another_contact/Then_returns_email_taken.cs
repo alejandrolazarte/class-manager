@@ -1,4 +1,6 @@
-namespace ClassManager.Core.U.Tests.UseCases.Clients.When_RegisterClient_uses_the_email_of_another_person;
+using ClassManager.Core.Abstractions.Persistence;
+
+namespace ClassManager.Core.U.Tests.UseCases.Clients.When_RegisterClient_uses_the_email_of_another_contact;
 
 public sealed class Then_returns_email_taken
 {
@@ -7,8 +9,8 @@ public sealed class Then_returns_email_taken
     {
         var builder = new RegisterClientUseCaseBuilder();
         builder.Users
-            .Setup(repository => repository.IsEmailTakenAsync("ana@example.com", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(repository => repository.FindKnownPersonByEmailAsync("ana@example.com", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KnownPerson(Guid.CreateVersion7(), "Ana María Pérez", [PersonRole.Client]));
 
         var response = await builder.Build().ExecuteAsync(RegisterClientUseCaseBuilder.ValidCommand(), CancellationToken.None);
 

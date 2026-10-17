@@ -1,6 +1,6 @@
 # Users per business
 
-Status: steps 1 to 5 built; step 6 is the next PR.
+Status: steps 1 to 6 built; step 7 is the next PR.
 
 ## Why
 
@@ -204,7 +204,13 @@ Each step is one PR, starts with failing tests, and ships with its migration and
    - Rules that lived on those indexes stay, checked by the use cases after taking `IPeopleLock` (`sp_getapplock` per business, in the command's transaction): the contact phone of a client, the instructor's name and the student's name in the family. Imports take the same lock.
    - The email is unique per business (`IX_Users_TenantId_Email`). A form that would repeat it gets `400 user.email_taken` on the email field; an import row gets the same code. A user created for an account (a new team member, a brand owner in another branch) gets the account's email only if nobody in the branch uses it. Changing the sign-in email is refused (`user.email_taken` on `NewEmail`) when another person of one of the account's businesses uses the new one.
    - Migration `RemovePeopleCopies` (`PeopleCopiesRemoval`): gives a user to any row that has none, links each team member and app account to the user of its account (linking the person's user when it is free, or creating one named after the account), stops if an email is repeated (step 0), and then drops the columns.
-6. **"Eliminar mi cuenta"**, as described above.
+6. **The same person in two roles (built).** A student who starts teaching, or an instructor who starts taking classes, is one user in the branch: both records point to it, so the email is shown in both and a change of name or email is made once.
+   - When a record would get an email that another person of the branch already has, and that person can take the new role, the API answers `409 user.same_person` with `userId`, `fullName` and `roles` (`Client`, `Student`, `Instructor`, `Team`). The app asks "¿Es {name}?" in a `ConfirmDialog` (**Volver** / **Unir**) and sends the request again with `samePersonUserId`. Nothing is saved until the team confirms.
+   - Where it asks: creating an instructor, registering a client (the contact's email), adding a student to a family, inviting a team member for an instructor, and inviting a client or student to the app. Imports don't ask: the row keeps `user.email_taken`.
+   - When the record is new (creating an instructor, a client or a student), it is created on that user and no second user is made. When the record exists (the invitations), it moves to that user and its own user, which has no account and no other record, is soft deleted. Blanks of the kept user (phone, birth date) are filled from the one that goes away; the name and email are the kept user's.
+   - It can't join, and the answer stays `400 user.email_taken`, when the person already has that role (two instructor records, two contacts, two students) or the record that moves already signs in with another account.
+   - Between branches nothing is joined: each branch has its user, and the account links them.
+7. **"Eliminar mi cuenta"**, as described above.
 
 Import and export (`src/Core/UseCases/ImportExport`) follow step 2: their columns don't change for the user.
 
@@ -219,3 +225,4 @@ Taken:
 5. **Phone:** it moves to `Users` too, and is required only for the contact of a client. It is not unique in `Users`: only two clients can't share a contact phone, checked in the use cases.
 6. **Order:** this goes before "Eliminar mi cuenta", so deleting is written once on the final model.
 7. **Names:** the instructor's name stays unique per business and the student's name unique in the family. With the copies gone no index can hold them, so the use cases check them after taking a lock per business.
+8. **Same person:** a person who has two roles in a branch is one user. The team confirms it when an email repeats (step 6); there is no screen yet to join two records loaded without email.

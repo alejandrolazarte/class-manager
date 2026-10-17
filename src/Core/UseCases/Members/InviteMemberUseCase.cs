@@ -3,12 +3,18 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Domain.Users;
 using ClassManager.Core.Emails;
 using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record InviteMemberCommand(string? Email, BusinessRole? Role, Guid? InstructorId, Guid? CustomRoleId = null) : ICommand;
+public sealed record InviteMemberCommand(
+    string? Email,
+    BusinessRole? Role,
+    Guid? InstructorId,
+    Guid? CustomRoleId = null,
+    Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class InviteMemberUseCase(
     IBusinessRepository businessRepository,
@@ -85,9 +91,22 @@ public sealed class InviteMemberUseCase(
                 return emailChange.Error!;
             }
 
-            if (await PeopleEmails.TakenErrorAsync(userRepository, [(instructor.User, nameof(InviteMemberCommand.Email))], cancellationToken) is { } emailTaken)
+            var samePerson = await SamePerson.JoinOrAskAsync(
+                userRepository,
+                instructor.User,
+                PersonRole.Instructor,
+                command.SamePersonUserId,
+                nameof(InviteMemberCommand.Email),
+                canJoin: instructor.User.AccountId is null,
+                cancellationToken);
+            if (samePerson.IsFailure)
             {
-                return emailTaken;
+                return samePerson.Error!;
+            }
+
+            if (samePerson.Value is { } person)
+            {
+                userRepository.Remove(instructor.MoveTo(person));
             }
 
             foreach (var previousInvitation in await invitationRepository.ListPendingForUpdateByInstructorAsync(instructorId, now, cancellationToken))
