@@ -4,6 +4,7 @@ import { InviteStudentAppSection } from "@/features/studentApp/components/Invite
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { translate } from "@/i18n/translate";
 import { buildClient } from "@/testing/clientFactory";
+import { confirmContactIsAdult } from "@/testing/confirmContactIsAdult";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildStudent } from "@/testing/studentFactory";
 
@@ -29,6 +30,7 @@ describe("When a contact who attends is a minor", () => {
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("student.app.inviteAccessibility") }),
     );
+    await confirmContactIsAdult(client.fullName);
     await fireEvent.press(screen.getByRole("button", { name: translate("student.invite.send") }));
 
     expect(

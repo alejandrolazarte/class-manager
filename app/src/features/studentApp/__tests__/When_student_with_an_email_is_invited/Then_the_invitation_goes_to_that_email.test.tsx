@@ -3,6 +3,7 @@ import { InviteStudentAppSection } from "@/features/studentApp/components/Invite
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { translate } from "@/i18n/translate";
 import { buildClient } from "@/testing/clientFactory";
+import { confirmContactIsAdult } from "@/testing/confirmContactIsAdult";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/studentApp/studentAppApi");
@@ -28,10 +29,14 @@ describe("When student with an email is invited", () => {
       "ana@example.com",
     );
 
+    await confirmContactIsAdult(client.fullName);
     await fireEvent.press(screen.getByRole("button", { name: translate("student.invite.send") }));
 
     await waitFor(() =>
-      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, { email: "ana@example.com" }),
+      expect(inviteStudentApp).toHaveBeenCalledWith(client.id, {
+        email: "ana@example.com",
+        confirmsContactIsAdult: true,
+      }),
     );
   });
 });

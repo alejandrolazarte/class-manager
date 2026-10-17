@@ -61,6 +61,7 @@ export const clientContactSchema = z.object({
 const clientFieldsSchema = clientContactSchema.extend({
   clientAttends: z.boolean(),
   sendAppInvitation: z.boolean(),
+  confirmsContactIsAdult: z.boolean(),
   additionalStudents: z.array(studentFormSchema),
 });
 
@@ -121,6 +122,7 @@ export const emptyRegisterClientFormValues: RegisterClientFormValues = {
   notes: "",
   clientAttends: true,
   sendAppInvitation: true,
+  confirmsContactIsAdult: false,
   additionalStudents: [],
 };
 
@@ -174,7 +176,9 @@ function toStudentRequests(formValues: RegisterClientFormValues): NewStudentRequ
 
 export function toAppInvitationEmail(formValues: RegisterClientFormValues): string | null {
   const email = formValues.email.trim();
-  return formValues.sendAppInvitation && email.length > 0 ? email : null;
+  return formValues.sendAppInvitation && formValues.confirmsContactIsAdult && email.length > 0
+    ? email
+    : null;
 }
 
 export function toRegisterClientRequest(

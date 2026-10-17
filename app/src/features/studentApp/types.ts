@@ -144,6 +144,7 @@ export interface InviteStudentAppRequest {
   email: string;
   studentId?: string;
   birthDate?: string;
+  confirmsContactIsAdult?: boolean;
 }
 
 export interface StudentAppInvitation {

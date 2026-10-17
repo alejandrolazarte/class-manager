@@ -121,7 +121,10 @@ async function seedFlowBusiness(request: APIRequestContext): Promise<FlowBusines
     students: [{ fullName: "Marta Ruiz", birthDate: null, notes: null, email: null }],
   });
 
-  await send("POST", `/api/clients/${family.id}/app-invitation`, { email: guardianEmail });
+  await send("POST", `/api/clients/${family.id}/app-invitation`, {
+    email: guardianEmail,
+    confirmsContactIsAdult: true,
+  });
   const guardianInvitationToken = await linkTokenSentTo(
     guardianEmail,
     acceptStudentInvitationPattern,
@@ -261,7 +264,7 @@ test("Invitation flows", async ({ page, request, browser }) => {
   const existingAccountInvitation = await request.post(
     `${e2eEnvironment.apiUrl}/api/clients/${business.existingAccountClientId}/app-invitation`,
     {
-      data: { email: business.ownerEmail },
+      data: { email: business.ownerEmail, confirmsContactIsAdult: true },
       headers: { Authorization: `Bearer ${business.ownerToken}` },
     },
   );

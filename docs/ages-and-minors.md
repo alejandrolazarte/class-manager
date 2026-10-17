@@ -32,6 +32,16 @@ All of them live in `PersonAge` (`src/Core/Domain/Accounts`).
 | The client (contact) is an adult (18): they pay and get the reminders, and both countries need 18 to contract. A minor is registered as a student of an adult client, never as the client | Accepting the app invitation of the client, with the birth date of their account (new or existing); registering or inviting a client who attends class when the team already has a birth date for them; importing a student without Responsable (the student becomes the client) (`AttendingContact` in `src/Core/UseCases/Clients`) | `client.contact_must_be_adult` |
 | Below the minimum age of the branch's country (`Countries.OwnAccountMinimumAge`: 13 in Argentina, 14 in Spain, 16 in the other countries, the GDPR maximum) a person still gets an account of their own, but only after the client who pays authorizes it | Inviting a student | — |
 | Anyone accepting an invitation below that age needs that authorization | Accepting any invitation | `auth.too_young_for_own_account` |
+| The team member who invites the client (contact) to the app confirms that they are 18 or older | Inviting the client: the "Enviarle invitación a la app" switch of Nuevo alumno and Invitar on the client card | `student_invitation.contact_adult_confirmation_required` |
+
+### The team confirms that the contact is an adult
+
+The team never types the contact's birth date, so a minor registered as the contact could lie about their age when creating the account and nobody would know. To close that, inviting the contact to the app asks the team member to tick "Confirmo que {nombre} es mayor de 18 años". The invitation stores who ticked it and when (`ClientInvitations.ContactAdultConfirmedByUserId`, `ContactAdultConfirmedAt`): the business, who knows the person, declares the age, the way schools do in ClassDojo or Google Classroom.
+
+- The tick only appears when the contact is invited. In Nuevo alumno, the invitation switch appears as soon as something is typed in the email, and the tick appears while the switch is on; Registrar stays disabled until it is ticked.
+- Resending a pending invitation that was already confirmed keeps that confirmation and doesn't ask again.
+- If the contact is a minor, the team can't tick it: the hint under the tick tells them to set a responsible adult as the contact and add the minor with "Agregar hijo/a u otra persona".
+- The account's birth date is still checked when accepting (`client.contact_must_be_adult`), so a team member who ticks by mistake is caught when the person types their real birth date. A person who lies after the team confirmed is the business's responsibility; nothing short of identity documents prevents it, and no app of this kind asks for them.
 
 ### Authorization of the client who pays
 

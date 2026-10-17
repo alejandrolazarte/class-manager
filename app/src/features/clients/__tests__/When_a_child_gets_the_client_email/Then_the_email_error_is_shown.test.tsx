@@ -8,6 +8,7 @@ import {
   fillRegisterClientForm,
   submitRegisterClientForm,
 } from "@/testing/fillRegisterClientForm";
+import { confirmContactIsAdult } from "@/testing/confirmContactIsAdult";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/clients/clientsApi");
@@ -17,6 +18,7 @@ describe("When a child gets the client email", () => {
     await renderWithProviders(<RegisterClientScreen />);
     await fillRegisterClientForm("Ana Pérez", "11 2233-4455");
     await fillRegisterClientEmail("ana@example.com");
+    await confirmContactIsAdult("Ana Pérez");
     await addAdditionalStudent("Tomás Pérez");
     await fireEvent.changeText(
       screen.getByLabelText(translate("students.fields.email")),
