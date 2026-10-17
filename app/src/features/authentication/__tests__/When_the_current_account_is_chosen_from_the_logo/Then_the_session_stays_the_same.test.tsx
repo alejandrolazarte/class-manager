@@ -21,16 +21,14 @@ const currentBranch = buildAccount({ businessName: "Sede Centro" });
 describe("When the current account is chosen from the logo", () => {
   beforeEach(() => {
     mockSwitchAccount.mockReset();
-    jest
-      .mocked(listAccounts)
-      .mockResolvedValue([
-        currentBranch,
-        buildAccount({
-          businessId: "business-north",
-          businessName: "Sede Norte",
-          isCurrent: false,
-        }),
-      ]);
+    jest.mocked(listAccounts).mockResolvedValue([
+      currentBranch,
+      buildAccount({
+        businessId: "business-north",
+        businessName: "Sede Norte",
+        isCurrent: false,
+      }),
+    ]);
   });
 
   it("Then the session stays the same", async () => {
