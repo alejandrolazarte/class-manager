@@ -27,7 +27,7 @@ public sealed class Then_the_contact_is_one_user(ApiFixture fixture)
         await using var context = fixture.CreateDbContext(business.Business.Id);
         var client = await context.Clients.AsNoTracking().SingleAsync(client => client.Id == family.Id);
         var students = await context.Students.AsNoTracking().Where(student => student.ClientId == family.Id).ToListAsync();
-        var users = await context.Users.AsNoTracking().OrderBy(user => user.FullName).ToListAsync();
+        var users = await context.Users.AsNoTracking().Where(user => user.AccountId == null).OrderBy(user => user.FullName).ToListAsync();
 
         users.Select(user => (user.FullName, user.Email, user.BirthDate)).ShouldBe(
         [
