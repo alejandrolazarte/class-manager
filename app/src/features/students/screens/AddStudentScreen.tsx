@@ -13,7 +13,11 @@ import {
   studentFormSchema,
   toNewStudentRequest,
 } from "@/features/students/studentSchema";
+import { NewStudentRequest } from "@/features/students/types";
 import { useAddStudent } from "@/features/students/useAddStudent";
+import { SamePersonDialog } from "@/features/users/components/SamePersonDialog";
+import { SamePerson, samePersonOf } from "@/features/users/samePerson";
+import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { translate } from "@/i18n/translate";
 import { clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -43,6 +47,7 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
   const addStudentMutation = useAddStudent(clientId);
   const { data: client } = useClient(clientId);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const [samePerson, setSamePerson] = useState<SamePerson | null>(null);
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: emptyStudentFormValues,
@@ -92,14 +97,23 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       setEmailOfAnotherPersonError();
       return;
     }
+    await addStudent(toNewStudentRequest(formValues));
+  });
+
+  const addStudent = async (request: NewStudentRequest) => {
     try {
-      await addStudentMutation.mutateAsync(toNewStudentRequest(formValues));
+      await addStudentMutation.mutateAsync(request);
+      setSamePerson(null);
       showToast(translate("students.add.success"));
       router.replace(routes.clientDetail(clientTab, clientId));
     } catch (addError) {
+      setSamePerson(samePersonOf(addError, request.email ?? ""));
+      if (isApiError(addError) && addError.hasCode(userErrorCodes.samePerson)) {
+        return;
+      }
       handleAddError(addError);
     }
-  });
+  };
 
   return (
     <ScrollScreen
@@ -118,6 +132,26 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
       ) : null}
       {submissionFailure === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
+      ) : null}
+      {samePerson ? (
+        <SamePersonDialog
+          person={samePerson}
+          messageKey="people.samePerson.inTeam"
+          onCancel={() => {
+            setSamePerson(null);
+            form.setError("email", {
+              type: "server",
+              message: translate("apiErrors.user.email_taken"),
+            });
+          }}
+          onConfirm={() =>
+            void addStudent({
+              ...toNewStudentRequest(form.getValues()),
+              samePersonUserId: samePerson.userId,
+            })
+          }
+          isConfirming={addStudentMutation.isPending}
+        />
       ) : null}
       <RequiredFieldsLegend />
       <HairlineSection title={translate("students.add.studentCard")}>

@@ -39,6 +39,7 @@ public static class ApiRoutes
     public const string StudentById = "/{studentId:guid}";
     public const string Instructors = "/api/instructors";
     public const string InstructorById = "/{instructorId:guid}";
+    public const string Separation = "/separation";
     public const string ClassGroups = "/api/class-groups";
     public const string ClassGroupById = "/{classGroupId:guid}";
     public const string Active = "/active";

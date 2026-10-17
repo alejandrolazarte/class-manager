@@ -4,6 +4,11 @@ internal sealed class ClientAccountRepository(AppDbContext context) : IClientAcc
 {
     public void Add(ClientAccount account) => context.ClientAccounts.Add(account);
 
+    public void Remove(ClientAccount account) => context.ClientAccounts.Remove(account);
+
+    public async Task<IReadOnlyList<ClientAccount>> ListForUpdateByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+        await context.ClientAccounts.Where(account => account.ClientId == clientId).ToListAsync(cancellationToken);
+
     public Task<ClientAccount?> FindByAccountAsync(Guid accountId, CancellationToken cancellationToken) =>
         context.ClientAccounts.AsNoTracking().FirstOrDefaultAsync(account => account.User.AccountId == accountId, cancellationToken);
 

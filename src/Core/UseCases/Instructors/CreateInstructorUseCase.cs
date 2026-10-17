@@ -5,7 +5,7 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record CreateInstructorCommand(string? FullName, string? Email = null) : ICommand;
+public sealed record CreateInstructorCommand(string? FullName, string? Email = null, Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class CreateInstructorUseCase(
     IInstructorRepository instructorRepository,
@@ -24,15 +24,29 @@ public sealed class CreateInstructorUseCase(
         }
 
         await peopleLock.LockAsync(cancellationToken);
-        var existingInstructor = await instructorRepository.FindByNameAsync(instructor.Value!.User.FullName, cancellationToken);
+        var samePerson = await SamePerson.FindAsync(
+            userRepository,
+            instructor.Value!.User,
+            instructor.Value.User.Email,
+            command.SamePersonUserId,
+            roles => !roles.IsInstructor,
+            nameof(CreateInstructorCommand.Email),
+            cancellationToken);
+        if (samePerson.IsFailure)
+        {
+            return samePerson.Error!;
+        }
+
+        if (samePerson.Value is { } person)
+        {
+            person.CompleteWith(instructor.Value.User);
+            instructor.Value.ChangePerson(person);
+        }
+
+        var existingInstructor = await instructorRepository.FindByNameAsync(instructor.Value.User.FullName, cancellationToken);
         if (existingInstructor is not null)
         {
             return InstructorFailures.NameTaken(existingInstructor.Id);
-        }
-
-        if (await PeopleEmails.TakenErrorAsync(userRepository, [(instructor.Value.User, nameof(CreateInstructorCommand.Email))], cancellationToken) is { } emailTaken)
-        {
-            return emailTaken;
         }
 
         instructorRepository.Add(instructor.Value);

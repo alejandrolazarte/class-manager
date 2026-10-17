@@ -8,6 +8,7 @@ public static class SamePerson
 {
     public const string UserIdDetail = "samePersonUserId";
     public const string FullNameDetail = "samePersonFullName";
+    public const string FieldDetail = "samePersonField";
 
     private const string QuestionMessage =
         "Another person of the business already uses this email. If it is the same person, send their id as SamePersonUserId.";
@@ -60,6 +61,7 @@ public static class SamePerson
             {
                 [UserIdDetail] = otherPerson.Id,
                 [FullNameDetail] = otherPerson.FullName,
+                [FieldDetail] = fieldName,
             },
         };
 }

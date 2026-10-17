@@ -18,6 +18,7 @@ internal sealed class GetClientUseCaseBuilder
     public Mock<IClientAccountRepository> ClientAccounts { get; } = new();
     public Mock<IClientInvitationRepository> Invitations { get; } = new();
     public Mock<IIdentityService> Identity { get; } = new();
+    public Mock<IUserRepository> Users { get; } = new();
     public Client Client { get; } = TestData.Client();
 
     public GetClientUseCaseBuilder()
@@ -45,15 +46,21 @@ internal sealed class GetClientUseCaseBuilder
             .ReturnsAsync([new UserAccount(userId, SignInEmail, Client.User.FullName)]);
     }
 
-    public GetClientUseCase Build() =>
-        new(
+    public GetClientUseCase Build()
+    {
+        Users
+            .Setup(repository => repository.ListOnTheTeamAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HashSet<Guid>());
+        return new(
             Clients.Object,
             Students.Object,
             FeeSchedules.Object,
             ClientAccounts.Object,
             Invitations.Object,
             Identity.Object,
+            Users.Object,
             new Mock<IBusinessCalendarService>().Object,
             new EveryAccessScopes(),
             new FakeTimeProvider(TestData.Now));
+    }
 }

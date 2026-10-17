@@ -20,6 +20,10 @@ export default function StudentsLayout() {
         options={{ title: translate("clients.edit.title") }}
       />
       <Stack.Screen
+        name="clients/[clientId]/separate"
+        options={{ title: translate("people.separate.title") }}
+      />
+      <Stack.Screen
         name="clients/[clientId]/billing-plan"
         options={{ title: translate("fees.billingPlan.title") }}
       />

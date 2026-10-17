@@ -4,4 +4,5 @@ public sealed record NewStudent(
     string? FullName,
     DateOnly? BirthDate,
     string? Notes,
-    string? Email = null);
+    string? Email = null,
+    Guid? SamePersonUserId = null);

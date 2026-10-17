@@ -9,6 +9,7 @@ export interface Student {
   email: string | null;
   createdAt: string;
   appAccess: StudentAppAccess;
+  isOnTheTeam?: boolean;
 }
 
 export interface StudentSummary {
@@ -26,6 +27,7 @@ export interface NewStudentRequest {
   birthDate: string | null;
   notes: string | null;
   email: string | null;
+  samePersonUserId?: string;
 }
 
 export interface SearchStudentsRequest {

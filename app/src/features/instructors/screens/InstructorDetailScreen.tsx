@@ -6,6 +6,7 @@ import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { InactiveChip } from "@/features/settings/components/InactiveChip";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
+import { SamePersonNotice } from "@/features/users/components/SamePersonNotice";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { ActionTile } from "@/ui/ActionTile";
@@ -80,6 +81,12 @@ export function InstructorDetailScreen({ instructorId }: InstructorDetailScreenP
       ) : null}
       {canManageMembers && instructor.isActive ? (
         <InviteInstructorAppSection instructor={instructor} />
+      ) : null}
+      {canManageInstructors && instructor.samePersonClientId ? (
+        <SamePersonNotice
+          message={translate("people.alsoInStudents", { name: instructor.fullName })}
+          onSeparate={() => router.push(routes.separateInstructor(instructor.id))}
+        />
       ) : null}
     </ScrollScreen>
   );
