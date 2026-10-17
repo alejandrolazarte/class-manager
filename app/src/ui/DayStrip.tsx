@@ -20,6 +20,7 @@ interface DayStripProps {
 
 const circleSize = 36;
 const labelRowHeight = 16;
+const classDotTestIdPrefix = "day-strip-class-dot-";
 
 function circleLayoutOf(
   cellLayout: LayoutRectangle | undefined,
@@ -86,6 +87,7 @@ export function DayStrip({ days, selectedKeys, onSelect, showsClassDots = true }
             </View>
             {showsClassDots ? (
               <View
+                testID={day.hasClasses ? `${classDotTestIdPrefix}${day.key}` : undefined}
                 className={`mt-0.5 h-1 w-1 rounded-full ${dotClassName(day.hasClasses ?? false, isSelected)}`}
               />
             ) : null}
