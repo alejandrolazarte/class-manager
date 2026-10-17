@@ -7,6 +7,18 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
 {
     public void Add(User user) => context.Users.Add(user);
 
+    public void Remove(User user) => context.Users.Remove(user);
+
+    public Task<User?> FindByEmailForUpdateAsync(string email, Guid exceptUserId, CancellationToken cancellationToken) =>
+        context.Users.FirstOrDefaultAsync(user => user.Email == email && user.Id != exceptUserId, cancellationToken);
+
+    public async Task<PersonRoles> GetRolesAsync(Guid userId, CancellationToken cancellationToken) =>
+        new(
+            await context.Clients.AnyAsync(client => client.UserId == userId, cancellationToken),
+            await context.Students.AnyAsync(student => student.UserId == userId, cancellationToken),
+            await context.Instructors.AnyAsync(instructor => instructor.UserId == userId, cancellationToken),
+            await context.BusinessMembers.AnyAsync(member => member.UserId == userId, cancellationToken));
+
     public Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken) =>
         context.Users.FirstOrDefaultAsync(user => user.AccountId == accountId, cancellationToken);
 

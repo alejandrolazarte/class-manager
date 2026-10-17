@@ -11,6 +11,8 @@ import { findRoleChoice } from "@/features/roles/roleChoices";
 import { useRoles } from "@/features/roles/useRoles";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
+import { SamePersonDialog } from "@/features/users/components/SamePersonDialog";
+import { SamePerson, samePersonOf } from "@/features/users/samePerson";
 import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
@@ -35,11 +37,14 @@ export function InviteMemberScreen() {
   const [emailError, setEmailError] = useState<string | undefined>();
   const [instructorError, setInstructorError] = useState<string | undefined>();
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const [samePerson, setSamePerson] = useState<SamePerson | null>(null);
   const instructors = freeInstructors(instructorsQuery.data ?? [], teamQuery.data);
   const needsInstructor = findRoleChoice(roleKey, roles)?.needsInstructor === true;
   const areRequiredFieldsFilled = isFilled(email) && (!needsInstructor || instructorId !== null);
 
-  const invite = async () => {
+  const invite = () => send(undefined);
+
+  const send = async (samePersonUserId: string | undefined) => {
     setSubmissionFailure(null);
     const trimmedEmail = email.trim();
     const isEmailValid = emailAddressPattern.test(trimmedEmail);
@@ -58,10 +63,16 @@ export function InviteMemberScreen() {
         role: roleChoice.role,
         customRoleId: roleChoice.customRoleId,
         instructorId: roleChoice.needsInstructor ? instructorId : null,
+        ...(samePersonUserId ? { samePersonUserId } : {}),
       });
+      setSamePerson(null);
       showToast(translate("team.invite.sent"));
       router.back();
     } catch (inviteError) {
+      setSamePerson(samePersonOf(inviteError, trimmedEmail));
+      if (isApiError(inviteError) && inviteError.hasCode(userErrorCodes.samePerson)) {
+        return;
+      }
       if (isApiError(inviteError) && inviteError.hasCode(memberErrorCodes.alreadyMember)) {
         setEmailError(translate("team.invite.alreadyMember"));
         return;
@@ -103,6 +114,18 @@ export function InviteMemberScreen() {
         onInstructorChange={setInstructorId}
         instructorError={instructorError}
       />
+      {samePerson ? (
+        <SamePersonDialog
+          person={samePerson}
+          messageKey="people.samePerson.inStudents"
+          onCancel={() => {
+            setSamePerson(null);
+            setEmailError(translate("apiErrors.user.email_taken"));
+          }}
+          onConfirm={() => void send(samePerson.userId)}
+          isConfirming={inviteMutation.isPending}
+        />
+      ) : null}
       <Button
         label={translate("team.invite.submit")}
         onPress={invite}

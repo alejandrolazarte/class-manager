@@ -72,6 +72,12 @@ public sealed class Student : ITenantOwned
 
     public bool IsTheContactOf(Client client) => UserId == client.UserId;
 
+    public void ChangePerson(User person)
+    {
+        UserId = person.Id;
+        User = person;
+    }
+
     private static Result<string?> PersonDetails(User person, DateOnly? birthDate, string? notes, DateOnly today)
     {
         var birthDateChange = person.ChangeBirthDate(birthDate, today);

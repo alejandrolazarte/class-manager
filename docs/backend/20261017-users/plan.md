@@ -224,15 +224,16 @@ Taken:
 6. **Order:** this goes before "Eliminar mi cuenta", so deleting is written once on the final model.
 7. **Names:** the instructor's name stays unique per business and the student's name unique in the family. With the copies gone no index can hold them, so the use cases check them after taking a lock per business.
 
-## Open: a student who also teaches, in the same branch
+## A student who also teaches, in the same branch
 
-The model lets a `Student` and an `Instructor` share one user, but no use case links them yet. Creating an instructor or registering a student always creates a new user, and the unique email per branch stops the invitation that would give that person a second role:
+The model lets a `Student` and an `Instructor` share one user. Creating an instructor or registering a student always creates a new user; the two invitations, where the email is required, are where both roles meet:
 
 | Flow (same branch, same email) | Today | Test |
 |---|---|---|
 | A student with the app joins the team with a role that needs no instructor | Works: the team member reuses the student's user (one row) | `Endpoints/Members/When_a_student_joins_the_team_without_an_instructor` |
-| A student is invited to the team as an instructor | `400 user.email_taken` | `Endpoints/Members/When_a_student_is_invited_as_an_instructor` |
-| An instructor is invited to the student app | `400 user.email_taken` | `Endpoints/StudentApp/When_an_instructor_is_invited_to_the_student_app` |
+| A student is invited to the team as an instructor | Asks "¿Es la misma persona?" (`409 user.same_person`); with "Unir", one user | `Endpoints/Members/When_a_student_is_invited_as_an_instructor`, `When_a_student_is_confirmed_as_the_invited_instructor` |
+| An instructor is invited to the student app | Asks "¿Es la misma persona?"; with "Unir", one user | `Endpoints/StudentApp/When_an_instructor_is_invited_to_the_student_app`, `When_an_instructor_is_confirmed_as_the_invited_client` |
+| The email belongs to someone who already has that role (another instructor, another client) | `400 user.email_taken`, as before | `When_an_instructor_is_invited_with_the_email_of_another_instructor`, `When_a_student_app_invitation_uses_the_email_of_another_client` |
 
 ### Proposal: one person, with a question and a way out
 
@@ -247,4 +248,8 @@ The business data hangs from the role, not from the person: enrollments, attenda
 2. **"Separar"**, for a "yes" by mistake (two people who share an email). On the student or the instructor, when their user also has another role: the business types the other person's name (and birth date or email if it has them), and the role moves to a new user. Everything that hangs from that role moves with it. Who did what stays with the original user. So does the account, and with it the team membership. The separated person gets their own invitation with their own email. It touches another person, so it asks first with `ConfirmDialog`.
 3. **Nothing is deleted.** The business can't delete the account (only the person can, from "Eliminar mi cuenta"), and fixing a mistake never needs deleting a role and loading it again, which would lose its history.
 
-When this is built, the last two tests in the table change to expect one user after the "yes", and new tests cover the "no", "Separar" and that a reused user gets no account.
+Status:
+
+- [x] **The question in the two invitations** (team invitation as an instructor, student app invitation). `SamePerson.FindAsync` (`src/Core/UseCases/Users`) finds the other person with that email and checks they can take the role: not an instructor or team member yet for the team, not a client or student yet for the student app. Without `SamePersonUserId` it answers `409 user.same_person` with `samePersonUserId` and `samePersonFullName`; with it, the instructor (or the client, and the students that share its user) moves to that user, which keeps its name and email and takes the phone and birth date it lacked (`User.CompleteWith`), and the user left without roles is soft deleted. The app asks with `SamePersonDialog` (**Volver** / **Unir**); **Volver** shows the email error of today.
+- [ ] The question when creating an instructor, registering a client or adding a student with an email. Today these keep `400 user.email_taken`: the business can leave the email empty and use the invitation, which asks.
+- [ ] "Separar".

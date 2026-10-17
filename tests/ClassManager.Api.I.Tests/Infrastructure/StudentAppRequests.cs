@@ -19,10 +19,15 @@ public static class StudentAppRequests
 
     public static string UniqueStudentEmail() => $"student-{Guid.NewGuid():N}@example.com";
 
-    public static Task<HttpResponseMessage> PostStudentAppInvitationAsync(this HttpClient httpClient, Guid clientId, string email, bool confirmsContactIsAdult = true) =>
+    public static Task<HttpResponseMessage> PostStudentAppInvitationAsync(
+        this HttpClient httpClient,
+        Guid clientId,
+        string email,
+        bool confirmsContactIsAdult = true,
+        Guid? samePersonUserId = null) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.AppInvitation}",
-            new InviteStudentAppRequest(email, ConfirmsContactIsAdult: confirmsContactIsAdult),
+            new InviteStudentAppRequest(email, ConfirmsContactIsAdult: confirmsContactIsAdult, SamePersonUserId: samePersonUserId),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostChildAppInvitationAsync(this HttpClient httpClient, Guid clientId, Guid studentId, string email, DateOnly? birthDate) =>
