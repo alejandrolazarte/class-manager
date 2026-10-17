@@ -53,14 +53,14 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     }
 
     private async Task<IReadOnlyList<Guid>> InviterOrOwnersAsync(Guid invitedByUserId, CancellationToken cancellationToken) =>
-        await context.BusinessMembers.AsNoTracking().AnyAsync(member => member.UserId == invitedByUserId, cancellationToken)
+        await context.BusinessMembers.AsNoTracking().AnyAsync(member => member.AccountId == invitedByUserId, cancellationToken)
             ? [invitedByUserId]
             : await BranchOwnersAsync(cancellationToken);
 
     private async Task<List<Guid>> BranchOwnersAsync(CancellationToken cancellationToken) =>
         await context.BusinessMembers.AsNoTracking()
             .Where(member => member.Role == BusinessRole.BranchOwner)
-            .Select(member => member.UserId)
+            .Select(member => member.AccountId)
             .Distinct()
             .ToListAsync(cancellationToken);
 
@@ -89,7 +89,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
     {
         var instructorUserIds = await context.BusinessMembers.AsNoTracking()
             .Where(member => member.InstructorId == instructorId)
-            .Select(member => member.UserId)
+            .Select(member => member.AccountId)
             .Distinct()
             .ToListAsync(cancellationToken);
         return instructorUserIds.Count > 0

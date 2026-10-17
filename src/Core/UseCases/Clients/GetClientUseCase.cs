@@ -51,7 +51,7 @@ public sealed class GetClientUseCase(
         IReadOnlyList<ClientInvitation> pendingInvitations,
         CancellationToken cancellationToken)
     {
-        var accountUserIds = accounts.Where(account => account.StudentId == studentId).Select(account => account.UserId).ToList();
+        var accountUserIds = accounts.Where(account => account.StudentId == studentId).Select(account => account.AccountId).ToList();
         var signInEmail = await SignInEmails.FirstAsync(identityService, accountUserIds, cancellationToken);
         var pendingInvitation = pendingInvitations.FirstOrDefault(invitation => invitation.StudentId == studentId);
         return StudentAppAccessResponse.From(accountUserIds.Count > 0, signInEmail, pendingInvitation);

@@ -23,7 +23,7 @@ public sealed class Then_client_and_instructor_emails_follow
             .ReturnsAsync([]);
         var clients = new Mock<IClientRepository>();
         var instructors = new Mock<IInstructorRepository>();
-        var useCase = new ConfirmEmailChangeUseCase(identity.Object, clients.Object, instructors.Object, new Mock<IEmailSender>().Object);
+        var useCase = new ConfirmEmailChangeUseCase(identity.Object, clients.Object, instructors.Object, new Mock<IUserRepository>().Object, new Mock<IEmailSender>().Object);
 
         await useCase.ExecuteAsync(new ConfirmEmailChangeCommand(Token), CancellationToken.None);
 

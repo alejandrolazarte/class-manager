@@ -30,7 +30,7 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             .IgnoreTenantFilter()
             .Where(client => context.ClientAccounts
                 .IgnoreTenantFilter()
-                .Any(account => account.ClientId == client.Id && account.UserId == userId))
+                .Any(account => account.ClientId == client.Id && account.AccountId == userId))
             .ExecuteUpdateAsync(setters => setters.SetProperty(client => client.Email, email), cancellationToken);
 
     public async Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken) =>

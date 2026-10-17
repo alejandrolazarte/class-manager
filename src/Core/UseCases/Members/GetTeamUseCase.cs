@@ -19,7 +19,7 @@ public sealed class GetTeamUseCase(
     public async Task<Result<TeamResponse>> ExecuteAsync(GetTeamQuery command, CancellationToken cancellationToken)
     {
         var members = await businessMemberRepository.ListAsync(cancellationToken);
-        var accounts = (await identityService.ListAccountsAsync([.. members.Select(member => member.UserId)], cancellationToken))
+        var accounts = (await identityService.ListAccountsAsync([.. members.Select(member => member.AccountId)], cancellationToken))
             .ToDictionary(account => account.UserId);
         var invitations = await invitationRepository.ListPendingAsync(timeProvider.GetUtcNow(), cancellationToken);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
@@ -32,9 +32,9 @@ public sealed class GetTeamUseCase(
                 .. members
                     .Select(member => MemberResponse.From(
                         member,
-                        accounts.GetValueOrDefault(member.UserId),
+                        accounts.GetValueOrDefault(member.AccountId),
                         currentUser.UserId,
-                        brandOwnerUserIds.Contains(member.UserId)))
+                        brandOwnerUserIds.Contains(member.AccountId)))
                     .OrderBy(member => member.FullName, StringComparer.CurrentCultureIgnoreCase),
             ],
             [.. invitations.OrderBy(invitation => invitation.Email, StringComparer.OrdinalIgnoreCase).Select(InvitationResponse.From)]);

@@ -23,7 +23,7 @@ public sealed class RemoveMemberUseCase(
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        if (member.UserId == access?.UserId)
+        if (member.AccountId == access?.UserId)
         {
             return MemberRules.OwnMembership();
         }

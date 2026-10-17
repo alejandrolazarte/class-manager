@@ -4,7 +4,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.Clients;
 
-internal static class AttendingContact
+public static class AttendingContact
 {
     private const string MustBeAdultMessage = "A client who attends class must be an adult; register their guardian as the client and them as a student.";
 

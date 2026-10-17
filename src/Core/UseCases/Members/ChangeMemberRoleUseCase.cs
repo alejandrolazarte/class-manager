@@ -35,7 +35,7 @@ public sealed class ChangeMemberRoleUseCase(
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        if (member.UserId == access?.UserId)
+        if (member.AccountId == access?.UserId)
         {
             return MemberRules.OwnMembership();
         }
@@ -65,10 +65,10 @@ public sealed class ChangeMemberRoleUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var accounts = await identityService.ListAccountsAsync([member.UserId], cancellationToken);
+        var accounts = await identityService.ListAccountsAsync([member.AccountId], cancellationToken);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
         var isBrandOwner = business is not null
-            && await organizationMemberRepository.FindForUpdateAsync(business.OrganizationId, member.UserId, cancellationToken) is not null;
+            && await organizationMemberRepository.FindForUpdateAsync(business.OrganizationId, member.AccountId, cancellationToken) is not null;
         return MemberResponse.From(member, accounts.Count > 0 ? accounts[0] : null, access?.UserId, isBrandOwner);
     }
 }

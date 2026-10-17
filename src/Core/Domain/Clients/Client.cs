@@ -27,6 +27,7 @@ public sealed class Client : ITenantOwned
     public string? Notes { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? RegisteredByUserId { get; private set; }
+    public Guid? UserId { get; private set; }
 
     public static Result<Client> Create(
         string? fullName,

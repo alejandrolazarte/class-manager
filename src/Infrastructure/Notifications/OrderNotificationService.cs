@@ -161,7 +161,7 @@ internal sealed class OrderNotificationService(
 
         var userIds = await context.ClientAccounts.AsNoTracking()
             .Where(account => account.ClientId == clientId)
-            .Select(account => account.UserId)
+            .Select(account => account.AccountId)
             .ToListAsync(cancellationToken);
         if (userIds.Count > 0)
         {
@@ -178,7 +178,7 @@ internal sealed class OrderNotificationService(
         var customRoles = await context.CustomRoles.AsNoTracking().ToDictionaryAsync(role => role.Id, cancellationToken);
         var userIds = members
             .Where(member => PermissionsOf(member, customRoles).Contains(Permissions.Orders.Manage))
-            .Select(member => member.UserId)
+            .Select(member => member.AccountId)
             .ToHashSet();
         userIds.UnionWith(await context.OrganizationMembers.AsNoTracking()
             .Where(member => member.OrganizationId == business.OrganizationId && member.Role == OrganizationRole.BrandOwner)

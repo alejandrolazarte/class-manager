@@ -11,7 +11,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
         var memberBusinessIds = await context.BusinessMembers
             .IgnoreTenantFilter()
             .AsNoTracking()
-            .Where(member => member.UserId == userId)
+            .Where(member => member.AccountId == userId)
             .Select(member => member.TenantId)
             .ToListAsync(cancellationToken);
         var oldestMemberBusiness = await OldestBusinessIdAsync(
@@ -43,7 +43,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
         var memberships = await context.BusinessMembers
             .IgnoreTenantFilter()
             .AsNoTracking()
-            .Where(member => member.UserId == userId && (businessId == null || member.TenantId == businessId))
+            .Where(member => member.AccountId == userId && (businessId == null || member.TenantId == businessId))
             .Select(member => new { member.TenantId, member.Role, member.CustomRoleId })
             .ToListAsync(cancellationToken);
         var customRoleIds = memberships

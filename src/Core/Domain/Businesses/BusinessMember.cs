@@ -16,7 +16,8 @@ public sealed class BusinessMember : ITenantOwned, ISoftDeletable
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
-    public Guid UserId { get; private set; }
+    public Guid AccountId { get; private set; }
+    public Guid? UserId { get; private set; }
     public BusinessRole Role { get; private set; }
     public Guid? CustomRoleId { get; private set; }
     public Guid? InstructorId { get; private set; }
@@ -24,17 +25,17 @@ public sealed class BusinessMember : ITenantOwned, ISoftDeletable
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }
 
-    public static BusinessMember CreateBranchOwner(Guid businessId, Guid userId, Guid? instructorId = null) =>
+    public static BusinessMember CreateBranchOwner(Guid businessId, Guid accountId, Guid? instructorId = null) =>
         new()
         {
             Id = Guid.CreateVersion7(),
             TenantId = businessId,
-            UserId = userId,
+            AccountId = accountId,
             Role = BusinessRole.BranchOwner,
             InstructorId = instructorId,
         };
 
-    public static Result<BusinessMember> Create(Guid businessId, Guid userId, MemberRole role, Guid? instructorId)
+    public static Result<BusinessMember> Create(Guid businessId, Guid accountId, MemberRole role, Guid? instructorId)
     {
         if (ValidateRole(role, instructorId) is { } error)
         {
@@ -45,7 +46,7 @@ public sealed class BusinessMember : ITenantOwned, ISoftDeletable
         {
             Id = Guid.CreateVersion7(),
             TenantId = businessId,
-            UserId = userId,
+            AccountId = accountId,
             Role = role.Role,
             CustomRoleId = role.CustomRoleId,
             InstructorId = instructorId,

@@ -14,8 +14,9 @@ internal sealed class BusinessMemberConfiguration : IEntityTypeConfiguration<Bus
             .IsRequired();
 
         builder.HasOne<Business>().WithMany().HasForeignKey(member => member.TenantId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(member => new { member.TenantId, member.UserId }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
-        builder.HasIndex(member => member.UserId);
+        builder.HasOne<User>().WithMany().HasForeignKey(member => member.UserId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(member => new { member.TenantId, member.AccountId }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
+        builder.HasIndex(member => member.AccountId);
         builder.HasOne<Instructor>().WithMany().HasForeignKey(member => member.InstructorId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<CustomRole>().WithMany().HasForeignKey(member => member.CustomRoleId).OnDelete(DeleteBehavior.Restrict);
         builder.ToTable(table => table.HasCheckConstraint(

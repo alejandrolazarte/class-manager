@@ -13,7 +13,7 @@ internal sealed class BusinessMemberRepository(AppDbContext context) : IBusiness
         context.BusinessMembers.FirstOrDefaultAsync(member => member.Id == memberId, cancellationToken);
 
     public Task<bool> IsUserMemberAsync(Guid userId, CancellationToken cancellationToken) =>
-        context.BusinessMembers.AnyAsync(member => member.UserId == userId, cancellationToken);
+        context.BusinessMembers.AnyAsync(member => member.AccountId == userId, cancellationToken);
 
     public async Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(Guid customRoleId, CancellationToken cancellationToken) =>
         await context.BusinessMembers.AsNoTracking().Where(member => member.CustomRoleId == customRoleId).ToListAsync(cancellationToken);
@@ -26,6 +26,6 @@ internal sealed class BusinessMemberRepository(AppDbContext context) : IBusiness
     public Task<Guid?> FindUserIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken) =>
         context.BusinessMembers
             .Where(member => member.InstructorId == instructorId)
-            .Select(member => (Guid?)member.UserId)
+            .Select(member => (Guid?)member.AccountId)
             .FirstOrDefaultAsync(cancellationToken);
 }

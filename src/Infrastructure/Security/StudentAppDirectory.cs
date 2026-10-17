@@ -15,7 +15,7 @@ internal sealed class StudentAppDirectory(AppDbContext context) : IStudentAppDir
     public async Task<IReadOnlyList<StudentAppLink>> ListAsync(Guid userId, CancellationToken cancellationToken) =>
         await (
             from account in context.ClientAccounts.IgnoreTenantFilter().AsNoTracking()
-            where account.UserId == userId
+            where account.AccountId == userId
             join business in context.Businesses.AsNoTracking() on account.TenantId equals business.Id
             orderby business.Name
             select new StudentAppLink(account.TenantId, business.Name, account.ClientId))
@@ -26,7 +26,7 @@ internal sealed class StudentAppDirectory(AppDbContext context) : IStudentAppDir
         var accountLink = await context.ClientAccounts
             .IgnoreTenantFilter()
             .AsNoTracking()
-            .Where(account => account.UserId == userId && (businessId == null || account.TenantId == businessId))
+            .Where(account => account.AccountId == userId && (businessId == null || account.TenantId == businessId))
             .OrderBy(account => account.CreatedAt)
             .Select(account => new { account.TenantId, account.ClientId })
             .FirstOrDefaultAsync(cancellationToken);

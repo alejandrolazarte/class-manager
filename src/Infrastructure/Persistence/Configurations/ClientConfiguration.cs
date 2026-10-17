@@ -20,6 +20,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.Property<decimal?>(RetiredMonthlyFeeColumn).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(client => client.TenantId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<User>().WithMany().HasForeignKey(client => client.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(client => new { client.TenantId, client.PhoneNumber }).IsUnique();
         builder.HasIndex(client => new { client.TenantId, client.FullName });
         builder.HasIndex(client => new { client.TenantId, client.RegisteredByUserId });

@@ -81,7 +81,7 @@ await ExecuteAsync(
 await ExecuteAsync(
     """
     IF NOT EXISTS (SELECT 1 FROM BusinessMembers WHERE Id = @Id)
-        INSERT INTO BusinessMembers (Id, TenantId, UserId, Role) VALUES (@Id, @TenantId, @UserId, N'BranchOwner');
+        INSERT INTO BusinessMembers (Id, TenantId, AccountId, Role) VALUES (@Id, @TenantId, @UserId, N'BranchOwner');
     """,
     ("@Id", demoOwnerMembershipId), ("@TenantId", demoBusinessId), ("@UserId", demoOwnerId));
 

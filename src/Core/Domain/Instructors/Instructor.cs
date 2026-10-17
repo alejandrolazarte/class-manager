@@ -22,6 +22,7 @@ public sealed class Instructor : ITenantOwned
     public string FullName { get; private set; } = string.Empty;
     public string? Email { get; private set; }
     public bool IsActive { get; private set; }
+    public Guid? UserId { get; private set; }
 
     public static Result<Instructor> Create(string? fullName, string? email = null)
     {
