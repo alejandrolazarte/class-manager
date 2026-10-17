@@ -13,7 +13,7 @@ public sealed class Then_no_new_acceptance_is_added
     {
         var userId = Guid.CreateVersion7();
         var currentUser = new Mock<ICurrentUser>();
-        currentUser.Setup(user => user.UserId).Returns(userId);
+        currentUser.Setup(user => user.AccountId).Returns(userId);
         var acceptances = new Mock<ILegalTermsAcceptanceRepository>();
         acceptances
             .Setup(repository => repository.HasAcceptedAsync(userId, LegalTerms.CurrentVersion, It.IsAny<CancellationToken>()))

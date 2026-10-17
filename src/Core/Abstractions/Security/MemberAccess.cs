@@ -3,7 +3,7 @@ using ClassManager.Core.Domain.Businesses;
 namespace ClassManager.Core.Abstractions.Security;
 
 public sealed record MemberAccess(
-    Guid UserId,
+    Guid AccountId,
     Guid BusinessId,
     BusinessRole? BranchRole,
     Guid? InstructorId,

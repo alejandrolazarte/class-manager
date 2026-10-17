@@ -3296,10 +3296,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                    b.HasOne("ClassManager.Core.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.ClientAccount", b =>
@@ -3579,10 +3581,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                    b.HasOne("ClassManager.Core.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Measurements.MeasurementDefinition", b =>
@@ -3989,10 +3993,12 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                    b.HasOne("ClassManager.Core.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Users.User", b =>

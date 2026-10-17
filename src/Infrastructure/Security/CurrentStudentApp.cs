@@ -21,7 +21,7 @@ internal sealed class CurrentStudentApp(AppDbContext context, ICurrentUser curre
 
     private async Task<StudentAppAccess?> ResolveAsync(CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return null;
         }

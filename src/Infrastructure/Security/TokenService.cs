@@ -4,11 +4,11 @@ using ClassManager.Security.Tokens;
 
 namespace ClassManager.Infrastructure.Security;
 
-internal sealed class TokenService(ITokenIssuer tokenIssuer) : ITokenService
+internal sealed class TokenService(ITokenIssuer tokenIssuer, SessionUserClaims sessionUserClaims) : ITokenService
 {
     public async Task<IssuedTokens> IssueAsync(SessionUser user, CancellationToken cancellationToken)
     {
-        var tokens = await tokenIssuer.IssueAsync(ToTokenSubject(user), cancellationToken);
+        var tokens = await tokenIssuer.IssueAsync(await sessionUserClaims.AddToAsync(ToTokenSubject(user), cancellationToken), cancellationToken);
 
         return ToIssuedTokens(tokens);
     }
@@ -40,7 +40,7 @@ internal sealed class TokenService(ITokenIssuer tokenIssuer) : ITokenService
         tokenIssuer.RevokeAsync(refreshToken, cancellationToken);
 
     private static TokenSubject ToTokenSubject(SessionUser user) =>
-        new(user.UserId, user.Email, user.TenantId, user.RoleName, user.Kind);
+        new(user.AccountId, user.Email, user.TenantId, user.RoleName, user.Kind);
 
     private static IssuedTokens ToIssuedTokens(IssuedTokenPair tokens) =>
         new(tokens.AccessToken, tokens.AccessTokenExpiresAt, tokens.RefreshToken, tokens.RefreshTokenExpiresAt, tokens.Kind);

@@ -10,7 +10,7 @@ public sealed class Then_validation_fails
     public async Task Then_validation_fails_Run()
     {
         var currentUser = new Mock<ICurrentUser>();
-        currentUser.Setup(user => user.UserId).Returns(Guid.CreateVersion7());
+        currentUser.Setup(user => user.AccountId).Returns(Guid.CreateVersion7());
         var useCase = new RequestEmailChangeUseCase(
             currentUser.Object, new Mock<IIdentityService>().Object, new Mock<IEmailSender>().Object, new Mock<IWebAppLinks>().Object);
 

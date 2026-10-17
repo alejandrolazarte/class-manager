@@ -3,12 +3,19 @@ using ClassManager.Security.Tokens;
 
 namespace ClassManager.Infrastructure.Security;
 
-internal sealed class BusinessTokenSubjectResolver(IBranchDirectory branchDirectory, IStudentAppDirectory studentAppDirectory) : ITokenSubjectResolver
+internal sealed class BusinessTokenSubjectResolver(
+    IBranchDirectory branchDirectory,
+    IStudentAppDirectory studentAppDirectory,
+    SessionUserClaims sessionUserClaims)
+    : ITokenSubjectResolver
 {
-    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, string? kind, CancellationToken cancellationToken) =>
-        AccountKinds.IsStudent(kind)
+    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, string? kind, CancellationToken cancellationToken)
+    {
+        var subject = AccountKinds.IsStudent(kind)
             ? await ResolveStudentAsync(userId, email, tenantId, cancellationToken)
             : await ResolveTeamAsync(userId, email, tenantId, cancellationToken);
+        return subject is null ? null : await sessionUserClaims.AddToAsync(subject, cancellationToken);
+    }
 
     private async Task<TokenSubject?> ResolveTeamAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken)
     {

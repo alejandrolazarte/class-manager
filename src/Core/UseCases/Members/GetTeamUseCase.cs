@@ -33,7 +33,7 @@ public sealed class GetTeamUseCase(
                     .Select(member => MemberResponse.From(
                         member,
                         accounts.GetValueOrDefault(member.AccountId),
-                        currentUser.UserId,
+                        currentUser.AccountId,
                         brandOwnerUserIds.Contains(member.AccountId)))
                     .OrderBy(member => member.FullName, StringComparer.CurrentCultureIgnoreCase),
             ],

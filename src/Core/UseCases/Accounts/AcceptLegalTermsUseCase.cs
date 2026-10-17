@@ -19,7 +19,7 @@ public sealed class AcceptLegalTermsUseCase(
 {
     public async Task<Result<AcceptLegalTermsResponse>> ExecuteAsync(AcceptLegalTermsCommand command, CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return Result.Unauthorized<AcceptLegalTermsResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }

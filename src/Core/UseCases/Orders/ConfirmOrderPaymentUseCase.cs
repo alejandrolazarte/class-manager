@@ -39,14 +39,14 @@ public sealed class ConfirmOrderPaymentUseCase(
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var now = timeProvider.GetUtcNow();
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        var payment = order.ConfirmPayment(command.Method, command.PaidOn ?? today, today, access?.UserId);
+        var payment = order.ConfirmPayment(command.Method, command.PaidOn ?? today, today, access?.AccountId);
         if (payment.IsFailure)
         {
             return payment.Error!;
         }
 
         var packs = await OrderDrafts.LoadPacksAsync(order.Lines.Select(line => line.ClassPackId), classPackRepository, cancellationToken);
-        var credit = OrderPayments.CreditClassPacks(order, packs, purchaseRepository, today, now, access?.UserId);
+        var credit = OrderPayments.CreditClassPacks(order, packs, purchaseRepository, today, now, access?.AccountId);
         if (credit.IsFailure)
         {
             return credit.Error!;

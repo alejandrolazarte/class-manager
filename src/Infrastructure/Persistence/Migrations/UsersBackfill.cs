@@ -115,4 +115,20 @@ internal static class UsersBackfill
             WHERE [member].[UserId] IS NULL;
         ');
         """;
+
+    public const string BrandOwnersInEveryBranch = """
+        IF OBJECT_ID(N'[identity].[AspNetUsers]') IS NOT NULL
+        EXEC(N'
+            INSERT INTO [Users] ([Id], [TenantId], [FullName], [Email], [AccountId], [CreatedAt], [IsDeleted])
+            SELECT NEWID(), [business].[Id], [account].[FullName], [account].[Email], [brandOwner].[UserId], SYSUTCDATETIME(), 0
+            FROM [OrganizationMembers] AS [brandOwner]
+            JOIN [Businesses] AS [business] ON [business].[OrganizationId] = [brandOwner].[OrganizationId]
+            JOIN [identity].[AspNetUsers] AS [account] ON [account].[Id] = [brandOwner].[UserId]
+            WHERE [brandOwner].[Role] = N''BrandOwner''
+                AND [brandOwner].[IsDeleted] = 0
+                AND NOT EXISTS (
+                    SELECT 1 FROM [Users] AS [user]
+                    WHERE [user].[TenantId] = [business].[Id] AND [user].[AccountId] = [brandOwner].[UserId] AND [user].[IsDeleted] = 0);
+        ');
+        """;
 }

@@ -1,6 +1,6 @@
 # Users per business
 
-Status: steps 1 and 2 built; the rest are the next PRs.
+Status: steps 1 to 3 built; the rest are the next PRs.
 
 ## Why
 
@@ -188,7 +188,11 @@ Each step is one PR, starts with failing tests, and ships with its migration and
    - Screens, searches, exports, emails, push and team notices read name, email, phone and birth date from the user. The student export leaves the contact columns empty when the student is the contact's own user, instead of comparing names.
    - What still reads the copies: the commands that write a client, student or instructor answer with what they wrote (`FromWritten`), and the write rules stay on the columns they protect (unique phone and names, `AttendingContact`, `FamilyEmails`, the email locked by the sign-in, the address an app invitation goes to). Both move with the writes in step 5.
    - Team members and who did what keep the account's name until steps 3 and 4.
-3. **Session.** The `user_id` claim and `ICurrentUser.UserId`. Invitations set `AccountId`. Brand owners get their users.
+3. **Session (built).**
+   - The access token carries `user_id`: `SessionUserClaims` looks up the user with that `AccountId` in the token's branch every time a token is issued, refreshed or switched to another branch. No user in that branch, no claim. `src/Security` stays generic: the application passes it as `TokenSubject.Claims`.
+   - `ICurrentUser.AccountId` is the account (`sub`) and `ICurrentUser.UserId` is the user (`user_id`). `MemberAccess`, `StudentAppAccess` and `SessionUser` call the account `AccountId` too. Until step 4, the columns that save who did something keep receiving the account (`AccountId`), so old and new rows hold the same kind of id when step 4 migrates them.
+   - Invitations set `AccountId`: accepting a team or app invitation links the account to the person's user (the interceptor from step 1, covered by its tests). Sign-up and the branch creator get theirs the same way, through their team membership.
+   - Brand owners get a user in every branch of the brand where they have none, named after the account: when a branch is created, when a member is made brand owner (`IUserRepository.AddMissingInEveryBranchAsync`) and, for the brands that already exist, in migration `AddBrandOwnerUsers`. The tenant interceptor refuses writes to another branch, so these rows are inserted with SQL, like the cross-branch email updates.
 4. **Who did what.** The 23 columns become `...ByUserId` with foreign keys, plus the data migration.
 5. **Remove the copies.** Writes go to `Users`, the interceptor goes away, and `Email`, `FullName`, `PhoneNumber`, `BirthDate` are dropped from `Clients`, `Students` and `Instructors`, `AccountId` from `BusinessMembers` and `ClientAccounts`, and `AttendingContact`. `UserId` becomes required, and the email and phone indexes become unique after fixing the repetitions (data migration, step 0).
 6. **"Eliminar mi cuenta"**, as described above.

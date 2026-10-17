@@ -31,8 +31,8 @@ public sealed class GetTeamNotificationsUseCase(ICurrentMember currentMember, IT
             return MemberRules.MemberNotFound();
         }
 
-        var notifications = await notificationRepository.ListLatestAsync(access.UserId, Limit, cancellationToken);
-        var unreadCount = await notificationRepository.CountUnseenAsync(access.UserId, cancellationToken);
+        var notifications = await notificationRepository.ListLatestAsync(access.AccountId, Limit, cancellationToken);
+        var unreadCount = await notificationRepository.CountUnseenAsync(access.AccountId, cancellationToken);
         return new TeamNotificationsResponse([.. notifications.Select(TeamNotificationResponse.From)], unreadCount);
     }
 }
@@ -53,7 +53,7 @@ public sealed class MarkTeamNotificationsSeenUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        foreach (var notification in await notificationRepository.ListUnseenForUpdateAsync(access.UserId, cancellationToken))
+        foreach (var notification in await notificationRepository.ListUnseenForUpdateAsync(access.AccountId, cancellationToken))
         {
             notification.MarkSeen(now);
         }

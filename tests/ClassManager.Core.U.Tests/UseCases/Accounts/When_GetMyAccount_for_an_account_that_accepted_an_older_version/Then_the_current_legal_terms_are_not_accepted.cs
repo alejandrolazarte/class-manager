@@ -13,7 +13,7 @@ public sealed class Then_the_current_legal_terms_are_not_accepted
     {
         var userId = Guid.CreateVersion7();
         var currentUser = new Mock<ICurrentUser>();
-        currentUser.Setup(user => user.UserId).Returns(userId);
+        currentUser.Setup(user => user.AccountId).Returns(userId);
         var identity = new Mock<IIdentityService>();
         identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))

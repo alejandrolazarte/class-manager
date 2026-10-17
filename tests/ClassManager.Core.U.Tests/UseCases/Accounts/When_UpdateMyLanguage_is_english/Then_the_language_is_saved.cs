@@ -12,7 +12,7 @@ public sealed class Then_the_language_is_saved
     {
         var userId = Guid.CreateVersion7();
         var currentUser = new Mock<ICurrentUser>();
-        currentUser.Setup(user => user.UserId).Returns(userId);
+        currentUser.Setup(user => user.AccountId).Returns(userId);
         var identity = new Mock<IIdentityService>();
         identity
             .Setup(service => service.UpdatePreferredLanguageAsync(userId, AccountLanguage.English, It.IsAny<CancellationToken>()))

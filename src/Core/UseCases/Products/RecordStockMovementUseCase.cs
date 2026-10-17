@@ -46,7 +46,7 @@ public sealed class RecordStockMovementUseCase(
             command.Quantity,
             command.Note,
             stockByVariant.GetValueOrDefault(variant.Id),
-            access?.UserId,
+            access?.AccountId,
             timeProvider.GetUtcNow());
         if (movement.IsFailure)
         {

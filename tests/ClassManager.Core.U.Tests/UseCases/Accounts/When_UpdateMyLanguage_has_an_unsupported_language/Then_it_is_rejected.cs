@@ -12,7 +12,7 @@ public sealed class Then_it_is_rejected
     public async Task Then_it_is_rejected_Run()
     {
         var currentUser = new Mock<ICurrentUser>();
-        currentUser.Setup(user => user.UserId).Returns(Guid.CreateVersion7());
+        currentUser.Setup(user => user.AccountId).Returns(Guid.CreateVersion7());
         var identity = new Mock<IIdentityService>();
 
         var response = await new UpdateMyLanguageUseCase(currentUser.Object, identity.Object, Mock.Of<ILegalTermsAcceptanceRepository>())

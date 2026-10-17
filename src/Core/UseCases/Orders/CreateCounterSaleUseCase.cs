@@ -76,7 +76,7 @@ public sealed class CreateCounterSaleUseCase(
         var access = await currentMember.GetAccessAsync(cancellationToken);
         var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
         var order = Order.CounterSale(
-            client?.Id, draft.Value!.Lines, currencyCode, command.Method, command.PaidOn ?? today, command.Notes, command.IsDelivered, today, access?.UserId, now);
+            client?.Id, draft.Value!.Lines, currencyCode, command.Method, command.PaidOn ?? today, command.Notes, command.IsDelivered, today, access?.AccountId, now);
         if (order.IsFailure)
         {
             return order.Error!;
@@ -99,7 +99,7 @@ public sealed class CreateCounterSaleUseCase(
             return stockProblem;
         }
 
-        var credit = OrderPayments.CreditClassPacks(order.Value!, draft.Value.Packs, purchaseRepository, today, now, access?.UserId);
+        var credit = OrderPayments.CreditClassPacks(order.Value!, draft.Value.Packs, purchaseRepository, today, now, access?.AccountId);
         if (credit.IsFailure)
         {
             return credit.Error!;
@@ -107,7 +107,7 @@ public sealed class CreateCounterSaleUseCase(
 
         foreach (var line in order.Value!.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))
         {
-            stockMovementRepository.Add(StockMovement.Sale(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access?.UserId, now));
+            stockMovementRepository.Add(StockMovement.Sale(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access?.AccountId, now));
         }
 
         order.Value.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));

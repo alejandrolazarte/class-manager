@@ -90,7 +90,7 @@ public sealed class InviteStudentAppUseCase(
         }
 
         var token = secretTokenGenerator.Create();
-        var invitation = ClientInvitation.Create(client.Id, recipient.Value!.Email, token.Hash, access.UserId, now, command.StudentId);
+        var invitation = ClientInvitation.Create(client.Id, recipient.Value!.Email, token.Hash, access.AccountId, now, command.StudentId);
         if (invitation.IsFailure)
         {
             return invitation.Error!;
@@ -98,7 +98,7 @@ public sealed class InviteStudentAppUseCase(
 
         if (command.StudentId is null && command.ConfirmsContactIsAdult)
         {
-            invitation.Value!.ConfirmContactIsAdult(access.UserId, now);
+            invitation.Value!.ConfirmContactIsAdult(access.AccountId, now);
         }
         else if (command.StudentId is null)
         {

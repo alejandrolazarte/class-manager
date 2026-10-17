@@ -26,6 +26,11 @@ internal sealed class JwtAccessTokenFactory(IOptions<JwtOptions> options, TimePr
             claims[SecurityClaimTypes.Kind] = subject.Kind;
         }
 
+        foreach (var (claimType, value) in subject.Claims ?? new Dictionary<string, string>())
+        {
+            claims.TryAdd(claimType, value);
+        }
+
         var token = _tokenHandler.CreateToken(new SecurityTokenDescriptor
         {
             Issuer = jwtOptions.Issuer,

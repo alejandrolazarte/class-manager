@@ -30,7 +30,14 @@ public sealed class Then_returns_conflict
             .Setup(current => current.GetAccessAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), business.Id, null, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
         var useCase = new SetBrandOwnerUseCase(
-            businesses.Object, businessMembers.Object, organizationMembers.Object, currentMember.Object, new Mock<IUnitOfWork>().Object);
+            businesses.Object,
+            businessMembers.Object,
+            organizationMembers.Object,
+            new Mock<IUserRepository>().Object,
+            new Mock<IIdentityService>().Object,
+            currentMember.Object,
+            new Mock<IUnitOfWork>().Object,
+            TimeProvider.System);
 
         var response = await useCase.ExecuteAsync(new SetBrandOwnerCommand(member.Id, IsBrandOwner: false), CancellationToken.None);
 

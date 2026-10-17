@@ -25,7 +25,7 @@ public sealed class RequestEmailChangeUseCase(
 
     public async Task<Result<RequestEmailChangeResponse>> ExecuteAsync(RequestEmailChangeCommand command, CancellationToken cancellationToken)
     {
-        if (currentUser.UserId is not { } userId)
+        if (currentUser.AccountId is not { } userId)
         {
             return Result.Unauthorized<RequestEmailChangeResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }

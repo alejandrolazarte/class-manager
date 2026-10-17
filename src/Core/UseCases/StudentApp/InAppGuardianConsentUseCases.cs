@@ -24,7 +24,7 @@ internal static class InAppGuardianConsentRequests
         CancellationToken cancellationToken)
     {
         var access = await studentAppAccess.GetAsync(cancellationToken);
-        var account = access is null ? null : await clientAccountRepository.FindByUserAsync(access.UserId, cancellationToken);
+        var account = access is null ? null : await clientAccountRepository.FindByUserAsync(access.AccountId, cancellationToken);
         if (access is null || account is null || account.StudentId is not null)
         {
             return null;

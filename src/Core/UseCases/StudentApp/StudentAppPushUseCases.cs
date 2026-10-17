@@ -39,7 +39,7 @@ public sealed class SavePushSubscriptionUseCase(
         }
 
         var subscription = PushSubscription.Create(
-            access.ClientId, access.UserId, command.Endpoint, command.P256dh, command.Auth, timeProvider.GetUtcNow());
+            access.ClientId, access.AccountId, command.Endpoint, command.P256dh, command.Auth, timeProvider.GetUtcNow());
         if (subscription.IsFailure)
         {
             return subscription.Error!;
@@ -75,7 +75,7 @@ public sealed class RemovePushSubscriptionUseCase(
         var existing = string.IsNullOrWhiteSpace(command.Endpoint)
             ? null
             : await subscriptionRepository.FindByEndpointAsync(command.Endpoint, cancellationToken);
-        if (existing is not null && existing.UserId == access.UserId)
+        if (existing is not null && existing.UserId == access.AccountId)
         {
             subscriptionRepository.Remove(existing);
             await unitOfWork.SaveChangesAsync(cancellationToken);
