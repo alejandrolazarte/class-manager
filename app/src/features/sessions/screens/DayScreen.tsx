@@ -119,10 +119,6 @@ export function DayScreen({ initialDate }: DayScreenProps) {
     setCalendarMonth(monthOfDate(sessionDate));
     setView(nextView);
   };
-  const selectDate = (isoDate: string) => {
-    setSessionDate(isoDate);
-    setView("day");
-  };
   const step = (direction: number) =>
     isMonthView
       ? setCalendarMonth(addMonths(calendarMonth, direction))
@@ -208,7 +204,7 @@ export function DayScreen({ initialDate }: DayScreenProps) {
                 month={calendarMonth}
                 monthDays={monthCalendar?.days ?? []}
                 hasClassesOn={hasClassesOn}
-                onSelectDate={selectDate}
+                onSelectDate={setSessionDate}
                 onPrevious={() => step(-1)}
                 onNext={() => step(1)}
               />
