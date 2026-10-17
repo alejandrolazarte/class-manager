@@ -6,6 +6,10 @@ public interface IClientAccountRepository
 {
     void Add(ClientAccount account);
 
+    void Remove(ClientAccount account);
+
+    Task<IReadOnlyList<ClientAccount>> ListForUpdateByClientAsync(Guid clientId, CancellationToken cancellationToken);
+
     Task<ClientAccount?> FindByAccountAsync(Guid accountId, CancellationToken cancellationToken);
 
     Task<ClientAccount?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken);

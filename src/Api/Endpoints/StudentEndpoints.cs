@@ -1,6 +1,7 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Students;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Api.Endpoints;
 
@@ -12,10 +13,22 @@ internal static class StudentEndpoints
             .RequirePermission(Permissions.Students.Manage);
 
         var students = endpoints.MapGroup(ApiRoutes.Students);
+        students.MapPost(ApiRoutes.StudentById + ApiRoutes.Separation, SeparateStudentAsync).RequirePermission(Permissions.Students.Manage);
         students.MapGet(ApiRoutes.StudentById, GetStudentAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
         students.MapGet("/", SearchStudentsAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
 
         return endpoints;
+    }
+
+    private static async Task<IResult> SeparateStudentAsync(
+        Guid studentId,
+        SeparatePersonRequest request,
+        IUseCase<SeparateStudentCommand, SeparatedPersonResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new SeparateStudentCommand(studentId, request.FullName, request.Email), cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> AddStudentAsync(

@@ -9,6 +9,7 @@ export interface Student {
   email: string | null;
   createdAt: string;
   appAccess: StudentAppAccess;
+  isOnTheTeam?: boolean;
 }
 
 export interface StudentSummary {

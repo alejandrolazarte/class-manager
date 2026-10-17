@@ -24,6 +24,7 @@ export interface ClientDetails extends Client {
   billingPlanChanges: BillingPlanChange[];
   students: Student[];
   appAccess: StudentAppAccess;
+  isOnTheTeam?: boolean;
 }
 
 export interface UpdateClientRequest {

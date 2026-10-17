@@ -34,6 +34,18 @@ public static class SamePersonRequests
             new RegisterClientCommand(fullName, "11 6677-8899", email, null, [new NewStudent("Tomás Gómez", null, null)], samePersonUserId),
             ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PostSeparationAsync(this HttpClient httpClient, string route, string fullName, string? email = null) =>
+        httpClient.PostAsJsonAsync($"{route}{ApiRoutes.Separation}", new SeparatePersonRequest(fullName, email), ApiRequests.JsonOptions);
+
+    public static async Task<(Guid InstructorId, Guid StudentUserId)> SeedInstructorWhoIsAStudentAsync(this ApiFixture fixture, StudentAppScenario scenario)
+    {
+        var studentUserId = UserRows.UserIdOf(scenario.Tokens.AccessToken)!.Value;
+        using var response = await scenario.Instructors.Business.HttpClient.PostInstructorAsync("Ana Gómez", scenario.Email, studentUserId);
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var instructor = (await response.Content.ReadFromJsonAsync<InstructorResponse>(ApiRequests.JsonOptions))!;
+        return (instructor.Id, studentUserId);
+    }
+
     public static async Task<Guid> ClientIdOfStudentAsync(this ApiFixture fixture, Guid businessId, Guid studentId)
     {
         await using var context = fixture.CreateDbContext(businessId);

@@ -31,6 +31,7 @@ using ClassManager.Core.UseCases.StudentApp;
 using ClassManager.Core.UseCases.Students;
 using ClassManager.Core.UseCases.Subscriptions;
 using ClassManager.Core.UseCases.TeamNotifications;
+using ClassManager.Core.UseCases.Users;
 using ClassManager.ImportExport.Parsing;
 using ClassManager.ImportExport.Tabular;
 using ClassManager.ImportExport.Tabular.Csv;
@@ -111,6 +112,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<SearchStudentsQuery, IReadOnlyList<StudentSummaryResponse>, SearchStudentsUseCase>();
         services.AddUseCase<ListInstructorsQuery, IReadOnlyList<InstructorResponse>, ListInstructorsUseCase>();
         services.AddUseCase<CreateInstructorCommand, InstructorResponse, CreateInstructorUseCase>();
+        services.AddUseCase<SeparateInstructorCommand, InstructorResponse, SeparateInstructorUseCase>();
+        services.AddUseCase<SeparateClientCommand, SeparatedPersonResponse, SeparateClientUseCase>();
+        services.AddUseCase<SeparateStudentCommand, SeparatedPersonResponse, SeparateStudentUseCase>();
         services.AddUseCase<UpdateInstructorCommand, InstructorResponse, UpdateInstructorUseCase>();
         services.AddUseCase<SetInstructorActiveCommand, InstructorResponse, SetInstructorActiveUseCase>();
         services.AddUseCase<ListClassGroupsQuery, IReadOnlyList<ClassGroupResponse>, ListClassGroupsUseCase>();

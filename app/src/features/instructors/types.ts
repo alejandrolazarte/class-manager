@@ -3,6 +3,7 @@ export interface Instructor {
   fullName: string;
   email: string | null;
   isActive: boolean;
+  samePersonClientId?: string | null;
 }
 
 export interface SaveInstructorRequest {
