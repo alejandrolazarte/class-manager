@@ -196,8 +196,8 @@ Import and export (`src/Core/UseCases/ImportExport`) follow step 2: their column
 Taken:
 
 1. **Name:** `Users`. The account becomes `AccountId` everywhere, so `UserId` always means a row of `Users`.
-2. **`DeletedByUserId`** keeps its name and points to `Users` in tenant tables. No rename.
-3. **Audit:** `Users` and every tenant table implement `IAuditable`.
-4. **Email:** unique per business. Repetitions are fixed before the migration.
+2. **`DeletedByUserId`** keeps its name and points to `Users` in every table, the billing tables included. No rename.
+3. **Audit:** `Users` and every tenant table implement `IAuditable`. Step 1 gave `Users` only `CreatedAt`; the other three columns come with step 2 of the audit log plan, for every table at once.
+4. **Email:** unique per business. Repetitions are fixed before step 5, when the email lives only in `Users` and its index becomes unique.
 5. **Phone:** it moves to `Users` too, and is required only for the contact of a client.
 6. **Order:** this goes before "Eliminar mi cuenta", so deleting is written once on the final model.
