@@ -101,4 +101,16 @@ internal sealed class UserAccountService(UserManager<ApplicationUser> userManage
         await userManager.ResetAccessFailedCountAsync(user);
         return CredentialCheck.Verified(user.Id, user.Email ?? email);
     }
+
+    public async Task<bool> IsPasswordCorrectAsync(Guid userId, string password, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        return user is not null && await userManager.CheckPasswordAsync(user, password);
+    }
+
+    public async Task<bool> DeleteAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        return user is not null && (await userManager.DeleteAsync(user)).Succeeded;
+    }
 }

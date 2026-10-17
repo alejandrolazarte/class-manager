@@ -15,4 +15,8 @@ public interface IUserAccountService
     Task<bool> UpdatePreferredLanguageAsync(Guid userId, string preferredLanguage, CancellationToken cancellationToken);
 
     Task<CredentialCheck> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken);
+
+    Task<bool> IsPasswordCorrectAsync(Guid userId, string password, CancellationToken cancellationToken);
+
+    Task<bool> DeleteAsync(Guid userId, CancellationToken cancellationToken);
 }

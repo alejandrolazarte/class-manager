@@ -6,6 +6,7 @@ export default function StudentAppProfileRoute() {
     <MyProfileScreen
       editProfileRoute={routes.studentAppEditProfile}
       changeEmailRoute={routes.studentAppChangeEmail}
+      deleteAccountRoute={routes.studentAppDeleteAccount}
     />
   );
 }

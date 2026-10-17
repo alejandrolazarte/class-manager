@@ -11,4 +11,6 @@ public interface IOrganizationMemberRepository
     Task<OrganizationMember?> FindForUpdateAsync(Guid organizationId, Guid userId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Guid>> ListBrandOwnerUserIdsAsync(Guid organizationId, CancellationToken cancellationToken);
+
+    Task<bool> IsTheOnlyBrandOwnerOfABrandAsync(Guid accountId, CancellationToken cancellationToken);
 }

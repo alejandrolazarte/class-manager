@@ -162,6 +162,8 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `12-ya-tiene-cuenta-aceptar-o-rechazar`, `13-rechazo-la-invitacion` | Someone who already has an account only accepts or declines |
 | `14-aviso-al-equipo` | The team is notified of the decline |
 | `15-editar-perfil` | Editar perfil: name and birth date |
+| `16-mi-perfil` | Mi perfil, with "Eliminar mi cuenta" |
+| `17-eliminar-mi-cuenta`, `18-confirmar-eliminar-cuenta` | Eliminar mi cuenta with the password, and the confirm dialog (closed with "Volver", so the account stays) |
 
 ## Email previews
 

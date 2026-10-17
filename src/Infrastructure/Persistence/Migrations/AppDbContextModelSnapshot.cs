@@ -842,6 +842,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset?>("NewsSeenAt")
                         .HasColumnType("datetimeoffset");
 
@@ -858,6 +867,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("StudentId");
 
                     b.HasIndex("UserId");
@@ -865,9 +876,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ClientId");
 
                     b.HasIndex("TenantId", "UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("ClientAccounts");
+                    b.ToTable("ClientAccounts", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientAccounts_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.ClientInvitation", b =>
@@ -3345,6 +3360,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Students.Student", null)
                         .WithMany()

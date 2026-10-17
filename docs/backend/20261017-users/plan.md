@@ -1,6 +1,6 @@
 # Users per business
 
-Status: steps 1 to 5 built; step 6 is the next PR.
+Status: built (steps 1 to 6).
 
 ## Why
 
@@ -204,7 +204,11 @@ Each step is one PR, starts with failing tests, and ships with its migration and
    - Rules that lived on those indexes stay, checked by the use cases after taking `IPeopleLock` (`sp_getapplock` per business, in the command's transaction): the contact phone of a client, the instructor's name and the student's name in the family. Imports take the same lock.
    - The email is unique per business (`IX_Users_TenantId_Email`). A form that would repeat it gets `400 user.email_taken` on the email field; an import row gets the same code. A user created for an account (a new team member, a brand owner in another branch) gets the account's email only if nobody in the branch uses it. Changing the sign-in email is refused (`user.email_taken` on `NewEmail`) when another person of one of the account's businesses uses the new one.
    - Migration `RemovePeopleCopies` (`PeopleCopiesRemoval`): gives a user to any row that has none, links each team member and app account to the user of its account (linking the person's user when it is free, or creating one named after the account), stops if an email is repeated (step 0), and then drops the columns.
-6. **"Eliminar mi cuenta"**, as described above.
+6. **"Eliminar mi cuenta" (built).**
+   - `POST /api/me/account/deletion` with the current password (`DeleteMyAccountUseCase`), from Mi perfil in the team app and the student app: a screen with the password, then `ConfirmDialog`. A wrong password gets `400 auth.invalid_current_password` on `CurrentPassword`, and nothing changes.
+   - Refused with `409 brand_owner.last` while the account is the only brand owner of a brand: the brand would have nobody to manage it or its plan. The person makes another team member a brand owner first, or asks to close the business by email ([legal and privacy](../../legal-and-privacy.md)). A brand owner who is not the only one can delete their account; their brand ownership is soft deleted.
+   - `IAccountLinkRepository.UnlinkFromEveryBusinessAsync` does the table [above](#deleting-an-account) in every branch with set-based updates (the tenant interceptor refuses writes to another branch): team memberships and student app accounts are soft deleted with `DeletedByUserId` = the person's own user, push subscriptions and team notices are deleted, and `AccountId` becomes `null` on every user of the account, deleted ones included. `ClientAccounts` became `ISoftDeletable` for this (migration `SoftDeleteClientAccounts`). Then the account is deleted in `src/Security`, which deletes its refresh, password reset and email change tokens (cascade). All of it runs in the command's transaction.
+   - `LegalTermsAcceptances` keep their rows: they are the proof of what the person accepted and when, and only hold the account id, a version and a date.
 
 Import and export (`src/Core/UseCases/ImportExport`) follow step 2: their columns don't change for the user.
 
