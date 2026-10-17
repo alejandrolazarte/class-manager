@@ -42,26 +42,25 @@ The code already uses one convention for events: a moment something happened is 
 
 `src/Records` uses `*On` for records that are replaced instead of edited: `CreatedOn` (applies from), `DeletedOn` (another record replaced it), `ExpiredOn`.
 
-Soft delete breaks this. `ISoftDeletable.DeletedOn` is an event (a user deleted the row at that moment), but it has the same name as `IDeletedOn.DeletedOn` (another record replaced it). Today the test `Then_it_implements_the_record_interfaces` accepts either interface for a `DeletedOn` column, so a column named `DeletedOn` doesn't say which of the two it means, and `ISoftDeletable` has no field for who deleted the row.
+Soft delete broke this. `ISoftDeletable.DeletedOn` was an event (a user deleted the row at that moment), but it had the same name as `IDeletedOn.DeletedOn` (another record replaced it), and `ISoftDeletable` had no field for who deleted the row.
 
-**Proposal: rename the soft delete column to `DeletedAt` and add `DeletedByUserId`.**
+**Decision (built): one way to delete, `ISoftDeletable` with `IsDeleted`, `DeletedAt` and `DeletedByUserId`.**
 
 | Interface | Before | After | Meaning |
 |---|---|---|---|
-| `IDeletedOn` (records) | `DeletedOn` | `DeletedOn` (unchanged) | Another record replaced this one. `null` = current |
-| `ISoftDeletable` | `IsDeleted`, `DeletedOn` | `IsDeleted`, `DeletedAt`, `DeletedByUserId` | A user deleted the row. Hidden by the `SoftDelete` filter |
+| `ISoftDeletable` | `IsDeleted`, `DeletedOn` | `IsDeleted`, `DeletedAt`, `DeletedByUserId` | The row was deleted or replaced. Hidden by the `SoftDelete` filter |
+| `IDeletedOn` (records) | `DeletedOn` | Removed | Replacing a record is now a soft delete of the current one plus the new row |
 | `IAudited` (new) | — | `CreatedAt`, `CreatedByUserId`, `UpdatedAt`, `UpdatedByUserId` | Who created and who last changed the row |
 
-After the change, the column name alone says what it is: `DeletedOn` only on replaced records, `DeletedAt` only on soft deleted rows. The record columns test maps `DeletedOn` to `IDeletedOn` only and adds `DeletedAt` → `ISoftDeletable`.
+Nothing read replaced subscriptions: `IsActiveOn(date)` already required the record to be current, and every query used `WhereCurrent()`. So the replaced records (`Subscription`, `SubscriptionFeature`) became soft deleted rows, and the app has one way to delete. The history stays in the table and can be read by skipping the named `SoftDelete` filter.
 
-What the rename touches (11 entities: `BusinessMember`, `OrganizationMember`, `Payment`, `ClientBillingPlanChange`, `DefaultMonthlyFeeChange`, `MeasurementRecord`, `MeasurementDefinition`, `CustomRole`, `ClassPackPurchase`, `Announcement`, `ClassFeedback`):
+What the change touched (13 entities: `BusinessMember`, `OrganizationMember`, `Payment`, `ClientBillingPlanChange`, `DefaultMonthlyFeeChange`, `MeasurementRecord`, `MeasurementDefinition`, `CustomRole`, `ClassPackPurchase`, `Announcement`, `ClassFeedback`, `Subscription`, `SubscriptionFeature`):
 
-- `ISoftDeletable`: `DeletedOn` → `DeletedAt`, `Delete(DateTimeOffset deletedOn)` → `Delete(DateTimeOffset deletedAt)`.
-- `SoftDeleteModelBuilderExtensions`: the check constraint becomes `CK_<Table>_IsDeleted_DeletedAt` with `[DeletedAt]`. Filtered indexes use `[IsDeleted] = 0`, so they don't change.
-- One migration: `RenameColumn` (`sp_rename`, instant, no data copy), drop and create each check constraint, add `DeletedByUserId` (nullable, `null` for rows deleted before the change).
-- Responses or exports that expose `DeletedOn` of a soft deleted row, and [deleting data](../../deleting-data.md), `CLAUDE.md` and the records section of the docs.
-
-Alternative considered: keep soft delete as `DeletedOn` and rename `IDeletedOn.DeletedOn` to `ReplacedOn`. It touches only 2 entities (`Subscription`, `SubscriptionFeature`), but it leaves soft delete outside the `*At` convention that every other event uses, and the records convention (`CreatedOn`, `DeletedOn`, `ExpiredOn`) is already documented and used by the subscriptions library. Rejected.
+- `ISoftDeletable`: `DeletedOn` → `DeletedAt`, `DeletedByUserId` added, `Delete(DateTimeOffset deletedAt)`. `IDeletedOn`, `WhereCurrent()` and `IsCurrent()` removed; `IsActiveOn(date)` checks `IsDeleted`; `WhereNotDeleted()` for the subscriptions library, which doesn't rely on the app's filter.
+- `SoftDeleteModelBuilderExtensions`: the check constraint became `CK_<Table>_IsDeleted_DeletedAt`.
+- One migration (`UseDeletedAtForSoftDelete`): `RenameColumn` (`sp_rename`, instant, no data copy), drop and create each check constraint, add `DeletedByUserId` (nullable, `null` for rows deleted before the change), and for `billing.Subscriptions` and `billing.SubscriptionFeatures` add `IsDeleted`, set it to 1 where `DeletedAt` has a value, and filter their unique indexes on `[IsDeleted] = 0`.
+- The record columns test maps `IsDeleted`, `DeletedAt` and `DeletedByUserId` to `ISoftDeletable` and rejects a column named `DeletedOn`.
+- `DeletedByUserId` is left empty until step 2 fills it.
 
 ### `IAudited`
 
@@ -271,7 +270,7 @@ At first, only the owner reads it, from Azure Storage Explorer signed in with En
 
 ## Steps
 
-1. Rename soft delete to `DeletedAt` and add `DeletedByUserId`, with the migration and the record columns test. One PR, no behavior change.
+1. Rename soft delete to `DeletedAt`, add `DeletedByUserId` and make replaced records soft deleted, with the migration and the record columns test. One PR, no behavior change. **Built.**
 2. `IAudited`, `ICurrentUser` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it.
 3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands. Table client (`Azure.Data.Tables`) and blob client through `DefaultAzureCredential` with Azurite in the integration tests, `AuditWorker` with the monthly tables.
 4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules).

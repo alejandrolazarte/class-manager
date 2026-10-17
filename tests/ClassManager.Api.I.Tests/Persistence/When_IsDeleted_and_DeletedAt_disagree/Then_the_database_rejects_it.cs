@@ -1,7 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-namespace ClassManager.Api.I.Tests.Persistence.When_IsDeleted_and_DeletedOn_disagree;
+namespace ClassManager.Api.I.Tests.Persistence.When_IsDeleted_and_DeletedAt_disagree;
 
 [Collection(SqlServerCollectionDefinition.Name)]
 public sealed class Then_the_database_rejects_it(ApiFixture fixture)

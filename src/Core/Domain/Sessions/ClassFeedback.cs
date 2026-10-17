@@ -23,7 +23,8 @@ public sealed class ClassFeedback : ITenantOwned, ISoftDeletable
     public string Text { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public static Result<ClassFeedback> Create(
@@ -73,9 +74,9 @@ public sealed class ClassFeedback : ITenantOwned, ISoftDeletable
             : Result.Success();
     }
 
-    public void Delete(DateTimeOffset deletedOn)
+    public void Delete(DateTimeOffset deletedAt)
     {
-        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
 }

@@ -13,7 +13,7 @@ public static class SubscriptionsModelBuilderExtensions
     public const string SubscriptionsTable = "Subscriptions";
     public const string SubscriptionFeaturesTable = "SubscriptionFeatures";
 
-    private const string CurrentRecordFilter = "[DeletedOn] IS NULL";
+    private const string NotDeletedFilter = "[IsDeleted] = 0";
     private const int BillingPeriodMaxLength = 20;
 
     public static ModelBuilder ApplySubscriptionsModel(this ModelBuilder modelBuilder, string schema = DefaultSchema)
@@ -59,7 +59,7 @@ public static class SubscriptionsModelBuilderExtensions
             subscription.Property(entity => entity.Currency).HasMaxLength(CatalogRules.CurrencyLength).IsFixedLength().IsRequired();
             subscription.Property(entity => entity.Note).HasMaxLength(CatalogRules.NoteMaxLength);
             subscription.HasOne<Plan>().WithMany().HasForeignKey(entity => entity.PlanCode).OnDelete(DeleteBehavior.Restrict);
-            subscription.HasIndex(entity => entity.SubscriberId).IsUnique().HasFilter(CurrentRecordFilter);
+            subscription.HasIndex(entity => entity.SubscriberId).IsUnique().HasFilter(NotDeletedFilter);
         });
 
         modelBuilder.Entity<SubscriptionFeature>(subscriptionFeature =>
@@ -72,7 +72,7 @@ public static class SubscriptionsModelBuilderExtensions
             subscriptionFeature.Property(entity => entity.Currency).HasMaxLength(CatalogRules.CurrencyLength).IsFixedLength().IsRequired();
             subscriptionFeature.HasOne<Subscription>().WithMany().HasForeignKey(entity => entity.SubscriptionId).OnDelete(DeleteBehavior.Cascade);
             subscriptionFeature.HasOne<Feature>().WithMany().HasForeignKey(entity => entity.FeatureCode).OnDelete(DeleteBehavior.Restrict);
-            subscriptionFeature.HasIndex(entity => new { entity.SubscriptionId, entity.FeatureCode }).IsUnique().HasFilter(CurrentRecordFilter);
+            subscriptionFeature.HasIndex(entity => new { entity.SubscriptionId, entity.FeatureCode }).IsUnique().HasFilter(NotDeletedFilter);
         });
 
         return modelBuilder;

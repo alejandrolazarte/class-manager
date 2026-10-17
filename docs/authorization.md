@@ -129,8 +129,8 @@ The `role` claim in the token is informational; authorization never reads it.
 
 - Giving, changing or taking away `BranchOwner` also needs `branchOwners.manage` (brand owners only).
 - Nobody changes or removes their own membership.
-- Removing someone from the brand owners is a soft delete too: the `OrganizationMembers` row stays with `IsDeleted = 1` and `DeletedOn`, sign-in and refresh ignore it, and the app asks for confirmation first.
-- Removing a member is a soft delete: the `BusinessMembers` row stays with `IsDeleted = 1` and `DeletedOn`, so the history keeps who had access, with which role and until when. Every query ignores it, including sign-in and refresh (`BranchDirectory` uses `IgnoreTenantFilter()`, which keeps the soft delete filter), and the same person can be invited again.
+- Removing someone from the brand owners is a soft delete too: the `OrganizationMembers` row stays with `IsDeleted = 1` and `DeletedAt`, sign-in and refresh ignore it, and the app asks for confirmation first.
+- Removing a member is a soft delete: the `BusinessMembers` row stays with `IsDeleted = 1` and `DeletedAt`, so the history keeps who had access, with which role and until when. Every query ignores it, including sign-in and refresh (`BranchDirectory` uses `IgnoreTenantFilter()`, which keeps the soft delete filter), and the same person can be invited again.
 - Invitations are single-use links valid 7 days, sent by email (`/accept-invitation?token=`). Only a SHA-256 hash of the token is stored. Inviting the same email again revokes the previous pending invitation. Resending an invitation that was not accepted or revoked (expired ones too) replaces its token, so the previous link stops working, and emails the new one.
 - Accepting creates the account when the email has none. The name is the one the team already typed (the student, the client or the linked instructor), so the person only chooses a password and repeats it; only a team invitation without a linked instructor still asks for the name. Anyone can fix their name later from their profile (`PUT /api/me/account` `{ fullName }`). When the email already has an account, the link is enough: whoever can read that inbox could also reset its password. The check endpoint tells the screen which case it is, so a person who already has an account only sees "Aceptar" and "Rechazar", and a person without one only sees the form to create it (no "Rechazar": they simply don't use the link). Declining sets `DeclinedAt`; a declined invitation no longer counts as pending and its link stops working, and the team member who sent it (or the branch owners, if they left the team) gets a team notification. The client card then shows "Invitar" again.
 - A sign-in email belongs to one user only: Identity requires unique emails and the database enforces it with the unique `EmailIndex` on `AspNetUsers.NormalizedEmail` (and `UserNameIndex`, since the user name is the email). One user can still have a team membership and student accounts in several branches.
@@ -170,10 +170,10 @@ dotnet test tests/ClassManager.Api.I.Tests --filter "FullyQualifiedName~Authoriz
 ```
 
 ```sql
-SELECT o.Name, om.UserId, om.Role, om.IsDeleted, om.DeletedOn FROM OrganizationMembers om JOIN Organizations o ON o.Id = om.OrganizationId;
-SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId, bm.IsDeleted, bm.DeletedOn FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
+SELECT o.Name, om.UserId, om.Role, om.IsDeleted, om.DeletedAt FROM OrganizationMembers om JOIN Organizations o ON o.Id = om.OrganizationId;
+SELECT b.Name, bm.UserId, bm.Role, bm.CustomRoleId, bm.InstructorId, bm.IsDeleted, bm.DeletedAt FROM BusinessMembers bm JOIN Businesses b ON b.Id = bm.TenantId;
 SELECT TenantId, Email, Role, CustomRoleId, ExpiresAt, AcceptedAt, RevokedAt FROM MemberInvitations;
-SELECT TenantId, Name, Permissions, CopiedFrom, IsDeleted, DeletedOn FROM CustomRoles;
+SELECT TenantId, Name, Permissions, CopiedFrom, IsDeleted, DeletedAt FROM CustomRoles;
 SELECT TenantId, ClientId, Amount, Month, RecordedByUserId FROM Payments ORDER BY CreatedAt DESC;
 SELECT TenantId, ClientId, StudentId, UserId FROM ClientAccounts;
 SELECT TenantId, ClientId, StudentId, Email, ExpiresAt, AcceptedAt, RevokedAt FROM ClientInvitations;

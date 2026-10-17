@@ -30,7 +30,8 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
     public AnnouncementAction Action { get; private set; }
     public string? ActionUrl { get; private set; }
     public DateTimeOffset PublishedAt { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public IReadOnlyList<AnnouncementClassGroup> ClassGroups => _classGroups;
     public IReadOnlyList<Guid> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
@@ -106,15 +107,16 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
 
     public void Unpin() => IsPinned = false;
 
-    public void Delete(DateTimeOffset deletedOn)
+    public void Delete(DateTimeOffset deletedAt)
     {
-        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
 
     public void Restore()
     {
-        DeletedOn = null;
+        DeletedAt = null;
+        DeletedByUserId = null;
         IsDeleted = false;
     }
 

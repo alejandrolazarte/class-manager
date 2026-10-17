@@ -21,7 +21,8 @@ public sealed class BusinessMember : ITenantOwned, ISoftDeletable
     public Guid? CustomRoleId { get; private set; }
     public Guid? InstructorId { get; private set; }
     public bool IsDeleted { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
 
     public static BusinessMember CreateBranchOwner(Guid businessId, Guid userId, Guid? instructorId = null) =>
         new()
@@ -69,9 +70,9 @@ public sealed class BusinessMember : ITenantOwned, ISoftDeletable
             ? new ResultError(MemberErrorCodes.InstructorRequired, InstructorRequiredMessage, ErrorKind.Validation) { FieldName = nameof(InstructorId) }
             : null;
 
-    public void Delete(DateTimeOffset deletedOn)
+    public void Delete(DateTimeOffset deletedAt)
     {
-        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
 }

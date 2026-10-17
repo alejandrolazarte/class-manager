@@ -53,4 +53,4 @@ Classes are in person, so a class at 19:00 means 19:00 where the business is. If
 
 "Today" and "now" for the business (`Business.TodayAt`, `Business.LocalTimeAt`, `IBusinessCalendarService`) use the time zone, so changing it also moves rules that compare against the start of a class: absence notices, makeups, and whether a class has started.
 
-Audit timestamps (`CreatedAt`, `CancelledAt`, `DeletedOn` and others) are stored as `DateTimeOffset` in UTC and are not affected.
+Audit timestamps (`CreatedAt`, `CancelledAt`, `DeletedAt` and others) are stored as `DateTimeOffset` in UTC and are not affected.

@@ -15,7 +15,8 @@ public sealed class DefaultMonthlyFeeChange : ITenantOwned, ISoftDeletable
     public DateOnly EffectiveFrom { get; private set; }
     public decimal? Amount { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public static Result<DefaultMonthlyFeeChange> Create(BillingMonth effectiveFrom, decimal? amount, DateOnly today, DateTimeOffset createdAt)
@@ -42,9 +43,9 @@ public sealed class DefaultMonthlyFeeChange : ITenantOwned, ISoftDeletable
 
     public void ReplaceWith(DefaultMonthlyFeeChange change) => Amount = change.Amount;
 
-    public void Delete(DateTimeOffset deletedOn)
+    public void Delete(DateTimeOffset deletedAt)
     {
-        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
 }

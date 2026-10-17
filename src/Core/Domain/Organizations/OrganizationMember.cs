@@ -15,7 +15,8 @@ public sealed class OrganizationMember : ISoftDeletable
     public Guid UserId { get; private set; }
     public OrganizationRole Role { get; private set; }
     public bool IsDeleted { get; private set; }
-    public DateTimeOffset? DeletedOn { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
 
     public static OrganizationMember CreateBrandOwner(Guid organizationId, Guid userId) =>
         new()
@@ -26,9 +27,9 @@ public sealed class OrganizationMember : ISoftDeletable
             Role = OrganizationRole.BrandOwner,
         };
 
-    public void Delete(DateTimeOffset deletedOn)
+    public void Delete(DateTimeOffset deletedAt)
     {
-        DeletedOn = DeletedOnGuard.Delete(DeletedOn, deletedOn);
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
 }
