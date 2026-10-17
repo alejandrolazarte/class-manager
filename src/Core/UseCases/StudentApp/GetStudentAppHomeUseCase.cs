@@ -86,7 +86,9 @@ public sealed class GetStudentAppHomeUseCase(
             .ToDictionary(feedback => feedback.StudentId);
 
         var studentResponses = new List<AccountStudentResponse>();
-        foreach (var student in students.OrderBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase))
+        foreach (var student in students
+            .OrderBy(student => student.CreatedAt)
+            .ThenBy(student => student.FullName, StringComparer.CurrentCultureIgnoreCase))
         {
             var enrollments = await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken);
             var nextClasses = new List<StudentAppNextClassResponse>();
