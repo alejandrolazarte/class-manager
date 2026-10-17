@@ -221,7 +221,7 @@ public sealed class StudentImportModule(
 
             var studentName = row.GetText(StudentNameKey);
             var birthDate = row.GetDate(BirthDateKey);
-            var namesTheContact = AttendingContact.NamesTheContact(importClient.Client.User.FullName, studentName);
+            var namesTheContact = AttendingContact.NamesTheContact(importClient.Client, studentName);
             if (namesTheContact && AttendingContactRowError(row, importClient, birthDate) is { } contactRowError)
             {
                 return contactRowError;

@@ -52,25 +52,6 @@ public sealed class Client : ITenantOwned
         };
     }
 
-    public static Result<Client> CreateFor(User contact, PhoneNumber phoneNumber, string? notes, DateTimeOffset createdAt)
-    {
-        var validNotes = ValidNotes(notes);
-        if (validNotes.IsFailure)
-        {
-            return validNotes.Error!;
-        }
-
-        contact.ChangePhoneNumber(phoneNumber);
-        return new Client
-        {
-            Id = Guid.CreateVersion7(),
-            Notes = validNotes.Value,
-            CreatedAt = createdAt.ToUniversalTime(),
-            UserId = contact.Id,
-            User = contact,
-        };
-    }
-
     public Result Update(string? fullName, PhoneNumber phoneNumber, string? email, string? notes)
     {
         var rename = User.Rename(fullName);

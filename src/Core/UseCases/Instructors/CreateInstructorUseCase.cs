@@ -29,7 +29,7 @@ public sealed class CreateInstructorUseCase(
             instructor.Value!.User,
             instructor.Value.User.Email,
             command.SamePersonUserId,
-            roles => !roles.IsInstructor && !roles.IsTeamMember,
+            roles => !roles.IsInstructor,
             nameof(CreateInstructorCommand.Email),
             cancellationToken);
         if (samePerson.IsFailure)
@@ -37,15 +37,20 @@ public sealed class CreateInstructorUseCase(
             return samePerson.Error!;
         }
 
-        var newInstructor = samePerson.Value is { } person ? Instructor.CreateFor(person) : instructor.Value;
-        var existingInstructor = await instructorRepository.FindByNameAsync(newInstructor.User.FullName, cancellationToken);
+        if (samePerson.Value is { } person)
+        {
+            person.CompleteWith(instructor.Value.User);
+            instructor.Value.ChangePerson(person);
+        }
+
+        var existingInstructor = await instructorRepository.FindByNameAsync(instructor.Value.User.FullName, cancellationToken);
         if (existingInstructor is not null)
         {
             return InstructorFailures.NameTaken(existingInstructor.Id);
         }
 
-        instructorRepository.Add(newInstructor);
+        instructorRepository.Add(instructor.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return InstructorResponse.From(newInstructor);
+        return InstructorResponse.From(instructor.Value);
     }
 }

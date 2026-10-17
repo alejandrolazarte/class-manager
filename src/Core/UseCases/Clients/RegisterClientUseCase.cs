@@ -57,7 +57,12 @@ public sealed class RegisterClientUseCase(
         }
 
         var newClient = client.Value!;
-        var students = CreateStudents(newClient, command, business.TodayAt(now), now);
+        if (currentUser.UserId is { } userId)
+        {
+            newClient.RecordRegisteredBy(userId);
+        }
+
+        var students = CreateStudents(newClient, command.Students ?? [], business.TodayAt(now), now);
         if (students.IsFailure)
         {
             return students.Error!;
@@ -70,41 +75,9 @@ public sealed class RegisterClientUseCase(
             return PhoneNumberTaken(existingClient.Id);
         }
 
-        var samePerson = await SamePerson.FindAsync(
-            userRepository,
-            newClient.User,
-            newClient.User.Email,
-            command.SamePersonUserId,
-            roles => !roles.IsClient && !roles.IsStudent,
-            nameof(RegisterClientCommand.Email),
-            cancellationToken);
-        if (samePerson.IsFailure)
+        if (await JoinSamePeopleAsync(newClient, students.Value!, command, cancellationToken) is { } samePersonError)
         {
-            return samePerson.Error!;
-        }
-
-        if (samePerson.Value is { } contact)
-        {
-            newClient = Client.CreateFor(contact, phoneNumber.Value!, command.Notes, now).Value!;
-            students = CreateStudents(newClient, command, business.TodayAt(now), now);
-            if (students.IsFailure)
-            {
-                return students.Error!;
-            }
-        }
-
-        if (currentUser.UserId is { } userId)
-        {
-            newClient.RecordRegisteredBy(userId);
-        }
-
-        var people = new List<(User Person, string FieldName)> { (newClient.User, nameof(RegisterClientCommand.Email)) };
-        people.AddRange(students.Value!
-            .Select((student, index) => (student.User, StudentFieldName(index, nameof(User.Email))))
-            .Where(person => person.User != newClient.User));
-        if (await PeopleEmails.TakenErrorAsync(userRepository, people, cancellationToken) is { } emailTaken)
-        {
-            return emailTaken;
+            return samePersonError;
         }
 
         clientRepository.Add(newClient);
@@ -117,13 +90,67 @@ public sealed class RegisterClientUseCase(
         return ClientDetailsResponse.Registered(newClient, students.Value!, business.TodayAt(timeProvider.GetUtcNow()));
     }
 
+    private async Task<ResultError?> JoinSamePeopleAsync(
+        Client client,
+        IReadOnlyList<Student> students,
+        RegisterClientCommand command,
+        CancellationToken cancellationToken)
+    {
+        var contact = client.User;
+        var contactSamePerson = await FindSamePersonAsync(contact, command.SamePersonUserId, nameof(RegisterClientCommand.Email), cancellationToken);
+        if (contactSamePerson.IsFailure)
+        {
+            return contactSamePerson.Error;
+        }
+
+        if (contactSamePerson.Value is { } contactPerson)
+        {
+            contactPerson.CompleteWith(contact);
+            client.ChangePerson(contactPerson);
+        }
+
+        for (var index = 0; index < students.Count; index++)
+        {
+            var student = students[index];
+            if (student.UserId == contact.Id)
+            {
+                student.ChangePerson(client.User);
+                continue;
+            }
+
+            var samePerson = await FindSamePersonAsync(
+                student.User, command.Students![index].SamePersonUserId, StudentFieldName(index, nameof(User.Email)), cancellationToken);
+            if (samePerson.IsFailure)
+            {
+                return samePerson.Error;
+            }
+
+            if (samePerson.Value is { } person)
+            {
+                person.CompleteWith(student.User);
+                student.ChangePerson(person);
+            }
+        }
+
+        return null;
+    }
+
+    private Task<Result<User?>> FindSamePersonAsync(User person, Guid? samePersonUserId, string fieldName, CancellationToken cancellationToken) =>
+        SamePerson.FindAsync(
+            userRepository,
+            person,
+            person.Email,
+            samePersonUserId,
+            roles => !roles.IsClient && !roles.IsStudent,
+            fieldName,
+            cancellationToken);
+
     private static Result<IReadOnlyList<Student>> CreateStudents(
         Client client,
-        RegisterClientCommand command,
+        IReadOnlyList<NewStudent> newStudents,
         DateOnly today,
         DateTimeOffset now)
     {
-        var newStudents = command.Students ?? [];
         if (newStudents.Count > MaximumStudentsPerRegistration)
         {
             return Result.Validation<IReadOnlyList<Student>>(
@@ -137,7 +164,7 @@ public sealed class RegisterClientUseCase(
         for (var index = 0; index < newStudents.Count; index++)
         {
             var newStudent = newStudents[index];
-            var student = AttendingContact.NamesTheContact(command.FullName, newStudent.FullName)
+            var student = AttendingContact.NamesTheContact(client, newStudent.FullName)
                 ? Student.CreateAttendingContact(client, newStudent.BirthDate, newStudent.Notes, today, now)
                 : Student.Create(client.Id, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
             if (student.IsFailure)

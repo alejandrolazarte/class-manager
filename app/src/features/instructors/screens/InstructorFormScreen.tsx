@@ -72,7 +72,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
   const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion(
-    "people.samePerson.inStudents",
+    "people.samePerson.inBusiness",
   );
   const form = useForm<InstructorFormValues>({
     resolver: zodResolver(instructorSchema),
@@ -120,12 +120,10 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
     }
   };
 
-  const save = form.handleSubmit(async (formValues) => {
-    setSubmissionFailure(null);
-    await saveInstructor(toSaveInstructorRequest(formValues));
-  });
+  const save = form.handleSubmit((formValues) => saveRequest(toSaveInstructorRequest(formValues)));
 
-  const saveInstructor = async (request: SaveInstructorRequest) => {
+  const saveRequest = async (request: SaveInstructorRequest) => {
+    setSubmissionFailure(null);
     try {
       const savedInstructor = await saveInstructorMutation.mutateAsync({
         instructorId: instructor?.id,
@@ -143,7 +141,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
         askIfSamePerson(
           saveError,
           request.email ?? "",
-          (samePersonUserId) => saveInstructor({ ...request, samePersonUserId }),
+          (samePersonUserId) => saveRequest({ ...request, samePersonUserId }),
           () =>
             form.setError("email", {
               type: "server",

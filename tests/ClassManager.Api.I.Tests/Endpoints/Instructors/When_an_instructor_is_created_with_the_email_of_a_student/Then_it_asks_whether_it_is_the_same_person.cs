@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.Users;
-using ClassManager.Core.UseCases.Instructors;
 
 namespace ClassManager.Api.I.Tests.Endpoints.Instructors.When_an_instructor_is_created_with_the_email_of_a_student;
 
@@ -10,10 +9,8 @@ public sealed class Then_it_asks_whether_it_is_the_same_person(ApiFixture fixtur
     public async Task Then_it_asks_whether_it_is_the_same_person_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
-        var owner = scenario.Instructors.Business.HttpClient;
 
-        using var response = await owner.PostAsJsonAsync(
-            ApiRoutes.Instructors, new CreateInstructorCommand("Ana Gómez", scenario.Email), ApiRequests.JsonOptions);
+        using var response = await scenario.Instructors.Business.HttpClient.PostInstructorAsync("Ana Gómez", scenario.Email);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         var problem = await response.ReadProblemAsync();

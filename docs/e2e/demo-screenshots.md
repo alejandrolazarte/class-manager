@@ -45,6 +45,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `01-inicio` | Inicio: next class and today's agenda |
 | `01b-inicio-mes` | Inicio in month view |
 | `01d-clase-particular` | A private lesson |
+| `01e-inicio-con-sedes`, `01f-cambiar-de-sede` | Inicio after creating a second branch (Sede Norte, at the end of the run), and the account switcher the logo opens |
+| `01e-inicio-con-sedes`, `01f-cambiar-de-sede` | Inicio after creating a second branch (Sede Norte, at the end of the run), and the account switcher the logo opens |
 | `02-asistencia` | Attendance of Natación inicial |
 | `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
 | `02c-dia-de-prueba` | Test day of Natación inicial: one measurement for everyone present |
@@ -164,6 +166,8 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `15-editar-perfil` | Editar perfil: name and birth date |
 | `16-mi-perfil` | Mi perfil, with "Eliminar mi cuenta" |
 | `17-eliminar-mi-cuenta`, `18-confirmar-eliminar-cuenta` | Eliminar mi cuenta with the password, and the confirm dialog (closed with "Volver", so the account stays) |
+| `19-es-la-misma-persona` | A new instructor with Ana's email asks whether it is the same person (then "Unir") |
+| `20-tambien-esta-en-alumnos`, `21-separar`, `22-confirmar-separar` | The instructor who is also in Students, the Separar screen, and its confirm dialog (closed with "Volver") |
 
 ## Email previews
 

@@ -28,6 +28,15 @@ export function addDays(isoDate: string, days: number): string {
   return toIsoDate(date);
 }
 
+export function addMonthsToDate(isoDate: string, months: number): string {
+  const date = parseIsoDate(isoDate);
+  const targetMonthIndex = date.getMonth() + months;
+  const lastDayOfTargetMonth = new Date(date.getFullYear(), targetMonthIndex + 1, 0).getDate();
+  return toIsoDate(
+    new Date(date.getFullYear(), targetMonthIndex, Math.min(date.getDate(), lastDayOfTargetMonth)),
+  );
+}
+
 export function formatLongDate(isoDate: string): string {
   const date = parseIsoDate(isoDate);
   return translate("dates.long", {

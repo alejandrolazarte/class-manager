@@ -33,15 +33,6 @@ public sealed class Instructor : ITenantOwned
         };
     }
 
-    public static Instructor CreateFor(User person) =>
-        new()
-        {
-            Id = Guid.CreateVersion7(),
-            IsActive = true,
-            UserId = person.Id,
-            User = person,
-        };
-
     public Result Update(string? fullName, string? email)
     {
         var rename = User.Rename(fullName);

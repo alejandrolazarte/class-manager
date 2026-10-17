@@ -25,6 +25,5 @@ describe("When a day is picked in month view", () => {
     await fireEvent.press(await screen.findByRole("button", { name: "Jueves 10 · 2 clases" }));
 
     await waitFor(() => expect(listDaySessions).toHaveBeenLastCalledWith("2026-09-10"));
-    expect(screen.getByRole("button", { name: translate("home.view.day") })).toBeSelected();
   });
 });

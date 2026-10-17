@@ -1,6 +1,7 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Clients;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Api.Endpoints;
 
@@ -12,6 +13,7 @@ internal static class ClientEndpoints
 
         clients.MapPost("/", RegisterClientAsync).RequirePermission(Permissions.Students.Manage);
         clients.MapPut(ApiRoutes.ClientById, UpdateClientAsync).RequirePermission(Permissions.Students.Manage);
+        clients.MapPost(ApiRoutes.ClientById + ApiRoutes.Separation, SeparateClientAsync).RequirePermission(Permissions.Students.Manage);
         clients.MapGet(ApiRoutes.ClientById, GetClientAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
         clients.MapGet("/", SearchClientsAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
 
@@ -34,6 +36,17 @@ internal static class ClientEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetClientQuery(clientId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> SeparateClientAsync(
+        Guid clientId,
+        SeparatePersonRequest request,
+        IUseCase<SeparateClientCommand, SeparatedPersonResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new SeparateClientCommand(clientId, request.FullName, request.Email), cancellationToken);
 
         return result.ToOkResult();
     }

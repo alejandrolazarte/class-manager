@@ -58,15 +58,6 @@ public sealed class Student : ITenantOwned
         DateOnly? birthDate,
         string? notes,
         DateOnly today,
-        DateTimeOffset createdAt) =>
-        CreateFor(client.Id, client.User, birthDate, notes, today, createdAt);
-
-    public static Result<Student> CreateFor(
-        Guid clientId,
-        User person,
-        DateOnly? birthDate,
-        string? notes,
-        DateOnly today,
         DateTimeOffset createdAt)
     {
         var validNotes = ValidNotes(notes);
@@ -75,8 +66,8 @@ public sealed class Student : ITenantOwned
             return validNotes.Error!;
         }
 
-        var birthDateChange = birthDate is null ? Result.Success() : person.ChangeBirthDate(birthDate, today);
-        return birthDateChange.IsFailure ? birthDateChange.Error! : New(clientId, person, validNotes.Value, createdAt);
+        var birthDateChange = client.User.ChangeBirthDate(birthDate, today);
+        return birthDateChange.IsFailure ? birthDateChange.Error! : New(client.Id, client.User, validNotes.Value, createdAt);
     }
 
     public bool IsTheContactOf(Client client) => UserId == client.UserId;

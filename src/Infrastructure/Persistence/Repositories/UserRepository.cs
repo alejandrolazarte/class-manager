@@ -12,6 +12,34 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
     public Task<User?> FindByEmailForUpdateAsync(string email, Guid exceptUserId, CancellationToken cancellationToken) =>
         context.Users.FirstOrDefaultAsync(user => user.Email == email && user.Id != exceptUserId, cancellationToken);
 
+    public async Task<IReadOnlyDictionary<Guid, Guid>> ListClientIdsByUserAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken)
+    {
+        var contacts = await context.Clients
+            .Where(client => userIds.Contains(client.UserId))
+            .Select(client => new { client.UserId, ClientId = client.Id })
+            .ToListAsync(cancellationToken);
+        var students = await context.Students
+            .Where(student => userIds.Contains(student.UserId))
+            .Select(student => new { student.UserId, student.ClientId })
+            .ToListAsync(cancellationToken);
+        return contacts.Concat(students)
+            .GroupBy(person => person.UserId)
+            .ToDictionary(people => people.Key, people => people.First().ClientId);
+    }
+
+    public async Task<IReadOnlySet<Guid>> ListOnTheTeamAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken)
+    {
+        var instructorUserIds = await context.Instructors
+            .Where(instructor => userIds.Contains(instructor.UserId))
+            .Select(instructor => instructor.UserId)
+            .ToListAsync(cancellationToken);
+        var memberUserIds = await context.BusinessMembers
+            .Where(member => userIds.Contains(member.UserId))
+            .Select(member => member.UserId)
+            .ToListAsync(cancellationToken);
+        return instructorUserIds.Concat(memberUserIds).ToHashSet();
+    }
+
     public async Task<PersonRoles> GetRolesAsync(Guid userId, CancellationToken cancellationToken) =>
         new(
             await context.Clients.AnyAsync(client => client.UserId == userId, cancellationToken),

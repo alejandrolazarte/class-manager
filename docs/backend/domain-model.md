@@ -76,7 +76,7 @@ One person in one business: name, contact email, phone, birth date and, when the
 | Property | Type | Rules |
 |---|---|---|
 | `FullName` | `string` | Required, trimmed, 2–120 characters |
-| `Email` | `string?` | Optional, valid format, max 254 characters, **unique per business** (`user.email_taken`); when the email belongs to a person who can take the new role, the API asks if it is the same person (`409 user.same_person`) and, once confirmed, both records point to that user |
+| `Email` | `string?` | Optional, valid format, max 254 characters, **unique per business** (`user.email_taken`) |
 | `PhoneNumber` | `PhoneNumber?` | Required only for the contact of a client; not unique (two people can share a phone) |
 | `BirthDate` | `DateOnly?` | Optional, from 1900-01-01 to today in the business's time zone |
 | `AccountId` | `Guid?` | Identity account id (accounts live in `SecurityDbContext`, schema `identity`); unique per business |

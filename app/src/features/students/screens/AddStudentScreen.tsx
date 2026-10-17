@@ -13,7 +13,7 @@ import {
   studentFormSchema,
   toNewStudentRequest,
 } from "@/features/students/studentSchema";
-import { AddStudentRequest } from "@/features/students/types";
+import { NewStudentRequest } from "@/features/students/types";
 import { useAddStudent } from "@/features/students/useAddStudent";
 import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
 import { translate } from "@/i18n/translate";
@@ -98,25 +98,27 @@ export function AddStudentScreen({ clientId }: AddStudentScreenProps) {
     await addStudent(toNewStudentRequest(formValues));
   });
 
-  const addStudent = async (request: AddStudentRequest) => {
+  const addStudent = async (request: NewStudentRequest) => {
     try {
       await addStudentMutation.mutateAsync(request);
       showToast(translate("students.add.success"));
       router.replace(routes.clientDetail(clientTab, clientId));
     } catch (addError) {
-      const isAsking = askIfSamePerson(
-        addError,
-        request.email ?? "",
-        (samePersonUserId) => addStudent({ ...request, samePersonUserId }),
-        () =>
-          form.setError("email", {
-            type: "server",
-            message: translate("apiErrors.user.email_taken"),
-          }),
-      );
-      if (!isAsking) {
-        handleAddError(addError);
+      if (
+        askIfSamePerson(
+          addError,
+          request.email ?? "",
+          (samePersonUserId) => addStudent({ ...request, samePersonUserId }),
+          () =>
+            form.setError("email", {
+              type: "server",
+              message: translate("apiErrors.user.email_taken"),
+            }),
+        )
+      ) {
+        return;
       }
+      handleAddError(addError);
     }
   };
 

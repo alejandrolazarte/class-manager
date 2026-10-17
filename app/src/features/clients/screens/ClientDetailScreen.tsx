@@ -10,6 +10,7 @@ import { useClient } from "@/features/clients/useClient";
 import { StudentProgressSection } from "@/features/measurements/components/StudentProgressSection";
 import { StudentClasses } from "@/features/enrollments/components/StudentClasses";
 import { InviteStudentAppSection } from "@/features/studentApp/components/InviteStudentAppSection";
+import { SamePersonNotice } from "@/features/users/components/SamePersonNotice";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
@@ -65,6 +66,8 @@ function ClientClasses({
   hasTitle,
   canInviteStudents,
 }: ClientClassesProps) {
+  const router = useRouter();
+  const clientTab = useCurrentTab(clientTabs);
   if (clientIsTheOnlyStudent) {
     return (
       <>
@@ -106,6 +109,14 @@ function ClientClasses({
                 ) : null}
               </View>
               <StudentClasses studentId={student.id} />
+              {canInviteStudents && student.isOnTheTeam && !client.isOnTheTeam ? (
+                <SamePersonNotice
+                  message={translate("people.alsoOnTheTeam", { name: student.fullName })}
+                  onSeparate={() =>
+                    router.push(routes.separateStudent(clientTab, client.id, student.id))
+                  }
+                />
+              ) : null}
               {canInviteStudents &&
               normalizedName(student.fullName) !== normalizedName(client.fullName) ? (
                 <InviteStudentAppSection client={client} student={student} />
@@ -235,6 +246,12 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
         </TonalBlock>
       ) : null}
       {canManageStudents ? <InviteStudentAppSection client={client} /> : null}
+      {canManageStudents && client.isOnTheTeam ? (
+        <SamePersonNotice
+          message={translate("people.alsoOnTheTeam", { name: client.fullName })}
+          onSeparate={() => router.push(routes.separateClient(clientTab, client.id))}
+        />
+      ) : null}
       {sectionOptions.length > 1 ? (
         <Tabs options={sectionOptions} selectedValue={visibleSection} onChange={setSection} />
       ) : null}

@@ -10,16 +10,6 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Students;
 
-public sealed record AddStudentRequest(
-    string? FullName,
-    DateOnly? BirthDate,
-    string? Notes,
-    string? Email = null,
-    Guid? SamePersonUserId = null)
-{
-    public AddStudentCommand ToCommand(Guid clientId) => new(clientId, FullName, BirthDate, Notes, Email, SamePersonUserId);
-}
-
 public sealed record AddStudentCommand(
     Guid ClientId,
     string? FullName,
@@ -58,7 +48,7 @@ public sealed class AddStudentUseCase(
 
         var now = timeProvider.GetUtcNow();
         var today = business.TodayAt(now);
-        var student = AttendingContact.NamesTheContact(client.User.FullName, command.FullName)
+        var student = AttendingContact.NamesTheContact(client, command.FullName)
             ? Student.CreateAttendingContact(client, command.BirthDate, command.Notes, today, now)
             : Student.Create(command.ClientId, command.FullName, command.BirthDate, command.Notes, today, now, command.Email);
         if (student.IsFailure)
@@ -92,12 +82,15 @@ public sealed class AddStudentUseCase(
             return samePerson.Error!;
         }
 
-        var newStudent = samePerson.Value is { } person
-            ? Student.CreateFor(command.ClientId, person, command.BirthDate, command.Notes, today, now).Value!
-            : student.Value;
-        studentRepository.Add(newStudent);
+        if (samePerson.Value is { } person)
+        {
+            person.CompleteWith(student.Value.User);
+            student.Value.ChangePerson(person);
+        }
+
+        studentRepository.Add(student.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return StudentResponse.NotInvited(newStudent);
+        return StudentResponse.NotInvited(student.Value);
     }
 
     private static Result<StudentResponse> AlreadyRegistered(Guid? existingStudentId) =>

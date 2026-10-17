@@ -226,7 +226,7 @@ Taken:
 
 ## A student who also teaches, in the same branch
 
-The model lets a `Student` and an `Instructor` share one user. Creating an instructor, registering a client or adding a student with an email asks too (see Status below); the two invitations, where the email is required, are where both roles meet:
+The model lets a `Student` and an `Instructor` share one user. Creating an instructor or registering a student always creates a new user; the two invitations, where the email is required, are where both roles meet:
 
 | Flow (same branch, same email) | Today | Test |
 |---|---|---|
@@ -251,5 +251,9 @@ The business data hangs from the role, not from the person: enrollments, attenda
 Status:
 
 - [x] **The question in the two invitations** (team invitation as an instructor, student app invitation). `SamePerson.FindAsync` (`src/Core/UseCases/Users`) finds the other person with that email and checks they can take the role: not an instructor or team member yet for the team, not a client or student yet for the student app. Without `SamePersonUserId` it answers `409 user.same_person` with `samePersonUserId` and `samePersonFullName`; with it, the instructor (or the client, and the students that share its user) moves to that user, which keeps its name and email and takes the phone and birth date it lacked (`User.CompleteWith`), and the user left without roles is soft deleted. The app asks with `SamePersonDialog` (**Volver** / **Unir**); **Volver** shows the email error of today.
-- [x] **The question when creating** an instructor, registering a client (the contact's email) or adding a student to a family. The same `SamePerson.FindAsync` and `SamePersonDialog`; with "Unir" the new record is created on the existing user (`Instructor.CreateFor`, `Client.CreateFor`, `Student.CreateFor`), so no second user is made, and the user takes the phone or birth date typed in the form. The person can't take the role when they already have it: another instructor, another contact, or a student (a student is one per family and the name rule is per family). Imports don't ask: the row keeps `user.email_taken`.
-- [ ] "Separar".
+- [x] **The question when creating an instructor, registering a client or adding a student with an email.** Only when an email is typed and another person of the branch uses it. `CreateInstructorCommand`, `NewStudent` (adding a student and each student of a registration) and `RegisterClientCommand` (the contact) take `SamePersonUserId`; the `409` also names the field (`samePersonField`), so the registration form knows which person it asks about and sends one id per confirmed person. An instructor can be anyone who is not an instructor yet; a contact or a student, anyone who is not a client or a student yet.
+- [x] **"Separar".** The instructor list says when an instructor's user is also a client or a student (`samePersonClientId`), and the client details when the contact or a student is also an instructor or a team member (`isOnTheTeam`). The instructor screen and the client screen show it with a "Separar" button, which asks for the other person's name (and email) and confirms with `ConfirmDialog`:
+  - `POST /api/instructors/{id}/separation` moves the instructor to a new user and revokes its pending team invitations. Refused with `409 instructor.on_the_team` when a team member is linked to it: that person signed in as this instructor, so they are removed from the team first.
+  - `POST /api/clients/{id}/separation` moves the client, and the students that share its user, to a new user that keeps the contact phone. `POST /api/students/{id}/separation` moves one student (`409 student.is_the_contact` for the contact: separate the client).
+  - Both soft delete the app access of the original user to what moved and revoke the pending app invitations, so the account that stays with the original person stops seeing the other one's data.
+  - Without another role to separate from: `409 user.nothing_to_separate`. Who did what, the account and the team membership stay with the original user.
