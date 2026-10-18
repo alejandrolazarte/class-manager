@@ -334,7 +334,7 @@ Without these settings the API sends nothing and the app hides the option. On iP
 | Push to `main` | Installed PWAs pick up the new web app the next time they open |
 | New APK (optional) | Manual: `eas build --profile pilot`, only when native behaviour needs testing |
 
-Migrations run before the new image starts, while the previous version is still serving. If a migration fails, neither the new image nor the new web app is deployed, so the web never runs ahead of the API: check the **Deploy** run after every merge. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys.
+Migrations run before the new image starts, while the previous version is still serving. If a migration fails, neither the new image nor the new web app is deployed, so the web never runs ahead of the API: check the **Deploy** run after every merge. Keep them additive (add columns and tables); dropping or renaming something the running version uses takes two deploys. To put a previous version back online, see [Rolling back a deploy](rollback.md).
 
 ## Audit commands
 
