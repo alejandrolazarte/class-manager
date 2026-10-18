@@ -108,6 +108,11 @@ test("App screens", async ({ page, request }) => {
       "Registrar medición",
     ],
     [
+      "02d-clase-pasada",
+      `/today/${demo.beginnersClassGroupId}/${demo.pastClassDate}`,
+      "Clase cerrada",
+    ],
+    [
       "02c-mediciones-de-la-clase",
       `/today/${demo.beginnersClassGroupId}/measurements?date=${demo.today}`,
       "Presentes",

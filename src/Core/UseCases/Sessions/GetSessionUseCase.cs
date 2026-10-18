@@ -36,6 +36,7 @@ public sealed record SessionDetailsResponse(
     string? CancellationReason,
     bool CanTakeAttendance,
     bool CanReschedule,
+    bool IsPast,
     IReadOnlyList<SessionStudentResponse> Students);
 
 public sealed class GetSessionUseCase(
@@ -109,6 +110,7 @@ public sealed class GetSessionUseCase(
             session?.CancellationReason,
             CanTakeAttendance: !isCancelled && command.Date <= today,
             CanReschedule: !isCancelled && command.Date >= today,
+            IsPast: command.Date < today,
             [
                 .. roster.Select(entry => new SessionStudentResponse(
                     entry.StudentId,
