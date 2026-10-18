@@ -1,6 +1,7 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Instructors;
+using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Api.Endpoints;
 
@@ -13,6 +14,7 @@ internal static class InstructorEndpoints
         instructors.MapGet("/", ListInstructorsAsync).RequirePermission(Permissions.Instructors.View);
         instructors.MapPost("/", CreateInstructorAsync).RequirePermission(Permissions.Instructors.Manage);
         instructors.MapPut(ApiRoutes.InstructorById, UpdateInstructorAsync).RequirePermission(Permissions.Instructors.Manage);
+        instructors.MapPost(ApiRoutes.InstructorById + ApiRoutes.Separation, SeparateInstructorAsync).RequirePermission(Permissions.Instructors.Manage);
         instructors.MapPut(ApiRoutes.InstructorById + ApiRoutes.Active, SetInstructorActiveAsync).RequirePermission(Permissions.Instructors.Manage);
 
         return endpoints;
@@ -36,6 +38,17 @@ internal static class InstructorEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(instructor => TypedResults.Created($"{ApiRoutes.Instructors}/{instructor.Id}", instructor));
+    }
+
+    private static async Task<IResult> SeparateInstructorAsync(
+        Guid instructorId,
+        SeparatePersonRequest request,
+        IUseCase<SeparateInstructorCommand, InstructorResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new SeparateInstructorCommand(instructorId, request.FullName, request.Email), cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> UpdateInstructorAsync(

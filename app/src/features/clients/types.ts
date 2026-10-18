@@ -24,6 +24,7 @@ export interface ClientDetails extends Client {
   billingPlanChanges: BillingPlanChange[];
   students: Student[];
   appAccess: StudentAppAccess;
+  isOnTheTeam?: boolean;
 }
 
 export interface UpdateClientRequest {
@@ -39,4 +40,5 @@ export interface RegisterClientRequest {
   email?: string;
   notes?: string;
   students: NewStudentRequest[];
+  samePersonUserId?: string;
 }

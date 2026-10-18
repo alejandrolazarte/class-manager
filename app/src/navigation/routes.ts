@@ -35,6 +35,9 @@ export const routes = {
   clientDetail: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}`,
   addStudent: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/new-student`,
   editClient: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/edit`,
+  separateClient: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/separate`,
+  separateStudent: (tab: ClientTab, clientId: string, studentId: string) =>
+    `/${tab}/clients/${clientId}/separate?studentId=${encodeURIComponent(studentId)}`,
   clientBillingPlan: (tab: ClientTab, clientId: string) =>
     `/${tab}/clients/${clientId}/billing-plan`,
   sellClassPack: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/sell-pack`,
@@ -92,6 +95,7 @@ export const routes = {
   classesNewInstructor: "/classes/instructors/new",
   instructor: (instructorId: string) => `/settings/instructors/${instructorId}`,
   editInstructor: (instructorId: string) => `/settings/instructors/${instructorId}/edit`,
+  separateInstructor: (instructorId: string) => `/settings/instructors/${instructorId}/separate`,
   classPacks: "/settings/class-packs",
   newClassPack: "/settings/class-packs/new",
   classPack: (classPackId: string) => `/settings/class-packs/${classPackId}`,

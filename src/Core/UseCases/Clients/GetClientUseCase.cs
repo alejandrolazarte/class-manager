@@ -15,6 +15,7 @@ public sealed class GetClientUseCase(
     IClientAccountRepository clientAccountRepository,
     IClientInvitationRepository invitationRepository,
     IIdentityService identityService,
+    IUserRepository userRepository,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes,
     TimeProvider timeProvider)
@@ -42,7 +43,14 @@ public sealed class GetClientUseCase(
             studentAppAccesses[student.Id] = await AppAccessOfAsync(student.Id, accounts, pendingInvitations, cancellationToken);
         }
 
-        return ClientDetailsResponse.From(client, students, billingPlanChanges, today, clientAppAccess, studentAppAccesses);
+        var onTheTeam = await userRepository.ListOnTheTeamAsync([client.UserId, .. students.Select(student => student.UserId)], cancellationToken);
+        var userIdsByStudent = students.ToDictionary(student => student.Id, student => student.UserId);
+        var details = ClientDetailsResponse.From(client, students, billingPlanChanges, today, clientAppAccess, studentAppAccesses);
+        return details with
+        {
+            IsOnTheTeam = onTheTeam.Contains(client.UserId),
+            Students = [.. details.Students.Select(student => student with { IsOnTheTeam = onTheTeam.Contains(userIdsByStudent[student.Id]) })],
+        };
     }
 
     private async Task<StudentAppAccessResponse> AppAccessOfAsync(

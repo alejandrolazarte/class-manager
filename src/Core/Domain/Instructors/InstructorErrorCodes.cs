@@ -7,6 +7,7 @@ public static class InstructorErrorCodes
     public const string Inactive = "instructor.inactive";
     public const string EmailUsedToSignIn = "instructor.email_used_to_sign_in";
     public const string HasActiveClassGroups = "instructor.has_active_class_groups";
+    public const string OnTheTeam = "instructor.on_the_team";
     public const string ExistingInstructorIdDetail = "instructorId";
     public const string ClassGroupCountDetail = "classGroupCount";
 }

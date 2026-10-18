@@ -12,6 +12,7 @@ const colorScheme = process.env.SCREENSHOTS_COLOR_SCHEME === darkColorScheme ? "
 const wrongPassword = "not-the-right-password";
 const signUpEmail = "valeria.sosa@example.com";
 const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s]+)/;
+const secondBranchName = "Sede Norte";
 
 test.use({ locale: "es-AR", timezoneId: demoTimeZoneId, colorScheme });
 
@@ -258,6 +259,18 @@ test("App screens", async ({ page, request }) => {
     await waitForBrandWelcomeToClose(page);
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
+
+  await page.goto("/settings/branches/new");
+  await page.getByLabel("Nombre de la sede").fill(secondBranchName);
+  await page.getByRole("button", { name: "Crear sede" }).click();
+  await page.getByText(`Creaste ${secondBranchName}`).filter({ visible: true }).first().waitFor();
+  await page.goto("/today");
+  await page.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
+  await capture(page, "01e-inicio-con-sedes");
+
+  await page.getByRole("button", { name: "Cambiar de cuenta" }).click();
+  await page.getByText(secondBranchName).filter({ visible: true }).first().waitFor();
+  await capture(page, "01f-cambiar-de-sede");
 });
 
 async function capture(page: Page, fileName: string): Promise<void> {

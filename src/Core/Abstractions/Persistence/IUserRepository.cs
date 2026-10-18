@@ -13,6 +13,10 @@ public interface IUserRepository
 
     Task<PersonRoles> GetRolesAsync(Guid userId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyDictionary<Guid, Guid>> ListClientIdsByUserAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
+
+    Task<IReadOnlySet<Guid>> ListOnTheTeamAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
+
     Task<Guid?> FindIdByAccountAsync(Guid businessId, Guid accountId, CancellationToken cancellationToken);
 
     Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken);
