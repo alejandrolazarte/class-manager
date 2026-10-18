@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
 import { View } from "react-native";
+import { ClassMeasurementsSection } from "@/features/measurements/components/ClassMeasurementsSection";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
@@ -19,7 +19,6 @@ import {
   useRestoreSession,
   useRestoreSessionSchedule,
 } from "@/features/sessions/useSessionMutations";
-import { routes } from "@/navigation/routes";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
@@ -48,7 +47,6 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
     permissions.attendanceRecordOwn,
   );
   const canManageSessions = useCan(permissions.sessionsManage);
-  const router = useRouter();
   const {
     data: session,
     isPending,
@@ -313,12 +311,10 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
         <ClassDeliveriesSection classGroupId={classGroupId} />
       ) : null}
       {canRecordAttendance && !session.isCancelled && session.students.length > 0 ? (
-        <Button
-          variant="secondary"
-          size="medium"
-          icon="trendingUp"
-          label={translate("measurements.testDay.open")}
-          onPress={() => router.push(routes.classTestDay(classGroupId, sessionDate))}
+        <ClassMeasurementsSection
+          classGroupId={classGroupId}
+          sessionDate={sessionDate}
+          studentIds={session.students.map((student) => student.studentId)}
         />
       ) : null}
       {session.isCancelled || !canManageSessions ? null : (

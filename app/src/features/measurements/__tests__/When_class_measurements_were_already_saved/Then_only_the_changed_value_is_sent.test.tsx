@@ -1,13 +1,14 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import {
   getStudentMeasurements,
+  listClassMeasurementRecords,
   listMeasurements,
   recordClassMeasurements,
 } from "@/features/measurements/measurementsApi";
-import { ClassTestDayScreen } from "@/features/measurements/screens/ClassTestDayScreen";
+import { ClassMeasurementsScreen } from "@/features/measurements/screens/ClassMeasurementsScreen";
 import { getSession } from "@/features/sessions/sessionsApi";
 import { translate, translateCount } from "@/i18n/translate";
-import { buildDistanceMeasurement } from "@/testing/measurementFactory";
+import { buildDistanceMeasurement, buildMeasurementRecord } from "@/testing/measurementFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildSessionDetails, buildSessionStudent, sessionDate } from "@/testing/sessionFactory";
 
@@ -24,47 +25,54 @@ const secondStudent = buildSessionStudent({
   studentFullName: "Mía Fernández",
 });
 
-describe("When a test day is saved", () => {
+function valueLabelOf(studentFullName: string): string {
+  return translate("measurements.class.valueOf", {
+    measurement: measurement.name,
+    name: studentFullName,
+  });
+}
+
+describe("When class measurements were already saved", () => {
   beforeEach(() => {
     jest
       .mocked(getSession)
       .mockResolvedValue(buildSessionDetails({ students: [firstStudent, secondStudent] }));
     jest.mocked(listMeasurements).mockResolvedValue([measurement]);
+    jest.mocked(listClassMeasurementRecords).mockResolvedValue([
+      buildMeasurementRecord(sessionDate, 400, {
+        id: "record-1",
+        studentId: firstStudent.studentId,
+        measurementId: measurement.id,
+      }),
+      buildMeasurementRecord(sessionDate, 350.5, {
+        id: "record-2",
+        studentId: secondStudent.studentId,
+        measurementId: measurement.id,
+      }),
+    ]);
     jest.mocked(getStudentMeasurements).mockResolvedValue([]);
     jest.mocked(recordClassMeasurements).mockResolvedValue([]);
   });
 
-  it("Then every typed value is sent", async () => {
+  it("Then only the changed value is sent", async () => {
     await renderWithProviders(
-      <ClassTestDayScreen classGroupId="class-1" sessionDate={sessionDate} />,
+      <ClassMeasurementsScreen classGroupId="class-1" sessionDate={sessionDate} />,
     );
 
+    expect(
+      (await screen.findByLabelText(valueLabelOf(secondStudent.studentFullName))).props.value,
+    ).toBe("350,5");
     await fireEvent.changeText(
-      await screen.findByLabelText(
-        translate("measurements.testDay.valueOf", {
-          measurement: measurement.name,
-          name: firstStudent.studentFullName,
-        }),
-      ),
-      "29,7",
-    );
-    await fireEvent.changeText(
-      screen.getByLabelText(
-        translate("measurements.testDay.valueOf", {
-          measurement: measurement.name,
-          name: secondStudent.studentFullName,
-        }),
-      ),
-      "12",
+      screen.getByLabelText(valueLabelOf(firstStudent.studentFullName)),
+      "425",
     );
     await fireEvent.press(
-      screen.getByRole("button", { name: translateCount("measurements.testDay.save", 2) }),
+      screen.getByRole("button", { name: translateCount("measurements.class.save", 1) }),
     );
 
     await waitFor(() =>
       expect(recordClassMeasurements).toHaveBeenCalledWith(measurement.id, sessionDate, [
-        { studentId: firstStudent.studentId, value: 29.7 },
-        { studentId: secondStudent.studentId, value: 12 },
+        { studentId: firstStudent.studentId, value: 425 },
       ]),
     );
   });

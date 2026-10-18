@@ -21,8 +21,8 @@ export const routes = {
   session: (classGroupId: string, sessionDate: string) => `/today/${classGroupId}/${sessionDate}`,
   newPrivateLesson: (date: string) => `/today/private/new?date=${encodeURIComponent(date)}`,
   privateLesson: (privateLessonId: string) => `/today/private/${privateLessonId}`,
-  classTestDay: (classGroupId: string, sessionDate: string) =>
-    `/today/${classGroupId}/test-day?date=${encodeURIComponent(sessionDate)}`,
+  classMeasurements: (classGroupId: string, sessionDate: string) =>
+    `/today/${classGroupId}/measurements?date=${encodeURIComponent(sessionDate)}`,
   editPrivateLesson: (privateLessonId: string) => `/today/private/${privateLessonId}/edit`,
   classes: "/classes",
   newClassGroup: (weekday?: string) =>

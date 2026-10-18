@@ -14,8 +14,8 @@ export default function TodayLayout() {
         options={{ title: translate("sessions.session.title") }}
       />
       <Stack.Screen
-        name="[classGroupId]/test-day"
-        options={{ title: translate("measurements.testDay.title") }}
+        name="[classGroupId]/measurements"
+        options={{ title: translate("measurements.class.title") }}
       />
       <Stack.Screen
         name="notifications"

@@ -5,6 +5,7 @@ import {
   deleteMeasurementRecord,
   getStudentAppMeasurements,
   getStudentMeasurements,
+  listClassMeasurementRecords,
   listMeasurements,
   recordClassMeasurements,
   recordMeasurement,
@@ -40,6 +41,14 @@ export function useStudentMeasurements(studentId: string | undefined) {
     queryKey: measurementQueryKeys.student(studentId ?? ""),
     queryFn: () => getStudentMeasurements(studentId ?? ""),
     enabled: studentId !== undefined && studentId.length > 0,
+  });
+}
+
+export function useClassMeasurementRecords(measuredOn: string, studentIds: readonly string[]) {
+  return useQuery({
+    queryKey: measurementQueryKeys.classRecords(measuredOn, studentIds),
+    queryFn: () => listClassMeasurementRecords(measuredOn, studentIds),
+    enabled: studentIds.length > 0,
   });
 }
 

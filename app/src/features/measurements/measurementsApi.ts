@@ -18,6 +18,8 @@ const measurementsSegment = "measurements";
 const recordsSegment = "records";
 const goalSegment = "goal";
 const restoreSegment = "restore";
+const measuredOnParameter = "measuredOn";
+const studentIdsParameter = "studentIds";
 
 function studentMeasurementsPath(studentId: string): string {
   return `${studentsPath}/${encodeURIComponent(studentId)}/${measurementsSegment}`;
@@ -75,6 +77,18 @@ export function setMeasurementGoal(
   return httpClient.put<void>(
     `${studentMeasurementsPath(studentId)}/${encodeURIComponent(measurementId)}/${goalSegment}`,
     { value },
+  );
+}
+
+export function listClassMeasurementRecords(
+  measuredOn: string,
+  studentIds: readonly string[],
+): Promise<MeasurementRecord[]> {
+  const studentIdsQuery = studentIds
+    .map((studentId) => `&${studentIdsParameter}=${encodeURIComponent(studentId)}`)
+    .join("");
+  return httpClient.get<MeasurementRecord[]>(
+    `${measurementRecordsPath}?${measuredOnParameter}=${encodeURIComponent(measuredOn)}${studentIdsQuery}`,
   );
 }
 
