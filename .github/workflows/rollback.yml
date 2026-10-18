@@ -71,7 +71,7 @@ jobs:
             echo "| # | Deployed | Change | Commit |"
             echo "|---|---|---|---|"
             jq -r -s 'to_entries[] | "| \(.key + 1) | \(.value.deployedAt) | \(.value.title | gsub("\\|"; "\\|")) | `\(.value.sha[0:7])` |"' "$deploys_file"
-          } >> "$GITHUB_STEP_SUMMARY"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Pick the version to deploy again
         id: pick
@@ -83,7 +83,7 @@ jobs:
             exit 1
           fi
           echo "sha=$(jq -r .sha <<< "$selected")" >> "$GITHUB_OUTPUT"
-          jq -r '"\n## Rolling back to\n\n\(.title) · deployed \(.deployedAt) · `\(.sha)`"' <<< "$selected" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '"\n## Rolling back to\n\n\(.title) · deployed \(.deployedAt) · `\(.sha)`"' <<< "$selected" | tee -a "$GITHUB_STEP_SUMMARY"
 
   api:
     needs: resolve
