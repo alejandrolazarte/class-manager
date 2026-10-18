@@ -93,6 +93,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
 - [Hosting plan](docs/hosting-plan.md) — free Azure setup for a pilot, limits and costs to watch
 - [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Azure Static Web Apps, the installable web app (PWA) and the Android APK
+- [Rolling back a deploy](docs/rollback.md) — the manual Rollback workflow: list the last successful deploys, put one back online (API image and web app, no migrations), and why migrations stay backward compatible
 - [Domain and DNS](docs/domain-and-dns.md) — `laztty.com` on Cloudflare Registrar, `app.` and `api.` records, and why no record goes through the Cloudflare proxy (LaLiga blocks in Spain)
 - [Database on the Basic tier](docs/database-basic-tier.md) — DTU vs vCore, what Basic costs and includes, and the runbook to move the pilot database from the free offer to Basic and back
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
