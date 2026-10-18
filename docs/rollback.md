@@ -20,9 +20,9 @@ It only offers versions that the **Deploy** workflow deployed successfully (its 
 
 ## Steps
 
-1. GitHub → **Actions** → **Rollback** → **Run workflow**, from `main`, with `list`. Nothing is deployed; the run summary shows the last 10 successful deploys, numbered from the most recent, with the pull request and the commit.
+1. GitHub → **Actions** → **Rollback** → **Run workflow**, from `main`, with `list`. Nothing is deployed; the run summary and the log of the **List the last successful deploys** step (the one the GitHub mobile app shows) list the last 10 successful deploys, numbered from the most recent, with the pull request and the commit.
 2. **Run workflow** again with the number of the version to go back to. If the broken deploy finished green, it is number 1 and the one before it is number 2; if it failed, it is not listed.
-3. Check the run summary: **Rolling back to** names the version that was deployed.
+3. Check the run summary or the log of the **Pick the version to deploy again** step: **Rolling back to** names the version that was deployed.
 4. Revert or fix the change on `main` through a pull request before merging anything else.
 5. Check whether the broken version wrote wrong data; fix it by hand, or in the worst case restore the database to a point in time from the Azure portal (it restores to a new database and loses what was entered after that point).
 
