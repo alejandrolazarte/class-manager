@@ -49,7 +49,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `01e-inicio-con-sedes`, `01f-cambiar-de-sede` | Inicio after creating a second branch (Sede Norte, at the end of the run), and the account switcher the logo opens |
 | `02-asistencia` | Attendance of Natación inicial |
 | `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
-| `02c-dia-de-prueba` | Test day of Natación inicial: one measurement for everyone present |
+| `02c-mediciones-de-la-clase` | Measurements of Natación inicial: one measurement for everyone present, with the values already saved that day |
 | `03-clases-semana` | Weekly classes |
 | `04-clase-alumnos` | Class roster |
 | `04b-confirmar-dar-de-baja` | The confirm dialog before unenrolling a student (closed with "Volver") |
