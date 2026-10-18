@@ -15,4 +15,6 @@ public interface IMeasurementRecordRepository
     Task<MeasurementRecord?> FindOnDateForUpdateAsync(Guid studentId, Guid definitionId, DateOnly measuredOn, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<MeasurementRecord>> ListByStudentsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<MeasurementRecord>> ListOnDateAsync(IReadOnlyCollection<Guid> studentIds, DateOnly measuredOn, CancellationToken cancellationToken);
 }

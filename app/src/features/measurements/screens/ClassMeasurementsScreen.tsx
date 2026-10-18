@@ -8,8 +8,9 @@ import {
   measurementTrend,
   parseMeasurementNumber,
 } from "@/features/measurements/measurementFormatting";
-import { Measurement } from "@/features/measurements/types";
+import { Measurement, MeasurementRecord } from "@/features/measurements/types";
 import {
+  useClassMeasurementRecords,
   useMeasurementDefinitions,
   useRecordClassMeasurements,
   useStudentMeasurements,
@@ -32,20 +33,47 @@ import { SelectField } from "@/ui/SelectField";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 
-interface TestDayRowProps {
+const decimalComma = ",";
+const decimalPoint = ".";
+
+function toTypedValue(measurement: Measurement, value: number): string {
+  return measurement.kind === "Time"
+    ? String(value)
+    : String(value).replace(decimalPoint, decimalComma);
+}
+
+function savedValueOf(
+  savedRecords: readonly MeasurementRecord[],
+  measurementId: string,
+  studentId: string,
+): number | undefined {
+  return savedRecords.find(
+    (record) => record.measurementId === measurementId && record.studentId === studentId,
+  )?.value;
+}
+
+interface ClassMeasurementRowProps {
   student: SessionStudent;
   measurement: Measurement;
+  sessionDate: string;
   typedValue: string;
   onChange: (typedValue: string) => void;
 }
 
-function TestDayRow({ student, measurement, typedValue, onChange }: TestDayRowProps) {
+function ClassMeasurementRow({
+  student,
+  measurement,
+  sessionDate,
+  typedValue,
+  onChange,
+}: ClassMeasurementRowProps) {
   const { data: studentMeasurements = [] } = useStudentMeasurements(student.studentId);
-  const records =
-    studentMeasurements.find((item) => item.measurement.id === measurement.id)?.records ?? [];
+  const records = (
+    studentMeasurements.find((item) => item.measurement.id === measurement.id)?.records ?? []
+  ).filter((record) => record.measuredOn < sessionDate);
   const lastRecord = measurementTrend(measurement, records)?.last;
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const valueLabel = translate("measurements.testDay.valueOf", {
+  const valueLabel = translate("measurements.class.valueOf", {
     measurement: measurement.name,
     name: student.studentFullName,
   });
@@ -57,8 +85,8 @@ function TestDayRow({ student, measurement, typedValue, onChange }: TestDayRowPr
         <AppText variant="bodyStrong">{student.studentFullName}</AppText>
         <AppText variant="caption" tone="subtle">
           {lastRecord === undefined
-            ? translate("measurements.testDay.firstTime")
-            : translate("measurements.testDay.previous", {
+            ? translate("measurements.class.firstTime")
+            : translate("measurements.class.previous", {
                 value: formatMeasurementValue(measurement, lastRecord.value),
               })}
         </AppText>
@@ -98,31 +126,38 @@ function TestDayRow({ student, measurement, typedValue, onChange }: TestDayRowPr
   );
 }
 
-interface ClassTestDayScreenProps {
+interface ClassMeasurementsScreenProps {
   classGroupId: string;
   sessionDate: string;
 }
 
-export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDayScreenProps) {
+export function ClassMeasurementsScreen({
+  classGroupId,
+  sessionDate,
+}: ClassMeasurementsScreenProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const session = useSessionDetails(classGroupId, sessionDate);
   const definitions = useMeasurementDefinitions();
+  const classStudentIds = session.data?.students.map((student) => student.studentId) ?? [];
+  const savedRecordsQuery = useClassMeasurementRecords(sessionDate, classStudentIds);
+  const savedRecords = classStudentIds.length === 0 ? [] : savedRecordsQuery.data;
   const recordMutation = useRecordClassMeasurements();
   const [chosenMeasurementId, setChosenMeasurementId] = useState<string | null>(null);
   const [typedValues, setTypedValues] = useState<Record<string, string>>({});
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
 
-  if (session.data === undefined || definitions.data === undefined) {
+  if (session.data === undefined || definitions.data === undefined || savedRecords === undefined) {
     return (
       <SettingsItemState
         navigation="close"
-        isPending={session.isPending || definitions.isPending}
-        isError={session.isError || definitions.isError}
+        isPending={session.isPending || definitions.isPending || savedRecordsQuery.isPending}
+        isError={session.isError || definitions.isError || savedRecordsQuery.isError}
         notFoundMessage={translate("common.unexpectedError")}
         onRetry={() => {
           session.refetch();
           definitions.refetch();
+          savedRecordsQuery.refetch();
         }}
       />
     );
@@ -131,13 +166,29 @@ export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDaySc
   const measurements = definitions.data;
   const measurement =
     measurements.find((candidate) => candidate.id === chosenMeasurementId) ?? measurements[0];
-  const students = session.data.students.filter((student) => student.status !== "Absent");
+  const savedValueFor = (studentId: string) =>
+    measurement === undefined ? undefined : savedValueOf(savedRecords, measurement.id, studentId);
+  const students = session.data.students.filter(
+    (student) => student.status !== "Absent" || savedValueFor(student.studentId) !== undefined,
+  );
+  const shownValueOf = (studentId: string) => {
+    const savedValue = savedValueFor(studentId);
+    return (
+      typedValues[studentId] ??
+      (measurement === undefined || savedValue === undefined
+        ? ""
+        : toTypedValue(measurement, savedValue))
+    );
+  };
   const entries =
     measurement === undefined
       ? []
       : students.flatMap((student) => {
-          const value = parseMeasurementNumber(typedValues[student.studentId] ?? "");
-          return value === null ? [] : [{ studentId: student.studentId, value }];
+          const typedValue = typedValues[student.studentId];
+          const value = typedValue === undefined ? null : parseMeasurementNumber(typedValue);
+          return value === null || value === savedValueFor(student.studentId)
+            ? []
+            : [{ studentId: student.studentId, value }];
         });
 
   const save = async () => {
@@ -151,7 +202,7 @@ export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDaySc
         measuredOn: sessionDate,
         entries,
       });
-      showToast(translate("measurements.testDay.saved"));
+      showToast(translate("measurements.class.saved"));
       router.back();
     } catch (saveError) {
       setSubmissionFailure(toSubmissionFailure(saveError));
@@ -160,13 +211,13 @@ export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDaySc
 
   return (
     <SettingsFormScreenLayout
-      title={translate("measurements.testDay.title")}
+      title={translate("measurements.class.title")}
       eyebrow={`${session.data.classGroupName} · ${formatLongDate(sessionDate)}`}
       submissionFailure={submissionFailure}
       onRetry={save}
     >
       {measurement === undefined ? (
-        <EmptyState icon="trendingUp" message={translate("measurements.testDay.noMeasurements")} />
+        <EmptyState icon="trendingUp" message={translate("measurements.class.noMeasurements")} />
       ) : (
         <>
           <View className="flex-row flex-wrap gap-1.5">
@@ -174,6 +225,10 @@ export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDaySc
               <Chip
                 key={candidate.id}
                 label={candidate.name}
+                count={
+                  savedRecords.filter((record) => record.measurementId === candidate.id).length ||
+                  undefined
+                }
                 isSelected={candidate.id === measurement.id}
                 onPress={() => {
                   setChosenMeasurementId(candidate.id);
@@ -184,20 +239,21 @@ export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDaySc
           </View>
           <View>
             <SectionTitle
-              title={`${translate("measurements.testDay.present")} · ${students.length}`}
+              title={`${translate("measurements.class.present")} · ${students.length}`}
               isOverline
             />
             {students.length === 0 ? (
               <AppText variant="body" tone="muted" className="py-2">
-                {translate("measurements.testDay.noStudents")}
+                {translate("measurements.class.noStudents")}
               </AppText>
             ) : null}
             {students.map((student) => (
-              <TestDayRow
+              <ClassMeasurementRow
                 key={student.studentId}
                 student={student}
                 measurement={measurement}
-                typedValue={typedValues[student.studentId] ?? ""}
+                sessionDate={sessionDate}
+                typedValue={shownValueOf(student.studentId)}
                 onChange={(typedValue) =>
                   setTypedValues((current) => ({ ...current, [student.studentId]: typedValue }))
                 }
@@ -205,13 +261,13 @@ export function ClassTestDayScreen({ classGroupId, sessionDate }: ClassTestDaySc
             ))}
           </View>
           <AppText variant="caption" tone="subtle">
-            {translate("measurements.testDay.hint")}
+            {translate("measurements.class.hint")}
           </AppText>
           <Button
             label={
               entries.length === 0
                 ? translate("common.save")
-                : translateCount("measurements.testDay.save", entries.length)
+                : translateCount("measurements.class.save", entries.length)
             }
             disabled={entries.length === 0}
             isLoading={recordMutation.isPending}

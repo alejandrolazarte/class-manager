@@ -18,6 +18,8 @@ public sealed record RecordMeasurementCommand(Guid StudentId, Guid MeasurementId
 
 public sealed record ClassMeasurementEntry(Guid StudentId, decimal? Value);
 
+public sealed record ListClassMeasurementRecordsQuery(DateOnly MeasuredOn, IReadOnlyList<Guid> StudentIds) : IQuery;
+
 public sealed record RecordClassMeasurementsCommand(Guid MeasurementId, DateOnly? MeasuredOn, IReadOnlyList<ClassMeasurementEntry>? Entries) : ICommand;
 
 public sealed record DeleteMeasurementRecordCommand(Guid RecordId) : ICommand;
@@ -226,6 +228,31 @@ public sealed class RecordClassMeasurementsUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success<IReadOnlyList<MeasurementRecordResponse>>([.. recorded.Select(record => MeasurementRecordResponse.From(record))]);
+    }
+}
+
+public sealed class ListClassMeasurementRecordsUseCase(
+    IStudentRepository studentRepository,
+    IClientRepository clientRepository,
+    IAccessScopes accessScopes,
+    IMeasurementRecordRepository recordRepository)
+    : IUseCase<ListClassMeasurementRecordsQuery, IReadOnlyList<MeasurementRecordResponse>>
+{
+    public async Task<Result<IReadOnlyList<MeasurementRecordResponse>>> ExecuteAsync(ListClassMeasurementRecordsQuery command, CancellationToken cancellationToken)
+    {
+        var studentIds = command.StudentIds.Distinct().ToList();
+        if (studentIds.Count == 0)
+        {
+            return Result.Success<IReadOnlyList<MeasurementRecordResponse>>([]);
+        }
+
+        if (!await new MeasurementStudentAccess(studentRepository, clientRepository, accessScopes).CanReachAsync(studentIds, cancellationToken))
+        {
+            return AccessRules.NotYours();
+        }
+
+        var records = await recordRepository.ListOnDateAsync(studentIds, command.MeasuredOn, cancellationToken);
+        return Result.Success<IReadOnlyList<MeasurementRecordResponse>>([.. records.Select(record => MeasurementRecordResponse.From(record))]);
     }
 }
 

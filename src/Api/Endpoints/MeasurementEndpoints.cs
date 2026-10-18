@@ -21,6 +21,7 @@ internal static class MeasurementEndpoints
         studentMeasurements.MapPut(ApiRoutes.MeasurementById + ApiRoutes.Goal, SetMeasurementGoalAsync).RequirePermission(Permissions.Attendance.RecordOwn);
 
         var records = endpoints.MapGroup(ApiRoutes.MeasurementRecords);
+        records.MapGet("/", ListClassMeasurementRecordsAsync).RequirePermission(Permissions.Students.ViewOwn);
         records.MapPost("/", RecordClassMeasurementsAsync).RequirePermission(Permissions.Attendance.RecordOwn);
         records.MapDelete(ApiRoutes.MeasurementRecordById, DeleteMeasurementRecordAsync).RequirePermission(Permissions.Attendance.RecordOwn);
         records.MapPost(ApiRoutes.MeasurementRecordById + ApiRoutes.Restore, RestoreMeasurementRecordAsync).RequirePermission(Permissions.Attendance.RecordOwn);
@@ -87,6 +88,13 @@ internal static class MeasurementEndpoints
         IUseCase<SetMeasurementGoalCommand, bool> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(request.ToCommand(studentId, measurementId), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent());
+
+    private static async Task<IResult> ListClassMeasurementRecordsAsync(
+        DateOnly measuredOn,
+        Guid[] studentIds,
+        IUseCase<ListClassMeasurementRecordsQuery, IReadOnlyList<MeasurementRecordResponse>> useCase,
+        CancellationToken cancellationToken) =>
+        (await useCase.ExecuteAsync(new ListClassMeasurementRecordsQuery(measuredOn, studentIds), cancellationToken)).ToOkResult();
 
     private static async Task<IResult> RecordClassMeasurementsAsync(
         RecordClassMeasurementsCommand command,

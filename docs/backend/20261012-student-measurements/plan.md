@@ -76,7 +76,8 @@ Team (`/api`):
 | `DELETE` / `POST` | `/measurements/{id}`, `/measurements/{id}/restore` | Delete with undo |
 | `GET` | `/students/{studentId}/measurements` | Every definition with the student's records and goal |
 | `POST` | `/students/{studentId}/measurements/{id}/records` | Record a value |
-| `POST` | `/measurement-records` | Record one definition for several students at once (test day of a class) |
+| `GET` | `/measurement-records?measuredOn=&studentIds=` | Records of several students on one date (the measurements of a class) |
+| `POST` | `/measurement-records` | Record or change one definition for several students at once (the measurements of a class) |
 | `DELETE` / `POST` | `/measurement-records/{id}`, `/measurement-records/{id}/restore` | Delete with undo |
 | `PUT` | `/students/{studentId}/measurements/{id}/goal` | Set or clear (`null`) the goal |
 
@@ -90,7 +91,7 @@ Student app (`/api/student-app`):
 ## Steps
 
 1. Backend: definitions, records, goals, team and student app endpoints, tests.
-2. Team app: Ajustes → Mediciones, the Avance tab of the student profile, the measurement detail, recording, and the test day of a class.
+2. Team app: Ajustes → Mediciones, the Avance tab of the student profile, the measurement detail, recording, and the measurements of a class.
 3. Student app: Logros gets two tabs, Constancia (everything it shows today) and Mediciones, plus the detail and the form to record.
 
 ## Later
