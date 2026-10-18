@@ -11,7 +11,7 @@ const sourceDirectory = testPath.slice(
 const testsDirectoryName = "__tests__";
 const componentFileExtension = ".tsx";
 const deleteIconAttribute = 'icon="delete"';
-const subtleToneAttribute = 'tone="subtle-foreground"';
+const mutedToneAttribute = 'tone="muted-foreground"';
 
 const iconButtonPattern = /<IconButton\b[\s\S]*?\/>/g;
 
@@ -33,7 +33,7 @@ function deleteIconButtonsOf(componentFile: string): string[] {
 }
 
 describe("When an icon button deletes", () => {
-  it("Then it uses the subtle tone", () => {
+  it("Then it uses the muted tone", () => {
     const deleteIconButtons = listComponentFiles(sourceDirectory)
       .map((componentFile) => relative(sourceDirectory, componentFile).replace(/\\/g, "/"))
       .flatMap((componentFile) =>
@@ -41,7 +41,7 @@ describe("When an icon button deletes", () => {
       );
 
     const filesWithAnotherTone = deleteIconButtons
-      .filter(({ iconButton }) => !iconButton.includes(subtleToneAttribute))
+      .filter(({ iconButton }) => !iconButton.includes(mutedToneAttribute))
       .map(({ componentFile }) => componentFile);
 
     expect(deleteIconButtons.length).toBeGreaterThan(0);

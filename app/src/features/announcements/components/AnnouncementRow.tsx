@@ -139,7 +139,7 @@ export function AnnouncementRow({
         )}
         <IconButton
           icon="delete"
-          tone="subtle-foreground"
+          tone="muted-foreground"
           accessibilityLabel={translate("announcements.delete", { title: announcement.title })}
           disabled={isBusy}
           onPress={() => onDelete(announcement)}

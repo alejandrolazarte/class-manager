@@ -108,7 +108,7 @@ export function DefaultMonthlyFeeScreen() {
               {change.effectiveFrom > currentMonth ? (
                 <IconButton
                   icon="delete"
-                  tone="subtle-foreground"
+                  tone="muted-foreground"
                   accessibilityLabel={translate("fees.defaultFee.deleteChange", {
                     month: formatMonth(change.effectiveFrom),
                   })}

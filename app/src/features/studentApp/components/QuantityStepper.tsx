@@ -27,7 +27,6 @@ export function QuantityStepper({
     <View className="flex-row items-center">
       <IconButton
         icon={decreaseIcon}
-        tone="subtle-foreground"
         accessibilityLabel={decreaseLabel}
         disabled={units <= minimum}
         onPress={() => onChange(units - 1)}
@@ -37,7 +36,6 @@ export function QuantityStepper({
       </AppText>
       <IconButton
         icon="add"
-        tone="subtle-foreground"
         accessibilityLabel={increaseLabel}
         disabled={units >= maximum}
         onPress={() => onChange(units + 1)}
