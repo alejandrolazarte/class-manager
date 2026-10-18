@@ -32,6 +32,7 @@ export function buildSessionDetails(overrides: Partial<SessionDetails> = {}): Se
     cancellationReason: null,
     canTakeAttendance: true,
     canReschedule: true,
+    isPast: false,
     students: [buildSessionStudent()],
     ...overrides,
   };
