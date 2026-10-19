@@ -49,6 +49,7 @@ export interface SessionDetails {
   cancellationReason: string | null;
   canTakeAttendance: boolean;
   canReschedule: boolean;
+  isPast: boolean;
   students: SessionStudent[];
 }
 

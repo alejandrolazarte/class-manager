@@ -24,4 +24,9 @@ internal sealed class MeasurementRecordRepository(AppDbContext context) : IMeasu
             .Where(record => studentIds.Contains(record.StudentId))
             .OrderBy(record => record.MeasuredOn)
             .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<MeasurementRecord>> ListOnDateAsync(IReadOnlyCollection<Guid> studentIds, DateOnly measuredOn, CancellationToken cancellationToken) =>
+        await context.MeasurementRecords.AsNoTracking()
+            .Where(record => studentIds.Contains(record.StudentId) && record.MeasuredOn == measuredOn)
+            .ToListAsync(cancellationToken);
 }

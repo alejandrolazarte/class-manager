@@ -10,11 +10,11 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 
 - A second instructor, Martín Díaz.
 - Four class groups: Natación inicial and Natación avanzada (Monday, Wednesday, Friday and whatever day the script runs, so "Hoy" always has classes), Aquagym and Natación adultos (Tuesday and Thursday).
-- Six students, nine enrollments from the first day of the current month, and attendance for today.
+- Six students, nine enrollments from the first day of the current month, and attendance for today and for the last Natación inicial class before today.
 - A default fee of $25.000, one student with its own fee, and payments that leave students paid, partially paid and owing.
 - A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
 - A private lesson for Valentina Fernández with Martín today at 21:00.
-- Three measurements (25 m crol, Nado continuo that students can record, and Altura only for the team), with half a year of values for Tomás Pérez, a few for Lucía Pérez, and a 28 s goal for Tomás's 25 m crol.
+- Three measurements (25 m crol, Nado continuo that students can record, and Altura only for the team), with half a year of values for Tomás Pérez, a few for Lucía Pérez, a 28 s goal for Tomás's 25 m crol, and measurements recorded in the last Natación inicial class before today.
 
 Every run signs up a new business with a unique email, so it can run against the same database many times.
 
@@ -49,7 +49,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `01e-inicio-con-sedes`, `01f-cambiar-de-sede` | Inicio after creating a second branch (Sede Norte, at the end of the run), and the account switcher the logo opens |
 | `02-asistencia` | Attendance of Natación inicial |
 | `02b-comentario-del-profe` | Comment sheet an instructor fills in for a student after class |
-| `02c-dia-de-prueba` | Test day of Natación inicial: one measurement for everyone present |
+| `02c-mediciones-de-la-clase` | Measurements of Natación inicial: one measurement for everyone present, with the values already saved that day |
+| `02d-clase-pasada` | The last Natación inicial class before today, closed: attendance and measurements to read, with Editar |
 | `03-clases-semana` | Weekly classes |
 | `04-clase-alumnos` | Class roster |
 | `04b-confirmar-dar-de-baja` | The confirm dialog before unenrolling a student (closed with "Volver") |

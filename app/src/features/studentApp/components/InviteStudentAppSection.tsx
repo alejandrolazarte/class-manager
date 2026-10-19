@@ -11,7 +11,7 @@ import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
-import { isEmailOfAnotherPerson } from "@/features/students/studentSchema";
+import { isEmailOfAnotherPerson, normalizeEmail } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";
 import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
@@ -50,8 +50,16 @@ const statusTones: Record<StudentAppAccessStatus, TextTone> = {
   AwaitingGuardianConsent: "warning",
 };
 
+function isTheContactWhoAttends(client: ClientDetails, familyStudent: Student): boolean {
+  const contactEmail = normalizeEmail(client.email);
+  return contactEmail.length > 0 && normalizeEmail(familyStudent.email) === contactEmail;
+}
+
 function otherPeopleEmails(client: ClientDetails, student: Student | undefined): (string | null)[] {
-  const otherStudents = client.students.filter((familyStudent) => familyStudent.id !== student?.id);
+  const otherStudents = client.students.filter(
+    (familyStudent) =>
+      familyStudent.id !== student?.id && !isTheContactWhoAttends(client, familyStudent),
+  );
   return [
     ...(student ? [client.email, client.appAccess.invitedEmail] : []),
     ...otherStudents.flatMap((otherStudent) => [
@@ -70,8 +78,8 @@ export function InviteStudentAppSection({ client, student }: InviteStudentAppSec
   const isPending = status === "Invited" || status === "AwaitingGuardianConsent";
   const invitedRecipientEmail = status === "AwaitingGuardianConsent" ? null : invitedEmail;
   const emailOnFile = (
-    invitedRecipientEmail ??
     (student ? student.email : client.email) ??
+    invitedRecipientEmail ??
     ""
   ).trim();
   const needsBirthDate = student?.birthDate === null;

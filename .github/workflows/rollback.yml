@@ -1,0 +1,178 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "list: show the last successful deploys. A number: deploy that version again (1 = the most recent)"
+        type: choice
+        default: list
+        options: [list, "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ inputs.deploy == 'list' && format('rollback-list-{0}', github.run_id) || 'deploy-pilot' }}
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: ghcr.io/alejandrolazarte/class-manager-api
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+    outputs:
+      sha: ${{ steps.pick.outputs.sha }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SELECTED_DEPLOY: ${{ inputs.deploy }}
+      DEPLOYS_LISTED: 10
+      RUN_PAGES_SEARCHED: 5
+    steps:
+      - name: List the last successful deploys
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Run the rollback from main: Azure only trusts deploys started from main"
+            exit 1
+          fi
+          deploys_file=deploys.jsonl
+          : > "$deploys_file"
+          page=1
+          while [ "$(wc -l < "$deploys_file")" -lt "$DEPLOYS_LISTED" ] && [ "$page" -le "$RUN_PAGES_SEARCHED" ]; do
+            gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deploy.yml/runs?branch=main&status=success&per_page=30&page=$page" \
+              --jq '.workflow_runs[] | {
+                id,
+                sha: .head_sha,
+                deployedAt: (.updated_at | sub("T"; " ") | .[0:16] + " UTC"),
+                title: (.head_commit.message | split("\n") as $lines
+                  | if ($lines[0] | test("^Merge pull request #[0-9]+"))
+                    then "#" + ($lines[0] | capture("#(?<number>[0-9]+)").number) + " " + ($lines[2] // "")
+                    else $lines[0] end)
+              } | @json' > runs.jsonl
+            [ -s runs.jsonl ] || break
+            while read -r run; do
+              [ "$(wc -l < "$deploys_file")" -lt "$DEPLOYS_LISTED" ] || break
+              run_id=$(jq -r .id <<< "$run")
+              run_sha=$(jq -r .sha <<< "$run")
+              api_conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/jobs" --jq '.jobs[] | select(.name == "api") | .conclusion')
+              if [ "$api_conclusion" = "success" ] && ! grep -q "\"sha\":\"$run_sha\"" "$deploys_file"; then
+                echo "$run" >> "$deploys_file"
+              fi
+            done < runs.jsonl
+            page=$((page + 1))
+          done
+          {
+            echo "## Last successful deploys"
+            echo
+            echo "| # | Deployed | Change | Commit |"
+            echo "|---|---|---|---|"
+            jq -r -s 'to_entries[] | "| \(.key + 1) | \(.value.deployedAt) | \(.value.title | gsub("\\|"; "\\|")) | `\(.value.sha[0:7])` |"' "$deploys_file"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Pick the version to deploy again
+        id: pick
+        if: inputs.deploy != 'list'
+        run: |
+          selected=$(jq -c -s --argjson number "$SELECTED_DEPLOY" '.[$number - 1] // empty' deploys.jsonl)
+          if [ -z "$selected" ]; then
+            echo "::error::There is no successful deploy number $SELECTED_DEPLOY"
+            exit 1
+          fi
+          echo "sha=$(jq -r .sha <<< "$selected")" >> "$GITHUB_OUTPUT"
+          jq -r '"\n## Rolling back to\n\n\(.title) · deployed \(.deployedAt) · `\(.sha)`"' <<< "$selected" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  api:
+    needs: resolve
+    if: needs.resolve.outputs.sha != '' && vars.AZURE_CLIENT_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      DEPLOYED_SHA: ${{ needs.resolve.outputs.sha }}
+      DEPLOY_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      DEPLOY_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_CONTAINER_APP: ${{ vars.AZURE_CONTAINER_APP }}
+    steps:
+      - name: Sign in to Azure with OpenID Connect
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors
+          federated_token=$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq --raw-output .value)
+          echo "::add-mask::$federated_token"
+          az login --service-principal --username "$DEPLOY_CLIENT_ID" --tenant "$DEPLOY_TENANT_ID" \
+            --federated-token "$federated_token" --output none
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+
+      - name: Deploy the image
+        run: |
+          az containerapp update --name "$AZURE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
+            --image "$IMAGE_NAME:$DEPLOYED_SHA" --output none
+
+      - name: Wait for the API to answer
+        run: |
+          api_host=$(az containerapp show --name "$AZURE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
+            --query properties.configuration.ingress.fqdn --output tsv)
+          curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors --max-time 60 \
+            "https://$api_host/health"
+
+  web:
+    needs: [resolve, api]
+    if: vars.AZURE_STATIC_WEB_APP != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      DEPLOYED_SHA: ${{ needs.resolve.outputs.sha }}
+      DEPLOY_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      DEPLOY_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_STATIC_WEB_APP: ${{ vars.AZURE_STATIC_WEB_APP }}
+      EXPO_PUBLIC_API_BASE_URL: ${{ vars.EXPO_PUBLIC_API_BASE_URL }}
+      FILES_BASE_URL: ${{ vars.FILES_BASE_URL }}
+      EXPO_PUBLIC_PLANS_CONTACT_URL: ${{ vars.EXPO_PUBLIC_PLANS_CONTACT_URL }}
+      STATIC_WEB_APPS_CLI: "@azure/static-web-apps-cli@2.0.10"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOYED_SHA }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Build the web app
+        working-directory: app
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm export:web
+
+      - name: Sign in to Azure with OpenID Connect
+        run: |
+          federated_token=$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq --raw-output .value)
+          echo "::add-mask::$federated_token"
+          az login --service-principal --username "$DEPLOY_CLIENT_ID" --tenant "$DEPLOY_TENANT_ID" \
+            --federated-token "$federated_token" --output none
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+
+      - name: Deploy the web app
+        working-directory: app
+        run: |
+          deployment_token=$(az staticwebapp secrets list --name "$AZURE_STATIC_WEB_APP" \
+            --resource-group "$AZURE_RESOURCE_GROUP" --query properties.apiKey --output tsv)
+          echo "::add-mask::$deployment_token"
+          npx --yes "$STATIC_WEB_APPS_CLI" deploy dist --env production --deployment-token "$deployment_token"

@@ -55,6 +55,11 @@ public static class MeasurementRequests
         this HttpClient httpClient, Guid measurementId, IReadOnlyList<ClassMeasurementEntry> entries) =>
         httpClient.PostAsJsonAsync(ApiRoutes.MeasurementRecords, new RecordClassMeasurementsCommand(measurementId, null, entries), ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> GetClassMeasurementRecordsAsync(this HttpClient httpClient, DateOnly measuredOn, IReadOnlyList<Guid> studentIds) =>
+        httpClient.GetAsync(new Uri(
+            $"{ApiRoutes.MeasurementRecords}?measuredOn={measuredOn:yyyy-MM-dd}{string.Concat(studentIds.Select(studentId => $"&studentIds={studentId}"))}",
+            UriKind.Relative));
+
     public static Task<HttpResponseMessage> DeleteMeasurementRecordAsync(this HttpClient httpClient, Guid recordId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.MeasurementRecords}/{recordId}", UriKind.Relative));
 

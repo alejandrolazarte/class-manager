@@ -93,6 +93,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
 - [Hosting plan](docs/hosting-plan.md) — free Azure setup for a pilot, limits and costs to watch
 - [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Azure Static Web Apps, the installable web app (PWA) and the Android APK
+- [Rolling back a deploy](docs/rollback.md) — the manual Rollback workflow: list the last successful deploys, put one back online (API image and web app, no migrations), and why migrations stay backward compatible
 - [Domain and DNS](docs/domain-and-dns.md) — `laztty.com` on Cloudflare Registrar, `app.` and `api.` records, and why no record goes through the Cloudflare proxy (LaLiga blocks in Spain)
 - [Database on the Basic tier](docs/database-basic-tier.md) — DTU vs vCore, what Basic costs and includes, and the runbook to move the pilot database from the free offer to Basic and back
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
@@ -136,6 +137,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Team notifications](docs/backend/20261001-team-notifications/plan.md) — avisos for instructors and owners (no voy, makeups, new orders), who gets each one, and web push for the team
 - [Background tasks](docs/backend/20261007-background-tasks/plan.md) — order emails and push notifications queued in the `BackgroundTasks` table, sent and retried by one worker that sleeps until there is work instead of polling the database
 - [Audit log](docs/backend/20261012-audit-log/plan.md) — proposal: audit columns (`CreatedAt`/`ByUserId`, `UpdatedAt`/`ByUserId`, soft delete renamed to `DeletedAt` + `DeletedByUserId` so it doesn't clash with the records' `DeletedOn`), every command logged to Azure Table Storage with sensitive fields removed, and 403s and failed sign-ins as immutable security events (append blobs under a retention policy), in a logs storage account without keys where the API can only add
+- [Backoffice](docs/backend/20261017-backoffice/plan.md) — proposal: the platform operators' area (brands, subscriptions, add-ons, audit log, operators, impersonation), a second API and a second web build of the Expo project installable as a PWA; operators are users of the Laztty organization with `platform.*`, signed in with Google and an identity enabled by hand, never with the app's accounts
 - [Team home](docs/frontend/20261001-team-home/plan.md) — Inicio replaces Hoy for the team: greeting, next class, tiles and the full day agenda
 - [Calma redesign](docs/frontend/20261011-calma-redesign/plan.md) — lighter type (Figtree), no cards, hairlines and short animations for both apps and the emails, in steps; no feature or text may change, one component base, no old or unused code left, and before/after screenshots for important changes
 - [Confirm before cancelling an order](docs/frontend/20261011-confirm-order-cancellation/plan.md) — pending: "Cancelar pedido" in the student app and in Cobros → Pedidos asks first with `ConfirmDialog`

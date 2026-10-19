@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
 import { View } from "react-native";
+import { ClassMeasurementsSection } from "@/features/measurements/components/ClassMeasurementsSection";
+import { useClassMeasurementTags } from "@/features/measurements/useClassMeasurementTags";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
@@ -19,7 +20,6 @@ import {
   useRestoreSession,
   useRestoreSessionSchedule,
 } from "@/features/sessions/useSessionMutations";
-import { routes } from "@/navigation/routes";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
@@ -31,6 +31,7 @@ import { ScreenHeader } from "@/ui/ScreenHeader";
 import { TonalButton } from "@/ui/TonalButton";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { useToast } from "@/ui/ToastProvider";
+import { ValueTag } from "@/ui/ValueTag";
 
 interface SessionScreenProps {
   classGroupId: string;
@@ -48,7 +49,6 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
     permissions.attendanceRecordOwn,
   );
   const canManageSessions = useCan(permissions.sessionsManage);
-  const router = useRouter();
   const {
     data: session,
     isPending,
@@ -63,6 +63,11 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const [hasSaveFailed, setHasSaveFailed] = useState(false);
   const recordFeedbackMutation = useRecordFeedback(classGroupId, sessionDate);
   const [feedbackStudentId, setFeedbackStudentId] = useState<string | null>(null);
+  const [isEditingPastSession, setIsEditingPastSession] = useState(false);
+  const measurementTags = useClassMeasurementTags(
+    sessionDate,
+    canRecordAttendance ? (session?.students.map((student) => student.studentId) ?? []) : [],
+  );
 
   if (isPending) {
     return (
@@ -112,8 +117,11 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const presentCount = statuses.filter((status) => status === "Present").length;
   const absentCount = statuses.filter((status) => status === "Absent").length;
   const unmarkedCount = statuses.length - presentCount - absentCount;
+  const isReadOnly = session.isPast && !isEditingPastSession;
+  const canEditPastSession =
+    session.isPast && !session.isCancelled && (canRecordAttendance || canManageSessions);
   const canMarkAttendance =
-    canRecordAttendance && session.canTakeAttendance && !session.isCancelled;
+    canRecordAttendance && session.canTakeAttendance && !session.isCancelled && !isReadOnly;
 
   const markAllPresent = () =>
     Promise.all(
@@ -168,6 +176,17 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
       header={
         <ScreenHeader
           navigation="back"
+          navigationAction={
+            canEditPastSession && isReadOnly ? (
+              <Button
+                variant="ghost"
+                size="medium"
+                icon="edit"
+                label={translate("sessions.session.edit")}
+                onPress={() => setIsEditingPastSession(true)}
+              />
+            ) : undefined
+          }
           eyebrow={translate("sessions.session.title")}
           title={session.classGroupName}
           subtitle={[
@@ -241,6 +260,9 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
       {!session.isCancelled && !session.canTakeAttendance ? (
         <Banner tone="info" message={translate("sessions.session.notYet")} />
       ) : null}
+      {canEditPastSession && isReadOnly ? (
+        <Banner tone="info" icon="locked" message={translate("sessions.session.closed")} />
+      ) : null}
       {hasSaveFailed ? <Banner message={translate("sessions.attendance.saveFailed")} /> : null}
       {session.isCancelled ? null : (
         <CountsRow
@@ -299,6 +321,16 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
               student={student}
               status={statusOf(student.studentId, student.status)}
               disabled={!canRecordAttendance || !session.canTakeAttendance}
+              isReadOnly={isReadOnly}
+              details={
+                measurementTags.tagsOf(student.studentId).length === 0 ? undefined : (
+                  <View className="flex-row flex-wrap gap-1.5 pt-1">
+                    {measurementTags.tagsOf(student.studentId).map((tag) => (
+                      <ValueTag key={tag.measurementId} label={tag.label} value={tag.value} />
+                    ))}
+                  </View>
+                )
+              }
               onChangeStatus={(status) => changeStatus(student.studentId, status)}
               onOpenFeedback={
                 canRecordAttendance && session.canTakeAttendance
@@ -309,19 +341,17 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
           ))}
         </View>
       )}
-      {canRecordAttendance && !session.isCancelled ? (
+      {canRecordAttendance && !session.isCancelled && !isReadOnly ? (
         <ClassDeliveriesSection classGroupId={classGroupId} />
       ) : null}
-      {canRecordAttendance && !session.isCancelled && session.students.length > 0 ? (
-        <Button
-          variant="secondary"
-          size="medium"
-          icon="trendingUp"
-          label={translate("measurements.testDay.open")}
-          onPress={() => router.push(routes.classTestDay(classGroupId, sessionDate))}
+      {canRecordAttendance && !session.isCancelled && !isReadOnly && session.students.length > 0 ? (
+        <ClassMeasurementsSection
+          classGroupId={classGroupId}
+          sessionDate={sessionDate}
+          hasRecordedMeasurements={measurementTags.hasTags}
         />
       ) : null}
-      {session.isCancelled || !canManageSessions ? null : (
+      {session.isCancelled || !canManageSessions || isReadOnly ? null : (
         <View className="mt-1 border-y border-border-subtle">
           {session.canReschedule ? (
             <>

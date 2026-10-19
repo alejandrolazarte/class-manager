@@ -28,6 +28,7 @@ export interface DemoBusiness {
   privateLessonId: string;
   measuredStudentId: string;
   timeMeasurementId: string;
+  pastClassDate: string;
 }
 
 function todayIn(timeZoneId: string): string {
@@ -48,6 +49,14 @@ function daysBefore(isoDate: string, days: number): string {
   const date = new Date(`${isoDate}T12:00:00Z`);
   date.setUTCDate(date.getUTCDate() - days);
   return date.toISOString().slice(0, 10);
+}
+
+function lastClassDayBefore(isoDate: string, weekdays: string[]): string {
+  let candidate = daysBefore(isoDate, 1);
+  while (!weekdays.includes(weekdayOf(candidate))) {
+    candidate = daysBefore(candidate, 1);
+  }
+  return candidate;
 }
 
 function withToday(weekdays: string[], today: string): string[] {
@@ -110,10 +119,12 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
       capacity,
       location,
     });
+  const beginnersWeekdays = ["Monday", "Wednesday", "Friday"];
+  const pastClassDate = lastClassDayBefore(today, beginnersWeekdays);
   const beginners = await createClassGroup(
     "Natación inicial",
     laura!.id,
-    withToday(["Monday", "Wednesday", "Friday"], today),
+    withToday(beginnersWeekdays, today),
     "17:00",
     45,
     8,
@@ -203,10 +214,15 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await enroll(aquagym.id, studentId(carla, "Carla Gómez"));
   await enroll(aquagym.id, studentId(jorge, "Jorge Ramírez"));
 
-  const mark = (classGroupId: string, markedStudentId: string, status: string) =>
+  const mark = (
+    classGroupId: string,
+    markedStudentId: string,
+    status: string,
+    sessionDate: string = today,
+  ) =>
     send(
       "PUT",
-      `/api/class-groups/${classGroupId}/sessions/${today}/attendance/${markedStudentId}`,
+      `/api/class-groups/${classGroupId}/sessions/${sessionDate}/attendance/${markedStudentId}`,
       {
         status,
       },
@@ -216,6 +232,10 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await mark(beginners.id, studentId(sofia, "Mateo Martínez"), "Absent");
   await mark(advanced.id, studentId(diego, "Valentina Fernández"), "Present");
   await mark(beginners.id, studentId(paula, "Emma Suárez"), "Present");
+  await mark(beginners.id, studentId(ana, "Tomás Pérez"), "Present", pastClassDate);
+  await mark(beginners.id, studentId(ana, "Lucía Pérez"), "Present", pastClassDate);
+  await mark(beginners.id, studentId(sofia, "Mateo Martínez"), "Absent", pastClassDate);
+  await mark(beginners.id, studentId(paula, "Emma Suárez"), "Present", pastClassDate);
 
   await send("PUT", `/api/clients/${sofia.id}/billing-plan`, {
     kind: "CustomFee",
@@ -340,6 +360,27 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     [10, 75],
   ]);
   await send("PUT", `/api/students/${tomasId}/measurements/${crol.id}/goal`, { value: 28 });
+  const emmaId = studentId(paula, "Emma Suárez");
+  async function measureClass(measurementId: string, entries: [string, number][]) {
+    await send("POST", "/api/measurement-records", {
+      measurementId,
+      measuredOn: pastClassDate,
+      entries: entries.map(([measuredStudentId, value]) => ({
+        studentId: measuredStudentId,
+        value,
+      })),
+    });
+  }
+  await measureClass(continuousSwim.id, [
+    [tomasId, 425],
+    [luciaId, 100],
+    [emmaId, 50],
+  ]);
+  await measureClass(crol.id, [
+    [tomasId, 29.4],
+    [luciaId, 41.2],
+  ]);
+  await measureClass(height.id, [[tomasId, 137]]);
 
   return {
     email,
@@ -353,5 +394,6 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     privateLessonId: privateLesson!.id,
     measuredStudentId: tomasId,
     timeMeasurementId: crol.id,
+    pastClassDate,
   };
 }

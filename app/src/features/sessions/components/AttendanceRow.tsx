@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { Animated, PanResponder, View } from "react-native";
 import {
   attendanceStatusForSwipe,
@@ -13,6 +13,7 @@ import { Avatar, AvatarTone } from "@/ui/Avatar";
 import { Icon, IconName } from "@/ui/Icon";
 import { Entrance } from "@/ui/motion/Entrance";
 import { PressableScale } from "@/ui/motion/PressableScale";
+import { StatusPill, StatusTone } from "@/ui/StatusPill";
 import { TextLink } from "@/ui/TextLink";
 
 type AttendanceRowStudent = Omit<
@@ -30,6 +31,8 @@ interface AttendanceRowProps {
   status: AttendanceStatus | null;
   disabled: boolean;
   isSwipeEnabled?: boolean;
+  isReadOnly?: boolean;
+  details?: ReactNode;
   onChangeStatus: (status: AttendanceStatus | null) => void;
   onOpenFeedback?: () => void;
 }
@@ -49,6 +52,11 @@ const swipeActivationDistance = 10;
 const rowTintClassNames: Record<AttendanceStatus, string> = {
   Present: "bg-success-soft/50",
   Absent: "bg-danger-soft/50",
+};
+const statusPillTones: Record<AttendanceStatus | "Unmarked", StatusTone> = {
+  Present: "success",
+  Absent: "danger",
+  Unmarked: "neutral",
 };
 const avatarTones: Record<AttendanceStatus | "Unmarked", AvatarTone> = {
   Present: "success",
@@ -88,11 +96,13 @@ export function AttendanceRow({
   status,
   disabled,
   isSwipeEnabled = true,
+  isReadOnly = false,
+  details,
   onChangeStatus,
   onOpenFeedback,
 }: AttendanceRowProps) {
   const [horizontalOffset] = useState(() => new Animated.Value(0));
-  const canSwipe = isSwipeEnabled && !disabled;
+  const canSwipe = isSwipeEnabled && !disabled && !isReadOnly;
 
   const panResponder = useMemo(
     () =>
@@ -127,6 +137,9 @@ export function AttendanceRow({
       : status === "Absent"
         ? translate("sessions.attendance.absent")
         : translate("sessions.attendance.unmarked");
+  const responsibleLabel = translate("students.list.responsible", {
+    name: student.clientFullName,
+  });
   const toggle = (selectedStatus: AttendanceStatus) =>
     onChangeStatus(status === selectedStatus ? null : selectedStatus);
   const presentHintOpacity = horizontalOffset.interpolate({
@@ -179,11 +192,15 @@ export function AttendanceRow({
           />
           <View className="min-w-0 flex-1 gap-0.5">
             <AppText variant="bodyStrong">{student.studentFullName}</AppText>
-            <AppText variant="footnote" tone="subtle">
-              {isOwnClient
-                ? statusLabel
-                : `${statusLabel} · ${translate("students.list.responsible", { name: student.clientFullName })}`}
-            </AppText>
+            {isReadOnly && isOwnClient ? null : (
+              <AppText variant="footnote" tone="subtle">
+                {isReadOnly
+                  ? responsibleLabel
+                  : isOwnClient
+                    ? statusLabel
+                    : `${statusLabel} · ${responsibleLabel}`}
+              </AppText>
+            )}
             {student.absenceNotified ? (
               <AppText variant="badge" tone="warning">
                 {translate("sessions.attendance.absenceNotified")}
@@ -199,7 +216,8 @@ export function AttendanceRow({
                 {translate("sessions.attendance.packBooking")}
               </AppText>
             ) : null}
-            {onOpenFeedback === undefined ? null : (
+            {details}
+            {onOpenFeedback === undefined || isReadOnly ? null : (
               <TextLink
                 icon="comment"
                 label={
@@ -214,30 +232,39 @@ export function AttendanceRow({
               />
             )}
           </View>
-          <MarkButton
-            icon="present"
-            accessibilityLabel={translate("sessions.attendance.presentFor", {
-              name: student.studentFullName,
-            })}
-            isSelected={status === "Present"}
-            selectedBorderClassName="border-success"
-            selectedFillClassName="bg-success"
-            selectedIconTone="success-foreground"
-            disabled={disabled}
-            onPress={() => toggle("Present")}
-          />
-          <MarkButton
-            icon="absent"
-            accessibilityLabel={translate("sessions.attendance.absentFor", {
-              name: student.studentFullName,
-            })}
-            isSelected={status === "Absent"}
-            selectedBorderClassName="border-danger"
-            selectedFillClassName="bg-danger"
-            selectedIconTone="danger-foreground"
-            disabled={disabled}
-            onPress={() => toggle("Absent")}
-          />
+          {isReadOnly ? (
+            <View className="self-center">
+              <StatusPill label={statusLabel} tone={statusPillTones[status ?? "Unmarked"]} />
+            </View>
+          ) : null}
+          {isReadOnly ? null : (
+            <>
+              <MarkButton
+                icon="present"
+                accessibilityLabel={translate("sessions.attendance.presentFor", {
+                  name: student.studentFullName,
+                })}
+                isSelected={status === "Present"}
+                selectedBorderClassName="border-success"
+                selectedFillClassName="bg-success"
+                selectedIconTone="success-foreground"
+                disabled={disabled}
+                onPress={() => toggle("Present")}
+              />
+              <MarkButton
+                icon="absent"
+                accessibilityLabel={translate("sessions.attendance.absentFor", {
+                  name: student.studentFullName,
+                })}
+                isSelected={status === "Absent"}
+                selectedBorderClassName="border-danger"
+                selectedFillClassName="bg-danger"
+                selectedIconTone="danger-foreground"
+                disabled={disabled}
+                onPress={() => toggle("Absent")}
+              />
+            </>
+          )}
         </View>
       </Animated.View>
     </View>

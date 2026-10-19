@@ -184,6 +184,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<RestoreMeasurementCommand, bool, RestoreMeasurementUseCase>();
         services.AddUseCase<GetStudentMeasurementsQuery, IReadOnlyList<StudentMeasurementResponse>, GetStudentMeasurementsUseCase>();
         services.AddUseCase<RecordMeasurementCommand, MeasurementRecordResponse, RecordMeasurementUseCase>();
+        services.AddUseCase<ListClassMeasurementRecordsQuery, IReadOnlyList<MeasurementRecordResponse>, ListClassMeasurementRecordsUseCase>();
         services.AddUseCase<RecordClassMeasurementsCommand, IReadOnlyList<MeasurementRecordResponse>, RecordClassMeasurementsUseCase>();
         services.AddUseCase<DeleteMeasurementRecordCommand, bool, DeleteMeasurementRecordUseCase>();
         services.AddUseCase<RestoreMeasurementRecordCommand, bool, RestoreMeasurementRecordUseCase>();
