@@ -5,7 +5,7 @@ import {
 } from "@/features/measurements/measurementsApi";
 import { SessionScreen } from "@/features/sessions/screens/SessionScreen";
 import { getSession } from "@/features/sessions/sessionsApi";
-import { translate, translateCount } from "@/i18n/translate";
+import { translate } from "@/i18n/translate";
 import { buildDistanceMeasurement, buildMeasurementRecord } from "@/testing/measurementFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildSessionDetails, buildSessionStudent, sessionDate } from "@/testing/sessionFactory";
@@ -44,10 +44,8 @@ describe("When class measurements were recorded", () => {
       <SessionScreen classGroupId={session.classGroupId} sessionDate={sessionDate} />,
     );
 
-    expect(
-      await screen.findByText(translateCount("measurements.class.recordedStudents", 2)),
-    ).toBeOnTheScreen();
-    expect(screen.getByText(measurement.name)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`${measurement.name} 400 m`)).toBeOnTheScreen();
+    expect(screen.getByLabelText(`${measurement.name} 350 m`)).toBeOnTheScreen();
     expect(
       screen.getByRole("button", { name: translate("measurements.class.change") }),
     ).toBeOnTheScreen();
