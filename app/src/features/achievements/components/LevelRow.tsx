@@ -50,6 +50,7 @@ export function LevelRow({ number, level, isFirst, canRemove, onChange, onRemove
       <View className="mb-1">
         <IconButton
           icon="delete"
+          tone="muted-foreground"
           accessibilityLabel={translate("achievements.settings.removeLevel", { number })}
           disabled={!canRemove}
           onPress={onRemove}

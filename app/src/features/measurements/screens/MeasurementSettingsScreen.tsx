@@ -35,7 +35,7 @@ function MeasurementRow({ measurement, onChange, onDelete }: MeasurementRowProps
         </View>
         <IconButton
           icon="delete"
-          tone="danger"
+          tone="muted-foreground"
           accessibilityLabel={translate("measurements.delete", { name: measurement.name })}
           onPress={() => onDelete(measurement)}
         />
