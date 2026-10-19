@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using ClassManager.Api;
+using ClassManager.Api.Audit;
 using ClassManager.Api.Authentication;
 using ClassManager.Api.BackgroundTasks;
 using ClassManager.Api.Cors;
@@ -23,6 +24,7 @@ builder.Services.AddUseCases();
 builder.Services.AddSingleton<IExpiredOrderCancellationService, ExpiredOrderCancellationService>();
 builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();
 builder.Services.AddHostedService<BackgroundTaskWorker>();
+builder.Services.AddHostedService<CommandAuditWorker>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
 if (builder.Environment.IsDevelopment())

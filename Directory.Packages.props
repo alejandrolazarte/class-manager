@@ -28,6 +28,11 @@
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.0" />
   </ItemGroup>
 
+  <ItemGroup Label="Audit log">
+    <PackageVersion Include="Azure.Data.Tables" Version="12.13.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.21.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Security">
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
   </ItemGroup>
