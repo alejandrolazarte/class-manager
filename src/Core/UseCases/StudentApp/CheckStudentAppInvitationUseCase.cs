@@ -1,12 +1,13 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record CheckStudentAppInvitationCommand(string? Token) : ICommand;
+public sealed record CheckStudentAppInvitationCommand([property: AuditSecret] string? Token) : ICommand;
 
 public sealed record CheckStudentAppInvitationResponse(string Email, string BusinessName, bool HasAccount, string? FullName = null, DateOnly? BirthDate = null);
 

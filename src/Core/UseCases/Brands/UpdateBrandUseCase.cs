@@ -1,9 +1,10 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Brands;
 
-public sealed record UpdateBrandCommand(string? BrandName, string? ThemeColor, string? AccentColor) : ICommand;
+public sealed record UpdateBrandCommand([property: AuditPlain] string? BrandName, [property: AuditPlain] string? ThemeColor, [property: AuditPlain] string? AccentColor) : ICommand;
 
 public sealed class UpdateBrandUseCase(IBusinessRepository businessRepository, IUnitOfWork unitOfWork)
     : IUseCase<UpdateBrandCommand, BrandResponse>

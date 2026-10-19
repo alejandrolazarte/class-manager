@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Measurements;
 using ClassManager.Core.UseCases.StudentApp;
@@ -13,7 +14,7 @@ public sealed record StudentAppStudentMeasurements(Guid StudentId, string FullNa
 
 public sealed record StudentAppMeasurementsResponse(IReadOnlyList<StudentAppStudentMeasurements> Students);
 
-public sealed record RecordStudentAppMeasurementCommand(Guid StudentId, Guid MeasurementId, DateOnly? MeasuredOn, decimal? Value, string? Note) : ICommand;
+public sealed record RecordStudentAppMeasurementCommand(Guid StudentId, Guid MeasurementId, DateOnly? MeasuredOn, [property: AuditPersonal] decimal? Value, [property: AuditPersonal] string? Note) : ICommand;
 
 public sealed class GetStudentAppMeasurementsUseCase(
     IStudentAppAccess studentAppAccess,

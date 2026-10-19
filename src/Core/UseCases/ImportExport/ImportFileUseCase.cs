@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.UseCases.Subscriptions;
 using ClassManager.ImportExport.Parsing;
@@ -6,7 +7,7 @@ using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.ImportExport;
 
-public sealed record ImportFileCommand(string Module, Stream File) : ICommand;
+public sealed record ImportFileCommand([property: AuditPlain] string Module, Stream File) : ICommand;
 
 public sealed class ImportFileUseCase(
     IEnumerable<IImportModule> modules,

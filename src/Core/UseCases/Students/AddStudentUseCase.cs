@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -12,10 +13,10 @@ namespace ClassManager.Core.UseCases.Students;
 
 public sealed record AddStudentCommand(
     Guid ClientId,
-    string? FullName,
-    DateOnly? BirthDate,
-    string? Notes,
-    string? Email = null,
+    [property: AuditPersonal] string? FullName,
+    [property: AuditPersonal] DateOnly? BirthDate,
+    [property: AuditPersonal] string? Notes,
+    [property: AuditPersonal] string? Email = null,
     Guid? SamePersonUserId = null) : ICommand;
 
 public sealed class AddStudentUseCase(

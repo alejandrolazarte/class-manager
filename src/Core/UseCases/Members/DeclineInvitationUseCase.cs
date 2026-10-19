@@ -1,13 +1,14 @@
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record DeclineInvitationCommand(string? Token) : ICommand;
+public sealed record DeclineInvitationCommand([property: AuditSecret] string? Token) : ICommand;
 
 public sealed record DeclinedInvitationResponse;
 

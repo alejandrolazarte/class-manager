@@ -1,14 +1,15 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Products;
 
 public sealed record CreateProductCommand(
-    string? Name,
-    string? Description,
+    [property: AuditPlain] string? Name,
+    [property: AuditPlain] string? Description,
     decimal? Price,
     StockMode? StockMode,
     bool IsVisibleInApp,

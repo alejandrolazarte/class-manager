@@ -1,12 +1,13 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Clients;
 
-public sealed record SeparateClientCommand(Guid ClientId, string? FullName, string? Email) : ICommand;
+public sealed record SeparateClientCommand(Guid ClientId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
 
 public sealed class SeparateClientUseCase(
     IClientRepository clientRepository,

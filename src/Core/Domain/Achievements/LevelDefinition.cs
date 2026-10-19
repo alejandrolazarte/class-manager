@@ -1,3 +1,5 @@
+using ClassManager.Core.Audit;
+
 namespace ClassManager.Core.Domain.Achievements;
 
-public sealed record LevelDefinition(string Name, int RequiredClasses);
+public sealed record LevelDefinition([property: AuditPlain] string Name, int RequiredClasses);

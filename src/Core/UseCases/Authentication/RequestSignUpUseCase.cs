@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Emails;
@@ -8,13 +9,13 @@ using ClassManager.Core.Emails;
 namespace ClassManager.Core.UseCases.Authentication;
 
 public sealed record RequestSignUpCommand(
-    string? OwnerFullName,
-    string? Email,
-    string? BusinessName,
-    string? CountryCode,
-    string? TimeZoneId,
-    string? CurrencyCode,
-    DateOnly? OwnerBirthDate,
+    [property: AuditPersonal] string? OwnerFullName,
+    [property: AuditPersonal] string? Email,
+    [property: AuditPlain] string? BusinessName,
+    [property: AuditPlain] string? CountryCode,
+    [property: AuditPlain] string? TimeZoneId,
+    [property: AuditPlain] string? CurrencyCode,
+    [property: AuditPersonal] DateOnly? OwnerBirthDate,
     bool AcceptsLegalTerms = false) : ICommand;
 
 public sealed record RequestSignUpResponse;

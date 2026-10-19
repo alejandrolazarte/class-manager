@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Measurements;
 using ClassManager.Core.Domain.Students;
@@ -14,9 +15,9 @@ public sealed record RecordMeasurementRequest(DateOnly? MeasuredOn, decimal? Val
     public RecordMeasurementCommand ToCommand(Guid studentId, Guid measurementId) => new(studentId, measurementId, MeasuredOn, Value, Note);
 }
 
-public sealed record RecordMeasurementCommand(Guid StudentId, Guid MeasurementId, DateOnly? MeasuredOn, decimal? Value, string? Note) : ICommand;
+public sealed record RecordMeasurementCommand(Guid StudentId, Guid MeasurementId, DateOnly? MeasuredOn, [property: AuditPersonal] decimal? Value, [property: AuditPersonal] string? Note) : ICommand;
 
-public sealed record ClassMeasurementEntry(Guid StudentId, decimal? Value);
+public sealed record ClassMeasurementEntry(Guid StudentId, [property: AuditPersonal] decimal? Value);
 
 public sealed record ListClassMeasurementRecordsQuery(DateOnly MeasuredOn, IReadOnlyList<Guid> StudentIds) : IQuery;
 
@@ -31,7 +32,7 @@ public sealed record SetMeasurementGoalRequest(decimal? Value)
     public SetMeasurementGoalCommand ToCommand(Guid studentId, Guid measurementId) => new(studentId, measurementId, Value);
 }
 
-public sealed record SetMeasurementGoalCommand(Guid StudentId, Guid MeasurementId, decimal? Value) : ICommand;
+public sealed record SetMeasurementGoalCommand(Guid StudentId, Guid MeasurementId, [property: AuditPersonal] decimal? Value) : ICommand;
 
 internal static class MeasurementRecordFailures
 {

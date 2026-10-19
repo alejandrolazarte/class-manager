@@ -1,13 +1,14 @@
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record DeclineStudentAppInvitationCommand(string? Token) : ICommand;
+public sealed record DeclineStudentAppInvitationCommand([property: AuditSecret] string? Token) : ICommand;
 
 public sealed record DeclinedStudentAppInvitationResponse;
 

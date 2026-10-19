@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Emails;
@@ -9,7 +10,7 @@ using ClassManager.Core.UseCases.Users;
 namespace ClassManager.Core.UseCases.Members;
 
 public sealed record InviteMemberCommand(
-    string? Email,
+    [property: AuditPersonal] string? Email,
     BusinessRole? Role,
     Guid? InstructorId,
     Guid? CustomRoleId = null,

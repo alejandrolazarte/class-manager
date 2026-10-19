@@ -1,9 +1,10 @@
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record RefreshSessionCommand(string? RefreshToken) : ICommand;
+public sealed record RefreshSessionCommand([property: AuditSecret] string? RefreshToken) : ICommand;
 
 public sealed class RefreshSessionUseCase(ITokenService tokenService) : IUseCase<RefreshSessionCommand, TokenResponse>
 {

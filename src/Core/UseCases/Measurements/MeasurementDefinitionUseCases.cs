@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Measurements;
 
@@ -7,9 +8,9 @@ namespace ClassManager.Core.UseCases.Measurements;
 public sealed record ListMeasurementsQuery : IQuery;
 
 public sealed record CreateMeasurementCommand(
-    string? Name,
+    [property: AuditPlain] string? Name,
     MeasurementKind? Kind,
-    string? Unit,
+    [property: AuditPlain] string? Unit,
     ImprovementDirection? ImprovesWhen,
     bool IsVisibleToStudents,
     bool IsRecordedByStudents) : ICommand;
@@ -22,7 +23,7 @@ public sealed record UpdateMeasurementRequest(string? Name, ImprovementDirection
 
 public sealed record UpdateMeasurementCommand(
     Guid MeasurementId,
-    string? Name,
+    [property: AuditPlain] string? Name,
     ImprovementDirection? ImprovesWhen,
     bool IsVisibleToStudents,
     bool IsRecordedByStudents) : ICommand;

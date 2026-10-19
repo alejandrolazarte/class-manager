@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Notifications;
 using ClassManager.Core.UseCases.Members;
@@ -11,9 +12,9 @@ public sealed record GetTeamPushKeyQuery : IQuery;
 
 public sealed record TeamPushKeyResponse(string? PublicKey);
 
-public sealed record SaveTeamPushSubscriptionCommand(string? Endpoint, string? P256dh, string? Auth) : ICommand;
+public sealed record SaveTeamPushSubscriptionCommand([property: AuditSecret] string? Endpoint, [property: AuditSecret] string? P256dh, [property: AuditSecret] string? Auth) : ICommand;
 
-public sealed record RemoveTeamPushSubscriptionCommand(string? Endpoint) : ICommand;
+public sealed record RemoveTeamPushSubscriptionCommand([property: AuditSecret] string? Endpoint) : ICommand;
 
 public sealed class GetTeamPushKeyUseCase(ICurrentMember currentMember, IWebPushKeyProvider keyProvider)
     : IUseCase<GetTeamPushKeyQuery, TeamPushKeyResponse>

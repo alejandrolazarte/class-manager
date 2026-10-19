@@ -1,11 +1,12 @@
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Emails;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record RequestPasswordResetCommand(string? Email) : ICommand;
+public sealed record RequestPasswordResetCommand([property: AuditPersonal] string? Email) : ICommand;
 
 public sealed record RequestPasswordResetResponse;
 

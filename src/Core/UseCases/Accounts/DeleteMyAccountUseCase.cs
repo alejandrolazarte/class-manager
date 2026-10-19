@@ -1,12 +1,13 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.UseCases.Branches;
 
 namespace ClassManager.Core.UseCases.Accounts;
 
-public sealed record DeleteMyAccountCommand(string? CurrentPassword) : ICommand;
+public sealed record DeleteMyAccountCommand([property: AuditSecret] string? CurrentPassword) : ICommand;
 
 public sealed record DeleteMyAccountResponse;
 

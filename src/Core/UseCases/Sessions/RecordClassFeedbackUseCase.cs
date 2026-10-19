@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Sessions;
@@ -10,7 +11,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record RecordClassFeedbackRequest(string? Text);
 
-public sealed record RecordClassFeedbackCommand(Guid ClassGroupId, DateOnly Date, Guid StudentId, string? Text) : ICommand;
+public sealed record RecordClassFeedbackCommand(Guid ClassGroupId, DateOnly Date, Guid StudentId, [property: AuditPersonal] string? Text) : ICommand;
 
 public sealed class RecordClassFeedbackUseCase(
     IClassGroupRepository classGroupRepository,

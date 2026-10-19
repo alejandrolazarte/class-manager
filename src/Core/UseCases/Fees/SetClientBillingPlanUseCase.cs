@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
@@ -12,7 +13,7 @@ public sealed record SetClientBillingPlanRequest(BillingPlanKind? Kind, decimal?
     public SetClientBillingPlanCommand ToCommand(Guid clientId) => new(clientId, Kind, CustomFee, EffectiveFrom);
 }
 
-public sealed record SetClientBillingPlanCommand(Guid ClientId, BillingPlanKind? Kind, decimal? CustomFee, string? EffectiveFrom) : ICommand;
+public sealed record SetClientBillingPlanCommand(Guid ClientId, BillingPlanKind? Kind, decimal? CustomFee, [property: AuditPlain] string? EffectiveFrom) : ICommand;
 
 public sealed class SetClientBillingPlanUseCase(
     IClientRepository clientRepository,

@@ -1,9 +1,10 @@
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record SignInCommand(string? Email, string? Password) : ICommand;
+public sealed record SignInCommand([property: AuditPersonal] string? Email, [property: AuditSecret] string? Password) : ICommand;
 
 public sealed class SignInUseCase(
     IIdentityService identityService,

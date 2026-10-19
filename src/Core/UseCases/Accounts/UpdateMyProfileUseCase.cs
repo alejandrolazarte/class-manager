@@ -1,12 +1,13 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Accounts;
 
-public sealed record UpdateMyProfileCommand(string? FullName, DateOnly? BirthDate) : ICommand;
+public sealed record UpdateMyProfileCommand([property: AuditPersonal] string? FullName, [property: AuditPersonal] DateOnly? BirthDate) : ICommand;
 
 public sealed class UpdateMyProfileUseCase(
     ICurrentUser currentUser,

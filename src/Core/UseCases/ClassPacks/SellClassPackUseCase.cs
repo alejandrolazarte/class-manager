@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Clients;
@@ -28,7 +29,7 @@ public sealed record SellClassPackCommand(
     decimal? Price,
     DateOnly? PurchasedOn,
     PaymentMethod? Method,
-    string? Notes,
+    [property: AuditPersonal] string? Notes,
     Guid? TrialLessonId = null) : ICommand;
 
 public sealed class SellClassPackUseCase(

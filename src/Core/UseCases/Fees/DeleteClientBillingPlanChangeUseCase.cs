@@ -1,13 +1,14 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record DeleteClientBillingPlanChangeCommand(Guid ClientId, string EffectiveFrom) : ICommand;
+public sealed record DeleteClientBillingPlanChangeCommand(Guid ClientId, [property: AuditPlain] string EffectiveFrom) : ICommand;
 
 public sealed class DeleteClientBillingPlanChangeUseCase(
     IClientRepository clientRepository,

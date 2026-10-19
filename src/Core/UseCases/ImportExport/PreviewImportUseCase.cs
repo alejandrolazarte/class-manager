@@ -1,10 +1,11 @@
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.ImportExport.Parsing;
 using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.ImportExport;
 
-public sealed record PreviewImportCommand(string Module, Stream File) : ICommand;
+public sealed record PreviewImportCommand([property: AuditPlain] string Module, Stream File) : ICommand;
 
 public sealed class PreviewImportUseCase(
     IEnumerable<IImportModule> modules,

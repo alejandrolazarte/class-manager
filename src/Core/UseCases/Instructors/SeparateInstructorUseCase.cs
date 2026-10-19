@@ -1,11 +1,12 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record SeparateInstructorCommand(Guid InstructorId, string? FullName, string? Email) : ICommand;
+public sealed record SeparateInstructorCommand(Guid InstructorId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
 
 public sealed class SeparateInstructorUseCase(
     IInstructorRepository instructorRepository,
