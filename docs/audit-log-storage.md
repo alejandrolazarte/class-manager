@@ -125,3 +125,15 @@ az role assignment delete --assignee $OWNER_ID --role "Storage Blob Data Contrib
 
 The role can take a few minutes to apply. A blob still under retention answers 409 and stays. Deleted blobs stay recoverable for the 7 days of blob soft delete.
 
+## 8. Reading from a Claude Code session
+
+A cloud session can read both logs with its own read-only identity, so the owner doesn't have to paste query results. Create it once, in Cloud Shell (PowerShell, one line):
+
+```powershell
+$accountId = az storage account show -n classmanageraudit -g class-manager-rg --query id -o tsv; az ad sp create-for-rbac --name class-manager-audit-reader --role "Storage Table Data Reader" --scopes $accountId --years 1 -o json; az role assignment create --assignee (az ad sp list --display-name class-manager-audit-reader --query "[0].appId" -o tsv) --role "Storage Blob Data Reader" --scope $accountId
+```
+
+Store the printed `appId`, `password` and `tenant` as the environment secrets `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` and `AZURE_TENANT_ID` (never in a chat or the repository), and allow `login.microsoftonline.com`, `classmanageraudit.table.core.windows.net` and `classmanageraudit.blob.core.windows.net` in the environment's network access. The next session signs in on its own ([cloud environment](cloud-environment.md#every-session)). The secret expires after a year; renew it with `az ad sp credential reset --id <appId> --years 1`.
+
+The identity reads every business's command log (ids, no personal values) and security events (with IPs), and can't write, delete or reach anything else. It doesn't cover the API's logs. Delete it with `az ad sp delete --id <appId>` when it is no longer needed.
+
