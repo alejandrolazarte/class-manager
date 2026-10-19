@@ -9,6 +9,7 @@ using ClassManager.Api.Endpoints;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Api.Orders;
 using ClassManager.Api.SecurityHeaders;
+using ClassManager.Infrastructure.Audit;
 using ClassManager.Subscriptions.AspNetCore.Limits;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,10 @@ builder.Services.AddUseCases();
 builder.Services.AddSingleton<IExpiredOrderCancellationService, ExpiredOrderCancellationService>();
 builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();
 builder.Services.AddHostedService<BackgroundTaskWorker>();
-builder.Services.AddHostedService<CommandAuditWorker>();
+builder.Services.AddHostedService<AuditLogWorker<CommandAuditEntry>>();
+builder.Services.AddHostedService<AuditLogWorker<SecurityEvent>>();
+builder.Services.AddSingleton<SecurityEventThrottle>();
+builder.Services.AddHostedService<SecurityEventBurstWorker>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
 if (builder.Environment.IsDevelopment())
@@ -45,6 +49,7 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(AppCorsServiceCollectionExtensions.AppPolicyName);
+app.UseMiddleware<SecurityEventMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseActiveSubscriptionForChanges();

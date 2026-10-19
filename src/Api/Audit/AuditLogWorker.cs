@@ -2,10 +2,10 @@ using ClassManager.Infrastructure.Audit;
 
 namespace ClassManager.Api.Audit;
 
-internal sealed partial class CommandAuditWorker(
-    CommandAuditChannel channel,
-    ICommandAuditStore store,
-    ILogger<CommandAuditWorker> logger)
+internal sealed partial class AuditLogWorker<TEntry>(
+    AuditLogChannel<TEntry> channel,
+    IAuditLogStore<TEntry> store,
+    ILogger<AuditLogWorker<TEntry>> logger)
     : BackgroundService
 {
     private const int BatchSize = 100;
@@ -35,7 +35,7 @@ internal sealed partial class CommandAuditWorker(
 
     private async Task WriteBatchAsync(CancellationToken cancellationToken)
     {
-        var batch = new List<CommandAuditEntry>(BatchSize);
+        var batch = new List<TEntry>(BatchSize);
         while (batch.Count < BatchSize && channel.Reader.TryRead(out var entry))
         {
             batch.Add(entry);
@@ -47,10 +47,10 @@ internal sealed partial class CommandAuditWorker(
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            LogWriteFailed(logger, exception, batch.Count);
+            LogWriteFailed(logger, exception, batch.Count, typeof(TEntry).Name);
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Writing {EntryCount} command audit entries failed; they are dropped")]
-    private static partial void LogWriteFailed(ILogger logger, Exception exception, int entryCount);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Writing {EntryCount} {EntryType} audit entries failed; they are dropped")]
+    private static partial void LogWriteFailed(ILogger logger, Exception exception, int entryCount, string entryType);
 }

@@ -3,7 +3,7 @@ using ClassManager.Infrastructure.Audit;
 
 namespace ClassManager.Api.I.Tests.Audit;
 
-internal sealed class RecordingCommandAuditStore(int failingWrites = 0) : ICommandAuditStore
+internal sealed class RecordingCommandAuditStore(int failingWrites = 0) : IAuditLogStore<CommandAuditEntry>
 {
     private int _remainingFailures = failingWrites;
 

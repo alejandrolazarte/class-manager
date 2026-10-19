@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ClassManager.Api.Audit;
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Accounts;
@@ -6,6 +7,7 @@ using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Branches;
 using ClassManager.Core.UseCases.Members;
 using ClassManager.Core.UseCases.StudentApp;
+using ClassManager.Infrastructure.Audit;
 using ClassManager.Security.Hosting;
 
 namespace ClassManager.Api.Endpoints;
@@ -20,8 +22,8 @@ internal static class AuthenticationEndpoints
 
         authentication.MapPost(ApiRoutes.SignUp, RequestSignUpAsync);
         authentication.MapPost(ApiRoutes.CompleteSignUp, CompleteSignUpAsync);
-        authentication.MapPost(ApiRoutes.SignIn, SignInAsync);
-        authentication.MapPost(ApiRoutes.Refresh, RefreshAsync);
+        authentication.MapPost(ApiRoutes.SignIn, SignInAsync).WithMetadata(new SecurityEventOnRejection(SecurityEventType.SignInFailed));
+        authentication.MapPost(ApiRoutes.Refresh, RefreshAsync).WithMetadata(new SecurityEventOnRejection(SecurityEventType.RefreshTokenRejected));
         authentication.MapPost(ApiRoutes.SignOut, SignOutAsync);
         authentication.MapPost(ApiRoutes.PasswordResetRequest, RequestPasswordResetAsync);
         authentication.MapPost(ApiRoutes.PasswordReset, ResetPasswordAsync);

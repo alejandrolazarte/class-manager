@@ -1,6 +1,6 @@
 # Audit log
 
-Status: steps 1 to 4 built (step 3's Azure setup done on 2026-10-19, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
+Status: steps 1 to 5 built (step 3's Azure setup done on 2026-10-19, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
 
 Three pieces answer "who did what, and who tried what they were not allowed to":
 
@@ -102,7 +102,7 @@ services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,
 ```
 
 - It measures the duration, runs `nextStep()`, builds the audit entry and **queues** it in an in-memory `Channel<CommandAuditEntry>`. It never waits for Table Storage.
-- `CommandAuditWorker` (a `BackgroundService`) reads the channel and writes in batches (`SubmitTransactionAsync`, up to 100 rows of the same partition per batch). If Table Storage fails it logs a warning and drops the batch: the command already succeeded.
+- `AuditLogWorker<CommandAuditEntry>` (a `BackgroundService`) reads the channel and writes in batches (`SubmitTransactionAsync`, up to 100 rows of the same partition per batch). If Table Storage fails it logs a warning and drops the batch: the command already succeeded.
 - On shutdown the worker drains the channel. With `minReplicas 0` the container stops after five minutes without requests, which gives it time; a crash loses what was in memory (seconds of entries).
 - If the use case throws, the behavior writes the entry with `Outcome = Exception` and the exception type, and rethrows.
 - Queries are not logged. A few queries that read a lot of personal data (exports of students) can opt in with `[AuditedQuery]` on the query type; a second behavior for `IQuery` logs only those.
@@ -181,22 +181,22 @@ Alternative considered: an allowlist (only properties marked `[Audited]` are sto
 | Event | Source | Why |
 |---|---|---|
 | `Forbidden` | Any 403 that is not a plan limit | An authenticated user tried something their role doesn't allow. Rare and worth reading |
-| `SignInFailed` | Sign-in use case (wrong password, locked account) | Password guessing |
-| `RefreshTokenRejected` | Refresh use case (unknown, expired, reused) | A reused refresh token can mean a stolen one |
+| `SignInFailed` | A 401 or 423 from the sign-in endpoint (wrong password, locked account) | Password guessing |
+| `RefreshTokenRejected` | A 401 from the refresh endpoint (unknown, expired, reused) | A reused refresh token can mean a stolen one |
 | `UnauthorizedBurst` | Middleware, 401 counted per IP | Many 401 from the same IP in a minute: one row with the count, not one row per 401 |
 
 Not recorded:
 
 - **A single 401.** Every expired access token returns 401 before the app refreshes it, so most 401s are normal traffic. Worse, anyone can produce 401s without an account: one row per 401 lets a bot fill the table and the bill.
-- **403 for plan limits** (`FeatureNotInPlan`, `SubscriptionInactive` from `PlanAwareAuthorizationResultHandler`). They are a commercial limit, not an attack. The handler marks the request (`HttpContext.Items`) and the middleware skips it.
+- **403 for plan limits** (`FeatureNotInPlan`, `SubscriptionInactive`). They are a commercial limit, not an attack. `PlanLimitResponses.Mark` (`src/Subscriptions.AspNetCore`) marks the request in `HttpContext.Items` wherever one is answered: the `RequireFeature` filter, `ActiveSubscriptionMiddleware` and `PlanAwareAuthorizationResultHandler`; the middleware skips marked ones. A feature limit exceeded (`FeatureLimitExceededException`) is answered by the exception handler, outside the middleware, so it never reaches it.
 
 ### The middleware
 
-- `SecurityEventMiddleware` runs **before** `UseAuthentication` and `UseAuthorization`, calls `await next()`, then reads `Response.StatusCode`. Placed after them it would not see the 401 and 403 they return.
+- `SecurityEventMiddleware` (`src/Api/Audit`) runs **before** `UseAuthentication` and `UseAuthorization`, calls `await next()`, then reads `Response.StatusCode`. Placed after them it would not see the 401 and 403 they return.
 - A 403 is queued as `Forbidden` with the route template (`/api/students/{id}`, not the real path), the method, the user and the tenant.
-- A 401 only increments an in-memory counter per IP. A timer writes one `UnauthorizedBurst` row for every IP that went over a threshold (for example 20 in a minute) and resets the counters.
-- Each IP has a cap of rows per minute; beyond it events are counted, not written. Nothing a client sends can make the API write without limit.
-- `SignInFailed` and `RefreshTokenRejected` are queued by the use cases themselves through `ISecurityEventRecorder`, because the middleware can't tell a wrong password from an expired token.
+- A 401 only increments an in-memory counter per IP (`SecurityEventThrottle`, at most 10,000 addresses tracked). Every minute `SecurityEventBurstWorker` writes one `UnauthorizedBurst` row for every IP with 20 or more 401s, or with events over its cap, and resets the counters.
+- Each IP writes at most 10 events a minute (`AuditLog:MaximumSecurityEventsPerAddressPerMinute`); beyond it events are counted into its burst row, not written. Nothing a client sends can make the API write without limit.
+- `SignInFailed` and `RefreshTokenRejected` come from the same middleware: the sign-in and refresh endpoints carry `SecurityEventOnRejection` metadata naming the event, so a 401 there is told apart from an expired access token elsewhere without touching the use cases. (Built this way instead of an `ISecurityEventRecorder` called by the use cases.) Neither the email typed nor the token is recorded: the command log already has the failed command with personal fields masked.
 - The sign-in, refresh and password reset endpoints keep their rate limiting (`UseRateLimiter`); the events don't replace it.
 
 ### Entry
@@ -208,14 +208,15 @@ One append blob per day in the container `security-events`: `{yyyy}/{MM}/{dd}.js
 | `occurredAt` | Date and time, UTC |
 | `tenantId` | When known, otherwise empty |
 | `event` | `Forbidden`, `SignInFailed`, `RefreshTokenRejected`, `UnauthorizedBurst` |
-| `userId` | When known |
+| `accountId`, `userId` | When known, the same ids as the command log |
+| `statusCode` | The response status |
 | `route`, `method` | Route template and HTTP method |
 | `ipAddress` | The client IP (from `X-Forwarded-For` as configured for Container Apps) |
 | `userAgent` | Cut to 256 characters |
 | `count` | For `UnauthorizedBurst` |
 | `traceId` | Same as the command log |
 
-- The worker appends each batch as one block (`AppendBlockAsync`), creating the day's blob on its first write of the day. An append blob takes up to 50,000 blocks, far more than a day of batches, and the per-IP cap keeps it that way.
+- `AppendBlobSecurityEventStore` (`src/Infrastructure/Audit`) appends each batch as one block (`AppendBlockAsync`). When the day's blob doesn't exist yet (404) it creates it with `If-None-Match: *` and appends again, so the API never needs to read or overwrite a blob, which the writer role doesn't allow. An append blob takes up to 50,000 blocks, far more than a day of batches, and the per-IP cap keeps it that way.
 - The IP address is personal data under the GDPR; security logs are a legitimate interest, which is why these entries have a short retention.
 
 ## Retention
@@ -226,9 +227,9 @@ One append blob per day in the container `security-events`: `{yyyy}/{MM}/{dd}.js
 | Security events | Container `security-events`, a blob per day | 6 months | Enough to investigate an incident; IPs are not kept longer than needed |
 
 - **Commands.** Table Storage has no expiry per row, and deleting rows one by one costs a write each. So each month has its own table (`Commands202610`) and a whole table is deleted when it gets old, which is one operation. The worker creates the table of the month on its first write of that month. It does **not** delete old tables: the API's identity can't delete anything ([Access](#access-private-and-append-only)). The operator deletes them with their own identity (`az storage table delete --auth-mode login`), from a runbook. The first table to delete is 24 months old, so the runbook is first needed at the end of 2028; a scheduled Container Apps job with its own identity can replace it if remembering becomes a problem.
-- **Security events.** The container has a time-based retention policy of 183 days: a blob can't be changed or deleted, by anyone, until 183 days after it was created. A lifecycle management rule deletes blobs older than 190 days in `security-events/`, so nothing needs to run in the API or by hand.
+- **Security events.** The container has a time-based retention policy of 183 days with protected appends: a blob can't be changed or deleted, by anyone, until 183 days after its last append. The lifecycle management rule this plan first proposed doesn't work: Azure's lifecycle delete action skips every blob in a container with an immutability policy, even after its retention ends (checked 2026-10-19 in the lifecycle management docs). So the owner deletes each month's blobs once they are more than 190 days old, from the [runbook](../../audit-log-storage.md#7-deleting-old-security-events), first in April 2027; a scheduled Container Apps job with its own identity can replace it, like for the command tables. Until then nothing expires on its own, and a missed month only keeps a few KB longer.
 
-When a person asks to be erased, their ids stay in the command log (no personal values are stored there) and their security events expire with their day's blob.
+When a person asks to be erased, their ids stay in the command log (no personal values are stored there) and their security events go with their day's blob when it is deleted.
 
 ## Access: private and append only
 
@@ -265,7 +266,7 @@ Azure Storage only has immutable storage (WORM) for blobs, not for tables, which
 
 - Container-level **time-based retention policy** of 183 days with **protected append writes** allowed (`--allow-protected-append-writes true`): new blocks can be appended, existing ones can't be changed, and the blob can't be deleted until the period ends.
 - The policy starts **unlocked**, so it can be tested and changed. Once the writer has been proved in production it is **locked**: from then on the period can only be extended, never shortened or removed, not even by the subscription owner, and the account can't be deleted while it holds protected blobs. That is the reason the logs account is separate: the photos account stays free to change or be deleted.
-- Azurite has no immutability policies, so integration tests cover the format and the writer, and the policy is checked with the audit commands of the runbook.
+- Azurite has no immutability policies, so integration tests cover the format and the writer, and the policy is set by the setup script and checked from the [runbook](../../audit-log-storage.md#the-retention-policy-of-security-events).
 
 ### What stays mutable
 
@@ -279,7 +280,7 @@ The writer is a `BackgroundService` inside the API, like the [background tasks](
 - **A Function needs a hop.** The entries are in the API's memory. To reach a Function, the API would first write them to a Storage Queue, which costs one write per entry, the same as writing the row to Table Storage directly. The Function would then pay a second write. Double the operations, for the same result.
 - **Cost.** Both are close to free at pilot scale: the Functions consumption plans include a monthly free grant of executions, and the background service runs in the container that is already paid for. The difference is not money, it is one more resource to deploy, configure, monitor and keep on a supported plan.
 - **Scale to zero is not a problem for the writer.** Entries are only produced while the API handles requests, so the container is running exactly when there is something to write, and it drains the channel on shutdown.
-- **No timed job.** Security events expire through the retention policy and a lifecycle rule; old command tables are deleted by the operator, who has the permission the API lacks (see [Retention](#retention)).
+- **No timed job in the API.** Old command tables and old security event days are deleted by the operator, who has the permission the API lacks (see [Retention](#retention)).
 
 Move to a Function (fed by a queue) only if the API runs several replicas that should not each write, or if the log has to survive a crash of the API, which the in-memory channel can't promise. In that second case the background tasks described above are the better fit: they already exist and survive a crash.
 
@@ -291,13 +292,13 @@ At first, only the owner reads it, from Azure Storage Explorer signed in with En
 
 1. Rename soft delete to `DeletedAt`, add `DeletedByUserId` and make replaced records soft deleted, with the migration and the record columns test. One PR, no behavior change. **Built.**
 2. `IAuditable` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it. **Built.**
-3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands (**Azure setup done**: account, `security-events` container, role proved and assigned, see the [runbook](../../audit-log-storage.md)). Table client (`Azure.Data.Tables`) through `DefaultAzureCredential` with Azurite in the integration tests, `CommandAuditWorker` with the monthly tables. **Built**, without producers yet:
-   - `src/Infrastructure/Audit`: `CommandAuditEntry` (the row), `ICommandAuditService.Record` (queues an entry, never waits), `CommandAuditChannel` (bounded to 10,000 entries; when full, new entries are dropped rather than holding the request), `TableCommandAuditStore` (creates the table of the month once, then `Add` transactions of up to 100 rows per partition) and an unconfigured store that drops entries when neither `ConnectionStrings:AuditLog` nor `AuditLog:TableServiceUri` is set.
-   - `src/Api/Audit/CommandAuditWorker`: writes the queue in batches of 100, logs and drops a batch that fails, and writes what is left when the API stops.
+3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands (**Azure setup done**: account, `security-events` container, role proved and assigned, see the [runbook](../../audit-log-storage.md)). Table client (`Azure.Data.Tables`) through `DefaultAzureCredential` with Azurite in the integration tests, `AuditLogWorker` with the monthly tables. **Built**, without producers yet:
+   - `src/Infrastructure/Audit`: `CommandAuditEntry` (the row), `ICommandAuditService.Record` (queues an entry, never waits), `AuditLogChannel<CommandAuditEntry>` (bounded to 10,000 entries; when full, new entries are dropped rather than holding the request), `TableCommandAuditStore` (creates the table of the month once, then `Add` transactions of up to 100 rows per partition) and an unconfigured store that drops entries when neither `ConnectionStrings:AuditLog` nor `AuditLog:TableServiceUri` is set.
+   - `src/Api/Audit/AuditLogWorker<CommandAuditEntry>`: writes the queue in batches of 100, logs and drops a batch that fails, and writes what is left when the API stops.
    - Nothing calls `Record` until step 4, which is where the payload is built with personal fields masked: no entry exists before the masking does.
    - The blob client for security events comes with step 5.
 4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules). **Built.** Queries opting in with `[AuditedQuery]` are left for when an export needs it.
-5. `SecurityEventMiddleware`, `ISecurityEventRecorder` in sign-in and refresh, the plan-limit marker, the daily append blobs, the retention policy (unlocked) and the lifecycle rule.
+5. `SecurityEventMiddleware`, sign-in and refresh rejections, the plan-limit marker, the daily append blobs and the retention policy (unlocked). **Built**: rejections are recognized by endpoint metadata instead of an `ISecurityEventRecorder`, and old days are deleted from the runbook instead of a lifecycle rule (see [Retention](#retention)).
 6. Lock the retention policy once security events have been written in production for a while and the runbook's audit commands pass.
 
 Each step starts with its failing tests, as every change in the repository.

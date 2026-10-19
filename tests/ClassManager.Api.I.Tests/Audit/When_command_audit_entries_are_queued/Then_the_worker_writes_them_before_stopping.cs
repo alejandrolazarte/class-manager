@@ -11,10 +11,10 @@ public sealed class Then_the_worker_writes_them_before_stopping
     [Fact]
     public async Task Then_the_worker_writes_them_before_stopping_Run()
     {
-        var channel = new CommandAuditChannel();
+        var channel = new AuditLogChannel<CommandAuditEntry>();
         var store = new RecordingCommandAuditStore();
         var auditLog = new QueuedCommandAuditService(channel);
-        using var worker = new CommandAuditWorker(channel, store, NullLogger<CommandAuditWorker>.Instance);
+        using var worker = new AuditLogWorker<CommandAuditEntry>(channel, store, NullLogger<AuditLogWorker<CommandAuditEntry>>.Instance);
         await worker.StartAsync(CancellationToken.None);
 
         for (var entryNumber = 0; entryNumber < EntryCount; entryNumber++)

@@ -5,7 +5,9 @@
 # by the e2e tests, and exports E2E_DATABASE_CONNECTION_STRING. The daemon and the
 # container (pulling the image when it is missing) start in the background so the
 # session does not wait for them; --wait runs in the foreground until SQL Server
-# is ready. Does nothing on developer machines. Idempotent.
+# is ready. When the environment has the read-only audit service principal
+# (AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID), it also signs the
+# Azure CLI in with it. Does nothing on developer machines. Idempotent.
 set -euo pipefail
 
 readonly SQL_SERVER_IMAGE="mcr.microsoft.com/mssql/server:2022-latest"
@@ -19,6 +21,7 @@ readonly DOCKER_LOG_FILE="/tmp/dockerd.log"
 readonly DOCKER_READY_TIMEOUT_SECONDS=30
 readonly BACKGROUND_LOG_FILE="/tmp/cloud-session-start.log"
 readonly WAIT_ARGUMENT="--wait"
+readonly AZURE_SIGN_IN_LOG_FILE="/tmp/azure-sign-in.log"
 
 log() { echo "[cloud-session-start] $*" >&2; }
 
@@ -100,7 +103,22 @@ start_docker_and_sql_server() {
   start_docker_daemon && start_sql_server
 }
 
+azure_service_principal_is_configured() {
+  [ -n "${AZURE_CLIENT_ID:-}" ] && [ -n "${AZURE_CLIENT_SECRET:-}" ] && [ -n "${AZURE_TENANT_ID:-}" ]
+}
+
+sign_in_to_azure() {
+  if ! command -v az >/dev/null 2>&1 || ! azure_service_principal_is_configured; then
+    return 0
+  fi
+  log "Signing the Azure CLI in as $AZURE_CLIENT_ID in the background, see $AZURE_SIGN_IN_LOG_FILE"
+  az login --service-principal --username "$AZURE_CLIENT_ID" --password="$AZURE_CLIENT_SECRET" \
+    --tenant "$AZURE_TENANT_ID" --allow-no-subscriptions --output none </dev/null >>"$AZURE_SIGN_IN_LOG_FILE" 2>&1 &
+  disown
+}
+
 export_e2e_connection_string
+sign_in_to_azure
 if [ "${1:-}" = "$WAIT_ARGUMENT" ]; then
   start_docker_and_sql_server || exit 1
 else
