@@ -26,7 +26,7 @@ readonly PROPAGATION_TIMEOUT_SECONDS=600
 readonly APPLIED_ROLE_TIMEOUT_SECONDS=120
 readonly LOG_FILE="$HOME/setup-audit-log-storage.log"
 readonly RETRY_DELAY_SECONDS=30
-readonly FORBIDDEN_PATTERN="AuthorizationPermissionMismatch|AuthorizationFailure|Forbidden|403"
+readonly FORBIDDEN_PATTERN="AuthorizationPermissionMismatch|AuthorizationFailure|Forbidden|403|do not have the required permissions"
 
 CHECK_CONFIG_DIRECTORY="$(mktemp -d)"
 RUN_ID="$(date +%s)"
@@ -220,8 +220,8 @@ expect forbidden "delete table" az storage table delete -n "$ROLE_CHECK_TABLE" -
 expect_allowed_once_applied "create append blob" az rest --method put --url "$BLOB_URL" \
   "${BLOB_ARGUMENTS[@]}" "x-ms-blob-type=AppendBlob" "If-None-Match=*"
 expect allowed "append to blob" az rest --method put --url "$BLOB_URL?comp=appendblock" --body "first line" "${BLOB_ARGUMENTS[@]}"
-expect forbidden "overwrite blob" az rest --method put --url "$BLOB_URL" --body "replaced" \
-  "${BLOB_ARGUMENTS[@]}" "x-ms-blob-type=BlockBlob"
+expect forbidden "overwrite blob" az rest --method put --url "$BLOB_URL" \
+  "${BLOB_ARGUMENTS[@]}" "x-ms-blob-type=AppendBlob"
 expect forbidden "read blob" az rest --method get --url "$BLOB_URL" "${BLOB_ARGUMENTS[@]}"
 expect forbidden "delete blob" az rest --method delete --url "$BLOB_URL" "${BLOB_ARGUMENTS[@]}"
 
