@@ -302,7 +302,7 @@ export function StudentMeasurementScreen({
                 {canRecord ? (
                   <IconButton
                     icon="delete"
-                    tone="danger"
+                    tone="muted-foreground"
                     accessibilityLabel={translate("measurements.detail.deleteRecord", {
                       date: formatMeasurementDate(record.measuredOn),
                     })}

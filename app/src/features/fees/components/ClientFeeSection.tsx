@@ -151,7 +151,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
                     {canRecordPayments ? (
                       <IconButton
                         icon="delete"
-                        tone="subtle-foreground"
+                        tone="muted-foreground"
                         accessibilityLabel={translate("fees.client.deleteUpcomingChange", {
                           month: formatMonth(change.effectiveFrom),
                         })}
@@ -205,7 +205,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
               {canUndoPayment(payment.recordedByUserId) ? (
                 <IconButton
                   icon="delete"
-                  tone="subtle-foreground"
+                  tone="muted-foreground"
                   accessibilityLabel={translate("fees.client.deletePaymentOf", {
                     amount: formatMoney(payment.amount, payment.currencyCode),
                   })}
