@@ -51,6 +51,8 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
 
     public string ConnectionString => _container.GetConnectionString();
 
+    public string StorageConnectionString => _storageContainer.GetConnectionString();
+
     public HttpClient AnonymousClient { get; } = new();
 
     public BusinessApiFactory ApiFactory => _apiFactory ?? throw new InvalidOperationException(nameof(InitializeAsync));
