@@ -69,22 +69,7 @@ public sealed class RecordAttendanceUseCase(
             sessionRepository.Add(session);
         }
 
-        var attendance = await attendanceRepository.FindForUpdateAsync(session.Id, command.StudentId, cancellationToken);
-        if (command.Status is null)
-        {
-            if (attendance is not null)
-            {
-                attendanceRepository.Remove(attendance);
-            }
-        }
-        else if (attendance is null)
-        {
-            attendanceRepository.Add(Attendance.Create(session.Id, command.StudentId, command.Status.Value));
-        }
-        else
-        {
-            attendance.ChangeStatus(command.Status.Value);
-        }
+        await AttendanceMarks.ApplyAsync(attendanceRepository, session, command.StudentId, command.Status, cancellationToken);
 
         try
         {

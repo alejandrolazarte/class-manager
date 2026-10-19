@@ -4,11 +4,13 @@ import {
   assignSubstitute,
   cancelSession,
   recordAttendance,
+  recordClassAttendance,
   recordFeedback,
   removeSubstitute,
   rescheduleSession,
   restoreSession,
   restoreSessionSchedule,
+  StudentAttendance,
 } from "@/features/sessions/sessionsApi";
 import { AttendanceStatus, SessionDetails } from "@/features/sessions/types";
 
@@ -56,6 +58,33 @@ export function useRecordAttendance(classGroupId: string, sessionDate: string) {
             ...session,
             students: session.students.map((student) =>
               student.studentId === studentId ? { ...student, status } : student,
+            ),
+          },
+      );
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: sessionQueryKeys.day(sessionDate) }),
+        queryClient.invalidateQueries({ queryKey: sessionQueryKeys.calendars() }),
+      ]);
+    },
+  });
+}
+
+export function useRecordClassAttendance(classGroupId: string, sessionDate: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (students: StudentAttendance[]) =>
+      recordClassAttendance(classGroupId, sessionDate, students),
+    onSuccess: async (_, students) => {
+      const statusByStudent = new Map(students.map(({ studentId, status }) => [studentId, status]));
+      queryClient.setQueryData<SessionDetails>(
+        sessionQueryKeys.session(classGroupId, sessionDate),
+        (session) =>
+          session && {
+            ...session,
+            students: session.students.map((student) =>
+              statusByStudent.has(student.studentId)
+                ? { ...student, status: statusByStudent.get(student.studentId) ?? null }
+                : student,
             ),
           },
       );

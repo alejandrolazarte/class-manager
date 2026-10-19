@@ -25,6 +25,13 @@ public static class SessionRequests
             new RecordAttendanceRequest(status),
             ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PutClassAttendanceAsync(
+        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, IReadOnlyList<StudentAttendance> students) =>
+        httpClient.PutAsJsonAsync(
+            $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Attendance}",
+            new RecordClassAttendanceRequest(students),
+            ApiRequests.JsonOptions);
+
     public static Task<HttpResponseMessage> PutSubstituteAsync(
         this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, Guid instructorId) =>
         httpClient.PutAsJsonAsync(

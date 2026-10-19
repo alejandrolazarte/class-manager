@@ -73,6 +73,19 @@ internal sealed class SessionUseCaseBuilder
             ]);
     }
 
+    public Guid EnrollAnotherStudent()
+    {
+        var anotherStudentId = Guid.CreateVersion7();
+        Enrollments
+            .Setup(repository => repository.ListRosterOnAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RosterEntry(Guid.CreateVersion7(), EnrolledStudentId, TestData.StudentFullName, null, Guid.CreateVersion7(), TestData.ClientFullName, TestData.Today, null),
+                new RosterEntry(Guid.CreateVersion7(), anotherStudentId, TestData.StudentFullName, null, Guid.CreateVersion7(), TestData.ClientFullName, TestData.Today, null),
+            ]);
+        return anotherStudentId;
+    }
+
     public ClassSession CancelledSession()
     {
         var session = ClassSession.Create(ClassGroup.Id, TestData.Today, TestData.Now);
@@ -82,6 +95,9 @@ internal sealed class SessionUseCaseBuilder
     }
 
     public RecordAttendanceUseCase BuildRecord() =>
+        new(ClassGroups.Object, Enrollments.Object, MakeupBookings.Object, PackBookings.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
+
+    public RecordClassAttendanceUseCase BuildRecordClass() =>
         new(ClassGroups.Object, Enrollments.Object, MakeupBookings.Object, PackBookings.Object, Sessions.Object, Attendances.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), new EveryAccessScopes());
 
     public CancelSessionUseCase BuildCancel() =>
