@@ -33,9 +33,7 @@ import { useInviteMember } from "@/features/members/useTeamMutations";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
-import { SamePersonDialog } from "@/features/users/components/SamePersonDialog";
-import { SamePerson, samePersonOf } from "@/features/users/samePerson";
-import { userErrorCodes } from "@/features/users/userErrorCodes";
+import { useSamePersonQuestion } from "@/features/users/useSamePersonQuestion";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate, translateCount } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
@@ -73,7 +71,9 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
   const canManageMembers = useCan(permissions.membersManage);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
-  const [samePerson, setSamePerson] = useState<SamePerson | null>(null);
+  const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion(
+    "people.samePerson.inBusiness",
+  );
   const form = useForm<InstructorFormValues>({
     resolver: zodResolver(instructorSchema),
     defaultValues: toInstructorFormValues(instructor, access.member?.email),
@@ -135,11 +135,20 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
         await resendInvitationIfEmailChanged(request.email);
         showToast(translate("instructors.form.saved"));
       }
-      setSamePerson(null);
       router.back();
     } catch (saveError) {
-      setSamePerson(samePersonOf(saveError, request.email ?? ""));
-      if (isApiError(saveError) && saveError.hasCode(userErrorCodes.samePerson)) {
+      if (
+        askIfSamePerson(
+          saveError,
+          request.email ?? "",
+          (samePersonUserId) => saveRequest({ ...request, samePersonUserId }),
+          () =>
+            form.setError("email", {
+              type: "server",
+              message: translate("apiErrors.user.email_taken"),
+            }),
+        )
+      ) {
         return;
       }
       if (isApiError(saveError) && saveError.hasCode(instructorErrorCodes.emailUsedToSignIn)) {
@@ -204,26 +213,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
           message={translateCount("instructors.form.hasActiveClassGroups", activeClassGroupCount)}
         />
       ) : null}
-      {samePerson ? (
-        <SamePersonDialog
-          person={samePerson}
-          messageKey="people.samePerson.inBusiness"
-          onCancel={() => {
-            setSamePerson(null);
-            form.setError("email", {
-              type: "server",
-              message: translate("apiErrors.user.email_taken"),
-            });
-          }}
-          onConfirm={() =>
-            void saveRequest({
-              ...toSaveInstructorRequest(form.getValues()),
-              samePersonUserId: samePerson.userId,
-            })
-          }
-          isConfirming={saveInstructorMutation.isPending}
-        />
-      ) : null}
+      {samePersonDialog}
       <RequiredFieldsLegend />
       <Controller
         control={form.control}
