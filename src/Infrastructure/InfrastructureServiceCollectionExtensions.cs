@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Infrastructure.Announcements;
+using ClassManager.Infrastructure.Audit;
 using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Notifications;
@@ -40,6 +41,7 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         services.AddTenantStamping();
+        services.AddAuditLog();
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         {
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
@@ -50,6 +52,7 @@ public static class InfrastructureServiceCollectionExtensions
                 .AddInterceptors(
                     serviceProvider.GetRequiredService<BackgroundTaskSignalInterceptor>(),
                     new SoftDeleteSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>()),
+                    new AuditSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>(), serviceProvider.GetRequiredService<ICurrentUser>()),
                     serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>(),
                     serviceProvider.GetRequiredService<FeatureLimitSaveChangesInterceptor<AppDbContext>>());
         });

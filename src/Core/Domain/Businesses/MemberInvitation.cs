@@ -1,11 +1,11 @@
 using System.Net.Mail;
-
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Businesses;
 
-public sealed class MemberInvitation : ITenantOwned
+public sealed class MemberInvitation : ITenantOwned, IAuditable
 {
     public const int EmailMaxLength = 254;
     public const int TokenHashLength = 64;
@@ -27,6 +27,9 @@ public sealed class MemberInvitation : ITenantOwned
     public string TokenHash { get; private set; } = string.Empty;
     public Guid? InvitedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset ExpiresAt { get; private set; }
     public DateTimeOffset? AcceptedAt { get; private set; }
     public DateTimeOffset? RevokedAt { get; private set; }

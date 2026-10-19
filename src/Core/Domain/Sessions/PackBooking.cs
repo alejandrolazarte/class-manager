@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Sessions;
 
-public sealed class PackBooking : ITenantOwned
+public sealed class PackBooking : ITenantOwned, IAuditable
 {
     private PackBooking()
     {
@@ -13,6 +14,9 @@ public sealed class PackBooking : ITenantOwned
     public Guid ClassSessionId { get; private set; }
     public Guid StudentId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static PackBooking Create(Guid classSessionId, Guid studentId, DateTimeOffset createdAt) =>
         new()

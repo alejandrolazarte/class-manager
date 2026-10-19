@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Sessions;
 
-public sealed class AbsenceNotice : ITenantOwned
+public sealed class AbsenceNotice : ITenantOwned, IAuditable
 {
     private AbsenceNotice()
     {
@@ -14,6 +15,9 @@ public sealed class AbsenceNotice : ITenantOwned
     public Guid StudentId { get; private set; }
     public bool KeepsStreak { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static AbsenceNotice Create(Guid classSessionId, Guid studentId, bool keepsStreak, DateTimeOffset createdAt) =>
         new()

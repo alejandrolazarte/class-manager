@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Documents;
 
-public sealed class Document : ITenantOwned
+public sealed class Document : ITenantOwned, IAuditable
 {
     public const int PathMaxLength = 300;
     public const int ContentTypeMaxLength = 64;
@@ -18,6 +19,9 @@ public sealed class Document : ITenantOwned
     public long SizeInBytes { get; private set; }
     public DocumentVisibility Visibility { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static Document Create(
         Guid id,

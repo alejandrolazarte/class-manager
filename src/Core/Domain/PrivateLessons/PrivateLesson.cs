@@ -2,11 +2,12 @@ using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.PrivateLessons;
 
-public sealed class PrivateLesson : ITenantOwned
+public sealed class PrivateLesson : ITenantOwned, IAuditable
 {
     public const int MinimumStudents = 1;
     public const int MaximumStudents = 4;
@@ -45,6 +46,9 @@ public sealed class PrivateLesson : ITenantOwned
     public bool IsTrial { get; private set; }
     public decimal? TrialPrice { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public IReadOnlyList<PrivateLessonStudent> Students => _students;
 
     public TimeOnly EndTime => StartTime.AddMinutes(DurationMinutes);

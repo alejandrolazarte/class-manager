@@ -14,6 +14,9 @@ public sealed class Then_it_implements_the_record_interfaces(ApiFixture fixture)
         [nameof(ISoftDeletable.IsDeleted)] = [typeof(ISoftDeletable)],
         [nameof(ISoftDeletable.DeletedAt)] = [typeof(ISoftDeletable)],
         [nameof(ISoftDeletable.DeletedByUserId)] = [typeof(ISoftDeletable)],
+        [nameof(IAuditable.CreatedByUserId)] = [typeof(IAuditable)],
+        [nameof(IAuditable.UpdatedAt)] = [typeof(IAuditable)],
+        [nameof(IAuditable.UpdatedByUserId)] = [typeof(IAuditable)],
         [ReplacedDeletedOnColumn] = [],
     };
 

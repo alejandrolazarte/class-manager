@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Achievements;
 
-public sealed class AchievementLevel : ITenantOwned
+public sealed class AchievementLevel : ITenantOwned, IAuditable
 {
     private AchievementLevel()
     {
@@ -10,6 +11,10 @@ public sealed class AchievementLevel : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public int Position { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public int RequiredClasses { get; private set; }

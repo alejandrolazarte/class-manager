@@ -1,6 +1,6 @@
 # Audit log
 
-Status: proposal.
+Status: steps 1 to 3 built (step 3's Azure setup done on 2026-10-19, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
 
 Three pieces answer "who did what, and who tried what they were not allowed to":
 
@@ -50,7 +50,7 @@ Soft delete broke this. `ISoftDeletable.DeletedOn` was an event (a user deleted 
 |---|---|---|---|
 | `ISoftDeletable` | `IsDeleted`, `DeletedOn` | `IsDeleted`, `DeletedAt`, `DeletedByUserId` | The row was deleted or replaced. Hidden by the `SoftDelete` filter |
 | `IDeletedOn` (records) | `DeletedOn` | Removed | Replacing a record is now a soft delete of the current one plus the new row |
-| `IAudited` (new) | — | `CreatedAt`, `CreatedByUserId`, `UpdatedAt`, `UpdatedByUserId` | Who created and who last changed the row |
+| `IAuditable` (new) | — | `CreatedAt`, `CreatedByUserId`, `UpdatedAt`, `UpdatedByUserId` | Who created and who last changed the row |
 
 Nothing read replaced subscriptions: `IsActiveOn(date)` already required the record to be current, and every query used `WhereCurrent()`. So the replaced records (`Subscription`, `SubscriptionFeature`) became soft deleted rows, and the app has one way to delete. The history stays in the table and can be read by skipping the named `SoftDelete` filter.
 
@@ -60,31 +60,34 @@ What the change touched (13 entities: `BusinessMember`, `OrganizationMember`, `P
 - `SoftDeleteModelBuilderExtensions`: the check constraint became `CK_<Table>_IsDeleted_DeletedAt`.
 - One migration (`UseDeletedAtForSoftDelete`): `RenameColumn` (`sp_rename`, instant, no data copy), drop and create each check constraint, add `DeletedByUserId` (nullable, `null` for rows deleted before the change), and for `billing.Subscriptions` and `billing.SubscriptionFeatures` add `IsDeleted`, set it to 1 where `DeletedAt` has a value, and filter their unique indexes on `[IsDeleted] = 0`.
 - The record columns test maps `IsDeleted`, `DeletedAt` and `DeletedByUserId` to `ISoftDeletable` and rejects a column named `DeletedOn`.
-- `DeletedByUserId` is left empty until step 2 fills it.
+- `DeletedByUserId` was left empty until step 2 filled it.
 
-### `IAudited`
+### `IAuditable` (built)
 
 ```csharp
 namespace ClassManager.Records;
 
-public interface IAudited
+public interface IAuditable
 {
     DateTimeOffset CreatedAt { get; }
     Guid? CreatedByUserId { get; }
-    DateTimeOffset? UpdatedAt { get; }
+    DateTimeOffset UpdatedAt { get; }
     Guid? UpdatedByUserId { get; }
 }
 ```
 
-- Lives in `src/Records` (no dependencies).
-- `AuditSaveChangesInterceptor` in `src/Infrastructure/Persistence` fills them, the same way `TenantStampingSaveChangesInterceptor` fills `TenantId`:
-  - `Added`: `CreatedAt` = now (from `TimeProvider`) when the entity didn't set it, `CreatedByUserId` = current user.
-  - `Modified`: `UpdatedAt` = now, `UpdatedByUserId` = current user.
-  - Soft deleted (`SoftDeleteSaveChangesInterceptor` turns the remove into `Delete(now)`): `DeletedByUserId` = current user. The audit interceptor runs after the soft delete one.
-- The current user comes from the `sub` claim through a small `ICurrentUser` in `Core`. Work with no user (the background worker, sign-up before the account exists, seeding) leaves the `ByUserId` columns `null`.
-- Entities that already set `CreatedAt` in their constructor keep doing it; the interceptor doesn't overwrite it. `ClassFeedback.UpdatedAt` and `BrandLogo.UpdatedAt` become the `IAudited` ones.
+- Lives in `src/Records` (no dependencies). Named `IAuditable`, as agreed in the [users plan](../20261017-users/plan.md#audit-columns).
+- Every tenant-owned entity implements it (47 tables, migration `AddAuditColumns`).
+- `UpdatedAt` is not nullable: it is the last write, so a new row has `UpdatedAt` = `CreatedAt` and `UpdatedByUserId` = `CreatedByUserId`. `ClassFeedback.UpdatedAt` (the comment's date, filtered and sorted by it) and `BrandLogo.UpdatedAt` (the logo's `Last-Modified`) already worked that way and became the `IAuditable` ones.
+- `AuditSaveChangesInterceptor` in `src/Infrastructure/Persistence` fills them, registered after `SoftDeleteSaveChangesInterceptor`:
+  - `Added`: `CreatedAt` = now (from `TimeProvider`) and `CreatedByUserId` = current user, unless the entity set them (`Order.CreatedByUserId` is the buyer or the staff member who placed it); `UpdatedAt` and `UpdatedByUserId` = the same.
+  - `Modified`: `UpdatedAt` = now and `UpdatedByUserId` = current user, unless the entity changed them itself.
+  - Soft deleted (`SoftDeleteSaveChangesInterceptor` turns the remove into `Delete(now)`): `DeletedByUserId` = current user when empty, on every `ISoftDeletable`. A delete doesn't count as an update: `UpdatedAt` and `UpdatedByUserId` keep the last edit. `Restore()` clears `DeletedByUserId`.
+- The current user is `ICurrentUser.UserId`: the session's `Users` row in the branch (claim `user_id`), not the account. All three `...ByUserId` columns are foreign keys to `Users` (`ApplyWhoDidWhatForeignKeys`). Work with no user (the background worker, sign-up before the user exists, seeding) leaves them `null`.
+- Existing rows: `CreatedAt` = the migration's time in the 19 tables that didn't have it, `UpdatedAt` = `CreatedAt`, both `...ByUserId` `null`.
+- Set-based writes (`ExecuteUpdate`, `ExecuteDelete`) skip interceptors and set the columns themselves, as `AccountLinkRepository` does with `DeletedByUserId`.
 - Business columns with their own meaning stay: `RecordedByUserId` (who took the payment), `CancelledByUserId`, `InvitedByUserId`. `UpdatedByUserId` says who last touched the row, not who did a business action.
-- A test fails if a tenant-owned entity doesn't implement `IAudited`, like the record columns test.
+- Tests: every tenant-owned entity implements `IAuditable`; the record columns test maps `CreatedByUserId`, `UpdatedAt` and `UpdatedByUserId` to it; and through the API, a new row records its creator, an edit by another owner records them as the last editor, and a deleted payment records who deleted it.
 
 ## 2. Command log
 
@@ -99,7 +102,7 @@ services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,
 ```
 
 - It measures the duration, runs `nextStep()`, builds the audit entry and **queues** it in an in-memory `Channel<CommandAuditEntry>`. It never waits for Table Storage.
-- `AuditWorker` (a `BackgroundService`) reads the channel and writes in batches (`SubmitTransactionAsync`, up to 100 rows of the same partition per batch). If Table Storage fails it logs a warning and drops the batch: the command already succeeded.
+- `CommandAuditWorker` (a `BackgroundService`) reads the channel and writes in batches (`SubmitTransactionAsync`, up to 100 rows of the same partition per batch). If Table Storage fails it logs a warning and drops the batch: the command already succeeded.
 - On shutdown the worker drains the channel. With `minReplicas 0` the container stops after five minutes without requests, which gives it time; a crash loses what was in memory (seconds of entries).
 - If the use case throws, the behavior writes the entry with `Outcome = Exception` and the exception type, and rethrows.
 - Queries are not logged. A few queries that read a lot of personal data (exports of students) can opt in with `[AuditedQuery]` on the query type; a second behavior for `IQuery` logs only those.
@@ -113,7 +116,8 @@ Table `Commands{yyyyMM}` (one table per month, see [Retention](#retention)).
 | `PartitionKey` | `TenantId` (`none` for commands without a tenant, such as sign-up) |
 | `RowKey` | Inverted ticks + `_` + a new `Guid` (newest first, unique) |
 | `Command` | `typeof(TCommand).Name`, for example `RecordPaymentCommand` |
-| `UserId` | `sub` claim, or empty |
+| `AccountId` | The account (`sub` claim), or empty |
+| `UserId` | The session's user in the branch (`ICurrentUser.UserId`), or empty. Both are kept: the account says who the person is across branches, the user matches the `...ByUserId` columns of the rows |
 | `Outcome` | `Succeeded`, `Failed` or `Exception` |
 | `ErrorKind`, `ErrorCode` | From `Result` when it failed, or the exception type |
 | `DurationMs` | Duration of the use case with its transaction |
@@ -220,6 +224,8 @@ The logs answer "who did what" after something went wrong, so whoever compromise
 
 ### A storage account of its own
 
+`classmanageraudit`, in France Central like the API, created on 2026-10-19. Its settings and commands are in the [runbook](../../audit-log-storage.md).
+
 - **Separate from the photos account.** The photos account allows anonymous reads on its public container (shop photos) and the API reaches it with a connection string, which carries the account key: full access to everything, tables included. The logs account has neither.
 - **No anonymous access** (`--allow-blob-public-access false`). Tables never have anonymous access; the setting covers the `security-events` container.
 - **No account key** (`--allow-shared-key-access false`). Only Microsoft Entra identities with a role can reach the data, so there is no key that can leak. The API uses its system-assigned managed identity, the one it already uses for SQL ([pilot deployment](../../pilot-deployment.md)), through `DefaultAzureCredential` (new package `Azure.Identity`). The configuration holds only the service URIs, never a secret. Azurite in development and tests keeps its connection string.
@@ -232,12 +238,13 @@ Built-in roles such as Storage Table Data Contributor allow updating and deletin
 
 | Permission | Why |
 |---|---|
-| `Microsoft.Storage/storageAccounts/tableServices/tables/read`, `.../tables/write` | Create the table of the month. No `.../tables/delete` |
+| `Microsoft.Storage/storageAccounts/tableServices/tables/write` | Create the table of the month. No `.../tables/delete`, and no `.../tables/read`: the writer never lists tables |
 | Data action `Microsoft.Storage/storageAccounts/tableServices/tables/entities/add/action` | Insert rows. No `read`, `write` (upsert), `update/action` or `delete`, so a row can't be read, replaced or removed through the API |
-| Data actions `Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write`, `.../blobs/add/action` | Create the day's blob and append to it. Overwriting or deleting a blob under the retention policy is refused anyway |
+| Data action `Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action` | Create the day's blob (Put Blob of a blob that doesn't exist) and append to it (Append Block). No `.../blobs/write`, so a blob can't be overwritten even before the retention policy exists |
 
 - Rows are inserted with `TableTransactionActionType.Add` (`AddEntity`), never upsert: the `RowKey` is new every time, and an upsert would need the update permission.
-- The exact permission names are checked against Azure's list of storage operations when the role is created, and the role is proved by hand: inserting works, while reading, updating and deleting a row, and deleting a table, answer 403.
+- The exact permission names were checked against Azure's list of storage operations, and the role is proved by hand with a temporary service principal that has only this role: inserting and appending work, while reading, updating and deleting a row or a blob, and listing or deleting tables, answer 403 ([runbook](../../audit-log-storage.md#3-run-the-setup-script)).
+- The API can't create containers: the owner creates `security-events` once ([runbook](../../audit-log-storage.md#3-run-the-setup-script)).
 - Reading the logs is a separate person's role: the owner gets Storage Table Data Reader and Storage Blob Data Reader on the account and reads with Azure Storage Explorer signed in with Entra.
 
 ### Immutable security events
@@ -271,8 +278,12 @@ At first, only the owner reads it, from Azure Storage Explorer signed in with En
 ## Steps
 
 1. Rename soft delete to `DeletedAt`, add `DeletedByUserId` and make replaced records soft deleted, with the migration and the record columns test. One PR, no behavior change. **Built.**
-2. `IAudited`, `ICurrentUser` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it.
-3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands. Table client (`Azure.Data.Tables`) and blob client through `DefaultAzureCredential` with Azurite in the integration tests, `AuditWorker` with the monthly tables.
+2. `IAuditable` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it. **Built.**
+3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands (**Azure setup done**: account, `security-events` container, role proved and assigned, see the [runbook](../../audit-log-storage.md)). Table client (`Azure.Data.Tables`) through `DefaultAzureCredential` with Azurite in the integration tests, `CommandAuditWorker` with the monthly tables. **Built**, without producers yet:
+   - `src/Infrastructure/Audit`: `CommandAuditEntry` (the row), `ICommandAuditService.Record` (queues an entry, never waits), `CommandAuditChannel` (bounded to 10,000 entries; when full, new entries are dropped rather than holding the request), `TableCommandAuditStore` (creates the table of the month once, then `Add` transactions of up to 100 rows per partition) and an unconfigured store that drops entries when neither `ConnectionStrings:AuditLog` nor `AuditLog:TableServiceUri` is set.
+   - `src/Api/Audit/CommandAuditWorker`: writes the queue in batches of 100, logs and drops a batch that fails, and writes what is left when the API stops.
+   - Nothing calls `Record` until step 4, which is where the payload is built with personal fields masked: no entry exists before the masking does.
+   - The blob client for security events comes with step 5.
 4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules).
 5. `SecurityEventMiddleware`, `ISecurityEventRecorder` in sign-in and refresh, the plan-limit marker, the daily append blobs, the retention policy (unlocked) and the lifecycle rule.
 6. Lock the retention policy once security events have been written in production for a while and the runbook's audit commands pass.
