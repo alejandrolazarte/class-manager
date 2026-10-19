@@ -239,8 +239,8 @@ Built-in roles such as Storage Table Data Contributor allow updating and deletin
 | Data action `Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action` | Create the day's blob (Put Blob of a blob that doesn't exist) and append to it (Append Block). No `.../blobs/write`, so a blob can't be overwritten even before the retention policy exists |
 
 - Rows are inserted with `TableTransactionActionType.Add` (`AddEntity`), never upsert: the `RowKey` is new every time, and an upsert would need the update permission.
-- The exact permission names were checked against Azure's list of storage operations, and the role is proved by hand with a temporary service principal that has only this role: inserting and appending work, while reading, updating and deleting a row or a blob, and listing or deleting tables, answer 403 ([runbook](../../audit-log-storage.md#4-prove-the-role)).
-- The API can't create containers: the owner creates `security-events` once ([runbook](../../audit-log-storage.md#2-the-security-events-container)).
+- The exact permission names were checked against Azure's list of storage operations, and the role is proved by hand with a temporary service principal that has only this role: inserting and appending work, while reading, updating and deleting a row or a blob, and listing or deleting tables, answer 403 ([runbook](../../audit-log-storage.md#3-run-the-setup-script)).
+- The API can't create containers: the owner creates `security-events` once ([runbook](../../audit-log-storage.md#3-run-the-setup-script)).
 - Reading the logs is a separate person's role: the owner gets Storage Table Data Reader and Storage Blob Data Reader on the account and reads with Azure Storage Explorer signed in with Entra.
 
 ### Immutable security events
