@@ -1,6 +1,6 @@
 # Audit log
 
-Status: step 1 built; step 3's storage account created, its role set up by a script ([runbook](../../audit-log-storage.md)); the rest is a proposal.
+Status: step 1 built; step 3's Azure setup done on 2026-10-19 (account, container, role proved and given to the API, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
 
 Three pieces answer "who did what, and who tried what they were not allowed to":
 
@@ -275,7 +275,7 @@ At first, only the owner reads it, from Azure Storage Explorer signed in with En
 
 1. Rename soft delete to `DeletedAt`, add `DeletedByUserId` and make replaced records soft deleted, with the migration and the record columns test. One PR, no behavior change. **Built.**
 2. `IAudited`, `ICurrentUser` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it.
-3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands (**account created**, the role and its proof in the [runbook](../../audit-log-storage.md)). Table client (`Azure.Data.Tables`) and blob client through `DefaultAzureCredential` with Azurite in the integration tests, `AuditWorker` with the monthly tables.
+3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands (**Azure setup done**: account, `security-events` container, role proved and assigned, see the [runbook](../../audit-log-storage.md); the code is pending). Table client (`Azure.Data.Tables`) and blob client through `DefaultAzureCredential` with Azurite in the integration tests, `AuditWorker` with the monthly tables.
 4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules).
 5. `SecurityEventMiddleware`, `ISecurityEventRecorder` in sign-in and refresh, the plan-limit marker, the daily append blobs, the retention policy (unlocked) and the lifecycle rule.
 6. Lock the retention policy once security events have been written in production for a while and the runbook's audit commands pass.
