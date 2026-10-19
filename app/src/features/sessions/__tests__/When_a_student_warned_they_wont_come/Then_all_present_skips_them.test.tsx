@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { SessionScreen } from "@/features/sessions/screens/SessionScreen";
-import { getSession, recordAttendance } from "@/features/sessions/sessionsApi";
+import { getSession, recordClassAttendance } from "@/features/sessions/sessionsApi";
 import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildSessionDetails, buildSessionStudent, sessionDate } from "@/testing/sessionFactory";
@@ -21,7 +21,7 @@ const session = buildSessionDetails({
 describe("When a student warned they won't come", () => {
   beforeEach(() => {
     jest.mocked(getSession).mockResolvedValue(session);
-    jest.mocked(recordAttendance).mockResolvedValue(undefined);
+    jest.mocked(recordClassAttendance).mockResolvedValue(undefined);
   });
 
   it("Then all present skips them", async () => {
@@ -37,13 +37,10 @@ describe("When a student warned they won't come", () => {
     );
 
     await waitFor(() =>
-      expect(recordAttendance).toHaveBeenCalledWith(
-        session.classGroupId,
-        sessionDate,
-        "coming",
-        "Present",
-      ),
+      expect(recordClassAttendance).toHaveBeenCalledWith(session.classGroupId, sessionDate, [
+        { studentId: "coming", status: "Present" },
+      ]),
     );
-    expect(recordAttendance).toHaveBeenCalledTimes(1);
+    expect(recordClassAttendance).toHaveBeenCalledTimes(1);
   });
 });

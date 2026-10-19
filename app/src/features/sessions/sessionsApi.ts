@@ -44,6 +44,21 @@ export function recordAttendance(
   );
 }
 
+export interface StudentAttendance {
+  studentId: string;
+  status: AttendanceStatus | null;
+}
+
+export function recordClassAttendance(
+  classGroupId: string,
+  sessionDate: string,
+  students: StudentAttendance[],
+): Promise<void> {
+  return httpClient.put<void>(`${sessionPath(classGroupId, sessionDate)}/${attendanceSegment}`, {
+    students,
+  });
+}
+
 export function recordFeedback(
   classGroupId: string,
   sessionDate: string,
