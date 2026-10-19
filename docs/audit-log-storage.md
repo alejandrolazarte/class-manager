@@ -63,7 +63,7 @@ The repository is private, so copy the script into Cloud Shell: **Manage files â
 bash setup-audit-log-storage.sh
 ```
 
-It can be run again at any time: it skips what already exists and first removes any temporary service principal left by a run that was cut off (Cloud Shell closes after 20 minutes without input). Everything it prints is also appended to `~/setup-audit-log-storage.log`, which survives the session: `cat ~/setup-audit-log-storage.log` after reconnecting.
+It can be run again at any time: it skips what already exists and first removes any temporary service principal left by a run that was cut off (Cloud Shell closes after 20 minutes without input). Everything it prints is also appended to `~/setup-audit-log-storage.log`, but an ephemeral Cloud Shell session (no storage account attached) deletes it when the session closes: keep the tab active until the script prints `Done`.
 
 The API reaches the account through its service URIs, which are not secrets: `https://classmanageraudit.table.core.windows.net` and `https://classmanageraudit.blob.core.windows.net`. The setting names are added with the writer's code ([step 3 of the plan](backend/20261012-audit-log/plan.md#steps)). Development and tests use Azurite, which has no Entra and keeps its connection string.
 

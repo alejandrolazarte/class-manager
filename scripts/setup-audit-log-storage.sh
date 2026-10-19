@@ -5,8 +5,8 @@
 # a temporary service principal, then gives it to the API's managed identity
 # and the reader roles to the owner. Stops before touching the API if any check
 # fails. Idempotent: run it again if the Cloud Shell session closes. Everything
-# it prints is also appended to ~/setup-audit-log-storage.log, which survives
-# the session.
+# it prints is also appended to ~/setup-audit-log-storage.log, which only
+# survives the session when Cloud Shell has a storage account attached.
 set -uo pipefail
 
 readonly RESOURCE_GROUP="class-manager-rg"
