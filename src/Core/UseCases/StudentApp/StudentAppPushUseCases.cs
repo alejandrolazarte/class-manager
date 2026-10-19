@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Notifications;
 
@@ -10,9 +11,9 @@ public sealed record GetStudentAppPushKeyQuery : IQuery;
 
 public sealed record StudentAppPushKeyResponse(string? PublicKey);
 
-public sealed record SavePushSubscriptionCommand(string? Endpoint, string? P256dh, string? Auth) : ICommand;
+public sealed record SavePushSubscriptionCommand([property: AuditSecret] string? Endpoint, [property: AuditSecret] string? P256dh, [property: AuditSecret] string? Auth) : ICommand;
 
-public sealed record RemovePushSubscriptionCommand(string? Endpoint) : ICommand;
+public sealed record RemovePushSubscriptionCommand([property: AuditSecret] string? Endpoint) : ICommand;
 
 public sealed class GetStudentAppPushKeyUseCase(IStudentAppAccess studentAppAccess, IWebPushKeyProvider keyProvider)
     : IUseCase<GetStudentAppPushKeyQuery, StudentAppPushKeyResponse>

@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Clients;
@@ -18,7 +19,7 @@ public sealed record CreateCounterSaleCommand(
     IReadOnlyList<CounterSaleLine>? Lines,
     PaymentMethod? Method,
     DateOnly? PaidOn,
-    string? Notes,
+    [property: AuditPersonal] string? Notes,
     bool IsDelivered,
     DeliveryMethod? Delivery = null,
     Guid? DeliveryClassGroupId = null) : ICommand;

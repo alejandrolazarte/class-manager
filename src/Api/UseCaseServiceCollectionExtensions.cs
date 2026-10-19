@@ -36,6 +36,7 @@ using ClassManager.ImportExport.Parsing;
 using ClassManager.ImportExport.Tabular;
 using ClassManager.ImportExport.Tabular.Csv;
 using ClassManager.ImportExport.Xlsx;
+using ClassManager.Infrastructure.Audit;
 
 namespace ClassManager.Api;
 
@@ -57,6 +58,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton<IImportParser, ImportParser>();
         services.AddScoped<IImportModule, InstructorImportModule>();
         services.AddScoped<IImportModule, StudentImportModule>();
+        services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandAuditBehavior<,>));
         services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandTransactionBehavior<,>));
         services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,>));
 

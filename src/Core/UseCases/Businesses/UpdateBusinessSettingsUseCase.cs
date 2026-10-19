@@ -1,14 +1,15 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 
 namespace ClassManager.Core.UseCases.Businesses;
 
 public sealed record UpdateBusinessSettingsCommand(
-    string? Name,
-    string? CountryCode,
-    string? TimeZoneId,
-    string? CurrencyCode) : ICommand;
+    [property: AuditPlain] string? Name,
+    [property: AuditPlain] string? CountryCode,
+    [property: AuditPlain] string? TimeZoneId,
+    [property: AuditPlain] string? CurrencyCode) : ICommand;
 
 public sealed record UpdateBusinessSettingsResponse(
     string Name,

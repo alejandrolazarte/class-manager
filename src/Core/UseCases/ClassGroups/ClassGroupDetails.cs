@@ -1,11 +1,13 @@
+using ClassManager.Core.Audit;
+
 namespace ClassManager.Core.UseCases.ClassGroups;
 
 public sealed record ClassGroupDetails(
-    string? Name,
+    [property: AuditPlain] string? Name,
     Guid? InstructorId,
     IReadOnlyList<DayOfWeek>? Weekdays,
-    string? StartTime,
+    [property: AuditPlain] string? StartTime,
     int? DurationMinutes,
     int? Capacity,
-    string? Location,
-    string? MaterialUrl = null);
+    [property: AuditPlain] string? Location,
+    [property: AuditPlain] string? MaterialUrl = null);

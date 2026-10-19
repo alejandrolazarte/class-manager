@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
 
@@ -11,7 +12,7 @@ public sealed record RecordStockMovementRequest(Guid? VariantId, StockMovementKi
     public RecordStockMovementCommand ToCommand(Guid productId) => new(productId, VariantId, Kind, Quantity, Note);
 }
 
-public sealed record RecordStockMovementCommand(Guid ProductId, Guid? VariantId, StockMovementKind? Kind, int? Quantity, string? Note) : ICommand;
+public sealed record RecordStockMovementCommand(Guid ProductId, Guid? VariantId, StockMovementKind? Kind, int? Quantity, [property: AuditPersonal] string? Note) : ICommand;
 
 public sealed class RecordStockMovementUseCase(
     IProductRepository productRepository,

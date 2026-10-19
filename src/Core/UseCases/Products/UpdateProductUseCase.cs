@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
 
@@ -18,8 +19,8 @@ public sealed record UpdateProductRequest(
 
 public sealed record UpdateProductCommand(
     Guid ProductId,
-    string? Name,
-    string? Description,
+    [property: AuditPlain] string? Name,
+    [property: AuditPlain] string? Description,
     decimal? Price,
     StockMode? StockMode,
     bool IsVisibleInApp,

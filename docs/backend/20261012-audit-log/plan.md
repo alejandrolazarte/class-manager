@@ -1,6 +1,6 @@
 # Audit log
 
-Status: steps 1 to 3 built (step 3's Azure setup done on 2026-10-19, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
+Status: steps 1 to 4 built (step 3's Azure setup done on 2026-10-19, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
 
 Three pieces answer "who did what, and who tried what they were not allowed to":
 
@@ -133,34 +133,46 @@ The payload is what makes the log useful ("changed the fee of client X to 25,000
 |---|---|---|
 | Secret | Passwords, refresh tokens, reset and confirmation codes, VAPID keys, payment tokens | Never stored: the property is left out |
 | Personal | Names, email, phone, birth date, address, measurements, guardian data, free text written about a student | `"[personal]"`. The ids in the command (`StudentId`, `ClientId`) are kept, so the row still says who was affected |
-| File | Uploaded files, streams, `byte[]` | Only name, content type and size |
+| File | Uploaded files: `Stream` and `byte[]` | Only the size: `"[file: 12345 bytes]"` |
 | Everything else | Ids, amounts, dates, enums, flags | As is |
 
 ```csharp
-public sealed record ChangePasswordCommand(
-    [property: AuditSecret] string CurrentPassword,
-    [property: AuditSecret] string NewPassword) : ICommand;
+public sealed record ResetPasswordCommand(
+    [property: AuditSecret] string? Token,
+    [property: AuditSecret] string? NewPassword) : ICommand;
 
 public sealed record AddStudentCommand(
     Guid ClientId,
-    [property: AuditPersonal] string FirstName,
-    [property: AuditPersonal] string LastName,
-    [property: AuditPersonal] DateOnly BirthDate,
-    Guid ClassGroupId) : ICommand;
+    [property: AuditPersonal] string? FullName,
+    [property: AuditPersonal] DateOnly? BirthDate,
+    [property: AuditPersonal] string? Notes,
+    [property: AuditPersonal] string? Email) : ICommand;
 ```
+
+The attributes live in `src/Core/Audit`; `CommandAuditPayload` (`src/Infrastructure/Audit`) is a `System.Text.Json` contract modifier that drops `[AuditSecret]` properties, writes `"[personal]"` for `[AuditPersonal]` ones that have a value, and describes files by size. The JSON is cut at 32 KB (`PayloadTruncated`).
 
 Why personal data is masked too, not only secrets:
 
 - Many students are minors ([ages and minors](../../ages-and-minors.md)), and businesses in Spain fall under the GDPR. A copy of every name and birth date in a log that can't be edited is a second database of personal data that has to be erased when a person asks, and Table Storage rows are hard to find by content. Keeping ids makes the log point to the person without copying them.
 - The current value is in SQL; the log only needs to say which row changed and what non-personal values were set.
+- Decided 2026-10-19: names and emails are masked too. The log says who did what through `AccountId` and `UserId`, and `Users` keeps the name even after the account is deleted; what is lost is the previous value of a personal field, which a business rarely needs.
 
-How it stays correct as commands are added (attributes alone would be forgotten):
+What is marked (built, 144 properties of the 138 commands and their nested records):
 
-- **A test scans every `ICommand`**: a property whose name contains `Password`, `Token`, `Secret`, `Code` or `Key` must have `[AuditSecret]`, and a property named like a person's data (`Name`, `Email`, `Phone`, `BirthDate`, `Address`, `Note`, `Comment`) must have `[AuditPersonal]` or `[AuditPlain]` (explicitly not personal, for example `PlanName`). Nested records are scanned too.
-- **A test serializes a sample of every command** and fails if a value marked secret appears in the JSON.
-- `IFormFile`, `Stream` and `byte[]` are recognized by type; no attribute needed.
+| Category | Properties |
+|---|---|
+| Secret | `Token`, `Password`, `CurrentPassword`, `NewPassword`, `RefreshToken`, and the web push `Endpoint`, `P256dh` and `Auth` |
+| Personal | `FullName`, `OwnerFullName`, `Email`, `NewEmail`, `PhoneNumber`, `BirthDate`, `OwnerBirthDate`, `Notes`, `Note`, class comments (`Text`), cancellation `Reason`, announcement `Title` and `Body` (they can name people), measurement `Value`s and goals, and the `Location` of a private lesson (it can be a home) |
+| Plain | Names of businesses, branches, classes, packs, products, roles, measurements and levels; descriptions; codes (country, currency, time zone, language, module); times, months, colors, sizes, units, URLs, permissions |
 
-Alternative considered: an allowlist (only properties marked `[Audited]` are stored). Safer by default, but every command has to be annotated before the log says anything, and a forgotten attribute silently hides data. The denylist with the name test fails the build instead.
+How it stays correct as commands are added (attributes alone would be forgotten); the tests scan every `ICommand` and the records nested in it:
+
+- **Every text property** (`string` or a collection of `string`) has exactly one of `[AuditSecret]`, `[AuditPersonal]` or `[AuditPlain]`, so new free text can't reach the log without a decision (`Core.U.Tests/Audit`).
+- **A name like a secret** (`Password`, `Token`, `Secret`, `Key`, `Endpoint`, `Auth`, `P256dh`) must be `[AuditSecret]`, and **a name like personal data** (`FullName`, `Email`, `Phone`, `Birth`, `Address`, `Note`, `Comment`, `Reason`, `Text`, `Body`, `Value`) must be `[AuditPersonal]`, whatever its type.
+- **A sample of every command** is built with a distinct value in each secret and personal property and in each file, serialized, and the test fails if any of those values appears in the JSON (`Api.I.Tests/Audit`). Both kinds of test were checked to fail with the masking turned off and with a mark removed.
+- `Stream` and `byte[]` are recognized by type; no attribute needed.
+
+Alternative considered: an allowlist (only properties marked `[Audited]` are stored). Safer by default, but every command has to be annotated before the log says anything, and a forgotten attribute silently hides data. Requiring a mark on every text property gives the same safety for free text and fails the build instead.
 
 ## 3. Security events
 
@@ -284,7 +296,7 @@ At first, only the owner reads it, from Azure Storage Explorer signed in with En
    - `src/Api/Audit/CommandAuditWorker`: writes the queue in batches of 100, logs and drops a batch that fails, and writes what is left when the API stops.
    - Nothing calls `Record` until step 4, which is where the payload is built with personal fields masked: no entry exists before the masking does.
    - The blob client for security events comes with step 5.
-4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules).
+4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules). **Built.** Queries opting in with `[AuditedQuery]` are left for when an export needs it.
 5. `SecurityEventMiddleware`, `ISecurityEventRecorder` in sign-in and refresh, the plan-limit marker, the daily append blobs, the retention policy (unlocked) and the lifecycle rule.
 6. Lock the retention policy once security events have been written in production for a while and the runbook's audit commands pass.
 

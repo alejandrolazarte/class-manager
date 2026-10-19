@@ -1,10 +1,11 @@
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.UseCases.Authentication;
 
 namespace ClassManager.Core.UseCases.Branches;
 
-public sealed record SwitchBranchCommand(string? RefreshToken, Guid? BusinessId, string? Kind = null) : ICommand;
+public sealed record SwitchBranchCommand([property: AuditSecret] string? RefreshToken, Guid? BusinessId, [property: AuditPlain] string? Kind = null) : ICommand;
 
 public sealed class SwitchBranchUseCase(ITokenService tokenService) : IUseCase<SwitchBranchCommand, TokenResponse>
 {

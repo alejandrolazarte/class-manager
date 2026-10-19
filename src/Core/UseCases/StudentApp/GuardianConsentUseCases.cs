@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -10,7 +11,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record CheckGuardianConsentCommand(string? Token) : ICommand;
+public sealed record CheckGuardianConsentCommand([property: AuditSecret] string? Token) : ICommand;
 
 public sealed record GuardianConsentResponse(
     string BusinessName,
@@ -19,11 +20,11 @@ public sealed record GuardianConsentResponse(
     string GuardianEmail,
     int MinimumAge);
 
-public sealed record GiveGuardianConsentCommand(string? Token) : ICommand;
+public sealed record GiveGuardianConsentCommand([property: AuditSecret] string? Token) : ICommand;
 
 public sealed record GivenGuardianConsentResponse(string StudentEmail);
 
-public sealed record RefuseGuardianConsentCommand(string? Token) : ICommand;
+public sealed record RefuseGuardianConsentCommand([property: AuditSecret] string? Token) : ICommand;
 
 public sealed record RefusedGuardianConsentResponse;
 

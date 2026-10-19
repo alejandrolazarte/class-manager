@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
@@ -9,7 +10,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record AcceptInvitationCommand(string? Token, string? FullName, string? Password, DateOnly? BirthDate = null, bool AcceptsLegalTerms = false) : ICommand;
+public sealed record AcceptInvitationCommand([property: AuditSecret] string? Token, [property: AuditPersonal] string? FullName, [property: AuditSecret] string? Password, [property: AuditPersonal] DateOnly? BirthDate = null, bool AcceptsLegalTerms = false) : ICommand;
 
 public sealed class AcceptInvitationUseCase(
     IMemberInvitationRepository invitationRepository,

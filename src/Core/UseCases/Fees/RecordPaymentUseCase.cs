@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
@@ -13,7 +14,7 @@ public sealed record RecordPaymentRequest(decimal? Amount, string? Month, DateOn
     public RecordPaymentCommand ToCommand(Guid clientId) => new(clientId, Amount, Month, PaidOn, Method, Notes);
 }
 
-public sealed record RecordPaymentCommand(Guid ClientId, decimal? Amount, string? Month, DateOnly? PaidOn, PaymentMethod? Method, string? Notes) : ICommand;
+public sealed record RecordPaymentCommand(Guid ClientId, decimal? Amount, [property: AuditPlain] string? Month, DateOnly? PaidOn, PaymentMethod? Method, [property: AuditPersonal] string? Notes) : ICommand;
 
 public sealed class RecordPaymentUseCase(
     IClientRepository clientRepository,

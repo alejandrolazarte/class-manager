@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
@@ -10,7 +11,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record CompleteSignUpCommand(string? Token, string? Password) : ICommand;
+public sealed record CompleteSignUpCommand([property: AuditSecret] string? Token, [property: AuditSecret] string? Password) : ICommand;
 
 public sealed class CompleteSignUpUseCase(
     IPendingSignUpRepository pendingSignUpRepository,

@@ -7,6 +7,7 @@ using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Students;
+using ClassManager.Infrastructure.Audit;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
@@ -73,6 +74,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         var storageSettings = new Dictionary<string, string>
         {
             [$"{ConnectionStringsSection}:{BlobStorageOptions.ConnectionStringName}"] = _storageContainer.GetConnectionString(),
+            [$"{ConnectionStringsSection}:{AuditLogOptions.ConnectionStringName}"] = _storageContainer.GetConnectionString(),
         };
         _apiFactory = new BusinessApiFactory(ConnectionString, new FakeTimeProvider(BusinessApiFactory.Now), storageSettings);
     }

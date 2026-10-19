@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Core.Domain.Businesses;
@@ -27,9 +28,9 @@ public sealed record InviteStudentAppRequest(
 
 public sealed record InviteStudentAppCommand(
     Guid ClientId,
-    string? Email,
+    [property: AuditPersonal] string? Email,
     Guid? StudentId = null,
-    DateOnly? BirthDate = null,
+    [property: AuditPersonal] DateOnly? BirthDate = null,
     bool ConfirmsContactIsAdult = false,
     Guid? SamePersonUserId = null) : ICommand;
 

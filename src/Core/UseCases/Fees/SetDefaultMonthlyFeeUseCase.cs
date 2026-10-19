@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Fees;
@@ -7,7 +8,7 @@ using ClassManager.Core.UseCases.Businesses;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record SetDefaultMonthlyFeeCommand(decimal? Amount, string? EffectiveFrom) : ICommand;
+public sealed record SetDefaultMonthlyFeeCommand(decimal? Amount, [property: AuditPlain] string? EffectiveFrom) : ICommand;
 
 public sealed class SetDefaultMonthlyFeeUseCase(
     IBusinessRepository businessRepository,

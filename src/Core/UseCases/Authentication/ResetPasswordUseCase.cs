@@ -1,9 +1,10 @@
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Authentication;
 
-public sealed record ResetPasswordCommand(string? Token, string? NewPassword) : ICommand;
+public sealed record ResetPasswordCommand([property: AuditSecret] string? Token, [property: AuditSecret] string? NewPassword) : ICommand;
 
 public sealed record ResetPasswordResponse;
 

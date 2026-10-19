@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
@@ -19,13 +20,13 @@ public sealed record UpdateClassPackRequest(
 
 public sealed record UpdateClassPackCommand(
     Guid ClassPackId,
-    string? Name,
+    [property: AuditPlain] string? Name,
     int? ClassCount,
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
-    string? Description = null) : ICommand;
+    [property: AuditPlain] string? Description = null) : ICommand;
 
 public sealed class UpdateClassPackUseCase(
     IClassPackRepository classPackRepository,

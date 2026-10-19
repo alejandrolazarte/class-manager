@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
@@ -14,10 +15,10 @@ public sealed record SchedulePrivateLessonCommand(
     Guid? InstructorId,
     IReadOnlyList<Guid>? StudentIds,
     DateOnly Date,
-    string? StartTime,
+    [property: AuditPlain] string? StartTime,
     int? DurationMinutes,
-    string? Location,
-    string? Notes,
+    [property: AuditPersonal] string? Location,
+    [property: AuditPersonal] string? Notes,
     int? RepeatWeeks,
     bool IsTrial = false,
     decimal? TrialPrice = null) : ICommand;

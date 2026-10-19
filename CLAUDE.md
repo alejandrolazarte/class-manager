@@ -131,6 +131,7 @@ User-facing copy lives in `app/src/i18n/es.json` and `app/src/i18n/en.json` with
 - Every new service has its interface `I<Name>Service`
 - `Core` never references `Infrastructure` or ASP.NET
 - Every use case input implements `ICommand` (changes data, runs in a transaction) or `IQuery` (only reads, no tracking), and every use case is registered with `AddUseCase`. Cross-cutting code goes in a behavior, not in each use case. See [docs/backend/use-case-behaviors.md](docs/backend/use-case-behaviors.md).
+- Every text property of a command (and of the records inside it) carries `[AuditSecret]`, `[AuditPersonal]` or `[AuditPlain]` from `src/Core/Audit`, which decides what reaches the command log; names, emails, phones, birth dates, notes and other free text about people are `[AuditPersonal]`. See [docs/backend/20261012-audit-log/plan.md](docs/backend/20261012-audit-log/plan.md#payload-yes-but-without-sensitive-fields).
 
 ### Testing (TDD)
 - **Test first**: the test fails (RED) before writing the implementation

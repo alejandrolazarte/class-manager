@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
 
@@ -8,7 +9,7 @@ namespace ClassManager.Core.UseCases.PrivateLessons;
 
 public sealed record CancelPrivateLessonRequest(string? Reason);
 
-public sealed record CancelPrivateLessonCommand(Guid PrivateLessonId, string? Reason) : ICommand;
+public sealed record CancelPrivateLessonCommand(Guid PrivateLessonId, [property: AuditPersonal] string? Reason) : ICommand;
 
 public sealed class CancelPrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,

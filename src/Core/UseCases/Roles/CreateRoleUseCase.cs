@@ -1,11 +1,12 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Roles;
 
 namespace ClassManager.Core.UseCases.Roles;
 
-public sealed record CreateRoleCommand(string? Name, IReadOnlyList<string>? Permissions, string? CopiedFrom) : ICommand;
+public sealed record CreateRoleCommand([property: AuditPlain] string? Name, [property: AuditPlain] IReadOnlyList<string>? Permissions, [property: AuditPlain] string? CopiedFrom) : ICommand;
 
 public sealed class CreateRoleUseCase(
     ICustomRoleRepository customRoleRepository,

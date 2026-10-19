@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Instructors;
 using ClassManager.Core.UseCases.Users;
@@ -11,7 +12,7 @@ public sealed record UpdateInstructorRequest(string? FullName, string? Email = n
     public UpdateInstructorCommand ToCommand(Guid instructorId) => new(instructorId, FullName, Email);
 }
 
-public sealed record UpdateInstructorCommand(Guid InstructorId, string? FullName, string? Email = null) : ICommand;
+public sealed record UpdateInstructorCommand(Guid InstructorId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email = null) : ICommand;
 
 public sealed class UpdateInstructorUseCase(
     IInstructorRepository instructorRepository,

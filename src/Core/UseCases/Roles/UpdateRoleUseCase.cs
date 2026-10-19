@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 
@@ -7,7 +8,7 @@ namespace ClassManager.Core.UseCases.Roles;
 
 public sealed record UpdateRoleRequest(string? Name, IReadOnlyList<string>? Permissions);
 
-public sealed record UpdateRoleCommand(Guid RoleId, string? Name, IReadOnlyList<string>? Permissions) : ICommand;
+public sealed record UpdateRoleCommand(Guid RoleId, [property: AuditPlain] string? Name, [property: AuditPlain] IReadOnlyList<string>? Permissions) : ICommand;
 
 public sealed class UpdateRoleUseCase(
     ICustomRoleRepository customRoleRepository,

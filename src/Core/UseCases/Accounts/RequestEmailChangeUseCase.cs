@@ -2,6 +2,7 @@ using System.Net.Mail;
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Emails;
@@ -9,7 +10,7 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Accounts;
 
-public sealed record RequestEmailChangeCommand(string? NewEmail, string? CurrentPassword) : ICommand;
+public sealed record RequestEmailChangeCommand([property: AuditPersonal] string? NewEmail, [property: AuditSecret] string? CurrentPassword) : ICommand;
 
 public sealed record RequestEmailChangeResponse(string NewEmail);
 

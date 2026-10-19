@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -14,10 +15,10 @@ public sealed record UpdateClientRequest(string? FullName, string? PhoneNumber, 
 
 public sealed record UpdateClientCommand(
     Guid ClientId,
-    string? FullName,
-    string? PhoneNumber,
-    string? Email,
-    string? Notes) : ICommand;
+    [property: AuditPersonal] string? FullName,
+    [property: AuditPersonal] string? PhoneNumber,
+    [property: AuditPersonal] string? Email,
+    [property: AuditPersonal] string? Notes) : ICommand;
 
 public sealed class UpdateClientUseCase(
     IBusinessRepository businessRepository,

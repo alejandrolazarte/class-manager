@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Instructors;
@@ -9,10 +10,10 @@ using ClassManager.Tenancy;
 namespace ClassManager.Core.UseCases.Branches;
 
 public sealed record CreateBranchCommand(
-    string? Name,
-    string? CountryCode,
-    string? TimeZoneId,
-    string? CurrencyCode) : ICommand;
+    [property: AuditPlain] string? Name,
+    [property: AuditPlain] string? CountryCode,
+    [property: AuditPlain] string? TimeZoneId,
+    [property: AuditPlain] string? CurrencyCode) : ICommand;
 
 public sealed class CreateBranchUseCase(
     IBusinessRepository businessRepository,

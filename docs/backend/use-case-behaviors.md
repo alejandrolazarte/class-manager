@@ -10,6 +10,7 @@ Code that runs before and after every use case, such as opening a transaction, l
 - Behaviors run in the order they are registered, the first one outermost. A behavior registered with open generic types applies to every use case whose input satisfies its constraints. One registered with closed types applies to that use case only.
 
 ```csharp
+services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandAuditBehavior<,>));
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandTransactionBehavior<,>));
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,>));
 
@@ -27,6 +28,12 @@ services.AddUseCase<GetStudentQuery, StudentSummaryResponse, GetStudentUseCase>(
 - **A failed `SaveChanges` inside a command is undone on its own.** EF Core sets a savepoint before saving inside a transaction and rolls back to it on failure, so use cases that catch a unique constraint violation and read the winner keep working. SQL Server doesn't support savepoints with `MultipleActiveResultSets`, so keep it off in the connection string.
 - **Emails and web push are queued when the use case sends them, not when the transaction commits.** If a command throws after sending, the message still goes out.
 - Code outside `IUnitOfWork` that opens a transaction on `SecurityDbContext`, like the password reset service, must join the open transaction instead of starting another one: SQL Server doesn't allow two transactions on the same connection.
+
+## Commands are logged
+
+`CommandAuditBehavior` applies to inputs that implement `ICommand` and is registered first, outside the transaction, so it sees the result after the commit and also commands that throw. It queues one entry per command (business, command name, account and user, outcome, error, duration, trace id and the command as JSON) for the [command log](20261012-audit-log/plan.md#2-command-log) and never waits for it; recording never fails the command.
+
+Every text property of a command, and of the records inside it, is marked `[AuditSecret]` (left out of the log), `[AuditPersonal]` (logged as `"[personal]"`) or `[AuditPlain]` (logged as is). Tests fail on an unmarked text property, and on a property named like a secret or personal data that isn't marked as such.
 
 ## Queries don't track
 

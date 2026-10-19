@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -11,10 +12,10 @@ using ClassManager.Core.UseCases.Users;
 namespace ClassManager.Core.UseCases.Clients;
 
 public sealed record RegisterClientCommand(
-    string? FullName,
-    string? PhoneNumber,
-    string? Email,
-    string? Notes,
+    [property: AuditPersonal] string? FullName,
+    [property: AuditPersonal] string? PhoneNumber,
+    [property: AuditPersonal] string? Email,
+    [property: AuditPersonal] string? Notes,
     IReadOnlyList<NewStudent>? Students,
     Guid? SamePersonUserId = null) : ICommand;
 

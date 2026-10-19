@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Announcements;
 
@@ -23,15 +24,15 @@ public sealed record UpdateAnnouncementRequest(
 
 public sealed record UpdateAnnouncementCommand(
     Guid AnnouncementId,
-    string? Title,
-    string? Body,
+    [property: AuditPersonal] string? Title,
+    [property: AuditPersonal] string? Body,
     AnnouncementCategory? Category = null,
     IReadOnlyList<Guid>? ClassGroupIds = null,
     bool IsPinned = false,
     DateOnly? VisibleUntil = null,
     DateTimeOffset? PublishOn = null,
     AnnouncementAction? Action = null,
-    string? ActionUrl = null) : ICommand;
+    [property: AuditPlain] string? ActionUrl = null) : ICommand;
 
 public sealed class UpdateAnnouncementUseCase(
     IAnnouncementRepository announcementRepository,

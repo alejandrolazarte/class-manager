@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Sessions;
 
@@ -7,7 +8,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record CancelSessionRequest(string? Reason);
 
-public sealed record CancelSessionCommand(Guid ClassGroupId, DateOnly Date, string? Reason) : ICommand;
+public sealed record CancelSessionCommand(Guid ClassGroupId, DateOnly Date, [property: AuditPersonal] string? Reason) : ICommand;
 
 public sealed record SessionStatusResponse(Guid ClassGroupId, DateOnly Date, bool IsCancelled, string? CancellationReason);
 

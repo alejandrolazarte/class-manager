@@ -2,6 +2,7 @@ using System.Globalization;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Sessions;
@@ -11,7 +12,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record RescheduleSessionRequest(string? StartTime);
 
-public sealed record RescheduleSessionCommand(Guid ClassGroupId, DateOnly Date, string? StartTime) : ICommand;
+public sealed record RescheduleSessionCommand(Guid ClassGroupId, DateOnly Date, [property: AuditPlain] string? StartTime) : ICommand;
 
 public sealed class RescheduleSessionUseCase(
     IClassGroupRepository classGroupRepository,
