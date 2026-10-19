@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Enrollments;
 
-public sealed class Enrollment : ITenantOwned
+public sealed class Enrollment : ITenantOwned, IAuditable
 {
     private const string EndBeforeStartMessage = "The end date can't be before the start date.";
     private const string AlreadyEndedMessage = "The enrollment has already ended.";
@@ -19,6 +20,9 @@ public sealed class Enrollment : ITenantOwned
     public DateOnly StartDate { get; private set; }
     public DateOnly? EndDate { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static Enrollment Create(Guid studentId, Guid classGroupId, DateOnly startDate, DateTimeOffset createdAt) =>
         new()

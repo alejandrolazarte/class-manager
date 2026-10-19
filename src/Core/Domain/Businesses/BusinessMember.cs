@@ -5,7 +5,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Businesses;
 
-public sealed class BusinessMember : ITenantOwned, ISoftDeletable
+public sealed class BusinessMember : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int RoleMaxLength = 20;
 
@@ -17,6 +17,10 @@ public sealed class BusinessMember : ITenantOwned, ISoftDeletable
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public Guid UserId { get; private set; }
     public User User { get; private set; } = null!;
     public BusinessRole Role { get; private set; }

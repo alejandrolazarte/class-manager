@@ -5,7 +5,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.ClassPacks;
 
-public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
+public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int NotesMaxLength = 200;
 
@@ -34,6 +34,9 @@ public sealed class ClassPackPurchase : ITenantOwned, ISoftDeletable
     public Guid? TrialLessonId { get; private set; }
     public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }

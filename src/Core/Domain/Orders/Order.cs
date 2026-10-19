@@ -1,10 +1,11 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Orders;
 
-public sealed class Order : ITenantOwned
+public sealed class Order : ITenantOwned, IAuditable
 {
     public const int NotesMaxLength = 200;
     public const int MaximumLineCount = 20;
@@ -48,6 +49,8 @@ public sealed class Order : ITenantOwned
     public string? Notes { get; private set; }
     public Guid? CreatedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DeliveryMethod Delivery { get; private set; }
     public Guid? DeliveryClassGroupId { get; private set; }
     public DateTimeOffset? ReadyAt { get; private set; }

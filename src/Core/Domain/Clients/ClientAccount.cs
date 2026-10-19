@@ -4,7 +4,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Clients;
 
-public sealed class ClientAccount : ITenantOwned, ISoftDeletable
+public sealed class ClientAccount : ITenantOwned, IAuditable, ISoftDeletable
 {
     private ClientAccount()
     {
@@ -17,6 +17,9 @@ public sealed class ClientAccount : ITenantOwned, ISoftDeletable
     public Guid UserId { get; private set; }
     public User User { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? NewsSeenAt { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
