@@ -181,6 +181,7 @@ Alternative considered: an allowlist (only properties marked `[Audited]` are sto
 | Event | Source | Why |
 |---|---|---|
 | `Forbidden` | Any 403 that is not a plan limit | An authenticated user tried something their role doesn't allow. Rare and worth reading |
+| `PlanLimit` | A 403 for a plan limit (`FeatureNotInPlan`, `SubscriptionInactive`, `feature.limit_reached`) | A commercial limit, not an attack, but a direct API call to a feature that wasn't paid for shows here. Its own type so it doesn't bury `Forbidden` |
 | `SignInFailed` | A 401 or 423 from the sign-in endpoint (wrong password, locked account) | Password guessing |
 | `RefreshTokenRejected` | A 401 from the refresh endpoint (unknown, expired, reused) | A reused refresh token can mean a stolen one |
 | `UnauthorizedBurst` | Middleware, 401 counted per IP | Many 401 from the same IP in a minute: one row with the count, not one row per 401 |
@@ -188,12 +189,13 @@ Alternative considered: an allowlist (only properties marked `[Audited]` are sto
 Not recorded:
 
 - **A single 401.** Every expired access token returns 401 before the app refreshes it, so most 401s are normal traffic. Worse, anyone can produce 401s without an account: one row per 401 lets a bot fill the table and the bill.
-- **403 for plan limits** (`FeatureNotInPlan`, `SubscriptionInactive`). They are a commercial limit, not an attack. `PlanLimitResponses.Mark` (`src/Subscriptions.AspNetCore`) marks the request in `HttpContext.Items` wherever one is answered: the `RequireFeature` filter, `ActiveSubscriptionMiddleware` and `PlanAwareAuthorizationResultHandler`; the middleware skips marked ones. A feature limit exceeded (`FeatureLimitExceededException`) is answered by the exception handler, outside the middleware, so it never reaches it.
+
+Every 403 is recorded. Plan limits were first left out as a commercial limit, then recorded with their own type (decided 2026-10-19): with one rule ("every 403") a case that slips through unmarked is still recorded, and a business that hits its limits or calls a feature it doesn't pay for is worth seeing. `PlanLimitResponses.Mark` (`src/Subscriptions.AspNetCore`) marks the request in `HttpContext.Items` wherever a plan limit is answered: the `RequireFeature` filter, `ActiveSubscriptionMiddleware`, `PlanAwareAuthorizationResultHandler`, `FeatureLimitExceptionHandler` (a limit reached while saving) and `ResultHttpExtensions` (a use case returning `FeatureErrors.LimitReached`, such as an import). A marked 403 is `PlanLimit`; an unmarked one is `Forbidden`. A business with an inactive subscription gets a 403 on every change, so the per-address cap below is what keeps it to a few lines a minute.
 
 ### The middleware
 
-- `SecurityEventMiddleware` (`src/Api/Audit`) runs **before** `UseAuthentication` and `UseAuthorization`, calls `await next()`, then reads `Response.StatusCode`. Placed after them it would not see the 401 and 403 they return.
-- A 403 is queued as `Forbidden` with the route template (`/api/students/{id}`, not the real path), the method, the user and the tenant.
+- `SecurityEventMiddleware` (`src/Api/Audit`) runs **before** `UseExceptionHandler`, `UseAuthentication` and `UseAuthorization`, calls `await next()`, then reads `Response.StatusCode`. Placed after them it would not see the 401 and 403 they return, nor the 403 the exception handler writes for a limit reached while saving. It reads the endpoint before calling `next()`, because the exception handler clears it.
+- A 403 is queued as `Forbidden` (or `PlanLimit` when marked) with the route template (`/api/students/{id}`, not the real path), the method, the user and the tenant.
 - A 401 only increments an in-memory counter per IP (`SecurityEventThrottle`, at most 10,000 addresses tracked). Every minute `SecurityEventBurstWorker` writes one `UnauthorizedBurst` row for every IP with 20 or more 401s, or with events over its cap, and resets the counters.
 - Each IP writes at most 10 events a minute (`AuditLog:MaximumSecurityEventsPerAddressPerMinute`); beyond it events are counted into its burst row, not written. Nothing a client sends can make the API write without limit.
 - `SignInFailed` and `RefreshTokenRejected` come from the same middleware: the sign-in and refresh endpoints carry `SecurityEventOnRejection` metadata naming the event, so a 401 there is told apart from an expired access token elsewhere without touching the use cases. (Built this way instead of an `ISecurityEventRecorder` called by the use cases.) Neither the email typed nor the token is recorded: the command log already has the failed command with personal fields masked.
@@ -207,7 +209,7 @@ One append blob per day in the container `security-events`: `{yyyy}/{MM}/{dd}.js
 |---|---|
 | `occurredAt` | Date and time, UTC |
 | `tenantId` | When known, otherwise empty |
-| `event` | `Forbidden`, `SignInFailed`, `RefreshTokenRejected`, `UnauthorizedBurst` |
+| `event` | `Forbidden`, `PlanLimit`, `SignInFailed`, `RefreshTokenRejected`, `UnauthorizedBurst` |
 | `accountId`, `userId` | When known, the same ids as the command log |
 | `statusCode` | The response status |
 | `route`, `method` | Route template and HTTP method |
