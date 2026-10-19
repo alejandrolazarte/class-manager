@@ -1,6 +1,6 @@
 # Audit log
 
-Status: step 1 built; step 3's storage account and role set up ([runbook](../../audit-log-storage.md)); the rest is a proposal.
+Status: step 1 built; step 3's storage account created, its role set up by a script ([runbook](../../audit-log-storage.md)); the rest is a proposal.
 
 Three pieces answer "who did what, and who tried what they were not allowed to":
 
