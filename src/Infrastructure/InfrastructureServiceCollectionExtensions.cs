@@ -50,6 +50,7 @@ public static class InfrastructureServiceCollectionExtensions
                 .AddInterceptors(
                     serviceProvider.GetRequiredService<BackgroundTaskSignalInterceptor>(),
                     new SoftDeleteSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>()),
+                    new AuditSaveChangesInterceptor(serviceProvider.GetRequiredService<TimeProvider>(), serviceProvider.GetRequiredService<ICurrentUser>()),
                     serviceProvider.GetRequiredService<TenantStampingSaveChangesInterceptor>(),
                     serviceProvider.GetRequiredService<FeatureLimitSaveChangesInterceptor<AppDbContext>>());
         });

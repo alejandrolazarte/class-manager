@@ -1,10 +1,11 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Users;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Instructors;
 
-public sealed class Instructor : ITenantOwned
+public sealed class Instructor : ITenantOwned, IAuditable
 {
     private Instructor()
     {
@@ -12,6 +13,10 @@ public sealed class Instructor : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public bool IsActive { get; private set; }
     public Guid UserId { get; private set; }
     public User User { get; private set; } = null!;

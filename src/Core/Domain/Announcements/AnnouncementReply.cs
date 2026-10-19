@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Announcements;
 
-public sealed class AnnouncementReply : ITenantOwned
+public sealed class AnnouncementReply : ITenantOwned, IAuditable
 {
     public const string NotAnEventCode = "announcement.not_an_event";
 
@@ -14,6 +15,10 @@ public sealed class AnnouncementReply : ITenantOwned
     }
 
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public Guid AnnouncementId { get; private set; }
     public Guid ClientId { get; private set; }
     public bool IsGoing { get; private set; }

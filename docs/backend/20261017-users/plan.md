@@ -130,14 +130,14 @@ Brand owners act in every branch of their brand. They get a user in each branch:
 
 ## Audit columns
 
-`Users` and every tenant table implement `IAuditable`, step 2 of the [audit log plan](../20261012-audit-log/plan.md):
+`Users` and every tenant table implement `IAuditable`, step 2 of the [audit log plan](../20261012-audit-log/plan.md#iauditable-built) (built):
 
 ```csharp
 public interface IAuditable
 {
     DateTimeOffset CreatedAt { get; }
     Guid? CreatedByUserId { get; }
-    DateTimeOffset? UpdatedAt { get; }
+    DateTimeOffset UpdatedAt { get; }
     Guid? UpdatedByUserId { get; }
 }
 ```

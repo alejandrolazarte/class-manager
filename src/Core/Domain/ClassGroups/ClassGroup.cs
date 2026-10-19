@@ -1,10 +1,11 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Documents;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.ClassGroups;
 
-public sealed class ClassGroup : ITenantOwned
+public sealed class ClassGroup : ITenantOwned, IAuditable
 {
     public const int NameMinLength = 2;
     public const int NameMaxLength = 80;
@@ -27,6 +28,10 @@ public sealed class ClassGroup : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public Guid InstructorId { get; private set; }
     public ClassWeekdays Weekdays { get; private set; }

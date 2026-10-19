@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Measurements;
 
-public sealed class MeasurementGoal : ITenantOwned
+public sealed class MeasurementGoal : ITenantOwned, IAuditable
 {
     private MeasurementGoal()
     {
@@ -11,6 +12,10 @@ public sealed class MeasurementGoal : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public Guid StudentId { get; private set; }
     public Guid MeasurementDefinitionId { get; private set; }
     public decimal Value { get; private set; }

@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Notifications;
 
-public sealed class TeamNotification : ITenantOwned
+public sealed class TeamNotification : ITenantOwned, IAuditable
 {
     public const int TitleMaxLength = 120;
     public const int BodyMaxLength = 300;
@@ -21,6 +22,9 @@ public sealed class TeamNotification : ITenantOwned
     public string Body { get; private set; } = string.Empty;
     public string Url { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? SeenAt { get; private set; }
 
     public static TeamNotification Create(Guid recipientUserId, string title, string body, string url, DateTimeOffset createdAt) =>

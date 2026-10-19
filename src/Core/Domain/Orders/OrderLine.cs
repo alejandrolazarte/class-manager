@@ -2,11 +2,12 @@ using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Orders;
 
-public sealed class OrderLine : ITenantOwned
+public sealed class OrderLine : ITenantOwned, IAuditable
 {
     public const int NameMaxLength = Product.NameMaxLength + ProductVariant.SizeMaxLength + ProductColors.NameMaxLength + 6;
     public const int MaximumQuantity = 99;
@@ -21,6 +22,10 @@ public sealed class OrderLine : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public Guid OrderId { get; private set; }
     public OrderLineKind Kind { get; private set; }
     public Guid? ClassPackId { get; private set; }

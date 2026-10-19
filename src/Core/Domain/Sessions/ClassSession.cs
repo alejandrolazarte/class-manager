@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Sessions;
 
-public sealed class ClassSession : ITenantOwned
+public sealed class ClassSession : ITenantOwned, IAuditable
 {
     public const int CancellationReasonMaxLength = 200;
 
@@ -28,6 +29,9 @@ public sealed class ClassSession : ITenantOwned
     public Guid? SubstituteInstructorId { get; private set; }
     public DateTimeOffset? ChangedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static ClassSession Create(Guid classGroupId, DateOnly date, DateTimeOffset createdAt) =>
         new()

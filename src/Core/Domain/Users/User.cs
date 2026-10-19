@@ -6,7 +6,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Users;
 
-public sealed class User : ITenantOwned, ISoftDeletable
+public sealed class User : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int FullNameMinLength = 2;
     public const int FullNameMaxLength = 120;
@@ -30,6 +30,9 @@ public sealed class User : ITenantOwned, ISoftDeletable
     public DateOnly? BirthDate { get; private set; }
     public Guid? AccountId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }

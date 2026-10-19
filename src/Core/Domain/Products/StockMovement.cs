@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Products;
 
-public sealed class StockMovement : ITenantOwned
+public sealed class StockMovement : ITenantOwned, IAuditable
 {
     public const int MaximumQuantity = 10_000;
     public const int NoteMaxLength = 200;
@@ -29,6 +30,9 @@ public sealed class StockMovement : ITenantOwned
     public string? Note { get; private set; }
     public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static Result<StockMovement> Load(
         Product product,

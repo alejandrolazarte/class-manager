@@ -1,11 +1,12 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Users;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Students;
 
-public sealed class Student : ITenantOwned
+public sealed class Student : ITenantOwned, IAuditable
 {
     public const int NotesMaxLength = 1000;
 
@@ -20,6 +21,9 @@ public sealed class Student : ITenantOwned
     public Guid ClientId { get; private set; }
     public string? Notes { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public Guid UserId { get; private set; }
     public User User { get; private set; } = null!;
 

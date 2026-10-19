@@ -4,7 +4,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Measurements;
 
-public sealed class MeasurementDefinition : ITenantOwned, ISoftDeletable
+public sealed class MeasurementDefinition : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int NameMaxLength = 60;
 
@@ -28,6 +28,9 @@ public sealed class MeasurementDefinition : ITenantOwned, ISoftDeletable
     public bool IsVisibleToStudents { get; private set; }
     public bool IsRecordedByStudents { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }

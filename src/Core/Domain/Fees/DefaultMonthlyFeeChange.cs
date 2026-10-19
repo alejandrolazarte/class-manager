@@ -4,7 +4,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Fees;
 
-public sealed class DefaultMonthlyFeeChange : ITenantOwned, ISoftDeletable
+public sealed class DefaultMonthlyFeeChange : ITenantOwned, IAuditable, ISoftDeletable
 {
     private DefaultMonthlyFeeChange()
     {
@@ -15,6 +15,9 @@ public sealed class DefaultMonthlyFeeChange : ITenantOwned, ISoftDeletable
     public DateOnly EffectiveFrom { get; private set; }
     public decimal? Amount { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }

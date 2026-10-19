@@ -4,7 +4,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Fees;
 
-public sealed class ClientBillingPlanChange : ITenantOwned, ISoftDeletable
+public sealed class ClientBillingPlanChange : ITenantOwned, IAuditable, ISoftDeletable
 {
     private const string KindRequiredMessage = "Choose how the client pays.";
     private const string CustomFeeRequiredMessage = "Enter the client's monthly fee.";
@@ -20,6 +20,9 @@ public sealed class ClientBillingPlanChange : ITenantOwned, ISoftDeletable
     public BillingPlanKind Kind { get; private set; }
     public decimal? CustomFee { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
