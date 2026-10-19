@@ -65,7 +65,13 @@ bash setup-audit-log-storage.sh
 
 It can be run again at any time: it skips what already exists and first removes any temporary service principal left by a run that was cut off (Cloud Shell closes after 20 minutes without input). Everything it prints is also appended to `~/setup-audit-log-storage.log`, but an ephemeral Cloud Shell session (no storage account attached) deletes it when the session closes: keep the tab active until the script prints `Done`.
 
-The API reaches the account through its service URIs, which are not secrets: `https://classmanageraudit.table.core.windows.net` and `https://classmanageraudit.blob.core.windows.net`. The setting names are added with the writer's code ([step 3 of the plan](backend/20261012-audit-log/plan.md#steps)). Development and tests use Azurite, which has no Entra and keeps its connection string.
+The API reaches the account through its service URIs, which are not secrets, and signs in with its managed identity (`DefaultAzureCredential`). Tell the API where the command log is, once, in Cloud Shell:
+
+```bash
+az containerapp update --name class-manager-api --resource-group class-manager-rg --set-env-vars "AuditLog__TableServiceUri=https://classmanageraudit.table.core.windows.net"
+```
+
+Without that setting the API drops the entries instead of writing them, which is what development and the e2e tests do. Development can write to Azurite with `dotnet user-secrets set "ConnectionStrings:AuditLog" "UseDevelopmentStorage=true" --project src/Api`; a connection string wins over the URI, and the integration tests use one. The blob URI (`https://classmanageraudit.blob.core.windows.net`) is added with the security events ([step 5 of the plan](backend/20261012-audit-log/plan.md#steps)).
 
 ## 4. Reading the logs
 
