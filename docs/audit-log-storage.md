@@ -46,7 +46,7 @@ Checked against [Authorize with Microsoft Entra ID](https://learn.microsoft.com/
 1. Checks that the account has key access and anonymous access disabled and TLS 1.2, and stops otherwise.
 2. Creates the `security-events` container.
 3. Creates the `Audit Log Writer` role, or checks that the existing one has exactly the permissions above.
-4. **Proves the role** with a temporary service principal that has only this role, signed in to a separate Azure CLI profile. The owner's account can't prove it: Owner already allows creating and deleting tables. It waits up to 15 minutes for the role to apply, then expects:
+4. **Proves the role** with a temporary service principal that has only this role, signed in to a separate Azure CLI profile. The owner's account can't prove it: Owner already allows creating and deleting tables. It waits up to 10 minutes for the role to apply, then expects:
 
    | Allowed | Refused (403) |
    |---|---|
@@ -63,7 +63,7 @@ The repository is private, so copy the script into Cloud Shell: **Manage files â
 bash setup-audit-log-storage.sh
 ```
 
-It can be run again at any time: it skips what already exists and first removes any temporary service principal left by a run that was cut off (Cloud Shell closes after 20 minutes without input).
+It can be run again at any time: it skips what already exists and first removes any temporary service principal left by a run that was cut off (Cloud Shell closes after 20 minutes without input). Everything it prints is also appended to `~/setup-audit-log-storage.log`, which survives the session: `cat ~/setup-audit-log-storage.log` after reconnecting.
 
 The API reaches the account through its service URIs, which are not secrets: `https://classmanageraudit.table.core.windows.net` and `https://classmanageraudit.blob.core.windows.net`. The setting names are added with the writer's code ([step 3 of the plan](backend/20261012-audit-log/plan.md#steps)). Development and tests use Azurite, which has no Entra and keeps its connection string.
 

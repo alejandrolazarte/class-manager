@@ -4,7 +4,9 @@
 # security-events container and the Audit Log Writer role, proves the role with
 # a temporary service principal, then gives it to the API's managed identity
 # and the reader roles to the owner. Stops before touching the API if any check
-# fails. Idempotent: run it again if the Cloud Shell session closes.
+# fails. Idempotent: run it again if the Cloud Shell session closes. Everything
+# it prints is also appended to ~/setup-audit-log-storage.log, which survives
+# the session.
 set -uo pipefail
 
 readonly RESOURCE_GROUP="class-manager-rg"
@@ -20,7 +22,9 @@ readonly CHECK_PRINCIPAL_NAME="class-manager-audit-role-check"
 readonly STORAGE_RESOURCE="https://storage.azure.com"
 readonly STORAGE_API_VERSION="2023-11-03"
 readonly MANAGEMENT_API_VERSION="2023-05-01"
-readonly PROPAGATION_TIMEOUT_SECONDS=900
+readonly PROPAGATION_TIMEOUT_SECONDS=600
+readonly APPLIED_ROLE_TIMEOUT_SECONDS=120
+readonly LOG_FILE="$HOME/setup-audit-log-storage.log"
 readonly RETRY_DELAY_SECONDS=30
 readonly FORBIDDEN_PATTERN="AuthorizationPermissionMismatch|AuthorizationFailure|Forbidden|403"
 
@@ -34,6 +38,10 @@ readonly BLOB_ARGUMENTS=(--resource "$STORAGE_RESOURCE" --headers "x-ms-version=
 check_app_id=""
 check_object_id=""
 failures=0
+role_applied=false
+
+exec > >(tee -a "$LOG_FILE") 2>&1
+printf '\n######## %s\n' "$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
 
 step() { printf '\n== %s\n' "$*"; }
 info() { printf '   %s\n' "$*"; }
@@ -108,7 +116,11 @@ expect() {
 expect_allowed_once_applied() {
   local description="$1"
   shift
-  local deadline=$((SECONDS + PROPAGATION_TIMEOUT_SECONDS))
+  local timeout_seconds="$PROPAGATION_TIMEOUT_SECONDS"
+  if [ "$role_applied" = "true" ]; then
+    timeout_seconds="$APPLIED_ROLE_TIMEOUT_SECONDS"
+  fi
+  local deadline=$((SECONDS + timeout_seconds))
   until [ "$(outcome_of "$@")" = "allowed" ]; do
     if [ "$SECONDS" -ge "$deadline" ]; then
       expect allowed "$description" "$@"
@@ -117,6 +129,7 @@ expect_allowed_once_applied() {
     info "waiting for the role to apply ($description)..."
     sleep "$RETRY_DELAY_SECONDS"
   done
+  role_applied=true
   printf '   ok    %-24s %s\n' "$description" "allowed"
 }
 
@@ -189,7 +202,7 @@ until as_checker az login --service-principal --username "$check_app_id" --passw
   sleep "$RETRY_DELAY_SECONDS"
 done
 
-step "Proving the role (the first checks wait up to $((PROPAGATION_TIMEOUT_SECONDS / 60)) minutes for it to apply)"
+step "Proving the role (the first check waits up to $((PROPAGATION_TIMEOUT_SECONDS / 60)) minutes for it to apply)"
 expect_allowed_once_applied "create table" az storage table create -n "$ROLE_CHECK_TABLE" "${TABLE_ARGUMENTS[@]}"
 expect_allowed_once_applied "insert row" az storage entity insert -t "$ROLE_CHECK_TABLE" \
   -e PartitionKey=check "RowKey=$RUN_ID" Value=first "${TABLE_ARGUMENTS[@]}"
@@ -230,4 +243,4 @@ step "Role assignments on $AUDIT_ACCOUNT (expected: $WRITER_ROLE for the API, th
 az role assignment list --scope "$AUDIT_ACCOUNT_ID" --include-inherited \
   --query "[].{principal:principalName, type:principalType, role:roleDefinitionName}" -o table
 
-step "Done"
+step "Done. Log: $LOG_FILE"
