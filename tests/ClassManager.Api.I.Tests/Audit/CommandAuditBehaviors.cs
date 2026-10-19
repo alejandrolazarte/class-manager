@@ -1,4 +1,3 @@
-using ClassManager.Core.Abstractions.Security;
 using ClassManager.Infrastructure.Audit;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
@@ -19,6 +18,4 @@ internal static class CommandAuditBehaviors
         new FixedCurrentUser(AccountId, UserId),
         new FakeTimeProvider(CommandAuditEntries.OccurredAt),
         NullLogger<CommandAuditBehavior<SampleCommand, string>>.Instance);
-
-    private sealed record FixedCurrentUser(Guid? AccountId, Guid? UserId) : ICurrentUser;
 }

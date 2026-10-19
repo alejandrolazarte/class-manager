@@ -11,10 +11,10 @@ public sealed class Then_later_entries_are_still_written
     [Fact]
     public async Task Then_later_entries_are_still_written_Run()
     {
-        var channel = new CommandAuditChannel();
+        var channel = new AuditLogChannel<CommandAuditEntry>();
         var store = new RecordingCommandAuditStore(failingWrites: 1);
         var auditLog = new QueuedCommandAuditService(channel);
-        using var worker = new CommandAuditWorker(channel, store, NullLogger<CommandAuditWorker>.Instance);
+        using var worker = new AuditLogWorker<CommandAuditEntry>(channel, store, NullLogger<AuditLogWorker<CommandAuditEntry>>.Instance);
         await worker.StartAsync(CancellationToken.None);
         auditLog.Record(CommandAuditEntries.Succeeded(Guid.CreateVersion7()));
         var waitUntil = DateTime.UtcNow + WaitLimit;

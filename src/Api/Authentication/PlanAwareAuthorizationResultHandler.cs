@@ -20,6 +20,7 @@ internal sealed class PlanAwareAuthorizationResultHandler : IAuthorizationMiddle
             return;
         }
 
+        PlanLimitResponses.Mark(context);
         await TypedResults.Problem(problem).ExecuteAsync(context);
     }
 

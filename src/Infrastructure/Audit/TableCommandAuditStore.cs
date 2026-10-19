@@ -4,7 +4,7 @@ using Azure.Data.Tables;
 
 namespace ClassManager.Infrastructure.Audit;
 
-public sealed class TableCommandAuditStore(TableServiceClient serviceClient) : ICommandAuditStore
+public sealed class TableCommandAuditStore(TableServiceClient serviceClient) : IAuditLogStore<CommandAuditEntry>
 {
     public const string NoBusinessPartition = "none";
 

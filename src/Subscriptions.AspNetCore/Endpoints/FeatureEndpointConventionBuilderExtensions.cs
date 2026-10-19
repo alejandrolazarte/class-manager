@@ -19,7 +19,13 @@ public static class FeatureEndpointConventionBuilderExtensions
         {
             var featureAccess = invocationContext.HttpContext.RequestServices.GetRequiredService<IFeatureAccess>();
             var features = await featureAccess.GetCurrentAsync(invocationContext.HttpContext.RequestAborted);
-            return features.Has(featureCode) ? await next(invocationContext) : NotInPlan(featureCode);
+            if (features.Has(featureCode))
+            {
+                return await next(invocationContext);
+            }
+
+            PlanLimitResponses.Mark(invocationContext.HttpContext);
+            return NotInPlan(featureCode);
         });
 
         return builder;

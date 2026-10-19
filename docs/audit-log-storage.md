@@ -44,7 +44,7 @@ Checked against [Authorize with Microsoft Entra ID](https://learn.microsoft.com/
 [`scripts/setup-audit-log-storage.sh`](../scripts/setup-audit-log-storage.sh) does, in order:
 
 1. Checks that the account has key access and anonymous access disabled and TLS 1.2, and stops otherwise.
-2. Creates the `security-events` container.
+2. Creates the `security-events` container and its retention policy ([below](#the-retention-policy-of-security-events)).
 3. Creates the `Audit Log Writer` role, or checks that the existing one has exactly the permissions above.
 4. **Proves the role** with a temporary service principal that has only this role, signed in to a separate Azure CLI profile. The owner's account can't prove it: Owner already allows creating and deleting tables. It waits up to 10 minutes for the role to apply, then expects:
 
@@ -54,8 +54,9 @@ Checked against [Authorize with Microsoft Entra ID](https://learn.microsoft.com/
 
    Then it deletes the temporary service principal, its role assignment, the test table and the test container. If any check failed it stops here, without touching the API.
 5. Gives `Audit Log Writer` to the API's system-assigned managed identity (the same one it uses for SQL, see [pilot deployment](pilot-deployment.md)).
-6. Gives the signed-in owner `Storage Table Data Reader` and `Storage Blob Data Reader`.
-7. Prints the role assignments on the account.
+6. Sets the API's `AuditLog__TableServiceUri` and `AuditLog__BlobServiceUri`, which restarts it once.
+7. Gives the signed-in owner `Storage Table Data Reader` and `Storage Blob Data Reader`.
+8. Prints the role assignments on the account.
 
 The repository is private, so copy the script into Cloud Shell: **Manage files → Upload** (or paste it with `cat > setup-audit-log-storage.sh`), then:
 
@@ -65,17 +66,27 @@ bash setup-audit-log-storage.sh
 
 It can be run again at any time: it skips what already exists and first removes any temporary service principal left by a run that was cut off (Cloud Shell closes after 20 minutes without input). Everything it prints is also appended to `~/setup-audit-log-storage.log`, but an ephemeral Cloud Shell session (no storage account attached) deletes it when the session closes: keep the tab active until the script prints `Done`.
 
-The API reaches the account through its service URIs, which are not secrets, and signs in with its managed identity (`DefaultAzureCredential`). Tell the API where the command log is, once, in Cloud Shell:
+The API reaches the account through its service URIs, which are not secrets, and signs in with its managed identity (`DefaultAzureCredential`). The script sets them on the container app (`AuditLog__TableServiceUri` and `AuditLog__BlobServiceUri`); by hand it is:
 
 ```bash
-az containerapp update --name class-manager-api --resource-group class-manager-rg --set-env-vars "AuditLog__TableServiceUri=https://classmanageraudit.table.core.windows.net"
+az containerapp update --name class-manager-api --resource-group class-manager-rg --set-env-vars "AuditLog__TableServiceUri=https://classmanageraudit.table.core.windows.net" "AuditLog__BlobServiceUri=https://classmanageraudit.blob.core.windows.net"
 ```
 
-Without that setting the API drops the entries instead of writing them, which is what development and the e2e tests do. Development can write to Azurite with `dotnet user-secrets set "ConnectionStrings:AuditLog" "UseDevelopmentStorage=true" --project src/Api`; a connection string wins over the URI, and the integration tests use one. The blob URI (`https://classmanageraudit.blob.core.windows.net`) is added with the security events ([step 5 of the plan](backend/20261012-audit-log/plan.md#steps)).
+Without them the API drops the entries instead of writing them, which is what development and the e2e tests do. Development can write to Azurite with `dotnet user-secrets set "ConnectionStrings:AuditLog" "UseDevelopmentStorage=true" --project src/Api`; a connection string wins over the URIs, creates the `security-events` container if it is missing, and is what the integration tests use.
+
+### The retention policy of `security-events`
+
+The script puts a container-level time-based retention policy on `security-events`: 183 days, protected append writes allowed, **unlocked**. An append blob can't be changed or deleted, by anyone, until 183 days after its last append; new blocks can still be appended to it. To check it:
+
+```bash
+az storage container immutability-policy show --account-name classmanageraudit --resource-group class-manager-rg --container-name security-events --query "{days:immutabilityPeriodSinceCreationInDays, appends:allowProtectedAppendWrites, state:state}"
+```
+
+Locking it is [step 6 of the plan](backend/20261012-audit-log/plan.md#steps), once security events have been written in production for a while. After locking, the period can only be extended, and the account can't be deleted while it holds protected blobs.
 
 ## 4. Reading the logs
 
-The owner reads with their own account, never with the API's identity: open the account in Azure Storage Explorer signed in with Entra. Commands are filtered by `PartitionKey` (the business) and `RowKey` range; security events are read by downloading a day's blob.
+The owner reads with their own account, never with the API's identity: open the account in Azure Storage Explorer signed in with Entra. Commands are filtered by `PartitionKey` (the business) and `RowKey` range; security events are read by downloading a day's blob, `security-events/{yyyy}/{MM}/{dd}.jsonl`, one JSON object per line.
 
 ## 5. Audit commands
 
@@ -100,3 +111,17 @@ Each month has its own table, kept for 24 months ([retention](backend/20261012-a
 ```bash
 az storage table delete --name Commands202610 --account-name classmanageraudit --auth-mode login --fail-not-exist
 ```
+
+## 7. Deleting old security events
+
+Azure's lifecycle rules don't delete blobs in a container with an immutability policy, even once their retention has ended, so old days are deleted by the owner. A day can be deleted 183 days after its last event; keeping the plan's 6 months, delete each month once it is more than 190 days old, starting in the second half of April 2027 (for October 2026). The owner's readers can't delete, so give yourself the data role for the cleanup and take it back:
+
+```bash
+ACCOUNT_ID=$(az storage account show -n classmanageraudit -g class-manager-rg --query id -o tsv); OWNER_ID=$(az ad signed-in-user show --query id -o tsv)
+az role assignment create --assignee-object-id $OWNER_ID --assignee-principal-type User --role "Storage Blob Data Contributor" --scope $ACCOUNT_ID
+az storage blob delete-batch --account-name classmanageraudit --source security-events --pattern "2026/10/*" --auth-mode login
+az role assignment delete --assignee $OWNER_ID --role "Storage Blob Data Contributor" --scope $ACCOUNT_ID
+```
+
+The role can take a few minutes to apply. A blob still under retention answers 409 and stays. Deleted blobs stay recoverable for the 7 days of blob soft delete.
+

@@ -1,9 +1,10 @@
 #!/bin/bash
 # Sets up the audit log storage account (docs/audit-log-storage.md) from Azure
 # Cloud Shell, signed in as the owner: checks the account settings, creates the
-# security-events container and the Audit Log Writer role, proves the role with
-# a temporary service principal, then gives it to the API's managed identity
-# and the reader roles to the owner. Stops before touching the API if any check
+# security-events container with its retention policy and the Audit Log Writer
+# role, proves the role with a temporary service principal, then gives it to the
+# API's managed identity, tells the API where the logs are and gives the reader
+# roles to the owner. Stops before touching the API if any check
 # fails. Idempotent: run it again if the Cloud Shell session closes. Everything
 # it prints is also appended to ~/setup-audit-log-storage.log, which only
 # survives the session when Cloud Shell has a storage account attached.
@@ -13,6 +14,9 @@ readonly RESOURCE_GROUP="class-manager-rg"
 readonly CONTAINER_APP="class-manager-api"
 readonly AUDIT_ACCOUNT="classmanageraudit"
 readonly SECURITY_EVENTS_CONTAINER="security-events"
+readonly SECURITY_EVENTS_RETENTION_DAYS=183
+readonly TABLE_SERVICE_URI="https://$AUDIT_ACCOUNT.table.core.windows.net"
+readonly BLOB_SERVICE_URI="https://$AUDIT_ACCOUNT.blob.core.windows.net"
 readonly ROLE_CHECK_CONTAINER="role-check"
 readonly ROLE_CHECK_TABLE="RoleCheck"
 readonly WRITER_ROLE="Audit Log Writer"
@@ -154,6 +158,26 @@ else
   info "created $SECURITY_EVENTS_CONTAINER"
 fi
 
+step "Retention policy on $SECURITY_EVENTS_CONTAINER ($SECURITY_EVENTS_RETENTION_DAYS days, protected appends allowed)"
+policy="$(az storage container immutability-policy show --account-name "$AUDIT_ACCOUNT" -g "$RESOURCE_GROUP" \
+  --container-name "$SECURITY_EVENTS_CONTAINER" \
+  --query "join(' ', [to_string(immutabilityPeriodSinceCreationInDays), to_string(allowProtectedAppendWrites), to_string(state), to_string(etag)])" -o tsv 2>/dev/null)"
+read -r policy_days policy_appends policy_state policy_etag <<< "$policy"
+if [ "${policy_state:-}" = "Locked" ]; then
+  info "locked with $policy_days days; a locked policy can only be extended"
+elif [ "${policy_days:-}" = "$SECURITY_EVENTS_RETENTION_DAYS" ] && [ "${policy_appends:-}" = "true" ]; then
+  info "already set, unlocked"
+else
+  etag_arguments=()
+  if [ -n "${policy_etag:-}" ] && [ "$policy_etag" != "null" ]; then
+    etag_arguments=(--if-match "$policy_etag")
+  fi
+  az storage container immutability-policy create --account-name "$AUDIT_ACCOUNT" -g "$RESOURCE_GROUP" \
+    --container-name "$SECURITY_EVENTS_CONTAINER" --period "$SECURITY_EVENTS_RETENTION_DAYS" \
+    --allow-protected-append-writes true "${etag_arguments[@]}" -o none || fail "Could not set the retention policy"
+  info "set, unlocked"
+fi
+
 step "Role $WRITER_ROLE"
 role_definition="$(cat <<JSON
 {
@@ -233,6 +257,19 @@ step "Giving $WRITER_ROLE to the API ($CONTAINER_APP)"
 api_principal_id="$(az containerapp show -n "$CONTAINER_APP" -g "$RESOURCE_GROUP" --query identity.principalId -o tsv)"
 [ -n "$api_principal_id" ] || fail "$CONTAINER_APP has no system-assigned managed identity"
 assign_role "$api_principal_id" ServicePrincipal "$WRITER_ROLE"
+
+step "Telling the API where the logs are"
+current_uris="$(az containerapp show -n "$CONTAINER_APP" -g "$RESOURCE_GROUP" \
+  --query "properties.template.containers[0].env[?starts_with(name, 'AuditLog__')].join('=', [name, value])" -o tsv | sort | tr '\n' ' ')"
+expected_uris="AuditLog__BlobServiceUri=$BLOB_SERVICE_URI AuditLog__TableServiceUri=$TABLE_SERVICE_URI "
+if [ "$current_uris" = "$expected_uris" ]; then
+  info "already set"
+else
+  az containerapp update -n "$CONTAINER_APP" -g "$RESOURCE_GROUP" \
+    --set-env-vars "AuditLog__TableServiceUri=$TABLE_SERVICE_URI" "AuditLog__BlobServiceUri=$BLOB_SERVICE_URI" -o none \
+    || fail "Could not set the API settings"
+  info "set (the API restarts with them)"
+fi
 
 step "Reader roles for the signed-in owner"
 owner_object_id="$(az ad signed-in-user show --query id -o tsv)" || fail "Run this script signed in as a user"

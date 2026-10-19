@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Businesses;
@@ -75,6 +76,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         {
             [$"{ConnectionStringsSection}:{BlobStorageOptions.ConnectionStringName}"] = _storageContainer.GetConnectionString(),
             [$"{ConnectionStringsSection}:{AuditLogOptions.ConnectionStringName}"] = _storageContainer.GetConnectionString(),
+            [$"{AuditLogOptions.SectionName}:{nameof(AuditLogOptions.MaximumSecurityEventsPerAddressPerMinute)}"] = int.MaxValue.ToString(CultureInfo.InvariantCulture),
         };
         _apiFactory = new BusinessApiFactory(ConnectionString, new FakeTimeProvider(BusinessApiFactory.Now), storageSettings);
     }

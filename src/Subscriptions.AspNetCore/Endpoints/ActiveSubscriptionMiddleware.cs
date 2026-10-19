@@ -16,6 +16,7 @@ internal sealed class ActiveSubscriptionMiddleware(RequestDelegate next)
             return;
         }
 
+        PlanLimitResponses.Mark(httpContext);
         await TypedResults.Problem(new ProblemDetails
         {
             Status = StatusCodes.Status403Forbidden,
