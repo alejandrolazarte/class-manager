@@ -1,8 +1,9 @@
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Products;
 
-public sealed class ProductVariant : ITenantOwned
+public sealed class ProductVariant : ITenantOwned, IAuditable
 {
     public const int SizeMaxLength = 30;
 
@@ -14,6 +15,10 @@ public sealed class ProductVariant : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public Guid ProductId { get; private set; }
     public string Size { get; private set; } = string.Empty;
     public string? Color { get; private set; }

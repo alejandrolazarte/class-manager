@@ -1,9 +1,10 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Notifications;
 
-public sealed class MemberPushSubscription : ITenantOwned
+public sealed class MemberPushSubscription : ITenantOwned, IAuditable
 {
     public const int EndpointMaxLength = PushSubscriptionRules.EndpointMaxLength;
     public const int KeyMaxLength = PushSubscriptionRules.KeyMaxLength;
@@ -19,6 +20,9 @@ public sealed class MemberPushSubscription : ITenantOwned
     public string P256dh { get; private set; } = string.Empty;
     public string Auth { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static Result<MemberPushSubscription> Create(
         Guid userId, string? endpoint, string? p256dh, string? auth, DateTimeOffset createdAt)

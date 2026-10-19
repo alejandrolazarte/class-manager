@@ -5,7 +5,7 @@ using PermissionCatalog = ClassManager.Core.Domain.Authorization.Permissions;
 
 namespace ClassManager.Core.Domain.Roles;
 
-public sealed class CustomRole : ITenantOwned, ISoftDeletable
+public sealed class CustomRole : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int NameMinLength = 2;
     public const int NameMaxLength = 60;
@@ -41,6 +41,9 @@ public sealed class CustomRole : ITenantOwned, ISoftDeletable
     public IReadOnlyList<string> Permissions { get; private set; } = [];
     public string? CopiedFrom { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }

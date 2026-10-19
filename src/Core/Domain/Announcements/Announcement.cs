@@ -6,7 +6,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Announcements;
 
-public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImages
+public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHasCatalogImages
 {
     public const int TitleMaxLength = 80;
     public const int BodyMaxLength = 1000;
@@ -22,6 +22,10 @@ public sealed class Announcement : ITenantOwned, ISoftDeletable, IHasCatalogImag
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public string? Body { get; private set; }
     public AnnouncementCategory Category { get; private set; }

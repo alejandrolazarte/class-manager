@@ -1,10 +1,11 @@
 using ClassManager.Core.Common;
+using ClassManager.Records;
 using ClassManager.Storage.Images;
 using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Businesses;
 
-public sealed class BrandLogo : ITenantOwned
+public sealed class BrandLogo : ITenantOwned, IAuditable
 {
     public const int MaximumSizeInBytes = 512 * 1024;
     public const int ContentTypeMaxLength = 32;
@@ -19,9 +20,12 @@ public sealed class BrandLogo : ITenantOwned
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
     public byte[] Content { get; private set; } = [];
     public string ContentType { get; private set; } = string.Empty;
     public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
 
     public static Result<BrandLogo> Create(byte[] content, DateTimeOffset updatedAt)
     {

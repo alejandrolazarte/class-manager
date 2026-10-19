@@ -4,7 +4,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Sessions;
 
-public sealed class ClassFeedback : ITenantOwned, ISoftDeletable
+public sealed class ClassFeedback : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int TextMaxLength = 500;
 
@@ -22,7 +22,9 @@ public sealed class ClassFeedback : ITenantOwned, ISoftDeletable
     public Guid InstructorId { get; private set; }
     public string Text { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }

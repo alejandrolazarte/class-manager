@@ -4,7 +4,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Fees;
 
-public sealed class Payment : ITenantOwned, ISoftDeletable
+public sealed class Payment : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int NotesMaxLength = 200;
 
@@ -27,6 +27,9 @@ public sealed class Payment : ITenantOwned, ISoftDeletable
     public string? Notes { get; private set; }
     public Guid? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public Guid? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
     public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }

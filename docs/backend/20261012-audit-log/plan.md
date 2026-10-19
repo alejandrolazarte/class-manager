@@ -1,6 +1,6 @@
 # Audit log
 
-Status: step 1 built; step 3's Azure setup done on 2026-10-19 (account, container, role proved and given to the API, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
+Status: steps 1 and 2 built; step 3's Azure setup done on 2026-10-19 (account, container, role proved and given to the API, see the [runbook](../../audit-log-storage.md)); the rest is a proposal.
 
 Three pieces answer "who did what, and who tried what they were not allowed to":
 
@@ -50,7 +50,7 @@ Soft delete broke this. `ISoftDeletable.DeletedOn` was an event (a user deleted 
 |---|---|---|---|
 | `ISoftDeletable` | `IsDeleted`, `DeletedOn` | `IsDeleted`, `DeletedAt`, `DeletedByUserId` | The row was deleted or replaced. Hidden by the `SoftDelete` filter |
 | `IDeletedOn` (records) | `DeletedOn` | Removed | Replacing a record is now a soft delete of the current one plus the new row |
-| `IAudited` (new) | — | `CreatedAt`, `CreatedByUserId`, `UpdatedAt`, `UpdatedByUserId` | Who created and who last changed the row |
+| `IAuditable` (new) | — | `CreatedAt`, `CreatedByUserId`, `UpdatedAt`, `UpdatedByUserId` | Who created and who last changed the row |
 
 Nothing read replaced subscriptions: `IsActiveOn(date)` already required the record to be current, and every query used `WhereCurrent()`. So the replaced records (`Subscription`, `SubscriptionFeature`) became soft deleted rows, and the app has one way to delete. The history stays in the table and can be read by skipping the named `SoftDelete` filter.
 
@@ -60,31 +60,34 @@ What the change touched (13 entities: `BusinessMember`, `OrganizationMember`, `P
 - `SoftDeleteModelBuilderExtensions`: the check constraint became `CK_<Table>_IsDeleted_DeletedAt`.
 - One migration (`UseDeletedAtForSoftDelete`): `RenameColumn` (`sp_rename`, instant, no data copy), drop and create each check constraint, add `DeletedByUserId` (nullable, `null` for rows deleted before the change), and for `billing.Subscriptions` and `billing.SubscriptionFeatures` add `IsDeleted`, set it to 1 where `DeletedAt` has a value, and filter their unique indexes on `[IsDeleted] = 0`.
 - The record columns test maps `IsDeleted`, `DeletedAt` and `DeletedByUserId` to `ISoftDeletable` and rejects a column named `DeletedOn`.
-- `DeletedByUserId` is left empty until step 2 fills it.
+- `DeletedByUserId` was left empty until step 2 filled it.
 
-### `IAudited`
+### `IAuditable` (built)
 
 ```csharp
 namespace ClassManager.Records;
 
-public interface IAudited
+public interface IAuditable
 {
     DateTimeOffset CreatedAt { get; }
     Guid? CreatedByUserId { get; }
-    DateTimeOffset? UpdatedAt { get; }
+    DateTimeOffset UpdatedAt { get; }
     Guid? UpdatedByUserId { get; }
 }
 ```
 
-- Lives in `src/Records` (no dependencies).
-- `AuditSaveChangesInterceptor` in `src/Infrastructure/Persistence` fills them, the same way `TenantStampingSaveChangesInterceptor` fills `TenantId`:
-  - `Added`: `CreatedAt` = now (from `TimeProvider`) when the entity didn't set it, `CreatedByUserId` = current user.
-  - `Modified`: `UpdatedAt` = now, `UpdatedByUserId` = current user.
-  - Soft deleted (`SoftDeleteSaveChangesInterceptor` turns the remove into `Delete(now)`): `DeletedByUserId` = current user. The audit interceptor runs after the soft delete one.
-- The current user comes from the `sub` claim through a small `ICurrentUser` in `Core`. Work with no user (the background worker, sign-up before the account exists, seeding) leaves the `ByUserId` columns `null`.
-- Entities that already set `CreatedAt` in their constructor keep doing it; the interceptor doesn't overwrite it. `ClassFeedback.UpdatedAt` and `BrandLogo.UpdatedAt` become the `IAudited` ones.
+- Lives in `src/Records` (no dependencies). Named `IAuditable`, as agreed in the [users plan](../20261017-users/plan.md#audit-columns).
+- Every tenant-owned entity implements it (47 tables, migration `AddAuditColumns`).
+- `UpdatedAt` is not nullable: it is the last write, so a new row has `UpdatedAt` = `CreatedAt` and `UpdatedByUserId` = `CreatedByUserId`. `ClassFeedback.UpdatedAt` (the comment's date, filtered and sorted by it) and `BrandLogo.UpdatedAt` (the logo's `Last-Modified`) already worked that way and became the `IAuditable` ones.
+- `AuditSaveChangesInterceptor` in `src/Infrastructure/Persistence` fills them, registered after `SoftDeleteSaveChangesInterceptor`:
+  - `Added`: `CreatedAt` = now (from `TimeProvider`) and `CreatedByUserId` = current user, unless the entity set them (`Order.CreatedByUserId` is the buyer or the staff member who placed it); `UpdatedAt` and `UpdatedByUserId` = the same.
+  - `Modified`: `UpdatedAt` = now and `UpdatedByUserId` = current user, unless the entity changed them itself.
+  - Soft deleted (`SoftDeleteSaveChangesInterceptor` turns the remove into `Delete(now)`): `DeletedByUserId` = current user when empty, on every `ISoftDeletable`. A delete doesn't count as an update: `UpdatedAt` and `UpdatedByUserId` keep the last edit. `Restore()` clears `DeletedByUserId`.
+- The current user is `ICurrentUser.UserId`: the session's `Users` row in the branch (claim `user_id`), not the account. All three `...ByUserId` columns are foreign keys to `Users` (`ApplyWhoDidWhatForeignKeys`). Work with no user (the background worker, sign-up before the user exists, seeding) leaves them `null`.
+- Existing rows: `CreatedAt` = the migration's time in the 19 tables that didn't have it, `UpdatedAt` = `CreatedAt`, both `...ByUserId` `null`.
+- Set-based writes (`ExecuteUpdate`, `ExecuteDelete`) skip interceptors and set the columns themselves, as `AccountLinkRepository` does with `DeletedByUserId`.
 - Business columns with their own meaning stay: `RecordedByUserId` (who took the payment), `CancelledByUserId`, `InvitedByUserId`. `UpdatedByUserId` says who last touched the row, not who did a business action.
-- A test fails if a tenant-owned entity doesn't implement `IAudited`, like the record columns test.
+- Tests: every tenant-owned entity implements `IAuditable`; the record columns test maps `CreatedByUserId`, `UpdatedAt` and `UpdatedByUserId` to it; and through the API, a new row records its creator, an edit by another owner records them as the last editor, and a deleted payment records who deleted it.
 
 ## 2. Command log
 
@@ -113,7 +116,8 @@ Table `Commands{yyyyMM}` (one table per month, see [Retention](#retention)).
 | `PartitionKey` | `TenantId` (`none` for commands without a tenant, such as sign-up) |
 | `RowKey` | Inverted ticks + `_` + a new `Guid` (newest first, unique) |
 | `Command` | `typeof(TCommand).Name`, for example `RecordPaymentCommand` |
-| `UserId` | `sub` claim, or empty |
+| `AccountId` | The account (`sub` claim), or empty |
+| `UserId` | The session's user in the branch (`ICurrentUser.UserId`), or empty. Both are kept: the account says who the person is across branches, the user matches the `...ByUserId` columns of the rows |
 | `Outcome` | `Succeeded`, `Failed` or `Exception` |
 | `ErrorKind`, `ErrorCode` | From `Result` when it failed, or the exception type |
 | `DurationMs` | Duration of the use case with its transaction |
@@ -274,7 +278,7 @@ At first, only the owner reads it, from Azure Storage Explorer signed in with En
 ## Steps
 
 1. Rename soft delete to `DeletedAt`, add `DeletedByUserId` and make replaced records soft deleted, with the migration and the record columns test. One PR, no behavior change. **Built.**
-2. `IAudited`, `ICurrentUser` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it.
+2. `IAuditable` and `AuditSaveChangesInterceptor`, with the test that every tenant-owned entity implements it. **Built.**
 3. The logs storage account (no anonymous access, no account key), the `Audit Log Writer` role for the API's managed identity, and a runbook with audit commands (**Azure setup done**: account, `security-events` container, role proved and assigned, see the [runbook](../../audit-log-storage.md); the code is pending). Table client (`Azure.Data.Tables`) and blob client through `DefaultAzureCredential` with Azurite in the integration tests, `AuditWorker` with the monthly tables.
 4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules).
 5. `SecurityEventMiddleware`, `ISecurityEventRecorder` in sign-in and refresh, the plan-limit marker, the daily append blobs, the retention policy (unlocked) and the lifecycle rule.
