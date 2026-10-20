@@ -23,6 +23,7 @@ Rules in `CLAUDE.md` depend on someone reading them; these are enforced by the c
 | ARCH008 | Assemblies `Storage` and `Storage.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api`, `ClassManager.Security`, `ClassManager.Tenancy`, `ClassManager.ImportExport`, `ClassManager.Notifications` or `ClassManager.Subscriptions`: file storage must stay free of business concepts, and the app decides paths and owners (see [storage.md](storage.md)) |
 | ARCH009 | Assemblies `Records` and `Records.*` | No `using` of any other `ClassManager.*` assembly: the record conventions (`ISoftDeletable`, `ICreatedOn`, `IExpiredOn`) stay free of business concepts so any library can use them (see [CLAUDE.md](../CLAUDE.md#records-that-change-over-time)) |
 | ARCH007 | Assemblies `Subscriptions` and `Subscriptions.*` | No `using` of `ClassManager.Core`, `ClassManager.Infrastructure`, `ClassManager.Api`, `ClassManager.Security`, `ClassManager.Tenancy`, `ClassManager.ImportExport` or `ClassManager.Notifications`: plans and features must stay free of business concepts, and the app resolves who the subscriber is (see [subscriptions plan](backend/20261003-subscriptions/plan.md)) |
+| ARCH011 | Assemblies `Api` and `Core` | No `using` of `ClassManager.Backoffice.*`: only the backoffice hosts read across businesses and the audit log, so the app never references them (see [backoffice plan](backend/20261017-backoffice/plan.md#projects)) |
 
 Test helpers (fixtures, factories, builders) have no test methods, so the TEST rules don't apply to them.
 

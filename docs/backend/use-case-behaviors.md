@@ -5,12 +5,14 @@ Code that runs before and after every use case, such as opening a transaction, l
 ## How it works
 
 - Every use case input is either a command (`ICommand`) or a query (`IQuery`). A command changes data, a query only reads it. A unit test fails if an input is neither or both.
-- `src/Api/UseCaseServiceCollectionExtensions.cs` registers each use case with `AddUseCase<TCommand, TResponse, TUseCase>()`. Whoever asks for `IUseCase<TCommand, TResponse>` gets a `UseCasePipeline` that wraps the use case with its behaviors. An integration test fails if a use case is registered any other way.
+- `src/Api/UseCaseServiceCollectionExtensions.cs` registers each use case with `AddUseCase<TCommand, TResponse, TUseCase>()`, and the backoffice registers its own the same way; both helpers live in `src/Infrastructure/UseCasePipelineServiceCollectionExtensions.cs`. Whoever asks for `IUseCase<TCommand, TResponse>` gets a `UseCasePipeline` that wraps the use case with its behaviors. An integration test fails if a use case is registered any other way.
 - A behavior implements `IUseCaseBehavior<TCommand, TResponse>`. It receives the input and the next step: code before `nextStep()` runs before the use case and code after it runs after. A behavior can also return a failure without calling `nextStep()`, and then the use case doesn't run.
 - Behaviors run in the order they are registered, the first one outermost. A behavior registered with open generic types applies to every use case whose input satisfies its constraints. One registered with closed types applies to that use case only.
+- `AddUseCaseBehaviors()` registers them in this order; the API and the backoffice both call it, so they never drift apart (an integration test of each checks the order):
 
 ```csharp
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandAuditBehavior<,>));
+services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryAuditBehavior<,>));
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandTransactionBehavior<,>));
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,>));
 

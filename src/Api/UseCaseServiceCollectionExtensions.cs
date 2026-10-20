@@ -36,7 +36,6 @@ using ClassManager.ImportExport.Parsing;
 using ClassManager.ImportExport.Tabular;
 using ClassManager.ImportExport.Tabular.Csv;
 using ClassManager.ImportExport.Xlsx;
-using ClassManager.Infrastructure.Audit;
 
 namespace ClassManager.Api;
 
@@ -58,10 +57,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton<IImportParser, ImportParser>();
         services.AddScoped<IImportModule, InstructorImportModule>();
         services.AddScoped<IImportModule, StudentImportModule>();
-        services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandAuditBehavior<,>));
-        services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryAuditBehavior<,>));
-        services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandTransactionBehavior<,>));
-        services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,>));
+        services.AddUseCaseBehaviors();
 
         services.AddUseCase<RequestSignUpCommand, RequestSignUpResponse, RequestSignUpUseCase>();
         services.AddUseCase<CompleteSignUpCommand, TokenResponse, CompleteSignUpUseCase>();
@@ -258,17 +254,6 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<UpdateBusinessSettingsCommand, UpdateBusinessSettingsResponse, UpdateBusinessSettingsUseCase>();
         services.AddUseCase<GetAchievementSettingsQuery, AchievementSettingsResponse, GetAchievementSettingsUseCase>();
         services.AddUseCase<UpdateAchievementSettingsCommand, AchievementSettingsResponse, UpdateAchievementSettingsUseCase>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddUseCase<TCommand, TResponse, TUseCase>(this IServiceCollection services)
-        where TUseCase : class, IUseCase<TCommand, TResponse>
-    {
-        services.AddScoped<TUseCase>();
-        services.AddScoped<IUseCase<TCommand, TResponse>>(serviceProvider => new UseCasePipeline<TCommand, TResponse>(
-            serviceProvider.GetRequiredService<TUseCase>(),
-            serviceProvider.GetServices<IUseCaseBehavior<TCommand, TResponse>>()));
 
         return services;
     }

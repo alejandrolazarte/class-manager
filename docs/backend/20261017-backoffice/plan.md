@@ -1,6 +1,6 @@
 # Backoffice
 
-Status: step 1 in progress: the two web builds are built (see [Web app](#web-app-same-expo-project-two-builds)); the rest is a proposal.
+Status: step 1 in progress: the two web builds and the backend projects are built (see [Web app](#web-app-same-expo-project-two-builds) and [Projects](#projects)); the rest is a proposal.
 
 A platform administration area for the people who run Laztty, not for businesses: see every brand, its subscription and usage, change its plan, give or take away add-ons, read the audit log, manage who may enter and, later, see the app as a user to reproduce a bug. It is a web app installable as a PWA, so the operator can run it from their phone.
 
@@ -82,7 +82,8 @@ What is shared is code; what keeps the two apart is configuration and tests:
 
 ### Audited like the API
 
-- Backoffice use cases run through the same pipeline and behaviors. The behaviors' registration moves from `src/Api/UseCaseServiceCollectionExtensions.cs` to `Infrastructure` (`AddUseCaseBehaviors()`) and both hosts call it, so when `CommandAuditBehavior` lands every backoffice command is logged without changes to the backoffice. The backoffice can be built before the audit log.
+- Backoffice use cases run through the same pipeline and behaviors. The behaviors' registration moved from `src/Api/UseCaseServiceCollectionExtensions.cs` to `Infrastructure` (`AddUseCaseBehaviors()`, with the `AddUseCase` helper) and both hosts call it, so every backoffice command is logged by `CommandAuditBehavior` without changes to the backoffice. **Built.**
+- The command log is written by `AuditLogWorker`, which lives in `src/Api/Audit`. It moves to `Infrastructure` and `Backoffice.Api` starts it with the first backoffice command; until then the backoffice has none to write.
 - The command log row gets `Source` (`App` or `Backoffice`). The user is the operator's Laztty user, and `TenantId` the branch the command changed.
 
 ### Personal data stays out
@@ -104,7 +105,8 @@ tests/ClassManager.Backoffice.Api.I.Tests/   endpoints and persistence (Testcont
 - `Backoffice.Core` references `Core` (entities, `ICommand`/`IQuery`, `UseCasePipeline`, abstractions) and `Subscriptions`. The domain is not duplicated: changing a plan uses the same `Subscription` and `SubscriptionFeature` rules as everywhere else.
 - `Backoffice.Infrastructure` references `Infrastructure` and `Security`, and reuses `AppDbContext`, the interceptors and the behaviors. Only what the API must not have lives there: repositories that read across brands, `BackofficeLogins` and the audit log reader.
 - Same database and migrations, in `Infrastructure`, applied by the API's deploy as today. New tables: `BackofficeLogins` and `BackofficeAccessRequests` (step 1), `ImpersonationGrants` (step 4).
-- **ARCH011:** assemblies `Api` and `Core` have no `using` of `ClassManager.Backoffice.*`. ARCH001 applies to `Backoffice.Core` (no EF Core, ASP.NET or Infrastructure), and ARCH002/ARCH010 to every backoffice assembly.
+- **ARCH011:** assemblies `Api` and `Core` have no `using` of `ClassManager.Backoffice.*`. ARCH001 applies to `Backoffice.Core` (no EF Core, ASP.NET or Infrastructure), and ARCH002/ARCH010 to every backoffice assembly; the existing analyzers already match them by name. **Built.**
+- **Skeleton (built):** `Backoffice.Api` answers `/health` (with the database check) and calls `AddBackofficeInfrastructure()`: `AddInfrastructure()`, `AddSessionClaims()` (the current user and the tenant from the token's claims, moved from `src/Api` to `Infrastructure` so both hosts read them the same way) and `AddUseCaseBehaviors()`. Its JWT issuer and audience are `laztty-backoffice` with 10-minute access tokens; the signing key is its own secret. The 8-hour session is enforced with the sign-in (step 1, OIDC). `Backoffice.Core` has no use cases yet. `tests/ClassManager.Backoffice.Api.I.Tests` proves the host starts and audits commands around the transaction; `ClassManager.Backoffice.Core.U.Tests` comes with the first use case.
 
 ### Tenant context
 
@@ -195,7 +197,7 @@ Rules, enforced in the API:
 
 1. **Brands, subscriptions, add-ons and operators.**
    - Prove two web builds from the Expo project (routes root by `APP_TARGET`, the bundle check). **Built.**
-   - Move the behaviors' registration to `Infrastructure`. `Backoffice.Api`, `Backoffice.Core`, `Backoffice.Infrastructure`, ARCH011.
+   - Move the behaviors' registration to `Infrastructure`. `Backoffice.Api`, `Backoffice.Core`, `Backoffice.Infrastructure`, ARCH011. **Built.**
    - `platform.*` permissions and system roles, refused in custom roles and in the app's team screens.
    - OIDC with Google, `BackofficeLogins`, access requests, the sign-in email, JWT with its own key, audience, `Kind` and lifetimes; the first operator's script.
    - Screens: sign in, Inicio, Marcas, Marca, Cambiar plan, Add-on, Operadores. The PWA manifest.

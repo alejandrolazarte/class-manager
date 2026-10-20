@@ -1,7 +1,8 @@
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Security.Tokens;
+using Microsoft.AspNetCore.Http;
 
-namespace ClassManager.Api.Authentication;
+namespace ClassManager.Infrastructure.Security;
 
 internal sealed class ClaimsCurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {

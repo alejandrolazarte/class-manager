@@ -21,6 +21,7 @@ internal static class AnalyzerTestRunner
     public const string StorageAssemblyName = "Storage";
     public const string RecordsAssemblyName = "Records";
     public const string StorageAzureBlobAssemblyName = "Storage.AzureBlob";
+    public const string BackofficeApiAssemblyName = "Backoffice.Api";
 
     private const string XunitStubFilePath = "/stubs/Xunit.cs";
     private const string XunitStubSource = """
