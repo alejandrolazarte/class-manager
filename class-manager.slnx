@@ -29,6 +29,7 @@
     <Project Path="tests/ClassManager.Analyzers.U.Tests/ClassManager.Analyzers.U.Tests.csproj" />
     <Project Path="tests/ClassManager.Api.I.Tests/ClassManager.Api.I.Tests.csproj" />
     <Project Path="tests/ClassManager.Backoffice.Api.I.Tests/ClassManager.Backoffice.Api.I.Tests.csproj" />
+    <Project Path="tests/ClassManager.Backoffice.Core.U.Tests/ClassManager.Backoffice.Core.U.Tests.csproj" />
     <Project Path="tests/ClassManager.Core.U.Tests/ClassManager.Core.U.Tests.csproj" />
     <Project Path="tests/ClassManager.ImportExport.U.Tests/ClassManager.ImportExport.U.Tests.csproj" />
     <Project Path="tests/ClassManager.Notifications.U.Tests/ClassManager.Notifications.U.Tests.csproj" />

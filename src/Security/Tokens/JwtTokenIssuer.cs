@@ -23,7 +23,7 @@ internal sealed class JwtTokenIssuer(
     public async Task<IssuedTokenPair> IssueAsync(TokenSubject subject, CancellationToken cancellationToken)
     {
         var accessToken = accessTokenFactory.Create(subject);
-        var (refreshToken, refreshTokenValue) = CreateRefreshToken(subject, Guid.CreateVersion7());
+        var (refreshToken, refreshTokenValue) = CreateRefreshToken(subject, Guid.CreateVersion7(), sessionExpiresAt: null);
 
         securityContext.RefreshTokens.Add(refreshToken);
         await securityContext.SaveChangesAsync(cancellationToken);
@@ -81,7 +81,10 @@ internal sealed class JwtTokenIssuer(
         }
 
         var accessToken = accessTokenFactory.Create(subject);
-        var (replacementToken, replacementTokenValue) = CreateRefreshToken(subject, replacementId);
+        var (replacementToken, replacementTokenValue) = CreateRefreshToken(
+            subject,
+            replacementId,
+            options.Value.ExtendSessionOnRefresh ? null : storedToken.ExpiresAt);
         securityContext.RefreshTokens.Add(replacementToken);
         await securityContext.SaveChangesAsync(cancellationToken);
 
@@ -121,7 +124,7 @@ internal sealed class JwtTokenIssuer(
             .Where(token => token.UserId == userId && token.RevokedAt == null)
             .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.RevokedAt, now), cancellationToken);
 
-    private (RefreshToken Token, string Value) CreateRefreshToken(TokenSubject subject, Guid refreshTokenId)
+    private (RefreshToken Token, string Value) CreateRefreshToken(TokenSubject subject, Guid refreshTokenId, DateTimeOffset? sessionExpiresAt)
     {
         var now = timeProvider.GetUtcNow();
         var value = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(RefreshTokenByteCount));
@@ -133,7 +136,7 @@ internal sealed class JwtTokenIssuer(
             Kind = subject.Kind,
             TokenHash = Hash(value),
             CreatedAt = now,
-            ExpiresAt = now + options.Value.RefreshTokenLifetime,
+            ExpiresAt = sessionExpiresAt ?? now + options.Value.RefreshTokenLifetime,
         };
 
         return (token, value);

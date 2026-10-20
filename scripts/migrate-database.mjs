@@ -10,8 +10,21 @@ const capturedOutputLimitInBytes = 64 * 1024 * 1024;
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 const connectionString = process.env[connectionStringVariable];
 const migrations = [
-  { context: "AppDbContext", project: "src/Infrastructure" },
-  { context: "SecurityDbContext", project: "src/Security" },
+  {
+    context: "AppDbContext",
+    project: "src/Infrastructure",
+    startupProject: "src/Api",
+  },
+  {
+    context: "SecurityDbContext",
+    project: "src/Security",
+    startupProject: "src/Api",
+  },
+  {
+    context: "BackofficeDbContext",
+    project: "src/Backoffice.Infrastructure",
+    startupProject: "src/Backoffice.Api",
+  },
 ];
 
 if (!connectionString) {
@@ -79,7 +92,8 @@ function runWhileTheDatabaseResumes(dotnetArguments) {
 
 run(["tool", "restore"]);
 run(["restore", "src/Api/Api.csproj"]);
-for (const { context, project } of migrations) {
+run(["restore", "src/Backoffice.Api/Backoffice.Api.csproj"]);
+for (const { context, project, startupProject } of migrations) {
   runWhileTheDatabaseResumes([
     "ef",
     "database",
@@ -87,7 +101,7 @@ for (const { context, project } of migrations) {
     "--project",
     project,
     "--startup-project",
-    "src/Api",
+    startupProject,
     "--context",
     context,
     "--connection",

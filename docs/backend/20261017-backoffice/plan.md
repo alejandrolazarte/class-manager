@@ -1,6 +1,6 @@
 # Backoffice
 
-Status: step 1 in progress: the two web builds and the backend projects are built (see [Web app](#web-app-same-expo-project-two-builds) and [Projects](#projects)); the rest is a proposal.
+Status: step 1 in progress: the two web builds, the backend projects, the platform roles and signing in with Google are built (runbook: [backoffice access](../../backoffice-access.md)); the rest is a proposal.
 
 A platform administration area for the people who run Laztty, not for businesses: see every brand, its subscription and usage, change its plan, give or take away add-ons, read the audit log, manage who may enter and, later, see the app as a user to reproduce a bug. It is a web app installable as a PWA, so the operator can run it from their phone.
 
@@ -30,18 +30,17 @@ A partner in Laztty, even its owner in the app, doesn't enter the backoffice unt
 
 ```json
 "Backoffice": {
-  "Authentication": {
-    "Providers": [
-      { "Name": "google", "Authority": "https://accounts.google.com", "ClientId": "<Laztty Backoffice client>" }
-    ]
-  },
-  "PlatformOrganizationId": "<Laztty organization id>"
+  "Google": { "Authority": "https://accounts.google.com", "ClientId": "<Laztty Backoffice client>" },
+  "PlatformOrganizationId": "<Laztty organization id>",
+  "WebAppUrl": "https://admin.laztty.com"
 }
 ```
 
+One provider today, so one section; a second provider adds its own section and scheme.
+
 - The OAuth client `Laztty Backoffice` is its own, separate from any client the app uses later. Its secret is a Container Apps secret.
 - **Identities, not emails.** The backoffice looks up `(provider, provider's id)` in its own table `BackofficeLogins` (`Provider`, `ProviderKey`, `AccountId`, `EnabledAt`, `EnabledByUserId`): Google's `sub`, and for Microsoft `tid` + `oid` (its `sub` changes per application). The email is shown, never trusted to identify: another provider can carry anyone's email (nOAuth), and emails change and get reused.
-- **The table is the backoffice's own**, not `identity.AspNetUserLogins`, which the app will use for its own social sign-in. The app's code paths that list, add or remove logins never see it: an analyzer rule keeps `Api` and `Core` from referencing it, and a test proves that linking a provider from the app never enables the backoffice.
+- **The table is the backoffice's own**, not `identity.AspNetUserLogins`, which the app will use for its own social sign-in. The app's code paths that list, add or remove logins never see it: an analyzer rule keeps `Api` and `Core` from referencing it, and a test proves that linking a provider from the app never enables the backoffice. **Built:** `BackofficeLogins` and `BackofficeAccessRequests` live in their own `BackofficeDbContext` (schema `backoffice`, its own migrations in `Backoffice.Infrastructure`, applied by `scripts/migrate-database.mjs` with `Backoffice.Api` as startup project), so the app's assemblies can't even name them. The test about linking a provider from the app comes with the app's social sign-in.
 - **Enabling someone, never automatic.** The OIDC handler validates the token and stores nothing; `OnTokenValidated` only looks the identity up:
   1. The person opens `admin.laztty.com` and signs in with Google.
   2. Their identity is not enabled: they see "Acceso no permitido" with a short code (`K7-3QF`), and the backoffice saves an **access request** (provider, id, email, code, date) and a security event.
@@ -49,8 +48,8 @@ A partner in Laztty, even its owner in the app, doesn't enter the backoffice unt
   4. The person signs in again and enters.
 
   The code makes sure the operator enables the right request, not someone who tried just before with a similar email. The first operator is enabled with a script (`scripts/enable-first-operator.sql`, run in the portal like `set-subscription.sql`).
-- **Disabling** removes the identity from `BackofficeLogins` and revokes the person's sessions.
-- Every backoffice sign-in sends the operator an email ("Nuevo inicio de sesión en el backoffice"), so an access they didn't make shows at once.
+- **Disabling** removes the identity from `BackofficeLogins` and revokes the person's sessions (until the Operadores screen, with the SQL in the [runbook](../../backoffice-access.md#disabling-someone-or-a-lost-phone)).
+- Every backoffice sign-in sends the operator an email ("Nuevo inicio de sesión en el backoffice"), so an access they didn't make shows at once. Not built yet, nor the security event of an access request: both need the audit log worker in the backoffice and come with the Operadores screen.
 
 ### Sessions: the app's JWT model, with its own keys
 
@@ -73,6 +72,7 @@ What is shared is code; what keeps the two apart is configuration and tests:
 | CORS | `app.laztty.com` | `admin.laztty.com` only |
 
 - Every refresh checks again that the identity is enabled and the user has `platform.*`, so a disabled operator is out within one access token (10 minutes).
+- **Built:** the session doesn't grow with refreshes because `JwtOptions.ExtendSessionOnRefresh` is `false` for the backoffice: each rotated refresh token keeps the first one's expiry. The app's `BusinessTokenSubjectResolver` refuses any kind other than `team` and `student`, so a backoffice refresh token never opens an app session, and the backoffice's resolver only accepts `backoffice`.
 - A leaked app signing key can't mint backoffice tokens, and the other way round.
 - Integration tests sign in through a test OIDC scheme, so they don't depend on Google.
 
@@ -200,7 +200,7 @@ Rules, enforced in the API:
    - Prove two web builds from the Expo project (routes root by `APP_TARGET`, the bundle check). **Built.**
    - Move the behaviors' registration to `Infrastructure`. `Backoffice.Api`, `Backoffice.Core`, `Backoffice.Infrastructure`, ARCH011. **Built.**
    - `platform.*` permissions and system roles, refused in custom roles and in the app's team screens. **Built.**
-   - OIDC with Google, `BackofficeLogins`, access requests, the sign-in email, JWT with its own key, audience, `Kind` and lifetimes; the first operator's script.
+   - OIDC with Google, `BackofficeLogins`, access requests, the sign-in email, JWT with its own key, audience, `Kind` and lifetimes; the first operator's script. **Built**, except the sign-in email.
    - Screens: sign in, Inicio, Marcas, Marca, Cambiar plan, Add-on, Operadores. The PWA manifest.
    - Tests: each permission sees only what it may, the app's tokens are refused and the other way round, a disabled identity is refused on refresh, a plan change replaces the subscription and drops its add-ons, an add-on overrides the plan's limit.
    - Second Static Web App, container app, DNS and `docs/backoffice-access.md`. `docs/changing-a-subscription.md` points to the backoffice and the script stays as a fallback.

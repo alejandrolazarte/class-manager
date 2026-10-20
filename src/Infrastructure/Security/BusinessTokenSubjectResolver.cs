@@ -11,6 +11,11 @@ internal sealed class BusinessTokenSubjectResolver(
 {
     public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, string? kind, CancellationToken cancellationToken)
     {
+        if (!AccountKinds.IsTeam(kind) && !AccountKinds.IsStudent(kind))
+        {
+            return null;
+        }
+
         var subject = AccountKinds.IsStudent(kind)
             ? await ResolveStudentAsync(userId, email, tenantId, cancellationToken)
             : await ResolveTeamAsync(userId, email, tenantId, cancellationToken);

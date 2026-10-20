@@ -29,7 +29,8 @@ src/Subscriptions.AspNetCore/ ← EF model for the billing schema, per-request f
 src/Backoffice.Api/ src/Backoffice.Core/ src/Backoffice.Infrastructure/ ← platform backoffice: its own host, use cases and cross-business repositories; the app never references them (ARCH011, docs/backend/20261017-backoffice/plan.md)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
 tests/ClassManager.Api.I.Tests/   ← integration tests: endpoints and persistence (Testcontainers)
-tests/ClassManager.Backoffice.Api.I.Tests/ ← integration tests: backoffice host (Testcontainers)
+tests/ClassManager.Backoffice.Core.U.Tests/ ← unit tests: backoffice use cases
+tests/ClassManager.Backoffice.Api.I.Tests/ ← integration tests: backoffice host, Google sign-in and sessions (Testcontainers)
 tests/ClassManager.ImportExport.U.Tests/ ← unit tests: import/export engine
 tests/ClassManager.Notifications.U.Tests/ ← unit tests: email rendering and web push
 tests/ClassManager.Storage.U.Tests/ ← unit tests: image formats and file paths
