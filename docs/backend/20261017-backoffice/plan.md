@@ -13,7 +13,8 @@ Today the operator changes a plan with `scripts/set-subscription.sql` in the Azu
 - Laztty signs up from the app like any customer ([runbook](../../changing-a-subscription.md#your-own-business)) and gets `enterprise` at 0. Its id goes in configuration (`Backoffice:PlatformOrganizationId`), never in code or a migration: the repository is public and migrations run in every environment.
 - An operator is a person with an account and a user in a branch of that organization, like any team member. Their user is what the audit columns store (`CreatedByUserId`, `UpdatedByUserId`, `DeletedByUserId`) when they act from the backoffice, so "who changed this" has the same answer everywhere.
 - Two permissions, `platform.view` and `platform.manage`, in a system role **Operador de plataforma** (both) and **Lector de plataforma** (`platform.view`). They only count for users of the platform organization.
-- **The app can never grant them.** The team screens don't offer the platform roles, custom roles can't include `platform.*` (the API refuses it, and a test proves it for every business, Laztty included), and only the backoffice assigns them. The owner of Laztty in the app manages its team like any business, and still can't make anyone an operator.
+- **The app can never grant them.** The team screens don't offer the platform roles, custom roles can't include `platform.*` (the API refuses it, and a test proves it for every business, Laztty included), and only the backoffice assigns them. The owner of Laztty in the app manages its team like any business, and still can't make anyone an operator. **Built:** `PlatformOperator` and `PlatformReader` are `BusinessRole` values with their permissions in `SystemRolePermissions`; `platform.*` is `Permissions.PlatformOnly`, outside `All` and `Assignable`; `MemberRules.CanManageRoleAsync` refuses every platform role, so the app can't invite, give, change or remove one; the team screen lists such a member without opening it. The rule doesn't depend on the business, so it holds for Laztty without special cases.
+- That they only count in the Laztty organization is checked by the backoffice when it signs an operator in and on every refresh (`Backoffice:PlatformOrganizationId`), with the OIDC sign-in: in the app they grant nothing, because no app endpoint requires `platform.*`.
 - A user of another business shown in the app as the author of a change made by an operator (`UpdatedByUserId` points to a Laztty user the business can't read) shows as "Soporte Laztty".
 
 ### Signing in: OpenID Connect, plus an identity enabled by hand
@@ -198,7 +199,7 @@ Rules, enforced in the API:
 1. **Brands, subscriptions, add-ons and operators.**
    - Prove two web builds from the Expo project (routes root by `APP_TARGET`, the bundle check). **Built.**
    - Move the behaviors' registration to `Infrastructure`. `Backoffice.Api`, `Backoffice.Core`, `Backoffice.Infrastructure`, ARCH011. **Built.**
-   - `platform.*` permissions and system roles, refused in custom roles and in the app's team screens.
+   - `platform.*` permissions and system roles, refused in custom roles and in the app's team screens. **Built.**
    - OIDC with Google, `BackofficeLogins`, access requests, the sign-in email, JWT with its own key, audience, `Kind` and lifetimes; the first operator's script.
    - Screens: sign in, Inicio, Marcas, Marca, Cambiar plan, Add-on, Operadores. The PWA manifest.
    - Tests: each permission sees only what it may, the app's tokens are refused and the other way round, a disabled identity is refused on refresh, a plan change replaces the subscription and drops its add-ons, an add-on overrides the plan's limit.

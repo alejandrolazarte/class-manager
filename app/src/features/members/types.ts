@@ -5,7 +5,11 @@ export const systemRoles = ["BranchOwner", "Instructor", "Viewer"] as const;
 
 export type SystemRole = (typeof systemRoles)[number];
 
-export type BusinessRole = SystemRole | "Custom";
+export const platformRoles = ["PlatformOperator", "PlatformReader"] as const;
+
+export type PlatformRole = (typeof platformRoles)[number];
+
+export type BusinessRole = SystemRole | PlatformRole | "Custom";
 
 export interface CurrentMember {
   businessId: string;

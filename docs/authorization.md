@@ -18,8 +18,12 @@ How the API decides what a signed-in user may do. The full design is in the [rol
 | `BranchOwner` | Everything inside the business except the `BranchOwner` role itself, including custom roles |
 | `Instructor` | Their own class groups, sessions and private lessons; attendance in them; their students; register clients and students; enroll and unenroll the students they reach in their own class groups (`enrollments.manage.own`). No money, settings or team |
 | `Viewer` | Read everything in the business (money, products and orders included), change nothing |
+| `PlatformOperator` | `platform.view` and `platform.manage`, used only by the [backoffice](backend/20261017-backoffice/plan.md); nothing in the app |
+| `PlatformReader` | `platform.view`, used only by the backoffice; nothing in the app |
 
 A role that has an `.own` permission without the matching `.all` one needs a linked instructor (`member.instructor_required`).
+
+The platform roles and the `platform.*` permissions are given only from the backoffice. They are outside `Permissions.All` (so a brand owner doesn't get them) and outside `Permissions.Assignable` (a custom role with one is `role.permission_not_assignable`, in every business). The app can't invite with a platform role, give it, or change or remove a member who has one (`member.role_not_allowed`), `GET /api/roles` doesn't list them, and the team screen shows those members without opening them.
 
 ## Student app accounts
 

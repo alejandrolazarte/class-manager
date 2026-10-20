@@ -53,6 +53,8 @@ public static class Permissions
     public static IReadOnlyList<string> BrandOnly { get; } =
         [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners, Brand.ViewSubscription];
 
+    public static IReadOnlyList<string> PlatformOnly { get; } = [Platform.View, Platform.Manage];
+
     public static IReadOnlySet<string> Assignable { get; } =
         All.Except(BrandOnly).ToFrozenSet(StringComparer.Ordinal);
 
@@ -69,6 +71,12 @@ public static class Permissions
             [Enrollments.ManageOwn] = Enrollments.Manage,
             [Orders.ViewOwn] = Orders.ViewAll,
         };
+
+    public static class Platform
+    {
+        public const string View = "platform.view";
+        public const string Manage = "platform.manage";
+    }
 
     public static class Business
     {

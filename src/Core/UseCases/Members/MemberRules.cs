@@ -59,6 +59,11 @@ internal static class MemberRules
 
     public static async Task<bool> CanManageRoleAsync(ICurrentMember currentMember, BusinessRole role, CancellationToken cancellationToken)
     {
+        if (SystemRolePermissions.IsPlatformRole(role))
+        {
+            return false;
+        }
+
         if (role != BusinessRole.BranchOwner)
         {
             return true;

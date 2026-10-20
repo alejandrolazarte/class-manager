@@ -7,7 +7,7 @@ import { roleDescription } from "@/features/members/roleLabels";
 import { Invitation, Member } from "@/features/members/types";
 import { useTeam } from "@/features/members/useTeam";
 import { useResendInvitation, useRevokeInvitation } from "@/features/members/useTeamMutations";
-import { memberRoleLabel } from "@/features/roles/roleChoices";
+import { isPlatformRole, memberRoleLabel } from "@/features/roles/roleChoices";
 import { Role } from "@/features/roles/types";
 import { useRoles } from "@/features/roles/useRoles";
 import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
@@ -186,7 +186,7 @@ export function TeamScreen() {
                 roles={roles}
                 instructorFullName={instructorNameOf(member.instructorId)}
                 onPress={
-                  canManageMembers && !member.isCurrentUser
+                  canManageMembers && !member.isCurrentUser && !isPlatformRole(member.role)
                     ? () => router.push(routes.teamMember(member.id))
                     : undefined
                 }
