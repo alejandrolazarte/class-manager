@@ -25,6 +25,8 @@ public sealed class BackofficeAccessRequest
         RequestedAt = requestedAt,
     };
 
+    public ExternalIdentity ToIdentity() => new(Provider, ProviderKey, Email);
+
     public void Renew(ExternalIdentity identity, string code, DateTimeOffset requestedAt)
     {
         Email = identity.Email;

@@ -51,11 +51,24 @@ Every other endpoint requires a backoffice access token (`kind` `backoffice`). T
 3. In the Azure portal (SQL database → Query editor), fill in `scripts/enable-first-operator.sql` (the code, the email of their app account, the organization id and the role) and run it. When the account is a team member of more than one Laztty branch, also set `@BranchName`: the platform role goes to that branch only, and the others keep their role. Their branch role becomes the platform role (a brand owner keeps the whole brand in the app through `BrandOwner`), the identity is enabled and the request is removed.
 4. They sign in again.
 
-The script refuses an unknown code, an unknown account, and an account that isn't a team member of exactly one Laztty branch (or of the one named in `@BranchName`). From the second operator on, an operator enables people from the backoffice's **Operadores** screen (not built yet: until then, the script).
+The script refuses an unknown code, an unknown account, and an account that isn't a team member of exactly one Laztty branch (or of the one named in `@BranchName`).
+
+## Enabling someone else
+
+From the second operator on, an operator (`PlatformOperator`) does it from the backoffice's **Operadores** tab:
+
+1. Add the person to the Laztty team from the app like any team member, so they have an account and a branch.
+2. They sign in to the backoffice with Google and get "Acceso no permitido" with a code.
+3. In **Operadores**, the request shows under *Pedidos de acceso* with that code. Confirm the code with the person through another channel (a call, a message), then **Habilitar**: choose them from the Laztty team and the role, and confirm.
+4. They sign in again.
+
+Enabling does the same as the script, in one transaction: the chosen member's role becomes the platform role, the identity is enabled for their account and the request is removed. The API refuses a person who isn't a team member of a Laztty branch with an account, and a role that isn't a platform role.
 
 ## Disabling someone, or a lost phone
 
-Until the Operadores screen exists, in the Query editor:
+In **Operadores**, **Deshabilitar** next to the person, and confirm. Their identity is removed and their backoffice sessions are revoked, so the session ends at the next refresh (10 minutes at most). Their platform role stays: enabling them again only needs a new access request. Nobody can disable their own identity from the screen.
+
+If nobody who can enter is left (for example, the only operator lost their phone), use the Query editor:
 
 ```sql
 DECLARE @AccountEmail nvarchar(256) = N'person@example.com';
@@ -64,4 +77,4 @@ DELETE FROM backoffice.BackofficeLogins WHERE AccountId = @AccountId;
 UPDATE [identity].RefreshTokens SET RevokedAt = SYSUTCDATETIME() WHERE UserId = @AccountId AND Kind = N'backoffice' AND RevokedAt IS NULL;
 ```
 
-The session ends at the next refresh (10 minutes at most). After a lost phone, also sign out every Google session of that account from Google's security page.
+After a lost phone, also sign out every Google session of that account from Google's security page.

@@ -12,6 +12,7 @@ public static class BackofficeRequests
     private const string SignInRoute = "/api/auth/signin/google";
     private const string RefreshRoute = "/api/auth/refresh";
     public const string BrandsRoute = "/api/brands";
+    public const string OperatorsRoute = "/api/operators";
 
     private const string CurrentOperatorRoute = "/api/me";
     private const string CookieRequestHeader = "X-Refresh-Token-Cookie";

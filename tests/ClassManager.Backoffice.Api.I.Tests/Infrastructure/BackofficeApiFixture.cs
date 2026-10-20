@@ -77,6 +77,9 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     public Task<SeededOperator> SeedOperatorAsync(BusinessRole role = BusinessRole.PlatformOperator, bool isEnabled = true) =>
         SeedOperatorAsync(_platformOrganization.Id, role, isEnabled);
 
+    public Task<SeededOperator> SeedPlatformTeamMemberAsync() =>
+        SeedOperatorAsync(_platformOrganization.Id, BusinessRole.Viewer, isEnabled: false);
+
     public async Task<SeededOperator> SeedOperatorOfAnotherOrganizationAsync()
     {
         var organization = Organization.Create(OtherOrganizationName, BackofficeApiFactory.Now).Value!;
@@ -134,6 +137,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         var accountId = Guid.CreateVersion7();
         var email = $"operator-{Guid.NewGuid():N}@example.com";
         var subject = $"google-{Guid.NewGuid():N}";
+        Guid memberId;
 
         using (var scope = ApiFactory.Services.CreateScope())
         {
@@ -149,12 +153,14 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             await using var context = CreateAppDbContext(business.Id);
             context.Countries.Attach(argentina);
             context.Businesses.Add(business);
-            context.BusinessMembers.Add(BusinessMember.Create(
+            var member = BusinessMember.Create(
                 business.Id,
                 User.CreateForAccount(accountId, OperatorFullName, null, BackofficeApiFactory.Now),
                 MemberRole.System(role),
-                instructorId: null).Value!);
+                instructorId: null).Value!;
+            context.BusinessMembers.Add(member);
             await context.SaveChangesAsync();
+            memberId = member.Id;
         }
 
         if (isEnabled)
@@ -165,7 +171,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             await backofficeContext.SaveChangesAsync();
         }
 
-        return new SeededOperator(accountId, subject, email);
+        return new SeededOperator(accountId, memberId, subject, email);
     }
 
     private AppDbContext CreateAppDbContext(Guid businessId)
@@ -179,6 +185,6 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     }
 }
 
-public sealed record SeededOperator(Guid AccountId, string Subject, string Email);
+public sealed record SeededOperator(Guid AccountId, Guid MemberId, string Subject, string Email);
 
 public sealed record SeededBrand(Guid Id, string OwnerEmail);

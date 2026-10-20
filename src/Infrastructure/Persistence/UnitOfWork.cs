@@ -1,9 +1,14 @@
 using ClassManager.Security.Persistence;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ClassManager.Infrastructure.Persistence;
 
-internal sealed class UnitOfWork(AppDbContext context, SecurityDbContext securityContext) : IUnitOfWork
+internal sealed class UnitOfWork(
+    AppDbContext context,
+    SecurityDbContext securityContext,
+    IEnumerable<ISharedTransactionContext> sharedContexts)
+    : IUnitOfWork
 {
     private bool _rollbackRequested;
 
@@ -19,12 +24,16 @@ internal sealed class UnitOfWork(AppDbContext context, SecurityDbContext securit
 
         _rollbackRequested = false;
         var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-        await securityContext.Database.UseTransactionAsync(transaction.GetDbTransaction(), cancellationToken);
+        var enlistedDatabases = sharedContexts.Select(sharedContext => sharedContext.Database).Prepend(securityContext.Database).ToList();
+        foreach (var database in enlistedDatabases)
+        {
+            await database.UseTransactionAsync(transaction.GetDbTransaction(), cancellationToken);
+        }
 
-        return new SharedTransaction(this, transaction, securityContext);
+        return new SharedTransaction(this, transaction, enlistedDatabases);
     }
 
-    private sealed class SharedTransaction(UnitOfWork unitOfWork, IDbContextTransaction transaction, SecurityDbContext securityContext)
+    private sealed class SharedTransaction(UnitOfWork unitOfWork, IDbContextTransaction transaction, IReadOnlyList<DatabaseFacade> enlistedDatabases)
         : IUnitOfWorkTransaction
     {
         public Task CommitAsync(CancellationToken cancellationToken) =>
@@ -32,7 +41,11 @@ internal sealed class UnitOfWork(AppDbContext context, SecurityDbContext securit
 
         public async ValueTask DisposeAsync()
         {
-            await securityContext.Database.UseTransactionAsync(null);
+            foreach (var database in enlistedDatabases)
+            {
+                await database.UseTransactionAsync(null);
+            }
+
             await transaction.DisposeAsync();
         }
     }

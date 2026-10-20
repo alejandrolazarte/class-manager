@@ -17,6 +17,8 @@ internal static class BackofficeApiRoutes
     public const string BrandAddOnRestore = "/{brandId:guid}/add-ons/{addOnId:guid}/restore";
     public const string SubscriptionCatalog = "/api/subscription-catalog";
     public const string ExpiringAddOns = "/api/expiring-add-ons";
+    public const string Operators = "/api/operators";
+    public const string OperatorById = "/{loginId:guid}";
     public const string WebAppSignIn = "/sign-in";
     public const string AccessRequestCodeParameter = "accessRequestCode";
 }
