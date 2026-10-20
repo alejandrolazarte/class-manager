@@ -1,11 +1,14 @@
 using ClassManager.Backoffice.Core.Operators;
 using ClassManager.Backoffice.Infrastructure.Persistence;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Organizations;
+using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Users;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Accounts;
 using ClassManager.Security.Persistence;
+using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +28,11 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     private const string TimeZoneId = "America/Argentina/Buenos_Aires";
     private const string CurrencyCode = "ARS";
     private const string OperatorFullName = "Operadora";
+    private const string OwnerFullName = "Dueña de la marca";
+    private const string BranchName = "Sede";
+    private const string ClientFullName = "Familia";
+    private const string StudentFullName = "Alumno";
+    private const string ClientPhoneNumber = "1155550000";
 
     private readonly MsSqlContainer _container = new MsSqlBuilder(SqlServerImage).Build();
     private readonly Organization _platformOrganization = Organization.Create(PlatformOrganizationName, BackofficeApiFactory.Now).Value!;
@@ -81,6 +89,46 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         return await SeedOperatorAsync(organization.Id, BusinessRole.PlatformOperator, isEnabled: true);
     }
 
+    public async Task<SeededBrand> SeedBrandAsync(string name, IReadOnlyList<int> studentsPerBranch, Func<Guid, IReadOnlyList<Subscription>> subscriptionsOf)
+    {
+        var organization = Organization.Create(name, BackofficeApiFactory.Now).Value!;
+        var ownerEmail = $"owner-{Guid.NewGuid():N}@example.com";
+        await using (var context = CreateAppDbContext(Guid.Empty))
+        {
+            context.Organizations.Add(organization);
+            context.Subscriptions.AddRange(subscriptionsOf(organization.Id));
+            await context.SaveChangesAsync();
+        }
+
+        foreach (var (studentCount, branchIndex) in studentsPerBranch.Select((count, index) => (count, index)))
+        {
+            await using var lookupContext = CreateAppDbContext(Guid.Empty);
+            var argentina = await lookupContext.Countries.AsNoTracking().SingleAsync(country => country.Code == ArgentinaCountryCode);
+            var business = Business.Create(organization.Id, $"{BranchName} {branchIndex + 1}", $"branch-{Guid.NewGuid():N}", argentina, TimeZoneId, CurrencyCode, BackofficeApiFactory.Now).Value!;
+            await using var context = CreateAppDbContext(business.Id);
+            context.Countries.Attach(argentina);
+            context.Businesses.Add(business);
+            if (branchIndex == 0)
+            {
+                var owner = User.Create(OwnerFullName, ownerEmail, BackofficeApiFactory.Now).Value!;
+                context.Users.Add(owner);
+                context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, owner.Id));
+            }
+
+            var phoneNumber = PhoneNumber.Create(ClientPhoneNumber, business.DefaultCountryCallingCode).Value!;
+            for (var studentIndex = 0; studentIndex < studentCount; studentIndex++)
+            {
+                var client = Client.Create(ClientFullName, phoneNumber, null, null, BackofficeApiFactory.Now).Value!;
+                context.Clients.Add(client);
+                context.Students.Add(Student.Create(client.Id, StudentFullName, null, null, DateOnly.FromDateTime(BackofficeApiFactory.Now.UtcDateTime), BackofficeApiFactory.Now).Value!);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        return new SeededBrand(organization.Id, ownerEmail);
+    }
+
     private async Task<SeededOperator> SeedOperatorAsync(Guid organizationId, BusinessRole role, bool isEnabled)
     {
         var accountId = Guid.CreateVersion7();
@@ -132,3 +180,5 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
 }
 
 public sealed record SeededOperator(Guid AccountId, string Subject, string Email);
+
+public sealed record SeededBrand(Guid Id, string OwnerEmail);

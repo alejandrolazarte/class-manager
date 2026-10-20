@@ -1,5 +1,7 @@
+using ClassManager.Backoffice.Core.Brands;
 using ClassManager.Backoffice.Core.Operators;
 using ClassManager.Backoffice.Core.UseCases;
+using ClassManager.Backoffice.Infrastructure.Brands;
 using ClassManager.Backoffice.Infrastructure.Operators;
 using ClassManager.Backoffice.Infrastructure.Persistence;
 using ClassManager.Core.UseCases.Authentication;
@@ -37,11 +39,14 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         });
         services.AddScoped<IBackofficeLoginRepository, BackofficeLoginRepository>();
         services.AddScoped<IPlatformOperatorDirectory, PlatformOperatorDirectory>();
+        services.AddScoped<IBrandDirectory, BrandDirectory>();
         services.Replace(ServiceDescriptor.Scoped<ITokenSubjectResolver, BackofficeTokenSubjectResolver>());
 
         services.AddUseCase<SignInOperatorCommand, OperatorSignInResponse, SignInOperatorUseCase>();
         services.AddUseCase<RefreshSessionCommand, TokenResponse, RefreshSessionUseCase>();
         services.AddUseCase<SignOutCommand, SignOutResponse, SignOutUseCase>();
+        services.AddUseCase<ListBrandsQuery, BrandListResponse, ListBrandsUseCase>();
+        services.AddUseCase<GetBrandQuery, BrandDetailResponse, GetBrandUseCase>();
 
         return services;
     }

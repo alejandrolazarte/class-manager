@@ -1,9 +1,10 @@
-import { Redirect } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { backofficeRoutes } from "@/backoffice/backofficeRoutes";
 import { useBackofficeSession } from "@/backoffice/session/useBackofficeSession";
 import { translate, TranslationKey } from "@/i18n/translate";
+import { ActionTile } from "@/ui/ActionTile";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
@@ -11,6 +12,7 @@ import { Button } from "@/ui/Button";
 import { SkeletonScreen } from "@/ui/SkeletonScreen";
 
 export function BackofficeHomeScreen() {
+  const router = useRouter();
   const { session, signOut } = useBackofficeSession();
 
   if (session.isPending) {
@@ -45,6 +47,13 @@ export function BackofficeHomeScreen() {
                   role: translate(`roles.${session.data.role}` as TranslationKey),
                 })}
               </AppText>
+            </View>
+            <View className="flex-row">
+              <ActionTile
+                icon="business"
+                label={translate("backoffice.home.brands")}
+                onPress={() => router.push(backofficeRoutes.brands)}
+              />
             </View>
             <Button
               label={translate("backoffice.home.signOut")}

@@ -11,6 +11,8 @@ public static class BackofficeRequests
 
     private const string SignInRoute = "/api/auth/signin/google";
     private const string RefreshRoute = "/api/auth/refresh";
+    public const string BrandsRoute = "/api/brands";
+
     private const string CurrentOperatorRoute = "/api/me";
     private const string CookieRequestHeader = "X-Refresh-Token-Cookie";
     private const string CookieRequestHeaderValue = "true";
@@ -32,15 +34,26 @@ public static class BackofficeRequests
         return await client.SendAsync(request);
     }
 
-    public static async Task<string> AccessTokenOfAsync(HttpResponseMessage refreshResponse) =>
-        (await refreshResponse.Content.ReadFromJsonAsync<AccessTokenResponse>())!.AccessToken;
-
-    public static Task<HttpResponseMessage> GetCurrentOperatorAsync(this HttpClient client, string accessToken)
+    public static async Task<string> OpenSessionAsync(this HttpClient client, SeededOperator platformOperator)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, new Uri(CurrentOperatorRoute, UriKind.Relative));
+        using var signIn = await client.SignInWithGoogleAsync(platformOperator.Subject, platformOperator.Email);
+        using var refresh = await client.PostRefreshAsync();
+        refresh.StatusCode.ShouldBe(HttpStatusCode.OK);
+        return await AccessTokenOfAsync(refresh);
+    }
+
+    public static Task<HttpResponseMessage> GetAsync(this HttpClient client, string route, string accessToken)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, new Uri(route, UriKind.Relative));
         request.Headers.Authorization = new AuthenticationHeaderValue(BearerScheme, accessToken);
         return client.SendAsync(request);
     }
+
+    public static async Task<string> AccessTokenOfAsync(HttpResponseMessage refreshResponse) =>
+        (await refreshResponse.Content.ReadFromJsonAsync<AccessTokenResponse>())!.AccessToken;
+
+    public static Task<HttpResponseMessage> GetCurrentOperatorAsync(this HttpClient client, string accessToken) =>
+        client.GetAsync(CurrentOperatorRoute, accessToken);
 
     public static SetCookieHeaderValue? RefreshTokenCookieOf(HttpResponseMessage response) =>
         response.Headers.TryGetValues(HeaderNames.SetCookie, out var cookies)
