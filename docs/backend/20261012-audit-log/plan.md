@@ -97,6 +97,7 @@ public interface IAuditable
 
 ```csharp
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandAuditBehavior<,>));
+services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryAuditBehavior<,>));
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandTransactionBehavior<,>));
 services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,>));
 ```
@@ -105,7 +106,7 @@ services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,
 - `AuditLogWorker<CommandAuditEntry>` (a `BackgroundService`) reads the channel and writes in batches (`SubmitTransactionAsync`, up to 100 rows of the same partition per batch). If Table Storage fails it logs a warning and drops the batch: the command already succeeded.
 - On shutdown the worker drains the channel. With `minReplicas 0` the container stops after five minutes without requests, which gives it time; a crash loses what was in memory (seconds of entries).
 - If the use case throws, the behavior writes the entry with `Outcome = Exception` and the exception type, and rethrows.
-- Queries are not logged. A few queries that read a lot of personal data (exports of students) can opt in with `[AuditedQuery]` on the query type; a second behavior for `IQuery` logs only those.
+- Queries are not logged. A few queries that read a lot of personal data (exports of students) opt in with `[AuditedQuery]` on the query type, and `QueryAuditBehavior` logs only those, in the same table and with the same row. Both behaviors run through `UseCaseAuditRecorder`. Today the only one is `ExportQuery` (the students and instructors downloads). The row stores what was asked (the module) and how many rows went out, never the exported data: copying it would keep the same personal data a second time, for 24 months, and a big export doesn't fit in a row (1 MB).
 
 ### Row
 
@@ -115,7 +116,7 @@ Table `Commands{yyyyMM}` (one table per month, see [Retention](#retention)).
 |---|---|
 | `PartitionKey` | `TenantId` (`none` for commands without a tenant, such as sign-up) |
 | `RowKey` | Inverted ticks + `_` + a new `Guid` (newest first, unique) |
-| `Command` | `typeof(TCommand).Name`, for example `RecordPaymentCommand` |
+| `Command` | `typeof(TCommand).Name`, for example `RecordPaymentCommand`, or the audited query's, such as `ExportQuery` |
 | `AccountId` | The account (`sub` claim), or empty |
 | `UserId` | The session's user in the branch (`ICurrentUser.UserId`), or empty. Both are kept: the account says who the person is across branches, the user matches the `...ByUserId` columns of the rows |
 | `Outcome` | `Succeeded`, `Failed` or `Exception` |
@@ -124,6 +125,7 @@ Table `Commands{yyyyMM}` (one table per month, see [Retention](#retention)).
 | `TraceId` | `Activity.Current.TraceId`, the same one as in the logs and in security events |
 | `Payload` | The command as JSON, after removing sensitive fields (below) |
 | `PayloadTruncated` | `true` when the JSON was cut at 32 KB |
+| `RowCount` | Rows the use case returned, when its response implements `ICountedRows` (an export's file); empty otherwise |
 
 ### Payload: yes, but without sensitive fields
 
@@ -299,7 +301,7 @@ At first, only the owner reads it, from Azure Storage Explorer signed in with En
    - `src/Api/Audit/AuditLogWorker<CommandAuditEntry>`: writes the queue in batches of 100, logs and drops a batch that fails, and writes what is left when the API stops.
    - Nothing calls `Record` until step 4, which is where the payload is built with personal fields masked: no entry exists before the masking does.
    - The blob client for security events comes with step 5.
-4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules). **Built.** Queries opting in with `[AuditedQuery]` are left for when an export needs it.
+4. `CommandAuditBehavior`, the attributes, the payload serializer and its tests (secret never in the JSON, name rules). **Built.** Queries opt in with `[AuditedQuery]` (`ExportQuery`), with the exported row count in `RowCount`.
 5. `SecurityEventMiddleware`, sign-in and refresh rejections, the plan-limit marker, the daily append blobs and the retention policy (unlocked). **Built**: rejections are recognized by endpoint metadata instead of an `ISecurityEventRecorder`, and old days are deleted from the runbook instead of a lifecycle rule (see [Retention](#retention)).
 6. Lock the retention policy once security events have been written in production for a while and the runbook's audit commands pass.
 

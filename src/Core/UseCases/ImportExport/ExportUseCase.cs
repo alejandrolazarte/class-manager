@@ -1,10 +1,12 @@
 using System.Globalization;
+using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.ImportExport.Tabular;
 
 namespace ClassManager.Core.UseCases.ImportExport;
 
-public sealed record ExportQuery(string Module) : IQuery;
+[AuditedQuery]
+public sealed record ExportQuery([property: AuditPlain] string Module) : IQuery;
 
 public sealed class ExportUseCase(IEnumerable<IImportModule> modules, ITabularWriter writer, TimeProvider timeProvider)
     : IUseCase<ExportQuery, ExportFile>
