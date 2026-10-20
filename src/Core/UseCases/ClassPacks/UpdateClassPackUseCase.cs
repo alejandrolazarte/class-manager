@@ -49,23 +49,22 @@ public sealed class UpdateClassPackUseCase(
             return update.Error!;
         }
 
-        var lessons = classPack.DefineLessons(command.ClassDurationMinutes);
-        if (lessons.IsFailure)
-        {
-            return lessons.Error!;
-        }
-
         var description = classPack.Describe(command.Description);
         if (description.IsFailure)
         {
             return description.Error!;
         }
 
-        var coverage = await ClassPackClassGroups.CoverAsync(
-            classPack, command.ClassGroupIds, nameof(UpdateClassPackCommand.ClassGroupIds), classGroupRepository, cancellationToken);
-        if (coverage.IsFailure)
+        var lessons = await ClassPackClassGroups.DefineLessonsAsync(
+            classPack,
+            command.ClassGroupIds,
+            command.ClassDurationMinutes,
+            nameof(UpdateClassPackCommand.ClassGroupIds),
+            classGroupRepository,
+            cancellationToken);
+        if (lessons.IsFailure)
         {
-            return coverage.Error!;
+            return lessons.Error!;
         }
 
         var packWithSameName = await classPackRepository.FindByNameAsync(classPack.Name, cancellationToken);

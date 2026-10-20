@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { catalogImageSaveMessageKey } from "@/features/catalogImages/catalogImageSaveMessage";
@@ -11,8 +11,10 @@ import { classPackErrorCodes } from "@/features/classPacks/classPackErrorCodes";
 import {
   classPackFieldNames,
   ClassPackFormValues,
+  ClassPackKind,
   classPackLimits,
   classPackSchema,
+  requiredClassPackFields,
   toClassPackFormValues,
   toSaveClassPackRequest,
 } from "@/features/classPacks/classPackSchema";
@@ -34,10 +36,12 @@ import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
+import { Notice } from "@/ui/Notice";
+import { SegmentedControl } from "@/ui/SegmentedControl";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
-import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 
 const badRequestStatus = 400;
 
@@ -50,7 +54,7 @@ interface ClassPackEditorProps {
 }
 
 interface ClassPackFieldOptions {
-  name: Exclude<keyof ClassPackFormValues, "classGroupIds">;
+  name: Exclude<keyof ClassPackFormValues, "classGroupIds" | "kind">;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
   isMultiline?: boolean;
@@ -72,11 +76,11 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
     defaultValues: toClassPackFormValues(classPack),
     mode: "onTouched",
   });
-  const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, [
-    "name",
-    "classCount",
-    "price",
-  ]);
+  const kind = useWatch({ control: form.control, name: "kind" });
+  const areRequiredFieldsFilled = useRequiredFieldsFilled(
+    form.control,
+    requiredClassPackFields(kind),
+  );
 
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
@@ -191,53 +195,79 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
       })}
       <Controller
         control={form.control}
-        name="classDurationMinutes"
+        name="kind"
         render={({ field }) => (
           <View className="gap-2">
             <AppText variant="label" tone="muted">
-              {translate("classPacks.form.classDuration")}
+              {translate("classPacks.form.kind")}
             </AppText>
-            <View className="flex-row flex-wrap gap-2">
-              <Chip
-                label={translate("classPacks.form.noFixedDuration")}
-                isSelected={field.value.length === 0}
-                onPress={() => field.onChange("")}
-              />
-              {commonDurationsInMinutes.map((durationMinutes) => (
-                <Chip
-                  key={durationMinutes}
-                  label={translate("classGroups.form.durationOption", { minutes: durationMinutes })}
-                  isSelected={field.value === String(durationMinutes)}
-                  onPress={() => field.onChange(String(durationMinutes))}
-                />
-              ))}
-            </View>
+            <SegmentedControl<ClassPackKind>
+              options={[
+                {
+                  value: "groupClasses",
+                  label: translate("classPacks.form.kindGroupClasses"),
+                },
+                {
+                  value: "privateLessons",
+                  label: translate("classPacks.form.kindPrivateLessons"),
+                },
+              ]}
+              selectedValue={field.value}
+              onChange={field.onChange}
+            />
           </View>
         )}
       />
-      {classGroups.length > 0 ? (
+      {kind === "groupClasses" ? (
+        classGroups.length > 0 ? (
+          <Controller
+            control={form.control}
+            name="classGroupIds"
+            render={({ field }) => (
+              <ClassGroupsField
+                classGroups={classGroups}
+                classGroupIds={field.value}
+                onChange={field.onChange}
+                label={withRequiredMark(translate("classPacks.form.classGroups"))}
+                chooseLabel={translate("classPacks.form.chooseClassGroup")}
+                addLabel={translate("classPacks.form.addClassGroup")}
+                removeLabel={(name) => translate("classPacks.form.removeClassGroup", { name })}
+                hint={translate("classPacks.form.classGroupsHint")}
+                pickerTestID="class-pack-class-group-picker"
+              />
+            )}
+          />
+        ) : (
+          <Notice tone="muted" message={translate("classPacks.form.noClassGroupsYet")} />
+        )
+      ) : (
         <Controller
           control={form.control}
-          name="classGroupIds"
+          name="classDurationMinutes"
           render={({ field }) => (
-            <ClassGroupsField
-              classGroups={classGroups}
-              classGroupIds={field.value}
-              onChange={field.onChange}
-              label={translate("classPacks.form.classGroups")}
-              chooseLabel={translate("classPacks.form.chooseClassGroup")}
-              addLabel={translate("classPacks.form.addClassGroup")}
-              removeLabel={(name) => translate("classPacks.form.removeClassGroup", { name })}
-              hint={translate(
-                field.value.length === 0
-                  ? "classPacks.form.classGroupsNoneHint"
-                  : "classPacks.form.classGroupsHint",
-              )}
-              pickerTestID="class-pack-class-group-picker"
-            />
+            <View className="gap-2">
+              <AppText variant="label" tone="muted">
+                {withRequiredMark(translate("classPacks.form.classDuration"))}
+              </AppText>
+              <View className="flex-row flex-wrap gap-2">
+                {commonDurationsInMinutes.map((durationMinutes) => (
+                  <Chip
+                    key={durationMinutes}
+                    label={translate("classGroups.form.durationOption", {
+                      minutes: durationMinutes,
+                    })}
+                    isSelected={field.value === String(durationMinutes)}
+                    onPress={() => field.onChange(String(durationMinutes))}
+                  />
+                ))}
+              </View>
+              <AppText variant="caption" tone="muted">
+                {translate("classPacks.form.classDurationHint")}
+              </AppText>
+            </View>
           )}
         />
-      ) : null}
+      )}
       <CatalogImageField
         images={images}
         placeholderIcon="classPacks"

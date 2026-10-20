@@ -262,7 +262,14 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     classCount: number,
     price: number,
     validityMonths: number | null,
-  ) => send<Identified>("POST", "/api/class-packs", { name, classCount, price, validityMonths });
+  ) =>
+    send<Identified>("POST", "/api/class-packs", {
+      name,
+      classCount,
+      price,
+      validityMonths,
+      classGroupIds: [beginners.id, advanced.id],
+    });
   await createClassPack("Clase suelta", 1, 7000, null);
   const fourClasses = await createClassPack("4 clases", 4, 24000, 1);
   await createClassPack("8 clases", 8, 44000, 2);

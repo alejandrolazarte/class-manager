@@ -7,7 +7,7 @@ Backend: [plan](../../backend/20260927-fee-history-and-class-packs/plan.md).
 | Screen | Change |
 |---|---|
 | Settings → Cuota mensual | "Desde" month selector (default this month) and the list of changes ("Desde noviembre 2026: $ 30.000") |
-| Settings → Packs de clases (new) | Catalog list with active/inactive; form: name, classes, price, validity in months (optional) |
+| Settings → Packs de clases (new) | Catalog list with active/inactive; form: name, classes, price, validity in months (optional), and what the pack is for: group classes (choose at least one class; when the business has no classes yet the form says to create one first) or private lessons (choose the lesson duration) |
 | Family → Cobro (was Cuota) | Current plan ("Cuota general $ 25.000", "Cuota propia", "Paga por clases") and upcoming change; "Cambiar" opens the plan form: kind chips, amount for its own fee, "Desde" month |
 | Family → Clases (plan on packs or with purchases) | Available and unpaid classes, each pack with used/left and expiry, "Vender pack" |
 | Vender pack (new, `/students/clients/[clientId]/sell-pack`) | Pack chips from the active catalog, price prefilled (editable for discounts), date, method, notes |
