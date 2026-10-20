@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { hasChosenBillingMode } from "@/features/fees/billingMode";
 import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
-import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
+import { formatMoney, parseAmount, toAmountText } from "@/formatting/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
 import {
   BusinessBillingMode,

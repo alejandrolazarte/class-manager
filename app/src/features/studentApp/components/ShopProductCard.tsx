@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { ProductPhotoCarousel } from "@/features/studentApp/components/ProductPhotoCarousel";
 import { StudentAppShopProduct } from "@/features/studentApp/types";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";

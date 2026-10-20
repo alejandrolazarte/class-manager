@@ -17,12 +17,12 @@ import {
 } from "@/features/classPacks/sellClassPackSchema";
 import { useSellClassPack } from "@/features/classPacks/useClassPackMutations";
 import { useClassBalance, useClassPacks } from "@/features/classPacks/useClassPacks";
-import { formatMoney, toAmountText } from "@/features/fees/money";
+import { formatMoney, toAmountText } from "@/formatting/money";
 import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
-import { todayIsoDate } from "@/features/sessions/dates";
-import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { todayIsoDate } from "@/dates/dates";
+import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { DateField } from "@/forms/DateField";
 import { translate } from "@/i18n/translate";
 import { clientTabs, routes } from "@/navigation/routes";

@@ -1,11 +1,12 @@
-import { getBackofficeJson, rememberAccessToken } from "@/backoffice/api/backofficeHttpClient";
+import { getBackofficeJson, restoreAccessToken } from "@/backoffice/api/backofficeHttpClient";
 import { refreshBackofficeSession } from "@/backoffice/session/backofficeSessionApi";
 
 jest.mock("@/backoffice/session/backofficeSessionApi");
 
 describe("When the access token expires", () => {
-  beforeEach(() => {
-    rememberAccessToken("expired-token");
+  beforeEach(async () => {
+    jest.mocked(refreshBackofficeSession).mockResolvedValueOnce("expired-token");
+    await restoreAccessToken();
     jest.mocked(refreshBackofficeSession).mockResolvedValue("new-token");
     globalThis.fetch = jest
       .fn()
@@ -17,7 +18,7 @@ describe("When the access token expires", () => {
     const response = await getBackofficeJson<{ brands: unknown[] }>("/api/brands");
 
     expect(response).toEqual({ brands: [] });
-    expect(jest.mocked(globalThis.fetch).mock.calls[1][1]).toEqual({
+    expect(jest.mocked(globalThis.fetch).mock.calls[1][1]).toMatchObject({
       headers: { Authorization: "Bearer new-token" },
     });
   });

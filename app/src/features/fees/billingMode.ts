@@ -1,5 +1,5 @@
 import { Business } from "@/features/business/types";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 
 export function hasChosenBillingMode(business: Business): boolean {

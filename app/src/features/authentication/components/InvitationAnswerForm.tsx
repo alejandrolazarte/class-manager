@@ -4,7 +4,7 @@ import {
   formatBirthDateForDisplay,
   isValidBirthDate,
   parseBirthDate,
-} from "@/features/students/birthDateFormatting";
+} from "@/dates/birthDateFormatting";
 import { LegalTermsConsent } from "@/features/legal/components/LegalTermsConsent";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";

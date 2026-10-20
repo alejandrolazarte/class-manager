@@ -6,7 +6,7 @@ import { hasChosenBillingMode } from "@/features/fees/billingMode";
 import { ClassPackClientRow } from "@/features/fees/components/ClassPackClientRow";
 import { ClientFeeRow } from "@/features/fees/components/ClientFeeRow";
 import { MonthlySummary } from "@/features/fees/components/MonthlySummary";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { addMonths, formatMonth, monthOf } from "@/features/fees/months";
 import { ClientFee } from "@/features/fees/types";
 import { useMonthlyFees } from "@/features/fees/useFees";

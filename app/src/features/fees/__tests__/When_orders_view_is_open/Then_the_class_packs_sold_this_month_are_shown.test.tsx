@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { listMonthlyFees } from "@/features/fees/feesApi";
 import { CollectionsScreen } from "@/features/fees/screens/CollectionsScreen";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { getOrderSummary, listOrders } from "@/features/orders/ordersApi";
 import { translate } from "@/i18n/translate";
 import { buildBusiness } from "@/testing/businessFactory";

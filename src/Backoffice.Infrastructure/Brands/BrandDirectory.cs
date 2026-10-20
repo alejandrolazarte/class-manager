@@ -70,6 +70,13 @@ internal sealed class BrandDirectory(AppDbContext context, TimeProvider timeProv
             planFeatures);
     }
 
+    public async Task<IReadOnlyList<ExpiringAddOn>> ListAddOnsExpiringBetweenAsync(DateOnly from, DateOnly until, CancellationToken cancellationToken) =>
+        await context.SubscriptionFeatures.AsNoTracking().WhereNotDeleted()
+            .Where(addOn => addOn.ExpiredOn >= from && addOn.ExpiredOn <= until)
+            .Join(context.Subscriptions.WhereNotDeleted(), addOn => addOn.SubscriptionId, subscription => subscription.Id, (addOn, subscription) => new { addOn, subscription.SubscriberId })
+            .Join(context.Organizations, row => row.SubscriberId, organization => organization.Id, (row, organization) => new ExpiringAddOn(organization.Id, organization.Name, row.addOn.FeatureCode, row.addOn.ExpiredOn!.Value))
+            .ToListAsync(cancellationToken);
+
     private IQueryable<OwnerRow> OwnersOf(IQueryable<OrganizationMember> members) =>
         members
             .Where(member => member.Role == OrganizationRole.BrandOwner)

@@ -5,7 +5,7 @@ import { EnrollStudentScreen } from "@/features/enrollments/screens/EnrollStuden
 import { searchStudents } from "@/features/students/studentsApi";
 import { buildClassGroup } from "@/testing/classGroupFactory";
 import { buildRosterEntry } from "@/testing/enrollmentFactory";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 import { buildStudentSummary } from "@/testing/studentFactory";
 

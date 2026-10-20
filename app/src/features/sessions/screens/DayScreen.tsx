@@ -4,7 +4,7 @@ import { RefreshControl, ScrollView, View } from "react-native";
 import { AccountSwitcher } from "@/features/authentication/components/AccountSwitcher";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { weekdayOf, weekdayShortLabel } from "@/features/classGroups/weekdays";
+import { weekdayOf, weekdayShortLabel } from "@/dates/weekdays";
 import { firstNameOf } from "@/features/studentApp/studentAppSchedule";
 import { formatMonth } from "@/features/fees/months";
 import {
@@ -26,7 +26,7 @@ import {
   parseIsoDate,
   todayIsoDate,
   weekOf,
-} from "@/features/sessions/dates";
+} from "@/dates/dates";
 import { DaySession } from "@/features/sessions/types";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
 import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";

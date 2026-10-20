@@ -9,7 +9,7 @@ import { ClientDetails, StudentAppAccessStatus } from "@/features/clients/types"
 import { ContactAdultConfirmation } from "@/features/studentApp/components/ContactAdultConfirmation";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
-import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
+import { isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
 import { studentErrorCodes } from "@/features/students/studentErrorCodes";
 import { isEmailOfAnotherPerson, normalizeEmail } from "@/features/students/studentSchema";
 import { Student } from "@/features/students/types";

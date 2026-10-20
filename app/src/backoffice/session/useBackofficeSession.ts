@@ -1,18 +1,17 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { rememberAccessToken } from "@/backoffice/api/backofficeHttpClient";
+import { forgetAccessToken, restoreAccessToken } from "@/backoffice/api/backofficeHttpClient";
 import {
   CurrentOperator,
   getCurrentOperator,
-  refreshBackofficeSession,
   signOutOfBackoffice,
 } from "@/backoffice/session/backofficeSessionApi";
 
 const sessionQueryKey = ["backofficeSession"];
+const platformOperatorRole = "PlatformOperator";
 
 async function restoreSession(): Promise<CurrentOperator | null> {
-  const accessToken = await refreshBackofficeSession();
-  rememberAccessToken(accessToken);
+  const accessToken = await restoreAccessToken();
   return accessToken === null ? null : getCurrentOperator(accessToken);
 }
 
@@ -22,9 +21,9 @@ export function useBackofficeSession() {
 
   const signOut = useCallback(async () => {
     await signOutOfBackoffice().catch(() => undefined);
-    rememberAccessToken(null);
+    forgetAccessToken();
     queryClient.setQueryData(sessionQueryKey, null);
   }, [queryClient]);
 
-  return { session, signOut };
+  return { session, signOut, canManage: session.data?.role === platformOperatorRole };
 }

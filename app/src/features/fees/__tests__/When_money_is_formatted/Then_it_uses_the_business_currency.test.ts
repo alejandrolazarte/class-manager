@@ -1,4 +1,4 @@
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 
 describe("When money is formatted", () => {
   it("Then it uses the business currency", () => {

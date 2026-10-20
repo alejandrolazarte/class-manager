@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react-native";
 import { getStudentAppHome, getStudentAppShop } from "@/features/studentApp/studentAppApi";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { StudentAppHomeScreen } from "@/features/studentApp/screens/StudentAppHomeScreen";
-import { addDays, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentAppHome,

@@ -8,7 +8,7 @@ import {
   useAnnouncements,
   useRemindAnnouncement,
 } from "@/features/announcements/useAnnouncements";
-import { formatLongDate, toIsoDate } from "@/features/sessions/dates";
+import { formatLongDate, toIsoDate } from "@/dates/dates";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";

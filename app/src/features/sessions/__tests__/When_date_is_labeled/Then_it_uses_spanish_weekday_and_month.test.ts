@@ -1,4 +1,4 @@
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 
 describe("When date is labeled", () => {
   it("Then it uses spanish weekday and month", () => {

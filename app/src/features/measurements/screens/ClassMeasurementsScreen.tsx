@@ -15,7 +15,7 @@ import {
   useRecordClassMeasurements,
   useStudentMeasurements,
 } from "@/features/measurements/useMeasurements";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 import { SessionStudent } from "@/features/sessions/types";
 import { useSessionDetails } from "@/features/sessions/useSessionDetails";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";

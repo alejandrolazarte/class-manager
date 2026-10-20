@@ -2,7 +2,9 @@
 
 Date: 2026-10-11
 
-There is no platform admin screen yet (see the [subscriptions plan](backend/20261003-subscriptions/plan.md#api)), so the operator changes a brand's plan and price with [`scripts/set-subscription.sql`](../scripts/set-subscription.sql), run in the Azure portal. It needs nothing installed.
+A platform operator changes a brand's plan and price, and gives or removes add-ons, from the backoffice at `admin.laztty.com`: **Marcas** → the brand → **Cambiar plan** or **Dar add-on** (see the [backoffice plan](backend/20261017-backoffice/plan.md)). Both follow the same rules as the script below.
+
+[`scripts/set-subscription.sql`](../scripts/set-subscription.sql) stays as the fallback when the backoffice is not reachable: it runs in the Azure portal and needs nothing installed.
 
 ## What it does
 

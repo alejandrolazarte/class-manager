@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { listActiveClassGroups } from "@/features/classGroups/classGroupsApi";
 import { WeeklyClassesScreen } from "@/features/classGroups/screens/WeeklyClassesScreen";
-import { weekdayLongLabel } from "@/features/classGroups/weekdays";
+import { weekdayLongLabel } from "@/dates/weekdays";
 import { buildClassGroup } from "@/testing/classGroupFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 

@@ -2,11 +2,7 @@ import { z } from "zod";
 import { emailAddressSchema } from "@/forms/emailAddress";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 import { SignUpRequest } from "@/features/authentication/types";
-import {
-  ageInYears,
-  isValidBirthDate,
-  parseBirthDate,
-} from "@/features/students/birthDateFormatting";
+import { ageInYears, isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 
 const adultAge = 18;

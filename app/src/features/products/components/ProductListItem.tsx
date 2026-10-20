@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { CatalogThumbnail } from "@/features/catalogImages/components/CatalogThumbnail";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { productColorName } from "@/features/products/productColors";
 import { stockSummary, variantLabel } from "@/features/products/stockLabels";
 import { Product } from "@/features/products/types";

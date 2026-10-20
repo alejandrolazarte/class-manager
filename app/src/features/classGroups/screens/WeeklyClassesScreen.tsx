@@ -3,14 +3,14 @@ import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { ClassGroupRow } from "@/features/classGroups/components/ClassGroupRow";
 import { classesOfDay } from "@/features/classGroups/classesOfDay";
-import { Weekday } from "@/features/classGroups/types";
-import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import {
+  Weekday,
   weekdayLongLabel,
   weekdayOf,
   weekdayShortLabel,
   weekOrder,
-} from "@/features/classGroups/weekdays";
+} from "@/dates/weekdays";
+import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { translate, translateCount } from "@/i18n/translate";

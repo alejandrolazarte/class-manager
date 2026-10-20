@@ -1,5 +1,4 @@
-export type Weekday =
-  "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+import { Weekday } from "@/dates/weekdays";
 
 export interface ClassMaterialFile {
   id: string;

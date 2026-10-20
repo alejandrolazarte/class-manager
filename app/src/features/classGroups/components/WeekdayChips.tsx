@@ -1,5 +1,4 @@
-import { Weekday } from "@/features/classGroups/types";
-import { weekdayLongLabel, weekdayShortLabel, weekOrder } from "@/features/classGroups/weekdays";
+import { Weekday, weekdayLongLabel, weekdayShortLabel, weekOrder } from "@/dates/weekdays";
 import { DayStrip } from "@/ui/DayStrip";
 
 interface WeekdayChipsProps {

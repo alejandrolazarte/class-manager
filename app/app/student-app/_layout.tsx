@@ -14,7 +14,7 @@ import {
   studentAppTabDefinitions,
 } from "@/features/studentApp/studentAppTabDefinitions";
 import { translate } from "@/i18n/translate";
-import { TabIcon, tabAccessibilityLabel, useTabBarScreenOptions } from "@/navigation/tabBar";
+import { TabIcon, tabAccessibilityLabel, useTabBarScreenOptions } from "@/ui/TabBar";
 
 function StudentAppTabs() {
   const screenOptions = useTabBarScreenOptions();

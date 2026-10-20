@@ -1,5 +1,7 @@
-import { Weekday } from "@/features/classGroups/types";
 import { translate, TranslationKey } from "@/i18n/translate";
+
+export type Weekday =
+  "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
 
 export const weekOrder: readonly Weekday[] = [
   "Monday",

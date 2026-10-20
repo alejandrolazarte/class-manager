@@ -1,6 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { weekdayLongLabel } from "@/features/classGroups/weekdays";
-import { Weekday } from "@/features/classGroups/types";
+import { weekdayLongLabel, Weekday } from "@/dates/weekdays";
 import { translate } from "@/i18n/translate";
 
 export async function fillClassGroupForm({

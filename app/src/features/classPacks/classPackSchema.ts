@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ClassPack, SaveClassPackRequest } from "@/features/classPacks/types";
-import { parseAmount } from "@/features/fees/money";
+import { parseAmount } from "@/formatting/money";
 import { amountSchema } from "@/features/fees/paymentSchema";
 import { translate } from "@/i18n/translate";
 

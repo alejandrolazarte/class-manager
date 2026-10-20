@@ -5,7 +5,7 @@ import {
 } from "@/features/announcements/announcementCategories";
 import { Announcement } from "@/features/announcements/types";
 import { CatalogImage } from "@/features/catalogImages/components/CatalogImage";
-import { formatClockTime, formatLongDate, toIsoDate } from "@/features/sessions/dates";
+import { formatClockTime, formatLongDate, toIsoDate } from "@/dates/dates";
 import { joinNames } from "@/features/studentApp/studentAppNewsPresentation";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";

@@ -4,7 +4,7 @@ import { ProductPhotoCarousel } from "@/features/studentApp/components/ProductPh
 import { maximumUnitsPerItem } from "@/features/studentApp/studentAppCart";
 import { QuantityStepper } from "@/features/studentApp/components/QuantityStepper";
 import { StudentAppShopProduct } from "@/features/studentApp/types";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { productColorName, productColorSwatch } from "@/features/products/productColors";
 import { colorsOf } from "@/features/products/variantOptions";
 import { checkColorOn } from "@/theme/productColorSwatches";

@@ -1,4 +1,5 @@
-import { ClassGroup, Weekday } from "@/features/classGroups/types";
+import { Weekday } from "@/dates/weekdays";
+import { ClassGroup } from "@/features/classGroups/types";
 
 export function classesOfDay(classGroups: readonly ClassGroup[], weekday: Weekday): ClassGroup[] {
   return classGroups

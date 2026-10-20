@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react-native";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { PlanScreen } from "@/features/subscriptions/screens/PlanScreen";
 import { getOrganizationSubscription, listPlans } from "@/features/subscriptions/subscriptionsApi";
 import { translate } from "@/i18n/translate";

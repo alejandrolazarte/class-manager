@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { getStudentAppHome, withdrawAbsence } from "@/features/studentApp/studentAppApi";
 import { StudentAppClassScreen } from "@/features/studentApp/screens/StudentAppClassScreen";
-import { addDays, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { searchParametersMock } from "@/testing/expoRouterMock";
 import {

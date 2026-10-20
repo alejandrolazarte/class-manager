@@ -10,8 +10,8 @@ import {
   PrivateLessonDetails,
   SchedulePrivateLessonRequest,
 } from "@/features/privateLessons/types";
-import { formatBirthDateForDisplay, parseBirthDate } from "@/features/students/birthDateFormatting";
-import { parseAmount, toAmountText } from "@/features/fees/money";
+import { formatBirthDateForDisplay, parseBirthDate } from "@/dates/birthDateFormatting";
+import { parseAmount, toAmountText } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 
 export const privateLessonLimits = {

@@ -8,8 +8,8 @@ import {
 } from "@/features/studentApp/studentAppOrderStage";
 import { StudentAppOrder } from "@/features/studentApp/types";
 import { useCancelStudentAppOrder } from "@/features/studentApp/useStudentAppShop";
-import { formatMoney } from "@/features/fees/money";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatMoney } from "@/formatting/money";
+import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";

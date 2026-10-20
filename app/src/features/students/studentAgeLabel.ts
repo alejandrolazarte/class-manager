@@ -1,4 +1,4 @@
-import { ageInYears } from "@/features/students/birthDateFormatting";
+import { ageInYears } from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 
 const singleYear = 1;

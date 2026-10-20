@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { PackClassCountPill, packDetails } from "@/features/studentApp/components/PackCard";
 import { ProductPhotoCarousel } from "@/features/studentApp/components/ProductPhotoCarousel";
 import { StudentAppShopPack } from "@/features/studentApp/types";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";

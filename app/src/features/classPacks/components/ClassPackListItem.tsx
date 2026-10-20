@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { CatalogThumbnail } from "@/features/catalogImages/components/CatalogThumbnail";
 import { ClassPack } from "@/features/classPacks/types";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { InactiveChip } from "@/features/settings/components/InactiveChip";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";

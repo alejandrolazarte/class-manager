@@ -1,4 +1,5 @@
 import { BrandDetail, BrandSummary } from "@/backoffice/brands/brandsApi";
+import { SubscriptionCatalog } from "@/backoffice/brands/brandSubscriptionApi";
 
 export function aBrandSummary(overrides: Partial<BrandSummary> = {}): BrandSummary {
   return {
@@ -62,5 +63,19 @@ export function aBrandDetail(overrides: Partial<BrandDetail> = {}): BrandDetail 
       },
     ],
     ...overrides,
+  };
+}
+
+export function aSubscriptionCatalog(): SubscriptionCatalog {
+  return {
+    plans: [
+      { code: "free", listPrice: 0, currency: "EUR", durationInDays: 30 },
+      { code: "pro", listPrice: 29, currency: "EUR", durationInDays: null },
+      { code: "enterprise", listPrice: null, currency: "EUR", durationInDays: null },
+    ],
+    features: [
+      { code: "branches", isCounted: true, isAddOn: true, addOnListPrice: 10, currency: "EUR" },
+      { code: "shop", isCounted: false, isAddOn: true, addOnListPrice: 5, currency: "EUR" },
+    ],
   };
 }

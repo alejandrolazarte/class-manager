@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react-native";
 import { Linking } from "react-native";
 import { getStudentAppHome } from "@/features/studentApp/studentAppApi";
 import { StudentAppClassScreen } from "@/features/studentApp/screens/StudentAppClassScreen";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { searchParametersMock } from "@/testing/expoRouterMock";
 import {

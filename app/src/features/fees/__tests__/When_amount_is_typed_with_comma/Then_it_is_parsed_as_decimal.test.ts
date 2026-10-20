@@ -1,4 +1,4 @@
-import { parseAmount } from "@/features/fees/money";
+import { parseAmount } from "@/formatting/money";
 
 describe("When amount is typed with comma", () => {
   it("Then it is parsed as decimal", () => {

@@ -5,7 +5,7 @@ import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClass
 import { RosterItem } from "@/features/enrollments/components/RosterItem";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { RosterEntry } from "@/features/enrollments/types";
 import { useClassRoster } from "@/features/enrollments/useClassRoster";
 import { useEndEnrollment } from "@/features/enrollments/useEnrollmentMutations";

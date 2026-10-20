@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react-native";
 import { SubscriptionNotice } from "@/features/subscriptions/components/SubscriptionNotice";
-import { addDays, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/dates/dates";
 import { translateCount } from "@/i18n/translate";
 import { buildCurrentMember } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";

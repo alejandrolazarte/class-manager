@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { getStudentAppShop } from "@/features/studentApp/studentAppApi";
 import { StudentAppShopScreen } from "@/features/studentApp/screens/StudentAppShopScreen";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { buildStudentAppShop } from "@/testing/studentAppFactory";
 import { renderStudentAppScreen } from "@/testing/renderStudentAppScreen";

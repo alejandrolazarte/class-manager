@@ -4,7 +4,7 @@ import {
   recordStudentAppMeasurement,
 } from "@/features/measurements/measurementsApi";
 import { StudentAppRecordMeasurementScreen } from "@/features/measurements/screens/StudentAppRecordMeasurementScreen";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildDistanceMeasurement,
