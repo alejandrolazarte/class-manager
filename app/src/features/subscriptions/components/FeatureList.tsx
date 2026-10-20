@@ -4,7 +4,7 @@ import {
   featureCodes,
   featureDisplayOrder,
 } from "@/features/subscriptions/subscriptionCodes";
-import { formatMegabytes } from "@/features/subscriptions/storageSize";
+import { formatMegabytes } from "@/formatting/storageSize";
 import { featureLabel } from "@/features/subscriptions/subscriptionLabels";
 import { FeatureLimit } from "@/features/subscriptions/types";
 import { translate } from "@/i18n/translate";

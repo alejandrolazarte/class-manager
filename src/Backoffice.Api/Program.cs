@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using ClassManager.Backoffice.Api;
 using ClassManager.Backoffice.Api.Authentication;
 using ClassManager.Backoffice.Api.Endpoints;
@@ -8,6 +9,7 @@ using ClassManager.Infrastructure.SecurityHeaders;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
+builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddBackofficeInfrastructure();
 builder.Services.AddBackofficeAuthentication(builder.Configuration);
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
@@ -24,5 +26,6 @@ app.UseAuthorization();
 app.MapHealthChecks(BackofficeApiRoutes.Health).AllowAnonymous();
 app.MapBackofficeAuthenticationEndpoints();
 app.MapCurrentOperatorEndpoints();
+app.MapBrandEndpoints();
 
 app.Run();

@@ -17,6 +17,7 @@ const pluralFormPattern = /\.(one|other)$/;
 const quotes = ['"', "'", "`"];
 
 const keysBuiltFromOneValue = [
+  "backoffice.brands.status.",
   "countries.",
   "fees.billingPlan.hint.",
   "fees.methods.",

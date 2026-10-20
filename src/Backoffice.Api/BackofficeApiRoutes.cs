@@ -9,6 +9,8 @@ internal static class BackofficeApiRoutes
     public const string Refresh = "/refresh";
     public const string SignOut = "/signout";
     public const string CurrentOperator = "/api/me";
+    public const string Brands = "/api/brands";
+    public const string BrandById = "/{brandId:guid}";
     public const string WebAppSignIn = "/sign-in";
     public const string AccessRequestCodeParameter = "accessRequestCode";
 }
