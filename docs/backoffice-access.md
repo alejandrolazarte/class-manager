@@ -20,6 +20,8 @@ The OAuth client **Laztty Backoffice** in Google Cloud (APIs & Services → Cred
 - The client ID is not a secret and is in `src/Backoffice.Api/appsettings.json` (`Backoffice:Google:ClientId`).
 - The client secret is a secret: a Container Apps secret mapped to `Backoffice__Google__ClientSecret` in production, and locally `dotnet user-secrets set "Backoffice:Google:ClientSecret" "<secret>" --project src/Backoffice.Api`.
 
+If Google answers **Error 400: redirect_uri_mismatch**, the request's `redirect_uri` (shown under the error's details) is not among the client's *Authorized redirect URIs*: check that it is the **Laztty Backoffice** client, that the URI is under redirect URIs (not JavaScript origins), written exactly, and saved. Google can take from 5 minutes to a few hours to apply a change.
+
 ## Configuration
 
 | Setting | What |
@@ -46,10 +48,10 @@ Every other endpoint requires a backoffice access token (`kind` `backoffice`). T
 
 1. Sign up Laztty in the app like any business ([your own business](changing-a-subscription.md#your-own-business)) and set `Backoffice:PlatformOrganizationId` to its organization id.
 2. The person opens the backoffice, signs in with Google and gets the code.
-3. In the Azure portal (SQL database → Query editor), fill in `scripts/enable-first-operator.sql` (the code, the email of their app account, the organization id and the role) and run it. Their branch role becomes the platform role (a brand owner keeps the whole brand in the app through `BrandOwner`), the identity is enabled and the request is removed.
+3. In the Azure portal (SQL database → Query editor), fill in `scripts/enable-first-operator.sql` (the code, the email of their app account, the organization id and the role) and run it. When the account is a team member of more than one Laztty branch, also set `@BranchName`: the platform role goes to that branch only, and the others keep their role. Their branch role becomes the platform role (a brand owner keeps the whole brand in the app through `BrandOwner`), the identity is enabled and the request is removed.
 4. They sign in again.
 
-The script refuses an unknown code, an unknown account, and an account that isn't a team member of exactly one Laztty branch. From the second operator on, an operator enables people from the backoffice's **Operadores** screen (not built yet: until then, the script).
+The script refuses an unknown code, an unknown account, and an account that isn't a team member of exactly one Laztty branch (or of the one named in `@BranchName`). From the second operator on, an operator enables people from the backoffice's **Operadores** screen (not built yet: until then, the script).
 
 ## Disabling someone, or a lost phone
 
