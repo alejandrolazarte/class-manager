@@ -15,6 +15,7 @@ concurrency:
 
 env:
   IMAGE_NAME: ghcr.io/alejandrolazarte/class-manager-api
+  BACKOFFICE_IMAGE_NAME: ghcr.io/alejandrolazarte/class-manager-backoffice-api
   DEPLOYED_SHA: ${{ github.event.workflow_run.head_sha }}
 
 jobs:
@@ -44,6 +45,18 @@ jobs:
           .
 
       - run: docker push "$IMAGE_NAME:$DEPLOYED_SHA"
+
+      - if: vars.AZURE_BACKOFFICE_CONTAINER_APP != ''
+        run: >-
+          docker build
+          --file src/Backoffice.Api/Containerfile
+          --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
+          --label "org.opencontainers.image.revision=$DEPLOYED_SHA"
+          --tag "$BACKOFFICE_IMAGE_NAME:$DEPLOYED_SHA"
+          .
+
+      - if: vars.AZURE_BACKOFFICE_CONTAINER_APP != ''
+        run: docker push "$BACKOFFICE_IMAGE_NAME:$DEPLOYED_SHA"
 
   api:
     needs: image
@@ -166,3 +179,91 @@ jobs:
             --resource-group "$AZURE_RESOURCE_GROUP" --query properties.apiKey --output tsv)
           echo "::add-mask::$deployment_token"
           npx --yes "$STATIC_WEB_APPS_CLI" deploy dist --env production --deployment-token "$deployment_token"
+
+  backoffice-api:
+    needs: [image, api]
+    if: vars.AZURE_BACKOFFICE_CONTAINER_APP != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      DEPLOY_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      DEPLOY_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_BACKOFFICE_CONTAINER_APP: ${{ vars.AZURE_BACKOFFICE_CONTAINER_APP }}
+    steps:
+      - name: Sign in to Azure with OpenID Connect
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors
+          federated_token=$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq --raw-output .value)
+          echo "::add-mask::$federated_token"
+          az login --service-principal --username "$DEPLOY_CLIENT_ID" --tenant "$DEPLOY_TENANT_ID" \
+            --federated-token "$federated_token" --output none
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+
+      - name: Deploy the image
+        run: |
+          az containerapp update --name "$AZURE_BACKOFFICE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
+            --image "$BACKOFFICE_IMAGE_NAME:$DEPLOYED_SHA" --output none
+
+      - name: Wait for the backoffice API to answer
+        run: |
+          api_host=$(az containerapp show --name "$AZURE_BACKOFFICE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
+            --query properties.configuration.ingress.fqdn --output tsv)
+          curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors --max-time 60 \
+            "https://$api_host/health"
+
+  backoffice-web:
+    needs: backoffice-api
+    if: vars.AZURE_BACKOFFICE_STATIC_WEB_APP != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      DEPLOY_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      DEPLOY_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_BACKOFFICE_STATIC_WEB_APP: ${{ vars.AZURE_BACKOFFICE_STATIC_WEB_APP }}
+      EXPO_PUBLIC_API_BASE_URL: ${{ vars.BACKOFFICE_API_BASE_URL }}
+      STATIC_WEB_APPS_CLI: "@azure/static-web-apps-cli@2.0.10"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOYED_SHA }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Build the backoffice web app
+        working-directory: app
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm export:backoffice
+
+      - name: Sign in to Azure with OpenID Connect
+        run: |
+          federated_token=$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq --raw-output .value)
+          echo "::add-mask::$federated_token"
+          az login --service-principal --username "$DEPLOY_CLIENT_ID" --tenant "$DEPLOY_TENANT_ID" \
+            --federated-token "$federated_token" --output none
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+
+      - name: Deploy the backoffice web app
+        working-directory: app
+        run: |
+          deployment_token=$(az staticwebapp secrets list --name "$AZURE_BACKOFFICE_STATIC_WEB_APP" \
+            --resource-group "$AZURE_RESOURCE_GROUP" --query properties.apiKey --output tsv)
+          echo "::add-mask::$deployment_token"
+          npx --yes "$STATIC_WEB_APPS_CLI" deploy dist-backoffice --env production --deployment-token "$deployment_token"

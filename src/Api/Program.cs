@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-
 using ClassManager.Api;
 using ClassManager.Api.Audit;
 using ClassManager.Api.Authentication;
@@ -8,8 +7,8 @@ using ClassManager.Api.Cors;
 using ClassManager.Api.Endpoints;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Api.Orders;
-using ClassManager.Api.SecurityHeaders;
 using ClassManager.Infrastructure.Audit;
+using ClassManager.Infrastructure.SecurityHeaders;
 using ClassManager.Subscriptions.AspNetCore.Limits;
 
 var builder = WebApplication.CreateBuilder(args);

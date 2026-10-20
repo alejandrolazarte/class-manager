@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace ClassManager.Api.SecurityHeaders;
+namespace ClassManager.Infrastructure.SecurityHeaders;
 
 public sealed class SecurityHeadersMiddleware(RequestDelegate next)
 {

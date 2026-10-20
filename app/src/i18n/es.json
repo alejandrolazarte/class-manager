@@ -1835,5 +1835,9 @@
   "legal.update.submit": "Aceptar y continuar",
   "legal.update.signOut": "Salir",
   "backoffice.signIn.title": "Laztty Admin",
-  "backoffice.signIn.description": "Administración de Laztty: marcas, planes y operadores."
+  "backoffice.signIn.withGoogle": "Entrar con Google",
+  "backoffice.signIn.accessDenied": "Acceso no permitido",
+  "backoffice.signIn.accessDeniedHint": "Pasale este código a un operador de Laztty para que te habilite:",
+  "backoffice.home.signedInAs": "Entraste como {email} ({role}).",
+  "backoffice.home.signOut": "Salir"
 }

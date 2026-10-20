@@ -1,15 +1,11 @@
-import { render, screen } from "@testing-library/react-native";
+import { screen } from "@testing-library/react-native";
 import { BackofficeSignInScreen } from "@/backoffice/signIn/BackofficeSignInScreen";
 import { translate } from "@/i18n/translate";
-import { ThemeProvider } from "@/theme/ThemeProvider";
+import { renderBackofficeScreen } from "@/testing/renderBackofficeScreen";
 
 describe("When the backoffice sign in opens", () => {
   it("Then it shows the backoffice name", async () => {
-    await render(
-      <ThemeProvider>
-        <BackofficeSignInScreen />
-      </ThemeProvider>,
-    );
+    await renderBackofficeScreen(<BackofficeSignInScreen />);
 
     expect(
       screen.getByRole("header", { name: translate("backoffice.signIn.title") }),

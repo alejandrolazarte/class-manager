@@ -1,6 +1,6 @@
 # Backoffice
 
-Status: step 1 in progress: the two web builds, the backend projects, the platform roles and signing in with Google are built (runbook: [backoffice access](../../backoffice-access.md)); the rest is a proposal.
+Status: step 1 in progress: the two web builds, the backend projects, the platform roles, signing in with Google and the deploy are built (runbook: [backoffice access](../../backoffice-access.md)); the rest is a proposal.
 
 A platform administration area for the people who run Laztty, not for businesses: see every brand, its subscription and usage, change its plan, give or take away add-ons, read the audit log, manage who may enter and, later, see the app as a user to reproduce a bug. It is a web app installable as a PWA, so the operator can run it from their phone.
 
@@ -203,7 +203,7 @@ Rules, enforced in the API:
    - OIDC with Google, `BackofficeLogins`, access requests, the sign-in email, JWT with its own key, audience, `Kind` and lifetimes; the first operator's script. **Built**, except the sign-in email.
    - Screens: sign in, Inicio, Marcas, Marca, Cambiar plan, Add-on, Operadores. The PWA manifest.
    - Tests: each permission sees only what it may, the app's tokens are refused and the other way round, a disabled identity is refused on refresh, a plan change replaces the subscription and drops its add-ons, an add-on overrides the plan's limit.
-   - Second Static Web App, container app, DNS and `docs/backoffice-access.md`. `docs/changing-a-subscription.md` points to the backoffice and the script stays as a fallback.
+   - Second Static Web App, container app, DNS and `docs/backoffice-access.md`. `docs/changing-a-subscription.md` points to the backoffice and the script stays as a fallback. **Deploy built** ([backoffice deployment](../../backoffice-deployment.md)), with the sign-in screen and a first screen showing who is signed in.
 2. **Logs.** After the audit log's steps 3 to 5: `IAuditLogReader` (Table Storage and append blobs, Azurite in tests), the reader roles, screens Actividad and Seguridad, `Source` in the command log row.
 3. **Corrections.** Backoffice commands that fix a business's data under the operator's user, added one by one when a real case needs them.
 4. **Impersonation.** `ImpersonationGrants`, the code exchange in the API, the read-only and account-action rules, the banner and the legal text update.

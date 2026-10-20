@@ -32,6 +32,9 @@ Check the status of the blocking before turning the proxy on for anything.
 | `CNAME` | `app` | `<static web app>.azurestaticapps.net` (the default host in the static web app's **Overview**) | DNS only |
 | `CNAME` | `api` | `<container app>.<environment>.francecentral.azurecontainerapps.io` (the container app's **Application Url**) | DNS only |
 | `TXT` | `asuid.api` | The container app's **Custom domain verification ID** | DNS only |
+| `CNAME` | `admin` | The backoffice static web app's default host ([backoffice deployment](backoffice-deployment.md#4-domains)) | DNS only |
+| `CNAME` | `admin-api` | The backoffice container app's **Application Url** host | DNS only |
+| `TXT` | `asuid.admin-api` | The backoffice container app's **Custom domain verification ID** | DNS only |
 
 ## Setup
 
