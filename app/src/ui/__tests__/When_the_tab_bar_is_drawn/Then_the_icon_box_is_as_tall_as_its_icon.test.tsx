@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react-native";
 import { ReactNode } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useTabBarScreenOptions } from "@/navigation/tabBar";
+import { useTabBarScreenOptions } from "@/ui/TabBar";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { iconSizes } from "@/ui/Icon";
 

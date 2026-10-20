@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { DayScreen } from "@/features/sessions/screens/DayScreen";
 import { getMonthCalendar, listDaySessions } from "@/features/sessions/sessionsApi";
 import { translate } from "@/i18n/translate";

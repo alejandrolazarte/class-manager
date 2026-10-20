@@ -7,7 +7,7 @@ import {
 } from "@/features/classGroups/classGroupsApi";
 import { ClassGroupFormScreen } from "@/features/classGroups/screens/ClassGroupFormScreen";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
 import { fillClassGroupForm, submitClassGroupForm } from "@/testing/fillClassGroupForm";

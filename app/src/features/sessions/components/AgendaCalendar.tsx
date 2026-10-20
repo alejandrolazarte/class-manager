@@ -1,17 +1,6 @@
 import { View } from "react-native";
-import {
-  weekdayLongLabel,
-  weekdayOf,
-  weekdayShortLabel,
-  weekOrder,
-} from "@/features/classGroups/weekdays";
-import {
-  dayOfMonth,
-  monthGridOf,
-  monthOfDate,
-  parseIsoDate,
-  weekOf,
-} from "@/features/sessions/dates";
+import { weekdayLongLabel, weekdayOf, weekdayShortLabel, weekOrder } from "@/dates/weekdays";
+import { dayOfMonth, monthGridOf, monthOfDate, parseIsoDate, weekOf } from "@/dates/dates";
 import { CalendarDay } from "@/features/sessions/types";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";

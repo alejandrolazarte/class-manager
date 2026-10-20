@@ -5,7 +5,7 @@ import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider"
 import { ClassBalanceSection } from "@/features/classPacks/components/ClassBalanceSection";
 import { ClientDetails } from "@/features/clients/types";
 import { describeBillingPlan } from "@/features/fees/billingPlanDescription";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
 import { BillingPlanChange, Payment } from "@/features/fees/types";
 import {
@@ -18,7 +18,7 @@ import { useCanUndoCollection } from "@/features/fees/useCanUndoCollection";
 import { useClientPayments } from "@/features/fees/useFees";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";

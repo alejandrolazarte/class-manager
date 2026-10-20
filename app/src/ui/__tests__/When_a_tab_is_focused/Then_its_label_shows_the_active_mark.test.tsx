@@ -1,16 +1,16 @@
 import { render, screen } from "@testing-library/react-native";
-import { TabLabel } from "@/navigation/tabBar";
+import { TabLabel } from "@/ui/TabBar";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
 describe("When a tab is focused", () => {
-  it("Then the active mark sits under its label", async () => {
+  it("Then its label shows the active mark", async () => {
     await render(
       <ThemeProvider initialColorSchemePreference="light">
         <TabLabel label="Hoy" isFocused />
+        <TabLabel label="Clases" isFocused={false} />
       </ThemeProvider>,
     );
 
-    const renderedTree = JSON.stringify(screen.toJSON());
-    expect(renderedTree.indexOf("tab-active-mark")).toBeGreaterThan(renderedTree.indexOf("Hoy"));
+    expect(screen.getAllByTestId("tab-active-mark")).toHaveLength(1);
   });
 });

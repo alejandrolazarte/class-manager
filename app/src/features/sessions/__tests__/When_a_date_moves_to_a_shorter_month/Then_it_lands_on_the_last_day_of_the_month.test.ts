@@ -1,4 +1,4 @@
-import { addMonthsToDate } from "@/features/sessions/dates";
+import { addMonthsToDate } from "@/dates/dates";
 
 describe("When a date moves to a shorter month", () => {
   it("Then it lands on the last day of the month", () => {

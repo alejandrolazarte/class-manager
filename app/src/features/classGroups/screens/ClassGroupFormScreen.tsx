@@ -18,7 +18,8 @@ import {
   toClassGroupFormValues,
   toSaveClassGroupRequest,
 } from "@/features/classGroups/classGroupSchema";
-import { ClassGroup, Weekday } from "@/features/classGroups/types";
+import { Weekday } from "@/dates/weekdays";
+import { ClassGroup } from "@/features/classGroups/types";
 import { useClassGroupsIncludingInactive } from "@/features/classGroups/useClassGroups";
 import {
   ClassMaterialFileChange,
@@ -33,7 +34,7 @@ import {
 } from "@/features/classGroups/pickClassMaterialFile";
 import { Instructor } from "@/features/instructors/types";
 import { conflictingDateExtension } from "@/features/privateLessons/privateLessonErrorCodes";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";

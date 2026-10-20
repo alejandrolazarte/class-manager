@@ -10,7 +10,7 @@ import { useResendInvitation, useRevokeInvitation } from "@/features/members/use
 import { isPlatformRole, memberRoleLabel } from "@/features/roles/roleChoices";
 import { Role } from "@/features/roles/types";
 import { useRoles } from "@/features/roles/useRoles";
-import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";

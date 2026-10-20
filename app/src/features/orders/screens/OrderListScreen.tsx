@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { ReactNode, useState } from "react";
 import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { monthOf } from "@/features/fees/months";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";

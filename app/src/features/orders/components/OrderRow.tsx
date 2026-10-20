@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { View } from "react-native";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
 import { refundableLinesOf } from "@/features/orders/refunds";
 import { orderClientLabel, orderStatusLabel } from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
 import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useOrderMutations";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";

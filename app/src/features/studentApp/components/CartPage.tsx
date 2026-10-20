@@ -16,7 +16,7 @@ import {
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { StudentAppShop } from "@/features/studentApp/types";
 import { usePlaceStudentAppOrder } from "@/features/studentApp/useStudentAppShop";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";

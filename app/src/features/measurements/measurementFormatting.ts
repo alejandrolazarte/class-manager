@@ -1,4 +1,4 @@
-import { parseIsoDate } from "@/features/sessions/dates";
+import { parseIsoDate } from "@/dates/dates";
 import {
   ImprovementDirection,
   Measurement,

@@ -1,4 +1,4 @@
-import { formatBirthDateAsTyped } from "@/features/students/birthDateFormatting";
+import { formatBirthDateAsTyped } from "@/dates/birthDateFormatting";
 
 describe("When an impossible date is typed", () => {
   it("Then the impossible digits are ignored", () => {

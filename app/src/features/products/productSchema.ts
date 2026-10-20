@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { parseAmount, toAmountText } from "@/features/fees/money";
+import { parseAmount, toAmountText } from "@/formatting/money";
 import { amountSchema } from "@/features/fees/paymentSchema";
 import { Product, SaveProductRequest, StockMode, VariantChange } from "@/features/products/types";
 import { colorsOf, sizesOf } from "@/features/products/variantOptions";

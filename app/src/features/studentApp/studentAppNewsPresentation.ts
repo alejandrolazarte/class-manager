@@ -1,6 +1,6 @@
 import { firstNameOf, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { StudentAppNewsItem } from "@/features/studentApp/types";
-import { addDays, formatClockTime, toIsoDate, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, formatClockTime, toIsoDate, todayIsoDate } from "@/dates/dates";
 import {
   announcementCategoryPresentations,
   hasCategoryPill,

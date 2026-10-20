@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { translate } from "@/i18n/translate";
-import { TabIcon, TabLabel } from "@/navigation/tabBar";
+import { TabIcon, TabLabel } from "@/ui/TabBar";
 import { ThemeColors } from "@/theme/themeColorTokens";
 import { ThemePreviewScope } from "@/theme/ThemePreviewScope";
 import { AppText } from "@/ui/AppText";

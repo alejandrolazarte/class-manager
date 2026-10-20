@@ -1,32 +1,32 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
 import { View } from "react-native";
 import {
   isBackofficeNotFound,
   isBackofficeSessionEnded,
 } from "@/backoffice/api/backofficeHttpClient";
-import {
-  formatDateOnly,
-  formatDateTimeAsDate,
-  formatMoney,
-} from "@/backoffice/backofficeFormatting";
+import { formatDateOnly, formatDateTimeAsDate } from "@/backoffice/backofficeFormatting";
 import { backofficeRoutes } from "@/backoffice/backofficeRoutes";
 import { featureLabel, planLabel, statusLabel, statusTone } from "@/backoffice/brands/brandLabels";
-import { brandQueryKey } from "@/backoffice/brands/brandQueryKeys";
-import { BrandDetail, BrandFeature, getBrand } from "@/backoffice/brands/brandsApi";
+import { brandQueryKey, brandsQueryKey } from "@/backoffice/brands/brandQueryKeys";
+import { BrandUsage, countedFeatureCodes } from "@/backoffice/brands/BrandUsage";
+import { BrandAddOn, BrandDetail, BrandFeature, getBrand } from "@/backoffice/brands/brandsApi";
+import { removeBrandAddOn, restoreBrandAddOn } from "@/backoffice/brands/brandSubscriptionApi";
+import { useBackofficeSession } from "@/backoffice/session/useBackofficeSession";
+import { formatMoney } from "@/formatting/money";
 import { formatMegabytes } from "@/formatting/storageSize";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { HairlineSection } from "@/ui/HairlineSection";
-import { ListDivider, ListRow } from "@/ui/ListRow";
+import { ListRow } from "@/ui/ListRow";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { StatusPill } from "@/ui/StatusPill";
+import { useToast } from "@/ui/ToastProvider";
 
-const branchesFeatureCode = "branches";
 const documentStorageFeatureCode = "document-storage";
 
 interface BrandScreenProps {
@@ -46,30 +46,48 @@ function featureText(feature: BrandFeature): string {
       });
 }
 
-function branchesHint(brand: BrandDetail): string | undefined {
-  const branchesFeature = brand.features.find((feature) => feature.code === branchesFeatureCode);
-  if (branchesFeature === undefined) {
-    return undefined;
-  }
-  const values = { feature: featureLabel(branchesFeatureCode), used: brand.branches.length };
-  return branchesFeature.limit === null
-    ? translate("subscriptions.featureUsedUnlimited", values)
-    : translate("subscriptions.featureUsed", { ...values, limit: branchesFeature.limit });
+function ownersText(brand: BrandDetail): string {
+  return brand.owners
+    .map((owner) => [owner.fullName, owner.email].filter(Boolean).join(" · "))
+    .join(", ");
 }
 
-function BrandSections({ brand }: { brand: BrandDetail }) {
+interface BrandSectionsProps {
+  brand: BrandDetail;
+  canManage: boolean;
+}
+
+function useAddOnRemoval(brandId: string) {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const refreshBrand = () => queryClient.invalidateQueries({ queryKey: brandsQueryKey });
+  const restore = useMutation({
+    mutationFn: (addOnId: string) => restoreBrandAddOn(brandId, addOnId),
+    onSettled: refreshBrand,
+    onError: () => showToast(translate("common.unexpectedError")),
+  });
+  const remove = useMutation({
+    mutationFn: (addOn: BrandAddOn) => removeBrandAddOn(brandId, addOn.id),
+    onSettled: refreshBrand,
+    onSuccess: (removedAddOn) =>
+      showToast(translate("backoffice.brand.addOnRemoved"), {
+        label: translate("common.undo"),
+        onPress: () => restore.mutate(removedAddOn.id),
+      }),
+    onError: () => showToast(translate("common.unexpectedError")),
+  });
+  return remove;
+}
+
+function BrandSections({ brand, canManage }: BrandSectionsProps) {
+  const router = useRouter();
+  const removeAddOn = useAddOnRemoval(brand.id);
   const subscription = brand.subscription;
+  const includedFeatures = brand.features.filter(
+    (feature) => !countedFeatureCodes.includes(feature.code),
+  );
   return (
     <>
-      <HairlineSection title={translate("backoffice.brand.ownersTitle")} isCompact>
-        {brand.owners.map((owner) => (
-          <ListRow
-            key={`${owner.fullName}-${owner.email ?? ""}`}
-            label={owner.fullName}
-            detail={owner.email ?? undefined}
-          />
-        ))}
-      </HairlineSection>
       <HairlineSection
         title={translate("backoffice.brand.subscriptionTitle")}
         trailing={
@@ -105,50 +123,63 @@ function BrandSections({ brand }: { brand: BrandDetail }) {
             )}
           </View>
         )}
+        {canManage ? (
+          <Button
+            variant="secondary"
+            size="medium"
+            label={translate("backoffice.brand.changePlan")}
+            onPress={() => router.push(backofficeRoutes.changePlan(brand.id))}
+          />
+        ) : null}
       </HairlineSection>
-      {brand.features.length === 0 ? null : (
+      <HairlineSection title={translate("backoffice.brand.usageTitle")} isCompact>
+        <BrandUsage brand={brand} />
+      </HairlineSection>
+      {includedFeatures.length === 0 ? null : (
         <HairlineSection title={translate("backoffice.brand.featuresTitle")} isCompact>
-          {brand.features.map((feature) => (
+          {includedFeatures.map((feature) => (
             <AppText key={feature.code} variant="caption">
               {featureText(feature)}
             </AppText>
           ))}
         </HairlineSection>
       )}
-      <HairlineSection
-        title={translate("backoffice.brand.branchesTitle")}
-        hint={branchesHint(brand)}
-        isCompact
-      >
-        {brand.branches.map((branch, index) => (
-          <View key={branch.id}>
-            {index === 0 ? null : <ListDivider />}
-            <ListRow
-              label={branch.name}
-              detail={translate("backoffice.brand.branchUsage", {
-                students: branch.studentCount,
-                team: branch.teamCount,
-                storage: formatMegabytes(branch.storageMegabytes),
-              })}
-            />
-          </View>
-        ))}
-      </HairlineSection>
       <HairlineSection title={translate("backoffice.brand.addOnsTitle")} isCompact>
         {brand.addOns.length === 0 ? (
           <AppText tone="muted">{translate("backoffice.brand.noAddOns")}</AppText>
         ) : (
           brand.addOns.map((addOn) => (
             <ListRow
-              key={`${addOn.featureCode}-${addOn.createdOn}`}
+              key={addOn.id}
               label={featureText({ code: addOn.featureCode, limit: addOn.limit })}
               detail={translate("backoffice.brand.addOnDetail", {
                 price: formatMoney(addOn.price, addOn.currency),
                 date: formatDateTimeAsDate(addOn.createdOn),
               })}
+              trailing={
+                canManage ? (
+                  <Button
+                    variant="dangerGhost"
+                    size="small"
+                    label={translate("backoffice.brand.removeAddOn")}
+                    accessibilityLabel={translate("backoffice.brand.removeAddOnOf", {
+                      feature: featureLabel(addOn.featureCode),
+                    })}
+                    onPress={() => removeAddOn.mutate(addOn)}
+                    disabled={removeAddOn.isPending}
+                  />
+                ) : undefined
+              }
             />
           ))
         )}
+        {canManage && subscription !== null ? (
+          <Button
+            variant="dashed"
+            label={translate("backoffice.brand.giveAddOn")}
+            onPress={() => router.push(backofficeRoutes.giveAddOn(brand.id))}
+          />
+        ) : null}
       </HairlineSection>
       <HairlineSection title={translate("backoffice.brand.historyTitle")} isCompact>
         {brand.pastSubscriptions.length === 0 ? (
@@ -173,6 +204,7 @@ function BrandSections({ brand }: { brand: BrandDetail }) {
 
 export function BrandScreen({ brandId }: BrandScreenProps) {
   const router = useRouter();
+  const { canManage } = useBackofficeSession();
   const brand = useQuery({
     queryKey: brandQueryKey(brandId),
     queryFn: () => getBrand(brandId),
@@ -188,6 +220,7 @@ export function BrandScreen({ brandId }: BrandScreenProps) {
       header={
         <ScreenHeader
           title={brand.data?.name ?? translate("backoffice.brands.title")}
+          subtitle={brand.data === undefined ? undefined : ownersText(brand.data)}
           caption={
             brand.data === undefined
               ? undefined
@@ -213,7 +246,7 @@ export function BrandScreen({ brandId }: BrandScreenProps) {
           />
         </Banner>
       ) : null}
-      {brand.data === undefined ? null : <BrandSections brand={brand.data} />}
+      {brand.data === undefined ? null : <BrandSections brand={brand.data} canManage={canManage} />}
     </ScrollScreen>
   );
 }

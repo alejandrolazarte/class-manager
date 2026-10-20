@@ -3,11 +3,14 @@ import { render } from "@testing-library/react-native";
 import { ReactElement } from "react";
 import { createTestQueryClient } from "@/testing/testQueryClients";
 import { ThemeProvider } from "@/theme/ThemeProvider";
+import { ToastProvider } from "@/ui/ToastProvider";
 
 export async function renderBackofficeScreen(element: ReactElement) {
   return render(
     <QueryClientProvider client={createTestQueryClient()}>
-      <ThemeProvider>{element}</ThemeProvider>
+      <ThemeProvider>
+        <ToastProvider>{element}</ToastProvider>
+      </ThemeProvider>
     </QueryClientProvider>,
   );
 }

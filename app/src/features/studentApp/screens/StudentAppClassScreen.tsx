@@ -4,7 +4,7 @@ import { ScheduledClassRow } from "@/features/studentApp/components/ScheduledCla
 import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider";
 import { materialOf, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";

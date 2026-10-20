@@ -1,6 +1,6 @@
-import { weekdayShortLabel, weekdayOf } from "@/features/classGroups/weekdays";
+import { weekdayShortLabel, weekdayOf } from "@/dates/weekdays";
 import { shortDayLabel } from "@/features/studentApp/studentAppSchedule";
-import { dayOfMonth, parseIsoDate } from "@/features/sessions/dates";
+import { dayOfMonth, parseIsoDate } from "@/dates/dates";
 import { DayStrip } from "@/ui/DayStrip";
 
 interface WeekStripProps {

@@ -63,6 +63,11 @@ internal sealed class InMemoryBrandDirectory : IBrandDirectory
     public Task<IReadOnlyList<BrandListing>> ListAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<BrandListing>>(Listings);
 
+    public List<ExpiringAddOn> ExpiringAddOns { get; } = [];
+
     public Task<BrandRecord?> FindAsync(Guid brandId, CancellationToken cancellationToken) =>
         Task.FromResult(Records.FirstOrDefault(record => record.Id == brandId));
+
+    public Task<IReadOnlyList<ExpiringAddOn>> ListAddOnsExpiringBetweenAsync(DateOnly from, DateOnly until, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ExpiringAddOn>>([.. ExpiringAddOns.Where(addOn => addOn.ExpiredOn >= from && addOn.ExpiredOn <= until)]);
 }

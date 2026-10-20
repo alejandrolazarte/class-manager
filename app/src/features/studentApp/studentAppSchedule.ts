@@ -1,10 +1,10 @@
-import { weekdayShortLabel, weekdayOf } from "@/features/classGroups/weekdays";
+import { weekdayShortLabel, weekdayOf } from "@/dates/weekdays";
 import {
   StudentAppClassMaterial,
   StudentAppNextClass,
   AccountStudent,
 } from "@/features/studentApp/types";
-import { addDays, dayOfMonth, parseIsoDate, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, dayOfMonth, parseIsoDate, todayIsoDate } from "@/dates/dates";
 import { translate, TranslationKey } from "@/i18n/translate";
 
 const nameSeparatorPattern = /\s+/;

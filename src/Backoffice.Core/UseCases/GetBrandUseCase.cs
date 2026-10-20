@@ -4,6 +4,7 @@ using ClassManager.Core.Common;
 using ClassManager.Core.UseCases;
 using ClassManager.Records;
 using ClassManager.Subscriptions.Access;
+using ClassManager.Subscriptions.Subscribers;
 
 namespace ClassManager.Backoffice.Core.UseCases;
 
@@ -34,12 +35,17 @@ public sealed record BrandBranchResponse(
     int StorageMegabytes);
 
 public sealed record BrandAddOnResponse(
+    Guid Id,
     string FeatureCode,
     decimal Price,
     string Currency,
     int? Limit,
     DateTimeOffset CreatedOn,
-    DateOnly? ExpiredOn);
+    DateOnly? ExpiredOn)
+{
+    public static BrandAddOnResponse From(SubscriptionFeature addOn) =>
+        new(addOn.Id, addOn.FeatureCode, addOn.Price, addOn.Currency, addOn.Limit, addOn.CreatedOn, addOn.ExpiredOn);
+}
 
 public sealed record BrandPastSubscriptionResponse(
     string PlanCode,
@@ -65,16 +71,13 @@ public sealed record BrandDetailResponse(
 public sealed class GetBrandUseCase(IBrandDirectory brandDirectory, TimeProvider timeProvider)
     : IUseCase<GetBrandQuery, BrandDetailResponse>
 {
-    public const string BrandNotFound = "backoffice.brand_not_found";
-    public const string BrandNotFoundMessage = "There is no brand with that id.";
-
     private const long BytesPerMegabyte = 1024 * 1024;
 
     public async Task<Result<BrandDetailResponse>> ExecuteAsync(GetBrandQuery command, CancellationToken cancellationToken)
     {
         if (await brandDirectory.FindAsync(command.BrandId, cancellationToken) is not { } brand)
         {
-            return Result.NotFound<BrandDetailResponse>(BrandNotFoundMessage, BrandNotFound);
+            return Result.NotFound<BrandDetailResponse>(BrandErrorCodes.BrandNotFoundMessage, BrandErrorCodes.BrandNotFound);
         }
 
         var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
@@ -115,7 +118,7 @@ public sealed class GetBrandUseCase(IBrandDirectory brandDirectory, TimeProvider
                     (int)((branch.DocumentBytes + BytesPerMegabyte - 1) / BytesPerMegabyte)))],
             [.. activeAddOns
                 .OrderBy(addOn => addOn.CreatedOn)
-                .Select(addOn => new BrandAddOnResponse(addOn.FeatureCode, addOn.Price, addOn.Currency, addOn.Limit, addOn.CreatedOn, addOn.ExpiredOn))],
+                .Select(addOn => BrandAddOnResponse.From(addOn))],
             [.. brand.Subscriptions
                 .Where(subscription => subscription.IsDeleted)
                 .OrderByDescending(subscription => subscription.CreatedOn)

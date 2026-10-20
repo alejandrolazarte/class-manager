@@ -3,7 +3,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
-import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
+import { formatMoney, parseAmount, toAmountText } from "@/formatting/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
 import { MonthlyFeeChange } from "@/features/fees/types";
 import {

@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { getStudentAppHome, getStudentAppShop } from "@/features/studentApp/studentAppApi";
 import { StudentAppHomeScreen } from "@/features/studentApp/screens/StudentAppHomeScreen";
-import { addDays, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/dates/dates";
 import {
   buildStudentAppHome,
   buildStudentAppNextClass,

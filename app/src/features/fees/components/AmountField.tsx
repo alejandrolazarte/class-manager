@@ -1,5 +1,5 @@
 import { TextInput, View } from "react-native";
-import { currencySymbol } from "@/features/fees/money";
+import { currencySymbol } from "@/formatting/money";
 import { useTheme } from "@/theme/useTheme";
 import { AppText, textVariantClassNames } from "@/ui/AppText";
 import { withRequiredMark } from "@/ui/RequiredFieldsLegend";

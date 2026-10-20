@@ -6,7 +6,7 @@ import {
   recordMeasurement,
 } from "@/features/measurements/measurementsApi";
 import { RecordMeasurementScreen } from "@/features/measurements/screens/RecordMeasurementScreen";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { buildClient } from "@/testing/clientFactory";
 import { buildMeasurementRecord, buildTimeMeasurement } from "@/testing/measurementFactory";

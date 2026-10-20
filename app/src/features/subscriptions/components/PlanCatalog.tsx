@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { FeatureList } from "@/features/subscriptions/components/FeatureList";
 import { planCodes } from "@/features/subscriptions/subscriptionCodes";
 import { planLabel } from "@/features/subscriptions/subscriptionLabels";

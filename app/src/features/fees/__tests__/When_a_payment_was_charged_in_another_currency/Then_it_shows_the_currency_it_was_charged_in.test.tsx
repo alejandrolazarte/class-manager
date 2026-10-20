@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react-native";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
 import { listClientPayments } from "@/features/fees/feesApi";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { Payment } from "@/features/fees/types";
 import { buildBusiness } from "@/testing/businessFactory";
 import { buildClient } from "@/testing/clientFactory";

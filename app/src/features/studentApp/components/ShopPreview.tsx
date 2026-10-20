@@ -1,7 +1,7 @@
 import { ScrollView, View } from "react-native";
 import { ProductPhoto } from "@/features/studentApp/components/ProductPhoto";
 import { StudentAppShop } from "@/features/studentApp/types";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { OutlinedBlock } from "@/ui/OutlinedBlock";

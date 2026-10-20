@@ -7,7 +7,7 @@ import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatPhoneNumberForDisplay } from "@/features/clients/phoneNumberFormatting";
 import { useClient } from "@/features/clients/useClient";
 import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { PaymentMethod } from "@/features/fees/types";
 import { CounterSaleCatalogPicker } from "@/features/orders/components/CounterSaleCatalogPicker";
 import { CounterSaleItemRow } from "@/features/orders/components/CounterSaleItemRow";

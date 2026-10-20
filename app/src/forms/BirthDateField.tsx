@@ -1,6 +1,6 @@
 import { DateField } from "@/forms/DateField";
-import { earliestBirthDate } from "@/features/students/birthDateFormatting";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { earliestBirthDate } from "@/dates/birthDateFormatting";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 
 interface BirthDateFieldProps {

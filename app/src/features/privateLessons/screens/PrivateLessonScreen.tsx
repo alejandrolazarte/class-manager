@@ -11,7 +11,7 @@ import {
   useRestorePrivateLesson,
 } from "@/features/privateLessons/usePrivateLessonMutations";
 import { AttendanceRow } from "@/features/sessions/components/AttendanceRow";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 import { AttendanceStatus } from "@/features/sessions/types";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { translate } from "@/i18n/translate";
@@ -29,7 +29,7 @@ import { TonalButton } from "@/ui/TonalButton";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 
 interface PrivateLessonScreenProps {
   privateLessonId: string;

@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import { tabAccessibilityLabel } from "@/navigation/tabBar";
+import { tabAccessibilityLabel } from "@/ui/TabBar";
 
 describe("When a tab is read on iOS", () => {
   it("Then its accessibility label names its position", () => {

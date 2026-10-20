@@ -4,8 +4,8 @@ import {
   startTimePattern,
   toMinutesOfDay,
 } from "@/features/classGroups/startTimeFormatting";
-import { ClassGroup, SaveClassGroupRequest, Weekday } from "@/features/classGroups/types";
-import { sortWeekdays, weekOrder } from "@/features/classGroups/weekdays";
+import { Weekday, sortWeekdays, weekOrder } from "@/dates/weekdays";
+import { ClassGroup, SaveClassGroupRequest } from "@/features/classGroups/types";
 import { translate } from "@/i18n/translate";
 
 export const classGroupLimits = {

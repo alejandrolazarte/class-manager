@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { daysBetween } from "@/features/home/agenda";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { FeatureCode, planCodes } from "@/features/subscriptions/subscriptionCodes";
 import { subscriptionQueryKeys } from "@/features/subscriptions/subscriptionQueryKeys";
 import { getOrganizationSubscription, listPlans } from "@/features/subscriptions/subscriptionsApi";

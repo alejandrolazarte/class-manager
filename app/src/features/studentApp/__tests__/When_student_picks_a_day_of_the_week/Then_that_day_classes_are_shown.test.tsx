@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react-native";
 import { getStudentAppHome } from "@/features/studentApp/studentAppApi";
 import { StudentAppClassesScreen } from "@/features/studentApp/screens/StudentAppClassesScreen";
 import { shortDayLabel } from "@/features/studentApp/studentAppSchedule";
-import { addDays, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentAppHome,

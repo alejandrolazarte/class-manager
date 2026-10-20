@@ -55,11 +55,7 @@ export function BrandsScreen() {
   return (
     <Screen>
       <View className="gap-3.5 pb-2">
-        <ScreenHeader
-          title={translate("backoffice.brands.title")}
-          navigation="back"
-          onNavigate={() => router.replace(backofficeRoutes.home)}
-        />
+        <ScreenHeader title={translate("backoffice.brands.title")} />
         <View className="gap-3.5 px-5">
           <SearchInput
             value={search}

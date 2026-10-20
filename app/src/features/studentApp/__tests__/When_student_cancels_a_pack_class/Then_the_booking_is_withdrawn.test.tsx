@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { cancelPackClass } from "@/features/studentApp/studentAppApi";
 import { ScheduledClassRow } from "@/features/studentApp/components/ScheduledClassRow";
-import { addDays, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { buildStudentAppNextClass } from "@/testing/studentAppFactory";
 import { renderStudentAppScreen } from "@/testing/renderStudentAppScreen";
