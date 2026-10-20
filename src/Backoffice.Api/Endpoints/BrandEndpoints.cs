@@ -58,6 +58,12 @@ internal static class BrandEndpoints
             (await useCase.ExecuteAsync(new GetSubscriptionCatalogQuery(), cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.View);
 
+        endpoints.MapGet(BackofficeApiRoutes.ExpiringAddOns, async (
+            IUseCase<ListExpiringAddOnsQuery, ExpiringAddOnListResponse> useCase,
+            CancellationToken cancellationToken) =>
+            (await useCase.ExecuteAsync(new ListExpiringAddOnsQuery(), cancellationToken)).ToOkResult())
+            .RequirePlatformPermission(Permissions.Platform.View);
+
         return endpoints;
     }
 }

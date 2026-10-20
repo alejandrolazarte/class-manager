@@ -6,7 +6,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { isBackofficeSessionEnded } from "@/backoffice/api/backofficeHttpClient";
 import { backofficeRoutes } from "@/backoffice/backofficeRoutes";
-import { featureLabel } from "@/backoffice/brands/brandLabels";
+import { featureLabel, planLabel } from "@/backoffice/brands/brandLabels";
 import {
   brandQueryKey,
   brandsQueryKey,
@@ -14,6 +14,7 @@ import {
 } from "@/backoffice/brands/brandQueryKeys";
 import { BrandDetail, getBrand } from "@/backoffice/brands/brandsApi";
 import {
+  CatalogFeature,
   getSubscriptionCatalog,
   giveBrandAddOn,
   SubscriptionCatalog,
@@ -25,14 +26,15 @@ import {
   toGiveAddOnRequest,
 } from "@/backoffice/brands/subscriptionTermsSchema";
 import { SubscriptionTermsFields } from "@/backoffice/brands/SubscriptionTermsFields";
+import { formatMegabytes } from "@/formatting/storageSize";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { ChipGroup } from "@/ui/ChipGroup";
+import { OptionCard } from "@/ui/OptionCard";
 import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
-import { ScrollScreen } from "@/ui/Screen";
+import { ScreenFooter, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { TextField } from "@/ui/TextField";
@@ -40,9 +42,32 @@ import { useToast } from "@/ui/ToastProvider";
 
 const formFieldNames = ["featureCode", "price", "currency", "limit", "expiredOn"] as const;
 const defaultCurrency = "EUR";
+const documentStorageFeatureCode = "document-storage";
 
 interface GiveAddOnScreenProps {
   brandId: string;
+}
+
+function featureHint(feature: CatalogFeature, brand: BrandDetail): string {
+  const included = brand.features.find((candidate) => candidate.code === feature.code);
+  if (!feature.isCounted) {
+    return translate(
+      included === undefined
+        ? "backoffice.giveAddOn.notIncluded"
+        : "backoffice.giveAddOn.alreadyIncluded",
+    );
+  }
+  if (included === undefined) {
+    return translate("backoffice.giveAddOn.notIncluded");
+  }
+  return included.limit === null
+    ? translate("backoffice.giveAddOn.noPlanLimit")
+    : translate("backoffice.giveAddOn.changesPlanLimit", {
+        limit:
+          feature.code === documentStorageFeatureCode
+            ? formatMegabytes(included.limit)
+            : included.limit,
+      });
 }
 
 interface GiveAddOnFormProps {
@@ -106,26 +131,41 @@ function GiveAddOnForm({ brand, catalog }: GiveAddOnFormProps) {
     <ScrollScreen
       header={
         <ScreenHeader
-          eyebrow={brand.name}
           title={translate("backoffice.giveAddOn.title")}
-          navigation="back"
+          subtitle={
+            brand.subscription === null
+              ? brand.name
+              : `${brand.name} · ${planLabel(brand.subscription.planCode)}`
+          }
+          navigation="close"
           onNavigate={() => router.replace(brandRoute)}
         />
       }
+      footer={
+        <ScreenFooter>
+          <Button
+            label={translate("backoffice.giveAddOn.submit")}
+            onPress={save}
+            disabled={!areRequiredFieldsFilled}
+            isLoading={giveAddOn.isPending}
+          />
+        </ScreenFooter>
+      }
     >
       <RequiredFieldsLegend />
-      <View className="gap-2">
-        <AppText variant="bodyStrong">
+      <View className="gap-2" accessibilityRole="radiogroup">
+        <AppText variant="label" tone="muted">
           {withRequiredMark(translate("backoffice.giveAddOn.feature"))}
         </AppText>
-        <ChipGroup
-          options={catalog.features.map((feature) => ({
-            value: feature.code,
-            label: featureLabel(feature.code),
-          }))}
-          selectedValue={featureCode}
-          onChange={chooseFeature}
-        />
+        {catalog.features.map((feature) => (
+          <OptionCard
+            key={feature.code}
+            label={featureLabel(feature.code)}
+            hint={featureHint(feature, brand)}
+            isSelected={featureCode === feature.code}
+            onPress={() => chooseFeature(feature.code)}
+          />
+        ))}
       </View>
       {replacesCurrentAddOn ? (
         <Banner tone="info" message={translate("backoffice.giveAddOn.replaces")} />
@@ -149,12 +189,6 @@ function GiveAddOnForm({ brand, catalog }: GiveAddOnFormProps) {
       ) : null}
       <SubscriptionTermsFields control={form.control} />
       {submissionMessage === null ? null : <Banner message={submissionMessage} />}
-      <Button
-        label={translate("backoffice.giveAddOn.submit")}
-        onPress={save}
-        disabled={!areRequiredFieldsFilled}
-        isLoading={giveAddOn.isPending}
-      />
     </ScrollScreen>
   );
 }

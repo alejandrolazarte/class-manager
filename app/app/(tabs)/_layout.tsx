@@ -10,7 +10,7 @@ import { permissions as memberPermissions } from "@/features/members/permissions
 import { usePendingOrders } from "@/features/orders/useOrders";
 import { SubscriptionGate } from "@/features/subscriptions/components/SubscriptionGate";
 import { translate } from "@/i18n/translate";
-import { TabIcon, tabAccessibilityLabel, useTabBarScreenOptions } from "@/navigation/tabBar";
+import { TabIcon, tabAccessibilityLabel, useTabBarScreenOptions } from "@/ui/TabBar";
 import { isTabVisible, tabDefinitions } from "@/navigation/tabDefinitions";
 
 function MemberTabs() {

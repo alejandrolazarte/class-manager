@@ -30,10 +30,9 @@ describe("When the operator changes the plan", () => {
     await screen.findByText(translate("backoffice.changePlan.confirmMessage"));
     expect(changeBrandPlan).not.toHaveBeenCalled();
 
-    const confirmButtons = screen.getAllByRole("button", {
-      name: translate("backoffice.changePlan.submit"),
-    });
-    await fireEvent.press(confirmButtons[confirmButtons.length - 1]);
+    await fireEvent.press(
+      screen.getByRole("button", { name: translate("backoffice.changePlan.confirm") }),
+    );
 
     await waitFor(() =>
       expect(changeBrandPlan).toHaveBeenCalledWith("brand-1", {

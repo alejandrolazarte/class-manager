@@ -5,3 +5,5 @@ export function brandQueryKey(brandId: string) {
 }
 
 export const subscriptionCatalogQueryKey = ["backofficeSubscriptionCatalog"];
+
+export const expiringAddOnsQueryKey = [...brandsQueryKey, "expiringAddOns"];

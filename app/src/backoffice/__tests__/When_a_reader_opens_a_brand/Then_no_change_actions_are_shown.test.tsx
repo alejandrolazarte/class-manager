@@ -18,7 +18,7 @@ describe("When a reader opens a brand", () => {
   it("Then no change actions are shown", async () => {
     await renderBackofficeScreen(<BrandScreen brandId="brand-1" />);
 
-    await screen.findByText("Sede Centro");
+    await screen.findByText("Precio de lanzamiento");
     expect(
       screen.queryByRole("button", { name: translate("backoffice.brand.changePlan") }),
     ).not.toBeOnTheScreen();

@@ -8,6 +8,7 @@ export interface CatalogPlan {
   code: string;
   listPrice: number | null;
   currency: string;
+  durationInDays: number | null;
 }
 
 export interface CatalogFeature {

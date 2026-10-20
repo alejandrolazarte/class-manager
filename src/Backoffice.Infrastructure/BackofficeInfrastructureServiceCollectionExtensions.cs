@@ -48,6 +48,7 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddUseCase<SignOutCommand, SignOutResponse, SignOutUseCase>();
         services.AddUseCase<ListBrandsQuery, BrandListResponse, ListBrandsUseCase>();
         services.AddUseCase<GetBrandQuery, BrandDetailResponse, GetBrandUseCase>();
+        services.AddUseCase<ListExpiringAddOnsQuery, ExpiringAddOnListResponse, ListExpiringAddOnsUseCase>();
         services.AddUseCase<GetSubscriptionCatalogQuery, SubscriptionCatalogResponse, GetSubscriptionCatalogUseCase>();
         services.AddUseCase<ChangeBrandPlanCommand, BrandPlanChangedResponse, ChangeBrandPlanUseCase>();
         services.AddUseCase<GiveBrandAddOnCommand, BrandAddOnResponse, GiveBrandAddOnUseCase>();

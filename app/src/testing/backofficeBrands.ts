@@ -69,9 +69,9 @@ export function aBrandDetail(overrides: Partial<BrandDetail> = {}): BrandDetail 
 export function aSubscriptionCatalog(): SubscriptionCatalog {
   return {
     plans: [
-      { code: "free", listPrice: 0, currency: "EUR" },
-      { code: "pro", listPrice: 29, currency: "EUR" },
-      { code: "enterprise", listPrice: null, currency: "EUR" },
+      { code: "free", listPrice: 0, currency: "EUR", durationInDays: 30 },
+      { code: "pro", listPrice: 29, currency: "EUR", durationInDays: null },
+      { code: "enterprise", listPrice: null, currency: "EUR", durationInDays: null },
     ],
     features: [
       { code: "branches", isCounted: true, isAddOn: true, addOnListPrice: 10, currency: "EUR" },

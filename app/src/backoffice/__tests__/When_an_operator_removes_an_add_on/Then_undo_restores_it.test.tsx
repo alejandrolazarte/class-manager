@@ -34,7 +34,7 @@ describe("When an operator removes an add-on", () => {
 
     await fireEvent.press(
       await screen.findByRole("button", {
-        name: translate("backoffice.brand.removeAddOn", {
+        name: translate("backoffice.brand.removeAddOnOf", {
           feature: translate("subscriptions.feature.branches"),
         }),
       }),

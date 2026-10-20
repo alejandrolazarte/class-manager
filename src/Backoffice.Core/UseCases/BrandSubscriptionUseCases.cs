@@ -10,7 +10,7 @@ namespace ClassManager.Backoffice.Core.UseCases;
 
 public sealed record GetSubscriptionCatalogQuery : IQuery;
 
-public sealed record CatalogPlanResponse(string Code, decimal? ListPrice, string Currency);
+public sealed record CatalogPlanResponse(string Code, decimal? ListPrice, string Currency, int? DurationInDays);
 
 public sealed record CatalogFeatureResponse(string Code, bool IsCounted, bool IsAddOn, decimal? AddOnListPrice, string? Currency);
 
@@ -46,7 +46,7 @@ public sealed class GetSubscriptionCatalogUseCase(IBrandSubscriptionRepository r
         var plans = await repository.ListActivePlansAsync(cancellationToken);
         var features = await repository.ListFeaturesAsync(cancellationToken);
         return new SubscriptionCatalogResponse(
-            [.. plans.OrderBy(plan => plan.DisplayOrder).Select(plan => new CatalogPlanResponse(plan.Code, plan.ListPrice, plan.Currency))],
+            [.. plans.OrderBy(plan => plan.DisplayOrder).Select(plan => new CatalogPlanResponse(plan.Code, plan.ListPrice, plan.Currency, plan.DurationInDays))],
             [.. features.OrderBy(feature => feature.Code, StringComparer.Ordinal)
                 .Select(feature => new CatalogFeatureResponse(feature.Code, feature.IsCounted, feature.IsAddOn, feature.AddOnListPrice, feature.Currency))]);
     }
