@@ -72,6 +72,7 @@ export const routes = {
   resetPassword: "/reset-password",
   appEntry: "/",
   myProfile: "/settings/profile",
+  appFeedback: "/settings/feedback",
   studentAppProfile: "/student-app/profile",
   studentAppEditProfile: "/student-app/edit-profile",
   editMyProfile: "/settings/edit-profile",

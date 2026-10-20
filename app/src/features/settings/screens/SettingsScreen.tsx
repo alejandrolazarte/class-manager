@@ -241,6 +241,13 @@ export function SettingsScreen() {
           onPress: () => router.push(routes.chooseAccount),
         },
         {
+          key: "appFeedback",
+          isVisible: true,
+          icon: "comment",
+          label: translate("appFeedback.title"),
+          onPress: () => router.push(routes.appFeedback),
+        },
+        {
           key: "signOut",
           isVisible: true,
           icon: "signOut",
