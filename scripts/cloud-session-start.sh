@@ -17,6 +17,8 @@ readonly SQL_SERVER_THROWAWAY_PASSWORD="CloudE2e_Passw0rd!"
 readonly SQL_SERVER_READY_MESSAGE="SQL Server is now ready for client connections"
 readonly SQL_SERVER_READY_TIMEOUT_SECONDS=90
 readonly E2E_DATABASE_NAME="ClassManagerE2E"
+readonly AZURITE_IMAGE="mcr.microsoft.com/azure-storage/azurite:3.37.0"
+readonly AZURITE_CONTAINER="class-manager-azurite"
 readonly DOCKER_LOG_FILE="/tmp/dockerd.log"
 readonly DOCKER_READY_TIMEOUT_SECONDS=30
 readonly BACKGROUND_LOG_FILE="/tmp/cloud-session-start.log"
@@ -94,13 +96,27 @@ start_sql_server() {
   return 1
 }
 
+start_azurite() {
+  if docker container inspect "$AZURITE_CONTAINER" >/dev/null 2>&1; then
+    docker start "$AZURITE_CONTAINER" >/dev/null
+  else
+    log "Creating $AZURITE_CONTAINER"
+    docker run --detach --name "$AZURITE_CONTAINER" \
+      --publish 10000:10000 --publish 10001:10001 --publish 10002:10002 \
+      "$AZURITE_IMAGE" \
+      azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 \
+      --skipApiVersionCheck --inMemoryPersistence >/dev/null
+  fi
+  log "Azurite started on ports 10000-10002"
+}
+
 export_e2e_connection_string() {
   persist_environment_variable E2E_DATABASE_CONNECTION_STRING \
     "Server=tcp:localhost,$SQL_SERVER_PORT;Database=$E2E_DATABASE_NAME;User Id=sa;Password=$SQL_SERVER_THROWAWAY_PASSWORD;TrustServerCertificate=True"
 }
 
 start_docker_and_sql_server() {
-  start_docker_daemon && start_sql_server
+  start_docker_daemon && start_azurite && start_sql_server
 }
 
 azure_service_principal_is_configured() {

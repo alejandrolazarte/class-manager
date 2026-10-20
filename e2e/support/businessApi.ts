@@ -2,6 +2,7 @@ import { APIRequestContext, expect } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { e2eEnvironment } from "./environment";
 import { linkTokenSentTo } from "./mailbox";
+import { personal } from "./personalData";
 
 export const ownerPassword = "e2e-owner-password";
 export const clientFullName = "Ana Pérez";
@@ -39,7 +40,7 @@ function apiPath(path: string): string {
 }
 
 export function uniqueOwnerEmail(): string {
-  return `owner-${randomUUID()}@e2e.local`;
+  return personal(`owner-${randomUUID()}@e2e.local`);
 }
 
 export async function signUpOwner(
@@ -62,13 +63,13 @@ export async function signUpBusiness(request: APIRequestContext): Promise<Busine
   return signUpOwner(
     request,
     {
-      ownerFullName: "Dueña E2E",
+      ownerFullName: personal("Dueña E2E"),
       email: uniqueOwnerEmail(),
       businessName: `Negocio E2E ${randomUUID().slice(0, 8)}`,
       timeZoneId: "America/Argentina/Buenos_Aires",
       currencyCode: "ARS",
       countryCode: "AR",
-      ownerBirthDate: "1985-06-20",
+      ownerBirthDate: personal("1985-06-20"),
       acceptsLegalTerms: true,
     },
     ownerPassword,
@@ -92,8 +93,8 @@ export async function postAsOwner<TResponse>(
 export async function seedBusiness(request: APIRequestContext): Promise<SeededBusiness> {
   const account = await signUpBusiness(request);
   const client = await postAsOwner<Identified>(request, account, "/api/clients", {
-    fullName: clientFullName,
-    phoneNumber: clientPhoneNumber,
+    fullName: personal(clientFullName),
+    phoneNumber: personal(clientPhoneNumber),
   });
   return { ...account, clientId: client.id };
 }
