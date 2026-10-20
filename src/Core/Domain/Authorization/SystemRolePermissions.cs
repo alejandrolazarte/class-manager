@@ -42,6 +42,12 @@ public static class SystemRolePermissions
         Permissions.Orders.ViewAll,
     }.ToFrozenSet(StringComparer.Ordinal);
 
+    private static readonly FrozenSet<string> PlatformOperatorPermissions =
+        Permissions.PlatformOnly.ToFrozenSet(StringComparer.Ordinal);
+
+    private static readonly FrozenSet<string> PlatformReaderPermissions =
+        new[] { Permissions.Platform.View }.ToFrozenSet(StringComparer.Ordinal);
+
     public static IReadOnlySet<string> BrandOwner => EveryPermission;
 
     public static IReadOnlySet<string> Of(BusinessRole role) =>
@@ -50,8 +56,13 @@ public static class SystemRolePermissions
             BusinessRole.BranchOwner => BranchOwnerPermissions,
             BusinessRole.Instructor => InstructorPermissions,
             BusinessRole.Viewer => ViewerPermissions,
+            BusinessRole.PlatformOperator => PlatformOperatorPermissions,
+            BusinessRole.PlatformReader => PlatformReaderPermissions,
             _ => FrozenSet<string>.Empty,
         };
+
+    public static bool IsPlatformRole(BusinessRole role) =>
+        role is BusinessRole.PlatformOperator or BusinessRole.PlatformReader;
 
     public static bool NeedsInstructor(BusinessRole role) => NeedsInstructor(Of(role));
 

@@ -1,5 +1,11 @@
 import { needsInstructor, Permission } from "@/features/members/permissions";
-import { BusinessRole, SystemRole, systemRoles } from "@/features/members/types";
+import {
+  BusinessRole,
+  PlatformRole,
+  platformRoles,
+  SystemRole,
+  systemRoles,
+} from "@/features/members/types";
 import { Role } from "@/features/roles/types";
 import { translate, TranslationKey } from "@/i18n/translate";
 
@@ -14,12 +20,16 @@ export interface RoleChoice {
 
 const instructorRole: SystemRole = "Instructor";
 
-export function systemRoleLabel(role: SystemRole): string {
+export function systemRoleLabel(role: SystemRole | PlatformRole): string {
   return translate(`roles.${role}` as TranslationKey);
 }
 
 export function isSystemRole(value: string): value is SystemRole {
   return (systemRoles as readonly string[]).includes(value);
+}
+
+export function isPlatformRole(role: BusinessRole): role is PlatformRole {
+  return (platformRoles as readonly string[]).includes(role);
 }
 
 export function roleKeyOf(role: BusinessRole, customRoleId: string | null): string {

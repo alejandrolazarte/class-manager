@@ -766,6 +766,8 @@
   "roles.BranchOwner": "Dueño de la sede",
   "roles.Instructor": "Profe",
   "roles.Viewer": "Solo lectura",
+  "roles.PlatformOperator": "Operador de plataforma",
+  "roles.PlatformReader": "Lector de plataforma",
   "team.title": "Equipo",
   "team.members": "Miembros",
   "team.invitations": "Invitaciones pendientes",

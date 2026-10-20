@@ -766,6 +766,8 @@
   "roles.BranchOwner": "Branch owner",
   "roles.Instructor": "Instructor",
   "roles.Viewer": "Read only",
+  "roles.PlatformOperator": "Platform operator",
+  "roles.PlatformReader": "Platform reader",
   "team.title": "Team",
   "team.members": "Members",
   "team.invitations": "Pending invitations",

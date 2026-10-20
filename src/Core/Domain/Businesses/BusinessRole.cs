@@ -6,4 +6,6 @@ public enum BusinessRole
     Instructor,
     Viewer,
     Custom,
+    PlatformOperator,
+    PlatformReader,
 }
