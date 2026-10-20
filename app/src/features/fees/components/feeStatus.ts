@@ -1,4 +1,4 @@
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { ClientFee, FeeStatus } from "@/features/fees/types";
 import { translate } from "@/i18n/translate";
 import { StatusTone } from "@/ui/StatusPill";

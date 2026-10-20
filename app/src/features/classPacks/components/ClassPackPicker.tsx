@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { ClassPack } from "@/features/classPacks/types";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { searchableText } from "@/forms/searchableText";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";

@@ -10,7 +10,7 @@ import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider
 import { classesOn, monthTitle, shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
-import { addDays, todayIsoDate, weekOf } from "@/features/sessions/dates";
+import { addDays, todayIsoDate, weekOf } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";

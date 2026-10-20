@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { ClassGroupFormScreen } from "@/features/classGroups/screens/ClassGroupFormScreen";
-import { isWeekday } from "@/features/classGroups/weekdays";
+import { isWeekday } from "@/dates/weekdays";
 
 export default function NewClassGroupRoute() {
   const { weekday } = useLocalSearchParams<{ weekday?: string }>();

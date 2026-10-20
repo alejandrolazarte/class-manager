@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { listMonthlyFees } from "@/features/fees/feesApi";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { RecordPaymentScreen } from "@/features/fees/screens/RecordPaymentScreen";
 import { translate } from "@/i18n/translate";
 import { buildClientFee, buildMonthlyFees, feeMonth } from "@/testing/feeFactory";

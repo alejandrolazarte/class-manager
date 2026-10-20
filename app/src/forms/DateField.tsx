@@ -5,8 +5,8 @@ import {
   formatBirthDateAsTyped,
   formatBirthDateForDisplay,
   parseBirthDate,
-} from "@/features/students/birthDateFormatting";
-import { todayIsoDate } from "@/features/sessions/dates";
+} from "@/dates/birthDateFormatting";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { IconButton } from "@/ui/IconButton";
 import { TextField } from "@/ui/TextField";

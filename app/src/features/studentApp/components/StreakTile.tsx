@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { StudentAppAttendance } from "@/features/studentApp/types";
-import { parseIsoDate } from "@/features/sessions/dates";
+import { parseIsoDate } from "@/dates/dates";
 import { translate, translateCount, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 

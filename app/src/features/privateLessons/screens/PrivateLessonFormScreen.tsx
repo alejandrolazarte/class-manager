@@ -35,7 +35,7 @@ import {
   useReschedulePrivateLesson,
   useSchedulePrivateLesson,
 } from "@/features/privateLessons/usePrivateLessonMutations";
-import { formatLongDate, todayIsoDate } from "@/features/sessions/dates";
+import { formatLongDate, todayIsoDate } from "@/dates/dates";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";

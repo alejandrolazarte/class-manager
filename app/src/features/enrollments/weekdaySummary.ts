@@ -1,5 +1,4 @@
-import { Weekday } from "@/features/classGroups/types";
-import { sortWeekdays, weekdayShortLabel } from "@/features/classGroups/weekdays";
+import { Weekday, sortWeekdays, weekdayShortLabel } from "@/dates/weekdays";
 import { translate } from "@/i18n/translate";
 
 const listSeparator = ", ";

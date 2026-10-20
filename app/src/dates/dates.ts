@@ -1,4 +1,4 @@
-import { weekdayLongLabel, weekdayOf } from "@/features/classGroups/weekdays";
+import { weekdayLongLabel, weekdayOf } from "@/dates/weekdays";
 import { translate, TranslationKey } from "@/i18n/translate";
 
 const isoDateSeparator = "-";

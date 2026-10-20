@@ -1,4 +1,4 @@
-import { Weekday } from "@/features/classGroups/types";
+import { Weekday } from "@/dates/weekdays";
 
 export interface Enrollment {
   id: string;

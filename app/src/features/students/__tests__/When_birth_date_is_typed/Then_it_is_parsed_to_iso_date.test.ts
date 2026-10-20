@@ -1,4 +1,4 @@
-import { formatBirthDateAsTyped, parseBirthDate } from "@/features/students/birthDateFormatting";
+import { formatBirthDateAsTyped, parseBirthDate } from "@/dates/birthDateFormatting";
 
 describe("When birth date is typed", () => {
   it("Then it is parsed to iso date", () => {

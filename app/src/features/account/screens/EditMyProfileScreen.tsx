@@ -12,7 +12,7 @@ import {
   formatBirthDateForDisplay,
   isValidBirthDate,
   parseBirthDate,
-} from "@/features/students/birthDateFormatting";
+} from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";

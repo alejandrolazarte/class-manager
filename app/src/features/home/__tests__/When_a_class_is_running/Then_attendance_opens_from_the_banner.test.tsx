@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { DayScreen } from "@/features/sessions/screens/DayScreen";
 import { listDaySessions } from "@/features/sessions/sessionsApi";
 import { getTeamNotifications } from "@/features/teamNotifications/teamNotificationsApi";

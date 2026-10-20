@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { SellClassPackRequest } from "@/features/classPacks/types";
-import { parseAmount } from "@/features/fees/money";
+import { parseAmount } from "@/formatting/money";
 import { amountSchema, paymentMethods } from "@/features/fees/paymentSchema";
 import { PaymentMethod } from "@/features/fees/types";
-import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
+import { isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 
 const notesMaximumLength = 200;

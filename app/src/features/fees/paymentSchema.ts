@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { parseAmount } from "@/features/fees/money";
+import { parseAmount } from "@/formatting/money";
 import { PaymentMethod, RecordPaymentRequest } from "@/features/fees/types";
-import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
+import { isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 
 export const paymentMethods: readonly PaymentMethod[] = ["Cash", "Transfer", "Card", "Other"];

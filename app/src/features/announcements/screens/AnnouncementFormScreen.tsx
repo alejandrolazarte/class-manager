@@ -31,12 +31,12 @@ import { CatalogImageField } from "@/features/catalogImages/components/CatalogIm
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
 import { ClassGroupsField } from "@/features/classGroups/components/ClassGroupsField";
 import { useActiveClassGroups } from "@/features/classGroups/useClassGroups";
-import { formatClockTime, parseIsoDate, todayIsoDate, toIsoDate } from "@/features/sessions/dates";
+import { formatClockTime, parseIsoDate, todayIsoDate, toIsoDate } from "@/dates/dates";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { StudentAppNewsItem } from "@/features/studentApp/types";
-import { formatBirthDateForDisplay, parseBirthDate } from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay, parseBirthDate } from "@/dates/birthDateFormatting";
 import { DateField } from "@/forms/DateField";
 import { TimeField } from "@/forms/TimeField";
 import { isFilled } from "@/forms/requiredFields";

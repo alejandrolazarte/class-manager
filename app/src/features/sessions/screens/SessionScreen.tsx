@@ -10,7 +10,7 @@ import { FeedbackSheet } from "@/features/sessions/components/FeedbackSheet";
 import { ReschedulePanel } from "@/features/sessions/components/ReschedulePanel";
 import { ClassDeliveriesSection } from "@/features/orders/components/ClassDeliveriesSection";
 import { SubstitutePanel } from "@/features/sessions/components/SubstitutePanel";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 import { AttendanceStatus } from "@/features/sessions/types";
 import { useSessionDetails } from "@/features/sessions/useSessionDetails";
 import {

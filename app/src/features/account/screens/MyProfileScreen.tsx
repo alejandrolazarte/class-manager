@@ -1,6 +1,6 @@
 import { Href, useRouter } from "expo-router";
 import { View } from "react-native";
-import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { useMyAccount } from "@/features/account/useMyAccount";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { translate } from "@/i18n/translate";

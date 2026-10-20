@@ -14,7 +14,7 @@ import { SamePersonNotice } from "@/features/users/components/SamePersonNotice";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { translate } from "@/i18n/translate";
 import { ClientTab, clientTabs, routes } from "@/navigation/routes";

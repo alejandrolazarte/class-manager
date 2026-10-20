@@ -15,13 +15,13 @@ import {
   RecordMeasurementRequest,
   StudentMeasurement,
 } from "@/features/measurements/types";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { StudentChips } from "@/features/studentApp/components/StudentChips";
 import {
   formatBirthDateForDisplay,
   isValidBirthDate,
   parseBirthDate,
-} from "@/features/students/birthDateFormatting";
+} from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";

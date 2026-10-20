@@ -36,7 +36,7 @@ import {
 } from "@/features/studentApp/types";
 import { useStudentAppShop } from "@/features/studentApp/useStudentAppShop";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";

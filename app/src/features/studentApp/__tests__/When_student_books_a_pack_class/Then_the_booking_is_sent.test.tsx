@@ -5,7 +5,7 @@ import {
   getStudentAppPackClasses,
 } from "@/features/studentApp/studentAppApi";
 import { StudentAppClassesScreen } from "@/features/studentApp/screens/StudentAppClassesScreen";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentAppHome,

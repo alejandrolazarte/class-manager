@@ -1,5 +1,5 @@
-import { formatLongDate } from "@/features/sessions/dates";
-import { formatMoney } from "@/features/fees/money";
+import { formatLongDate } from "@/dates/dates";
+import { formatMoney } from "@/formatting/money";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { FeatureList } from "@/features/subscriptions/components/FeatureList";

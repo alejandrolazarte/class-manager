@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { RosterEntry } from "@/features/enrollments/types";
-import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
+import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { normalizeStudentName } from "@/features/students/studentSchema";
 import { translate } from "@/i18n/translate";

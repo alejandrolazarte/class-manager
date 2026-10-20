@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { feeStatusLabel, feeStatusTones } from "@/features/fees/components/feeStatus";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { StudentAppBilling } from "@/features/studentApp/types";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";

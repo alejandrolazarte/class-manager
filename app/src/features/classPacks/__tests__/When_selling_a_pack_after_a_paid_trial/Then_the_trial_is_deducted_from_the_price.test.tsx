@@ -5,7 +5,7 @@ import {
   sellClassPack,
 } from "@/features/classPacks/classPacksApi";
 import { SellClassPackScreen } from "@/features/classPacks/screens/SellClassPackScreen";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { buildBusiness } from "@/testing/businessFactory";
 import { buildClassBalance, buildClassPack } from "@/testing/classPackFactory";

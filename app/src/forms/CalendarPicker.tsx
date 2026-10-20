@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
-import { weekdayShortLabel, weekOrder } from "@/features/classGroups/weekdays";
-import { monthGridOf, monthOfDate, parseIsoDate, todayIsoDate } from "@/features/sessions/dates";
+import { weekdayShortLabel, weekOrder } from "@/dates/weekdays";
+import { monthGridOf, monthOfDate, parseIsoDate, todayIsoDate } from "@/dates/dates";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { IconButton } from "@/ui/IconButton";

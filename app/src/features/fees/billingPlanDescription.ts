@@ -1,4 +1,4 @@
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { BillingPlan } from "@/features/fees/types";
 import { translate } from "@/i18n/translate";
 

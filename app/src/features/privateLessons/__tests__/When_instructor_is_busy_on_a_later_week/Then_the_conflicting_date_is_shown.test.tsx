@@ -4,7 +4,7 @@ import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { privateLessonErrorCodes } from "@/features/privateLessons/privateLessonErrorCodes";
 import { schedulePrivateLesson } from "@/features/privateLessons/privateLessonsApi";
 import { PrivateLessonFormScreen } from "@/features/privateLessons/screens/PrivateLessonFormScreen";
-import { formatLongDate } from "@/features/sessions/dates";
+import { formatLongDate } from "@/dates/dates";
 import { searchStudents } from "@/features/students/studentsApi";
 import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";

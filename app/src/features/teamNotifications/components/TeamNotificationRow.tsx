@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { localDateOf } from "@/features/studentApp/studentAppNewsPresentation";
 import { shortDayLabel } from "@/features/studentApp/studentAppSchedule";
 import { TeamNotification } from "@/features/teamNotifications/types";
-import { addDays, todayIsoDate } from "@/features/sessions/dates";
+import { addDays, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { HairlineRow } from "@/ui/HairlineRow";

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { emailAddressSchema } from "@/forms/emailAddress";
-import { isValidBirthDate, parseBirthDate } from "@/features/students/birthDateFormatting";
+import { isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
 import { NewStudentRequest } from "@/features/students/types";
 import { translate } from "@/i18n/translate";
 

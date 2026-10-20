@@ -9,7 +9,7 @@ import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
-import { formatMoney } from "@/features/fees/money";
+import { formatMoney } from "@/formatting/money";
 import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { useProducts } from "@/features/products/useProducts";

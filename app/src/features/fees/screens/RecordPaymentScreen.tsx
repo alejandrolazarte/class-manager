@@ -5,7 +5,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { AmountField } from "@/features/fees/components/AmountField";
 import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
-import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
+import { formatMoney, parseAmount, toAmountText } from "@/formatting/money";
 import { formatMonth } from "@/features/fees/months";
 import {
   PaymentFormValues,
@@ -17,8 +17,8 @@ import { useRecordPayment } from "@/features/fees/useFeeMutations";
 import { useMonthlyFees } from "@/features/fees/useFees";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
-import { formatBirthDateForDisplay } from "@/features/students/birthDateFormatting";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";

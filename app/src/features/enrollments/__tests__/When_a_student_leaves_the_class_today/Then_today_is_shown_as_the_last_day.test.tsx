@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react-native";
 import { listClassGroupsIncludingInactive } from "@/features/classGroups/classGroupsApi";
 import { listClassRoster } from "@/features/enrollments/enrollmentsApi";
 import { ClassGroupDetailScreen } from "@/features/enrollments/screens/ClassGroupDetailScreen";
-import { todayIsoDate } from "@/features/sessions/dates";
+import { todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { buildClassGroup } from "@/testing/classGroupFactory";
 import { buildRosterEntry } from "@/testing/enrollmentFactory";
