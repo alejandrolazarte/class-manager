@@ -65,6 +65,7 @@ public sealed class SetClientBillingPlanUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var changes = await feeScheduleRepository.ListClientPlanChangesAsync([client.Id], cancellationToken);
-        return ClientBillingResponse.From(changes, today);
+        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
+        return ClientBillingResponse.From(changes, defaultFeeChanges, today);
     }
 }

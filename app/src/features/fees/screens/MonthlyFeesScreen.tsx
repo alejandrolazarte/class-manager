@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { ReactNode, useState } from "react";
 import { FlatList, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { hasChosenBillingMode } from "@/features/fees/billingMode";
 import { ClassPackClientRow } from "@/features/fees/components/ClassPackClientRow";
 import { ClientFeeRow } from "@/features/fees/components/ClientFeeRow";
 import { MonthlySummary } from "@/features/fees/components/MonthlySummary";
@@ -48,12 +49,23 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
   const clients = [...(filter === "all" ? allClients : debtors)].sort(
     (first, second) => second.balance - first.balance,
   );
-  const classPackClients = (monthlyFees?.classPackClients ?? []).filter(
-    (classPackClient) => filter === "all" || classPackClient.unpaidClasses > 0,
+  const allClassPackClients = monthlyFees?.classPackClients ?? [];
+  const classPackDebtors = allClassPackClients.filter(
+    (classPackClient) => classPackClient.unpaidClasses > 0,
   );
+  const classPackClients = filter === "all" ? allClassPackClients : classPackDebtors;
+  const isChargingWithClassPacks = monthlyFees?.billingMode === "ClassPacks";
   const filterOptions = [
-    { value: "debtors" as const, key: "fees.month.filterDebtors" as const, count: debtors.length },
-    { value: "all" as const, key: "fees.month.filterAll" as const, count: allClients.length },
+    {
+      value: "debtors" as const,
+      key: "fees.month.filterDebtors" as const,
+      count: debtors.length + classPackDebtors.length,
+    },
+    {
+      value: "all" as const,
+      key: "fees.month.filterAll" as const,
+      count: allClients.length + allClassPackClients.length,
+    },
   ].map(({ value, key, count }) => ({
     value,
     accessibilityLabel: translate(key),
@@ -61,6 +73,20 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
       ? translate("fees.month.filterWithCount", { label: translate(key), count })
       : translate(key),
   }));
+
+  const classPackSection =
+    classPackClients.length > 0 ? (
+      <View className="px-5 pt-5">
+        <SectionTitle title={translate("fees.month.classPacksTitle")} isOverline />
+        {classPackClients.map((classPackClient) => (
+          <ClassPackClientRow
+            key={classPackClient.clientId}
+            classPackClient={classPackClient}
+            onPress={() => router.push(routes.clientDetail("fees", classPackClient.clientId))}
+          />
+        ))}
+      </View>
+    ) : null;
 
   const header = (
     <View className="gap-4 pb-1">
@@ -84,7 +110,16 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
       />
       <View className="gap-4 px-5">
         {viewSwitcher}
-        {business.defaultMonthlyFee === null ? (
+        {!hasChosenBillingMode(business) ? (
+          <Banner tone="warning" message={translate("fees.month.noBillingMode")}>
+            <Button
+              variant="secondary"
+              size="medium"
+              label={translate("fees.month.chooseBillingMode")}
+              onPress={() => router.push(routes.feesDefaultMonthlyFee)}
+            />
+          </Banner>
+        ) : business.billingMode !== "ClassPacks" && business.defaultMonthlyFee === null ? (
           <Banner tone="warning" message={translate("fees.month.noDefaultFee")}>
             <Button
               variant="secondary"
@@ -98,6 +133,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
           <MonthlySummary
             monthlyFees={monthlyFees}
             debtorCount={debtors.length}
+            classDebtorCount={classPackDebtors.length}
             owedAmount={debtors.reduce((total, debtor) => total + debtor.balance, 0)}
             money={money}
           />
@@ -114,6 +150,16 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
           </Banner>
         ) : null}
       </View>
+      {isChargingWithClassPacks ? (
+        <>
+          {classPackSection}
+          {clients.length > 0 ? (
+            <View className="px-5 pt-5">
+              <SectionTitle title={translate("fees.month.monthlyFeeClientsTitle")} isOverline />
+            </View>
+          ) : null}
+        </>
+      ) : null}
     </View>
   );
 
@@ -144,20 +190,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
             <EmptyState icon="fees" message={translate("fees.month.empty")} />
           )
         }
-        ListFooterComponent={
-          classPackClients.length > 0 ? (
-            <View className="px-5 pt-5">
-              <SectionTitle title={translate("fees.month.classPacksTitle")} isOverline />
-              {classPackClients.map((classPackClient) => (
-                <ClassPackClientRow
-                  key={classPackClient.clientId}
-                  classPackClient={classPackClient}
-                  onPress={() => router.push(routes.clientDetail("fees", classPackClient.clientId))}
-                />
-              ))}
-            </View>
-          ) : null
-        }
+        ListFooterComponent={isChargingWithClassPacks ? null : classPackSection}
         refreshing={isRefetching}
         onRefresh={() => refetch()}
         contentContainerClassName="w-full max-w-2xl self-center pb-8"

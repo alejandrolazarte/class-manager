@@ -30,6 +30,7 @@ internal sealed class GetClientUseCaseBuilder
         FeeSchedules
             .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        FeeSchedules.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     public void WithPendingInvitation() =>

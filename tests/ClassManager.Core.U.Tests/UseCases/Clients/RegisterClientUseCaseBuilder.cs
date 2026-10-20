@@ -15,10 +15,12 @@ internal sealed class RegisterClientUseCaseBuilder
     public Mock<ICurrentUser> CurrentUser { get; } = new();
     public Mock<IUserRepository> Users { get; } = new();
     public Mock<IPeopleLock> PeopleLock { get; } = new();
+    public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
 
     public RegisterClientUseCaseBuilder()
     {
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
+        FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     public static RegisterClientCommand ValidCommand() =>
@@ -28,5 +30,14 @@ internal sealed class RegisterClientUseCaseBuilder
         ValidCommand() with { Students = [.. studentFullNames.Select(fullName => new NewStudent(fullName, null, null))] };
 
     public RegisterClientUseCase Build() =>
-        new(Businesses.Object, Clients.Object, Students.Object, Users.Object, PeopleLock.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now), CurrentUser.Object);
+        new(
+            Businesses.Object,
+            Clients.Object,
+            Students.Object,
+            Users.Object,
+            FeeSchedule.Object,
+            PeopleLock.Object,
+            UnitOfWork.Object,
+            new FakeTimeProvider(TestData.Now),
+            CurrentUser.Object);
 }

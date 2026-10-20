@@ -22,17 +22,27 @@ export interface ClassPackClient {
   unpaidClasses: number;
 }
 
+export type BusinessBillingMode = "MonthlyFee" | "ClassPacks";
+
 export interface MonthlyFees {
   month: string;
   totalDue: number;
   totalPaid: number;
   clients: ClientFee[];
   classPackClients: ClassPackClient[];
+  billingMode: BusinessBillingMode;
 }
 
 export interface MonthlyFeeChange {
   effectiveFrom: string;
   amount: number | null;
+  billingMode: BusinessBillingMode;
+}
+
+export interface SetDefaultMonthlyFeeRequest {
+  amount: number | null;
+  effectiveFrom: string;
+  billingMode: BusinessBillingMode;
 }
 
 export type BillingPlanKind = "BusinessFee" | "CustomFee" | "ClassPacks";

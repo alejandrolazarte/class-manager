@@ -10,8 +10,8 @@ public sealed class Then_january_keeps_the_previous_fee
         var today = new DateOnly(2026, 3, 10);
         var changes = new[]
         {
-            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-01").Value!, 25000m, today, TestData.Now).Value!,
-            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-03").Value!, 30000m, today, TestData.Now).Value!,
+            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-01").Value!, BusinessBillingMode.MonthlyFee, 25000m, today, TestData.Now).Value!,
+            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-03").Value!, BusinessBillingMode.MonthlyFee, 30000m, today, TestData.Now).Value!,
         };
 
         var januaryFee = FeeTimeline.DefaultFeeIn(changes, BillingMonth.Parse("2026-01").Value!);

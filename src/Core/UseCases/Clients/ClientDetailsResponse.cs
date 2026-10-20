@@ -23,6 +23,7 @@ public sealed record ClientDetailsResponse(
         Client client,
         IEnumerable<Student> students,
         IReadOnlyCollection<ClientBillingPlanChange> billingPlanChanges,
+        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
         DateOnly today,
         StudentAppAccessResponse appAccess,
         IReadOnlyDictionary<Guid, StudentAppAccessResponse> studentAppAccesses) =>
@@ -33,14 +34,18 @@ public sealed record ClientDetailsResponse(
             client.User.Email,
             client.Notes,
             client.CreatedAt,
-            BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, BillingMonth.From(today))),
+            BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, defaultFeeChanges, BillingMonth.From(today))),
             BillingPlanChangeResponse.From(billingPlanChanges),
             [.. students
                 .OrderBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase)
                 .Select(student => StudentResponse.From(student, studentAppAccesses.GetValueOrDefault(student.Id, StudentAppAccessResponse.NotInvited)))],
             appAccess);
 
-    public static ClientDetailsResponse Registered(Client client, IEnumerable<Student> students, DateOnly today) =>
+    public static ClientDetailsResponse Registered(
+        Client client,
+        IEnumerable<Student> students,
+        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
+        DateOnly today) =>
         new(
             client.Id,
             client.User.FullName,
@@ -48,7 +53,7 @@ public sealed record ClientDetailsResponse(
             client.User.Email,
             client.Notes,
             client.CreatedAt,
-            BillingPlanResponse.From(FeeTimeline.PlanIn([], BillingMonth.From(today))),
+            BillingPlanResponse.From(FeeTimeline.PlanIn([], defaultFeeChanges, BillingMonth.From(today))),
             BillingPlanChangeResponse.From([]),
             [.. students
                 .OrderBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase)
