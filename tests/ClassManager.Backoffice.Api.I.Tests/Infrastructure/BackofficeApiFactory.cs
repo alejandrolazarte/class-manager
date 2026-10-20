@@ -22,7 +22,7 @@ public sealed class BackofficeApiFactory(string databaseConnectionString, Guid p
     private const string RateLimitSetting = "Authentication:RateLimit:PermitLimit";
     private const string TestPermitLimit = "10000";
 
-    public static readonly DateTimeOffset Now = new(2026, 10, 20, 12, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset Now = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
     public FakeTimeProvider TimeProvider { get; } = new(Now);
 
