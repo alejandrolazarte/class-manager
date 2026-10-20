@@ -290,6 +290,15 @@ Move to a Function (fed by a queue) only if the API runs several replicas that s
 
 At first, only the owner reads it, from Azure Storage Explorer signed in with Entra (there is no account key): commands filtered by `PartitionKey` (the business) and by `RowKey` range (dates), security events by downloading a day's blob. A screen in the app ("Actividad" for the business owner) can come later and reads one partition, newest first, which is the order the `RowKey` already gives; it needs a read role for a separate identity, never for the API's writer.
 
+## Checking the log in tests
+
+The e2e suite writes the audit log to Azurite and ends by checking it against a set of rules (no exceptions, no unexpected failures or security events, no personal data in payloads, every command with its business and user), so every e2e test is checked without doing anything: [audit log rules](../../e2e/running-e2e-tests.md#audit-log-rules).
+
+Ideas for later, not planned yet:
+
+- **Authorization between businesses, proved for every endpoint.** The log can't show what security let through: a request that reads another business's data looks like any successful request. An integration test seeds two businesses and calls every mapped endpoint with an id in its route as business A with business B's ids, expecting 404 or 403 and never 2xx; the same without a session and with a role that lacks the permission. It covers each new endpoint by itself, which is where these bugs appear. `Then_every_endpoint_requires_a_permission_or_is_anonymous` already checks the metadata; this checks the behavior.
+- **OWASP ZAP against the API in CI, never production.** An API scan from the OpenAPI document (`MapOpenApi`), run with `docker run` (only `actions/*` are allowed), on demand or weekly rather than on every pull request. After the scan, the log proves detection works: the wrong passwords show as `SignInFailed`, the 401 sweep as `UnauthorizedBurst`, and no command ends with `Exception`.
+
 ## Steps
 
 1. Rename soft delete to `DeletedAt`, add `DeletedByUserId` and make replaced records soft deleted, with the migration and the record columns test. One PR, no behavior change. **Built.**

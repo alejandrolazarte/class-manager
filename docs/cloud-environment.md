@@ -26,11 +26,11 @@ The script is idempotent.
 Processes started by the Setup script do not survive into the session. `scripts/cloud-session-start.sh` runs as a `SessionStart` hook (`.claude/settings.json`) and does nothing outside the cloud (`CLAUDE_CODE_REMOTE` is not `true`). In the cloud it:
 
 1. Exports `E2E_DATABASE_CONNECTION_STRING` pointing to the `ClassManagerE2E` database on the `class-manager-sql` container.
-2. In the background, so the session starts without waiting: starts the Docker daemon if `docker info` fails (Podman is not available in the cloud container; Testcontainers talks to Docker through `/var/run/docker.sock`), then creates or starts the `class-manager-sql` SQL Server container on port 1433 with a throwaway SA password, pulling the image the first time. Output goes to `/tmp/cloud-session-start.log`.
+2. In the background, so the session starts without waiting: starts the Docker daemon if `docker info` fails (Podman is not available in the cloud container; Testcontainers talks to Docker through `/var/run/docker.sock`), then creates or starts the `class-manager-azurite` container (Azurite on ports 10000-10002, in memory, where the e2e API writes its audit log) and the `class-manager-sql` SQL Server container on port 1433 with a throwaway SA password, pulling the images the first time. Output goes to `/tmp/cloud-session-start.log`.
 
 3. When the environment has the read-only audit service principal, signs the Azure CLI in with it, in the background (`/tmp/azure-sign-in.log`). It needs three environment secrets: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` and `AZURE_TENANT_ID`, and `login.microsoftonline.com` plus the storage hosts in the allowed domains. The principal, `class-manager-audit-reader`, only has `Storage Table Data Reader` and `Storage Blob Data Reader` on `classmanageraudit`, so a session can read the command log and the security events and nothing else ([audit log storage](audit-log-storage.md#8-reading-from-a-claude-code-session)). Without the secrets nothing happens.
 
-Before the e2e suite, wait until SQL Server is ready with `bash scripts/cloud-session-start.sh --wait`, then run it as described in [running-e2e-tests.md](e2e/running-e2e-tests.md): `cd e2e; pnpm db:migrate; pnpm test`. Integration tests create their own containers through Testcontainers and only need the Docker daemon, which `--wait` also ensures.
+Before the e2e suite, wait until Azurite and SQL Server are ready with `bash scripts/cloud-session-start.sh --wait`, then run it as described in [running-e2e-tests.md](e2e/running-e2e-tests.md): `cd e2e; pnpm db:migrate; pnpm test`. Integration tests create their own containers through Testcontainers and only need the Docker daemon, which `--wait` also ensures.
 
 ## Relation to local development
 

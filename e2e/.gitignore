@@ -4,3 +4,4 @@ test-results/
 playwright-report/
 screenshots-output/
 .mailbox/
+.personal-data/

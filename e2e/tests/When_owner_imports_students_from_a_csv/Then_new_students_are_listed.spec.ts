@@ -1,9 +1,10 @@
 import { expect, signIn, test } from "../../support/fixtures";
 import { signUpBusiness } from "../../support/businessApi";
+import { personal } from "../../support/personalData";
 
 const studentsCsv = [
   "Alumno;Teléfono;Fecha de nacimiento;Responsable",
-  "Lucas Gómez;11 7777-8888;07/03/2015;María Gómez",
+  `${personal("Lucas Gómez")};${personal("11 7777-8888")};07/03/2015;${personal("María Gómez")}`,
   ";11 1111-2222;;",
 ].join("\r\n");
 
