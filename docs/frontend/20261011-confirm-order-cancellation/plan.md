@@ -2,7 +2,7 @@
 
 Date: 2026-10-11
 
-Status: pending, not built. Found while drawing the [Calma redesign](../20261011-calma-redesign/plan.md); it is a behavior change, so it is not part of the redesign.
+Status: built. Found while drawing the [Calma redesign](../20261011-calma-redesign/plan.md); it is a behavior change, so it is not part of the redesign.
 
 ## Problem
 
@@ -17,10 +17,10 @@ A cancelled order can't be brought back, and it touches money. The rule in `CLAU
 
 - Both buttons open a `ConfirmDialog` before cancelling. Nothing is sent until the user confirms; **Volver** closes the dialog and leaves the order as it was.
 - The confirm button keeps today's label, "Cancelar pedido", and shows the loading state while the request runs; the "Pedido cancelado" toast stays.
-- New texts are needed for the question and the consequence. Proposal, to confirm with the owner:
+- New texts, confirmed with the owner:
   - Student: "¿Cancelar el pedido n.º {number}?" · "Si lo querés de nuevo, vas a tener que pedirlo otra vez."
-  - Team: "¿Cancelar el pedido n.º {number} de {client}?" · "Le avisamos por email que se canceló."
-  Check the email part against what `OrderNotificationService` sends when the branch cancels an order before writing it.
+  - Team: "¿Cancelar el pedido n.º {number} de {client}?" (just "¿Cancelar el pedido n.º {number}?" for an order without a client) · "No se puede deshacer. Si tiene email, le avisamos que se canceló."
+  `OrderNotificationService` only emails the client when the client has an account or an email, so the team text doesn't promise the email.
 - No API change: the endpoints and the cancel rules stay.
 
 ## Tests
