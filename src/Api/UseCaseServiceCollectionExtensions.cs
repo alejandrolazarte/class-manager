@@ -141,6 +141,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<DeletePrivateLessonCommand, DeletedPrivateLessonResponse, DeletePrivateLessonUseCase>();
         services.AddUseCase<GetSessionQuery, SessionDetailsResponse, GetSessionUseCase>();
         services.AddUseCase<RecordAttendanceCommand, RecordAttendanceResponse, RecordAttendanceUseCase>();
+        services.AddUseCase<RecordClassAttendanceCommand, IReadOnlyList<RecordAttendanceResponse>, RecordClassAttendanceUseCase>();
         services.AddUseCase<RecordClassFeedbackCommand, bool, RecordClassFeedbackUseCase>();
         services.AddUseCase<CancelSessionCommand, SessionStatusResponse, CancelSessionUseCase>();
         services.AddUseCase<RestoreSessionCommand, SessionStatusResponse, RestoreSessionUseCase>();

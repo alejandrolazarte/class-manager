@@ -53,6 +53,40 @@ internal static class SessionRules
                 || await packBookingRepository.FindForUpdateAsync(session.Id, studentId, cancellationToken) is not null);
     }
 
+    public static async Task<bool> AreAllInClassAsync(
+        IEnrollmentRepository enrollmentRepository,
+        IMakeupBookingRepository makeupBookingRepository,
+        IPackBookingRepository packBookingRepository,
+        Guid classGroupId,
+        DateOnly date,
+        ClassSession? session,
+        IReadOnlyCollection<Guid> studentIds,
+        CancellationToken cancellationToken)
+    {
+        var roster = (await enrollmentRepository.ListRosterOnAsync(classGroupId, date, cancellationToken)).Select(entry => entry.StudentId).ToHashSet();
+        var outsideRoster = studentIds.Where(studentId => !roster.Contains(studentId)).ToList();
+        if (outsideRoster.Count == 0)
+        {
+            return true;
+        }
+
+        if (session is null)
+        {
+            return false;
+        }
+
+        var makeups = (await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken)).Select(student => student.StudentId).ToHashSet();
+        foreach (var studentId in outsideRoster.Where(studentId => !makeups.Contains(studentId)))
+        {
+            if (await packBookingRepository.FindForUpdateAsync(session.Id, studentId, cancellationToken) is null)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static bool IsListedOn(DateOnly date, DateOnly today, ClassSession? session, int enrolledCount) =>
         date >= today || session is not null || enrolledCount > 0;
 

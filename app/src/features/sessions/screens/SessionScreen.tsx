@@ -15,6 +15,7 @@ import { AttendanceStatus } from "@/features/sessions/types";
 import { useSessionDetails } from "@/features/sessions/useSessionDetails";
 import {
   useRecordAttendance,
+  useRecordClassAttendance,
   useRecordFeedback,
   useRemoveSubstitute,
   useRestoreSession,
@@ -56,6 +57,7 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
     refetch,
   } = useSessionDetails(classGroupId, sessionDate);
   const recordAttendanceMutation = useRecordAttendance(classGroupId, sessionDate);
+  const recordClassAttendanceMutation = useRecordClassAttendance(classGroupId, sessionDate);
   const restoreSessionMutation = useRestoreSession(classGroupId, sessionDate);
   const restoreSessionScheduleMutation = useRestoreSessionSchedule(classGroupId, sessionDate);
   const removeSubstituteMutation = useRemoveSubstitute(classGroupId, sessionDate);
@@ -123,15 +125,32 @@ export function SessionScreen({ classGroupId, sessionDate }: SessionScreenProps)
   const canMarkAttendance =
     canRecordAttendance && session.canTakeAttendance && !session.isCancelled && !isReadOnly;
 
-  const markAllPresent = () =>
-    Promise.all(
-      session.students
-        .filter(
-          (student) =>
-            statusOf(student.studentId, student.status) === null && !student.absenceNotified,
-        )
-        .map((student) => changeStatus(student.studentId, "Present")),
-    );
+  const markAllPresent = async () => {
+    const studentIds = session.students
+      .filter(
+        (student) =>
+          statusOf(student.studentId, student.status) === null && !student.absenceNotified,
+      )
+      .map((student) => student.studentId);
+    if (studentIds.length === 0) {
+      return;
+    }
+
+    setHasSaveFailed(false);
+    setPendingStatuses((current) => ({
+      ...current,
+      ...Object.fromEntries(studentIds.map((studentId) => [studentId, "Present" as const])),
+    }));
+    try {
+      await recordClassAttendanceMutation.mutateAsync(
+        studentIds.map((studentId) => ({ studentId, status: "Present" })),
+      );
+    } catch {
+      setHasSaveFailed(true);
+    } finally {
+      studentIds.forEach(forgetPending);
+    }
+  };
 
   const restoreSession = async () => {
     await restoreSessionMutation.mutateAsync();
