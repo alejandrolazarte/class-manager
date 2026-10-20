@@ -126,4 +126,12 @@ internal static class DiagnosticDescriptors
         category: ArchitectureCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor AppMustNotDependOnBackoffice = new(
+        id: "ARCH011",
+        title: "The app must not depend on the backoffice",
+        messageFormat: "The app cannot use '{0}'; only the backoffice hosts read across businesses",
+        category: ArchitectureCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

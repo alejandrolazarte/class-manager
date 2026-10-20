@@ -1,6 +1,5 @@
-using ClassManager.Core.Abstractions.Security;
+using ClassManager.Infrastructure.Security;
 using ClassManager.Security.Hosting;
-using ClassManager.Tenancy.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 
@@ -24,7 +23,6 @@ internal static class AppAuthenticationServiceCollectionExtensions
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddSingleton<IAuthorizationMiddlewareResultHandler, PlanAwareAuthorizationResultHandler>();
         services.AddScoped<IAuthorizationHandler, StudentAuthorizationHandler>();
-        services.AddScoped<ICurrentUser, ClaimsCurrentUser>();
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {
@@ -34,7 +32,7 @@ internal static class AppAuthenticationServiceCollectionExtensions
             options.KnownProxies.Clear();
         });
 
-        services.AddClaimsTenancy();
+        services.AddSessionClaims();
 
         return services;
     }

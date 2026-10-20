@@ -20,3 +20,4 @@ ARCH007 | Architecture | Error | SubscriptionsIndependenceAnalyzer
 ARCH008 | Architecture | Error | StorageIndependenceAnalyzer
 ARCH009 | Architecture | Error | RecordsIndependenceAnalyzer
 ARCH010 | Architecture | Error | UnnamedIgnoreQueryFiltersAnalyzer
+ARCH011 | Architecture | Error | BackofficeIsolationAnalyzer

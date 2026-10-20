@@ -26,8 +26,10 @@ src/Storage.AzureBlob/ ← Azure Blob Storage implementation, DI extensions (ARC
 src/Records/         ← record conventions: ISoftDeletable, ICreatedOn, IExpiredOn and their rules (no dependencies, ARCH009)
 src/Subscriptions/   ← reusable plans, features, add-ons and effective features of a subscriber (no dependencies, ARCH007)
 src/Subscriptions.AspNetCore/ ← EF model for the billing schema, per-request feature access, RequireFeature endpoint filter (ARCH007)
+src/Backoffice.Api/ src/Backoffice.Core/ src/Backoffice.Infrastructure/ ← platform backoffice: its own host, use cases and cross-business repositories; the app never references them (ARCH011, docs/backend/20261017-backoffice/plan.md)
 tests/ClassManager.Core.U.Tests/  ← unit tests: domain and use cases, no database
 tests/ClassManager.Api.I.Tests/   ← integration tests: endpoints and persistence (Testcontainers)
+tests/ClassManager.Backoffice.Api.I.Tests/ ← integration tests: backoffice host (Testcontainers)
 tests/ClassManager.ImportExport.U.Tests/ ← unit tests: import/export engine
 tests/ClassManager.Notifications.U.Tests/ ← unit tests: email rendering and web push
 tests/ClassManager.Storage.U.Tests/ ← unit tests: image formats and file paths
