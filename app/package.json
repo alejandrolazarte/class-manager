@@ -11,6 +11,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "export:web": "expo export --platform web && node scripts/relocateNodeModulesAssets.js dist && node scripts/writeStaticWebAppConfig.js dist",
+    "export:backoffice": "node scripts/exportBackoffice.js",
+    "check:bundles": "node scripts/checkBundleSeparation.js dist dist-backoffice",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "lint": "eslint . --max-warnings 0",

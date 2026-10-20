@@ -1,6 +1,6 @@
 # Backoffice
 
-Status: proposal.
+Status: step 1 in progress: the two web builds are built (see [Web app](#web-app-same-expo-project-two-builds)); the rest is a proposal.
 
 A platform administration area for the people who run Laztty, not for businesses: see every brand, its subscription and usage, change its plan, give or take away add-ons, read the audit log, manage who may enter and, later, see the app as a user to reproduce a bug. It is a web app installable as a PWA, so the operator can run it from their phone.
 
@@ -128,9 +128,10 @@ app/
     backoffice/…            backoffice only (screens, its session client)
 ```
 
-- `app.config.js` picks the routes folder (the `expo-router` plugin's `root`) from `APP_TARGET`. `pnpm export:web` builds the app as today; `pnpm export:backoffice` builds the backoffice. Metro bundles only the chosen routes and what they import. Step 1 starts by proving it with expo-router 57.
+- `app.config.js` picks the routes folder (`extra.router.root`, which expo-router 57 reads) from `APP_TARGET`, and names the build **Laztty Admin**. `pnpm export:web` builds the app into `dist` as today; `pnpm export:backoffice` (`scripts/exportBackoffice.js`, so it also works from PowerShell) builds the backoffice into `dist-backoffice`. Metro bundles only the chosen routes and what they import: the backoffice bundle is about 1.1 MB against the app's 3.8 MB. Builds can alternate without clearing Metro's cache. **Built.**
 - The backoffice is web only: no EAS builds.
-- **Kept apart by checks:** `no-restricted-imports` stops `app/` and `src/features` from importing `src/backoffice` and the other way round; a CI test builds both and fails if one bundle contains a marker of the other; knip runs with both entries.
+- **Kept apart by checks:** `no-restricted-imports` stops everything outside the backoffice from importing `@/backoffice`, and `backoffice/` and `src/backoffice` from importing `@/features` and `@/navigation` (tests in `eslint/__tests__` prove both against the real config). The `frontend` CI job builds both and runs `pnpm check:bundles` (`scripts/checkBundleSeparation.js`), which fails if one bundle contains a route only the other has, or none of its own routes (then the check would prove nothing); the route keys of `require.context` survive minification. knip runs with both entries. **Built.**
+- `src/forms` imports from `src/features` today, so the backoffice can't use its date fields until they move to shared code.
 - `CLAUDE.md`'s rules apply as in the app: buttons from `src/ui`, skeletons, empty states, required fields, confirm dialogs, texts in `es.json` and `en.json` under a `backoffice` key.
 
 ### PWA on the phone
@@ -193,7 +194,7 @@ Rules, enforced in the API:
 ## Steps
 
 1. **Brands, subscriptions, add-ons and operators.**
-   - Prove two web builds from the Expo project (routes root by `APP_TARGET`, the bundle marker test).
+   - Prove two web builds from the Expo project (routes root by `APP_TARGET`, the bundle check). **Built.**
    - Move the behaviors' registration to `Infrastructure`. `Backoffice.Api`, `Backoffice.Core`, `Backoffice.Infrastructure`, ARCH011.
    - `platform.*` permissions and system roles, refused in custom roles and in the app's team screens.
    - OIDC with Google, `BackofficeLogins`, access requests, the sign-in email, JWT with its own key, audience, `Kind` and lifetimes; the first operator's script.

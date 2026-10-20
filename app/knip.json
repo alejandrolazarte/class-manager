@@ -1,6 +1,11 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["public/*.js", "src/testing/countryFactory.ts", "src/testing/expoRouterMock.ts"],
+  "entry": [
+    "backoffice/**/*.tsx",
+    "public/*.js",
+    "src/testing/countryFactory.ts",
+    "src/testing/expoRouterMock.ts"
+  ],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": ["expo-system-ui", "expo-updates"]
 }

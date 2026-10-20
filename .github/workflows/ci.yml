@@ -113,6 +113,12 @@ jobs:
 
       - run: pnpm test --ci
 
+      - run: pnpm export:web
+
+      - run: pnpm export:backoffice
+
+      - run: pnpm check:bundles
+
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
