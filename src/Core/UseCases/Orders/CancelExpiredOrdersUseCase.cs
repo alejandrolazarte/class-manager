@@ -18,11 +18,11 @@ public sealed class CancelExpiredOrdersUseCase(
     public async Task<Result<int>> ExecuteAsync(CancelExpiredOrdersCommand command, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
-        var expiredOrders = await orderRepository.ListRequestedCreatedBeforeAsync(now - Order.RequestLifetime, cancellationToken);
+        var expiredOrders = await orderRepository.ListUnpaidRequestsCreatedBeforeAsync(now - Order.RequestLifetime, cancellationToken);
         foreach (var order in expiredOrders)
         {
             order.Cancel(null, now);
-            await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, null, now, cancellationToken);
+            await OrderReservations.ReleaseAsync(order, stockMovementRepository, null, now, cancellationToken);
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

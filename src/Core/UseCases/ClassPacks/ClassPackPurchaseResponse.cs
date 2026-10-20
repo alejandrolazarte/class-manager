@@ -12,7 +12,7 @@ public sealed record ClassPackPurchaseResponse(
     string CurrencyCode,
     DateOnly PurchasedOn,
     DateOnly? ExpiresOn,
-    PaymentMethod Method,
+    PaymentMethod? Method,
     string? Notes,
     int? ClassDurationMinutes,
     Guid? TrialLessonId)

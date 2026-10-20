@@ -4,7 +4,12 @@ import { formatMoney } from "@/formatting/money";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
 import { refundableLinesOf } from "@/features/orders/refunds";
-import { orderClientLabel, orderStatusLabel } from "@/features/orders/orderLabels";
+import {
+  isFullyRefunded,
+  orderClientLabel,
+  orderPaymentStatusLabel,
+  orderStatusLabel,
+} from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
 import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useOrderMutations";
 import { formatLongDate } from "@/dates/dates";
@@ -27,17 +32,17 @@ interface OrderRowProps {
 }
 
 function orderStatusTone(order: Order): StatusTone {
-  if (order.awaitsPickup) {
-    return "warning";
-  }
-  if (order.status === "Requested") {
-    return "danger";
-  }
-  if (order.status === "Cancelled" || order.refundedAmount >= order.total) {
+  if (order.status === "Cancelled" || isFullyRefunded(order)) {
     return "neutral";
   }
-  return "success";
+  return order.status === "Pending" ? "warning" : "success";
 }
+
+const paymentStatusTones: Record<Order["paymentStatus"], StatusTone> = {
+  Unpaid: "danger",
+  Partial: "warning",
+  Paid: "success",
+};
 
 interface OrderActionProps {
   label: string;
@@ -65,7 +70,8 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
   const markOrderReadyMutation = useMarkOrderReady();
   const [openPanel, setOpenPanel] = useState<OrderPanel | null>(null);
   const hasRefundableLines = refundableLinesOf(order).length > 0;
-  const isSettled = order.status === "Paid" || order.status === "Delivered";
+  const isPending = order.status === "Pending";
+  const isOwing = order.status !== "Cancelled" && order.balance > 0;
   const money = (amount: number) => formatMoney(amount, order.currencyCode);
 
   const markDelivered = async () => {
@@ -108,19 +114,29 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       <AppText variant="footnote" tone="subtle">
         {[
           translate("orders.number", { number: order.number }),
-          formatLongDate(order.paidOn ?? order.createdAt.slice(0, isoDateLength)),
+          formatLongDate(order.lastPaidOn ?? order.createdAt.slice(0, isoDateLength)),
           order.channel === "App" ? translate("orders.fromApp") : null,
           lineSummary,
         ]
           .filter(Boolean)
           .join(" · ")}
       </AppText>
+      {isOwing ? (
+        <AppText variant="footnote" tone="subtle">
+          {order.paidAmount > 0
+            ? translate("orders.paidAndBalance", {
+                paid: money(order.paidAmount),
+                balance: money(order.balance),
+              })
+            : translate("orders.balance", { balance: money(order.balance) })}
+        </AppText>
+      ) : null}
       {order.refundedAmount > 0 ? (
         <AppText variant="footnote" tone="subtle">
           {translate("orders.refundedTotal", { amount: money(order.refundedAmount) })}
         </AppText>
       ) : null}
-      {hasProducts && (order.awaitsPickup || order.status === "Requested") ? (
+      {hasProducts && order.awaitsPickup ? (
         <AppText variant="footnote" tone="subtle">
           {deliveryLabel}
         </AppText>
@@ -128,33 +144,40 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       <View className="mt-1 flex-row flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <View className="flex-row flex-wrap items-center gap-1.5">
           <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
+          {order.status === "Cancelled" ? null : (
+            <StatusPill
+              label={orderPaymentStatusLabel(order)}
+              tone={paymentStatusTones[order.paymentStatus]}
+              isSmall
+            />
+          )}
           {order.awaitsPickup && order.readyAt !== null ? (
             <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />
           ) : null}
         </View>
         <View className="ml-auto flex-row flex-wrap items-center justify-end">
-          {canManage && order.status === "Requested" ? (
+          {canManage && isOwing ? (
             <OrderAction
               label={translate(openPanel === "payment" ? "common.close" : "orders.collect")}
               isExpanded={openPanel === "payment"}
               onPress={() => togglePanel("payment")}
             />
           ) : null}
-          {canManage && isSettled && order.awaitsPickup && order.readyAt === null ? (
+          {canManage && order.awaitsPickup && order.readyAt === null ? (
             <OrderAction
               label={translate("orders.markReady")}
               onPress={markReady}
               isLoading={markOrderReadyMutation.isPending}
             />
           ) : null}
-          {canManage && isSettled && order.awaitsPickup ? (
+          {canManage && isPending ? (
             <OrderAction
               label={translate("orders.markDelivered")}
               onPress={markDelivered}
               isLoading={markOrderDeliveredMutation.isPending}
             />
           ) : null}
-          {canManage && isSettled && hasRefundableLines ? (
+          {canManage && hasRefundableLines ? (
             <OrderAction
               label={translate(openPanel === "refund" ? "common.close" : "orders.refund.open")}
               isExpanded={openPanel === "refund"}
@@ -163,14 +186,14 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
           ) : null}
         </View>
       </View>
-      {canManage && order.status === "Requested" ? (
+      {canManage && isOwing ? (
         <Collapsible isExpanded={openPanel === "payment"}>
           <TonalBlock tone="muted">
             <PaymentPanel order={order} />
           </TonalBlock>
         </Collapsible>
       ) : null}
-      {canManage && isSettled && hasRefundableLines ? (
+      {canManage && hasRefundableLines ? (
         <Collapsible isExpanded={openPanel === "refund"}>
           <TonalBlock tone="muted">
             <RefundPanel order={order} onDone={() => setOpenPanel(null)} />

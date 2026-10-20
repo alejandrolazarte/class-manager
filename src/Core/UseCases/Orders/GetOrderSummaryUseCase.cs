@@ -32,20 +32,41 @@ public sealed class GetOrderSummaryUseCase(
 
         var scope = await accessScopes.ForClientsAsync(Permissions.Orders.ViewAll, cancellationToken);
         var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
-        var orders = (await orderRepository.ListPaidBetweenOrRequestedAsync(month.Value!.FirstDay, month.Value.LastDay, scope, cancellationToken))
-            .Where(order => order.CurrencyCode == currencyCode)
+        var orders = (await orderRepository.ListPaidBetweenOrOwingAsync(month.Value!.FirstDay, month.Value.LastDay, scope, cancellationToken))
+            .Where(order => order.CurrencyCode == currencyCode && order.Status != OrderStatus.Cancelled)
             .ToList();
-        var paidLines = orders
-            .Where(order => order.Status is OrderStatus.Paid or OrderStatus.Delivered)
-            .SelectMany(order => order.Lines)
+        var collectedByOrder = orders
+            .Select(order => (Order: order, Collected: CollectedIn(order, month.Value)))
             .ToList();
 
         return new OrderSummaryResponse(
             month.Value.ToString(),
-            paidLines.Sum(NetAmountOf),
-            orders.Where(order => order.Status == OrderStatus.Requested).Sum(order => order.Total),
-            paidLines.Where(line => line.Kind == OrderLineKind.ClassPack).Sum(NetAmountOf));
+            collectedByOrder.Sum(collected => collected.Collected),
+            orders.Sum(order => order.Balance),
+            decimal.Round(collectedByOrder.Sum(collected => collected.Collected * ClassPackShareOf(collected.Order)), MonthlyFee.AmountDecimals));
     }
+
+    private static decimal CollectedIn(Order order, BillingMonth month)
+    {
+        var uncollectedRemainder = order.CollectedAmount;
+        var collectedInMonth = 0m;
+        foreach (var payment in order.Payments.OrderBy(payment => payment.PaidOn).ThenBy(payment => payment.CreatedAt))
+        {
+            var collected = Math.Min(payment.Amount, uncollectedRemainder);
+            uncollectedRemainder -= collected;
+            if (payment.PaidOn >= month.FirstDay && payment.PaidOn <= month.LastDay)
+            {
+                collectedInMonth += collected;
+            }
+        }
+
+        return collectedInMonth;
+    }
+
+    private static decimal ClassPackShareOf(Order order) =>
+        order.AmountDue == 0
+            ? 0
+            : order.Lines.Where(line => line.Kind == OrderLineKind.ClassPack).Sum(NetAmountOf) / order.AmountDue;
 
     private static decimal NetAmountOf(OrderLine line) => line.Total - line.RefundedAmount;
 }

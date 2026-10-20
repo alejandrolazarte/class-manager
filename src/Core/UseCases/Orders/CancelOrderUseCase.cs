@@ -35,7 +35,7 @@ public sealed class CancelOrderUseCase(
             return cancellation.Error!;
         }
 
-        await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access?.UserId, now, cancellationToken);
+        await OrderReservations.ReleaseAsync(order, stockMovementRepository, access?.UserId, now, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await orderNotifications.OrderCancelledAsync(order, OrderCancellationReason.ByBranch, cancellationToken);
 

@@ -1,6 +1,6 @@
 using ClassManager.Core.Domain.Orders;
 
-namespace ClassManager.Core.U.Tests.Domain.Orders.When_Order_paid_is_cancelled;
+namespace ClassManager.Core.U.Tests.Domain.Orders.When_Order_is_handed_over_twice;
 
 public sealed class Then_conflict_is_returned
 {
@@ -9,8 +9,8 @@ public sealed class Then_conflict_is_returned
     {
         var order = OrderTestData.CounterSale(true, OrderTestData.ProductLine());
 
-        var cancellation = order.Cancel(null, TestData.Now);
+        var delivery = order.MarkDelivered(null, TestData.Now);
 
-        cancellation.Error!.Code.ShouldBe(OrderErrorCodes.NotRequested);
+        delivery.Error!.Code.ShouldBe(OrderErrorCodes.NotPending);
     }
 }

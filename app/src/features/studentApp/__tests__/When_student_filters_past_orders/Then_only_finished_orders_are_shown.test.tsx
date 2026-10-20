@@ -21,13 +21,15 @@ describe("When student filters past orders", () => {
   it("Then only finished orders are shown", async () => {
     await renderStudentAppScreen(<StudentAppOrdersScreen />);
 
-    expect(await screen.findByText(translate("student.orders.status.Requested"))).toBeOnTheScreen();
+    expect(
+      await screen.findByText(translate("student.orders.status.awaitingPayment")),
+    ).toBeOnTheScreen();
 
     await fireEvent.press(
       screen.getByRole("button", { name: new RegExp(translate("student.orders.filter.past")) }),
     );
 
     expect(screen.getByText(translate("student.orders.status.Delivered"))).toBeOnTheScreen();
-    expect(screen.queryByText(translate("student.orders.status.Requested"))).toBeNull();
+    expect(screen.queryByText(translate("student.orders.status.awaitingPayment"))).toBeNull();
   });
 });

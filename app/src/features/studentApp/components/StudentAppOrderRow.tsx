@@ -39,15 +39,32 @@ function deliveryPlace(order: StudentAppOrder): string {
     : translate("student.orders.deliveryPickup");
 }
 
+function balanceNotice(order: StudentAppOrder): OrderNotice {
+  const money = (amount: number) => formatMoney(amount, order.currencyCode);
+  return {
+    message:
+      order.paidAmount > 0
+        ? translate("student.orders.paidAndBalance", {
+            paid: money(order.paidAmount),
+            balance: money(order.balance),
+          })
+        : translate("student.orders.balance", { balance: money(order.balance) }),
+    tone: "warning",
+  };
+}
+
 function noticeOf(order: StudentAppOrder): OrderNotice | null {
   const stage = orderStage(order);
-  if (stage === "awaitingPayment") {
+  if (stage === "awaitingPayment" && order.expiresAt !== null) {
     return {
       message: translate("student.orders.payBeforeOrCancelled", {
         date: inlineDate(order.expiresAt),
       }),
       tone: "warning",
     };
+  }
+  if ((stage === "awaitingPayment" || stage === "delivered") && order.balance > 0) {
+    return balanceNotice(order);
   }
   if (stage === "ready") {
     return {
@@ -123,7 +140,7 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
         ))}
       </View>
       {notice === null ? null : <Notice tone={notice.tone} message={notice.message} />}
-      {stage === "awaitingPayment" ? (
+      {stage === "awaitingPayment" && order.expiresAt !== null ? (
         <Button
           size="medium"
           variant="dangerOutline"

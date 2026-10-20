@@ -15,7 +15,7 @@ public sealed class Then_it_is_reserved(ApiFixture fixture)
 
         var order = await scenario.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1));
 
-        order.Status.ShouldBe(OrderStatus.Requested);
+        order.Status.ShouldBe(OrderStatus.Pending);
         (await scenario.Student.GetStudentAppShopAsync()).Products.Single().Variants[0].Availability.ShouldBe(StockAvailability.SoldOut);
         (await owner.ListProductsAsync()).Single().Variants[0].Stock.ShouldBe(0);
     }

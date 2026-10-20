@@ -63,6 +63,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
+    public DbSet<OrderPayment> OrderPayments => Set<OrderPayment>();
     public DbSet<Country> Countries => Set<Country>();
     public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<Feature> Features => Set<Feature>();

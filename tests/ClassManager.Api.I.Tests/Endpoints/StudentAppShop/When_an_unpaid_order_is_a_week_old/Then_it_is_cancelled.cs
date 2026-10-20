@@ -22,7 +22,7 @@ public sealed class Then_it_is_cancelled(ApiFixture fixture)
 
         var orders = await scenario.Student.ListStudentAppOrdersAsync();
         orders.Single(order => order.Id == oldOrder).Status.ShouldBe(OrderStatus.Cancelled);
-        orders.Single(order => order.Id == recentOrder.Id).Status.ShouldBe(OrderStatus.Requested);
+        orders.Single(order => order.Id == recentOrder.Id).Status.ShouldBe(OrderStatus.Pending);
         (await owner.ListProductsAsync()).Single().Variants[0].Stock.ShouldBe(1);
     }
 
