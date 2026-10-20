@@ -59,6 +59,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IImportModule, InstructorImportModule>();
         services.AddScoped<IImportModule, StudentImportModule>();
         services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandAuditBehavior<,>));
+        services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryAuditBehavior<,>));
         services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(CommandTransactionBehavior<,>));
         services.AddScoped(typeof(IUseCaseBehavior<,>), typeof(QueryNoTrackingBehavior<,>));
 
