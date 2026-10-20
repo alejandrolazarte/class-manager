@@ -106,6 +106,9 @@ generated_code = true
 [src/Security/Persistence/Migrations/*.cs]
 generated_code = true
 
+[src/Backoffice.Infrastructure/Persistence/Migrations/*.cs]
+generated_code = true
+
 ############################
 # PROJECT FILES
 ############################
