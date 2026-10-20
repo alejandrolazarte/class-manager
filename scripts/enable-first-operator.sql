@@ -1,11 +1,13 @@
 -- Enables the first backoffice operator, before any operator can do it from the backoffice.
 -- Run it in the Azure portal (SQL database -> Query editor), see docs/backoffice-access.md.
 -- 1. The person signs in to the backoffice with Google once and gets "Acceso no permitido" with a code.
--- 2. Fill in the four values below and run the whole script.
+-- 2. Fill in the values below and run the whole script. @BranchName is needed only when the account is a
+--    team member of more than one Laztty branch: the platform role goes to that branch, the others keep theirs.
 
 DECLARE @AccessRequestCode nvarchar(6) = N'K7-3QF';
 DECLARE @AccountEmail nvarchar(256) = N'owner@example.com';
 DECLARE @PlatformOrganizationId uniqueidentifier = '00000000-0000-0000-0000-000000000000';
+DECLARE @BranchName nvarchar(120) = NULL;
 DECLARE @Role nvarchar(20) = N'PlatformOperator';
 
 SET XACT_ABORT ON;
@@ -37,10 +39,11 @@ SELECT member.Id
 FROM BusinessMembers member
 JOIN Users person ON person.Id = member.UserId
 JOIN Businesses business ON business.Id = member.TenantId
-WHERE person.AccountId = @AccountId AND business.OrganizationId = @PlatformOrganizationId AND member.IsDeleted = 0;
+WHERE person.AccountId = @AccountId AND business.OrganizationId = @PlatformOrganizationId AND member.IsDeleted = 0
+  AND (@BranchName IS NULL OR business.Name = @BranchName);
 
 IF (SELECT COUNT(*) FROM @Members) <> 1
-    THROW 50003, 'That account must be a team member of exactly one branch of the platform organization.', 1;
+    THROW 50003, 'That account must be a team member of exactly one branch of the platform organization; with more than one, set @BranchName.', 1;
 
 DECLARE @Now datetimeoffset = SYSUTCDATETIME();
 

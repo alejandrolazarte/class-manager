@@ -1,6 +1,6 @@
 # Backoffice deployment
 
-Date: 2026-10-20
+Date: 2026-10-20 (deployed the same day, see [How it went](#how-it-went))
 
 How the backoffice reaches production: a second container app for `Backoffice.Api` (`admin-api.laztty.com`) and a second static web app for its web build (`admin.laztty.com`), next to the app's. Run once, in this order. Who may enter afterwards is in [backoffice access](backoffice-access.md); the design in the [backoffice plan](backend/20261017-backoffice/plan.md#deployment-and-cost).
 
@@ -70,8 +70,10 @@ Source **Other**, never connected to GitHub from the portal ([why](pilot-deploym
 
 ```powershell
 $backofficeStaticWebApp = "class-manager-backoffice-web"
-az staticwebapp create --name $backofficeStaticWebApp --resource-group $resourceGroup --location westeurope --sku Free
+az staticwebapp create --name $backofficeStaticWebApp --resource-group $resourceGroup --location eastus2 --sku Free
 ```
+
+The region only holds the resource's metadata: the files are served from Azure's global network wherever it is. `westeurope` answered `RequestDisallowedByAzure` ("not accepting new customers") on 2026-10-20, so the backoffice's static web app is in `eastus2`.
 
 ## 4. Domains
 
@@ -118,3 +120,19 @@ The first push creates the `class-manager-backoffice-api` package on GitHub as p
 
 - The backoffice's own PWA manifest and icon (**Laztty Admin**, ink tile): the web build still ships the app's `manifest.webmanifest`.
 - `X-Robots-Tag: noindex` on the backoffice's static web app. The backoffice API already sends the app's security headers (`SecurityHeadersMiddleware`, now in `Infrastructure`).
+
+## How it went
+
+Deployed on 2026-10-20 from a phone, with Azure Cloud Shell (PowerShell) in the browser. What to know for next time:
+
+- **Paste one line.** Pasting several lines from a phone joins them into one; every command was run as a single line with `;` between statements, and the console couldn't be kept between steps, so each line read again what it needed (for example the API's connection string and registry token):
+
+  ```powershell
+  $rg="class-manager-rg"; $api="class-manager-api"; $envId=az containerapp show -n $api -g $rg --query properties.environmentId -o tsv; $conn=az containerapp show -n $api -g $rg --query "properties.template.containers[0].env[?name=='ConnectionStrings__BusinessDatabase'].value | [0]" -o tsv; $regPass=az containerapp secret list -n $api -g $rg --show-values --query "[?contains(name,'ghcr')].value | [0]" -o tsv
+  ```
+
+- Cloud Shell opens in **PowerShell**; Bash syntax (`name=value`) fails there with "is not recognized as a name of a cmdlet".
+- `asuid.admin-api` has the same value as `asuid.api`: the verification ID belongs to the container apps environment, which both share.
+- The managed certificate for `admin-api` was created and bound by `az containerapp hostname bind` on the first try.
+- Google answered `redirect_uri_mismatch` until the redirect URI was right in the client ([backoffice access](backoffice-access.md#google-client)).
+- The owner is a team member of two Laztty branches, so `scripts/enable-first-operator.sql` takes `@BranchName` to choose where the platform role goes.
