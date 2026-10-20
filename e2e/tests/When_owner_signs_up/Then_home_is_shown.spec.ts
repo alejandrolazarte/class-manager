@@ -1,13 +1,14 @@
 import { expect, test } from "../../support/fixtures";
 import { ownerPassword, uniqueOwnerEmail } from "../../support/businessApi";
 import { linkTokenSentTo } from "../../support/mailbox";
+import { personal } from "../../support/personalData";
 
 const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s]+)/;
 
 test("Then home is shown", async ({ page }) => {
   const email = uniqueOwnerEmail();
   await page.goto("/sign-up");
-  await page.getByLabel("Nombre y apellido").fill("Valeria Sosa");
+  await page.getByLabel("Nombre y apellido").fill(personal("Valeria Sosa"));
   await page.getByLabel("Fecha de nacimiento").fill("20061985");
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Continuar" }).click();

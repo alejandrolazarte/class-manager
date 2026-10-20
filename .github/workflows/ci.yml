@@ -113,6 +113,12 @@ jobs:
 
       - run: pnpm test --ci
 
+      - run: pnpm export:web
+
+      - run: pnpm export:backoffice
+
+      - run: pnpm check:bundles
+
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -165,6 +171,14 @@ jobs:
       - run: pnpm typecheck
 
       - run: pnpm format:check
+
+      - name: Start Azurite for the audit log
+        run: >-
+          docker run --detach
+          --publish 10000:10000 --publish 10001:10001 --publish 10002:10002
+          mcr.microsoft.com/azure-storage/azurite:3.37.0
+          azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
+          --skipApiVersionCheck --inMemoryPersistence
 
       - run: pnpm exec playwright install --with-deps chromium
 

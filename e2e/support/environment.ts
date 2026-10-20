@@ -31,6 +31,9 @@ export const e2eEnvironment = {
   smtpHost: "localhost",
   smtpFromAddress: "e2e@e2e.local",
   mailboxDirectory: process.env.E2E_MAILBOX_DIR ?? join(process.cwd(), ".mailbox"),
+  personalDataDirectory: join(process.cwd(), ".personal-data"),
+  auditLogConnectionString:
+    process.env.E2E_AUDIT_LOG_CONNECTION_STRING ?? "UseDevelopmentStorage=true",
   vapidSubject,
   vapidKeys: generateVapidKeys(),
 };

@@ -18,6 +18,8 @@
     "screenshots:emails": "playwright test --config playwright.emails.config.ts"
   },
   "devDependencies": {
+    "@azure/data-tables": "13.3.2",
+    "@azure/storage-blob": "12.34.0",
     "@playwright/test": "1.63.0",
     "@types/node": "^22.20.4",
     "prettier": "^3.9.9",

@@ -9,7 +9,7 @@
 | `backend-format` | `dotnet format --verify-no-changes` | backend files |
 | `container` | Builds the API image (`src/Api/Containerfile`) | backend files |
 | `frontend` | `pnpm lint`, `format:check`, `typecheck`, `knip`, `test` in `app/` | frontend files |
-| `e2e` | Playwright against the web build, the real API and SQL Server | always |
+| `e2e` | Playwright against the web build, the real API, SQL Server and Azurite, then the [audit log rules](e2e/running-e2e-tests.md#audit-log-rules) | always |
 
 A push to `main` runs every job, whatever it changed.
 

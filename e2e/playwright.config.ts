@@ -24,7 +24,24 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "mobile-chromium", use: { ...devices["Pixel 7"] } }],
+  projects: [
+    {
+      name: "audit-log",
+      testDir: "./auditLog",
+      testMatch: "auditLog.setup.ts",
+      teardown: "audit-log-rules",
+    },
+    {
+      name: "audit-log-rules",
+      testDir: "./auditLog",
+      testMatch: "auditLog.teardown.ts",
+    },
+    {
+      name: "mobile-chromium",
+      use: { ...devices["Pixel 7"] },
+      dependencies: ["audit-log"],
+    },
+  ],
   webServer: [
     {
       command: "dotnet run --project ../src/Api/Api.csproj --no-launch-profile",
@@ -35,6 +52,7 @@ export default defineConfig({
         ASPNETCORE_ENVIRONMENT: "Development",
         ASPNETCORE_URLS: e2eEnvironment.apiUrl,
         ConnectionStrings__BusinessDatabase: requireDatabaseConnectionString(),
+        ConnectionStrings__AuditLog: e2eEnvironment.auditLogConnectionString,
         Subscriptions__SignUpPlan: "enterprise",
         Authentication__Jwt__SigningKey: e2eEnvironment.jwtSigningKey,
         Authentication__RateLimit__PermitLimit: e2eEnvironment.authenticationPermitLimit,

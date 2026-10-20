@@ -1831,5 +1831,7 @@
   "legal.update.title": "We updated the terms",
   "legal.update.message": "To keep using the app, read and accept the terms of use and the privacy policy.",
   "legal.update.submit": "Accept and continue",
-  "legal.update.signOut": "Sign out"
+  "legal.update.signOut": "Sign out",
+  "backoffice.signIn.title": "Laztty Admin",
+  "backoffice.signIn.description": "Laztty administration: brands, plans and operators."
 }
