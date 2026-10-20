@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         var tooFarAhead = BillingMonth.From(TestData.Today).AddMonths(13);
 
-        var change = DefaultMonthlyFeeChange.Create(tooFarAhead, 25000m, TestData.Today, TestData.Now);
+        var change = DefaultMonthlyFeeChange.Create(tooFarAhead, BusinessBillingMode.MonthlyFee, 25000m, TestData.Today, TestData.Now);
 
         change.Error!.FieldName.ShouldBe(nameof(DefaultMonthlyFeeChange.EffectiveFrom));
     }

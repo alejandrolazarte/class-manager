@@ -13,6 +13,7 @@ public sealed class DefaultMonthlyFeeChange : ITenantOwned, IAuditable, ISoftDel
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
     public DateOnly EffectiveFrom { get; private set; }
+    public BusinessBillingMode BillingMode { get; private set; }
     public decimal? Amount { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? CreatedByUserId { get; private set; }
@@ -22,7 +23,12 @@ public sealed class DefaultMonthlyFeeChange : ITenantOwned, IAuditable, ISoftDel
     public Guid? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
-    public static Result<DefaultMonthlyFeeChange> Create(BillingMonth effectiveFrom, decimal? amount, DateOnly today, DateTimeOffset createdAt)
+    public static Result<DefaultMonthlyFeeChange> Create(
+        BillingMonth effectiveFrom,
+        BusinessBillingMode billingMode,
+        decimal? amount,
+        DateOnly today,
+        DateTimeOffset createdAt)
     {
         if (!effectiveFrom.IsWithinAllowedRange(today))
         {
@@ -39,12 +45,17 @@ public sealed class DefaultMonthlyFeeChange : ITenantOwned, IAuditable, ISoftDel
         {
             Id = Guid.CreateVersion7(),
             EffectiveFrom = effectiveFrom.FirstDay,
+            BillingMode = billingMode,
             Amount = amount,
             CreatedAt = createdAt.ToUniversalTime(),
         };
     }
 
-    public void ReplaceWith(DefaultMonthlyFeeChange change) => Amount = change.Amount;
+    public void ReplaceWith(DefaultMonthlyFeeChange change)
+    {
+        BillingMode = change.BillingMode;
+        Amount = change.Amount;
+    }
 
     public void Delete(DateTimeOffset deletedAt)
     {

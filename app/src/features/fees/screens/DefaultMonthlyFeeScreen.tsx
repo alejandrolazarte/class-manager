@@ -2,10 +2,15 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { hasChosenBillingMode } from "@/features/fees/billingMode";
 import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
 import { formatMoney, parseAmount, toAmountText } from "@/features/fees/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
-import { MonthlyFeeChange } from "@/features/fees/types";
+import {
+  BusinessBillingMode,
+  MonthlyFeeChange,
+  SetDefaultMonthlyFeeRequest,
+} from "@/features/fees/types";
 import {
   useDeleteDefaultMonthlyFeeChange,
   useSetDefaultMonthlyFee,
@@ -16,8 +21,25 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { IconButton } from "@/ui/IconButton";
+import { OptionCard } from "@/ui/OptionCard";
+import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
+
+const billingModes: readonly BusinessBillingMode[] = ["MonthlyFee", "ClassPacks"];
+
+function historyItemText(change: MonthlyFeeChange, currencyCode: string): string {
+  const month = formatMonth(change.effectiveFrom);
+  if (change.billingMode === "ClassPacks") {
+    return translate("fees.defaultFee.historyClassPacks", { month });
+  }
+  return change.amount === null
+    ? translate("fees.defaultFee.historyNoFee", { month })
+    : translate("fees.defaultFee.historyItem", {
+        month,
+        fee: formatMoney(change.amount, currencyCode),
+      });
+}
 
 export function DefaultMonthlyFeeScreen() {
   const router = useRouter();
@@ -26,6 +48,9 @@ export function DefaultMonthlyFeeScreen() {
   const setDefaultMonthlyFeeMutation = useSetDefaultMonthlyFee();
   const deleteChangeMutation = useDeleteDefaultMonthlyFeeChange();
   const currentMonth = monthOf();
+  const [billingMode, setBillingMode] = useState<BusinessBillingMode | null>(
+    hasChosenBillingMode(business) ? (business.billingMode ?? "MonthlyFee") : null,
+  );
   const [amountText, setAmountText] = useState(toAmountText(business.defaultMonthlyFee));
   const [effectiveFrom, setEffectiveFrom] = useState(currentMonth);
   const [amountError, setAmountError] = useState<string | undefined>(undefined);
@@ -38,7 +63,11 @@ export function DefaultMonthlyFeeScreen() {
         label: translate("common.undo"),
         onPress: () => {
           setDefaultMonthlyFeeMutation
-            .mutateAsync({ amount: change.amount, effectiveFrom: change.effectiveFrom })
+            .mutateAsync({
+              amount: change.amount,
+              effectiveFrom: change.effectiveFrom,
+              billingMode: change.billingMode,
+            })
             .catch(() => showToast(translate("common.undoFailed")));
         },
       });
@@ -48,7 +77,14 @@ export function DefaultMonthlyFeeScreen() {
   };
 
   const save = async () => {
+    if (billingMode === null) {
+      return;
+    }
     setSubmissionFailure(null);
+    if (billingMode === "ClassPacks") {
+      await saveChange({ amount: business.defaultMonthlyFee, effectiveFrom, billingMode });
+      return;
+    }
     const trimmedAmount = amountText.trim();
     const amount = trimmedAmount.length === 0 ? null : parseAmount(trimmedAmount);
     if (trimmedAmount.length > 0 && (amount === null || amount <= 0)) {
@@ -56,9 +92,17 @@ export function DefaultMonthlyFeeScreen() {
       return;
     }
     setAmountError(undefined);
+    await saveChange({ amount, effectiveFrom, billingMode });
+  };
+
+  const saveChange = async (request: SetDefaultMonthlyFeeRequest) => {
     try {
-      await setDefaultMonthlyFeeMutation.mutateAsync({ amount, effectiveFrom });
-      showToast(translate("fees.defaultFee.saved"));
+      await setDefaultMonthlyFeeMutation.mutateAsync(request);
+      showToast(
+        translate(
+          request.billingMode === "ClassPacks" ? "fees.client.saved" : "fees.defaultFee.saved",
+        ),
+      );
       router.back();
     } catch (saveError) {
       setSubmissionFailure(toSubmissionFailure(saveError));
@@ -67,18 +111,36 @@ export function DefaultMonthlyFeeScreen() {
 
   return (
     <SettingsFormScreenLayout
-      title={translate("fees.defaultFee.title")}
+      title={translate("fees.billingPlan.title")}
       submissionFailure={submissionFailure}
       onRetry={save}
     >
-      <TextField
-        label={translate("fees.defaultFee.amount")}
-        placeholder={translate("fees.defaultFee.placeholder")}
-        keyboardType="decimal-pad"
-        value={amountText}
-        onChangeText={setAmountText}
-        errorMessage={amountError}
-      />
+      <RequiredFieldsLegend />
+      <View className="gap-2" accessibilityRole="radiogroup">
+        <AppText variant="label" tone="muted">
+          {withRequiredMark(translate("fees.billingMode.question"))}
+        </AppText>
+        {billingModes.map((mode) => (
+          <OptionCard
+            key={mode}
+            label={translate(`fees.billingMode.${mode}`)}
+            hint={translate(`fees.billingMode.hint.${mode}`)}
+            isSelected={billingMode === mode}
+            onPress={() => setBillingMode(mode)}
+          />
+        ))}
+      </View>
+      {billingMode === "MonthlyFee" ? (
+        <TextField
+          label={translate("fees.payment.amount")}
+          placeholder={translate("fees.defaultFee.placeholder")}
+          hint={translate("fees.billingPlan.perMonth")}
+          keyboardType="decimal-pad"
+          value={amountText}
+          onChangeText={setAmountText}
+          errorMessage={amountError}
+        />
+      ) : null}
       <EffectiveMonthPicker month={effectiveFrom} onChange={setEffectiveFrom} />
       <AppText variant="caption" tone="muted">
         {translate("fees.defaultFee.effectiveHint")}
@@ -86,6 +148,7 @@ export function DefaultMonthlyFeeScreen() {
       <Button
         label={translate("common.save")}
         onPress={save}
+        disabled={billingMode === null}
         isLoading={setDefaultMonthlyFeeMutation.isPending}
       />
       {business.defaultMonthlyFeeChanges.length > 0 ? (
@@ -96,14 +159,7 @@ export function DefaultMonthlyFeeScreen() {
           {[...business.defaultMonthlyFeeChanges].reverse().map((change) => (
             <View key={change.effectiveFrom} className="flex-row items-center gap-2">
               <AppText variant="body" className="min-w-0 flex-1">
-                {change.amount === null
-                  ? translate("fees.defaultFee.historyNoFee", {
-                      month: formatMonth(change.effectiveFrom),
-                    })
-                  : translate("fees.defaultFee.historyItem", {
-                      month: formatMonth(change.effectiveFrom),
-                      fee: formatMoney(change.amount, business.currencyCode),
-                    })}
+                {historyItemText(change, business.currencyCode)}
               </AppText>
               {change.effectiveFrom > currentMonth ? (
                 <IconButton

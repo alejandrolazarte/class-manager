@@ -18,12 +18,16 @@ describe("When default fee is changed from next month", () => {
   it("Then effective month is sent", async () => {
     await renderWithProviders(<DefaultMonthlyFeeScreen />);
 
-    await fireEvent.changeText(screen.getByLabelText(translate("fees.defaultFee.amount")), "15000");
+    await fireEvent.changeText(screen.getByLabelText(translate("fees.payment.amount")), "15000");
     await fireEvent.press(screen.getByLabelText(translate("fees.effectiveMonth.next")));
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     await waitFor(() =>
-      expect(setDefaultMonthlyFee).toHaveBeenCalledWith(15000, addMonths(monthOf(), 1)),
+      expect(setDefaultMonthlyFee).toHaveBeenCalledWith({
+        amount: 15000,
+        effectiveFrom: addMonths(monthOf(), 1),
+        billingMode: "MonthlyFee",
+      }),
     );
   });
 });

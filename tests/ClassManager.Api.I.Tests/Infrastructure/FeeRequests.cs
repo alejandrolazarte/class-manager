@@ -10,10 +10,14 @@ public static class FeeRequests
     public const string CurrentMonth = "2026-09";
     public const string NextMonth = "2026-10";
 
-    public static async Task<BusinessResponse> SetDefaultFeeAsync(this HttpClient httpClient, decimal? amount = DefaultFee, string? effectiveFrom = null)
+    public static async Task<BusinessResponse> SetDefaultFeeAsync(
+        this HttpClient httpClient,
+        decimal? amount = DefaultFee,
+        string? effectiveFrom = null,
+        BusinessBillingMode billingMode = BusinessBillingMode.MonthlyFee)
     {
         using var response = await httpClient.PutAsJsonAsync(
-            $"{ApiRoutes.Business}{ApiRoutes.MonthlyFee}", new SetMonthlyFeeRequest(amount, effectiveFrom), ApiRequests.JsonOptions);
+            $"{ApiRoutes.Business}{ApiRoutes.MonthlyFee}", new SetMonthlyFeeRequest(amount, effectiveFrom, billingMode), ApiRequests.JsonOptions);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<BusinessResponse>(ApiRequests.JsonOptions))!;
     }

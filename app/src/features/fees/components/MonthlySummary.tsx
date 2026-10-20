@@ -6,6 +6,7 @@ import { SummaryBlock } from "@/ui/SummaryBlock";
 interface MonthlySummaryProps {
   monthlyFees: MonthlyFees;
   debtorCount: number;
+  classDebtorCount: number;
   owedAmount: number;
   money: (amount: number) => string;
 }
@@ -13,6 +14,7 @@ interface MonthlySummaryProps {
 export function MonthlySummary({
   monthlyFees,
   debtorCount,
+  classDebtorCount,
   owedAmount,
   money,
 }: MonthlySummaryProps) {
@@ -41,6 +43,11 @@ export function MonthlySummary({
       <AppText variant="label" tone={statusTone}>
         {statusMessage}
       </AppText>
+      {classDebtorCount > 0 ? (
+        <AppText variant="label" tone="warning">
+          {translateCount("fees.month.owingClasses", classDebtorCount)}
+        </AppText>
+      ) : null}
       {paidByClassPackClients > 0 ? (
         <AppText variant="footnote" tone="subtle">
           {translate("fees.month.paidByClassPackClients", {

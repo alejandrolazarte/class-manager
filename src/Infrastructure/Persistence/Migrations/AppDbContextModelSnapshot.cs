@@ -1551,6 +1551,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
+                    b.Property<string>("BillingMode")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 

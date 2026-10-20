@@ -6,6 +6,7 @@ import {
   Payment,
   RecordPaymentRequest,
   SetBillingPlanRequest,
+  SetDefaultMonthlyFeeRequest,
 } from "@/features/fees/types";
 
 const feesPath = "/api/fees";
@@ -24,11 +25,8 @@ export function listMonthlyFees(month: string): Promise<MonthlyFees> {
   return httpClient.get<MonthlyFees>(feesPath, { month });
 }
 
-export function setDefaultMonthlyFee(
-  amount: number | null,
-  effectiveFrom: string,
-): Promise<Business> {
-  return httpClient.put<Business>(businessMonthlyFeePath, { amount, effectiveFrom });
+export function setDefaultMonthlyFee(request: SetDefaultMonthlyFeeRequest): Promise<Business> {
+  return httpClient.put<Business>(businessMonthlyFeePath, request);
 }
 
 export function setClientBillingPlan(

@@ -20,8 +20,8 @@ describe("When a deleted upcoming default fee change is undone", () => {
     await renderWithProviders(<DefaultMonthlyFeeScreen />, {
       business: buildBusiness({
         defaultMonthlyFeeChanges: [
-          { effectiveFrom: "2026-01", amount: 12000 },
-          { effectiveFrom: upcomingMonth, amount: 15000 },
+          { effectiveFrom: "2026-01", amount: 12000, billingMode: "MonthlyFee" },
+          { effectiveFrom: upcomingMonth, amount: 15000, billingMode: "MonthlyFee" },
         ],
       }),
     });
@@ -34,6 +34,12 @@ describe("When a deleted upcoming default fee change is undone", () => {
 
     await fireEvent.press(await screen.findByRole("button", { name: translate("common.undo") }));
 
-    await waitFor(() => expect(setDefaultMonthlyFee).toHaveBeenCalledWith(15000, upcomingMonth));
+    await waitFor(() =>
+      expect(setDefaultMonthlyFee).toHaveBeenCalledWith({
+        amount: 15000,
+        effectiveFrom: upcomingMonth,
+        billingMode: "MonthlyFee",
+      }),
+    );
   });
 });

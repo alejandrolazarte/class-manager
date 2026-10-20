@@ -31,6 +31,7 @@ internal sealed class ClassPackUseCaseBuilder
     public List<ClientAttendedClass> ClientAttendedClasses { get; } = [];
     public List<ClientAttendedClass> ClientAttendedPrivateLessons { get; } = [];
     public List<ClientBillingPlanChange> PlanChanges { get; } = [];
+    public List<DefaultMonthlyFeeChange> DefaultFeeChanges { get; } = [];
     public List<ClientPaidMonth> PaidMonths { get; } = [];
 
     public ClassPackUseCaseBuilder()
@@ -54,10 +55,14 @@ internal sealed class ClassPackUseCaseBuilder
         FeeSchedule
             .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);
+        FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(DefaultFeeChanges);
         Payments
             .Setup(repository => repository.ListPaidMonthsByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PaidMonths);
     }
+
+    public void ChargeBusinessWithClassPacksFrom(BillingMonth effectiveFrom) =>
+        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, BusinessBillingMode.ClassPacks, null, TestData.Today, TestData.Now).Value!);
 
     public void PayPerClassFrom(Guid clientId, BillingMonth effectiveFrom) =>
         PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom, BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!);

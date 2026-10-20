@@ -14,9 +14,9 @@ public sealed class Then_september_keeps_its_custom_fee
             ClientBillingPlanChange.Create(clientId, BillingMonth.Parse("2026-01").Value!, BillingPlanKind.CustomFee, 20000m, TestData.Today, TestData.Now).Value!,
         };
 
-        var septemberPlan = FeeTimeline.PlanIn(changes, BillingMonth.Parse("2026-09").Value!);
+        var septemberPlan = FeeTimeline.PlanIn(changes, [], BillingMonth.Parse("2026-09").Value!);
 
         septemberPlan.ShouldBe(new BillingPlan(BillingPlanKind.CustomFee, 20000m));
-        FeeTimeline.PlanIn(changes, BillingMonth.Parse("2026-10").Value!).Kind.ShouldBe(BillingPlanKind.ClassPacks);
+        FeeTimeline.PlanIn(changes, [], BillingMonth.Parse("2026-10").Value!).Kind.ShouldBe(BillingPlanKind.ClassPacks);
     }
 }

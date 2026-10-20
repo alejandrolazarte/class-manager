@@ -33,7 +33,8 @@ public sealed record MonthlyFeesResponse(
     decimal TotalDue,
     decimal TotalPaid,
     IReadOnlyList<ClientFeeResponse> Clients,
-    IReadOnlyList<ClassPackClientResponse> ClassPackClients);
+    IReadOnlyList<ClassPackClientResponse> ClassPackClients,
+    BusinessBillingMode BillingMode);
 
 public sealed class ListMonthlyFeesUseCase(
     IEnrollmentRepository enrollmentRepository,
@@ -68,11 +69,13 @@ public sealed class ListMonthlyFeesUseCase(
             .ToList();
         var clientIds = enrolledClients.Select(enrolledClient => enrolledClient.Row.ClientId).ToList();
 
-        var defaultFee = FeeTimeline.DefaultFeeIn(await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken), month.Value);
+        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
+        var defaultFee = FeeTimeline.DefaultFeeIn(defaultFeeChanges, month.Value);
         var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync(clientIds, cancellationToken);
         var planByClient = enrolledClients.ToDictionary(
             enrolledClient => enrolledClient.Row.ClientId,
-            enrolledClient => FeeTimeline.PlanIn(planChanges.Where(change => change.ClientId == enrolledClient.Row.ClientId), month.Value));
+            enrolledClient => FeeTimeline.PlanIn(
+                planChanges.Where(change => change.ClientId == enrolledClient.Row.ClientId), defaultFeeChanges, month.Value));
 
         var paidByClient = await paymentRepository.SumByClientForMonthAsync(
             month.Value.FirstDay, await businessCurrency.CurrencyCodeAsync(cancellationToken), cancellationToken);
@@ -90,7 +93,8 @@ public sealed class ListMonthlyFeesUseCase(
             monthlyClients.Sum(client => client.Fee ?? 0),
             clientIds.Sum(clientId => paidByClient.GetValueOrDefault(clientId)),
             monthlyClients,
-            classPackClients);
+            classPackClients,
+            FeeTimeline.BillingModeIn(defaultFeeChanges, month.Value) ?? BusinessBillingMode.MonthlyFee);
     }
 
     private static IReadOnlyList<ClientFeeResponse> ListMonthlyClients(
