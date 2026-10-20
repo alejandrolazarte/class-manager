@@ -1,30 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
 import { View } from "react-native";
 import {
   isBackofficeNotFound,
   isBackofficeSessionEnded,
 } from "@/backoffice/api/backofficeHttpClient";
-import {
-  formatDateOnly,
-  formatDateTimeAsDate,
-  formatMoney,
-} from "@/backoffice/backofficeFormatting";
+import { formatDateOnly, formatDateTimeAsDate } from "@/backoffice/backofficeFormatting";
 import { backofficeRoutes } from "@/backoffice/backofficeRoutes";
 import { featureLabel, planLabel, statusLabel, statusTone } from "@/backoffice/brands/brandLabels";
-import { brandQueryKey } from "@/backoffice/brands/brandQueryKeys";
-import { BrandDetail, BrandFeature, getBrand } from "@/backoffice/brands/brandsApi";
+import { brandQueryKey, brandsQueryKey } from "@/backoffice/brands/brandQueryKeys";
+import { BrandAddOn, BrandDetail, BrandFeature, getBrand } from "@/backoffice/brands/brandsApi";
+import { removeBrandAddOn, restoreBrandAddOn } from "@/backoffice/brands/brandSubscriptionApi";
+import { useBackofficeSession } from "@/backoffice/session/useBackofficeSession";
+import { formatMoney } from "@/formatting/money";
 import { formatMegabytes } from "@/formatting/storageSize";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { HairlineSection } from "@/ui/HairlineSection";
+import { IconButton } from "@/ui/IconButton";
 import { ListDivider, ListRow } from "@/ui/ListRow";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { StatusPill } from "@/ui/StatusPill";
+import { useToast } from "@/ui/ToastProvider";
 
 const branchesFeatureCode = "branches";
 const documentStorageFeatureCode = "document-storage";
@@ -57,7 +58,36 @@ function branchesHint(brand: BrandDetail): string | undefined {
     : translate("subscriptions.featureUsed", { ...values, limit: branchesFeature.limit });
 }
 
-function BrandSections({ brand }: { brand: BrandDetail }) {
+interface BrandSectionsProps {
+  brand: BrandDetail;
+  canManage: boolean;
+}
+
+function useAddOnRemoval(brandId: string) {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const refreshBrand = () => queryClient.invalidateQueries({ queryKey: brandsQueryKey });
+  const restore = useMutation({
+    mutationFn: (addOnId: string) => restoreBrandAddOn(brandId, addOnId),
+    onSettled: refreshBrand,
+    onError: () => showToast(translate("common.unexpectedError")),
+  });
+  const remove = useMutation({
+    mutationFn: (addOn: BrandAddOn) => removeBrandAddOn(brandId, addOn.id),
+    onSettled: refreshBrand,
+    onSuccess: (removedAddOn) =>
+      showToast(translate("backoffice.brand.addOnRemoved"), {
+        label: translate("common.undo"),
+        onPress: () => restore.mutate(removedAddOn.id),
+      }),
+    onError: () => showToast(translate("common.unexpectedError")),
+  });
+  return remove;
+}
+
+function BrandSections({ brand, canManage }: BrandSectionsProps) {
+  const router = useRouter();
+  const removeAddOn = useAddOnRemoval(brand.id);
   const subscription = brand.subscription;
   return (
     <>
@@ -105,6 +135,16 @@ function BrandSections({ brand }: { brand: BrandDetail }) {
             )}
           </View>
         )}
+        {canManage ? (
+          <View className="flex-row">
+            <Button
+              variant="secondary"
+              size="small"
+              label={translate("backoffice.brand.changePlan")}
+              onPress={() => router.push(backofficeRoutes.changePlan(brand.id))}
+            />
+          </View>
+        ) : null}
       </HairlineSection>
       {brand.features.length === 0 ? null : (
         <HairlineSection title={translate("backoffice.brand.featuresTitle")} isCompact>
@@ -140,15 +180,35 @@ function BrandSections({ brand }: { brand: BrandDetail }) {
         ) : (
           brand.addOns.map((addOn) => (
             <ListRow
-              key={`${addOn.featureCode}-${addOn.createdOn}`}
+              key={addOn.id}
               label={featureText({ code: addOn.featureCode, limit: addOn.limit })}
               detail={translate("backoffice.brand.addOnDetail", {
                 price: formatMoney(addOn.price, addOn.currency),
                 date: formatDateTimeAsDate(addOn.createdOn),
               })}
+              trailing={
+                canManage ? (
+                  <IconButton
+                    icon="delete"
+                    tone="muted-foreground"
+                    accessibilityLabel={translate("backoffice.brand.removeAddOn", {
+                      feature: featureLabel(addOn.featureCode),
+                    })}
+                    onPress={() => removeAddOn.mutate(addOn)}
+                    disabled={removeAddOn.isPending}
+                  />
+                ) : undefined
+              }
             />
           ))
         )}
+        {canManage && subscription !== null ? (
+          <Button
+            variant="dashed"
+            label={translate("backoffice.brand.giveAddOn")}
+            onPress={() => router.push(backofficeRoutes.giveAddOn(brand.id))}
+          />
+        ) : null}
       </HairlineSection>
       <HairlineSection title={translate("backoffice.brand.historyTitle")} isCompact>
         {brand.pastSubscriptions.length === 0 ? (
@@ -173,6 +233,7 @@ function BrandSections({ brand }: { brand: BrandDetail }) {
 
 export function BrandScreen({ brandId }: BrandScreenProps) {
   const router = useRouter();
+  const { canManage } = useBackofficeSession();
   const brand = useQuery({
     queryKey: brandQueryKey(brandId),
     queryFn: () => getBrand(brandId),
@@ -213,7 +274,7 @@ export function BrandScreen({ brandId }: BrandScreenProps) {
           />
         </Banner>
       ) : null}
-      {brand.data === undefined ? null : <BrandSections brand={brand.data} />}
+      {brand.data === undefined ? null : <BrandSections brand={brand.data} canManage={canManage} />}
     </ScrollScreen>
   );
 }

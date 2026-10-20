@@ -53,4 +53,11 @@ public sealed class SubscriptionFeature : ICreatedOn, ISoftDeletable, IExpiredOn
         DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
     }
+
+    public void Restore()
+    {
+        DeletedAt = null;
+        DeletedByUserId = null;
+        IsDeleted = false;
+    }
 }

@@ -3,12 +3,15 @@ import { BrandScreen } from "@/backoffice/brands/BrandScreen";
 import { getBrand } from "@/backoffice/brands/brandsApi";
 import { translate } from "@/i18n/translate";
 import { aBrandDetail } from "@/testing/backofficeBrands";
+import { signInToBackofficeAs } from "@/testing/backofficeSession";
 import { renderBackofficeScreen } from "@/testing/renderBackofficeScreen";
 
 jest.mock("@/backoffice/brands/brandsApi");
+jest.mock("@/backoffice/session/backofficeSessionApi");
 
 describe("When a brand opens", () => {
   beforeEach(() => {
+    signInToBackofficeAs("PlatformReader");
     jest.mocked(getBrand).mockResolvedValue(aBrandDetail());
   });
 

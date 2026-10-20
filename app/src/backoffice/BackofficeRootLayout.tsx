@@ -6,6 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { fontAssets } from "@/theme/typography";
+import { ToastProvider } from "@/ui/ToastProvider";
 
 const stackScreenOptions = { headerShown: false };
 
@@ -24,7 +25,9 @@ export function BackofficeRootLayout() {
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
           <LanguageProvider>
-            <BackofficeNavigator />
+            <ToastProvider>
+              <BackofficeNavigator />
+            </ToastProvider>
           </LanguageProvider>
         </QueryClientProvider>
       </ThemeProvider>

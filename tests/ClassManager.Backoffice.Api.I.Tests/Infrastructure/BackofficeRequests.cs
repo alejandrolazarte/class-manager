@@ -42,10 +42,18 @@ public static class BackofficeRequests
         return await AccessTokenOfAsync(refresh);
     }
 
-    public static Task<HttpResponseMessage> GetAsync(this HttpClient client, string route, string accessToken)
+    public static Task<HttpResponseMessage> GetAsync(this HttpClient client, string route, string accessToken) =>
+        client.SendAsync(HttpMethod.Get, route, accessToken);
+
+    public static Task<HttpResponseMessage> SendAsync(this HttpClient client, HttpMethod method, string route, string accessToken, object? body = null)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, new Uri(route, UriKind.Relative));
+        var request = new HttpRequestMessage(method, new Uri(route, UriKind.Relative));
         request.Headers.Authorization = new AuthenticationHeaderValue(BearerScheme, accessToken);
+        if (body is not null)
+        {
+            request.Content = JsonContent.Create(body);
+        }
+
         return client.SendAsync(request);
     }
 

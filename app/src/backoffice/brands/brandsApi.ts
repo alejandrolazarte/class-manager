@@ -45,6 +45,7 @@ export interface BrandBranch {
 }
 
 export interface BrandAddOn {
+  id: string;
   featureCode: string;
   price: number;
   currency: string;

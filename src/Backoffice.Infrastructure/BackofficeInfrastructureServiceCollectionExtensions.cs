@@ -40,6 +40,7 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddScoped<IBackofficeLoginRepository, BackofficeLoginRepository>();
         services.AddScoped<IPlatformOperatorDirectory, PlatformOperatorDirectory>();
         services.AddScoped<IBrandDirectory, BrandDirectory>();
+        services.AddScoped<IBrandSubscriptionRepository, BrandSubscriptionRepository>();
         services.Replace(ServiceDescriptor.Scoped<ITokenSubjectResolver, BackofficeTokenSubjectResolver>());
 
         services.AddUseCase<SignInOperatorCommand, OperatorSignInResponse, SignInOperatorUseCase>();
@@ -47,6 +48,11 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddUseCase<SignOutCommand, SignOutResponse, SignOutUseCase>();
         services.AddUseCase<ListBrandsQuery, BrandListResponse, ListBrandsUseCase>();
         services.AddUseCase<GetBrandQuery, BrandDetailResponse, GetBrandUseCase>();
+        services.AddUseCase<GetSubscriptionCatalogQuery, SubscriptionCatalogResponse, GetSubscriptionCatalogUseCase>();
+        services.AddUseCase<ChangeBrandPlanCommand, BrandPlanChangedResponse, ChangeBrandPlanUseCase>();
+        services.AddUseCase<GiveBrandAddOnCommand, BrandAddOnResponse, GiveBrandAddOnUseCase>();
+        services.AddUseCase<RemoveBrandAddOnCommand, BrandAddOnResponse, RemoveBrandAddOnUseCase>();
+        services.AddUseCase<RestoreBrandAddOnCommand, BrandAddOnResponse, RestoreBrandAddOnUseCase>();
 
         return services;
     }
