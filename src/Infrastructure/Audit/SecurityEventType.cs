@@ -6,4 +6,5 @@ public enum SecurityEventType
     SignInFailed,
     RefreshTokenRejected,
     UnauthorizedBurst,
+    PlanLimit,
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ClassManager.Core.Common;
+using ClassManager.Subscriptions.Access;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClassManager.Api.ErrorHandling;
@@ -30,12 +31,14 @@ internal static class ResultHttpExtensions
 
         var extensions = new Dictionary<string, object?>(error.Details) { [ErrorCodeExtension] = error.Code };
 
-        return TypedResults.Problem(new ProblemDetails
+        var problem = TypedResults.Problem(new ProblemDetails
         {
             Status = ToStatusCode(error.Kind),
             Detail = error.Message,
             Extensions = extensions,
         });
+
+        return error.Code == FeatureErrorCodes.LimitReached ? new PlanLimitResult(problem) : problem;
     }
 
     private static int ToStatusCode(ErrorKind kind) => kind switch

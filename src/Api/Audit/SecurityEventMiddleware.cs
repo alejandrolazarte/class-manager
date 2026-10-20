@@ -15,11 +15,12 @@ internal sealed class SecurityEventMiddleware(
 
     public async Task InvokeAsync(HttpContext httpContext, ICurrentUser currentUser, ITenantContext tenantContext)
     {
+        var endpoint = httpContext.GetEndpoint();
         await next(httpContext);
 
         var statusCode = httpContext.Response.StatusCode;
         var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownAddress;
-        if (EventOf(httpContext, statusCode) is not { } securityEvent)
+        if (EventOf(httpContext, endpoint, statusCode) is not { } securityEvent)
         {
             if (statusCode == StatusCodes.Status401Unauthorized)
             {
@@ -42,7 +43,7 @@ internal sealed class SecurityEventMiddleware(
             TenantIdOf(tenantContext),
             currentUser.AccountId,
             currentUser.UserId,
-            (httpContext.GetEndpoint() as RouteEndpoint)?.RoutePattern.RawText,
+            (endpoint as RouteEndpoint)?.RoutePattern.RawText,
             httpContext.Request.Method,
             statusCode,
             ipAddress,
@@ -51,15 +52,15 @@ internal sealed class SecurityEventMiddleware(
             Activity.Current?.TraceId.ToString()));
     }
 
-    private static SecurityEventType? EventOf(HttpContext httpContext, int statusCode)
+    private static SecurityEventType? EventOf(HttpContext httpContext, Endpoint? endpoint, int statusCode)
     {
         if (statusCode == StatusCodes.Status403Forbidden)
         {
-            return PlanLimitResponses.IsMarked(httpContext) ? null : SecurityEventType.Forbidden;
+            return PlanLimitResponses.IsMarked(httpContext) ? SecurityEventType.PlanLimit : SecurityEventType.Forbidden;
         }
 
         var isRejection = statusCode is StatusCodes.Status401Unauthorized or StatusCodes.Status423Locked;
-        return isRejection ? httpContext.GetEndpoint()?.Metadata.GetMetadata<SecurityEventOnRejection>()?.Event : null;
+        return isRejection ? endpoint?.Metadata.GetMetadata<SecurityEventOnRejection>()?.Event : null;
     }
 
     private static Guid? TenantIdOf(ITenantContext tenantContext)
