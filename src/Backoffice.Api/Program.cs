@@ -27,5 +27,6 @@ app.MapHealthChecks(BackofficeApiRoutes.Health).AllowAnonymous();
 app.MapBackofficeAuthenticationEndpoints();
 app.MapCurrentOperatorEndpoints();
 app.MapBrandEndpoints();
+app.MapOperatorEndpoints();
 
 app.Run();
