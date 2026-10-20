@@ -46,10 +46,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi().RequireAuthorization(AuthorizationPolicies.AnyAccount);
 }
 
+app.UseMiddleware<SecurityEventMiddleware>();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(AppCorsServiceCollectionExtensions.AppPolicyName);
-app.UseMiddleware<SecurityEventMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseActiveSubscriptionForChanges();

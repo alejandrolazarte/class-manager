@@ -16,6 +16,7 @@ public sealed class FeatureLimitExceptionHandler(IProblemDetailsService problemD
             return false;
         }
 
+        PlanLimitResponses.Mark(httpContext);
         httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
         return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
         {
