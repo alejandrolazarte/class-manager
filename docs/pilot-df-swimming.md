@@ -60,4 +60,5 @@ Branches as their own businesses under one organization, brand owners who act in
 - ~~Deploy~~: done ([pilot deployment](pilot-deployment.md)): API on Azure Container Apps, web app on Cloudflare Pages, installed on phones as a PWA.
 - ~~"Forgot password"~~: done, by email through a Gmail account ([email](pilot-deployment.md#email)).
 - ~~Import current students from a spreadsheet~~: done, CSV or XLSX from Ajustes → Importar y exportar ([import and export](import-export.md)).
-- Error reporting and a WhatsApp feedback button in Ajustes.
+- ~~Feedback button in Ajustes~~: done, by email instead of WhatsApp ([app feedback](app-feedback.md)).
+- Error reporting.

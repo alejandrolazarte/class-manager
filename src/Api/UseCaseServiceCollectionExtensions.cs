@@ -77,6 +77,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<UpdateMyLanguageCommand, MyAccountResponse, UpdateMyLanguageUseCase>();
         services.AddUseCase<AcceptLegalTermsCommand, AcceptLegalTermsResponse, AcceptLegalTermsUseCase>();
         services.AddUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse, RequestEmailChangeUseCase>();
+        services.AddUseCase<SendAppFeedbackCommand, SendAppFeedbackResponse, SendAppFeedbackUseCase>();
         services.AddUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse, ConfirmEmailChangeUseCase>();
         services.AddUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse, DeleteMyAccountUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();

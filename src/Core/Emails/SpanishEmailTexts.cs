@@ -23,6 +23,8 @@ internal sealed class SpanishEmailTexts : IEmailTexts
     private const string OrderReadySubject = "Tu pedido está listo";
     private const string OrderCancelledSubject = "Se canceló tu pedido";
 
+    private static readonly AppFeedbackEmailLabels AppFeedbackLabels = new("Negocio", "Email", "Rol", "App");
+
     public string Language => AccountLanguage.Spanish;
 
     public EmailLayoutTexts Layout => EmailLayoutTexts.Spanish;
@@ -192,6 +194,18 @@ internal sealed class SpanishEmailTexts : IEmailTexts
             $"{order.BusinessName} canceló tu pedido.",
             new EmailNote("Si tenés dudas, consultá en la sede."),
             studentAppOrdersLink);
+
+    public EmailText AppFeedback(AppFeedbackEmailDetails feedback) =>
+        new(
+            $"Comentario de {feedback.SenderFullName} ({feedback.BusinessName})",
+            Content(
+                "Comentarios de la app",
+                $"Comentario de {feedback.SenderFullName}",
+                feedback.Message,
+                "Respondé este mail para contestarle.") with
+            {
+                Lines = feedback.Lines(AppFeedbackLabels),
+            });
 
     public string OrderNumber(int orderNumber) => OrderNumberPrefix + orderNumber.ToString(CultureInfo.InvariantCulture);
 

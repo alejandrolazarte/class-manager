@@ -38,6 +38,8 @@ public interface IEmailTexts
 
     EmailText OrderCancelledByBranch(OrderEmailDetails order, string studentAppOrdersLink);
 
+    EmailText AppFeedback(AppFeedbackEmailDetails feedback);
+
     string OrderNumber(int orderNumber);
 
     string OrderPickupAt(string businessName);

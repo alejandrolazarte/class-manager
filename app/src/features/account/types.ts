@@ -27,3 +27,9 @@ export interface RequestEmailChangeResponse {
 export interface ConfirmEmailChangeResponse {
   newEmail: string;
 }
+
+export interface SendAppFeedbackRequest {
+  message: string;
+  platform: string;
+  appVersion: string | null;
+}

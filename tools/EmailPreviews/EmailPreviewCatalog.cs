@@ -22,6 +22,11 @@ internal static class EmailPreviewCatalog
     private const int GuardianConsentMinimumAge = 13;
     private const int OrderNumber = 1042;
     private const string LanguageSeparator = "-";
+    private const string AppFeedbackMessage = "El calendario tarda en abrir cuando hay muchas clases en el mes.";
+    private const string AppFeedbackSenderEmail = "ana.perez@example.com";
+    private const string AppFeedbackRole = "BranchOwner";
+    private const string AppFeedbackPlatform = "web";
+    private const string AppFeedbackAppVersion = "1.0.0";
 
     public static Uri WebFontsUrl { get; } = new(WebAppUrl + WebAppLinks.WebFontsPath);
 
@@ -82,6 +87,10 @@ internal static class EmailPreviewCatalog
             App(
                 "15-registro-con-cuenta-existente" + nameSuffix,
                 texts.SignUpAccountExists(WebAppUrl + WebAppLinks.SignInPath)),
+            App(
+                "16-comentario-de-la-app" + nameSuffix,
+                texts.AppFeedback(new AppFeedbackEmailDetails(
+                    AppFeedbackMessage, ClientName, AppFeedbackSenderEmail, PreviewBrands.BusinessName, AppFeedbackRole, AppFeedbackPlatform, AppFeedbackAppVersion))),
         ];
     }
 

@@ -23,6 +23,10 @@ internal sealed class SmtpEmailTransport(IOptions<SmtpOptions> options) : IEmail
             email.FromName ?? smtp.FromName,
             string.IsNullOrWhiteSpace(smtp.FromAddress) ? smtp.UserName : smtp.FromAddress));
         mimeMessage.To.Add(MailboxAddress.Parse(email.To));
+        if (email.ReplyTo is not null)
+        {
+            mimeMessage.ReplyTo.Add(MailboxAddress.Parse(email.ReplyTo));
+        }
 
         using var client = new SmtpClient();
         await client.ConnectAsync(smtp.Host, smtp.Port, SecureSocketOptions.Auto, cancellationToken);
