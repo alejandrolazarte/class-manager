@@ -3,6 +3,7 @@ using ClassManager.Backoffice.Api.Authentication;
 using ClassManager.Backoffice.Api.Endpoints;
 using ClassManager.Backoffice.Infrastructure;
 using ClassManager.Infrastructure.Persistence;
+using ClassManager.Infrastructure.SecurityHeaders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+app.UseSecurityHeaders();
 app.UseCors(BackofficeAuthenticationServiceCollectionExtensions.CorsPolicyName);
 app.UseRateLimiter();
 app.UseAuthentication();

@@ -1,4 +1,6 @@
-namespace ClassManager.Api.SecurityHeaders;
+using Microsoft.AspNetCore.Builder;
+
+namespace ClassManager.Infrastructure.SecurityHeaders;
 
 public static class SecurityHeadersApplicationBuilderExtensions
 {

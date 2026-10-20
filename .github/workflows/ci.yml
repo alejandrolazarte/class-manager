@@ -73,6 +73,8 @@ jobs:
 
       - run: docker build --file src/Api/Containerfile --tag class-manager-api:ci .
 
+      - run: docker build --file src/Backoffice.Api/Containerfile --tag class-manager-backoffice-api:ci .
+
   frontend:
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.frontend != 'false' }}

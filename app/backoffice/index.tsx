@@ -1,6 +1,5 @@
-import { Redirect } from "expo-router";
-import { backofficeRoutes } from "@/backoffice/backofficeRoutes";
+import { BackofficeHomeScreen } from "@/backoffice/home/BackofficeHomeScreen";
 
 export default function BackofficeIndexRoute() {
-  return <Redirect href={backofficeRoutes.signIn} />;
+  return <BackofficeHomeScreen />;
 }

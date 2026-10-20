@@ -1,4 +1,4 @@
-using ClassManager.Api.SecurityHeaders;
+using ClassManager.Infrastructure.SecurityHeaders;
 
 namespace ClassManager.Api.I.Tests.Endpoints.SecurityHeaders.When_a_response_is_returned;
 
