@@ -30,6 +30,7 @@ public sealed class ClassBalanceService(
             .. await privateLessonRepository.ListAttendedClassesByClientsAsync(clientIds, cancellationToken),
         ];
         var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync(clientIds, cancellationToken);
+        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
         var paidMonths = (await paymentRepository.ListPaidMonthsByClientsAsync(clientIds, cancellationToken)).ToHashSet();
 
         return clientIds.Distinct().ToDictionary(
@@ -40,7 +41,7 @@ public sealed class ClassBalanceService(
                 var classesPaidPerClass = attendedClasses
                     .Where(attended => attended.ClientId == clientId)
                     .Select(attended => attended.AttendedClass)
-                    .Where(attended => attended.IsPackBooking || IsPaidPerClass(clientId, attended.Date, clientPlanChanges, paidMonths))
+                    .Where(attended => attended.IsPackBooking || IsPaidPerClass(clientId, attended.Date, clientPlanChanges, defaultFeeChanges, paidMonths))
                     .ToList();
                 return ClassBalance.Calculate([.. purchases.Where(purchase => purchase.ClientId == clientId)], classesPaidPerClass, today);
             });
@@ -50,10 +51,11 @@ public sealed class ClassBalanceService(
         Guid clientId,
         DateOnly attendedOn,
         List<ClientBillingPlanChange> clientPlanChanges,
+        IReadOnlyList<DefaultMonthlyFeeChange> defaultFeeChanges,
         HashSet<ClientPaidMonth> paidMonths)
     {
         var month = BillingMonth.From(attendedOn);
         var isCoveredByPaidFee = paidMonths.Contains(new ClientPaidMonth(clientId, month.FirstDay));
-        return !isCoveredByPaidFee && FeeTimeline.PlanIn(clientPlanChanges, month).PaysPerClass;
+        return !isCoveredByPaidFee && FeeTimeline.PlanIn(clientPlanChanges, defaultFeeChanges, month).PaysPerClass;
     }
 }

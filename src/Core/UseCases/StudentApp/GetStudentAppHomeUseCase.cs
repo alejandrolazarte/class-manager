@@ -283,7 +283,8 @@ public sealed class GetStudentAppHomeUseCase(
     private async Task<StudentAppBillingResponse> BillingAsync(Guid clientId, string currencyCode, DateOnly today, CancellationToken cancellationToken)
     {
         var month = BillingMonth.From(today);
-        var plan = FeeTimeline.PlanIn(await feeScheduleRepository.ListClientPlanChangesAsync([clientId], cancellationToken), month);
+        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
+        var plan = FeeTimeline.PlanIn(await feeScheduleRepository.ListClientPlanChangesAsync([clientId], cancellationToken), defaultFeeChanges, month);
         if (plan.PaysPerClass)
         {
             var balance = (await classBalanceService.CalculateAsync([clientId], cancellationToken))[clientId];
@@ -291,7 +292,7 @@ public sealed class GetStudentAppHomeUseCase(
                 plan.Kind, MonthlyFee: null, new StudentAppClassBalanceResponse(balance.AvailableClasses, balance.UnpaidClasses));
         }
 
-        var defaultFee = FeeTimeline.DefaultFeeIn(await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken), month);
+        var defaultFee = FeeTimeline.DefaultFeeIn(defaultFeeChanges, month);
         var fee = plan.MonthlyFee(defaultFee);
         var paid = (await paymentRepository.SumByClientForMonthAsync(month.FirstDay, currencyCode, cancellationToken)).GetValueOrDefault(clientId);
         return new StudentAppBillingResponse(

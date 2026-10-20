@@ -16,7 +16,8 @@ public sealed record BusinessResponse(
     string CurrencyCode,
     string DefaultCountryCallingCode,
     decimal? DefaultMonthlyFee,
-    IReadOnlyList<MonthlyFeeChangeResponse> DefaultMonthlyFeeChanges)
+    IReadOnlyList<MonthlyFeeChangeResponse> DefaultMonthlyFeeChanges,
+    BusinessBillingMode? BillingMode)
 {
     public static BusinessResponse From(Business business, IReadOnlyCollection<DefaultMonthlyFeeChange> feeChanges, DateOnly today) =>
         new(
@@ -26,7 +27,8 @@ public sealed record BusinessResponse(
             business.CurrencyCode,
             business.DefaultCountryCallingCode,
             FeeTimeline.DefaultFeeIn(feeChanges, BillingMonth.From(today)),
-            MonthlyFeeChangeResponse.From(feeChanges));
+            MonthlyFeeChangeResponse.From(feeChanges),
+            FeeTimeline.BillingModeIn(feeChanges, BillingMonth.From(today)));
 }
 
 public sealed class GetCurrentBusinessUseCase(

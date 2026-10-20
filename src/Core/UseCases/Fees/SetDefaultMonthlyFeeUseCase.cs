@@ -8,7 +8,10 @@ using ClassManager.Core.UseCases.Businesses;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record SetDefaultMonthlyFeeCommand(decimal? Amount, [property: AuditPlain] string? EffectiveFrom) : ICommand;
+public sealed record SetDefaultMonthlyFeeCommand(
+    decimal? Amount,
+    [property: AuditPlain] string? EffectiveFrom,
+    BusinessBillingMode BillingMode = BusinessBillingMode.MonthlyFee) : ICommand;
 
 public sealed class SetDefaultMonthlyFeeUseCase(
     IBusinessRepository businessRepository,
@@ -33,7 +36,7 @@ public sealed class SetDefaultMonthlyFeeUseCase(
             return effectiveFrom.Error!;
         }
 
-        var change = DefaultMonthlyFeeChange.Create(effectiveFrom.Value!, command.Amount, today, timeProvider.GetUtcNow());
+        var change = DefaultMonthlyFeeChange.Create(effectiveFrom.Value!, command.BillingMode, command.Amount, today, timeProvider.GetUtcNow());
         if (change.IsFailure)
         {
             return change.Error!;

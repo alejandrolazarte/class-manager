@@ -7,7 +7,7 @@ public sealed class Then_business_fee_applies
     [Fact]
     public void Then_business_fee_applies_Run()
     {
-        var plan = FeeTimeline.PlanIn([], BillingMonth.From(TestData.Today));
+        var plan = FeeTimeline.PlanIn([], [], BillingMonth.From(TestData.Today));
 
         plan.ShouldBe(BillingPlan.BusinessFee);
     }

@@ -41,7 +41,7 @@ internal static class FeeEndpoints
         IUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new SetDefaultMonthlyFeeCommand(request.Amount, request.EffectiveFrom), cancellationToken);
+        var result = await useCase.ExecuteAsync(new SetDefaultMonthlyFeeCommand(request.Amount, request.EffectiveFrom, request.BillingMode), cancellationToken);
 
         return result.ToOkResult();
     }

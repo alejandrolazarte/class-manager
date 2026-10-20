@@ -129,6 +129,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Session substitutes plan](docs/backend/20260929-session-substitutes/plan.md) — another instructor teaches one date of a class
 - [Student app, shop and online payments plan](docs/backend/20260929-online-shop-and-payments/plan.md) — accounts for parents and adult students, products and stock, orders paid at the branch, then Stripe Connect per branch (steps 1–4 built, the rest is a proposal)
 - [Subscriptions plan](docs/backend/20261003-subscriptions/plan.md) — one subscription per brand, plans Free (30-day trial, read-only once it ends)/Lite/Pro/Enterprise, features and add-ons checked like permissions, and the `Subscriptions` library, enforced centrally (steps 1–4 built)
+- [Default billing mode plan](docs/backend/20261020-default-billing-mode/plan.md) — a business charges a monthly fee or with class packs, effective from a month, and families without their own plan follow it
 - [Changing a brand's subscription](docs/changing-a-subscription.md) — runbook for `scripts/set-subscription.sql`: plan, price and note of a brand, run in the Azure portal
 - [Repeated emails before removing the people copies](docs/repeated-emails.md) — runbook for `scripts/list-repeated-emails.sql`: find and fix the emails repeated in a business before the migration that makes them unique
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
