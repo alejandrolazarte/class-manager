@@ -33,7 +33,7 @@ tests/ClassManager.Notifications.U.Tests/ ← unit tests: email rendering and we
 tests/ClassManager.Storage.U.Tests/ ← unit tests: image formats and file paths
 tests/ClassManager.Storage.I.Tests/ ← integration tests: Azure Blob Storage against Azurite (Testcontainers)
 tests/ClassManager.Subscriptions.U.Tests/ ← unit tests: plans, subscriptions and effective features
-app/                 ← Expo app (mobile + web)
+app/                 ← Expo app (mobile + web); app/backoffice + app/src/backoffice: the backoffice web build (APP_TARGET=backoffice)
 e2e/                 ← Playwright e2e tests: web build + real API + SQL Server (critical flows only)
 docs/                ← decisions and runbooks
 scripts/             ← standalone scripts (setup, seeding)
