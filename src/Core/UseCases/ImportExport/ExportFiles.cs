@@ -9,7 +9,7 @@ internal static class ExportFiles
         ITabularWriter writer,
         string fileNameWithoutExtension,
         IReadOnlyList<ImportColumn> columns,
-        IEnumerable<IReadOnlyDictionary<string, string?>> rows,
+        IReadOnlyCollection<IReadOnlyDictionary<string, string?>> rows,
         CancellationToken cancellationToken)
     {
         using var content = new MemoryStream();
@@ -19,6 +19,6 @@ internal static class ExportFiles
             rows.Select(row => columns.Select(column => row.GetValueOrDefault(column.Key)).ToList()),
             cancellationToken);
 
-        return new ExportFile(fileNameWithoutExtension + writer.FileExtension, writer.ContentType, content.ToArray());
+        return new ExportFile(fileNameWithoutExtension + writer.FileExtension, writer.ContentType, content.ToArray(), rows.Count);
     }
 }

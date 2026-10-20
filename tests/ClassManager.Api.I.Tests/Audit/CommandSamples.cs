@@ -19,7 +19,11 @@ internal sealed class CommandSamples
     public IReadOnlyList<string> HiddenValues => _hiddenValues;
 
     public static IReadOnlyList<Type> CommandTypes() =>
-        [.. typeof(ICommand).Assembly.GetTypes().Where(type => typeof(ICommand).IsAssignableFrom(type) && type is { IsInterface: false, IsAbstract: false })];
+        [.. typeof(ICommand).Assembly.GetTypes().Where(IsAudited)];
+
+    private static bool IsAudited(Type type) =>
+        type is { IsInterface: false, IsAbstract: false }
+        && (typeof(ICommand).IsAssignableFrom(type) || (typeof(IQuery).IsAssignableFrom(type) && type.IsDefined(typeof(AuditedQueryAttribute), inherit: false)));
 
     public object Build(Type type) => BuildObject(type, depth: 0);
 

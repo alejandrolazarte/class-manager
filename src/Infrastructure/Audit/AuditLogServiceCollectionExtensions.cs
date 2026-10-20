@@ -16,6 +16,7 @@ internal static class AuditLogServiceCollectionExtensions
         services.AddSingleton<AuditLogChannel<SecurityEvent>>();
         services.AddSingleton<ICommandAuditService, QueuedCommandAuditService>();
         services.AddSingleton<ISecurityEventService, QueuedSecurityEventService>();
+        services.AddScoped<UseCaseAuditRecorder>();
         services.AddSingleton<IAuditLogStore<CommandAuditEntry>>(serviceProvider =>
         {
             var connectionString = ConnectionStringOf(serviceProvider);

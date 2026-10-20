@@ -14,7 +14,7 @@ internal static class CommandProperties
         var coreAssembly = typeof(ICommand).Assembly;
         var visited = new HashSet<Type>();
         var properties = new List<PropertyInfo>();
-        foreach (var commandType in coreAssembly.GetTypes().Where(type => typeof(ICommand).IsAssignableFrom(type) && type is { IsInterface: false, IsAbstract: false }))
+        foreach (var commandType in coreAssembly.GetTypes().Where(IsAudited))
         {
             Collect(commandType, coreAssembly, visited, properties);
         }
@@ -28,6 +28,10 @@ internal static class CommandProperties
         [.. AuditAttributes.Where(attribute => property.IsDefined(attribute, inherit: false))];
 
     public static string NameOf(PropertyInfo property) => $"{property.DeclaringType!.Name}.{property.Name}";
+
+    private static bool IsAudited(Type type) =>
+        type is { IsInterface: false, IsAbstract: false }
+        && (typeof(ICommand).IsAssignableFrom(type) || (typeof(IQuery).IsAssignableFrom(type) && type.IsDefined(typeof(AuditedQueryAttribute), inherit: false)));
 
     private static void Collect(Type type, Assembly coreAssembly, HashSet<Type> visited, List<PropertyInfo> properties)
     {

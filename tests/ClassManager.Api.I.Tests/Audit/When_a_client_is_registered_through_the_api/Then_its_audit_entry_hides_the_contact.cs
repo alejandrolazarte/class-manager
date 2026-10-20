@@ -1,5 +1,3 @@
-using System.Globalization;
-using Azure.Data.Tables;
 using ClassManager.Infrastructure.Audit;
 
 namespace ClassManager.Api.I.Tests.Audit.When_a_client_is_registered_through_the_api;
@@ -13,8 +11,6 @@ public sealed class Then_its_audit_entry_hides_the_contact(ApiFixture fixture)
     private const string PhoneDigits = "43218765";
     private const string PersonalMarker = "[personal]";
 
-    private static readonly TimeSpan WaitLimit = TimeSpan.FromSeconds(30);
-
     [Fact]
     public async Task Then_its_audit_entry_hides_the_contact_Run()
     {
@@ -22,36 +18,10 @@ public sealed class Then_its_audit_entry_hides_the_contact(ApiFixture fixture)
 
         await business.HttpClient.RegisterClientAsync(fullName: FullName, phoneNumber: PhoneNumber);
 
-        var payload = await WaitForPayloadAsync(business.Business.Id);
+        var row = await CommandAuditRows.WaitForAsync(fixture, business.Business.Id, RegisterClientCommand);
+        var payload = row.GetString(nameof(CommandAuditEntry.Payload));
         payload.ShouldContain(PersonalMarker);
         payload.ShouldNotContain(PhoneDigits);
         payload.ShouldNotContain(FullName);
-    }
-
-    private async Task<string> WaitForPayloadAsync(Guid tenantId)
-    {
-        var table = new TableServiceClient(fixture.StorageConnectionString)
-            .GetTableClient("Commands" + BusinessApiFactory.Now.UtcDateTime.ToString("yyyyMM", CultureInfo.InvariantCulture));
-        var waitUntil = DateTime.UtcNow + WaitLimit;
-        while (DateTime.UtcNow < waitUntil)
-        {
-            try
-            {
-                await foreach (var row in table.QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString()))
-                {
-                    if (row.GetString(nameof(CommandAuditEntry.Command)) == RegisterClientCommand)
-                    {
-                        return row.GetString(nameof(CommandAuditEntry.Payload));
-                    }
-                }
-            }
-            catch (Azure.RequestFailedException)
-            {
-            }
-
-            await Task.Delay(TimeSpan.FromMilliseconds(200));
-        }
-
-        throw new TimeoutException("The command audit entry was not written.");
     }
 }

@@ -12,4 +12,5 @@ public sealed record CommandAuditEntry(
     long DurationMilliseconds,
     string? TraceId,
     string? Payload,
-    bool PayloadTruncated);
+    bool PayloadTruncated,
+    int? RowCount = null);

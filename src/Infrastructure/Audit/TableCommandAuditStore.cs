@@ -69,6 +69,7 @@ public sealed class TableCommandAuditStore(TableServiceClient serviceClient) : I
             [nameof(CommandAuditEntry.TraceId)] = entry.TraceId,
             [nameof(CommandAuditEntry.Payload)] = entry.Payload,
             [nameof(CommandAuditEntry.PayloadTruncated)] = entry.PayloadTruncated,
+            [nameof(CommandAuditEntry.RowCount)] = entry.RowCount,
         };
     }
 }
