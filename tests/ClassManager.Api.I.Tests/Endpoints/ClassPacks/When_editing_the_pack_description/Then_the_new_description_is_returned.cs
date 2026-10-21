@@ -15,7 +15,7 @@ public sealed class Then_the_new_description_is_returned(ApiFixture fixture)
 
         using var response = await business.HttpClient.PutAsJsonAsync(
             $"{ApiRoutes.ClassPacks}/{pack.Id}",
-            new UpdateClassPackRequest(pack.Name, pack.ClassCount, pack.Price, pack.ValidityMonths, Description: Description),
+            new UpdateClassPackRequest(pack.Name, pack.ClassCount, pack.Price, pack.ValidityMonths, pack.ClassDurationMinutes, Description: Description),
             ApiRequests.JsonOptions);
 
         var updatedPack = await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions);

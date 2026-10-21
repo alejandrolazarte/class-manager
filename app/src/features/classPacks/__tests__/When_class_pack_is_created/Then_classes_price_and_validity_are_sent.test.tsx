@@ -26,6 +26,14 @@ describe("When class pack is created", () => {
       screen.getByLabelText(translate("classPacks.form.validityMonths")),
       "2",
     );
+    await fireEvent.press(
+      screen.getByRole("button", { name: translate("classPacks.form.kindPrivateLessons") }),
+    );
+    await fireEvent.press(
+      screen.getByRole("button", {
+        name: translate("classGroups.form.durationOption", { minutes: 45 }),
+      }),
+    );
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     await waitFor(() =>
@@ -35,7 +43,7 @@ describe("When class pack is created", () => {
         classCount: 8,
         price: 160,
         validityMonths: 2,
-        classDurationMinutes: null,
+        classDurationMinutes: 45,
         classGroupIds: [],
       }),
     );
