@@ -15,6 +15,7 @@ const summaryPath = `${ordersPath}/summary`;
 const deliveredSegment = "delivered";
 const refundsSegment = "refunds";
 const paymentsSegment = "payments";
+const restoreSegment = "restore";
 const cancellationSegment = "cancellation";
 const readySegment = "ready";
 const deliveryClassesPath = `${ordersPath}/delivery-classes`;
@@ -60,6 +61,18 @@ export function recordOrderPayment(
     ...request,
     paidOn: null,
   });
+}
+
+function orderPaymentPath(orderId: string, paymentId: string): string {
+  return `${orderPath(orderId)}/${paymentsSegment}/${encodeURIComponent(paymentId)}`;
+}
+
+export function deleteOrderPayment(orderId: string, paymentId: string): Promise<Order> {
+  return httpClient.delete<Order>(orderPaymentPath(orderId, paymentId));
+}
+
+export function restoreOrderPayment(orderId: string, paymentId: string): Promise<Order> {
+  return httpClient.post<Order>(`${orderPaymentPath(orderId, paymentId)}/${restoreSegment}`, {});
 }
 
 export function markOrderReady(orderId: string): Promise<Order> {

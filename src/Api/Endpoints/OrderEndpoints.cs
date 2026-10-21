@@ -13,6 +13,10 @@ internal static class OrderEndpoints
         orders.MapGet(ApiRoutes.OrderSummary, GetOrderSummaryAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
         orders.MapPost("/", CreateCounterSaleAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPost(ApiRoutes.OrderById + ApiRoutes.PaymentsSegment, RecordOrderPaymentAsync).RequirePermission(Permissions.Orders.Manage);
+        orders.MapDelete(ApiRoutes.OrderById + ApiRoutes.PaymentsSegment + ApiRoutes.PaymentById, DeleteOrderPaymentAsync)
+            .RequirePermission(Permissions.Orders.Manage);
+        orders.MapPost(ApiRoutes.OrderById + ApiRoutes.PaymentsSegment + ApiRoutes.PaymentById + ApiRoutes.Restore, RestoreOrderPaymentAsync)
+            .RequirePermission(Permissions.Orders.Manage);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Ready, MarkOrderReadyAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Delivery, ChooseOrderDeliveryAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapGet(ApiRoutes.DeliveryClasses, ListDeliveryClassesAsync).RequirePermission(Permissions.Orders.Manage);
@@ -27,6 +31,28 @@ internal static class OrderEndpoints
             .RequirePermission(Permissions.Attendance.RecordAll, Permissions.Attendance.RecordOwn);
 
         return endpoints;
+    }
+
+    private static async Task<IResult> DeleteOrderPaymentAsync(
+        Guid orderId,
+        Guid paymentId,
+        IUseCase<DeleteOrderPaymentCommand, OrderResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new DeleteOrderPaymentCommand(orderId, paymentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> RestoreOrderPaymentAsync(
+        Guid orderId,
+        Guid paymentId,
+        IUseCase<RestoreOrderPaymentCommand, OrderResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new RestoreOrderPaymentCommand(orderId, paymentId), cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> MarkOrderReadyAsync(

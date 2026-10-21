@@ -10,6 +10,7 @@ import { StudentSummary } from "@/features/students/types";
 import { useStudentSearch } from "@/features/students/useStudentSearch";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { SearchInput } from "@/ui/SearchInput";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
@@ -41,6 +42,7 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
   const { showToast } = useToast();
   const [searchText, setSearchText] = useState("");
   const [enrollFailure, setEnrollFailure] = useState<EnrollFailure | null>(null);
+  const [studentOutsidePack, setStudentOutsidePack] = useState<StudentSummary | null>(null);
   const { data: students = [], isPending } = useStudentSearch(searchText);
   const { data: roster = [] } = useClassRoster(classGroupId);
   const { data: classGroups = [] } = useClassGroupsIncludingInactive();
@@ -51,10 +53,13 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
     roster.filter((entry) => entry.endDate === null).map((entry) => entry.studentId),
   );
 
-  const enroll = async (student: StudentSummary) => {
+  const enroll = async (student: StudentSummary, allowOutsidePack = false) => {
     setEnrollFailure(null);
     try {
-      await enrollStudentMutation.mutateAsync({ studentId: student.id });
+      await enrollStudentMutation.mutateAsync(
+        allowOutsidePack ? { studentId: student.id, allowOutsidePack } : { studentId: student.id },
+      );
+      setStudentOutsidePack(null);
       showToast(
         translate("enrollments.enroll.success", {
           student: student.fullName,
@@ -63,6 +68,11 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
       );
       router.back();
     } catch (enrollError) {
+      setStudentOutsidePack(null);
+      if (isApiError(enrollError) && enrollError.hasCode(enrollmentErrorCodes.outsidePack)) {
+        setStudentOutsidePack(student);
+        return;
+      }
       if (isApiError(enrollError) && enrollError.hasCode(enrollmentErrorCodes.classGroupFull)) {
         setEnrollFailure("classFull");
         return;
@@ -144,6 +154,20 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
           }
         />
       )}
+      {studentOutsidePack ? (
+        <ConfirmDialog
+          title={translate("enrollments.enroll.outsidePackQuestion", {
+            student: studentOutsidePack.fullName,
+          })}
+          message={translate("enrollments.enroll.outsidePackMessage", {
+            classGroup: classGroupName,
+          })}
+          confirmLabel={translate("enrollments.enroll.confirmOutsidePack")}
+          onCancel={() => setStudentOutsidePack(null)}
+          onConfirm={() => enroll(studentOutsidePack, true)}
+          isConfirming={enrollStudentMutation.isPending}
+        />
+      ) : null}
     </Screen>
   );
 }

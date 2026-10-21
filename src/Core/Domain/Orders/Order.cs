@@ -23,6 +23,8 @@ public sealed class Order : ITenantOwned, IAuditable
     private const string NotRefundableMessage = "Only orders that were paid or handed over can be refunded.";
     private const string NothingOwedMessage = "This order has nothing left to pay.";
     private const string AmountOverBalanceMessage = "The amount is more than what is left to pay.";
+    private const string PaymentNotFoundMessage = "The payment is not part of this order.";
+    private const string PaymentLockedMessage = "The payments of a cancelled order were given back and can't change.";
     private const string NotCancellableMessage = "Only orders that were not handed over can be cancelled.";
     private const string PaidNotCancellableMessage = "Only orders without payments can be cancelled from the app.";
     private const string NothingToRefundMessage = "There are no unused classes left to refund.";
@@ -172,6 +174,50 @@ public sealed class Order : ITenantOwned, IAuditable
         }
 
         _payments.Add(OrderPayment.Create(Id, amount!.Value, method.Value, paidOn, recordedByUserId, recordedAt));
+        return Result.Success();
+    }
+
+    public Result<OrderPayment> DeletePayment(Guid paymentId)
+    {
+        var payment = _payments.FirstOrDefault(candidate => candidate.Id == paymentId);
+        if (payment is null)
+        {
+            return Result.NotFound<OrderPayment>(PaymentNotFoundMessage, OrderErrorCodes.PaymentNotFound);
+        }
+
+        if (Status == OrderStatus.Cancelled)
+        {
+            return Result.Conflict<OrderPayment>(PaymentLockedMessage, OrderErrorCodes.PaymentLocked);
+        }
+
+        _payments.Remove(payment);
+        return payment;
+    }
+
+    public Result RestorePayment(OrderPayment payment)
+    {
+        if (payment.OrderId != Id || !payment.IsDeleted)
+        {
+            return Result.NotFound(PaymentNotFoundMessage, OrderErrorCodes.PaymentNotFound);
+        }
+
+        if (Status == OrderStatus.Cancelled)
+        {
+            return Result.Conflict(PaymentLockedMessage, OrderErrorCodes.PaymentLocked);
+        }
+
+        var paidByOthers = _payments.Where(candidate => candidate.Id != payment.Id).Sum(candidate => candidate.Amount);
+        if (payment.Amount > AmountDue - paidByOthers)
+        {
+            return Result.Conflict(AmountOverBalanceMessage, OrderErrorCodes.AmountOverBalance);
+        }
+
+        payment.Restore();
+        if (!_payments.Contains(payment))
+        {
+            _payments.Add(payment);
+        }
+
         return Result.Success();
     }
 

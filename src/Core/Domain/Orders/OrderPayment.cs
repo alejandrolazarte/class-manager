@@ -31,6 +31,13 @@ public sealed class OrderPayment : ITenantOwned, IAuditable, ISoftDeletable
         IsDeleted = true;
     }
 
+    public void Restore()
+    {
+        DeletedAt = null;
+        DeletedByUserId = null;
+        IsDeleted = false;
+    }
+
     internal static OrderPayment Create(
         Guid orderId, decimal amount, PaymentMethod method, DateOnly paidOn, Guid? recordedByUserId, DateTimeOffset createdAt) =>
         new()

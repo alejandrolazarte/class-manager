@@ -95,4 +95,11 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
     public Task<Order?> GetForUpdateByPurchaseAsync(Guid purchaseId, CancellationToken cancellationToken) =>
         context.Orders.Include(order => order.Lines).Include(order => order.Payments).AsSplitQuery()
             .FirstOrDefaultAsync(order => order.Lines.Any(line => line.ClassPackPurchaseId == purchaseId), cancellationToken);
+
+    public void RemovePayment(OrderPayment payment) => context.OrderPayments.Remove(payment);
+
+    public Task<OrderPayment?> FindDeletedPaymentForUpdateAsync(Guid orderId, Guid paymentId, CancellationToken cancellationToken) =>
+        context.OrderPayments
+            .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
+            .FirstOrDefaultAsync(payment => payment.Id == paymentId && payment.OrderId == orderId && payment.IsDeleted, cancellationToken);
 }

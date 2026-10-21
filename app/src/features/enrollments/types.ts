@@ -34,6 +34,7 @@ export interface StudentEnrollment {
 export interface EnrollStudentRequest {
   studentId: string;
   startDate?: string;
+  allowOutsidePack?: boolean;
 }
 
 export interface EndEnrollmentRequest {

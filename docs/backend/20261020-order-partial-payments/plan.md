@@ -15,7 +15,8 @@ Follow-up to the [shop and payments plan](../20260929-online-shop-and-payments/p
 - **Refunds** apply to orders handed over, or not handed over but with a payment (as before, when they were `Paid`). A pack line can only be refunded once its classes were credited.
 - **The month summary** counts the payments made in the month (`Collected`), what all open orders still owe (`Unpaid`), and the part of the month's payments that went to class packs (`ClassPackSales`, in proportion to each order's lines).
 - **Emails**: "Recibimos tu pago" is sent to a client's app order when it becomes fully paid. Its next step says the classes are credited or will be when it's handed over, that it was already handed over, where to get it, or that we'll tell them when it's ready.
-- **Not built yet**: deleting a payment recorded by mistake (`OrderPayment` is soft deletable, but there is no endpoint or undo yet), choosing a past date for a payment from the app (the API accepts `paidOn`). Online payments (Stripe) will record an `OrderPayment` per checkout.
+- **A payment recorded by mistake is deleted** from "Pagos" on the order: it goes on the first tap and the toast offers **Deshacer**, like fee payments. The order owes that amount again; a delivered order stays delivered and its credited classes stay. Who can delete: anyone with `payments.view.all`, or whoever recorded it. The payments of a cancelled order can't change (`409 order.payment_locked`): they were given back. Undo is refused when the payment no longer fits what is owed (`409 order.amount_over_balance`). This corrects a mistake; giving the money back is cancelling the order.
+- **Not built yet**: choosing a past date for a payment from the app (the API accepts `paidOn`). Online payments (Stripe) will record an `OrderPayment` per checkout.
 
 ## Contract
 
@@ -24,6 +25,9 @@ POST /api/orders { "clientId": "…", "lines": [ … ], "paidAmount": 5000, "met
 
 POST /api/orders/{id}/payments { "amount": 7000, "method": "Transfer", "paidOn": null, "isDelivered": true, "isReady": false }
   (replaces PUT /api/orders/{id}/payment)
+
+DELETE /api/orders/{id}/payments/{paymentId}         (soft delete; returns the order)
+POST   /api/orders/{id}/payments/{paymentId}/restore (undo)
 
 PUT /api/orders/{id}/cancellation   (now also with payments: returns everything paid; 409 order.not_cancellable once handed over)
 

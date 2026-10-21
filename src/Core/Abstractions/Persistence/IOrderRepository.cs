@@ -22,5 +22,9 @@ public interface IOrderRepository
 
     Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(Guid classGroupId, CancellationToken cancellationToken);
 
+    void RemovePayment(OrderPayment payment);
+
+    Task<OrderPayment?> FindDeletedPaymentForUpdateAsync(Guid orderId, Guid paymentId, CancellationToken cancellationToken);
+
     Task<Order?> GetForUpdateByPurchaseAsync(Guid purchaseId, CancellationToken cancellationToken);
 }

@@ -21,4 +21,11 @@ internal static class OrderAccess
 
         return order.ClientId is { } clientId && await clientRepository.IsInScopeAsync(clientId, scope, cancellationToken);
     }
+
+    public static async Task<bool> CanUndoPaymentAsync(ICurrentMember currentMember, OrderPayment payment, CancellationToken cancellationToken)
+    {
+        var access = await currentMember.GetAccessAsync(cancellationToken);
+        return access is not null
+            && (access.HasPermission(Permissions.Payments.ViewAll) || (payment.RecordedByUserId is not null && payment.RecordedByUserId == access.UserId));
+    }
 }
