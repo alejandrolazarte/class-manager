@@ -1,25 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { isBackofficeSessionEnded } from "@/backoffice/api/backofficeHttpClient";
 import { backofficeRoutes } from "@/backoffice/backofficeRoutes";
-import {
-  allValues,
-  filterableStatuses,
-  filterBrands,
-  planCodes,
-  PlanFilter,
-  StatusFilter,
-} from "@/backoffice/brands/brandFilters";
-import { planLabel, statusLabel } from "@/backoffice/brands/brandLabels";
+import { brandFiltersOf, filterBrands } from "@/backoffice/brands/brandFilters";
 import { BrandListItem } from "@/backoffice/brands/BrandListItem";
 import { getBrands } from "@/backoffice/brands/brandsApi";
 import { brandsQueryKey } from "@/backoffice/brands/brandQueryKeys";
+import { ListFilterControls, ListFilterSummary } from "@/filters/ListFilterControls";
+import { hasActiveFilters, ListFilterValues, noListFilterValues } from "@/filters/listFilters";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
-import { ChipGroup, ChipGroupOption } from "@/ui/ChipGroup";
 import { EmptyState } from "@/ui/EmptyState";
 import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
@@ -30,27 +23,17 @@ import { SearchInput } from "@/ui/SearchInput";
 export function BrandsScreen() {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [plan, setPlan] = useState<PlanFilter>(allValues);
-  const [status, setStatus] = useState<StatusFilter>(allValues);
-  const planOptions: ChipGroupOption<PlanFilter>[] = [
-    { value: allValues, label: translate("backoffice.brands.allPlans") },
-    ...planCodes.map((planCode) => ({ value: planCode, label: planLabel(planCode) })),
-  ];
-  const statusOptions: ChipGroupOption<StatusFilter>[] = [
-    { value: allValues, label: translate("backoffice.brands.allStatuses") },
-    ...filterableStatuses.map((status) => ({ value: status, label: statusLabel(status, null) })),
-  ];
+  const [filterValues, setFilterValues] = useState<ListFilterValues>(noListFilterValues);
   const brands = useQuery({ queryKey: brandsQueryKey, queryFn: getBrands, retry: false });
-  const visibleBrands = useMemo(
-    () => filterBrands(brands.data ?? [], { search, plan, status }),
-    [brands.data, search, plan, status],
-  );
+  const allBrands = brands.data ?? [];
+  const visibleBrands = filterBrands(allBrands, search, filterValues);
+  const isFiltered = hasActiveFilters(filterValues);
 
   if (isBackofficeSessionEnded(brands.error)) {
     return <Redirect href={backofficeRoutes.signIn} />;
   }
 
-  const hasNoBrands = (brands.data ?? []).length === 0;
+  const hasNoBrands = allBrands.length === 0;
 
   return (
     <Screen>
@@ -62,13 +45,15 @@ export function BrandsScreen() {
             onChangeText={setSearch}
             placeholder={translate("backoffice.brands.searchPlaceholder")}
           />
-          <ChipGroup options={planOptions} selectedValue={plan} onChange={setPlan} isScrollable />
-          <ChipGroup
-            options={statusOptions}
-            selectedValue={status}
-            onChange={setStatus}
-            isScrollable
+          <ListFilterControls
+            filters={brandFiltersOf()}
+            values={filterValues}
+            onChange={setFilterValues}
+            countMatching={(values) => filterBrands(allBrands, search, values).length}
           />
+          {isFiltered ? (
+            <ListFilterSummary shownCount={visibleBrands.length} totalCount={allBrands.length} />
+          ) : null}
           {brands.isError ? (
             <Banner message={translate("common.unexpectedError")}>
               <Button

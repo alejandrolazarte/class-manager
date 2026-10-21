@@ -22,7 +22,10 @@ describe("When the operator filters by status", () => {
     await screen.findByText("Estudio Centro");
 
     await fireEvent.press(
-      screen.getByRole("button", { name: translate("backoffice.brands.status.Ended") }),
+      screen.getByRole("button", { name: translate("backoffice.brands.filters.status") }),
+    );
+    await fireEvent.press(
+      screen.getByRole("radio", { name: translate("backoffice.brands.status.Ended") }),
     );
 
     expect(screen.getByText("Instructora Sur")).toBeOnTheScreen();

@@ -1,19 +1,37 @@
+import { planLabel, statusLabel } from "@/backoffice/brands/brandLabels";
 import { BrandStatus, BrandSummary } from "@/backoffice/brands/brandsApi";
+import { isChosenOrUnfiltered, ListFilter, ListFilterValues } from "@/filters/listFilters";
+import { translate } from "@/i18n/translate";
 
-export const allValues = "all";
+const planCodes = ["free", "lite", "pro", "enterprise"] as const;
 
-export const planCodes = ["free", "lite", "pro", "enterprise"] as const;
+const filterableStatuses = ["Trial", "Active", "Ended"] as const satisfies BrandStatus[];
 
-export const filterableStatuses = ["Trial", "Active", "Ended"] as const satisfies BrandStatus[];
+export const brandFilterIds = {
+  plan: "plan",
+  status: "status",
+} as const;
 
-export type PlanFilter = (typeof planCodes)[number] | typeof allValues;
-
-export type StatusFilter = (typeof filterableStatuses)[number] | typeof allValues;
-
-export interface BrandFilters {
-  search: string;
-  plan: PlanFilter;
-  status: StatusFilter;
+export function brandFiltersOf(): ListFilter[] {
+  return [
+    {
+      id: brandFilterIds.plan,
+      title: translate("backoffice.brands.filters.plan"),
+      choice: "single",
+      allLabel: translate("backoffice.brands.allPlans"),
+      options: planCodes.map((planCode) => ({ value: planCode, label: planLabel(planCode) })),
+    },
+    {
+      id: brandFilterIds.status,
+      title: translate("backoffice.brands.filters.status"),
+      choice: "single",
+      allLabel: translate("backoffice.brands.allStatuses"),
+      options: filterableStatuses.map((status) => ({
+        value: status,
+        label: statusLabel(status, null),
+      })),
+    },
+  ];
 }
 
 function normalize(text: string): string {
@@ -33,11 +51,15 @@ function matchesSearch(brand: BrandSummary, search: string): boolean {
   );
 }
 
-export function filterBrands(brands: BrandSummary[], filters: BrandFilters): BrandSummary[] {
+export function filterBrands(
+  brands: readonly BrandSummary[],
+  search: string,
+  values: ListFilterValues,
+): BrandSummary[] {
   return brands.filter(
     (brand) =>
-      matchesSearch(brand, filters.search) &&
-      (filters.plan === allValues || brand.planCode === filters.plan) &&
-      (filters.status === allValues || brand.status === filters.status),
+      matchesSearch(brand, search) &&
+      isChosenOrUnfiltered(values, brandFilterIds.plan, brand.planCode) &&
+      isChosenOrUnfiltered(values, brandFilterIds.status, brand.status),
   );
 }

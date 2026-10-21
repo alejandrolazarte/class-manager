@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { View } from "react-native";
 import {
-  CatalogFilter,
-  CatalogFilterValues,
+  ListFilter,
+  ListFilterValues,
   chosenValues,
   filterLabel,
   isFilterActive,
-  noCatalogFilterValues,
+  noListFilterValues,
   withChosenValues,
   withOptionToggled,
-} from "@/features/catalogFilters/catalogFilters";
+} from "@/filters/listFilters";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Chip } from "@/ui/Chip";
@@ -17,19 +17,19 @@ import { FilterBar } from "@/ui/FilterBar";
 import { FilterOptionRow } from "@/ui/FilterOptionRow";
 import { FilterSheet } from "@/ui/FilterSheet";
 
-interface CatalogFilterControlsProps {
-  filters: readonly CatalogFilter[];
-  values: CatalogFilterValues;
-  onChange: (values: CatalogFilterValues) => void;
-  countMatching: (values: CatalogFilterValues) => number;
+interface ListFilterControlsProps {
+  filters: readonly ListFilter[];
+  values: ListFilterValues;
+  onChange: (values: ListFilterValues) => void;
+  countMatching: (values: ListFilterValues) => number;
 }
 
-export function CatalogFilterControls({
+export function ListFilterControls({
   filters,
   values,
   onChange,
   countMatching,
-}: CatalogFilterControlsProps) {
+}: ListFilterControlsProps) {
   const [openFilterId, setOpenFilterId] = useState<string | null>(null);
   const openFilter = filters.find((filter) => filter.id === openFilterId);
   if (filters.length === 0) {
@@ -44,7 +44,7 @@ export function CatalogFilterControls({
           isActive: isFilterActive(values, filter.id),
           onPress: () => setOpenFilterId(filter.id),
         }))}
-        onClear={() => onChange(noCatalogFilterValues)}
+        onClear={() => onChange(noListFilterValues)}
       />
       {openFilter === undefined ? null : (
         <FilterSheet
@@ -54,7 +54,7 @@ export function CatalogFilterControls({
           onClear={() => onChange(withChosenValues(values, openFilter.id, []))}
           onClose={() => setOpenFilterId(null)}
         >
-          <CatalogFilterOptions
+          <ListFilterOptions
             filter={openFilter}
             values={values}
             onChange={onChange}
@@ -66,19 +66,14 @@ export function CatalogFilterControls({
   );
 }
 
-interface CatalogFilterOptionsProps {
-  filter: CatalogFilter;
-  values: CatalogFilterValues;
-  onChange: (values: CatalogFilterValues) => void;
-  countMatching: (values: CatalogFilterValues) => number;
+interface ListFilterOptionsProps {
+  filter: ListFilter;
+  values: ListFilterValues;
+  onChange: (values: ListFilterValues) => void;
+  countMatching: (values: ListFilterValues) => number;
 }
 
-function CatalogFilterOptions({
-  filter,
-  values,
-  onChange,
-  countMatching,
-}: CatalogFilterOptionsProps) {
+function ListFilterOptions({ filter, values, onChange, countMatching }: ListFilterOptionsProps) {
   const chosen = chosenValues(values, filter.id);
   const countWith = (optionValues: readonly string[]) =>
     countMatching(withChosenValues(values, filter.id, optionValues));
@@ -123,12 +118,12 @@ function CatalogFilterOptions({
   );
 }
 
-interface CatalogFilterSummaryProps {
+interface ListFilterSummaryProps {
   shownCount: number;
   totalCount: number;
 }
 
-export function CatalogFilterSummary({ shownCount, totalCount }: CatalogFilterSummaryProps) {
+export function ListFilterSummary({ shownCount, totalCount }: ListFilterSummaryProps) {
   return (
     <AppText variant="caption" tone="muted">
       {translate("filters.showing", { count: shownCount, total: totalCount })}

@@ -22,5 +22,6 @@ internal static class CommandAuditBehaviors
         new FixedTenantContext(TenantId),
         new FixedCurrentUser(AccountId, UserId),
         new FakeTimeProvider(CommandAuditEntries.OccurredAt),
+        AuditSource.App,
         NullLogger<UseCaseAuditRecorder>.Instance);
 }
