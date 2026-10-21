@@ -11,9 +11,12 @@ jest.mock("@/backoffice/logs/logsApi", () => ({
 
 describe("When the logs open", () => {
   it("Then each action of the day shows its brand and person", async () => {
-    jest
-      .mocked(getCommandLog)
-      .mockResolvedValue({ day: "2026-10-21", entries: [aCommandLogEntry()], isTruncated: false });
+    jest.mocked(getCommandLog).mockResolvedValue({
+      day: "2026-10-21",
+      entries: [aCommandLogEntry()],
+      isTruncated: false,
+      isConnected: true,
+    });
 
     await renderBackofficeScreen(<LogsScreen />);
 

@@ -13,9 +13,12 @@ jest.mock("@/backoffice/logs/logsApi", () => ({
 
 describe("When the operator goes to the previous day", () => {
   it("Then that day is read", async () => {
-    jest
-      .mocked(getCommandLog)
-      .mockImplementation(async (day) => ({ day, entries: [], isTruncated: false }));
+    jest.mocked(getCommandLog).mockImplementation(async (day) => ({
+      day,
+      entries: [],
+      isTruncated: false,
+      isConnected: true,
+    }));
     await renderBackofficeScreen(<LogsScreen />);
     await screen.findByText(translate("backoffice.logs.noCommands"));
     expect(

@@ -12,9 +12,12 @@ jest.mock("@/backoffice/logs/logsApi", () => ({
 
 describe("When a day has more actions than can be shown", () => {
   it("Then a warning says the list is cut", async () => {
-    jest
-      .mocked(getCommandLog)
-      .mockResolvedValue({ day: "2026-10-21", entries: [aCommandLogEntry()], isTruncated: true });
+    jest.mocked(getCommandLog).mockResolvedValue({
+      day: "2026-10-21",
+      entries: [aCommandLogEntry()],
+      isTruncated: true,
+      isConnected: true,
+    });
 
     await renderBackofficeScreen(<LogsScreen />);
 

@@ -47,6 +47,8 @@ internal sealed class LogsScenario
 
 internal sealed class InMemoryAuditLogReader : IAuditLogReader
 {
+    public bool IsConnected { get; set; } = true;
+
     public List<CommandLogEntry> Commands { get; } = [];
 
     public List<SecurityLogEntry> SecurityEvents { get; } = [];
