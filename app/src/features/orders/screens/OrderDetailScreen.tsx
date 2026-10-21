@@ -26,10 +26,12 @@ import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { HairlineRow } from "@/ui/HairlineRow";
-import { HairlineSection } from "@/ui/HairlineSection";
+import { OutlinedBlock } from "@/ui/OutlinedBlock";
 import { ProgressBar } from "@/ui/ProgressBar";
-import { ScrollScreen } from "@/ui/Screen";
+import { ProgressSteps } from "@/ui/ProgressSteps";
+import { ScreenFooter, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { SectionTitle } from "@/ui/SectionTitle";
 import { StatusPill } from "@/ui/StatusPill";
 import { TonalBlock } from "@/ui/TonalBlock";
 import { useToast } from "@/ui/ToastProvider";
@@ -38,6 +40,23 @@ import { SkeletonScreen } from "@/ui/SkeletonScreen";
 
 interface OrderDetailScreenProps {
   orderId: string;
+}
+
+function deliverySteps(order: Order): string[] {
+  return order.lines.some((line) => line.kind === "Product")
+    ? [
+        translate("student.orders.step.ordered"),
+        translate("student.orders.step.ready"),
+        translate("student.orders.step.delivered"),
+      ]
+    : [translate("student.orders.step.ordered"), translate("student.orders.step.delivered")];
+}
+
+function deliveryStepOf(order: Order): number {
+  if (order.status === "Delivered") {
+    return deliverySteps(order).length - 1;
+  }
+  return order.readyAt === null ? 0 : 1;
 }
 
 function cancelQuestionOf(order: Order): string {
@@ -110,15 +129,18 @@ function OrderDetail({ order }: { order: Order }) {
       }
       footer={
         canManage && isOwing ? (
-          <Button
-            icon="paid"
-            label={translate("orders.collect")}
-            onPress={() => setIsCollecting(true)}
-          />
+          <ScreenFooter>
+            <Button
+              icon="paid"
+              label={translate("orders.collect")}
+              onPress={() => setIsCollecting(true)}
+            />
+          </ScreenFooter>
         ) : undefined
       }
     >
-      <HairlineSection title={translate("orders.counterSale.items")}>
+      <OutlinedBlock className="gap-1">
+        <SectionTitle title={translate("orders.counterSale.items")} isOverline />
         {order.lines.map((line) => (
           <HairlineRow key={line.id} className="gap-0.5 py-2.5">
             <View className="flex-row items-center justify-between gap-3">
@@ -137,26 +159,32 @@ function OrderDetail({ order }: { order: Order }) {
             ) : null}
           </HairlineRow>
         ))}
-        <View className="flex-row items-center justify-between gap-3 py-2.5">
+        <View className="flex-row items-center justify-between gap-3 pt-2.5">
           <AppText variant="bodyStrong">{translate("common.total")}</AppText>
           <AppText variant="bodyStrong">{money(order.total)}</AppText>
         </View>
-      </HairlineSection>
+      </OutlinedBlock>
 
-      <HairlineSection title={translate("orders.detail.delivery")}>
-        <View className="flex-row flex-wrap items-center gap-1.5 py-2">
-          <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
-          {order.awaitsPickup && order.readyAt !== null ? (
-            <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />
-          ) : null}
+      <OutlinedBlock className="gap-3">
+        <View className="flex-row flex-wrap items-center justify-between gap-2">
+          <SectionTitle title={translate("orders.detail.delivery")} isOverline />
+          <View className="flex-row flex-wrap items-center gap-1.5">
+            <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
+            {order.awaitsPickup && order.readyAt !== null ? (
+              <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />
+            ) : null}
+          </View>
         </View>
+        {order.status === "Cancelled" ? null : (
+          <ProgressSteps steps={deliverySteps(order)} currentStep={deliveryStepOf(order)} />
+        )}
         {order.awaitsPickup ? (
           <AppText variant="footnote" tone="subtle">
             {orderDeliveryLabel(order)}
           </AppText>
         ) : null}
         {canManage && isPending ? (
-          <View className="flex-row flex-wrap gap-2 pt-2">
+          <View className="gap-2">
             {order.awaitsPickup && order.readyAt === null ? (
               <Button
                 variant="secondary"
@@ -175,19 +203,22 @@ function OrderDetail({ order }: { order: Order }) {
             />
           </View>
         ) : null}
-      </HairlineSection>
+      </OutlinedBlock>
 
-      <HairlineSection title={translate("orders.payments.open")}>
-        {moneyLabel === null ? null : (
-          <AppText variant="bodyStrong" tone={moneyLabel.tone} className="pt-2">
-            {moneyLabel.text}
-          </AppText>
-        )}
+      <OutlinedBlock className="gap-2">
+        <View className="flex-row flex-wrap items-center justify-between gap-2">
+          <SectionTitle title={translate("orders.payments.open")} isOverline />
+          {moneyLabel === null ? null : (
+            <AppText variant="label" tone={moneyLabel.tone}>
+              {moneyLabel.text}
+            </AppText>
+          )}
+        </View>
         {isOwing && order.paidAmount > 0 ? (
           <ProgressBar ratio={order.paidAmount / (order.paidAmount + order.balance)} isThin />
         ) : null}
         <OrderPaymentsPanel order={order} canDelete={canManage && order.status !== "Cancelled"} />
-      </HairlineSection>
+      </OutlinedBlock>
 
       {canManage && (hasRefundableLines || isPending) ? (
         <View className="gap-2 border-t border-border-subtle pt-4">
