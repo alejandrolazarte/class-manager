@@ -38,4 +38,11 @@ public static class OrderRequests
     public static Task<HttpResponseMessage> PostRefundAsync(this HttpClient httpClient, Guid orderId, params RefundLine[] lines) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Orders}/{orderId}{ApiRoutes.Refunds}", new RefundOrderRequest(lines), ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> DeleteOrderPaymentAsync(this HttpClient httpClient, Guid orderId, Guid paymentId) =>
+        httpClient.DeleteAsync(new Uri($"{ApiRoutes.Orders}/{orderId}{ApiRoutes.PaymentsSegment}/{paymentId}", UriKind.Relative));
+
+    public static Task<HttpResponseMessage> PostOrderPaymentRestoreAsync(this HttpClient httpClient, Guid orderId, Guid paymentId) =>
+        httpClient.PostAsync(
+            new Uri($"{ApiRoutes.Orders}/{orderId}{ApiRoutes.PaymentsSegment}/{paymentId}{ApiRoutes.Restore}", UriKind.Relative), null);
 }

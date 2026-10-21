@@ -39,6 +39,7 @@ export function buildOrder(overrides: Partial<Order> = {}): Order {
         amount: 24,
         method: "Cash",
         paidOn: "2026-09-29",
+        recordedByUserId: null,
       },
     ],
     notes: null,

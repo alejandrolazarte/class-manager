@@ -5,11 +5,13 @@ import { orderQueryKeys } from "@/features/orders/orderQueryKeys";
 import {
   cancelOrder,
   createCounterSale,
+  deleteOrderPayment,
   deliverInClass,
   markOrderDelivered,
   markOrderReady,
   recordOrderPayment,
   refundOrder,
+  restoreOrderPayment,
 } from "@/features/orders/ordersApi";
 import {
   CreateCounterSaleRequest,
@@ -58,6 +60,24 @@ export function useRecordOrderPayment() {
   return useMutation({
     mutationFn: ({ orderId, request }: { orderId: string; request: RecordOrderPaymentRequest }) =>
       recordOrderPayment(orderId, request),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteOrderPayment() {
+  const invalidate = useInvalidateOrders();
+  return useMutation({
+    mutationFn: ({ orderId, paymentId }: { orderId: string; paymentId: string }) =>
+      deleteOrderPayment(orderId, paymentId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useRestoreOrderPayment() {
+  const invalidate = useInvalidateOrders();
+  return useMutation({
+    mutationFn: ({ orderId, paymentId }: { orderId: string; paymentId: string }) =>
+      restoreOrderPayment(orderId, paymentId),
     onSuccess: invalidate,
   });
 }

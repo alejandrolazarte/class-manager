@@ -12,7 +12,9 @@ const partlyPaidOrder = buildOrder({
   paymentStatus: "Partial",
   paidAmount: 10,
   balance: 14,
-  payments: [{ id: "payment-1", amount: 10, method: "Cash", paidOn: "2026-09-29" }],
+  payments: [
+    { id: "payment-1", amount: 10, method: "Cash", paidOn: "2026-09-29", recordedByUserId: null },
+  ],
 });
 
 describe("When order is paid in part", () => {

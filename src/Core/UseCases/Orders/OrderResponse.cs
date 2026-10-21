@@ -15,7 +15,7 @@ public sealed record OrderLineResponse(
     decimal RefundedAmount,
     Guid? ClassPackPurchaseId);
 
-public sealed record OrderPaymentResponse(Guid Id, decimal Amount, PaymentMethod Method, DateOnly PaidOn);
+public sealed record OrderPaymentResponse(Guid Id, decimal Amount, PaymentMethod Method, DateOnly PaidOn, Guid? RecordedByUserId);
 
 public sealed record OrderResponse(
     Guid Id,
@@ -65,7 +65,7 @@ public sealed record OrderResponse(
                 .. order.Payments
                     .OrderBy(payment => payment.PaidOn)
                     .ThenBy(payment => payment.CreatedAt)
-                    .Select(payment => new OrderPaymentResponse(payment.Id, payment.Amount, payment.Method, payment.PaidOn)),
+                    .Select(payment => new OrderPaymentResponse(payment.Id, payment.Amount, payment.Method, payment.PaidOn, payment.RecordedByUserId)),
             ],
             order.Notes,
             order.CreatedAt,
