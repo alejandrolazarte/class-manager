@@ -10,9 +10,9 @@ public sealed class Then_returns_409(ApiFixture fixture)
         var owner = scenario.Instructors.Business.HttpClient;
         var classPack = await owner.CreateClassPackAsync();
         var order = await scenario.Student.PlaceStudentAppOrderAsync(StudentAppShopRequests.PackLine(classPack.Id));
-        (await owner.PutOrderPaymentAsync(order.Id)).EnsureSuccessStatusCode();
+        (await owner.PostOrderPaymentAsync(order.Id, isDelivered: true)).EnsureSuccessStatusCode();
 
-        using var response = await owner.PutOrderPaymentAsync(order.Id);
+        using var response = await owner.PostOrderPaymentAsync(order.Id, 1m);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await owner.GetClassBalanceAsync(scenario.ClientId))!.AvailableClasses.ShouldBe(4);

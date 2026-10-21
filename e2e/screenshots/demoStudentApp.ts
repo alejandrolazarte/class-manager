@@ -303,7 +303,7 @@ export async function seedDemoStudentApp(
     delivery: string | null,
     deliveryClassGroupId: string | null,
   ) =>
-    send<Identified>("POST", "/api/student-app/orders", studentToken, {
+    send<Identified & { total: number }>("POST", "/api/student-app/orders", studentToken, {
       lines,
       delivery,
       deliveryClassGroupId,
@@ -317,9 +317,11 @@ export async function seedDemoStudentApp(
     "InClass",
     demo.beginnersClassGroupId,
   );
-  await send("PUT", `/api/orders/${readyOrder.id}/payment`, ownerToken, {
+  await send("POST", `/api/orders/${readyOrder.id}/payments`, ownerToken, {
+    amount: readyOrder.total,
     method: "Cash",
     paidOn: demo.today,
+    isDelivered: false,
     isReady: true,
   });
   const cancelledOrder = await placeOrder(
@@ -329,6 +331,24 @@ export async function seedDemoStudentApp(
   );
   await send("PUT", `/api/student-app/orders/${cancelledOrder.id}/cancellation`, studentToken, {});
   await placeOrder([{ classPackId: packId, productVariantId: null, quantity: 1 }], null, null);
+  await send("POST", "/api/orders", ownerToken, {
+    clientId: demo.studentAppClientId,
+    lines: [
+      {
+        classPackId: null,
+        productVariantId: variantId("Botella térmica"),
+        quantity: 1,
+        unitPrice: null,
+      },
+    ],
+    paidAmount: 5000,
+    method: "Transfer",
+    paidOn: demo.today,
+    notes: null,
+    isDelivered: false,
+    delivery: "Pickup",
+    deliveryClassGroupId: null,
+  });
 
   const absenceDate = nextClassDateAfter(demo.today, nextWeekClass);
   const tomas = client.students.find((student) => student.fullName === "Tomás Pérez")!;

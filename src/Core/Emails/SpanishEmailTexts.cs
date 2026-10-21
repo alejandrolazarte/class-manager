@@ -33,6 +33,10 @@ internal sealed class SpanishEmailTexts : IEmailTexts
 
     public string OrderWillNotifyWhenReady => "Te avisamos cuando los productos estén listos para entregar.";
 
+    public string OrderClassesWhenHandedOver => "Cargamos las clases en tu cuenta cuando te entreguemos el pedido.";
+
+    public string OrderHandedOver => "Ya te entregamos el pedido.";
+
     public EmailText TeamInvitation(string businessName, string acceptInvitationLink) =>
         new(
             $"{businessName} te invita a su equipo",

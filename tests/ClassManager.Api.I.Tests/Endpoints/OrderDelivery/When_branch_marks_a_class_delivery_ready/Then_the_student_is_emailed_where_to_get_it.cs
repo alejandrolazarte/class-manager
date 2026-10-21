@@ -16,7 +16,7 @@ public sealed class Then_the_student_is_emailed_where_to_get_it(ApiFixture fixtu
         }
 
         var orderId = (await scenario.Student.ListStudentAppOrdersAsync()).Single().Id;
-        (await owner.PutOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
+        (await owner.PostOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
 
         using var response = await owner.PutOrderReadyAsync(orderId);
 

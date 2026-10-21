@@ -16,16 +16,30 @@ describe("When orders view is open", () => {
   beforeEach(() => {
     jest.mocked(listMonthlyFees).mockResolvedValue(buildMonthlyFees([]));
     jest.mocked(getOrderSummary).mockResolvedValue(buildOrderSummary({ unpaid: 12200 }));
-    jest
-      .mocked(listOrders)
-      .mockImplementation(async (_clientId, filter) =>
-        filter === "requested"
-          ? [
-              buildOrder({ id: "first", status: "Requested", awaitsPickup: false, total: 3400 }),
-              buildOrder({ id: "second", status: "Requested", awaitsPickup: false, total: 8800 }),
-            ]
-          : [],
-      );
+    jest.mocked(listOrders).mockImplementation(async (_clientId, filter) =>
+      filter === "owing"
+        ? [
+            buildOrder({
+              id: "first",
+              status: "Pending",
+              paymentStatus: "Unpaid",
+              payments: [],
+              paidAmount: 0,
+              total: 3400,
+              balance: 3400,
+            }),
+            buildOrder({
+              id: "second",
+              status: "Pending",
+              paymentStatus: "Unpaid",
+              payments: [],
+              paidAmount: 0,
+              total: 8800,
+              balance: 8800,
+            }),
+          ]
+        : [],
+    );
   });
 
   it("Then the unpaid total is summarized", async () => {

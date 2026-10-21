@@ -33,7 +33,7 @@ export interface ClassPackPurchase {
   currencyCode: string;
   purchasedOn: string;
   expiresOn: string | null;
-  method: PaymentMethod;
+  method: PaymentMethod | null;
   notes: string | null;
   classDurationMinutes: number | null;
   trialLessonId: string | null;
@@ -58,7 +58,7 @@ export interface ClassPackUsage {
   currencyCode: string;
   purchasedOn: string;
   expiresOn: string | null;
-  method: PaymentMethod;
+  method: PaymentMethod | null;
   usedClasses: number;
   remainingClasses: number;
   status: ClassPackPurchaseStatus;

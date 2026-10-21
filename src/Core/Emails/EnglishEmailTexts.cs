@@ -36,6 +36,10 @@ internal sealed class EnglishEmailTexts : IEmailTexts
 
     public string OrderWillNotifyWhenReady => "We'll let you know when the products are ready to hand over.";
 
+    public string OrderClassesWhenHandedOver => "We'll add the classes to your account when we hand over your order.";
+
+    public string OrderHandedOver => "We already handed over your order.";
+
     public EmailText TeamInvitation(string businessName, string acceptInvitationLink) =>
         new(
             $"{businessName} invites you to their team",

@@ -12,6 +12,10 @@ public interface IEmailTexts
 
     string OrderWillNotifyWhenReady { get; }
 
+    string OrderClassesWhenHandedOver { get; }
+
+    string OrderHandedOver { get; }
+
     EmailText TeamInvitation(string businessName, string acceptInvitationLink);
 
     EmailText StudentAppInvitation(string businessName, string acceptInvitationLink);

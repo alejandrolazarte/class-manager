@@ -98,7 +98,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - Two announcements from the school (an event for everyone, and an important one for Natación inicial, pinned; the family answers that it goes to the event; and a reminder scheduled for next week), and next week's Natación inicial class cancelled for a holiday.
 - A "No voy" notice for Tomás on his next class after today (skipping the cancelled one).
 - A "Pack Aquagym" of 4 classes valid for Aquagym, sold to the Pérez client, with one Aquagym class booked for Lucía this week.
-- Three student orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
+- Three student orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled; and a counter sale to the Pérez client paid in part, waiting to be picked up.
 - Material for Natación inicial: a link and a PDF. The PDF needs file storage: start Azurite and set `ConnectionStrings__FileStorage=UseDevelopmentStorage=true` before running (see [Storage, local development](../storage.md#local-development)); without it the run warns and the class only has the link.
 
 The student signs in through the sign-in screen, then the test captures:
@@ -136,6 +136,7 @@ The same file also captures two team screens that need student activity, signed 
 | `05b-clase-editar-material` | The class form scrolled to "Material para los alumnos", with the link and the PDF |
 | `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment panel of an order open |
 | `10e-venta-en-mostrador-catalogo` | Counter sale: the catalog of products and packs with its filters |
+| `10f-venta-en-mostrador-pago` | Counter sale, second step: hand over now or later, how much they pay now and how |
 | `12g-productos` | Ajustes › Productos with search and filters |
 
 Run only these with `pnpm screenshots:no-build Student_screens`.

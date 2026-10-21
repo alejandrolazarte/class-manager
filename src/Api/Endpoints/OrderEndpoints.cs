@@ -12,7 +12,7 @@ internal static class OrderEndpoints
         orders.MapGet("/", ListOrdersAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
         orders.MapGet(ApiRoutes.OrderSummary, GetOrderSummaryAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
         orders.MapPost("/", CreateCounterSaleAsync).RequirePermission(Permissions.Orders.Manage);
-        orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Payment, ConfirmOrderPaymentAsync).RequirePermission(Permissions.Orders.Manage);
+        orders.MapPost(ApiRoutes.OrderById + ApiRoutes.PaymentsSegment, RecordOrderPaymentAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Ready, MarkOrderReadyAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Delivery, ChooseOrderDeliveryAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapGet(ApiRoutes.DeliveryClasses, ListDeliveryClassesAsync).RequirePermission(Permissions.Orders.Manage);
@@ -84,12 +84,12 @@ internal static class OrderEndpoints
     private static async Task<IResult> ListOrdersAsync(
         Guid? clientId,
         bool? awaitingPickup,
-        bool? requested,
+        bool? owing,
         IUseCase<ListOrdersQuery, IReadOnlyList<OrderResponse>> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(
-            new ListOrdersQuery(clientId, awaitingPickup ?? false, requested ?? false), cancellationToken);
+            new ListOrdersQuery(clientId, awaitingPickup ?? false, owing ?? false), cancellationToken);
 
         return result.ToOkResult();
     }
@@ -114,10 +114,10 @@ internal static class OrderEndpoints
         return result.ToHttpResult(order => TypedResults.Created($"{ApiRoutes.Orders}/{order.Id}", order));
     }
 
-    private static async Task<IResult> ConfirmOrderPaymentAsync(
+    private static async Task<IResult> RecordOrderPaymentAsync(
         Guid orderId,
-        ConfirmOrderPaymentRequest request,
-        IUseCase<ConfirmOrderPaymentCommand, OrderResponse> useCase,
+        RecordOrderPaymentRequest request,
+        IUseCase<RecordOrderPaymentCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(request.ToCommand(orderId), cancellationToken);
