@@ -1,6 +1,6 @@
 # App feedback
 
-Ajustes → **Enviar comentarios** lets anyone on the team write a message to the people who build the app. It is how the pilot reports what doesn't work or what they miss.
+Ajustes → **Enviar comentarios**, in the team app and in the student app, lets anyone write a message to the people who build the app. It is how the pilot reports what doesn't work or what they miss.
 
 ## How it works
 
@@ -17,4 +17,3 @@ Ajustes → **Enviar comentarios** lets anyone on the team write a message to th
 ## Not included
 
 - Error reporting (crashes and failed requests nobody reports) is a separate step, still pending in the [pilot plan](pilot-df-swimming.md#also-needed-before-the-pilot-starts).
-- The student app has no entry yet; the endpoint already accepts student accounts.

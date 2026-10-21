@@ -131,7 +131,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Subscriptions plan](docs/backend/20261003-subscriptions/plan.md) — one subscription per brand, plans Free (30-day trial, read-only once it ends)/Lite/Pro/Enterprise, features and add-ons checked like permissions, and the `Subscriptions` library, enforced centrally (steps 1–4 built)
 - [Default billing mode plan](docs/backend/20261020-default-billing-mode/plan.md) — a business charges a monthly fee or with class packs, effective from a month, and families without their own plan follow it
 - [Changing a brand's subscription](docs/changing-a-subscription.md) — runbook for `scripts/set-subscription.sql`: plan, price and note of a brand, run in the Azure portal
-- [App feedback](docs/app-feedback.md) — Ajustes → Enviar comentarios emails the message to `AppFeedback:Recipient` with Reply-To set to the sender, plus their branch, role, platform and app version
+- [App feedback](docs/app-feedback.md) — Ajustes → Enviar comentarios (team and student app) emails the message to `AppFeedback:Recipient` with Reply-To set to the sender, plus their branch, role, platform and app version
 - [Repeated emails before removing the people copies](docs/repeated-emails.md) — runbook for `scripts/list-repeated-emails.sql`: find and fix the emails repeated in a business before the migration that makes them unique
 - [Branding and plans](docs/branding-and-plans.md) — what a business can brand, which parts could be paid, and brands with two colors
 - [Themes and business icon plan](docs/frontend/20260928-themes-and-business-icon/plan.md) — more color themes (now chosen by the business, not each user), a theme created by the business from its color, and a business icon
