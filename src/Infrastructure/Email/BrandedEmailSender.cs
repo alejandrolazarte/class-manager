@@ -19,7 +19,8 @@ internal sealed class BrandedEmailSender(EmailBrandReader brandReader, WebAppLin
             businessBrand?.DisplayName,
             message.TextBody,
             BrandedEmailHtml.Render(message.Content, brand, webAppLinks.WebFonts()),
-            brand.Logo is null ? [] : [brand.Logo]);
+            brand.Logo is null ? [] : [brand.Logo],
+            message.ReplyTo);
         await transport.SendAsync(email, cancellationToken);
     }
 }

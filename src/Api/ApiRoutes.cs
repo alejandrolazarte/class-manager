@@ -135,6 +135,7 @@ public static class ApiRoutes
     public const string MyAccount = "/api/me/account";
     public const string MyEmailChange = "/api/me/account/email-change";
     public const string MyAccountDeletion = "/api/me/account/deletion";
+    public const string MyAppFeedback = "/api/me/app-feedback";
     public const string MyLanguage = "/api/me/account/language";
     public const string MyLegalTermsAcceptance = "/api/me/account/legal-terms-acceptance";
     public const string SwitchBranch = "/branch";

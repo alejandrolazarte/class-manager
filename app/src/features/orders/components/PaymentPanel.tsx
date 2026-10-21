@@ -7,8 +7,18 @@ import { useCancelOrder, useConfirmOrderPayment } from "@/features/orders/useOrd
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
+
+function cancelQuestionOf(order: Order): string {
+  return order.clientFullName === null
+    ? translate("orders.cancelQuestion", { number: order.number })
+    : translate("orders.cancelQuestionWithClient", {
+        number: order.number,
+        client: order.clientFullName,
+      });
+}
 
 interface PaymentPanelProps {
   order: Order;
@@ -22,6 +32,7 @@ export function PaymentPanel({ order }: PaymentPanelProps) {
   const [hasFailed, setHasFailed] = useState(false);
   const hasProducts = order.lines.some((line) => line.kind === "Product");
   const [isReady, setIsReady] = useState(true);
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
 
   const run = async (
     action: () => Promise<unknown>,
@@ -68,9 +79,21 @@ export function PaymentPanel({ order }: PaymentPanelProps) {
         size="medium"
         variant="dangerOutline"
         label={translate("orders.cancel")}
-        onPress={() => run(() => cancelOrderMutation.mutateAsync(order.id), "orders.cancelled")}
-        isLoading={cancelOrderMutation.isPending}
+        onPress={() => setIsConfirmingCancel(true)}
       />
+      {isConfirmingCancel ? (
+        <ConfirmDialog
+          title={cancelQuestionOf(order)}
+          message={translate("orders.cancelMessage")}
+          confirmLabel={translate("orders.cancel")}
+          onCancel={() => setIsConfirmingCancel(false)}
+          onConfirm={async () => {
+            await run(() => cancelOrderMutation.mutateAsync(order.id), "orders.cancelled");
+            setIsConfirmingCancel(false);
+          }}
+          isConfirming={cancelOrderMutation.isPending}
+        />
+      ) : null}
     </View>
   );
 }

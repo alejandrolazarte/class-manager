@@ -26,6 +26,8 @@ internal sealed class EnglishEmailTexts : IEmailTexts
     private static readonly EmailLayoutTexts EnglishLayout =
         new(AccountLanguage.English, "Total", "If the button doesn't work, copy this link into your browser:");
 
+    private static readonly AppFeedbackEmailLabels AppFeedbackLabels = new("Business", "Email", "Role", "App");
+
     public string Language => AccountLanguage.English;
 
     public EmailLayoutTexts Layout => EnglishLayout;
@@ -195,6 +197,18 @@ internal sealed class EnglishEmailTexts : IEmailTexts
             $"{order.BusinessName} cancelled your order.",
             new EmailNote("If you have questions, ask at the venue."),
             studentAppOrdersLink);
+
+    public EmailText AppFeedback(AppFeedbackEmailDetails feedback) =>
+        new(
+            $"Feedback from {feedback.SenderFullName} ({feedback.BusinessName})",
+            Content(
+                "App feedback",
+                $"Feedback from {feedback.SenderFullName}",
+                feedback.Message,
+                "Reply to this email to answer them.") with
+            {
+                Lines = feedback.Lines(AppFeedbackLabels),
+            });
 
     public string OrderNumber(int orderNumber) => OrderNumberPrefix + orderNumber.ToString(CultureInfo.InvariantCulture);
 

@@ -5,6 +5,7 @@ import {
   MyAccount,
   RequestEmailChangeRequest,
   RequestEmailChangeResponse,
+  SendAppFeedbackRequest,
   UpdateMyProfileRequest,
 } from "@/features/account/types";
 import { Language } from "@/i18n/languages";
@@ -16,6 +17,7 @@ const accountPaths = {
   language: "/api/me/account/language",
   legalTermsAcceptance: "/api/me/account/legal-terms-acceptance",
   confirmEmailChange: "/api/auth/email-change/confirm",
+  appFeedback: "/api/me/app-feedback",
 } as const;
 
 export function getMyAccount(): Promise<MyAccount> {
@@ -48,4 +50,8 @@ export function confirmEmailChange(token: string): Promise<ConfirmEmailChangeRes
   return anonymousHttpClient.post<ConfirmEmailChangeResponse>(accountPaths.confirmEmailChange, {
     token,
   });
+}
+
+export function sendAppFeedback(request: SendAppFeedbackRequest): Promise<void> {
+  return httpClient.post<void>(accountPaths.appFeedback, request);
 }
