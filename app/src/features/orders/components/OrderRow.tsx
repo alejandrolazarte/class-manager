@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { formatMoney } from "@/formatting/money";
+import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
 import { refundableLinesOf } from "@/features/orders/refunds";
@@ -78,6 +79,7 @@ function OrderAction({
 
 export function OrderRow({ order, canManage }: OrderRowProps) {
   const { showToast } = useToast();
+  const business = useCurrentBusiness();
   const markOrderDeliveredMutation = useMarkOrderDelivered();
   const markOrderReadyMutation = useMarkOrderReady();
   const cancelOrderMutation = useCancelOrder();
@@ -239,7 +241,10 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
           title={translate("orders.cancelConfirm.title")}
           message={
             amountToReturn > 0
-              ? translate("orders.cancelConfirm.refund", { amount: money(amountToReturn) })
+              ? translate("orders.cancelConfirm.refund", {
+                  amount: money(amountToReturn),
+                  businessName: business.name,
+                })
               : undefined
           }
           confirmLabel={translate("orders.cancel")}

@@ -3,6 +3,7 @@ import { cancelOrder, listOrders } from "@/features/orders/ordersApi";
 import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
 import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
+import { buildBusiness } from "@/testing/businessFactory";
 import { buildOrder } from "@/testing/productFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
@@ -27,7 +28,10 @@ describe("When branch cancels an order paid in part", () => {
 
     expect(
       screen.getByText(
-        translate("orders.cancelConfirm.refund", { amount: formatMoney(10, "ARS") }),
+        translate("orders.cancelConfirm.refund", {
+          amount: formatMoney(10, "ARS"),
+          businessName: buildBusiness().name,
+        }),
       ),
     ).toBeOnTheScreen();
     expect(cancelOrder).not.toHaveBeenCalled();
