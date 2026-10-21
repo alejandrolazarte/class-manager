@@ -19,6 +19,7 @@ describe("When the operator filters the activity by outcome", () => {
         aCommandLogEntry({ command: "AddStudentCommand", outcome: "Exception" }),
       ],
       isTruncated: false,
+      isConnected: true,
     });
     await renderBackofficeScreen(<LogsScreen />);
     await screen.findByText("RecordPayment");

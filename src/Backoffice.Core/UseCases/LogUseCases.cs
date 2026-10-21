@@ -29,7 +29,7 @@ public sealed record CommandLogItemResponse(
     Guid? UserId,
     string? UserName);
 
-public sealed record CommandLogResponse(DateOnly Day, IReadOnlyList<CommandLogItemResponse> Entries, bool IsTruncated) : ICountedRows
+public sealed record CommandLogResponse(DateOnly Day, IReadOnlyList<CommandLogItemResponse> Entries, bool IsTruncated, bool IsConnected = true) : ICountedRows
 {
     public int RowCount => Entries.Count;
 }
@@ -49,7 +49,7 @@ public sealed record SecurityEventResponse(
     string? BranchName,
     string? UserName);
 
-public sealed record SecurityEventListResponse(DateOnly Day, IReadOnlyList<SecurityEventResponse> Events) : ICountedRows
+public sealed record SecurityEventListResponse(DateOnly Day, IReadOnlyList<SecurityEventResponse> Events, bool IsConnected = true) : ICountedRows
 {
     public int RowCount => Events.Count;
 }
@@ -60,6 +60,11 @@ public sealed class ListCommandLogUseCase(IAuditLogReader reader, IAuditLogDirec
     public async Task<Result<CommandLogResponse>> ExecuteAsync(ListCommandLogQuery command, CancellationToken cancellationToken)
     {
         var day = command.Day ?? DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
+        if (!reader.IsConnected)
+        {
+            return new CommandLogResponse(day, [], IsTruncated: false, IsConnected: false);
+        }
+
         IReadOnlyCollection<Guid>? tenantIds = null;
         if (command.BrandId is { } brandId)
         {
@@ -108,6 +113,11 @@ public sealed class ListSecurityEventsUseCase(IAuditLogReader reader, IAuditLogD
     public async Task<Result<SecurityEventListResponse>> ExecuteAsync(ListSecurityEventsQuery command, CancellationToken cancellationToken)
     {
         var day = command.Day ?? DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
+        if (!reader.IsConnected)
+        {
+            return new SecurityEventListResponse(day, [], IsConnected: false);
+        }
+
         var events = await reader.ListSecurityEventsAsync(day, cancellationToken);
         var branches = await directory.FindBranchesAsync(AuditLogLookups.DistinctIds(events.Select(entry => entry.TenantId)), cancellationToken);
         var userNames = await directory.FindUserNamesAsync(AuditLogLookups.DistinctIds(events.Select(entry => entry.UserId)), cancellationToken);

@@ -22,6 +22,7 @@ describe("When the operator opens an action", () => {
         }),
       ],
       isTruncated: false,
+      isConnected: true,
     });
     await renderBackofficeScreen(<LogsScreen />);
 

@@ -2046,5 +2046,6 @@
   "backoffice.logs.detail.ipAddress": "IP",
   "backoffice.logs.detail.userAgent": "Browser",
   "backoffice.brands.filters.plan": "Plan",
-  "backoffice.brands.filters.status": "Status"
+  "backoffice.brands.filters.status": "Status",
+  "backoffice.logs.notConnected": "The logs aren't connected: the backoffice is missing the audit log storage settings."
 }

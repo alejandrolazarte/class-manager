@@ -2046,5 +2046,6 @@
   "backoffice.logs.detail.ipAddress": "IP",
   "backoffice.logs.detail.userAgent": "Navegador",
   "backoffice.brands.filters.plan": "Plan",
-  "backoffice.brands.filters.status": "Estado"
+  "backoffice.brands.filters.status": "Estado",
+  "backoffice.logs.notConnected": "Los registros no están conectados: al backoffice le falta la configuración del almacenamiento de auditoría."
 }

@@ -15,6 +15,8 @@ internal sealed class AzureAuditLogReader(TableServiceClient tableService, BlobC
     private const string PartitionSeparator = " or ";
     private const string ConditionSeparator = " and ";
 
+    public bool IsConnected => true;
+
     public async Task<CommandLogPage> ListCommandsAsync(DateOnly day, IReadOnlyCollection<Guid>? tenantIds, CancellationToken cancellationToken)
     {
         var start = new DateTimeOffset(day.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);

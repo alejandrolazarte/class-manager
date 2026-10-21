@@ -81,6 +81,7 @@ export function LogsScreen() {
   const commandEntries = commands.data?.entries ?? [];
   const securityEntries = securityEvents.data?.events ?? [];
   const isTruncated = kind === "commands" && commands.data?.isTruncated === true;
+  const isDisconnected = log.data?.isConnected === false;
   const filters =
     kind === "commands"
       ? commandLogFiltersOf(commandEntries)
@@ -156,6 +157,9 @@ export function LogsScreen() {
           {isFiltered ? (
             <ListFilterSummary shownCount={visibleRows.length} totalCount={allRows.length} />
           ) : null}
+          {isDisconnected ? (
+            <Banner tone="warning" message={translate("backoffice.logs.notConnected")} />
+          ) : null}
           {isTruncated ? (
             <Banner tone="warning" message={translate("backoffice.logs.truncated")} />
           ) : null}
@@ -200,7 +204,7 @@ export function LogsScreen() {
             </View>
           )}
           ListEmptyComponent={
-            log.isError ? null : (
+            log.isError || isDisconnected ? null : (
               <EmptyState
                 icon={isFiltered ? "search" : "orders"}
                 message={

@@ -43,6 +43,7 @@ export interface CommandLog {
   day: string;
   entries: CommandLogEntry[];
   isTruncated: boolean;
+  isConnected: boolean;
 }
 
 export interface SecurityEventEntry {
@@ -64,6 +65,7 @@ export interface SecurityEventEntry {
 export interface SecurityEventList {
   day: string;
   events: SecurityEventEntry[];
+  isConnected: boolean;
 }
 
 export function getCommandLog(day: string): Promise<CommandLog> {

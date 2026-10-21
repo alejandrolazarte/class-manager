@@ -151,6 +151,6 @@ az containerapp update --name class-manager-backoffice-api --resource-group clas
 ```
 
 - The reader roles let the backoffice read every business's command log (ids and masked payloads) and security events (with IPs), which is what an operator needs; it still can't update or delete anything. Reading is `platform.view` and is itself logged as an audited query.
-- Roles can take a few minutes to apply. Until then, and without the URIs, Registros shows empty days and the backoffice's commands are dropped instead of written.
+- Without the URIs, Registros says the logs aren't connected and the backoffice's commands are dropped instead of written. With the URIs but before the roles apply (a few minutes), Registros shows an error.
 - The UI's day is the UTC day, like the tables and the blobs.
 

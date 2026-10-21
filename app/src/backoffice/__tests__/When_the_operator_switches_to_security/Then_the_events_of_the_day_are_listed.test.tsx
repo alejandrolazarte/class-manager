@@ -15,10 +15,10 @@ describe("When the operator switches to security", () => {
   it("Then the events of the day are listed", async () => {
     jest
       .mocked(getCommandLog)
-      .mockResolvedValue({ day: "2026-10-21", entries: [], isTruncated: false });
+      .mockResolvedValue({ day: "2026-10-21", entries: [], isTruncated: false, isConnected: true });
     jest
       .mocked(getSecurityEvents)
-      .mockResolvedValue({ day: "2026-10-21", events: [aSecurityEventEntry()] });
+      .mockResolvedValue({ day: "2026-10-21", events: [aSecurityEventEntry()], isConnected: true });
     await renderBackofficeScreen(<LogsScreen />);
     await screen.findByText(translate("backoffice.logs.noCommands"));
 
