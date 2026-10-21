@@ -7,19 +7,33 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/orders/ordersApi");
 
-describe("When branch goes back from cancelling an order", () => {
+const requestedOrder = buildOrder({
+  channel: "App",
+  paymentStatus: "Unpaid",
+  lastPaidOn: null,
+  paidAmount: 0,
+  balance: 24,
+  payments: [],
+  clientFullName: "Ana Pérez",
+});
+
+describe("When branch presses cancel order", () => {
   beforeEach(() => {
-    jest.mocked(listOrders).mockResolvedValue([buildOrder()]);
+    jest.mocked(listOrders).mockResolvedValue([requestedOrder]);
   });
 
-  it("Then nothing is cancelled", async () => {
+  it("Then a confirm dialog opens without cancelling", async () => {
     await renderWithProviders(<OrderListScreen />);
     await fireEvent.press(await screen.findByRole("button", { name: translate("orders.cancel") }));
 
-    const backButtons = screen.getAllByRole("button", { name: translate("common.back") });
-    await fireEvent.press(backButtons[backButtons.length - 1]);
-
-    expect(screen.queryByText(translate("orders.cancelConfirm.title"))).toBeNull();
+    expect(
+      screen.getByText(
+        translate("orders.cancelQuestionWithClient", {
+          number: requestedOrder.number,
+          client: "Ana Pérez",
+        }),
+      ),
+    ).toBeOnTheScreen();
     expect(cancelOrder).not.toHaveBeenCalled();
   });
 });

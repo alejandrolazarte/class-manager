@@ -32,6 +32,7 @@ describe("When branch cancels an order paid in part", () => {
           amount: formatMoney(10, "ARS"),
           businessName: buildBusiness().name,
         }),
+        { exact: false },
       ),
     ).toBeOnTheScreen();
     expect(cancelOrder).not.toHaveBeenCalled();

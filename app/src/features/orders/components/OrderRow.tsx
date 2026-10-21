@@ -32,6 +32,15 @@ const isoDateLength = 10;
 
 type OrderPanel = "payment" | "refund";
 
+function cancelQuestionOf(order: Order): string {
+  return order.clientFullName === null
+    ? translate("orders.cancelQuestion", { number: order.number })
+    : translate("orders.cancelQuestionWithClient", {
+        number: order.number,
+        client: order.clientFullName,
+      });
+}
+
 interface OrderRowProps {
   order: Order;
   canManage: boolean;
@@ -238,15 +247,18 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       ) : null}
       {isConfirmingCancel ? (
         <ConfirmDialog
-          title={translate("orders.cancelConfirm.title")}
-          message={
+          title={cancelQuestionOf(order)}
+          message={[
             amountToReturn > 0
               ? translate("orders.cancelConfirm.refund", {
                   amount: money(amountToReturn),
                   businessName: business.name,
                 })
-              : undefined
-          }
+              : null,
+            translate("orders.cancelMessage"),
+          ]
+            .filter(Boolean)
+            .join(" ")}
           confirmLabel={translate("orders.cancel")}
           onCancel={() => setIsConfirmingCancel(false)}
           onConfirm={cancel}

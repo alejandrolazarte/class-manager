@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { View } from "react-native";
 import {
   orderStage,
@@ -13,6 +14,7 @@ import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { TonalBlockTone } from "@/ui/TonalBlock";
 import { Icon } from "@/ui/Icon";
@@ -87,6 +89,7 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
   const stage = orderStage(order);
   const currentStep = orderStepIndex(order);
   const notice = noticeOf(order);
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
 
   const cancel = async () => {
     try {
@@ -95,6 +98,7 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
     } catch {
       showToast(translate("common.unexpectedError"));
     }
+    setIsConfirmingCancel(false);
   };
 
   return (
@@ -145,8 +149,17 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
           size="medium"
           variant="dangerOutline"
           label={translate("student.orders.cancel")}
-          onPress={cancel}
-          isLoading={cancelStudentAppOrderMutation.isPending}
+          onPress={() => setIsConfirmingCancel(true)}
+        />
+      ) : null}
+      {isConfirmingCancel ? (
+        <ConfirmDialog
+          title={translate("student.orders.cancelQuestion", { number: order.number })}
+          message={translate("student.orders.cancelMessage")}
+          confirmLabel={translate("student.orders.cancel")}
+          onCancel={() => setIsConfirmingCancel(false)}
+          onConfirm={cancel}
+          isConfirming={cancelStudentAppOrderMutation.isPending}
         />
       ) : null}
     </HairlineRow>
