@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { formatMoney } from "@/formatting/money";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { OrderPaymentsPanel } from "@/features/orders/components/OrderPaymentsPanel";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
 import { refundableLinesOf } from "@/features/orders/refunds";
@@ -30,7 +31,7 @@ import { Collapsible } from "@/ui/motion/Collapsible";
 
 const isoDateLength = 10;
 
-type OrderPanel = "payment" | "refund";
+type OrderPanel = "payment" | "payments" | "refund";
 
 function cancelQuestionOf(order: Order): string {
   return order.clientFullName === null
@@ -97,6 +98,7 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
   const hasRefundableLines = refundableLinesOf(order).length > 0;
   const isPending = order.status === "Pending";
   const isOwing = order.status !== "Cancelled" && order.balance > 0;
+  const hasEditablePayments = order.status !== "Cancelled" && order.payments.length > 0;
   const money = (amount: number) => formatMoney(amount, order.currencyCode);
 
   const markDelivered = async () => {
@@ -215,6 +217,13 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
               isLoading={markOrderDeliveredMutation.isPending}
             />
           ) : null}
+          {canManage && hasEditablePayments ? (
+            <OrderAction
+              label={translate(openPanel === "payments" ? "common.close" : "orders.payments.open")}
+              isExpanded={openPanel === "payments"}
+              onPress={() => togglePanel("payments")}
+            />
+          ) : null}
           {canManage && hasRefundableLines ? (
             <OrderAction
               label={translate(openPanel === "refund" ? "common.close" : "orders.refund.open")}
@@ -235,6 +244,13 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
         <Collapsible isExpanded={openPanel === "payment"}>
           <TonalBlock tone="muted">
             <PaymentPanel order={order} />
+          </TonalBlock>
+        </Collapsible>
+      ) : null}
+      {canManage && hasEditablePayments ? (
+        <Collapsible isExpanded={openPanel === "payments"}>
+          <TonalBlock tone="muted">
+            <OrderPaymentsPanel order={order} />
           </TonalBlock>
         </Collapsible>
       ) : null}

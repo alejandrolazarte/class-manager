@@ -236,6 +236,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<MarkOrderDeliveredCommand, OrderResponse, MarkOrderDeliveredUseCase>();
         services.AddUseCase<RefundOrderCommand, OrderResponse, RefundOrderUseCase>();
         services.AddUseCase<RecordOrderPaymentCommand, OrderResponse, RecordOrderPaymentUseCase>();
+        services.AddUseCase<DeleteOrderPaymentCommand, OrderResponse, DeleteOrderPaymentUseCase>();
+        services.AddUseCase<RestoreOrderPaymentCommand, OrderResponse, RestoreOrderPaymentUseCase>();
         services.AddUseCase<CancelOrderCommand, OrderResponse, CancelOrderUseCase>();
         services.AddUseCase<MarkOrderReadyCommand, OrderResponse, MarkOrderReadyUseCase>();
         services.AddUseCase<ChooseOrderDeliveryCommand, OrderResponse, ChooseOrderDeliveryUseCase>();
