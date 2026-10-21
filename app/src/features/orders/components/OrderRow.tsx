@@ -11,11 +11,16 @@ import {
   orderStatusLabel,
 } from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
-import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useOrderMutations";
+import {
+  useCancelOrder,
+  useMarkOrderDelivered,
+  useMarkOrderReady,
+} from "@/features/orders/useOrderMutations";
 import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { TonalBlock } from "@/ui/TonalBlock";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
@@ -46,15 +51,22 @@ const paymentStatusTones: Record<Order["paymentStatus"], StatusTone> = {
 
 interface OrderActionProps {
   label: string;
+  isDanger?: boolean;
   onPress: () => void;
   isLoading?: boolean;
   isExpanded?: boolean;
 }
 
-function OrderAction({ label, onPress, isLoading = false, isExpanded }: OrderActionProps) {
+function OrderAction({
+  label,
+  isDanger = false,
+  onPress,
+  isLoading = false,
+  isExpanded,
+}: OrderActionProps) {
   return (
     <Button
-      variant="ghost"
+      variant={isDanger ? "dangerGhost" : "ghost"}
       size="small"
       label={label}
       onPress={onPress}
@@ -68,7 +80,9 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
   const { showToast } = useToast();
   const markOrderDeliveredMutation = useMarkOrderDelivered();
   const markOrderReadyMutation = useMarkOrderReady();
+  const cancelOrderMutation = useCancelOrder();
   const [openPanel, setOpenPanel] = useState<OrderPanel | null>(null);
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
   const hasRefundableLines = refundableLinesOf(order).length > 0;
   const isPending = order.status === "Pending";
   const isOwing = order.status !== "Cancelled" && order.balance > 0;
@@ -91,6 +105,19 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       showToast(translate("common.unexpectedError"));
     }
   };
+
+  const cancel = async () => {
+    try {
+      await cancelOrderMutation.mutateAsync(order.id);
+      showToast(translate("orders.cancelled"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    } finally {
+      setIsConfirmingCancel(false);
+    }
+  };
+
+  const amountToReturn = Math.min(order.paidAmount, order.total - order.refundedAmount);
 
   const togglePanel = (panel: OrderPanel) => setOpenPanel(openPanel === panel ? null : panel);
 
@@ -131,9 +158,9 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
             : translate("orders.balance", { balance: money(order.balance) })}
         </AppText>
       ) : null}
-      {order.refundedAmount > 0 ? (
+      {order.returnedAmount > 0 ? (
         <AppText variant="footnote" tone="subtle">
-          {translate("orders.refundedTotal", { amount: money(order.refundedAmount) })}
+          {translate("orders.refundedTotal", { amount: money(order.returnedAmount) })}
         </AppText>
       ) : null}
       {hasProducts && order.awaitsPickup ? (
@@ -155,7 +182,7 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
             <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />
           ) : null}
         </View>
-        <View className="ml-auto flex-row flex-wrap items-center justify-end">
+        <View className="ml-auto max-w-full flex-row flex-wrap items-center justify-end">
           {canManage && isOwing ? (
             <OrderAction
               label={translate(openPanel === "payment" ? "common.close" : "orders.collect")}
@@ -184,6 +211,13 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
               onPress={() => togglePanel("refund")}
             />
           ) : null}
+          {canManage && isPending ? (
+            <OrderAction
+              label={translate("orders.cancel")}
+              isDanger
+              onPress={() => setIsConfirmingCancel(true)}
+            />
+          ) : null}
         </View>
       </View>
       {canManage && isOwing ? (
@@ -199,6 +233,20 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
             <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
           </TonalBlock>
         </Collapsible>
+      ) : null}
+      {isConfirmingCancel ? (
+        <ConfirmDialog
+          title={translate("orders.cancelConfirm.title")}
+          message={
+            amountToReturn > 0
+              ? translate("orders.cancelConfirm.refund", { amount: money(amountToReturn) })
+              : undefined
+          }
+          confirmLabel={translate("orders.cancel")}
+          onCancel={() => setIsConfirmingCancel(false)}
+          onConfirm={cancel}
+          isConfirming={cancelOrderMutation.isPending}
+        />
       ) : null}
     </HairlineRow>
   );

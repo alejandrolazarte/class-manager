@@ -1148,6 +1148,8 @@
   "orders.number": "n.º {number}",
   "orders.confirmPayment": "Confirmar pago",
   "orders.cancel": "Cancelar pedido",
+  "orders.cancelConfirm.title": "¿Cancelar el pedido?",
+  "orders.cancelConfirm.refund": "Se le devuelven {amount}.",
   "orders.paid": "Pago confirmado",
   "orders.cancelled": "Pedido cancelado",
   "student.shop.title": "Tienda",

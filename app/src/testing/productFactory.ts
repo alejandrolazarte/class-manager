@@ -32,6 +32,7 @@ export function buildOrder(overrides: Partial<Order> = {}): Order {
     refundedAmount: 0,
     paidAmount: 24,
     balance: 0,
+    returnedAmount: 0,
     payments: [
       {
         id: "0192f0c4-0000-7000-8000-00000000d0p1",

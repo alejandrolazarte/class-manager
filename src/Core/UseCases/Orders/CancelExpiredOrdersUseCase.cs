@@ -21,7 +21,7 @@ public sealed class CancelExpiredOrdersUseCase(
         var expiredOrders = await orderRepository.ListUnpaidRequestsCreatedBeforeAsync(now - Order.RequestLifetime, cancellationToken);
         foreach (var order in expiredOrders)
         {
-            order.Cancel(null, now);
+            order.CancelUnpaid(null, now);
             await OrderReservations.ReleaseAsync(order, stockMovementRepository, null, now, cancellationToken);
         }
 

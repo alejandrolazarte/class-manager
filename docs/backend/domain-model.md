@@ -302,7 +302,7 @@ Lines (1–20) keep a snapshot of name and price. A **class pack line** creates 
 
 An order with products is delivered by **pickup** at the branch or **in class** (`DeliveryClassGroupId`: a class group one of the client's students is enrolled in; the instructor of that class sees it and hands it over). `ReadyAt` records when the branch marked it ready to hand over.
 
-A client's order reserves its tracked units. The branch records payments, hands it over or cancels it; the client can cancel it too while it has no payment. A client's order without any payment 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
+A client's order reserves its tracked units. The branch records payments, hands it over or cancels it; the client can cancel it too while it has no payment. When the team cancels an order with payments, everything paid is given back (`ReturnedAmount`) and counter-sale units go back to stock. A client's order without any payment 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
 
 **Numbering**: the number is taken inside the transaction that creates the order, with a single atomic `UPDATE Businesses SET NextOrderNumber = NextOrderNumber + 1 OUTPUT deleted.NextOrderNumber` (`IOrderNumbers`). The row lock lasts until the commit, so two orders created at the same time never get the same number, and a rolled-back order gives its number back. The unique index `(TenantId, Number)` is the safety net. The migration `AddOrderNumbers` numbered the orders that already existed, by creation date within each business.
 

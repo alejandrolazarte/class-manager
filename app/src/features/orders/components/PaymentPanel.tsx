@@ -5,7 +5,7 @@ import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPic
 import { PaymentMethod } from "@/features/fees/types";
 import { paidAmountOf, paymentAmountError } from "@/features/orders/orderPayments";
 import { Order } from "@/features/orders/types";
-import { useCancelOrder, useRecordOrderPayment } from "@/features/orders/useOrderMutations";
+import { useRecordOrderPayment } from "@/features/orders/useOrderMutations";
 import { formatMoney, toAmountText } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { Banner } from "@/ui/Banner";
@@ -20,7 +20,6 @@ interface PaymentPanelProps {
 export function PaymentPanel({ order }: PaymentPanelProps) {
   const { showToast } = useToast();
   const recordOrderPaymentMutation = useRecordOrderPayment();
-  const cancelOrderMutation = useCancelOrder();
   const [typedAmount, setTypedAmount] = useState(toAmountText(order.balance));
   const [method, setMethod] = useState<PaymentMethod>("Cash");
   const [hasFailed, setHasFailed] = useState(false);
@@ -30,16 +29,20 @@ export function PaymentPanel({ order }: PaymentPanelProps) {
   const [isReady, setIsReady] = useState(true);
   const amount = paidAmountOf(typedAmount);
   const amountError = paymentAmountError(typedAmount, order.balance);
-  const canCancel = isPending && order.payments.length === 0;
 
-  const run = async (
-    action: () => Promise<unknown>,
-    successKey: "orders.paid" | "orders.cancelled",
-  ) => {
+  const pay = async () => {
     setHasFailed(false);
     try {
-      await action();
-      showToast(translate(successKey));
+      await recordOrderPaymentMutation.mutateAsync({
+        orderId: order.id,
+        request: {
+          amount: amount ?? 0,
+          method,
+          isDelivered: isPending && isDelivered,
+          isReady: isPending && hasProducts && !isDelivered && isReady,
+        },
+      });
+      showToast(translate("orders.paid"));
     } catch {
       setHasFailed(true);
     }
@@ -86,32 +89,9 @@ export function PaymentPanel({ order }: PaymentPanelProps) {
         icon="paid"
         label={translate("orders.confirmPayment")}
         disabled={amount === null || amountError !== null}
-        onPress={() =>
-          run(
-            () =>
-              recordOrderPaymentMutation.mutateAsync({
-                orderId: order.id,
-                request: {
-                  amount: amount ?? 0,
-                  method,
-                  isDelivered: isPending && isDelivered,
-                  isReady: isPending && hasProducts && !isDelivered && isReady,
-                },
-              }),
-            "orders.paid",
-          )
-        }
+        onPress={pay}
         isLoading={recordOrderPaymentMutation.isPending}
       />
-      {canCancel ? (
-        <Button
-          size="medium"
-          variant="dangerOutline"
-          label={translate("orders.cancel")}
-          onPress={() => run(() => cancelOrderMutation.mutateAsync(order.id), "orders.cancelled")}
-          isLoading={cancelOrderMutation.isPending}
-        />
-      ) : null}
     </View>
   );
 }

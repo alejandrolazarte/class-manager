@@ -32,6 +32,7 @@ public sealed record OrderResponse(
     decimal RefundedAmount,
     decimal PaidAmount,
     decimal Balance,
+    decimal ReturnedAmount,
     IReadOnlyList<OrderPaymentResponse> Payments,
     string? Notes,
     DateTimeOffset CreatedAt,
@@ -59,6 +60,7 @@ public sealed record OrderResponse(
             order.RefundedAmount,
             order.PaidAmount,
             order.Balance,
+            order.ReturnedAmount,
             [
                 .. order.Payments
                     .OrderBy(payment => payment.PaidOn)

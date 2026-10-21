@@ -53,6 +53,7 @@ export interface Order {
   refundedAmount: number;
   paidAmount: number;
   balance: number;
+  returnedAmount: number;
   payments: OrderPayment[];
   notes: string | null;
   createdAt: string;

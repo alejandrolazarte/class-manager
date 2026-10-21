@@ -23,7 +23,8 @@ public sealed class Order : ITenantOwned, IAuditable
     private const string NotRefundableMessage = "Only orders that were paid or handed over can be refunded.";
     private const string NothingOwedMessage = "This order has nothing left to pay.";
     private const string AmountOverBalanceMessage = "The amount is more than what is left to pay.";
-    private const string NotCancellableMessage = "Only orders that were not handed over and have no payments can be cancelled.";
+    private const string NotCancellableMessage = "Only orders that were not handed over can be cancelled.";
+    private const string PaidNotCancellableMessage = "Only orders without payments can be cancelled from the app.";
     private const string NothingToRefundMessage = "There are no unused classes left to refund.";
     private const string NothingToDeliverMessage = "This order has no products to deliver.";
     private const string DeliveryClassRequiredMessage = "Choose the class where the products are handed over.";
@@ -71,6 +72,8 @@ public sealed class Order : ITenantOwned, IAuditable
     public decimal Balance => Math.Max(AmountDue - PaidAmount, 0);
 
     public decimal CollectedAmount => Math.Min(PaidAmount, AmountDue);
+
+    public decimal ReturnedAmount => PaidAmount - CollectedAmount;
 
     public DateOnly? LastPaidOn => _payments.Count == 0 ? null : _payments.Max(payment => payment.PaidOn);
 
@@ -172,11 +175,24 @@ public sealed class Order : ITenantOwned, IAuditable
         return Result.Success();
     }
 
+    public Result CancelUnpaid(Guid? cancelledByUserId, DateTimeOffset cancelledAt) =>
+        _payments.Count > 0
+            ? Result.Conflict(PaidNotCancellableMessage, OrderErrorCodes.NotCancellable)
+            : Cancel(cancelledByUserId, cancelledAt);
+
     public Result Cancel(Guid? cancelledByUserId, DateTimeOffset cancelledAt)
     {
-        if (Status != OrderStatus.Pending || _payments.Count > 0)
+        if (Status != OrderStatus.Pending)
         {
             return Result.Conflict(NotCancellableMessage, OrderErrorCodes.NotCancellable);
+        }
+
+        if (_payments.Count > 0)
+        {
+            foreach (var line in _lines)
+            {
+                line.RefundRemaining();
+            }
         }
 
         Status = OrderStatus.Cancelled;

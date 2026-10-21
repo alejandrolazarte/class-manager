@@ -25,6 +25,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Ignore(order => order.PaidAmount);
         builder.Ignore(order => order.Balance);
         builder.Ignore(order => order.CollectedAmount);
+        builder.Ignore(order => order.ReturnedAmount);
         builder.Ignore(order => order.LastPaidOn);
         builder.Ignore(order => order.PaymentStatus);
         builder.Ignore(order => order.ExpiresAt);

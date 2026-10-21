@@ -32,7 +32,7 @@ public sealed class CancelStudentAppOrderUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        var cancellation = order.Cancel(access.UserId, now);
+        var cancellation = order.CancelUnpaid(access.UserId, now);
         if (cancellation.IsFailure)
         {
             return cancellation.Error!;
