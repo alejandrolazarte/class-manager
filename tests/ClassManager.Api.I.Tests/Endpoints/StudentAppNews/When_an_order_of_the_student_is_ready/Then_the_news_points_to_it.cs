@@ -13,7 +13,7 @@ public sealed class Then_the_news_points_to_it(ApiFixture fixture)
         var product = await owner.RestockAsync(await owner.CreateProductAsync(), 2);
         (await scenario.Student.PostStudentAppOrderAsync(StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1))).EnsureSuccessStatusCode();
         var orderId = (await scenario.Student.ListStudentAppOrdersAsync()).Single().Id;
-        (await owner.PutOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
+        (await owner.PostOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
         (await owner.PutOrderReadyAsync(orderId)).EnsureSuccessStatusCode();
 
         var news = await scenario.Student.GetStudentAppNewsAsync();

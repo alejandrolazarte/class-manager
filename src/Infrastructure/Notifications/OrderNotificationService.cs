@@ -61,15 +61,18 @@ internal sealed class OrderNotificationService(
             return;
         }
 
-        var deliveryClassName = order.HasProducts && order.IsReady ? await DeliveryClassNameAsync(order, cancellationToken) : null;
-        if (order.HasProducts && order.IsReady)
+        var awaitsReadyPickup = order.AwaitsPickup && order.IsReady;
+        var deliveryClassName = awaitsReadyPickup ? await DeliveryClassNameAsync(order, cancellationToken) : null;
+        if (awaitsReadyPickup)
         {
             await PushReadyAsync(order, business, deliveryClassName, cancellationToken);
         }
 
         foreach (var recipient in await ClientRecipientsAsync(order, cancellationToken))
         {
-            var nextStep = !order.HasProducts ? recipient.Texts.OrderClassesCredited
+            var isDelivered = order.Status == OrderStatus.Delivered;
+            var nextStep = !order.HasProducts ? (isDelivered ? recipient.Texts.OrderClassesCredited : recipient.Texts.OrderClassesWhenHandedOver)
+                : isDelivered ? recipient.Texts.OrderHandedOver
                 : order.IsReady ? WhereToGetIt(recipient.Texts, business, deliveryClassName)
                 : recipient.Texts.OrderWillNotifyWhenReady;
             var paid = recipient.Texts.OrderPaid(DetailsOf(order, business), nextStep, order.HasProducts, webAppLinks.StudentAppOrders());

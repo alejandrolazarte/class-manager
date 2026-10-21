@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -12,6 +13,7 @@ public sealed class CancelOrderUseCase(
     IClientRepository clientRepository,
     IClassGroupRepository classGroupRepository,
     IStockMovementRepository stockMovementRepository,
+    IProductRepository productRepository,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
@@ -29,13 +31,18 @@ public sealed class CancelOrderUseCase(
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
         var now = timeProvider.GetUtcNow();
+        var unitsToRestock = await OrderReservations.SoldUnitsToRestockAsync(order, productRepository, cancellationToken);
         var cancellation = order.Cancel(access?.UserId, now);
         if (cancellation.IsFailure)
         {
             return cancellation.Error!;
         }
 
-        await OrderPayments.ReleaseReservationsAsync(order, stockMovementRepository, access?.UserId, now, cancellationToken);
+        await OrderReservations.ReleaseAsync(order, stockMovementRepository, access?.UserId, now, cancellationToken);
+        foreach (var (variantId, quantity) in unitsToRestock)
+        {
+            stockMovementRepository.Add(StockMovement.Return(variantId, quantity, order.Id, access?.UserId, now));
+        }
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await orderNotifications.OrderCancelledAsync(order, OrderCancellationReason.ByBranch, cancellationToken);
 

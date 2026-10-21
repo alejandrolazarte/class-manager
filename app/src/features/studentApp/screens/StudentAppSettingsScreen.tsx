@@ -88,6 +88,13 @@ export function StudentAppSettingsScreen() {
           onPress: () => router.push(routes.chooseAccount),
         },
         {
+          key: "appFeedback",
+          isVisible: true,
+          icon: "comment",
+          label: translate("appFeedback.title"),
+          onPress: () => router.push(routes.studentAppFeedback),
+        },
+        {
           key: "signOut",
           isVisible: true,
           icon: "signOut",

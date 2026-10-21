@@ -14,7 +14,7 @@ interface OrderMonthSummaryProps {
 
 export function OrderMonthSummary({ orderSummary, pendingOrders, money }: OrderMonthSummaryProps) {
   const total = orderSummary.collected + orderSummary.unpaid;
-  const unpaidCount = pendingOrders.requested.length;
+  const unpaidCount = pendingOrders.owing.length;
   return (
     <SummaryBlock
       label={translate("collections.collectedIn", { month: monthName(orderSummary.month) })}

@@ -235,6 +235,12 @@ test("Team screens with student activity", async ({ page, request }) => {
   await page.getByText("Remera del club").filter({ visible: true }).first().waitFor();
   await capture(page, "10e-venta-en-mostrador-catalogo");
 
+  await page.getByRole("button", { name: "Agregar Gorra del club" }).click();
+  await page.getByRole("button", { name: /^Listo/ }).click();
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByText("Cómo paga").filter({ visible: true }).first().waitFor();
+  await capture(page, "10f-venta-en-mostrador-pago");
+
   await page.goto("/settings/products");
   await page.getByText("Toalla microfibra").filter({ visible: true }).first().waitFor();
   await capture(page, "12g-productos");

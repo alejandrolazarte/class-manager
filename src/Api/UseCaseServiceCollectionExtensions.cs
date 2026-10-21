@@ -77,6 +77,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<UpdateMyLanguageCommand, MyAccountResponse, UpdateMyLanguageUseCase>();
         services.AddUseCase<AcceptLegalTermsCommand, AcceptLegalTermsResponse, AcceptLegalTermsUseCase>();
         services.AddUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse, RequestEmailChangeUseCase>();
+        services.AddUseCase<SendAppFeedbackCommand, SendAppFeedbackResponse, SendAppFeedbackUseCase>();
         services.AddUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse, ConfirmEmailChangeUseCase>();
         services.AddUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse, DeleteMyAccountUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();
@@ -234,7 +235,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<CreateCounterSaleCommand, OrderResponse, CreateCounterSaleUseCase>();
         services.AddUseCase<MarkOrderDeliveredCommand, OrderResponse, MarkOrderDeliveredUseCase>();
         services.AddUseCase<RefundOrderCommand, OrderResponse, RefundOrderUseCase>();
-        services.AddUseCase<ConfirmOrderPaymentCommand, OrderResponse, ConfirmOrderPaymentUseCase>();
+        services.AddUseCase<RecordOrderPaymentCommand, OrderResponse, RecordOrderPaymentUseCase>();
         services.AddUseCase<CancelOrderCommand, OrderResponse, CancelOrderUseCase>();
         services.AddUseCase<MarkOrderReadyCommand, OrderResponse, MarkOrderReadyUseCase>();
         services.AddUseCase<ChooseOrderDeliveryCommand, OrderResponse, ChooseOrderDeliveryUseCase>();

@@ -90,7 +90,6 @@ public static class ApiRoutes
     public const string OrderSummary = "/summary";
     public const string Delivered = "/delivered";
     public const string Refunds = "/refunds";
-    public const string Payment = "/payment";
     public const string Ready = "/ready";
     public const string Delivery = "/delivery";
     public const string DeliveryClasses = "/delivery-classes";
@@ -135,6 +134,7 @@ public static class ApiRoutes
     public const string MyAccount = "/api/me/account";
     public const string MyEmailChange = "/api/me/account/email-change";
     public const string MyAccountDeletion = "/api/me/account/deletion";
+    public const string MyAppFeedback = "/api/me/app-feedback";
     public const string MyLanguage = "/api/me/account/language";
     public const string MyLegalTermsAcceptance = "/api/me/account/legal-terms-acceptance";
     public const string SwitchBranch = "/branch";

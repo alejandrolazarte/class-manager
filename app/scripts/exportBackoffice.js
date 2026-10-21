@@ -1,4 +1,5 @@
 const { spawnSync } = require("node:child_process");
+const { applyBackofficeWebIdentity } = require("./applyBackofficeWebIdentity");
 
 const outputDirectory = "dist-backoffice";
 const backofficeEnvironment = { ...process.env, APP_TARGET: "backoffice" };
@@ -21,3 +22,4 @@ run(
 );
 run("node", ["scripts/relocateNodeModulesAssets.js", outputDirectory]);
 run("node", ["scripts/writeStaticWebAppConfig.js", outputDirectory]);
+applyBackofficeWebIdentity(outputDirectory);

@@ -49,6 +49,9 @@ internal static class AuthenticationEndpoints
         endpoints.MapPost(ApiRoutes.MyAccountDeletion, DeleteMyAccountAsync)
             .RequireAnyAccount()
             .RequireRateLimiting(SecurityServiceCollectionExtensions.AuthenticationRateLimitPolicy);
+        endpoints.MapPost(ApiRoutes.MyAppFeedback, SendAppFeedbackAsync)
+            .RequireAnyAccount()
+            .RequireRateLimiting(SecurityServiceCollectionExtensions.AuthenticationRateLimitPolicy);
 
         return endpoints;
     }
@@ -178,6 +181,16 @@ internal static class AuthenticationEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(response => TypedResults.Accepted((string?)null, response));
+    }
+
+    private static async Task<IResult> SendAppFeedbackAsync(
+        SendAppFeedbackCommand command,
+        IUseCase<SendAppFeedbackCommand, SendAppFeedbackResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> DeleteMyAccountAsync(

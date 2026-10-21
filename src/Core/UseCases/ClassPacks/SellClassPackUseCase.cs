@@ -139,10 +139,11 @@ public sealed class SellClassPackUseCase(
             purchase.ClientId,
             [line.Value],
             purchase.CurrencyCode,
+            paidAmount: null,
             purchase.Method,
             purchase.PurchasedOn,
             purchase.Notes,
-            isDelivered: false,
+            isDelivered: true,
             today,
             purchase.RecordedByUserId,
             purchase.CreatedAt);

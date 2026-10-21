@@ -13,7 +13,7 @@ public sealed class Then_the_student_gets_a_push(ApiFixture fixture)
         (await scenario.Student.PostStudentAppOrderForClassAsync(
             scenario.Instructors.InstructorClassGroup.Id, StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1))).EnsureSuccessStatusCode();
         var orderId = (await scenario.Student.ListStudentAppOrdersAsync()).Single().Id;
-        (await owner.PutOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
+        (await owner.PostOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
 
         (await owner.PutOrderReadyAsync(orderId)).EnsureSuccessStatusCode();
 

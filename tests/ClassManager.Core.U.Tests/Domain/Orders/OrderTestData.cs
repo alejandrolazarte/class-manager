@@ -18,6 +18,12 @@ internal static class OrderTestData
     public static Order Requested(DateTimeOffset createdAt, params OrderLine[] lines) =>
         Order.Request(ClassPackTestData.ClientId, lines, TestData.CurrencyCode, null, createdAt).Value!;
 
-    public static Order CounterSale(bool isDelivered, params OrderLine[] lines) =>
-        Order.CounterSale(ClassPackTestData.ClientId, lines, TestData.CurrencyCode, PaymentMethod.Cash, TestData.Today, null, isDelivered, TestData.Today, null, TestData.Now).Value!;
+    public static Order CounterSale(bool isDelivered, params OrderLine[] lines) => PartlyPaidCounterSale(null, isDelivered, lines);
+
+    public static Order PartlyPaidCounterSale(decimal? paidAmount, bool isDelivered, params OrderLine[] lines) =>
+        Order.CounterSale(
+            ClassPackTestData.ClientId, lines, TestData.CurrencyCode, paidAmount, PaymentMethod.Cash, TestData.Today, null, isDelivered, TestData.Today, null, TestData.Now).Value!;
+
+    public static Result Pay(Order order, decimal amount) =>
+        order.RecordPayment(amount, PaymentMethod.Transfer, TestData.Today, TestData.Today, null, TestData.Now);
 }

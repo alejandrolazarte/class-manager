@@ -15,6 +15,8 @@ public sealed record OrderLineResponse(
     decimal RefundedAmount,
     Guid? ClassPackPurchaseId);
 
+public sealed record OrderPaymentResponse(Guid Id, decimal Amount, PaymentMethod Method, DateOnly PaidOn);
+
 public sealed record OrderResponse(
     Guid Id,
     int Number,
@@ -22,12 +24,16 @@ public sealed record OrderResponse(
     string? ClientFullName,
     OrderChannel Channel,
     OrderStatus Status,
+    OrderPaymentStatus PaymentStatus,
     bool AwaitsPickup,
-    PaymentMethod? Method,
-    DateOnly? PaidOn,
+    DateOnly? LastPaidOn,
     string CurrencyCode,
     decimal Total,
     decimal RefundedAmount,
+    decimal PaidAmount,
+    decimal Balance,
+    decimal ReturnedAmount,
+    IReadOnlyList<OrderPaymentResponse> Payments,
     string? Notes,
     DateTimeOffset CreatedAt,
     DateTimeOffset? DeliveredAt,
@@ -46,12 +52,21 @@ public sealed record OrderResponse(
             client?.User.FullName,
             order.Channel,
             order.Status,
+            order.PaymentStatus,
             order.AwaitsPickup,
-            order.Method,
-            order.PaidOn,
+            order.LastPaidOn,
             order.CurrencyCode,
             order.Total,
             order.RefundedAmount,
+            order.PaidAmount,
+            order.Balance,
+            order.ReturnedAmount,
+            [
+                .. order.Payments
+                    .OrderBy(payment => payment.PaidOn)
+                    .ThenBy(payment => payment.CreatedAt)
+                    .Select(payment => new OrderPaymentResponse(payment.Id, payment.Amount, payment.Method, payment.PaidOn)),
+            ],
             order.Notes,
             order.CreatedAt,
             order.DeliveredAt,

@@ -13,12 +13,12 @@ public interface IOrderRepository
 
     Task<IReadOnlyList<Order>> ListAsync(OrderSearchCriteria criteria, ClientScope? scope, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Order>> ListPaidBetweenOrRequestedAsync(
+    Task<IReadOnlyList<Order>> ListPaidBetweenOrOwingAsync(
         DateOnly firstDay, DateOnly lastDay, ClientScope? scope, CancellationToken cancellationToken);
 
-    Task<int> CountRequestedByClientAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<int> CountUnpaidRequestsByClientAsync(Guid clientId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Order>> ListRequestedCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Order>> ListUnpaidRequestsCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(Guid classGroupId, CancellationToken cancellationToken);
 

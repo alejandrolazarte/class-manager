@@ -3,11 +3,11 @@ namespace ClassManager.Infrastructure.Persistence;
 
 internal sealed class ExpiredOrderDirectory(AppDbContext context) : IExpiredOrderDirectory
 {
-    public async Task<IReadOnlyList<Guid>> ListBusinessesWithRequestsCreatedBeforeAsync(
+    public async Task<IReadOnlyList<Guid>> ListBusinessesWithUnpaidRequestsCreatedBeforeAsync(
         DateTimeOffset createdBefore, CancellationToken cancellationToken) =>
         await context.Orders.AsNoTracking()
             .IgnoreTenantFilter()
-            .Where(order => order.Status == OrderStatus.Requested && order.CreatedAt <= createdBefore)
+            .Where(OrderQueries.IsUnpaidRequestCreatedBefore(createdBefore))
             .Select(order => order.TenantId)
             .Distinct()
             .ToListAsync(cancellationToken);
