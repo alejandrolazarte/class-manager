@@ -10,21 +10,21 @@ jest.mock("@/features/classGroups/classGroupsApi");
 
 const aquagym = buildClassGroup({ id: "class-group-aquagym", name: "Aquagym" });
 
-describe("When class pack has no classes chosen", () => {
+describe("When group pack has no class chosen", () => {
   beforeEach(() => {
     jest.mocked(listActiveClassGroups).mockResolvedValue([aquagym]);
   });
 
-  it("Then enrolling the student is explained", async () => {
+  it("Then it cannot be saved", async () => {
     await renderWithProviders(<ClassPackFormScreen />);
-
-    expect(
-      await screen.findByText(translate("classPacks.form.classGroupsNoneHint")),
-    ).toBeOnTheScreen();
-    await fireEvent.press(
-      screen.getByRole("button", { name: translate("classPacks.form.chooseClassGroup") }),
+    await fireEvent.changeText(
+      screen.getByLabelText(translate("classPacks.form.name")),
+      "8 clases",
     );
-    await fireEvent.press(await screen.findByRole("button", { name: aquagym.name }));
-    expect(screen.getByText(translate("classPacks.form.classGroupsHint"))).toBeOnTheScreen();
+    await fireEvent.changeText(screen.getByLabelText(translate("classPacks.form.classCount")), "8");
+    await fireEvent.changeText(screen.getByLabelText(translate("classPacks.form.price")), "160");
+    await screen.findByRole("button", { name: translate("classPacks.form.chooseClassGroup") });
+
+    expect(screen.getByRole("button", { name: translate("common.save") })).toBeDisabled();
   });
 });

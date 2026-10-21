@@ -70,6 +70,7 @@ Purchase `status`: `Active`, `UsedUp` or `Expired`. `classPackClients` lists fam
 | P4 | Only active packs can be sold | Validation |
 | P5 | Sale date not after today; method required; notes ≤ 200 characters | Validation |
 | P6 | Pack, purchase and client belong to the business | `404` |
+| P7 | A pack is either for group classes or for private lessons. For group classes it covers at least one class and has no duration of its own (each class keeps its own). For private lessons it covers no class and needs the lesson duration (15–240 minutes, in steps of 5), which is suggested when scheduling the lesson | Validation on `classDurationMinutes` |
 
 ## Data
 

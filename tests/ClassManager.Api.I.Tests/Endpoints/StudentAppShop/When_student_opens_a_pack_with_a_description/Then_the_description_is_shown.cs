@@ -13,7 +13,7 @@ public sealed class Then_the_description_is_shown(ApiFixture fixture)
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         using (var created = await scenario.Instructors.Business.HttpClient.PostAsJsonAsync(
             ApiRoutes.ClassPacks,
-            new CreateClassPackCommand(ClassPackRequests.PackName, 4, 80m, 1, Description: Description),
+            new CreateClassPackCommand(ClassPackRequests.PackName, 4, 80m, 1, ClassPackRequests.PrivateLessonMinutes, Description: Description),
             ApiRequests.JsonOptions))
         {
             created.StatusCode.ShouldBe(HttpStatusCode.Created);

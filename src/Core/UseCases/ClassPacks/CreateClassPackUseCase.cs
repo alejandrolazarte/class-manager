@@ -31,23 +31,22 @@ public sealed class CreateClassPackUseCase(
             return classPack.Error!;
         }
 
-        var lessons = classPack.Value!.DefineLessons(command.ClassDurationMinutes);
-        if (lessons.IsFailure)
-        {
-            return lessons.Error!;
-        }
-
-        var description = classPack.Value.Describe(command.Description);
+        var description = classPack.Value!.Describe(command.Description);
         if (description.IsFailure)
         {
             return description.Error!;
         }
 
-        var coverage = await ClassPackClassGroups.CoverAsync(
-            classPack.Value, command.ClassGroupIds, nameof(CreateClassPackCommand.ClassGroupIds), classGroupRepository, cancellationToken);
-        if (coverage.IsFailure)
+        var lessons = await ClassPackClassGroups.DefineLessonsAsync(
+            classPack.Value,
+            command.ClassGroupIds,
+            command.ClassDurationMinutes,
+            nameof(CreateClassPackCommand.ClassGroupIds),
+            classGroupRepository,
+            cancellationToken);
+        if (lessons.IsFailure)
         {
-            return coverage.Error!;
+            return lessons.Error!;
         }
 
         if (await classPackRepository.FindByNameAsync(classPack.Value!.Name, cancellationToken) is not null)
