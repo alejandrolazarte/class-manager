@@ -20,6 +20,8 @@ internal sealed class EnrollmentUseCaseBuilder
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IClassBalanceService> ClassBalances { get; } = new();
     public Mock<IClassPackRepository> ClassPacks { get; } = new();
+    public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
+    public List<ClientBillingPlanChange> PlanChanges { get; } = [];
     public List<ClassPackUsage> ClientPackUsages { get; } = [];
     public ClassGroup ClassGroup { get; } = ClassGroup.Create(
         "Natación inicial", Guid.CreateVersion7(), ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!, 2, null).Value!;
@@ -34,7 +36,15 @@ internal sealed class EnrollmentUseCaseBuilder
         ClassBalances
             .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new Dictionary<Guid, ClassBalance> { [Student.ClientId] = new(ClientPackUsages, []) });
+        FeeSchedule
+            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PlanChanges);
+        FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<DefaultMonthlyFeeChange>());
     }
+
+    public void PayPerClass() =>
+        PlanChanges.Add(ClientBillingPlanChange.Create(
+            Student.ClientId, BillingMonth.From(TestData.Today), BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!);
 
     public void BuyActivePack(IReadOnlyCollection<Guid> classGroupIds)
     {
@@ -59,7 +69,8 @@ internal sealed class EnrollmentUseCaseBuilder
             new EveryAccessScopes(),
             Clients.Object,
             ClassBalances.Object,
-            ClassPacks.Object);
+            ClassPacks.Object,
+            FeeSchedule.Object);
 
     public EndEnrollmentUseCase BuildEnd() =>
         new(Enrollments.Object, ClassGroups.Object, UnitOfWork.Object, BusinessCalendar.Object, new EveryAccessScopes());

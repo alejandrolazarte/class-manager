@@ -6,6 +6,7 @@ public sealed class Then_the_student_is_enrolled
     public async Task Then_the_student_is_enrolled_Run()
     {
         var builder = new EnrollmentUseCaseBuilder();
+        builder.PayPerClass();
         builder.BuyActivePack([builder.ClassGroup.Id]);
 
         var response = await builder.BuildEnroll().ExecuteAsync(builder.ValidCommand(), CancellationToken.None);

@@ -8,6 +8,7 @@ public sealed class Then_returns_conflict
     public async Task Then_returns_conflict_Run()
     {
         var builder = new EnrollmentUseCaseBuilder();
+        builder.PayPerClass();
         builder.BuyActivePack([Guid.CreateVersion7()]);
 
         var response = await builder.BuildEnroll().ExecuteAsync(builder.ValidCommand(), CancellationToken.None);

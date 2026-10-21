@@ -7,6 +7,7 @@ using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Enrollments;
+using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Students;
 
 namespace ClassManager.Core.UseCases.Enrollments;
@@ -28,7 +29,8 @@ public sealed class EnrollStudentUseCase(
     IAccessScopes accessScopes,
     IClientRepository clientRepository,
     IClassBalanceService classBalanceService,
-    IClassPackRepository classPackRepository)
+    IClassPackRepository classPackRepository,
+    IFeeScheduleRepository feeScheduleRepository)
     : IUseCase<EnrollStudentCommand, EnrollmentResponse>
 {
     private const string ClassGroupNotFoundMessage = "The class group does not exist.";
@@ -36,7 +38,7 @@ public sealed class EnrollStudentUseCase(
     private const string ClassGroupInactiveMessage = "The class group is inactive.";
     private const string ClassGroupFullMessage = "The class group is full.";
     private const string AlreadyEnrolledMessage = "The student is already enrolled in this class group.";
-    private const string OutsidePackMessage = "None of the student's active class packs covers this class group.";
+    private const string OutsidePackMessage = "The student pays per class and none of their active class packs covers this class group.";
 
     public async Task<Result<EnrollmentResponse>> ExecuteAsync(EnrollStudentCommand command, CancellationToken cancellationToken)
     {
@@ -84,7 +86,7 @@ public sealed class EnrollStudentUseCase(
                 new Dictionary<string, object?> { [ClassGroupErrorCodes.CapacityDetail] = classGroup.Capacity });
         }
 
-        if (!command.AllowOutsidePack && await IsOutsideActivePacksAsync(student.ClientId, classGroup.Id, cancellationToken))
+        if (!command.AllowOutsidePack && await IsOutsideActivePacksAsync(student.ClientId, classGroup.Id, today, cancellationToken))
         {
             return Result.Conflict<EnrollmentResponse>(OutsidePackMessage, EnrollmentErrorCodes.OutsidePack);
         }
@@ -104,8 +106,17 @@ public sealed class EnrollStudentUseCase(
         return EnrollmentResponse.From(enrollment);
     }
 
-    private async Task<bool> IsOutsideActivePacksAsync(Guid clientId, Guid classGroupId, CancellationToken cancellationToken)
+    private async Task<bool> IsOutsideActivePacksAsync(Guid clientId, Guid classGroupId, DateOnly today, CancellationToken cancellationToken)
     {
+        var plan = FeeTimeline.PlanIn(
+            await feeScheduleRepository.ListClientPlanChangesAsync([clientId], cancellationToken),
+            await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken),
+            BillingMonth.From(today));
+        if (!plan.PaysPerClass)
+        {
+            return false;
+        }
+
         var balances = await classBalanceService.CalculateAsync([clientId], cancellationToken);
         var activePurchases = balances[clientId].Purchases
             .Where(usage => usage.Status == ClassPackPurchaseStatus.Active)
