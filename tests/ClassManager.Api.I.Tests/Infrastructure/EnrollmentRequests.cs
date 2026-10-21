@@ -20,10 +20,11 @@ public static class EnrollmentRequests
         return await httpClient.CreateClassGroupAsync(ClassGroupRequests.ClassGroupFor(instructor.Id) with { Capacity = capacity });
     }
 
-    public static Task<HttpResponseMessage> PostEnrollmentAsync(this HttpClient httpClient, Guid classGroupId, Guid studentId, DateOnly? startDate = null) =>
+    public static Task<HttpResponseMessage> PostEnrollmentAsync(
+        this HttpClient httpClient, Guid classGroupId, Guid studentId, DateOnly? startDate = null, bool allowOutsidePack = false) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.ClassGroups}/{classGroupId}{ApiRoutes.EnrollmentsSegment}",
-            new EnrollStudentRequest(studentId, startDate),
+            new EnrollStudentRequest(studentId, startDate, allowOutsidePack),
             ApiRequests.JsonOptions);
 
     public static async Task<EnrollmentResponse> EnrollAsync(this HttpClient httpClient, Guid classGroupId, Guid studentId, DateOnly? startDate = null)
