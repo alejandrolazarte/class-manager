@@ -46,6 +46,12 @@ export interface CommandLog {
   isConnected: boolean;
 }
 
+export interface SecurityEventRoute {
+  method: string;
+  route: string;
+  count: number;
+}
+
 export interface SecurityEventEntry {
   occurredAt: string;
   event: SecurityEventType;
@@ -60,6 +66,8 @@ export interface SecurityEventEntry {
   brandName: string | null;
   branchName: string | null;
   userName: string | null;
+  routes: SecurityEventRoute[] | null;
+  otherRouteRequests: number | null;
 }
 
 export interface SecurityEventList {

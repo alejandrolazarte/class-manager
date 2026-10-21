@@ -12,6 +12,7 @@ internal sealed class SecurityEventRequests
 {
     public const string ClientsRoute = "/api/clients";
     public const string IpAddress = "203.0.113.7";
+    public const string UserAgent = "test-agent";
 
     public static readonly Guid TenantId = Guid.CreateVersion7();
     public static readonly Guid UserId = Guid.CreateVersion7();
@@ -22,7 +23,7 @@ internal sealed class SecurityEventRequests
 
     public SecurityEventBurstWorker BurstWorker => new(Throttle, Events, new FakeTimeProvider(CommandAuditEntries.OccurredAt));
 
-    public async Task SendAsync(int statusCode, object? endpointMetadata = null, bool planLimit = false)
+    public async Task SendAsync(int statusCode, object? endpointMetadata = null, bool planLimit = false, string route = ClientsRoute, string userAgent = UserAgent)
     {
         var middleware = new SecurityEventMiddleware(
             httpContext =>
@@ -40,13 +41,14 @@ internal sealed class SecurityEventRequests
             new FakeTimeProvider(CommandAuditEntries.OccurredAt));
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = HttpMethods.Post;
+        httpContext.Request.Headers.UserAgent = userAgent;
         httpContext.Connection.RemoteIpAddress = IPAddress.Parse(IpAddress);
         httpContext.SetEndpoint(new RouteEndpoint(
             _ => Task.CompletedTask,
-            RoutePatternFactory.Parse(ClientsRoute),
+            RoutePatternFactory.Parse(route),
             order: 0,
             endpointMetadata is null ? EndpointMetadataCollection.Empty : new EndpointMetadataCollection(endpointMetadata),
-            displayName: ClientsRoute));
+            displayName: route));
 
         await middleware.InvokeAsync(httpContext, new FixedCurrentUser(null, UserId), new FixedTenantContext(TenantId));
     }

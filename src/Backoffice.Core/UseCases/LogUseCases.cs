@@ -47,7 +47,9 @@ public sealed record SecurityEventResponse(
     Guid? BrandId,
     string? BrandName,
     string? BranchName,
-    string? UserName);
+    string? UserName,
+    IReadOnlyList<SecurityLogRoute>? Routes,
+    int? OtherRouteRequests);
 
 public sealed record SecurityEventListResponse(DateOnly Day, IReadOnlyList<SecurityEventResponse> Events, bool IsConnected = true) : ICountedRows
 {
@@ -141,7 +143,9 @@ public sealed class ListSecurityEventsUseCase(IAuditLogReader reader, IAuditLogD
                         branch?.BrandId,
                         branch?.BrandName,
                         branch?.BranchName,
-                        AuditLogLookups.NameOf(userNames, entry.UserId));
+                        AuditLogLookups.NameOf(userNames, entry.UserId),
+                        entry.Routes,
+                        entry.OtherRouteRequests);
                 })]);
     }
 }

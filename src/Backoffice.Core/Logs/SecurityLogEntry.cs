@@ -12,4 +12,6 @@ public sealed record SecurityLogEntry(
     string? IpAddress,
     string? UserAgent,
     int? Count,
-    string? TraceId);
+    string? TraceId,
+    IReadOnlyList<SecurityLogRoute>? Routes = null,
+    int? OtherRouteRequests = null);

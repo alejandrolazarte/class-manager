@@ -13,7 +13,7 @@ internal sealed class SecurityEventBurstWorker(
     public void ReportBursts()
     {
         var now = timeProvider.GetUtcNow();
-        foreach (var (ipAddress, count) in throttle.TakeBursts())
+        foreach (var burst in throttle.TakeBursts())
         {
             securityEvents.Record(new SecurityEvent(
                 now,
@@ -24,10 +24,12 @@ internal sealed class SecurityEventBurstWorker(
                 Route: null,
                 Method: null,
                 StatusCode: null,
-                ipAddress,
-                UserAgent: null,
-                count,
-                TraceId: null));
+                burst.IpAddress,
+                burst.UserAgent,
+                burst.Count,
+                TraceId: null,
+                burst.Routes.Count > 0 ? burst.Routes : null,
+                burst.OtherRouteRequests > 0 ? burst.OtherRouteRequests : null));
         }
     }
 

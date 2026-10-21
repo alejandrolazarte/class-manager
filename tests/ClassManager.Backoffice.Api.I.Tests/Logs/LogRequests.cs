@@ -55,4 +55,11 @@ internal sealed record CommandLogEntryResponse(string Command, string Outcome, s
 
 internal sealed record SecurityEventListResponse(DateOnly Day, IReadOnlyList<SecurityEventEntryResponse> Events);
 
-internal sealed record SecurityEventEntryResponse(string Event, string? Route, string? IpAddress, string? BrandName);
+internal sealed record SecurityEventEntryResponse(string Event, string? Route, string? IpAddress, string? BrandName)
+{
+    public IReadOnlyList<SecurityEventRouteResponse>? Routes { get; init; }
+
+    public int? OtherRouteRequests { get; init; }
+}
+
+internal sealed record SecurityEventRouteResponse(string Method, string Route, int Count);
