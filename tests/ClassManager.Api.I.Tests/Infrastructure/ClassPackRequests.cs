@@ -6,6 +6,7 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 public static class ClassPackRequests
 {
     public const string PackName = "4 clases";
+    public const int PrivateLessonMinutes = 45;
 
     public static Task<HttpResponseMessage> PostClassPackAsync(
         this HttpClient httpClient,
@@ -16,7 +17,13 @@ public static class ClassPackRequests
         IReadOnlyList<Guid>? classGroupIds = null) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.ClassPacks,
-            new CreateClassPackCommand(name, classCount, price, validityMonths, ClassGroupIds: classGroupIds),
+            new CreateClassPackCommand(
+                name,
+                classCount,
+                price,
+                validityMonths,
+                classGroupIds is { Count: > 0 } ? null : PrivateLessonMinutes,
+                classGroupIds),
             ApiRequests.JsonOptions);
 
     public static async Task<ClassPackResponse> CreateClassPackAsync(

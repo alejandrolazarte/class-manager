@@ -23,6 +23,8 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     private const string ClassCountRangeMessage = "The number of classes must be between 1 and 100.";
     private const string ValidityRangeMessage = "The validity must be between 1 and 24 months.";
     private const string ClassDurationMessage = "Class duration must be between 15 and 240 minutes, in steps of 5.";
+    private const string PrivateLessonDurationRequiredMessage = "A pack for private lessons needs the lesson duration.";
+    private const string GroupClassDurationNotAllowedMessage = "A pack for group classes uses the duration of each class.";
     private const string DescriptionLengthMessage = "The description must be at most 500 characters.";
 
     private readonly List<ClassPackClassGroup> _classGroups = [];
@@ -95,7 +97,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         return Result.Success();
     }
 
-    public Result DefineLessons(int? classDurationMinutes)
+    public Result DefineLessons(IReadOnlyCollection<Guid> classGroupIds, int? classDurationMinutes)
     {
         if (classDurationMinutes is not null
             && (classDurationMinutes is < ClassSchedule.MinimumDurationMinutes or > ClassSchedule.MaximumDurationMinutes
@@ -104,7 +106,18 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
             return Result.Validation(ClassDurationMessage, fieldName: nameof(ClassDurationMinutes));
         }
 
+        if (classGroupIds.Count == 0 && classDurationMinutes is null)
+        {
+            return Result.Validation(PrivateLessonDurationRequiredMessage, fieldName: nameof(ClassDurationMinutes));
+        }
+
+        if (classGroupIds.Count > 0 && classDurationMinutes is not null)
+        {
+            return Result.Validation(GroupClassDurationNotAllowedMessage, fieldName: nameof(ClassDurationMinutes));
+        }
+
         ClassDurationMinutes = classDurationMinutes;
+        CoverClassGroups(classGroupIds);
         return Result.Success();
     }
 
@@ -120,7 +133,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         return Result.Success();
     }
 
-    public void CoverClassGroups(IEnumerable<Guid> classGroupIds)
+    private void CoverClassGroups(IEnumerable<Guid> classGroupIds)
     {
         var requestedIds = classGroupIds.ToHashSet();
         _classGroups.RemoveAll(classGroup => !requestedIds.Contains(classGroup.ClassGroupId));

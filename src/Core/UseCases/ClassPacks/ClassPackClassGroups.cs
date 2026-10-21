@@ -6,9 +6,10 @@ namespace ClassManager.Core.UseCases.ClassPacks;
 
 internal static class ClassPackClassGroups
 {
-    public static async Task<Result> CoverAsync(
+    public static async Task<Result> DefineLessonsAsync(
         ClassPack classPack,
         IReadOnlyList<Guid>? classGroupIds,
+        int? classDurationMinutes,
         string fieldName,
         IClassGroupRepository classGroupRepository,
         CancellationToken cancellationToken)
@@ -22,7 +23,6 @@ internal static class ClassPackClassGroups
             }
         }
 
-        classPack.CoverClassGroups(requestedIds);
-        return Result.Success();
+        return classPack.DefineLessons(requestedIds, classDurationMinutes);
     }
 }

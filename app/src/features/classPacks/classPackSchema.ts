@@ -15,6 +15,10 @@ export const classPackLimits = {
   maximumImageCount: 1,
 } as const;
 
+export const classPackKinds = ["groupClasses", "privateLessons"] as const;
+
+export type ClassPackKind = (typeof classPackKinds)[number];
+
 const wholeNumberPattern = /^\d+$/;
 
 function isWholeNumberBetween(text: string, minimum: number, maximum: number): boolean {
@@ -63,6 +67,7 @@ export const classPackSchema = z.object({
         ),
       translate("classPacks.validation.validityInvalid"),
     ),
+  kind: z.enum(classPackKinds),
   classDurationMinutes: z.string(),
   classGroupIds: z.array(z.string()),
 });
@@ -86,6 +91,10 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
     classCount: classPack ? String(classPack.classCount) : "",
     price: classPack ? String(classPack.price).replace(".", ",") : "",
     validityMonths: classPack?.validityMonths ? String(classPack.validityMonths) : "",
+    kind:
+      classPack === undefined || classPack.classGroupIds.length > 0
+        ? "groupClasses"
+        : "privateLessons",
     classDurationMinutes: classPack?.classDurationMinutes
       ? String(classPack.classDurationMinutes)
       : "",
@@ -93,17 +102,26 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
   };
 }
 
+export function requiredClassPackFields(kind: ClassPackKind) {
+  return [
+    "name",
+    "classCount",
+    "price",
+    kind === "groupClasses" ? "classGroupIds" : "classDurationMinutes",
+  ] as const satisfies readonly (keyof ClassPackFormValues)[];
+}
+
 export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveClassPackRequest {
   const validityMonths = formValues.validityMonths.trim();
   const description = formValues.description.trim();
+  const isForGroupClasses = formValues.kind === "groupClasses";
   return {
     name: formValues.name.trim(),
     description: description.length === 0 ? null : description,
     classCount: Number(formValues.classCount.trim()),
     price: parseAmount(formValues.price) ?? 0,
     validityMonths: validityMonths.length === 0 ? null : Number(validityMonths),
-    classDurationMinutes:
-      formValues.classDurationMinutes.length === 0 ? null : Number(formValues.classDurationMinutes),
-    classGroupIds: formValues.classGroupIds,
+    classDurationMinutes: isForGroupClasses ? null : Number(formValues.classDurationMinutes),
+    classGroupIds: isForGroupClasses ? formValues.classGroupIds : [],
   };
 }

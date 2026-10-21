@@ -11,7 +11,7 @@ public sealed class Then_returns_conflict
         builder.ClassPacks.Setup(repository => repository.FindByNameAsync(builder.Pack.Name, It.IsAny<CancellationToken>())).ReturnsAsync(builder.Pack);
 
         var response = await builder.BuildCreate().ExecuteAsync(
-            new CreateClassPackCommand(builder.Pack.Name, 8, 160m, 2), CancellationToken.None);
+            new CreateClassPackCommand(builder.Pack.Name, 8, 160m, 2, ClassDurationMinutes: 45), CancellationToken.None);
 
         response.Error!.Kind.ShouldBe(ErrorKind.Conflict);
     }
