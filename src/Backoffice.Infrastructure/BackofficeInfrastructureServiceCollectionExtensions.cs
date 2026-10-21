@@ -2,10 +2,12 @@ using ClassManager.Backoffice.Core.Brands;
 using ClassManager.Backoffice.Core.Operators;
 using ClassManager.Backoffice.Core.UseCases;
 using ClassManager.Backoffice.Infrastructure.Brands;
+using ClassManager.Backoffice.Infrastructure.Logs;
 using ClassManager.Backoffice.Infrastructure.Operators;
 using ClassManager.Backoffice.Infrastructure.Persistence;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Infrastructure;
+using ClassManager.Infrastructure.Audit;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Security;
 using ClassManager.Security.Tokens;
@@ -36,6 +38,8 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddScoped<IBackofficeLoginRepository, BackofficeLoginRepository>();
         services.AddScoped<IPlatformOperatorDirectory, PlatformOperatorDirectory>();
         services.AddScoped<IBackofficeSessionService, BackofficeSessionService>();
+        services.AddAuditLogReader();
+        services.Replace(ServiceDescriptor.Singleton(AuditSource.Backoffice));
         services.AddScoped<IBrandDirectory, BrandDirectory>();
         services.AddScoped<IBrandSubscriptionRepository, BrandSubscriptionRepository>();
         services.Replace(ServiceDescriptor.Scoped<ITokenSubjectResolver, BackofficeTokenSubjectResolver>());
@@ -54,6 +58,8 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddUseCase<ListOperatorsQuery, OperatorListResponse, ListOperatorsUseCase>();
         services.AddUseCase<EnableOperatorCommand, OperatorLoginResponse, EnableOperatorUseCase>();
         services.AddUseCase<DisableOperatorCommand, OperatorLoginResponse, DisableOperatorUseCase>();
+        services.AddUseCase<ListCommandLogQuery, CommandLogResponse, ListCommandLogUseCase>();
+        services.AddUseCase<ListSecurityEventsQuery, SecurityEventListResponse, ListSecurityEventsUseCase>();
 
         return services;
     }

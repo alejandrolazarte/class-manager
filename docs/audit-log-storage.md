@@ -102,7 +102,7 @@ Expected:
 
 - `accountKeyAccess` and `anonymousAccess` false, `TLS1_2`.
 - The role has exactly the three permissions of [section 2](#2-the-audit-log-writer-role).
-- On the account: `Audit Log Writer` for the API's identity, and the two reader roles for the owner. Inherited from above: the owner's Owner role, and `Contributor` for `class-manager-github-deploy` on the resource group, which manages resources but has no data actions. No other identity has a data role, nobody else has `Audit Log Writer`, and no `class-manager-audit-role-check` is left.
+- On the account: `Audit Log Writer` for the API's identity; `Audit Log Writer` and the two reader roles for the backoffice's identity ([section 9](#9-the-backoffice)); the two reader roles for the owner. Inherited from above: the owner's Owner role, and `Contributor` for `class-manager-github-deploy` on the resource group, which manages resources but has no data actions. No other identity has a data role, nobody but the two container apps has `Audit Log Writer`, and no `class-manager-audit-role-check` is left.
 
 ## 6. Deleting old command tables
 
@@ -136,4 +136,21 @@ $accountId = az storage account show -n classmanageraudit -g class-manager-rg --
 Store the printed `appId`, `password` and `tenant` as the environment secrets `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` and `AZURE_TENANT_ID` (never in a chat or the repository), and allow `login.microsoftonline.com`, `classmanageraudit.table.core.windows.net` and `classmanageraudit.blob.core.windows.net` in the environment's network access. The next session signs in on its own ([cloud environment](cloud-environment.md#every-session)). The secret expires after a year; renew it with `az ad sp credential reset --id <appId> --years 1`.
 
 The identity reads every business's command log (ids, no personal values) and security events (with IPs), and can't write, delete or reach anything else. It doesn't cover the API's logs. Delete it with `az ad sp delete --id <appId>` when it is no longer needed.
+
+## 9. The backoffice
+
+The backoffice (`class-manager-backoffice-api`) writes its own commands to the command log, with `Source` `Backoffice`, and reads both logs for its **Registros** tab ([backoffice plan](backend/20261017-backoffice/plan.md#steps)). Its system-assigned managed identity gets three roles on this account, and the same service URIs as the API. In Cloud Shell (Bash):
+
+```bash
+ACCOUNT_ID=$(az storage account show -n classmanageraudit -g class-manager-rg --query id -o tsv)
+BACKOFFICE_ID=$(az containerapp show -n class-manager-backoffice-api -g class-manager-rg --query identity.principalId -o tsv)
+for ROLE in "Audit Log Writer" "Storage Table Data Reader" "Storage Blob Data Reader"; do
+  az role assignment create --assignee-object-id "$BACKOFFICE_ID" --assignee-principal-type ServicePrincipal --role "$ROLE" --scope "$ACCOUNT_ID" --output none
+done
+az containerapp update --name class-manager-backoffice-api --resource-group class-manager-rg --set-env-vars "AuditLog__TableServiceUri=https://classmanageraudit.table.core.windows.net" "AuditLog__BlobServiceUri=https://classmanageraudit.blob.core.windows.net" --output none
+```
+
+- The reader roles let the backoffice read every business's command log (ids and masked payloads) and security events (with IPs), which is what an operator needs; it still can't update or delete anything. Reading is `platform.view` and is itself logged as an audited query.
+- Roles can take a few minutes to apply. Until then, and without the URIs, Registros shows empty days and the backoffice's commands are dropped instead of written.
+- The UI's day is the UTC day, like the tables and the blobs.
 

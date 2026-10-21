@@ -1,17 +1,14 @@
 import { useState } from "react";
 import { View } from "react-native";
 import {
-  CatalogFilter,
-  CatalogFilterValues,
+  ListFilter,
+  ListFilterValues,
   chosenValues,
   hasActiveFilters,
   isChosenOrUnfiltered,
-  noCatalogFilterValues,
-} from "@/features/catalogFilters/catalogFilters";
-import {
-  CatalogFilterControls,
-  CatalogFilterSummary,
-} from "@/features/catalogFilters/components/CatalogFilterControls";
+  noListFilterValues,
+} from "@/filters/listFilters";
+import { ListFilterControls, ListFilterSummary } from "@/filters/ListFilterControls";
 import {
   availabilityFilter,
   availabilityValues,
@@ -59,7 +56,7 @@ function availabilityOf(item: CounterSaleItem): string {
   return item.isSoldOut ? availabilityValues.soldOut : availabilityValues.available;
 }
 
-function matchesFilters(item: CounterSaleItem, values: CatalogFilterValues): boolean {
+function matchesFilters(item: CounterSaleItem, values: ListFilterValues): boolean {
   return (
     isChosenOrUnfiltered(values, productFilterIds.kind, item.kind) &&
     isChosenOrUnfiltered(values, productFilterIds.availability, availabilityOf(item)) &&
@@ -68,7 +65,7 @@ function matchesFilters(item: CounterSaleItem, values: CatalogFilterValues): boo
   );
 }
 
-function catalogFiltersOf(items: readonly CounterSaleItem[]): CatalogFilter[] {
+function catalogFiltersOf(items: readonly CounterSaleItem[]): ListFilter[] {
   const products = items.filter((item) => item.kind === "product");
   const hasPacks = items.some((item) => item.kind === "pack");
   return [
@@ -107,8 +104,8 @@ export function CounterSaleCatalogPicker({
   onClose,
 }: CounterSaleCatalogPickerProps) {
   const [searchText, setSearchText] = useState("");
-  const [filterValues, setFilterValues] = useState<CatalogFilterValues>(noCatalogFilterValues);
-  const itemsMatching = (values: CatalogFilterValues) =>
+  const [filterValues, setFilterValues] = useState<ListFilterValues>(noListFilterValues);
+  const itemsMatching = (values: ListFilterValues) =>
     items.filter((item) => matchesFilters(item, values) && matchesSearch(item, searchText));
   const visibleItems = itemsMatching(filterValues);
   const isFiltered = hasActiveFilters(filterValues);
@@ -124,7 +121,7 @@ export function CounterSaleCatalogPicker({
       searchPlaceholder={translate("orders.counterSale.catalogSearch")}
       onClose={onClose}
       filters={
-        <CatalogFilterControls
+        <ListFilterControls
           filters={catalogFiltersOf(items)}
           values={filterValues}
           onChange={setFilterValues}
@@ -154,7 +151,7 @@ export function CounterSaleCatalogPicker({
         </AppText>
       ) : null}
       {isFiltered ? (
-        <CatalogFilterSummary shownCount={visibleItems.length} totalCount={items.length} />
+        <ListFilterSummary shownCount={visibleItems.length} totalCount={items.length} />
       ) : null}
       {items.length > 0 && visibleItems.length === 0 && isFiltered ? (
         <EmptyState icon="filter" message={translate("filters.noResults")} />

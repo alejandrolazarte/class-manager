@@ -13,4 +13,5 @@ public sealed record CommandAuditEntry(
     string? TraceId,
     string? Payload,
     bool PayloadTruncated,
-    int? RowCount = null);
+    int? RowCount = null,
+    string Source = AuditSource.AppName);

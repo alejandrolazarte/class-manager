@@ -2,17 +2,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
 import {
-  CatalogFilter,
-  CatalogFilterValues,
+  ListFilter,
+  ListFilterValues,
   chosenValues,
   hasActiveFilters,
   isChosenOrUnfiltered,
-  noCatalogFilterValues,
-} from "@/features/catalogFilters/catalogFilters";
-import {
-  CatalogFilterControls,
-  CatalogFilterSummary,
-} from "@/features/catalogFilters/components/CatalogFilterControls";
+  noListFilterValues,
+} from "@/filters/listFilters";
+import { ListFilterControls, ListFilterSummary } from "@/filters/ListFilterControls";
 import {
   availabilityFilter,
   availabilityValues,
@@ -67,7 +64,7 @@ function availabilityOf(variant: StudentAppShopVariant): string {
     : availabilityValues.available;
 }
 
-function hasMatchingVariant(product: StudentAppShopProduct, values: CatalogFilterValues): boolean {
+function hasMatchingVariant(product: StudentAppShopProduct, values: ListFilterValues): boolean {
   return product.variants.some(
     (variant) =>
       isChosenOrUnfiltered(values, productFilterIds.availability, availabilityOf(variant)) &&
@@ -78,7 +75,7 @@ function hasMatchingVariant(product: StudentAppShopProduct, values: CatalogFilte
 
 function filteredPacks(
   packs: readonly StudentAppShopPack[],
-  values: CatalogFilterValues,
+  values: ListFilterValues,
 ): StudentAppShopPack[] {
   const isFilteredByVariant =
     chosenValues(values, productFilterIds.size).length > 0 ||
@@ -91,14 +88,14 @@ function filteredPacks(
 
 function filteredProducts(
   products: readonly StudentAppShopProduct[],
-  values: CatalogFilterValues,
+  values: ListFilterValues,
 ): StudentAppShopProduct[] {
   return isChosenOrUnfiltered(values, productFilterIds.kind, shopKinds.products)
     ? products.filter((product) => hasMatchingVariant(product, values))
     : [];
 }
 
-function shopFiltersOf(shop: StudentAppShop): CatalogFilter[] {
+function shopFiltersOf(shop: StudentAppShop): ListFilter[] {
   const variants = shop.products.flatMap((product) => product.variants);
   return [
     ...(shop.packs.length > 0 && shop.products.length > 0
@@ -149,7 +146,7 @@ export function StudentAppShopScreen() {
   useRefetchOnFocus(refetch);
   const { cart, units, setUnits, addUnits } = useStudentAppCart();
   const [searchText, setSearchText] = useState("");
-  const [filterValues, setFilterValues] = useState<CatalogFilterValues>(noCatalogFilterValues);
+  const [filterValues, setFilterValues] = useState<ListFilterValues>(noListFilterValues);
   const [openProductId, setOpenProductId] = useState<string | null>(null);
   const [openPackId, setOpenPackId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -190,9 +187,9 @@ export function StudentAppShopScreen() {
     );
   }
 
-  const packsMatching = (values: CatalogFilterValues) =>
+  const packsMatching = (values: ListFilterValues) =>
     filteredPacks(shop.packs, values).filter((pack) => matchesSearch(pack.name, searchText));
-  const productsMatching = (values: CatalogFilterValues) =>
+  const productsMatching = (values: ListFilterValues) =>
     filteredProducts(shop.products, values).filter((product) =>
       matchesSearch(product.name, searchText),
     );
@@ -234,7 +231,7 @@ export function StudentAppShopScreen() {
             onChangeText={setSearchText}
             placeholder={translate("student.shop.search")}
           />
-          <CatalogFilterControls
+          <ListFilterControls
             filters={shopFiltersOf(shop)}
             values={filterValues}
             onChange={setFilterValues}
@@ -243,7 +240,7 @@ export function StudentAppShopScreen() {
             }
           />
           {isFiltered ? (
-            <CatalogFilterSummary
+            <ListFilterSummary
               shownCount={packs.length + products.length}
               totalCount={shop.packs.length + shop.products.length}
             />

@@ -1,8 +1,9 @@
-using ClassManager.Infrastructure.Audit;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace ClassManager.Api.Audit;
+namespace ClassManager.Infrastructure.Audit;
 
-internal sealed partial class AuditLogWorker<TEntry>(
+public sealed partial class AuditLogWorker<TEntry>(
     AuditLogChannel<TEntry> channel,
     IAuditLogStore<TEntry> store,
     ILogger<AuditLogWorker<TEntry>> logger)

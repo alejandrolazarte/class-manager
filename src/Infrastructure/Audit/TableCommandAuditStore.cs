@@ -44,16 +44,20 @@ public sealed class TableCommandAuditStore(TableServiceClient serviceClient) : I
         return table;
     }
 
-    private static string TableNameOf(CommandAuditEntry entry) =>
-        TableNamePrefix + entry.OccurredAt.UtcDateTime.ToString(TableMonthFormat, CultureInfo.InvariantCulture);
+    public static string TableNameOf(DateTimeOffset occurredAt) =>
+        TableNamePrefix + occurredAt.UtcDateTime.ToString(TableMonthFormat, CultureInfo.InvariantCulture);
+
+    public static string RowKeyPrefixOf(DateTimeOffset occurredAt) =>
+        (DateTimeOffset.MaxValue.UtcTicks - occurredAt.UtcTicks).ToString(InvertedTicksFormat, CultureInfo.InvariantCulture);
+
+    private static string TableNameOf(CommandAuditEntry entry) => TableNameOf(entry.OccurredAt);
 
     private static string PartitionOf(CommandAuditEntry entry) =>
         entry.TenantId?.ToString() ?? NoBusinessPartition;
 
     private static TableEntity RowOf(CommandAuditEntry entry)
     {
-        var invertedTicks = DateTimeOffset.MaxValue.UtcTicks - entry.OccurredAt.UtcTicks;
-        var rowKey = invertedTicks.ToString(InvertedTicksFormat, CultureInfo.InvariantCulture)
+        var rowKey = RowKeyPrefixOf(entry.OccurredAt)
             + RowKeySeparator
             + Guid.NewGuid().ToString(RowKeyGuidFormat, CultureInfo.InvariantCulture);
         return new TableEntity(PartitionOf(entry), rowKey)
@@ -70,6 +74,7 @@ public sealed class TableCommandAuditStore(TableServiceClient serviceClient) : I
             [nameof(CommandAuditEntry.Payload)] = entry.Payload,
             [nameof(CommandAuditEntry.PayloadTruncated)] = entry.PayloadTruncated,
             [nameof(CommandAuditEntry.RowCount)] = entry.RowCount,
+            [nameof(CommandAuditEntry.Source)] = entry.Source,
         };
     }
 }

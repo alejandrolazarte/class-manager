@@ -1,4 +1,4 @@
-import { CatalogFilter, uniqueOptions } from "@/features/catalogFilters/catalogFilters";
+import { ListFilter, uniqueOptions } from "@/filters/listFilters";
 import { productColorName, productColorSwatch } from "@/features/products/productColors";
 import { translate } from "@/i18n/translate";
 
@@ -21,7 +21,7 @@ export function availabilityFilter({
 }: {
   offersSoldOut: boolean;
   hint?: string;
-}): CatalogFilter {
+}): ListFilter {
   return {
     id: productFilterIds.availability,
     title: translate("filters.availability"),
@@ -37,7 +37,7 @@ export function availabilityFilter({
   };
 }
 
-export function sizeFilter(sizes: readonly string[]): CatalogFilter[] {
+export function sizeFilter(sizes: readonly string[]): ListFilter[] {
   const options = uniqueOptions(sizes.map((size) => ({ value: size, label: size })));
   if (options.length === 0) {
     return [];
@@ -53,7 +53,7 @@ export function sizeFilter(sizes: readonly string[]): CatalogFilter[] {
   ];
 }
 
-export function colorFilter(colors: readonly (string | null)[]): CatalogFilter[] {
+export function colorFilter(colors: readonly (string | null)[]): ListFilter[] {
   const options = uniqueOptions(
     colors
       .filter((color): color is string => color !== null)

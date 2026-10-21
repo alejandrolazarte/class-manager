@@ -1,44 +1,44 @@
 import { FilterChoice } from "@/ui/FilterOptionRow";
 
-export interface CatalogFilterOption {
+export interface ListFilterOption {
   value: string;
   label: string;
   swatch?: string | null;
 }
 
-export interface CatalogFilter {
+export interface ListFilter {
   id: string;
   title: string;
   choice: FilterChoice;
-  options: readonly CatalogFilterOption[];
+  options: readonly ListFilterOption[];
   allLabel?: string;
   hint?: string;
   showsChips?: boolean;
 }
 
-export type CatalogFilterValues = Readonly<Record<string, readonly string[]>>;
+export type ListFilterValues = Readonly<Record<string, readonly string[]>>;
 
-export const noCatalogFilterValues: CatalogFilterValues = {};
+export const noListFilterValues: ListFilterValues = {};
 
 const chosenValuesSeparator = ", ";
 
-export function chosenValues(values: CatalogFilterValues, filterId: string): readonly string[] {
+export function chosenValues(values: ListFilterValues, filterId: string): readonly string[] {
   return values[filterId] ?? [];
 }
 
 export function withChosenValues(
-  values: CatalogFilterValues,
+  values: ListFilterValues,
   filterId: string,
   chosen: readonly string[],
-): CatalogFilterValues {
+): ListFilterValues {
   return { ...values, [filterId]: chosen };
 }
 
 export function withOptionToggled(
-  values: CatalogFilterValues,
-  filter: CatalogFilter,
+  values: ListFilterValues,
+  filter: ListFilter,
   optionValue: string,
-): CatalogFilterValues {
+): ListFilterValues {
   const current = chosenValues(values, filter.id);
   if (filter.choice === "single") {
     return withChosenValues(values, filter.id, [optionValue]);
@@ -52,16 +52,16 @@ export function withOptionToggled(
   );
 }
 
-export function isFilterActive(values: CatalogFilterValues, filterId: string): boolean {
+export function isFilterActive(values: ListFilterValues, filterId: string): boolean {
   return chosenValues(values, filterId).length > 0;
 }
 
-export function hasActiveFilters(values: CatalogFilterValues): boolean {
+export function hasActiveFilters(values: ListFilterValues): boolean {
   return Object.keys(values).some((filterId) => isFilterActive(values, filterId));
 }
 
 export function isChosenOrUnfiltered(
-  values: CatalogFilterValues,
+  values: ListFilterValues,
   filterId: string,
   value: string | null,
 ): boolean {
@@ -69,7 +69,7 @@ export function isChosenOrUnfiltered(
   return chosen.length === 0 || (value !== null && chosen.includes(value));
 }
 
-export function filterLabel(filter: CatalogFilter, values: CatalogFilterValues): string {
+export function filterLabel(filter: ListFilter, values: ListFilterValues): string {
   const chosenLabels = filter.options
     .filter((option) => chosenValues(values, filter.id).includes(option.value))
     .map((option) => option.label);
@@ -82,7 +82,7 @@ export function filterLabel(filter: CatalogFilter, values: CatalogFilterValues):
   return `${filter.title}: ${chosenLabels.join(chosenValuesSeparator)}`;
 }
 
-export function uniqueOptions(options: readonly CatalogFilterOption[]): CatalogFilterOption[] {
+export function uniqueOptions(options: readonly ListFilterOption[]): ListFilterOption[] {
   return options.filter(
     (option, index) =>
       option.value.length > 0 &&

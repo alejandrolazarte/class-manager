@@ -3,6 +3,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace ClassManager.Infrastructure.Audit;
@@ -16,6 +17,7 @@ internal static class AuditLogServiceCollectionExtensions
         services.AddSingleton<AuditLogChannel<SecurityEvent>>();
         services.AddSingleton<ICommandAuditService, QueuedCommandAuditService>();
         services.AddSingleton<ISecurityEventService, QueuedSecurityEventService>();
+        services.TryAddSingleton(AuditSource.App);
         services.AddScoped<UseCaseAuditRecorder>();
         services.AddSingleton<IAuditLogStore<CommandAuditEntry>>(serviceProvider =>
         {

@@ -1,4 +1,3 @@
-using ClassManager.Api.Audit;
 using ClassManager.Infrastructure.Audit;
 using Microsoft.Extensions.Logging.Abstractions;
 

@@ -19,6 +19,8 @@ internal static class BackofficeApiRoutes
     public const string ExpiringAddOns = "/api/expiring-add-ons";
     public const string Operators = "/api/operators";
     public const string OperatorById = "/{loginId:guid}";
+    public const string CommandLog = "/api/logs/commands";
+    public const string SecurityEvents = "/api/logs/security-events";
     public const string WebAppSignIn = "/sign-in";
     public const string AccessRequestCodeParameter = "accessRequestCode";
 }

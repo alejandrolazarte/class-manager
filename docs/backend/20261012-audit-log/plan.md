@@ -290,7 +290,7 @@ Move to a Function (fed by a queue) only if the API runs several replicas that s
 
 ## Reading it
 
-At first, only the owner reads it, from Azure Storage Explorer signed in with Entra (there is no account key): commands filtered by `PartitionKey` (the business) and by `RowKey` range (dates), security events by downloading a day's blob. A screen in the app ("Actividad" for the business owner) can come later and reads one partition, newest first, which is the order the `RowKey` already gives; it needs a read role for a separate identity, never for the API's writer.
+Platform operators read both logs in the backoffice's **Registros** tab, through the backoffice's own identity with the reader roles ([backoffice plan](../20261017-backoffice/plan.md#steps)); the API's writer still can't read. Before the backoffice, only the owner read it, from Azure Storage Explorer signed in with Entra (there is no account key): commands filtered by `PartitionKey` (the business) and by `RowKey` range (dates), security events by downloading a day's blob. A screen in the app ("Actividad" for the business owner) can come later and reads one partition, newest first, which is the order the `RowKey` already gives; it needs a read role for a separate identity, never for the API's writer.
 
 ## Checking the log in tests
 
