@@ -715,7 +715,7 @@
   "classPacks.form.chooseClassGroup": "Choose class",
   "classPacks.form.addClassGroup": "Add another class",
   "classPacks.form.removeClassGroup": "Remove {name}",
-  "classPacks.form.classGroupsHint": "Students with this pack book their spot in these classes from the app.",
+  "classPacks.form.classGroupsHint": "Students with this pack book their spot in these classes from the app, or you enroll them in a fixed class.",
   "classPacks.form.description": "Description",
   "classPacks.form.descriptionPlaceholder": "Who it's for, what you work on, what the classes are like",
   "classPacks.validation.descriptionTooLong": "The description can have up to 500 characters",
