@@ -1,7 +1,10 @@
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Enrollments;
+using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.UseCases.Enrollments;
 using Microsoft.Extensions.Time.Testing;
 
@@ -15,6 +18,9 @@ internal sealed class EnrollmentUseCaseBuilder
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
+    public Mock<IClassBalanceService> ClassBalances { get; } = new();
+    public Mock<IClassPackRepository> ClassPacks { get; } = new();
+    public List<ClassPackUsage> ClientPackUsages { get; } = [];
     public ClassGroup ClassGroup { get; } = ClassGroup.Create(
         "Natación inicial", Guid.CreateVersion7(), ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!, 2, null).Value!;
     public StudentSummary Student { get; } = new(
@@ -25,6 +31,19 @@ internal sealed class EnrollmentUseCaseBuilder
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
         ClassGroups.Setup(repository => repository.GetByIdAsync(ClassGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(ClassGroup);
         Students.Setup(repository => repository.GetSummaryByIdAsync(Student.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Student);
+        ClassBalances
+            .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new Dictionary<Guid, ClassBalance> { [Student.ClientId] = new(ClientPackUsages, []) });
+    }
+
+    public void BuyActivePack(IReadOnlyCollection<Guid> classGroupIds)
+    {
+        var pack = ClassPack.Create("8 clases", 8, 160m, null, TestData.Now).Value!;
+        pack.DefineLessons(classGroupIds, classGroupIds.Count == 0 ? 45 : null);
+        ClassPacks.Setup(repository => repository.GetByIdAsync(pack.Id, It.IsAny<CancellationToken>())).ReturnsAsync(pack);
+        var purchase = ClassPackPurchase.Sell(
+            Student.ClientId, pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!;
+        ClientPackUsages.Add(new ClassPackUsage(purchase, 0, ClassPackPurchaseStatus.Active));
     }
 
     public EnrollStudentCommand ValidCommand() => new(ClassGroup.Id, Student.Id, null);
@@ -38,7 +57,9 @@ internal sealed class EnrollmentUseCaseBuilder
             BusinessCalendar.Object,
             new FakeTimeProvider(TestData.Now),
             new EveryAccessScopes(),
-            Clients.Object);
+            Clients.Object,
+            ClassBalances.Object,
+            ClassPacks.Object);
 
     public EndEnrollmentUseCase BuildEnd() =>
         new(Enrollments.Object, ClassGroups.Object, UnitOfWork.Object, BusinessCalendar.Object, new EveryAccessScopes());
