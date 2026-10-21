@@ -262,7 +262,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
                 ))}
               </View>
               <AppText variant="caption" tone="muted">
-                {translate("classPacks.form.classDurationHint")}
+                {translate("classPacks.form.privateLessonsHint")}
               </AppText>
             </View>
           )}
