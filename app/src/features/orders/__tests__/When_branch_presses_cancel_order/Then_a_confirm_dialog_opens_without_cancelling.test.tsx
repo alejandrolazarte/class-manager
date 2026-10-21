@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { cancelOrder, listOrders } from "@/features/orders/ordersApi";
-import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
+import { cancelOrder, getOrder } from "@/features/orders/ordersApi";
+import { OrderDetailScreen } from "@/features/orders/screens/OrderDetailScreen";
 import { translate } from "@/i18n/translate";
 import { buildOrder } from "@/testing/productFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -19,11 +19,11 @@ const requestedOrder = buildOrder({
 
 describe("When branch presses cancel order", () => {
   beforeEach(() => {
-    jest.mocked(listOrders).mockResolvedValue([requestedOrder]);
+    jest.mocked(getOrder).mockResolvedValue(requestedOrder);
   });
 
   it("Then a confirm dialog opens without cancelling", async () => {
-    await renderWithProviders(<OrderListScreen />);
+    await renderWithProviders(<OrderDetailScreen orderId={requestedOrder.id} />);
     await fireEvent.press(await screen.findByRole("button", { name: translate("orders.cancel") }));
 
     expect(

@@ -230,6 +230,11 @@ test("Team screens with student activity", async ({ page, request }) => {
   await page.getByRole("button", { name: "Confirmar pago" }).waitFor();
   await capture(page, "10d-cobros-pedidos-cobrar");
 
+  await page.goto("/fees?view=orders");
+  await page.getByRole("button", { name: /^Abrir pedido/ }).first().click();
+  await page.getByText("Qué lleva").filter({ visible: true }).first().waitFor();
+  await capture(page, "10d2-pedido-detalle");
+
   await page.goto(`/students/clients/${demo.studentAppClientId}/counter-sale`);
   await page.getByRole("button", { name: "Agregar productos o packs" }).click();
   await page.getByText("Remera del club").filter({ visible: true }).first().waitFor();

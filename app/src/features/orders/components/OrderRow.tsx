@@ -1,286 +1,103 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { formatMoney } from "@/formatting/money";
-import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { OrderPaymentsPanel } from "@/features/orders/components/OrderPaymentsPanel";
-import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
-import { RefundPanel } from "@/features/orders/components/RefundPanel";
-import { refundableLinesOf } from "@/features/orders/refunds";
+import { CollectSheet } from "@/features/orders/components/CollectSheet";
 import {
-  isFullyRefunded,
   orderClientLabel,
-  orderPaymentStatusLabel,
+  orderDeliveryLabel,
+  orderMoneyLabel,
   orderStatusLabel,
+  orderStatusTone,
+  orderSummaryLine,
 } from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
-import {
-  useCancelOrder,
-  useMarkOrderDelivered,
-  useMarkOrderReady,
-} from "@/features/orders/useOrderMutations";
-import { formatLongDate } from "@/dates/dates";
+import { useOrderActions } from "@/features/orders/useOrderActions";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
+import { orderTabs, routes } from "@/navigation/routes";
+import { useCurrentTab } from "@/navigation/useCurrentTab";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
-import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { HairlineRow } from "@/ui/HairlineRow";
-import { TonalBlock } from "@/ui/TonalBlock";
-import { StatusPill, StatusTone } from "@/ui/StatusPill";
-import { useToast } from "@/ui/ToastProvider";
-import { Collapsible } from "@/ui/motion/Collapsible";
-
-const isoDateLength = 10;
-
-type OrderPanel = "payment" | "payments" | "refund";
-
-function cancelQuestionOf(order: Order): string {
-  return order.clientFullName === null
-    ? translate("orders.cancelQuestion", { number: order.number })
-    : translate("orders.cancelQuestionWithClient", {
-        number: order.number,
-        client: order.clientFullName,
-      });
-}
+import { ProgressBar } from "@/ui/ProgressBar";
+import { StatusPill } from "@/ui/StatusPill";
 
 interface OrderRowProps {
   order: Order;
   canManage: boolean;
 }
 
-function orderStatusTone(order: Order): StatusTone {
-  if (order.status === "Cancelled" || isFullyRefunded(order)) {
-    return "neutral";
-  }
-  return order.status === "Pending" ? "warning" : "success";
-}
-
-const paymentStatusTones: Record<Order["paymentStatus"], StatusTone> = {
-  Unpaid: "danger",
-  Partial: "warning",
-  Paid: "success",
-};
-
-interface OrderActionProps {
-  label: string;
-  isDanger?: boolean;
-  onPress: () => void;
-  isLoading?: boolean;
-  isExpanded?: boolean;
-}
-
-function OrderAction({
-  label,
-  isDanger = false,
-  onPress,
-  isLoading = false,
-  isExpanded,
-}: OrderActionProps) {
-  return (
-    <Button
-      variant={isDanger ? "dangerGhost" : "ghost"}
-      size="small"
-      label={label}
-      onPress={onPress}
-      isLoading={isLoading}
-      isExpanded={isExpanded}
-    />
-  );
-}
-
 export function OrderRow({ order, canManage }: OrderRowProps) {
-  const { showToast } = useToast();
-  const business = useCurrentBusiness();
-  const markOrderDeliveredMutation = useMarkOrderDelivered();
-  const markOrderReadyMutation = useMarkOrderReady();
-  const cancelOrderMutation = useCancelOrder();
-  const [openPanel, setOpenPanel] = useState<OrderPanel | null>(null);
-  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
-  const hasRefundableLines = refundableLinesOf(order).length > 0;
-  const isPending = order.status === "Pending";
+  const router = useRouter();
+  const orderTab = useCurrentTab(orderTabs);
+  const { markDelivered, isDelivering } = useOrderActions(order);
+  const [isCollecting, setIsCollecting] = useState(false);
   const isOwing = order.status !== "Cancelled" && order.balance > 0;
-  const hasEditablePayments = order.status !== "Cancelled" && order.payments.length > 0;
-  const money = (amount: number) => formatMoney(amount, order.currencyCode);
-
-  const markDelivered = async () => {
-    try {
-      await markOrderDeliveredMutation.mutateAsync(order.id);
-      showToast(translate("orders.delivered"));
-    } catch {
-      showToast(translate("common.unexpectedError"));
-    }
-  };
-
-  const markReady = async () => {
-    try {
-      await markOrderReadyMutation.mutateAsync(order.id);
-      showToast(translate("orders.readyNotified"));
-    } catch {
-      showToast(translate("common.unexpectedError"));
-    }
-  };
-
-  const cancel = async () => {
-    try {
-      await cancelOrderMutation.mutateAsync(order.id);
-      showToast(translate("orders.cancelled"));
-    } catch {
-      showToast(translate("common.unexpectedError"));
-    } finally {
-      setIsConfirmingCancel(false);
-    }
-  };
-
-  const amountToReturn = Math.min(order.paidAmount, order.total - order.refundedAmount);
-
-  const togglePanel = (panel: OrderPanel) => setOpenPanel(openPanel === panel ? null : panel);
-
-  const hasProducts = order.lines.some((line) => line.kind === "Product");
-  const deliveryLabel =
-    order.delivery === "InClass" && order.deliveryClassGroupName !== null
-      ? translate("orders.deliveryInClass", { className: order.deliveryClassGroupName })
-      : translate("orders.deliveryPickup");
-  const lineSummary = order.lines
-    .map((line) => (line.quantity > 1 ? `${line.quantity} × ${line.name}` : line.name))
-    .join(", ");
+  const isPartlyPaid = isOwing && order.paidAmount > 0;
+  const moneyLabel = orderMoneyLabel(order);
+  const canCollect = canManage && isOwing;
+  const canDeliver = canManage && !canCollect && order.status === "Pending";
 
   return (
-    <HairlineRow className="gap-1 py-3">
-      <View className="flex-row items-start justify-between gap-3">
-        <AppText variant="bodyStrong" className="min-w-0 flex-1">
-          {orderClientLabel(order)}
-        </AppText>
-        <AppText variant="bodyStrong">{money(order.total)}</AppText>
-      </View>
-      <AppText variant="footnote" tone="subtle">
-        {[
-          translate("orders.number", { number: order.number }),
-          formatLongDate(order.lastPaidOn ?? order.createdAt.slice(0, isoDateLength)),
-          order.channel === "App" ? translate("orders.fromApp") : null,
-          lineSummary,
-        ]
-          .filter(Boolean)
-          .join(" · ")}
-      </AppText>
-      {isOwing ? (
+    <View className="border-b border-border-subtle pb-1">
+      <HairlineRow
+        hasDivider={false}
+        className="gap-1 py-3"
+        accessibilityLabel={translate("orders.open", {
+          number: order.number,
+          client: orderClientLabel(order),
+        })}
+        onPress={() => router.push(routes.order(orderTab, order.id))}
+      >
+        <View className="flex-row items-start justify-between gap-3">
+          <AppText variant="bodyStrong" className="min-w-0 flex-1">
+            {orderClientLabel(order)}
+          </AppText>
+          <AppText variant="bodyStrong">{formatMoney(order.total, order.currencyCode)}</AppText>
+        </View>
         <AppText variant="footnote" tone="subtle">
-          {order.paidAmount > 0
-            ? translate("orders.paidAndBalance", {
-                paid: money(order.paidAmount),
-                balance: money(order.balance),
-              })
-            : translate("orders.balance", { balance: money(order.balance) })}
+          {orderSummaryLine(order)}
         </AppText>
-      ) : null}
-      {order.returnedAmount > 0 ? (
-        <AppText variant="footnote" tone="subtle">
-          {translate("orders.refundedTotal", { amount: money(order.returnedAmount) })}
-        </AppText>
-      ) : null}
-      {hasProducts && order.awaitsPickup ? (
-        <AppText variant="footnote" tone="subtle">
-          {deliveryLabel}
-        </AppText>
-      ) : null}
-      <View className="mt-1 flex-row flex-wrap items-center justify-between gap-x-2 gap-y-1">
-        <View className="flex-row flex-wrap items-center gap-1.5">
+        {moneyLabel === null ? null : (
+          <AppText variant="footnote" tone={moneyLabel.tone}>
+            {moneyLabel.text}
+          </AppText>
+        )}
+        {order.awaitsPickup ? (
+          <AppText variant="footnote" tone="subtle">
+            {orderDeliveryLabel(order)}
+          </AppText>
+        ) : null}
+        {isPartlyPaid ? (
+          <ProgressBar ratio={order.paidAmount / (order.paidAmount + order.balance)} isThin />
+        ) : null}
+        <View className="mt-1 flex-row flex-wrap items-center gap-1.5">
           <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
-          {order.status === "Cancelled" ? null : (
-            <StatusPill
-              label={orderPaymentStatusLabel(order)}
-              tone={paymentStatusTones[order.paymentStatus]}
-              isSmall
-            />
-          )}
           {order.awaitsPickup && order.readyAt !== null ? (
             <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />
           ) : null}
         </View>
-        <View className="ml-auto max-w-full flex-row flex-wrap items-center justify-end">
-          {canManage && isOwing ? (
-            <OrderAction
-              label={translate(openPanel === "payment" ? "common.close" : "orders.collect")}
-              isExpanded={openPanel === "payment"}
-              onPress={() => togglePanel("payment")}
+      </HairlineRow>
+      {canCollect || canDeliver ? (
+        <View className="flex-row justify-end pb-2">
+          {canCollect ? (
+            <Button
+              size="small"
+              icon="paid"
+              label={translate("orders.collect")}
+              onPress={() => setIsCollecting(true)}
             />
-          ) : null}
-          {canManage && order.awaitsPickup && order.readyAt === null ? (
-            <OrderAction
-              label={translate("orders.markReady")}
-              onPress={markReady}
-              isLoading={markOrderReadyMutation.isPending}
-            />
-          ) : null}
-          {canManage && isPending ? (
-            <OrderAction
+          ) : (
+            <Button
+              size="small"
               label={translate("orders.markDelivered")}
               onPress={markDelivered}
-              isLoading={markOrderDeliveredMutation.isPending}
+              isLoading={isDelivering}
             />
-          ) : null}
-          {canManage && hasEditablePayments ? (
-            <OrderAction
-              label={translate(openPanel === "payments" ? "common.close" : "orders.payments.open")}
-              isExpanded={openPanel === "payments"}
-              onPress={() => togglePanel("payments")}
-            />
-          ) : null}
-          {canManage && hasRefundableLines ? (
-            <OrderAction
-              label={translate(openPanel === "refund" ? "common.close" : "orders.refund.open")}
-              isExpanded={openPanel === "refund"}
-              onPress={() => togglePanel("refund")}
-            />
-          ) : null}
-          {canManage && isPending ? (
-            <OrderAction
-              label={translate("orders.cancel")}
-              isDanger
-              onPress={() => setIsConfirmingCancel(true)}
-            />
-          ) : null}
+          )}
         </View>
-      </View>
-      {canManage && isOwing ? (
-        <Collapsible isExpanded={openPanel === "payment"}>
-          <TonalBlock tone="muted">
-            <PaymentPanel order={order} />
-          </TonalBlock>
-        </Collapsible>
       ) : null}
-      {canManage && hasEditablePayments ? (
-        <Collapsible isExpanded={openPanel === "payments"}>
-          <TonalBlock tone="muted">
-            <OrderPaymentsPanel order={order} />
-          </TonalBlock>
-        </Collapsible>
-      ) : null}
-      {canManage && hasRefundableLines ? (
-        <Collapsible isExpanded={openPanel === "refund"}>
-          <TonalBlock tone="muted">
-            <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
-          </TonalBlock>
-        </Collapsible>
-      ) : null}
-      {isConfirmingCancel ? (
-        <ConfirmDialog
-          title={cancelQuestionOf(order)}
-          message={[
-            amountToReturn > 0
-              ? translate("orders.cancelConfirm.refund", {
-                  amount: money(amountToReturn),
-                  businessName: business.name,
-                })
-              : null,
-            translate("orders.cancelMessage"),
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          confirmLabel={translate("orders.cancel")}
-          onCancel={() => setIsConfirmingCancel(false)}
-          onConfirm={cancel}
-          isConfirming={cancelOrderMutation.isPending}
-        />
-      ) : null}
-    </HairlineRow>
+      {isCollecting ? <CollectSheet order={order} onClose={() => setIsCollecting(false)} /> : null}
+    </View>
   );
 }

@@ -24,6 +24,7 @@ export default function TodayLayout() {
       <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />
       <Stack.Screen name="orders/index" options={{ title: translate("orders.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
+      <Stack.Screen name="orders/[orderId]" options={{ title: translate("orders.detail.title") }} />
       <Stack.Screen
         name="private/new"
         options={{ title: translate("privateLessons.form.newTitle") }}

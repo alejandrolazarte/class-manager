@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { cancelOrder, listOrders } from "@/features/orders/ordersApi";
-import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
+import { cancelOrder, getOrder } from "@/features/orders/ordersApi";
+import { OrderDetailScreen } from "@/features/orders/screens/OrderDetailScreen";
 import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { buildBusiness } from "@/testing/businessFactory";
@@ -20,12 +20,12 @@ const partlyPaidOrder = buildOrder({
 
 describe("When branch cancels an order paid in part", () => {
   beforeEach(() => {
-    jest.mocked(listOrders).mockResolvedValue([partlyPaidOrder]);
+    jest.mocked(getOrder).mockResolvedValue(partlyPaidOrder);
     jest.mocked(cancelOrder).mockResolvedValue(buildOrder({ status: "Cancelled" }));
   });
 
   it("Then it is cancelled after confirming", async () => {
-    await renderWithProviders(<OrderListScreen />);
+    await renderWithProviders(<OrderDetailScreen orderId={partlyPaidOrder.id} />);
     await fireEvent.press(await screen.findByRole("button", { name: translate("orders.cancel") }));
 
     expect(

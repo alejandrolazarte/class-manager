@@ -13,9 +13,10 @@ import { useToast } from "@/ui/ToastProvider";
 
 interface OrderPaymentsPanelProps {
   order: Order;
+  canDelete: boolean;
 }
 
-export function OrderPaymentsPanel({ order }: OrderPaymentsPanelProps) {
+export function OrderPaymentsPanel({ order, canDelete }: OrderPaymentsPanelProps) {
   const { showToast } = useToast();
   const canUndoPayment = useCanUndoCollection(permissions.ordersManage);
   const deleteOrderPaymentMutation = useDeleteOrderPayment();
@@ -52,7 +53,7 @@ export function OrderPaymentsPanel({ order }: OrderPaymentsPanelProps) {
               ].join(" · ")}
             </AppText>
           </View>
-          {canUndoPayment(payment.recordedByUserId) ? (
+          {canDelete && canUndoPayment(payment.recordedByUserId) ? (
             <IconButton
               icon="delete"
               tone="muted-foreground"

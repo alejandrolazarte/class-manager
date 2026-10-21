@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { listOrders, markOrderDelivered } from "@/features/orders/ordersApi";
-import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
+import { getOrder, markOrderDelivered } from "@/features/orders/ordersApi";
+import { OrderDetailScreen } from "@/features/orders/screens/OrderDetailScreen";
 import { translate } from "@/i18n/translate";
 import { buildOrder } from "@/testing/productFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -16,12 +16,12 @@ const unpaidOrder = buildOrder({
 
 describe("When unpaid order is handed over", () => {
   beforeEach(() => {
-    jest.mocked(listOrders).mockResolvedValue([unpaidOrder]);
+    jest.mocked(getOrder).mockResolvedValue(unpaidOrder);
     jest.mocked(markOrderDelivered).mockResolvedValue(buildOrder({ status: "Delivered" }));
   });
 
   it("Then delivery is sent", async () => {
-    await renderWithProviders(<OrderListScreen />);
+    await renderWithProviders(<OrderDetailScreen orderId={unpaidOrder.id} />);
 
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("orders.markDelivered") }),

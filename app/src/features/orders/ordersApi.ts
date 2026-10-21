@@ -37,6 +37,10 @@ export function listOrders(clientId: string | null, filter: OrderFilter): Promis
   return httpClient.get<Order[]>(ordersPath, queryParameters);
 }
 
+export function getOrder(orderId: string): Promise<Order> {
+  return httpClient.get<Order>(orderPath(orderId));
+}
+
 export function getOrderSummary(month: string): Promise<OrderSummary> {
   return httpClient.get<OrderSummary>(summaryPath, { month });
 }

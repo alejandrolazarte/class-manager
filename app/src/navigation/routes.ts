@@ -107,6 +107,7 @@ export const routes = {
   orders: (tab: OrderTab) => `/${tab}/orders`,
   plan: (tab: PlanTab) => `/${tab}/plan`,
   newCounterSale: (tab: OrderTab) => `/${tab}/orders/new`,
+  order: (tab: OrderTab, orderId: string) => `/${tab}/orders/${orderId}`,
   importExport: "/settings/import-export",
   announcements: "/settings/announcements",
   newAnnouncement: "/settings/announcements/new",
