@@ -231,7 +231,10 @@ test("Team screens with student activity", async ({ page, request }) => {
   await capture(page, "10d-cobros-pedidos-cobrar");
 
   await page.goto("/fees?view=orders");
-  await page.getByRole("button", { name: /^Abrir pedido/ }).first().click();
+  await page
+    .getByRole("button", { name: /^Abrir pedido/ })
+    .first()
+    .click();
   await page.getByText("Qué lleva").filter({ visible: true }).first().waitFor();
   await capture(page, "10d2-pedido-detalle");
 
