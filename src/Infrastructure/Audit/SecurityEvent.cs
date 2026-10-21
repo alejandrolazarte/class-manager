@@ -12,4 +12,6 @@ public sealed record SecurityEvent(
     string? IpAddress,
     string? UserAgent,
     int? Count,
-    string? TraceId);
+    string? TraceId,
+    IReadOnlyList<SecurityEventRoute>? Routes = null,
+    int? OtherRouteRequests = null);

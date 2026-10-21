@@ -98,5 +98,7 @@ internal sealed class AzureAuditLogReader(TableServiceClient tableService, BlobC
             securityEvent.IpAddress,
             securityEvent.UserAgent,
             securityEvent.Count,
-            securityEvent.TraceId);
+            securityEvent.TraceId,
+            securityEvent.Routes?.Select(route => new SecurityLogRoute(route.Method, route.Route, route.Count)).ToList(),
+            securityEvent.OtherRouteRequests);
 }

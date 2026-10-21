@@ -186,7 +186,7 @@ Alternative considered: an allowlist (only properties marked `[Audited]` are sto
 | `PlanLimit` | A 403 for a plan limit (`FeatureNotInPlan`, `SubscriptionInactive`, `feature.limit_reached`) | A commercial limit, not an attack, but a direct API call to a feature that wasn't paid for shows here. Its own type so it doesn't bury `Forbidden` |
 | `SignInFailed` | A 401 or 423 from the sign-in endpoint (wrong password, locked account) | Password guessing |
 | `RefreshTokenRejected` | A 401 from the refresh endpoint (unknown, expired, reused) | A reused refresh token can mean a stolen one |
-| `UnauthorizedBurst` | Middleware, 401 counted per IP | Many 401 from the same IP in a minute: one row with the count, not one row per 401 |
+| `UnauthorizedBurst` | Middleware, 401 counted per IP | Many 401 from the same IP in a minute: one row with the count and the routes it hit, not one row per 401 |
 
 Not recorded:
 
@@ -199,6 +199,7 @@ Every 403 is recorded. Plan limits were first left out as a commercial limit, th
 - `SecurityEventMiddleware` (`src/Api/Audit`) runs **before** `UseExceptionHandler`, `UseAuthentication` and `UseAuthorization`, calls `await next()`, then reads `Response.StatusCode`. Placed after them it would not see the 401 and 403 they return, nor the 403 the exception handler writes for a limit reached while saving. It reads the endpoint before calling `next()`, because the exception handler clears it.
 - A 403 is queued as `Forbidden` (or `PlanLimit` when marked) with the route template (`/api/students/{id}`, not the real path), the method, the user and the tenant.
 - A 401 only increments an in-memory counter per IP (`SecurityEventThrottle`, at most 10,000 addresses tracked). Every minute `SecurityEventBurstWorker` writes one `UnauthorizedBurst` row for every IP with 20 or more 401s, or with events over its cap, and resets the counters.
+- The counter also keeps, per IP, the requests per route (method and route template, so `/api/students/{id}` and not each id; an unknown path is a 404 and isn't counted) and the last user agent. Each IP keeps at most 20 routes (`MaximumTrackedRoutesPerAddress`); requests to further routes only add to `otherRouteRequests`, so a sweep of every route can't grow memory or the row. The backoffice shows the 5 routes with most requests and adds the rest to "Other routes".
 - Each IP writes at most 10 events a minute (`AuditLog:MaximumSecurityEventsPerAddressPerMinute`); beyond it events are counted into its burst row, not written. Nothing a client sends can make the API write without limit.
 - `SignInFailed` and `RefreshTokenRejected` come from the same middleware: the sign-in and refresh endpoints carry `SecurityEventOnRejection` metadata naming the event, so a 401 there is told apart from an expired access token elsewhere without touching the use cases. (Built this way instead of an `ISecurityEventRecorder` called by the use cases.) Neither the email typed nor the token is recorded: the command log already has the failed command with personal fields masked.
 - The sign-in, refresh and password reset endpoints keep their rate limiting (`UseRateLimiter`); the events don't replace it.
@@ -218,6 +219,8 @@ One append blob per day in the container `security-events`: `{yyyy}/{MM}/{dd}.js
 | `ipAddress` | The client IP (from `X-Forwarded-For` as configured for Container Apps) |
 | `userAgent` | Cut to 256 characters |
 | `count` | For `UnauthorizedBurst` |
+| `routes` | For `UnauthorizedBurst`: up to 20 `{ method, route, count }`, most requested first |
+| `otherRouteRequests` | For `UnauthorizedBurst`: requests to routes beyond those 20, when there were any |
 | `traceId` | Same as the command log |
 
 - `AppendBlobSecurityEventStore` (`src/Infrastructure/Audit`) appends each batch as one block (`AppendBlockAsync`). When the day's blob doesn't exist yet (404) it creates it with `If-None-Match: *` and appends again, so the API never needs to read or overwrite a blob, which the writer role doesn't allow. An append blob takes up to 50,000 blocks, far more than a day of batches, and the per-IP cap keeps it that way.

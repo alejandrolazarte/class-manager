@@ -8,6 +8,7 @@ internal sealed class SecurityEventThrottle(IOptions<AuditLogOptions> options)
 {
     public const int UnauthorizedBurstThreshold = 20;
     public const int MaximumTrackedAddresses = 10_000;
+    public const int MaximumTrackedRoutesPerAddress = 20;
 
     private ConcurrentDictionary<string, AddressActivity> _activityByAddress = new();
 
@@ -15,16 +16,23 @@ internal sealed class SecurityEventThrottle(IOptions<AuditLogOptions> options)
         ActivityOf(ipAddress) is { } activity
         && activity.RecordOne() <= options.Value.MaximumSecurityEventsPerAddressPerMinute;
 
-    public void CountUnauthorized(string ipAddress) => ActivityOf(ipAddress)?.CountUnauthorized();
+    public void CountUnauthorized(string ipAddress, RequestRoute? route, string userAgent) =>
+        ActivityOf(ipAddress)?.CountUnauthorized(route, userAgent);
 
-    public void CountSuppressed(string ipAddress) => ActivityOf(ipAddress)?.CountSuppressed();
+    public void CountSuppressed(string ipAddress, RequestRoute? route, string userAgent) =>
+        ActivityOf(ipAddress)?.CountSuppressed(route, userAgent);
 
-    public IReadOnlyList<(string IpAddress, int Count)> TakeBursts()
+    public IReadOnlyList<AddressBurst> TakeBursts()
     {
         var finishedMinute = Interlocked.Exchange(ref _activityByAddress, new ConcurrentDictionary<string, AddressActivity>());
         return [.. finishedMinute
             .Where(address => address.Value.Unauthorized >= UnauthorizedBurstThreshold || address.Value.Suppressed > 0)
-            .Select(address => (address.Key, address.Value.Unauthorized + address.Value.Suppressed))];
+            .Select(address => new AddressBurst(
+                address.Key,
+                address.Value.Unauthorized + address.Value.Suppressed,
+                address.Value.UserAgent,
+                address.Value.Routes,
+                address.Value.OtherRouteRequests))];
     }
 
     private AddressActivity? ActivityOf(string ipAddress)

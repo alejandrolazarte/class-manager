@@ -39,6 +39,8 @@ export function aSecurityEventEntry(
     brandName: null,
     branchName: null,
     userName: null,
+    routes: null,
+    otherRouteRequests: null,
     ...overrides,
   };
 }
