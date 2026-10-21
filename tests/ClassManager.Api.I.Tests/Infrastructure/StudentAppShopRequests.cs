@@ -39,11 +39,15 @@ public static class StudentAppShopRequests
         httpClient.PutAsync(
             new Uri($"{ApiRoutes.StudentApp}{ApiRoutes.StudentAppOrders}/{orderId}{ApiRoutes.Cancellation}", UriKind.Relative), null);
 
-    public static Task<HttpResponseMessage> PutOrderPaymentAsync(this HttpClient httpClient, Guid orderId) =>
-        httpClient.PutAsJsonAsync(
-            $"{ApiRoutes.Orders}/{orderId}{ApiRoutes.Payment}",
-            new ConfirmOrderPaymentRequest(PaymentMethod.Cash, null),
+    public static async Task<HttpResponseMessage> PostOrderPaymentAsync(
+        this HttpClient httpClient, Guid orderId, decimal? amount = null, bool isDelivered = false)
+    {
+        var paidAmount = amount ?? (await httpClient.ListOrdersAsync()).Single(order => order.Id == orderId).Balance;
+        return await httpClient.PostAsJsonAsync(
+            $"{ApiRoutes.Orders}/{orderId}{ApiRoutes.PaymentsSegment}",
+            new RecordOrderPaymentRequest(paidAmount, PaymentMethod.Cash, null, isDelivered),
             ApiRequests.JsonOptions);
+    }
 
     public static Task<HttpResponseMessage> PutOrderReadyAsync(this HttpClient httpClient, Guid orderId) =>
         httpClient.PutAsync(new Uri($"{ApiRoutes.Orders}/{orderId}{ApiRoutes.Ready}", UriKind.Relative), null);

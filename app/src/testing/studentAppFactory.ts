@@ -160,13 +160,16 @@ export function buildStudentAppOrder(overrides: Partial<StudentAppOrder> = {}): 
   return {
     id: "order-1",
     number: 1043,
-    status: "Requested",
+    status: "Pending",
+    paymentStatus: "Unpaid",
     awaitsPickup: false,
     currencyCode: "EUR",
     total: 120,
     refundedAmount: 0,
+    paidAmount: 0,
+    balance: 120,
     createdAt: "2026-09-29T10:00:00Z",
-    paidOn: null,
+    lastPaidOn: null,
     expiresAt: "2026-10-06T10:00:00Z",
     lines: [
       {

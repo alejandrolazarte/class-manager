@@ -40,15 +40,15 @@ export function useDeliveryClasses(clientId: string | undefined) {
 }
 
 export interface PendingOrders {
-  requested: Order[];
+  owing: Order[];
   awaitingPickup: Order[];
   count: number;
 }
 
 export function usePendingOrders({ enabled = true } = {}): PendingOrders {
-  const { data: requested = [] } = useQuery({
-    queryKey: orderQueryKeys.list(null, "requested"),
-    queryFn: () => listOrders(null, "requested"),
+  const { data: owing = [] } = useQuery({
+    queryKey: orderQueryKeys.list(null, "owing"),
+    queryFn: () => listOrders(null, "owing"),
     enabled,
   });
   const { data: awaitingPickup = [] } = useQuery({
@@ -56,5 +56,6 @@ export function usePendingOrders({ enabled = true } = {}): PendingOrders {
     queryFn: () => listOrders(null, "awaitingPickup"),
     enabled,
   });
-  return { requested, awaitingPickup, count: requested.length + awaitingPickup.length };
+  const pendingOrderIds = new Set([...owing, ...awaitingPickup].map((order) => order.id));
+  return { owing, awaitingPickup, count: pendingOrderIds.size };
 }

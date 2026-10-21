@@ -28,7 +28,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     public string CurrencyCode { get; private set; } = string.Empty;
     public DateOnly PurchasedOn { get; private set; }
     public DateOnly? ExpiresOn { get; private set; }
-    public PaymentMethod Method { get; private set; }
+    public PaymentMethod? Method { get; private set; }
     public string? Notes { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
     public Guid? TrialLessonId { get; private set; }
@@ -75,30 +75,20 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
             return Result.Validation<ClassPackPurchase>(MethodRequiredMessage, fieldName: nameof(Method));
         }
 
-        var trimmedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
-        if (trimmedNotes?.Length > NotesMaxLength)
-        {
-            return Result.Validation<ClassPackPurchase>(NotesLengthMessage, fieldName: nameof(Notes));
-        }
-
-        return new ClassPackPurchase
-        {
-            Id = Guid.CreateVersion7(),
-            ClientId = clientId,
-            ClassPackId = pack.Id,
-            Name = pack.Name,
-            ClassCount = pack.ClassCount,
-            Price = chargedPrice,
-            CurrencyCode = currencyCode,
-            PurchasedOn = purchasedOn,
-            ExpiresOn = pack.ValidityMonths is null ? null : purchasedOn.AddMonths(pack.ValidityMonths.Value).AddDays(-1),
-            Method = method.Value,
-            Notes = trimmedNotes,
-            ClassDurationMinutes = pack.ClassDurationMinutes,
-            RecordedByUserId = recordedByUserId,
-            CreatedAt = createdAt.ToUniversalTime(),
-        };
+        return Create(clientId, pack, chargedPrice, currencyCode, purchasedOn, method, notes, createdAt, recordedByUserId);
     }
+
+    public static Result<ClassPackPurchase> ForOrder(
+        Guid clientId,
+        ClassPack pack,
+        decimal price,
+        string currencyCode,
+        DateOnly purchasedOn,
+        PaymentMethod? method,
+        string? notes,
+        DateTimeOffset createdAt,
+        Guid? recordedByUserId) =>
+        Create(clientId, pack, price, currencyCode, purchasedOn, method, notes, createdAt, recordedByUserId);
 
     public void DeductTrial(Guid trialLessonId) => TrialLessonId = trialLessonId;
 
@@ -114,5 +104,41 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     {
         DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
         IsDeleted = true;
+    }
+
+    private static Result<ClassPackPurchase> Create(
+        Guid clientId,
+        ClassPack pack,
+        decimal price,
+        string currencyCode,
+        DateOnly purchasedOn,
+        PaymentMethod? method,
+        string? notes,
+        DateTimeOffset createdAt,
+        Guid? recordedByUserId)
+    {
+        var trimmedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
+        if (trimmedNotes?.Length > NotesMaxLength)
+        {
+            return Result.Validation<ClassPackPurchase>(NotesLengthMessage, fieldName: nameof(Notes));
+        }
+
+        return new ClassPackPurchase
+        {
+            Id = Guid.CreateVersion7(),
+            ClientId = clientId,
+            ClassPackId = pack.Id,
+            Name = pack.Name,
+            ClassCount = pack.ClassCount,
+            Price = price,
+            CurrencyCode = currencyCode,
+            PurchasedOn = purchasedOn,
+            ExpiresOn = pack.ValidityMonths is null ? null : purchasedOn.AddMonths(pack.ValidityMonths.Value).AddDays(-1),
+            Method = method,
+            Notes = trimmedNotes,
+            ClassDurationMinutes = pack.ClassDurationMinutes,
+            RecordedByUserId = recordedByUserId,
+            CreatedAt = createdAt.ToUniversalTime(),
+        };
     }
 }

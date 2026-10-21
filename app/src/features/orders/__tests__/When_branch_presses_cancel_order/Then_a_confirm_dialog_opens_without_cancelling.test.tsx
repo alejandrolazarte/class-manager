@@ -9,10 +9,11 @@ jest.mock("@/features/orders/ordersApi");
 
 const requestedOrder = buildOrder({
   channel: "App",
-  status: "Requested",
-  awaitsPickup: false,
-  method: null,
-  paidOn: null,
+  paymentStatus: "Unpaid",
+  lastPaidOn: null,
+  paidAmount: 0,
+  balance: 24,
+  payments: [],
   clientFullName: "Ana Pérez",
 });
 
@@ -23,8 +24,7 @@ describe("When branch presses cancel order", () => {
 
   it("Then a confirm dialog opens without cancelling", async () => {
     await renderWithProviders(<OrderListScreen />);
-    await fireEvent.press(await screen.findByRole("button", { name: translate("orders.collect") }));
-    await fireEvent.press(screen.getByRole("button", { name: translate("orders.cancel") }));
+    await fireEvent.press(await screen.findByRole("button", { name: translate("orders.cancel") }));
 
     expect(
       screen.getByText(

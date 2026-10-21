@@ -1,18 +1,23 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
+import { listOrders } from "@/features/orders/ordersApi";
+import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
 import { translate } from "@/i18n/translate";
 import { buildOrder } from "@/testing/productFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/orders/ordersApi");
 
-const orderWithoutClient = buildOrder({ status: "Requested", clientFullName: null });
+const orderWithoutClient = buildOrder({ clientFullName: null });
 
 describe("When branch presses cancel on an order without client", () => {
-  it("Then the question has no client name", async () => {
-    await renderWithProviders(<PaymentPanel order={orderWithoutClient} />);
+  beforeEach(() => {
+    jest.mocked(listOrders).mockResolvedValue([orderWithoutClient]);
+  });
 
-    await fireEvent.press(screen.getByRole("button", { name: translate("orders.cancel") }));
+  it("Then the question has no client name", async () => {
+    await renderWithProviders(<OrderListScreen />);
+
+    await fireEvent.press(await screen.findByRole("button", { name: translate("orders.cancel") }));
 
     expect(
       screen.getByText(translate("orders.cancelQuestion", { number: orderWithoutClient.number })),

@@ -10,16 +10,19 @@ export type StudentAppOrderFilter = "open" | "past" | "all";
 export const studentAppOrderFilters: readonly StudentAppOrderFilter[] = ["open", "past", "all"];
 
 export function orderStage(order: StudentAppOrder): StudentAppOrderStage {
-  if (order.status === "Requested") {
-    return "awaitingPayment";
-  }
   if (order.status === "Cancelled") {
     return "cancelled";
+  }
+  if (order.status === "Delivered") {
+    return "delivered";
+  }
+  if (order.paymentStatus !== "Paid") {
+    return "awaitingPayment";
   }
   if (order.awaitsPickup) {
     return order.isReady ? "ready" : "preparing";
   }
-  return order.status === "Delivered" ? "delivered" : "paid";
+  return "paid";
 }
 
 const openStages: readonly StudentAppOrderStage[] = ["awaitingPayment", "preparing", "ready"];
@@ -36,10 +39,10 @@ export function matchesOrderFilter(order: StudentAppOrder, filter: StudentAppOrd
 }
 
 export const orderStageLabels: Record<StudentAppOrderStage, TranslationKey> = {
-  awaitingPayment: "student.orders.status.Requested",
+  awaitingPayment: "student.orders.status.awaitingPayment",
   preparing: "student.orders.status.preparing",
   ready: "student.orders.status.ready",
-  paid: "student.orders.status.Paid",
+  paid: "student.orders.status.paid",
   delivered: "student.orders.status.Delivered",
   cancelled: "student.orders.status.Cancelled",
 };

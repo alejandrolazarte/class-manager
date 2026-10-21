@@ -78,7 +78,7 @@ public sealed class PlaceStudentAppOrderUseCase(
             return stockProblem;
         }
 
-        if (await orderRepository.CountRequestedByClientAsync(access.ClientId, cancellationToken) >= Order.MaximumOpenRequestsPerClient)
+        if (await orderRepository.CountUnpaidRequestsByClientAsync(access.ClientId, cancellationToken) >= Order.MaximumOpenRequestsPerClient)
         {
             return StudentAppFailures.TooManyOpenOrders();
         }

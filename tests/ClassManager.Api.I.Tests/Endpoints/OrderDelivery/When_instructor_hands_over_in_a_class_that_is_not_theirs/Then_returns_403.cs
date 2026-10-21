@@ -18,7 +18,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
         }
 
         var orderId = (await otherStudent.Student.ListStudentAppOrdersAsync()).Single().Id;
-        (await owner.PutOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
+        (await owner.PostOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
 
         using var response = await scenario.Instructors.Instructor.PutClassDeliveryAsync(otherClassGroupId, orderId);
 

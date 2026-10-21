@@ -13,15 +13,22 @@ jest.mock("@/features/orders/ordersApi");
 describe("When orders are pending", () => {
   beforeEach(() => {
     jest.mocked(listMonthlyFees).mockResolvedValue(buildMonthlyFees([]));
-    jest
-      .mocked(listOrders)
-      .mockImplementation(async (_clientId, filter) =>
-        filter === "requested"
-          ? [buildOrder({ id: "requested-1", status: "Requested", awaitsPickup: false })]
-          : filter === "awaitingPickup"
-            ? [buildOrder({ id: "ready-1" }), buildOrder({ id: "ready-2" })]
-            : [],
-      );
+    jest.mocked(listOrders).mockImplementation(async (_clientId, filter) =>
+      filter === "owing"
+        ? [
+            buildOrder({
+              id: "owing-1",
+              status: "Pending",
+              paymentStatus: "Unpaid",
+              payments: [],
+              paidAmount: 0,
+              balance: 24,
+            }),
+          ]
+        : filter === "awaitingPickup"
+          ? [buildOrder({ id: "ready-1" }), buildOrder({ id: "ready-2" })]
+          : [],
+    );
   });
 
   it("Then the orders switch shows how many", async () => {

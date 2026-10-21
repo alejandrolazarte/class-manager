@@ -1,16 +1,27 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { formatMoney } from "@/formatting/money";
+import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { PaymentPanel } from "@/features/orders/components/PaymentPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
 import { refundableLinesOf } from "@/features/orders/refunds";
-import { orderClientLabel, orderStatusLabel } from "@/features/orders/orderLabels";
+import {
+  isFullyRefunded,
+  orderClientLabel,
+  orderPaymentStatusLabel,
+  orderStatusLabel,
+} from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
-import { useMarkOrderDelivered, useMarkOrderReady } from "@/features/orders/useOrderMutations";
+import {
+  useCancelOrder,
+  useMarkOrderDelivered,
+  useMarkOrderReady,
+} from "@/features/orders/useOrderMutations";
 import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { TonalBlock } from "@/ui/TonalBlock";
 import { StatusPill, StatusTone } from "@/ui/StatusPill";
@@ -21,35 +32,51 @@ const isoDateLength = 10;
 
 type OrderPanel = "payment" | "refund";
 
+function cancelQuestionOf(order: Order): string {
+  return order.clientFullName === null
+    ? translate("orders.cancelQuestion", { number: order.number })
+    : translate("orders.cancelQuestionWithClient", {
+        number: order.number,
+        client: order.clientFullName,
+      });
+}
+
 interface OrderRowProps {
   order: Order;
   canManage: boolean;
 }
 
 function orderStatusTone(order: Order): StatusTone {
-  if (order.awaitsPickup) {
-    return "warning";
-  }
-  if (order.status === "Requested") {
-    return "danger";
-  }
-  if (order.status === "Cancelled" || order.refundedAmount >= order.total) {
+  if (order.status === "Cancelled" || isFullyRefunded(order)) {
     return "neutral";
   }
-  return "success";
+  return order.status === "Pending" ? "warning" : "success";
 }
+
+const paymentStatusTones: Record<Order["paymentStatus"], StatusTone> = {
+  Unpaid: "danger",
+  Partial: "warning",
+  Paid: "success",
+};
 
 interface OrderActionProps {
   label: string;
+  isDanger?: boolean;
   onPress: () => void;
   isLoading?: boolean;
   isExpanded?: boolean;
 }
 
-function OrderAction({ label, onPress, isLoading = false, isExpanded }: OrderActionProps) {
+function OrderAction({
+  label,
+  isDanger = false,
+  onPress,
+  isLoading = false,
+  isExpanded,
+}: OrderActionProps) {
   return (
     <Button
-      variant="ghost"
+      variant={isDanger ? "dangerGhost" : "ghost"}
       size="small"
       label={label}
       onPress={onPress}
@@ -61,11 +88,15 @@ function OrderAction({ label, onPress, isLoading = false, isExpanded }: OrderAct
 
 export function OrderRow({ order, canManage }: OrderRowProps) {
   const { showToast } = useToast();
+  const business = useCurrentBusiness();
   const markOrderDeliveredMutation = useMarkOrderDelivered();
   const markOrderReadyMutation = useMarkOrderReady();
+  const cancelOrderMutation = useCancelOrder();
   const [openPanel, setOpenPanel] = useState<OrderPanel | null>(null);
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
   const hasRefundableLines = refundableLinesOf(order).length > 0;
-  const isSettled = order.status === "Paid" || order.status === "Delivered";
+  const isPending = order.status === "Pending";
+  const isOwing = order.status !== "Cancelled" && order.balance > 0;
   const money = (amount: number) => formatMoney(amount, order.currencyCode);
 
   const markDelivered = async () => {
@@ -85,6 +116,19 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       showToast(translate("common.unexpectedError"));
     }
   };
+
+  const cancel = async () => {
+    try {
+      await cancelOrderMutation.mutateAsync(order.id);
+      showToast(translate("orders.cancelled"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    } finally {
+      setIsConfirmingCancel(false);
+    }
+  };
+
+  const amountToReturn = Math.min(order.paidAmount, order.total - order.refundedAmount);
 
   const togglePanel = (panel: OrderPanel) => setOpenPanel(openPanel === panel ? null : panel);
 
@@ -108,19 +152,29 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       <AppText variant="footnote" tone="subtle">
         {[
           translate("orders.number", { number: order.number }),
-          formatLongDate(order.paidOn ?? order.createdAt.slice(0, isoDateLength)),
+          formatLongDate(order.lastPaidOn ?? order.createdAt.slice(0, isoDateLength)),
           order.channel === "App" ? translate("orders.fromApp") : null,
           lineSummary,
         ]
           .filter(Boolean)
           .join(" · ")}
       </AppText>
-      {order.refundedAmount > 0 ? (
+      {isOwing ? (
         <AppText variant="footnote" tone="subtle">
-          {translate("orders.refundedTotal", { amount: money(order.refundedAmount) })}
+          {order.paidAmount > 0
+            ? translate("orders.paidAndBalance", {
+                paid: money(order.paidAmount),
+                balance: money(order.balance),
+              })
+            : translate("orders.balance", { balance: money(order.balance) })}
         </AppText>
       ) : null}
-      {hasProducts && (order.awaitsPickup || order.status === "Requested") ? (
+      {order.returnedAmount > 0 ? (
+        <AppText variant="footnote" tone="subtle">
+          {translate("orders.refundedTotal", { amount: money(order.returnedAmount) })}
+        </AppText>
+      ) : null}
+      {hasProducts && order.awaitsPickup ? (
         <AppText variant="footnote" tone="subtle">
           {deliveryLabel}
         </AppText>
@@ -128,54 +182,88 @@ export function OrderRow({ order, canManage }: OrderRowProps) {
       <View className="mt-1 flex-row flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <View className="flex-row flex-wrap items-center gap-1.5">
           <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
+          {order.status === "Cancelled" ? null : (
+            <StatusPill
+              label={orderPaymentStatusLabel(order)}
+              tone={paymentStatusTones[order.paymentStatus]}
+              isSmall
+            />
+          )}
           {order.awaitsPickup && order.readyAt !== null ? (
             <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />
           ) : null}
         </View>
-        <View className="ml-auto flex-row flex-wrap items-center justify-end">
-          {canManage && order.status === "Requested" ? (
+        <View className="ml-auto max-w-full flex-row flex-wrap items-center justify-end">
+          {canManage && isOwing ? (
             <OrderAction
               label={translate(openPanel === "payment" ? "common.close" : "orders.collect")}
               isExpanded={openPanel === "payment"}
               onPress={() => togglePanel("payment")}
             />
           ) : null}
-          {canManage && isSettled && order.awaitsPickup && order.readyAt === null ? (
+          {canManage && order.awaitsPickup && order.readyAt === null ? (
             <OrderAction
               label={translate("orders.markReady")}
               onPress={markReady}
               isLoading={markOrderReadyMutation.isPending}
             />
           ) : null}
-          {canManage && isSettled && order.awaitsPickup ? (
+          {canManage && isPending ? (
             <OrderAction
               label={translate("orders.markDelivered")}
               onPress={markDelivered}
               isLoading={markOrderDeliveredMutation.isPending}
             />
           ) : null}
-          {canManage && isSettled && hasRefundableLines ? (
+          {canManage && hasRefundableLines ? (
             <OrderAction
               label={translate(openPanel === "refund" ? "common.close" : "orders.refund.open")}
               isExpanded={openPanel === "refund"}
               onPress={() => togglePanel("refund")}
             />
           ) : null}
+          {canManage && isPending ? (
+            <OrderAction
+              label={translate("orders.cancel")}
+              isDanger
+              onPress={() => setIsConfirmingCancel(true)}
+            />
+          ) : null}
         </View>
       </View>
-      {canManage && order.status === "Requested" ? (
+      {canManage && isOwing ? (
         <Collapsible isExpanded={openPanel === "payment"}>
           <TonalBlock tone="muted">
             <PaymentPanel order={order} />
           </TonalBlock>
         </Collapsible>
       ) : null}
-      {canManage && isSettled && hasRefundableLines ? (
+      {canManage && hasRefundableLines ? (
         <Collapsible isExpanded={openPanel === "refund"}>
           <TonalBlock tone="muted">
             <RefundPanel order={order} onDone={() => setOpenPanel(null)} />
           </TonalBlock>
         </Collapsible>
+      ) : null}
+      {isConfirmingCancel ? (
+        <ConfirmDialog
+          title={cancelQuestionOf(order)}
+          message={[
+            amountToReturn > 0
+              ? translate("orders.cancelConfirm.refund", {
+                  amount: money(amountToReturn),
+                  businessName: business.name,
+                })
+              : null,
+            translate("orders.cancelMessage"),
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          confirmLabel={translate("orders.cancel")}
+          onCancel={() => setIsConfirmingCancel(false)}
+          onConfirm={cancel}
+          isConfirming={cancelOrderMutation.isPending}
+        />
       ) : null}
     </HairlineRow>
   );

@@ -16,7 +16,7 @@ internal sealed partial class ExpiredOrderCancellationService(
         await using (var directoryScope = scopeFactory.CreateAsyncScope())
         {
             var directory = directoryScope.ServiceProvider.GetRequiredService<IExpiredOrderDirectory>();
-            businessIds = await directory.ListBusinessesWithRequestsCreatedBeforeAsync(
+            businessIds = await directory.ListBusinessesWithUnpaidRequestsCreatedBeforeAsync(
                 timeProvider.GetUtcNow() - Order.RequestLifetime, cancellationToken);
         }
 
