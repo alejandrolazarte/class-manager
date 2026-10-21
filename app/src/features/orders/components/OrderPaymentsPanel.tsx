@@ -13,9 +13,10 @@ import { useToast } from "@/ui/ToastProvider";
 
 interface OrderPaymentsPanelProps {
   order: Order;
+  canDelete: boolean;
 }
 
-export function OrderPaymentsPanel({ order }: OrderPaymentsPanelProps) {
+export function OrderPaymentsPanel({ order, canDelete }: OrderPaymentsPanelProps) {
   const { showToast } = useToast();
   const canUndoPayment = useCanUndoCollection(permissions.ordersManage);
   const deleteOrderPaymentMutation = useDeleteOrderPayment();
@@ -44,15 +45,17 @@ export function OrderPaymentsPanel({ order }: OrderPaymentsPanelProps) {
       {order.payments.map((payment) => (
         <HairlineRow key={payment.id} className="flex-row items-center gap-2 py-2">
           <View className="min-w-0 flex-1">
-            <AppText variant="bodyStrong">{money(payment.amount)}</AppText>
+            <AppText variant="body">
+              {translate(`fees.methods.${payment.method}` as TranslationKey)}
+            </AppText>
             <AppText variant="footnote" tone="subtle">
-              {[
-                formatLongDate(payment.paidOn),
-                translate(`fees.methods.${payment.method}` as TranslationKey),
-              ].join(" · ")}
+              {formatLongDate(payment.paidOn)}
             </AppText>
           </View>
-          {canUndoPayment(payment.recordedByUserId) ? (
+          <AppText variant="bodyStrong" tone="success">
+            {money(payment.amount)}
+          </AppText>
+          {canDelete && canUndoPayment(payment.recordedByUserId) ? (
             <IconButton
               icon="delete"
               tone="muted-foreground"

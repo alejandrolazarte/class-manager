@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { refundableLinesOf, remainingUnits } from "@/features/orders/refunds";
 import { Order, OrderLine } from "@/features/orders/types";
 import { useRefundOrder } from "@/features/orders/useOrderMutations";
+import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
@@ -22,7 +25,9 @@ const wholeNumberPattern = /^\d+$/;
 
 export function RefundPanel({ order, onDone }: RefundPanelProps) {
   const { showToast } = useToast();
+  const business = useCurrentBusiness();
   const refundOrderMutation = useRefundOrder();
+  const [isConfirming, setIsConfirming] = useState(false);
   const refundableLines = refundableLinesOf(order);
   const [lineId, setLineId] = useState(refundableLines[0]?.id ?? "");
   const [quantityText, setQuantityText] = useState(
@@ -38,16 +43,33 @@ export function RefundPanel({ order, onDone }: RefundPanelProps) {
     setHasFailed(false);
   };
 
+  const askToConfirm = () => {
+    if (selectedLine === undefined) {
+      return;
+    }
+    if (selectedLine.kind === "Product" && !wholeNumberPattern.test(quantityText.trim())) {
+      setHasFailed(true);
+      return;
+    }
+    setHasFailed(false);
+    setIsConfirming(true);
+  };
+
+  const refundMessage = () => {
+    if (selectedLine?.kind !== "Product") {
+      return translate("orders.refund.unusedClasses");
+    }
+    return translate("orders.cancelConfirm.refund", {
+      amount: formatMoney(selectedLine.unitPrice * Number(quantityText.trim()), order.currencyCode),
+      businessName: business.name,
+    });
+  };
+
   const confirm = async () => {
     if (selectedLine === undefined) {
       return;
     }
     const isProduct = selectedLine.kind === "Product";
-    if (isProduct && !wholeNumberPattern.test(quantityText.trim())) {
-      setHasFailed(true);
-      return;
-    }
-    setHasFailed(false);
     try {
       await refundOrderMutation.mutateAsync({
         orderId: order.id,
@@ -63,6 +85,8 @@ export function RefundPanel({ order, onDone }: RefundPanelProps) {
       onDone();
     } catch {
       setHasFailed(true);
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -103,10 +127,19 @@ export function RefundPanel({ order, onDone }: RefundPanelProps) {
         size="medium"
         variant="dangerOutline"
         label={translate("orders.refund.confirm")}
-        onPress={confirm}
+        onPress={askToConfirm}
         disabled={selectedLine?.kind === "Product" && !isFilled(quantityText)}
-        isLoading={refundOrderMutation.isPending}
       />
+      {isConfirming ? (
+        <ConfirmDialog
+          title={translate("orders.refund.confirmQuestion")}
+          message={refundMessage()}
+          confirmLabel={translate("orders.refund.confirm")}
+          onCancel={() => setIsConfirming(false)}
+          onConfirm={confirm}
+          isConfirming={refundOrderMutation.isPending}
+        />
+      ) : null}
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { deleteOrderPayment, listOrders, restoreOrderPayment } from "@/features/orders/ordersApi";
-import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
+import { deleteOrderPayment, getOrder, restoreOrderPayment } from "@/features/orders/ordersApi";
+import { OrderDetailScreen } from "@/features/orders/screens/OrderDetailScreen";
 import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { buildOrder } from "@/testing/productFactory";
@@ -16,17 +16,14 @@ const deleteLabel = translate("orders.payments.deleteOf", {
 
 describe("When branch deletes an order payment", () => {
   beforeEach(() => {
-    jest.mocked(listOrders).mockResolvedValue([paidOrder]);
+    jest.mocked(getOrder).mockResolvedValue(paidOrder);
     jest.mocked(deleteOrderPayment).mockResolvedValue(buildOrder());
   });
 
   it("Then the deletion is sent", async () => {
-    await renderWithProviders(<OrderListScreen />);
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("orders.payments.open") }),
-    );
+    await renderWithProviders(<OrderDetailScreen orderId={paidOrder.id} />);
 
-    await fireEvent.press(screen.getByRole("button", { name: deleteLabel }));
+    await fireEvent.press(await screen.findByRole("button", { name: deleteLabel }));
 
     await waitFor(() => expect(deleteOrderPayment).toHaveBeenCalledWith(paidOrder.id, payment.id));
     expect(restoreOrderPayment).not.toHaveBeenCalled();

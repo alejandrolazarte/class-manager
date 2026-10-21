@@ -15,9 +15,10 @@ import { useToast } from "@/ui/ToastProvider";
 
 interface PaymentPanelProps {
   order: Order;
+  onDone?: () => void;
 }
 
-export function PaymentPanel({ order }: PaymentPanelProps) {
+export function PaymentPanel({ order, onDone }: PaymentPanelProps) {
   const { showToast } = useToast();
   const recordOrderPaymentMutation = useRecordOrderPayment();
   const [typedAmount, setTypedAmount] = useState(toAmountText(order.balance));
@@ -43,6 +44,7 @@ export function PaymentPanel({ order }: PaymentPanelProps) {
         },
       });
       showToast(translate("orders.paid"));
+      onDone?.();
     } catch {
       setHasFailed(true);
     }

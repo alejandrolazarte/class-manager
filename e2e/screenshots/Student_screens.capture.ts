@@ -230,6 +230,21 @@ test("Team screens with student activity", async ({ page, request }) => {
   await page.getByRole("button", { name: "Confirmar pago" }).waitFor();
   await capture(page, "10d-cobros-pedidos-cobrar");
 
+  await page.goto("/fees?view=orders");
+  await page
+    .getByRole("button", { name: /^Abrir pedido/ })
+    .filter({ hasText: "Botella térmica" })
+    .first()
+    .click();
+  await page.getByText("Qué lleva").filter({ visible: true }).first().waitFor();
+  await capture(page, "10d2-pedido-detalle");
+  await page
+    .getByRole("button", { name: "Cancelar pedido" })
+    .filter({ visible: true })
+    .first()
+    .scrollIntoViewIfNeeded();
+  await capture(page, "10d3-pedido-detalle-acciones");
+
   await page.goto(`/students/clients/${demo.studentAppClientId}/counter-sale`);
   await page.getByRole("button", { name: "Agregar productos o packs" }).click();
   await page.getByText("Remera del club").filter({ visible: true }).first().waitFor();

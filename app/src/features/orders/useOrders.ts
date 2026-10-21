@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { orderQueryKeys } from "@/features/orders/orderQueryKeys";
 import {
+  getOrder,
   getOrderSummary,
   listClassDeliveries,
   listDeliveryClasses,
@@ -12,6 +13,13 @@ export function useOrders(clientId: string | null, filter: OrderFilter) {
   return useQuery({
     queryKey: orderQueryKeys.list(clientId, filter),
     queryFn: () => listOrders(clientId, filter),
+  });
+}
+
+export function useOrder(orderId: string) {
+  return useQuery({
+    queryKey: orderQueryKeys.detail(orderId),
+    queryFn: () => getOrder(orderId),
   });
 }
 

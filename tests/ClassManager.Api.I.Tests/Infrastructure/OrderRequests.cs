@@ -45,4 +45,8 @@ public static class OrderRequests
     public static Task<HttpResponseMessage> PostOrderPaymentRestoreAsync(this HttpClient httpClient, Guid orderId, Guid paymentId) =>
         httpClient.PostAsync(
             new Uri($"{ApiRoutes.Orders}/{orderId}{ApiRoutes.PaymentsSegment}/{paymentId}{ApiRoutes.Restore}", UriKind.Relative), null);
+
+    public static async Task<OrderResponse> GetOrderAsync(this HttpClient httpClient, Guid orderId) =>
+        (await httpClient.GetFromJsonAsync<OrderResponse>(
+            new Uri($"{ApiRoutes.Orders}/{orderId}", UriKind.Relative), ApiRequests.JsonOptions))!;
 }

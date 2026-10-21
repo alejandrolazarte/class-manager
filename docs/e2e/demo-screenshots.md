@@ -134,7 +134,8 @@ The same file also captures two team screens that need student activity, signed 
 |---|---|
 | `01c-avisos` | Team notifications (avisos): the "No voy", the makeup and the orders |
 | `05b-clase-editar-material` | The class form scrolled to "Material para los alumnos", with the link and the PDF |
-| `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment panel of an order open |
+| `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment sheet of an order open |
+| `10d2-pedido-detalle`, `10d3-pedido-detalle-acciones` | The counter sale paid in part, opened from Cobros › Pedidos: what it has, its delivery, its payments, and at the bottom the refund and cancel buttons |
 | `10e-venta-en-mostrador-catalogo` | Counter sale: the catalog of products and packs with its filters |
 | `10f-venta-en-mostrador-pago` | Counter sale, second step: hand over now or later, how much they pay now and how |
 | `12g-productos` | Ajustes › Productos with search and filters |
