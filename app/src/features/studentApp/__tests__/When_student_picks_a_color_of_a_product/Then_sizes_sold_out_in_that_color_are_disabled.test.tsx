@@ -11,10 +11,10 @@ const product: StudentAppShopProduct = {
   price: 12,
   images: [],
   variants: [
-    { id: "s-black", size: "S", color: "black", availability: "Available" },
-    { id: "l-black", size: "L", color: "black", availability: "Available" },
-    { id: "s-white", size: "S", color: "white", availability: "Available" },
-    { id: "l-white", size: "L", color: "white", availability: "SoldOut" },
+    { id: "s-black", size: "S", color: "black", availability: "Available", maximumUnits: null },
+    { id: "l-black", size: "L", color: "black", availability: "Available", maximumUnits: null },
+    { id: "s-white", size: "S", color: "white", availability: "Available", maximumUnits: null },
+    { id: "l-white", size: "L", color: "white", availability: "SoldOut", maximumUnits: null },
   ],
 };
 
