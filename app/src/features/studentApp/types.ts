@@ -123,6 +123,11 @@ export interface StudentAppBilling {
   classes: StudentAppClassBalance | null;
 }
 
+export interface StudentAppLocation {
+  name: string;
+  mapsUrl: string | null;
+}
+
 export interface StudentAppHome {
   businessName: string;
   currencyCode: string;
@@ -132,6 +137,7 @@ export interface StudentAppHome {
   students: AccountStudent[];
   billing: StudentAppBilling;
   levels: StudentAppLevel[];
+  location: StudentAppLocation | null;
 }
 
 export interface StudentAppGuardianConsent {

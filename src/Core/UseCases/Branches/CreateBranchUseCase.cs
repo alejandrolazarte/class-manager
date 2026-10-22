@@ -13,7 +13,9 @@ public sealed record CreateBranchCommand(
     [property: AuditPlain] string? Name,
     [property: AuditPlain] string? CountryCode,
     [property: AuditPlain] string? TimeZoneId,
-    [property: AuditPlain] string? CurrencyCode) : ICommand;
+    [property: AuditPlain] string? CurrencyCode,
+    [property: AuditPersonal] string? LocationName = null,
+    [property: AuditPersonal] string? LocationMapsUrl = null) : ICommand;
 
 public sealed class CreateBranchUseCase(
     IBusinessRepository businessRepository,
@@ -53,6 +55,12 @@ public sealed class CreateBranchUseCase(
         }
 
         var newBranch = branch.Value!;
+        var location = newBranch.ChangeLocation(command.LocationName, command.LocationMapsUrl);
+        if (location.IsFailure)
+        {
+            return location.Error!;
+        }
+
         var owner = (await identityService.ListAccountsAsync([access.AccountId], cancellationToken)).SingleOrDefault();
         businessRepository.Add(newBranch);
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -14,4 +14,6 @@ export interface CreateBranchRequest {
   countryCode: string;
   timeZoneId: string;
   currencyCode: string;
+  locationName: string | null;
+  locationMapsUrl: string | null;
 }

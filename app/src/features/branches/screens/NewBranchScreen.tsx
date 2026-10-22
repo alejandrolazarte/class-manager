@@ -6,6 +6,12 @@ import { isApiError } from "@/api/httpClient";
 import { useSession } from "@/features/authentication/useSession";
 import { Branch } from "@/features/branches/types";
 import { useCreateBranch } from "@/features/branches/useBranches";
+import {
+  BusinessLocationValues,
+  isLocationComplete,
+  toLocationRequest,
+} from "@/features/business/businessLocation";
+import { BusinessLocationFields } from "@/features/business/components/BusinessLocationFields";
 import { currencyOptions } from "@/features/business/currencyOptions";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { CountryPicker } from "@/features/countries/CountryPicker";
@@ -40,6 +46,11 @@ export function NewBranchScreen() {
     timeZoneId: business.timeZoneId,
   }));
   const [currencyCode, setCurrencyCode] = useState(business.currencyCode);
+  const [location, setLocation] = useState<BusinessLocationValues>({
+    locationName: "",
+    locationMapsUrl: "",
+  });
+  const [locationErrors, setLocationErrors] = useState<Record<string, string>>({});
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const countryCurrencyCode =
     findCountry(countries, countrySelection.countryCode)?.currencyCode ?? currencyCode;
@@ -64,12 +75,14 @@ export function NewBranchScreen() {
   const create = async () => {
     setSubmissionFailure(null);
     setNameError(undefined);
+    setLocationErrors({});
     try {
       const branch = await createBranchMutation.mutateAsync({
         name: name.trim(),
         countryCode: countrySelection.countryCode,
         timeZoneId: countrySelection.timeZoneId,
         currencyCode,
+        ...toLocationRequest(location),
       });
       showToast(translate("branches.form.created", { name: branch.name }), {
         label: translate("branches.form.enter"),
@@ -79,8 +92,9 @@ export function NewBranchScreen() {
     } catch (createError) {
       if (isApiError(createError) && createError.status === badRequestStatus) {
         const fieldErrors = getFieldErrors(createError.problem);
-        if (fieldErrors.name) {
+        if (fieldErrors.name || fieldErrors.locationName || fieldErrors.locationMapsUrl) {
           setNameError(fieldErrors.name);
+          setLocationErrors(fieldErrors);
           return;
         }
       }
@@ -120,10 +134,19 @@ export function NewBranchScreen() {
           ))}
         </View>
       </View>
+      <BusinessLocationFields
+        values={location}
+        onChange={(values) => {
+          setLocation(values);
+          setLocationErrors({});
+        }}
+        locationNameError={locationErrors.locationName}
+        locationMapsUrlError={locationErrors.locationMapsUrl}
+      />
       <Button
         label={translate("branches.form.submit")}
         onPress={create}
-        disabled={!isFilled(name)}
+        disabled={!isFilled(name) || !isLocationComplete(location)}
         isLoading={createBranchMutation.isPending}
       />
     </SettingsFormScreenLayout>

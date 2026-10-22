@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View } from "react-native";
+import { Linking, View } from "react-native";
 import { useHasOtherAccountKind } from "@/features/authentication/useAccounts";
 import { useSession } from "@/features/authentication/useSession";
 import {
@@ -40,7 +40,23 @@ export function StudentAppSettingsScreen() {
     await signOut();
   };
 
+  const location = home?.location ?? null;
+  const locationMapsUrl = location?.mapsUrl ?? null;
   const groups: SettingsGroup[] = [
+    {
+      titleKey: "settings.group.location",
+      items: [
+        {
+          key: "location",
+          isVisible: location !== null,
+          icon: "location",
+          label: location?.name ?? "",
+          value: locationMapsUrl === null ? undefined : translate("student.location.openMaps"),
+          onPress: locationMapsUrl === null ? undefined : () => Linking.openURL(locationMapsUrl),
+          isExternal: true,
+        },
+      ],
+    },
     {
       titleKey: "settings.group.device",
       items: [

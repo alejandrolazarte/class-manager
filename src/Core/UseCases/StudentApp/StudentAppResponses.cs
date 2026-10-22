@@ -1,4 +1,5 @@
 using ClassManager.Core.Domain.Achievements;
+using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
 
@@ -58,7 +59,14 @@ public sealed record StudentAppHomeResponse(
     StudentAppBillingResponse Billing,
     IReadOnlyList<LevelDefinition> Levels,
     string SignedInFullName,
-    IReadOnlyList<StudentAppGuardianConsentResponse> PendingGuardianConsents);
+    IReadOnlyList<StudentAppGuardianConsentResponse> PendingGuardianConsents,
+    StudentAppLocationResponse? Location);
+
+public sealed record StudentAppLocationResponse(string Name, string? MapsUrl)
+{
+    public static StudentAppLocationResponse? From(Business business) =>
+        business.LocationName is null ? null : new(business.LocationName, business.LocationMapsUrl);
+}
 
 public sealed record StudentAppGuardianConsentResponse(Guid InvitationId, string StudentFullName, string StudentEmail);
 
