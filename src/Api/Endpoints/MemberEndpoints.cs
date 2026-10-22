@@ -57,7 +57,7 @@ internal static class MemberEndpoints
     }
 
     private static async Task<IResult> MakeBrandOwnerAsync(
-        Guid memberId,
+        long memberId,
         IUseCase<SetBrandOwnerCommand, BrandOwnerResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -67,7 +67,7 @@ internal static class MemberEndpoints
     }
 
     private static async Task<IResult> RemoveBrandOwnerAsync(
-        Guid memberId,
+        long memberId,
         IUseCase<SetBrandOwnerCommand, BrandOwnerResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -77,7 +77,7 @@ internal static class MemberEndpoints
     }
 
     private static async Task<IResult> ResendInvitationAsync(
-        Guid invitationId,
+        long invitationId,
         IUseCase<ResendInvitationCommand, InvitationResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -106,7 +106,7 @@ internal static class MemberEndpoints
     }
 
     private static async Task<IResult> RevokeInvitationAsync(
-        Guid invitationId,
+        long invitationId,
         IUseCase<RevokeInvitationCommand, RevokedInvitationResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -116,7 +116,7 @@ internal static class MemberEndpoints
     }
 
     private static async Task<IResult> ChangeRoleAsync(
-        Guid memberId,
+        long memberId,
         ChangeMemberRoleRequest request,
         IUseCase<ChangeMemberRoleCommand, MemberResponse> useCase,
         CancellationToken cancellationToken)
@@ -127,7 +127,7 @@ internal static class MemberEndpoints
     }
 
     private static async Task<IResult> RemoveAsync(
-        Guid memberId,
+        long memberId,
         IUseCase<RemoveMemberCommand, RemovedMemberResponse> useCase,
         CancellationToken cancellationToken)
     {

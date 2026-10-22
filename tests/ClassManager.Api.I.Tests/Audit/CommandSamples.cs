@@ -75,9 +75,9 @@ internal sealed class CommandSamples
             return hidden ? Hide(value, value.ToString(CultureInfo.InvariantCulture)) : 1m;
         }
 
-        if (type == typeof(Guid))
+        if (type == typeof(long))
         {
-            return Guid.CreateVersion7();
+            return TestIds.Next();
         }
 
         if (type == typeof(DateTimeOffset))

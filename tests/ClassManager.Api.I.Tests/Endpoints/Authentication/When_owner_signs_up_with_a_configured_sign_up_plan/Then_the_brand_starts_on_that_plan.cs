@@ -11,7 +11,7 @@ public sealed class Then_the_brand_starts_on_that_plan(ApiFixture fixture)
     [Fact]
     public async Task Then_the_brand_starts_on_that_plan_Run()
     {
-        var businessName = $"Pro brand {Guid.NewGuid():N}";
+        var businessName = $"Pro brand {TestIds.Next()}";
         await using var apiFactory = new BusinessApiFactory(
             fixture.ConnectionString,
             new FakeTimeProvider(BusinessApiFactory.Now),
@@ -20,7 +20,7 @@ public sealed class Then_the_brand_starts_on_that_plan(ApiFixture fixture)
 
         await anonymousClient.SignUpAsync(apiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(businessName: businessName));
 
-        await using var context = fixture.CreateDbContext(Guid.Empty);
+        await using var context = fixture.CreateDbContext(0L);
         var organizationId = await context.Organizations.Where(organization => organization.Name == businessName).Select(organization => organization.Id).SingleAsync();
         (await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId)).PlanCode.ShouldBe(PlanCodes.Pro);
     }

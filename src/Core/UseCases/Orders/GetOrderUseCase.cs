@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record GetOrderQuery(Guid OrderId) : IQuery;
+public sealed record GetOrderQuery(long OrderId) : IQuery;
 
 public sealed class GetOrderUseCase(
     IOrderRepository orderRepository,

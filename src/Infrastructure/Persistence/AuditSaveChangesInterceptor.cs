@@ -49,17 +49,17 @@ internal sealed class AuditSaveChangesInterceptor(TimeProvider timeProvider, ICu
         }
     }
 
-    private static void StampCreated(EntityEntry entry, DateTimeOffset now, Guid? userId)
+    private static void StampCreated(EntityEntry entry, DateTimeOffset now, long? userId)
     {
         var createdAt = entry.Property(nameof(IAuditable.CreatedAt));
         SetWhenDefault(createdAt, now);
         var createdByUserId = entry.Property(nameof(IAuditable.CreatedByUserId));
         SetWhenEmpty(createdByUserId, userId);
         SetWhenDefault(entry.Property(nameof(IAuditable.UpdatedAt)), (DateTimeOffset)createdAt.CurrentValue!);
-        SetWhenEmpty(entry.Property(nameof(IAuditable.UpdatedByUserId)), (Guid?)createdByUserId.CurrentValue);
+        SetWhenEmpty(entry.Property(nameof(IAuditable.UpdatedByUserId)), (long?)createdByUserId.CurrentValue);
     }
 
-    private static void StampUpdated(EntityEntry entry, DateTimeOffset now, Guid? userId)
+    private static void StampUpdated(EntityEntry entry, DateTimeOffset now, long? userId)
     {
         var updatedAt = entry.Property(nameof(IAuditable.UpdatedAt));
         if (!updatedAt.IsModified)
@@ -82,7 +82,7 @@ internal sealed class AuditSaveChangesInterceptor(TimeProvider timeProvider, ICu
         }
     }
 
-    private static void SetWhenEmpty(PropertyEntry property, Guid? value)
+    private static void SetWhenEmpty(PropertyEntry property, long? value)
     {
         property.CurrentValue ??= value;
     }

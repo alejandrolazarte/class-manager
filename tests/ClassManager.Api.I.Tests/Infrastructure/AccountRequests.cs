@@ -5,7 +5,7 @@ using ClassManager.Core.UseCases.Branches;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed record OwnerAndStudent(StudentAppScenario Student, Guid OwnBusinessId, string OwnBusinessName, string Email, TokenResponse OwnerTokens);
+public sealed record OwnerAndStudent(StudentAppScenario Student, long OwnBusinessId, string OwnBusinessName, string Email, TokenResponse OwnerTokens);
 
 public static class AccountRequests
 {
@@ -29,7 +29,7 @@ public static class AccountRequests
     public static Task<HttpResponseMessage> PostLegalTermsAcceptanceAsync(this HttpClient httpClient) =>
         httpClient.PostAsync(new Uri(ApiRoutes.MyLegalTermsAcceptance, UriKind.Relative), null);
 
-    public static Task<HttpResponseMessage> PostSwitchAccountAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string kind) =>
+    public static Task<HttpResponseMessage> PostSwitchAccountAsync(this HttpClient httpClient, string refreshToken, long businessId, string kind) =>
         httpClient.PostAsJsonAsync(SwitchRoute, new SwitchBranchCommand(refreshToken, businessId, kind), ApiRequests.JsonOptions);
 
     public static async Task<OwnerAndStudent> SeedOwnerWhoIsAlsoStudentAsync(this ApiFixture fixture)

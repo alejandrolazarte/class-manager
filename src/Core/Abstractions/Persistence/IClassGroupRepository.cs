@@ -6,15 +6,15 @@ public interface IClassGroupRepository
 {
     void Add(ClassGroup classGroup);
 
-    Task<ClassGroup?> GetByIdAsync(Guid classGroupId, CancellationToken cancellationToken);
+    Task<ClassGroup?> GetByIdAsync(long classGroupId, CancellationToken cancellationToken);
 
-    Task<ClassGroup?> GetForUpdateAsync(Guid classGroupId, CancellationToken cancellationToken);
+    Task<ClassGroup?> GetForUpdateAsync(long classGroupId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClassGroup>> ListAllAsync(CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClassGroup>> ListActiveAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ClassGroup>> ListActiveByInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ClassGroup>> ListActiveByInstructorAsync(long instructorId, CancellationToken cancellationToken);
 
-    Task<int> CountActiveByInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
+    Task<int> CountActiveByInstructorAsync(long instructorId, CancellationToken cancellationToken);
 }

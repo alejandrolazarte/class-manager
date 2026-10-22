@@ -22,26 +22,25 @@ public sealed class User : ITenantOwned, IAuditable, ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public string FullName { get; private set; } = string.Empty;
     public string? Email { get; private set; }
     public PhoneNumber? PhoneNumber { get; private set; }
     public DateOnly? BirthDate { get; private set; }
     public Guid? AccountId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
 
     public static Result<User> Create(string? fullName, string? email, DateTimeOffset createdAt)
     {
         var user = new User
         {
-            Id = Guid.CreateVersion7(),
             CreatedAt = createdAt.ToUniversalTime(),
         };
         var rename = user.Rename(fullName);
@@ -57,7 +56,6 @@ public sealed class User : ITenantOwned, IAuditable, ISoftDeletable
     public static User CreateForAccount(Guid accountId, string fullName, string? email, DateTimeOffset createdAt) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             FullName = fullName.Trim(),
             Email = TrimToNull(email),
             AccountId = accountId,

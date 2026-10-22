@@ -14,7 +14,7 @@ public sealed record StudentAppNextClassResponse(
     string? Location,
     bool IsPrivateLesson,
     bool IsCancelled,
-    Guid? ClassGroupId,
+    long? ClassGroupId,
     bool AbsenceNotified,
     bool IsMakeup,
     bool IsPackBooking = false);
@@ -30,12 +30,12 @@ public sealed record StudentAppAttendanceResponse(
 
 public sealed record StudentAppFeedbackResponse(DateOnly Date, string ClassName, string? InstructorFullName, string Text);
 
-public sealed record StudentAppClassMaterialResponse(Guid ClassGroupId, string ClassName, string? LinkUrl, StudentAppClassMaterialFileResponse? File);
+public sealed record StudentAppClassMaterialResponse(long ClassGroupId, string ClassName, string? LinkUrl, StudentAppClassMaterialFileResponse? File);
 
 public sealed record StudentAppClassMaterialFileResponse(string Url, long SizeInBytes);
 
 public sealed record AccountStudentResponse(
-    Guid Id,
+    long Id,
     string FullName,
     IReadOnlyList<StudentAppNextClassResponse> NextClasses,
     StudentAppAttendanceResponse Attendance,
@@ -68,6 +68,6 @@ public sealed record StudentAppLocationResponse(string Name, string? MapsUrl)
         business.LocationName is null ? null : new(business.LocationName, business.LocationMapsUrl);
 }
 
-public sealed record StudentAppGuardianConsentResponse(Guid InvitationId, string StudentFullName, string StudentEmail);
+public sealed record StudentAppGuardianConsentResponse(long InvitationId, string StudentFullName, string StudentEmail);
 
-public sealed record StudentAppInvitationResponse(Guid Id, string Email, DateTimeOffset ExpiresAt, bool AwaitsGuardianConsent = false);
+public sealed record StudentAppInvitationResponse(long Id, string Email, DateTimeOffset ExpiresAt, bool AwaitsGuardianConsent = false);

@@ -70,6 +70,7 @@ public sealed class CreateBranchUseCase(
             var ownerInstructor = Instructor.Create(owner.FullName, timeProvider.GetUtcNow()).Value!;
             ownerInstructor.User.LinkAccount(access.AccountId);
             instructorRepository.Add(ownerInstructor);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
             businessMemberRepository.Add(BusinessMember.CreateBranchOwner(newBranch.Id, ownerInstructor.User, ownerInstructor.Id));
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }

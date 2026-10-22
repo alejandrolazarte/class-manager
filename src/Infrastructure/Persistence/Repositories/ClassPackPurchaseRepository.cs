@@ -6,10 +6,10 @@ internal sealed class ClassPackPurchaseRepository(AppDbContext context) : IClass
 
     public void Remove(ClassPackPurchase purchase) => context.ClassPackPurchases.Remove(purchase);
 
-    public Task<ClassPackPurchase?> GetForUpdateAsync(Guid purchaseId, CancellationToken cancellationToken) =>
+    public Task<ClassPackPurchase?> GetForUpdateAsync(long purchaseId, CancellationToken cancellationToken) =>
         context.ClassPackPurchases.FirstOrDefaultAsync(purchase => purchase.Id == purchaseId, cancellationToken);
 
-    public async Task<IReadOnlyList<ClassPackPurchase>> ListByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ClassPackPurchase>> ListByClientsAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)
         {
@@ -21,6 +21,6 @@ internal sealed class ClassPackPurchaseRepository(AppDbContext context) : IClass
             .ToListAsync(cancellationToken);
     }
 
-    public Task<bool> IsTrialDeductedAsync(Guid trialLessonId, CancellationToken cancellationToken) =>
+    public Task<bool> IsTrialDeductedAsync(long trialLessonId, CancellationToken cancellationToken) =>
         context.ClassPackPurchases.AsNoTracking().AnyAsync(purchase => purchase.TrialLessonId == trialLessonId, cancellationToken);
 }

@@ -10,7 +10,6 @@ internal sealed class CustomRoleConfiguration : IEntityTypeConfiguration<CustomR
     public void Configure(EntityTypeBuilder<CustomRole> builder)
     {
         builder.HasKey(role => role.Id);
-        builder.Property(role => role.Id).ValueGeneratedNever();
         builder.Property(role => role.Name).HasMaxLength(CustomRole.NameMaxLength).IsRequired();
         builder.Property(role => role.CopiedFrom).HasMaxLength(CustomRole.CopiedFromMaxLength);
         builder.Property(role => role.Permissions)

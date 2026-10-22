@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Sessions;
 namespace ClassManager.Core.UseCases.StudentApp;
 
 internal sealed record OpenClassSlot(
-    Guid ClassGroupId,
+    long ClassGroupId,
     string Name,
     DateOnly Date,
     string StartTime,
@@ -32,7 +32,7 @@ internal static class OpenClassSlots
             return SpotsLeft(classGroup, rosterCount, 0, 0, 0);
         }
 
-        IReadOnlyCollection<Guid> sessionIds = [session.Id];
+        IReadOnlyCollection<long> sessionIds = [session.Id];
         var notices = (await repositories.Notices.CountBySessionsAsync(sessionIds, cancellationToken)).GetValueOrDefault(session.Id);
         var makeups = (await repositories.Bookings.CountBySessionsAsync(sessionIds, cancellationToken)).GetValueOrDefault(session.Id);
         var packBookings = (await repositories.PackBookings.CountBySessionsAsync(sessionIds, cancellationToken)).GetValueOrDefault(session.Id);
@@ -40,7 +40,7 @@ internal static class OpenClassSlots
     }
 
     public static async Task<IReadOnlyList<OpenClassSlot>> ListAsync(
-        Guid studentId,
+        long studentId,
         Func<ClassGroup, bool> isOffered,
         IClassGroupRepository classGroupRepository,
         IInstructorRepository instructorRepository,
@@ -52,7 +52,7 @@ internal static class OpenClassSlots
         var lastDate = today.AddDays(GetStudentAppHomeUseCase.LookAheadDays);
         var sessions = (await repositories.Sessions.ListBetweenAsync(today, lastDate, cancellationToken))
             .ToDictionary(session => (session.ClassGroupId, session.Date));
-        IReadOnlyCollection<Guid> sessionIds = [.. sessions.Values.Select(session => session.Id)];
+        IReadOnlyCollection<long> sessionIds = [.. sessions.Values.Select(session => session.Id)];
         var noticeCounts = await repositories.Notices.CountBySessionsAsync(sessionIds, cancellationToken);
         var makeupCounts = await repositories.Bookings.CountBySessionsAsync(sessionIds, cancellationToken);
         var packBookingCounts = await repositories.PackBookings.CountBySessionsAsync(sessionIds, cancellationToken);

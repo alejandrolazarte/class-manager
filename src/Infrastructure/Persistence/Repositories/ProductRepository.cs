@@ -4,11 +4,11 @@ internal sealed class ProductRepository(AppDbContext context) : IProductReposito
 {
     public void Add(Product product) => context.Products.Add(product);
 
-    public Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken) =>
+    public Task<Product?> GetByIdAsync(long productId, CancellationToken cancellationToken) =>
         context.Products.AsNoTracking().Include(product => product.Variants)
             .FirstOrDefaultAsync(product => product.Id == productId, cancellationToken);
 
-    public Task<Product?> GetForUpdateAsync(Guid productId, CancellationToken cancellationToken) =>
+    public Task<Product?> GetForUpdateAsync(long productId, CancellationToken cancellationToken) =>
         context.Products.Include(product => product.Variants)
             .FirstOrDefaultAsync(product => product.Id == productId, cancellationToken);
 
@@ -23,7 +23,7 @@ internal sealed class ProductRepository(AppDbContext context) : IProductReposito
             .ThenBy(product => product.Name)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<Product>> ListByVariantsAsync(IReadOnlyCollection<Guid> variantIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Product>> ListByVariantsAsync(IReadOnlyCollection<long> variantIds, CancellationToken cancellationToken)
     {
         if (variantIds.Count == 0)
         {

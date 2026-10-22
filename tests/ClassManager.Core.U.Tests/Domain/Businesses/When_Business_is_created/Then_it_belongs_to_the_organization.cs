@@ -7,7 +7,7 @@ public sealed class Then_it_belongs_to_the_organization
     [Fact]
     public void Then_it_belongs_to_the_organization_Run()
     {
-        var organizationId = Guid.CreateVersion7();
+        var organizationId = TestIds.Next();
 
         var business = Business.Create(
             organizationId,

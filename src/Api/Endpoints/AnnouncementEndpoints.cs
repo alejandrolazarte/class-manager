@@ -49,7 +49,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> UpdateAnnouncementAsync(
-        Guid announcementId,
+        long announcementId,
         UpdateAnnouncementRequest request,
         IUseCase<UpdateAnnouncementCommand, AnnouncementResponse> useCase,
         CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> DeleteAnnouncementAsync(
-        Guid announcementId,
+        long announcementId,
         IUseCase<DeleteAnnouncementCommand, bool> useCase,
         CancellationToken cancellationToken)
     {
@@ -70,7 +70,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> RestoreAnnouncementAsync(
-        Guid announcementId,
+        long announcementId,
         IUseCase<RestoreAnnouncementCommand, bool> useCase,
         CancellationToken cancellationToken)
     {
@@ -80,7 +80,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> PinAnnouncementAsync(
-        Guid announcementId,
+        long announcementId,
         IUseCase<PinAnnouncementCommand, bool> useCase,
         CancellationToken cancellationToken)
     {
@@ -90,7 +90,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> UnpinAnnouncementAsync(
-        Guid announcementId,
+        long announcementId,
         IUseCase<UnpinAnnouncementCommand, bool> useCase,
         CancellationToken cancellationToken)
     {
@@ -100,7 +100,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> AddAnnouncementImageAsync(
-        Guid announcementId,
+        long announcementId,
         IFormFile file,
         IUseCase<AddAnnouncementImageCommand, AnnouncementResponse> useCase,
         CancellationToken cancellationToken)
@@ -112,8 +112,8 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> RemoveAnnouncementImageAsync(
-        Guid announcementId,
-        Guid documentId,
+        long announcementId,
+        long documentId,
         IUseCase<RemoveAnnouncementImageCommand, AnnouncementResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -123,7 +123,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> ListAnnouncementRecipientsAsync(
-        Guid announcementId,
+        long announcementId,
         IUseCase<ListAnnouncementRecipientsQuery, IReadOnlyList<AnnouncementRecipientResponse>> useCase,
         CancellationToken cancellationToken)
     {
@@ -133,7 +133,7 @@ internal static class AnnouncementEndpoints
     }
 
     private static async Task<IResult> RemindAnnouncementAsync(
-        Guid announcementId,
+        long announcementId,
         IUseCase<RemindAnnouncementCommand, AnnouncementReminderResponse> useCase,
         CancellationToken cancellationToken)
     {

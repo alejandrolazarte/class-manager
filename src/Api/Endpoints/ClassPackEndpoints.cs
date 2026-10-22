@@ -55,7 +55,7 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> UpdateClassPackAsync(
-        Guid classPackId,
+        long classPackId,
         UpdateClassPackRequest request,
         IUseCase<UpdateClassPackCommand, ClassPackResponse> useCase,
         CancellationToken cancellationToken)
@@ -66,7 +66,7 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> SetClassPackActiveAsync(
-        Guid classPackId,
+        long classPackId,
         SetActiveRequest request,
         IUseCase<SetClassPackActiveCommand, ClassPackResponse> useCase,
         CancellationToken cancellationToken)
@@ -77,7 +77,7 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> SellClassPackAsync(
-        Guid clientId,
+        long clientId,
         SellClassPackRequest request,
         IUseCase<SellClassPackCommand, ClassPackPurchaseResponse> useCase,
         CancellationToken cancellationToken)
@@ -89,7 +89,7 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> GetClientClassBalanceAsync(
-        Guid clientId,
+        long clientId,
         IUseCase<GetClientClassBalanceQuery, ClassBalanceResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -99,7 +99,7 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> DeleteClassPackPurchaseAsync(
-        Guid purchaseId,
+        long purchaseId,
         IUseCase<DeleteClassPackPurchaseCommand, ClassPackPurchaseResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -109,7 +109,7 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> AddClassPackImageAsync(
-        Guid classPackId,
+        long classPackId,
         IFormFile file,
         IUseCase<AddClassPackImageCommand, ClassPackResponse> useCase,
         CancellationToken cancellationToken)
@@ -121,8 +121,8 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> RemoveClassPackImageAsync(
-        Guid classPackId,
-        Guid documentId,
+        long classPackId,
+        long documentId,
         IUseCase<RemoveClassPackImageCommand, ClassPackResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -132,7 +132,7 @@ internal static class ClassPackEndpoints
     }
 
     private static async Task<IResult> ReorderClassPackImagesAsync(
-        Guid classPackId,
+        long classPackId,
         ReorderImagesRequest request,
         IUseCase<ReorderClassPackImagesCommand, ClassPackResponse> useCase,
         CancellationToken cancellationToken)

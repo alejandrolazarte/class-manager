@@ -16,7 +16,7 @@ public sealed class Then_the_brands_are_forbidden(BackofficeApiFixture fixture)
         var tokenFactory = new JwtAccessTokenFactory(
             Options.Create(new JwtOptions { Issuer = BackofficeIssuer, Audience = BackofficeIssuer, SigningKey = BackofficeApiFactory.TestSigningKey }),
             fixture.ApiFactory.TimeProvider);
-        var accessToken = tokenFactory.Create(new TokenSubject(Guid.CreateVersion7(), "owner@example.com", Guid.CreateVersion7(), BranchOwnerRole, BackofficeSession.Kind)).Token;
+        var accessToken = tokenFactory.Create(new TokenSubject(Guid.CreateVersion7(), "owner@example.com", TestIds.Next(), BranchOwnerRole, BackofficeSession.Kind)).Token;
         using var client = fixture.ApiFactory.CreateHttpsClient();
 
         using var response = await client.GetAsync(BackofficeRequests.BrandsRoute, accessToken);

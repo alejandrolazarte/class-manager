@@ -7,10 +7,10 @@ internal static class StudentAnnouncements
 {
     public const int ListedDays = 60;
 
-    public static async Task<HashSet<Guid>> EnrolledClassGroupIdsAsync(
-        IEnrollmentRepository enrollmentRepository, IEnumerable<Guid> studentIds, DateOnly today, CancellationToken cancellationToken)
+    public static async Task<HashSet<long>> EnrolledClassGroupIdsAsync(
+        IEnrollmentRepository enrollmentRepository, IEnumerable<long> studentIds, DateOnly today, CancellationToken cancellationToken)
     {
-        var classGroupIds = new HashSet<Guid>();
+        var classGroupIds = new HashSet<long>();
         foreach (var studentId in studentIds)
         {
             classGroupIds.UnionWith((await enrollmentRepository.ListCurrentByStudentAsync(studentId, today, cancellationToken))
@@ -22,7 +22,7 @@ internal static class StudentAnnouncements
 
     public static async Task<IReadOnlyList<Announcement>> VisibleAsync(
         IAnnouncementRepository announcementRepository,
-        IReadOnlyCollection<Guid> enrolledClassGroupIds,
+        IReadOnlyCollection<long> enrolledClassGroupIds,
         DateOnly today,
         DateTimeOffset now,
         CancellationToken cancellationToken) =>

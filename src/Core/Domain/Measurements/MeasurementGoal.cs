@@ -10,21 +10,20 @@ public sealed class MeasurementGoal : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid StudentId { get; private set; }
-    public Guid MeasurementDefinitionId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long StudentId { get; private set; }
+    public long MeasurementDefinitionId { get; private set; }
     public decimal Value { get; private set; }
 
-    public static Result<MeasurementGoal> Create(Guid studentId, MeasurementDefinition definition, decimal? value)
+    public static Result<MeasurementGoal> Create(long studentId, MeasurementDefinition definition, decimal? value)
     {
         var goal = new MeasurementGoal
         {
-            Id = Guid.CreateVersion7(),
             StudentId = studentId,
             MeasurementDefinitionId = definition.Id,
         };

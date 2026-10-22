@@ -7,7 +7,7 @@ namespace ClassManager.Infrastructure.WebPush;
 
 internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTaskOutbox queue, IOptions<VapidOptions> options)
 {
-    public async Task PublishToStudentsAsync(IReadOnlyCollection<Guid>? clientIds, LocalizedPushMessage message, CancellationToken cancellationToken)
+    public async Task PublishToStudentsAsync(IReadOnlyCollection<long>? clientIds, LocalizedPushMessage message, CancellationToken cancellationToken)
     {
         if (!options.Value.IsConfigured || clientIds?.Count == 0)
         {
@@ -18,7 +18,7 @@ internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTas
     }
 
     public async Task PublishToStudentAccountsAsync(
-        Guid clientId,
+        long clientId,
         IReadOnlyCollection<Guid> userIds,
         LocalizedPushMessage message,
         CancellationToken cancellationToken)

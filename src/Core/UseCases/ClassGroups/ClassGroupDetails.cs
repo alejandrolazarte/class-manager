@@ -4,7 +4,7 @@ namespace ClassManager.Core.UseCases.ClassGroups;
 
 public sealed record ClassGroupDetails(
     [property: AuditPlain] string? Name,
-    Guid? InstructorId,
+    long? InstructorId,
     IReadOnlyList<DayOfWeek>? Weekdays,
     [property: AuditPlain] string? StartTime,
     int? DurationMinutes,

@@ -1,10 +1,10 @@
 namespace ClassManager.Core.Abstractions.Persistence;
 
 public sealed record StudentSummary(
-    Guid Id,
+    long Id,
     string FullName,
     DateOnly? BirthDate,
     string? Notes,
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     string ClientPhoneNumber);

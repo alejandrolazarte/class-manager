@@ -32,7 +32,7 @@ internal static class OrderRefunds
 
         if (usedClasses == 0)
         {
-            line.LinkPurchase(null);
+            line.UnlinkPurchase();
             purchaseRepository.Remove(purchase);
         }
         else

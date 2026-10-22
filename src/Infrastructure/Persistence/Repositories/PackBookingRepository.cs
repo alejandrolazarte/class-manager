@@ -6,12 +6,12 @@ internal sealed class PackBookingRepository(AppDbContext context) : IPackBooking
 
     public void Remove(PackBooking booking) => context.PackBookings.Remove(booking);
 
-    public Task<PackBooking?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken) =>
+    public Task<PackBooking?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken) =>
         context.PackBookings.FirstOrDefaultAsync(
             booking => booking.ClassSessionId == classSessionId && booking.StudentId == studentId,
             cancellationToken);
 
-    public async Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(Guid classSessionId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
         await (
             from booking in context.PackBookings.AsNoTracking()
             where booking.ClassSessionId == classSessionId
@@ -21,11 +21,11 @@ internal sealed class PackBookingRepository(AppDbContext context) : IPackBooking
             select new BookedStudent(student.Id, student.User.FullName, student.User.BirthDate, client.User.FullName))
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, int>> CountBySessionsAsync(
-        IReadOnlyCollection<Guid> classSessionIds,
+    public async Task<IReadOnlyDictionary<long, int>> CountBySessionsAsync(
+        IReadOnlyCollection<long> classSessionIds,
         CancellationToken cancellationToken) =>
         classSessionIds.Count == 0
-            ? new Dictionary<Guid, int>()
+            ? new Dictionary<long, int>()
             : await context.PackBookings.AsNoTracking()
                 .Where(booking => classSessionIds.Contains(booking.ClassSessionId))
                 .GroupBy(booking => booking.ClassSessionId)
@@ -33,7 +33,7 @@ internal sealed class PackBookingRepository(AppDbContext context) : IPackBooking
                 .ToDictionaryAsync(group => group.ClassSessionId, group => group.Count, cancellationToken);
 
     public async Task<IReadOnlyList<BookedClass>> ListByStudentsBetweenAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         DateOnly firstDate,
         DateOnly lastDate,
         CancellationToken cancellationToken)
@@ -52,7 +52,7 @@ internal sealed class PackBookingRepository(AppDbContext context) : IPackBooking
             .ToListAsync(cancellationToken);
     }
 
-    public Task<int> CountWaitingForAttendanceAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken) =>
+    public Task<int> CountWaitingForAttendanceAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken) =>
         studentIds.Count == 0
             ? Task.FromResult(0)
             : (

@@ -10,7 +10,7 @@ public sealed record GetTeamNotificationsQuery : IQuery;
 
 public sealed record MarkTeamNotificationsSeenCommand : ICommand;
 
-public sealed record TeamNotificationResponse(Guid Id, string Title, string Body, string Url, DateTimeOffset CreatedAt, bool IsUnread)
+public sealed record TeamNotificationResponse(long Id, string Title, string Body, string Url, DateTimeOffset CreatedAt, bool IsUnread)
 {
     public static TeamNotificationResponse From(TeamNotification notification) =>
         new(notification.Id, notification.Title, notification.Body, notification.Url, notification.CreatedAt, notification.SeenAt is null);

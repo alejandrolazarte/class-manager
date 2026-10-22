@@ -9,10 +9,10 @@ using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record GetSessionQuery(Guid ClassGroupId, DateOnly Date) : IQuery;
+public sealed record GetSessionQuery(long ClassGroupId, DateOnly Date) : IQuery;
 
 public sealed record SessionStudentResponse(
-    Guid StudentId,
+    long StudentId,
     string StudentFullName,
     string ClientFullName,
     DateOnly? BirthDate,
@@ -23,9 +23,9 @@ public sealed record SessionStudentResponse(
     bool IsPackBooking = false);
 
 public sealed record SessionDetailsResponse(
-    Guid ClassGroupId,
+    long ClassGroupId,
     string ClassGroupName,
-    Guid InstructorId,
+    long InstructorId,
     string InstructorFullName,
     string? OriginalInstructorFullName,
     DateOnly Date,
@@ -74,15 +74,15 @@ public sealed class GetSessionUseCase(
             : null;
         var instructor = substitute ?? usualInstructor;
         var statuses = session is null
-            ? new Dictionary<Guid, AttendanceStatus>()
+            ? new Dictionary<long, AttendanceStatus>()
             : (await attendanceRepository.ListBySessionAsync(session.Id, cancellationToken))
                 .ToDictionary(attendance => attendance.StudentId, attendance => attendance.Status);
         var feedbacks = session is null
-            ? new Dictionary<Guid, string>()
+            ? new Dictionary<long, string>()
             : (await feedbackRepository.ListBySessionAsync(session.Id, cancellationToken))
                 .ToDictionary(feedback => feedback.StudentId, feedback => feedback.Text);
         var notifiedStudentIds = session is null
-            ? new HashSet<Guid>()
+            ? new HashSet<long>()
             : await absenceNoticeRepository.ListStudentIdsBySessionAsync(session.Id, cancellationToken);
         var roster = await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
         var makeupStudents = session is null

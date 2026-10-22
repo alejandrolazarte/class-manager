@@ -12,7 +12,6 @@ internal sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
     {
         builder.HasKey(business => business.Id);
         builder.Property<decimal?>(RetiredDefaultMonthlyFeeColumn).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
-        builder.Property(business => business.Id).ValueGeneratedNever();
         builder.Property<int>(NextOrderNumberColumn).HasDefaultValue(FirstOrderNumber);
         builder.Property(business => business.Name).HasMaxLength(Business.NameMaxLength).IsRequired();
         builder.Property(business => business.Slug).HasMaxLength(Business.SlugMaxLength).IsRequired();
@@ -29,6 +28,6 @@ internal sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
         builder.Property(business => business.LocationMapsUrl).HasMaxLength(Business.LocationMapsUrlMaxLength);
         builder.Ignore(business => business.BrandDisplayName);
         builder.HasIndex(business => business.Slug).IsUnique();
-        builder.HasOne<Organization>().WithMany().HasForeignKey(business => business.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(business => business.Organization).WithMany().HasForeignKey(business => business.OrganizationId).OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Security.Tokens;
 using Microsoft.AspNetCore.Http;
@@ -6,12 +7,11 @@ namespace ClassManager.Infrastructure.Security;
 
 internal sealed class ClaimsCurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    public Guid? AccountId => ClaimAsGuid(SecurityClaimTypes.Subject);
+    public Guid? AccountId =>
+        Guid.TryParse(ClaimValue(SecurityClaimTypes.Subject), out var accountId) ? accountId : null;
 
-    public Guid? UserId => ClaimAsGuid(SessionClaimTypes.UserId);
+    public long? UserId =>
+        long.TryParse(ClaimValue(SessionClaimTypes.UserId), NumberStyles.None, CultureInfo.InvariantCulture, out var userId) ? userId : null;
 
-    private Guid? ClaimAsGuid(string claimType) =>
-        Guid.TryParse(httpContextAccessor.HttpContext?.User.FindFirst(claimType)?.Value, out var value)
-            ? value
-            : null;
+    private string? ClaimValue(string claimType) => httpContextAccessor.HttpContext?.User.FindFirst(claimType)?.Value;
 }

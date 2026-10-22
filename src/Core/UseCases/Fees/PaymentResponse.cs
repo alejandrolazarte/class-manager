@@ -3,15 +3,15 @@ using ClassManager.Core.Domain.Fees;
 namespace ClassManager.Core.UseCases.Fees;
 
 public sealed record PaymentResponse(
-    Guid Id,
-    Guid ClientId,
+    long Id,
+    long ClientId,
     decimal Amount,
     string CurrencyCode,
     string Month,
     DateOnly PaidOn,
     PaymentMethod Method,
     string? Notes,
-    Guid? RecordedByUserId = null,
+    long? RecordedByUserId = null,
     string? RecordedByFullName = null)
 {
     public static PaymentResponse From(Payment payment, string? recordedByFullName = null) =>

@@ -62,7 +62,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     public async Task InitializeAsync()
     {
         await Task.WhenAll(_container.StartAsync(), _storageContainer.StartAsync());
-        await using (var context = CreateDbContext(Guid.Empty))
+        await using (var context = CreateDbContext(0L))
         {
             await context.Database.MigrateAsync();
         }
@@ -93,7 +93,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         AnonymousClient.Dispose();
     }
 
-    public AppDbContext CreateDbContext(Guid businessId)
+    public AppDbContext CreateDbContext(long businessId)
     {
         var tenantContext = new FixedTenantContext(businessId);
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -114,7 +114,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     }
 
     public string CreateAccessToken(
-        Guid businessId,
+        long businessId,
         TimeProvider? timeProvider = null,
         string? signingKey = null,
         Guid? accountId = null,
@@ -144,12 +144,12 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         return client;
     }
 
-    public HttpClient CreateClientFor(Guid businessId, Guid accountId) => CreateClientWithToken(CreateAccessToken(businessId, accountId: accountId));
+    public HttpClient CreateClientFor(long businessId, Guid accountId) => CreateClientWithToken(CreateAccessToken(businessId, accountId: accountId));
 
-    public Task<HttpClient> SeedMemberAsync(Guid businessId, BusinessRole role, Guid? instructorId = null) =>
+    public Task<HttpClient> SeedMemberAsync(long businessId, BusinessRole role, long? instructorId = null) =>
         SeedMemberAsync(businessId, MemberRole.System(role), instructorId);
 
-    public async Task<HttpClient> SeedMemberAsync(Guid businessId, MemberRole role, Guid? instructorId = null)
+    public async Task<HttpClient> SeedMemberAsync(long businessId, MemberRole role, long? instructorId = null)
     {
         var accountId = Guid.CreateVersion7();
         await using var context = CreateDbContext(businessId);
@@ -166,7 +166,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         return CreateClientFor(businessId, accountId);
     }
 
-    public async Task ChangePlanAsync(Guid businessId, string planCode)
+    public async Task ChangePlanAsync(long businessId, string planCode)
     {
         await using var context = CreateDbContext(businessId);
         var organizationId = await context.Businesses.Where(business => business.Id == businessId).Select(business => business.OrganizationId).SingleAsync();
@@ -176,7 +176,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         await context.SaveChangesAsync();
     }
 
-    public async Task EndSubscriptionAsync(Guid businessId)
+    public async Task EndSubscriptionAsync(long businessId)
     {
         const int DaysSinceItStarted = 40;
         var today = DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime);
@@ -204,9 +204,10 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
             students: [new NewStudent("Alumno 1", null, null)]);
         var today = DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime);
         await using var context = CreateDbContext(business.Business.Id);
+        var clientEntity = await context.Clients.Include(candidate => candidate.User).SingleAsync(candidate => candidate.Id == client.Id);
         for (var studentNumber = 2; studentNumber <= studentCount; studentNumber++)
         {
-            context.Students.Add(Student.Create(client.Id, $"Alumno {studentNumber}", null, null, today, BusinessApiFactory.Now).Value!);
+            context.Students.Add(Student.Create(clientEntity, $"Alumno {studentNumber}", null, null, today, BusinessApiFactory.Now).Value!);
         }
 
         await context.SaveChangesAsync();
@@ -232,7 +233,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
 
     public async Task<Country> FindCountryAsync(string countryCode)
     {
-        await using var context = CreateDbContext(Guid.Empty);
+        await using var context = CreateDbContext(0L);
         return await context.Countries.AsNoTracking().SingleAsync(country => country.Code == countryCode);
     }
 
@@ -241,20 +242,24 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         var organization = Organization.Create(BusinessName, BusinessApiFactory.Now).Value!;
         var ownerAccountId = Guid.CreateVersion7();
         var argentina = await FindCountryAsync(ArgentinaCountryCode);
-        var business = Business.Create(
-            organization.Id,
+        var business = Business.CreateInNewOrganization(
+            organization,
             BusinessName,
-            $"business-{Guid.NewGuid():N}",
+            $"business-{TestIds.Next()}",
             argentina,
             BuenosAiresTimeZoneId,
             CurrencyCode,
             BusinessApiFactory.Now).Value!;
+        await using (var setupContext = CreateDbContext(0L))
+        {
+            setupContext.Countries.Attach(argentina);
+            setupContext.Organizations.Add(organization);
+            setupContext.Businesses.Add(business);
+            await setupContext.SaveChangesAsync();
+        }
 
         await using var context = CreateDbContext(business.Id);
-        context.Countries.Attach(argentina);
-        context.Organizations.Add(organization);
         context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerAccountId));
-        context.Businesses.Add(business);
         context.BusinessMembers.Add(BusinessMember.CreateBranchOwner(
             business.Id,
             User.CreateForAccount(ownerAccountId, SeededOwnerFullName, null, BusinessApiFactory.Now)));
@@ -270,13 +275,13 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
         return new SeededBusiness(business, CreateClientFor(business.Id, ownerAccountId), ownerAccountId);
     }
 
-    private Dictionary<string, string>? SessionUserClaimsOf(Guid businessId, Guid accountId)
+    private Dictionary<string, string>? SessionUserClaimsOf(long businessId, Guid accountId)
     {
         using var context = CreateDbContext(businessId);
         var userId = context.Users
             .Where(user => user.AccountId == accountId)
-            .Select(user => (Guid?)user.Id)
+            .Select(user => (long?)user.Id)
             .FirstOrDefault();
-        return userId is { } linkedUserId ? new Dictionary<string, string> { [SessionClaimTypes.UserId] = linkedUserId.ToString() } : null;
+        return userId is { } linkedUserId ? new Dictionary<string, string> { [SessionClaimTypes.UserId] = linkedUserId.ToString(CultureInfo.InvariantCulture) } : null;
     }
 }

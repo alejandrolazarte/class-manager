@@ -8,7 +8,7 @@ internal static class CommandAuditRows
 {
     private static readonly TimeSpan WaitLimit = TimeSpan.FromSeconds(30);
 
-    public static async Task<TableEntity> WaitForAsync(ApiFixture fixture, Guid tenantId, string command)
+    public static async Task<TableEntity> WaitForAsync(ApiFixture fixture, long tenantId, string command)
     {
         var table = new TableServiceClient(fixture.StorageConnectionString)
             .GetTableClient("Commands" + BusinessApiFactory.Now.UtcDateTime.ToString("yyyyMM", CultureInfo.InvariantCulture));
@@ -17,7 +17,7 @@ internal static class CommandAuditRows
         {
             try
             {
-                await foreach (var row in table.QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString()))
+                await foreach (var row in table.QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString(CultureInfo.InvariantCulture)))
                 {
                     if (row.GetString(nameof(CommandAuditEntry.Command)) == command)
                     {

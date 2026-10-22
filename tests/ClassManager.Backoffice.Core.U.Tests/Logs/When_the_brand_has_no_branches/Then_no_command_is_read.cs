@@ -8,7 +8,7 @@ public sealed class Then_no_command_is_read
         var scenario = new LogsScenario();
         scenario.WithCommand("RecordPaymentCommand", LogsScenario.Now);
 
-        var result = await scenario.ListCommandsAsync(LogsScenario.Today, Guid.CreateVersion7());
+        var result = await scenario.ListCommandsAsync(LogsScenario.Today, TestIds.Next());
 
         result.Value!.Entries.ShouldBeEmpty();
         scenario.Reader.ReadDays.ShouldBeEmpty();

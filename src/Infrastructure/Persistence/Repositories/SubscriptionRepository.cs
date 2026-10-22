@@ -21,7 +21,7 @@ internal sealed class SubscriptionRepository(AppDbContext context, IConfiguratio
     public async Task<IReadOnlyList<PlanFeature>> ListPlanFeaturesAsync(CancellationToken cancellationToken) =>
         await context.PlanFeatures.AsNoTracking().ToListAsync(cancellationToken);
 
-    public Task<Subscription?> GetCurrentAsync(Guid subscriberId, CancellationToken cancellationToken) =>
+    public Task<Subscription?> GetCurrentAsync(long subscriberId, CancellationToken cancellationToken) =>
         context.Subscriptions
             .AsNoTracking()
             .WhereNotDeleted()

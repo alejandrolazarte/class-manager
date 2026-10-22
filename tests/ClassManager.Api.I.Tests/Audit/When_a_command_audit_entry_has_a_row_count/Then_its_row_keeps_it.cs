@@ -1,3 +1,4 @@
+using System.Globalization;
 using Azure.Data.Tables;
 using ClassManager.Infrastructure.Audit;
 
@@ -13,13 +14,13 @@ public sealed class Then_its_row_keeps_it(ApiFixture fixture)
     public async Task Then_its_row_keeps_it_Run()
     {
         var serviceClient = new TableServiceClient(fixture.StorageConnectionString);
-        var tenantId = Guid.CreateVersion7();
+        var tenantId = TestIds.Next();
         var entry = CommandAuditEntries.Succeeded(tenantId) with { RowCount = ExportedRows };
 
         await new TableCommandAuditStore(serviceClient).WriteAsync([entry], CancellationToken.None);
 
         var row = await serviceClient.GetTableClient(TableOfTheMonth)
-            .QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString())
+            .QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString(CultureInfo.InvariantCulture))
             .SingleAsync();
         row.GetInt32(nameof(CommandAuditEntry.RowCount)).ShouldBe(ExportedRows);
     }

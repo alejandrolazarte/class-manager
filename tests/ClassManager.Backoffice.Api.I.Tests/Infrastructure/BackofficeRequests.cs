@@ -1,5 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
+using ClassManager.Infrastructure.Json;
 using Microsoft.Net.Http.Headers;
 
 namespace ClassManager.Backoffice.Api.I.Tests.Infrastructure;
@@ -18,6 +20,8 @@ public static class BackofficeRequests
     private const string CookieRequestHeader = "X-Refresh-Token-Cookie";
     private const string CookieRequestHeaderValue = "true";
     private const string BearerScheme = "Bearer";
+
+    public static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web).WriteIdsAsStrings();
 
     public static async Task<HttpResponseMessage> SignInWithGoogleAsync(this HttpClient client, string subject, string email)
     {
@@ -59,7 +63,7 @@ public static class BackofficeRequests
     }
 
     public static async Task<string> AccessTokenOfAsync(HttpResponseMessage refreshResponse) =>
-        (await refreshResponse.Content.ReadFromJsonAsync<AccessTokenResponse>())!.AccessToken;
+        (await refreshResponse.Content.ReadFromJsonAsync<AccessTokenResponse>(BackofficeRequests.JsonOptions))!.AccessToken;
 
     public static Task<HttpResponseMessage> GetCurrentOperatorAsync(this HttpClient client, string accessToken) =>
         client.GetAsync(CurrentOperatorRoute, accessToken);

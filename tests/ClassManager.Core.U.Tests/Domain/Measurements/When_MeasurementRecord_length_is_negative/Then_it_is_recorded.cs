@@ -8,7 +8,7 @@ public sealed class Then_it_is_recorded
     public void Then_it_is_recorded_Run()
     {
         var record = MeasurementRecord.Create(
-            Guid.NewGuid(), MeasurementSamples.Length(), TestData.Today, -8m, null, TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false);
+            TestIds.Next(), MeasurementSamples.Length(), TestData.Today, -8m, null, TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false);
 
         record.Value!.Value.ShouldBe(-8m);
     }

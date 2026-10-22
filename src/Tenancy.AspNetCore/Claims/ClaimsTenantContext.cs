@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Http;
 
 namespace ClassManager.Tenancy.AspNetCore.Claims;
@@ -7,11 +8,11 @@ internal sealed class ClaimsTenantContext(IHttpContextAccessor httpContextAccess
     private const string MissingTenantClaimMessage = "The access token has no valid tenant_id claim.";
     private const string TenantAlreadyEstablishedMessage = "Another tenant is already established for this request.";
 
-    private Guid? _establishedTenantId;
+    private long? _establishedTenantId;
 
-    public Guid TenantId => _establishedTenantId ?? ReadTenantIdClaim();
+    public long TenantId => _establishedTenantId ?? ReadTenantIdClaim();
 
-    public void Establish(Guid tenantId)
+    public void Establish(long tenantId)
     {
         if (_establishedTenantId is not null && _establishedTenantId != tenantId)
         {
@@ -21,11 +22,11 @@ internal sealed class ClaimsTenantContext(IHttpContextAccessor httpContextAccess
         _establishedTenantId = tenantId;
     }
 
-    private Guid ReadTenantIdClaim()
+    private long ReadTenantIdClaim()
     {
         var claimValue = httpContextAccessor.HttpContext?.User.FindFirst(TenantClaimTypes.TenantId)?.Value;
 
-        return Guid.TryParse(claimValue, out var tenantId) && tenantId != Guid.Empty
+        return long.TryParse(claimValue, NumberStyles.None, CultureInfo.InvariantCulture, out var tenantId) && tenantId > 0
             ? tenantId
             : throw new TenantNotResolvedException(MissingTenantClaimMessage);
     }

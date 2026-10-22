@@ -9,7 +9,6 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
     public void Configure(EntityTypeBuilder<Client> builder)
     {
         builder.HasKey(client => client.Id);
-        builder.Property(client => client.Id).ValueGeneratedNever();
         builder.Property(client => client.Notes).HasMaxLength(Client.NotesMaxLength);
         builder.Property<decimal?>(RetiredMonthlyFeeColumn).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
 

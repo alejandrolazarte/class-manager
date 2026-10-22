@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var enrollment = Enrollment.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), TestData.Today, TestData.Now);
+        var enrollment = Enrollment.Create(TestIds.Next(), TestIds.Next(), TestData.Today, TestData.Now).WithId();
 
         var end = enrollment.End(TestData.Today.AddDays(-1));
 

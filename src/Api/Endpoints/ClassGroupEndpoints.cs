@@ -40,7 +40,7 @@ internal static class ClassGroupEndpoints
     }
 
     private static async Task<IResult> GetClassGroupAsync(
-        Guid classGroupId,
+        long classGroupId,
         IUseCase<GetClassGroupQuery, ClassGroupResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -60,7 +60,7 @@ internal static class ClassGroupEndpoints
     }
 
     private static async Task<IResult> UpdateClassGroupAsync(
-        Guid classGroupId,
+        long classGroupId,
         ClassGroupDetails details,
         IUseCase<UpdateClassGroupCommand, ClassGroupResponse> useCase,
         CancellationToken cancellationToken)
@@ -71,7 +71,7 @@ internal static class ClassGroupEndpoints
     }
 
     private static async Task<IResult> SetClassGroupActiveAsync(
-        Guid classGroupId,
+        long classGroupId,
         SetActiveRequest request,
         IUseCase<SetClassGroupActiveCommand, ClassGroupResponse> useCase,
         CancellationToken cancellationToken)
@@ -82,7 +82,7 @@ internal static class ClassGroupEndpoints
     }
 
     private static async Task<IResult> UploadClassMaterialFileAsync(
-        Guid classGroupId,
+        long classGroupId,
         IFormFile file,
         IUseCase<UploadClassMaterialFileCommand, ClassGroupResponse> useCase,
         CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ internal static class ClassGroupEndpoints
     }
 
     private static async Task<IResult> RemoveClassMaterialFileAsync(
-        Guid classGroupId,
+        long classGroupId,
         IUseCase<RemoveClassMaterialFileCommand, ClassGroupResponse> useCase,
         CancellationToken cancellationToken)
     {

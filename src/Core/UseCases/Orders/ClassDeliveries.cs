@@ -9,14 +9,14 @@ namespace ClassManager.Core.UseCases.Orders;
 
 public sealed record ClassDeliveryLineResponse(string Name, int Quantity);
 
-public sealed record ClassDeliveryResponse(Guid OrderId, string? ClientFullName, bool IsReady, IReadOnlyList<ClassDeliveryLineResponse> Lines);
+public sealed record ClassDeliveryResponse(long OrderId, string? ClientFullName, bool IsReady, IReadOnlyList<ClassDeliveryLineResponse> Lines);
 
 internal static class ClassDeliveries
 {
     private const string ClassGroupNotFoundMessage = "The class group does not exist.";
 
     public static async Task<Result<ClassGroup>> GetClassGroupInScopeAsync(
-        Guid classGroupId,
+        long classGroupId,
         IClassGroupRepository classGroupRepository,
         IAccessScopes accessScopes,
         CancellationToken cancellationToken)

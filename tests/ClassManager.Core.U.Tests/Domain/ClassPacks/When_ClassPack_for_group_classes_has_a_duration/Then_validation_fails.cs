@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         var pack = ClassPackTestData.Pack();
 
-        var lessons = pack.DefineLessons([Guid.CreateVersion7()], 45);
+        var lessons = pack.DefineLessons([TestIds.Next()], 45);
 
         lessons.Error!.FieldName.ShouldBe(nameof(ClassPack.ClassDurationMinutes));
     }

@@ -27,7 +27,7 @@ public static class ProductRequests
     }
 
     public static Task<HttpResponseMessage> PostStockMovementAsync(
-        this HttpClient httpClient, Guid productId, Guid variantId, StockMovementKind kind, int quantity, string? note = null) =>
+        this HttpClient httpClient, long productId, long variantId, StockMovementKind kind, int quantity, string? note = null) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Products}/{productId}{ApiRoutes.Stock}",
             new RecordStockMovementRequest(variantId, kind, quantity, note),
@@ -43,7 +43,7 @@ public static class ProductRequests
     public static async Task<List<ProductResponse>> ListProductsAsync(this HttpClient httpClient) =>
         (await httpClient.GetFromJsonAsync<List<ProductResponse>>(new Uri(ApiRoutes.Products, UriKind.Relative), ApiRequests.JsonOptions))!;
 
-    public static async Task<List<StockMovementResponse>> ListStockMovementsAsync(this HttpClient httpClient, Guid productId) =>
+    public static async Task<List<StockMovementResponse>> ListStockMovementsAsync(this HttpClient httpClient, long productId) =>
         (await httpClient.GetFromJsonAsync<List<StockMovementResponse>>(
             new Uri($"{ApiRoutes.Products}/{productId}{ApiRoutes.StockMovements}", UriKind.Relative), ApiRequests.JsonOptions))!;
 }

@@ -9,12 +9,12 @@ public sealed class Then_classes_of_that_month_are_not_used
     public async Task Then_classes_of_that_month_are_not_used_Run()
     {
         var builder = new ClassPackUseCaseBuilder();
-        var clientId = Guid.CreateVersion7();
+        var clientId = TestIds.Next();
         var currentMonth = BillingMonth.From(TestData.Today);
         builder.PayPerClassFrom(clientId, currentMonth);
         builder.PayFee(clientId, currentMonth);
         builder.ClientPurchases.Add(ClassPackPurchase.Sell(
-            clientId, builder.Pack, null, TestData.CurrencyCode, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!);
+            clientId, builder.Pack, null, TestData.CurrencyCode, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!.WithId());
         builder.Attend(clientId, currentMonth.FirstDay);
 
         var balances = await builder.BuildBalanceService().CalculateAsync([clientId], CancellationToken.None);

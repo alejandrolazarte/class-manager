@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record RestorePaymentCommand(Guid PaymentId) : ICommand;
+public sealed record RestorePaymentCommand(long PaymentId) : ICommand;
 
 public sealed class RestorePaymentUseCase(
     IPaymentRepository paymentRepository,

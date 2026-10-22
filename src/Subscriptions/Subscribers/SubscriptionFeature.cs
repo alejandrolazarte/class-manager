@@ -9,20 +9,20 @@ public sealed class SubscriptionFeature : ICreatedOn, ISoftDeletable, IExpiredOn
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid SubscriptionId { get; private set; }
+    public long Id { get; private set; }
+    public long SubscriptionId { get; private set; }
     public string FeatureCode { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
     public string Currency { get; private set; } = string.Empty;
     public int? Limit { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateOnly? ExpiredOn { get; private set; }
 
     public static SubscriptionFeature Create(
-        Guid subscriptionId,
+        long subscriptionId,
         string featureCode,
         decimal price,
         string currency,
@@ -37,7 +37,6 @@ public sealed class SubscriptionFeature : ICreatedOn, ISoftDeletable, IExpiredOn
 
         return new SubscriptionFeature
         {
-            Id = Guid.CreateVersion7(),
             SubscriptionId = subscriptionId,
             FeatureCode = CatalogRules.RequireCode(featureCode, nameof(featureCode)),
             Price = CatalogRules.RequirePrice(price, nameof(price)),

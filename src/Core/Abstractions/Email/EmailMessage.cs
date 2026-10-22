@@ -2,7 +2,7 @@ using ClassManager.Notifications.Email;
 
 namespace ClassManager.Core.Abstractions.Email;
 
-public sealed record EmailMessage(string To, string Subject, EmailContent Content, Guid? BusinessId = null, string? ReplyTo = null)
+public sealed record EmailMessage(string To, string Subject, EmailContent Content, long? BusinessId = null, string? ReplyTo = null)
 {
     public string TextBody => Content.ToPlainText();
 }

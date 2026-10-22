@@ -8,7 +8,7 @@ public sealed class Then_returns_validation
     public void Then_returns_validation_Run()
     {
         var schedule = ClassSchedule.Create([DayOfWeek.Monday], "18:00", 45).Value!;
-        var classGroup = ClassGroup.Create("Natación adultos", Guid.CreateVersion7(), schedule, 8, null).Value!;
+        var classGroup = ClassGroup.Create("Natación adultos", TestIds.Next(), schedule, 8, null).Value!.WithId();
 
         var material = classGroup.ShareMaterial("http://example.com/adultos.pdf");
 

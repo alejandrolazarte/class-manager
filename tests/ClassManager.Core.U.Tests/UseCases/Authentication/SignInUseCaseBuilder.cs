@@ -8,15 +8,15 @@ internal sealed class SignInUseCaseBuilder
 {
     public Guid UserId { get; } = Guid.CreateVersion7();
     public BranchAccess Branch { get; } =
-        new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7(), BusinessRole.BranchOwner, IsBrandOwner: true);
+        new(TestIds.Next(), TestData.BusinessName, TestIds.Next(), BusinessRole.BranchOwner, IsBrandOwner: true);
 
     public Mock<IIdentityService> Identity { get; } = new();
     public Mock<ITokenService> Tokens { get; } = new();
     public Mock<IBranchDirectory> Branches { get; } = new();
     public Mock<IStudentAppDirectory> StudentApp { get; } = new();
-    public StudentAppLink Student { get; } = new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7());
+    public StudentAppLink Student { get; } = new(TestIds.Next(), TestData.BusinessName, TestIds.Next());
     public BranchAccess LastUsedBranch { get; } =
-        new(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7(), BusinessRole.BranchOwner, IsBrandOwner: true);
+        new(TestIds.Next(), TestData.BusinessName, TestIds.Next(), BusinessRole.BranchOwner, IsBrandOwner: true);
 
     public SignInUseCaseBuilder()
     {
@@ -39,7 +39,7 @@ internal sealed class SignInUseCaseBuilder
     public void WithStudentAccount() =>
         StudentApp.Setup(directory => directory.FindDefaultAsync(UserId, It.IsAny<CancellationToken>())).ReturnsAsync(Student);
 
-    public void WithLastSessionIn(Guid businessId, string kind) =>
+    public void WithLastSessionIn(long businessId, string kind) =>
         Tokens
             .Setup(service => service.FindLastSessionAsync(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new LastSession(businessId, kind));

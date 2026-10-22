@@ -17,32 +17,32 @@ public sealed class MeasurementRecord : ITenantOwned, IAuditable, ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid StudentId { get; private set; }
-    public Guid MeasurementDefinitionId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long StudentId { get; private set; }
+    public long MeasurementDefinitionId { get; private set; }
     public DateOnly MeasuredOn { get; private set; }
     public decimal Value { get; private set; }
     public string? Note { get; private set; }
-    public Guid? RecordedByUserId { get; private set; }
+    public long? RecordedByUserId { get; private set; }
     public bool RecordedByStudent { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public static Result<MeasurementRecord> Create(
-        Guid studentId,
+        long studentId,
         MeasurementDefinition definition,
         DateOnly measuredOn,
         decimal? value,
         string? note,
         DateOnly today,
         DateTimeOffset createdAt,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         bool recordedByStudent)
     {
         if (measuredOn > today || measuredOn < EarliestMeasuredOn)
@@ -52,7 +52,6 @@ public sealed class MeasurementRecord : ITenantOwned, IAuditable, ISoftDeletable
 
         var record = new MeasurementRecord
         {
-            Id = Guid.CreateVersion7(),
             StudentId = studentId,
             MeasurementDefinitionId = definition.Id,
             MeasuredOn = measuredOn,
@@ -62,7 +61,7 @@ public sealed class MeasurementRecord : ITenantOwned, IAuditable, ISoftDeletable
         return replaced.IsFailure ? replaced.Error! : record;
     }
 
-    public Result Replace(MeasurementDefinition definition, decimal? value, string? note, Guid? recordedByUserId, bool recordedByStudent)
+    public Result Replace(MeasurementDefinition definition, decimal? value, string? note, long? recordedByUserId, bool recordedByStudent)
     {
         var validValue = MeasurementValue.Validate(definition.Kind, value, nameof(Value));
         if (validValue.IsFailure)

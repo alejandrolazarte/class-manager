@@ -6,7 +6,7 @@ public sealed class BackofficeOptions
 {
     public const string SectionName = "Backoffice";
 
-    public Guid? PlatformOrganizationId { get; set; }
+    public long? PlatformOrganizationId { get; set; }
 
     [Required]
     public string WebAppUrl { get; set; } = string.Empty;

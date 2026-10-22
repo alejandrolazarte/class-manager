@@ -8,11 +8,11 @@ using ClassManager.Core.Domain.Students;
 
 namespace ClassManager.Core.UseCases.Enrollments;
 
-public sealed record ListStudentEnrollmentsQuery(Guid StudentId) : IQuery;
+public sealed record ListStudentEnrollmentsQuery(long StudentId) : IQuery;
 
 public sealed record StudentEnrollmentResponse(
-    Guid EnrollmentId,
-    Guid ClassGroupId,
+    long EnrollmentId,
+    long ClassGroupId,
     string ClassGroupName,
     IReadOnlyList<DayOfWeek> Weekdays,
     string StartTime,

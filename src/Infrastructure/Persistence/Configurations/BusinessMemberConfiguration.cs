@@ -7,7 +7,6 @@ internal sealed class BusinessMemberConfiguration : IEntityTypeConfiguration<Bus
     public void Configure(EntityTypeBuilder<BusinessMember> builder)
     {
         builder.HasKey(member => member.Id);
-        builder.Property(member => member.Id).ValueGeneratedNever();
         builder.Property(member => member.Role)
             .HasConversion<string>()
             .HasMaxLength(BusinessMember.RoleMaxLength)

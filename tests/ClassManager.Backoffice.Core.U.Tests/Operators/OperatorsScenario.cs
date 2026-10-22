@@ -24,11 +24,11 @@ internal sealed class OperatorsScenario
         CurrentUser = new FixedCurrentUser(CurrentOperatorAccountId, CurrentOperatorUserId);
     }
 
-    public Guid BranchId { get; } = Guid.CreateVersion7();
+    public long BranchId { get; } = TestIds.Next();
 
     public Guid CurrentOperatorAccountId { get; } = Guid.CreateVersion7();
 
-    public Guid CurrentOperatorUserId { get; } = Guid.CreateVersion7();
+    public long CurrentOperatorUserId { get; } = TestIds.Next();
 
     public InMemoryBackofficeLoginRepository Logins { get; } = new();
 
@@ -70,20 +70,20 @@ internal sealed class OperatorsScenario
         new ListOperatorsUseCase(Logins, Operators, CurrentUser)
             .ExecuteAsync(new ListOperatorsQuery(), CancellationToken.None);
 
-    public Task<Result<OperatorLoginResponse>> EnableAsync(Guid accessRequestId, Guid memberId, BusinessRole role) =>
+    public Task<Result<OperatorLoginResponse>> EnableAsync(long accessRequestId, long memberId, BusinessRole role) =>
         new EnableOperatorUseCase(Logins, Operators, TenantScope, UnitOfWork, CurrentUser, _timeProvider)
             .ExecuteAsync(new EnableOperatorCommand(accessRequestId, memberId, role), CancellationToken.None);
 
-    public Task<Result<OperatorLoginResponse>> DisableAsync(Guid loginId) =>
+    public Task<Result<OperatorLoginResponse>> DisableAsync(long loginId) =>
         new DisableOperatorUseCase(Logins, Sessions, CurrentUser)
             .ExecuteAsync(new DisableOperatorCommand(loginId), CancellationToken.None);
 }
 
 internal sealed class RecordingTenantScope : ITenantScope
 {
-    public Guid? EstablishedTenantId { get; private set; }
+    public long? EstablishedTenantId { get; private set; }
 
-    public void Establish(Guid tenantId) => EstablishedTenantId = tenantId;
+    public void Establish(long tenantId) => EstablishedTenantId = tenantId;
 }
 
 internal sealed class SavingUnitOfWork : IUnitOfWork
@@ -111,9 +111,9 @@ internal sealed class RecordingSessionService : IBackofficeSessionService
     }
 }
 
-internal sealed class FixedCurrentUser(Guid accountId, Guid userId) : ICurrentUser
+internal sealed class FixedCurrentUser(Guid accountId, long userId) : ICurrentUser
 {
     public Guid? AccountId { get; } = accountId;
 
-    public Guid? UserId { get; } = userId;
+    public long? UserId { get; } = userId;
 }

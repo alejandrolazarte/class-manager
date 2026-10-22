@@ -6,12 +6,12 @@ using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record ChooseOrderDeliveryRequest(DeliveryMethod? Delivery, Guid? ClassGroupId)
+public sealed record ChooseOrderDeliveryRequest(DeliveryMethod? Delivery, long? ClassGroupId)
 {
-    public ChooseOrderDeliveryCommand ToCommand(Guid orderId) => new(orderId, Delivery, ClassGroupId);
+    public ChooseOrderDeliveryCommand ToCommand(long orderId) => new(orderId, Delivery, ClassGroupId);
 }
 
-public sealed record ChooseOrderDeliveryCommand(Guid OrderId, DeliveryMethod? Delivery, Guid? ClassGroupId) : ICommand;
+public sealed record ChooseOrderDeliveryCommand(long OrderId, DeliveryMethod? Delivery, long? ClassGroupId) : ICommand;
 
 public sealed class ChooseOrderDeliveryUseCase(
     IOrderRepository orderRepository,

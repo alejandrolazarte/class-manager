@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record CancelOrderCommand(Guid OrderId) : ICommand;
+public sealed record CancelOrderCommand(long OrderId) : ICommand;
 
 public sealed class CancelOrderUseCase(
     IOrderRepository orderRepository,

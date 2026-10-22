@@ -13,13 +13,13 @@ public sealed class ProductVariant : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid ProductId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long ProductId { get; private set; }
     public string Size { get; private set; } = string.Empty;
     public string? Color { get; private set; }
     public int Position { get; private set; }
@@ -29,10 +29,9 @@ public sealed class ProductVariant : ITenantOwned, IAuditable
         LabelSeparator,
         new[] { Size, Color is null ? string.Empty : ProductColors.NameOf(Color) }.Where(part => part.Length > 0));
 
-    internal static ProductVariant Create(Guid productId, string size, string? color, int position) =>
+    internal static ProductVariant Create(long productId, string size, string? color, int position) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             ProductId = productId,
             Size = size,
             Color = color,

@@ -6,13 +6,13 @@ namespace ClassManager.Infrastructure.Notifications;
 
 internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier notifier) : ITeamNotificationService
 {
-    public Task AbsenceNotifiedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
+    public Task AbsenceNotifiedAsync(long studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
         NotifyInstructorAsync(studentId, classGroup, session, (texts, name) => texts.AbsenceTitle(name), cancellationToken);
 
-    public Task MakeupBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
+    public Task MakeupBookedAsync(long studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
         NotifyInstructorAsync(studentId, classGroup, session, (texts, name) => texts.MakeupTitle(name), cancellationToken);
 
-    public Task PackClassBookedAsync(Guid studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
+    public Task PackClassBookedAsync(long studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
         NotifyInstructorAsync(studentId, classGroup, session, (texts, name) => texts.PackClassTitle(name), cancellationToken);
 
     public async Task StudentAppInvitationDeclinedAsync(ClientInvitation invitation, CancellationToken cancellationToken)
@@ -52,7 +52,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
         await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
     }
 
-    private async Task<IReadOnlyList<Guid>> InviterOrOwnersAsync(Guid? invitedByUserId, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<Guid>> InviterOrOwnersAsync(long? invitedByUserId, CancellationToken cancellationToken)
     {
         var inviterAccountIds = await context.BusinessMembers.AsNoTracking()
             .Where(member => invitedByUserId != null && member.UserId == invitedByUserId)
@@ -73,7 +73,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
             .ToListAsync(cancellationToken);
 
     private async Task NotifyInstructorAsync(
-        Guid studentId,
+        long studentId,
         ClassGroup classGroup,
         ClassSession session,
         Func<INotificationTexts, string, string> title,
@@ -93,7 +93,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
         await notifier.NotifyAsync(userIds, message, cancellationToken);
     }
 
-    private async Task<IReadOnlyList<Guid>> RecipientsAsync(Guid instructorId, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<Guid>> RecipientsAsync(long instructorId, CancellationToken cancellationToken)
     {
         var instructorUserIds = await context.BusinessMembers.AsNoTracking()
             .Where(member => member.InstructorId == instructorId)

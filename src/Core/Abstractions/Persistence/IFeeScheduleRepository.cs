@@ -12,7 +12,7 @@ public interface IFeeScheduleRepository
 
     Task<DefaultMonthlyFeeChange?> FindDefaultFeeChangeForUpdateAsync(DateOnly effectiveFrom, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ClientBillingPlanChange>> ListClientPlanChangesAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ClientBillingPlanChange>> ListClientPlanChangesAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken);
 
-    Task<ClientBillingPlanChange?> FindClientPlanChangeForUpdateAsync(Guid clientId, DateOnly effectiveFrom, CancellationToken cancellationToken);
+    Task<ClientBillingPlanChange?> FindClientPlanChangeForUpdateAsync(long clientId, DateOnly effectiveFrom, CancellationToken cancellationToken);
 }

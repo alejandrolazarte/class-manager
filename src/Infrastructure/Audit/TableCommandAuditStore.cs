@@ -53,7 +53,7 @@ public sealed class TableCommandAuditStore(TableServiceClient serviceClient) : I
     private static string TableNameOf(CommandAuditEntry entry) => TableNameOf(entry.OccurredAt);
 
     private static string PartitionOf(CommandAuditEntry entry) =>
-        entry.TenantId?.ToString() ?? NoBusinessPartition;
+        entry.TenantId?.ToString(CultureInfo.InvariantCulture) ?? NoBusinessPartition;
 
     private static TableEntity RowOf(CommandAuditEntry entry)
     {

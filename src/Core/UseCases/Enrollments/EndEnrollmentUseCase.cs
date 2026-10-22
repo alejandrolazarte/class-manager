@@ -9,12 +9,12 @@ namespace ClassManager.Core.UseCases.Enrollments;
 
 public sealed record EndEnrollmentRequest(DateOnly? EndDate)
 {
-    public EndEnrollmentCommand ToCommand(Guid enrollmentId) => new(enrollmentId, EndDate);
+    public EndEnrollmentCommand ToCommand(long enrollmentId) => new(enrollmentId, EndDate);
 }
 
-public sealed record EndEnrollmentCommand(Guid EnrollmentId, DateOnly? EndDate) : ICommand;
+public sealed record EndEnrollmentCommand(long EnrollmentId, DateOnly? EndDate) : ICommand;
 
-public sealed record EndEnrollmentResponse(Guid EnrollmentId, bool WasRemoved);
+public sealed record EndEnrollmentResponse(long EnrollmentId, bool WasRemoved);
 
 public sealed class EndEnrollmentUseCase(
     IEnrollmentRepository enrollmentRepository,

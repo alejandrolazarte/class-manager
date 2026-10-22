@@ -30,7 +30,7 @@ internal static class MemberRules
     public static async Task<Result<MemberRole>> ResolveRoleAsync(
         ICustomRoleRepository customRoleRepository,
         BusinessRole? role,
-        Guid? customRoleId,
+        long? customRoleId,
         CancellationToken cancellationToken)
     {
         if (customRoleId is { } id && role is null or BusinessRole.Custom)
@@ -76,8 +76,8 @@ internal static class MemberRules
     public static async Task<ResultError?> ValidateInstructorAsync(
         IInstructorRepository instructorRepository,
         IBusinessMemberRepository businessMemberRepository,
-        Guid? instructorId,
-        Guid? exceptMemberId,
+        long? instructorId,
+        long? exceptMemberId,
         CancellationToken cancellationToken)
     {
         if (instructorId is not { } id)

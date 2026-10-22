@@ -7,8 +7,8 @@ public sealed class Then_the_new_text_and_instructor_are_kept
     [Fact]
     public void Then_the_new_text_and_instructor_are_kept_Run()
     {
-        var feedback = ClassFeedback.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), "Buena clase", TestData.Now).Value!;
-        var substituteId = Guid.CreateVersion7();
+        var feedback = ClassFeedback.Create(ClassSession.Create(TestIds.Next(), TestData.Today, TestData.Now).WithId(), TestIds.Next(), TestIds.Next(), "Buena clase", TestData.Now).Value!.WithId();
+        var substituteId = TestIds.Next();
 
         var rewrite = feedback.Rewrite("  Mejoró la patada  ", substituteId, TestData.Now.AddHours(1));
 

@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Countries;
+using ClassManager.Core.Domain.Organizations;
 
 namespace ClassManager.Core.Domain.Businesses;
 
@@ -37,12 +38,13 @@ public sealed partial class Business
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid OrganizationId { get; private set; }
+    public long Id { get; private set; }
+    public long OrganizationId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Slug { get; private set; } = string.Empty;
     public string CountryCode { get; private set; } = string.Empty;
     public Country Country { get; private set; } = null!;
+    public Organization? Organization { get; private set; }
     public string TimeZoneId { get; private set; } = string.Empty;
     public string CurrencyCode { get; private set; } = string.Empty;
     public string DefaultCountryCallingCode { get; private set; } = string.Empty;
@@ -56,8 +58,26 @@ public sealed partial class Business
     public string BrandDisplayName => BrandName ?? Name;
     public DateTimeOffset CreatedAt { get; private set; }
 
+    public static Result<Business> CreateInNewOrganization(
+        Organization organization,
+        string? name,
+        string? slug,
+        Country? country,
+        string? timeZoneId,
+        string? currencyCode,
+        DateTimeOffset createdAt)
+    {
+        var business = Create(organization.Id, name, slug, country, timeZoneId, currencyCode, createdAt);
+        if (business.IsSuccess)
+        {
+            business.Value!.Organization = organization;
+        }
+
+        return business;
+    }
+
     public static Result<Business> Create(
-        Guid organizationId,
+        long organizationId,
         string? name,
         string? slug,
         Country? country,
@@ -84,7 +104,6 @@ public sealed partial class Business
 
         return new Business
         {
-            Id = Guid.CreateVersion7(),
             OrganizationId = organizationId,
             Name = trimmedName,
             Slug = slug,

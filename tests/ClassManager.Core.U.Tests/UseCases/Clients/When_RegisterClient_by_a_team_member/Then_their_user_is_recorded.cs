@@ -8,7 +8,7 @@ public sealed class Then_their_user_is_recorded
     public async Task Then_their_user_is_recorded_Run()
     {
         var builder = new RegisterClientUseCaseBuilder();
-        var userId = Guid.CreateVersion7();
+        var userId = TestIds.Next();
         builder.CurrentUser.Setup(user => user.AccountId).Returns(Guid.CreateVersion7());
         builder.CurrentUser.Setup(user => user.UserId).Returns(userId);
         Client? addedClient = null;

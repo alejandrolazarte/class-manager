@@ -9,7 +9,6 @@ internal sealed class StockMovementConfiguration : IEntityTypeConfiguration<Stoc
     public void Configure(EntityTypeBuilder<StockMovement> builder)
     {
         builder.HasKey(movement => movement.Id);
-        builder.Property(movement => movement.Id).ValueGeneratedNever();
         builder.Property(movement => movement.Kind).HasConversion<string>().HasMaxLength(KindMaxLength);
         builder.Property(movement => movement.Note).HasMaxLength(StockMovement.NoteMaxLength);
 

@@ -9,12 +9,12 @@ public sealed class Then_the_brand_starts_on_the_free_plan(ApiFixture fixture)
     [Fact]
     public async Task Then_the_brand_starts_on_the_free_plan_Run()
     {
-        var businessName = $"Free brand {Guid.NewGuid():N}";
+        var businessName = $"Free brand {TestIds.Next()}";
         using var anonymousClient = fixture.ApiFactory.CreateClient();
 
         await anonymousClient.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(businessName: businessName));
 
-        await using var context = fixture.CreateDbContext(Guid.Empty);
+        await using var context = fixture.CreateDbContext(0L);
         var organizationId = await context.Organizations.Where(organization => organization.Name == businessName).Select(organization => organization.Id).SingleAsync();
         var subscription = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId);
         subscription.PlanCode.ShouldBe(PlanCodes.Free);

@@ -18,7 +18,7 @@ public sealed class Then_their_session_ends(BackofficeApiFixture fixture)
         using var operatorClient = fixture.ApiFactory.CreateHttpsClient();
         var accessToken = await operatorClient.OpenSessionAsync(await fixture.SeedOperatorAsync());
         using var list = await operatorClient.GetAsync(BackofficeRequests.OperatorsRoute, accessToken);
-        var login = (await list.Content.ReadFromJsonAsync<OperatorListResponse>())!.Operators
+        var login = (await list.Content.ReadFromJsonAsync<OperatorListResponse>(BackofficeRequests.JsonOptions))!.Operators
             .Single(candidate => candidate.Email == disabled.Email);
         using var disable = await operatorClient.SendAsync(HttpMethod.Delete, $"{BackofficeRequests.OperatorsRoute}/{login.LoginId}", accessToken);
         disable.StatusCode.ShouldBe(HttpStatusCode.OK);

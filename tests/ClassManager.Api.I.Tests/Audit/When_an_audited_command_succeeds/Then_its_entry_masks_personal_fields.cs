@@ -20,6 +20,6 @@ public sealed class Then_its_entry_masks_personal_fields
             CommandAuditBehaviors.AccountId,
             CommandAuditBehaviors.UserId,
             CommandOutcome.Succeeded,
-            $$"""{"clientId":"{{CommandAuditBehaviors.Command.ClientId}}","fullName":"[personal]","amount":25000}"""));
+            $$"""{"clientId":{{CommandAuditBehaviors.Command.ClientId}},"fullName":"[personal]","amount":25000}"""));
     }
 }

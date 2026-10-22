@@ -17,7 +17,7 @@ internal sealed class RoleUseCaseBuilder
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public List<CustomRole> AddedRoles { get; } = [];
     public CustomRole ExistingRole { get; } =
-        CustomRole.Create("Recepción", [Permissions.Business.View, Permissions.Students.ViewAll], null, TestData.Now).Value!;
+        CustomRole.Create("Recepción", [Permissions.Business.View, Permissions.Students.ViewAll], null, TestData.Now).Value!.WithId();
 
     public RoleUseCaseBuilder()
     {
@@ -25,20 +25,20 @@ internal sealed class RoleUseCaseBuilder
         CustomRoles.Setup(repository => repository.GetForUpdateAsync(ExistingRole.Id, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingRole);
         CustomRoles.Setup(repository => repository.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync([ExistingRole]);
         Members.Setup(repository => repository.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        Members.Setup(repository => repository.ListByCustomRoleAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Members.Setup(repository => repository.ListByCustomRoleAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Invitations
-            .Setup(repository => repository.ListPendingByCustomRoleAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListPendingByCustomRoleAsync(It.IsAny<long>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         ActAs(SystemRolePermissions.Of(BusinessRole.BranchOwner), BusinessRole.BranchOwner, customRoleId: null);
     }
 
-    public void ActAs(IReadOnlySet<string> permissions, BusinessRole role, Guid? customRoleId) =>
+    public void ActAs(IReadOnlySet<string> permissions, BusinessRole role, long? customRoleId) =>
         CurrentMember
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), role, null, IsBrandOwner: false, permissions, customRoleId));
+            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), TestIds.Next(), TestIds.Next(), role, null, IsBrandOwner: false, permissions, customRoleId));
 
-    public static BusinessMember MemberWith(CustomRole role, Guid? instructorId) =>
-        BusinessMember.Create(Guid.CreateVersion7(), TestData.UserOfAccount(Guid.CreateVersion7()), MemberRole.Custom(role), instructorId).Value!;
+    public static BusinessMember MemberWith(CustomRole role, long? instructorId) =>
+        BusinessMember.Create(TestIds.Next(), TestData.UserOfAccount(Guid.CreateVersion7()), MemberRole.Custom(role), instructorId).Value!.WithId();
 
     public CreateRoleUseCase BuildCreate() => new(CustomRoles.Object, CurrentMember.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now));
 

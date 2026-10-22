@@ -16,8 +16,8 @@ public sealed class Then_its_push_waits_for_the_publish_time(ApiFixture fixture)
         var announcement = await scenario.Instructors.Business.HttpClient.PublishAnnouncementAsync(
             new CreateAnnouncementCommand("Feriado del 8 de diciembre", null, PublishOn: publishOn));
 
-        await using var context = fixture.CreateDbContext(Guid.Empty);
-        var task = await context.BackgroundTasks.AsNoTracking().SingleAsync(candidate => candidate.Payload.Contains(announcement.Id.ToString()));
+        await using var context = fixture.CreateDbContext(0L);
+        var task = await context.BackgroundTasks.AsNoTracking().SingleAsync(candidate => candidate.Payload.Contains(BackgroundTaskRequests.ScheduledAnnouncementPayloadEnd(announcement.Id)));
         task.NextAttemptOn.ShouldBe(publishOn);
         fixture.ApiFactory.PushSender.SentTo(endpoint).ShouldBeEmpty();
     }

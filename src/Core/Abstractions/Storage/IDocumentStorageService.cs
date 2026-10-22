@@ -6,7 +6,7 @@ public interface IDocumentStorageService
 {
     Task<Document> StoreAsync(
         DocumentOwner owner,
-        Guid ownerId,
+        long ownerId,
         DocumentContent content,
         DocumentVisibility visibility,
         CancellationToken cancellationToken);

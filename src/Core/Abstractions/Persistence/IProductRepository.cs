@@ -6,13 +6,13 @@ public interface IProductRepository
 {
     void Add(Product product);
 
-    Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken);
+    Task<Product?> GetByIdAsync(long productId, CancellationToken cancellationToken);
 
-    Task<Product?> GetForUpdateAsync(Guid productId, CancellationToken cancellationToken);
+    Task<Product?> GetForUpdateAsync(long productId, CancellationToken cancellationToken);
 
     Task<Product?> FindByNameAsync(string name, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Product>> ListAsync(bool includeInactive, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Product>> ListByVariantsAsync(IReadOnlyCollection<Guid> variantIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Product>> ListByVariantsAsync(IReadOnlyCollection<long> variantIds, CancellationToken cancellationToken);
 }

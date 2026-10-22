@@ -14,7 +14,7 @@ public sealed class Then_its_variants_are_deactivated
             StockMode.Tracked,
             true,
             [new VariantChange(null, "S", ProductColors.Black), new VariantChange(null, "S", ProductColors.White)],
-            TestData.Now).Value!;
+            TestData.Now).Value!.WithId();
         var black = product.Variants[0];
         var white = product.Variants[1];
 

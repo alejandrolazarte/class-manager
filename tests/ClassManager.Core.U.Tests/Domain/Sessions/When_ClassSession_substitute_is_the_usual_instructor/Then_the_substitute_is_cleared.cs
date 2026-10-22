@@ -7,9 +7,9 @@ public sealed class Then_the_substitute_is_cleared
     [Fact]
     public void Then_the_substitute_is_cleared_Run()
     {
-        var usualInstructorId = Guid.CreateVersion7();
-        var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
-        session.AssignSubstitute(Guid.CreateVersion7(), usualInstructorId, TestData.Now);
+        var usualInstructorId = TestIds.Next();
+        var session = ClassSession.Create(TestIds.Next(), TestData.Today, TestData.Now).WithId();
+        session.AssignSubstitute(TestIds.Next(), usualInstructorId, TestData.Now);
 
         session.AssignSubstitute(usualInstructorId, usualInstructorId, TestData.Now);
 

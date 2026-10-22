@@ -9,7 +9,7 @@ public sealed class Then_it_drops_the_link
     {
         var announcement = Announcement.Create(
             "Llegaron remeras", null, TestData.Now, TestData.Today,
-            action: AnnouncementAction.Link, actionUrl: "https://example.com").Value!;
+            action: AnnouncementAction.Link, actionUrl: "https://example.com").Value!.WithId();
 
         announcement.Edit("Llegaron remeras", null, AnnouncementCategory.News, null, null, TestData.Today, AnnouncementAction.Shop, "https://example.com");
 

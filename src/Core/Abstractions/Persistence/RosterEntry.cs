@@ -1,11 +1,11 @@
 namespace ClassManager.Core.Abstractions.Persistence;
 
 public sealed record RosterEntry(
-    Guid EnrollmentId,
-    Guid StudentId,
+    long EnrollmentId,
+    long StudentId,
     string StudentFullName,
     DateOnly? BirthDate,
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     DateOnly StartDate,
     DateOnly? EndDate);

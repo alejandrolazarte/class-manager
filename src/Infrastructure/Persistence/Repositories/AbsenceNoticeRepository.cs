@@ -6,23 +6,23 @@ internal sealed class AbsenceNoticeRepository(AppDbContext context) : IAbsenceNo
 
     public void Remove(AbsenceNotice notice) => context.AbsenceNotices.Remove(notice);
 
-    public Task<AbsenceNotice?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken) =>
+    public Task<AbsenceNotice?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken) =>
         context.AbsenceNotices.FirstOrDefaultAsync(
             notice => notice.ClassSessionId == classSessionId && notice.StudentId == studentId,
             cancellationToken);
 
-    public async Task<IReadOnlySet<Guid>> ListStudentIdsBySessionAsync(Guid classSessionId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlySet<long>> ListStudentIdsBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
         (await context.AbsenceNotices.AsNoTracking()
             .Where(notice => notice.ClassSessionId == classSessionId)
             .Select(notice => notice.StudentId)
             .ToListAsync(cancellationToken))
             .ToHashSet();
 
-    public async Task<IReadOnlyDictionary<Guid, int>> CountBySessionsAsync(
-        IReadOnlyCollection<Guid> classSessionIds,
+    public async Task<IReadOnlyDictionary<long, int>> CountBySessionsAsync(
+        IReadOnlyCollection<long> classSessionIds,
         CancellationToken cancellationToken) =>
         classSessionIds.Count == 0
-            ? new Dictionary<Guid, int>()
+            ? new Dictionary<long, int>()
             : await context.AbsenceNotices.AsNoTracking()
                 .Where(notice => classSessionIds.Contains(notice.ClassSessionId))
                 .GroupBy(notice => notice.ClassSessionId)
@@ -30,7 +30,7 @@ internal sealed class AbsenceNoticeRepository(AppDbContext context) : IAbsenceNo
                 .ToDictionaryAsync(group => group.ClassSessionId, group => group.Count, cancellationToken);
 
     public async Task<IReadOnlyList<NotifiedAbsence>> ListByStudentsBetweenAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         DateOnly firstDate,
         DateOnly lastDate,
         CancellationToken cancellationToken)

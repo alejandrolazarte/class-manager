@@ -19,7 +19,7 @@ public static class ClassGroupRequests
     }
 
     public static ClassGroupDetails ClassGroupFor(
-        Guid instructorId,
+        long instructorId,
         IReadOnlyList<DayOfWeek>? weekdays = null,
         string startTime = "18:00",
         int durationMinutes = 45) =>

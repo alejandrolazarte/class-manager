@@ -18,7 +18,7 @@ public sealed class Then_it_is_in_the_none_partition(ApiFixture fixture)
 
         var userIds = await serviceClient.GetTableClient(TableOfTheMonth)
             .QueryAsync<TableEntity>(stored => stored.PartitionKey == TableCommandAuditStore.NoBusinessPartition)
-            .Select(row => row.GetGuid(nameof(CommandAuditEntry.UserId)))
+            .Select(row => row.GetInt64(nameof(CommandAuditEntry.UserId)))
             .ToListAsync();
         userIds.ShouldContain(entry.UserId);
     }

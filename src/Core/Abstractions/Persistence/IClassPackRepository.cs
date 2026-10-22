@@ -6,9 +6,9 @@ public interface IClassPackRepository
 {
     void Add(ClassPack classPack);
 
-    Task<ClassPack?> GetByIdAsync(Guid classPackId, CancellationToken cancellationToken);
+    Task<ClassPack?> GetByIdAsync(long classPackId, CancellationToken cancellationToken);
 
-    Task<ClassPack?> GetForUpdateAsync(Guid classPackId, CancellationToken cancellationToken);
+    Task<ClassPack?> GetForUpdateAsync(long classPackId, CancellationToken cancellationToken);
 
     Task<ClassPack?> FindByNameAsync(string name, CancellationToken cancellationToken);
 

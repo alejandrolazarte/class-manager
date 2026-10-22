@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record DeliverInClassCommand(Guid ClassGroupId, Guid OrderId) : ICommand;
+public sealed record DeliverInClassCommand(long ClassGroupId, long OrderId) : ICommand;
 
 public sealed class DeliverInClassUseCase(
     IClassGroupRepository classGroupRepository,

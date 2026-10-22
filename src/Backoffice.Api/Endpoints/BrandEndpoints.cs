@@ -15,12 +15,12 @@ internal static class BrandEndpoints
         group.MapGet(string.Empty, async (IUseCase<ListBrandsQuery, BrandListResponse> useCase, CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new ListBrandsQuery(), cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.View);
-        group.MapGet(BackofficeApiRoutes.BrandById, async (Guid brandId, IUseCase<GetBrandQuery, BrandDetailResponse> useCase, CancellationToken cancellationToken) =>
+        group.MapGet(BackofficeApiRoutes.BrandById, async (long brandId, IUseCase<GetBrandQuery, BrandDetailResponse> useCase, CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new GetBrandQuery(brandId), cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.View);
 
         group.MapPut(BackofficeApiRoutes.BrandSubscription, async (
-            Guid brandId,
+            long brandId,
             ChangeBrandPlanRequest request,
             IUseCase<ChangeBrandPlanCommand, BrandPlanChangedResponse> useCase,
             CancellationToken cancellationToken) =>
@@ -29,7 +29,7 @@ internal static class BrandEndpoints
                 cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.Manage);
         group.MapPost(BackofficeApiRoutes.BrandAddOns, async (
-            Guid brandId,
+            long brandId,
             GiveBrandAddOnRequest request,
             IUseCase<GiveBrandAddOnCommand, BrandAddOnResponse> useCase,
             CancellationToken cancellationToken) =>
@@ -38,15 +38,15 @@ internal static class BrandEndpoints
                 cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.Manage);
         group.MapDelete(BackofficeApiRoutes.BrandAddOnById, async (
-            Guid brandId,
-            Guid addOnId,
+            long brandId,
+            long addOnId,
             IUseCase<RemoveBrandAddOnCommand, BrandAddOnResponse> useCase,
             CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new RemoveBrandAddOnCommand(brandId, addOnId), cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.Manage);
         group.MapPost(BackofficeApiRoutes.BrandAddOnRestore, async (
-            Guid brandId,
-            Guid addOnId,
+            long brandId,
+            long addOnId,
             IUseCase<RestoreBrandAddOnCommand, BrandAddOnResponse> useCase,
             CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new RestoreBrandAddOnCommand(brandId, addOnId), cancellationToken)).ToOkResult())

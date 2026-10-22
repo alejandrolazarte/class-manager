@@ -9,7 +9,7 @@ public sealed class Then_there_is_no_fee
     {
         var changes = new[]
         {
-            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-10").Value!, BusinessBillingMode.MonthlyFee, 25000m, TestData.Today, TestData.Now).Value!,
+            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-10").Value!, BusinessBillingMode.MonthlyFee, 25000m, TestData.Today, TestData.Now).Value!.WithId(),
         };
 
         var fee = FeeTimeline.DefaultFeeIn(changes, BillingMonth.Parse("2026-09").Value!);

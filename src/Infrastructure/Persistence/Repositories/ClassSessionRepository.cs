@@ -4,7 +4,7 @@ internal sealed class ClassSessionRepository(AppDbContext context) : IClassSessi
 {
     public void Add(ClassSession session) => context.ClassSessions.Add(session);
 
-    public Task<ClassSession?> FindForUpdateAsync(Guid classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
+    public Task<ClassSession?> FindForUpdateAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
         context.ClassSessions.FirstOrDefaultAsync(
             session => session.ClassGroupId == classGroupId && session.Date == sessionDate,
             cancellationToken);
@@ -18,7 +18,7 @@ internal sealed class ClassSessionRepository(AppDbContext context) : IClassSessi
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<ClassSession>> ListSubstitutionsAsync(
-        Guid instructorId, DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken) =>
+        long instructorId, DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken) =>
         await context.ClassSessions.AsNoTracking()
             .Where(session => session.SubstituteInstructorId == instructorId && session.Date >= firstDate && session.Date <= lastDate)
             .ToListAsync(cancellationToken);

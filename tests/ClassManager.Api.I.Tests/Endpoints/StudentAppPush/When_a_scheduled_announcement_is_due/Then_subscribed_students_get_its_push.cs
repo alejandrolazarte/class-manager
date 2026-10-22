@@ -19,7 +19,7 @@ public sealed class Then_subscribed_students_get_its_push(ApiFixture fixture)
         {
             await context.Announcements.Where(row => row.Id == announcement.Id)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(row => row.PublishedAt, due));
-            await context.BackgroundTasks.Where(task => task.Payload.Contains(announcement.Id.ToString()))
+            await context.BackgroundTasks.Where(task => task.Payload.Contains(BackgroundTaskRequests.ScheduledAnnouncementPayloadEnd(announcement.Id)))
                 .ExecuteUpdateAsync(setters => setters.SetProperty(task => task.NextAttemptOn, due));
         }
 

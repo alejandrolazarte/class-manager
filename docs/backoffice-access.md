@@ -28,7 +28,7 @@ If Google answers **Error 400: redirect_uri_mismatch**, the request's `redirect_
 |---|---|
 | `ConnectionStrings:BusinessDatabase` | The same database as the API |
 | `Authentication:Jwt:SigningKey` | Its own secret, never the API's: a leaked key of one can't mint tokens for the other |
-| `Backoffice:PlatformOrganizationId` | Laztty's organization id. Without it nobody is an operator |
+| `Backoffice:PlatformOrganizationId` | Laztty's organization id (a number, the `Id` of its row in `Organizations`). Without it nobody is an operator |
 | `Backoffice:WebAppUrl` | Where the sign-in returns (`https://admin.laztty.com`) |
 | `Backoffice:Google:ClientSecret` | See above |
 | `Cors:AllowedOrigins` | The web app's origin only |

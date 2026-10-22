@@ -9,15 +9,15 @@ public sealed class AnnouncementClassGroup : ITenantOwned, IAuditable
     {
     }
 
-    public Guid TenantId { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid AnnouncementId { get; private set; }
-    public Guid ClassGroupId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long AnnouncementId { get; private set; }
+    public long ClassGroupId { get; private set; }
 
-    internal static AnnouncementClassGroup Create(Guid announcementId, Guid classGroupId) =>
+    internal static AnnouncementClassGroup Create(long announcementId, long classGroupId) =>
         new()
         {
             AnnouncementId = announcementId,

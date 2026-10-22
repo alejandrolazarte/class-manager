@@ -11,14 +11,14 @@ public sealed class Instructor : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public bool IsActive { get; private set; }
-    public Guid UserId { get; private set; }
+    public long UserId { get; private set; }
     public User User { get; private set; } = null!;
 
     public static Result<Instructor> Create(string? fullName, DateTimeOffset createdAt, string? email = null)
@@ -31,7 +31,6 @@ public sealed class Instructor : ITenantOwned, IAuditable
 
         return new Instructor
         {
-            Id = Guid.CreateVersion7(),
             IsActive = true,
             UserId = person.Value!.Id,
             User = person.Value,

@@ -10,9 +10,9 @@ public sealed class Then_student_not_in_lesson_is_rejected
     public void Then_student_not_in_lesson_is_rejected_Run()
     {
         var schedule = ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!;
-        var lesson = PrivateLesson.Create(Guid.CreateVersion7(), TestData.Today, schedule, [Guid.CreateVersion7()], null, null, null, TestData.Now).Value!;
+        var lesson = PrivateLesson.Create(TestIds.Next(), TestData.Today, schedule, [TestIds.Next()], null, null, null, TestData.Now).Value!.WithId();
 
-        var mark = lesson.Mark(Guid.CreateVersion7(), AttendanceStatus.Present);
+        var mark = lesson.Mark(TestIds.Next(), AttendanceStatus.Present);
 
         mark.Error!.Code.ShouldBe(PrivateLessonErrorCodes.StudentNotInLesson);
     }

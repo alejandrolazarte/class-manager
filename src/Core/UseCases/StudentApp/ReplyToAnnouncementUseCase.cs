@@ -9,7 +9,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record ReplyToAnnouncementRequest(bool IsGoing);
 
-public sealed record ReplyToAnnouncementCommand(Guid AnnouncementId, bool IsGoing) : ICommand;
+public sealed record ReplyToAnnouncementCommand(long AnnouncementId, bool IsGoing) : ICommand;
 
 public sealed class ReplyToAnnouncementUseCase(
     IStudentAppAccess studentAppAccess,

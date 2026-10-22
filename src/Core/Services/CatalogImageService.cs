@@ -45,7 +45,7 @@ public sealed class CatalogImageService(
         return Result.Success();
     }
 
-    public async Task<Result> RemoveAsync(IHasCatalogImages imageHolder, Guid documentId, CancellationToken cancellationToken)
+    public async Task<Result> RemoveAsync(IHasCatalogImages imageHolder, long documentId, CancellationToken cancellationToken)
     {
         var document = imageHolder.RemoveImage(documentId);
         if (document is null)
@@ -59,7 +59,7 @@ public sealed class CatalogImageService(
         return Result.Success();
     }
 
-    public async Task<Result> ReorderAsync(IHasCatalogImages imageHolder, IReadOnlyList<Guid>? documentIds, CancellationToken cancellationToken)
+    public async Task<Result> ReorderAsync(IHasCatalogImages imageHolder, IReadOnlyList<long>? documentIds, CancellationToken cancellationToken)
     {
         var reorder = imageHolder.ReorderImages(documentIds);
         if (reorder.IsFailure)

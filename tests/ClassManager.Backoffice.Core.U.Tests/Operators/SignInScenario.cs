@@ -13,7 +13,7 @@ internal sealed class SignInScenario
 
     public Guid AccountId { get; } = Guid.CreateVersion7();
 
-    public Guid BusinessId { get; } = Guid.CreateVersion7();
+    public long BusinessId { get; } = TestIds.Next();
 
     public InMemoryBackofficeLoginRepository Logins { get; } = new();
 
@@ -29,7 +29,7 @@ internal sealed class SignInScenario
 
     public SignInScenario WithPlatformRole(BusinessRole role)
     {
-        Operators.Operators.Add(new PlatformOperator(AccountId, Guid.CreateVersion7(), BusinessId, role));
+        Operators.Operators.Add(new PlatformOperator(AccountId, TestIds.Next(), BusinessId, role));
         return this;
     }
 
@@ -47,7 +47,7 @@ internal sealed class InMemoryBackofficeLoginRepository : IBackofficeLoginReposi
     public Task<BackofficeLogin?> FindAsync(string provider, string providerKey, CancellationToken cancellationToken) =>
         Task.FromResult(Logins.SingleOrDefault(login => login.Provider == provider && login.ProviderKey == providerKey));
 
-    public Task<BackofficeLogin?> FindByIdAsync(Guid loginId, CancellationToken cancellationToken) =>
+    public Task<BackofficeLogin?> FindByIdAsync(long loginId, CancellationToken cancellationToken) =>
         Task.FromResult(Logins.SingleOrDefault(login => login.Id == loginId));
 
     public Task<IReadOnlyList<BackofficeLogin>> ListAsync(CancellationToken cancellationToken) =>
@@ -59,7 +59,7 @@ internal sealed class InMemoryBackofficeLoginRepository : IBackofficeLoginReposi
     public Task<BackofficeAccessRequest?> FindAccessRequestAsync(string provider, string providerKey, CancellationToken cancellationToken) =>
         Task.FromResult(AccessRequests.SingleOrDefault(request => request.Provider == provider && request.ProviderKey == providerKey));
 
-    public Task<BackofficeAccessRequest?> FindAccessRequestByIdAsync(Guid accessRequestId, CancellationToken cancellationToken) =>
+    public Task<BackofficeAccessRequest?> FindAccessRequestByIdAsync(long accessRequestId, CancellationToken cancellationToken) =>
         Task.FromResult(AccessRequests.SingleOrDefault(request => request.Id == accessRequestId));
 
     public Task<IReadOnlyList<BackofficeAccessRequest>> ListAccessRequestsAsync(CancellationToken cancellationToken) =>
@@ -82,7 +82,7 @@ internal sealed class InMemoryPlatformOperatorDirectory : IPlatformOperatorDirec
 
     public List<BusinessMember> TeamMembers { get; } = [];
 
-    public Dictionary<Guid, string> BranchNames { get; } = [];
+    public Dictionary<long, string> BranchNames { get; } = [];
 
     public Task<PlatformOperator?> FindAsync(Guid accountId, CancellationToken cancellationToken) =>
         Task.FromResult(Operators.FirstOrDefault(platformOperator => platformOperator.AccountId == accountId));
@@ -98,7 +98,7 @@ internal sealed class InMemoryPlatformOperatorDirectory : IPlatformOperatorDirec
             member.User.Email,
             member.Role))]);
 
-    public Task<BusinessMember?> FindTeamMemberAsync(Guid memberId, CancellationToken cancellationToken) =>
+    public Task<BusinessMember?> FindTeamMemberAsync(long memberId, CancellationToken cancellationToken) =>
         Task.FromResult(TeamMembers.FirstOrDefault(member => member.Id == memberId));
 }
 
@@ -115,7 +115,7 @@ internal sealed class RecordingTokenService : ITokenService
     public Task<Result<IssuedTokens>> RefreshAsync(string refreshToken, CancellationToken cancellationToken) =>
         throw new NotSupportedException();
 
-    public Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, string? kind, CancellationToken cancellationToken) =>
+    public Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, long businessId, string? kind, CancellationToken cancellationToken) =>
         throw new NotSupportedException();
 
     public Task<LastSession?> FindLastSessionAsync(Guid userId, CancellationToken cancellationToken) =>

@@ -8,7 +8,7 @@ public sealed class Then_the_value_is_rounded
     public void Then_the_value_is_rounded_Run()
     {
         var record = MeasurementRecord.Create(
-            Guid.NewGuid(), MeasurementSamples.Time(), TestData.Today, 29.7049m, null, TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false);
+            TestIds.Next(), MeasurementSamples.Time(), TestData.Today, 29.7049m, null, TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false);
 
         record.Value!.Value.ShouldBe(29.705m);
     }

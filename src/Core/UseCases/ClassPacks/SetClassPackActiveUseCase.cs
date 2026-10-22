@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record SetClassPackActiveCommand(Guid ClassPackId, bool IsActive) : ICommand;
+public sealed record SetClassPackActiveCommand(long ClassPackId, bool IsActive) : ICommand;
 
 public sealed class SetClassPackActiveUseCase(
     IClassPackRepository classPackRepository,

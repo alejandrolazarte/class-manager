@@ -6,18 +6,18 @@ internal sealed class ClassFeedbackRepository(AppDbContext context) : IClassFeed
 
     public void Remove(ClassFeedback feedback) => context.ClassFeedbacks.Remove(feedback);
 
-    public Task<ClassFeedback?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken) =>
+    public Task<ClassFeedback?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken) =>
         context.ClassFeedbacks.FirstOrDefaultAsync(
             feedback => feedback.ClassSessionId == classSessionId && feedback.StudentId == studentId,
             cancellationToken);
 
-    public async Task<IReadOnlyList<ClassFeedback>> ListBySessionAsync(Guid classSessionId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<ClassFeedback>> ListBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
         await context.ClassFeedbacks.AsNoTracking()
             .Where(feedback => feedback.ClassSessionId == classSessionId)
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<StudentFeedback>> ListLatestByStudentsAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         CancellationToken cancellationToken) =>
         [
             .. (await ListAsync(studentIds, since: null, cancellationToken))
@@ -26,13 +26,13 @@ internal sealed class ClassFeedbackRepository(AppDbContext context) : IClassFeed
         ];
 
     public Task<IReadOnlyList<StudentFeedback>> ListUpdatedSinceAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         DateTimeOffset since,
         CancellationToken cancellationToken) =>
         ListAsync(studentIds, since, cancellationToken);
 
     private async Task<IReadOnlyList<StudentFeedback>> ListAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         DateTimeOffset? since,
         CancellationToken cancellationToken)
     {

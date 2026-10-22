@@ -16,7 +16,7 @@ public sealed class Then_the_profile_shows_them_accepted(ApiFixture fixture)
         var tokens = await anonymous.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         using var owner = fixture.CreateClientWithToken(tokens.AccessToken);
         var acceptanceId = (await fixture.LegalTermsAcceptancesOfAsync(command.Email!)).Single().Id;
-        await using (var context = fixture.CreateDbContext(Guid.Empty))
+        await using (var context = fixture.CreateDbContext(0L))
         {
             await context.LegalTermsAcceptances
                 .Where(acceptance => acceptance.Id == acceptanceId)

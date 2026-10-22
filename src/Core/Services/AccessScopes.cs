@@ -26,11 +26,11 @@ public sealed class AccessScopes(ICurrentMember currentMember) : IAccessScopes
         var access = await currentMember.GetAccessAsync(cancellationToken);
         if (access is null)
         {
-            return new ClientScope(null, Guid.Empty);
+            return new ClientScope(null, 0L);
         }
 
         return access.HasPermission(everyClientPermission)
             ? null
-            : new ClientScope(access.InstructorId, access.UserId ?? Guid.Empty);
+            : new ClientScope(access.InstructorId, access.UserId ?? 0L);
     }
 }

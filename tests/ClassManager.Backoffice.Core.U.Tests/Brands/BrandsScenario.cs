@@ -13,7 +13,7 @@ internal sealed class BrandsScenario
 
     private readonly InMemoryBrandDirectory _directory = new();
 
-    public Guid BrandId { get; } = Guid.CreateVersion7();
+    public long BrandId { get; } = TestIds.Next();
 
     public BrandsScenario WithListedBrand(Subscription? currentSubscription)
     {
@@ -49,7 +49,7 @@ internal sealed class BrandsScenario
         return result.Value!.Brands.ShouldHaveSingleItem();
     }
 
-    public Task<Result<BrandDetailResponse>> GetAsync(Guid? brandId = null) =>
+    public Task<Result<BrandDetailResponse>> GetAsync(long? brandId = null) =>
         new GetBrandUseCase(_directory, new FakeTimeProvider(Now))
             .ExecuteAsync(new GetBrandQuery(brandId ?? BrandId), CancellationToken.None);
 }
@@ -65,7 +65,7 @@ internal sealed class InMemoryBrandDirectory : IBrandDirectory
 
     public List<ExpiringAddOn> ExpiringAddOns { get; } = [];
 
-    public Task<BrandRecord?> FindAsync(Guid brandId, CancellationToken cancellationToken) =>
+    public Task<BrandRecord?> FindAsync(long brandId, CancellationToken cancellationToken) =>
         Task.FromResult(Records.FirstOrDefault(record => record.Id == brandId));
 
     public Task<IReadOnlyList<ExpiringAddOn>> ListAddOnsExpiringBetweenAsync(DateOnly from, DateOnly until, CancellationToken cancellationToken) =>

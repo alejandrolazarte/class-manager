@@ -11,7 +11,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record RecordClassFeedbackRequest(string? Text);
 
-public sealed record RecordClassFeedbackCommand(Guid ClassGroupId, DateOnly Date, Guid StudentId, [property: AuditPersonal] string? Text) : ICommand;
+public sealed record RecordClassFeedbackCommand(long ClassGroupId, DateOnly Date, long StudentId, [property: AuditPersonal] string? Text) : ICommand;
 
 public sealed class RecordClassFeedbackUseCase(
     IClassGroupRepository classGroupRepository,
@@ -83,7 +83,7 @@ public sealed class RecordClassFeedbackUseCase(
         }
         else if (feedback is null)
         {
-            var created = ClassFeedback.Create(session.Id, command.StudentId, instructorId, command.Text, now);
+            var created = ClassFeedback.Create(session, command.StudentId, instructorId, command.Text, now);
             if (created.IsFailure)
             {
                 return created.Error!;

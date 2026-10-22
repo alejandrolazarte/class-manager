@@ -7,7 +7,7 @@ public sealed class Then_it_keeps_that_date
     [Fact]
     public void Then_it_keeps_that_date_Run()
     {
-        var announcement = Announcement.Create("Feriado", null, TestData.Now, TestData.Today, visibleUntil: TestData.Today).Value!;
+        var announcement = Announcement.Create("Feriado", null, TestData.Now, TestData.Today, visibleUntil: TestData.Today).Value!.WithId();
 
         var result = announcement.Edit("Feriado del lunes", null, AnnouncementCategory.News, null, TestData.Today, TestData.Today.AddDays(5));
 

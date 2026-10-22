@@ -4,5 +4,5 @@ public interface ICurrentUser
 {
     Guid? AccountId { get; }
 
-    Guid? UserId { get; }
+    long? UserId { get; }
 }

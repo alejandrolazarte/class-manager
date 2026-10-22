@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var goal = MeasurementGoal.Create(Guid.NewGuid(), MeasurementSamples.Time(), -28m);
+        var goal = MeasurementGoal.Create(TestIds.Next(), MeasurementSamples.Time(), -28m);
 
         goal.Error!.FieldName.ShouldBe(nameof(MeasurementGoal.Value));
     }

@@ -4,5 +4,5 @@ namespace ClassManager.Core.Abstractions.Fees;
 
 public interface IClassBalanceService
 {
-    Task<IReadOnlyDictionary<Guid, ClassBalance>> CalculateAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+    Task<IReadOnlyDictionary<long, ClassBalance>> CalculateAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken);
 }

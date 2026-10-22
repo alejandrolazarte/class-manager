@@ -6,7 +6,7 @@ namespace ClassManager.Backoffice.Core.UseCases;
 
 public sealed record ListExpiringAddOnsQuery : IQuery;
 
-public sealed record ExpiringAddOnResponse(Guid BrandId, string BrandName, string FeatureCode, DateOnly ExpiredOn);
+public sealed record ExpiringAddOnResponse(long BrandId, string BrandName, string FeatureCode, DateOnly ExpiredOn);
 
 public sealed record ExpiringAddOnListResponse(IReadOnlyList<ExpiringAddOnResponse> AddOns);
 

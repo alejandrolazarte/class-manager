@@ -10,7 +10,7 @@ public sealed class Then_returns_conflict
     {
         var builder = new SessionUseCaseBuilder();
         var substituteClassGroup = ClassGroup.Create(
-            "Aquagym", builder.Substitute.Id, ClassSchedule.Create([TestData.Today.DayOfWeek], "18:30", 45).Value!, 10, null).Value!;
+            "Aquagym", builder.Substitute.Id, ClassSchedule.Create([TestData.Today.DayOfWeek], "18:30", 45).Value!, 10, null).Value!.WithId();
         builder.ClassGroups
             .Setup(repository => repository.ListActiveByInstructorAsync(builder.Substitute.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync([substituteClassGroup]);

@@ -229,7 +229,7 @@ public sealed class StudentImportModule(
 
             var student = namesTheContact
                 ? Student.CreateAttendingContact(importClient.Client, birthDate, row.GetText(StudentNotesKey), today, now)
-                : Student.Create(importClient.Client.Id, studentName, birthDate, row.GetText(StudentNotesKey), today, now, row.GetText(StudentEmailKey));
+                : Student.Create(importClient.Client, studentName, birthDate, row.GetText(StudentNotesKey), today, now, row.GetText(StudentEmailKey));
             if (student.IsFailure)
             {
                 return Error(row, StudentFieldKey(student.Error!.FieldName), student.Error);

@@ -7,12 +7,12 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 public sealed record InstructorScenario(
     SeededBusiness Business,
     HttpClient Instructor,
-    Guid InstructorId,
-    Guid OtherInstructorId,
+    long InstructorId,
+    long OtherInstructorId,
     ClassGroupResponse InstructorClassGroup,
     ClassGroupResponse OtherClassGroup,
-    Guid InstructorStudentId,
-    Guid OtherStudentId)
+    long InstructorStudentId,
+    long OtherStudentId)
 {
     public const string InstructorFullName = "Marcos Díaz";
     public const string OtherInstructorFullName = "Laura Gómez";

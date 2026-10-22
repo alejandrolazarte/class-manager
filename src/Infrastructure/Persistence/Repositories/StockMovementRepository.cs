@@ -4,12 +4,12 @@ internal sealed class StockMovementRepository(AppDbContext context) : IStockMove
 {
     public void Add(StockMovement movement) => context.StockMovements.Add(movement);
 
-    public async Task<IReadOnlyDictionary<Guid, int>> StockByVariantAsync(
-        IReadOnlyCollection<Guid> variantIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyDictionary<long, int>> StockByVariantAsync(
+        IReadOnlyCollection<long> variantIds, CancellationToken cancellationToken)
     {
         if (variantIds.Count == 0)
         {
-            return new Dictionary<Guid, int>();
+            return new Dictionary<long, int>();
         }
 
         return await context.StockMovements.AsNoTracking()
@@ -19,12 +19,12 @@ internal sealed class StockMovementRepository(AppDbContext context) : IStockMove
             .ToDictionaryAsync(entry => entry.VariantId, entry => entry.Stock, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<StockMovement>> ListReservationsByOrderAsync(Guid orderId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<StockMovement>> ListReservationsByOrderAsync(long orderId, CancellationToken cancellationToken) =>
         await context.StockMovements.AsNoTracking()
             .Where(movement => movement.OrderId == orderId && movement.Kind == StockMovementKind.Reservation)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<StockMovement>> ListByProductAsync(Guid productId, int limit, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<StockMovement>> ListByProductAsync(long productId, int limit, CancellationToken cancellationToken) =>
         await (
             from movement in context.StockMovements.AsNoTracking()
             join variant in context.ProductVariants on movement.ProductVariantId equals variant.Id

@@ -16,19 +16,20 @@ public sealed class Student : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClientId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClientId { get; private set; }
+    public Client? Client { get; private set; }
     public string? Notes { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid UserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long UserId { get; private set; }
     public User User { get; private set; } = null!;
 
     public static Result<Student> Create(
-        Guid clientId,
+        Client client,
         string? fullName,
         DateOnly? birthDate,
         string? notes,
@@ -54,7 +55,7 @@ public sealed class Student : ITenantOwned, IAuditable
             return emailChange.Error!;
         }
 
-        return New(clientId, person.Value, details.Value, createdAt);
+        return New(client, person.Value, details.Value, createdAt);
     }
 
     public static Result<Student> CreateAttendingContact(
@@ -71,10 +72,10 @@ public sealed class Student : ITenantOwned, IAuditable
         }
 
         var birthDateChange = client.User.ChangeBirthDate(birthDate, today);
-        return birthDateChange.IsFailure ? birthDateChange.Error! : New(client.Id, client.User, validNotes.Value, createdAt);
+        return birthDateChange.IsFailure ? birthDateChange.Error! : New(client, client.User, validNotes.Value, createdAt);
     }
 
-    public bool IsTheContactOf(Client client) => UserId == client.UserId;
+    public bool IsTheContactOf(Client client) => ReferenceEquals(User, client.User) || (UserId != 0 && UserId == client.UserId);
 
     public void ChangePerson(User person)
     {
@@ -96,11 +97,11 @@ public sealed class Student : ITenantOwned, IAuditable
             : trimmedNotes;
     }
 
-    private static Student New(Guid clientId, User person, string? notes, DateTimeOffset createdAt) =>
+    private static Student New(Client client, User person, string? notes, DateTimeOffset createdAt) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
-            ClientId = clientId,
+            ClientId = client.Id,
+            Client = client,
             Notes = notes,
             CreatedAt = createdAt.ToUniversalTime(),
             UserId = person.Id,

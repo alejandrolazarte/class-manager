@@ -228,7 +228,7 @@ public sealed class GetStudentAppHomeUseCase(
         ClassGroup classGroup,
         Domain.Sessions.ClassSession? session,
         DateOnly date,
-        IReadOnlyDictionary<Guid, string> instructorNames,
+        IReadOnlyDictionary<long, string> instructorNames,
         bool absenceNotified,
         bool isMakeup)
     {
@@ -281,7 +281,7 @@ public sealed class GetStudentAppHomeUseCase(
             Medals.Earned(new MedalProgress(attendedClasses, level, streak.BestWeeks), marks, today));
     }
 
-    private async Task<StudentAppBillingResponse> BillingAsync(Guid clientId, string currencyCode, DateOnly today, CancellationToken cancellationToken)
+    private async Task<StudentAppBillingResponse> BillingAsync(long clientId, string currencyCode, DateOnly today, CancellationToken cancellationToken)
     {
         var month = BillingMonth.From(today);
         var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);

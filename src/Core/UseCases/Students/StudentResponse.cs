@@ -4,8 +4,8 @@ using ClassManager.Core.UseCases.Clients;
 namespace ClassManager.Core.UseCases.Students;
 
 public sealed record StudentResponse(
-    Guid Id,
-    Guid ClientId,
+    long Id,
+    long ClientId,
     string FullName,
     DateOnly? BirthDate,
     string? Notes,

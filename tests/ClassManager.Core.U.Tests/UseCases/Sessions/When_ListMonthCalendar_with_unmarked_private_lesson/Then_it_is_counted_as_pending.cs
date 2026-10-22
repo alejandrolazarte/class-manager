@@ -20,8 +20,8 @@ public sealed class Then_it_is_counted_as_pending
             null,
             null,
             null,
-            TestData.Now).Value!;
-        builder.SetupMonthCalendar([], [], new Dictionary<Guid, AttendanceCount>());
+            TestData.Now).Value!.WithId();
+        builder.SetupMonthCalendar([], [], new Dictionary<long, AttendanceCount>());
         builder.PrivateLessons
             .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([lesson]);

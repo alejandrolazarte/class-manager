@@ -9,12 +9,12 @@ internal static class CommandAuditEntries
 
     public static readonly DateTimeOffset OccurredAt = new(2026, 10, 19, 18, 30, 0, TimeSpan.Zero);
 
-    public static CommandAuditEntry Succeeded(Guid? tenantId, DateTimeOffset? occurredAt = null) => new(
+    public static CommandAuditEntry Succeeded(long? tenantId, DateTimeOffset? occurredAt = null) => new(
         occurredAt ?? OccurredAt,
         tenantId,
         RecordPaymentCommand,
         AccountId: Guid.CreateVersion7(),
-        UserId: Guid.CreateVersion7(),
+        UserId: TestIds.Next(),
         CommandOutcome.Succeeded,
         ErrorKind: null,
         ErrorCode: null,

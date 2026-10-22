@@ -13,7 +13,7 @@ internal static class OrderDeliveries
         IClassPackPurchaseRepository purchaseRepository,
         DateOnly creditedOn,
         DateTimeOffset now,
-        Guid? deliveredByUserId,
+        long? deliveredByUserId,
         CancellationToken cancellationToken)
     {
         var delivery = order.MarkDelivered(deliveredByUserId, now);
@@ -28,7 +28,7 @@ internal static class OrderDeliveries
         IClassPackPurchaseRepository purchaseRepository,
         DateOnly creditedOn,
         DateTimeOffset now,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         CancellationToken cancellationToken)
     {
         var packs = await OrderDrafts.LoadPacksAsync(order.Lines.Select(line => line.ClassPackId), classPackRepository, cancellationToken);
@@ -48,7 +48,7 @@ internal static class OrderDeliveries
             }
 
             purchaseRepository.Add(purchase.Value!);
-            line.LinkPurchase(purchase.Value!.Id);
+            line.LinkPurchase(purchase.Value!);
         }
 
         return Result.Success();

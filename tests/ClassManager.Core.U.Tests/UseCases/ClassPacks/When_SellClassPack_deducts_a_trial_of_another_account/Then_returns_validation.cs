@@ -11,14 +11,14 @@ public sealed class Then_returns_validation
     public async Task Then_returns_validation_Run()
     {
         var builder = new ClassPackUseCaseBuilder();
-        var client = Client.Create(TestData.ClientFullName, TestData.PhoneNumber(), null, null, TestData.Now).Value!;
+        var client = Client.Create(TestData.ClientFullName, TestData.PhoneNumber(), null, null, TestData.Now).Value!.WithId();
         builder.Clients.Setup(repository => repository.GetByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
         builder.PrivateLessons
             .Setup(repository => repository.ListPaidTrialsByClientAsync(client.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var response = await builder.BuildSell().ExecuteAsync(
-            new SellClassPackCommand(client.Id, builder.Pack.Id, 425m, TestData.Today, PaymentMethod.Cash, null, Guid.CreateVersion7()),
+            new SellClassPackCommand(client.Id, builder.Pack.Id, 425m, TestData.Today, PaymentMethod.Cash, null, TestIds.Next()),
             CancellationToken.None);
 
         response.Error!.Code.ShouldBe(ClassPackErrorCodes.TrialNotDeductible);

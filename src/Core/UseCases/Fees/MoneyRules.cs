@@ -9,7 +9,7 @@ internal static class MoneyRules
     public static Task<bool> CanCollectFromAsync(
         IAccessScopes accessScopes,
         IClientRepository clientRepository,
-        Guid clientId,
+        long clientId,
         CancellationToken cancellationToken) =>
         AccessRules.CanReachClientsAsync(accessScopes, clientRepository, [clientId], Permissions.Payments.ViewAll, cancellationToken);
 
@@ -17,8 +17,8 @@ internal static class MoneyRules
         IAccessScopes accessScopes,
         IClientRepository clientRepository,
         ICurrentMember currentMember,
-        Guid clientId,
-        Guid? recordedByUserId,
+        long clientId,
+        long? recordedByUserId,
         CancellationToken cancellationToken)
     {
         var access = await currentMember.GetAccessAsync(cancellationToken);

@@ -37,7 +37,7 @@ internal sealed class PlatformOperatorDirectory(AppDbContext context, IOptions<B
                 member.Role))
             .ToListAsync(cancellationToken);
 
-    public Task<BusinessMember?> FindTeamMemberAsync(Guid memberId, CancellationToken cancellationToken) =>
+    public Task<BusinessMember?> FindTeamMemberAsync(long memberId, CancellationToken cancellationToken) =>
         PlatformMembers()
             .Include(member => member.User)
             .FirstOrDefaultAsync(member => member.Id == memberId, cancellationToken);

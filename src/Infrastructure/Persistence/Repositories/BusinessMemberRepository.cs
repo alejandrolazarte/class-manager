@@ -9,21 +9,21 @@ internal sealed class BusinessMemberRepository(AppDbContext context) : IBusiness
     public async Task<IReadOnlyList<BusinessMember>> ListAsync(CancellationToken cancellationToken) =>
         await context.BusinessMembers.AsNoTracking().Include(member => member.User).ToListAsync(cancellationToken);
 
-    public Task<BusinessMember?> GetForUpdateAsync(Guid memberId, CancellationToken cancellationToken) =>
+    public Task<BusinessMember?> GetForUpdateAsync(long memberId, CancellationToken cancellationToken) =>
         context.BusinessMembers.Include(member => member.User).FirstOrDefaultAsync(member => member.Id == memberId, cancellationToken);
 
     public Task<bool> IsAccountMemberAsync(Guid accountId, CancellationToken cancellationToken) =>
         context.BusinessMembers.AnyAsync(member => member.User.AccountId == accountId, cancellationToken);
 
-    public async Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(Guid customRoleId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(long customRoleId, CancellationToken cancellationToken) =>
         await context.BusinessMembers.AsNoTracking().Where(member => member.CustomRoleId == customRoleId).ToListAsync(cancellationToken);
 
-    public Task<bool> IsInstructorLinkedAsync(Guid instructorId, Guid? exceptMemberId, CancellationToken cancellationToken) =>
+    public Task<bool> IsInstructorLinkedAsync(long instructorId, long? exceptMemberId, CancellationToken cancellationToken) =>
         context.BusinessMembers.AnyAsync(
             member => member.InstructorId == instructorId && member.Id != exceptMemberId,
             cancellationToken);
 
-    public Task<Guid?> FindAccountIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken) =>
+    public Task<Guid?> FindAccountIdByInstructorAsync(long instructorId, CancellationToken cancellationToken) =>
         context.BusinessMembers
             .Where(member => member.InstructorId == instructorId)
             .Select(member => member.User.AccountId)

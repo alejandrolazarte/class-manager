@@ -7,14 +7,14 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record RefundLine(Guid LineId, int? Quantity, bool ReturnToStock);
+public sealed record RefundLine(long LineId, int? Quantity, bool ReturnToStock);
 
 public sealed record RefundOrderRequest(IReadOnlyList<RefundLine>? Lines)
 {
-    public RefundOrderCommand ToCommand(Guid orderId) => new(orderId, Lines);
+    public RefundOrderCommand ToCommand(long orderId) => new(orderId, Lines);
 }
 
-public sealed record RefundOrderCommand(Guid OrderId, IReadOnlyList<RefundLine>? Lines) : ICommand;
+public sealed record RefundOrderCommand(long OrderId, IReadOnlyList<RefundLine>? Lines) : ICommand;
 
 public sealed class RefundOrderUseCase(
     IOrderRepository orderRepository,
@@ -72,7 +72,7 @@ public sealed class RefundOrderUseCase(
         Order order,
         OrderLine line,
         RefundLine refundLine,
-        Guid? userId,
+        long? userId,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {

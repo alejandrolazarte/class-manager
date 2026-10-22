@@ -8,23 +8,23 @@ public interface IEnrollmentRepository
 
     void Remove(Enrollment enrollment);
 
-    Task<Enrollment?> GetForUpdateAsync(Guid enrollmentId, CancellationToken cancellationToken);
+    Task<Enrollment?> GetForUpdateAsync(long enrollmentId, CancellationToken cancellationToken);
 
-    Task<Enrollment?> FindCurrentAsync(Guid studentId, Guid classGroupId, DateOnly today, CancellationToken cancellationToken);
+    Task<Enrollment?> FindCurrentAsync(long studentId, long classGroupId, DateOnly today, CancellationToken cancellationToken);
 
-    Task<int> CountCurrentAsync(Guid classGroupId, DateOnly today, CancellationToken cancellationToken);
+    Task<int> CountCurrentAsync(long classGroupId, DateOnly today, CancellationToken cancellationToken);
 
-    Task<IReadOnlyDictionary<Guid, int>> CountCurrentByClassGroupAsync(DateOnly today, CancellationToken cancellationToken);
+    Task<IReadOnlyDictionary<long, int>> CountCurrentByClassGroupAsync(DateOnly today, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<RosterEntry>> ListRosterAsync(Guid classGroupId, DateOnly today, CancellationToken cancellationToken);
+    Task<IReadOnlyList<RosterEntry>> ListRosterAsync(long classGroupId, DateOnly today, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(Guid classGroupId, DateOnly sessionDate, CancellationToken cancellationToken);
+    Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken);
 
-    Task<IReadOnlyDictionary<Guid, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken);
+    Task<IReadOnlyDictionary<long, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClassGroupEnrollmentPeriod>> ListActiveInPeriodAsync(DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<EnrolledStudentInPeriod>> ListEnrolledInPeriodAsync(DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(Guid studentId, DateOnly today, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(long studentId, DateOnly today, CancellationToken cancellationToken);
 }

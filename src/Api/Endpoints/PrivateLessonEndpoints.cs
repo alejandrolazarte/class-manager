@@ -36,7 +36,7 @@ internal static class PrivateLessonEndpoints
     }
 
     private static async Task<IResult> GetAsync(
-        Guid privateLessonId,
+        long privateLessonId,
         IUseCase<GetPrivateLessonQuery, PrivateLessonResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -46,7 +46,7 @@ internal static class PrivateLessonEndpoints
     }
 
     private static async Task<IResult> RescheduleAsync(
-        Guid privateLessonId,
+        long privateLessonId,
         ReschedulePrivateLessonRequest request,
         IUseCase<ReschedulePrivateLessonCommand, PrivateLessonResponse> useCase,
         CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ internal static class PrivateLessonEndpoints
     }
 
     private static async Task<IResult> DeleteAsync(
-        Guid privateLessonId,
+        long privateLessonId,
         IUseCase<DeletePrivateLessonCommand, DeletedPrivateLessonResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -67,7 +67,7 @@ internal static class PrivateLessonEndpoints
     }
 
     private static async Task<IResult> CancelAsync(
-        Guid privateLessonId,
+        long privateLessonId,
         CancelPrivateLessonRequest request,
         IUseCase<CancelPrivateLessonCommand, PrivateLessonResponse> useCase,
         CancellationToken cancellationToken)
@@ -78,7 +78,7 @@ internal static class PrivateLessonEndpoints
     }
 
     private static async Task<IResult> RestoreAsync(
-        Guid privateLessonId,
+        long privateLessonId,
         IUseCase<RestorePrivateLessonCommand, PrivateLessonResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -88,8 +88,8 @@ internal static class PrivateLessonEndpoints
     }
 
     private static async Task<IResult> RecordAttendanceAsync(
-        Guid privateLessonId,
-        Guid studentId,
+        long privateLessonId,
+        long studentId,
         RecordAttendanceRequest request,
         IUseCase<RecordPrivateLessonAttendanceCommand, RecordAttendanceResponse> useCase,
         CancellationToken cancellationToken)

@@ -9,9 +9,9 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record RecordAttendanceRequest(AttendanceStatus? Status);
 
-public sealed record RecordAttendanceCommand(Guid ClassGroupId, DateOnly Date, Guid StudentId, AttendanceStatus? Status) : ICommand;
+public sealed record RecordAttendanceCommand(long ClassGroupId, DateOnly Date, long StudentId, AttendanceStatus? Status) : ICommand;
 
-public sealed record RecordAttendanceResponse(Guid StudentId, AttendanceStatus? Status);
+public sealed record RecordAttendanceResponse(long StudentId, AttendanceStatus? Status);
 
 public sealed class RecordAttendanceUseCase(
     IClassGroupRepository classGroupRepository,

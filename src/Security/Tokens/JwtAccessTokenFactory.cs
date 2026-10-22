@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +19,7 @@ internal sealed class JwtAccessTokenFactory(IOptions<JwtOptions> options, TimePr
         {
             [SecurityClaimTypes.Subject] = subject.UserId.ToString(),
             [SecurityClaimTypes.Email] = subject.Email,
-            [jwtOptions.TenantClaimType] = subject.TenantId.ToString(),
+            [jwtOptions.TenantClaimType] = subject.TenantId.ToString(CultureInfo.InvariantCulture),
             [SecurityClaimTypes.Role] = subject.Role,
         };
         if (subject.Kind is not null)

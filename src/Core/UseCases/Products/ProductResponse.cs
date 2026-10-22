@@ -4,10 +4,10 @@ using ClassManager.Core.UseCases.Images;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record ProductVariantResponse(Guid Id, string Size, string? Color, int? Stock);
+public sealed record ProductVariantResponse(long Id, string Size, string? Color, int? Stock);
 
 public sealed record ProductResponse(
-    Guid Id,
+    long Id,
     string Name,
     string? Description,
     decimal Price,
@@ -19,7 +19,7 @@ public sealed record ProductResponse(
 {
     public static ProductResponse From(
         Product product,
-        IReadOnlyDictionary<Guid, int> stockByVariant,
+        IReadOnlyDictionary<long, int> stockByVariant,
         IDocumentStorageService documentStorage) =>
         new(
             product.Id,

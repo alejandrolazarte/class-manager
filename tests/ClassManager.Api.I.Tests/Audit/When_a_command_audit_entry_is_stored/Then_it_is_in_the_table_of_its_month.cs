@@ -1,3 +1,4 @@
+using System.Globalization;
 using Azure.Data.Tables;
 using ClassManager.Infrastructure.Audit;
 
@@ -12,17 +13,17 @@ public sealed class Then_it_is_in_the_table_of_its_month(ApiFixture fixture)
     public async Task Then_it_is_in_the_table_of_its_month_Run()
     {
         var serviceClient = new TableServiceClient(fixture.StorageConnectionString);
-        var tenantId = Guid.CreateVersion7();
+        var tenantId = TestIds.Next();
         var entry = CommandAuditEntries.Succeeded(tenantId);
 
         await new TableCommandAuditStore(serviceClient).WriteAsync([entry], CancellationToken.None);
 
         var row = await serviceClient.GetTableClient(TableOfTheMonth)
-            .QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString())
+            .QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString(CultureInfo.InvariantCulture))
             .SingleAsync();
         (row.GetString(nameof(CommandAuditEntry.Command)),
             row.GetGuid(nameof(CommandAuditEntry.AccountId)),
-            row.GetGuid(nameof(CommandAuditEntry.UserId)),
+            row.GetInt64(nameof(CommandAuditEntry.UserId)),
             row.GetString(nameof(CommandAuditEntry.Outcome)),
             row.GetInt64(nameof(CommandAuditEntry.DurationMilliseconds)),
             row.GetString(nameof(CommandAuditEntry.Payload)))

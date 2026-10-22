@@ -6,12 +6,12 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
 
     public void Remove(MakeupBooking booking) => context.MakeupBookings.Remove(booking);
 
-    public Task<MakeupBooking?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken) =>
+    public Task<MakeupBooking?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken) =>
         context.MakeupBookings.FirstOrDefaultAsync(
             booking => booking.ClassSessionId == classSessionId && booking.StudentId == studentId,
             cancellationToken);
 
-    public async Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(Guid classSessionId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
         await (
             from booking in context.MakeupBookings.AsNoTracking()
             where booking.ClassSessionId == classSessionId
@@ -21,11 +21,11 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
             select new BookedStudent(student.Id, student.User.FullName, student.User.BirthDate, client.User.FullName))
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, int>> CountBySessionsAsync(
-        IReadOnlyCollection<Guid> classSessionIds,
+    public async Task<IReadOnlyDictionary<long, int>> CountBySessionsAsync(
+        IReadOnlyCollection<long> classSessionIds,
         CancellationToken cancellationToken) =>
         classSessionIds.Count == 0
-            ? new Dictionary<Guid, int>()
+            ? new Dictionary<long, int>()
             : await context.MakeupBookings.AsNoTracking()
                 .Where(booking => classSessionIds.Contains(booking.ClassSessionId))
                 .GroupBy(booking => booking.ClassSessionId)
@@ -33,7 +33,7 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
                 .ToDictionaryAsync(group => group.ClassSessionId, group => group.Count, cancellationToken);
 
     public async Task<IReadOnlyList<BookedClass>> ListByStudentsBetweenAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         DateOnly firstDate,
         DateOnly lastDate,
         CancellationToken cancellationToken)

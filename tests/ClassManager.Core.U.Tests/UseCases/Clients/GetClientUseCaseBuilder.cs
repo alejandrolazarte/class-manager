@@ -28,7 +28,7 @@ internal sealed class GetClientUseCaseBuilder
         ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Invitations.Setup(repository => repository.ListPendingByClientAsync(Client.Id, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         FeeSchedules
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         FeeSchedules.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
@@ -36,12 +36,12 @@ internal sealed class GetClientUseCaseBuilder
     public void WithPendingInvitation() =>
         Invitations
             .Setup(repository => repository.ListPendingByClientAsync(Client.Id, TestData.Now, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([ClientInvitation.Create(Client.Id, InvitedEmail, "token-hash", Guid.CreateVersion7(), TestData.Now).Value!]);
+            .ReturnsAsync([ClientInvitation.Create(Client.Id, InvitedEmail, "token-hash", TestIds.Next(), TestData.Now).Value!.WithId()]);
 
     public void WithStudentAppAccount()
     {
         var userId = Guid.CreateVersion7();
-        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, TestData.UserOfAccount(userId), TestData.Now)]);
+        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, TestData.UserOfAccount(userId), TestData.Now).WithId()]);
         Identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new UserAccount(userId, SignInEmail, Client.User.FullName)]);
@@ -50,8 +50,8 @@ internal sealed class GetClientUseCaseBuilder
     public GetClientUseCase Build()
     {
         Users
-            .Setup(repository => repository.ListOnTheTeamAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HashSet<Guid>());
+            .Setup(repository => repository.ListOnTheTeamAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HashSet<long>());
         return new(
             Clients.Object,
             Students.Object,

@@ -8,7 +8,7 @@ public sealed class Then_validation_fails
     public void Then_validation_fails_Run()
     {
         var feedback = ClassFeedback.Create(
-            Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), new string('x', ClassFeedback.TextMaxLength + 1), TestData.Now);
+            ClassSession.Create(TestIds.Next(), TestData.Today, TestData.Now).WithId(), TestIds.Next(), TestIds.Next(), new string('x', ClassFeedback.TextMaxLength + 1), TestData.Now);
 
         feedback.Error!.FieldName.ShouldBe(nameof(ClassFeedback.Text));
     }

@@ -4,9 +4,9 @@ public interface IAuditable
 {
     DateTimeOffset CreatedAt { get; }
 
-    Guid? CreatedByUserId { get; }
+    long? CreatedByUserId { get; }
 
     DateTimeOffset UpdatedAt { get; }
 
-    Guid? UpdatedByUserId { get; }
+    long? UpdatedByUserId { get; }
 }

@@ -8,9 +8,9 @@ using ClassManager.Core.UseCases.Products;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-internal sealed record RequestedOrderLine(Guid? ClassPackId, Guid? ProductVariantId, int? Quantity, decimal? UnitPrice);
+internal sealed record RequestedOrderLine(long? ClassPackId, long? ProductVariantId, int? Quantity, decimal? UnitPrice);
 
-internal sealed record OrderDraft(IReadOnlyList<OrderLine> Lines, IReadOnlyDictionary<Guid, ClassPack> Packs, IReadOnlyList<Product> Products)
+internal sealed record OrderDraft(IReadOnlyList<OrderLine> Lines, IReadOnlyDictionary<long, ClassPack> Packs, IReadOnlyList<Product> Products)
 {
     public Product ProductOf(OrderLine line) => Products.First(product => product.Id == line.ProductId);
 }
@@ -32,7 +32,7 @@ internal static class OrderDrafts
     {
         var packs = await LoadPacksAsync(requestedLines.Select(line => line.ClassPackId), classPackRepository, cancellationToken);
         var products = await productRepository.ListByVariantsAsync(
-            [.. requestedLines.Select(line => line.ProductVariantId).OfType<Guid>().Distinct()], cancellationToken);
+            [.. requestedLines.Select(line => line.ProductVariantId).OfType<long>().Distinct()], cancellationToken);
 
         var lines = new List<OrderLine>();
         foreach (var requestedLine in requestedLines)
@@ -49,13 +49,13 @@ internal static class OrderDrafts
         return new OrderDraft(lines, packs, products);
     }
 
-    public static async Task<Dictionary<Guid, ClassPack>> LoadPacksAsync(
-        IEnumerable<Guid?> classPackIds,
+    public static async Task<Dictionary<long, ClassPack>> LoadPacksAsync(
+        IEnumerable<long?> classPackIds,
         IClassPackRepository classPackRepository,
         CancellationToken cancellationToken)
     {
-        var packs = new Dictionary<Guid, ClassPack>();
-        foreach (var classPackId in classPackIds.OfType<Guid>().Distinct())
+        var packs = new Dictionary<long, ClassPack>();
+        foreach (var classPackId in classPackIds.OfType<long>().Distinct())
         {
             if (await classPackRepository.GetByIdAsync(classPackId, cancellationToken) is { } pack)
             {
@@ -98,7 +98,7 @@ internal static class OrderDrafts
     private static Result<OrderLine> BuildLine(
         RequestedOrderLine requestedLine,
         OrderAudience audience,
-        Dictionary<Guid, ClassPack> packs,
+        Dictionary<long, ClassPack> packs,
         IReadOnlyList<Product> products)
     {
         var unitPrice = audience == OrderAudience.Team ? requestedLine.UnitPrice : null;

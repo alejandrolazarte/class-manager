@@ -1,6 +1,6 @@
 # Database-generated `bigint` ids
 
-Status: proposal.
+Status: steps 1 to 4 built; step 5 (recreating the pilot database) runs after the merge.
 
 Every id in the app is a `Guid` version 7 created in code (`Guid.CreateVersion7()` in each entity's factory). This plan replaces them with `long` ids that SQL Server generates on insert (`bigint IDENTITY`).
 
@@ -50,15 +50,13 @@ The libraries switch to `long` directly. They are only used by this app, and a g
 ## API
 
 - The 33 `{...:guid}` route constraints in `ApiRoutes` become `{...:long}`.
-- Ids travel as JSON numbers. JavaScript numbers are exact up to 2⁵³ − 1 (about 9 × 10¹⁵), far beyond what `IDENTITY` will reach, so ids don't need to be sent as strings.
+- **Ids travel as JSON strings** (`"id": "48213"`). One rule in `IdJson` (`src/Infrastructure/Json`), applied to both hosts: a JSON property named `id`, or ending in `Id` or `Ids`, that holds a `long` (or a list of them) is written as a string and read from a string or a number. Problem details extensions follow the same rule (`existingClientId`, `samePersonUserId`, …). Sizes and durations (`sizeInBytes`, `durationMilliseconds`) stay numbers.
+- This replaces the first idea of sending numbers and retyping about 550 ids in the app. An id is an opaque value: the app never does arithmetic with it, route parameters are strings anyway, and the app, its 700 test files and the e2e suite keep working without changes. JavaScript numbers would be exact up to 2⁵³ − 1, so precision was never the reason.
 - Links built from ids (`TeamNotificationLinks`, push payloads) carry numeric ids. Links sent by email don't change: invitations, guardian consent and password resets use token hashes, not ids.
 
 ## App and e2e
 
-- About 550 ids are typed `string` in `app/src` (`id: string`, `clientId: string`, …). They become `number`, and the typecheck finds every one.
-- Expo Router passes route parameters as strings. A single helper in `src/navigation` turns a parameter into a number, and a value that isn't a positive integer shows the screen's not-found state, as an unknown id does today.
-- `keyExtractor` and React Query keys convert the id with `String(id)` where they need a string.
-- The e2e helpers (`e2e/support/businessApi.ts`) and the screenshot seeders (`e2e/screenshots`) read and send numeric ids.
+Nothing changes: ids stay `string` in the app and in the e2e helpers, because the API sends them as strings. A route parameter that isn't a number (an old link with a GUID) gets a 404 from the route constraint, like an unknown id.
 
 ## Ids that can be counted
 
@@ -78,19 +76,33 @@ The pilot database only holds the owner's test data, so it is dropped and create
   1. Delete the database and create it again with the same name and tier ([pilot deployment](../../pilot-deployment.md)). The deploy pipeline then applies the new migrations.
   2. Empty the photos container. Its paths contain the old tenant ids.
   3. Empty the command log tables. Security event blobs can't be deleted while their retention policy holds, so they stay with the old ids until they expire. The backoffice reader already ignores a partition key it can't parse.
-  4. Sign up again, run `scripts/enable-first-operator.sql` and `scripts/set-subscription.sql`.
+  4. Sign up again, set `Backoffice:PlatformOrganizationId` to the new organization's id (now a number), and run `scripts/enable-first-operator.sql` and `scripts/set-subscription.sql`.
 - **Local and e2e databases:** drop them and migrate again ([local development](../local-development.md), `cd e2e; pnpm db:migrate`).
 - **Rollback:** a rollback to an image from before this change can't work, because that image expects `uniqueidentifier` columns. [Rolling back a deploy](../../rollback.md) gets a note saying so.
 - **Installed apps:** the PWA and the Android APK hold a refresh token from the old database. It no longer exists, so the API answers 401 and the person signs in again.
 
 ## Tests
 
-- Unit tests create entities in memory, which keeps their `Id` at `0`. Tests that need distinct ids (a mocked repository that finds by id, two entities that must differ) set them with a helper in the test projects, `EntityIds.Assign(entity, id)`, which writes the private setter through reflection. Core doesn't get a public setter for tests. The roughly 300 `Guid.CreateVersion7()` and `Guid.NewGuid()` calls in `tests` become numeric constants.
+- Unit tests create entities in memory, which keeps their `Id` at `0`. `EntityIds.WithId()` (`tests/ClassManager.Core.U.Tests`) gives an entity an id through reflection, the way the database would: its `User` and its child collections get one too, and children point to the parent's id. The test factories (`TestData`, `ProductTestData`, `OrderTestData` and every `Create(...).Value!` of an entity in the unit tests) call it. Core doesn't get a public setter for tests. Where a test needs a fresh number it calls `TestIds.Next()`, one per test project, instead of `Guid.CreateVersion7()`.
 - New tests:
-  - **Unit:** registering a client whose student is the contact still links the student to the same person (point 2).
   - **Integration:** two entities saved in one `SaveChanges` get different ids, assigned by the database.
-  - **Integration, model test:** every entity's key is a `long` generated on add, except the entities listed as staying `Guid`. It follows the same idea as the column convention tests for records.
-- Every existing test keeps passing, the tenant isolation tests included. None is deleted or weakened.
+  - **Integration, model test:** every entity whose key is `Id` has a `long` key generated by an `IDENTITY` column.
+  - **Integration:** a registered client and its students come back with their ids as JSON strings.
+  - Registering a client whose student is the contact is covered by the existing integration test `When_a_family_with_an_attending_contact_is_registered` (point 2).
+- Every existing test keeps passing, the tenant isolation tests included. The only deleted tests are the ones for the data-fix migrations that were removed with them (`When_people_are_migrated_to_users`, `When_people_copies_are_removed` and three more), together with `scripts/list-repeated-emails.sql` and its runbook.
+
+## What the build found
+
+Changing the type turned up cases the plan didn't list, all fixed in the same pull request:
+
+- **Sign-up and new branches.** Sign-up used the new business's id as the tenant before saving it. It now saves the brand and its first branch, then establishes the tenant. `Business.CreateInNewOrganization` links the branch to its new organization by navigation, and the branch limit doesn't count that first branch, so the limit check needs no tenant yet. A new branch saves its owner instructor before adding the membership that points to it.
+- **Class sessions created on the fly.** Attendance, absence notices, makeup and pack bookings and class feedback are created for a session that may be new in the same command. Their factories take the `ClassSession` and set the `Session` navigation.
+- **Orders.** Stock movements point to their order, so the order is saved first. An order line is linked to a new class pack purchase through the `ClassPackPurchase` navigation.
+- **Products.** The initial stock movements are created after the product is saved, when its sizes have ids.
+- **Students** take their `Client` (navigation) instead of its id.
+- **Brand owners in the backoffice.** `OrganizationMembers.UserId` holds the account id, but the backoffice joined it with `Users.Id`, so a brand never showed its owners. With different types this no longer compiled; it now finds the owner's user in a branch of the brand by account.
+- **A default the old schema had.** The raw `INSERT` of users relied on a default for `UpdatedAt` that an old migration had left in the database. It now sets the value.
+- **`ValueGeneratedNever()`** was configured on every key, because ids came from code. It was removed, so the new migrations create `IDENTITY` columns.
 
 ## Steps
 
@@ -98,8 +110,8 @@ Ids are foreign keys everywhere, so the types can't change in pieces while `main
 
 1. Libraries (Tenancy, Records, Subscriptions, Security), entities, EF Core configuration and the new `Initial` migrations. Then fix every compile error in Core, Infrastructure, Api and the backoffice, and the cases in [What changes because the id doesn't exist until the save](#what-changes-because-the-id-doesnt-exist-until-the-save).
 2. Tests: the `EntityIds` helper, the switch to numeric ids, and the new tests above. Everything passes with `-warnaserror`.
-3. App and e2e: numeric ids, the route parameter helper, and the seeders.
+3. API: ids as JSON strings (`IdJson`), so the app and e2e don't change.
 4. Docs: [domain model](../domain-model.md) (identifiers), [tenancy](../../tenancy.md), [security](../../security.md), [storage](../../storage.md) (file names), [deleting data](../../deleting-data.md) (`DeletedByUserId`), [rollback](../../rollback.md), [local development](../local-development.md).
 5. After it is merged: recreate the pilot database and storage as described in [Pilot on Azure](#database-migrations-and-existing-data).
 
-Size: about 1,600 `Guid` occurrences in `src`, 700 in `tests` and 550 ids in `app`. Most of the change is mechanical, and the compiler and the TypeScript typecheck find almost all of it. The review should focus on the cases above, where code reads an id before the save.
+Size: about 1,600 `Guid` occurrences in `src` and 700 in `tests`. Most of the change is mechanical, and the compiler finds almost all of it. The review should focus on the cases above, where code reads an id before the save, and on [What the build found](#what-the-build-found).

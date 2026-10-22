@@ -4,8 +4,8 @@ using ClassManager.Core.Domain.Fees;
 namespace ClassManager.Core.UseCases.ClassPacks;
 
 public sealed record ClassPackPurchaseResponse(
-    Guid Id,
-    Guid ClientId,
+    long Id,
+    long ClientId,
     string Name,
     int ClassCount,
     decimal Price,
@@ -15,7 +15,7 @@ public sealed record ClassPackPurchaseResponse(
     PaymentMethod? Method,
     string? Notes,
     int? ClassDurationMinutes,
-    Guid? TrialLessonId)
+    long? TrialLessonId)
 {
     public static ClassPackPurchaseResponse From(ClassPackPurchase purchase) =>
         new(

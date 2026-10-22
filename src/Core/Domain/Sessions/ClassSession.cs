@@ -18,25 +18,24 @@ public sealed class ClassSession : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClassGroupId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClassGroupId { get; private set; }
     public DateOnly Date { get; private set; }
     public bool IsCancelled { get; private set; }
     public string? CancellationReason { get; private set; }
     public DateTimeOffset? CancelledAt { get; private set; }
     public TimeOnly? RescheduledStartTime { get; private set; }
-    public Guid? SubstituteInstructorId { get; private set; }
+    public long? SubstituteInstructorId { get; private set; }
     public DateTimeOffset? ChangedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
-    public static ClassSession Create(Guid classGroupId, DateOnly date, DateTimeOffset createdAt) =>
+    public static ClassSession Create(long classGroupId, DateOnly date, DateTimeOffset createdAt) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             ClassGroupId = classGroupId,
             Date = date,
             CreatedAt = createdAt.ToUniversalTime(),
@@ -79,7 +78,7 @@ public sealed class ClassSession : ITenantOwned, IAuditable
 
     public TimeOnly EffectiveStartTime(TimeOnly usualStartTime) => RescheduledStartTime ?? usualStartTime;
 
-    public Result AssignSubstitute(Guid instructorId, Guid usualInstructorId, DateTimeOffset changedAt)
+    public Result AssignSubstitute(long instructorId, long usualInstructorId, DateTimeOffset changedAt)
     {
         if (IsCancelled)
         {
@@ -93,7 +92,7 @@ public sealed class ClassSession : ITenantOwned, IAuditable
 
     public void ClearSubstitute() => SubstituteInstructorId = null;
 
-    public Guid EffectiveInstructorId(Guid usualInstructorId) => SubstituteInstructorId ?? usualInstructorId;
+    public long EffectiveInstructorId(long usualInstructorId) => SubstituteInstructorId ?? usualInstructorId;
 
     public void Restore()
     {

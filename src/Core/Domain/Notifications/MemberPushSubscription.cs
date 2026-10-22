@@ -13,16 +13,16 @@ public sealed class MemberPushSubscription : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public Guid UserId { get; private set; }
     public string Endpoint { get; private set; } = string.Empty;
     public string P256dh { get; private set; } = string.Empty;
     public string Auth { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     public static Result<MemberPushSubscription> Create(
         Guid userId, string? endpoint, string? p256dh, string? auth, DateTimeOffset createdAt)
@@ -34,7 +34,6 @@ public sealed class MemberPushSubscription : ITenantOwned, IAuditable
 
         return new MemberPushSubscription
         {
-            Id = Guid.CreateVersion7(),
             UserId = userId,
             Endpoint = endpoint!,
             P256dh = p256dh!,

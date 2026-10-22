@@ -7,7 +7,6 @@ internal sealed class MemberInvitationConfiguration : IEntityTypeConfiguration<M
     public void Configure(EntityTypeBuilder<MemberInvitation> builder)
     {
         builder.HasKey(invitation => invitation.Id);
-        builder.Property(invitation => invitation.Id).ValueGeneratedNever();
         builder.Property(invitation => invitation.Email).HasMaxLength(MemberInvitation.EmailMaxLength).IsRequired();
         builder.Property(invitation => invitation.Role)
             .HasConversion<string>()

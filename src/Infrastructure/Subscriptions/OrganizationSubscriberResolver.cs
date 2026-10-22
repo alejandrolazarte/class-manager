@@ -5,13 +5,13 @@ namespace ClassManager.Infrastructure.Subscriptions;
 
 internal sealed class OrganizationSubscriberResolver(AppDbContext context, ITenantContext tenantContext) : ISubscriberResolver
 {
-    public async Task<Guid?> ResolveCurrentSubscriberIdAsync(CancellationToken cancellationToken)
+    public async Task<long?> ResolveCurrentSubscriberIdAsync(CancellationToken cancellationToken)
     {
         var businessId = tenantContext.TenantId;
         return await context.Businesses
             .AsNoTracking()
             .Where(business => business.Id == businessId)
-            .Select(business => (Guid?)business.OrganizationId)
+            .Select(business => (long?)business.OrganizationId)
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

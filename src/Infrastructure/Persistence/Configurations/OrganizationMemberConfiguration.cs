@@ -7,7 +7,6 @@ internal sealed class OrganizationMemberConfiguration : IEntityTypeConfiguration
     public void Configure(EntityTypeBuilder<OrganizationMember> builder)
     {
         builder.HasKey(member => member.Id);
-        builder.Property(member => member.Id).ValueGeneratedNever();
         builder.Property(member => member.Role)
             .HasConversion<string>()
             .HasMaxLength(OrganizationMember.RoleMaxLength)

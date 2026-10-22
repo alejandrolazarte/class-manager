@@ -10,12 +10,12 @@ public sealed class Then_the_free_trial_ends_after_thirty_days(ApiFixture fixtur
     [Fact]
     public async Task Then_the_free_trial_ends_after_thirty_days_Run()
     {
-        var businessName = $"Trial brand {Guid.NewGuid():N}";
+        var businessName = $"Trial brand {TestIds.Next()}";
         using var anonymousClient = fixture.ApiFactory.CreateClient();
 
         await anonymousClient.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand(businessName: businessName));
 
-        await using var context = fixture.CreateDbContext(Guid.Empty);
+        await using var context = fixture.CreateDbContext(0L);
         var organizationId = await context.Organizations.Where(organization => organization.Name == businessName).Select(organization => organization.Id).SingleAsync();
         var subscription = await context.Subscriptions.SingleAsync(subscription => subscription.SubscriberId == organizationId);
         subscription.ExpiredOn.ShouldBe(DateOnly.FromDateTime(BusinessApiFactory.Now.UtcDateTime).AddDays(TrialDays - 1));

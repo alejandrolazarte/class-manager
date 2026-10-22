@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record RestoreOrderPaymentCommand(Guid OrderId, Guid PaymentId) : ICommand;
+public sealed record RestoreOrderPaymentCommand(long OrderId, long PaymentId) : ICommand;
 
 public sealed class RestoreOrderPaymentUseCase(
     IOrderRepository orderRepository,

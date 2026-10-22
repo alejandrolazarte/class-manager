@@ -1,3 +1,4 @@
+using System.Globalization;
 using Azure.Data.Tables;
 using ClassManager.Infrastructure.Audit;
 
@@ -12,14 +13,14 @@ public sealed class Then_the_newest_comes_first(ApiFixture fixture)
     public async Task Then_the_newest_comes_first_Run()
     {
         var serviceClient = new TableServiceClient(fixture.StorageConnectionString);
-        var tenantId = Guid.CreateVersion7();
+        var tenantId = TestIds.Next();
         var older = CommandAuditEntries.Succeeded(tenantId, CommandAuditEntries.OccurredAt);
         var newer = CommandAuditEntries.Succeeded(tenantId, CommandAuditEntries.OccurredAt.AddMinutes(1));
 
         await new TableCommandAuditStore(serviceClient).WriteAsync([older, newer], CancellationToken.None);
 
         var rows = await serviceClient.GetTableClient(TableOfTheMonth)
-            .QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString())
+            .QueryAsync<TableEntity>(stored => stored.PartitionKey == tenantId.ToString(CultureInfo.InvariantCulture))
             .ToListAsync();
         rows.Select(row => row.GetDateTimeOffset(nameof(CommandAuditEntry.OccurredAt))).ShouldBe([newer.OccurredAt, older.OccurredAt]);
     }

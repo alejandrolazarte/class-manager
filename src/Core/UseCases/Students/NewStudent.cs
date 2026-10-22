@@ -7,4 +7,4 @@ public sealed record NewStudent(
     [property: AuditPersonal] DateOnly? BirthDate,
     [property: AuditPersonal] string? Notes,
     [property: AuditPersonal] string? Email = null,
-    Guid? SamePersonUserId = null);
+    long? SamePersonUserId = null);

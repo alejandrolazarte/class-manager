@@ -6,7 +6,7 @@ public interface ISoftDeletable
 
     DateTimeOffset? DeletedAt { get; }
 
-    Guid? DeletedByUserId { get; }
+    long? DeletedByUserId { get; }
 
     void Delete(DateTimeOffset deletedAt);
 }

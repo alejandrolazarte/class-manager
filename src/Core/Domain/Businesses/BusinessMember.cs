@@ -15,25 +15,24 @@ public sealed class BusinessMember : ITenantOwned, IAuditable, ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid UserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long UserId { get; private set; }
     public User User { get; private set; } = null!;
     public BusinessRole Role { get; private set; }
-    public Guid? CustomRoleId { get; private set; }
-    public Guid? InstructorId { get; private set; }
+    public long? CustomRoleId { get; private set; }
+    public long? InstructorId { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
 
-    public static BusinessMember CreateBranchOwner(Guid businessId, User user, Guid? instructorId = null) =>
+    public static BusinessMember CreateBranchOwner(long businessId, User user, long? instructorId = null) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             TenantId = businessId,
             UserId = user.Id,
             User = user,
@@ -41,7 +40,7 @@ public sealed class BusinessMember : ITenantOwned, IAuditable, ISoftDeletable
             InstructorId = instructorId,
         };
 
-    public static Result<BusinessMember> Create(Guid businessId, User user, MemberRole role, Guid? instructorId)
+    public static Result<BusinessMember> Create(long businessId, User user, MemberRole role, long? instructorId)
     {
         if (ValidateRole(role, instructorId) is { } error)
         {
@@ -50,7 +49,6 @@ public sealed class BusinessMember : ITenantOwned, IAuditable, ISoftDeletable
 
         return new BusinessMember
         {
-            Id = Guid.CreateVersion7(),
             TenantId = businessId,
             UserId = user.Id,
             User = user,
@@ -60,7 +58,7 @@ public sealed class BusinessMember : ITenantOwned, IAuditable, ISoftDeletable
         };
     }
 
-    public Result ChangeRole(MemberRole role, Guid? instructorId)
+    public Result ChangeRole(MemberRole role, long? instructorId)
     {
         if (ValidateRole(role, instructorId) is { } error)
         {
@@ -73,7 +71,7 @@ public sealed class BusinessMember : ITenantOwned, IAuditable, ISoftDeletable
         return Result.Success();
     }
 
-    public static ResultError? ValidateRole(MemberRole role, Guid? instructorId) =>
+    public static ResultError? ValidateRole(MemberRole role, long? instructorId) =>
         instructorId is null && role.NeedsInstructor
             ? new ResultError(MemberErrorCodes.InstructorRequired, InstructorRequiredMessage, ErrorKind.Validation) { FieldName = nameof(InstructorId) }
             : null;

@@ -201,7 +201,7 @@ internal sealed class OrderNotificationService(
                     .Select(account => new OrderEmailRecipient(account.Email, EmailTexts.For(account.PreferredLanguage))),
             ];
 
-    private static IReadOnlySet<string> PermissionsOf(BusinessMember member, Dictionary<Guid, CustomRole> customRoles) =>
+    private static IReadOnlySet<string> PermissionsOf(BusinessMember member, Dictionary<long, CustomRole> customRoles) =>
         member.CustomRoleId is { } customRoleId
             ? customRoles.TryGetValue(customRoleId, out var customRole) ? MemberRole.Custom(customRole).Permissions : new HashSet<string>()
             : SystemRolePermissions.Of(member.Role);

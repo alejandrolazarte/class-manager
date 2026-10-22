@@ -10,10 +10,10 @@ namespace ClassManager.Core.UseCases.Fees;
 
 public sealed record SetClientBillingPlanRequest(BillingPlanKind? Kind, decimal? CustomFee, string? EffectiveFrom)
 {
-    public SetClientBillingPlanCommand ToCommand(Guid clientId) => new(clientId, Kind, CustomFee, EffectiveFrom);
+    public SetClientBillingPlanCommand ToCommand(long clientId) => new(clientId, Kind, CustomFee, EffectiveFrom);
 }
 
-public sealed record SetClientBillingPlanCommand(Guid ClientId, BillingPlanKind? Kind, decimal? CustomFee, [property: AuditPlain] string? EffectiveFrom) : ICommand;
+public sealed record SetClientBillingPlanCommand(long ClientId, BillingPlanKind? Kind, decimal? CustomFee, [property: AuditPlain] string? EffectiveFrom) : ICommand;
 
 public sealed class SetClientBillingPlanUseCase(
     IClientRepository clientRepository,

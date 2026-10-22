@@ -1,3 +1,3 @@
 namespace ClassManager.Backoffice.Core.Logs;
 
-public sealed record LoggedBranch(Guid BranchId, string BranchName, Guid BrandId, string BrandName);
+public sealed record LoggedBranch(long BranchId, string BranchName, long BrandId, string BrandName);

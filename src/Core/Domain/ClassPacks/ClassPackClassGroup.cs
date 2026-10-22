@@ -9,15 +9,15 @@ public sealed class ClassPackClassGroup : ITenantOwned, IAuditable
     {
     }
 
-    public Guid TenantId { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid ClassPackId { get; private set; }
-    public Guid ClassGroupId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long ClassPackId { get; private set; }
+    public long ClassGroupId { get; private set; }
 
-    public static ClassPackClassGroup Create(Guid classPackId, Guid classGroupId) =>
+    public static ClassPackClassGroup Create(long classPackId, long classGroupId) =>
         new()
         {
             ClassPackId = classPackId,

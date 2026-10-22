@@ -9,7 +9,6 @@ internal sealed class DefaultMonthlyFeeChangeConfiguration : IEntityTypeConfigur
     public void Configure(EntityTypeBuilder<DefaultMonthlyFeeChange> builder)
     {
         builder.HasKey(change => change.Id);
-        builder.Property(change => change.Id).ValueGeneratedNever();
         builder.Property(change => change.BillingMode).HasConversion<string>().HasMaxLength(BillingModeMaxLength);
         builder.Property(change => change.Amount).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
 

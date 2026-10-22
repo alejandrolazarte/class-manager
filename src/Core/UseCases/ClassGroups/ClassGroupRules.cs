@@ -15,7 +15,7 @@ internal static class ClassGroupRules
 
     public static async Task<Result<Instructor>> FindActiveInstructorAsync(
         IInstructorRepository instructorRepository,
-        Guid? instructorId,
+        long? instructorId,
         CancellationToken cancellationToken)
     {
         var instructor = instructorId is null ? null : await instructorRepository.GetByIdAsync(instructorId.Value, cancellationToken);
@@ -29,8 +29,8 @@ internal static class ClassGroupRules
 
     public static async Task<ResultError?> FindInstructorConflictAsync(
         IClassGroupRepository classGroupRepository,
-        Guid instructorId,
-        Guid classGroupId,
+        long instructorId,
+        long classGroupId,
         ClassSchedule schedule,
         CancellationToken cancellationToken)
     {

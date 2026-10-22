@@ -22,10 +22,10 @@ public sealed record StudentAppNewsItemResponse(
     string? ClassName,
     string? InstructorFullName,
     DateOnly? ClassDate,
-    Guid? OrderId,
+    long? OrderId,
     string? ClassStartTime = null)
 {
-    public Guid? AnnouncementId { get; init; }
+    public long? AnnouncementId { get; init; }
 
     public AnnouncementCategory? Category { get; init; }
 

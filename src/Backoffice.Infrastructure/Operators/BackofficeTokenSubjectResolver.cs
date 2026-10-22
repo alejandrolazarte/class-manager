@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Backoffice.Core.Operators;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Security.Tokens;
@@ -9,7 +10,7 @@ internal sealed class BackofficeTokenSubjectResolver(
     IPlatformOperatorDirectory operatorDirectory)
     : ITokenSubjectResolver
 {
-    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, string? kind, CancellationToken cancellationToken)
+    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, long? tenantId, string? kind, CancellationToken cancellationToken)
     {
         if (kind != BackofficeSession.Kind || !await loginRepository.HasEnabledLoginAsync(userId, cancellationToken))
         {
@@ -28,6 +29,6 @@ internal sealed class BackofficeTokenSubjectResolver(
             platformOperator.BusinessId,
             platformOperator.Role.ToString(),
             BackofficeSession.Kind,
-            new Dictionary<string, string> { [SessionClaimTypes.UserId] = platformOperator.UserId.ToString() });
+            new Dictionary<string, string> { [SessionClaimTypes.UserId] = platformOperator.UserId.ToString(CultureInfo.InvariantCulture) });
     }
 }

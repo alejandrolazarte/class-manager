@@ -12,7 +12,7 @@ namespace ClassManager.Backoffice.Core.UseCases;
 public sealed record ListOperatorsQuery : IQuery;
 
 public sealed record OperatorResponse(
-    Guid LoginId,
+    long LoginId,
     string Provider,
     string Email,
     string? FullName,
@@ -21,20 +21,20 @@ public sealed record OperatorResponse(
     DateTimeOffset EnabledAt,
     bool IsCurrentOperator);
 
-public sealed record AccessRequestResponse(Guid Id, string Provider, string Email, string Code, DateTimeOffset RequestedAt);
+public sealed record AccessRequestResponse(long Id, string Provider, string Email, string Code, DateTimeOffset RequestedAt);
 
-public sealed record PlatformTeamMemberResponse(Guid MemberId, string FullName, string? Email, string BranchName, BusinessRole Role);
+public sealed record PlatformTeamMemberResponse(long MemberId, string FullName, string? Email, string BranchName, BusinessRole Role);
 
 public sealed record OperatorListResponse(
     IReadOnlyList<OperatorResponse> Operators,
     IReadOnlyList<AccessRequestResponse> AccessRequests,
     IReadOnlyList<PlatformTeamMemberResponse> TeamMembers);
 
-public sealed record EnableOperatorCommand(Guid AccessRequestId, Guid MemberId, BusinessRole Role) : ICommand;
+public sealed record EnableOperatorCommand(long AccessRequestId, long MemberId, BusinessRole Role) : ICommand;
 
-public sealed record DisableOperatorCommand(Guid LoginId) : ICommand;
+public sealed record DisableOperatorCommand(long LoginId) : ICommand;
 
-public sealed record OperatorLoginResponse(Guid LoginId);
+public sealed record OperatorLoginResponse(long LoginId);
 
 public sealed class ListOperatorsUseCase(
     IBackofficeLoginRepository loginRepository,

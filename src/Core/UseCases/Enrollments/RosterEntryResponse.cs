@@ -3,11 +3,11 @@ using ClassManager.Core.Abstractions.Persistence;
 namespace ClassManager.Core.UseCases.Enrollments;
 
 public sealed record RosterEntryResponse(
-    Guid EnrollmentId,
-    Guid StudentId,
+    long EnrollmentId,
+    long StudentId,
     string StudentFullName,
     DateOnly? BirthDate,
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     DateOnly StartDate,
     DateOnly? EndDate)

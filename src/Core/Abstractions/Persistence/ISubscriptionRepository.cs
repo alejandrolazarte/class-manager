@@ -13,5 +13,5 @@ public interface ISubscriptionRepository
 
     Task<IReadOnlyList<PlanFeature>> ListPlanFeaturesAsync(CancellationToken cancellationToken);
 
-    Task<Subscription?> GetCurrentAsync(Guid subscriberId, CancellationToken cancellationToken);
+    Task<Subscription?> GetCurrentAsync(long subscriberId, CancellationToken cancellationToken);
 }

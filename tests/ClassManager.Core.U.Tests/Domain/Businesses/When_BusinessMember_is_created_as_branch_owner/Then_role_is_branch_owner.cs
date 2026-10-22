@@ -7,10 +7,10 @@ public sealed class Then_role_is_branch_owner
     [Fact]
     public void Then_role_is_branch_owner_Run()
     {
-        var businessId = Guid.CreateVersion7();
+        var businessId = TestIds.Next();
         var userId = Guid.CreateVersion7();
 
-        var member = BusinessMember.CreateBranchOwner(businessId, TestData.UserOfAccount(userId));
+        var member = BusinessMember.CreateBranchOwner(businessId, TestData.UserOfAccount(userId)).WithId();
 
         member.Role.ShouldBe(BusinessRole.BranchOwner);
         member.TenantId.ShouldBe(businessId);

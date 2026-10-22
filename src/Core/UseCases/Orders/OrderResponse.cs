@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Orders;
 namespace ClassManager.Core.UseCases.Orders;
 
 public sealed record OrderLineResponse(
-    Guid Id,
+    long Id,
     OrderLineKind Kind,
     string Name,
     int Quantity,
@@ -13,14 +13,14 @@ public sealed record OrderLineResponse(
     decimal Total,
     int RefundedQuantity,
     decimal RefundedAmount,
-    Guid? ClassPackPurchaseId);
+    long? ClassPackPurchaseId);
 
-public sealed record OrderPaymentResponse(Guid Id, decimal Amount, PaymentMethod Method, DateOnly PaidOn, Guid? RecordedByUserId);
+public sealed record OrderPaymentResponse(long Id, decimal Amount, PaymentMethod Method, DateOnly PaidOn, long? RecordedByUserId);
 
 public sealed record OrderResponse(
-    Guid Id,
+    long Id,
     int Number,
-    Guid? ClientId,
+    long? ClientId,
     string? ClientFullName,
     OrderChannel Channel,
     OrderStatus Status,
@@ -40,7 +40,7 @@ public sealed record OrderResponse(
     IReadOnlyList<OrderLineResponse> Lines,
     DateTimeOffset? CancelledAt,
     DeliveryMethod Delivery,
-    Guid? DeliveryClassGroupId,
+    long? DeliveryClassGroupId,
     string? DeliveryClassGroupName,
     DateTimeOffset? ReadyAt)
 {

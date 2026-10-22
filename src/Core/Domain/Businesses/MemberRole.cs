@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Roles;
 
 namespace ClassManager.Core.Domain.Businesses;
 
-public sealed record MemberRole(BusinessRole Role, Guid? CustomRoleId, IReadOnlySet<string> Permissions)
+public sealed record MemberRole(BusinessRole Role, long? CustomRoleId, IReadOnlySet<string> Permissions)
 {
     public static MemberRole System(BusinessRole role) => new(role, null, SystemRolePermissions.Of(role));
 

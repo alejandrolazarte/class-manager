@@ -7,9 +7,9 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var announcement = Announcement.Create("Horarios de verano", null, TestData.Now, TestData.Today).Value!;
+        var announcement = Announcement.Create("Horarios de verano", null, TestData.Now, TestData.Today).Value!.WithId();
 
-        var reply = AnnouncementReply.Create(announcement, Guid.NewGuid(), isGoing: true, TestData.Now);
+        var reply = AnnouncementReply.Create(announcement, TestIds.Next(), isGoing: true, TestData.Now);
 
         reply.Error!.Code.ShouldBe(AnnouncementReply.NotAnEventCode);
     }

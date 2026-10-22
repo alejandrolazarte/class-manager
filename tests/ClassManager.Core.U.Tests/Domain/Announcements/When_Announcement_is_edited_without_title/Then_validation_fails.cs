@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var announcement = Announcement.Create("Feriado", null, TestData.Now, TestData.Today).Value!;
+        var announcement = Announcement.Create("Feriado", null, TestData.Now, TestData.Today).Value!.WithId();
 
         var result = announcement.Edit(" ", null, AnnouncementCategory.News, null, null, TestData.Today);
 

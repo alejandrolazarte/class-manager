@@ -7,7 +7,7 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Clients;
 
-public sealed record SeparateClientCommand(Guid ClientId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
+public sealed record SeparateClientCommand(long ClientId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
 
 public sealed class SeparateClientUseCase(
     IClientRepository clientRepository,
@@ -49,7 +49,7 @@ public sealed class SeparateClientUseCase(
         person.Value!.ChangePhoneNumber(previousPerson.PhoneNumber);
         client.ChangePerson(person.Value);
         var familyStudents = await studentRepository.ListByClientForUpdateAsync(client.Id, cancellationToken);
-        var movedStudentIds = new HashSet<Guid?> { null };
+        var movedStudentIds = new HashSet<long?> { null };
         foreach (var student in familyStudents.Where(student => student.UserId == previousPerson.Id))
         {
             student.ChangePerson(person.Value);

@@ -11,7 +11,7 @@ public sealed class Then_returns_validation
         var builder = new SessionUseCaseBuilder();
 
         var response = await builder.BuildRecord().ExecuteAsync(
-            new RecordAttendanceCommand(builder.ClassGroup.Id, TestData.Today, Guid.CreateVersion7(), AttendanceStatus.Present), CancellationToken.None);
+            new RecordAttendanceCommand(builder.ClassGroup.Id, TestData.Today, TestIds.Next(), AttendanceStatus.Present), CancellationToken.None);
 
         response.Error!.Code.ShouldBe(SessionErrorCodes.StudentNotEnrolled);
     }

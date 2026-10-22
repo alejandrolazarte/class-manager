@@ -12,6 +12,6 @@ public sealed class Then_every_instructor_is_included
 
         var scope = await scopes.ForInstructorsAsync(Permissions.Sessions.ViewAll, CancellationToken.None);
 
-        scope.Includes(Guid.CreateVersion7()).ShouldBeTrue();
+        scope.Includes(TestIds.Next()).ShouldBeTrue();
     }
 }

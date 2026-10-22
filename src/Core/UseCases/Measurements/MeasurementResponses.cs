@@ -3,7 +3,7 @@ using ClassManager.Core.Domain.Measurements;
 namespace ClassManager.Core.UseCases.Measurements;
 
 public sealed record MeasurementResponse(
-    Guid Id,
+    long Id,
     string Name,
     MeasurementKind Kind,
     string Unit,
@@ -23,9 +23,9 @@ public sealed record MeasurementResponse(
 }
 
 public sealed record MeasurementRecordResponse(
-    Guid Id,
-    Guid StudentId,
-    Guid MeasurementId,
+    long Id,
+    long StudentId,
+    long MeasurementId,
     DateOnly MeasuredOn,
     decimal Value,
     string? Note,
@@ -52,11 +52,11 @@ public sealed record StudentMeasurementResponse(
 internal static class StudentMeasurements
 {
     public static IReadOnlyList<StudentMeasurementResponse> For(
-        Guid studentId,
+        long studentId,
         IEnumerable<MeasurementDefinition> definitions,
         IReadOnlyList<MeasurementRecord> records,
         IReadOnlyList<MeasurementGoal> goals,
-        IReadOnlyDictionary<Guid, string> recorderNames) =>
+        IReadOnlyDictionary<long, string> recorderNames) =>
     [
         .. definitions.Select(definition => new StudentMeasurementResponse(
             MeasurementResponse.From(definition),

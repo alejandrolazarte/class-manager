@@ -8,7 +8,7 @@ public sealed class Then_it_is_hidden
     public void Then_it_is_hidden_Run()
     {
         var announcement = Announcement.Create(
-            "Feriado", null, TestData.Now, TestData.Today, visibleUntil: TestData.Today.AddDays(3)).Value!;
+            "Feriado", null, TestData.Now, TestData.Today, visibleUntil: TestData.Today.AddDays(3)).Value!.WithId();
 
         announcement.IsVisibleOn(TestData.Today.AddDays(3)).ShouldBeTrue();
         announcement.IsVisibleOn(TestData.Today.AddDays(4)).ShouldBeFalse();

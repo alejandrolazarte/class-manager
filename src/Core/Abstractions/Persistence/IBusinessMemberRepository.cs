@@ -10,13 +10,13 @@ public interface IBusinessMemberRepository
 
     Task<IReadOnlyList<BusinessMember>> ListAsync(CancellationToken cancellationToken);
 
-    Task<BusinessMember?> GetForUpdateAsync(Guid memberId, CancellationToken cancellationToken);
+    Task<BusinessMember?> GetForUpdateAsync(long memberId, CancellationToken cancellationToken);
 
     Task<bool> IsAccountMemberAsync(Guid accountId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(Guid customRoleId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<BusinessMember>> ListByCustomRoleAsync(long customRoleId, CancellationToken cancellationToken);
 
-    Task<bool> IsInstructorLinkedAsync(Guid instructorId, Guid? exceptMemberId, CancellationToken cancellationToken);
+    Task<bool> IsInstructorLinkedAsync(long instructorId, long? exceptMemberId, CancellationToken cancellationToken);
 
-    Task<Guid?> FindAccountIdByInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
+    Task<Guid?> FindAccountIdByInstructorAsync(long instructorId, CancellationToken cancellationToken);
 }

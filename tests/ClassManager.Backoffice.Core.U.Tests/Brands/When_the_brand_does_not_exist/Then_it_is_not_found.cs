@@ -9,7 +9,7 @@ public sealed class Then_it_is_not_found
     {
         var scenario = new BrandsScenario();
 
-        var result = await scenario.GetAsync(Guid.CreateVersion7());
+        var result = await scenario.GetAsync(TestIds.Next());
 
         result.Error!.Kind.ShouldBe(ErrorKind.NotFound);
     }

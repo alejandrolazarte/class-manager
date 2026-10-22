@@ -7,7 +7,7 @@ public sealed class Then_it_is_no_longer_pinned
     [Fact]
     public void Then_it_is_no_longer_pinned_Run()
     {
-        var announcement = Announcement.Create("Horarios de verano", null, TestData.Now, TestData.Today).Value!;
+        var announcement = Announcement.Create("Horarios de verano", null, TestData.Now, TestData.Today).Value!.WithId();
         announcement.Pin();
 
         announcement.Unpin();

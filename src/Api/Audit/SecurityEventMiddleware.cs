@@ -73,7 +73,7 @@ internal sealed class SecurityEventMiddleware(
         return isRejection ? endpoint?.Metadata.GetMetadata<SecurityEventOnRejection>()?.Event : null;
     }
 
-    private static Guid? TenantIdOf(ITenantContext tenantContext)
+    private static long? TenantIdOf(ITenantContext tenantContext)
     {
         try
         {

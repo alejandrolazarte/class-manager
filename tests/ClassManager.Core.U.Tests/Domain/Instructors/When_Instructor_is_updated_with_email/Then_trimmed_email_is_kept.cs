@@ -9,7 +9,7 @@ public sealed class Then_trimmed_email_is_kept
     [Fact]
     public void Then_trimmed_email_is_kept_Run()
     {
-        var instructor = Instructor.Create(TestData.InstructorFullName, TestData.Now).Value!;
+        var instructor = Instructor.Create(TestData.InstructorFullName, TestData.Now).Value!.WithId();
 
         instructor.Update(TestData.InstructorFullName, $"  {Email} ");
 

@@ -6,7 +6,7 @@
 
 DECLARE @AccessRequestCode nvarchar(6) = N'K7-3QF';
 DECLARE @AccountEmail nvarchar(256) = N'owner@example.com';
-DECLARE @PlatformOrganizationId uniqueidentifier = '00000000-0000-0000-0000-000000000000';
+DECLARE @PlatformOrganizationId bigint = 0;
 DECLARE @BranchName nvarchar(120) = NULL;
 DECLARE @Role nvarchar(20) = N'PlatformOperator';
 
@@ -16,7 +16,7 @@ SET QUOTED_IDENTIFIER ON;
 IF @Role NOT IN (N'PlatformOperator', N'PlatformReader')
     THROW 50000, 'The role must be PlatformOperator or PlatformReader.', 1;
 
-DECLARE @AccessRequestId uniqueidentifier;
+DECLARE @AccessRequestId bigint;
 DECLARE @Provider nvarchar(40);
 DECLARE @ProviderKey nvarchar(255);
 DECLARE @ProviderEmail nvarchar(256);
@@ -33,7 +33,7 @@ DECLARE @AccountId uniqueidentifier = (
 IF @AccountId IS NULL
     THROW 50002, 'There is no account with that email.', 1;
 
-DECLARE @Members TABLE (MemberId uniqueidentifier);
+DECLARE @Members TABLE (MemberId bigint);
 INSERT INTO @Members
 SELECT member.Id
 FROM BusinessMembers member
@@ -53,8 +53,8 @@ UPDATE BusinessMembers
 SET Role = @Role, CustomRoleId = NULL, InstructorId = NULL, UpdatedAt = @Now
 WHERE Id = (SELECT MemberId FROM @Members);
 
-INSERT INTO backoffice.BackofficeLogins (Id, Provider, ProviderKey, AccountId, Email, EnabledAt, EnabledByUserId)
-VALUES (NEWID(), @Provider, @ProviderKey, @AccountId, @ProviderEmail, @Now, NULL);
+INSERT INTO backoffice.BackofficeLogins (Provider, ProviderKey, AccountId, Email, EnabledAt, EnabledByUserId)
+VALUES (@Provider, @ProviderKey, @AccountId, @ProviderEmail, @Now, NULL);
 
 DELETE FROM backoffice.BackofficeAccessRequests WHERE Id = @AccessRequestId;
 

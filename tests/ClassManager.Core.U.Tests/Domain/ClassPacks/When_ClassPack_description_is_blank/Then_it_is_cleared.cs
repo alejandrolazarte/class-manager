@@ -7,7 +7,7 @@ public sealed class Then_it_is_cleared
     [Fact]
     public void Then_it_is_cleared_Run()
     {
-        var pack = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!;
+        var pack = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!.WithId();
         pack.Describe("Para quienes empiezan");
 
         pack.Describe("   ");

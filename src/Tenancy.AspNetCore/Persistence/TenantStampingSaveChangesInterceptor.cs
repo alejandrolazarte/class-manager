@@ -48,7 +48,7 @@ public sealed class TenantStampingSaveChangesInterceptor(ITenantContext tenantCo
 
     private void StampAddedEntity(EntityEntry<ITenantOwned> entry)
     {
-        if (entry.Entity.TenantId == Guid.Empty)
+        if (entry.Entity.TenantId == 0L)
         {
             entry.Property(nameof(ITenantOwned.TenantId)).CurrentValue = tenantContext.TenantId;
             return;
@@ -57,7 +57,7 @@ public sealed class TenantStampingSaveChangesInterceptor(ITenantContext tenantCo
         EnsureBelongsToCurrentTenant(entry.Entity.TenantId);
     }
 
-    private void EnsureBelongsToCurrentTenant(Guid entityTenantId)
+    private void EnsureBelongsToCurrentTenant(long entityTenantId)
     {
         if (entityTenantId != tenantContext.TenantId)
         {

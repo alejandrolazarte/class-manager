@@ -35,6 +35,8 @@ dotnet ef migrations add <Name> --project src/Security --startup-project src/Api
 
 Integration tests don't need any of this: `ApiFixture` starts its own SQL Server container and migrates both contexts.
 
+A development database created before the move to `bigint` ids ([plan](20261022-bigint-ids/plan.md)) can't be migrated: its migrations were replaced by a new `Initial` one. Drop it and apply the migrations again (`DROP DATABASE`, then the two `dotnet ef database update` commands above), then load the demo data again.
+
 ## JWT signing key
 
 The API refuses to start without `Authentication:Jwt:SigningKey` (at least 32 bytes, validated at startup). It never goes in `appsettings.json`. Locally, store it with user secrets (the `Api` project has a `UserSecretsId`):

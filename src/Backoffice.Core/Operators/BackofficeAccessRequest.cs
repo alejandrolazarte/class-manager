@@ -8,7 +8,7 @@ public sealed class BackofficeAccessRequest
     {
     }
 
-    public Guid Id { get; private set; }
+    public long Id { get; private set; }
     public string Provider { get; private set; } = string.Empty;
     public string ProviderKey { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
@@ -17,7 +17,6 @@ public sealed class BackofficeAccessRequest
 
     public static BackofficeAccessRequest Create(ExternalIdentity identity, string code, DateTimeOffset requestedAt) => new()
     {
-        Id = Guid.CreateVersion7(),
         Provider = identity.Provider,
         ProviderKey = identity.ProviderKey,
         Email = identity.Email,

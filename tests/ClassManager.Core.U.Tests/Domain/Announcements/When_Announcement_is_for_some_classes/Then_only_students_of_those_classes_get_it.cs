@@ -7,12 +7,12 @@ public sealed class Then_only_students_of_those_classes_get_it
     [Fact]
     public void Then_only_students_of_those_classes_get_it_Run()
     {
-        var targetClassGroupId = Guid.NewGuid();
+        var targetClassGroupId = TestIds.Next();
         var announcement = Announcement.Create(
-            "Cambia el horario", null, TestData.Now, TestData.Today, classGroupIds: [targetClassGroupId]).Value!;
+            "Cambia el horario", null, TestData.Now, TestData.Today, classGroupIds: [targetClassGroupId]).Value!.WithId();
 
-        announcement.IsFor([Guid.NewGuid(), targetClassGroupId]).ShouldBeTrue();
-        announcement.IsFor([Guid.NewGuid()]).ShouldBeFalse();
+        announcement.IsFor([TestIds.Next(), targetClassGroupId]).ShouldBeTrue();
+        announcement.IsFor([TestIds.Next()]).ShouldBeFalse();
         announcement.IsFor([]).ShouldBeFalse();
         announcement.IsForEveryone.ShouldBeFalse();
     }

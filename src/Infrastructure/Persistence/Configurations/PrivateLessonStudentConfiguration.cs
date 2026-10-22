@@ -9,7 +9,6 @@ internal sealed class PrivateLessonStudentConfiguration : IEntityTypeConfigurati
     public void Configure(EntityTypeBuilder<PrivateLessonStudent> builder)
     {
         builder.HasKey(lessonStudent => lessonStudent.Id);
-        builder.Property(lessonStudent => lessonStudent.Id).ValueGeneratedNever();
         builder.Property(lessonStudent => lessonStudent.Status).HasConversion<string>().HasMaxLength(StatusMaxLength);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(lessonStudent => lessonStudent.TenantId).OnDelete(DeleteBehavior.Restrict);

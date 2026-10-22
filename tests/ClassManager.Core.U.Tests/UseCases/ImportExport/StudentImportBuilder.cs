@@ -33,8 +33,8 @@ internal sealed class StudentImportBuilder
             .ReturnsAsync((IReadOnlyCollection<PhoneNumber> phoneNumbers, CancellationToken _) =>
                 ExistingClients.Where(client => phoneNumbers.Contains(client.User.PhoneNumber)).ToList());
         Students
-            .Setup(repository => repository.ListByClientIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyCollection<Guid> clientIds, CancellationToken _) =>
+            .Setup(repository => repository.ListByClientIdsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyCollection<long> clientIds, CancellationToken _) =>
                 ExistingStudents.Where(student => clientIds.Contains(student.ClientId)).ToList());
         Clients.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => ExistingClients);
         Students.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => ExistingStudents);
@@ -59,7 +59,7 @@ internal sealed class StudentImportBuilder
 
     public Client AddExistingClient(string fullName, string phoneNumber, string? email, string? notes)
     {
-        var client = Client.Create(fullName, PhoneNumber.Create(phoneNumber, TestData.DefaultCountryCallingCode).Value!, email, notes, TestData.Now).Value!;
+        var client = Client.Create(fullName, PhoneNumber.Create(phoneNumber, TestData.DefaultCountryCallingCode).Value!, email, notes, TestData.Now).Value!.WithId();
         ExistingClients.Add(client);
         return client;
     }

@@ -15,22 +15,23 @@ public sealed class ClassFeedback : ITenantOwned, IAuditable, ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClassSessionId { get; private set; }
-    public Guid StudentId { get; private set; }
-    public Guid InstructorId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClassSessionId { get; private set; }
+    public ClassSession? Session { get; private set; }
+    public long StudentId { get; private set; }
+    public long InstructorId { get; private set; }
     public string Text { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public static Result<ClassFeedback> Create(
-        Guid classSessionId, Guid studentId, Guid instructorId, string? text, DateTimeOffset createdAt)
+        ClassSession session, long studentId, long instructorId, string? text, DateTimeOffset createdAt)
     {
         var validation = Validate(text);
         if (validation.IsFailure)
@@ -40,8 +41,8 @@ public sealed class ClassFeedback : ITenantOwned, IAuditable, ISoftDeletable
 
         return new ClassFeedback
         {
-            Id = Guid.CreateVersion7(),
-            ClassSessionId = classSessionId,
+            ClassSessionId = session.Id,
+            Session = session,
             StudentId = studentId,
             InstructorId = instructorId,
             Text = text!.Trim(),
@@ -50,7 +51,7 @@ public sealed class ClassFeedback : ITenantOwned, IAuditable, ISoftDeletable
         };
     }
 
-    public Result Rewrite(string? text, Guid instructorId, DateTimeOffset updatedAt)
+    public Result Rewrite(string? text, long instructorId, DateTimeOffset updatedAt)
     {
         var validation = Validate(text);
         if (validation.IsFailure)

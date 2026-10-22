@@ -7,10 +7,10 @@ public sealed class Then_returns_conflict
     [Fact]
     public void Then_returns_conflict_Run()
     {
-        var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
+        var session = ClassSession.Create(TestIds.Next(), TestData.Today, TestData.Now).WithId();
         session.Cancel("Feriado", TestData.Now);
 
-        var result = session.AssignSubstitute(Guid.CreateVersion7(), Guid.CreateVersion7(), TestData.Now);
+        var result = session.AssignSubstitute(TestIds.Next(), TestIds.Next(), TestData.Now);
 
         result.Error!.Code.ShouldBe(SessionErrorCodes.Cancelled);
     }

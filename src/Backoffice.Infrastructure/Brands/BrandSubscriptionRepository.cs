@@ -9,7 +9,7 @@ namespace ClassManager.Backoffice.Infrastructure.Brands;
 
 internal sealed class BrandSubscriptionRepository(AppDbContext context) : IBrandSubscriptionRepository
 {
-    public Task<bool> BrandExistsAsync(Guid brandId, CancellationToken cancellationToken) =>
+    public Task<bool> BrandExistsAsync(long brandId, CancellationToken cancellationToken) =>
         context.Organizations.AnyAsync(organization => organization.Id == brandId, cancellationToken);
 
     public async Task<IReadOnlyList<Plan>> ListActivePlansAsync(CancellationToken cancellationToken) =>
@@ -18,10 +18,10 @@ internal sealed class BrandSubscriptionRepository(AppDbContext context) : IBrand
     public async Task<IReadOnlyList<Feature>> ListFeaturesAsync(CancellationToken cancellationToken) =>
         await context.Features.AsNoTracking().ToListAsync(cancellationToken);
 
-    public Task<Subscription?> FindCurrentSubscriptionAsync(Guid brandId, CancellationToken cancellationToken) =>
+    public Task<Subscription?> FindCurrentSubscriptionAsync(long brandId, CancellationToken cancellationToken) =>
         context.Subscriptions.WhereNotDeleted().FirstOrDefaultAsync(subscription => subscription.SubscriberId == brandId, cancellationToken);
 
-    public async Task<IReadOnlyList<SubscriptionFeature>> ListAddOnsIncludingRemovedAsync(Guid subscriptionId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<SubscriptionFeature>> ListAddOnsIncludingRemovedAsync(long subscriptionId, CancellationToken cancellationToken) =>
         await context.SubscriptionFeatures.IncludeDeleted()
             .Where(addOn => addOn.SubscriptionId == subscriptionId)
             .ToListAsync(cancellationToken);

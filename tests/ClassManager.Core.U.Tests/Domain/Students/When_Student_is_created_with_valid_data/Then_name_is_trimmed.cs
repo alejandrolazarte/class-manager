@@ -7,12 +7,12 @@ public sealed class Then_name_is_trimmed
     [Fact]
     public void Then_name_is_trimmed_Run()
     {
-        var clientId = Guid.CreateVersion7();
+        var client = TestData.Client();
 
-        var student = Student.Create(clientId, "  Tomás Pérez ", TestData.Today, "  ", TestData.Today, TestData.Now);
+        var student = Student.Create(client, "  Tomás Pérez ", TestData.Today, "  ", TestData.Today, TestData.Now);
 
         student.Value!.User.FullName.ShouldBe("Tomás Pérez");
-        student.Value.ClientId.ShouldBe(clientId);
+        student.Value.ClientId.ShouldBe(client.Id);
         student.Value.Notes.ShouldBeNull();
     }
 }

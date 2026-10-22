@@ -14,7 +14,7 @@ public sealed class Then_it_is_marked_failed_at_once(ApiFixture fixture)
     {
         var recipient = BackgroundTaskRequests.UniqueRecipient();
         var payload = $$$"""{"message":{"to":"{{{recipient}}}"}}""";
-        await using (var context = fixture.CreateDbContext(Guid.Empty))
+        await using (var context = fixture.CreateDbContext(0L))
         {
             context.BackgroundTasks.Add(BackgroundTask.Create(RenamedTypeName, payload, null, BusinessApiFactory.Now, BusinessApiFactory.Now));
             await context.SaveChangesAsync();

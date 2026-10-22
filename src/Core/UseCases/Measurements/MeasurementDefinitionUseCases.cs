@@ -17,20 +17,20 @@ public sealed record CreateMeasurementCommand(
 
 public sealed record UpdateMeasurementRequest(string? Name, ImprovementDirection? ImprovesWhen, bool IsVisibleToStudents, bool IsRecordedByStudents)
 {
-    public UpdateMeasurementCommand ToCommand(Guid measurementId) =>
+    public UpdateMeasurementCommand ToCommand(long measurementId) =>
         new(measurementId, Name, ImprovesWhen, IsVisibleToStudents, IsRecordedByStudents);
 }
 
 public sealed record UpdateMeasurementCommand(
-    Guid MeasurementId,
+    long MeasurementId,
     [property: AuditPlain] string? Name,
     ImprovementDirection? ImprovesWhen,
     bool IsVisibleToStudents,
     bool IsRecordedByStudents) : ICommand;
 
-public sealed record DeleteMeasurementCommand(Guid MeasurementId) : ICommand;
+public sealed record DeleteMeasurementCommand(long MeasurementId) : ICommand;
 
-public sealed record RestoreMeasurementCommand(Guid MeasurementId) : ICommand;
+public sealed record RestoreMeasurementCommand(long MeasurementId) : ICommand;
 
 internal static class MeasurementDefinitionFailures
 {

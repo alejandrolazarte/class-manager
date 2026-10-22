@@ -14,7 +14,7 @@ public sealed class Then_returns_conflict
     {
         var business = TestData.Business();
         var memberAccountId = Guid.CreateVersion7();
-        var member = BusinessMember.CreateBranchOwner(business.Id, TestData.UserOfAccount(memberAccountId));
+        var member = BusinessMember.CreateBranchOwner(business.Id, TestData.UserOfAccount(memberAccountId)).WithId();
         var businesses = new Mock<IBusinessRepository>();
         businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(business);
         var businessMembers = new Mock<IBusinessMemberRepository>();
@@ -22,14 +22,14 @@ public sealed class Then_returns_conflict
         var organizationMembers = new Mock<IOrganizationMemberRepository>();
         organizationMembers
             .Setup(repository => repository.FindForUpdateAsync(business.OrganizationId, memberAccountId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OrganizationMember.CreateBrandOwner(business.OrganizationId, memberAccountId));
+            .ReturnsAsync(OrganizationMember.CreateBrandOwner(business.OrganizationId, memberAccountId).WithId());
         organizationMembers
             .Setup(repository => repository.ListBrandOwnerUserIdsAsync(business.OrganizationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([memberAccountId]);
         var currentMember = new Mock<ICurrentMember>();
         currentMember
             .Setup(current => current.GetAccessAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), business.Id, null, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
+            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), TestIds.Next(), business.Id, null, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
         var useCase = new SetBrandOwnerUseCase(
             businesses.Object,
             businessMembers.Object,

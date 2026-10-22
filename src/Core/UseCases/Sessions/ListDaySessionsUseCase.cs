@@ -19,8 +19,8 @@ public enum SessionKind
 
 public sealed record DaySessionResponse(
     SessionKind Kind,
-    Guid? ClassGroupId,
-    Guid? PrivateLessonId,
+    long? ClassGroupId,
+    long? PrivateLessonId,
     string ClassGroupName,
     DateOnly Date,
     string StartTime,
@@ -70,7 +70,7 @@ public sealed class ListDaySessionsUseCase(
             .ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
-        IReadOnlyCollection<Guid> sessionIds = [.. sessions.Values.Select(session => session.Id)];
+        IReadOnlyCollection<long> sessionIds = [.. sessions.Values.Select(session => session.Id)];
         var attendanceCounts = await attendanceRepository.CountBySessionsAsync(sessionIds, cancellationToken);
         var makeupCounts = await makeupBookingRepository.CountBySessionsAsync(sessionIds, cancellationToken);
         var packBookingCounts = await packBookingRepository.CountBySessionsAsync(sessionIds, cancellationToken);

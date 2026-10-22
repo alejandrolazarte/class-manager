@@ -7,7 +7,7 @@ using ClassManager.Core.Domain.ClassGroups;
 
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
-public sealed record RestorePrivateLessonCommand(Guid PrivateLessonId) : ICommand;
+public sealed record RestorePrivateLessonCommand(long PrivateLessonId) : ICommand;
 
 public sealed class RestorePrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,

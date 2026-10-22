@@ -6,9 +6,9 @@ public interface IInstructorRepository
 {
     void Add(Instructor instructor);
 
-    Task<Instructor?> GetByIdAsync(Guid instructorId, CancellationToken cancellationToken);
+    Task<Instructor?> GetByIdAsync(long instructorId, CancellationToken cancellationToken);
 
-    Task<Instructor?> GetForUpdateAsync(Guid instructorId, CancellationToken cancellationToken);
+    Task<Instructor?> GetForUpdateAsync(long instructorId, CancellationToken cancellationToken);
 
     Task<Instructor?> FindByNameAsync(string fullName, CancellationToken cancellationToken);
 

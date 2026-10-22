@@ -4,13 +4,13 @@ namespace ClassManager.Core.Abstractions.Security;
 
 public sealed record MemberAccess(
     Guid AccountId,
-    Guid? UserId,
-    Guid BusinessId,
+    long? UserId,
+    long BusinessId,
     BusinessRole? BranchRole,
-    Guid? InstructorId,
+    long? InstructorId,
     bool IsBrandOwner,
     IReadOnlySet<string> Permissions,
-    Guid? CustomRoleId = null)
+    long? CustomRoleId = null)
 {
     public bool HasPermission(string permission) => Permissions.Contains(permission);
 }

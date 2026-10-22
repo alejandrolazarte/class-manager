@@ -7,9 +7,9 @@ using ClassManager.Core.Domain.Documents;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
-public sealed record UploadClassMaterialFileCommand(Guid ClassGroupId, byte[] Content) : ICommand;
+public sealed record UploadClassMaterialFileCommand(long ClassGroupId, byte[] Content) : ICommand;
 
-public sealed record RemoveClassMaterialFileCommand(Guid ClassGroupId) : ICommand;
+public sealed record RemoveClassMaterialFileCommand(long ClassGroupId) : ICommand;
 
 public sealed class UploadClassMaterialFileUseCase(
     IClassGroupRepository classGroupRepository,

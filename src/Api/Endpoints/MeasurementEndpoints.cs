@@ -49,41 +49,41 @@ internal static class MeasurementEndpoints
     }
 
     private static async Task<IResult> UpdateMeasurementAsync(
-        Guid measurementId,
+        long measurementId,
         UpdateMeasurementRequest request,
         IUseCase<UpdateMeasurementCommand, MeasurementResponse> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(request.ToCommand(measurementId), cancellationToken)).ToOkResult();
 
     private static async Task<IResult> DeleteMeasurementAsync(
-        Guid measurementId,
+        long measurementId,
         IUseCase<DeleteMeasurementCommand, bool> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(new DeleteMeasurementCommand(measurementId), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent());
 
     private static async Task<IResult> RestoreMeasurementAsync(
-        Guid measurementId,
+        long measurementId,
         IUseCase<RestoreMeasurementCommand, bool> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(new RestoreMeasurementCommand(measurementId), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent());
 
     private static async Task<IResult> GetStudentMeasurementsAsync(
-        Guid studentId,
+        long studentId,
         IUseCase<GetStudentMeasurementsQuery, IReadOnlyList<StudentMeasurementResponse>> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(new GetStudentMeasurementsQuery(studentId), cancellationToken)).ToOkResult();
 
     private static async Task<IResult> RecordMeasurementAsync(
-        Guid studentId,
-        Guid measurementId,
+        long studentId,
+        long measurementId,
         RecordMeasurementRequest request,
         IUseCase<RecordMeasurementCommand, MeasurementRecordResponse> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(request.ToCommand(studentId, measurementId), cancellationToken)).ToOkResult();
 
     private static async Task<IResult> SetMeasurementGoalAsync(
-        Guid studentId,
-        Guid measurementId,
+        long studentId,
+        long measurementId,
         SetMeasurementGoalRequest request,
         IUseCase<SetMeasurementGoalCommand, bool> useCase,
         CancellationToken cancellationToken) =>
@@ -91,7 +91,7 @@ internal static class MeasurementEndpoints
 
     private static async Task<IResult> ListClassMeasurementRecordsAsync(
         DateOnly measuredOn,
-        Guid[] studentIds,
+        long[] studentIds,
         IUseCase<ListClassMeasurementRecordsQuery, IReadOnlyList<MeasurementRecordResponse>> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(new ListClassMeasurementRecordsQuery(measuredOn, studentIds), cancellationToken)).ToOkResult();
@@ -103,13 +103,13 @@ internal static class MeasurementEndpoints
         (await useCase.ExecuteAsync(command, cancellationToken)).ToOkResult();
 
     private static async Task<IResult> DeleteMeasurementRecordAsync(
-        Guid recordId,
+        long recordId,
         IUseCase<DeleteMeasurementRecordCommand, bool> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(new DeleteMeasurementRecordCommand(recordId), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent());
 
     private static async Task<IResult> RestoreMeasurementRecordAsync(
-        Guid recordId,
+        long recordId,
         IUseCase<RestoreMeasurementRecordCommand, bool> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(new RestoreMeasurementRecordCommand(recordId), cancellationToken)).ToHttpResult(_ => TypedResults.NoContent());
@@ -120,8 +120,8 @@ internal static class MeasurementEndpoints
         (await useCase.ExecuteAsync(new GetStudentAppMeasurementsQuery(), cancellationToken)).ToOkResult();
 
     private static async Task<IResult> RecordStudentAppMeasurementAsync(
-        Guid studentId,
-        Guid measurementId,
+        long studentId,
+        long measurementId,
         RecordMeasurementRequest request,
         IUseCase<RecordStudentAppMeasurementCommand, MeasurementRecordResponse> useCase,
         CancellationToken cancellationToken) =>

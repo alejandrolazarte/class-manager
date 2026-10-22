@@ -5,7 +5,7 @@ using ClassManager.Core.UseCases.Images;
 namespace ClassManager.Core.UseCases.ClassPacks;
 
 public sealed record ClassPackResponse(
-    Guid Id,
+    long Id,
     string Name,
     string? Description,
     int ClassCount,
@@ -13,7 +13,7 @@ public sealed record ClassPackResponse(
     int? ValidityMonths,
     bool IsActive,
     int? ClassDurationMinutes,
-    IReadOnlyList<Guid> ClassGroupIds,
+    IReadOnlyList<long> ClassGroupIds,
     IReadOnlyList<CatalogImageResponse> Images)
 {
     public static ClassPackResponse From(ClassPack classPack, IDocumentStorageService documentStorage) =>

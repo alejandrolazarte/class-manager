@@ -14,11 +14,11 @@ public sealed record UpdateProductRequest(
     bool IsVisibleInApp,
     IReadOnlyList<VariantChange>? Variants)
 {
-    public UpdateProductCommand ToCommand(Guid productId) => new(productId, Name, Description, Price, StockMode, IsVisibleInApp, Variants);
+    public UpdateProductCommand ToCommand(long productId) => new(productId, Name, Description, Price, StockMode, IsVisibleInApp, Variants);
 }
 
 public sealed record UpdateProductCommand(
-    Guid ProductId,
+    long ProductId,
     [property: AuditPlain] string? Name,
     [property: AuditPlain] string? Description,
     decimal? Price,

@@ -9,11 +9,11 @@ public sealed class Then_returns_conflict
     public async Task Then_returns_conflict_Run()
     {
         var builder = new SessionUseCaseBuilder();
-        var session = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now);
+        var session = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now).WithId();
         builder.Sessions.Setup(repository => repository.FindForUpdateAsync(builder.ClassGroup.Id, TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(session);
         builder.Attendances
             .Setup(repository => repository.ListBySessionAsync(session.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([Attendance.Create(session.Id, builder.EnrolledStudentId, AttendanceStatus.Present)]);
+            .ReturnsAsync([Attendance.Create(session, builder.EnrolledStudentId, AttendanceStatus.Present).WithId()]);
 
         var response = await builder.BuildCancel().ExecuteAsync(
             new CancelSessionCommand(builder.ClassGroup.Id, TestData.Today, "Feriado"), CancellationToken.None);

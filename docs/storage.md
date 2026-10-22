@@ -57,7 +57,7 @@ erDiagram
 - **One table for every file, link tables per owner.** `Documents` describes files; `ProductImages` and `ClassPackImages` link them with real foreign keys and a `Position`. A generic `OwnerType` + `OwnerId` column would have no foreign key, so the database could not stop orphaned or wrong links. A new kind of owner (a class photo, a student certificate) is one more link table.
 - **The path is stored, not the URL.** URLs are built when answering (`PublicUrlOf`). Moving to a CDN or another provider changes configuration, not data, and private documents can get signed links later without a migration.
 - **Visibility.** Shop photos are `Public`. `Private` exists so private documents (medical certificates, IDs) can use the same table and storage later: they go to the private container, and serving them needs short-lived signed links (SAS), which are not built yet. `PublicUrlOf` refuses private documents.
-- **Paths** are `<tenantId>/<products|class-packs>/<ownerId>/<documentId>.<extension>`. Each upload gets a new name, so the long cache header is safe.
+- **Paths** are `<tenantId>/<products|class-packs>/<ownerId>/<fileName>.<extension>`, where the file name is a random GUID and not the document id: ids are sequential, and a public URL must not be guessable by counting. Each upload gets a new name, so the long cache header is safe.
 - **How many photos.** A fixed rule, not a plan limit: up to 5 per product (`Product.MaximumImages`) and 1 per class pack (`ClassPack.MaximumImages`). It needs no column or table, and a pack that already had more photos keeps them.
 - **How much space.** The plan limit is the total size of the business's files, the `document-storage` feature, in MB (see [Document storage limit](#document-storage-limit)).
 
@@ -87,7 +87,7 @@ A class can share a link (`MaterialUrl`) and an uploaded PDF at the same time: t
 | `DELETE /api/class-groups/{id}/material` | Removes the file. 404 `class_group.material_file_not_found` if there is none |
 | `PUT /api/class-groups/{id}` with a `materialUrl` | Sets or clears the link and keeps the file |
 
-Paths are `<tenantId>/class-groups/<classGroupId>/<documentId>.pdf`. The student app returns the link and the file separately (`linkUrl`, `file`), and the student sees both inside the class: in Clases every group class opens its detail, which holds its actions ("Avisar que no voy", cancel a makeup or a pack booking) and its material.
+Paths are `<tenantId>/class-groups/<classGroupId>/<fileName>.pdf`, with a random file name. The student app returns the link and the file separately (`linkUrl`, `file`), and the student sees both inside the class: in Clases every group class opens its detail, which holds its actions ("Avisar que no voy", cancel a makeup or a pack booking) and its material.
 
 **Material files are public, like shop photos.** Decision (2026-10-08): a signed, short-lived link would only stop students from sharing the URL; they can still download the PDF and pass it on, as they can with printed material or a public Drive link. Private files stay for sensitive documents (medical certificates, IDs).
 
@@ -95,7 +95,7 @@ The app keeps the file change in the form and sends it on Guardar: the removal f
 
 ## Announcement photos
 
-An announcement can carry one photo (`AnnouncementImages`, the same link table shape as `ClassPackImages`), at `<tenantId>/announcements/<announcementId>/<documentId>.<extension>`, public like shop photos and counted against the document storage limit. `POST /api/announcements/{id}/images` and `DELETE /api/announcements/{id}/images/{documentId}` add and remove it. See [Better announcements](frontend/20261014-better-announcements/plan.md).
+An announcement can carry one photo (`AnnouncementImages`, the same link table shape as `ClassPackImages`), at `<tenantId>/announcements/<announcementId>/<fileName>.<extension>` (a random file name), public like shop photos and counted against the document storage limit. `POST /api/announcements/{id}/images` and `DELETE /api/announcements/{id}/images/{documentId}` add and remove it. See [Better announcements](frontend/20261014-better-announcements/plan.md).
 
 ## Document storage limit
 

@@ -31,7 +31,7 @@ internal static class ClientEndpoints
     }
 
     private static async Task<IResult> GetClientAsync(
-        Guid clientId,
+        long clientId,
         IUseCase<GetClientQuery, ClientDetailsResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -41,7 +41,7 @@ internal static class ClientEndpoints
     }
 
     private static async Task<IResult> SeparateClientAsync(
-        Guid clientId,
+        long clientId,
         SeparatePersonRequest request,
         IUseCase<SeparateClientCommand, SeparatedPersonResponse> useCase,
         CancellationToken cancellationToken)
@@ -52,7 +52,7 @@ internal static class ClientEndpoints
     }
 
     private static async Task<IResult> UpdateClientAsync(
-        Guid clientId,
+        long clientId,
         UpdateClientRequest request,
         IUseCase<UpdateClientCommand, ClientResponse> useCase,
         CancellationToken cancellationToken)

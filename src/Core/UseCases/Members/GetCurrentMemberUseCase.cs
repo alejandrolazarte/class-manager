@@ -9,13 +9,13 @@ namespace ClassManager.Core.UseCases.Members;
 public sealed record GetCurrentMemberQuery : IQuery;
 
 public sealed record CurrentMemberResponse(
-    Guid BusinessId,
+    long BusinessId,
     BusinessRole? BranchRole,
-    Guid? InstructorId,
+    long? InstructorId,
     bool IsBrandOwner,
     IReadOnlyList<string> Permissions,
-    Guid? CustomRoleId = null,
-    Guid? UserId = null,
+    long? CustomRoleId = null,
+    long? UserId = null,
     string? FullName = null,
     CurrentSubscriptionResponse? Subscription = null)
 {

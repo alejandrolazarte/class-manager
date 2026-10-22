@@ -6,7 +6,7 @@ namespace ClassManager.Infrastructure.Email;
 
 internal sealed class EmailBrandReader(AppDbContext context)
 {
-    public async Task<EmailBrand?> ReadAsync(Guid? businessId, CancellationToken cancellationToken)
+    public async Task<EmailBrand?> ReadAsync(long? businessId, CancellationToken cancellationToken)
     {
         if (businessId is not { } id)
         {

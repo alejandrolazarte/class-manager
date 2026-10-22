@@ -9,7 +9,7 @@ public sealed class Then_its_storage_is_rounded_up_to_megabytes
     {
         var scenario = new BrandsScenario().WithBrand(
             [],
-            branches: [new BrandBranch(Guid.CreateVersion7(), "Sede", "AR", BrandsScenario.Now, 3, 1, OneMegabyteAndOneByte)]);
+            branches: [new BrandBranch(TestIds.Next(), "Sede", "AR", BrandsScenario.Now, 3, 1, OneMegabyteAndOneByte)]);
 
         var brand = (await scenario.GetAsync()).Value!;
 

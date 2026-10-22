@@ -16,7 +16,7 @@ Date: 2026-09-24
 ## How the application plugs in
 
 ```text
-Core            entities implement ITenantOwned (Guid TenantId); use cases use ITenantContext / ITenantScope
+Core            entities implement ITenantOwned (long TenantId); use cases use ITenantContext / ITenantScope
   ▲
 Infrastructure  AppDbContext : ITenantDbContext → modelBuilder.ApplyTenantQueryFilters(this)
   │             AddTenantStamping() + AddInterceptors(TenantStampingSaveChangesInterceptor)

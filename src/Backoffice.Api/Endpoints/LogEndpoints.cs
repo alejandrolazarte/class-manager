@@ -12,7 +12,7 @@ internal static class LogEndpoints
     {
         endpoints.MapGet(BackofficeApiRoutes.CommandLog, async (
             DateOnly? day,
-            Guid? brandId,
+            long? brandId,
             IUseCase<ListCommandLogQuery, CommandLogResponse> useCase,
             CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new ListCommandLogQuery(day, brandId), cancellationToken)).ToOkResult())

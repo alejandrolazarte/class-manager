@@ -13,14 +13,14 @@ internal static class AccessRules
     public static Task<bool> CanReachClientsAsync(
         IAccessScopes accessScopes,
         IClientRepository clientRepository,
-        IEnumerable<Guid> clientIds,
+        IEnumerable<long> clientIds,
         CancellationToken cancellationToken) =>
         CanReachClientsAsync(accessScopes, clientRepository, clientIds, Permissions.Students.ViewAll, cancellationToken);
 
     public static async Task<bool> CanReachClientsAsync(
         IAccessScopes accessScopes,
         IClientRepository clientRepository,
-        IEnumerable<Guid> clientIds,
+        IEnumerable<long> clientIds,
         string everyClientPermission,
         CancellationToken cancellationToken)
     {

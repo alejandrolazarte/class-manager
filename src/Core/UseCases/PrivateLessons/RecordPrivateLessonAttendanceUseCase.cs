@@ -8,7 +8,7 @@ using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
-public sealed record RecordPrivateLessonAttendanceCommand(Guid PrivateLessonId, Guid StudentId, AttendanceStatus? Status) : ICommand;
+public sealed record RecordPrivateLessonAttendanceCommand(long PrivateLessonId, long StudentId, AttendanceStatus? Status) : ICommand;
 
 public sealed class RecordPrivateLessonAttendanceUseCase(
     IPrivateLessonRepository privateLessonRepository,

@@ -39,15 +39,15 @@ internal static class TestData
         Country.Create(SpainCountryCode, 2, SpainCallingCode, EuroCurrencyCode, SpainOwnAccountMinimumAge, MadridTimeZoneId);
 
     public static Business Business() =>
-        ClassManager.Core.Domain.Businesses.Business.Create(Guid.CreateVersion7(), "Demo business", "demo-business", Argentina(), BuenosAiresTimeZoneId, CurrencyCode, Now).Value!;
+        ClassManager.Core.Domain.Businesses.Business.Create(TestIds.Next(), "Demo business", "demo-business", Argentina(), BuenosAiresTimeZoneId, CurrencyCode, Now).Value!.WithId();
 
     public static PhoneNumber PhoneNumber() =>
         ClassManager.Core.Domain.Clients.PhoneNumber.Create(ClientPhoneNumber, DefaultCountryCallingCode).Value!;
 
-    public static User UserOfAccount(Guid accountId) => User.CreateForAccount(accountId, ClientFullName, null, Now);
+    public static User UserOfAccount(Guid accountId) => User.CreateForAccount(accountId, ClientFullName, null, Now).WithId();
 
     public static Client Client() =>
-        ClassManager.Core.Domain.Clients.Client.Create(ClientFullName, PhoneNumber(), null, null, Now).Value!;
+        ClassManager.Core.Domain.Clients.Client.Create(ClientFullName, PhoneNumber(), null, null, Now).Value!.WithId();
 
     public static PendingSignUp PendingSignUp(string tokenHash, DateTimeOffset? createdAt = null) =>
         ClassManager.Core.Domain.Accounts.PendingSignUp.Start(
@@ -55,7 +55,7 @@ internal static class TestData
             new PendingBusiness(BusinessName, ArgentinaCountryCode, BuenosAiresTimeZoneId, CurrencyCode),
             tokenHash,
             createdAt ?? Now,
-            LegalTerms.CurrentVersion);
+            LegalTerms.CurrentVersion).WithId();
 
     public static IssuedTokens IssuedTokens() =>
         new("access-token", Now.AddMinutes(15), "refresh-token", Now.AddDays(30));

@@ -50,7 +50,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     public async Task InitializeAsync()
     {
         await Task.WhenAll(_container.StartAsync(), _storageContainer.StartAsync());
-        await using (var context = CreateAppDbContext(Guid.Empty))
+        await using (var context = CreateAppDbContext(0L))
         {
             await context.Database.MigrateAsync();
             context.Organizations.Add(_platformOrganization);
@@ -96,7 +96,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     public async Task<SeededOperator> SeedOperatorOfAnotherOrganizationAsync()
     {
         var organization = Organization.Create(OtherOrganizationName, BackofficeApiFactory.Now).Value!;
-        await using (var context = CreateAppDbContext(Guid.Empty))
+        await using (var context = CreateAppDbContext(0L))
         {
             context.Organizations.Add(organization);
             await context.SaveChangesAsync();
@@ -105,32 +105,34 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         return await SeedOperatorAsync(organization.Id, BusinessRole.PlatformOperator, isEnabled: true);
     }
 
-    public async Task<SeededBrand> SeedBrandAsync(string name, IReadOnlyList<int> studentsPerBranch, Func<Guid, IReadOnlyList<Subscription>> subscriptionsOf)
+    public async Task<SeededBrand> SeedBrandAsync(string name, IReadOnlyList<int> studentsPerBranch, Func<long, IReadOnlyList<Subscription>> subscriptionsOf)
     {
         var organization = Organization.Create(name, BackofficeApiFactory.Now).Value!;
-        var ownerEmail = $"owner-{Guid.NewGuid():N}@example.com";
-        var branchIds = new List<Guid>();
-        await using (var context = CreateAppDbContext(Guid.Empty))
+        var ownerEmail = $"owner-{TestIds.Next()}@example.com";
+        var branchIds = new List<long>();
+        await using (var context = CreateAppDbContext(0L))
         {
             context.Organizations.Add(organization);
+            await context.SaveChangesAsync();
             context.Subscriptions.AddRange(subscriptionsOf(organization.Id));
             await context.SaveChangesAsync();
         }
 
         foreach (var (studentCount, branchIndex) in studentsPerBranch.Select((count, index) => (count, index)))
         {
-            await using var lookupContext = CreateAppDbContext(Guid.Empty);
+            await using var lookupContext = CreateAppDbContext(0L);
             var argentina = await lookupContext.Countries.AsNoTracking().SingleAsync(country => country.Code == ArgentinaCountryCode);
-            var business = Business.Create(organization.Id, $"{BranchName} {branchIndex + 1}", $"branch-{Guid.NewGuid():N}", argentina, TimeZoneId, CurrencyCode, BackofficeApiFactory.Now).Value!;
+            var business = Business.Create(organization.Id, $"{BranchName} {branchIndex + 1}", $"branch-{TestIds.Next()}", argentina, TimeZoneId, CurrencyCode, BackofficeApiFactory.Now).Value!;
+            lookupContext.Countries.Attach(argentina);
+            lookupContext.Businesses.Add(business);
+            await lookupContext.SaveChangesAsync();
             await using var context = CreateAppDbContext(business.Id);
-            context.Countries.Attach(argentina);
-            context.Businesses.Add(business);
             branchIds.Add(business.Id);
             if (branchIndex == 0)
             {
-                var owner = User.Create(OwnerFullName, ownerEmail, BackofficeApiFactory.Now).Value!;
-                context.Users.Add(owner);
-                context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, owner.Id));
+                var ownerAccountId = Guid.CreateVersion7();
+                context.Users.Add(User.CreateForAccount(ownerAccountId, OwnerFullName, ownerEmail, BackofficeApiFactory.Now));
+                context.OrganizationMembers.Add(OrganizationMember.CreateBrandOwner(organization.Id, ownerAccountId));
             }
 
             var phoneNumber = PhoneNumber.Create(ClientPhoneNumber, business.DefaultCountryCallingCode).Value!;
@@ -138,7 +140,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             {
                 var client = Client.Create(ClientFullName, phoneNumber, null, null, BackofficeApiFactory.Now).Value!;
                 context.Clients.Add(client);
-                context.Students.Add(Student.Create(client.Id, StudentFullName, null, null, DateOnly.FromDateTime(BackofficeApiFactory.Now.UtcDateTime), BackofficeApiFactory.Now).Value!);
+                context.Students.Add(Student.Create(client, StudentFullName, null, null, DateOnly.FromDateTime(BackofficeApiFactory.Now.UtcDateTime), BackofficeApiFactory.Now).Value!);
             }
 
             await context.SaveChangesAsync();
@@ -147,12 +149,12 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         return new SeededBrand(organization.Id, ownerEmail, branchIds);
     }
 
-    private async Task<SeededOperator> SeedOperatorAsync(Guid organizationId, BusinessRole role, bool isEnabled)
+    private async Task<SeededOperator> SeedOperatorAsync(long organizationId, BusinessRole role, bool isEnabled)
     {
         var accountId = Guid.CreateVersion7();
-        var email = $"operator-{Guid.NewGuid():N}@example.com";
-        var subject = $"google-{Guid.NewGuid():N}";
-        Guid memberId;
+        var email = $"operator-{TestIds.Next()}@example.com";
+        var subject = $"google-{TestIds.Next()}";
+        long memberId;
 
         using (var scope = ApiFactory.Services.CreateScope())
         {
@@ -161,13 +163,14 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             created.Succeeded.ShouldBeTrue();
         }
 
-        await using (var lookupContext = CreateAppDbContext(Guid.Empty))
+        await using (var lookupContext = CreateAppDbContext(0L))
         {
             var argentina = await lookupContext.Countries.AsNoTracking().SingleAsync(country => country.Code == ArgentinaCountryCode);
-            var business = Business.Create(organizationId, PlatformOrganizationName, $"business-{Guid.NewGuid():N}", argentina, TimeZoneId, CurrencyCode, BackofficeApiFactory.Now).Value!;
+            var business = Business.Create(organizationId, PlatformOrganizationName, $"business-{TestIds.Next()}", argentina, TimeZoneId, CurrencyCode, BackofficeApiFactory.Now).Value!;
+            lookupContext.Countries.Attach(argentina);
+            lookupContext.Businesses.Add(business);
+            await lookupContext.SaveChangesAsync();
             await using var context = CreateAppDbContext(business.Id);
-            context.Countries.Attach(argentina);
-            context.Businesses.Add(business);
             var member = BusinessMember.Create(
                 business.Id,
                 User.CreateForAccount(accountId, OperatorFullName, null, BackofficeApiFactory.Now),
@@ -189,7 +192,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         return new SeededOperator(accountId, memberId, subject, email);
     }
 
-    private AppDbContext CreateAppDbContext(Guid businessId)
+    private AppDbContext CreateAppDbContext(long businessId)
     {
         var tenantContext = new FixedTenantContext(businessId);
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -200,6 +203,6 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     }
 }
 
-public sealed record SeededOperator(Guid AccountId, Guid MemberId, string Subject, string Email);
+public sealed record SeededOperator(Guid AccountId, long MemberId, string Subject, string Email);
 
-public sealed record SeededBrand(Guid Id, string OwnerEmail, IReadOnlyList<Guid> BranchIds);
+public sealed record SeededBrand(long Id, string OwnerEmail, IReadOnlyList<long> BranchIds);

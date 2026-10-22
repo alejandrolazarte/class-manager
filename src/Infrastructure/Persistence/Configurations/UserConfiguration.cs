@@ -10,7 +10,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(user => user.Id);
-        builder.Property(user => user.Id).ValueGeneratedNever();
         builder.Property(user => user.FullName).HasMaxLength(User.FullNameMaxLength).IsRequired();
         builder.Property(user => user.Email).HasMaxLength(User.EmailMaxLength);
         builder.Property(user => user.PhoneNumber)

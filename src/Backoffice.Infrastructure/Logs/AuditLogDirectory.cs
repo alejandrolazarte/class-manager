@@ -7,15 +7,15 @@ namespace ClassManager.Backoffice.Infrastructure.Logs;
 
 internal sealed class AuditLogDirectory(AppDbContext context) : IAuditLogDirectory
 {
-    public async Task<IReadOnlyList<Guid>> ListBranchIdsAsync(Guid brandId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<long>> ListBranchIdsAsync(long brandId, CancellationToken cancellationToken) =>
         await context.Businesses.AsNoTracking()
             .Where(business => business.OrganizationId == brandId)
             .Select(business => business.Id)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, LoggedBranch>> FindBranchesAsync(IReadOnlyCollection<Guid> branchIds, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyDictionary<long, LoggedBranch>> FindBranchesAsync(IReadOnlyCollection<long> branchIds, CancellationToken cancellationToken) =>
         branchIds.Count == 0
-            ? new Dictionary<Guid, LoggedBranch>()
+            ? new Dictionary<long, LoggedBranch>()
             : await context.Businesses.AsNoTracking()
                 .Where(business => branchIds.Contains(business.Id))
                 .Join(
@@ -25,9 +25,9 @@ internal sealed class AuditLogDirectory(AppDbContext context) : IAuditLogDirecto
                     (business, organization) => new LoggedBranch(business.Id, business.Name, organization.Id, organization.Name))
                 .ToDictionaryAsync(branch => branch.BranchId, cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, string>> FindUserNamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyDictionary<long, string>> FindUserNamesAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken) =>
         userIds.Count == 0
-            ? new Dictionary<Guid, string>()
+            ? new Dictionary<long, string>()
             : await context.Users.IgnoreTenantFilter().AsNoTracking()
                 .Where(user => userIds.Contains(user.Id))
                 .ToDictionaryAsync(user => user.Id, user => user.FullName, cancellationToken);

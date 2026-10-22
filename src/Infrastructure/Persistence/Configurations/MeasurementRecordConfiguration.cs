@@ -7,7 +7,6 @@ internal sealed class MeasurementRecordConfiguration : IEntityTypeConfiguration<
     public void Configure(EntityTypeBuilder<MeasurementRecord> builder)
     {
         builder.HasKey(record => record.Id);
-        builder.Property(record => record.Id).ValueGeneratedNever();
         builder.Property(record => record.Value).HasPrecision(MeasurementValue.Precision, MeasurementValue.Decimals);
         builder.Property(record => record.Note).HasMaxLength(MeasurementRecord.NoteMaxLength);
 

@@ -18,18 +18,18 @@ public sealed class MemberInvitation : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public BusinessRole Role { get; private set; }
-    public Guid? CustomRoleId { get; private set; }
-    public Guid? InstructorId { get; private set; }
+    public long? CustomRoleId { get; private set; }
+    public long? InstructorId { get; private set; }
     public string TokenHash { get; private set; } = string.Empty;
-    public Guid? InvitedByUserId { get; private set; }
+    public long? InvitedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset ExpiresAt { get; private set; }
     public DateTimeOffset? AcceptedAt { get; private set; }
     public DateTimeOffset? RevokedAt { get; private set; }
@@ -38,9 +38,9 @@ public sealed class MemberInvitation : ITenantOwned, IAuditable
     public static Result<MemberInvitation> Create(
         string? email,
         MemberRole role,
-        Guid? instructorId,
+        long? instructorId,
         string tokenHash,
-        Guid? invitedByUserId,
+        long? invitedByUserId,
         DateTimeOffset createdAt)
     {
         var trimmedEmail = email?.Trim() ?? string.Empty;
@@ -56,7 +56,6 @@ public sealed class MemberInvitation : ITenantOwned, IAuditable
 
         return new MemberInvitation
         {
-            Id = Guid.CreateVersion7(),
             Email = trimmedEmail,
             Role = role.Role,
             CustomRoleId = role.CustomRoleId,

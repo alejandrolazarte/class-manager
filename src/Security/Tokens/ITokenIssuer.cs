@@ -10,9 +10,9 @@ public interface ITokenIssuer
     /// Returns <see langword="null"/> when the token is unknown, expired or revoked, or the user has no access to the
     /// tenant; reusing an already rotated token also revokes every session of its user.
     /// </summary>
-    Task<IssuedTokenPair?> RefreshAsync(string refreshToken, Guid? tenantId, CancellationToken cancellationToken);
+    Task<IssuedTokenPair?> RefreshAsync(string refreshToken, long? tenantId, CancellationToken cancellationToken);
 
-    Task<IssuedTokenPair?> SwitchAsync(string refreshToken, Guid tenantId, string? kind, CancellationToken cancellationToken);
+    Task<IssuedTokenPair?> SwitchAsync(string refreshToken, long tenantId, string? kind, CancellationToken cancellationToken);
 
     /// <summary>
     /// The tenant and kind of the most recent session issued to the user, signed out or not, so a new sign-in can

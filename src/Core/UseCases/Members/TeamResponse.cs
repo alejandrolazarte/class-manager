@@ -4,12 +4,12 @@ using ClassManager.Core.Domain.Businesses;
 namespace ClassManager.Core.UseCases.Members;
 
 public sealed record MemberResponse(
-    Guid Id,
+    long Id,
     string FullName,
     string Email,
     BusinessRole Role,
-    Guid? CustomRoleId,
-    Guid? InstructorId,
+    long? CustomRoleId,
+    long? InstructorId,
     bool IsCurrentUser,
     bool IsBrandOwner)
 {
@@ -26,11 +26,11 @@ public sealed record MemberResponse(
 }
 
 public sealed record InvitationResponse(
-    Guid Id,
+    long Id,
     string Email,
     BusinessRole Role,
-    Guid? CustomRoleId,
-    Guid? InstructorId,
+    long? CustomRoleId,
+    long? InstructorId,
     DateTimeOffset ExpiresAt)
 {
     public static InvitationResponse From(MemberInvitation invitation) =>

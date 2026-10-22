@@ -7,7 +7,6 @@ internal sealed class ClassSessionConfiguration : IEntityTypeConfiguration<Class
     public void Configure(EntityTypeBuilder<ClassSession> builder)
     {
         builder.HasKey(session => session.Id);
-        builder.Property(session => session.Id).ValueGeneratedNever();
         builder.Property(session => session.CancellationReason).HasMaxLength(ClassSession.CancellationReasonMaxLength);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(session => session.TenantId).OnDelete(DeleteBehavior.Restrict);

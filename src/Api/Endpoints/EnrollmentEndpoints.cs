@@ -24,7 +24,7 @@ internal static class EnrollmentEndpoints
     }
 
     private static async Task<IResult> EnrollStudentAsync(
-        Guid classGroupId,
+        long classGroupId,
         EnrollStudentRequest request,
         IUseCase<EnrollStudentCommand, EnrollmentResponse> useCase,
         CancellationToken cancellationToken)
@@ -36,7 +36,7 @@ internal static class EnrollmentEndpoints
     }
 
     private static async Task<IResult> ListClassRosterAsync(
-        Guid classGroupId,
+        long classGroupId,
         IUseCase<ListClassRosterQuery, IReadOnlyList<RosterEntryResponse>> useCase,
         CancellationToken cancellationToken)
     {
@@ -46,7 +46,7 @@ internal static class EnrollmentEndpoints
     }
 
     private static async Task<IResult> ListStudentEnrollmentsAsync(
-        Guid studentId,
+        long studentId,
         IUseCase<ListStudentEnrollmentsQuery, IReadOnlyList<StudentEnrollmentResponse>> useCase,
         CancellationToken cancellationToken)
     {
@@ -56,7 +56,7 @@ internal static class EnrollmentEndpoints
     }
 
     private static async Task<IResult> EndEnrollmentAsync(
-        Guid enrollmentId,
+        long enrollmentId,
         EndEnrollmentRequest request,
         IUseCase<EndEnrollmentCommand, EndEnrollmentResponse> useCase,
         CancellationToken cancellationToken)

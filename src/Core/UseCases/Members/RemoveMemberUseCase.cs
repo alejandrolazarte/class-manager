@@ -4,9 +4,9 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Members;
 
-public sealed record RemoveMemberCommand(Guid MemberId) : ICommand;
+public sealed record RemoveMemberCommand(long MemberId) : ICommand;
 
-public sealed record RemovedMemberResponse(Guid Id);
+public sealed record RemovedMemberResponse(long Id);
 
 public sealed class RemoveMemberUseCase(
     IBusinessMemberRepository businessMemberRepository,

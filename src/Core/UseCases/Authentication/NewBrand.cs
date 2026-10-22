@@ -28,8 +28,8 @@ internal sealed record NewBrand(Organization Organization, Business Business)
         }
 
         var slug = await BusinessSlugAllocator.FindAvailableAsync(businessRepository, businessName, cancellationToken);
-        var business = Business.Create(
-            organization.Value!.Id,
+        var business = Business.CreateInNewOrganization(
+            organization.Value!,
             businessName,
             slug,
             await countryRepository.FindAsync(countryCode, cancellationToken),
@@ -41,7 +41,7 @@ internal sealed record NewBrand(Organization Organization, Business Business)
             return RenameField(business.Error!, nameof(Business.Name), nameof(RequestSignUpCommand.BusinessName));
         }
 
-        return new NewBrand(organization.Value, business.Value!);
+        return new NewBrand(organization.Value!, business.Value!);
     }
 
     public static ResultError RenameField(ResultError error, string entityFieldName, string commandFieldName) =>

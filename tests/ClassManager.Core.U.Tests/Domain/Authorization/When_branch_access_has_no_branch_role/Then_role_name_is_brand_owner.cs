@@ -8,7 +8,7 @@ public sealed class Then_role_name_is_brand_owner
     [Fact]
     public void Then_role_name_is_brand_owner_Run()
     {
-        var branch = new BranchAccess(Guid.CreateVersion7(), TestData.BusinessName, Guid.CreateVersion7(), null, IsBrandOwner: true);
+        var branch = new BranchAccess(TestIds.Next(), TestData.BusinessName, TestIds.Next(), null, IsBrandOwner: true);
 
         branch.RoleName.ShouldBe(nameof(OrganizationRole.BrandOwner));
     }

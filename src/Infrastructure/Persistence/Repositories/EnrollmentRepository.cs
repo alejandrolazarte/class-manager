@@ -6,24 +6,24 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
 
     public void Remove(Enrollment enrollment) => context.Enrollments.Remove(enrollment);
 
-    public Task<Enrollment?> GetForUpdateAsync(Guid enrollmentId, CancellationToken cancellationToken) =>
+    public Task<Enrollment?> GetForUpdateAsync(long enrollmentId, CancellationToken cancellationToken) =>
         context.Enrollments.FirstOrDefaultAsync(enrollment => enrollment.Id == enrollmentId, cancellationToken);
 
-    public Task<Enrollment?> FindCurrentAsync(Guid studentId, Guid classGroupId, DateOnly today, CancellationToken cancellationToken) =>
+    public Task<Enrollment?> FindCurrentAsync(long studentId, long classGroupId, DateOnly today, CancellationToken cancellationToken) =>
         Current(today).FirstOrDefaultAsync(
             enrollment => enrollment.StudentId == studentId && enrollment.ClassGroupId == classGroupId,
             cancellationToken);
 
-    public Task<int> CountCurrentAsync(Guid classGroupId, DateOnly today, CancellationToken cancellationToken) =>
+    public Task<int> CountCurrentAsync(long classGroupId, DateOnly today, CancellationToken cancellationToken) =>
         Current(today).CountAsync(enrollment => enrollment.ClassGroupId == classGroupId, cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, int>> CountCurrentByClassGroupAsync(DateOnly today, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyDictionary<long, int>> CountCurrentByClassGroupAsync(DateOnly today, CancellationToken cancellationToken) =>
         await Current(today)
             .GroupBy(enrollment => enrollment.ClassGroupId)
             .Select(group => new { ClassGroupId = group.Key, Count = group.Count() })
             .ToDictionaryAsync(group => group.ClassGroupId, group => group.Count, cancellationToken);
 
-    public async Task<IReadOnlyList<RosterEntry>> ListRosterAsync(Guid classGroupId, DateOnly today, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<RosterEntry>> ListRosterAsync(long classGroupId, DateOnly today, CancellationToken cancellationToken) =>
         await (
             from enrollment in Current(today)
             where enrollment.ClassGroupId == classGroupId
@@ -41,7 +41,7 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
                 enrollment.EndDate))
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(Guid classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
         await (
             from enrollment in ActiveOn(sessionDate)
             where enrollment.ClassGroupId == classGroupId
@@ -59,7 +59,7 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
                 enrollment.EndDate))
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyDictionary<long, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken) =>
         await ActiveOn(sessionDate)
             .GroupBy(enrollment => enrollment.ClassGroupId)
             .Select(group => new { ClassGroupId = group.Key, Count = group.Count() })
@@ -90,7 +90,7 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
         return [.. rows.Select(row => new EnrolledStudentInPeriod(row.Id, row.FullName, row.PhoneNumber!.Value, row.StudentFullName))];
     }
 
-    public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(Guid studentId, DateOnly today, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(long studentId, DateOnly today, CancellationToken cancellationToken) =>
         await Current(today).Where(enrollment => enrollment.StudentId == studentId).ToListAsync(cancellationToken);
 
     private IQueryable<Enrollment> ActiveOn(DateOnly sessionDate) =>

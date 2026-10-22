@@ -12,7 +12,7 @@ public sealed record CreateClassPackCommand(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null,
+    IReadOnlyList<long>? ClassGroupIds = null,
     [property: AuditPlain] string? Description = null) : ICommand;
 
 public sealed class CreateClassPackUseCase(

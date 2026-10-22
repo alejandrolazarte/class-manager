@@ -9,8 +9,8 @@ public sealed record PackStudentAppScenario(StudentAppScenario Scenario, ClassPa
     public InstructorScenario Instructors => Scenario.Instructors;
     public HttpClient Owner => Scenario.Instructors.Business.HttpClient;
     public HttpClient Student => Scenario.Student;
-    public Guid StudentId => Scenario.Instructors.InstructorStudentId;
-    public Guid PackClassGroupId => Scenario.Instructors.OtherClassGroup.Id;
+    public long StudentId => Scenario.Instructors.InstructorStudentId;
+    public long PackClassGroupId => Scenario.Instructors.OtherClassGroup.Id;
 }
 
 public static class PackBookingRequests
@@ -18,10 +18,10 @@ public static class PackBookingRequests
     private const string IsoDateFormat = "yyyy-MM-dd";
     private const string PackName = "Pack natación";
 
-    public static string PackClassesPath(Guid studentId) =>
+    public static string PackClassesPath(long studentId) =>
         $"{ApiRoutes.StudentApp}{ApiRoutes.AccountStudents}/{studentId}{ApiRoutes.PackClasses}";
 
-    public static string PackClassPath(Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
+    public static string PackClassPath(long studentId, long classGroupId, DateOnly sessionDate) =>
         $"{PackClassesPath(studentId)}/{classGroupId}/{sessionDate.ToString(IsoDateFormat, CultureInfo.InvariantCulture)}";
 
     public static async Task<PackStudentAppScenario> SeedPackStudentAppScenarioAsync(this ApiFixture fixture, int classCount = 4)
@@ -33,13 +33,13 @@ public static class PackBookingRequests
         return new PackStudentAppScenario(scenario, classPack);
     }
 
-    public static Task<StudentAppPackClassesResponse?> GetPackClassesAsync(this HttpClient httpClient, Guid studentId) =>
+    public static Task<StudentAppPackClassesResponse?> GetPackClassesAsync(this HttpClient httpClient, long studentId) =>
         httpClient.GetFromJsonAsync<StudentAppPackClassesResponse>(new Uri(PackClassesPath(studentId), UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PutPackClassAsync(this HttpClient httpClient, Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
+    public static Task<HttpResponseMessage> PutPackClassAsync(this HttpClient httpClient, long studentId, long classGroupId, DateOnly sessionDate) =>
         httpClient.PutAsJsonAsync(PackClassPath(studentId, classGroupId, sessionDate), new { }, ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> DeletePackClassAsync(this HttpClient httpClient, Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
+    public static Task<HttpResponseMessage> DeletePackClassAsync(this HttpClient httpClient, long studentId, long classGroupId, DateOnly sessionDate) =>
         httpClient.DeleteAsync(new Uri(PackClassPath(studentId, classGroupId, sessionDate), UriKind.Relative));
 
     public static async Task BookPackClassAsync(this PackStudentAppScenario scenario, DateOnly? sessionDate = null)

@@ -9,7 +9,6 @@ internal sealed class MeasurementDefinitionConfiguration : IEntityTypeConfigurat
     public void Configure(EntityTypeBuilder<MeasurementDefinition> builder)
     {
         builder.HasKey(definition => definition.Id);
-        builder.Property(definition => definition.Id).ValueGeneratedNever();
         builder.Property(definition => definition.Name).HasMaxLength(MeasurementDefinition.NameMaxLength).IsRequired();
         builder.Property(definition => definition.Kind).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(definition => definition.Unit).HasMaxLength(MeasurementUnits.MaxLength).IsRequired();

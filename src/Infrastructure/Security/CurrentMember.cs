@@ -52,7 +52,7 @@ internal sealed class CurrentMember(AppDbContext context, ICurrentUser currentUs
         return new MemberAccess(accountId, currentUser.UserId, businessId, branchMember?.Role, branchMember?.InstructorId, isBrandOwner, permissions, branchMember?.CustomRoleId);
     }
 
-    private async Task<IReadOnlySet<string>> BranchPermissionsAsync(BusinessRole role, Guid? customRoleId, CancellationToken cancellationToken)
+    private async Task<IReadOnlySet<string>> BranchPermissionsAsync(BusinessRole role, long? customRoleId, CancellationToken cancellationToken)
     {
         if (customRoleId is not { } roleId)
         {

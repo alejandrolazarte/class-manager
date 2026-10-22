@@ -11,7 +11,7 @@ internal sealed class CatalogImageServiceBuilder
     {
         DocumentStorage
             .Setup(storage => storage.StoreAsync(
-                It.IsAny<DocumentOwner>(), It.IsAny<Guid>(), It.IsAny<DocumentContent>(), It.IsAny<DocumentVisibility>(), It.IsAny<CancellationToken>()))
+                It.IsAny<DocumentOwner>(), It.IsAny<long>(), It.IsAny<DocumentContent>(), It.IsAny<DocumentVisibility>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(StoredDocument);
     }
 

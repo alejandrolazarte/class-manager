@@ -11,7 +11,7 @@ public sealed class Then_it_ignores_deleted_rows(ApiFixture fixture)
     [Fact]
     public void Then_it_ignores_deleted_rows_Run()
     {
-        using var context = fixture.CreateDbContext(Guid.Empty);
+        using var context = fixture.CreateDbContext(0L);
 
         var indexesCountingDeletedRows = context.Model.GetEntityTypes()
             .Where(entityType => typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))

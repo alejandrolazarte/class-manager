@@ -11,8 +11,8 @@ internal static class SubscriptionsTestData
     public const int PlanLimit = 3;
     public const decimal AddOnPrice = 5m;
 
-    public static readonly Guid SubscriberId = Guid.Parse("8f5d3c1e-0b1a-4c55-9a1e-3f2d6c7b8a90");
-    public static readonly Guid SubscriptionId = Guid.Parse("2a7e9b4c-6d3f-4e18-8c2b-1f0a9d5e7c63");
+    public const long SubscriberId = 41;
+    public const long SubscriptionId = 42;
     public static readonly DateOnly Today = new(2026, 10, 3);
     public static readonly DateTimeOffset Now = new(2026, 10, 3, 12, 0, 0, TimeSpan.Zero);
 

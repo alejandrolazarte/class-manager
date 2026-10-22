@@ -59,7 +59,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> GetSessionAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<GetSessionQuery, SessionDetailsResponse> useCase,
         CancellationToken cancellationToken)
@@ -70,9 +70,9 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> RecordAttendanceAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
-        Guid studentId,
+        long studentId,
         RecordAttendanceRequest request,
         IUseCase<RecordAttendanceCommand, RecordAttendanceResponse> useCase,
         CancellationToken cancellationToken)
@@ -84,7 +84,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> RecordClassAttendanceAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         RecordClassAttendanceRequest request,
         IUseCase<RecordClassAttendanceCommand, IReadOnlyList<RecordAttendanceResponse>> useCase,
@@ -97,9 +97,9 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> RecordClassFeedbackAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
-        Guid studentId,
+        long studentId,
         RecordClassFeedbackRequest request,
         IUseCase<RecordClassFeedbackCommand, bool> useCase,
         CancellationToken cancellationToken)
@@ -111,7 +111,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> CancelSessionAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         CancelSessionRequest request,
         IUseCase<CancelSessionCommand, SessionStatusResponse> useCase,
@@ -123,7 +123,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> RestoreSessionAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<RestoreSessionCommand, SessionStatusResponse> useCase,
         CancellationToken cancellationToken)
@@ -134,7 +134,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> RescheduleSessionAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         RescheduleSessionRequest request,
         IUseCase<RescheduleSessionCommand, SessionStatusResponse> useCase,
@@ -146,7 +146,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> RestoreSessionScheduleAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<RestoreSessionScheduleCommand, SessionStatusResponse> useCase,
         CancellationToken cancellationToken)
@@ -157,7 +157,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> AssignSubstituteAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         AssignSubstituteRequest request,
         IUseCase<AssignSubstituteCommand, SessionStatusResponse> useCase,
@@ -169,7 +169,7 @@ internal static class SessionEndpoints
     }
 
     private static async Task<IResult> RemoveSubstituteAsync(
-        Guid classGroupId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<RemoveSubstituteCommand, SessionStatusResponse> useCase,
         CancellationToken cancellationToken)

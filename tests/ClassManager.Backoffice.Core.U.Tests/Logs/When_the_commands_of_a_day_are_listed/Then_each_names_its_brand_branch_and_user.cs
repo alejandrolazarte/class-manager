@@ -7,7 +7,7 @@ public sealed class Then_each_names_its_brand_branch_and_user
     {
         var scenario = new LogsScenario();
         var branch = scenario.WithBranch("Estudio Centro", "Sede Norte");
-        var userId = Guid.CreateVersion7();
+        var userId = TestIds.Next();
         scenario.Directory.UserNames[userId] = "Ana Pérez";
         scenario.WithCommand("RecordPaymentCommand", LogsScenario.Now, branch.BranchId, userId);
 

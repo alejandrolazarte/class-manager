@@ -12,7 +12,7 @@ internal sealed partial class ExpiredOrderCancellationService(
 {
     public async Task<int> CancelExpiredOrdersAsync(CancellationToken cancellationToken)
     {
-        IReadOnlyList<Guid> businessIds;
+        IReadOnlyList<long> businessIds;
         await using (var directoryScope = scopeFactory.CreateAsyncScope())
         {
             var directory = directoryScope.ServiceProvider.GetRequiredService<IExpiredOrderDirectory>();
@@ -38,5 +38,5 @@ internal sealed partial class ExpiredOrderCancellationService(
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Cancelled {Count} unpaid orders of business {BusinessId}")]
-    private static partial void LogCancelled(ILogger logger, int count, Guid businessId);
+    private static partial void LogCancelled(ILogger logger, int count, long businessId);
 }

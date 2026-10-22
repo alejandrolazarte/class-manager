@@ -6,11 +6,11 @@ namespace ClassManager.Api.I.Tests.Audit;
 
 internal static class CommandAuditBehaviors
 {
-    public static readonly Guid TenantId = Guid.CreateVersion7();
+    public static readonly long TenantId = TestIds.Next();
     public static readonly Guid AccountId = Guid.CreateVersion7();
-    public static readonly Guid UserId = Guid.CreateVersion7();
+    public static readonly long UserId = TestIds.Next();
 
-    public static readonly SampleCommand Command = new(Guid.CreateVersion7(), "Ana María Pérez", 25000m);
+    public static readonly SampleCommand Command = new(TestIds.Next(), "Ana María Pérez", 25000m);
 
     public static CommandAuditBehavior<SampleCommand, string> Create(RecordingCommandAuditService auditLog) => new(Recorder(auditLog));
 

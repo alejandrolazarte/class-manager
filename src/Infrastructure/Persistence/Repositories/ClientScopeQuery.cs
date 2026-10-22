@@ -4,7 +4,7 @@ namespace ClassManager.Infrastructure.Persistence.Repositories;
 
 internal static class ClientScopeQuery
 {
-    public static IQueryable<Guid> ClientIdsIn(AppDbContext context, ClientScope scope)
+    public static IQueryable<long> ClientIdsIn(AppDbContext context, ClientScope scope)
     {
         var registeredClientIds = context.Clients
             .Where(client => client.RegisteredByUserId == scope.RegisteredByUserId)

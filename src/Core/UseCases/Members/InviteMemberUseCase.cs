@@ -12,9 +12,9 @@ namespace ClassManager.Core.UseCases.Members;
 public sealed record InviteMemberCommand(
     [property: AuditPersonal] string? Email,
     BusinessRole? Role,
-    Guid? InstructorId,
-    Guid? CustomRoleId = null,
-    Guid? SamePersonUserId = null) : ICommand;
+    long? InstructorId,
+    long? CustomRoleId = null,
+    long? SamePersonUserId = null) : ICommand;
 
 public sealed class InviteMemberUseCase(
     IBusinessRepository businessRepository,

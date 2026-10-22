@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         var schedule = ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!;
 
-        var classGroup = ClassGroup.Create("Natación inicial", Guid.CreateVersion7(), schedule, 0, null);
+        var classGroup = ClassGroup.Create("Natación inicial", TestIds.Next(), schedule, 0, null);
 
         classGroup.Error!.FieldName.ShouldBe(nameof(ClassGroup.Capacity));
     }

@@ -9,7 +9,7 @@ public sealed class Then_a_client_without_plan_pays_per_class
     {
         var defaultFeeChanges = new[]
         {
-            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-01").Value!, BusinessBillingMode.ClassPacks, null, TestData.Today, TestData.Now).Value!,
+            DefaultMonthlyFeeChange.Create(BillingMonth.Parse("2026-01").Value!, BusinessBillingMode.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId(),
         };
 
         var plan = FeeTimeline.PlanIn([], defaultFeeChanges, BillingMonth.From(TestData.Today));

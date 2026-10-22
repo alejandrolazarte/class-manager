@@ -3,10 +3,10 @@ using ClassManager.Core.UseCases.Images;
 
 namespace ClassManager.Core.UseCases.Announcements;
 
-public sealed record AnnouncementClassGroupResponse(Guid Id, string Name);
+public sealed record AnnouncementClassGroupResponse(long Id, string Name);
 
 public sealed record AnnouncementResponse(
-    Guid Id,
+    long Id,
     string Title,
     string? Body,
     DateTimeOffset PublishedAt,
@@ -23,6 +23,6 @@ public sealed record AnnouncementResponse(
     AnnouncementAction Action,
     string? ActionUrl);
 
-public sealed record AnnouncementRecipientResponse(Guid ClientId, string FullName, DateTimeOffset? SeenAt, bool? IsGoing);
+public sealed record AnnouncementRecipientResponse(long ClientId, string FullName, DateTimeOffset? SeenAt, bool? IsGoing);
 
 public sealed record AnnouncementReminderResponse(int RemindedCount);

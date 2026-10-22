@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Infrastructure.Audit;
@@ -14,7 +15,7 @@ public sealed class Then_a_plan_limit_event_is_written(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync(PlanCodes.Lite);
         using var viewer = await fixture.SeedMemberAsync(business.Business.Id, BusinessRole.Viewer);
-        var tenantId = business.Business.Id.ToString();
+        var tenantId = business.Business.Id.ToString(CultureInfo.InvariantCulture);
 
         using var planLimitResponse = await business.HttpClient.PutBrandAsync(BrandRequests.DeltaBrand());
         using var forbiddenResponse = await viewer.PostClientAsync(ApiRequests.ClientFullName, ApiRequests.ClientPhoneNumber, students: null);

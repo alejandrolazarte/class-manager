@@ -12,13 +12,13 @@ internal static class LogRequests
 
     private static readonly TimeSpan AttemptDelay = TimeSpan.FromMilliseconds(100);
 
-    public static async Task<CommandLogResponse> GetCommandLogAsync(this HttpClient client, string accessToken, DateOnly day, Guid? brandId = null)
+    public static async Task<CommandLogResponse> GetCommandLogAsync(this HttpClient client, string accessToken, DateOnly day, long? brandId = null)
     {
         var route = $"{CommandLogRoute}?day={day.ToString(DayFormat, CultureInfo.InvariantCulture)}"
             + (brandId is { } id ? $"&brandId={id}" : string.Empty);
         using var response = await client.GetAsync(route, accessToken);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<CommandLogResponse>())!;
+        return (await response.Content.ReadFromJsonAsync<CommandLogResponse>(BackofficeRequests.JsonOptions))!;
     }
 
     public static async Task<CommandLogResponse> WaitForCommandLogAsync(
@@ -45,13 +45,13 @@ internal static class LogRequests
             $"{SecurityEventsRoute}?day={day.ToString(DayFormat, CultureInfo.InvariantCulture)}",
             accessToken);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<SecurityEventListResponse>())!;
+        return (await response.Content.ReadFromJsonAsync<SecurityEventListResponse>(BackofficeRequests.JsonOptions))!;
     }
 }
 
 internal sealed record CommandLogResponse(DateOnly Day, IReadOnlyList<CommandLogEntryResponse> Entries, bool IsTruncated);
 
-internal sealed record CommandLogEntryResponse(string Command, string Outcome, string Source, Guid? BrandId, string? BrandName, string? Payload);
+internal sealed record CommandLogEntryResponse(string Command, string Outcome, string Source, long? BrandId, string? BrandName, string? Payload);
 
 internal sealed record SecurityEventListResponse(DateOnly Day, IReadOnlyList<SecurityEventEntryResponse> Events);
 

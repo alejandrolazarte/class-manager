@@ -1,3 +1,3 @@
 namespace ClassManager.Backoffice.Core.Brands;
 
-public sealed record ExpiringAddOn(Guid BrandId, string BrandName, string FeatureCode, DateOnly ExpiredOn);
+public sealed record ExpiringAddOn(long BrandId, string BrandName, string FeatureCode, DateOnly ExpiredOn);

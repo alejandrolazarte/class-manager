@@ -7,7 +7,7 @@ public static class EmailChangeRequests
     public const string ConfirmEmailChangeRoute = ApiRoutes.Authentication + ApiRoutes.ConfirmEmailChange;
     public const string WebAppConfirmEmailChangeUrl = "http://localhost:8081/confirm-email-change?token=";
 
-    public static string UniqueNewEmail() => $"new-{Guid.NewGuid():N}@example.com";
+    public static string UniqueNewEmail() => $"new-{TestIds.Next()}@example.com";
 
     public static Task<HttpResponseMessage> PostEmailChangeAsync(this HttpClient httpClient, string newEmail, string currentPassword) =>
         httpClient.PostAsJsonAsync(ApiRoutes.MyEmailChange, new RequestEmailChangeCommand(newEmail, currentPassword), ApiRequests.JsonOptions);

@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Infrastructure.Audit;
 
@@ -10,7 +11,7 @@ public sealed class Then_a_plan_limit_event_is_written(ApiFixture fixture)
     public async Task Then_a_plan_limit_event_is_written_Run()
     {
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
-        var tenantId = business.Business.Id.ToString();
+        var tenantId = business.Business.Id.ToString(CultureInfo.InvariantCulture);
 
         using var response = await business.HttpClient.PostBranchAsync("Sede Norte");
 

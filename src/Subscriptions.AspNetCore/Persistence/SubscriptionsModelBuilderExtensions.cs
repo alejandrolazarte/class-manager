@@ -53,7 +53,6 @@ public static class SubscriptionsModelBuilderExtensions
         {
             subscription.ToTable(SubscriptionsTable, schema);
             subscription.HasKey(entity => entity.Id);
-            subscription.Property(entity => entity.Id).ValueGeneratedNever();
             subscription.Property(entity => entity.PlanCode).HasMaxLength(CatalogRules.CodeMaxLength).IsRequired();
             subscription.Property(entity => entity.Price).HasPrecision(CatalogRules.PricePrecision, CatalogRules.PriceScale);
             subscription.Property(entity => entity.Currency).HasMaxLength(CatalogRules.CurrencyLength).IsFixedLength().IsRequired();
@@ -66,7 +65,6 @@ public static class SubscriptionsModelBuilderExtensions
         {
             subscriptionFeature.ToTable(SubscriptionFeaturesTable, schema);
             subscriptionFeature.HasKey(entity => entity.Id);
-            subscriptionFeature.Property(entity => entity.Id).ValueGeneratedNever();
             subscriptionFeature.Property(entity => entity.FeatureCode).HasMaxLength(CatalogRules.CodeMaxLength).IsRequired();
             subscriptionFeature.Property(entity => entity.Price).HasPrecision(CatalogRules.PricePrecision, CatalogRules.PriceScale);
             subscriptionFeature.Property(entity => entity.Currency).HasMaxLength(CatalogRules.CurrencyLength).IsFixedLength().IsRequired();

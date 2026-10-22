@@ -9,7 +9,6 @@ internal sealed class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollm
     public void Configure(EntityTypeBuilder<Enrollment> builder)
     {
         builder.HasKey(enrollment => enrollment.Id);
-        builder.Property(enrollment => enrollment.Id).ValueGeneratedNever();
 
         builder.HasOne<Business>().WithMany().HasForeignKey(enrollment => enrollment.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Student>().WithMany().HasForeignKey(enrollment => enrollment.StudentId).OnDelete(DeleteBehavior.Restrict);

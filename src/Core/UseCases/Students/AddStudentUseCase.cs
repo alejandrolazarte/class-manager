@@ -12,12 +12,12 @@ using ClassManager.Core.UseCases.Users;
 namespace ClassManager.Core.UseCases.Students;
 
 public sealed record AddStudentCommand(
-    Guid ClientId,
+    long ClientId,
     [property: AuditPersonal] string? FullName,
     [property: AuditPersonal] DateOnly? BirthDate,
     [property: AuditPersonal] string? Notes,
     [property: AuditPersonal] string? Email = null,
-    Guid? SamePersonUserId = null) : ICommand;
+    long? SamePersonUserId = null) : ICommand;
 
 public sealed class AddStudentUseCase(
     IBusinessRepository businessRepository,
@@ -51,7 +51,7 @@ public sealed class AddStudentUseCase(
         var today = business.TodayAt(now);
         var student = AttendingContact.NamesTheContact(client, command.FullName)
             ? Student.CreateAttendingContact(client, command.BirthDate, command.Notes, today, now)
-            : Student.Create(command.ClientId, command.FullName, command.BirthDate, command.Notes, today, now, command.Email);
+            : Student.Create(client, command.FullName, command.BirthDate, command.Notes, today, now, command.Email);
         if (student.IsFailure)
         {
             return student.Error!;
@@ -94,7 +94,7 @@ public sealed class AddStudentUseCase(
         return StudentResponse.NotInvited(student.Value);
     }
 
-    private static Result<StudentResponse> AlreadyRegistered(Guid? existingStudentId) =>
+    private static Result<StudentResponse> AlreadyRegistered(long? existingStudentId) =>
         Result.Conflict<StudentResponse>(
             AlreadyRegisteredMessage,
             StudentErrorCodes.AlreadyRegistered,

@@ -9,7 +9,7 @@ public sealed class Then_it_is_auditable(ApiFixture fixture)
     [Fact]
     public void Then_it_is_auditable_Run()
     {
-        using var context = fixture.CreateDbContext(Guid.Empty);
+        using var context = fixture.CreateDbContext(0L);
 
         var notAuditable = context.Model.GetEntityTypes()
             .Select(entityType => entityType.ClrType)

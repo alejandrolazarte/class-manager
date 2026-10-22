@@ -71,7 +71,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionFeature> SubscriptionFeatures => Set<SubscriptionFeature>();
 
-    public Guid CurrentTenantId => tenantContext.TenantId;
+    public long CurrentTenantId => tenantContext.TenantId;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.ConfigureWarnings(warnings => warnings.Throw(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));

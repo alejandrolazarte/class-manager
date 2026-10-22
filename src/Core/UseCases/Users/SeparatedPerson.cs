@@ -6,7 +6,7 @@ namespace ClassManager.Core.UseCases.Users;
 
 public sealed record SeparatePersonRequest(string? FullName, string? Email);
 
-public sealed record SeparatedPersonResponse(Guid UserId, string FullName);
+public sealed record SeparatedPersonResponse(long UserId, string FullName);
 
 public static class SeparatedPerson
 {

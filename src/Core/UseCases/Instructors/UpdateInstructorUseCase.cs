@@ -9,10 +9,10 @@ namespace ClassManager.Core.UseCases.Instructors;
 
 public sealed record UpdateInstructorRequest(string? FullName, string? Email = null)
 {
-    public UpdateInstructorCommand ToCommand(Guid instructorId) => new(instructorId, FullName, Email);
+    public UpdateInstructorCommand ToCommand(long instructorId) => new(instructorId, FullName, Email);
 }
 
-public sealed record UpdateInstructorCommand(Guid InstructorId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email = null) : ICommand;
+public sealed record UpdateInstructorCommand(long InstructorId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email = null) : ICommand;
 
 public sealed class UpdateInstructorUseCase(
     IInstructorRepository instructorRepository,

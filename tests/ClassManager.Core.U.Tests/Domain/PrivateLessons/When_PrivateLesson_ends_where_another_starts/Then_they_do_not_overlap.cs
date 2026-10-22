@@ -9,7 +9,7 @@ public sealed class Then_they_do_not_overlap
     public void Then_they_do_not_overlap_Run()
     {
         var schedule = ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!;
-        var lesson = PrivateLesson.Create(Guid.CreateVersion7(), TestData.Today, schedule, [Guid.CreateVersion7()], null, null, null, TestData.Now).Value!;
+        var lesson = PrivateLesson.Create(TestIds.Next(), TestData.Today, schedule, [TestIds.Next()], null, null, null, TestData.Now).Value!.WithId();
 
         var overlaps = (
             BackToBack: lesson.OverlapsWith(TestData.Today, new TimeOnly(18, 45), 45),

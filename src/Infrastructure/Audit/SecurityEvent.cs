@@ -3,9 +3,9 @@ namespace ClassManager.Infrastructure.Audit;
 public sealed record SecurityEvent(
     DateTimeOffset OccurredAt,
     SecurityEventType Event,
-    Guid? TenantId,
+    long? TenantId,
     Guid? AccountId,
-    Guid? UserId,
+    long? UserId,
     string? Route,
     string? Method,
     int? StatusCode,

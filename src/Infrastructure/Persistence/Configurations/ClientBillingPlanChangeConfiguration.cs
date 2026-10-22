@@ -9,7 +9,6 @@ internal sealed class ClientBillingPlanChangeConfiguration : IEntityTypeConfigur
     public void Configure(EntityTypeBuilder<ClientBillingPlanChange> builder)
     {
         builder.HasKey(change => change.Id);
-        builder.Property(change => change.Id).ValueGeneratedNever();
         builder.Property(change => change.Kind).HasConversion<string>().HasMaxLength(KindMaxLength);
         builder.Property(change => change.CustomFee).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Ignore(change => change.Plan);

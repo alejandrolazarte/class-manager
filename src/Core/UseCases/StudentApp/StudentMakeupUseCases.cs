@@ -9,11 +9,11 @@ using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GetStudentAppMakeupsQuery(Guid StudentId) : IQuery;
+public sealed record GetStudentAppMakeupsQuery(long StudentId) : IQuery;
 
-public sealed record BookMakeupCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
+public sealed record BookMakeupCommand(long StudentId, long ClassGroupId, DateOnly Date) : ICommand;
 
-public sealed record CancelMakeupCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
+public sealed record CancelMakeupCommand(long StudentId, long ClassGroupId, DateOnly Date) : ICommand;
 
 public sealed class GetStudentAppMakeupsUseCase(
     IStudentAppAccess studentAppAccess,
@@ -140,7 +140,7 @@ public sealed class BookMakeupUseCase(
             makeupRepositories.Sessions.Add(session);
         }
 
-        makeupRepositories.Bookings.Add(MakeupBooking.Create(session.Id, command.StudentId, now));
+        makeupRepositories.Bookings.Add(MakeupBooking.Create(session, command.StudentId, now));
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);

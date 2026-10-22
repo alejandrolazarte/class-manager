@@ -9,8 +9,8 @@ public sealed class Then_mark_is_removed
     public async Task Then_mark_is_removed_Run()
     {
         var builder = new SessionUseCaseBuilder();
-        var session = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now);
-        var attendance = Attendance.Create(session.Id, builder.EnrolledStudentId, AttendanceStatus.Absent);
+        var session = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now).WithId();
+        var attendance = Attendance.Create(session, builder.EnrolledStudentId, AttendanceStatus.Absent).WithId();
         builder.Sessions.Setup(repository => repository.FindForUpdateAsync(builder.ClassGroup.Id, TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(session);
         builder.Attendances.Setup(repository => repository.FindForUpdateAsync(session.Id, builder.EnrolledStudentId, It.IsAny<CancellationToken>())).ReturnsAsync(attendance);
 

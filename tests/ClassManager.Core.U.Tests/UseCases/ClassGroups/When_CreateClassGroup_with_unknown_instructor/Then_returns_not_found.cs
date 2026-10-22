@@ -9,7 +9,7 @@ public sealed class Then_returns_not_found
     public async Task Then_returns_not_found_Run()
     {
         var builder = new ClassGroupUseCaseBuilder();
-        var details = builder.ValidDetails() with { InstructorId = Guid.CreateVersion7() };
+        var details = builder.ValidDetails() with { InstructorId = TestIds.Next() };
 
         var response = await builder.BuildCreate().ExecuteAsync(new CreateClassGroupCommand(details), CancellationToken.None);
 

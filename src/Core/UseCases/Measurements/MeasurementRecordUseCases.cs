@@ -8,31 +8,31 @@ using ClassManager.Core.Domain.Students;
 
 namespace ClassManager.Core.UseCases.Measurements;
 
-public sealed record GetStudentMeasurementsQuery(Guid StudentId) : IQuery;
+public sealed record GetStudentMeasurementsQuery(long StudentId) : IQuery;
 
 public sealed record RecordMeasurementRequest(DateOnly? MeasuredOn, decimal? Value, string? Note)
 {
-    public RecordMeasurementCommand ToCommand(Guid studentId, Guid measurementId) => new(studentId, measurementId, MeasuredOn, Value, Note);
+    public RecordMeasurementCommand ToCommand(long studentId, long measurementId) => new(studentId, measurementId, MeasuredOn, Value, Note);
 }
 
-public sealed record RecordMeasurementCommand(Guid StudentId, Guid MeasurementId, DateOnly? MeasuredOn, [property: AuditPersonal] decimal? Value, [property: AuditPersonal] string? Note) : ICommand;
+public sealed record RecordMeasurementCommand(long StudentId, long MeasurementId, DateOnly? MeasuredOn, [property: AuditPersonal] decimal? Value, [property: AuditPersonal] string? Note) : ICommand;
 
-public sealed record ClassMeasurementEntry(Guid StudentId, [property: AuditPersonal] decimal? Value);
+public sealed record ClassMeasurementEntry(long StudentId, [property: AuditPersonal] decimal? Value);
 
-public sealed record ListClassMeasurementRecordsQuery(DateOnly MeasuredOn, IReadOnlyList<Guid> StudentIds) : IQuery;
+public sealed record ListClassMeasurementRecordsQuery(DateOnly MeasuredOn, IReadOnlyList<long> StudentIds) : IQuery;
 
-public sealed record RecordClassMeasurementsCommand(Guid MeasurementId, DateOnly? MeasuredOn, IReadOnlyList<ClassMeasurementEntry>? Entries) : ICommand;
+public sealed record RecordClassMeasurementsCommand(long MeasurementId, DateOnly? MeasuredOn, IReadOnlyList<ClassMeasurementEntry>? Entries) : ICommand;
 
-public sealed record DeleteMeasurementRecordCommand(Guid RecordId) : ICommand;
+public sealed record DeleteMeasurementRecordCommand(long RecordId) : ICommand;
 
-public sealed record RestoreMeasurementRecordCommand(Guid RecordId) : ICommand;
+public sealed record RestoreMeasurementRecordCommand(long RecordId) : ICommand;
 
 public sealed record SetMeasurementGoalRequest(decimal? Value)
 {
-    public SetMeasurementGoalCommand ToCommand(Guid studentId, Guid measurementId) => new(studentId, measurementId, Value);
+    public SetMeasurementGoalCommand ToCommand(long studentId, long measurementId) => new(studentId, measurementId, Value);
 }
 
-public sealed record SetMeasurementGoalCommand(Guid StudentId, Guid MeasurementId, [property: AuditPersonal] decimal? Value) : ICommand;
+public sealed record SetMeasurementGoalCommand(long StudentId, long MeasurementId, [property: AuditPersonal] decimal? Value) : ICommand;
 
 internal static class MeasurementRecordFailures
 {
@@ -58,7 +58,7 @@ internal sealed class MeasurementStudentAccess(
     IClientRepository clientRepository,
     IAccessScopes accessScopes)
 {
-    public async Task<bool> CanReachAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken)
+    public async Task<bool> CanReachAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken)
     {
         var students = await studentRepository.ListSummariesByIdsAsync(studentIds, cancellationToken);
         return students.Count == studentIds.Distinct().Count()
@@ -71,13 +71,13 @@ internal static class MeasurementRecording
     public static async Task<Result<MeasurementRecord>> RecordAsync(
         IMeasurementRecordRepository recordRepository,
         MeasurementDefinition definition,
-        Guid studentId,
+        long studentId,
         DateOnly measuredOn,
         decimal? value,
         string? note,
         DateOnly today,
         DateTimeOffset now,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         bool recordedByStudent,
         CancellationToken cancellationToken)
     {
@@ -119,7 +119,7 @@ public sealed class GetStudentMeasurementsUseCase(
         var records = await recordRepository.ListByStudentsAsync([command.StudentId], cancellationToken);
         var goals = await goalRepository.ListByStudentsAsync([command.StudentId], cancellationToken);
         var recorderNames = await userRepository.ListFullNamesAsync(
-            [.. records.Select(record => record.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken);
+            [.. records.Select(record => record.RecordedByUserId).OfType<long>().Distinct()], cancellationToken);
 
         return Result.Success(StudentMeasurements.For(command.StudentId, definitions, records, goals, recorderNames));
     }

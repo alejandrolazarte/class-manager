@@ -26,7 +26,7 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<IBusinessCurrencyService> BusinessCurrency { get; } = new();
-    public ClassPack Pack { get; } = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!;
+    public ClassPack Pack { get; } = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!.WithId();
     public List<ClassPackPurchase> ClientPurchases { get; } = [];
     public List<ClientAttendedClass> ClientAttendedClasses { get; } = [];
     public List<ClientAttendedClass> ClientAttendedPrivateLessons { get; } = [];
@@ -44,35 +44,35 @@ internal sealed class ClassPackUseCaseBuilder
         OrderNumbers.Setup(numbers => numbers.TakeNextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         ClassPacks.Setup(repository => repository.GetByIdAsync(Pack.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Pack);
         Purchases
-            .Setup(repository => repository.ListByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClientPurchases);
         Attendances
-            .Setup(repository => repository.ListAttendedClassesByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListAttendedClassesByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClientAttendedClasses);
         PrivateLessons
-            .Setup(repository => repository.ListAttendedClassesByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListAttendedClassesByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClientAttendedPrivateLessons);
         FeeSchedule
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);
         FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(DefaultFeeChanges);
         Payments
-            .Setup(repository => repository.ListPaidMonthsByClientsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListPaidMonthsByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PaidMonths);
     }
 
     public void ChargeBusinessWithClassPacksFrom(BillingMonth effectiveFrom) =>
-        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, BusinessBillingMode.ClassPacks, null, TestData.Today, TestData.Now).Value!);
+        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, BusinessBillingMode.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId());
 
-    public void PayPerClassFrom(Guid clientId, BillingMonth effectiveFrom) =>
-        PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom, BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!);
+    public void PayPerClassFrom(long clientId, BillingMonth effectiveFrom) =>
+        PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom, BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId());
 
-    public void PayFee(Guid clientId, BillingMonth month) => PaidMonths.Add(new ClientPaidMonth(clientId, month.FirstDay));
+    public void PayFee(long clientId, BillingMonth month) => PaidMonths.Add(new ClientPaidMonth(clientId, month.FirstDay));
 
-    public void Attend(Guid clientId, DateOnly date) =>
+    public void Attend(long clientId, DateOnly date) =>
         ClientAttendedClasses.Add(new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, "Natación")));
 
-    public void AttendPrivateLesson(Guid clientId, DateOnly date) =>
+    public void AttendPrivateLesson(long clientId, DateOnly date) =>
         ClientAttendedPrivateLessons.Add(
             new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, TestData.InstructorFullName, IsPrivateLesson: true)));
 

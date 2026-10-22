@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-internal sealed record MissedClass(Guid ClassGroupId, MakeupSource Source);
+internal sealed record MissedClass(long ClassGroupId, MakeupSource Source);
 
 public sealed record MakeupRepositories(
     IAbsenceNoticeRepository Notices,
@@ -20,7 +20,7 @@ internal static class MakeupRules
 
     public static async Task<IReadOnlyList<MissedClass>> ListMissedClassesAsync(
         MakeupRepositories repositories,
-        Guid studentId,
+        long studentId,
         DateOnly today,
         CancellationToken cancellationToken)
     {
@@ -49,7 +49,7 @@ internal static class MakeupRules
 
     public static async Task<IReadOnlyList<DateOnly>> ListBookedDatesAsync(
         MakeupRepositories repositories,
-        Guid studentId,
+        long studentId,
         DateOnly today,
         CancellationToken cancellationToken) =>
     [

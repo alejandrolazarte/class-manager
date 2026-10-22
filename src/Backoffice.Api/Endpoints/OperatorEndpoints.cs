@@ -22,7 +22,7 @@ internal static class OperatorEndpoints
             CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new EnableOperatorCommand(request.AccessRequestId, request.MemberId, request.Role), cancellationToken)).ToOkResult());
         group.MapDelete(BackofficeApiRoutes.OperatorById, async (
-            Guid loginId,
+            long loginId,
             IUseCase<DisableOperatorCommand, OperatorLoginResponse> useCase,
             CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new DisableOperatorCommand(loginId), cancellationToken)).ToOkResult());
@@ -31,4 +31,4 @@ internal static class OperatorEndpoints
     }
 }
 
-internal sealed record EnableOperatorRequest(Guid AccessRequestId, Guid MemberId, BusinessRole Role);
+internal sealed record EnableOperatorRequest(long AccessRequestId, long MemberId, BusinessRole Role);

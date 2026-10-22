@@ -12,8 +12,8 @@ using ClassManager.Core.UseCases.ClassGroups;
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
 public sealed record SchedulePrivateLessonCommand(
-    Guid? InstructorId,
-    IReadOnlyList<Guid>? StudentIds,
+    long? InstructorId,
+    IReadOnlyList<long>? StudentIds,
     DateOnly Date,
     [property: AuditPlain] string? StartTime,
     int? DurationMinutes,
@@ -72,7 +72,7 @@ public sealed class SchedulePrivateLessonUseCase(
             return AccessRules.NotYours();
         }
 
-        IReadOnlyList<Guid> studentIds = command.StudentIds ?? [];
+        IReadOnlyList<long> studentIds = command.StudentIds ?? [];
         var students = await studentRepository.ListSummariesByIdsAsync([.. studentIds.Distinct()], cancellationToken);
         if (students.Count != studentIds.Distinct().Count())
         {

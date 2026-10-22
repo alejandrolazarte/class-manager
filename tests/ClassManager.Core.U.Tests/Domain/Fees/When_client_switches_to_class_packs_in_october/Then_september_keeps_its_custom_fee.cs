@@ -7,11 +7,11 @@ public sealed class Then_september_keeps_its_custom_fee
     [Fact]
     public void Then_september_keeps_its_custom_fee_Run()
     {
-        var clientId = Guid.CreateVersion7();
+        var clientId = TestIds.Next();
         var changes = new[]
         {
-            ClientBillingPlanChange.Create(clientId, BillingMonth.Parse("2026-10").Value!, BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!,
-            ClientBillingPlanChange.Create(clientId, BillingMonth.Parse("2026-01").Value!, BillingPlanKind.CustomFee, 20000m, TestData.Today, TestData.Now).Value!,
+            ClientBillingPlanChange.Create(clientId, BillingMonth.Parse("2026-10").Value!, BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId(),
+            ClientBillingPlanChange.Create(clientId, BillingMonth.Parse("2026-01").Value!, BillingPlanKind.CustomFee, 20000m, TestData.Today, TestData.Now).Value!.WithId(),
         };
 
         var septemberPlan = FeeTimeline.PlanIn(changes, [], BillingMonth.Parse("2026-09").Value!);

@@ -10,10 +10,10 @@ internal sealed class AnnouncementRepository(AppDbContext context) : IAnnounceme
 
     public void AddReply(AnnouncementReply reply) => context.AnnouncementReplies.Add(reply);
 
-    public Task<Announcement?> FindForUpdateAsync(Guid announcementId, CancellationToken cancellationToken) =>
+    public Task<Announcement?> FindForUpdateAsync(long announcementId, CancellationToken cancellationToken) =>
         context.Announcements.FirstOrDefaultAsync(announcement => announcement.Id == announcementId, cancellationToken);
 
-    public Task<Announcement?> FindDeletedForUpdateAsync(Guid announcementId, CancellationToken cancellationToken) =>
+    public Task<Announcement?> FindDeletedForUpdateAsync(long announcementId, CancellationToken cancellationToken) =>
         context.Announcements
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             .FirstOrDefaultAsync(announcement => announcement.Id == announcementId && announcement.IsDeleted, cancellationToken);
@@ -21,7 +21,7 @@ internal sealed class AnnouncementRepository(AppDbContext context) : IAnnounceme
     public Task<Announcement?> FindPinnedForUpdateAsync(CancellationToken cancellationToken) =>
         context.Announcements.FirstOrDefaultAsync(announcement => announcement.IsPinned, cancellationToken);
 
-    public Task<AnnouncementReply?> FindReplyForUpdateAsync(Guid announcementId, Guid clientId, CancellationToken cancellationToken) =>
+    public Task<AnnouncementReply?> FindReplyForUpdateAsync(long announcementId, long clientId, CancellationToken cancellationToken) =>
         context.AnnouncementReplies.FirstOrDefaultAsync(
             reply => reply.AnnouncementId == announcementId && reply.ClientId == clientId, cancellationToken);
 
@@ -31,12 +31,12 @@ internal sealed class AnnouncementRepository(AppDbContext context) : IAnnounceme
             .OrderByDescending(announcement => announcement.PublishedAt)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<AnnouncementView>> ListViewsAsync(IReadOnlyCollection<Guid> announcementIds, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<AnnouncementView>> ListViewsAsync(IReadOnlyCollection<long> announcementIds, CancellationToken cancellationToken) =>
         await context.AnnouncementViews.AsNoTracking()
             .Where(view => announcementIds.Contains(view.AnnouncementId))
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<AnnouncementReply>> ListRepliesAsync(IReadOnlyCollection<Guid> announcementIds, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<AnnouncementReply>> ListRepliesAsync(IReadOnlyCollection<long> announcementIds, CancellationToken cancellationToken) =>
         await context.AnnouncementReplies.AsNoTracking()
             .Where(reply => announcementIds.Contains(reply.AnnouncementId))
             .ToListAsync(cancellationToken);

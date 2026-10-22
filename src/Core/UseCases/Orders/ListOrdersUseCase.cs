@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Authorization;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record ListOrdersQuery(Guid? ClientId, bool AwaitingPickupOnly, bool OwingOnly = false) : IQuery;
+public sealed record ListOrdersQuery(long? ClientId, bool AwaitingPickupOnly, bool OwingOnly = false) : IQuery;
 
 public sealed class ListOrdersUseCase(
     IOrderRepository orderRepository,
@@ -21,7 +21,7 @@ public sealed class ListOrdersUseCase(
         var scope = await accessScopes.ForClientsAsync(Permissions.Orders.ViewAll, cancellationToken);
         var orders = await orderRepository.ListAsync(
             new OrderSearchCriteria(command.ClientId, command.AwaitingPickupOnly, OrderLimit, command.OwingOnly), scope, cancellationToken);
-        var clientIds = orders.Select(order => order.ClientId).OfType<Guid>().Distinct().ToList();
+        var clientIds = orders.Select(order => order.ClientId).OfType<long>().Distinct().ToList();
         var clientsById = (await clientRepository.ListByIdsAsync(clientIds, cancellationToken)).ToDictionary(client => client.Id);
         var classGroupNames = orders.Any(order => order.DeliveryClassGroupId is not null)
             ? (await classGroupRepository.ListAllAsync(cancellationToken)).ToDictionary(classGroup => classGroup.Id, classGroup => classGroup.Name)

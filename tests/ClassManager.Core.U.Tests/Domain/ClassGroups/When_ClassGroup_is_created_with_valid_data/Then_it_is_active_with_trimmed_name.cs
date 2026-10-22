@@ -9,7 +9,7 @@ public sealed class Then_it_is_active_with_trimmed_name
     {
         var schedule = ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!;
 
-        var classGroup = ClassGroup.Create("  Natación inicial ", Guid.CreateVersion7(), schedule, 8, " ");
+        var classGroup = ClassGroup.Create("  Natación inicial ", TestIds.Next(), schedule, 8, " ");
 
         classGroup.Value!.Name.ShouldBe("Natación inicial");
         classGroup.Value.IsActive.ShouldBeTrue();

@@ -57,7 +57,7 @@ internal static class FeeEndpoints
     }
 
     private static async Task<IResult> DeleteClientBillingPlanChangeAsync(
-        Guid clientId,
+        long clientId,
         string month,
         IUseCase<DeleteClientBillingPlanChangeCommand, ClientBillingResponse> useCase,
         CancellationToken cancellationToken)
@@ -68,7 +68,7 @@ internal static class FeeEndpoints
     }
 
     private static async Task<IResult> SetClientBillingPlanAsync(
-        Guid clientId,
+        long clientId,
         SetClientBillingPlanRequest request,
         IUseCase<SetClientBillingPlanCommand, ClientBillingResponse> useCase,
         CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ internal static class FeeEndpoints
     }
 
     private static async Task<IResult> RecordPaymentAsync(
-        Guid clientId,
+        long clientId,
         RecordPaymentRequest request,
         IUseCase<RecordPaymentCommand, PaymentResponse> useCase,
         CancellationToken cancellationToken)
@@ -91,7 +91,7 @@ internal static class FeeEndpoints
     }
 
     private static async Task<IResult> ListClientPaymentsAsync(
-        Guid clientId,
+        long clientId,
         IUseCase<ListClientPaymentsQuery, IReadOnlyList<PaymentResponse>> useCase,
         CancellationToken cancellationToken)
     {
@@ -101,7 +101,7 @@ internal static class FeeEndpoints
     }
 
     private static async Task<IResult> DeletePaymentAsync(
-        Guid paymentId,
+        long paymentId,
         IUseCase<DeletePaymentCommand, PaymentResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -111,7 +111,7 @@ internal static class FeeEndpoints
     }
 
     private static async Task<IResult> RestorePaymentAsync(
-        Guid paymentId,
+        long paymentId,
         IUseCase<RestorePaymentCommand, PaymentResponse> useCase,
         CancellationToken cancellationToken)
     {

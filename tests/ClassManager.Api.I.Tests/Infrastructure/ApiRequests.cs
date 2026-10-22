@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Students;
+using ClassManager.Infrastructure.Json;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
@@ -18,10 +19,10 @@ public static class ApiRequests
     public const string ProblemJsonMediaType = "application/problem+json";
     public const string InternalNamespacePrefix = "ClassManager.";
 
-    public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    public static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
     {
         Converters = { new JsonStringEnumConverter() },
-    };
+    }.WriteIdsAsStrings();
 
     public static Task<HttpResponseMessage> PostClientAsync(
         this HttpClient httpClient,
@@ -35,13 +36,13 @@ public static class ApiRequests
 
     public static Task<HttpResponseMessage> PutClientAsync(
         this HttpClient httpClient,
-        Guid clientId,
+        long clientId,
         UpdateClientRequest request) =>
         httpClient.PutAsJsonAsync($"{ApiRoutes.Clients}/{clientId}", request, JsonOptions);
 
     public static Task<HttpResponseMessage> PostStudentAsync(
         this HttpClient httpClient,
-        Guid clientId,
+        long clientId,
         string fullName = StudentFullName) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.StudentsOfClient}",
@@ -50,7 +51,7 @@ public static class ApiRequests
 
     public static async Task<StudentResponse> AddStudentAsync(
         this HttpClient httpClient,
-        Guid clientId,
+        long clientId,
         string fullName = StudentFullName)
     {
         using var response = await httpClient.PostStudentAsync(clientId, fullName);

@@ -9,7 +9,6 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.HasKey(order => order.Id);
-        builder.Property(order => order.Id).ValueGeneratedNever();
         builder.Property(order => order.Channel).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(order => order.CurrencyCode).HasMaxLength(Business.CurrencyCodeLength).IsFixedLength().IsRequired();
         builder.Property(order => order.Status).HasConversion<string>().HasMaxLength(EnumMaxLength);

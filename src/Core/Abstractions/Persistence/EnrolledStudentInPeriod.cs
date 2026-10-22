@@ -1,7 +1,7 @@
 namespace ClassManager.Core.Abstractions.Persistence;
 
 public sealed record EnrolledStudentInPeriod(
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     string ClientPhoneNumber,
     string StudentFullName);

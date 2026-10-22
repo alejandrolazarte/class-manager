@@ -18,17 +18,17 @@ public sealed class ClientInvitation : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClientId { get; private set; }
-    public Guid? StudentId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClientId { get; private set; }
+    public long? StudentId { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public string TokenHash { get; private set; } = string.Empty;
-    public Guid? InvitedByUserId { get; private set; }
+    public long? InvitedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset ExpiresAt { get; private set; }
     public DateTimeOffset? AcceptedAt { get; private set; }
     public DateTimeOffset? RevokedAt { get; private set; }
@@ -36,18 +36,18 @@ public sealed class ClientInvitation : ITenantOwned, IAuditable
     public string? GuardianEmail { get; private set; }
     public string? GuardianTokenHash { get; private set; }
     public DateTimeOffset? GuardianConsentedAt { get; private set; }
-    public Guid? ContactAdultConfirmedByUserId { get; private set; }
+    public long? ContactAdultConfirmedByUserId { get; private set; }
     public DateTimeOffset? ContactAdultConfirmedAt { get; private set; }
 
     public bool AwaitsGuardianConsent => GuardianTokenHash is not null && GuardianConsentedAt is null;
 
     public static Result<ClientInvitation> Create(
-        Guid clientId,
+        long clientId,
         string? email,
         string tokenHash,
-        Guid? invitedByUserId,
+        long? invitedByUserId,
         DateTimeOffset createdAt,
-        Guid? studentId = null)
+        long? studentId = null)
     {
         var trimmedEmail = email?.Trim() ?? string.Empty;
         if (!IsValidEmail(trimmedEmail))
@@ -57,7 +57,6 @@ public sealed class ClientInvitation : ITenantOwned, IAuditable
 
         return new ClientInvitation
         {
-            Id = Guid.CreateVersion7(),
             ClientId = clientId,
             StudentId = studentId,
             Email = trimmedEmail,
@@ -82,7 +81,7 @@ public sealed class ClientInvitation : ITenantOwned, IAuditable
         GuardianTokenHash = guardianTokenHash;
     }
 
-    public void ConfirmContactIsAdult(Guid? confirmedByUserId, DateTimeOffset confirmedAt)
+    public void ConfirmContactIsAdult(long? confirmedByUserId, DateTimeOffset confirmedAt)
     {
         ContactAdultConfirmedByUserId = confirmedByUserId;
         ContactAdultConfirmedAt = confirmedAt.ToUniversalTime();

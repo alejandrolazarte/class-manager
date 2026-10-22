@@ -8,9 +8,9 @@ public interface IOrganizationMemberRepository
 
     void Remove(OrganizationMember member);
 
-    Task<OrganizationMember?> FindForUpdateAsync(Guid organizationId, Guid userId, CancellationToken cancellationToken);
+    Task<OrganizationMember?> FindForUpdateAsync(long organizationId, Guid userId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Guid>> ListBrandOwnerUserIdsAsync(Guid organizationId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Guid>> ListBrandOwnerUserIdsAsync(long organizationId, CancellationToken cancellationToken);
 
     Task<bool> IsTheOnlyBrandOwnerOfABrandAsync(Guid accountId, CancellationToken cancellationToken);
 }

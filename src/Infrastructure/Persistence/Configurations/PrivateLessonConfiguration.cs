@@ -7,7 +7,6 @@ internal sealed class PrivateLessonConfiguration : IEntityTypeConfiguration<Priv
     public void Configure(EntityTypeBuilder<PrivateLesson> builder)
     {
         builder.HasKey(lesson => lesson.Id);
-        builder.Property(lesson => lesson.Id).ValueGeneratedNever();
         builder.Property(lesson => lesson.Location).HasMaxLength(PrivateLesson.LocationMaxLength);
         builder.Property(lesson => lesson.Notes).HasMaxLength(PrivateLesson.NotesMaxLength);
         builder.Property(lesson => lesson.CancellationReason).HasMaxLength(PrivateLesson.CancellationReasonMaxLength);

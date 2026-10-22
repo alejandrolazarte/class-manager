@@ -9,7 +9,7 @@ public sealed class Then_returns_validation
     public void Then_returns_validation_Run()
     {
         var schedule = ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!;
-        var lesson = PrivateLesson.Create(Guid.CreateVersion7(), TestData.Today, schedule, [Guid.CreateVersion7()], null, null, null, TestData.Now).Value!;
+        var lesson = PrivateLesson.Create(TestIds.Next(), TestData.Today, schedule, [TestIds.Next()], null, null, null, TestData.Now).Value!.WithId();
 
         var trial = lesson.SetTrial(isTrial: false, trialPrice: 25m);
 

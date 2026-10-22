@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ClassManager.Core.Common;
+using ClassManager.Infrastructure.Json;
 using ClassManager.Subscriptions.Access;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +30,8 @@ internal static class ResultHttpExtensions
                 extensions: new Dictionary<string, object?> { [ErrorCodeExtension] = error.Code });
         }
 
-        var extensions = new Dictionary<string, object?>(error.Details) { [ErrorCodeExtension] = error.Code };
+        var extensions = error.Details.WithIdsAsStrings();
+        extensions[ErrorCodeExtension] = error.Code;
 
         var problem = TypedResults.Problem(new ProblemDetails
         {

@@ -8,7 +8,7 @@ public sealed class Then_validation_fails
     public void Then_validation_fails_Run()
     {
         var record = MeasurementRecord.Create(
-            Guid.NewGuid(), MeasurementSamples.Time(), TestData.Today.AddDays(1), 29.7m, null, TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false);
+            TestIds.Next(), MeasurementSamples.Time(), TestData.Today.AddDays(1), 29.7m, null, TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false);
 
         record.Error!.FieldName.ShouldBe(nameof(MeasurementRecord.MeasuredOn));
     }

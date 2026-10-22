@@ -9,7 +9,7 @@ public sealed class Then_returns_conflict
     {
         var builder = new EnrollmentUseCaseBuilder();
         builder.PayPerClass();
-        builder.BuyActivePack([Guid.CreateVersion7()]);
+        builder.BuyActivePack([TestIds.Next()]);
 
         var response = await builder.BuildEnroll().ExecuteAsync(builder.ValidCommand(), CancellationToken.None);
 

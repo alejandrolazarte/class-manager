@@ -7,7 +7,7 @@ public sealed class Then_email_is_trimmed
     [Fact]
     public void Then_email_is_trimmed_Run()
     {
-        var student = Student.Create(Guid.CreateVersion7(), TestData.StudentFullName, null, null, TestData.Today, TestData.Now, " tomas@example.com ");
+        var student = Student.Create(TestData.Client(), TestData.StudentFullName, null, null, TestData.Today, TestData.Now, " tomas@example.com ");
 
         student.Value!.User.Email.ShouldBe("tomas@example.com");
     }

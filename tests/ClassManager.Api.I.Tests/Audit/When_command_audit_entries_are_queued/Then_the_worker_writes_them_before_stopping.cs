@@ -18,7 +18,7 @@ public sealed class Then_the_worker_writes_them_before_stopping
 
         for (var entryNumber = 0; entryNumber < EntryCount; entryNumber++)
         {
-            auditLog.Record(CommandAuditEntries.Succeeded(Guid.CreateVersion7()));
+            auditLog.Record(CommandAuditEntries.Succeeded(TestIds.Next()));
         }
 
         await worker.StopAsync(CancellationToken.None);

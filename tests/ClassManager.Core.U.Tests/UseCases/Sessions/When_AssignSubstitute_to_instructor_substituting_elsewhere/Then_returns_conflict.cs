@@ -11,8 +11,8 @@ public sealed class Then_returns_conflict
     {
         var builder = new SessionUseCaseBuilder();
         var otherClassGroup = ClassGroup.Create(
-            "Aquagym", Guid.CreateVersion7(), ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!, 10, null).Value!;
-        var otherSession = ClassSession.Create(otherClassGroup.Id, TestData.Today, TestData.Now);
+            "Aquagym", TestIds.Next(), ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!, 10, null).Value!.WithId();
+        var otherSession = ClassSession.Create(otherClassGroup.Id, TestData.Today, TestData.Now).WithId();
         otherSession.AssignSubstitute(builder.Substitute.Id, otherClassGroup.InstructorId, TestData.Now);
         builder.ClassGroups.Setup(repository => repository.GetByIdAsync(otherClassGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(otherClassGroup);
         builder.Sessions

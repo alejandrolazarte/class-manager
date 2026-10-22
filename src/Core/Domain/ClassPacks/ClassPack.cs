@@ -34,8 +34,8 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public int ClassCount { get; private set; }
@@ -44,21 +44,20 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     public int? ClassDurationMinutes { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public IReadOnlyList<ClassPackImage> Images => _images;
     public IReadOnlyList<Document> ImagesInOrder => CatalogImageGallery.InOrder(_images);
     public int ImageCount => _images.Count;
     public int MaximumImageCount => MaximumImages;
     public IReadOnlyList<ClassPackClassGroup> ClassGroups => _classGroups;
-    public IReadOnlyList<Guid> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
+    public IReadOnlyList<long> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
 
     public static Result<ClassPack> Create(string? name, int? classCount, decimal? price, int? validityMonths, DateTimeOffset createdAt)
     {
         var pack = new ClassPack
         {
-            Id = Guid.CreateVersion7(),
             IsActive = true,
             CreatedAt = createdAt.ToUniversalTime(),
         };
@@ -97,7 +96,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         return Result.Success();
     }
 
-    public Result DefineLessons(IReadOnlyCollection<Guid> classGroupIds, int? classDurationMinutes)
+    public Result DefineLessons(IReadOnlyCollection<long> classGroupIds, int? classDurationMinutes)
     {
         if (classDurationMinutes is not null
             && (classDurationMinutes is < ClassSchedule.MinimumDurationMinutes or > ClassSchedule.MaximumDurationMinutes
@@ -133,7 +132,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         return Result.Success();
     }
 
-    private void CoverClassGroups(IEnumerable<Guid> classGroupIds)
+    private void CoverClassGroups(IEnumerable<long> classGroupIds)
     {
         var requestedIds = classGroupIds.ToHashSet();
         _classGroups.RemoveAll(classGroup => !requestedIds.Contains(classGroup.ClassGroupId));
@@ -143,13 +142,13 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         }
     }
 
-    public bool CoversClassGroup(Guid classGroupId) => _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId);
+    public bool CoversClassGroup(long classGroupId) => _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId);
 
     public void AddImage(Document document) => _images.Add(ClassPackImage.Create(Id, document, _images.Count));
 
-    public Document? RemoveImage(Guid documentId) => CatalogImageGallery.Remove(_images, documentId);
+    public Document? RemoveImage(long documentId) => CatalogImageGallery.Remove(_images, documentId);
 
-    public Result ReorderImages(IReadOnlyList<Guid>? documentIds) => CatalogImageGallery.Reorder(_images, documentIds);
+    public Result ReorderImages(IReadOnlyList<long>? documentIds) => CatalogImageGallery.Reorder(_images, documentIds);
 
     public void Activate() => IsActive = true;
 

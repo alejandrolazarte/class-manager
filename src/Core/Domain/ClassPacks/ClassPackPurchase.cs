@@ -18,10 +18,10 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClientId { get; private set; }
-    public Guid ClassPackId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClientId { get; private set; }
+    public long ClassPackId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public int ClassCount { get; private set; }
     public decimal Price { get; private set; }
@@ -31,18 +31,18 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     public PaymentMethod? Method { get; private set; }
     public string? Notes { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
-    public Guid? TrialLessonId { get; private set; }
-    public Guid? RecordedByUserId { get; private set; }
+    public long? TrialLessonId { get; private set; }
+    public long? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public static Result<ClassPackPurchase> Sell(
-        Guid clientId,
+        long clientId,
         ClassPack pack,
         decimal? price,
         string currencyCode,
@@ -51,7 +51,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
         string? notes,
         DateOnly today,
         DateTimeOffset createdAt,
-        Guid? recordedByUserId = null)
+        long? recordedByUserId = null)
     {
         if (!pack.IsActive)
         {
@@ -79,7 +79,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     }
 
     public static Result<ClassPackPurchase> ForOrder(
-        Guid clientId,
+        long clientId,
         ClassPack pack,
         decimal price,
         string currencyCode,
@@ -87,10 +87,10 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
         PaymentMethod? method,
         string? notes,
         DateTimeOffset createdAt,
-        Guid? recordedByUserId) =>
+        long? recordedByUserId) =>
         Create(clientId, pack, price, currencyCode, purchasedOn, method, notes, createdAt, recordedByUserId);
 
-    public void DeductTrial(Guid trialLessonId) => TrialLessonId = trialLessonId;
+    public void DeductTrial(long trialLessonId) => TrialLessonId = trialLessonId;
 
     public void KeepUsedClasses(int usedClasses, decimal refundedAmount)
     {
@@ -107,7 +107,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     }
 
     private static Result<ClassPackPurchase> Create(
-        Guid clientId,
+        long clientId,
         ClassPack pack,
         decimal price,
         string currencyCode,
@@ -115,7 +115,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
         PaymentMethod? method,
         string? notes,
         DateTimeOffset createdAt,
-        Guid? recordedByUserId)
+        long? recordedByUserId)
     {
         var trimmedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
         if (trimmedNotes?.Length > NotesMaxLength)
@@ -125,7 +125,6 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
 
         return new ClassPackPurchase
         {
-            Id = Guid.CreateVersion7(),
             ClientId = clientId,
             ClassPackId = pack.Id,
             Name = pack.Name,

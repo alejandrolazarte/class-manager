@@ -5,14 +5,14 @@ internal sealed class MemberInvitationRepository(AppDbContext context) : IMember
 {
     public void Add(MemberInvitation invitation) => context.MemberInvitations.Add(invitation);
 
-    public Task<MemberInvitation?> GetForUpdateAsync(Guid invitationId, CancellationToken cancellationToken) =>
+    public Task<MemberInvitation?> GetForUpdateAsync(long invitationId, CancellationToken cancellationToken) =>
         context.MemberInvitations.FirstOrDefaultAsync(invitation => invitation.Id == invitationId, cancellationToken);
 
     public async Task<IReadOnlyList<MemberInvitation>> ListPendingAsync(DateTimeOffset now, CancellationToken cancellationToken) =>
         await PendingAt(context.MemberInvitations.AsNoTracking(), now).ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<MemberInvitation>> ListPendingByCustomRoleAsync(
-        Guid customRoleId,
+        long customRoleId,
         DateTimeOffset now,
         CancellationToken cancellationToken) =>
         await PendingAt(context.MemberInvitations.AsNoTracking(), now)
@@ -28,7 +28,7 @@ internal sealed class MemberInvitationRepository(AppDbContext context) : IMember
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<MemberInvitation>> ListPendingForUpdateByInstructorAsync(
-        Guid instructorId,
+        long instructorId,
         DateTimeOffset now,
         CancellationToken cancellationToken) =>
         await PendingAt(context.MemberInvitations, now)

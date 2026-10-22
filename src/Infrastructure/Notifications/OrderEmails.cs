@@ -18,7 +18,7 @@ internal static class OrderEmails
     public static string Amount(decimal amount, string currencyCode) =>
         $"{amount.ToString(AmountFormat, SpanishCulture)} {currencyCode}";
 
-    public static EmailMessage To(OrderEmailRecipient recipient, Guid businessId, EmailText text) =>
+    public static EmailMessage To(OrderEmailRecipient recipient, long businessId, EmailText text) =>
         new(recipient.Email, text.Subject, text.Content, businessId);
 }
 
