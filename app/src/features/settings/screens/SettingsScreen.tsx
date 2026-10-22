@@ -36,8 +36,7 @@ import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { planLabel } from "@/features/subscriptions/subscriptionLabels";
-import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
-import { usePlanBadges, useSubscription } from "@/features/subscriptions/useSubscription";
+import { useSubscription } from "@/features/subscriptions/useSubscription";
 
 function countValue(count: number | undefined): string | undefined {
   return count === undefined || count === 0 ? undefined : String(count);
@@ -62,13 +61,6 @@ export function SettingsScreen() {
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
   const subscription = useSubscription();
-  const planBadgeOf = usePlanBadges([
-    featureCodes.brand,
-    featureCodes.customRoles,
-    featureCodes.classPacks,
-    featureCodes.shop,
-    featureCodes.importExport,
-  ]);
   const { data: branches = [] } = useBranches();
   const { data: classPacks } = useClassPacks(false, { enabled: canViewClassPacks });
   const { data: products } = useProducts(false, { enabled: canViewProducts });
@@ -92,7 +84,6 @@ export function SettingsScreen() {
           icon: "palette",
           label: translate("settings.brand"),
           value: hasCustomBrand ? translate("settings.brandCustom") : undefined,
-          planBadge: planBadgeOf(featureCodes.brand),
           onPress: () => router.push(routes.brandSettings),
         },
         {
@@ -136,7 +127,6 @@ export function SettingsScreen() {
           isVisible: canViewTeam,
           icon: "roles",
           label: translate("settings.roles"),
-          planBadge: planBadgeOf(featureCodes.customRoles),
           onPress: () => router.push(routes.roles),
         },
         {
@@ -178,7 +168,6 @@ export function SettingsScreen() {
           icon: "classPacks",
           label: translate("settings.classPacks"),
           value: countValue(classPacks?.length),
-          planBadge: planBadgeOf(featureCodes.classPacks),
           onPress: () => router.push(routes.classPacks),
         },
         {
@@ -187,7 +176,6 @@ export function SettingsScreen() {
           icon: "products",
           label: translate("settings.products"),
           value: countValue(products?.length),
-          planBadge: planBadgeOf(featureCodes.shop),
           onPress: () => router.push(routes.products),
         },
         {
@@ -231,7 +219,6 @@ export function SettingsScreen() {
           isVisible: canImportExport,
           icon: "importExport",
           label: translate("settings.importExport"),
-          planBadge: planBadgeOf(featureCodes.importExport),
           onPress: () => router.push(routes.importExport),
         },
       ],

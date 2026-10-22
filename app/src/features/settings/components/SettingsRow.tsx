@@ -2,13 +2,11 @@ import { View } from "react-native";
 import { AppText } from "@/ui/AppText";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon, IconName } from "@/ui/Icon";
-import { StatusPill } from "@/ui/StatusPill";
 
 interface SettingsRowProps {
   icon: IconName;
   label: string;
   value?: string;
-  planBadge?: string;
   onPress?: () => void;
   isDestructive?: boolean;
   isExternal?: boolean;
@@ -19,7 +17,6 @@ export function SettingsRow({
   icon,
   label,
   value,
-  planBadge,
   onPress,
   isDestructive = false,
   isExternal = false,
@@ -29,7 +26,7 @@ export function SettingsRow({
     <HairlineRow
       onPress={onPress}
       accessibilityLabel={label}
-      accessibilityHint={[planBadge, value].filter(Boolean).join(", ") || undefined}
+      accessibilityHint={value}
       hasDivider={hasDivider}
       className="min-h-12 flex-row items-center gap-3 py-2.5"
     >
@@ -39,11 +36,6 @@ export function SettingsRow({
           {label}
         </AppText>
       </View>
-      {planBadge ? (
-        <View>
-          <StatusPill label={planBadge} tone="primary" isSmall />
-        </View>
-      ) : null}
       {value ? (
         <AppText variant="caption" tone="subtle" numberOfLines={1}>
           {value}

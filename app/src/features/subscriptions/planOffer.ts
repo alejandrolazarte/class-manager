@@ -4,10 +4,9 @@ import {
   countedFeatureCodes,
   FeatureCode,
   featureCodes,
-  planCodes,
   subscriptionErrorCodes,
 } from "@/features/subscriptions/subscriptionCodes";
-import { CurrentSubscription, FeatureLimit, Plan } from "@/features/subscriptions/types";
+import { CurrentSubscription, FeatureLimit } from "@/features/subscriptions/types";
 import { TranslationKey } from "@/i18n/translate";
 
 const featureExtensionName = "feature";
@@ -64,19 +63,4 @@ export function usageOf(
   return feature !== undefined && feature.limit !== null && feature.used != null
     ? feature
     : undefined;
-}
-
-const paidPlanOrder: readonly string[] = [planCodes.lite, planCodes.pro, planCodes.enterprise];
-
-export function firstPlanIncluding(
-  plans: readonly Plan[],
-  featureCode: string,
-): string | undefined {
-  return paidPlanOrder.find((planCode) =>
-    plans.some(
-      (plan) =>
-        plan.code === planCode &&
-        plan.features.some((feature) => feature.code === featureCode && feature.limit !== 0),
-    ),
-  );
 }
