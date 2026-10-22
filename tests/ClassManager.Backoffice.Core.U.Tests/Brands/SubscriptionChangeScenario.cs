@@ -25,7 +25,7 @@ internal sealed class SubscriptionChangeScenario
         Repository.Features.Add(Feature.CreateAddOn(Features.Shop, isCounted: false, 5m, Currency));
     }
 
-    public Guid BrandId { get; } = Guid.CreateVersion7();
+    public long BrandId { get; } = TestIds.Next();
 
     public InMemoryBrandSubscriptionRepository Repository { get; } = new();
 
@@ -54,18 +54,18 @@ internal sealed class SubscriptionChangeScenario
         new GiveBrandAddOnUseCase(Repository, UnitOfWork, _timeProvider)
             .ExecuteAsync(new GiveBrandAddOnCommand(BrandId, featureCode, 10m, Currency, limit, ExpiredOn: null), CancellationToken.None);
 
-    public Task<Result<BrandAddOnResponse>> RemoveAddOnAsync(Guid addOnId) =>
+    public Task<Result<BrandAddOnResponse>> RemoveAddOnAsync(long addOnId) =>
         new RemoveBrandAddOnUseCase(Repository, UnitOfWork, _timeProvider)
             .ExecuteAsync(new RemoveBrandAddOnCommand(BrandId, addOnId), CancellationToken.None);
 
-    public Task<Result<BrandAddOnResponse>> RestoreAddOnAsync(Guid addOnId) =>
+    public Task<Result<BrandAddOnResponse>> RestoreAddOnAsync(long addOnId) =>
         new RestoreBrandAddOnUseCase(Repository, UnitOfWork)
             .ExecuteAsync(new RestoreBrandAddOnCommand(BrandId, addOnId), CancellationToken.None);
 }
 
 internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRepository
 {
-    public List<Guid> BrandIds { get; } = [];
+    public List<long> BrandIds { get; } = [];
 
     public List<Plan> Plans { get; } = [];
 
@@ -75,7 +75,7 @@ internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRe
 
     public List<SubscriptionFeature> AddOns { get; } = [];
 
-    public Task<bool> BrandExistsAsync(Guid brandId, CancellationToken cancellationToken) =>
+    public Task<bool> BrandExistsAsync(long brandId, CancellationToken cancellationToken) =>
         Task.FromResult(BrandIds.Contains(brandId));
 
     public Task<IReadOnlyList<Plan>> ListActivePlansAsync(CancellationToken cancellationToken) =>
@@ -84,10 +84,10 @@ internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRe
     public Task<IReadOnlyList<Feature>> ListFeaturesAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Feature>>(Features);
 
-    public Task<Subscription?> FindCurrentSubscriptionAsync(Guid brandId, CancellationToken cancellationToken) =>
+    public Task<Subscription?> FindCurrentSubscriptionAsync(long brandId, CancellationToken cancellationToken) =>
         Task.FromResult(Subscriptions.FirstOrDefault(subscription => subscription.SubscriberId == brandId && !subscription.IsDeleted));
 
-    public Task<IReadOnlyList<SubscriptionFeature>> ListAddOnsIncludingRemovedAsync(Guid subscriptionId, CancellationToken cancellationToken) =>
+    public Task<IReadOnlyList<SubscriptionFeature>> ListAddOnsIncludingRemovedAsync(long subscriptionId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<SubscriptionFeature>>([.. AddOns.Where(addOn => addOn.SubscriptionId == subscriptionId)]);
 
     public void Add(Subscription subscription) => Subscriptions.Add(subscription);

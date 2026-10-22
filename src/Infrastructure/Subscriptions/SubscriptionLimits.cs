@@ -22,7 +22,8 @@ internal static class SubscriptionLimits
 
         limits.Count<Business>(
             Features.Branches,
-            CountBranchesOfCurrentOrganizationAsync);
+            CountBranchesOfCurrentOrganizationAsync,
+            IsBranchOfAnExistingBrand);
 
         limits.Sum<Document>(
             Features.DocumentStorage,
@@ -44,6 +45,8 @@ internal static class SubscriptionLimits
             cancellationToken);
         return memberCount + pendingInvitationCount;
     }
+
+    private static bool IsBranchOfAnExistingBrand(Business business) => business.Organization is null;
 
     private static async Task<int> CountBranchesOfCurrentOrganizationAsync(AppDbContext context, IServiceProvider services, CancellationToken cancellationToken)
     {

@@ -8,9 +8,9 @@ public sealed class Then_returns_email_taken
     public async Task Then_returns_email_taken_Run()
     {
         var builder = new RegisterClientUseCaseBuilder();
-        var otherClient = User.Create("Ana Gómez", "ana@example.com", TestData.Now).Value!;
+        var otherClient = User.Create("Ana Gómez", "ana@example.com", TestData.Now).Value!.WithId();
         builder.Users
-            .Setup(repository => repository.FindByEmailForUpdateAsync("ana@example.com", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.FindByEmailForUpdateAsync("ana@example.com", It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(otherClient);
         builder.Users
             .Setup(repository => repository.GetRolesAsync(otherClient.Id, It.IsAny<CancellationToken>()))

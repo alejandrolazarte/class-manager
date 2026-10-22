@@ -18,21 +18,21 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record InviteStudentAppRequest(
     string? Email,
-    Guid? StudentId = null,
+    long? StudentId = null,
     DateOnly? BirthDate = null,
     bool ConfirmsContactIsAdult = false,
-    Guid? SamePersonUserId = null)
+    long? SamePersonUserId = null)
 {
-    public InviteStudentAppCommand ToCommand(Guid clientId) => new(clientId, Email, StudentId, BirthDate, ConfirmsContactIsAdult, SamePersonUserId);
+    public InviteStudentAppCommand ToCommand(long clientId) => new(clientId, Email, StudentId, BirthDate, ConfirmsContactIsAdult, SamePersonUserId);
 }
 
 public sealed record InviteStudentAppCommand(
-    Guid ClientId,
+    long ClientId,
     [property: AuditPersonal] string? Email,
-    Guid? StudentId = null,
+    long? StudentId = null,
     [property: AuditPersonal] DateOnly? BirthDate = null,
     bool ConfirmsContactIsAdult = false,
-    Guid? SamePersonUserId = null) : ICommand;
+    long? SamePersonUserId = null) : ICommand;
 
 public sealed class InviteStudentAppUseCase(
     IClientRepository clientRepository,
@@ -249,7 +249,7 @@ public sealed class InviteStudentAppUseCase(
 
     private static Result<Recipient> StudentRecipient(
         Client client,
-        Guid studentId,
+        long studentId,
         IReadOnlyList<Student> familyStudents,
         InviteStudentAppCommand command,
         Business business,

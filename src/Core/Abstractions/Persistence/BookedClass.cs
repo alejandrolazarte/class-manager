@@ -1,3 +1,3 @@
 namespace ClassManager.Core.Abstractions.Persistence;
 
-public sealed record BookedClass(Guid StudentId, Guid ClassGroupId, DateOnly Date, bool IsCancelled);
+public sealed record BookedClass(long StudentId, long ClassGroupId, DateOnly Date, bool IsCancelled);

@@ -10,18 +10,17 @@ public sealed class OrganizationMember : ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid OrganizationId { get; private set; }
+    public long Id { get; private set; }
+    public long OrganizationId { get; private set; }
     public Guid UserId { get; private set; }
     public OrganizationRole Role { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
 
-    public static OrganizationMember CreateBrandOwner(Guid organizationId, Guid userId) =>
+    public static OrganizationMember CreateBrandOwner(long organizationId, Guid userId) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             OrganizationId = organizationId,
             UserId = userId,
             Role = OrganizationRole.BrandOwner,

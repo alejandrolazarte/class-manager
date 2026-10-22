@@ -9,7 +9,7 @@ public sealed class Then_every_feature_in_code_has_a_row(ApiFixture fixture)
     [Fact]
     public async Task Then_every_feature_in_code_has_a_row_Run()
     {
-        await using var context = fixture.CreateDbContext(Guid.Empty);
+        await using var context = fixture.CreateDbContext(0L);
 
         var seededFeatureCodes = await context.Features.Select(feature => feature.Code).ToListAsync();
 

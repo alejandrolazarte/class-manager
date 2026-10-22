@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Infrastructure.BackgroundTasks;
@@ -10,17 +11,20 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 
 public static class BackgroundTaskRequests
 {
+    public static string ScheduledAnnouncementPayloadEnd(long announcementId) =>
+        $"\"announcementId\":{announcementId.ToString(CultureInfo.InvariantCulture)}}}";
+
     public const string EmailSubject = "Background task test";
 
     private static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(50);
 
-    public static string UniqueRecipient() => $"task-{Guid.NewGuid():N}@example.com";
+    public static string UniqueRecipient() => $"task-{TestIds.Next()}@example.com";
 
-    public static SendEmailBackgroundTaskCommand EmailTaskTo(string recipient, Guid businessId) =>
+    public static SendEmailBackgroundTaskCommand EmailTaskTo(string recipient, long businessId) =>
         new(new EmailMessage(recipient, EmailSubject, new EmailContent("Test", EmailSubject, "Intro", "Footer"), businessId));
 
-    public static async Task EnqueueEmailAsync(this ApiFixture fixture, Guid businessId, string recipient)
+    public static async Task EnqueueEmailAsync(this ApiFixture fixture, long businessId, string recipient)
     {
         await using var scope = fixture.ApiFactory.Services.CreateAsyncScope();
         scope.ServiceProvider.GetRequiredService<ITenantScope>().Establish(businessId);
@@ -28,7 +32,7 @@ public static class BackgroundTaskRequests
             .EnqueueAsync(EmailTaskTo(recipient, businessId), CancellationToken.None);
     }
 
-    public static async Task EnqueueEmailAndRollBackAsync(this ApiFixture fixture, Guid businessId, string recipient)
+    public static async Task EnqueueEmailAndRollBackAsync(this ApiFixture fixture, long businessId, string recipient)
     {
         await using var scope = fixture.ApiFactory.Services.CreateAsyncScope();
         scope.ServiceProvider.GetRequiredService<ITenantScope>().Establish(businessId);
@@ -39,7 +43,7 @@ public static class BackgroundTaskRequests
 
     public static async Task<BackgroundTask?> FindTaskToAsync(this ApiFixture fixture, string recipient)
     {
-        await using var context = fixture.CreateDbContext(Guid.Empty);
+        await using var context = fixture.CreateDbContext(0L);
         return await context.BackgroundTasks.AsNoTracking().SingleOrDefaultAsync(task => task.Payload.Contains(recipient));
     }
 
@@ -75,9 +79,9 @@ public static class BackgroundTaskRequests
         throw new TimeoutException($"The background task for {recipient} is still stored.");
     }
 
-    public static async Task MakeLastAttemptDueAsync(this ApiFixture fixture, Guid taskId)
+    public static async Task MakeLastAttemptDueAsync(this ApiFixture fixture, long taskId)
     {
-        await using (var context = fixture.CreateDbContext(Guid.Empty))
+        await using (var context = fixture.CreateDbContext(0L))
         {
             await context.BackgroundTasks
                 .Where(task => task.Id == taskId)

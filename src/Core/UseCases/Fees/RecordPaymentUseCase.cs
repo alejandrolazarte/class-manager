@@ -11,10 +11,10 @@ namespace ClassManager.Core.UseCases.Fees;
 
 public sealed record RecordPaymentRequest(decimal? Amount, string? Month, DateOnly? PaidOn, PaymentMethod? Method, string? Notes)
 {
-    public RecordPaymentCommand ToCommand(Guid clientId) => new(clientId, Amount, Month, PaidOn, Method, Notes);
+    public RecordPaymentCommand ToCommand(long clientId) => new(clientId, Amount, Month, PaidOn, Method, Notes);
 }
 
-public sealed record RecordPaymentCommand(Guid ClientId, decimal? Amount, [property: AuditPlain] string? Month, DateOnly? PaidOn, PaymentMethod? Method, [property: AuditPersonal] string? Notes) : ICommand;
+public sealed record RecordPaymentCommand(long ClientId, decimal? Amount, [property: AuditPlain] string? Month, DateOnly? PaidOn, PaymentMethod? Method, [property: AuditPersonal] string? Notes) : ICommand;
 
 public sealed class RecordPaymentUseCase(
     IClientRepository clientRepository,

@@ -13,30 +13,30 @@ public sealed record CreateAnnouncementCommand(
     [property: AuditPersonal] string? Title,
     [property: AuditPersonal] string? Body,
     AnnouncementCategory? Category = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null,
+    IReadOnlyList<long>? ClassGroupIds = null,
     bool IsPinned = false,
     DateOnly? VisibleUntil = null,
     DateTimeOffset? PublishOn = null,
     AnnouncementAction? Action = null,
     [property: AuditPlain] string? ActionUrl = null) : ICommand;
 
-public sealed record DeleteAnnouncementCommand(Guid AnnouncementId) : ICommand;
+public sealed record DeleteAnnouncementCommand(long AnnouncementId) : ICommand;
 
-public sealed record RestoreAnnouncementCommand(Guid AnnouncementId) : ICommand;
+public sealed record RestoreAnnouncementCommand(long AnnouncementId) : ICommand;
 
-public sealed record PinAnnouncementCommand(Guid AnnouncementId) : ICommand;
+public sealed record PinAnnouncementCommand(long AnnouncementId) : ICommand;
 
-public sealed record UnpinAnnouncementCommand(Guid AnnouncementId) : ICommand;
+public sealed record UnpinAnnouncementCommand(long AnnouncementId) : ICommand;
 
-public sealed record AddAnnouncementImageCommand(Guid AnnouncementId, byte[] Content) : ICommand;
+public sealed record AddAnnouncementImageCommand(long AnnouncementId, byte[] Content) : ICommand;
 
-public sealed record RemoveAnnouncementImageCommand(Guid AnnouncementId, Guid DocumentId) : ICommand;
+public sealed record RemoveAnnouncementImageCommand(long AnnouncementId, long DocumentId) : ICommand;
 
 public sealed record ListAnnouncementsQuery : IQuery;
 
-public sealed record ListAnnouncementRecipientsQuery(Guid AnnouncementId) : IQuery;
+public sealed record ListAnnouncementRecipientsQuery(long AnnouncementId) : IQuery;
 
-public sealed record RemindAnnouncementCommand(Guid AnnouncementId) : ICommand;
+public sealed record RemindAnnouncementCommand(long AnnouncementId) : ICommand;
 
 public static class AnnouncementErrorCodes
 {
@@ -274,7 +274,7 @@ internal static class AnnouncementImageEditing
     public static async Task<Result<AnnouncementResponse>> ChangeAsync(
         IAnnouncementRepository announcementRepository,
         IAnnouncementResponseService responses,
-        Guid announcementId,
+        long announcementId,
         Func<Announcement, Task<Result>> change,
         CancellationToken cancellationToken)
     {

@@ -37,7 +37,7 @@ internal sealed class BrandDirectory(AppDbContext context, TimeProvider timeProv
             studentCounts.GetValueOrDefault(organization.Id)))];
     }
 
-    public async Task<BrandRecord?> FindAsync(Guid brandId, CancellationToken cancellationToken)
+    public async Task<BrandRecord?> FindAsync(long brandId, CancellationToken cancellationToken)
     {
         var organization = await context.Organizations.AsNoTracking()
             .FirstOrDefaultAsync(candidate => candidate.Id == brandId, cancellationToken);
@@ -80,15 +80,21 @@ internal sealed class BrandDirectory(AppDbContext context, TimeProvider timeProv
     private IQueryable<OwnerRow> OwnersOf(IQueryable<OrganizationMember> members) =>
         members
             .Where(member => member.Role == OrganizationRole.BrandOwner)
-            .Join(
-                context.Users.IgnoreTenantFilter(),
-                member => member.UserId,
-                user => user.Id,
-                (member, user) => new { member.OrganizationId, MemberId = member.Id, user.FullName, user.Email })
-            .OrderBy(owner => owner.MemberId)
-            .Select(owner => new OwnerRow(owner.OrganizationId, new BrandOwner(owner.FullName, owner.Email)));
+            .OrderBy(member => member.Id)
+            .Select(member => new
+            {
+                member.OrganizationId,
+                Person = context.Users.IgnoreTenantFilter()
+                    .Where(user => user.AccountId == member.UserId
+                        && context.Businesses.Any(business => business.Id == user.TenantId && business.OrganizationId == member.OrganizationId))
+                    .OrderBy(user => user.Id)
+                    .Select(user => new { user.FullName, user.Email })
+                    .FirstOrDefault(),
+            })
+            .Where(owner => owner.Person != null)
+            .Select(owner => new OwnerRow(owner.OrganizationId, new BrandOwner(owner.Person!.FullName, owner.Person.Email)));
 
-    private async Task<IReadOnlyList<BrandBranch>> BranchesOfAsync(Guid brandId, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<BrandBranch>> BranchesOfAsync(long brandId, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         var branches = await context.Businesses.AsNoTracking()
@@ -130,12 +136,12 @@ internal sealed class BrandDirectory(AppDbContext context, TimeProvider timeProv
             documentBytes.GetValueOrDefault(branch.Id)))];
     }
 
-    private static Task<Dictionary<Guid, int>> CountByBranchAsync(IQueryable<Guid> branchIdsOfRows, List<Guid> branchIds, CancellationToken cancellationToken) =>
+    private static Task<Dictionary<long, int>> CountByBranchAsync(IQueryable<long> branchIdsOfRows, List<long> branchIds, CancellationToken cancellationToken) =>
         branchIdsOfRows
             .Where(branchId => branchIds.Contains(branchId))
             .GroupBy(branchId => branchId)
             .Select(rows => new { BranchId = rows.Key, Count = rows.Count() })
             .ToDictionaryAsync(count => count.BranchId, count => count.Count, cancellationToken);
 
-    private sealed record OwnerRow(Guid OrganizationId, BrandOwner Owner);
+    private sealed record OwnerRow(long OrganizationId, BrandOwner Owner);
 }

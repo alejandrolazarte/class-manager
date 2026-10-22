@@ -9,19 +9,19 @@ public sealed class Subscription : ICreatedOn, ISoftDeletable, IExpiredOn
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid SubscriberId { get; private set; }
+    public long Id { get; private set; }
+    public long SubscriberId { get; private set; }
     public string PlanCode { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
     public string Currency { get; private set; } = string.Empty;
     public string? Note { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateOnly? ExpiredOn { get; private set; }
 
-    public static Subscription StartAtListPrice(Guid subscriberId, Plan plan, DateTimeOffset createdOn)
+    public static Subscription StartAtListPrice(long subscriberId, Plan plan, DateTimeOffset createdOn)
     {
         ArgumentNullException.ThrowIfNull(plan);
         var subscription = Start(subscriberId, plan.Code, plan.ListPrice ?? 0m, plan.Currency, note: null, createdOn);
@@ -34,7 +34,7 @@ public sealed class Subscription : ICreatedOn, ISoftDeletable, IExpiredOn
     }
 
     public static Subscription Start(
-        Guid subscriberId,
+        long subscriberId,
         string planCode,
         decimal price,
         string currency,
@@ -49,7 +49,6 @@ public sealed class Subscription : ICreatedOn, ISoftDeletable, IExpiredOn
 
         return new Subscription
         {
-            Id = Guid.CreateVersion7(),
             SubscriberId = subscriberId,
             PlanCode = CatalogRules.RequireCode(planCode, nameof(planCode)),
             Price = CatalogRules.RequirePrice(price, nameof(price)),

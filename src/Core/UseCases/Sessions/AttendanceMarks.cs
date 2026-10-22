@@ -8,7 +8,7 @@ internal static class AttendanceMarks
     public static async Task ApplyAsync(
         IAttendanceRepository attendanceRepository,
         ClassSession session,
-        Guid studentId,
+        long studentId,
         AttendanceStatus? status,
         CancellationToken cancellationToken)
     {
@@ -22,7 +22,7 @@ internal static class AttendanceMarks
         }
         else if (attendance is null)
         {
-            attendanceRepository.Add(Attendance.Create(session.Id, studentId, status.Value));
+            attendanceRepository.Add(Attendance.Create(session, studentId, status.Value));
         }
         else
         {

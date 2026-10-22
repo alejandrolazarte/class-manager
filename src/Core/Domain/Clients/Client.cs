@@ -15,15 +15,15 @@ public sealed class Client : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public string? Notes { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid? RegisteredByUserId { get; private set; }
-    public Guid UserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long? RegisteredByUserId { get; private set; }
+    public long UserId { get; private set; }
     public User User { get; private set; } = null!;
 
     public static Result<Client> Create(
@@ -48,7 +48,6 @@ public sealed class Client : ITenantOwned, IAuditable
         contact.Value!.ChangePhoneNumber(phoneNumber);
         return new Client
         {
-            Id = Guid.CreateVersion7(),
             Notes = validNotes.Value,
             CreatedAt = createdAt.ToUniversalTime(),
             UserId = contact.Value.Id,
@@ -81,7 +80,7 @@ public sealed class Client : ITenantOwned, IAuditable
         return Result.Success();
     }
 
-    public void RecordRegisteredBy(Guid userId) => RegisteredByUserId = userId;
+    public void RecordRegisteredBy(long userId) => RegisteredByUserId = userId;
 
     public void ChangePerson(User person)
     {

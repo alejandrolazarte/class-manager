@@ -8,6 +8,6 @@ internal static class TestUsers
 {
     public static Student StudentOf(Client client, string fullName, DateOnly? birthDate = null, string? notes = null, string? email = null) =>
         AttendingContact.NamesTheContact(client, fullName)
-            ? Student.CreateAttendingContact(client, birthDate, notes, TestData.Today, TestData.Now).Value!
-            : Student.Create(client.Id, fullName, birthDate, notes, TestData.Today, TestData.Now, email).Value!;
+            ? Student.CreateAttendingContact(client, birthDate, notes, TestData.Today, TestData.Now).Value!.WithId()
+            : Student.Create(client, fullName, birthDate, notes, TestData.Today, TestData.Now, email).Value!.WithId();
 }

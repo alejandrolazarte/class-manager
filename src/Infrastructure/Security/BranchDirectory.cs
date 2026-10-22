@@ -29,7 +29,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
         return oldestBrandBusiness is { } brandBusinessId ? await FindAsync(userId, brandBusinessId, cancellationToken) : null;
     }
 
-    public async Task<BranchAccess?> FindAsync(Guid userId, Guid businessId, CancellationToken cancellationToken)
+    public async Task<BranchAccess?> FindAsync(Guid userId, long businessId, CancellationToken cancellationToken)
     {
         var branches = await ListWhereAsync(userId, businessId, cancellationToken);
         return branches.Count > 0 ? branches[0] : null;
@@ -38,7 +38,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
     public Task<IReadOnlyList<BranchAccess>> ListAsync(Guid userId, CancellationToken cancellationToken) =>
         ListWhereAsync(userId, null, cancellationToken);
 
-    private async Task<IReadOnlyList<BranchAccess>> ListWhereAsync(Guid userId, Guid? businessId, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<BranchAccess>> ListWhereAsync(Guid userId, long? businessId, CancellationToken cancellationToken)
     {
         var memberships = await context.BusinessMembers
             .IgnoreTenantFilter()
@@ -48,7 +48,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
             .ToListAsync(cancellationToken);
         var customRoleIds = memberships
             .Select(membership => membership.CustomRoleId)
-            .OfType<Guid>()
+            .OfType<long>()
             .ToList();
         var customRoleNames = await context.CustomRoles
             .IgnoreTenantFilter()
@@ -81,7 +81,7 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
         ];
     }
 
-    private static async Task<Guid?> OldestBusinessIdAsync(IQueryable<Business> businesses, CancellationToken cancellationToken)
+    private static async Task<long?> OldestBusinessIdAsync(IQueryable<Business> businesses, CancellationToken cancellationToken)
     {
         var candidates = await businesses
             .AsNoTracking()
@@ -91,11 +91,11 @@ internal sealed class BranchDirectory(AppDbContext context) : IBranchDirectory
         return candidates
             .OrderBy(business => business.CreatedAt)
             .ThenBy(business => business.Id)
-            .Select(business => (Guid?)business.Id)
+            .Select(business => (long?)business.Id)
             .FirstOrDefault();
     }
 
-    private IQueryable<Guid> BrandOrganizationIds(Guid userId) =>
+    private IQueryable<long> BrandOrganizationIds(Guid userId) =>
         context.OrganizationMembers
             .Where(member => member.UserId == userId && member.Role == OrganizationRole.BrandOwner)
             .Select(member => member.OrganizationId);

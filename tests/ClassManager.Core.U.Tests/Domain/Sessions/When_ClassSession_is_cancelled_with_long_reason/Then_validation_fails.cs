@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
+        var session = ClassSession.Create(TestIds.Next(), TestData.Today, TestData.Now).WithId();
 
         var cancel = session.Cancel(new string('x', ClassSession.CancellationReasonMaxLength + 1), TestData.Now);
 

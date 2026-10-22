@@ -5,7 +5,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record MarkOrderReadyCommand(Guid OrderId) : ICommand;
+public sealed record MarkOrderReadyCommand(long OrderId) : ICommand;
 
 public sealed class MarkOrderReadyUseCase(
     IOrderRepository orderRepository,

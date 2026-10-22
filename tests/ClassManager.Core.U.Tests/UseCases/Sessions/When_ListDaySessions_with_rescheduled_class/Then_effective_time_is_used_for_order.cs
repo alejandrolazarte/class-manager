@@ -12,16 +12,16 @@ public sealed class Then_effective_time_is_used_for_order
     {
         var builder = new SessionUseCaseBuilder();
         var laterClassGroup = ClassGroup.Create(
-            "Aquagym", builder.Instructor.Id, ClassSchedule.Create([TestData.Today.DayOfWeek], "18:30", 45).Value!, 10, null).Value!;
-        var movedSession = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now);
+            "Aquagym", builder.Instructor.Id, ClassSchedule.Create([TestData.Today.DayOfWeek], "18:30", 45).Value!, 10, null).Value!.WithId();
+        var movedSession = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now).WithId();
         movedSession.Reschedule(new TimeOnly(19, 30), builder.ClassGroup.DurationMinutes, builder.ClassGroup.StartTime, TestData.Now);
         builder.ClassGroups.Setup(repository => repository.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync([builder.ClassGroup, laterClassGroup]);
         builder.Instructors.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([builder.Instructor]);
         builder.Sessions.Setup(repository => repository.ListByDateAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync([movedSession]);
-        builder.Enrollments.Setup(repository => repository.CountActiveOnByClassGroupAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(new Dictionary<Guid, int>());
+        builder.Enrollments.Setup(repository => repository.CountActiveOnByClassGroupAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(new Dictionary<long, int>());
         builder.Attendances
-            .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, AttendanceCount>());
+            .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<long, AttendanceCount>());
 
         var response = await builder.BuildListDay().ExecuteAsync(new ListDaySessionsQuery(null), CancellationToken.None);
 

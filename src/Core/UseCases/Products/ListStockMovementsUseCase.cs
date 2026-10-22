@@ -4,15 +4,15 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record ListStockMovementsQuery(Guid ProductId) : IQuery;
+public sealed record ListStockMovementsQuery(long ProductId) : IQuery;
 
 public sealed record StockMovementResponse(
-    Guid Id,
-    Guid VariantId,
+    long Id,
+    long VariantId,
     string VariantName,
     StockMovementKind Kind,
     int Quantity,
-    Guid? OrderId,
+    long? OrderId,
     string? Note,
     DateTimeOffset CreatedAt);
 

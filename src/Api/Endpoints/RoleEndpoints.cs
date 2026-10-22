@@ -37,7 +37,7 @@ internal static class RoleEndpoints
     }
 
     private static async Task<IResult> UpdateAsync(
-        Guid roleId,
+        long roleId,
         UpdateRoleRequest request,
         IUseCase<UpdateRoleCommand, RoleResponse> useCase,
         CancellationToken cancellationToken)
@@ -48,7 +48,7 @@ internal static class RoleEndpoints
     }
 
     private static async Task<IResult> DeleteAsync(
-        Guid roleId,
+        long roleId,
         IUseCase<DeleteRoleCommand, DeletedRoleResponse> useCase,
         CancellationToken cancellationToken)
     {

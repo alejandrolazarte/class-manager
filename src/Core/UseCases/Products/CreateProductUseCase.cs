@@ -50,11 +50,6 @@ public sealed class CreateProductUseCase(
         }
 
         productRepository.Add(product.Value);
-        foreach (var movement in initialStock.Value!)
-        {
-            stockMovementRepository.Add(movement);
-        }
-
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -64,6 +59,13 @@ public sealed class CreateProductUseCase(
             return ProductFailures.NameTaken();
         }
 
+        initialStock = StockMovement.InitialStock(product.Value, variants, access?.UserId, now);
+        foreach (var movement in initialStock.Value!)
+        {
+            stockMovementRepository.Add(movement);
+        }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         var stockByVariant = initialStock.Value!.ToDictionary(movement => movement.ProductVariantId, movement => movement.Quantity);
         return ProductResponse.From(product.Value, stockByVariant, documentStorage);
     }

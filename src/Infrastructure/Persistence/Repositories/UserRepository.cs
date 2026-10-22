@@ -9,10 +9,10 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
 
     public void Remove(User user) => context.Users.Remove(user);
 
-    public Task<User?> FindByEmailForUpdateAsync(string email, Guid exceptUserId, CancellationToken cancellationToken) =>
+    public Task<User?> FindByEmailForUpdateAsync(string email, long exceptUserId, CancellationToken cancellationToken) =>
         context.Users.FirstOrDefaultAsync(user => user.Email == email && user.Id != exceptUserId, cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, Guid>> ListClientIdsByUserAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyDictionary<long, long>> ListClientIdsByUserAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken)
     {
         var contacts = await context.Clients
             .Where(client => userIds.Contains(client.UserId))
@@ -27,7 +27,7 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
             .ToDictionary(people => people.Key, people => people.First().ClientId);
     }
 
-    public async Task<IReadOnlySet<Guid>> ListOnTheTeamAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlySet<long>> ListOnTheTeamAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken)
     {
         var instructorUserIds = await context.Instructors
             .Where(instructor => userIds.Contains(instructor.UserId))
@@ -40,7 +40,7 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
         return instructorUserIds.Concat(memberUserIds).ToHashSet();
     }
 
-    public async Task<PersonRoles> GetRolesAsync(Guid userId, CancellationToken cancellationToken) =>
+    public async Task<PersonRoles> GetRolesAsync(long userId, CancellationToken cancellationToken) =>
         new(
             await context.Clients.AnyAsync(client => client.UserId == userId, cancellationToken),
             await context.Students.AnyAsync(student => student.UserId == userId, cancellationToken),
@@ -50,7 +50,7 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
     public Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken) =>
         context.Users.FirstOrDefaultAsync(user => user.AccountId == accountId, cancellationToken);
 
-    public Task<bool> IsEmailTakenAsync(string email, Guid exceptUserId, CancellationToken cancellationToken) =>
+    public Task<bool> IsEmailTakenAsync(string email, long exceptUserId, CancellationToken cancellationToken) =>
         context.Users.AnyAsync(user => user.Email == email && user.Id != exceptUserId, cancellationToken);
 
     public Task<bool> IsEmailTakenByAnotherPersonOfTheAccountsBusinessesAsync(Guid accountId, string email, CancellationToken cancellationToken)
@@ -74,7 +74,7 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     public async Task AddMissingInEveryBranchAsync(
-        Guid organizationId,
+        long organizationId,
         IReadOnlyList<UserAccount> accounts,
         DateTimeOffset createdAt,
         CancellationToken cancellationToken)
@@ -95,28 +95,28 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
             {
                 await context.Database.ExecuteSqlInterpolatedAsync(
                     $"""
-                    INSERT INTO [Users] ([Id], [TenantId], [FullName], [Email], [AccountId], [CreatedAt], [IsDeleted])
-                    SELECT {Guid.CreateVersion7()}, {branchId}, {account.FullName},
+                    INSERT INTO [Users] ([TenantId], [FullName], [Email], [AccountId], [CreatedAt], [UpdatedAt], [IsDeleted])
+                    SELECT {branchId}, {account.FullName},
                         CASE WHEN EXISTS (
                             SELECT 1 FROM [Users]
                             WHERE [TenantId] = {branchId} AND [Email] = {account.Email} AND [IsDeleted] = 0) THEN NULL ELSE {account.Email} END,
-                        {account.UserId}, {createdAt.ToUniversalTime()}, 0
+                        {account.UserId}, {createdAt.ToUniversalTime()}, {createdAt.ToUniversalTime()}, 0
                     """,
                     cancellationToken);
             }
         }
     }
 
-    public Task<Guid?> FindIdByAccountAsync(Guid businessId, Guid accountId, CancellationToken cancellationToken) =>
+    public Task<long?> FindIdByAccountAsync(long businessId, Guid accountId, CancellationToken cancellationToken) =>
         context.Users
             .IgnoreTenantFilter()
             .Where(user => user.TenantId == businessId && user.AccountId == accountId)
-            .Select(user => (Guid?)user.Id)
+            .Select(user => (long?)user.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, string>> ListFullNamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyDictionary<long, string>> ListFullNamesAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken) =>
         userIds.Count == 0
-            ? new Dictionary<Guid, string>()
+            ? new Dictionary<long, string>()
             : await context.Users
                 .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
                 .Where(user => userIds.Contains(user.Id))

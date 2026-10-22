@@ -9,12 +9,12 @@ public sealed class AchievementLevel : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public int Position { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public int RequiredClasses { get; private set; }
@@ -22,7 +22,6 @@ public sealed class AchievementLevel : ITenantOwned, IAuditable
     public static AchievementLevel Create(int position, LevelDefinition definition) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             Position = position,
             Name = definition.Name.Trim(),
             RequiredClasses = definition.RequiredClasses,

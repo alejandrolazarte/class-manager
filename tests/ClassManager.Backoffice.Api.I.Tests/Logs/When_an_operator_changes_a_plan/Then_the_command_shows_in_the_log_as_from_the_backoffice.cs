@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Backoffice.Api.I.Tests.Brands;
 
 namespace ClassManager.Backoffice.Api.I.Tests.Logs.When_an_operator_changes_a_plan;
@@ -18,7 +19,7 @@ public sealed class Then_the_command_shows_in_the_log_as_from_the_backoffice(Bac
         }
 
         bool IsTheChange(CommandLogEntryResponse entry) =>
-            entry.Command == ChangePlanCommand && entry.Payload!.Contains(changes.Brand.Id.ToString(), StringComparison.Ordinal);
+            entry.Command == ChangePlanCommand && entry.Payload!.Contains($"\"brandId\":{changes.Brand.Id.ToString(CultureInfo.InvariantCulture)},", StringComparison.Ordinal);
         var log = await changes.Client.WaitForCommandLogAsync(changes.AccessToken, day, IsTheChange);
 
         var entry = log.Entries.Single(IsTheChange);

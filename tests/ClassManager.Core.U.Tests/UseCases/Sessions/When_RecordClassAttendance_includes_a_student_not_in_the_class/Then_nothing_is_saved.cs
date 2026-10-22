@@ -14,7 +14,7 @@ public sealed class Then_nothing_is_saved
             new RecordClassAttendanceCommand(
                 builder.ClassGroup.Id,
                 TestData.Today,
-                [new StudentAttendance(builder.EnrolledStudentId, AttendanceStatus.Present), new StudentAttendance(Guid.CreateVersion7(), AttendanceStatus.Present)]),
+                [new StudentAttendance(builder.EnrolledStudentId, AttendanceStatus.Present), new StudentAttendance(TestIds.Next(), AttendanceStatus.Present)]),
             CancellationToken.None);
 
         response.Error!.Code.ShouldBe(SessionErrorCodes.StudentNotEnrolled);

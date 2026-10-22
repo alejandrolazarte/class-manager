@@ -7,9 +7,9 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GiveGuardianConsentInAppCommand(Guid InvitationId) : ICommand;
+public sealed record GiveGuardianConsentInAppCommand(long InvitationId) : ICommand;
 
-public sealed record RefuseGuardianConsentInAppCommand(Guid InvitationId) : ICommand;
+public sealed record RefuseGuardianConsentInAppCommand(long InvitationId) : ICommand;
 
 internal static class InAppGuardianConsentRequests
 {
@@ -19,7 +19,7 @@ internal static class InAppGuardianConsentRequests
         IStudentAppAccess studentAppAccess,
         IClientAccountRepository clientAccountRepository,
         IClientInvitationRepository invitationRepository,
-        Guid invitationId,
+        long invitationId,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {

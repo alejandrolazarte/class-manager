@@ -9,8 +9,8 @@ public sealed class Then_only_the_ones_ending_this_week_are_listed
     {
         var directory = new InMemoryBrandDirectory();
         var today = DateOnly.FromDateTime(BrandsScenario.Now.UtcDateTime);
-        directory.ExpiringAddOns.Add(new ExpiringAddOn(Guid.CreateVersion7(), "Estudio", "shop", today.AddDays(6)));
-        directory.ExpiringAddOns.Add(new ExpiringAddOn(Guid.CreateVersion7(), "Otra", "brand", today.AddDays(9)));
+        directory.ExpiringAddOns.Add(new ExpiringAddOn(TestIds.Next(), "Estudio", "shop", today.AddDays(6)));
+        directory.ExpiringAddOns.Add(new ExpiringAddOn(TestIds.Next(), "Otra", "brand", today.AddDays(9)));
 
         var result = await new ListExpiringAddOnsUseCase(directory, new FakeTimeProvider(BrandsScenario.Now))
             .ExecuteAsync(new ListExpiringAddOnsQuery(), CancellationToken.None);

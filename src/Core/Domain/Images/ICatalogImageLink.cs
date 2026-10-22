@@ -4,7 +4,7 @@ namespace ClassManager.Core.Domain.Images;
 
 public interface ICatalogImageLink
 {
-    Guid DocumentId { get; }
+    long DocumentId { get; }
 
     Document Document { get; }
 

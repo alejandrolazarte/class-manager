@@ -4,9 +4,9 @@ using ClassManager.Core.Domain.Organizations;
 namespace ClassManager.Core.Abstractions.Security;
 
 public sealed record BranchAccess(
-    Guid BusinessId,
+    long BusinessId,
     string BusinessName,
-    Guid OrganizationId,
+    long OrganizationId,
     BusinessRole? BranchRole,
     bool IsBrandOwner,
     string? CustomRoleName = null)

@@ -4,7 +4,7 @@ using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed record CollectorScenario(InstructorScenario Instructors, HttpClient Collector, Guid CollectorClientId, Guid OtherClientId);
+public sealed record CollectorScenario(InstructorScenario Instructors, HttpClient Collector, long CollectorClientId, long OtherClientId);
 
 public static class CollectorScenarioRequests
 {
@@ -29,16 +29,16 @@ public static class CollectorScenarioRequests
             ClientOf(fees!, InstructorScenario.InstructorStudentFullName));
     }
 
-    public static Task<List<PaymentResponse>?> GetClientPaymentsAsync(this HttpClient httpClient, Guid clientId) =>
+    public static Task<List<PaymentResponse>?> GetClientPaymentsAsync(this HttpClient httpClient, long clientId) =>
         httpClient.GetFromJsonAsync<List<PaymentResponse>>(
             new Uri($"{ApiRoutes.Clients}/{clientId}{ApiRoutes.PaymentsSegment}", UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> DeletePaymentAsync(this HttpClient httpClient, Guid paymentId) =>
+    public static Task<HttpResponseMessage> DeletePaymentAsync(this HttpClient httpClient, long paymentId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Payments}/{paymentId}", UriKind.Relative));
 
-    public static Task<HttpResponseMessage> RestorePaymentAsync(this HttpClient httpClient, Guid paymentId) =>
+    public static Task<HttpResponseMessage> RestorePaymentAsync(this HttpClient httpClient, long paymentId) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.Payments}/{paymentId}{ApiRoutes.Restore}", UriKind.Relative), null);
 
-    private static Guid ClientOf(MonthlyFeesResponse fees, string studentFullName) =>
+    private static long ClientOf(MonthlyFeesResponse fees, string studentFullName) =>
         fees.Clients.Single(client => client.StudentNames.Contains(studentFullName)).ClientId;
 }

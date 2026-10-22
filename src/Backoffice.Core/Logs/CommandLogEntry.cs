@@ -2,10 +2,10 @@ namespace ClassManager.Backoffice.Core.Logs;
 
 public sealed record CommandLogEntry(
     DateTimeOffset OccurredAt,
-    Guid? TenantId,
+    long? TenantId,
     string Command,
     Guid? AccountId,
-    Guid? UserId,
+    long? UserId,
     string Outcome,
     string? ErrorKind,
     string? ErrorCode,

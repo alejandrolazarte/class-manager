@@ -10,7 +10,6 @@ internal sealed class BackgroundTaskConfiguration : IEntityTypeConfiguration<Bac
     public void Configure(EntityTypeBuilder<BackgroundTask> builder)
     {
         builder.HasKey(task => task.Id);
-        builder.Property(task => task.Id).ValueGeneratedNever();
         builder.Property(task => task.Type).HasMaxLength(BackgroundTask.TypeMaxLength).IsRequired();
         builder.Property(task => task.Payload).IsRequired();
         builder.Property(task => task.LastError).HasMaxLength(BackgroundTask.LastErrorMaxLength);

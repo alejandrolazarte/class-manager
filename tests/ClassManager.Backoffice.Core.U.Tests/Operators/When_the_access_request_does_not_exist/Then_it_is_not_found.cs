@@ -11,7 +11,7 @@ public sealed class Then_it_is_not_found
         var scenario = new OperatorsScenario();
         var member = scenario.WithTeamMember("Persona", BusinessRole.Viewer, Guid.CreateVersion7());
 
-        var result = await scenario.EnableAsync(Guid.CreateVersion7(), member.Id, BusinessRole.PlatformOperator);
+        var result = await scenario.EnableAsync(TestIds.Next(), member.Id, BusinessRole.PlatformOperator);
 
         (result.Error!.Kind, result.Error.Code).ShouldBe((ErrorKind.NotFound, OperatorErrorCodes.AccessRequestNotFound));
     }

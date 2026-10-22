@@ -10,7 +10,7 @@ namespace ClassManager.Security.Tokens;
 public sealed record TokenSubject(
     Guid UserId,
     string Email,
-    Guid TenantId,
+    long TenantId,
     string Role,
     string? Kind = null,
     IReadOnlyDictionary<string, string>? Claims = null);

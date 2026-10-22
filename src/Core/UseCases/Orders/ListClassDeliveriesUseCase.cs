@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record ListClassDeliveriesQuery(Guid ClassGroupId) : IQuery;
+public sealed record ListClassDeliveriesQuery(long ClassGroupId) : IQuery;
 
 public sealed class ListClassDeliveriesUseCase(
     IClassGroupRepository classGroupRepository,
@@ -22,7 +22,7 @@ public sealed class ListClassDeliveriesUseCase(
         }
 
         var orders = await orderRepository.ListToDeliverInClassAsync(classGroup.Value!.Id, cancellationToken);
-        var clientNames = (await clientRepository.ListByIdsAsync([.. orders.Select(order => order.ClientId).OfType<Guid>().Distinct()], cancellationToken))
+        var clientNames = (await clientRepository.ListByIdsAsync([.. orders.Select(order => order.ClientId).OfType<long>().Distinct()], cancellationToken))
             .ToDictionary(client => client.Id, client => client.User.FullName);
         return Result.Success<IReadOnlyList<ClassDeliveryResponse>>(
         [

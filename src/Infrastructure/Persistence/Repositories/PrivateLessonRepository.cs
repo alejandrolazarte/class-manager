@@ -6,12 +6,12 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
 
     public void Remove(PrivateLesson lesson) => context.PrivateLessons.Remove(lesson);
 
-    public Task<PrivateLesson?> GetByIdAsync(Guid privateLessonId, CancellationToken cancellationToken) =>
+    public Task<PrivateLesson?> GetByIdAsync(long privateLessonId, CancellationToken cancellationToken) =>
         context.PrivateLessons.AsNoTracking()
             .Include(lesson => lesson.Students)
             .FirstOrDefaultAsync(lesson => lesson.Id == privateLessonId, cancellationToken);
 
-    public Task<PrivateLesson?> GetForUpdateAsync(Guid privateLessonId, CancellationToken cancellationToken) =>
+    public Task<PrivateLesson?> GetForUpdateAsync(long privateLessonId, CancellationToken cancellationToken) =>
         context.PrivateLessons
             .Include(lesson => lesson.Students)
             .FirstOrDefaultAsync(lesson => lesson.Id == privateLessonId, cancellationToken);
@@ -23,7 +23,7 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<PrivateLesson>> ListByInstructorOnDatesAsync(
-        Guid instructorId,
+        long instructorId,
         IReadOnlyCollection<DateOnly> dates,
         CancellationToken cancellationToken) =>
         await context.PrivateLessons.AsNoTracking()
@@ -31,14 +31,14 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<PrivateLesson>> ListByInstructorFromAsync(
-        Guid instructorId,
+        long instructorId,
         DateOnly firstDate,
         CancellationToken cancellationToken) =>
         await context.PrivateLessons.AsNoTracking()
             .Where(lesson => lesson.InstructorId == instructorId && lesson.Date >= firstDate && !lesson.IsCancelled)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<PaidTrialLesson>> ListPaidTrialsByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<PaidTrialLesson>> ListPaidTrialsByClientAsync(long clientId, CancellationToken cancellationToken) =>
         await (
             from lesson in context.PrivateLessons.AsNoTracking()
             where lesson.IsTrial && lesson.TrialPrice != null && !lesson.IsCancelled
@@ -50,7 +50,7 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(
-        IReadOnlyCollection<Guid> clientIds,
+        IReadOnlyCollection<long> clientIds,
         CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)

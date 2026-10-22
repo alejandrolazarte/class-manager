@@ -11,23 +11,23 @@ public sealed record UpdateAnnouncementRequest(
     string? Title,
     string? Body,
     AnnouncementCategory? Category = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null,
+    IReadOnlyList<long>? ClassGroupIds = null,
     bool IsPinned = false,
     DateOnly? VisibleUntil = null,
     DateTimeOffset? PublishOn = null,
     AnnouncementAction? Action = null,
     string? ActionUrl = null)
 {
-    public UpdateAnnouncementCommand ToCommand(Guid announcementId) =>
+    public UpdateAnnouncementCommand ToCommand(long announcementId) =>
         new(announcementId, Title, Body, Category, ClassGroupIds, IsPinned, VisibleUntil, PublishOn, Action, ActionUrl);
 }
 
 public sealed record UpdateAnnouncementCommand(
-    Guid AnnouncementId,
+    long AnnouncementId,
     [property: AuditPersonal] string? Title,
     [property: AuditPersonal] string? Body,
     AnnouncementCategory? Category = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null,
+    IReadOnlyList<long>? ClassGroupIds = null,
     bool IsPinned = false,
     DateOnly? VisibleUntil = null,
     DateTimeOffset? PublishOn = null,

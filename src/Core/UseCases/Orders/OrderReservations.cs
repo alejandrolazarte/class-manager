@@ -6,10 +6,10 @@ namespace ClassManager.Core.UseCases.Orders;
 
 internal static class OrderReservations
 {
-    public static async Task<IReadOnlyList<(Guid VariantId, int Quantity)>> SoldUnitsToRestockAsync(
+    public static async Task<IReadOnlyList<(long VariantId, int Quantity)>> SoldUnitsToRestockAsync(
         Order order, IProductRepository productRepository, CancellationToken cancellationToken)
     {
-        var unitsToRestock = new List<(Guid VariantId, int Quantity)>();
+        var unitsToRestock = new List<(long VariantId, int Quantity)>();
         if (order.Channel != OrderChannel.Counter)
         {
             return unitsToRestock;
@@ -30,7 +30,7 @@ internal static class OrderReservations
     public static async Task ReleaseAsync(
         Order order,
         IStockMovementRepository stockMovementRepository,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {

@@ -7,10 +7,10 @@ public sealed class Then_it_is_kept_once
     [Fact]
     public void Then_it_is_kept_once_Run()
     {
-        var classGroupId = Guid.NewGuid();
+        var classGroupId = TestIds.Next();
 
         var announcement = Announcement.Create(
-            "Cambia el horario", null, TestData.Now, TestData.Today, classGroupIds: [classGroupId, classGroupId]).Value!;
+            "Cambia el horario", null, TestData.Now, TestData.Today, classGroupIds: [classGroupId, classGroupId]).Value!.WithId();
 
         announcement.ClassGroupIds.ShouldBe([classGroupId]);
     }

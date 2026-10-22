@@ -21,7 +21,7 @@ public sealed class Then_the_streak_is_broken(ApiFixture fixture)
         {
             var missedSession = ClassSession.Create(weekly.Id, today.AddDays(-7), BusinessApiFactory.Now.AddDays(-8));
             context.ClassSessions.Add(missedSession);
-            context.AbsenceNotices.Add(AbsenceNotice.Create(missedSession.Id, studentId, keepsStreak: false, BusinessApiFactory.Now.AddDays(-8)));
+            context.AbsenceNotices.Add(AbsenceNotice.Create(missedSession, studentId, keepsStreak: false, BusinessApiFactory.Now.AddDays(-8)));
             await context.SaveChangesAsync();
         }
 

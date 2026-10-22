@@ -69,7 +69,7 @@ public sealed partial class UseCaseAuditRecorder(
         }
     }
 
-    private Guid? CurrentTenantId()
+    private long? CurrentTenantId()
     {
         try
         {

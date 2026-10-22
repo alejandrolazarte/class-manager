@@ -9,7 +9,6 @@ internal sealed class ClientInvitationConfiguration : IEntityTypeConfiguration<C
     public void Configure(EntityTypeBuilder<ClientInvitation> builder)
     {
         builder.HasKey(invitation => invitation.Id);
-        builder.Property(invitation => invitation.Id).ValueGeneratedNever();
         builder.Property(invitation => invitation.Email).HasMaxLength(ClientInvitation.EmailMaxLength).IsRequired();
         builder.Property(invitation => invitation.TokenHash).HasMaxLength(ClientInvitation.TokenHashLength).IsFixedLength().IsRequired();
         builder.Property(invitation => invitation.GuardianEmail).HasMaxLength(ClientInvitation.EmailMaxLength);

@@ -7,12 +7,12 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record RecordStockMovementRequest(Guid? VariantId, StockMovementKind? Kind, int? Quantity, string? Note)
+public sealed record RecordStockMovementRequest(long? VariantId, StockMovementKind? Kind, int? Quantity, string? Note)
 {
-    public RecordStockMovementCommand ToCommand(Guid productId) => new(productId, VariantId, Kind, Quantity, Note);
+    public RecordStockMovementCommand ToCommand(long productId) => new(productId, VariantId, Kind, Quantity, Note);
 }
 
-public sealed record RecordStockMovementCommand(Guid ProductId, Guid? VariantId, StockMovementKind? Kind, int? Quantity, [property: AuditPersonal] string? Note) : ICommand;
+public sealed record RecordStockMovementCommand(long ProductId, long? VariantId, StockMovementKind? Kind, int? Quantity, [property: AuditPersonal] string? Note) : ICommand;
 
 public sealed class RecordStockMovementUseCase(
     IProductRepository productRepository,

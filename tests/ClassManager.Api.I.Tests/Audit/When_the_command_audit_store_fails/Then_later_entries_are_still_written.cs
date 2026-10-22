@@ -15,14 +15,14 @@ public sealed class Then_later_entries_are_still_written
         var auditLog = new QueuedCommandAuditService(channel);
         using var worker = new AuditLogWorker<CommandAuditEntry>(channel, store, NullLogger<AuditLogWorker<CommandAuditEntry>>.Instance);
         await worker.StartAsync(CancellationToken.None);
-        auditLog.Record(CommandAuditEntries.Succeeded(Guid.CreateVersion7()));
+        auditLog.Record(CommandAuditEntries.Succeeded(TestIds.Next()));
         var waitUntil = DateTime.UtcNow + WaitLimit;
         while (store.Writes == 0 && DateTime.UtcNow < waitUntil)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(20));
         }
 
-        var later = CommandAuditEntries.Succeeded(Guid.CreateVersion7());
+        var later = CommandAuditEntries.Succeeded(TestIds.Next());
         auditLog.Record(later);
         await worker.StopAsync(CancellationToken.None);
 

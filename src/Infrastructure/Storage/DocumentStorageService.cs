@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Storage.Files;
 using Microsoft.Extensions.Logging;
@@ -15,22 +16,25 @@ internal sealed partial class DocumentStorageService(
     private const string ClassPacksFolder = "class-packs";
     private const string ClassGroupsFolder = "class-groups";
     private const string AnnouncementsFolder = "announcements";
-    private const string GuidWithoutHyphensFormat = "N";
+    private const string RandomFileNameFormat = "N";
     private const string PrivateDocumentUrlMessage = "Private documents have no public URL.";
 
     public async Task<Document> StoreAsync(
         DocumentOwner owner,
-        Guid ownerId,
+        long ownerId,
         DocumentContent content,
         DocumentVisibility visibility,
         CancellationToken cancellationToken)
     {
-        var documentId = Guid.CreateVersion7();
-        var fileName = documentId.ToString(GuidWithoutHyphensFormat) + content.FileExtension;
-        var path = FilePath.Combine(tenantContext.TenantId.ToString(), FolderOf(owner), ownerId.ToString(), fileName);
+        var fileName = Guid.NewGuid().ToString(RandomFileNameFormat, CultureInfo.InvariantCulture) + content.FileExtension;
+        var path = FilePath.Combine(
+            tenantContext.TenantId.ToString(CultureInfo.InvariantCulture),
+            FolderOf(owner),
+            ownerId.ToString(CultureInfo.InvariantCulture),
+            fileName);
         await fileStorage.SaveAsync(new FileToStore(path, content.Content, content.ContentType, ToFileVisibility(visibility)), cancellationToken);
 
-        return Document.Create(documentId, path, content, visibility, timeProvider.GetUtcNow());
+        return Document.Create(path, content, visibility, timeProvider.GetUtcNow());
     }
 
     public async Task DeleteFileAsync(Document document, CancellationToken cancellationToken)

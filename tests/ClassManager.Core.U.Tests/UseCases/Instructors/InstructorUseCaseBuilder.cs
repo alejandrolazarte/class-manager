@@ -16,7 +16,7 @@ internal sealed class InstructorUseCaseBuilder
     public Mock<IIdentityService> Identity { get; } = new();
     public Mock<IUserRepository> Users { get; } = new();
     public Mock<IPeopleLock> PeopleLock { get; } = new();
-    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName, TestData.Now).Value!;
+    public Instructor Instructor { get; } = Instructor.Create(TestData.InstructorFullName, TestData.Now).Value!.WithId();
 
     public InstructorUseCaseBuilder()
     {

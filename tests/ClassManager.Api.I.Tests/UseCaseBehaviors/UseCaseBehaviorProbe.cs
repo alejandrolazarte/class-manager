@@ -25,7 +25,7 @@ internal static class UseCaseBehaviorProbe
 
     public static Result<bool> Failed() => Result.Failure<bool>(FailureCode, FailureMessage);
 
-    public static AsyncServiceScope BusinessScope(ApiFixture fixture, Guid businessId)
+    public static AsyncServiceScope BusinessScope(ApiFixture fixture, long businessId)
     {
         var scope = fixture.ApiFactory.Services.CreateAsyncScope();
         scope.ServiceProvider.GetRequiredService<ITenantScope>().Establish(businessId);
@@ -40,7 +40,7 @@ internal static class UseCaseBehaviorProbe
         return Client.Create(ApiRequests.ClientFullName, phoneNumber, null, null, BusinessApiFactory.Now).Value!;
     }
 
-    public static async Task<bool> ClientExistsAsync(ApiFixture fixture, Guid businessId, Guid clientId)
+    public static async Task<bool> ClientExistsAsync(ApiFixture fixture, long businessId, long clientId)
     {
         await using var context = fixture.CreateDbContext(businessId);
 

@@ -9,7 +9,7 @@ public static class LegalTermsRequests
     {
         await using var securityContext = fixture.CreateSecurityDbContext();
         var userId = await securityContext.Users.Where(user => user.Email == email).Select(user => user.Id).SingleAsync();
-        await using var context = fixture.CreateDbContext(Guid.Empty);
+        await using var context = fixture.CreateDbContext(0L);
         return await context.LegalTermsAcceptances.AsNoTracking().Where(acceptance => acceptance.UserId == userId).ToListAsync();
     }
 }

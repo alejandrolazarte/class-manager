@@ -6,7 +6,7 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record SeparateInstructorCommand(Guid InstructorId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
+public sealed record SeparateInstructorCommand(long InstructorId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
 
 public sealed class SeparateInstructorUseCase(
     IInstructorRepository instructorRepository,

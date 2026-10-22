@@ -4,7 +4,7 @@ using ClassManager.Subscriptions.Subscribers;
 namespace ClassManager.Backoffice.Core.Brands;
 
 public sealed record BrandRecord(
-    Guid Id,
+    long Id,
     string Name,
     DateTimeOffset CreatedAt,
     IReadOnlyList<BrandOwner> Owners,

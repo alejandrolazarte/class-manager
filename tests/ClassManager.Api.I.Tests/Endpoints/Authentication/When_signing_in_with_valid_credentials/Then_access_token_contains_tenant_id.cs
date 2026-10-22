@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Security.Tokens;
 using ClassManager.Tenancy;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +15,13 @@ public sealed class Then_access_token_contains_tenant_id(ApiFixture fixture)
         using var client = fixture.ApiFactory.CreateClient();
         var command = AuthenticationRequests.SignUpCommand();
         await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
-        await using var context = fixture.CreateDbContext(Guid.Empty);
+        await using var context = fixture.CreateDbContext(0L);
         var business = await context.Businesses.SingleAsync(business => business.Name == command.BusinessName);
 
         var tokens = await client.SignInAsync(command.Email!);
 
         var accessToken = new JsonWebToken(tokens.AccessToken);
-        accessToken.GetClaim(TenantClaimTypes.TenantId).Value.ShouldBe(business.Id.ToString());
+        accessToken.GetClaim(TenantClaimTypes.TenantId).Value.ShouldBe(business.Id.ToString(CultureInfo.InvariantCulture));
         accessToken.GetClaim(SecurityClaimTypes.Email).Value.ShouldBe(command.Email);
         accessToken.GetClaim(SecurityClaimTypes.Role).Value.ShouldBe("BranchOwner");
     }

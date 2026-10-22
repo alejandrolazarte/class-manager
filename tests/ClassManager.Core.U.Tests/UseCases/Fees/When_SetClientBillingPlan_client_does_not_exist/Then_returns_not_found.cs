@@ -11,7 +11,7 @@ public sealed class Then_returns_not_found
         var builder = new FeeUseCaseBuilder();
 
         var response = await builder.BuildSetClientPlan().ExecuteAsync(
-            new SetClientBillingPlanCommand(Guid.CreateVersion7(), BillingPlanKind.ClassPacks, null, null), CancellationToken.None);
+            new SetClientBillingPlanCommand(TestIds.Next(), BillingPlanKind.ClassPacks, null, null), CancellationToken.None);
 
         response.Error!.Kind.ShouldBe(ErrorKind.NotFound);
     }

@@ -5,7 +5,7 @@ namespace ClassManager.Core.Domain.Images;
 
 public interface IHasCatalogImages
 {
-    Guid Id { get; }
+    long Id { get; }
 
     int ImageCount { get; }
 
@@ -13,7 +13,7 @@ public interface IHasCatalogImages
 
     void AddImage(Document document);
 
-    Document? RemoveImage(Guid documentId);
+    Document? RemoveImage(long documentId);
 
-    Result ReorderImages(IReadOnlyList<Guid>? documentIds);
+    Result ReorderImages(IReadOnlyList<long>? documentIds);
 }

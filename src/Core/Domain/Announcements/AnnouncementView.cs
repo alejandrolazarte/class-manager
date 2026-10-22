@@ -9,16 +9,16 @@ public sealed class AnnouncementView : ITenantOwned, IAuditable
     {
     }
 
-    public Guid TenantId { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid AnnouncementId { get; private set; }
-    public Guid ClientId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long AnnouncementId { get; private set; }
+    public long ClientId { get; private set; }
     public DateTimeOffset SeenAt { get; private set; }
 
-    public static AnnouncementView Create(Guid announcementId, Guid clientId, DateTimeOffset seenAt) =>
+    public static AnnouncementView Create(long announcementId, long clientId, DateTimeOffset seenAt) =>
         new()
         {
             AnnouncementId = announcementId,

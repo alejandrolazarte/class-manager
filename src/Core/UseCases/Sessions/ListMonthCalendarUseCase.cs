@@ -91,6 +91,6 @@ public sealed class ListMonthCalendarUseCase(
         return new MonthCalendarResponse(month.Value.ToString(), days);
     }
 
-    private static int EnrolledCountOn(IReadOnlyList<ClassGroupEnrollmentPeriod> enrollmentPeriods, Guid classGroupId, DateOnly date) =>
+    private static int EnrolledCountOn(IReadOnlyList<ClassGroupEnrollmentPeriod> enrollmentPeriods, long classGroupId, DateOnly date) =>
         enrollmentPeriods.Count(period => period.ClassGroupId == classGroupId && period.IsActiveOn(date));
 }

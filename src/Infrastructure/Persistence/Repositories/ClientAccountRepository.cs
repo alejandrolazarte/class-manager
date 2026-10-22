@@ -6,7 +6,7 @@ internal sealed class ClientAccountRepository(AppDbContext context) : IClientAcc
 
     public void Remove(ClientAccount account) => context.ClientAccounts.Remove(account);
 
-    public async Task<IReadOnlyList<ClientAccount>> ListForUpdateByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<ClientAccount>> ListForUpdateByClientAsync(long clientId, CancellationToken cancellationToken) =>
         await context.ClientAccounts.Where(account => account.ClientId == clientId).ToListAsync(cancellationToken);
 
     public Task<ClientAccount?> FindByAccountAsync(Guid accountId, CancellationToken cancellationToken) =>
@@ -15,10 +15,10 @@ internal sealed class ClientAccountRepository(AppDbContext context) : IClientAcc
     public Task<ClientAccount?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken) =>
         context.ClientAccounts.FirstOrDefaultAsync(account => account.User.AccountId == accountId, cancellationToken);
 
-    public Task<bool> HasAccountAsync(Guid clientId, Guid? studentId, CancellationToken cancellationToken) =>
+    public Task<bool> HasAccountAsync(long clientId, long? studentId, CancellationToken cancellationToken) =>
         context.ClientAccounts.AnyAsync(account => account.ClientId == clientId && account.StudentId == studentId, cancellationToken);
 
-    public async Task<IReadOnlyList<ClientAccount>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<ClientAccount>> ListByClientAsync(long clientId, CancellationToken cancellationToken) =>
         await context.ClientAccounts
             .AsNoTracking()
             .Include(account => account.User)

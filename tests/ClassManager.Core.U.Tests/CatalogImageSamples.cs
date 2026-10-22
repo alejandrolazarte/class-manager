@@ -14,15 +14,14 @@ internal static class CatalogImageSamples
 
     public static Document PublicDocument() =>
         Document.Create(
-            Guid.CreateVersion7(),
-            $"tenant/products/{Guid.CreateVersion7():N}.png",
+            $"tenant/products/{TestIds.Next()}.png",
             new DocumentContent(Png, "image/png", ".png"),
             DocumentVisibility.Public,
-            TestData.Now);
+            TestData.Now).WithId();
 
     public static Product ProductWithImages(int imageCount)
     {
-        var product = Product.Create("Gorro", null, 12m, StockMode.Unlimited, true, [new VariantChange(null, null)], TestData.Now).Value!;
+        var product = Product.Create("Gorro", null, 12m, StockMode.Unlimited, true, [new VariantChange(null, null)], TestData.Now).Value!.WithId();
         for (var index = 0; index < imageCount; index++)
         {
             product.AddImage(PublicDocument());
@@ -33,7 +32,7 @@ internal static class CatalogImageSamples
 
     public static ClassPack ClassPackWithImages(int imageCount)
     {
-        var classPack = ClassPack.Create("4 clases", 4, 80m, null, TestData.Now).Value!;
+        var classPack = ClassPack.Create("4 clases", 4, 80m, null, TestData.Now).Value!.WithId();
         for (var index = 0; index < imageCount; index++)
         {
             classPack.AddImage(PublicDocument());

@@ -9,7 +9,7 @@ internal sealed class StudentAppDirectory(AppDbContext context) : IStudentAppDir
     public Task<StudentAppLink?> FindDefaultAsync(Guid userId, CancellationToken cancellationToken) =>
         FirstAsync(userId, null, cancellationToken);
 
-    public Task<StudentAppLink?> FindAsync(Guid userId, Guid businessId, CancellationToken cancellationToken) =>
+    public Task<StudentAppLink?> FindAsync(Guid userId, long businessId, CancellationToken cancellationToken) =>
         FirstAsync(userId, businessId, cancellationToken);
 
     public async Task<IReadOnlyList<StudentAppLink>> ListAsync(Guid userId, CancellationToken cancellationToken) =>
@@ -21,7 +21,7 @@ internal sealed class StudentAppDirectory(AppDbContext context) : IStudentAppDir
             select new StudentAppLink(account.TenantId, business.Name, account.ClientId))
             .ToListAsync(cancellationToken);
 
-    private async Task<StudentAppLink?> FirstAsync(Guid userId, Guid? businessId, CancellationToken cancellationToken)
+    private async Task<StudentAppLink?> FirstAsync(Guid userId, long? businessId, CancellationToken cancellationToken)
     {
         var accountLink = await context.ClientAccounts
             .IgnoreTenantFilter()

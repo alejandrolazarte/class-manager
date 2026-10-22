@@ -8,17 +8,17 @@ public interface IAttendanceRepository
 
     void Remove(Attendance attendance);
 
-    Task<Attendance?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken);
+    Task<Attendance?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Attendance>> ListBySessionAsync(Guid classSessionId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Attendance>> ListBySessionAsync(long classSessionId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyDictionary<Guid, AttendanceCount>> CountBySessionsAsync(IReadOnlyCollection<Guid> classSessionIds, CancellationToken cancellationToken);
+    Task<IReadOnlyDictionary<long, AttendanceCount>> CountBySessionsAsync(IReadOnlyCollection<long> classSessionIds, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(
-        IReadOnlyCollection<Guid> studentIds, DateOnly firstDate, DateOnly today, CancellationToken cancellationToken);
+        IReadOnlyCollection<long> studentIds, DateOnly firstDate, DateOnly today, CancellationToken cancellationToken);
 
-    Task<IReadOnlyDictionary<Guid, int>> CountAttendedClassesByStudentsAsync(
-        IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
+    Task<IReadOnlyDictionary<long, int>> CountAttendedClassesByStudentsAsync(
+        IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken);
 }

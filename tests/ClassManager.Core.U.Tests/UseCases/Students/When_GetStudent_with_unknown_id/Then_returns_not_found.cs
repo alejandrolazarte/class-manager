@@ -12,7 +12,7 @@ public sealed class Then_returns_not_found
         var students = new Mock<IStudentRepository>();
         var useCase = new GetStudentUseCase(students.Object, new Mock<IClientRepository>().Object, new EveryAccessScopes());
 
-        var response = await useCase.ExecuteAsync(new GetStudentQuery(Guid.CreateVersion7()), CancellationToken.None);
+        var response = await useCase.ExecuteAsync(new GetStudentQuery(TestIds.Next()), CancellationToken.None);
 
         response.Error!.Code.ShouldBe(StudentErrorCodes.NotFound);
     }

@@ -10,7 +10,7 @@ public sealed class Then_required_navigations_to_filtered_entities_fail(ApiFixtu
     [Fact]
     public void Then_required_navigations_to_filtered_entities_fail_Run()
     {
-        using var context = fixture.CreateDbContext(Guid.Empty);
+        using var context = fixture.CreateDbContext(0L);
 
         var warnings = context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()!.WarningsConfiguration;
 

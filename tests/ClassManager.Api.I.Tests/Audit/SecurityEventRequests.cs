@@ -14,8 +14,8 @@ internal sealed class SecurityEventRequests
     public const string IpAddress = "203.0.113.7";
     public const string UserAgent = "test-agent";
 
-    public static readonly Guid TenantId = Guid.CreateVersion7();
-    public static readonly Guid UserId = Guid.CreateVersion7();
+    public static readonly long TenantId = TestIds.Next();
+    public static readonly long UserId = TestIds.Next();
 
     public RecordingSecurityEventService Events { get; } = new();
 

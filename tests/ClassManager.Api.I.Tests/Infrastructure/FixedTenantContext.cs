@@ -2,7 +2,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-internal sealed class FixedTenantContext(Guid businessId) : ITenantContext
+internal sealed class FixedTenantContext(long businessId) : ITenantContext
 {
-    public Guid TenantId => businessId;
+    public long TenantId => businessId;
 }

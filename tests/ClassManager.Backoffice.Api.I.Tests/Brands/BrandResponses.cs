@@ -2,10 +2,10 @@ namespace ClassManager.Backoffice.Api.I.Tests.Brands;
 
 internal sealed record BrandListResponse(IReadOnlyList<BrandSummaryResponse> Brands);
 
-internal sealed record BrandSummaryResponse(Guid Id, string Name, string? OwnerEmail, string? PlanCode, string Status, int BranchCount, int StudentCount);
+internal sealed record BrandSummaryResponse(long Id, string Name, string? OwnerEmail, string? PlanCode, string Status, int BranchCount, int StudentCount);
 
 internal sealed record BrandDetailResponse(
-    Guid Id,
+    long Id,
     string Name,
     string Status,
     IReadOnlyList<BrandOwnerResponse> Owners,
@@ -23,4 +23,4 @@ internal sealed record BrandBranchResponse(string Name, int StudentCount);
 
 internal sealed record BrandFeatureResponse(string Code, int? Limit);
 
-internal sealed record BrandAddOnResponse(Guid Id, string FeatureCode, int? Limit);
+internal sealed record BrandAddOnResponse(long Id, string FeatureCode, int? Limit);

@@ -13,7 +13,7 @@ public sealed class Organization
     {
     }
 
-    public Guid Id { get; private set; }
+    public long Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -27,7 +27,6 @@ public sealed class Organization
 
         return new Organization
         {
-            Id = Guid.CreateVersion7(),
             Name = trimmedName,
             CreatedAt = createdAt.ToUniversalTime(),
         };

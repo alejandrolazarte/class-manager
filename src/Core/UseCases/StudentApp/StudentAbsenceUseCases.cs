@@ -10,9 +10,9 @@ using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record NotifyAbsenceCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
+public sealed record NotifyAbsenceCommand(long StudentId, long ClassGroupId, DateOnly Date) : ICommand;
 
-public sealed record WithdrawAbsenceCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
+public sealed record WithdrawAbsenceCommand(long StudentId, long ClassGroupId, DateOnly Date) : ICommand;
 
 internal sealed record AbsenceTarget(ClassGroup ClassGroup, ClassSession? Session);
 
@@ -23,8 +23,8 @@ internal static class AbsenceRules
     private const string ClassStartedMessage = "The class already started.";
 
     public static async Task<Result<AbsenceTarget>> FindAsync(
-        Guid studentId,
-        Guid classGroupId,
+        long studentId,
+        long classGroupId,
         DateOnly date,
         IStudentAppAccess studentAppAccess,
         IStudentRepository studentRepository,
@@ -114,7 +114,7 @@ public sealed class NotifyAbsenceUseCase(
         }
 
         var keepsStreak = (await businessRepository.GetCurrentAsync(cancellationToken))?.NoticedAbsencesKeepStreak ?? true;
-        absenceNoticeRepository.Add(AbsenceNotice.Create(session.Id, command.StudentId, keepsStreak, now));
+        absenceNoticeRepository.Add(AbsenceNotice.Create(session, command.StudentId, keepsStreak, now));
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);

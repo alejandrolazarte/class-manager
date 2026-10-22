@@ -7,7 +7,6 @@ internal sealed class BrandLogoConfiguration : IEntityTypeConfiguration<BrandLog
     public void Configure(EntityTypeBuilder<BrandLogo> builder)
     {
         builder.HasKey(logo => logo.Id);
-        builder.Property(logo => logo.Id).ValueGeneratedNever();
         builder.Property(logo => logo.Content).IsRequired();
         builder.Property(logo => logo.ContentType).HasMaxLength(BrandLogo.ContentTypeMaxLength).IsRequired();
 

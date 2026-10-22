@@ -17,7 +17,7 @@ public sealed record RegisterClientCommand(
     [property: AuditPersonal] string? Email,
     [property: AuditPersonal] string? Notes,
     IReadOnlyList<NewStudent>? Students,
-    Guid? SamePersonUserId = null) : ICommand;
+    long? SamePersonUserId = null) : ICommand;
 
 public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,
@@ -115,7 +115,7 @@ public sealed class RegisterClientUseCase(
         for (var index = 0; index < students.Count; index++)
         {
             var student = students[index];
-            if (student.UserId == contact.Id)
+            if (ReferenceEquals(student.User, contact))
             {
                 student.ChangePerson(client.User);
                 continue;
@@ -138,7 +138,7 @@ public sealed class RegisterClientUseCase(
         return null;
     }
 
-    private Task<Result<User?>> FindSamePersonAsync(User person, Guid? samePersonUserId, string fieldName, CancellationToken cancellationToken) =>
+    private Task<Result<User?>> FindSamePersonAsync(User person, long? samePersonUserId, string fieldName, CancellationToken cancellationToken) =>
         SamePerson.FindAsync(
             userRepository,
             person,
@@ -169,7 +169,7 @@ public sealed class RegisterClientUseCase(
             var newStudent = newStudents[index];
             var student = AttendingContact.NamesTheContact(client, newStudent.FullName)
                 ? Student.CreateAttendingContact(client, newStudent.BirthDate, newStudent.Notes, today, now)
-                : Student.Create(client.Id, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
+                : Student.Create(client, newStudent.FullName, newStudent.BirthDate, newStudent.Notes, today, now, newStudent.Email);
             if (student.IsFailure)
             {
                 return student.Error! with { FieldName = StudentFieldName(index, student.Error.FieldName) };
@@ -205,7 +205,7 @@ public sealed class RegisterClientUseCase(
     private static string StudentFieldName(int index, string? fieldName) =>
         $"{nameof(RegisterClientCommand.Students)}[{index}].{fieldName}";
 
-    private static Result<ClientDetailsResponse> PhoneNumberTaken(Guid? existingClientId) =>
+    private static Result<ClientDetailsResponse> PhoneNumberTaken(long? existingClientId) =>
         Result.Conflict<ClientDetailsResponse>(
             PhoneNumberTakenMessage,
             ClientErrorCodes.PhoneNumberTaken,

@@ -19,8 +19,8 @@ public sealed class MeasurementDefinition : ITenantOwned, IAuditable, ISoftDelet
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public MeasurementKind Kind { get; private set; }
     public string Unit { get; private set; } = string.Empty;
@@ -28,11 +28,11 @@ public sealed class MeasurementDefinition : ITenantOwned, IAuditable, ISoftDelet
     public bool IsVisibleToStudents { get; private set; }
     public bool IsRecordedByStudents { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public static Result<MeasurementDefinition> Create(
@@ -57,7 +57,6 @@ public sealed class MeasurementDefinition : ITenantOwned, IAuditable, ISoftDelet
 
         var definition = new MeasurementDefinition
         {
-            Id = Guid.CreateVersion7(),
             Kind = kind.Value,
             Unit = trimmedUnit,
             CreatedAt = createdAt.ToUniversalTime(),

@@ -12,7 +12,7 @@ internal static class InstructorFailures
 
     public static ResultError NotFound() => new(InstructorErrorCodes.NotFound, NotFoundMessage, ErrorKind.NotFound);
 
-    public static ResultError NameTaken(Guid? existingInstructorId) =>
+    public static ResultError NameTaken(long? existingInstructorId) =>
         new(InstructorErrorCodes.NameTaken, NameTakenMessage, ErrorKind.Conflict)
         {
             Details = new Dictionary<string, object?> { [InstructorErrorCodes.ExistingInstructorIdDetail] = existingInstructorId },

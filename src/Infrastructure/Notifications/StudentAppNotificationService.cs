@@ -38,7 +38,7 @@ internal sealed class StudentAppNotificationService(
         await AnnouncementPublishedAsync(announcement, cancellationToken);
     }
 
-    public Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
+    public Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken) =>
         publisher.PublishToStudentsAsync(
             clientIds,
             LocalizedPushMessage.Build(texts => new PushMessage(
@@ -139,7 +139,7 @@ internal sealed class StudentAppNotificationService(
             .FirstOrDefaultAsync(candidate => candidate.Id == session.ClassGroupId, cancellationToken);
     }
 
-    private async Task<List<Guid>> ClientIdsEnrolledInAsync(IReadOnlyList<Guid> classGroupIds, CancellationToken cancellationToken)
+    private async Task<List<long>> ClientIdsEnrolledInAsync(IReadOnlyList<long> classGroupIds, CancellationToken cancellationToken)
     {
         var business = await context.Businesses.AsNoTracking()
             .FirstAsync(candidate => candidate.Id == context.CurrentTenantId, cancellationToken);
@@ -155,7 +155,7 @@ internal sealed class StudentAppNotificationService(
             .ToListAsync(cancellationToken);
     }
 
-    private Task<List<Guid>> EnrolledClientIdsAsync(ClassSession session, CancellationToken cancellationToken) =>
+    private Task<List<long>> EnrolledClientIdsAsync(ClassSession session, CancellationToken cancellationToken) =>
         (
             from enrollment in context.Enrollments.AsNoTracking()
             where enrollment.ClassGroupId == session.ClassGroupId

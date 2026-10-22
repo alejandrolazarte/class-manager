@@ -7,7 +7,7 @@ public sealed class Then_it_is_unread
     [Fact]
     public void Then_it_is_unread_Run()
     {
-        var notification = TeamNotification.Create(Guid.CreateVersion7(), "Tomás no viene", "Natación inicial · Mié 1/10", "/today", TestData.Now);
+        var notification = TeamNotification.Create(Guid.CreateVersion7(), "Tomás no viene", "Natación inicial · Mié 1/10", "/today", TestData.Now).WithId();
 
         notification.SeenAt.ShouldBeNull();
     }

@@ -8,7 +8,6 @@ internal sealed class PendingSignUpConfiguration : IEntityTypeConfiguration<Pend
     public void Configure(EntityTypeBuilder<PendingSignUp> builder)
     {
         builder.HasKey(pendingSignUp => pendingSignUp.Id);
-        builder.Property(pendingSignUp => pendingSignUp.Id).ValueGeneratedNever();
         builder.Property(pendingSignUp => pendingSignUp.Email).HasMaxLength(OwnerAccount.EmailMaxLength).IsRequired();
         builder.Property(pendingSignUp => pendingSignUp.OwnerFullName).HasMaxLength(OwnerAccount.FullNameMaxLength).IsRequired();
         builder.Property(pendingSignUp => pendingSignUp.BusinessName).HasMaxLength(Business.NameMaxLength).IsRequired();

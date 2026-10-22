@@ -4,12 +4,12 @@ namespace ClassManager.Infrastructure.Announcements;
 
 internal sealed class AnnouncementAudienceService(AppDbContext context, TimeProvider timeProvider) : IAnnouncementAudienceService
 {
-    public async Task<IReadOnlyDictionary<Guid, IReadOnlyList<AnnouncementRecipient>>> RecipientsOfAsync(
+    public async Task<IReadOnlyDictionary<long, IReadOnlyList<AnnouncementRecipient>>> RecipientsOfAsync(
         IReadOnlyList<Announcement> announcements, CancellationToken cancellationToken)
     {
         if (announcements.Count == 0)
         {
-            return new Dictionary<Guid, IReadOnlyList<AnnouncementRecipient>>();
+            return new Dictionary<long, IReadOnlyList<AnnouncementRecipient>>();
         }
 
         var clientsWithApp = await (
@@ -31,7 +31,7 @@ internal sealed class AnnouncementAudienceService(AppDbContext context, TimeProv
                 ]);
     }
 
-    private async Task<Dictionary<Guid, HashSet<Guid>>> ClientIdsByClassGroupAsync(List<Guid> classGroupIds, CancellationToken cancellationToken)
+    private async Task<Dictionary<long, HashSet<long>>> ClientIdsByClassGroupAsync(List<long> classGroupIds, CancellationToken cancellationToken)
     {
         if (classGroupIds.Count == 0)
         {

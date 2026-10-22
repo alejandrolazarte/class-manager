@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using ClassManager.Core.UseCases.Clients;
 using ClassManager.Core.UseCases.Instructors;
@@ -9,10 +10,10 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 
 public static class SamePersonRequests
 {
-    public static Guid? SamePersonUserIdOf(JsonElement problem) =>
-        problem.TryGetProperty(SamePerson.UserIdDetail, out var userId) ? userId.GetGuid() : null;
+    public static long? SamePersonUserIdOf(JsonElement problem) =>
+        problem.TryGetProperty(SamePerson.UserIdDetail, out var userId) ? long.Parse(userId.GetString()!, CultureInfo.InvariantCulture) : null;
 
-    public static Task<HttpResponseMessage> PostInstructorAsync(this HttpClient httpClient, string fullName, string email, Guid? samePersonUserId = null) =>
+    public static Task<HttpResponseMessage> PostInstructorAsync(this HttpClient httpClient, string fullName, string email, long? samePersonUserId = null) =>
         httpClient.PostAsJsonAsync(ApiRoutes.Instructors, new CreateInstructorCommand(fullName, email, samePersonUserId), ApiRequests.JsonOptions);
 
     public static async Task<InstructorResponse> CreateInstructorAsync(this HttpClient httpClient, string fullName, string email)
@@ -22,13 +23,13 @@ public static class SamePersonRequests
         return (await response.Content.ReadFromJsonAsync<InstructorResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> PostStudentAsync(this HttpClient httpClient, Guid clientId, string fullName, string email, Guid? samePersonUserId = null) =>
+    public static Task<HttpResponseMessage> PostStudentAsync(this HttpClient httpClient, long clientId, string fullName, string email, long? samePersonUserId = null) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.StudentsOfClient}",
             new NewStudent(fullName, null, null, email, samePersonUserId),
             ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PostClientWithEmailAsync(this HttpClient httpClient, string fullName, string email, Guid? samePersonUserId = null) =>
+    public static Task<HttpResponseMessage> PostClientWithEmailAsync(this HttpClient httpClient, string fullName, string email, long? samePersonUserId = null) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.Clients,
             new RegisterClientCommand(fullName, "11 6677-8899", email, null, [new NewStudent("Tomás Gómez", null, null)], samePersonUserId),
@@ -37,7 +38,7 @@ public static class SamePersonRequests
     public static Task<HttpResponseMessage> PostSeparationAsync(this HttpClient httpClient, string route, string fullName, string? email = null) =>
         httpClient.PostAsJsonAsync($"{route}{ApiRoutes.Separation}", new SeparatePersonRequest(fullName, email), ApiRequests.JsonOptions);
 
-    public static async Task<(Guid InstructorId, Guid StudentUserId)> SeedInstructorWhoIsAStudentAsync(this ApiFixture fixture, StudentAppScenario scenario)
+    public static async Task<(long InstructorId, long StudentUserId)> SeedInstructorWhoIsAStudentAsync(this ApiFixture fixture, StudentAppScenario scenario)
     {
         var studentUserId = UserRows.UserIdOf(scenario.Tokens.AccessToken)!.Value;
         using var response = await scenario.Instructors.Business.HttpClient.PostInstructorAsync("Ana Gómez", scenario.Email, studentUserId);
@@ -46,13 +47,13 @@ public static class SamePersonRequests
         return (instructor.Id, studentUserId);
     }
 
-    public static async Task<Guid> ClientIdOfStudentAsync(this ApiFixture fixture, Guid businessId, Guid studentId)
+    public static async Task<long> ClientIdOfStudentAsync(this ApiFixture fixture, long businessId, long studentId)
     {
         await using var context = fixture.CreateDbContext(businessId);
         return await context.Students.Where(student => student.Id == studentId).Select(student => student.ClientId).SingleAsync();
     }
 
-    public static async Task<Guid> UserIdOfInstructorAsync(this ApiFixture fixture, Guid businessId, Guid instructorId)
+    public static async Task<long> UserIdOfInstructorAsync(this ApiFixture fixture, long businessId, long instructorId)
     {
         await using var context = fixture.CreateDbContext(businessId);
         return await context.Instructors.Where(instructor => instructor.Id == instructorId).Select(instructor => instructor.UserId).SingleAsync();

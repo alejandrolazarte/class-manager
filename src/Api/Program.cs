@@ -8,6 +8,7 @@ using ClassManager.Api.Endpoints;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Api.Orders;
 using ClassManager.Infrastructure.Audit;
+using ClassManager.Infrastructure.Json;
 using ClassManager.Infrastructure.SecurityHeaders;
 using ClassManager.Subscriptions.AspNetCore.Limits;
 
@@ -16,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<FeatureLimitExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.WriteIdsAsStrings().Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddAppCors(builder.Configuration);
 builder.Services.AddAppAuthentication();
 builder.Services.AddInfrastructure();

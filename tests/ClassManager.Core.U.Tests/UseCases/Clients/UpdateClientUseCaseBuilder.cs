@@ -32,7 +32,7 @@ internal sealed class UpdateClientUseCaseBuilder
     public void WithStudentAppAccount()
     {
         var userId = Guid.CreateVersion7();
-        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, TestData.UserOfAccount(userId), TestData.Now)]);
+        ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([ClientAccount.Create(Client.Id, TestData.UserOfAccount(userId), TestData.Now).WithId()]);
         Identity
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new UserAccount(userId, SignInEmail, NewFullName)]);

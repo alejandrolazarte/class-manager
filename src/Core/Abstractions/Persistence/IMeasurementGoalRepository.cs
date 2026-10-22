@@ -8,7 +8,7 @@ public interface IMeasurementGoalRepository
 
     void Remove(MeasurementGoal goal);
 
-    Task<MeasurementGoal?> FindForUpdateAsync(Guid studentId, Guid definitionId, CancellationToken cancellationToken);
+    Task<MeasurementGoal?> FindForUpdateAsync(long studentId, long definitionId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<MeasurementGoal>> ListByStudentsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<MeasurementGoal>> ListByStudentsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken);
 }

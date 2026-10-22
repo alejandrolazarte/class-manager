@@ -10,11 +10,11 @@ namespace ClassManager.Core.UseCases.Orders;
 
 public sealed record RecordOrderPaymentRequest(decimal? Amount, PaymentMethod? Method, DateOnly? PaidOn, bool IsDelivered = false, bool IsReady = false)
 {
-    public RecordOrderPaymentCommand ToCommand(Guid orderId) => new(orderId, Amount, Method, PaidOn, IsDelivered, IsReady);
+    public RecordOrderPaymentCommand ToCommand(long orderId) => new(orderId, Amount, Method, PaidOn, IsDelivered, IsReady);
 }
 
 public sealed record RecordOrderPaymentCommand(
-    Guid OrderId, decimal? Amount, PaymentMethod? Method, DateOnly? PaidOn, bool IsDelivered = false, bool IsReady = false) : ICommand;
+    long OrderId, decimal? Amount, PaymentMethod? Method, DateOnly? PaidOn, bool IsDelivered = false, bool IsReady = false) : ICommand;
 
 public sealed class RecordOrderPaymentUseCase(
     IOrderRepository orderRepository,

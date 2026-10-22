@@ -8,5 +8,5 @@ public interface IPlatformOperatorDirectory
 
     Task<IReadOnlyList<PlatformTeamMember>> ListTeamAsync(CancellationToken cancellationToken);
 
-    Task<BusinessMember?> FindTeamMemberAsync(Guid memberId, CancellationToken cancellationToken);
+    Task<BusinessMember?> FindTeamMemberAsync(long memberId, CancellationToken cancellationToken);
 }

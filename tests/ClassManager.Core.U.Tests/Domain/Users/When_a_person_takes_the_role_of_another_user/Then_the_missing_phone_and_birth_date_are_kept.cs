@@ -9,8 +9,8 @@ public sealed class Then_the_missing_phone_and_birth_date_are_kept
     [Fact]
     public void Then_the_missing_phone_and_birth_date_are_kept_Run()
     {
-        var person = User.Create("Ana Gómez", "ana@example.com", TestData.Now).Value!;
-        var previousPerson = Client.Create("Ana Gómez", PhoneNumber.Create("11 2233-4455", TestData.DefaultCountryCallingCode).Value!, null, null, TestData.Now).Value!.User;
+        var person = User.Create("Ana Gómez", "ana@example.com", TestData.Now).Value!.WithId();
+        var previousPerson = Client.Create("Ana Gómez", PhoneNumber.Create("11 2233-4455", TestData.DefaultCountryCallingCode).Value!, null, null, TestData.Now).Value!.WithId().User;
         previousPerson.ChangeBirthDate(BirthDate, TestData.Today);
 
         person.CompleteWith(previousPerson);

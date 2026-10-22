@@ -18,7 +18,7 @@ internal sealed class BrandChanges(BackofficeApiFixture fixture)
     {
         var changes = new BrandChanges(fixture);
         changes.Brand = await fixture.SeedBrandAsync(
-            $"Marca {Guid.NewGuid():N}",
+            $"Marca {TestIds.Next()}",
             [1],
             brandId => [Subscription.Start(brandId, "pro", 29m, Currency, null, BackofficeApiFactory.Now.AddDays(-10))]);
         changes.AccessToken = await changes.Client.OpenSessionAsync(await fixture.SeedOperatorAsync(role));
@@ -34,12 +34,12 @@ internal sealed class BrandChanges(BackofficeApiFixture fixture)
     {
         using var response = await Client.SendAsync(HttpMethod.Post, $"{BrandRoute}/add-ons", AccessToken, new { featureCode, price = 10m, currency = Currency, limit });
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<BrandAddOnResponse>())!;
+        return (await response.Content.ReadFromJsonAsync<BrandAddOnResponse>(BackofficeRequests.JsonOptions))!;
     }
 
     public async Task<BrandDetailResponse> GetBrandAsync()
     {
         using var response = await Client.GetAsync(BrandRoute, AccessToken);
-        return (await response.Content.ReadFromJsonAsync<BrandDetailResponse>())!;
+        return (await response.Content.ReadFromJsonAsync<BrandDetailResponse>(BackofficeRequests.JsonOptions))!;
     }
 }

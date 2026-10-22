@@ -7,7 +7,7 @@ using ClassManager.Core.UseCases.Students;
 namespace ClassManager.Core.UseCases.Clients;
 
 public sealed record ClientDetailsResponse(
-    Guid Id,
+    long Id,
     string FullName,
     string PhoneNumber,
     string? Email,
@@ -26,7 +26,7 @@ public sealed record ClientDetailsResponse(
         IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
         DateOnly today,
         StudentAppAccessResponse appAccess,
-        IReadOnlyDictionary<Guid, StudentAppAccessResponse> studentAppAccesses) =>
+        IReadOnlyDictionary<long, StudentAppAccessResponse> studentAppAccesses) =>
         new(
             client.Id,
             client.User.FullName,

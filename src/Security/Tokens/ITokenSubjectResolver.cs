@@ -8,5 +8,5 @@ namespace ClassManager.Security.Tokens;
 /// </summary>
 public interface ITokenSubjectResolver
 {
-    Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, string? kind, CancellationToken cancellationToken);
+    Task<TokenSubject?> ResolveAsync(Guid userId, string email, long? tenantId, string? kind, CancellationToken cancellationToken);
 }

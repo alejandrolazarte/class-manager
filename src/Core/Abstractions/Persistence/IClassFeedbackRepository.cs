@@ -8,12 +8,12 @@ public interface IClassFeedbackRepository
 
     void Remove(ClassFeedback feedback);
 
-    Task<ClassFeedback?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken);
+    Task<ClassFeedback?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ClassFeedback>> ListBySessionAsync(Guid classSessionId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ClassFeedback>> ListBySessionAsync(long classSessionId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<StudentFeedback>> ListLatestByStudentsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<StudentFeedback>> ListLatestByStudentsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<StudentFeedback>> ListUpdatedSinceAsync(
-        IReadOnlyCollection<Guid> studentIds, DateTimeOffset since, CancellationToken cancellationToken);
+        IReadOnlyCollection<long> studentIds, DateTimeOffset since, CancellationToken cancellationToken);
 }

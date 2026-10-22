@@ -10,19 +10,19 @@ public static class ClassMaterialRequests
 
     public static readonly byte[] Pdf = "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n"u8.ToArray();
 
-    public static string MaterialPath(Guid classGroupId) => $"{ApiRoutes.ClassGroups}/{classGroupId}{ApiRoutes.Material}";
+    public static string MaterialPath(long classGroupId) => $"{ApiRoutes.ClassGroups}/{classGroupId}{ApiRoutes.Material}";
 
-    public static Task<HttpResponseMessage> PostClassMaterialFileAsync(this HttpClient httpClient, Guid classGroupId, byte[] content) =>
+    public static Task<HttpResponseMessage> PostClassMaterialFileAsync(this HttpClient httpClient, long classGroupId, byte[] content) =>
         httpClient.PostAsync(new Uri(MaterialPath(classGroupId), UriKind.Relative), PdfForm(content));
 
-    public static async Task<ClassGroupResponse> UploadClassMaterialFileAsync(this HttpClient httpClient, Guid classGroupId)
+    public static async Task<ClassGroupResponse> UploadClassMaterialFileAsync(this HttpClient httpClient, long classGroupId)
     {
         using var response = await httpClient.PostClassMaterialFileAsync(classGroupId, Pdf);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return (await response.Content.ReadFromJsonAsync<ClassGroupResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> DeleteClassMaterialFileAsync(this HttpClient httpClient, Guid classGroupId) =>
+    public static Task<HttpResponseMessage> DeleteClassMaterialFileAsync(this HttpClient httpClient, long classGroupId) =>
         httpClient.DeleteAsync(new Uri(MaterialPath(classGroupId), UriKind.Relative));
 
     private static MultipartFormDataContent PdfForm(byte[] content)

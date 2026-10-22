@@ -7,11 +7,11 @@ using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record StudentAttendance(Guid StudentId, AttendanceStatus? Status);
+public sealed record StudentAttendance(long StudentId, AttendanceStatus? Status);
 
 public sealed record RecordClassAttendanceRequest(IReadOnlyList<StudentAttendance>? Students);
 
-public sealed record RecordClassAttendanceCommand(Guid ClassGroupId, DateOnly Date, IReadOnlyList<StudentAttendance>? Students) : ICommand;
+public sealed record RecordClassAttendanceCommand(long ClassGroupId, DateOnly Date, IReadOnlyList<StudentAttendance>? Students) : ICommand;
 
 public sealed class RecordClassAttendanceUseCase(
     IClassGroupRepository classGroupRepository,

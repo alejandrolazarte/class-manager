@@ -20,12 +20,12 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public string? Body { get; private set; }
     public AnnouncementCategory Category { get; private set; }
@@ -35,10 +35,10 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
     public string? ActionUrl { get; private set; }
     public DateTimeOffset PublishedAt { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public IReadOnlyList<AnnouncementClassGroup> ClassGroups => _classGroups;
-    public IReadOnlyList<Guid> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
+    public IReadOnlyList<long> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
     public bool IsForEveryone => _classGroups.Count == 0;
     public IReadOnlyList<AnnouncementImage> Images => _images;
     public IReadOnlyList<Document> ImagesInOrder => CatalogImageGallery.InOrder(_images);
@@ -51,7 +51,7 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
         DateTimeOffset publishedAt,
         DateOnly today,
         AnnouncementCategory category = AnnouncementCategory.News,
-        IReadOnlyCollection<Guid>? classGroupIds = null,
+        IReadOnlyCollection<long>? classGroupIds = null,
         DateOnly? visibleUntil = null,
         AnnouncementAction action = AnnouncementAction.None,
         string? actionUrl = null)
@@ -64,7 +64,6 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
 
         var announcement = new Announcement
         {
-            Id = Guid.CreateVersion7(),
             PublishedAt = publishedAt.ToUniversalTime(),
         };
         announcement.Apply(content.Value!, classGroupIds);
@@ -75,7 +74,7 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
         string? title,
         string? body,
         AnnouncementCategory category,
-        IReadOnlyCollection<Guid>? classGroupIds,
+        IReadOnlyCollection<long>? classGroupIds,
         DateOnly? visibleUntil,
         DateOnly today,
         AnnouncementAction action = AnnouncementAction.None,
@@ -94,7 +93,7 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
 
     public void Reschedule(DateTimeOffset publishedAt) => PublishedAt = publishedAt.ToUniversalTime();
 
-    public bool IsFor(IReadOnlyCollection<Guid> enrolledClassGroupIds) =>
+    public bool IsFor(IReadOnlyCollection<long> enrolledClassGroupIds) =>
         IsForEveryone || _classGroups.Any(classGroup => enrolledClassGroupIds.Contains(classGroup.ClassGroupId));
 
     public bool IsPublishedBy(DateTimeOffset now) => PublishedAt <= now;
@@ -103,9 +102,9 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
 
     public void AddImage(Document document) => _images.Add(AnnouncementImage.Create(Id, document, _images.Count));
 
-    public Document? RemoveImage(Guid documentId) => CatalogImageGallery.Remove(_images, documentId);
+    public Document? RemoveImage(long documentId) => CatalogImageGallery.Remove(_images, documentId);
 
-    public Result ReorderImages(IReadOnlyList<Guid>? documentIds) => CatalogImageGallery.Reorder(_images, documentIds);
+    public Result ReorderImages(IReadOnlyList<long>? documentIds) => CatalogImageGallery.Reorder(_images, documentIds);
 
     public void Pin() => IsPinned = true;
 
@@ -124,7 +123,7 @@ public sealed class Announcement : ITenantOwned, IAuditable, ISoftDeletable, IHa
         IsDeleted = false;
     }
 
-    private void Apply(AnnouncementContent content, IReadOnlyCollection<Guid>? classGroupIds)
+    private void Apply(AnnouncementContent content, IReadOnlyCollection<long>? classGroupIds)
     {
         Title = content.Title;
         Body = content.Body;

@@ -41,25 +41,25 @@ public sealed class Order : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public int Number { get; private set; }
-    public Guid? ClientId { get; private set; }
+    public long? ClientId { get; private set; }
     public OrderChannel Channel { get; private set; }
     public string CurrencyCode { get; private set; } = string.Empty;
     public OrderStatus Status { get; private set; }
     public DateTimeOffset? DeliveredAt { get; private set; }
-    public Guid? DeliveredByUserId { get; private set; }
+    public long? DeliveredByUserId { get; private set; }
     public string? Notes { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DeliveryMethod Delivery { get; private set; }
-    public Guid? DeliveryClassGroupId { get; private set; }
+    public long? DeliveryClassGroupId { get; private set; }
     public DateTimeOffset? ReadyAt { get; private set; }
     public DateTimeOffset? CancelledAt { get; private set; }
-    public Guid? CancelledByUserId { get; private set; }
+    public long? CancelledByUserId { get; private set; }
     public IReadOnlyList<OrderLine> Lines => _lines;
     public IReadOnlyList<OrderPayment> Payments => _payments;
 
@@ -90,7 +90,7 @@ public sealed class Order : ITenantOwned, IAuditable
     public bool IsReady => ReadyAt is not null;
 
     public static Result<Order> CounterSale(
-        Guid? clientId,
+        long? clientId,
         IReadOnlyList<OrderLine> lines,
         string currencyCode,
         decimal? paidAmount,
@@ -99,7 +99,7 @@ public sealed class Order : ITenantOwned, IAuditable
         string? notes,
         bool isDelivered,
         DateOnly today,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         DateTimeOffset createdAt)
     {
         var order = Create(clientId, OrderChannel.Counter, lines, currencyCode, notes, recordedByUserId, createdAt);
@@ -127,10 +127,10 @@ public sealed class Order : ITenantOwned, IAuditable
     }
 
     public static Result<Order> Request(
-        Guid clientId,
+        long clientId,
         IReadOnlyList<OrderLine> lines,
         string currencyCode,
-        Guid? requestedByUserId,
+        long? requestedByUserId,
         DateTimeOffset createdAt) =>
         Create(clientId, OrderChannel.App, lines, currencyCode, null, requestedByUserId, createdAt);
 
@@ -145,7 +145,7 @@ public sealed class Order : ITenantOwned, IAuditable
     }
 
     public Result RecordPayment(
-        decimal? amount, PaymentMethod? method, DateOnly paidOn, DateOnly today, Guid? recordedByUserId, DateTimeOffset recordedAt)
+        decimal? amount, PaymentMethod? method, DateOnly paidOn, DateOnly today, long? recordedByUserId, DateTimeOffset recordedAt)
     {
         if (Status == OrderStatus.Cancelled || Balance == 0)
         {
@@ -177,7 +177,7 @@ public sealed class Order : ITenantOwned, IAuditable
         return Result.Success();
     }
 
-    public Result<OrderPayment> DeletePayment(Guid paymentId)
+    public Result<OrderPayment> DeletePayment(long paymentId)
     {
         var payment = _payments.FirstOrDefault(candidate => candidate.Id == paymentId);
         if (payment is null)
@@ -221,12 +221,12 @@ public sealed class Order : ITenantOwned, IAuditable
         return Result.Success();
     }
 
-    public Result CancelUnpaid(Guid? cancelledByUserId, DateTimeOffset cancelledAt) =>
+    public Result CancelUnpaid(long? cancelledByUserId, DateTimeOffset cancelledAt) =>
         _payments.Count > 0
             ? Result.Conflict(PaidNotCancellableMessage, OrderErrorCodes.NotCancellable)
             : Cancel(cancelledByUserId, cancelledAt);
 
-    public Result Cancel(Guid? cancelledByUserId, DateTimeOffset cancelledAt)
+    public Result Cancel(long? cancelledByUserId, DateTimeOffset cancelledAt)
     {
         if (Status != OrderStatus.Pending)
         {
@@ -253,12 +253,12 @@ public sealed class Order : ITenantOwned, IAuditable
     public bool IsExpired(DateTimeOffset now) => ExpiresAt <= now;
 
     private static Result<Order> Create(
-        Guid? clientId,
+        long? clientId,
         OrderChannel channel,
         IReadOnlyList<OrderLine> lines,
         string currencyCode,
         string? notes,
-        Guid? createdByUserId,
+        long? createdByUserId,
         DateTimeOffset createdAt)
     {
         if (lines.Count is 0 or > MaximumLineCount)
@@ -279,7 +279,6 @@ public sealed class Order : ITenantOwned, IAuditable
 
         var order = new Order
         {
-            Id = Guid.CreateVersion7(),
             ClientId = clientId,
             Channel = channel,
             CurrencyCode = currencyCode,
@@ -297,9 +296,9 @@ public sealed class Order : ITenantOwned, IAuditable
         return order;
     }
 
-    public OrderLine? FindLine(Guid lineId) => _lines.FirstOrDefault(line => line.Id == lineId);
+    public OrderLine? FindLine(long lineId) => _lines.FirstOrDefault(line => line.Id == lineId);
 
-    public Result ChooseDelivery(DeliveryMethod? delivery, Guid? classGroupId)
+    public Result ChooseDelivery(DeliveryMethod? delivery, long? classGroupId)
     {
         if (!AwaitsPickup)
         {
@@ -337,7 +336,7 @@ public sealed class Order : ITenantOwned, IAuditable
         return Result.Success();
     }
 
-    public Result MarkDelivered(Guid? deliveredByUserId, DateTimeOffset deliveredAt)
+    public Result MarkDelivered(long? deliveredByUserId, DateTimeOffset deliveredAt)
     {
         if (Status != OrderStatus.Pending)
         {

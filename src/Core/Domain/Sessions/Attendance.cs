@@ -9,21 +9,22 @@ public sealed class Attendance : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid ClassSessionId { get; private set; }
-    public Guid StudentId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long ClassSessionId { get; private set; }
+    public ClassSession? Session { get; private set; }
+    public long StudentId { get; private set; }
     public AttendanceStatus Status { get; private set; }
 
-    public static Attendance Create(Guid classSessionId, Guid studentId, AttendanceStatus status) =>
+    public static Attendance Create(ClassSession session, long studentId, AttendanceStatus status) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
-            ClassSessionId = classSessionId,
+            ClassSessionId = session.Id,
+            Session = session,
             StudentId = studentId,
             Status = status,
         };

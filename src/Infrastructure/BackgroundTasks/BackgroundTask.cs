@@ -13,13 +13,13 @@ public sealed class BackgroundTask
     {
     }
 
-    public Guid Id { get; private set; }
+    public long Id { get; private set; }
 
     public string Type { get; private set; } = string.Empty;
 
     public string Payload { get; private set; } = string.Empty;
 
-    public Guid? TenantId { get; private set; }
+    public long? TenantId { get; private set; }
 
     public int Attempts { get; private set; }
 
@@ -31,10 +31,9 @@ public sealed class BackgroundTask
 
     public DateTimeOffset? FailedOn { get; private set; }
 
-    public static BackgroundTask Create(string type, string payload, Guid? tenantId, DateTimeOffset now, DateTimeOffset runOn) =>
+    public static BackgroundTask Create(string type, string payload, long? tenantId, DateTimeOffset now, DateTimeOffset runOn) =>
         new()
         {
-            Id = Guid.NewGuid(),
             Type = type,
             Payload = payload,
             TenantId = tenantId,

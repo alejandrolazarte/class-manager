@@ -8,8 +8,8 @@ public static class PrivateLessonRequests
 {
     public static Task<HttpResponseMessage> PostPrivateLessonAsync(
         this HttpClient httpClient,
-        Guid instructorId,
-        Guid studentId,
+        long instructorId,
+        long studentId,
         DateOnly date,
         string startTime = "10:00",
         int repeatWeeks = 1,
@@ -22,8 +22,8 @@ public static class PrivateLessonRequests
 
     public static async Task<PrivateLessonResponse> SchedulePrivateLessonAsync(
         this HttpClient httpClient,
-        Guid instructorId,
-        Guid studentId,
+        long instructorId,
+        long studentId,
         DateOnly date,
         string startTime = "10:00",
         decimal? trialPrice = null)
@@ -34,7 +34,7 @@ public static class PrivateLessonRequests
     }
 
     public static Task<HttpResponseMessage> PutPrivateLessonAttendanceAsync(
-        this HttpClient httpClient, Guid privateLessonId, Guid studentId, AttendanceStatus? status) =>
+        this HttpClient httpClient, long privateLessonId, long studentId, AttendanceStatus? status) =>
         httpClient.PutAsJsonAsync(
             $"{ApiRoutes.PrivateLessons}/{privateLessonId}{ApiRoutes.Attendance}/{studentId}",
             new RecordAttendanceRequest(status),

@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record ListClientPaymentsQuery(Guid ClientId) : IQuery;
+public sealed record ListClientPaymentsQuery(long ClientId) : IQuery;
 
 public sealed class ListClientPaymentsUseCase(
     IClientRepository clientRepository,
@@ -28,7 +28,7 @@ public sealed class ListClientPaymentsUseCase(
 
         var payments = await paymentRepository.ListByClientAsync(client.Id, PaymentLimit, cancellationToken);
         var recorderNames = await userRepository.ListFullNamesAsync(
-            [.. payments.Select(payment => payment.RecordedByUserId).OfType<Guid>().Distinct()], cancellationToken);
+            [.. payments.Select(payment => payment.RecordedByUserId).OfType<long>().Distinct()], cancellationToken);
 
         return Result.Success<IReadOnlyList<PaymentResponse>>(
         [

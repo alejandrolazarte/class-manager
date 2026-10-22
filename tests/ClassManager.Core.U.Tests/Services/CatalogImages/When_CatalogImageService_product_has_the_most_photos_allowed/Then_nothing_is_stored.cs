@@ -17,7 +17,7 @@ public sealed class Then_nothing_is_stored
         result.Error!.Code.ShouldBe(ImageErrorCodes.LimitReached);
         builder.DocumentStorage.Verify(
             storage => storage.StoreAsync(
-                It.IsAny<DocumentOwner>(), It.IsAny<Guid>(), It.IsAny<DocumentContent>(), It.IsAny<DocumentVisibility>(), It.IsAny<CancellationToken>()),
+                It.IsAny<DocumentOwner>(), It.IsAny<long>(), It.IsAny<DocumentContent>(), It.IsAny<DocumentVisibility>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 }

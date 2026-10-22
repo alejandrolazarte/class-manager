@@ -8,9 +8,9 @@ public interface ICustomRoleRepository
 
     void Remove(CustomRole role);
 
-    Task<CustomRole?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken);
+    Task<CustomRole?> GetByIdAsync(long roleId, CancellationToken cancellationToken);
 
-    Task<CustomRole?> GetForUpdateAsync(Guid roleId, CancellationToken cancellationToken);
+    Task<CustomRole?> GetForUpdateAsync(long roleId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<CustomRole>> ListAsync(CancellationToken cancellationToken);
 }

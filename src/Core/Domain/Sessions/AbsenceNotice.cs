@@ -9,21 +9,22 @@ public sealed class AbsenceNotice : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClassSessionId { get; private set; }
-    public Guid StudentId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClassSessionId { get; private set; }
+    public ClassSession? Session { get; private set; }
+    public long StudentId { get; private set; }
     public bool KeepsStreak { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
-    public static AbsenceNotice Create(Guid classSessionId, Guid studentId, bool keepsStreak, DateTimeOffset createdAt) =>
+    public static AbsenceNotice Create(ClassSession session, long studentId, bool keepsStreak, DateTimeOffset createdAt) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
-            ClassSessionId = classSessionId,
+            ClassSessionId = session.Id,
+            Session = session,
             StudentId = studentId,
             KeepsStreak = keepsStreak,
             CreatedAt = createdAt.ToUniversalTime(),

@@ -14,5 +14,5 @@ internal static class ProductTestData
             stockMode,
             true,
             variantNames.Length == 0 ? [new VariantChange(null, string.Empty)] : [.. variantNames.Select(name => new VariantChange(null, name))],
-            TestData.Now).Value!;
+            TestData.Now).Value!.WithId();
 }

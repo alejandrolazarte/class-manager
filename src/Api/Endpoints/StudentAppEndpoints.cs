@@ -48,13 +48,13 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> GiveGuardianConsentInAppAsync(
-        Guid invitationId,
+        long invitationId,
         IUseCase<GiveGuardianConsentInAppCommand, GivenGuardianConsentResponse> useCase,
         CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(new GiveGuardianConsentInAppCommand(invitationId), cancellationToken)).ToOkResult();
 
     private static async Task<IResult> RefuseGuardianConsentInAppAsync(
-        Guid invitationId,
+        long invitationId,
         IUseCase<RefuseGuardianConsentInAppCommand, RefusedGuardianConsentResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -82,8 +82,8 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> NotifyAbsenceAsync(
-        Guid studentId,
-        Guid classGroupId,
+        long studentId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<NotifyAbsenceCommand, bool> useCase,
         CancellationToken cancellationToken)
@@ -94,8 +94,8 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> WithdrawAbsenceAsync(
-        Guid studentId,
-        Guid classGroupId,
+        long studentId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<WithdrawAbsenceCommand, bool> useCase,
         CancellationToken cancellationToken)
@@ -135,7 +135,7 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> GetStudentAppMakeupsAsync(
-        Guid studentId,
+        long studentId,
         IUseCase<GetStudentAppMakeupsQuery, StudentAppMakeupsResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -145,8 +145,8 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> BookMakeupAsync(
-        Guid studentId,
-        Guid classGroupId,
+        long studentId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<BookMakeupCommand, bool> useCase,
         CancellationToken cancellationToken)
@@ -157,8 +157,8 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> CancelMakeupAsync(
-        Guid studentId,
-        Guid classGroupId,
+        long studentId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<CancelMakeupCommand, bool> useCase,
         CancellationToken cancellationToken)
@@ -169,7 +169,7 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> GetStudentAppPackClassesAsync(
-        Guid studentId,
+        long studentId,
         IUseCase<GetStudentAppPackClassesQuery, StudentAppPackClassesResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -179,8 +179,8 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> BookPackClassAsync(
-        Guid studentId,
-        Guid classGroupId,
+        long studentId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<BookPackClassCommand, bool> useCase,
         CancellationToken cancellationToken)
@@ -191,8 +191,8 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> CancelPackClassAsync(
-        Guid studentId,
-        Guid classGroupId,
+        long studentId,
+        long classGroupId,
         DateOnly sessionDate,
         IUseCase<CancelPackClassCommand, bool> useCase,
         CancellationToken cancellationToken)
@@ -231,7 +231,7 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> CancelStudentAppOrderAsync(
-        Guid orderId,
+        long orderId,
         IUseCase<CancelStudentAppOrderCommand, StudentAppOrderResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -241,7 +241,7 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> InviteStudentAppAsync(
-        Guid clientId,
+        long clientId,
         InviteStudentAppRequest request,
         IUseCase<InviteStudentAppCommand, StudentAppInvitationResponse> useCase,
         CancellationToken cancellationToken)
@@ -252,7 +252,7 @@ internal static class StudentAppEndpoints
     }
 
     private static async Task<IResult> ReplyToAnnouncementAsync(
-        Guid announcementId,
+        long announcementId,
         ReplyToAnnouncementRequest request,
         IUseCase<ReplyToAnnouncementCommand, bool> useCase,
         CancellationToken cancellationToken)

@@ -9,7 +9,6 @@ internal sealed class OrderPaymentConfiguration : IEntityTypeConfiguration<Order
     public void Configure(EntityTypeBuilder<OrderPayment> builder)
     {
         builder.HasKey(payment => payment.Id);
-        builder.Property(payment => payment.Id).ValueGeneratedNever();
         builder.Property(payment => payment.Amount).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Property(payment => payment.Method).HasConversion<string>().HasMaxLength(MethodMaxLength);
 

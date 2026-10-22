@@ -9,7 +9,7 @@ public sealed class Then_it_answers_not_found(BackofficeApiFixture fixture)
         using var client = fixture.ApiFactory.CreateHttpsClient();
         var accessToken = await client.OpenSessionAsync(await fixture.SeedOperatorAsync());
 
-        using var response = await client.GetAsync($"{BackofficeRequests.BrandsRoute}/{Guid.CreateVersion7()}", accessToken);
+        using var response = await client.GetAsync($"{BackofficeRequests.BrandsRoute}/{TestIds.Next()}", accessToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }

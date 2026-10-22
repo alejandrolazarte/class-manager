@@ -4,12 +4,12 @@ using ClassManager.Core.Domain.ClassGroups;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
-public sealed record ClassMaterialFileResponse(Guid Id, string Url, long SizeInBytes);
+public sealed record ClassMaterialFileResponse(long Id, string Url, long SizeInBytes);
 
 public sealed record ClassGroupResponse(
-    Guid Id,
+    long Id,
     string Name,
-    Guid InstructorId,
+    long InstructorId,
     string InstructorFullName,
     IReadOnlyList<DayOfWeek> Weekdays,
     string StartTime,

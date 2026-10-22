@@ -6,12 +6,12 @@ internal sealed class OrganizationMemberRepository(AppDbContext context) : IOrga
 
     public void Remove(OrganizationMember member) => context.OrganizationMembers.Remove(member);
 
-    public Task<OrganizationMember?> FindForUpdateAsync(Guid organizationId, Guid userId, CancellationToken cancellationToken) =>
+    public Task<OrganizationMember?> FindForUpdateAsync(long organizationId, Guid userId, CancellationToken cancellationToken) =>
         context.OrganizationMembers.FirstOrDefaultAsync(
             member => member.OrganizationId == organizationId && member.UserId == userId && member.Role == OrganizationRole.BrandOwner,
             cancellationToken);
 
-    public async Task<IReadOnlyList<Guid>> ListBrandOwnerUserIdsAsync(Guid organizationId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<Guid>> ListBrandOwnerUserIdsAsync(long organizationId, CancellationToken cancellationToken) =>
         await context.OrganizationMembers
             .AsNoTracking()
             .Where(member => member.OrganizationId == organizationId && member.Role == OrganizationRole.BrandOwner)

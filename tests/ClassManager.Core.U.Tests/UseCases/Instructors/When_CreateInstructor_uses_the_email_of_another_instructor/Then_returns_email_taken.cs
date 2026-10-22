@@ -12,9 +12,9 @@ public sealed class Then_returns_email_taken
     public async Task Then_returns_email_taken_Run()
     {
         var builder = new InstructorUseCaseBuilder();
-        var otherInstructor = User.Create("Laura Gómez", Email, TestData.Now).Value!;
+        var otherInstructor = User.Create("Laura Gómez", Email, TestData.Now).Value!.WithId();
         builder.Users
-            .Setup(repository => repository.FindByEmailForUpdateAsync(Email, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.FindByEmailForUpdateAsync(Email, It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(otherInstructor);
         builder.Users
             .Setup(repository => repository.GetRolesAsync(otherInstructor.Id, It.IsAny<CancellationToken>()))

@@ -19,7 +19,7 @@ public sealed class Then_each_combination_is_a_variant
                 new VariantChange(null, "M", ProductColors.Black),
                 new VariantChange(null, "M", ProductColors.White),
             ],
-            TestData.Now).Value!;
+            TestData.Now).Value!.WithId();
 
         product.Variants.Select(variant => (variant.Size, variant.Color)).ShouldBe(
         [

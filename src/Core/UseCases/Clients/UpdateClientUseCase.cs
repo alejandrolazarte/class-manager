@@ -10,11 +10,11 @@ namespace ClassManager.Core.UseCases.Clients;
 
 public sealed record UpdateClientRequest(string? FullName, string? PhoneNumber, string? Email, string? Notes)
 {
-    public UpdateClientCommand ToCommand(Guid clientId) => new(clientId, FullName, PhoneNumber, Email, Notes);
+    public UpdateClientCommand ToCommand(long clientId) => new(clientId, FullName, PhoneNumber, Email, Notes);
 }
 
 public sealed record UpdateClientCommand(
-    Guid ClientId,
+    long ClientId,
     [property: AuditPersonal] string? FullName,
     [property: AuditPersonal] string? PhoneNumber,
     [property: AuditPersonal] string? Email,
@@ -95,7 +95,7 @@ public sealed class UpdateClientUseCase(
         return ClientResponse.From(client);
     }
 
-    private static Result<ClientResponse> PhoneNumberTaken(Guid? existingClientId) =>
+    private static Result<ClientResponse> PhoneNumberTaken(long? existingClientId) =>
         Result.Conflict<ClientResponse>(
             PhoneNumberTakenMessage,
             ClientErrorCodes.PhoneNumberTaken,

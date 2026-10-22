@@ -19,7 +19,7 @@ public sealed class Then_user_business_and_membership_are_created
                 It.IsAny<CancellationToken>()),
             Times.Once);
         builder.AddedBusiness!.Name.ShouldBe(TestData.BusinessName);
-        builder.AddedMember.ShouldBe(BusinessMember.CreateBranchOwner(builder.AddedBusiness.Id, TestData.UserOfAccount(builder.UserId)), new BusinessMemberLinkComparer());
+        builder.AddedMember.ShouldBe(BusinessMember.CreateBranchOwner(builder.AddedBusiness.Id, TestData.UserOfAccount(builder.UserId)).WithId(), new BusinessMemberLinkComparer());
         builder.Transaction.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

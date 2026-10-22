@@ -11,7 +11,7 @@ namespace ClassManager.Core.UseCases.Fees;
 public sealed record ListMonthlyFeesQuery(string? Month) : IQuery;
 
 public sealed record ClientFeeResponse(
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     string ClientPhoneNumber,
     IReadOnlyList<string> StudentNames,
@@ -21,7 +21,7 @@ public sealed record ClientFeeResponse(
     FeeStatus Status);
 
 public sealed record ClassPackClientResponse(
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     string ClientPhoneNumber,
     IReadOnlyList<string> StudentNames,
@@ -99,9 +99,9 @@ public sealed class ListMonthlyFeesUseCase(
 
     private static IReadOnlyList<ClientFeeResponse> ListMonthlyClients(
         IReadOnlyList<EnrolledClient> enrolledClients,
-        Dictionary<Guid, BillingPlan> planByClient,
+        Dictionary<long, BillingPlan> planByClient,
         decimal? defaultFee,
-        IReadOnlyDictionary<Guid, decimal> paidByClient)
+        IReadOnlyDictionary<long, decimal> paidByClient)
     {
         return [.. enrolledClients
             .Select(enrolledClient =>

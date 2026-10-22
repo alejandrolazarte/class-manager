@@ -31,13 +31,13 @@ internal sealed class JwtTokenIssuer(
         return new IssuedTokenPair(accessToken.Token, accessToken.ExpiresAt, refreshTokenValue, refreshToken.ExpiresAt, subject.Kind);
     }
 
-    public Task<IssuedTokenPair?> RefreshAsync(string refreshToken, Guid? tenantId, CancellationToken cancellationToken) =>
+    public Task<IssuedTokenPair?> RefreshAsync(string refreshToken, long? tenantId, CancellationToken cancellationToken) =>
         RotateAsync(refreshToken, tenantId, kind: null, cancellationToken);
 
-    public Task<IssuedTokenPair?> SwitchAsync(string refreshToken, Guid tenantId, string? kind, CancellationToken cancellationToken) =>
+    public Task<IssuedTokenPair?> SwitchAsync(string refreshToken, long tenantId, string? kind, CancellationToken cancellationToken) =>
         RotateAsync(refreshToken, tenantId, kind, cancellationToken);
 
-    private async Task<IssuedTokenPair?> RotateAsync(string refreshToken, Guid? tenantId, string? kind, CancellationToken cancellationToken)
+    private async Task<IssuedTokenPair?> RotateAsync(string refreshToken, long? tenantId, string? kind, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         var tokenHash = Hash(refreshToken);
@@ -110,7 +110,7 @@ internal sealed class JwtTokenIssuer(
             .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.RevokedAt, now), cancellationToken);
     }
 
-    private async Task<TokenSubject?> FindTokenSubjectAsync(Guid userId, Guid? tenantId, string? kind, CancellationToken cancellationToken)
+    private async Task<TokenSubject?> FindTokenSubjectAsync(Guid userId, long? tenantId, string? kind, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
 

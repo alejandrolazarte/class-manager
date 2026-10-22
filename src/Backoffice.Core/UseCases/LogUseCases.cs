@@ -6,7 +6,7 @@ using ClassManager.Core.UseCases;
 namespace ClassManager.Backoffice.Core.UseCases;
 
 [AuditedQuery]
-public sealed record ListCommandLogQuery(DateOnly? Day, Guid? BrandId) : IQuery;
+public sealed record ListCommandLogQuery(DateOnly? Day, long? BrandId) : IQuery;
 
 [AuditedQuery]
 public sealed record ListSecurityEventsQuery(DateOnly? Day) : IQuery;
@@ -23,10 +23,10 @@ public sealed record CommandLogItemResponse(
     bool PayloadTruncated,
     int? RowCount,
     string Source,
-    Guid? BrandId,
+    long? BrandId,
     string? BrandName,
     string? BranchName,
-    Guid? UserId,
+    long? UserId,
     string? UserName);
 
 public sealed record CommandLogResponse(DateOnly Day, IReadOnlyList<CommandLogItemResponse> Entries, bool IsTruncated, bool IsConnected = true) : ICountedRows
@@ -44,7 +44,7 @@ public sealed record SecurityEventResponse(
     string? UserAgent,
     int? Count,
     string? TraceId,
-    Guid? BrandId,
+    long? BrandId,
     string? BrandName,
     string? BranchName,
     string? UserName,
@@ -67,7 +67,7 @@ public sealed class ListCommandLogUseCase(IAuditLogReader reader, IAuditLogDirec
             return new CommandLogResponse(day, [], IsTruncated: false, IsConnected: false);
         }
 
-        IReadOnlyCollection<Guid>? tenantIds = null;
+        IReadOnlyCollection<long>? tenantIds = null;
         if (command.BrandId is { } brandId)
         {
             tenantIds = await directory.ListBranchIdsAsync(brandId, cancellationToken);

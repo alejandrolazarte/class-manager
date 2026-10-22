@@ -12,7 +12,6 @@ internal sealed class AnnouncementConfiguration : IEntityTypeConfiguration<Annou
     public void Configure(EntityTypeBuilder<Announcement> builder)
     {
         builder.HasKey(announcement => announcement.Id);
-        builder.Property(announcement => announcement.Id).ValueGeneratedNever();
         builder.Property(announcement => announcement.Title).HasMaxLength(Announcement.TitleMaxLength).IsRequired();
         builder.Property(announcement => announcement.Body).HasMaxLength(Announcement.BodyMaxLength);
         builder.Property(announcement => announcement.Category).HasConversion<string>().HasMaxLength(CategoryMaxLength);

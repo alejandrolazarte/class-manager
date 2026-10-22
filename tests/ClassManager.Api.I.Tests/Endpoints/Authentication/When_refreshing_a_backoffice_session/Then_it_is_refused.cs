@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using ClassManager.Core.Abstractions.Security;
@@ -25,7 +26,7 @@ public sealed class Then_it_is_refused(ApiFixture fixture)
             new TokenSubject(
                 Guid.Parse(claims.GetProperty(SecurityClaimTypes.Subject).GetString()!),
                 command.Email!,
-                Guid.Parse(claims.GetProperty(TenantClaimType).GetString()!),
+                long.Parse(claims.GetProperty(TenantClaimType).GetString()!, CultureInfo.InvariantCulture),
                 nameof(Core.Domain.Businesses.BusinessRole.PlatformOperator),
                 BackofficeKind),
             CancellationToken.None);

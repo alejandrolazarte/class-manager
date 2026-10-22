@@ -6,21 +6,21 @@ public interface IStudentRepository
 {
     void Add(Student student);
 
-    Task<Student?> FindForUpdateAsync(Guid studentId, CancellationToken cancellationToken);
+    Task<Student?> FindForUpdateAsync(long studentId, CancellationToken cancellationToken);
 
-    Task<Student?> FindByClientAndNameAsync(Guid clientId, string fullName, CancellationToken cancellationToken);
+    Task<Student?> FindByClientAndNameAsync(long clientId, string fullName, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Student>> ListByClientAsync(long clientId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Student>> ListByClientForUpdateAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Student>> ListByClientForUpdateAsync(long clientId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Student>> ListAllAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Student>> ListByClientIdsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Student>> ListByClientIdsAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken);
 
-    Task<StudentSummary?> GetSummaryByIdAsync(Guid studentId, CancellationToken cancellationToken);
+    Task<StudentSummary?> GetSummaryByIdAsync(long studentId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<StudentSummary>> ListSummariesByIdsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<StudentSummary>> ListSummariesByIdsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<StudentSummary>> SearchAsync(StudentSearchCriteria criteria, CancellationToken cancellationToken);
 }

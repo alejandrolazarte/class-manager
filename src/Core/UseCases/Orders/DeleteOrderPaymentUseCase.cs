@@ -4,7 +4,7 @@ using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record DeleteOrderPaymentCommand(Guid OrderId, Guid PaymentId) : ICommand;
+public sealed record DeleteOrderPaymentCommand(long OrderId, long PaymentId) : ICommand;
 
 public sealed class DeleteOrderPaymentUseCase(
     IOrderRepository orderRepository,

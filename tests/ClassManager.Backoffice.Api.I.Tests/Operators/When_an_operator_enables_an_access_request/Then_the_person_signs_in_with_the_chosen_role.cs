@@ -19,7 +19,7 @@ public sealed class Then_the_person_signs_in_with_the_chosen_role(BackofficeApiF
         using var operatorClient = fixture.ApiFactory.CreateHttpsClient();
         var accessToken = await operatorClient.OpenSessionAsync(await fixture.SeedOperatorAsync());
         using var list = await operatorClient.GetAsync(BackofficeRequests.OperatorsRoute, accessToken);
-        var accessRequest = (await list.Content.ReadFromJsonAsync<OperatorListResponse>())!.AccessRequests
+        var accessRequest = (await list.Content.ReadFromJsonAsync<OperatorListResponse>(BackofficeRequests.JsonOptions))!.AccessRequests
             .Single(request => request.Email == person.Email);
         using var enable = await operatorClient.SendAsync(
             HttpMethod.Post,

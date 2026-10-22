@@ -7,7 +7,6 @@ internal sealed class ClassGroupConfiguration : IEntityTypeConfiguration<ClassGr
     public void Configure(EntityTypeBuilder<ClassGroup> builder)
     {
         builder.HasKey(classGroup => classGroup.Id);
-        builder.Property(classGroup => classGroup.Id).ValueGeneratedNever();
         builder.Property(classGroup => classGroup.Name).HasMaxLength(ClassGroup.NameMaxLength).IsRequired();
         builder.Property(classGroup => classGroup.Weekdays).HasConversion<int>();
         builder.Property(classGroup => classGroup.Location).HasMaxLength(ClassGroup.LocationMaxLength);

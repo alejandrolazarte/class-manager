@@ -10,12 +10,12 @@ using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record StudentAppOrderLine(Guid? ClassPackId, Guid? ProductVariantId, int? Quantity);
+public sealed record StudentAppOrderLine(long? ClassPackId, long? ProductVariantId, int? Quantity);
 
 public sealed record PlaceStudentAppOrderCommand(
     IReadOnlyList<StudentAppOrderLine>? Lines,
     DeliveryMethod? Delivery = null,
-    Guid? DeliveryClassGroupId = null) : ICommand;
+    long? DeliveryClassGroupId = null) : ICommand;
 
 public sealed class PlaceStudentAppOrderUseCase(
     IStudentAppAccess studentAppAccess,
@@ -83,13 +83,14 @@ public sealed class PlaceStudentAppOrderUseCase(
             return StudentAppFailures.TooManyOpenOrders();
         }
 
-        foreach (var line in order.Value!.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))
+        order.Value!.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));
+        orderRepository.Add(order.Value);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        foreach (var line in order.Value.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))
         {
             stockMovementRepository.Add(StockMovement.Reserve(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access.UserId, now));
         }
 
-        order.Value.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));
-        orderRepository.Add(order.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         await orderNotifications.OrderPlacedAsync(order.Value, cancellationToken);

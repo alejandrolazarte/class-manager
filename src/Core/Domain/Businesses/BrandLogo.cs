@@ -18,14 +18,14 @@ public sealed class BrandLogo : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public byte[] Content { get; private set; } = [];
     public string ContentType { get; private set; } = string.Empty;
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     public static Result<BrandLogo> Create(byte[] content, DateTimeOffset updatedAt)
     {
@@ -42,7 +42,6 @@ public sealed class BrandLogo : ITenantOwned, IAuditable
 
         return new BrandLogo
         {
-            Id = Guid.CreateVersion7(),
             Content = content,
             ContentType = contentType,
             UpdatedAt = updatedAt.ToUniversalTime(),

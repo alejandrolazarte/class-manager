@@ -8,45 +8,45 @@ public static class SessionRequests
 {
     private const string IsoDateFormat = "yyyy-MM-dd";
 
-    public static string SessionPath(Guid classGroupId, DateOnly sessionDate) =>
+    public static string SessionPath(long classGroupId, DateOnly sessionDate) =>
         $"{ApiRoutes.ClassGroups}/{classGroupId}{ApiRoutes.SessionsSegment}/{sessionDate.ToString(IsoDateFormat, CultureInfo.InvariantCulture)}";
 
     public static Task<HttpResponseMessage> PutFeedbackAsync(
-        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, Guid studentId, string? text) =>
+        this HttpClient httpClient, long classGroupId, DateOnly sessionDate, long studentId, string? text) =>
         httpClient.PutAsJsonAsync(
             $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Feedback}/{studentId}",
             new RecordClassFeedbackRequest(text),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutAttendanceAsync(
-        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, Guid studentId, AttendanceStatus? status) =>
+        this HttpClient httpClient, long classGroupId, DateOnly sessionDate, long studentId, AttendanceStatus? status) =>
         httpClient.PutAsJsonAsync(
             $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Attendance}/{studentId}",
             new RecordAttendanceRequest(status),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutClassAttendanceAsync(
-        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, IReadOnlyList<StudentAttendance> students) =>
+        this HttpClient httpClient, long classGroupId, DateOnly sessionDate, IReadOnlyList<StudentAttendance> students) =>
         httpClient.PutAsJsonAsync(
             $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Attendance}",
             new RecordClassAttendanceRequest(students),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutSubstituteAsync(
-        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, Guid instructorId) =>
+        this HttpClient httpClient, long classGroupId, DateOnly sessionDate, long instructorId) =>
         httpClient.PutAsJsonAsync(
             $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Substitute}",
             new AssignSubstituteRequest(instructorId),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutScheduleAsync(
-        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, string startTime) =>
+        this HttpClient httpClient, long classGroupId, DateOnly sessionDate, string startTime) =>
         httpClient.PutAsJsonAsync(
             $"{SessionPath(classGroupId, sessionDate)}{ApiRoutes.Schedule}",
             new RescheduleSessionRequest(startTime),
             ApiRequests.JsonOptions);
 
-    public static Task<SessionDetailsResponse?> GetSessionAsync(this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate) =>
+    public static Task<SessionDetailsResponse?> GetSessionAsync(this HttpClient httpClient, long classGroupId, DateOnly sessionDate) =>
         httpClient.GetFromJsonAsync<SessionDetailsResponse>(new Uri(SessionPath(classGroupId, sessionDate), UriKind.Relative), ApiRequests.JsonOptions);
 
     public static Task<List<DaySessionResponse>?> GetDayAsync(this HttpClient httpClient, DateOnly sessionDate) =>

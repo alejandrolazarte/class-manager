@@ -7,9 +7,9 @@ using ClassManager.Core.UseCases.PrivateLessons;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
-public sealed record AssignSubstituteRequest(Guid? InstructorId);
+public sealed record AssignSubstituteRequest(long? InstructorId);
 
-public sealed record AssignSubstituteCommand(Guid ClassGroupId, DateOnly Date, Guid? InstructorId) : ICommand;
+public sealed record AssignSubstituteCommand(long ClassGroupId, DateOnly Date, long? InstructorId) : ICommand;
 
 public sealed class AssignSubstituteUseCase(
     IClassGroupRepository classGroupRepository,

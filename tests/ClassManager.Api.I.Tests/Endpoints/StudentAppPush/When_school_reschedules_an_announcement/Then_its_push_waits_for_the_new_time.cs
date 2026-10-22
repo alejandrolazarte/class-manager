@@ -20,8 +20,8 @@ public sealed class Then_its_push_waits_for_the_new_time(ApiFixture fixture)
             announcement.Id, new UpdateAnnouncementRequest("Feriado del 8 de diciembre", null, PublishOn: newPublishOn));
 
         rescheduled.PublishedAt.ShouldBe(newPublishOn);
-        await using var context = fixture.CreateDbContext(Guid.Empty);
-        var task = await context.BackgroundTasks.AsNoTracking().SingleAsync(candidate => candidate.Payload.Contains(announcement.Id.ToString()));
+        await using var context = fixture.CreateDbContext(0L);
+        var task = await context.BackgroundTasks.AsNoTracking().SingleAsync(candidate => candidate.Payload.Contains(BackgroundTaskRequests.ScheduledAnnouncementPayloadEnd(announcement.Id)));
         task.NextAttemptOn.ShouldBe(newPublishOn);
         fixture.ApiFactory.PushSender.SentTo(endpoint).ShouldBeEmpty();
     }

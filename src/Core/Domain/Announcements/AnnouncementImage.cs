@@ -11,19 +11,19 @@ public sealed class AnnouncementImage : ITenantOwned, IAuditable, ICatalogImageL
     {
     }
 
-    public Guid TenantId { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid AnnouncementId { get; private set; }
-    public Guid DocumentId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long AnnouncementId { get; private set; }
+    public long DocumentId { get; private set; }
     public Document Document { get; private set; } = null!;
     public int Position { get; private set; }
 
     public void MoveTo(int position) => Position = position;
 
-    internal static AnnouncementImage Create(Guid announcementId, Document document, int position) =>
+    internal static AnnouncementImage Create(long announcementId, Document document, int position) =>
         new()
         {
             AnnouncementId = announcementId,

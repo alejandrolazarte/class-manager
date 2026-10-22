@@ -35,7 +35,7 @@ public static class AccountUsers
 
         var account = (await identityService.ListAccountsAsync([accountId], cancellationToken)).SingleOrDefault()
             ?? throw new InvalidOperationException(AccountNotFoundMessage);
-        var email = await userRepository.IsEmailTakenAsync(account.Email, Guid.Empty, cancellationToken) ? null : account.Email;
+        var email = await userRepository.IsEmailTakenAsync(account.Email, 0, cancellationToken) ? null : account.Email;
         var user = User.CreateForAccount(accountId, account.FullName, email, now);
         userRepository.Add(user);
         return user;

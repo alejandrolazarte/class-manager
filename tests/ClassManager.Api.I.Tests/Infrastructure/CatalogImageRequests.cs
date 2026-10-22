@@ -17,40 +17,40 @@ public static class CatalogImageRequests
 
     public static byte[] OversizedPngImage() => [.. PngImage, .. new byte[CatalogImage.MaximumSizeInBytes]];
 
-    public static Task<HttpResponseMessage> PostProductImageAsync(this HttpClient httpClient, Guid productId, byte[] content) =>
+    public static Task<HttpResponseMessage> PostProductImageAsync(this HttpClient httpClient, long productId, byte[] content) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.Products}/{productId}{ApiRoutes.Images}", UriKind.Relative), ImageForm(content));
 
-    public static async Task<ProductResponse> AddProductImageAsync(this HttpClient httpClient, Guid productId)
+    public static async Task<ProductResponse> AddProductImageAsync(this HttpClient httpClient, long productId)
     {
         using var response = await httpClient.PostProductImageAsync(productId, PngImage);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return (await response.Content.ReadFromJsonAsync<ProductResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> DeleteProductImageAsync(this HttpClient httpClient, Guid productId, Guid documentId) =>
+    public static Task<HttpResponseMessage> DeleteProductImageAsync(this HttpClient httpClient, long productId, long documentId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Products}/{productId}{ApiRoutes.Images}/{documentId}", UriKind.Relative));
 
-    public static Task<HttpResponseMessage> PutProductImagesOrderAsync(this HttpClient httpClient, Guid productId, IReadOnlyList<Guid> documentIds) =>
+    public static Task<HttpResponseMessage> PutProductImagesOrderAsync(this HttpClient httpClient, long productId, IReadOnlyList<long> documentIds) =>
         httpClient.PutAsJsonAsync(
             $"{ApiRoutes.Products}/{productId}{ApiRoutes.ImagesOrder}", new ReorderImagesRequest(documentIds), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PostClassPackImageAsync(this HttpClient httpClient, Guid classPackId, byte[] content) =>
+    public static Task<HttpResponseMessage> PostClassPackImageAsync(this HttpClient httpClient, long classPackId, byte[] content) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.ClassPacks}/{classPackId}{ApiRoutes.Images}", UriKind.Relative), ImageForm(content));
 
-    public static async Task<ClassPackResponse> AddClassPackImageAsync(this HttpClient httpClient, Guid classPackId)
+    public static async Task<ClassPackResponse> AddClassPackImageAsync(this HttpClient httpClient, long classPackId)
     {
         using var response = await httpClient.PostClassPackImageAsync(classPackId, PngImage);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> DeleteClassPackImageAsync(this HttpClient httpClient, Guid classPackId, Guid documentId) =>
+    public static Task<HttpResponseMessage> DeleteClassPackImageAsync(this HttpClient httpClient, long classPackId, long documentId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.ClassPacks}/{classPackId}{ApiRoutes.Images}/{documentId}", UriKind.Relative));
 
-    public static Task<HttpResponseMessage> PostAnnouncementImageAsync(this HttpClient httpClient, Guid announcementId, byte[] content) =>
+    public static Task<HttpResponseMessage> PostAnnouncementImageAsync(this HttpClient httpClient, long announcementId, byte[] content) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Images}", UriKind.Relative), ImageForm(content));
 
-    public static async Task<AnnouncementResponse> AddAnnouncementImageAsync(this HttpClient httpClient, Guid announcementId)
+    public static async Task<AnnouncementResponse> AddAnnouncementImageAsync(this HttpClient httpClient, long announcementId)
     {
         using var response = await httpClient.PostAnnouncementImageAsync(announcementId, PngImage);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);

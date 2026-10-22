@@ -9,7 +9,7 @@ internal sealed class BusinessTokenSubjectResolver(
     SessionUserClaims sessionUserClaims)
     : ITokenSubjectResolver
 {
-    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, Guid? tenantId, string? kind, CancellationToken cancellationToken)
+    public async Task<TokenSubject?> ResolveAsync(Guid userId, string email, long? tenantId, string? kind, CancellationToken cancellationToken)
     {
         if (!AccountKinds.IsTeam(kind) && !AccountKinds.IsStudent(kind))
         {
@@ -22,7 +22,7 @@ internal sealed class BusinessTokenSubjectResolver(
         return subject is null ? null : await sessionUserClaims.AddToAsync(subject, cancellationToken);
     }
 
-    private async Task<TokenSubject?> ResolveTeamAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken)
+    private async Task<TokenSubject?> ResolveTeamAsync(Guid userId, string email, long? tenantId, CancellationToken cancellationToken)
     {
         var branch = tenantId is { } businessId
             ? await branchDirectory.FindAsync(userId, businessId, cancellationToken)
@@ -31,7 +31,7 @@ internal sealed class BusinessTokenSubjectResolver(
         return branch is null ? null : new TokenSubject(userId, email, branch.BusinessId, branch.RoleName, AccountKinds.Team);
     }
 
-    private async Task<TokenSubject?> ResolveStudentAsync(Guid userId, string email, Guid? tenantId, CancellationToken cancellationToken)
+    private async Task<TokenSubject?> ResolveStudentAsync(Guid userId, string email, long? tenantId, CancellationToken cancellationToken)
     {
         var student = tenantId is { } businessId
             ? await studentAppDirectory.FindAsync(userId, businessId, cancellationToken)

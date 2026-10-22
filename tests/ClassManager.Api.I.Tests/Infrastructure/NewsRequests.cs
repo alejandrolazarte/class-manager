@@ -26,47 +26,47 @@ public static class NewsRequests
         return (await response.Content.ReadFromJsonAsync<AnnouncementResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> PutAnnouncementAsync(this HttpClient httpClient, Guid announcementId, UpdateAnnouncementRequest request) =>
+    public static Task<HttpResponseMessage> PutAnnouncementAsync(this HttpClient httpClient, long announcementId, UpdateAnnouncementRequest request) =>
         httpClient.PutAsJsonAsync($"{ApiRoutes.Announcements}/{announcementId}", request, ApiRequests.JsonOptions);
 
     public static async Task<AnnouncementResponse> UpdateAnnouncementAsync(
-        this HttpClient httpClient, Guid announcementId, UpdateAnnouncementRequest request)
+        this HttpClient httpClient, long announcementId, UpdateAnnouncementRequest request)
     {
         using var response = await httpClient.PutAnnouncementAsync(announcementId, request);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return (await response.Content.ReadFromJsonAsync<AnnouncementResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> PinAnnouncementAsync(this HttpClient httpClient, Guid announcementId) =>
+    public static Task<HttpResponseMessage> PinAnnouncementAsync(this HttpClient httpClient, long announcementId) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Pin}", UriKind.Relative), null);
 
-    public static Task<List<AnnouncementRecipientResponse>?> GetAnnouncementRecipientsAsync(this HttpClient httpClient, Guid announcementId) =>
+    public static Task<List<AnnouncementRecipientResponse>?> GetAnnouncementRecipientsAsync(this HttpClient httpClient, long announcementId) =>
         httpClient.GetFromJsonAsync<List<AnnouncementRecipientResponse>>(
             new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Recipients}", UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static async Task<AnnouncementReminderResponse> RemindAnnouncementAsync(this HttpClient httpClient, Guid announcementId)
+    public static async Task<AnnouncementReminderResponse> RemindAnnouncementAsync(this HttpClient httpClient, long announcementId)
     {
         using var response = await httpClient.PostAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Reminder}", UriKind.Relative), null);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return (await response.Content.ReadFromJsonAsync<AnnouncementReminderResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> PutAnnouncementReplyAsync(this HttpClient httpClient, Guid announcementId, bool isGoing) =>
+    public static Task<HttpResponseMessage> PutAnnouncementReplyAsync(this HttpClient httpClient, long announcementId, bool isGoing) =>
         httpClient.PutAsJsonAsync(
             $"{ApiRoutes.StudentApp}{ApiRoutes.StudentAppNewsAnnouncements}/{announcementId}{ApiRoutes.Reply}",
             new ReplyToAnnouncementRequest(isGoing),
             ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> UnpinAnnouncementAsync(this HttpClient httpClient, Guid announcementId) =>
+    public static Task<HttpResponseMessage> UnpinAnnouncementAsync(this HttpClient httpClient, long announcementId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Pin}", UriKind.Relative));
 
     public static Task<List<AnnouncementResponse>?> ListAnnouncementsAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<List<AnnouncementResponse>>(new Uri(ApiRoutes.Announcements, UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> DeleteAnnouncementAsync(this HttpClient httpClient, Guid announcementId) =>
+    public static Task<HttpResponseMessage> DeleteAnnouncementAsync(this HttpClient httpClient, long announcementId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}", UriKind.Relative));
 
-    public static Task<HttpResponseMessage> RestoreAnnouncementAsync(this HttpClient httpClient, Guid announcementId) =>
+    public static Task<HttpResponseMessage> RestoreAnnouncementAsync(this HttpClient httpClient, long announcementId) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.Announcements}/{announcementId}{ApiRoutes.Restore}", UriKind.Relative), null);
 
     public static Task<StudentAppNewsResponse?> GetStudentAppNewsAsync(this HttpClient httpClient) =>
@@ -77,7 +77,7 @@ public static class NewsRequests
         httpClient.PutAsJsonAsync(ApiRoutes.StudentApp + ApiRoutes.StudentAppNews + ApiRoutes.Seen, new { }, ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutSessionCancellationAsync(
-        this HttpClient httpClient, Guid classGroupId, DateOnly sessionDate, string reason) =>
+        this HttpClient httpClient, long classGroupId, DateOnly sessionDate, string reason) =>
         httpClient.PutAsJsonAsync(
             $"{SessionRequests.SessionPath(classGroupId, sessionDate)}{ApiRoutes.Cancellation}",
             new CancelSessionRequest(reason),

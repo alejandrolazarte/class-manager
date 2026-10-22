@@ -8,9 +8,9 @@ public sealed class Then_returns_conflict_with_existing_id
     public async Task Then_returns_conflict_with_existing_id_Run()
     {
         var builder = new AddStudentUseCaseBuilder();
-        var existingStudent = Student.Create(Guid.CreateVersion7(), TestData.StudentFullName, null, null, TestData.Today, TestData.Now).Value!;
+        var existingStudent = Student.Create(TestData.Client(), TestData.StudentFullName, null, null, TestData.Today, TestData.Now).Value!.WithId();
         builder.Students
-            .Setup(repository => repository.FindByClientAndNameAsync(It.IsAny<Guid>(), TestData.StudentFullName, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.FindByClientAndNameAsync(It.IsAny<long>(), TestData.StudentFullName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingStudent);
 
         var response = await builder.Build().ExecuteAsync(AddStudentUseCaseBuilder.ValidCommand(), CancellationToken.None);

@@ -5,7 +5,7 @@ using ClassManager.Core.Domain.Roles;
 namespace ClassManager.Core.UseCases.Roles;
 
 public sealed record RoleResponse(
-    Guid? Id,
+    long? Id,
     BusinessRole? SystemRole,
     string? Name,
     IReadOnlyList<string> Permissions,
@@ -19,4 +19,4 @@ public sealed record RoleResponse(
         new(role.Id, null, role.Name, role.Permissions, role.CopiedFrom, memberCount);
 }
 
-public sealed record DeletedRoleResponse(Guid Id);
+public sealed record DeletedRoleResponse(long Id);

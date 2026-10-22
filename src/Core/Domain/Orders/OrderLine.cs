@@ -20,18 +20,19 @@ public sealed class OrderLine : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid OrderId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long OrderId { get; private set; }
     public OrderLineKind Kind { get; private set; }
-    public Guid? ClassPackId { get; private set; }
-    public Guid? ClassPackPurchaseId { get; private set; }
-    public Guid? ProductId { get; private set; }
-    public Guid? ProductVariantId { get; private set; }
+    public long? ClassPackId { get; private set; }
+    public long? ClassPackPurchaseId { get; private set; }
+    public ClassPackPurchase? ClassPackPurchase { get; private set; }
+    public long? ProductId { get; private set; }
+    public long? ProductVariantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public int Quantity { get; private set; }
     public decimal UnitPrice { get; private set; }
@@ -53,7 +54,6 @@ public sealed class OrderLine : ITenantOwned, IAuditable
 
         return new OrderLine
         {
-            Id = Guid.CreateVersion7(),
             Kind = OrderLineKind.ClassPack,
             ClassPackId = pack.Id,
             Name = pack.Name,
@@ -78,7 +78,6 @@ public sealed class OrderLine : ITenantOwned, IAuditable
 
         return new OrderLine
         {
-            Id = Guid.CreateVersion7(),
             Kind = OrderLineKind.Product,
             ProductId = product.Id,
             ProductVariantId = variant.Id,
@@ -88,9 +87,15 @@ public sealed class OrderLine : ITenantOwned, IAuditable
         };
     }
 
-    public void LinkPurchase(Guid? purchaseId) => ClassPackPurchaseId = purchaseId;
+    public void LinkPurchase(ClassPackPurchase purchase) => ClassPackPurchase = purchase;
 
-    internal void AttachTo(Guid orderId) => OrderId = orderId;
+    public void UnlinkPurchase()
+    {
+        ClassPackPurchase = null;
+        ClassPackPurchaseId = null;
+    }
+
+    internal void AttachTo(long orderId) => OrderId = orderId;
 
     internal Result RefundUnits(int? quantity)
     {

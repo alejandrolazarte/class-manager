@@ -10,7 +10,7 @@ public sealed class Then_returns_not_found
     {
         var useCase = new GetClientUseCaseBuilder().Build();
 
-        var response = await useCase.ExecuteAsync(new GetClientQuery(Guid.CreateVersion7()), CancellationToken.None);
+        var response = await useCase.ExecuteAsync(new GetClientQuery(TestIds.Next()), CancellationToken.None);
 
         response.Error!.Code.ShouldBe(ClientErrorCodes.NotFound);
     }

@@ -25,9 +25,11 @@ namespace ClassManager.Backoffice.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Backoffice.Core.Operators.BackofficeAccessRequest", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -62,9 +64,11 @@ namespace ClassManager.Backoffice.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Backoffice.Core.Operators.BackofficeLogin", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier");
@@ -77,8 +81,8 @@ namespace ClassManager.Backoffice.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("EnabledAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid?>("EnabledByUserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long?>("EnabledByUserId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Provider")
                         .IsRequired()

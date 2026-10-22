@@ -4,10 +4,10 @@ internal sealed class InstructorRepository(AppDbContext context) : IInstructorRe
 {
     public void Add(Instructor instructor) => context.Instructors.Add(instructor);
 
-    public Task<Instructor?> GetByIdAsync(Guid instructorId, CancellationToken cancellationToken) =>
+    public Task<Instructor?> GetByIdAsync(long instructorId, CancellationToken cancellationToken) =>
         context.Instructors.AsNoTracking().Include(instructor => instructor.User).FirstOrDefaultAsync(instructor => instructor.Id == instructorId, cancellationToken);
 
-    public Task<Instructor?> GetForUpdateAsync(Guid instructorId, CancellationToken cancellationToken) =>
+    public Task<Instructor?> GetForUpdateAsync(long instructorId, CancellationToken cancellationToken) =>
         context.Instructors.Include(instructor => instructor.User).FirstOrDefaultAsync(instructor => instructor.Id == instructorId, cancellationToken);
 
     public Task<Instructor?> FindByNameAsync(string fullName, CancellationToken cancellationToken) =>

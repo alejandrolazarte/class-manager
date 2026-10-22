@@ -5,12 +5,12 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
 {
     public void Add(ClientInvitation invitation) => context.ClientInvitations.Add(invitation);
 
-    public Task<ClientInvitation?> FindForUpdateAsync(Guid invitationId, CancellationToken cancellationToken) =>
+    public Task<ClientInvitation?> FindForUpdateAsync(long invitationId, CancellationToken cancellationToken) =>
         context.ClientInvitations.FirstOrDefaultAsync(invitation => invitation.Id == invitationId, cancellationToken);
 
     public async Task<IReadOnlyList<ClientInvitation>> ListPendingForUpdateByPersonAsync(
-        Guid clientId,
-        Guid? studentId,
+        long clientId,
+        long? studentId,
         DateTimeOffset now,
         CancellationToken cancellationToken) =>
         await context.ClientInvitations
@@ -22,7 +22,7 @@ internal sealed class ClientInvitationRepository(AppDbContext context) : IClient
                 && invitation.ExpiresAt > now)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<ClientInvitation>> ListPendingByClientAsync(Guid clientId, DateTimeOffset now, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<ClientInvitation>> ListPendingByClientAsync(long clientId, DateTimeOffset now, CancellationToken cancellationToken) =>
         await context.ClientInvitations
             .AsNoTracking()
             .Where(invitation => invitation.ClientId == clientId

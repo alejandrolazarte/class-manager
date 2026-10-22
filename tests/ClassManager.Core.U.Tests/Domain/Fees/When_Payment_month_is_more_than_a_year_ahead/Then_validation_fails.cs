@@ -10,7 +10,7 @@ public sealed class Then_validation_fails
         var farMonth = BillingMonth.From(TestData.Today.AddMonths(13));
 
         var payment = Payment.Create(
-            Guid.CreateVersion7(), 12000m, TestData.CurrencyCode, farMonth, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now);
+            TestIds.Next(), 12000m, TestData.CurrencyCode, farMonth, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now);
 
         payment.Error!.FieldName.ShouldBe(nameof(Payment.Month));
     }

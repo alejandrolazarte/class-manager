@@ -3,9 +3,9 @@ namespace ClassManager.Backoffice.Core.Logs;
 public sealed record SecurityLogEntry(
     DateTimeOffset OccurredAt,
     string Event,
-    Guid? TenantId,
+    long? TenantId,
     Guid? AccountId,
-    Guid? UserId,
+    long? UserId,
     string? Route,
     string? Method,
     int? StatusCode,

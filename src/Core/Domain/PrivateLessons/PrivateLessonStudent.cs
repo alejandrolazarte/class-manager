@@ -10,20 +10,19 @@ public sealed class PrivateLessonStudent : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid PrivateLessonId { get; private set; }
-    public Guid StudentId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long PrivateLessonId { get; private set; }
+    public long StudentId { get; private set; }
     public AttendanceStatus? Status { get; private set; }
 
-    internal static PrivateLessonStudent Create(Guid privateLessonId, Guid studentId) =>
+    internal static PrivateLessonStudent Create(long privateLessonId, long studentId) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             PrivateLessonId = privateLessonId,
             StudentId = studentId,
         };

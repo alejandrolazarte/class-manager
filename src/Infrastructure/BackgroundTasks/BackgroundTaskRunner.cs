@@ -20,7 +20,7 @@ internal sealed partial class BackgroundTaskRunner(
 
     public async Task<DateTimeOffset?> RunDueTasksAsync(CancellationToken cancellationToken)
     {
-        IReadOnlyList<Guid> dueTaskIds;
+        IReadOnlyList<long> dueTaskIds;
         do
         {
             dueTaskIds = await ListDueTaskIdsAsync(cancellationToken);
@@ -37,7 +37,7 @@ internal sealed partial class BackgroundTaskRunner(
             .MinAsync(task => (DateTimeOffset?)task.NextAttemptOn, cancellationToken);
     }
 
-    private async Task<IReadOnlyList<Guid>> ListDueTaskIdsAsync(CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<long>> ListDueTaskIdsAsync(CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         await using var scope = scopeFactory.CreateAsyncScope();
@@ -49,7 +49,7 @@ internal sealed partial class BackgroundTaskRunner(
             .ToListAsync(cancellationToken);
     }
 
-    private async Task RunAsync(Guid taskId, CancellationToken cancellationToken)
+    private async Task RunAsync(long taskId, CancellationToken cancellationToken)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -110,11 +110,11 @@ internal sealed partial class BackgroundTaskRunner(
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Background task {Type} {TaskId} failed on attempt {Attempts}; next attempt on {NextAttemptOn}")]
-    private static partial void LogRetrying(ILogger logger, Exception exception, string type, Guid taskId, int attempts, DateTimeOffset nextAttemptOn);
+    private static partial void LogRetrying(ILogger logger, Exception exception, string type, long taskId, int attempts, DateTimeOffset nextAttemptOn);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Background task {TaskId} has type {Type}, which is not registered; it was renamed or removed and will not run")]
-    private static partial void LogUnknownType(ILogger logger, string type, Guid taskId);
+    private static partial void LogUnknownType(ILogger logger, string type, long taskId);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Background task {Type} {TaskId} failed after {Attempts} attempts and will not run again")]
-    private static partial void LogFailed(ILogger logger, Exception exception, string type, Guid taskId, int attempts);
+    private static partial void LogFailed(ILogger logger, Exception exception, string type, long taskId, int attempts);
 }

@@ -10,7 +10,7 @@ using ClassManager.Core.UseCases.ClassGroups;
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
 public sealed record ReschedulePrivateLessonRequest(
-    Guid? InstructorId,
+    long? InstructorId,
     DateOnly Date,
     [property: AuditPlain] string? StartTime,
     int? DurationMinutes,
@@ -19,7 +19,7 @@ public sealed record ReschedulePrivateLessonRequest(
     bool IsTrial = false,
     decimal? TrialPrice = null);
 
-public sealed record ReschedulePrivateLessonCommand(Guid PrivateLessonId, ReschedulePrivateLessonRequest Details) : ICommand;
+public sealed record ReschedulePrivateLessonCommand(long PrivateLessonId, ReschedulePrivateLessonRequest Details) : ICommand;
 
 public sealed class ReschedulePrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,

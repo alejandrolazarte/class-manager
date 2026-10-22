@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using Azure;
 using Azure.Data.Tables;
@@ -17,7 +18,7 @@ internal sealed class AzureAuditLogReader(TableServiceClient tableService, BlobC
 
     public bool IsConnected => true;
 
-    public async Task<CommandLogPage> ListCommandsAsync(DateOnly day, IReadOnlyCollection<Guid>? tenantIds, CancellationToken cancellationToken)
+    public async Task<CommandLogPage> ListCommandsAsync(DateOnly day, IReadOnlyCollection<long>? tenantIds, CancellationToken cancellationToken)
     {
         var start = new DateTimeOffset(day.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
         var end = start.AddDays(1);
@@ -58,23 +59,23 @@ internal sealed class AzureAuditLogReader(TableServiceClient tableService, BlobC
         }
     }
 
-    private static IEnumerable<string> ConditionsOf(DateTimeOffset start, DateTimeOffset end, IReadOnlyCollection<Guid>? tenantIds)
+    private static IEnumerable<string> ConditionsOf(DateTimeOffset start, DateTimeOffset end, IReadOnlyCollection<long>? tenantIds)
     {
         yield return TableClient.CreateQueryFilter($"RowKey gt {TableCommandAuditStore.RowKeyPrefixOf(end) + RowKeyUpperBoundSuffix}");
         yield return TableClient.CreateQueryFilter($"RowKey lt {TableCommandAuditStore.RowKeyPrefixOf(start) + RowKeyUpperBoundSuffix}");
         if (tenantIds is not null)
         {
-            yield return $"({string.Join(PartitionSeparator, tenantIds.Select(tenantId => TableClient.CreateQueryFilter($"PartitionKey eq {tenantId.ToString()}")))})";
+            yield return $"({string.Join(PartitionSeparator, tenantIds.Select(tenantId => TableClient.CreateQueryFilter($"PartitionKey eq {tenantId.ToString(CultureInfo.InvariantCulture)}")))})";
         }
     }
 
     private static CommandLogEntry EntryOf(TableEntity entity) =>
         new(
             entity.GetDateTimeOffset(nameof(CommandAuditEntry.OccurredAt)) ?? DateTimeOffset.MinValue,
-            Guid.TryParse(entity.PartitionKey, out var tenantId) ? tenantId : null,
+            long.TryParse(entity.PartitionKey, NumberStyles.None, CultureInfo.InvariantCulture, out var tenantId) ? tenantId : null,
             entity.GetString(nameof(CommandAuditEntry.Command)) ?? string.Empty,
             entity.GetGuid(nameof(CommandAuditEntry.AccountId)),
-            entity.GetGuid(nameof(CommandAuditEntry.UserId)),
+            entity.GetInt64(nameof(CommandAuditEntry.UserId)),
             entity.GetString(nameof(CommandAuditEntry.Outcome)) ?? string.Empty,
             entity.GetString(nameof(CommandAuditEntry.ErrorKind)),
             entity.GetString(nameof(CommandAuditEntry.ErrorCode)),

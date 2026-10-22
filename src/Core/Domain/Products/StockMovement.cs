@@ -21,18 +21,18 @@ public sealed class StockMovement : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ProductVariantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ProductVariantId { get; private set; }
     public StockMovementKind Kind { get; private set; }
     public int Quantity { get; private set; }
-    public Guid? OrderId { get; private set; }
+    public long? OrderId { get; private set; }
     public string? Note { get; private set; }
-    public Guid? RecordedByUserId { get; private set; }
+    public long? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     public static Result<StockMovement> Load(
         Product product,
@@ -41,7 +41,7 @@ public sealed class StockMovement : ITenantOwned, IAuditable
         int? quantity,
         string? note,
         int currentStock,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         DateTimeOffset createdAt)
     {
         if (!product.TracksStock)
@@ -75,7 +75,7 @@ public sealed class StockMovement : ITenantOwned, IAuditable
     public static Result<IReadOnlyList<StockMovement>> InitialStock(
         Product product,
         IReadOnlyList<VariantChange> variants,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         DateTimeOffset createdAt)
     {
         if (variants.Any(variant => variant.InitialStock is < 0 or > MaximumQuantity))
@@ -95,16 +95,16 @@ public sealed class StockMovement : ITenantOwned, IAuditable
                 initialStock.Id, StockMovementKind.InitialStock, initialStock.Quantity, null, null, recordedByUserId, createdAt))]);
     }
 
-    public static StockMovement Sale(Guid variantId, int quantity, Guid orderId, Guid? recordedByUserId, DateTimeOffset createdAt) =>
+    public static StockMovement Sale(long variantId, int quantity, long orderId, long? recordedByUserId, DateTimeOffset createdAt) =>
         Create(variantId, StockMovementKind.Sale, -quantity, orderId, null, recordedByUserId, createdAt);
 
-    public static StockMovement Return(Guid variantId, int quantity, Guid orderId, Guid? recordedByUserId, DateTimeOffset createdAt) =>
+    public static StockMovement Return(long variantId, int quantity, long orderId, long? recordedByUserId, DateTimeOffset createdAt) =>
         Create(variantId, StockMovementKind.Refund, quantity, orderId, null, recordedByUserId, createdAt);
 
-    public static StockMovement Reserve(Guid variantId, int quantity, Guid orderId, Guid? recordedByUserId, DateTimeOffset createdAt) =>
+    public static StockMovement Reserve(long variantId, int quantity, long orderId, long? recordedByUserId, DateTimeOffset createdAt) =>
         Create(variantId, StockMovementKind.Reservation, -quantity, orderId, null, recordedByUserId, createdAt);
 
-    public static StockMovement Release(StockMovement reservation, Guid? recordedByUserId, DateTimeOffset createdAt) =>
+    public static StockMovement Release(StockMovement reservation, long? recordedByUserId, DateTimeOffset createdAt) =>
         Create(
             reservation.ProductVariantId,
             StockMovementKind.Cancellation,
@@ -115,16 +115,15 @@ public sealed class StockMovement : ITenantOwned, IAuditable
             createdAt);
 
     private static StockMovement Create(
-        Guid variantId,
+        long variantId,
         StockMovementKind kind,
         int quantity,
-        Guid? orderId,
+        long? orderId,
         string? note,
-        Guid? recordedByUserId,
+        long? recordedByUserId,
         DateTimeOffset createdAt) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             ProductVariantId = variantId,
             Kind = kind,
             Quantity = quantity,

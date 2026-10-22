@@ -13,7 +13,7 @@ public sealed class Then_only_the_child_shows_the_invitation
         builder.Students.Setup(repository => repository.ListByClientAsync(builder.Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([child]);
         builder.Invitations
             .Setup(repository => repository.ListPendingByClientAsync(builder.Client.Id, TestData.Now, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([ClientInvitation.Create(builder.Client.Id, "tomas@example.com", "token-hash", Guid.CreateVersion7(), TestData.Now, child.Id).Value!]);
+            .ReturnsAsync([ClientInvitation.Create(builder.Client.Id, "tomas@example.com", "token-hash", TestIds.Next(), TestData.Now, child.Id).Value!.WithId()]);
 
         var response = await builder.Build().ExecuteAsync(new GetClientQuery(builder.Client.Id), CancellationToken.None);
 

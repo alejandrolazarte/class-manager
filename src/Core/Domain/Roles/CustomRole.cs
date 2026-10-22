@@ -35,18 +35,18 @@ public sealed class CustomRole : ITenantOwned, IAuditable, ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public IReadOnlyList<string> Permissions { get; private set; } = [];
     public string? CopiedFrom { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
 
     public static Result<CustomRole> Create(string? name, IEnumerable<string>? permissions, string? copiedFrom, DateTimeOffset createdAt)
     {
@@ -58,7 +58,6 @@ public sealed class CustomRole : ITenantOwned, IAuditable, ISoftDeletable
 
         var role = new CustomRole
         {
-            Id = Guid.CreateVersion7(),
             CopiedFrom = trimmedCopiedFrom,
             CreatedAt = createdAt.ToUniversalTime(),
         };

@@ -7,7 +7,7 @@ public sealed class Then_the_first_time_is_kept
     [Fact]
     public void Then_the_first_time_is_kept_Run()
     {
-        var notification = TeamNotification.Create(Guid.CreateVersion7(), "Tomás no viene", "Natación inicial", "/today", TestData.Now);
+        var notification = TeamNotification.Create(Guid.CreateVersion7(), "Tomás no viene", "Natación inicial", "/today", TestData.Now).WithId();
 
         notification.MarkSeen(TestData.Now.AddMinutes(1));
         notification.MarkSeen(TestData.Now.AddMinutes(5));

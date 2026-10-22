@@ -6,12 +6,12 @@ internal sealed class MeasurementGoalRepository(AppDbContext context) : IMeasure
 
     public void Remove(MeasurementGoal goal) => context.MeasurementGoals.Remove(goal);
 
-    public Task<MeasurementGoal?> FindForUpdateAsync(Guid studentId, Guid definitionId, CancellationToken cancellationToken) =>
+    public Task<MeasurementGoal?> FindForUpdateAsync(long studentId, long definitionId, CancellationToken cancellationToken) =>
         context.MeasurementGoals.FirstOrDefaultAsync(
             goal => goal.StudentId == studentId && goal.MeasurementDefinitionId == definitionId,
             cancellationToken);
 
-    public async Task<IReadOnlyList<MeasurementGoal>> ListByStudentsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<MeasurementGoal>> ListByStudentsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken) =>
         await context.MeasurementGoals.AsNoTracking()
             .Where(goal => studentIds.Contains(goal.StudentId))
             .ToListAsync(cancellationToken);

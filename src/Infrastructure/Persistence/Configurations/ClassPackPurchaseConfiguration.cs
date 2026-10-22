@@ -9,7 +9,6 @@ internal sealed class ClassPackPurchaseConfiguration : IEntityTypeConfiguration<
     public void Configure(EntityTypeBuilder<ClassPackPurchase> builder)
     {
         builder.HasKey(purchase => purchase.Id);
-        builder.Property(purchase => purchase.Id).ValueGeneratedNever();
         builder.Property(purchase => purchase.Name).HasMaxLength(ClassPack.NameMaxLength).IsRequired();
         builder.Property(purchase => purchase.Price).HasPrecision(MonthlyFee.AmountPrecision, MonthlyFee.AmountDecimals);
         builder.Property(purchase => purchase.CurrencyCode).HasMaxLength(Business.CurrencyCodeLength).IsFixedLength().IsRequired();

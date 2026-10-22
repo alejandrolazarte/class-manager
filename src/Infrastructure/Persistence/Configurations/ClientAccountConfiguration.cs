@@ -7,7 +7,6 @@ internal sealed class ClientAccountConfiguration : IEntityTypeConfiguration<Clie
     public void Configure(EntityTypeBuilder<ClientAccount> builder)
     {
         builder.HasKey(account => account.Id);
-        builder.Property(account => account.Id).ValueGeneratedNever();
 
         builder.HasOne<Business>().WithMany().HasForeignKey(account => account.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(account => account.User).WithMany().HasForeignKey(account => account.UserId).OnDelete(DeleteBehavior.Restrict);

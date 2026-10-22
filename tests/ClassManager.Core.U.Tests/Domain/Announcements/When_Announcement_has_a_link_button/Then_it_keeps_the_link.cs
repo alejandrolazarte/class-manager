@@ -9,7 +9,7 @@ public sealed class Then_it_keeps_the_link
     {
         var announcement = Announcement.Create(
             "Inscripciones abiertas", null, TestData.Now, TestData.Today,
-            action: AnnouncementAction.Link, actionUrl: "  https://example.com/inscripcion  ").Value!;
+            action: AnnouncementAction.Link, actionUrl: "  https://example.com/inscripcion  ").Value!.WithId();
 
         announcement.Action.ShouldBe(AnnouncementAction.Link);
         announcement.ActionUrl.ShouldBe("https://example.com/inscripcion");

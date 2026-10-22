@@ -16,7 +16,7 @@ public sealed class Then_each_brand_counts_its_own_branches_and_students(Backoff
 
         using var response = await client.GetAsync(BackofficeRequests.BrandsRoute, accessToken);
 
-        var brands = (await response.Content.ReadFromJsonAsync<BrandListResponse>())!.Brands;
+        var brands = (await response.Content.ReadFromJsonAsync<BrandListResponse>(BackofficeRequests.JsonOptions))!.Brands;
         brands.Single(brand => brand.Id == studio.Id).ShouldBe(new BrandSummaryResponse(studio.Id, "Estudio", studio.OwnerEmail, "pro", "Active", 2, 3));
         brands.Single(brand => brand.Id == instructor.Id).ShouldBe(new BrandSummaryResponse(instructor.Id, "Instructora", instructor.OwnerEmail, "lite", "Active", 1, 4));
     }

@@ -13,21 +13,20 @@ public sealed class Enrollment : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid StudentId { get; private set; }
-    public Guid ClassGroupId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long StudentId { get; private set; }
+    public long ClassGroupId { get; private set; }
     public DateOnly StartDate { get; private set; }
     public DateOnly? EndDate { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
-    public static Enrollment Create(Guid studentId, Guid classGroupId, DateOnly startDate, DateTimeOffset createdAt) =>
+    public static Enrollment Create(long studentId, long classGroupId, DateOnly startDate, DateTimeOffset createdAt) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             StudentId = studentId,
             ClassGroupId = classGroupId,
             StartDate = startDate,

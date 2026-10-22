@@ -11,11 +11,11 @@ public sealed class Then_role_and_permissions_are_returned
     [Fact]
     public async Task Then_role_and_permissions_are_returned_Run()
     {
-        var businessId = Guid.CreateVersion7();
+        var businessId = TestIds.Next();
         var currentMember = new Mock<ICurrentMember>();
         currentMember
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), Guid.CreateVersion7(), businessId, BusinessRole.BranchOwner, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
+            .ReturnsAsync(new MemberAccess(Guid.CreateVersion7(), TestIds.Next(), businessId, BusinessRole.BranchOwner, null, IsBrandOwner: true, SystemRolePermissions.BrandOwner));
 
         var identityService = new Mock<IIdentityService>();
         identityService

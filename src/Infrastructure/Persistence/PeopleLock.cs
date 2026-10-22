@@ -1,3 +1,4 @@
+using System.Globalization;
 namespace ClassManager.Infrastructure.Persistence;
 
 internal sealed class PeopleLock(AppDbContext context, ITenantContext tenantContext) : IPeopleLock
@@ -7,7 +8,7 @@ internal sealed class PeopleLock(AppDbContext context, ITenantContext tenantCont
 
     public Task LockAsync(CancellationToken cancellationToken)
     {
-        var resource = ResourcePrefix + tenantContext.TenantId.ToString("N");
+        var resource = ResourcePrefix + tenantContext.TenantId.ToString(CultureInfo.InvariantCulture);
         return context.Database.ExecuteSqlInterpolatedAsync(
             $"""
             DECLARE @lockResult int;

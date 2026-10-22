@@ -35,8 +35,8 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> DeleteOrderPaymentAsync(
-        Guid orderId,
-        Guid paymentId,
+        long orderId,
+        long paymentId,
         IUseCase<DeleteOrderPaymentCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -46,8 +46,8 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> RestoreOrderPaymentAsync(
-        Guid orderId,
-        Guid paymentId,
+        long orderId,
+        long paymentId,
         IUseCase<RestoreOrderPaymentCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -57,7 +57,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> MarkOrderReadyAsync(
-        Guid orderId,
+        long orderId,
         IUseCase<MarkOrderReadyCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -67,7 +67,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> ChooseOrderDeliveryAsync(
-        Guid orderId,
+        long orderId,
         ChooseOrderDeliveryRequest request,
         IUseCase<ChooseOrderDeliveryCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
@@ -78,7 +78,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> ListDeliveryClassesAsync(
-        Guid clientId,
+        long clientId,
         IUseCase<ListDeliveryClassesQuery, IReadOnlyList<DeliveryClassResponse>> useCase,
         CancellationToken cancellationToken)
     {
@@ -88,7 +88,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> ListClassDeliveriesAsync(
-        Guid classGroupId,
+        long classGroupId,
         IUseCase<ListClassDeliveriesQuery, IReadOnlyList<ClassDeliveryResponse>> useCase,
         CancellationToken cancellationToken)
     {
@@ -98,8 +98,8 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> DeliverInClassAsync(
-        Guid classGroupId,
-        Guid orderId,
+        long classGroupId,
+        long orderId,
         IUseCase<DeliverInClassCommand, ClassDeliveryResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -109,7 +109,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> ListOrdersAsync(
-        Guid? clientId,
+        long? clientId,
         bool? awaitingPickup,
         bool? owing,
         IUseCase<ListOrdersQuery, IReadOnlyList<OrderResponse>> useCase,
@@ -122,7 +122,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> GetOrderAsync(
-        Guid orderId,
+        long orderId,
         IUseCase<GetOrderQuery, OrderResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -152,7 +152,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> RecordOrderPaymentAsync(
-        Guid orderId,
+        long orderId,
         RecordOrderPaymentRequest request,
         IUseCase<RecordOrderPaymentCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
@@ -163,7 +163,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> CancelOrderAsync(
-        Guid orderId,
+        long orderId,
         IUseCase<CancelOrderCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -173,7 +173,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> MarkOrderDeliveredAsync(
-        Guid orderId,
+        long orderId,
         IUseCase<MarkOrderDeliveredCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -183,7 +183,7 @@ internal static class OrderEndpoints
     }
 
     private static async Task<IResult> RefundOrderAsync(
-        Guid orderId,
+        long orderId,
         RefundOrderRequest request,
         IUseCase<RefundOrderCommand, OrderResponse> useCase,
         CancellationToken cancellationToken)

@@ -6,23 +6,23 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
 
     public void Remove(Attendance attendance) => context.Attendances.Remove(attendance);
 
-    public Task<Attendance?> FindForUpdateAsync(Guid classSessionId, Guid studentId, CancellationToken cancellationToken) =>
+    public Task<Attendance?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken) =>
         context.Attendances.FirstOrDefaultAsync(
             attendance => attendance.ClassSessionId == classSessionId && attendance.StudentId == studentId,
             cancellationToken);
 
-    public async Task<IReadOnlyList<Attendance>> ListBySessionAsync(Guid classSessionId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<Attendance>> ListBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
         await context.Attendances.AsNoTracking()
             .Where(attendance => attendance.ClassSessionId == classSessionId)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<Guid, AttendanceCount>> CountBySessionsAsync(
-        IReadOnlyCollection<Guid> classSessionIds,
+    public async Task<IReadOnlyDictionary<long, AttendanceCount>> CountBySessionsAsync(
+        IReadOnlyCollection<long> classSessionIds,
         CancellationToken cancellationToken)
     {
         if (classSessionIds.Count == 0)
         {
-            return new Dictionary<Guid, AttendanceCount>();
+            return new Dictionary<long, AttendanceCount>();
         }
 
         var counts = await context.Attendances.AsNoTracking()
@@ -40,7 +40,7 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
     }
 
     public async Task<IReadOnlyList<ClientAttendedClass>> ListAttendedClassesByClientsAsync(
-        IReadOnlyCollection<Guid> clientIds,
+        IReadOnlyCollection<long> clientIds,
         CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)
@@ -65,7 +65,7 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
     }
 
     public async Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         DateOnly firstDate,
         DateOnly today,
         CancellationToken cancellationToken)
@@ -113,13 +113,13 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
         ];
     }
 
-    public async Task<IReadOnlyDictionary<Guid, int>> CountAttendedClassesByStudentsAsync(
-        IReadOnlyCollection<Guid> studentIds,
+    public async Task<IReadOnlyDictionary<long, int>> CountAttendedClassesByStudentsAsync(
+        IReadOnlyCollection<long> studentIds,
         CancellationToken cancellationToken)
     {
         if (studentIds.Count == 0)
         {
-            return new Dictionary<Guid, int>();
+            return new Dictionary<long, int>();
         }
 
         var groupCounts = await context.Attendances.AsNoTracking()

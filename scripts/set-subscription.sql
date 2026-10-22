@@ -9,7 +9,7 @@ DECLARE @Note nvarchar(200) = N'Own business';
 
 SET XACT_ABORT ON;
 
-DECLARE @Brands TABLE (OrganizationId uniqueidentifier);
+DECLARE @Brands TABLE (OrganizationId bigint);
 INSERT INTO @Brands
 SELECT DISTINCT member.OrganizationId
 FROM OrganizationMembers member
@@ -22,7 +22,7 @@ IF (SELECT COUNT(*) FROM @Brands) <> 1
 IF NOT EXISTS (SELECT 1 FROM billing.Plans WHERE Code = @PlanCode)
     THROW 50001, 'There is no plan with that code.', 1;
 
-DECLARE @OrganizationId uniqueidentifier = (SELECT OrganizationId FROM @Brands);
+DECLARE @OrganizationId bigint = (SELECT OrganizationId FROM @Brands);
 DECLARE @Now datetimeoffset = SYSUTCDATETIME();
 
 BEGIN TRANSACTION;
@@ -31,8 +31,8 @@ UPDATE billing.Subscriptions
 SET IsDeleted = 1, DeletedAt = @Now
 WHERE SubscriberId = @OrganizationId AND IsDeleted = 0;
 
-INSERT INTO billing.Subscriptions (Id, SubscriberId, PlanCode, Price, Currency, Note, CreatedOn, IsDeleted, DeletedAt, DeletedByUserId, ExpiredOn)
-VALUES (NEWID(), @OrganizationId, @PlanCode, @Price, UPPER(@Currency), NULLIF(LTRIM(RTRIM(@Note)), N''), @Now, 0, NULL, NULL, NULL);
+INSERT INTO billing.Subscriptions (SubscriberId, PlanCode, Price, Currency, Note, CreatedOn, IsDeleted, DeletedAt, DeletedByUserId, ExpiredOn)
+VALUES (@OrganizationId, @PlanCode, @Price, UPPER(@Currency), NULLIF(LTRIM(RTRIM(@Note)), N''), @Now, 0, NULL, NULL, NULL);
 
 COMMIT;
 

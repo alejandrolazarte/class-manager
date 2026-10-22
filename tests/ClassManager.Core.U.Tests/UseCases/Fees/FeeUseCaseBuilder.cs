@@ -29,22 +29,22 @@ internal sealed class FeeUseCaseBuilder
     public Mock<ICurrentMember> CurrentMember { get; } = new();
     public Mock<IAccessScopes> AccessScopes { get; } = new();
     public Guid CurrentAccountId { get; } = Guid.CreateVersion7();
-    public Guid CurrentUserId { get; } = Guid.CreateVersion7();
+    public long CurrentUserId { get; } = TestIds.Next();
     public ClientScope CollectorScope { get; }
     public Business Business { get; } = TestData.Business();
     public BillingMonth CurrentMonth { get; } = BillingMonth.From(TestData.Today);
     public List<EnrolledStudentInPeriod> EnrolledStudents { get; } = [];
-    public Dictionary<Guid, decimal> PaidByClient { get; } = [];
+    public Dictionary<long, decimal> PaidByClient { get; } = [];
     public List<DefaultMonthlyFeeChange> DefaultFeeChanges { get; } = [];
     public List<ClientBillingPlanChange> PlanChanges { get; } = [];
-    public Dictionary<Guid, ClassBalance> ClassBalancesByClient { get; } = [];
+    public Dictionary<long, ClassBalance> ClassBalancesByClient { get; } = [];
 
     public FeeUseCaseBuilder()
     {
         CollectorScope = new ClientScope(null, CurrentUserId);
         ActAs(SystemRolePermissions.BrandOwner);
         AccessScopes.Setup(scopes => scopes.ForClientsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((ClientScope?)null);
-        Clients.Setup(repository => repository.IsInScopeAsync(It.IsAny<Guid>(), It.IsAny<ClientScope>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        Clients.Setup(repository => repository.IsInScopeAsync(It.IsAny<long>(), It.IsAny<ClientScope>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
         AddDefaultFeeChange(SinceAlways, DefaultFee);
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Business);
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
@@ -56,10 +56,10 @@ internal sealed class FeeUseCaseBuilder
             .ReturnsAsync(PaidByClient);
         FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(DefaultFeeChanges);
         FeeSchedule
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);
         ClassBalances
-            .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClassBalancesByClient);
     }
 
@@ -68,7 +68,7 @@ internal sealed class FeeUseCaseBuilder
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MemberAccess(CurrentAccountId, CurrentUserId, Business.Id, BusinessRole.Custom, null, IsBrandOwner: false, permissions));
 
-    public void ActAsCollector(params Guid[] clientIdsInScope)
+    public void ActAsCollector(params long[] clientIdsInScope)
     {
         ActAs(new HashSet<string> { Permissions.Payments.ViewOwn, Permissions.Payments.Record });
         AccessScopes.Setup(scopes => scopes.ForClientsAsync(Permissions.Payments.ViewAll, It.IsAny<CancellationToken>())).ReturnsAsync(CollectorScope);
@@ -80,14 +80,14 @@ internal sealed class FeeUseCaseBuilder
     }
 
     public void AddDefaultFeeChange(BillingMonth effectiveFrom, decimal? amount, BusinessBillingMode billingMode = BusinessBillingMode.MonthlyFee) =>
-        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, billingMode, amount, TestData.Today, TestData.Now).Value!);
+        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, billingMode, amount, TestData.Today, TestData.Now).Value!.WithId());
 
-    public void SetPlan(Guid clientId, BillingPlanKind kind, decimal? customFee = null, BillingMonth? effectiveFrom = null) =>
-        PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom ?? SinceAlways, kind, customFee, TestData.Today, TestData.Now).Value!);
+    public void SetPlan(long clientId, BillingPlanKind kind, decimal? customFee = null, BillingMonth? effectiveFrom = null) =>
+        PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom ?? SinceAlways, kind, customFee, TestData.Today, TestData.Now).Value!.WithId());
 
-    public Guid AddEnrolledClient(string clientFullName, decimal? clientFee = null, params string[] studentNames)
+    public long AddEnrolledClient(string clientFullName, decimal? clientFee = null, params string[] studentNames)
     {
-        var clientId = Guid.CreateVersion7();
+        var clientId = TestIds.Next();
         foreach (var studentName in studentNames.DefaultIfEmpty(clientFullName))
         {
             EnrolledStudents.Add(new EnrolledStudentInPeriod(clientId, clientFullName, TestData.NormalizedClientPhoneNumber, studentName));

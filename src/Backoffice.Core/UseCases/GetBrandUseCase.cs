@@ -9,7 +9,7 @@ using ClassManager.Subscriptions.Subscribers;
 namespace ClassManager.Backoffice.Core.UseCases;
 
 [AuditedQuery]
-public sealed record GetBrandQuery(Guid BrandId) : IQuery;
+public sealed record GetBrandQuery(long BrandId) : IQuery;
 
 public sealed record BrandOwnerResponse(string FullName, string? Email);
 
@@ -26,7 +26,7 @@ public sealed record BrandCurrentSubscriptionResponse(
 public sealed record BrandFeatureResponse(string Code, int? Limit);
 
 public sealed record BrandBranchResponse(
-    Guid Id,
+    long Id,
     string Name,
     string CountryCode,
     DateTimeOffset CreatedAt,
@@ -35,7 +35,7 @@ public sealed record BrandBranchResponse(
     int StorageMegabytes);
 
 public sealed record BrandAddOnResponse(
-    Guid Id,
+    long Id,
     string FeatureCode,
     decimal Price,
     string Currency,
@@ -57,7 +57,7 @@ public sealed record BrandPastSubscriptionResponse(
     DateTimeOffset? DeletedAt);
 
 public sealed record BrandDetailResponse(
-    Guid Id,
+    long Id,
     string Name,
     DateTimeOffset CreatedAt,
     IReadOnlyList<BrandOwnerResponse> Owners,

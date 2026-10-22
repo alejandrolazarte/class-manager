@@ -7,16 +7,16 @@ using ClassManager.Core.Domain.Sessions;
 namespace ClassManager.Core.UseCases.PrivateLessons;
 
 public sealed record PrivateLessonStudentResponse(
-    Guid StudentId,
+    long StudentId,
     string StudentFullName,
     DateOnly? BirthDate,
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     AttendanceStatus? Status);
 
 public sealed record PrivateLessonResponse(
-    Guid Id,
-    Guid InstructorId,
+    long Id,
+    long InstructorId,
     string InstructorFullName,
     DateOnly Date,
     string StartTime,
@@ -62,7 +62,7 @@ public sealed record PrivateLessonResponse(
                             lessonStudent.StudentId,
                             summary?.FullName ?? string.Empty,
                             summary?.BirthDate,
-                            summary?.ClientId ?? Guid.Empty,
+                            summary?.ClientId ?? 0L,
                             summary?.ClientFullName ?? string.Empty,
                             lessonStudent.Status);
                     })

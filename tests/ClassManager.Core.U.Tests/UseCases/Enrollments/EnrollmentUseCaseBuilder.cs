@@ -24,9 +24,9 @@ internal sealed class EnrollmentUseCaseBuilder
     public List<ClientBillingPlanChange> PlanChanges { get; } = [];
     public List<ClassPackUsage> ClientPackUsages { get; } = [];
     public ClassGroup ClassGroup { get; } = ClassGroup.Create(
-        "Natación inicial", Guid.CreateVersion7(), ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!, 2, null).Value!;
+        "Natación inicial", TestIds.Next(), ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!, 2, null).Value!.WithId();
     public StudentSummary Student { get; } = new(
-        Guid.CreateVersion7(), TestData.StudentFullName, null, null, Guid.CreateVersion7(), TestData.ClientFullName, TestData.NormalizedClientPhoneNumber);
+        TestIds.Next(), TestData.StudentFullName, null, null, TestIds.Next(), TestData.ClientFullName, TestData.NormalizedClientPhoneNumber);
 
     public EnrollmentUseCaseBuilder()
     {
@@ -34,25 +34,25 @@ internal sealed class EnrollmentUseCaseBuilder
         ClassGroups.Setup(repository => repository.GetByIdAsync(ClassGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(ClassGroup);
         Students.Setup(repository => repository.GetSummaryByIdAsync(Student.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Student);
         ClassBalances
-            .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new Dictionary<Guid, ClassBalance> { [Student.ClientId] = new(ClientPackUsages, []) });
+            .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new Dictionary<long, ClassBalance> { [Student.ClientId] = new(ClientPackUsages, []) });
         FeeSchedule
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);
         FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<DefaultMonthlyFeeChange>());
     }
 
     public void PayPerClass() =>
         PlanChanges.Add(ClientBillingPlanChange.Create(
-            Student.ClientId, BillingMonth.From(TestData.Today), BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!);
+            Student.ClientId, BillingMonth.From(TestData.Today), BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId());
 
-    public void BuyActivePack(IReadOnlyCollection<Guid> classGroupIds)
+    public void BuyActivePack(IReadOnlyCollection<long> classGroupIds)
     {
-        var pack = ClassPack.Create("8 clases", 8, 160m, null, TestData.Now).Value!;
+        var pack = ClassPack.Create("8 clases", 8, 160m, null, TestData.Now).Value!.WithId();
         pack.DefineLessons(classGroupIds, classGroupIds.Count == 0 ? 45 : null);
         ClassPacks.Setup(repository => repository.GetByIdAsync(pack.Id, It.IsAny<CancellationToken>())).ReturnsAsync(pack);
         var purchase = ClassPackPurchase.Sell(
-            Student.ClientId, pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!;
+            Student.ClientId, pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!.WithId();
         ClientPackUsages.Add(new ClassPackUsage(purchase, 0, ClassPackPurchaseStatus.Active));
     }
 
@@ -75,5 +75,5 @@ internal sealed class EnrollmentUseCaseBuilder
     public EndEnrollmentUseCase BuildEnd() =>
         new(Enrollments.Object, ClassGroups.Object, UnitOfWork.Object, BusinessCalendar.Object, new EveryAccessScopes());
 
-    public Enrollment ExistingEnrollment(DateOnly startDate) => Enrollment.Create(Student.Id, ClassGroup.Id, startDate, TestData.Now);
+    public Enrollment ExistingEnrollment(DateOnly startDate) => Enrollment.Create(Student.Id, ClassGroup.Id, startDate, TestData.Now).WithId();
 }

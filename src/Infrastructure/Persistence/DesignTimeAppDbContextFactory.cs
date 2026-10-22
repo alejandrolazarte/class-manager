@@ -17,6 +17,6 @@ internal sealed class DesignTimeAppDbContextFactory : IDesignTimeDbContextFactor
 
     private sealed class DesignTimeTenantContext : ITenantContext
     {
-        public Guid TenantId => Guid.Empty;
+        public long TenantId => 0L;
     }
 }

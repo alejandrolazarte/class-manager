@@ -8,8 +8,8 @@ public sealed class Then_the_last_answer_counts
     public void Then_the_last_answer_counts_Run()
     {
         var announcement = Announcement.Create(
-            "Muestra de fin de año", null, TestData.Now, TestData.Today, AnnouncementCategory.Event).Value!;
-        var reply = AnnouncementReply.Create(announcement, Guid.NewGuid(), isGoing: true, TestData.Now).Value!;
+            "Muestra de fin de año", null, TestData.Now, TestData.Today, AnnouncementCategory.Event).Value!.WithId();
+        var reply = AnnouncementReply.Create(announcement, TestIds.Next(), isGoing: true, TestData.Now).Value!;
 
         reply.Change(isGoing: false, TestData.Now.AddHours(1));
 

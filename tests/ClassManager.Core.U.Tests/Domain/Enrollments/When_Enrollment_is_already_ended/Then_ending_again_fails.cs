@@ -7,7 +7,7 @@ public sealed class Then_ending_again_fails
     [Fact]
     public void Then_ending_again_fails_Run()
     {
-        var enrollment = Enrollment.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), TestData.Today, TestData.Now);
+        var enrollment = Enrollment.Create(TestIds.Next(), TestIds.Next(), TestData.Today, TestData.Now).WithId();
         enrollment.End(TestData.Today.AddDays(10));
 
         var end = enrollment.End(TestData.Today.AddDays(20));

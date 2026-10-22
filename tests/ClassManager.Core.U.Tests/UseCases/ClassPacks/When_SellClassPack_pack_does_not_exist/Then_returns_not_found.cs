@@ -13,7 +13,7 @@ public sealed class Then_returns_not_found
         builder.Clients.Setup(repository => repository.GetByIdAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync(client);
 
         var response = await builder.BuildSell().ExecuteAsync(
-            new SellClassPackCommand(client.Id, Guid.CreateVersion7(), null, null, PaymentMethod.Cash, null), CancellationToken.None);
+            new SellClassPackCommand(client.Id, TestIds.Next(), null, null, PaymentMethod.Cash, null), CancellationToken.None);
 
         response.Error!.Kind.ShouldBe(ErrorKind.NotFound);
     }

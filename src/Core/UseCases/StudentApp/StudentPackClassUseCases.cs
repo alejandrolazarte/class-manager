@@ -10,11 +10,11 @@ using ClassManager.Core.UseCases.Sessions;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record GetStudentAppPackClassesQuery(Guid StudentId) : IQuery;
+public sealed record GetStudentAppPackClassesQuery(long StudentId) : IQuery;
 
-public sealed record BookPackClassCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
+public sealed record BookPackClassCommand(long StudentId, long ClassGroupId, DateOnly Date) : ICommand;
 
-public sealed record CancelPackClassCommand(Guid StudentId, Guid ClassGroupId, DateOnly Date) : ICommand;
+public sealed record CancelPackClassCommand(long StudentId, long ClassGroupId, DateOnly Date) : ICommand;
 
 public sealed record PackCreditRepositories(
     IStudentRepository Students,
@@ -26,7 +26,7 @@ internal sealed record PackCoverage(ClassPackUsage Usage, ClassPack ClassPack);
 internal static class PackCredits
 {
     public static async Task<IReadOnlyList<PackCoverage>> ListActiveAsync(
-        Guid clientId,
+        long clientId,
         PackCreditRepositories repositories,
         CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ internal static class PackCredits
     }
 
     public static async Task<int> WaitingBookingsAsync(
-        Guid clientId,
+        long clientId,
         PackCreditRepositories repositories,
         IPackBookingRepository packBookingRepository,
         CancellationToken cancellationToken)
@@ -193,7 +193,7 @@ public sealed class BookPackClassUseCase(
             makeupRepositories.Sessions.Add(session);
         }
 
-        makeupRepositories.PackBookings.Add(PackBooking.Create(session.Id, command.StudentId, now));
+        makeupRepositories.PackBookings.Add(PackBooking.Create(session, command.StudentId, now));
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);

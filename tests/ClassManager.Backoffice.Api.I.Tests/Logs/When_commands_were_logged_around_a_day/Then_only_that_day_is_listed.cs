@@ -11,7 +11,7 @@ public sealed class Then_only_that_day_is_listed(BackofficeApiFixture fixture)
     {
         var day = new DateOnly(2025, 3, 14);
         var dayStart = new DateTimeOffset(day.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-        var tenantId = Guid.CreateVersion7();
+        var tenantId = TestIds.Next();
         await new TableCommandAuditStore(new TableServiceClient(fixture.StorageConnectionString)).WriteAsync(
             [
                 LoggedCommand("BeforeTheDayCommand", dayStart.AddTicks(-1), tenantId),
@@ -28,6 +28,6 @@ public sealed class Then_only_that_day_is_listed(BackofficeApiFixture fixture)
         log.Entries.Select(entry => entry.Command).ShouldBe(["LastOfTheDayCommand", "FirstOfTheDayCommand"]);
     }
 
-    private static CommandAuditEntry LoggedCommand(string command, DateTimeOffset occurredAt, Guid tenantId) =>
+    private static CommandAuditEntry LoggedCommand(string command, DateTimeOffset occurredAt, long tenantId) =>
         new(occurredAt, tenantId, command, null, null, CommandOutcome.Succeeded, null, null, 5, null, "{}", false);
 }

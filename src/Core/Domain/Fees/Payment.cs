@@ -16,28 +16,28 @@ public sealed class Payment : ITenantOwned, IAuditable, ISoftDeletable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClientId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClientId { get; private set; }
     public decimal Amount { get; private set; }
     public string CurrencyCode { get; private set; } = string.Empty;
     public DateOnly Month { get; private set; }
     public DateOnly PaidOn { get; private set; }
     public PaymentMethod Method { get; private set; }
     public string? Notes { get; private set; }
-    public Guid? RecordedByUserId { get; private set; }
+    public long? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public BillingMonth BillingMonth => BillingMonth.From(Month);
 
     public static Result<Payment> Create(
-        Guid clientId,
+        long clientId,
         decimal? amount,
         string currencyCode,
         BillingMonth month,
@@ -46,7 +46,7 @@ public sealed class Payment : ITenantOwned, IAuditable, ISoftDeletable
         string? notes,
         DateOnly today,
         DateTimeOffset createdAt,
-        Guid? recordedByUserId = null)
+        long? recordedByUserId = null)
     {
         var amountValidation = MonthlyFee.Validate(amount ?? 0, nameof(Amount));
         if (amountValidation.IsFailure)
@@ -77,7 +77,6 @@ public sealed class Payment : ITenantOwned, IAuditable, ISoftDeletable
 
         return new Payment
         {
-            Id = Guid.CreateVersion7(),
             ClientId = clientId,
             Amount = amount!.Value,
             CurrencyCode = currencyCode,

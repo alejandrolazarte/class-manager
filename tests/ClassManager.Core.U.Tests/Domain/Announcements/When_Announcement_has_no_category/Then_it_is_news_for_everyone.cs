@@ -7,11 +7,11 @@ public sealed class Then_it_is_news_for_everyone
     [Fact]
     public void Then_it_is_news_for_everyone_Run()
     {
-        var announcement = Announcement.Create("Horarios de verano", null, TestData.Now, TestData.Today).Value!;
+        var announcement = Announcement.Create("Horarios de verano", null, TestData.Now, TestData.Today).Value!.WithId();
 
         announcement.Category.ShouldBe(AnnouncementCategory.News);
         announcement.IsForEveryone.ShouldBeTrue();
-        announcement.IsFor([Guid.NewGuid()]).ShouldBeTrue();
+        announcement.IsFor([TestIds.Next()]).ShouldBeTrue();
         announcement.IsPinned.ShouldBeFalse();
         announcement.VisibleUntil.ShouldBeNull();
     }

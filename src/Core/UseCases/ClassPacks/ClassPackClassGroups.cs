@@ -8,7 +8,7 @@ internal static class ClassPackClassGroups
 {
     public static async Task<Result> DefineLessonsAsync(
         ClassPack classPack,
-        IReadOnlyList<Guid>? classGroupIds,
+        IReadOnlyList<long>? classGroupIds,
         int? classDurationMinutes,
         string fieldName,
         IClassGroupRepository classGroupRepository,

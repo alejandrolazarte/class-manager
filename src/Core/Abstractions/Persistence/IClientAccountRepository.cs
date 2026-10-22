@@ -8,13 +8,13 @@ public interface IClientAccountRepository
 
     void Remove(ClientAccount account);
 
-    Task<IReadOnlyList<ClientAccount>> ListForUpdateByClientAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ClientAccount>> ListForUpdateByClientAsync(long clientId, CancellationToken cancellationToken);
 
     Task<ClientAccount?> FindByAccountAsync(Guid accountId, CancellationToken cancellationToken);
 
     Task<ClientAccount?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken);
 
-    Task<bool> HasAccountAsync(Guid clientId, Guid? studentId, CancellationToken cancellationToken);
+    Task<bool> HasAccountAsync(long clientId, long? studentId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ClientAccount>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ClientAccount>> ListByClientAsync(long clientId, CancellationToken cancellationToken);
 }

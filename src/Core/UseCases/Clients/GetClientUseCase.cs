@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.Clients;
 
-public sealed record GetClientQuery(Guid ClientId) : IQuery;
+public sealed record GetClientQuery(long ClientId) : IQuery;
 
 public sealed class GetClientUseCase(
     IClientRepository clientRepository,
@@ -38,7 +38,7 @@ public sealed class GetClientUseCase(
         var accounts = await clientAccountRepository.ListByClientAsync(client.Id, cancellationToken);
         var pendingInvitations = await invitationRepository.ListPendingByClientAsync(client.Id, timeProvider.GetUtcNow(), cancellationToken);
         var clientAppAccess = await AppAccessOfAsync(null, accounts, pendingInvitations, cancellationToken);
-        var studentAppAccesses = new Dictionary<Guid, StudentAppAccessResponse>();
+        var studentAppAccesses = new Dictionary<long, StudentAppAccessResponse>();
         foreach (var student in students)
         {
             studentAppAccesses[student.Id] = await AppAccessOfAsync(student.Id, accounts, pendingInvitations, cancellationToken);
@@ -55,7 +55,7 @@ public sealed class GetClientUseCase(
     }
 
     private async Task<StudentAppAccessResponse> AppAccessOfAsync(
-        Guid? studentId,
+        long? studentId,
         IReadOnlyList<ClientAccount> accounts,
         IReadOnlyList<ClientInvitation> pendingInvitations,
         CancellationToken cancellationToken)

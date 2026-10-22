@@ -8,7 +8,7 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Fees;
 
-public sealed record DeleteClientBillingPlanChangeCommand(Guid ClientId, [property: AuditPlain] string EffectiveFrom) : ICommand;
+public sealed record DeleteClientBillingPlanChangeCommand(long ClientId, [property: AuditPlain] string EffectiveFrom) : ICommand;
 
 public sealed class DeleteClientBillingPlanChangeUseCase(
     IClientRepository clientRepository,

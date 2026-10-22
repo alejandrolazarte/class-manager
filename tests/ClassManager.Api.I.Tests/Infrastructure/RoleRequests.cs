@@ -24,17 +24,17 @@ public static class RoleRequests
     public static async Task<List<RoleResponse>> ListRolesAsync(this HttpClient httpClient) =>
         (await httpClient.GetFromJsonAsync<List<RoleResponse>>(new Uri(ApiRoutes.Roles, UriKind.Relative), ApiRequests.JsonOptions))!;
 
-    public static Task<HttpResponseMessage> DeleteRoleAsync(this HttpClient httpClient, Guid roleId) =>
+    public static Task<HttpResponseMessage> DeleteRoleAsync(this HttpClient httpClient, long roleId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Roles}/{roleId}", UriKind.Relative));
 
     public static Task<HttpResponseMessage> PostCustomRoleInvitationAsync(
-        this HttpClient httpClient, string email, Guid customRoleId, Guid? instructorId = null) =>
+        this HttpClient httpClient, string email, long customRoleId, long? instructorId = null) =>
         httpClient.PostAsJsonAsync(
             MemberRequests.InvitationsRoute,
             new InviteMemberCommand(email, BusinessRole.Custom, instructorId, customRoleId),
             ApiRequests.JsonOptions);
 
-    public static async Task<CustomRole> SeedCustomRoleAsync(this ApiFixture fixture, Guid businessId, IReadOnlyList<string> permissions)
+    public static async Task<CustomRole> SeedCustomRoleAsync(this ApiFixture fixture, long businessId, IReadOnlyList<string> permissions)
     {
         var role = CustomRole.Create(CustomRoleName, permissions, null, BusinessApiFactory.Now).Value!;
         await using var context = fixture.CreateDbContext(businessId);

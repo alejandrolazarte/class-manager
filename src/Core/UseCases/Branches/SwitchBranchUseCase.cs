@@ -5,7 +5,7 @@ using ClassManager.Core.UseCases.Authentication;
 
 namespace ClassManager.Core.UseCases.Branches;
 
-public sealed record SwitchBranchCommand([property: AuditSecret] string? RefreshToken, Guid? BusinessId, [property: AuditPlain] string? Kind = null) : ICommand;
+public sealed record SwitchBranchCommand([property: AuditSecret] string? RefreshToken, long? BusinessId, [property: AuditPlain] string? Kind = null) : ICommand;
 
 public sealed class SwitchBranchUseCase(ITokenService tokenService) : IUseCase<SwitchBranchCommand, TokenResponse>
 {

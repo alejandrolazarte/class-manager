@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var student = Student.Create(Guid.CreateVersion7(), " T ", null, null, TestData.Today, TestData.Now);
+        var student = Student.Create(TestData.Client(), " T ", null, null, TestData.Today, TestData.Now);
 
         student.Error!.Kind.ShouldBe(ErrorKind.Validation);
         student.Error.FieldName.ShouldBe(nameof(User.FullName));

@@ -8,9 +8,9 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record CancelSessionRequest(string? Reason);
 
-public sealed record CancelSessionCommand(Guid ClassGroupId, DateOnly Date, [property: AuditPersonal] string? Reason) : ICommand;
+public sealed record CancelSessionCommand(long ClassGroupId, DateOnly Date, [property: AuditPersonal] string? Reason) : ICommand;
 
-public sealed record SessionStatusResponse(Guid ClassGroupId, DateOnly Date, bool IsCancelled, string? CancellationReason);
+public sealed record SessionStatusResponse(long ClassGroupId, DateOnly Date, bool IsCancelled, string? CancellationReason);
 
 public sealed class CancelSessionUseCase(
     IClassGroupRepository classGroupRepository,

@@ -13,7 +13,7 @@ public static class CatalogImageGallery
         where TLink : ICatalogImageLink =>
         [.. links.OrderBy(link => link.Position).Select(link => link.Document)];
 
-    public static Document? Remove<TLink>(List<TLink> links, Guid documentId)
+    public static Document? Remove<TLink>(List<TLink> links, long documentId)
         where TLink : ICatalogImageLink
     {
         var removedLink = links.FirstOrDefault(link => link.DocumentId == documentId);
@@ -27,7 +27,7 @@ public static class CatalogImageGallery
         return removedLink.Document;
     }
 
-    public static Result Reorder<TLink>(List<TLink> links, IReadOnlyList<Guid>? documentIds)
+    public static Result Reorder<TLink>(List<TLink> links, IReadOnlyList<long>? documentIds)
         where TLink : ICatalogImageLink
     {
         if (documentIds is null

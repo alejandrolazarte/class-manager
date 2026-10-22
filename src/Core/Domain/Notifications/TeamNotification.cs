@@ -15,22 +15,21 @@ public sealed class TeamNotification : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public Guid RecipientUserId { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public string Body { get; private set; } = string.Empty;
     public string Url { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset? SeenAt { get; private set; }
 
     public static TeamNotification Create(Guid recipientUserId, string title, string body, string url, DateTimeOffset createdAt) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             RecipientUserId = recipientUserId,
             Title = Shorten(title, TitleMaxLength),
             Body = Shorten(body, BodyMaxLength),

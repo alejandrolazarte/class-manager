@@ -21,8 +21,8 @@ public sealed class Then_subscribed_students_get_its_push(ApiFixture fixture)
         var push = await fixture.ApiFactory.PushSender.WaitForPushToAsync(endpoint);
         push.Title.ShouldBe("Feriado del 8 de diciembre");
         published.IsScheduled.ShouldBeFalse();
-        await using var context = fixture.CreateDbContext(Guid.Empty);
-        (await context.BackgroundTasks.AsNoTracking().AnyAsync(candidate => candidate.Payload.Contains(announcement.Id.ToString())))
+        await using var context = fixture.CreateDbContext(0L);
+        (await context.BackgroundTasks.AsNoTracking().AnyAsync(candidate => candidate.Payload.Contains(BackgroundTaskRequests.ScheduledAnnouncementPayloadEnd(announcement.Id))))
             .ShouldBeFalse();
     }
 }

@@ -8,7 +8,7 @@ public sealed class Then_a_client_without_plan_uses_classes
     public async Task Then_a_client_without_plan_uses_classes_Run()
     {
         var builder = new ClassPackUseCaseBuilder();
-        var clientId = Guid.CreateVersion7();
+        var clientId = TestIds.Next();
         var currentMonth = BillingMonth.From(TestData.Today);
         builder.ChargeBusinessWithClassPacksFrom(currentMonth);
         builder.Attend(clientId, currentMonth.FirstDay.AddDays(-7));

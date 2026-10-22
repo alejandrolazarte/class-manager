@@ -5,7 +5,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 public sealed record StudentAppMakeupCreditResponse(DateOnly MissedOn, MakeupReason Reason, DateOnly ExpiresOn);
 
 public sealed record StudentAppClassSlotResponse(
-    Guid ClassGroupId,
+    long ClassGroupId,
     string Name,
     DateOnly Date,
     string StartTime,

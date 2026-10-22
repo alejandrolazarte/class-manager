@@ -6,18 +6,18 @@ internal sealed class MeasurementDefinitionRepository(AppDbContext context) : IM
 
     public void Remove(MeasurementDefinition definition) => context.MeasurementDefinitions.Remove(definition);
 
-    public Task<MeasurementDefinition?> FindForUpdateAsync(Guid definitionId, CancellationToken cancellationToken) =>
+    public Task<MeasurementDefinition?> FindForUpdateAsync(long definitionId, CancellationToken cancellationToken) =>
         context.MeasurementDefinitions.FirstOrDefaultAsync(definition => definition.Id == definitionId, cancellationToken);
 
-    public Task<MeasurementDefinition?> FindDeletedForUpdateAsync(Guid definitionId, CancellationToken cancellationToken) =>
+    public Task<MeasurementDefinition?> FindDeletedForUpdateAsync(long definitionId, CancellationToken cancellationToken) =>
         context.MeasurementDefinitions
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             .FirstOrDefaultAsync(definition => definition.Id == definitionId && definition.IsDeleted, cancellationToken);
 
-    public Task<MeasurementDefinition?> GetAsync(Guid definitionId, CancellationToken cancellationToken) =>
+    public Task<MeasurementDefinition?> GetAsync(long definitionId, CancellationToken cancellationToken) =>
         context.MeasurementDefinitions.AsNoTracking().FirstOrDefaultAsync(definition => definition.Id == definitionId, cancellationToken);
 
-    public Task<bool> NameExistsAsync(string name, Guid? exceptDefinitionId, CancellationToken cancellationToken) =>
+    public Task<bool> NameExistsAsync(string name, long? exceptDefinitionId, CancellationToken cancellationToken) =>
         context.MeasurementDefinitions.AnyAsync(
             definition => definition.Name == name && definition.Id != exceptDefinitionId,
             cancellationToken);

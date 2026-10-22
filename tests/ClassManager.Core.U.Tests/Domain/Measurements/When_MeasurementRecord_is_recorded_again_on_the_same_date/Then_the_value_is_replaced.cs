@@ -9,7 +9,7 @@ public sealed class Then_the_value_is_replaced
     {
         var definition = MeasurementSamples.Time();
         var record = MeasurementRecord.Create(
-            Guid.NewGuid(), definition, TestData.Today, 30.9m, "Con aletas", TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false).Value!;
+            TestIds.Next(), definition, TestData.Today, 30.9m, "Con aletas", TestData.Today, TestData.Now, recordedByUserId: null, recordedByStudent: false).Value!.WithId();
 
         record.Replace(definition, 29.7m, null, recordedByUserId: null, recordedByStudent: true);
 

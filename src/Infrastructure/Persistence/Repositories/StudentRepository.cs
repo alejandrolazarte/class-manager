@@ -6,21 +6,21 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
 {
     public void Add(Student student) => context.Students.Add(student);
 
-    public Task<Student?> FindForUpdateAsync(Guid studentId, CancellationToken cancellationToken) =>
+    public Task<Student?> FindForUpdateAsync(long studentId, CancellationToken cancellationToken) =>
         context.Students.Include(student => student.User).FirstOrDefaultAsync(student => student.Id == studentId, cancellationToken);
 
-    public Task<Student?> FindByClientAndNameAsync(Guid clientId, string fullName, CancellationToken cancellationToken) =>
+    public Task<Student?> FindByClientAndNameAsync(long clientId, string fullName, CancellationToken cancellationToken) =>
         context.Students.AsNoTracking().FirstOrDefaultAsync(
             student => student.ClientId == clientId && student.User.FullName == fullName,
             cancellationToken);
 
-    public async Task<IReadOnlyList<Student>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<Student>> ListByClientAsync(long clientId, CancellationToken cancellationToken) =>
         await context.Students.AsNoTracking().Include(student => student.User)
             .Where(student => student.ClientId == clientId)
             .OrderBy(student => student.User.FullName)
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<Student>> ListByClientForUpdateAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<Student>> ListByClientForUpdateAsync(long clientId, CancellationToken cancellationToken) =>
         await context.Students.Include(student => student.User)
             .Where(student => student.ClientId == clientId)
             .OrderBy(student => student.User.FullName)
@@ -32,7 +32,7 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Student>> ListByClientIdsAsync(
-        IReadOnlyCollection<Guid> clientIds,
+        IReadOnlyCollection<long> clientIds,
         CancellationToken cancellationToken) =>
         clientIds.Count == 0
             ? []
@@ -40,14 +40,14 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
                 .Where(student => clientIds.Contains(student.ClientId))
                 .ToListAsync(cancellationToken);
 
-    public Task<StudentSummary?> GetSummaryByIdAsync(Guid studentId, CancellationToken cancellationToken) =>
+    public Task<StudentSummary?> GetSummaryByIdAsync(long studentId, CancellationToken cancellationToken) =>
         StudentsWithClient()
             .Where(studentWithClient => studentWithClient.Student.Id == studentId)
             .Select(ToSummary)
             .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<StudentSummary>> ListSummariesByIdsAsync(
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         CancellationToken cancellationToken) =>
         studentIds.Count == 0
             ? []

@@ -23,19 +23,19 @@ public static class BranchRequests
     public static async Task<List<BranchResponse>> ListBranchesAsync(this HttpClient httpClient) =>
         (await httpClient.GetFromJsonAsync<List<BranchResponse>>(new Uri(ApiRoutes.MyBranches, UriKind.Relative), ApiRequests.JsonOptions))!;
 
-    public static Task<HttpResponseMessage> PostSwitchBranchAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string? kind = null) =>
+    public static Task<HttpResponseMessage> PostSwitchBranchAsync(this HttpClient httpClient, string refreshToken, long businessId, string? kind = null) =>
         httpClient.PostAsJsonAsync(SwitchBranchRoute, new SwitchBranchCommand(refreshToken, businessId, kind), ApiRequests.JsonOptions);
 
-    public static async Task<TokenResponse> SwitchBranchAsync(this HttpClient httpClient, string refreshToken, Guid businessId, string? kind = null)
+    public static async Task<TokenResponse> SwitchBranchAsync(this HttpClient httpClient, string refreshToken, long businessId, string? kind = null)
     {
         using var response = await httpClient.PostSwitchBranchAsync(refreshToken, businessId, kind);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return await response.ReadTokensAsync();
     }
 
-    public static Task<HttpResponseMessage> PutBrandOwnerAsync(this HttpClient httpClient, Guid memberId) =>
+    public static Task<HttpResponseMessage> PutBrandOwnerAsync(this HttpClient httpClient, long memberId) =>
         httpClient.PutAsync(new Uri($"{ApiRoutes.Members}/{memberId}{ApiRoutes.BrandOwnerSegment}", UriKind.Relative), null);
 
-    public static Task<HttpResponseMessage> DeleteBrandOwnerAsync(this HttpClient httpClient, Guid memberId) =>
+    public static Task<HttpResponseMessage> DeleteBrandOwnerAsync(this HttpClient httpClient, long memberId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Members}/{memberId}{ApiRoutes.BrandOwnerSegment}", UriKind.Relative));
 }

@@ -7,10 +7,10 @@ public sealed class Then_role_is_brand_owner
     [Fact]
     public void Then_role_is_brand_owner_Run()
     {
-        var organizationId = Guid.CreateVersion7();
+        var organizationId = TestIds.Next();
         var userId = Guid.CreateVersion7();
 
-        var member = OrganizationMember.CreateBrandOwner(organizationId, userId);
+        var member = OrganizationMember.CreateBrandOwner(organizationId, userId).WithId();
 
         member.Role.ShouldBe(OrganizationRole.BrandOwner);
         member.OrganizationId.ShouldBe(organizationId);

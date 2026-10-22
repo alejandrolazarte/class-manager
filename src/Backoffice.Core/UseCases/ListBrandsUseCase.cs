@@ -9,7 +9,7 @@ namespace ClassManager.Backoffice.Core.UseCases;
 public sealed record ListBrandsQuery : IQuery;
 
 public sealed record BrandSummaryResponse(
-    Guid Id,
+    long Id,
     string Name,
     string? OwnerName,
     string? OwnerEmail,

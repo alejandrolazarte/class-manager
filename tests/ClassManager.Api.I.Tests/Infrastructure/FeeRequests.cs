@@ -23,19 +23,19 @@ public static class FeeRequests
     }
 
     public static Task<HttpResponseMessage> PutBillingPlanAsync(
-        this HttpClient httpClient, Guid clientId, BillingPlanKind kind, decimal? customFee = null, string? effectiveFrom = null) =>
+        this HttpClient httpClient, long clientId, BillingPlanKind kind, decimal? customFee = null, string? effectiveFrom = null) =>
         httpClient.PutAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.BillingPlan}",
             new SetClientBillingPlanRequest(kind, customFee, effectiveFrom),
             ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> DeleteBillingPlanChangeAsync(this HttpClient httpClient, Guid clientId, string month) =>
+    public static Task<HttpResponseMessage> DeleteBillingPlanChangeAsync(this HttpClient httpClient, long clientId, string month) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Clients}/{clientId}{ApiRoutes.BillingPlan}/{month}", UriKind.Relative));
 
     public static Task<HttpResponseMessage> DeleteDefaultFeeChangeAsync(this HttpClient httpClient, string month) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Business}{ApiRoutes.MonthlyFee}/{month}", UriKind.Relative));
 
-    public static Task<HttpResponseMessage> PostPaymentAsync(this HttpClient httpClient, Guid clientId, decimal amount = DefaultFee) =>
+    public static Task<HttpResponseMessage> PostPaymentAsync(this HttpClient httpClient, long clientId, decimal amount = DefaultFee) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.PaymentsSegment}",
             new RecordPaymentRequest(amount, CurrentMonth, null, PaymentMethod.Transfer, null),
@@ -45,7 +45,7 @@ public static class FeeRequests
         httpClient.GetFromJsonAsync<MonthlyFeesResponse>(
             new Uri($"{ApiRoutes.Fees}?month={month}", UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static async Task<Guid> EnrollClientAsync(this HttpClient httpClient)
+    public static async Task<long> EnrollClientAsync(this HttpClient httpClient)
     {
         var classGroup = await httpClient.CreateClassGroupWithInstructorAsync();
         var client = await httpClient.RegisterClientAsync(students: [new Core.UseCases.Students.NewStudent(ApiRequests.StudentFullName, null, null)]);

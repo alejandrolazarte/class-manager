@@ -7,7 +7,7 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Students;
 
-public sealed record SeparateStudentCommand(Guid StudentId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
+public sealed record SeparateStudentCommand(long StudentId, [property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email) : ICommand;
 
 public sealed class SeparateStudentUseCase(
     IClientRepository clientRepository,

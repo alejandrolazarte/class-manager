@@ -19,11 +19,11 @@ public sealed class Then_it_is_listed_with_its_brand(BackofficeApiFixture fixtur
 
         using var response = await changes.Client.GetAsync("/api/expiring-add-ons", changes.AccessToken);
 
-        var expiring = (await response.Content.ReadFromJsonAsync<ExpiringAddOnList>())!.AddOns;
+        var expiring = (await response.Content.ReadFromJsonAsync<ExpiringAddOnList>(BackofficeRequests.JsonOptions))!.AddOns;
         expiring.ShouldContain(new ExpiringAddOn(changes.Brand.Id, "shop", endsThisWeek));
     }
 
     private sealed record ExpiringAddOnList(IReadOnlyList<ExpiringAddOn> AddOns);
 
-    private sealed record ExpiringAddOn(Guid BrandId, string FeatureCode, DateOnly ExpiredOn);
+    private sealed record ExpiringAddOn(long BrandId, string FeatureCode, DateOnly ExpiredOn);
 }

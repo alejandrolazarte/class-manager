@@ -10,7 +10,7 @@ public sealed class Then_enabling_is_refused
         var scenario = new OperatorsScenario();
         var accessRequest = scenario.WithAccessRequest();
 
-        var result = await scenario.EnableAsync(accessRequest.Id, Guid.CreateVersion7(), BusinessRole.PlatformOperator);
+        var result = await scenario.EnableAsync(accessRequest.Id, TestIds.Next(), BusinessRole.PlatformOperator);
 
         (result.Error!.Code, result.Error.FieldName).ShouldBe((OperatorErrorCodes.UnknownTeamMember, "MemberId"));
         scenario.Logins.Logins.ShouldBeEmpty();

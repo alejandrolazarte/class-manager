@@ -15,7 +15,7 @@ public static class MemberRequests
     public const string CheckInvitationRoute = ApiRoutes.Authentication + ApiRoutes.CheckInvitation;
     public const string DeclineInvitationRoute = ApiRoutes.Authentication + ApiRoutes.DeclineInvitation;
 
-    public static string UniqueInviteeEmail() => $"instructor-{Guid.NewGuid():N}@example.com";
+    public static string UniqueInviteeEmail() => $"instructor-{TestIds.Next()}@example.com";
 
     public static async Task<CurrentMemberResponse> GetCurrentMemberAsync(this HttpClient httpClient)
     {
@@ -28,12 +28,12 @@ public static class MemberRequests
         this HttpClient httpClient,
         string email,
         BusinessRole role,
-        Guid? instructorId = null,
-        Guid? samePersonUserId = null) =>
+        long? instructorId = null,
+        long? samePersonUserId = null) =>
         httpClient.PostAsJsonAsync(
             InvitationsRoute, new InviteMemberCommand(email, role, instructorId, SamePersonUserId: samePersonUserId), ApiRequests.JsonOptions);
 
-    public static async Task<InvitationResponse> InviteAsync(this HttpClient httpClient, string email, BusinessRole role, Guid? instructorId = null)
+    public static async Task<InvitationResponse> InviteAsync(this HttpClient httpClient, string email, BusinessRole role, long? instructorId = null)
     {
         using var response = await httpClient.PostInvitationAsync(email, role, instructorId);
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -73,9 +73,9 @@ public static class MemberRequests
         return (await response.Content.ReadFromJsonAsync<TeamResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<HttpResponseMessage> PutMemberAsync(this HttpClient httpClient, Guid memberId, BusinessRole role, Guid? instructorId = null) =>
+    public static Task<HttpResponseMessage> PutMemberAsync(this HttpClient httpClient, long memberId, BusinessRole role, long? instructorId = null) =>
         httpClient.PutAsJsonAsync($"{ApiRoutes.Members}/{memberId}", new ChangeMemberRoleRequest(role, instructorId), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> DeleteMemberAsync(this HttpClient httpClient, Guid memberId) =>
+    public static Task<HttpResponseMessage> DeleteMemberAsync(this HttpClient httpClient, long memberId) =>
         httpClient.DeleteAsync(new Uri($"{ApiRoutes.Members}/{memberId}", UriKind.Relative));
 }

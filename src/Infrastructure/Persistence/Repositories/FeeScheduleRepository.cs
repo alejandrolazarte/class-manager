@@ -15,7 +15,7 @@ internal sealed class FeeScheduleRepository(AppDbContext context) : IFeeSchedule
         context.DefaultMonthlyFeeChanges.FirstOrDefaultAsync(change => change.EffectiveFrom == effectiveFrom, cancellationToken);
 
     public async Task<IReadOnlyList<ClientBillingPlanChange>> ListClientPlanChangesAsync(
-        IReadOnlyCollection<Guid> clientIds,
+        IReadOnlyCollection<long> clientIds,
         CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)
@@ -29,7 +29,7 @@ internal sealed class FeeScheduleRepository(AppDbContext context) : IFeeSchedule
             .ToListAsync(cancellationToken);
     }
 
-    public Task<ClientBillingPlanChange?> FindClientPlanChangeForUpdateAsync(Guid clientId, DateOnly effectiveFrom, CancellationToken cancellationToken) =>
+    public Task<ClientBillingPlanChange?> FindClientPlanChangeForUpdateAsync(long clientId, DateOnly effectiveFrom, CancellationToken cancellationToken) =>
         context.ClientBillingPlanChanges.FirstOrDefaultAsync(
             change => change.ClientId == clientId && change.EffectiveFrom == effectiveFrom,
             cancellationToken);

@@ -3,7 +3,7 @@ using ClassManager.Core.Domain.Clients;
 namespace ClassManager.Core.UseCases.Clients;
 
 public sealed record ClientResponse(
-    Guid Id,
+    long Id,
     string FullName,
     string PhoneNumber,
     string? Email,

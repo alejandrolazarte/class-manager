@@ -5,12 +5,12 @@ using ClassManager.Core.UseCases.Orders;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record StudentAppShopPackResponse(Guid Id, string Name, string? Description, int ClassCount, decimal Price, int? ValidityMonths, IReadOnlyList<CatalogImageResponse> Images);
+public sealed record StudentAppShopPackResponse(long Id, string Name, string? Description, int ClassCount, decimal Price, int? ValidityMonths, IReadOnlyList<CatalogImageResponse> Images);
 
-public sealed record StudentAppShopVariantResponse(Guid Id, string Size, string? Color, StockAvailability Availability, int? MaximumUnits);
+public sealed record StudentAppShopVariantResponse(long Id, string Size, string? Color, StockAvailability Availability, int? MaximumUnits);
 
 public sealed record StudentAppShopProductResponse(
-    Guid Id,
+    long Id,
     string Name,
     string? Description,
     decimal Price,
@@ -23,10 +23,10 @@ public sealed record StudentAppShopResponse(
     IReadOnlyList<StudentAppShopProductResponse> Products,
     IReadOnlyList<DeliveryClassResponse> DeliveryClasses);
 
-public sealed record StudentAppOrderLineResponse(Guid Id, OrderLineKind Kind, string Name, int Quantity, decimal Total, int RefundedQuantity);
+public sealed record StudentAppOrderLineResponse(long Id, OrderLineKind Kind, string Name, int Quantity, decimal Total, int RefundedQuantity);
 
 public sealed record StudentAppOrderResponse(
-    Guid Id,
+    long Id,
     int Number,
     OrderStatus Status,
     OrderPaymentStatus PaymentStatus,

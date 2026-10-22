@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var pack = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!;
+        var pack = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!.WithId();
 
         var description = pack.Describe(new string('a', ClassPack.DescriptionMaxLength + 1));
 

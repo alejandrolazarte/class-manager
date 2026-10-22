@@ -8,7 +8,7 @@ public sealed class Then_IsDeleted_is_a_stored_column(ApiFixture fixture)
     [Fact]
     public void Then_IsDeleted_is_a_stored_column_Run()
     {
-        using var context = fixture.CreateDbContext(Guid.Empty);
+        using var context = fixture.CreateDbContext(0L);
 
         var withoutStoredIsDeleted = context.Model.GetEntityTypes()
             .Where(entityType => typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))

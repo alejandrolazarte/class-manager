@@ -41,7 +41,7 @@ internal static class InstructorEndpoints
     }
 
     private static async Task<IResult> SeparateInstructorAsync(
-        Guid instructorId,
+        long instructorId,
         SeparatePersonRequest request,
         IUseCase<SeparateInstructorCommand, InstructorResponse> useCase,
         CancellationToken cancellationToken)
@@ -52,7 +52,7 @@ internal static class InstructorEndpoints
     }
 
     private static async Task<IResult> UpdateInstructorAsync(
-        Guid instructorId,
+        long instructorId,
         UpdateInstructorRequest request,
         IUseCase<UpdateInstructorCommand, InstructorResponse> useCase,
         CancellationToken cancellationToken)
@@ -63,7 +63,7 @@ internal static class InstructorEndpoints
     }
 
     private static async Task<IResult> SetInstructorActiveAsync(
-        Guid instructorId,
+        long instructorId,
         SetActiveRequest request,
         IUseCase<SetInstructorActiveCommand, InstructorResponse> useCase,
         CancellationToken cancellationToken)

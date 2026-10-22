@@ -21,7 +21,7 @@ internal static class StudentEndpoints
     }
 
     private static async Task<IResult> SeparateStudentAsync(
-        Guid studentId,
+        long studentId,
         SeparatePersonRequest request,
         IUseCase<SeparateStudentCommand, SeparatedPersonResponse> useCase,
         CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ internal static class StudentEndpoints
     }
 
     private static async Task<IResult> AddStudentAsync(
-        Guid clientId,
+        long clientId,
         NewStudent newStudent,
         IUseCase<AddStudentCommand, StudentResponse> useCase,
         CancellationToken cancellationToken)
@@ -45,7 +45,7 @@ internal static class StudentEndpoints
     }
 
     private static async Task<IResult> GetStudentAsync(
-        Guid studentId,
+        long studentId,
         IUseCase<GetStudentQuery, StudentSummaryResponse> useCase,
         CancellationToken cancellationToken)
     {

@@ -11,7 +11,7 @@ public sealed class Then_returns_forbidden
     public async Task Then_returns_forbidden_Run()
     {
         var builder = new RoleUseCaseBuilder();
-        builder.ActAs(new HashSet<string> { Permissions.Roles.Manage, Permissions.Business.View }, BusinessRole.Custom, Guid.CreateVersion7());
+        builder.ActAs(new HashSet<string> { Permissions.Roles.Manage, Permissions.Business.View }, BusinessRole.Custom, TestIds.Next());
 
         var response = await builder.BuildCreate().ExecuteAsync(
             new CreateRoleCommand("Cobranzas", [Permissions.Business.View, Permissions.Payments.Record], null), CancellationToken.None);

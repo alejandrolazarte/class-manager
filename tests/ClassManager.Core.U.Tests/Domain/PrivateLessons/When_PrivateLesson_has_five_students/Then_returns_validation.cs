@@ -9,9 +9,9 @@ public sealed class Then_returns_validation
     public void Then_returns_validation_Run()
     {
         var schedule = ClassSchedule.Create([TestData.Today.DayOfWeek], "18:00", 45).Value!;
-        Guid[] fiveStudents = [.. Enumerable.Range(0, 5).Select(_ => Guid.CreateVersion7())];
+        long[] fiveStudents = [.. Enumerable.Range(0, 5).Select(_ => TestIds.Next())];
 
-        var lesson = PrivateLesson.Create(Guid.CreateVersion7(), TestData.Today, schedule, fiveStudents, null, null, null, TestData.Now);
+        var lesson = PrivateLesson.Create(TestIds.Next(), TestData.Today, schedule, fiveStudents, null, null, null, TestData.Now);
 
         lesson.Error!.FieldName.ShouldBe("StudentIds");
     }

@@ -11,21 +11,21 @@ public sealed record UpdateClassPackRequest(
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null,
+    IReadOnlyList<long>? ClassGroupIds = null,
     string? Description = null)
 {
-    public UpdateClassPackCommand ToCommand(Guid classPackId) =>
+    public UpdateClassPackCommand ToCommand(long classPackId) =>
         new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description);
 }
 
 public sealed record UpdateClassPackCommand(
-    Guid ClassPackId,
+    long ClassPackId,
     [property: AuditPlain] string? Name,
     int? ClassCount,
     decimal? Price,
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
-    IReadOnlyList<Guid>? ClassGroupIds = null,
+    IReadOnlyList<long>? ClassGroupIds = null,
     [property: AuditPlain] string? Description = null) : ICommand;
 
 public sealed class UpdateClassPackUseCase(

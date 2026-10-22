@@ -48,5 +48,12 @@ internal static class SecurityEventBlobs
     }
 
     public static string? Text(JsonElement line, string propertyName) =>
-        line.TryGetProperty(propertyName, out var value) ? value.GetString() : null;
+        line.TryGetProperty(propertyName, out var value) ? TextOf(value) : null;
+
+    private static string? TextOf(JsonElement value) => value.ValueKind switch
+    {
+        JsonValueKind.String => value.GetString(),
+        JsonValueKind.Null => null,
+        _ => value.GetRawText(),
+    };
 }

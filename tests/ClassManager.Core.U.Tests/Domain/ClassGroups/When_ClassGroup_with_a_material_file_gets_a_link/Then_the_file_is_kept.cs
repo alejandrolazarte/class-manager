@@ -9,9 +9,9 @@ public sealed class Then_the_file_is_kept
     public void Then_the_file_is_kept_Run()
     {
         var schedule = ClassSchedule.Create([DayOfWeek.Monday], "18:00", 45).Value!;
-        var classGroup = ClassGroup.Create("Natación adultos", Guid.CreateVersion7(), schedule, 8, null).Value!;
+        var classGroup = ClassGroup.Create("Natación adultos", TestIds.Next(), schedule, 8, null).Value!.WithId();
         var file = Document.Create(
-            Guid.CreateVersion7(), "tenant/class-groups/file.pdf", new DocumentContent([1], "application/pdf", ".pdf"), DocumentVisibility.Public, TestData.Now);
+            "tenant/class-groups/file.pdf", new DocumentContent([1], "application/pdf", ".pdf"), DocumentVisibility.Public, TestData.Now).WithId();
         classGroup.ShareMaterialFile(file);
 
         classGroup.ShareMaterial("https://example.com/adultos.pdf");

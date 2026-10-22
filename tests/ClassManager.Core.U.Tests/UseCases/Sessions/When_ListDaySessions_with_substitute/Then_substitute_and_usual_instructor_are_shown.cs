@@ -10,14 +10,14 @@ public sealed class Then_substitute_and_usual_instructor_are_shown
     public async Task Then_substitute_and_usual_instructor_are_shown_Run()
     {
         var builder = new SessionUseCaseBuilder();
-        var session = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now);
+        var session = ClassSession.Create(builder.ClassGroup.Id, TestData.Today, TestData.Now).WithId();
         session.AssignSubstitute(builder.Substitute.Id, builder.Instructor.Id, TestData.Now);
         builder.ClassGroups.Setup(repository => repository.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync([builder.ClassGroup]);
         builder.Sessions.Setup(repository => repository.ListByDateAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync([session]);
-        builder.Enrollments.Setup(repository => repository.CountActiveOnByClassGroupAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(new Dictionary<Guid, int>());
+        builder.Enrollments.Setup(repository => repository.CountActiveOnByClassGroupAsync(TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(new Dictionary<long, int>());
         builder.Attendances
-            .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, AttendanceCount>());
+            .Setup(repository => repository.CountBySessionsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<long, AttendanceCount>());
 
         var response = await builder.BuildListDay().ExecuteAsync(new ListDaySessionsQuery(null), CancellationToken.None);
 

@@ -13,24 +13,24 @@ using ClassManager.Core.UseCases.Fees;
 namespace ClassManager.Core.UseCases.ClassPacks;
 
 public sealed record SellClassPackRequest(
-    Guid? ClassPackId,
+    long? ClassPackId,
     decimal? Price,
     DateOnly? PurchasedOn,
     PaymentMethod? Method,
     string? Notes,
-    Guid? TrialLessonId = null)
+    long? TrialLessonId = null)
 {
-    public SellClassPackCommand ToCommand(Guid clientId) => new(clientId, ClassPackId, Price, PurchasedOn, Method, Notes, TrialLessonId);
+    public SellClassPackCommand ToCommand(long clientId) => new(clientId, ClassPackId, Price, PurchasedOn, Method, Notes, TrialLessonId);
 }
 
 public sealed record SellClassPackCommand(
-    Guid ClientId,
-    Guid? ClassPackId,
+    long ClientId,
+    long? ClassPackId,
     decimal? Price,
     DateOnly? PurchasedOn,
     PaymentMethod? Method,
     [property: AuditPersonal] string? Notes,
-    Guid? TrialLessonId = null) : ICommand;
+    long? TrialLessonId = null) : ICommand;
 
 public sealed class SellClassPackUseCase(
     IClientRepository clientRepository,
@@ -134,7 +134,7 @@ public sealed class SellClassPackUseCase(
             return line.Error!;
         }
 
-        line.Value!.LinkPurchase(purchase.Id);
+        line.Value!.LinkPurchase(purchase);
         return Order.CounterSale(
             purchase.ClientId,
             [line.Value],
@@ -153,7 +153,7 @@ public sealed class SellClassPackUseCase(
         Result.Validation<ClassPackPurchaseResponse>(
             TrialNotDeductibleMessage, ClassPackErrorCodes.TrialNotDeductible, nameof(SellClassPackCommand.TrialLessonId));
 
-    private async Task<bool> IsDeductibleTrialAsync(Guid clientId, Guid trialLessonId, CancellationToken cancellationToken)
+    private async Task<bool> IsDeductibleTrialAsync(long clientId, long trialLessonId, CancellationToken cancellationToken)
     {
         var paidTrials = await privateLessonRepository.ListPaidTrialsByClientAsync(clientId, cancellationToken);
         return paidTrials.Any(trial => trial.PrivateLessonId == trialLessonId)

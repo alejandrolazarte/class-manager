@@ -4,7 +4,7 @@ using ClassManager.Core.Domain.Fees;
 namespace ClassManager.Core.UseCases.ClassPacks;
 
 public sealed record ClassPackUsageResponse(
-    Guid Id,
+    long Id,
     string Name,
     int ClassCount,
     decimal Price,
@@ -16,7 +16,7 @@ public sealed record ClassPackUsageResponse(
     int RemainingClasses,
     ClassPackPurchaseStatus Status,
     int? ClassDurationMinutes,
-    Guid? RecordedByUserId = null)
+    long? RecordedByUserId = null)
 {
     public static ClassPackUsageResponse From(ClassPackUsage usage) =>
         new(
@@ -41,7 +41,7 @@ public sealed record AttendedClassResponse(DateOnly Date, string StudentFullName
         new(attendedClass.Date, attendedClass.StudentFullName, attendedClass.ClassGroupName, attendedClass.IsPrivateLesson);
 }
 
-public sealed record DeductibleTrialResponse(Guid PrivateLessonId, DateOnly Date, string StudentFullName, decimal TrialPrice);
+public sealed record DeductibleTrialResponse(long PrivateLessonId, DateOnly Date, string StudentFullName, decimal TrialPrice);
 
 public sealed record ClassBalanceResponse(
     int AvailableClasses,

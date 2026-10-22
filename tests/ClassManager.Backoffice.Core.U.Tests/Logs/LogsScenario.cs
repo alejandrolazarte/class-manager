@@ -17,26 +17,26 @@ internal sealed class LogsScenario
 
     public LoggedBranch WithBranch(string brandName, string branchName)
     {
-        var branch = new LoggedBranch(Guid.CreateVersion7(), branchName, Guid.CreateVersion7(), brandName);
+        var branch = new LoggedBranch(TestIds.Next(), branchName, TestIds.Next(), brandName);
         Directory.Branches.Add(branch);
         return branch;
     }
 
-    public CommandLogEntry WithCommand(string command, DateTimeOffset occurredAt, Guid? tenantId = null, Guid? userId = null)
+    public CommandLogEntry WithCommand(string command, DateTimeOffset occurredAt, long? tenantId = null, long? userId = null)
     {
         var entry = new CommandLogEntry(occurredAt, tenantId, command, null, userId, "Succeeded", null, null, 12, null, "{}", false, null, "App");
         Reader.Commands.Add(entry);
         return entry;
     }
 
-    public SecurityLogEntry WithSecurityEvent(string eventType, DateTimeOffset occurredAt, Guid? tenantId = null)
+    public SecurityLogEntry WithSecurityEvent(string eventType, DateTimeOffset occurredAt, long? tenantId = null)
     {
         var entry = new SecurityLogEntry(occurredAt, eventType, tenantId, null, null, "/api/students", "GET", 403, "203.0.113.7", null, null, null);
         Reader.SecurityEvents.Add(entry);
         return entry;
     }
 
-    public Task<Result<CommandLogResponse>> ListCommandsAsync(DateOnly? day = null, Guid? brandId = null) =>
+    public Task<Result<CommandLogResponse>> ListCommandsAsync(DateOnly? day = null, long? brandId = null) =>
         new ListCommandLogUseCase(Reader, Directory, _timeProvider)
             .ExecuteAsync(new ListCommandLogQuery(day, brandId), CancellationToken.None);
 
@@ -55,11 +55,11 @@ internal sealed class InMemoryAuditLogReader : IAuditLogReader
 
     public List<DateOnly> ReadDays { get; } = [];
 
-    public IReadOnlyCollection<Guid>? ReadTenantIds { get; private set; }
+    public IReadOnlyCollection<long>? ReadTenantIds { get; private set; }
 
     public bool IsTruncated { get; set; }
 
-    public Task<CommandLogPage> ListCommandsAsync(DateOnly day, IReadOnlyCollection<Guid>? tenantIds, CancellationToken cancellationToken)
+    public Task<CommandLogPage> ListCommandsAsync(DateOnly day, IReadOnlyCollection<long>? tenantIds, CancellationToken cancellationToken)
     {
         ReadDays.Add(day);
         ReadTenantIds = tenantIds;
@@ -79,14 +79,14 @@ internal sealed class InMemoryAuditLogDirectory : IAuditLogDirectory
 {
     public List<LoggedBranch> Branches { get; } = [];
 
-    public Dictionary<Guid, string> UserNames { get; } = [];
+    public Dictionary<long, string> UserNames { get; } = [];
 
-    public Task<IReadOnlyList<Guid>> ListBranchIdsAsync(Guid brandId, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<Guid>>([.. Branches.Where(branch => branch.BrandId == brandId).Select(branch => branch.BranchId)]);
+    public Task<IReadOnlyList<long>> ListBranchIdsAsync(long brandId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<long>>([.. Branches.Where(branch => branch.BrandId == brandId).Select(branch => branch.BranchId)]);
 
-    public Task<IReadOnlyDictionary<Guid, LoggedBranch>> FindBranchesAsync(IReadOnlyCollection<Guid> branchIds, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyDictionary<Guid, LoggedBranch>>(Branches.Where(branch => branchIds.Contains(branch.BranchId)).ToDictionary(branch => branch.BranchId));
+    public Task<IReadOnlyDictionary<long, LoggedBranch>> FindBranchesAsync(IReadOnlyCollection<long> branchIds, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<long, LoggedBranch>>(Branches.Where(branch => branchIds.Contains(branch.BranchId)).ToDictionary(branch => branch.BranchId));
 
-    public Task<IReadOnlyDictionary<Guid, string>> FindUserNamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyDictionary<Guid, string>>(UserNames.Where(pair => userIds.Contains(pair.Key)).ToDictionary());
+    public Task<IReadOnlyDictionary<long, string>> FindUserNamesAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<long, string>>(UserNames.Where(pair => userIds.Contains(pair.Key)).ToDictionary());
 }

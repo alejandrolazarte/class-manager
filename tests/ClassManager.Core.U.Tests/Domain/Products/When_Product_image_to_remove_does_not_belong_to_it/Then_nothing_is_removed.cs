@@ -7,7 +7,7 @@ public sealed class Then_nothing_is_removed
     {
         var product = CatalogImageSamples.ProductWithImages(2);
 
-        var removedDocument = product.RemoveImage(Guid.CreateVersion7());
+        var removedDocument = product.RemoveImage(TestIds.Next());
 
         removedDocument.ShouldBeNull();
         product.ImageCount.ShouldBe(2);

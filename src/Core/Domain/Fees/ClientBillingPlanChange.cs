@@ -13,24 +13,24 @@ public sealed class ClientBillingPlanChange : ITenantOwned, IAuditable, ISoftDel
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClientId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClientId { get; private set; }
     public DateOnly EffectiveFrom { get; private set; }
     public BillingPlanKind Kind { get; private set; }
     public decimal? CustomFee { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
-    public Guid? DeletedByUserId { get; private set; }
+    public long? DeletedByUserId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public BillingPlan Plan => new(Kind, CustomFee);
 
     public static Result<ClientBillingPlanChange> Create(
-        Guid clientId,
+        long clientId,
         BillingMonth effectiveFrom,
         BillingPlanKind? kind,
         decimal? customFee,
@@ -60,7 +60,6 @@ public sealed class ClientBillingPlanChange : ITenantOwned, IAuditable, ISoftDel
 
         return new ClientBillingPlanChange
         {
-            Id = Guid.CreateVersion7(),
             ClientId = clientId,
             EffectiveFrom = effectiveFrom.FirstDay,
             Kind = kind.Value,

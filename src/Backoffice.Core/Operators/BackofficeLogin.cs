@@ -10,17 +10,16 @@ public sealed class BackofficeLogin
     {
     }
 
-    public Guid Id { get; private set; }
+    public long Id { get; private set; }
     public string Provider { get; private set; } = string.Empty;
     public string ProviderKey { get; private set; } = string.Empty;
     public Guid AccountId { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public DateTimeOffset EnabledAt { get; private set; }
-    public Guid? EnabledByUserId { get; private set; }
+    public long? EnabledByUserId { get; private set; }
 
-    public static BackofficeLogin Enable(ExternalIdentity identity, Guid accountId, DateTimeOffset enabledAt, Guid? enabledByUserId) => new()
+    public static BackofficeLogin Enable(ExternalIdentity identity, Guid accountId, DateTimeOffset enabledAt, long? enabledByUserId) => new()
     {
-        Id = Guid.CreateVersion7(),
         Provider = identity.Provider,
         ProviderKey = identity.ProviderKey,
         AccountId = accountId,
@@ -29,7 +28,7 @@ public sealed class BackofficeLogin
         EnabledByUserId = enabledByUserId,
     };
 
-    public void EnableAgain(ExternalIdentity identity, Guid accountId, DateTimeOffset enabledAt, Guid? enabledByUserId)
+    public void EnableAgain(ExternalIdentity identity, Guid accountId, DateTimeOffset enabledAt, long? enabledByUserId)
     {
         AccountId = accountId;
         Email = identity.Email;

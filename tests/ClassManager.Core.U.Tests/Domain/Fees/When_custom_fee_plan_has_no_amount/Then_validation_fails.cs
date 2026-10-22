@@ -8,7 +8,7 @@ public sealed class Then_validation_fails
     public void Then_validation_fails_Run()
     {
         var change = ClientBillingPlanChange.Create(
-            Guid.CreateVersion7(), BillingMonth.From(TestData.Today), BillingPlanKind.CustomFee, null, TestData.Today, TestData.Now);
+            TestIds.Next(), BillingMonth.From(TestData.Today), BillingPlanKind.CustomFee, null, TestData.Today, TestData.Now);
 
         change.Error!.FieldName.ShouldBe(nameof(ClientBillingPlanChange.CustomFee));
     }

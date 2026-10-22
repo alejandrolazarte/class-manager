@@ -2,10 +2,10 @@ namespace ClassManager.Infrastructure.Audit;
 
 public sealed record CommandAuditEntry(
     DateTimeOffset OccurredAt,
-    Guid? TenantId,
+    long? TenantId,
     string Command,
     Guid? AccountId,
-    Guid? UserId,
+    long? UserId,
     CommandOutcome Outcome,
     string? ErrorKind,
     string? ErrorCode,

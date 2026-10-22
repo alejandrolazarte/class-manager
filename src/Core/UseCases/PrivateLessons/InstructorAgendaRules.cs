@@ -11,10 +11,10 @@ internal static class InstructorAgendaRules
 
     public static async Task<ResultError?> FindConflictAsync(
         InstructorAgendaRepositories repositories,
-        Guid instructorId,
+        long instructorId,
         IReadOnlyList<DateOnly> dates,
         ClassSchedule schedule,
-        Guid? ignoredPrivateLessonId,
+        long? ignoredPrivateLessonId,
         CancellationToken cancellationToken)
     {
         var privateLessonConflict = await FindPrivateLessonConflictAsync(
@@ -31,11 +31,11 @@ internal static class InstructorAgendaRules
 
     public static async Task<ClassGroupOverlap?> FindClassGroupOverlapAsync(
         InstructorAgendaRepositories repositories,
-        Guid instructorId,
+        long instructorId,
         IReadOnlyList<DateOnly> dates,
         TimeOnly startTime,
         int durationMinutes,
-        Guid? ignoredClassGroupId,
+        long? ignoredClassGroupId,
         CancellationToken cancellationToken)
     {
         var firstDate = dates.Min();
@@ -87,10 +87,10 @@ internal static class InstructorAgendaRules
 
     public static async Task<ResultError?> FindPrivateLessonConflictAsync(
         IPrivateLessonRepository privateLessonRepository,
-        Guid instructorId,
+        long instructorId,
         IReadOnlyList<DateOnly> dates,
         ClassSchedule schedule,
-        Guid? ignoredPrivateLessonId,
+        long? ignoredPrivateLessonId,
         CancellationToken cancellationToken)
     {
         var privateLessons = await privateLessonRepository.ListByInstructorOnDatesAsync(instructorId, dates, cancellationToken);
@@ -105,7 +105,7 @@ internal static class InstructorAgendaRules
 
     public static async Task<ResultError?> FindWeeklyPrivateLessonConflictAsync(
         IPrivateLessonRepository privateLessonRepository,
-        Guid instructorId,
+        long instructorId,
         ClassSchedule schedule,
         DateOnly today,
         CancellationToken cancellationToken)
@@ -120,7 +120,7 @@ internal static class InstructorAgendaRules
             : Busy(overlappingLesson.Date, PrivateLessonErrorCodes.ConflictingPrivateLessonIdDetail, overlappingLesson.Id);
     }
 
-    private static ResultError Busy(DateOnly date, string conflictDetail, Guid conflictingId) =>
+    private static ResultError Busy(DateOnly date, string conflictDetail, long conflictingId) =>
         new(ClassGroupErrorCodes.InstructorBusy, InstructorBusyMessage, ErrorKind.Conflict)
         {
             Details = new Dictionary<string, object?>

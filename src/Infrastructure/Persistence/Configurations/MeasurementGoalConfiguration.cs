@@ -7,7 +7,6 @@ internal sealed class MeasurementGoalConfiguration : IEntityTypeConfiguration<Me
     public void Configure(EntityTypeBuilder<MeasurementGoal> builder)
     {
         builder.HasKey(goal => goal.Id);
-        builder.Property(goal => goal.Id).ValueGeneratedNever();
         builder.Property(goal => goal.Value).HasPrecision(MeasurementValue.Precision, MeasurementValue.Decimals);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(goal => goal.TenantId).OnDelete(DeleteBehavior.Restrict);

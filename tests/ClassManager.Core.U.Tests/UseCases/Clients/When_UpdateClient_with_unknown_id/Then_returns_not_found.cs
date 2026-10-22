@@ -9,7 +9,7 @@ public sealed class Then_returns_not_found
     {
         var builder = new UpdateClientUseCaseBuilder();
 
-        var response = await builder.Build().ExecuteAsync(builder.ValidCommand() with { ClientId = Guid.CreateVersion7() }, CancellationToken.None);
+        var response = await builder.Build().ExecuteAsync(builder.ValidCommand() with { ClientId = TestIds.Next() }, CancellationToken.None);
 
         response.Error!.Code.ShouldBe(ClientErrorCodes.NotFound);
     }

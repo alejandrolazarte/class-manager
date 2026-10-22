@@ -1,6 +1,6 @@
 namespace ClassManager.Core.Abstractions.Security;
 
-public sealed record StudentAppAccess(Guid AccountId, Guid? UserId, Guid BusinessId, Guid ClientId);
+public sealed record StudentAppAccess(Guid AccountId, long? UserId, long BusinessId, long ClientId);
 
 public interface IStudentAppAccess
 {

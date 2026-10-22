@@ -17,7 +17,7 @@ public static class SamePerson
         IUserRepository userRepository,
         User person,
         string? email,
-        Guid? samePersonUserId,
+        long? samePersonUserId,
         Func<PersonRoles, bool> canTakeTheRole,
         string fieldName,
         CancellationToken cancellationToken)

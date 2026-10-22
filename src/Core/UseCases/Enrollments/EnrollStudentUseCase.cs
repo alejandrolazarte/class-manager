@@ -12,12 +12,12 @@ using ClassManager.Core.Domain.Students;
 
 namespace ClassManager.Core.UseCases.Enrollments;
 
-public sealed record EnrollStudentRequest(Guid? StudentId, DateOnly? StartDate, bool AllowOutsidePack = false)
+public sealed record EnrollStudentRequest(long? StudentId, DateOnly? StartDate, bool AllowOutsidePack = false)
 {
-    public EnrollStudentCommand ToCommand(Guid classGroupId) => new(classGroupId, StudentId, StartDate, AllowOutsidePack);
+    public EnrollStudentCommand ToCommand(long classGroupId) => new(classGroupId, StudentId, StartDate, AllowOutsidePack);
 }
 
-public sealed record EnrollStudentCommand(Guid ClassGroupId, Guid? StudentId, DateOnly? StartDate, bool AllowOutsidePack = false) : ICommand;
+public sealed record EnrollStudentCommand(long ClassGroupId, long? StudentId, DateOnly? StartDate, bool AllowOutsidePack = false) : ICommand;
 
 public sealed class EnrollStudentUseCase(
     IClassGroupRepository classGroupRepository,
@@ -106,7 +106,7 @@ public sealed class EnrollStudentUseCase(
         return EnrollmentResponse.From(enrollment);
     }
 
-    private async Task<bool> IsOutsideActivePacksAsync(Guid clientId, Guid classGroupId, DateOnly today, CancellationToken cancellationToken)
+    private async Task<bool> IsOutsideActivePacksAsync(long clientId, long classGroupId, DateOnly today, CancellationToken cancellationToken)
     {
         var plan = FeeTimeline.PlanIn(
             await feeScheduleRepository.ListClientPlanChangesAsync([clientId], cancellationToken),
@@ -134,7 +134,7 @@ public sealed class EnrollStudentUseCase(
         return activePurchases.Count > 0;
     }
 
-    private async Task<Result<EnrollmentResponse>> ContinueAsync(Guid leavingEnrollmentId, CancellationToken cancellationToken)
+    private async Task<Result<EnrollmentResponse>> ContinueAsync(long leavingEnrollmentId, CancellationToken cancellationToken)
     {
         var leavingEnrollment = await enrollmentRepository.GetForUpdateAsync(leavingEnrollmentId, cancellationToken);
         if (leavingEnrollment is null)
@@ -147,7 +147,7 @@ public sealed class EnrollStudentUseCase(
         return EnrollmentResponse.From(leavingEnrollment);
     }
 
-    private static Result<EnrollmentResponse> AlreadyEnrolled(Guid? existingEnrollmentId) =>
+    private static Result<EnrollmentResponse> AlreadyEnrolled(long? existingEnrollmentId) =>
         Result.Conflict<EnrollmentResponse>(
             AlreadyEnrolledMessage,
             EnrollmentErrorCodes.AlreadyEnrolled,

@@ -7,11 +7,11 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Products;
 
-public sealed record AddProductImageCommand(Guid ProductId, byte[] Content) : ICommand;
+public sealed record AddProductImageCommand(long ProductId, byte[] Content) : ICommand;
 
-public sealed record RemoveProductImageCommand(Guid ProductId, Guid DocumentId) : ICommand;
+public sealed record RemoveProductImageCommand(long ProductId, long DocumentId) : ICommand;
 
-public sealed record ReorderProductImagesCommand(Guid ProductId, IReadOnlyList<Guid>? DocumentIds) : ICommand;
+public sealed record ReorderProductImagesCommand(long ProductId, IReadOnlyList<long>? DocumentIds) : ICommand;
 
 public sealed class AddProductImageUseCase(
     IProductRepository productRepository,
@@ -70,7 +70,7 @@ internal static class ProductImageEditing
         IProductRepository productRepository,
         IStockMovementRepository stockMovementRepository,
         IDocumentStorageService documentStorage,
-        Guid productId,
+        long productId,
         Func<Product, Task<Result>> change,
         CancellationToken cancellationToken)
     {

@@ -3,7 +3,7 @@ using ClassManager.Subscriptions.Subscribers;
 namespace ClassManager.Backoffice.Core.Brands;
 
 public sealed record BrandListing(
-    Guid Id,
+    long Id,
     string Name,
     DateTimeOffset CreatedAt,
     BrandOwner? Owner,

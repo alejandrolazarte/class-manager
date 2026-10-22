@@ -7,7 +7,7 @@ namespace ClassManager.Core.UseCases.Authentication;
 
 public sealed record ListAccountsQuery(string? CurrentKind) : IQuery;
 
-public sealed record AccountResponse(Guid BusinessId, string BusinessName, string Kind, bool IsCurrent);
+public sealed record AccountResponse(long BusinessId, string BusinessName, string Kind, bool IsCurrent);
 
 public sealed class ListAccountsUseCase(
     IBranchDirectory branchDirectory,
@@ -24,7 +24,7 @@ public sealed class ListAccountsUseCase(
         }
 
         var currentKind = AccountKinds.IsStudent(command.CurrentKind) ? AccountKinds.Student : AccountKinds.Team;
-        bool IsCurrent(Guid businessId, string kind) => businessId == tenantContext.TenantId && kind == currentKind;
+        bool IsCurrent(long businessId, string kind) => businessId == tenantContext.TenantId && kind == currentKind;
         var branches = await branchDirectory.ListAsync(userId, cancellationToken);
         var students = await studentAppDirectory.ListAsync(userId, cancellationToken);
 

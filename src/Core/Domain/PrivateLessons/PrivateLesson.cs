@@ -32,9 +32,9 @@ public sealed class PrivateLesson : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid InstructorId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long InstructorId { get; private set; }
     public DateOnly Date { get; private set; }
     public TimeOnly StartTime { get; private set; }
     public int DurationMinutes { get; private set; }
@@ -46,19 +46,19 @@ public sealed class PrivateLesson : ITenantOwned, IAuditable
     public bool IsTrial { get; private set; }
     public decimal? TrialPrice { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public IReadOnlyList<PrivateLessonStudent> Students => _students;
 
     public TimeOnly EndTime => StartTime.AddMinutes(DurationMinutes);
     public bool HasAttendance => _students.Any(student => student.Status is not null);
 
     public static Result<PrivateLesson> Create(
-        Guid instructorId,
+        long instructorId,
         DateOnly date,
         ClassSchedule schedule,
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         string? location,
         string? notes,
         Guid? seriesId,
@@ -72,7 +72,6 @@ public sealed class PrivateLesson : ITenantOwned, IAuditable
 
         var lesson = new PrivateLesson
         {
-            Id = Guid.CreateVersion7(),
             SeriesId = seriesId,
             CreatedAt = createdAt.ToUniversalTime(),
         };
@@ -86,7 +85,7 @@ public sealed class PrivateLesson : ITenantOwned, IAuditable
         return lesson;
     }
 
-    public Result Reschedule(Guid instructorId, DateOnly date, ClassSchedule schedule, string? location, string? notes)
+    public Result Reschedule(long instructorId, DateOnly date, ClassSchedule schedule, string? location, string? notes)
     {
         if (HasAttendance)
         {
@@ -120,7 +119,7 @@ public sealed class PrivateLesson : ITenantOwned, IAuditable
         CancellationReason = null;
     }
 
-    public Result Mark(Guid studentId, AttendanceStatus? status)
+    public Result Mark(long studentId, AttendanceStatus? status)
     {
         if (IsCancelled)
         {
@@ -170,7 +169,7 @@ public sealed class PrivateLesson : ITenantOwned, IAuditable
 
     private static int MinuteOfDay(TimeOnly time) => (time.Hour * MinutesPerHour) + time.Minute;
 
-    private Result ApplyDetails(Guid instructorId, DateOnly date, ClassSchedule schedule, string? location, string? notes)
+    private Result ApplyDetails(long instructorId, DateOnly date, ClassSchedule schedule, string? location, string? notes)
     {
         var trimmedLocation = string.IsNullOrWhiteSpace(location) ? null : location.Trim();
         if (trimmedLocation?.Length > LocationMaxLength)

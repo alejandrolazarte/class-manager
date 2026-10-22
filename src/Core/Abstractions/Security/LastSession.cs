@@ -1,3 +1,3 @@
 namespace ClassManager.Core.Abstractions.Security;
 
-public sealed record LastSession(Guid BusinessId, string? Kind);
+public sealed record LastSession(long BusinessId, string? Kind);

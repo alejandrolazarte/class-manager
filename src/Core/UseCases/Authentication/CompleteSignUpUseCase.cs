@@ -88,13 +88,15 @@ public sealed class CompleteSignUpUseCase(
         }
 
         var (organization, business) = brand.Value!;
-        tenantScope.Establish(business.Id);
         organizationRepository.Add(organization);
-        organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(organization.Id, userId.Value));
         businessRepository.Add(business);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        tenantScope.Establish(business.Id);
+        organizationMemberRepository.Add(OrganizationMember.CreateBrandOwner(organization.Id, userId.Value));
         var ownerInstructor = Instructor.Create(account.Value.FullName, now).Value!;
         ownerInstructor.User.LinkAccount(userId.Value);
         instructorRepository.Add(ownerInstructor);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         businessMemberRepository.Add(BusinessMember.CreateBranchOwner(business.Id, ownerInstructor.User, ownerInstructor.Id));
         var signUpPlan = await subscriptionRepository.GetSignUpPlanAsync(cancellationToken);
         subscriptionRepository.Add(Subscription.StartAtListPrice(organization.Id, signUpPlan, now));

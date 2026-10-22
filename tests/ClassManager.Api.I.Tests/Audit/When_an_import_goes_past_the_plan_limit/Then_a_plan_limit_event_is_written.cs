@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.UseCases.ImportExport.Students;
 using ClassManager.Infrastructure.Audit;
@@ -15,7 +16,7 @@ public sealed class Then_a_plan_limit_event_is_written(ApiFixture fixture)
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
         await fixture.AddFeatureAsync(business, Features.ImportExport);
         await fixture.SeedStudentsAsync(business, SeededStudents);
-        var tenantId = business.Business.Id.ToString();
+        var tenantId = business.Business.Id.ToString(CultureInfo.InvariantCulture);
         const string CsvText = """
             Alumno;Teléfono;Fecha de nacimiento;Responsable
             Ana Pérez;11 5555-6666;;

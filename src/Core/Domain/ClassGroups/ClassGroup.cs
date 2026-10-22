@@ -26,14 +26,14 @@ public sealed class ClassGroup : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public string Name { get; private set; } = string.Empty;
-    public Guid InstructorId { get; private set; }
+    public long InstructorId { get; private set; }
     public ClassWeekdays Weekdays { get; private set; }
     public TimeOnly StartTime { get; private set; }
     public int DurationMinutes { get; private set; }
@@ -46,15 +46,15 @@ public sealed class ClassGroup : ITenantOwned, IAuditable
 
     public ClassSchedule Schedule => ClassSchedule.FromStored(Weekdays, StartTime, DurationMinutes);
 
-    public static Result<ClassGroup> Create(string? name, Guid instructorId, ClassSchedule schedule, int? capacity, string? location)
+    public static Result<ClassGroup> Create(string? name, long instructorId, ClassSchedule schedule, int? capacity, string? location)
     {
-        var classGroup = new ClassGroup { Id = Guid.CreateVersion7(), IsActive = true };
+        var classGroup = new ClassGroup { IsActive = true };
         var update = classGroup.Update(name, instructorId, schedule, capacity, location);
 
         return update.IsFailure ? update.Error! : classGroup;
     }
 
-    public Result Update(string? name, Guid instructorId, ClassSchedule schedule, int? capacity, string? location)
+    public Result Update(string? name, long instructorId, ClassSchedule schedule, int? capacity, string? location)
     {
         var trimmedName = name?.Trim() ?? string.Empty;
         if (trimmedName.Length is < NameMinLength or > NameMaxLength)

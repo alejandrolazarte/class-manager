@@ -7,7 +7,6 @@ internal sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Pro
     public void Configure(EntityTypeBuilder<ProductVariant> builder)
     {
         builder.HasKey(variant => variant.Id);
-        builder.Property(variant => variant.Id).ValueGeneratedNever();
         builder.Property(variant => variant.Size).HasMaxLength(ProductVariant.SizeMaxLength).IsRequired();
         builder.Property(variant => variant.Color).HasMaxLength(ProductColors.KeyMaxLength);
 

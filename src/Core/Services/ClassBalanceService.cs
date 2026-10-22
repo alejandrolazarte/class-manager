@@ -15,11 +15,11 @@ public sealed class ClassBalanceService(
     IBusinessCalendarService businessCalendar)
     : IClassBalanceService
 {
-    public async Task<IReadOnlyDictionary<Guid, ClassBalance>> CalculateAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyDictionary<long, ClassBalance>> CalculateAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)
         {
-            return new Dictionary<Guid, ClassBalance>();
+            return new Dictionary<long, ClassBalance>();
         }
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
@@ -48,7 +48,7 @@ public sealed class ClassBalanceService(
     }
 
     private static bool IsPaidPerClass(
-        Guid clientId,
+        long clientId,
         DateOnly attendedOn,
         List<ClientBillingPlanChange> clientPlanChanges,
         IReadOnlyList<DefaultMonthlyFeeChange> defaultFeeChanges,

@@ -7,19 +7,19 @@ public static class MakeupRequests
 {
     private const string IsoDateFormat = "yyyy-MM-dd";
 
-    public static string MakeupsPath(Guid studentId) =>
+    public static string MakeupsPath(long studentId) =>
         $"{ApiRoutes.StudentApp}{ApiRoutes.AccountStudents}/{studentId}{ApiRoutes.Makeups}";
 
-    public static string MakeupPath(Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
+    public static string MakeupPath(long studentId, long classGroupId, DateOnly sessionDate) =>
         $"{MakeupsPath(studentId)}/{classGroupId}/{sessionDate.ToString(IsoDateFormat, CultureInfo.InvariantCulture)}";
 
-    public static Task<StudentAppMakeupsResponse?> GetMakeupsAsync(this HttpClient httpClient, Guid studentId) =>
+    public static Task<StudentAppMakeupsResponse?> GetMakeupsAsync(this HttpClient httpClient, long studentId) =>
         httpClient.GetFromJsonAsync<StudentAppMakeupsResponse>(new Uri(MakeupsPath(studentId), UriKind.Relative), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PutMakeupAsync(this HttpClient httpClient, Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
+    public static Task<HttpResponseMessage> PutMakeupAsync(this HttpClient httpClient, long studentId, long classGroupId, DateOnly sessionDate) =>
         httpClient.PutAsJsonAsync(MakeupPath(studentId, classGroupId, sessionDate), new { }, ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> DeleteMakeupAsync(this HttpClient httpClient, Guid studentId, Guid classGroupId, DateOnly sessionDate) =>
+    public static Task<HttpResponseMessage> DeleteMakeupAsync(this HttpClient httpClient, long studentId, long classGroupId, DateOnly sessionDate) =>
         httpClient.DeleteAsync(new Uri(MakeupPath(studentId, classGroupId, sessionDate), UriKind.Relative));
 
     public static async Task NoticeAndBookOtherClassAsync(this StudentAppScenario scenario)

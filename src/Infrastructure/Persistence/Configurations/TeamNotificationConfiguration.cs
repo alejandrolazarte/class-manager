@@ -7,7 +7,6 @@ internal sealed class TeamNotificationConfiguration : IEntityTypeConfiguration<T
     public void Configure(EntityTypeBuilder<TeamNotification> builder)
     {
         builder.HasKey(notification => notification.Id);
-        builder.Property(notification => notification.Id).ValueGeneratedNever();
         builder.Property(notification => notification.Title).HasMaxLength(TeamNotification.TitleMaxLength).IsRequired();
         builder.Property(notification => notification.Body).HasMaxLength(TeamNotification.BodyMaxLength).IsRequired();
         builder.Property(notification => notification.Url).HasMaxLength(TeamNotification.UrlMaxLength).IsRequired();

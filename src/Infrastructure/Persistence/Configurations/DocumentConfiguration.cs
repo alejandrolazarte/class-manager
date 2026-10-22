@@ -9,7 +9,6 @@ internal sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
     public void Configure(EntityTypeBuilder<Document> builder)
     {
         builder.HasKey(document => document.Id);
-        builder.Property(document => document.Id).ValueGeneratedNever();
         builder.Property(document => document.Path).HasMaxLength(Document.PathMaxLength).IsRequired();
         builder.Property(document => document.ContentType).HasMaxLength(Document.ContentTypeMaxLength).IsRequired();
         builder.Property(document => document.Visibility).HasConversion<string>().HasMaxLength(VisibilityMaxLength);

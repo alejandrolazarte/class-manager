@@ -6,7 +6,7 @@ using ClassManager.Core.UseCases.Users;
 
 namespace ClassManager.Core.UseCases.Instructors;
 
-public sealed record CreateInstructorCommand([property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email = null, Guid? SamePersonUserId = null) : ICommand;
+public sealed record CreateInstructorCommand([property: AuditPersonal] string? FullName, [property: AuditPersonal] string? Email = null, long? SamePersonUserId = null) : ICommand;
 
 public sealed class CreateInstructorUseCase(
     IInstructorRepository instructorRepository,

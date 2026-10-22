@@ -12,7 +12,7 @@ namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record RescheduleSessionRequest(string? StartTime);
 
-public sealed record RescheduleSessionCommand(Guid ClassGroupId, DateOnly Date, [property: AuditPlain] string? StartTime) : ICommand;
+public sealed record RescheduleSessionCommand(long ClassGroupId, DateOnly Date, [property: AuditPlain] string? StartTime) : ICommand;
 
 public sealed class RescheduleSessionUseCase(
     IClassGroupRepository classGroupRepository,

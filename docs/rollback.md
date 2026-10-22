@@ -41,6 +41,8 @@ The previous image runs against the schema of the latest deploy, so every migrat
 
 A migration that breaks this can't be rolled back with this workflow; fix it with a new migration.
 
+The move to `bigint` ids ([plan](backend/20261022-bigint-ids/plan.md)) replaced every migration with a new `Initial` one on a new database: no image from before it can run against the new schema, so a rollback can only go back to a deploy made after it.
+
 ## When to add staging
 
 When there are paying customers and downtime costs money or trust, when more people work on the code and want to try changes together before they go out, or when integrations that CI can't test arrive (real payments, webhooks).

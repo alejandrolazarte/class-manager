@@ -17,5 +17,5 @@ public sealed class Then_they_are_linked_to_their_instructor(ApiFixture fixture)
         member.InstructorId.ShouldBe(instructors!.Single().Id);
     }
 
-    private sealed record InstructorIdentity(Guid Id);
+    private sealed record InstructorIdentity(long Id);
 }

@@ -4,14 +4,14 @@ using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record DeliveryClassResponse(Guid ClassGroupId, string ClassGroupName, string StudentFullName);
+public sealed record DeliveryClassResponse(long ClassGroupId, string ClassGroupName, string StudentFullName);
 
 internal static class DeliveryClasses
 {
     private const string ClassNotValidMessage = "Choose a class one of the client's students attends.";
 
     public static async Task<IReadOnlyList<DeliveryClassResponse>> ListAsync(
-        Guid clientId,
+        long clientId,
         DateOnly today,
         IStudentRepository studentRepository,
         IEnrollmentRepository enrollmentRepository,
@@ -38,7 +38,7 @@ internal static class DeliveryClasses
     public static async Task<Result> ChooseAsync(
         Order order,
         DeliveryMethod? delivery,
-        Guid? classGroupId,
+        long? classGroupId,
         DateOnly today,
         IStudentRepository studentRepository,
         IEnrollmentRepository enrollmentRepository,

@@ -1,7 +1,7 @@
 namespace ClassManager.Backoffice.Core.Brands;
 
 public sealed record BrandBranch(
-    Guid Id,
+    long Id,
     string Name,
     string CountryCode,
     DateTimeOffset CreatedAt,

@@ -10,17 +10,17 @@ public sealed class ClassGroupMaterialFile : ITenantOwned, IAuditable
     {
     }
 
-    public Guid TenantId { get; private set; }
+    public long TenantId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
-    public Guid ClassGroupId { get; private set; }
-    public Guid DocumentId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
+    public long ClassGroupId { get; private set; }
+    public long DocumentId { get; private set; }
     public Document Document { get; private set; } = null!;
     public int Position { get; private set; }
 
-    internal static ClassGroupMaterialFile Create(Guid classGroupId, Document document, int position) =>
+    internal static ClassGroupMaterialFile Create(long classGroupId, Document document, int position) =>
         new()
         {
             ClassGroupId = classGroupId,

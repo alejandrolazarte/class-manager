@@ -5,7 +5,7 @@ using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
-public sealed record StudentAppScenario(InstructorScenario Instructors, Guid ClientId, string Email, TokenResponse Tokens, HttpClient Student);
+public sealed record StudentAppScenario(InstructorScenario Instructors, long ClientId, string Email, TokenResponse Tokens, HttpClient Student);
 
 public static class StudentAppRequests
 {
@@ -17,20 +17,20 @@ public static class StudentAppRequests
     public const string WebAppAcceptStudentAppInvitationUrl = "http://localhost:8081/accept-student-invitation?token=";
     public const string WebAppAuthorizeStudentAppUrl = "http://localhost:8081/authorize-student-app?token=";
 
-    public static string UniqueStudentEmail() => $"student-{Guid.NewGuid():N}@example.com";
+    public static string UniqueStudentEmail() => $"student-{TestIds.Next()}@example.com";
 
     public static Task<HttpResponseMessage> PostStudentAppInvitationAsync(
         this HttpClient httpClient,
-        Guid clientId,
+        long clientId,
         string email,
         bool confirmsContactIsAdult = true,
-        Guid? samePersonUserId = null) =>
+        long? samePersonUserId = null) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.AppInvitation}",
             new InviteStudentAppRequest(email, ConfirmsContactIsAdult: confirmsContactIsAdult, SamePersonUserId: samePersonUserId),
             ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PostChildAppInvitationAsync(this HttpClient httpClient, Guid clientId, Guid studentId, string email, DateOnly? birthDate) =>
+    public static Task<HttpResponseMessage> PostChildAppInvitationAsync(this HttpClient httpClient, long clientId, long studentId, string email, DateOnly? birthDate) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.AppInvitation}", new InviteStudentAppRequest(email, studentId, birthDate), ApiRequests.JsonOptions);
 
@@ -58,7 +58,7 @@ public static class StudentAppRequests
         return Uri.UnescapeDataString(link[WebAppAuthorizeStudentAppUrl.Length..]);
     }
 
-    public static async Task<HttpClient> SignInClientOfFamilyAsync(this ApiFixture fixture, HttpClient team, Guid clientId, string clientEmail)
+    public static async Task<HttpClient> SignInClientOfFamilyAsync(this ApiFixture fixture, HttpClient team, long clientId, string clientEmail)
     {
         (await team.PostStudentAppInvitationAsync(clientId, clientEmail)).EnsureSuccessStatusCode();
         using var anonymous = fixture.ApiFactory.CreateClient();
@@ -68,7 +68,7 @@ public static class StudentAppRequests
         return fixture.CreateClientWithToken(tokens.AccessToken);
     }
 
-    public static Task<HttpResponseMessage> PostGuardianConsentInAppAsync(this HttpClient httpClient, Guid invitationId) =>
+    public static Task<HttpResponseMessage> PostGuardianConsentInAppAsync(this HttpClient httpClient, long invitationId) =>
         httpClient.PostAsync(new Uri($"{ApiRoutes.StudentApp}/guardian-consents/{invitationId}{ApiRoutes.Authorization}", UriKind.Relative), null);
 
     public static Task<HttpResponseMessage> PostGiveGuardianConsentAsync(this HttpClient httpClient, string token) =>

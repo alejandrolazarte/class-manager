@@ -13,20 +13,20 @@ public sealed class PushSubscription : ITenantOwned, IAuditable
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid TenantId { get; private set; }
-    public Guid ClientId { get; private set; }
+    public long Id { get; private set; }
+    public long TenantId { get; private set; }
+    public long ClientId { get; private set; }
     public Guid UserId { get; private set; }
     public string Endpoint { get; private set; } = string.Empty;
     public string P256dh { get; private set; } = string.Empty;
     public string Auth { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid? CreatedByUserId { get; private set; }
+    public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public Guid? UpdatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     public static Result<PushSubscription> Create(
-        Guid clientId, Guid userId, string? endpoint, string? p256dh, string? auth, DateTimeOffset createdAt)
+        long clientId, Guid userId, string? endpoint, string? p256dh, string? auth, DateTimeOffset createdAt)
     {
         if (PushSubscriptionRules.Validate(endpoint, p256dh, auth) is { } error)
         {
@@ -35,7 +35,6 @@ public sealed class PushSubscription : ITenantOwned, IAuditable
 
         return new PushSubscription
         {
-            Id = Guid.CreateVersion7(),
             ClientId = clientId,
             UserId = userId,
             Endpoint = endpoint!,

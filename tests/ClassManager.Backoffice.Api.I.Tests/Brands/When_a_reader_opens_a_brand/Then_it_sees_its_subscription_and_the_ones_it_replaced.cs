@@ -22,7 +22,7 @@ public sealed class Then_it_sees_its_subscription_and_the_ones_it_replaced(Backo
         using var response = await client.GetAsync($"{BackofficeRequests.BrandsRoute}/{brand.Id}", accessToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var detail = (await response.Content.ReadFromJsonAsync<BrandDetailResponse>())!;
+        var detail = (await response.Content.ReadFromJsonAsync<BrandDetailResponse>(BackofficeRequests.JsonOptions))!;
         detail.Subscription.ShouldBe(new BrandSubscriptionResponse("pro", 29m, "EUR"));
         detail.PastSubscriptions.ShouldHaveSingleItem().PlanCode.ShouldBe("free");
         detail.Owners.ShouldHaveSingleItem().Email.ShouldBe(brand.OwnerEmail);

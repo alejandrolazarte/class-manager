@@ -17,26 +17,26 @@ public sealed record CatalogFeatureResponse(string Code, bool IsCounted, bool Is
 public sealed record SubscriptionCatalogResponse(IReadOnlyList<CatalogPlanResponse> Plans, IReadOnlyList<CatalogFeatureResponse> Features);
 
 public sealed record ChangeBrandPlanCommand(
-    Guid BrandId,
+    long BrandId,
     [property: AuditPlain] string? PlanCode,
     decimal Price,
     [property: AuditPlain] string? Currency,
     [property: AuditPersonal] string? Note,
     DateOnly? ExpiredOn) : ICommand;
 
-public sealed record BrandPlanChangedResponse(Guid SubscriptionId);
+public sealed record BrandPlanChangedResponse(long SubscriptionId);
 
 public sealed record GiveBrandAddOnCommand(
-    Guid BrandId,
+    long BrandId,
     [property: AuditPlain] string? FeatureCode,
     decimal Price,
     [property: AuditPlain] string? Currency,
     int? Limit,
     DateOnly? ExpiredOn) : ICommand;
 
-public sealed record RemoveBrandAddOnCommand(Guid BrandId, Guid AddOnId) : ICommand;
+public sealed record RemoveBrandAddOnCommand(long BrandId, long AddOnId) : ICommand;
 
-public sealed record RestoreBrandAddOnCommand(Guid BrandId, Guid AddOnId) : ICommand;
+public sealed record RestoreBrandAddOnCommand(long BrandId, long AddOnId) : ICommand;
 
 public sealed class GetSubscriptionCatalogUseCase(IBrandSubscriptionRepository repository)
     : IUseCase<GetSubscriptionCatalogQuery, SubscriptionCatalogResponse>

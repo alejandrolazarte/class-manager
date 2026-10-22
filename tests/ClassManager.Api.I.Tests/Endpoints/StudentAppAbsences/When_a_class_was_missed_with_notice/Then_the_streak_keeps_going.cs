@@ -22,7 +22,7 @@ public sealed class Then_the_streak_keeps_going(ApiFixture fixture)
         await using (var context = fixture.CreateDbContext(scenario.Instructors.Business.Business.Id))
         {
             var missedSession = await context.ClassSessions.SingleAsync(session => session.ClassGroupId == weekly.Id && session.Date == today.AddDays(-7));
-            context.AbsenceNotices.Add(AbsenceNotice.Create(missedSession.Id, studentId, keepsStreak: true, BusinessApiFactory.Now.AddDays(-8)));
+            context.AbsenceNotices.Add(AbsenceNotice.Create(missedSession, studentId, keepsStreak: true, BusinessApiFactory.Now.AddDays(-8)));
             await context.SaveChangesAsync();
         }
 

@@ -7,7 +7,7 @@ public sealed class Then_validation_fails
     [Fact]
     public void Then_validation_fails_Run()
     {
-        var feedback = ClassFeedback.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), "   ", TestData.Now);
+        var feedback = ClassFeedback.Create(ClassSession.Create(TestIds.Next(), TestData.Today, TestData.Now).WithId(), TestIds.Next(), TestIds.Next(), "   ", TestData.Now);
 
         feedback.Error!.Code.ShouldBe(SessionErrorCodes.FeedbackRequired);
     }

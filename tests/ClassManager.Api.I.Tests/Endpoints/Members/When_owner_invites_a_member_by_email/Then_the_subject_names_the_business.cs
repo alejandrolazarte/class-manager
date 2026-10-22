@@ -9,7 +9,7 @@ public sealed class Then_the_subject_names_the_business(ApiFixture fixture)
     public async Task Then_the_subject_names_the_business_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        var email = $"{Guid.NewGuid():N}@test.test";
+        var email = $"{TestIds.Next()}@test.test";
 
         await business.HttpClient.InviteAsync(email, BusinessRole.Viewer);
 

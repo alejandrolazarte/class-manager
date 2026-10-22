@@ -13,7 +13,7 @@ public sealed class Then_past_days_without_students_are_not_listed
         builder.SetupMonthCalendar(
             [new ClassGroupEnrollmentPeriod(builder.ClassGroup.Id, enrolledSince, null)],
             [],
-            new Dictionary<Guid, AttendanceCount>());
+            new Dictionary<long, AttendanceCount>());
 
         var response = await builder.BuildMonthCalendar().ExecuteAsync(new ListMonthCalendarQuery("2026-09"), CancellationToken.None);
 

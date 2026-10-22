@@ -11,5 +11,5 @@ internal static class MeasurementSamples
     public static MeasurementDefinition Repetitions() => Create("Dominadas", MeasurementKind.Repetitions, "rep", ImprovementDirection.Increases);
 
     private static MeasurementDefinition Create(string name, MeasurementKind kind, string unit, ImprovementDirection improvesWhen) =>
-        MeasurementDefinition.Create(name, kind, unit, improvesWhen, isVisibleToStudents: true, isRecordedByStudents: false, TestData.Now).Value!;
+        MeasurementDefinition.Create(name, kind, unit, improvesWhen, isVisibleToStudents: true, isRecordedByStudents: false, TestData.Now).Value!.WithId();
 }

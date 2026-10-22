@@ -9,7 +9,7 @@ namespace ClassManager.Core.UseCases.PrivateLessons;
 
 public sealed record CancelPrivateLessonRequest(string? Reason);
 
-public sealed record CancelPrivateLessonCommand(Guid PrivateLessonId, [property: AuditPersonal] string? Reason) : ICommand;
+public sealed record CancelPrivateLessonCommand(long PrivateLessonId, [property: AuditPersonal] string? Reason) : ICommand;
 
 public sealed class CancelPrivateLessonUseCase(
     IPrivateLessonRepository privateLessonRepository,

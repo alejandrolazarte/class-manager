@@ -6,7 +6,7 @@ public sealed class Then_it_covers_the_classes
     public void Then_it_covers_the_classes_Run()
     {
         var pack = ClassPackTestData.Pack();
-        var classGroupId = Guid.CreateVersion7();
+        var classGroupId = TestIds.Next();
 
         pack.DefineLessons([classGroupId], null);
 

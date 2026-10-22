@@ -10,7 +10,7 @@ public sealed class PendingSignUp
     {
     }
 
-    public Guid Id { get; private set; }
+    public long Id { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public string OwnerFullName { get; private set; } = string.Empty;
     public DateOnly OwnerBirthDate { get; private set; }
@@ -38,7 +38,6 @@ public sealed class PendingSignUp
 
         return new PendingSignUp
         {
-            Id = Guid.CreateVersion7(),
             Email = owner.Email,
             OwnerFullName = owner.FullName,
             OwnerBirthDate = owner.BirthDate,

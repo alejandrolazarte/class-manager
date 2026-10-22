@@ -14,7 +14,7 @@ public static class PushRequests
     {
         using var userAgentKey = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
         return new SavePushSubscriptionCommand(
-            $"https://push.example.com/send/{Guid.NewGuid():N}",
+            $"https://push.example.com/send/{TestIds.Next()}",
             Base64Url.EncodeToString(EcKeys.ToUncompressedPoint(userAgentKey.ExportParameters(false).Q)),
             Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(AuthSecretLength)));
     }

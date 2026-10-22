@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Infrastructure;
 using ClassManager.Infrastructure.Audit;
 using ClassManager.Security.Tokens;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Time.Testing;
 
 namespace ClassManager.Backoffice.Api.I.Tests.Infrastructure;
 
-public sealed class BackofficeApiFactory(string databaseConnectionString, string auditLogConnectionString, Guid platformOrganizationId)
+public sealed class BackofficeApiFactory(string databaseConnectionString, string auditLogConnectionString, long platformOrganizationId)
     : WebApplicationFactory<Program>
 {
     public const string WebAppUrl = "https://admin.example.com";
@@ -42,7 +43,7 @@ public sealed class BackofficeApiFactory(string databaseConnectionString, string
             databaseConnectionString);
         builder.UseSetting($"{ConnectionStringsSection}:{AuditLogOptions.ConnectionStringName}", auditLogConnectionString);
         builder.UseSetting($"{JwtOptions.SectionName}:{nameof(JwtOptions.SigningKey)}", TestSigningKey);
-        builder.UseSetting(PlatformOrganizationSetting, platformOrganizationId.ToString());
+        builder.UseSetting(PlatformOrganizationSetting, platformOrganizationId.ToString(CultureInfo.InvariantCulture));
         builder.UseSetting(WebAppUrlSetting, WebAppUrl);
         builder.UseSetting(RateLimitSetting, TestPermitLimit);
 

@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.ClassGroups;
 
 namespace ClassManager.Core.UseCases.ClassGroups;
 
-public sealed record SetClassGroupActiveCommand(Guid ClassGroupId, bool IsActive) : ICommand;
+public sealed record SetClassGroupActiveCommand(long ClassGroupId, bool IsActive) : ICommand;
 
 public sealed class SetClassGroupActiveUseCase(
     IInstructorRepository instructorRepository,

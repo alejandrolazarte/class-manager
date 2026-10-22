@@ -17,7 +17,7 @@ public sealed class Then_it_is_refused(BackofficeApiFixture fixture)
         var appTokenFactory = new JwtAccessTokenFactory(
             Options.Create(new JwtOptions { Issuer = AppIssuer, Audience = AppAudience, SigningKey = AppSigningKey }),
             fixture.ApiFactory.TimeProvider);
-        var appToken = appTokenFactory.Create(new TokenSubject(Guid.CreateVersion7(), "owner@example.com", Guid.CreateVersion7(), "BranchOwner", TeamKind)).Token;
+        var appToken = appTokenFactory.Create(new TokenSubject(Guid.CreateVersion7(), "owner@example.com", TestIds.Next(), "BranchOwner", TeamKind)).Token;
         using var client = fixture.ApiFactory.CreateHttpsClient();
 
         using var response = await client.GetCurrentOperatorAsync(appToken);

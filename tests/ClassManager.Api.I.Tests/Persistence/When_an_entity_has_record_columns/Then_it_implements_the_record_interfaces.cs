@@ -23,7 +23,7 @@ public sealed class Then_it_implements_the_record_interfaces(ApiFixture fixture)
     [Fact]
     public void Then_it_implements_the_record_interfaces_Run()
     {
-        using var context = fixture.CreateDbContext(Guid.Empty);
+        using var context = fixture.CreateDbContext(0L);
 
         var violations = context.Model.GetEntityTypes()
             .SelectMany(entityType => entityType.GetProperties()

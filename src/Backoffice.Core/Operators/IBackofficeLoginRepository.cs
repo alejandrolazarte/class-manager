@@ -4,7 +4,7 @@ public interface IBackofficeLoginRepository
 {
     Task<BackofficeLogin?> FindAsync(string provider, string providerKey, CancellationToken cancellationToken);
 
-    Task<BackofficeLogin?> FindByIdAsync(Guid loginId, CancellationToken cancellationToken);
+    Task<BackofficeLogin?> FindByIdAsync(long loginId, CancellationToken cancellationToken);
 
     Task<bool> HasEnabledLoginAsync(Guid accountId, CancellationToken cancellationToken);
 
@@ -12,7 +12,7 @@ public interface IBackofficeLoginRepository
 
     Task<BackofficeAccessRequest?> FindAccessRequestAsync(string provider, string providerKey, CancellationToken cancellationToken);
 
-    Task<BackofficeAccessRequest?> FindAccessRequestByIdAsync(Guid accessRequestId, CancellationToken cancellationToken);
+    Task<BackofficeAccessRequest?> FindAccessRequestByIdAsync(long accessRequestId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<BackofficeAccessRequest>> ListAccessRequestsAsync(CancellationToken cancellationToken);
 

@@ -11,17 +11,17 @@ public interface IClientRepository
 
     Task<IReadOnlyList<Client>> ListByPhoneNumbersAsync(IReadOnlyCollection<PhoneNumber> phoneNumbers, CancellationToken cancellationToken);
 
-    Task<Client?> GetByIdAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<Client?> GetByIdAsync(long clientId, CancellationToken cancellationToken);
 
-    Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken);
+    Task<Client?> GetForUpdateAsync(long clientId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Client>> ListByIdsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Client>> ListByIdsAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Client>> SearchAsync(ClientSearchCriteria criteria, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Guid>> ListIdsInScopeAsync(ClientScope scope, CancellationToken cancellationToken);
+    Task<IReadOnlyList<long>> ListIdsInScopeAsync(ClientScope scope, CancellationToken cancellationToken);
 
-    Task<bool> IsInScopeAsync(Guid clientId, ClientScope scope, CancellationToken cancellationToken);
+    Task<bool> IsInScopeAsync(long clientId, ClientScope scope, CancellationToken cancellationToken);
 }

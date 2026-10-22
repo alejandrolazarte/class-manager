@@ -4,10 +4,10 @@ internal sealed class ClassPackRepository(AppDbContext context) : IClassPackRepo
 {
     public void Add(ClassPack classPack) => context.ClassPacks.Add(classPack);
 
-    public Task<ClassPack?> GetByIdAsync(Guid classPackId, CancellationToken cancellationToken) =>
+    public Task<ClassPack?> GetByIdAsync(long classPackId, CancellationToken cancellationToken) =>
         context.ClassPacks.AsNoTracking().FirstOrDefaultAsync(classPack => classPack.Id == classPackId, cancellationToken);
 
-    public Task<ClassPack?> GetForUpdateAsync(Guid classPackId, CancellationToken cancellationToken) =>
+    public Task<ClassPack?> GetForUpdateAsync(long classPackId, CancellationToken cancellationToken) =>
         context.ClassPacks.FirstOrDefaultAsync(classPack => classPack.Id == classPackId, cancellationToken);
 
     public Task<ClassPack?> FindByNameAsync(string name, CancellationToken cancellationToken) =>

@@ -6,7 +6,7 @@ using ClassManager.Core.Domain.Clients;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record GetClientClassBalanceQuery(Guid ClientId) : IQuery;
+public sealed record GetClientClassBalanceQuery(long ClientId) : IQuery;
 
 public sealed class GetClientClassBalanceUseCase(
     IClientRepository clientRepository,
@@ -29,7 +29,7 @@ public sealed class GetClientClassBalanceUseCase(
         var balances = await classBalanceService.CalculateAsync([client.Id], cancellationToken);
         var deductedTrialIds = (await purchaseRepository.ListByClientsAsync([client.Id], cancellationToken))
             .Select(purchase => purchase.TrialLessonId)
-            .OfType<Guid>()
+            .OfType<long>()
             .ToHashSet();
         IReadOnlyList<DeductibleTrialResponse> deductibleTrials =
         [

@@ -8,7 +8,7 @@ public sealed class Then_it_is_shortened
     public void Then_it_is_shortened_Run()
     {
         var notification = TeamNotification.Create(
-            Guid.CreateVersion7(), new string('t', 500), new string('b', 900), "/today", TestData.Now);
+            Guid.CreateVersion7(), new string('t', 500), new string('b', 900), "/today", TestData.Now).WithId();
 
         notification.Title.Length.ShouldBe(TeamNotification.TitleMaxLength);
         notification.Body.Length.ShouldBe(TeamNotification.BodyMaxLength);

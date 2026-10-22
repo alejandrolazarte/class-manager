@@ -7,7 +7,7 @@ public sealed class Then_it_shows_the_new_content
     [Fact]
     public void Then_it_shows_the_new_content_Run()
     {
-        var announcement = Announcement.Create("Feriado", null, TestData.Now, TestData.Today).Value!;
+        var announcement = Announcement.Create("Feriado", null, TestData.Now, TestData.Today).Value!.WithId();
 
         var result = announcement.Edit(
             "  Clase abierta  ", "Traé a un amigo.", AnnouncementCategory.Event, null, TestData.Today.AddDays(3), TestData.Today);

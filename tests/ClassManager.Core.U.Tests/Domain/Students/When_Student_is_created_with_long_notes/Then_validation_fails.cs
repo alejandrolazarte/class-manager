@@ -9,7 +9,7 @@ public sealed class Then_validation_fails
     {
         var notes = new string('x', Student.NotesMaxLength + 1);
 
-        var student = Student.Create(Guid.CreateVersion7(), TestData.StudentFullName, null, notes, TestData.Today, TestData.Now);
+        var student = Student.Create(TestData.Client(), TestData.StudentFullName, null, notes, TestData.Today, TestData.Now);
 
         student.Error!.FieldName.ShouldBe(nameof(Student.Notes));
     }

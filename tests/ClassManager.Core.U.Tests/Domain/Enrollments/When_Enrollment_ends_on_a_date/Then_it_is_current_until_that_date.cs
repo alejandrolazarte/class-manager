@@ -7,7 +7,7 @@ public sealed class Then_it_is_current_until_that_date
     [Fact]
     public void Then_it_is_current_until_that_date_Run()
     {
-        var enrollment = Enrollment.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), TestData.Today, TestData.Now);
+        var enrollment = Enrollment.Create(TestIds.Next(), TestIds.Next(), TestData.Today, TestData.Now).WithId();
 
         enrollment.End(TestData.Today.AddDays(10));
 

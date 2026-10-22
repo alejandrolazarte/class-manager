@@ -6,9 +6,9 @@ namespace ClassManager.Api.I.Tests.Endpoints.Orders;
 internal sealed record OrderCollectorScenario(
     HttpClient Owner,
     HttpClient OrderCollector,
-    Guid OwnClientId,
-    Guid OtherClientId,
-    Guid ProductVariantId);
+    long OwnClientId,
+    long OtherClientId,
+    long ProductVariantId);
 
 internal static class OrderCollectorScenarioRequests
 {

@@ -14,7 +14,7 @@ public static class ClassPackRequests
         int classCount = 4,
         decimal price = 80m,
         int? validityMonths = 1,
-        IReadOnlyList<Guid>? classGroupIds = null) =>
+        IReadOnlyList<long>? classGroupIds = null) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.ClassPacks,
             new CreateClassPackCommand(
@@ -27,7 +27,7 @@ public static class ClassPackRequests
             ApiRequests.JsonOptions);
 
     public static async Task<ClassPackResponse> CreateClassPackAsync(
-        this HttpClient httpClient, string name = PackName, int classCount = 4, IReadOnlyList<Guid>? classGroupIds = null)
+        this HttpClient httpClient, string name = PackName, int classCount = 4, IReadOnlyList<long>? classGroupIds = null)
     {
         using var response = await httpClient.PostClassPackAsync(name, classCount, classGroupIds: classGroupIds);
         response.EnsureSuccessStatusCode();
@@ -35,20 +35,20 @@ public static class ClassPackRequests
     }
 
     public static Task<HttpResponseMessage> PostClassPackSaleAsync(
-        this HttpClient httpClient, Guid clientId, Guid classPackId, decimal? price = null, Guid? trialLessonId = null) =>
+        this HttpClient httpClient, long clientId, long classPackId, decimal? price = null, long? trialLessonId = null) =>
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.ClassPackPurchasesSegment}",
             new SellClassPackRequest(classPackId, price, null, PaymentMethod.Cash, null, trialLessonId),
             ApiRequests.JsonOptions);
 
-    public static async Task<ClassPackPurchaseResponse> SellClassPackAsync(this HttpClient httpClient, Guid clientId, Guid classPackId)
+    public static async Task<ClassPackPurchaseResponse> SellClassPackAsync(this HttpClient httpClient, long clientId, long classPackId)
     {
         using var response = await httpClient.PostClassPackSaleAsync(clientId, classPackId);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<ClassPackPurchaseResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static Task<ClassBalanceResponse?> GetClassBalanceAsync(this HttpClient httpClient, Guid clientId) =>
+    public static Task<ClassBalanceResponse?> GetClassBalanceAsync(this HttpClient httpClient, long clientId) =>
         httpClient.GetFromJsonAsync<ClassBalanceResponse>(
             new Uri($"{ApiRoutes.Clients}/{clientId}{ApiRoutes.ClassBalance}", UriKind.Relative), ApiRequests.JsonOptions);
 }

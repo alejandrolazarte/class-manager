@@ -64,7 +64,7 @@ public sealed class GetStudentAppNewsUseCase(
             string? className = null,
             string? instructorFullName = null,
             DateOnly? classDate = null,
-            Guid? orderId = null,
+            long? orderId = null,
             string? classStartTime = null) =>
             new(
                 string.Join(IdSeparator, kind.ToString(), sourceKey),
@@ -81,7 +81,7 @@ public sealed class GetStudentAppNewsUseCase(
                 classStartTime);
 
         var enrolledClassGroupIds = await StudentAnnouncements.EnrolledClassGroupIdsAsync(enrollmentRepository, studentIds, today, cancellationToken);
-        var enrolledClassGroupNames = new Dictionary<Guid, string>();
+        var enrolledClassGroupNames = new Dictionary<long, string>();
         foreach (var classGroupId in enrolledClassGroupIds)
         {
             if (await classGroupRepository.GetByIdAsync(classGroupId, cancellationToken) is { } classGroup)
@@ -97,7 +97,7 @@ public sealed class GetStudentAppNewsUseCase(
             .ToDictionary(reply => reply.AnnouncementId, reply => reply.IsGoing);
         items.AddRange(announcements
             .Select(announcement => Item(
-                StudentAppNewsKind.Announcement, announcement.Id.ToString(), announcement.PublishedAt, announcement.Title, announcement.Body) with
+                StudentAppNewsKind.Announcement, announcement.Id.ToString(CultureInfo.InvariantCulture), announcement.PublishedAt, announcement.Title, announcement.Body) with
             {
                 AnnouncementId = announcement.Id,
                 Category = announcement.Category,
@@ -116,7 +116,7 @@ public sealed class GetStudentAppNewsUseCase(
 
         items.AddRange((await orderRepository.ListAsync(new OrderSearchCriteria(access.ClientId, true, OrderLimit), null, cancellationToken))
             .Where(order => order.ReadyAt is not null)
-            .Select(order => Item(StudentAppNewsKind.OrderReady, order.Id.ToString(), order.ReadyAt!.Value, orderId: order.Id)));
+            .Select(order => Item(StudentAppNewsKind.OrderReady, order.Id.ToString(CultureInfo.InvariantCulture), order.ReadyAt!.Value, orderId: order.Id)));
 
         items.AddRange((await feedbackRepository.ListUpdatedSinceAsync(studentIds, now.AddDays(-FeedbackDays), cancellationToken))
             .Select(feedback => Item(
@@ -135,7 +135,7 @@ public sealed class GetStudentAppNewsUseCase(
             (session, classGroup, studentFullNames) => session.IsCancelled
                 ? Item(
                     StudentAppNewsKind.ClassCancelled,
-                    session.Id.ToString(),
+                    session.Id.ToString(CultureInfo.InvariantCulture),
                     session.CancelledAt ?? session.CreatedAt,
                     body: session.CancellationReason,
                     studentFullNames: studentFullNames,
@@ -143,7 +143,7 @@ public sealed class GetStudentAppNewsUseCase(
                     classDate: session.Date)
                 : Item(
                     StudentAppNewsKind.ClassChanged,
-                    session.Id.ToString(),
+                    session.Id.ToString(CultureInfo.InvariantCulture),
                     session.ChangedAt ?? session.CreatedAt,
                     studentFullNames: studentFullNames,
                     className: classGroup.Name,
@@ -170,8 +170,8 @@ public sealed class GetStudentAppNewsUseCase(
             return [];
         }
 
-        var studentsBySession = new Dictionary<Guid, List<string>>();
-        var classGroups = new Dictionary<Guid, ClassGroup>();
+        var studentsBySession = new Dictionary<long, List<string>>();
+        var classGroups = new Dictionary<long, ClassGroup>();
         foreach (var student in students)
         {
             foreach (var enrollment in await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken))

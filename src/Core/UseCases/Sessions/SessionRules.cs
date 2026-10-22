@@ -17,7 +17,7 @@ internal static class SessionRules
 
     public static async Task<Result<ClassGroup>> FindScheduledClassGroupAsync(
         IClassGroupRepository classGroupRepository,
-        Guid classGroupId,
+        long classGroupId,
         DateOnly date,
         CancellationToken cancellationToken)
     {
@@ -36,10 +36,10 @@ internal static class SessionRules
         IEnrollmentRepository enrollmentRepository,
         IMakeupBookingRepository makeupBookingRepository,
         IPackBookingRepository packBookingRepository,
-        Guid classGroupId,
+        long classGroupId,
         DateOnly date,
         ClassSession? session,
-        Guid studentId,
+        long studentId,
         CancellationToken cancellationToken)
     {
         var roster = await enrollmentRepository.ListRosterOnAsync(classGroupId, date, cancellationToken);
@@ -57,10 +57,10 @@ internal static class SessionRules
         IEnrollmentRepository enrollmentRepository,
         IMakeupBookingRepository makeupBookingRepository,
         IPackBookingRepository packBookingRepository,
-        Guid classGroupId,
+        long classGroupId,
         DateOnly date,
         ClassSession? session,
-        IReadOnlyCollection<Guid> studentIds,
+        IReadOnlyCollection<long> studentIds,
         CancellationToken cancellationToken)
     {
         var roster = (await enrollmentRepository.ListRosterOnAsync(classGroupId, date, cancellationToken)).Select(entry => entry.StudentId).ToHashSet();
@@ -96,7 +96,7 @@ internal static class SessionRules
 
     public static async Task<ResultError?> FindInstructorConflictAsync(
         InstructorAgendaRepositories repositories,
-        Guid instructorId,
+        long instructorId,
         ClassGroup classGroup,
         DateOnly date,
         TimeOnly startTime,

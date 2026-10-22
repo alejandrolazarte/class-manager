@@ -12,10 +12,10 @@ using ClassManager.Core.Domain.Products;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record CounterSaleLine(Guid? ClassPackId, Guid? ProductVariantId, int? Quantity, decimal? UnitPrice);
+public sealed record CounterSaleLine(long? ClassPackId, long? ProductVariantId, int? Quantity, decimal? UnitPrice);
 
 public sealed record CreateCounterSaleCommand(
-    Guid? ClientId,
+    long? ClientId,
     IReadOnlyList<CounterSaleLine>? Lines,
     decimal? PaidAmount,
     PaymentMethod? Method,
@@ -23,7 +23,7 @@ public sealed record CreateCounterSaleCommand(
     [property: AuditPersonal] string? Notes,
     bool IsDelivered,
     DeliveryMethod? Delivery = null,
-    Guid? DeliveryClassGroupId = null) : ICommand;
+    long? DeliveryClassGroupId = null) : ICommand;
 
 public sealed class CreateCounterSaleUseCase(
     IClientRepository clientRepository,
@@ -112,13 +112,14 @@ public sealed class CreateCounterSaleUseCase(
             }
         }
 
-        foreach (var line in order.Value!.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))
+        order.Value!.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));
+        orderRepository.Add(order.Value);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        foreach (var line in order.Value.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))
         {
             stockMovementRepository.Add(StockMovement.Sale(line.ProductVariantId!.Value, line.Quantity, order.Value.Id, access?.UserId, now));
         }
 
-        order.Value.AssignNumber(await orderNumbers.TakeNextAsync(cancellationToken));
-        orderRepository.Add(order.Value);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 

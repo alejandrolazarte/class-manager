@@ -22,7 +22,7 @@ internal sealed class TokenService(ITokenIssuer tokenIssuer, SessionUserClaims s
             : ToIssuedTokens(tokens);
     }
 
-    public async Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, Guid businessId, string? kind, CancellationToken cancellationToken)
+    public async Task<Result<IssuedTokens>> SwitchBusinessAsync(string refreshToken, long businessId, string? kind, CancellationToken cancellationToken)
     {
         var tokens = await tokenIssuer.SwitchAsync(refreshToken, businessId, kind, cancellationToken);
 

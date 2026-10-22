@@ -18,16 +18,16 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
                 .Where(client => phoneNumbers.Contains(client.User.PhoneNumber!))
                 .ToListAsync(cancellationToken);
 
-    public Task<Client?> GetByIdAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public Task<Client?> GetByIdAsync(long clientId, CancellationToken cancellationToken) =>
         context.Clients.AsNoTracking().Include(client => client.User).FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 
-    public Task<Client?> GetForUpdateAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public Task<Client?> GetForUpdateAsync(long clientId, CancellationToken cancellationToken) =>
         context.Clients.Include(client => client.User).FirstOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 
     public async Task<IReadOnlyList<Client>> ListAllAsync(CancellationToken cancellationToken) =>
         await context.Clients.AsNoTracking().Include(client => client.User).ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<Client>> ListByIdsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Client>> ListByIdsAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)
         {
@@ -63,9 +63,9 @@ internal sealed class ClientRepository(AppDbContext context) : IClientRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Guid>> ListIdsInScopeAsync(ClientScope scope, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<long>> ListIdsInScopeAsync(ClientScope scope, CancellationToken cancellationToken) =>
         await ClientScopeQuery.ClientIdsIn(context, scope).Distinct().ToListAsync(cancellationToken);
 
-    public Task<bool> IsInScopeAsync(Guid clientId, ClientScope scope, CancellationToken cancellationToken) =>
+    public Task<bool> IsInScopeAsync(long clientId, ClientScope scope, CancellationToken cancellationToken) =>
         ClientScopeQuery.ClientIdsIn(context, scope).AnyAsync(clientIdInScope => clientIdInScope == clientId, cancellationToken);
 }

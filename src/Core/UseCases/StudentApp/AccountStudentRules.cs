@@ -12,7 +12,7 @@ internal static class AccountStudentRules
     public static async Task<ResultError?> FindOwnStudentErrorAsync(
         IStudentAppAccess studentAppAccess,
         IStudentRepository studentRepository,
-        Guid studentId,
+        long studentId,
         CancellationToken cancellationToken)
     {
         var access = await studentAppAccess.GetAsync(cancellationToken);

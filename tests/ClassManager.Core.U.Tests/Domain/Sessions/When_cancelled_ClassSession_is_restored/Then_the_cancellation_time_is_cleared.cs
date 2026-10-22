@@ -7,7 +7,7 @@ public sealed class Then_the_cancellation_time_is_cleared
     [Fact]
     public void Then_the_cancellation_time_is_cleared_Run()
     {
-        var session = ClassSession.Create(Guid.CreateVersion7(), TestData.Today, TestData.Now);
+        var session = ClassSession.Create(TestIds.Next(), TestData.Today, TestData.Now).WithId();
         session.Cancel("Feriado", TestData.Now);
 
         session.Restore();

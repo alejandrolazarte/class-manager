@@ -6,11 +6,11 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
 {
     public void Add(Order order) => context.Orders.Add(order);
 
-    public Task<Order?> GetByIdAsync(Guid orderId, CancellationToken cancellationToken) =>
+    public Task<Order?> GetByIdAsync(long orderId, CancellationToken cancellationToken) =>
         context.Orders.AsNoTracking().Include(order => order.Lines).Include(order => order.Payments).AsSplitQuery()
             .FirstOrDefaultAsync(order => order.Id == orderId, cancellationToken);
 
-    public Task<Order?> GetForUpdateAsync(Guid orderId, CancellationToken cancellationToken) =>
+    public Task<Order?> GetForUpdateAsync(long orderId, CancellationToken cancellationToken) =>
         context.Orders.Include(order => order.Lines).Include(order => order.Payments).AsSplitQuery()
             .FirstOrDefaultAsync(order => order.Id == orderId, cancellationToken);
 
@@ -69,7 +69,7 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             .ToListAsync(cancellationToken);
     }
 
-    public Task<int> CountUnpaidRequestsByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+    public Task<int> CountUnpaidRequestsByClientAsync(long clientId, CancellationToken cancellationToken) =>
         context.Orders.Where(order => order.ClientId == clientId).CountAsync(OrderQueries.IsUnpaidRequest(), cancellationToken);
 
     public async Task<IReadOnlyList<Order>> ListUnpaidRequestsCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken) =>
@@ -80,7 +80,7 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(Guid classGroupId, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(long classGroupId, CancellationToken cancellationToken) =>
         await context.Orders.AsNoTracking()
             .Include(order => order.Lines)
             .Include(order => order.Payments)
@@ -92,13 +92,13 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
-    public Task<Order?> GetForUpdateByPurchaseAsync(Guid purchaseId, CancellationToken cancellationToken) =>
+    public Task<Order?> GetForUpdateByPurchaseAsync(long purchaseId, CancellationToken cancellationToken) =>
         context.Orders.Include(order => order.Lines).Include(order => order.Payments).AsSplitQuery()
             .FirstOrDefaultAsync(order => order.Lines.Any(line => line.ClassPackPurchaseId == purchaseId), cancellationToken);
 
     public void RemovePayment(OrderPayment payment) => context.OrderPayments.Remove(payment);
 
-    public Task<OrderPayment?> FindDeletedPaymentForUpdateAsync(Guid orderId, Guid paymentId, CancellationToken cancellationToken) =>
+    public Task<OrderPayment?> FindDeletedPaymentForUpdateAsync(long orderId, long paymentId, CancellationToken cancellationToken) =>
         context.OrderPayments
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             .FirstOrDefaultAsync(payment => payment.Id == paymentId && payment.OrderId == orderId && payment.IsDeleted, cancellationToken);

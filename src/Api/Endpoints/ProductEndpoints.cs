@@ -46,7 +46,7 @@ internal static class ProductEndpoints
     }
 
     private static async Task<IResult> UpdateProductAsync(
-        Guid productId,
+        long productId,
         UpdateProductRequest request,
         IUseCase<UpdateProductCommand, ProductResponse> useCase,
         CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ internal static class ProductEndpoints
     }
 
     private static async Task<IResult> SetProductActiveAsync(
-        Guid productId,
+        long productId,
         SetActiveRequest request,
         IUseCase<SetProductActiveCommand, ProductResponse> useCase,
         CancellationToken cancellationToken)
@@ -68,7 +68,7 @@ internal static class ProductEndpoints
     }
 
     private static async Task<IResult> AddProductImageAsync(
-        Guid productId,
+        long productId,
         IFormFile file,
         IUseCase<AddProductImageCommand, ProductResponse> useCase,
         CancellationToken cancellationToken)
@@ -80,8 +80,8 @@ internal static class ProductEndpoints
     }
 
     private static async Task<IResult> RemoveProductImageAsync(
-        Guid productId,
-        Guid documentId,
+        long productId,
+        long documentId,
         IUseCase<RemoveProductImageCommand, ProductResponse> useCase,
         CancellationToken cancellationToken)
     {
@@ -91,7 +91,7 @@ internal static class ProductEndpoints
     }
 
     private static async Task<IResult> ReorderProductImagesAsync(
-        Guid productId,
+        long productId,
         ReorderImagesRequest request,
         IUseCase<ReorderProductImagesCommand, ProductResponse> useCase,
         CancellationToken cancellationToken)
@@ -102,7 +102,7 @@ internal static class ProductEndpoints
     }
 
     private static async Task<IResult> RecordStockMovementAsync(
-        Guid productId,
+        long productId,
         RecordStockMovementRequest request,
         IUseCase<RecordStockMovementCommand, ProductResponse> useCase,
         CancellationToken cancellationToken)
@@ -113,7 +113,7 @@ internal static class ProductEndpoints
     }
 
     private static async Task<IResult> ListStockMovementsAsync(
-        Guid productId,
+        long productId,
         IUseCase<ListStockMovementsQuery, IReadOnlyList<StockMovementResponse>> useCase,
         CancellationToken cancellationToken)
     {

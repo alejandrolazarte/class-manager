@@ -10,7 +10,7 @@ internal sealed class BackofficeLoginRepository(BackofficeDbContext context) : I
         context.BackofficeLogins
             .SingleOrDefaultAsync(login => login.Provider == provider && login.ProviderKey == providerKey, cancellationToken);
 
-    public Task<BackofficeLogin?> FindByIdAsync(Guid loginId, CancellationToken cancellationToken) =>
+    public Task<BackofficeLogin?> FindByIdAsync(long loginId, CancellationToken cancellationToken) =>
         context.BackofficeLogins.SingleOrDefaultAsync(login => login.Id == loginId, cancellationToken);
 
     public Task<bool> HasEnabledLoginAsync(Guid accountId, CancellationToken cancellationToken) =>
@@ -23,7 +23,7 @@ internal sealed class BackofficeLoginRepository(BackofficeDbContext context) : I
         context.BackofficeAccessRequests
             .SingleOrDefaultAsync(request => request.Provider == provider && request.ProviderKey == providerKey, cancellationToken);
 
-    public Task<BackofficeAccessRequest?> FindAccessRequestByIdAsync(Guid accessRequestId, CancellationToken cancellationToken) =>
+    public Task<BackofficeAccessRequest?> FindAccessRequestByIdAsync(long accessRequestId, CancellationToken cancellationToken) =>
         context.BackofficeAccessRequests.SingleOrDefaultAsync(request => request.Id == accessRequestId, cancellationToken);
 
     public async Task<IReadOnlyList<BackofficeAccessRequest>> ListAccessRequestsAsync(CancellationToken cancellationToken) =>

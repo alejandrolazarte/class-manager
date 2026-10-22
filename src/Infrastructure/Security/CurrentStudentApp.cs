@@ -30,7 +30,7 @@ internal sealed class CurrentStudentApp(AppDbContext context, ICurrentUser curre
         var clientId = await context.ClientAccounts
             .AsNoTracking()
             .Where(account => account.User.AccountId == accountId)
-            .Select(account => (Guid?)account.ClientId)
+            .Select(account => (long?)account.ClientId)
             .FirstOrDefaultAsync(cancellationToken);
 
         return clientId is { } linkedClientId ? new StudentAppAccess(accountId, currentUser.UserId, businessId, linkedClientId) : null;

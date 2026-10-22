@@ -20,9 +20,9 @@ public static class AuthenticationRequests
     public const string WebAppResetPasswordUrl = "http://localhost:8081/reset-password?token=";
     public const string WebAppCompleteSignUpUrl = "http://localhost:8081/complete-sign-up?token=";
 
-    public static string UniqueEmail() => $"owner-{Guid.NewGuid():N}@example.com";
+    public static string UniqueEmail() => $"owner-{TestIds.Next()}@example.com";
 
-    public static string UniqueBusinessName() => $"Panadería {Guid.NewGuid():N}";
+    public static string UniqueBusinessName() => $"Panadería {TestIds.Next()}";
 
     public static RequestSignUpCommand SignUpCommand(string? email = null, string? businessName = null) =>
         new(

@@ -8,7 +8,7 @@ public interface ICatalogImageService
 {
     Task<Result> AddAsync(IHasCatalogImages imageHolder, DocumentOwner owner, byte[] content, CancellationToken cancellationToken);
 
-    Task<Result> RemoveAsync(IHasCatalogImages imageHolder, Guid documentId, CancellationToken cancellationToken);
+    Task<Result> RemoveAsync(IHasCatalogImages imageHolder, long documentId, CancellationToken cancellationToken);
 
-    Task<Result> ReorderAsync(IHasCatalogImages imageHolder, IReadOnlyList<Guid>? documentIds, CancellationToken cancellationToken);
+    Task<Result> ReorderAsync(IHasCatalogImages imageHolder, IReadOnlyList<long>? documentIds, CancellationToken cancellationToken);
 }

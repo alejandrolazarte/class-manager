@@ -10,7 +10,7 @@ public sealed class Then_it_points_to_a_user(ApiFixture fixture)
     [Fact]
     public void Then_it_points_to_a_user_Run()
     {
-        using var context = fixture.CreateDbContext(Guid.Empty);
+        using var context = fixture.CreateDbContext(0L);
 
         var columnsWithoutUser = context.Model.GetEntityTypes()
             .SelectMany(entityType => entityType.GetProperties()

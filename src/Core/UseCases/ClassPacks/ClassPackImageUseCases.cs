@@ -7,11 +7,11 @@ using ClassManager.Core.Domain.Documents;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
 
-public sealed record AddClassPackImageCommand(Guid ClassPackId, byte[] Content) : ICommand;
+public sealed record AddClassPackImageCommand(long ClassPackId, byte[] Content) : ICommand;
 
-public sealed record RemoveClassPackImageCommand(Guid ClassPackId, Guid DocumentId) : ICommand;
+public sealed record RemoveClassPackImageCommand(long ClassPackId, long DocumentId) : ICommand;
 
-public sealed record ReorderClassPackImagesCommand(Guid ClassPackId, IReadOnlyList<Guid>? DocumentIds) : ICommand;
+public sealed record ReorderClassPackImagesCommand(long ClassPackId, IReadOnlyList<long>? DocumentIds) : ICommand;
 
 public sealed class AddClassPackImageUseCase(
     IClassPackRepository classPackRepository,
@@ -63,7 +63,7 @@ internal static class ClassPackImageEditing
     public static async Task<Result<ClassPackResponse>> ChangeAsync(
         IClassPackRepository classPackRepository,
         IDocumentStorageService documentStorage,
-        Guid classPackId,
+        long classPackId,
         Func<ClassPack, Task<Result>> change,
         CancellationToken cancellationToken)
     {

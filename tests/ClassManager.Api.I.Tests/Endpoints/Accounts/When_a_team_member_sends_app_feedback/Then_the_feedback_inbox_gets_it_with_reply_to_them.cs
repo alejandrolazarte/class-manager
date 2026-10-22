@@ -10,7 +10,7 @@ public sealed class Then_the_feedback_inbox_gets_it_with_reply_to_them(ApiFixtur
     [Fact]
     public async Task Then_the_feedback_inbox_gets_it_with_reply_to_them_Run()
     {
-        var message = $"Feedback {Guid.CreateVersion7()}";
+        var message = $"Feedback {TestIds.Next()}";
         var business = await fixture.SeedBusinessAsync();
         var email = MemberRequests.UniqueInviteeEmail();
         await business.HttpClient.InviteAsync(email, BusinessRole.Viewer);

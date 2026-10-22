@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.Domain.Clients;
 
@@ -17,6 +18,6 @@ public sealed class Then_returns_409(ApiFixture fixture)
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         var problem = await response.ReadProblemAsync();
         problem.GetProperty(ResultHttpExtensions.ErrorCodeExtension).GetString().ShouldBe(ClientErrorCodes.PhoneNumberTaken);
-        problem.GetProperty(ClientErrorCodes.ExistingClientIdDetail).GetGuid().ShouldBe(existingClient.Id);
+        problem.GetProperty(ClientErrorCodes.ExistingClientIdDetail).GetString().ShouldBe(existingClient.Id.ToString(CultureInfo.InvariantCulture));
     }
 }

@@ -3,11 +3,11 @@ using ClassManager.Core.Abstractions.Persistence;
 namespace ClassManager.Core.UseCases.Students;
 
 public sealed record StudentSummaryResponse(
-    Guid Id,
+    long Id,
     string FullName,
     DateOnly? BirthDate,
     string? Notes,
-    Guid ClientId,
+    long ClientId,
     string ClientFullName,
     string ClientPhoneNumber)
 {

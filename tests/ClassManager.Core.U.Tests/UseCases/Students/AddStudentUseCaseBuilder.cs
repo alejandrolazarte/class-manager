@@ -17,12 +17,13 @@ internal sealed class AddStudentUseCaseBuilder
     public AddStudentUseCaseBuilder()
     {
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
-        Clients.Setup(repository => repository.GetForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Client());
-        Students.Setup(repository => repository.ListByClientAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Clients.Setup(repository => repository.GetForUpdateAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((long clientId, CancellationToken _) => TestData.Client().WithId(clientId));
+        Students.Setup(repository => repository.ListByClientAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     public static AddStudentCommand ValidCommand() =>
-        new(Guid.CreateVersion7(), TestData.StudentFullName, new DateOnly(2018, 3, 14), "Afraid of deep water");
+        new(TestIds.Next(), TestData.StudentFullName, new DateOnly(2018, 3, 14), "Afraid of deep water");
 
     public AddStudentUseCase Build() =>
         new(Businesses.Object, Clients.Object, Students.Object, Users.Object, PeopleLock.Object, UnitOfWork.Object, TimeProvider, new EveryAccessScopes());

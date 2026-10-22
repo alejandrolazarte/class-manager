@@ -7,7 +7,6 @@ internal sealed class PushSubscriptionConfiguration : IEntityTypeConfiguration<P
     public void Configure(EntityTypeBuilder<PushSubscription> builder)
     {
         builder.HasKey(subscription => subscription.Id);
-        builder.Property(subscription => subscription.Id).ValueGeneratedNever();
         builder.Property(subscription => subscription.Endpoint).HasMaxLength(PushSubscription.EndpointMaxLength).IsRequired();
         builder.Property(subscription => subscription.P256dh).HasMaxLength(PushSubscription.KeyMaxLength).IsRequired();
         builder.Property(subscription => subscription.Auth).HasMaxLength(PushSubscription.KeyMaxLength).IsRequired();
