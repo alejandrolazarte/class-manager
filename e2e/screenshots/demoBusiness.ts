@@ -100,6 +100,14 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   const [laura] = await send<Identified[]>("GET", "/api/instructors");
   const martin = await send<Identified>("POST", "/api/instructors", { fullName: "Martín Díaz" });
   await send("PUT", "/api/business/monthly-fee", { amount: 25000 });
+  await send("PUT", "/api/business", {
+    name: "Escuela de Natación Brazada",
+    countryCode: "AR",
+    timeZoneId: demoTimeZoneId,
+    currencyCode: "ARS",
+    locationName: "Av. Costanera 1450, Ciudad",
+    locationMapsUrl: "https://maps.app.goo.gl/k3Hq8vPzR2",
+  });
 
   const createClassGroup = (
     name: string,

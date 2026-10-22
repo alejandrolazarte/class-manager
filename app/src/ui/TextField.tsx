@@ -12,6 +12,7 @@ interface TextFieldProps extends TextInputProps {
   isHintSatisfied?: boolean;
   prefix?: string;
   isRequired?: boolean;
+  isLabelHidden?: boolean;
   accessory?: ReactNode;
 }
 
@@ -23,6 +24,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     isHintSatisfied = false,
     prefix,
     isRequired = false,
+    isLabelHidden = false,
     accessory,
     multiline,
     ...textInputProps
@@ -37,9 +39,11 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     : "bg-surface text-foreground";
   return (
     <View className="gap-1.5">
-      <AppText variant="label" tone="muted">
-        {withRequiredMark(label, isRequired)}
-      </AppText>
+      {isLabelHidden ? null : (
+        <AppText variant="label" tone="muted">
+          {withRequiredMark(label, isRequired)}
+        </AppText>
+      )}
       <View className="flex-row gap-2">
         {prefix ? (
           <View className="h-[46px] justify-center rounded-[10px] border border-border bg-muted px-3">

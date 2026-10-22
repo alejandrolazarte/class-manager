@@ -17,6 +17,8 @@ public sealed partial class Business
     public const int CurrencyCodeLength = 3;
     public const int DefaultCountryCallingCodeMaxLength = Country.CallingCodeMaxLength;
     public const int BrandColorLength = 7;
+    public const int LocationNameMaxLength = 200;
+    public const int LocationMapsUrlMaxLength = 500;
 
     private const string NameLengthMessage = "Name must be between 2 and 120 characters.";
     private const string SlugFormatMessage = "Slug must be 3 to 80 lowercase letters, digits or hyphens.";
@@ -25,6 +27,9 @@ public sealed partial class Business
     private const string CurrencyCodeUnknownMessage = "Currency code is not a known ISO 4217 code.";
     private const string BrandNameLengthMessage = "Brand name must be between 2 and 120 characters.";
     private const string BrandColorFormatMessage = "Brand colors must be # followed by 6 hexadecimal digits.";
+    private const string LocationNameLengthMessage = "Location name must be at most 200 characters.";
+    private const string LocationNameRequiredMessage = "Location name is required when there is a Google Maps link.";
+    private const string LocationMapsUrlMessage = "The location link must be a Google Maps https link of at most 500 characters.";
 
     private static readonly Lazy<FrozenSet<string>> KnownCurrencyCodes = new(LoadKnownCurrencyCodes);
 
@@ -46,6 +51,8 @@ public sealed partial class Business
     public string? ThemeColor { get; private set; }
     public string? AccentColor { get; private set; }
     public DateTimeOffset? LogoUpdatedAt { get; private set; }
+    public string? LocationName { get; private set; }
+    public string? LocationMapsUrl { get; private set; }
     public string BrandDisplayName => BrandName ?? Name;
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -131,6 +138,30 @@ public sealed partial class Business
         BrandName = trimmedBrandName;
         ThemeColor = themeColor?.ToLowerInvariant();
         AccentColor = accentColor?.ToLowerInvariant();
+        return Result.Success();
+    }
+
+    public Result ChangeLocation(string? locationName, string? locationMapsUrl)
+    {
+        var trimmedName = string.IsNullOrWhiteSpace(locationName) ? null : locationName.Trim();
+        var trimmedMapsUrl = string.IsNullOrWhiteSpace(locationMapsUrl) ? null : locationMapsUrl.Trim();
+        if (trimmedName is { Length: > LocationNameMaxLength })
+        {
+            return Result.Failure(ValidationError(LocationNameLengthMessage, nameof(LocationName)));
+        }
+
+        if (trimmedMapsUrl is not null && (trimmedMapsUrl.Length > LocationMapsUrlMaxLength || !GoogleMapsLink.IsValid(trimmedMapsUrl)))
+        {
+            return Result.Failure(ValidationError(LocationMapsUrlMessage, nameof(LocationMapsUrl)));
+        }
+
+        if (trimmedMapsUrl is not null && trimmedName is null)
+        {
+            return Result.Failure(ValidationError(LocationNameRequiredMessage, nameof(LocationName)));
+        }
+
+        LocationName = trimmedName;
+        LocationMapsUrl = trimmedMapsUrl;
         return Result.Success();
     }
 

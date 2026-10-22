@@ -3,6 +3,14 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { isApiError } from "@/api/httpClient";
+import { getFieldErrors } from "@/api/problemDetails";
+import {
+  BusinessLocationValues,
+  isLocationComplete,
+  locationValuesOf,
+  toLocationRequest,
+} from "@/features/business/businessLocation";
+import { BusinessLocationFields } from "@/features/business/components/BusinessLocationFields";
 import { currencyOptions } from "@/features/business/currencyOptions";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import {
@@ -30,6 +38,11 @@ import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegen
 
 const badRequestStatus = 400;
 
+interface LocationErrors {
+  locationName?: string;
+  locationMapsUrl?: string;
+}
+
 interface RegionalSettings {
   countrySelection: CountrySelection;
   currencyCode: string;
@@ -46,6 +59,10 @@ export function BusinessSettingsScreen() {
     countrySelection: { countryCode: business.countryCode, timeZoneId: business.timeZoneId },
     currencyCode: business.currencyCode,
   }));
+  const [location, setLocation] = useState<BusinessLocationValues>(() =>
+    locationValuesOf(business),
+  );
+  const [locationErrors, setLocationErrors] = useState<LocationErrors>({});
   const form = useForm<BusinessSettingsFormValues>({
     resolver: zodResolver(businessSettingsSchema),
     defaultValues: { name: business.name },
@@ -66,6 +83,11 @@ export function BusinessSettingsScreen() {
     findCountry(countries, regionalSettings.countrySelection.countryCode)?.currencyCode ??
     regionalSettings.currencyCode;
 
+  const changeLocation = (values: BusinessLocationValues) => {
+    setLocation(values);
+    setLocationErrors({});
+  };
+
   const save = form.handleSubmit(async (formValues) => {
     setSubmissionFailure(null);
     try {
@@ -74,14 +96,23 @@ export function BusinessSettingsScreen() {
         countryCode: regionalSettings.countrySelection.countryCode,
         timeZoneId: regionalSettings.countrySelection.timeZoneId,
         currencyCode: regionalSettings.currencyCode,
+        ...toLocationRequest(location),
       });
       showToast(translate("businessSettings.saved"));
       router.back();
     } catch (saveError) {
+      const isBadRequest = isApiError(saveError) && saveError.status === badRequestStatus;
+      const fieldErrors = isBadRequest ? getFieldErrors(saveError.problem) : {};
+      const serverLocationErrors: LocationErrors = {
+        locationName: fieldErrors.locationName,
+        locationMapsUrl: fieldErrors.locationMapsUrl,
+      };
+      setLocationErrors(serverLocationErrors);
       const hasFieldErrors =
-        isApiError(saveError) &&
-        saveError.status === badRequestStatus &&
-        applyServerFieldErrors(form, saveError.problem, businessSettingsFieldNames);
+        (isBadRequest &&
+          applyServerFieldErrors(form, saveError.problem, businessSettingsFieldNames)) ||
+        serverLocationErrors.locationName !== undefined ||
+        serverLocationErrors.locationMapsUrl !== undefined;
       if (!hasFieldErrors) {
         setSubmissionFailure(toSubmissionFailure(saveError));
       }
@@ -136,10 +167,16 @@ export function BusinessSettingsScreen() {
           </AppText>
         )}
       </View>
+      <BusinessLocationFields
+        values={location}
+        onChange={changeLocation}
+        locationNameError={locationErrors.locationName}
+        locationMapsUrlError={locationErrors.locationMapsUrl}
+      />
       <Button
         label={translate("common.save")}
         onPress={save}
-        disabled={!areRequiredFieldsFilled}
+        disabled={!areRequiredFieldsFilled || !isLocationComplete(location)}
         isLoading={updateBusinessSettingsMutation.isPending}
       />
     </SettingsFormScreenLayout>
