@@ -36,13 +36,8 @@ import { Icon } from "@/ui/Icon";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { planLabel } from "@/features/subscriptions/subscriptionLabels";
-import { useOfferPlan } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
-import {
-  useFeature,
-  usePlanBadges,
-  useSubscription,
-} from "@/features/subscriptions/useSubscription";
+import { usePlanBadges, useSubscription } from "@/features/subscriptions/useSubscription";
 
 function countValue(count: number | undefined): string | undefined {
   return count === undefined || count === 0 ? undefined : String(count);
@@ -67,9 +62,6 @@ export function SettingsScreen() {
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
   const subscription = useSubscription();
-  const offerPlan = useOfferPlan();
-  const hasBrand = useFeature(featureCodes.brand);
-  const hasImportExport = useFeature(featureCodes.importExport);
   const planBadgeOf = usePlanBadges([
     featureCodes.brand,
     featureCodes.customRoles,
@@ -101,9 +93,7 @@ export function SettingsScreen() {
           label: translate("settings.brand"),
           value: hasCustomBrand ? translate("settings.brandCustom") : undefined,
           planBadge: planBadgeOf(featureCodes.brand),
-          onPress: hasBrand
-            ? () => router.push(routes.brandSettings)
-            : () => offerPlan(featureCodes.brand),
+          onPress: () => router.push(routes.brandSettings),
         },
         {
           key: "plan",
@@ -242,9 +232,7 @@ export function SettingsScreen() {
           icon: "importExport",
           label: translate("settings.importExport"),
           planBadge: planBadgeOf(featureCodes.importExport),
-          onPress: hasImportExport
-            ? () => router.push(routes.importExport)
-            : () => offerPlan(featureCodes.importExport),
+          onPress: () => router.push(routes.importExport),
         },
       ],
     },

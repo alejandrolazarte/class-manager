@@ -20,10 +20,11 @@ interface ImportFileVariables {
   file: PickedImportFile;
 }
 
-export function useImportSchema(module: ImportModule) {
+export function useImportSchema(module: ImportModule, { enabled }: { enabled: boolean }) {
   return useQuery({
     queryKey: importExportQueryKeys.schema(module),
     queryFn: () => getImportSchema(module),
+    enabled,
   });
 }
 
