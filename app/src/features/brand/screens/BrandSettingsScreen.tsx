@@ -33,11 +33,9 @@ import { Chip } from "@/ui/Chip";
 import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { PlanOfferInsteadOfScreen } from "@/features/subscriptions/components/PlanOfferInsteadOfScreen";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
-import { ScrollScreen } from "@/ui/Screen";
-import { ScreenHeader } from "@/ui/ScreenHeader";
 import { HairlineSection } from "@/ui/HairlineSection";
 
 const hexColorPattern = /^#[0-9a-f]{6}$/i;
@@ -80,13 +78,7 @@ export function BrandSettingsScreen() {
   const hasBrand = useFeature(featureCodes.brand);
   const brand = currentBrand?.brand ?? null;
   if (!hasBrand) {
-    return (
-      <ScrollScreen
-        header={<ScreenHeader navigation="close" title={translate("brand.settings.title")} />}
-      >
-        <LockedFeatureNotice message={translate("subscriptions.locked.brand")} />
-      </ScrollScreen>
-    );
+    return <PlanOfferInsteadOfScreen featureCode={featureCodes.brand} />;
   }
   return brand === null ? (
     <SkeletonScreen />

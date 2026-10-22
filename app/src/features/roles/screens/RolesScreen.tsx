@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { View } from "react-native";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { roleKeyOfRole, roleName } from "@/features/roles/roleChoices";
 import { Role } from "@/features/roles/types";
@@ -17,7 +17,7 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
 
@@ -44,7 +44,8 @@ function RoleRow({ role, onPress }: RoleRowProps) {
 export function RolesScreen() {
   const router = useRouter();
   const hasCustomRoles = useFeature(featureCodes.customRoles);
-  const canManageRoles = useCan(permissions.rolesManage) && hasCustomRoles;
+  const canManageRoles = useRoleCan(permissions.rolesManage);
+  const withinCustomRolesPlan = usePlanAllowing(featureCodes.customRoles, hasCustomRoles);
   const rolesQuery = useRoles();
   const systemRoles = (rolesQuery.data ?? []).filter((role) => role.systemRole !== null);
   const customRoles = (rolesQuery.data ?? []).filter((role) => role.systemRole === null);
@@ -58,14 +59,11 @@ export function RolesScreen() {
         canManageRoles ? (
           <FloatingActionButton
             label={translate("roles.new")}
-            onPress={() => router.push(routes.newRole())}
+            onPress={withinCustomRolesPlan(() => router.push(routes.newRole()))}
           />
         ) : undefined
       }
     >
-      {!hasCustomRoles ? (
-        <LockedFeatureNotice message={translate("subscriptions.locked.customRoles")} />
-      ) : null}
       {rolesQuery.isPending ? <SkeletonList /> : null}
       {rolesQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>

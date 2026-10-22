@@ -9,6 +9,7 @@ import { MemberProvider } from "@/features/members/MemberProvider";
 import { permissions as memberPermissions } from "@/features/members/permissions";
 import { usePendingOrders } from "@/features/orders/useOrders";
 import { SubscriptionGate } from "@/features/subscriptions/components/SubscriptionGate";
+import { PlanOfferProvider } from "@/features/subscriptions/PlanOfferProvider";
 import { translate } from "@/i18n/translate";
 import { TabIcon, tabAccessibilityLabel, useTabBarScreenOptions } from "@/ui/TabBar";
 import { isTabVisible, tabDefinitions } from "@/navigation/tabDefinitions";
@@ -53,7 +54,9 @@ export default function TabsLayout() {
           <MemberProvider>
             <BrandProvider audience="team">
               <SubscriptionGate>
-                <MemberTabs />
+                <PlanOfferProvider>
+                  <MemberTabs />
+                </PlanOfferProvider>
               </SubscriptionGate>
             </BrandProvider>
           </MemberProvider>

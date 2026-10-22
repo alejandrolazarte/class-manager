@@ -14,7 +14,7 @@ import {
   productFilterIds,
   sizeFilter,
 } from "@/features/catalogFilters/productFilters";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { ProductListItem } from "@/features/products/components/ProductListItem";
 import { Product } from "@/features/products/types";
@@ -22,7 +22,7 @@ import { useProducts } from "@/features/products/useProducts";
 import { SettingsListScreenLayout } from "@/features/settings/components/SettingsListScreenLayout";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
 import { SearchInput } from "@/ui/SearchInput";
@@ -104,6 +104,8 @@ export function ProductListScreen() {
   const hasFeature = useFeature(featureCodes.shop);
   const router = useRouter();
   const canManageProducts = useCan(permissions.productsManage);
+  const isRoleAllowedToManage = useRoleCan(permissions.productsManage);
+  const withinShopPlan = usePlanAllowing(featureCodes.shop, hasFeature);
   const { data: products = [], isPending, isError, isRefetching, refetch } = useProducts(true);
   const [searchText, setSearchText] = useState("");
   const [filterValues, setFilterValues] = useState<ListFilterValues>(noListFilterValues);
@@ -116,11 +118,6 @@ export function ProductListScreen() {
   const isSearching = searchText.trim().length > 0;
   return (
     <SettingsListScreenLayout
-      notice={
-        hasFeature ? undefined : (
-          <LockedFeatureNotice message={translate("subscriptions.locked.shop")} />
-        )
-      }
       filters={
         products.length === 0 ? undefined : (
           <>
@@ -164,7 +161,9 @@ export function ProductListScreen() {
       emptyIcon="products"
       emptyMessage={translate("products.list.empty")}
       newItemLabel={translate("products.list.newProduct")}
-      onNewItem={canManageProducts ? () => router.push(routes.newProduct) : undefined}
+      onNewItem={
+        isRoleAllowedToManage ? withinShopPlan(() => router.push(routes.newProduct)) : undefined
+      }
     />
   );
 }

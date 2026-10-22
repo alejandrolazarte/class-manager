@@ -10,6 +10,7 @@ export interface SettingsItem {
   icon: IconName;
   label: string;
   value?: string;
+  planBadge?: string;
   onPress?: () => void;
   isDestructive?: boolean;
   isExternal?: boolean;
@@ -37,6 +38,7 @@ export function SettingsGroupList({ groups }: SettingsGroupListProps) {
           icon={item.icon}
           label={item.label}
           value={item.value}
+          planBadge={item.planBadge}
           onPress={item.onPress}
           isDestructive={item.isDestructive}
           isExternal={item.isExternal}

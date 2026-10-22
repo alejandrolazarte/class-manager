@@ -5,6 +5,8 @@ import { todayIsoDate } from "@/dates/dates";
 import { FeatureCode, planCodes } from "@/features/subscriptions/subscriptionCodes";
 import { subscriptionQueryKeys } from "@/features/subscriptions/subscriptionQueryKeys";
 import { getOrganizationSubscription, listPlans } from "@/features/subscriptions/subscriptionsApi";
+import { firstPlanIncluding } from "@/features/subscriptions/planOffer";
+import { planLabel } from "@/features/subscriptions/subscriptionLabels";
 import { CurrentSubscription } from "@/features/subscriptions/types";
 
 const unrestrictedSubscription: CurrentSubscription = {
@@ -53,8 +55,25 @@ export function isTrial(subscription: CurrentSubscription): boolean {
   return subscription.planCode === planCodes.free && subscription.expiredOn !== null;
 }
 
-export function usePlans() {
-  return useQuery({ queryKey: subscriptionQueryKeys.plans(), queryFn: listPlans });
+export function usePlans({ enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({ queryKey: subscriptionQueryKeys.plans(), queryFn: listPlans, enabled });
+}
+
+export function usePlanBadges(featureCodesToBadge: readonly FeatureCode[]) {
+  const { subscription } = useCurrentMember();
+  const missingFeatureCodes = featureCodesToBadge.filter(
+    (featureCode) =>
+      subscription != null &&
+      !subscription.features.some((feature) => feature.code === featureCode),
+  );
+  const { data: plans = [] } = usePlans({ enabled: missingFeatureCodes.length > 0 });
+  return (featureCode: FeatureCode): string | undefined => {
+    if (!missingFeatureCodes.includes(featureCode)) {
+      return undefined;
+    }
+    const planCode = firstPlanIncluding(plans, featureCode);
+    return planCode === undefined ? undefined : planLabel(planCode);
+  };
 }
 
 export function useOrganizationSubscription({ enabled }: { enabled: boolean }) {

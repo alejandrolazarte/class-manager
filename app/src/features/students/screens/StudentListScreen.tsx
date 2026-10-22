@@ -14,7 +14,8 @@ import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { PlanUsage } from "@/features/subscriptions/components/PlanUsage";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
@@ -23,8 +24,8 @@ import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 export function StudentListScreen() {
   const router = useRouter();
   const isAtStudentLimit = useIsAtLimit(featureCodes.students);
-  const hasStudentPermission = useCan(permissions.studentsManage);
-  const canManageStudents = hasStudentPermission && !isAtStudentLimit;
+  const canManageStudents = useCan(permissions.studentsManage);
+  const withinStudentPlan = usePlanAllowing(featureCodes.students, !isAtStudentLimit);
   const [searchText, setSearchText] = useState("");
   const {
     data: students = [],
@@ -34,7 +35,7 @@ export function StudentListScreen() {
     isRefetching,
     debouncedSearch,
   } = useStudentSearch(searchText);
-  const openRegisterClient = () => router.push(routes.registerClient);
+  const openRegisterClient = withinStudentPlan(() => router.push(routes.registerClient));
 
   const emptyState =
     debouncedSearch.length > 0 ? (
@@ -69,9 +70,7 @@ export function StudentListScreen() {
             onChangeText={setSearchText}
             placeholder={translate("students.list.searchPlaceholder")}
           />
-          {hasStudentPermission && isAtStudentLimit ? (
-            <LockedFeatureNotice message={translate("subscriptions.locked.students")} />
-          ) : null}
+          {canManageStudents ? <PlanUsage featureCode={featureCodes.students} /> : null}
           {isError ? (
             <Banner message={translate("common.unexpectedError")}>
               <Button

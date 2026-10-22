@@ -21,7 +21,7 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { SegmentedControl, SegmentedOption } from "@/ui/SegmentedControl";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { PlanOfferInsteadOfScreen } from "@/features/subscriptions/components/PlanOfferInsteadOfScreen";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
 
@@ -151,13 +151,7 @@ function ImportExportWorkspace() {
 export function ImportExportScreen() {
   const hasImportExport = useFeature(featureCodes.importExport);
   if (!hasImportExport) {
-    return (
-      <ScrollScreen
-        header={<ScreenHeader navigation="back" title={translate("importExport.title")} />}
-      >
-        <LockedFeatureNotice message={translate("subscriptions.locked.importExport")} />
-      </ScrollScreen>
-    );
+    return <PlanOfferInsteadOfScreen featureCode={featureCodes.importExport} />;
   }
   return <ImportExportWorkspace />;
 }
