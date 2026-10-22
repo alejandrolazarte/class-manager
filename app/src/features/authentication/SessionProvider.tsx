@@ -104,6 +104,7 @@ async function restoreSession(): Promise<SessionState> {
 export function SessionProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const [session, setSession] = useState<SessionState>({ status: "restoring" });
+  const currentKind = session.status === "signedIn" ? session.kind : undefined;
 
   useEffect(() => {
     let isMounted = true;
@@ -177,10 +178,17 @@ export function SessionProvider({ children }: PropsWithChildren) {
           ? { ...storedRefreshToken, businessId }
           : { ...storedRefreshToken, businessId, kind },
       );
+      const keepsSessionKind = sessionKindOf(tokens.accessToken) === currentKind;
+      if (keepsSessionKind) {
+        await startSession(tokens, startedBy);
+        await queryClient.resetQueries();
+        return;
+      }
+      await queryClient.cancelQueries();
       await startSession(tokens, startedBy);
-      await queryClient.resetQueries();
+      queryClient.removeQueries();
     },
-    [queryClient, startSession],
+    [currentKind, queryClient, startSession],
   );
 
   const switchBranch = useCallback(
