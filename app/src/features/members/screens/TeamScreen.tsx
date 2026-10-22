@@ -27,7 +27,8 @@ import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { TitleWithPills } from "@/ui/TitleWithPills";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { PlanUsage } from "@/features/subscriptions/components/PlanUsage";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
 
@@ -125,8 +126,8 @@ export function TeamScreen() {
   const router = useRouter();
   const { showToast } = useToast();
   const isAtTeamLimit = useIsAtLimit(featureCodes.team);
-  const hasMemberPermission = useCan(permissions.membersManage);
-  const canManageMembers = hasMemberPermission && !isAtTeamLimit;
+  const canManageMembers = useCan(permissions.membersManage);
+  const withinTeamPlan = usePlanAllowing(featureCodes.team, !isAtTeamLimit);
   const teamQuery = useTeam();
   const { data: roles } = useRoles();
   const instructorsQuery = useInstructorsIncludingInactive();
@@ -156,14 +157,12 @@ export function TeamScreen() {
         canManageMembers ? (
           <FloatingActionButton
             label={translate("team.invite")}
-            onPress={() => router.push(routes.inviteMember)}
+            onPress={withinTeamPlan(() => router.push(routes.inviteMember))}
           />
         ) : undefined
       }
     >
-      {hasMemberPermission && isAtTeamLimit ? (
-        <LockedFeatureNotice message={translate("subscriptions.locked.team")} />
-      ) : null}
+      {canManageMembers ? <PlanUsage featureCode={featureCodes.team} /> : null}
       {teamQuery.isPending ? <SkeletonList /> : null}
       {teamQuery.isError ? (
         <Banner message={translate("common.unexpectedError")}>

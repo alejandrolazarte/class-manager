@@ -5,6 +5,7 @@ import { CurrentBusinessProvider } from "@/features/business/CurrentBusinessProv
 import { Business } from "@/features/business/types";
 import { CurrentMemberProvider } from "@/features/members/CurrentMemberProvider";
 import { CurrentMember } from "@/features/members/types";
+import { PlanOfferProvider } from "@/features/subscriptions/PlanOfferProvider";
 import { defaultLanguage } from "@/i18n/languages";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { buildBusiness } from "@/testing/businessFactory";
@@ -35,7 +36,9 @@ export async function renderWithProviders(
         <CurrentBusinessProvider business={business}>
           <CurrentMemberProvider member={member}>
             <ToastProvider>
-              <LanguageProvider initialLanguage={defaultLanguage}>{element}</LanguageProvider>
+              <LanguageProvider initialLanguage={defaultLanguage}>
+                <PlanOfferProvider>{element}</PlanOfferProvider>
+              </LanguageProvider>
             </ToastProvider>
           </CurrentMemberProvider>
         </CurrentBusinessProvider>

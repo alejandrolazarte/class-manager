@@ -8,25 +8,24 @@ import { buildSubscription } from "@/testing/subscriptionFactory";
 
 jest.mock("@/features/students/studentsApi");
 
-const studentLimit = 30;
-
-describe("When the student limit is reached", () => {
+describe("When the student limit is near", () => {
   beforeEach(() => {
     jest.mocked(searchStudents).mockResolvedValue([]);
   });
 
-  it("Then new students are locked", async () => {
+  it("Then the usage is shown", async () => {
     const subscription = buildSubscription({
-      features: [{ code: "students", limit: studentLimit, used: studentLimit }],
+      features: [{ code: "students", limit: 30, used: 27 }],
     });
 
     await renderWithProviders(<StudentListScreen />, {
       member: buildCurrentMember({ subscription }),
     });
 
-    expect(screen.getByText(translate("subscriptions.locked.students"))).toBeTruthy();
     expect(
-      screen.queryByRole("button", { name: translate("students.list.newStudent") }),
-    ).toBeNull();
+      screen.getByText(
+        translate("subscriptions.featureUsed", { feature: "Alumnos", used: 27, limit: 30 }),
+      ),
+    ).toBeTruthy();
   });
 });

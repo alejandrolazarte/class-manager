@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { PermissionSummary } from "@/features/roles/components/PermissionSummary";
 import {
@@ -17,6 +17,7 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
 
@@ -28,6 +29,8 @@ export function RoleScreen({ roleKey }: RoleScreenProps) {
   const router = useRouter();
   const canManageRoles = useCan(permissions.rolesManage);
   const hasCustomRoles = useFeature(featureCodes.customRoles);
+  const isRoleAllowedToManage = useRoleCan(permissions.rolesManage);
+  const withinCustomRolesPlan = usePlanAllowing(featureCodes.customRoles, hasCustomRoles);
   const rolesQuery = useRoles();
   const role = rolesQuery.data?.find((candidate) => roleKeyOfRole(candidate) === roleKey);
   if (role === undefined) {
@@ -70,11 +73,11 @@ export function RoleScreen({ roleKey }: RoleScreenProps) {
         </AppText>
       ) : null}
       <PermissionSummary granted={role.permissions} />
-      {canManageRoles && hasCustomRoles ? (
+      {isRoleAllowedToManage ? (
         <Button
           variant="secondary"
           label={translate("roles.copy")}
-          onPress={() => router.push(routes.newRole(roleKey))}
+          onPress={withinCustomRolesPlan(() => router.push(routes.newRole(roleKey)))}
         />
       ) : null}
     </ScrollScreen>

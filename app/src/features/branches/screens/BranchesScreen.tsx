@@ -22,7 +22,8 @@ import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { TitleWithPills } from "@/ui/TitleWithPills";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { PlanUsage } from "@/features/subscriptions/components/PlanUsage";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useAllowsAnother } from "@/features/subscriptions/useSubscription";
 
@@ -45,8 +46,8 @@ export function BranchesScreen() {
     featureCodes.branches,
     branchesQuery.data?.length ?? 0,
   );
-  const hasBranchPermission = useCan(permissions.branchesCreate);
-  const canCreateBranches = hasBranchPermission && isWithinBranchLimit;
+  const canCreateBranches = useCan(permissions.branchesCreate);
+  const withinBranchPlan = usePlanAllowing(featureCodes.branches, isWithinBranchLimit);
   const [switchingBranchId, setSwitchingBranchId] = useState<string | null>(null);
   const [hasSwitchFailed, setHasSwitchFailed] = useState(false);
 
@@ -75,14 +76,12 @@ export function BranchesScreen() {
         canCreateBranches ? (
           <FloatingActionButton
             label={translate("branches.new")}
-            onPress={() => router.push(routes.newBranch)}
+            onPress={withinBranchPlan(() => router.push(routes.newBranch))}
           />
         ) : undefined
       }
     >
-      {hasBranchPermission && branchesQuery.data && !isWithinBranchLimit ? (
-        <LockedFeatureNotice message={translate("subscriptions.locked.branches")} />
-      ) : null}
+      {canCreateBranches ? <PlanUsage featureCode={featureCodes.branches} /> : null}
       {hasSwitchFailed ? <Banner message={translate("branches.switchFailed")} /> : null}
       {branchesQuery.isPending ? <SkeletonList /> : null}
       {branchesQuery.isError ? (

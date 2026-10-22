@@ -1,43 +1,9 @@
 import { View } from "react-native";
-import {
-  countedFeatureCodes,
-  featureCodes,
-  featureDisplayOrder,
-} from "@/features/subscriptions/subscriptionCodes";
-import { formatMegabytes } from "@/formatting/storageSize";
-import { featureLabel } from "@/features/subscriptions/subscriptionLabels";
+import { featureDisplayOrder } from "@/features/subscriptions/subscriptionCodes";
+import { featureDescription } from "@/features/subscriptions/subscriptionLabels";
 import { FeatureLimit } from "@/features/subscriptions/types";
-import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Icon } from "@/ui/Icon";
-
-function amountOf(feature: FeatureLimit, amount: number): string | number {
-  return feature.code === featureCodes.documentStorage ? formatMegabytes(amount) : amount;
-}
-
-function featureDescription(feature: FeatureLimit): string {
-  if (feature.used != null) {
-    return feature.limit === null
-      ? translate("subscriptions.featureUsedUnlimited", {
-          feature: featureLabel(feature.code),
-          used: amountOf(feature, feature.used),
-        })
-      : translate("subscriptions.featureUsed", {
-          feature: featureLabel(feature.code),
-          used: amountOf(feature, feature.used),
-          limit: amountOf(feature, feature.limit),
-        });
-  }
-  if (feature.limit === null) {
-    return countedFeatureCodes.includes(feature.code)
-      ? translate("subscriptions.featureUnlimited", { feature: featureLabel(feature.code) })
-      : featureLabel(feature.code);
-  }
-  return translate("subscriptions.featureWithLimit", {
-    feature: featureLabel(feature.code),
-    limit: amountOf(feature, feature.limit),
-  });
-}
 
 function displayPosition(feature: FeatureLimit): number {
   const position = featureDisplayOrder.indexOf(feature.code);

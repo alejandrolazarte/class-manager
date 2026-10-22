@@ -33,11 +33,9 @@ import { Chip } from "@/ui/Chip";
 import { SkeletonScreen } from "@/ui/SkeletonScreen";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
-import { ScrollScreen } from "@/ui/Screen";
-import { ScreenHeader } from "@/ui/ScreenHeader";
 import { HairlineSection } from "@/ui/HairlineSection";
 
 const hexColorPattern = /^#[0-9a-f]{6}$/i;
@@ -77,17 +75,7 @@ function logoErrorMessage(uploadError: unknown): string {
 
 export function BrandSettingsScreen() {
   const currentBrand = useCurrentBrand();
-  const hasBrand = useFeature(featureCodes.brand);
   const brand = currentBrand?.brand ?? null;
-  if (!hasBrand) {
-    return (
-      <ScrollScreen
-        header={<ScreenHeader navigation="close" title={translate("brand.settings.title")} />}
-      >
-        <LockedFeatureNotice message={translate("subscriptions.locked.brand")} />
-      </ScrollScreen>
-    );
-  }
   return brand === null ? (
     <SkeletonScreen />
   ) : (
@@ -102,6 +90,7 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
   const updateBrandMutation = useUpdateBrand();
   const uploadLogoMutation = useUploadBrandLogo();
   const removeLogoMutation = useRemoveBrandLogo();
+  const withinBrandPlan = usePlanAllowing(featureCodes.brand, useFeature(featureCodes.brand));
   const [draft, setDraft] = useState<BrandDraft>(() => draftOf(brand));
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
@@ -215,7 +204,7 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
                   logoUri === null ? "brand.settings.uploadLogo" : "brand.settings.changeLogo",
                 )}
                 isLoading={uploadLogoMutation.isPending}
-                onPress={uploadLogo}
+                onPress={withinBrandPlan(uploadLogo)}
               />
               {logoUri === null ? null : (
                 <Button
@@ -223,7 +212,7 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
                   variant="dangerOutline"
                   label={translate("brand.settings.removeLogo")}
                   isLoading={removeLogoMutation.isPending}
-                  onPress={removeLogo}
+                  onPress={withinBrandPlan(removeLogo)}
                 />
               )}
             </View>
@@ -325,7 +314,7 @@ function BrandSettingsForm({ brand, logoUri }: { brand: Brand; logoUri: string |
               label={translate("brand.settings.save")}
               disabled={!isThemeColorInputValid}
               isLoading={updateBrandMutation.isPending}
-              onPress={save}
+              onPress={withinBrandPlan(save)}
             />
           </View>
         </View>

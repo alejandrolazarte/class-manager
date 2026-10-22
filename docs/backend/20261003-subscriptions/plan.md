@@ -1,6 +1,6 @@
 # Backend plan — Subscriptions, plans and features
 
-Status: steps 1–5 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks), and the operator script to change a plan; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
+Status: steps 1–6 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks), and the operator script to change a plan; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
 
 ## Goal
 
@@ -73,7 +73,7 @@ Add-ons are not a separate concept: an add-on is a **feature that can also be bo
 - **The front prevents the normal case; the interceptor is the safety net.** `GET /api/me` returns `used` for counted features, and the app locks "Nuevo alumno", "Invitar" and "Nueva sede" at the limit. The interceptor only answers in races (two devices adding the last seat), with stale screens or direct API calls. The import preview is the one place the front can't know in advance, so it reports `planLimit` (`{ featureCode, remaining }`) and the import refuses with `feature.limit_reached` before saving.
 - **Unlimited is `null`.** Enterprise has no limit on students, branches or team, and the interceptor doesn't even count them. An add-on with `Limit = null` lifts a plan's limit for one brand, and an add-on with a number sets one, even on Enterprise.
 - Read rules that depend on the plan stay in the read use case: without `brand`, `GET /api/business/brand` drops the colors, the lock and the logo, so the theme stops applying while the data stays.
-- The app mirrors the table (`featureGatedPermissions.ts`): `useCan` is plan-aware, so buttons for actions the plan lacks disappear everywhere `useCan` is used; `useRoleCan` keeps the role-only check for entries that should open a lock notice instead (Importar y exportar).
+- The app mirrors the table (`featureGatedPermissions.ts`): `useCan` is plan-aware, so buttons for actions the plan lacks disappear everywhere `useCan` is used; `useRoleCan` keeps the role-only check for entries and buttons that offer the plan instead of disappearing (Importar y exportar, the create buttons of packs, products and roles).
 - **Gates block actions, not reads.** Creating, editing, importing and exporting need the feature; listing what already exists doesn't, so a brand that drops to a smaller plan still sees its data. Deleting a custom role stays allowed too, so a downgraded brand can clean up.
 - A missing feature returns `403` with the code `feature.not_in_plan` (and `feature.limit_reached` for limits) and the feature code in `feature`, never the permission's code, so the app can offer an upgrade instead of acting as if the button didn't exist.
 - Effective features are read once per request, like permissions, so a plan change applies on the next request.
@@ -236,13 +236,26 @@ No endpoint changes a subscription in the MVP: there is no platform administrato
 Built in `app/src/features/subscriptions`:
 
 - `useSubscription()`, `useFeature(code)` and `useAllowsAnother(code, count)` next to `useCan(...)`, fed by `subscription` in `GET /api/me`.
-- **Permissions hide, features lock.** A button the member's role doesn't allow is hidden; a feature the plan doesn't include shows a lock notice with "Ver planes": Importar y exportar, creating or copying custom roles, and a new branch past the limit.
+- **Permissions hide, features lock.** A button the member's role doesn't allow is hidden; a feature the plan doesn't include stays visible and offers the plan when it is used (see [Offering a plan](#offering-a-plan-never-block-the-screen)).
 - **Trial:** Inicio shows the days left with "Ver planes".
 - **Ended:** `SubscriptionGate` (in the team tabs layout) replaces the app with "Tu prueba gratis terminó" / "Tu plan terminó", the plans and the contact; "Ver mis datos" opens the app read-only, and Inicio keeps a notice. A mutation refused with `subscription.inactive` or `feature.*` reloads `GET /api/me`, so a subscription that ends while the app is open shows the gate.
 - **Ajustes → Plan** (also under Inicio, so it never leaves the tab): current plan and status, the real price for brand owners (`GET /api/organization/subscription`), what it includes, every plan from `GET /api/plans`, and the contact.
 - The contact opens `EXPO_PUBLIC_PLANS_CONTACT_URL` (for example a WhatsApp link); without it the screens say "escribinos" as text.
 - Ajustes → Plan shows usage of counted features ("Alumnos: 24 de 30", "Sedes: 2 · sin límite").
 - Sign-up shows nothing about plans: everyone starts the `Free` trial. The app shows the days left, and once it ends, a screen to choose a plan instead of errors on every change.
+
+### Offering a plan: never block the screen
+
+Step 6 replaces the lock notices (`LockedFeatureNotice`, a banner on top of an otherwise empty screen) with an offer at the moment of intent, the pattern of Canva, Calendly or Notion: the app never blocks a screen, it offers the plan when someone tries to do what the plan doesn't include. Designs: the "Funciones bloqueadas por plan" canvas (option D).
+
+- **One sheet, `PlanOfferSheet`.** A bottom sheet with an icon, what is missing and two buttons: **Ver planes** (opens Ajustes → Plan) and **Volver**. It reuses the existing texts: `subscriptions.locked.<feature>` for the reason, `subscriptions.feature.<code>` as the title of a feature outside the plan, and `subscriptions.featureUsed` ("Alumnos: 30 de 30") with a full bar for a limit.
+- **Limits (students, team, branches).** The list keeps working at the limit, and so do editing members and revoking invitations. Its floating button is not disabled: at the limit it opens the sheet instead of the form. Below the search, a list with a counted limit shows its usage ("Alumnos: 27 de 30") with a thin bar, so the limit never arrives by surprise; an unlimited feature shows nothing.
+- **Features outside the plan (import/export, custom roles, class packs, shop, brand).** Every screen stays open, and its entry in Ajustes looks and works as usual. What opens the sheet is the action inside: choosing a file, downloading the template or the export in Importar y exportar (its column list, which needs the feature, is not shown); uploading or removing the logo and saving in Marca; the floating button of packs, products and roles, and Copiar rol.
+- **Refused by the API.** A mutation answered with `feature.not_in_plan` or `feature.limit_reached` (two devices adding the last seat, a stale screen) opens the same sheet for the `feature` in the problem body, besides reloading `GET /api/me`, instead of a generic error.
+- **Members who can't change the plan.** Only the brand sees the plan (`subscription.view`). For anyone else the sheet has no **Ver planes**: it says "Pedile a la persona a cargo del negocio que cambie el plan." (new key `subscriptions.askOwner`, in `es.json` and `en.json`) and only **Volver**. Actions the role doesn't allow stay hidden, as before.
+- **Ended subscription.** The gate on entry doesn't change. After "Ver mis datos" everything stays readable; the create buttons of the lists above, and any change the API refuses with `subscription.inactive`, open the sheet with "Tu prueba gratis terminó" / "Tu plan terminó" and `subscriptions.ended.body`, instead of the action failing.
+- **No nagging.** The sheet only opens on a tap or a refused change; nothing pops up on its own. The trial notice on Inicio stays as it is.
+- **No payment links in the mobile apps.** Plans are changed by the operator, so **Ver planes** shows the plans and the contact, never a checkout. Online billing must check the App Store and Google Play rules for links to pay outside the app before it adds one.
 
 ## Migration
 
@@ -260,6 +273,7 @@ Built in `app/src/features/subscriptions`:
    - ✅ Every feature in the table: permission gates, `RequireFeature` for brand and family app, and the students, team and branches limits in the interceptor; usage in `/api/me`, locks in the app, and the import preview's room left.
 4. ✅ `subscription` in `GET /api/me`, `GET /api/organization/subscription` (brand-only `subscription.view`), `GET /api/plans`; app: hooks, trial notice, ended gate, locks and Ajustes → Plan.
 5. ✅ `scripts/set-subscription.sql` and a [runbook](../../changing-a-subscription.md).
+6. ✅ [Offering a plan](#offering-a-plan-never-block-the-screen): `PlanOfferSheet` replaces `LockedFeatureNotice` everywhere; usage counter on the students, team and branches lists; the sheet for `feature.*` refusals, for members without `subscription.view` and for an ended subscription. Tests: the sheet opens at the limit and nothing is created, an action of a feature outside the plan opens the sheet and does nothing else, a member without `subscription.view` sees no **Ver planes**, and a refused change opens the sheet.
 
 ## Later, not in the MVP
 

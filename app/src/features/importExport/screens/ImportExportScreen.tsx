@@ -21,7 +21,7 @@ import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { SegmentedControl, SegmentedOption } from "@/ui/SegmentedControl";
-import { LockedFeatureNotice } from "@/features/subscriptions/components/LockedFeatureNotice";
+import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
 import { useFeature } from "@/features/subscriptions/useSubscription";
 
@@ -35,11 +35,13 @@ interface PreviewedFile {
   report: ImportReport;
 }
 
-function ImportExportWorkspace() {
+export function ImportExportScreen() {
+  const hasImportExport = useFeature(featureCodes.importExport);
+  const withinImportExportPlan = usePlanAllowing(featureCodes.importExport, hasImportExport);
   const [module, setModule] = useState<ImportModule>("students");
   const [previewedFile, setPreviewedFile] = useState<PreviewedFile | null>(null);
   const [importedRowCount, setImportedRowCount] = useState<number | null>(null);
-  const schema = useImportSchema(module);
+  const schema = useImportSchema(module, { enabled: hasImportExport });
   const previewImport = usePreviewImport();
   const importFile = useImportFile();
   const downloadTemplate = useDownloadTemplate();
@@ -89,7 +91,7 @@ function ImportExportWorkspace() {
       header={<ScreenHeader navigation="back" title={translate("importExport.title")} />}
     >
       <SegmentedControl options={moduleOptions} selectedValue={module} onChange={changeModule} />
-      <ImportColumnsSection module={module} schema={schema.data} />
+      {hasImportExport ? <ImportColumnsSection module={module} schema={schema.data} /> : null}
 
       <SectionTitle title={translate("importExport.importTitle")} />
       {importedRowCount !== null ? (
@@ -114,7 +116,7 @@ function ImportExportWorkspace() {
             icon="upload"
             label={translate("importExport.chooseFile")}
             isLoading={previewImport.isPending}
-            onPress={chooseFile}
+            onPress={withinImportExportPlan(chooseFile)}
           />
           <Button
             variant="secondary"
@@ -122,7 +124,7 @@ function ImportExportWorkspace() {
             icon="download"
             label={translate("importExport.downloadTemplate")}
             isLoading={downloadTemplate.isPending}
-            onPress={() => downloadTemplate.mutate(module)}
+            onPress={withinImportExportPlan(() => downloadTemplate.mutate(module))}
           />
         </View>
       )}
@@ -141,23 +143,9 @@ function ImportExportWorkspace() {
           icon="download"
           label={translate("importExport.export", { module: fileModuleName(module) })}
           isLoading={downloadExport.isPending}
-          onPress={() => downloadExport.mutate(module)}
+          onPress={withinImportExportPlan(() => downloadExport.mutate(module))}
         />
       </View>
     </ScrollScreen>
   );
-}
-
-export function ImportExportScreen() {
-  const hasImportExport = useFeature(featureCodes.importExport);
-  if (!hasImportExport) {
-    return (
-      <ScrollScreen
-        header={<ScreenHeader navigation="back" title={translate("importExport.title")} />}
-      >
-        <LockedFeatureNotice message={translate("subscriptions.locked.importExport")} />
-      </ScrollScreen>
-    );
-  }
-  return <ImportExportWorkspace />;
 }
