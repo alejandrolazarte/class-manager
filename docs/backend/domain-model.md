@@ -53,6 +53,8 @@ erDiagram
 | `TimeZoneId` | `string` | IANA id, one of the country's time zones, for example `America/Argentina/Buenos_Aires` |
 | `DefaultCountryCallingCode` | `string` | The calling code of the country, for example `54`; used to normalize local phone numbers |
 | `CurrencyCode` | `string` | ISO 4217, 3 letters, for example `ARS`; normalized to upper case |
+| `LocationName` | `string?` | Optional, up to 200 characters: the name or address students read in the app. Required when there is a `LocationMapsUrl` |
+| `LocationMapsUrl` | `string?` | Optional, up to 500 characters, an `https` Google Maps link (`maps.app.goo.gl`, `goo.gl/maps`, `maps.google.com` or `google.<country>/maps`), checked by `GoogleMapsLink` |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 
 `Business` is the only entity that does **not** implement `ITenantOwned`.

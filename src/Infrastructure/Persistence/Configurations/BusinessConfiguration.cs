@@ -25,6 +25,8 @@ internal sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
         builder.Property(business => business.BrandName).HasMaxLength(Business.NameMaxLength);
         builder.Property(business => business.ThemeColor).HasMaxLength(Business.BrandColorLength).IsFixedLength();
         builder.Property(business => business.AccentColor).HasMaxLength(Business.BrandColorLength).IsFixedLength();
+        builder.Property(business => business.LocationName).HasMaxLength(Business.LocationNameMaxLength);
+        builder.Property(business => business.LocationMapsUrl).HasMaxLength(Business.LocationMapsUrlMaxLength);
         builder.Ignore(business => business.BrandDisplayName);
         builder.HasIndex(business => business.Slug).IsUnique();
         builder.HasOne<Organization>().WithMany().HasForeignKey(business => business.OrganizationId).OnDelete(DeleteBehavior.Restrict);

@@ -9,17 +9,28 @@ public sealed record UpdateBusinessSettingsCommand(
     [property: AuditPlain] string? Name,
     [property: AuditPlain] string? CountryCode,
     [property: AuditPlain] string? TimeZoneId,
-    [property: AuditPlain] string? CurrencyCode) : ICommand;
+    [property: AuditPlain] string? CurrencyCode,
+    [property: AuditPersonal] string? LocationName = null,
+    [property: AuditPersonal] string? LocationMapsUrl = null) : ICommand;
 
 public sealed record UpdateBusinessSettingsResponse(
     string Name,
     string CountryCode,
     string TimeZoneId,
     string CurrencyCode,
-    string DefaultCountryCallingCode)
+    string DefaultCountryCallingCode,
+    string? LocationName,
+    string? LocationMapsUrl)
 {
     public static UpdateBusinessSettingsResponse From(Business business) =>
-        new(business.Name, business.CountryCode, business.TimeZoneId, business.CurrencyCode, business.DefaultCountryCallingCode);
+        new(
+            business.Name,
+            business.CountryCode,
+            business.TimeZoneId,
+            business.CurrencyCode,
+            business.DefaultCountryCallingCode,
+            business.LocationName,
+            business.LocationMapsUrl);
 }
 
 public sealed class UpdateBusinessSettingsUseCase(
@@ -41,6 +52,12 @@ public sealed class UpdateBusinessSettingsUseCase(
         if (update.IsFailure)
         {
             return update.Error!;
+        }
+
+        var location = business.ChangeLocation(command.LocationName, command.LocationMapsUrl);
+        if (location.IsFailure)
+        {
+            return location.Error!;
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

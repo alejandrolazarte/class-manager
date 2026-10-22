@@ -24,6 +24,8 @@ public sealed class Then_settings_of_token_business_are_returned(ApiFixture fixt
             business.Business.DefaultCountryCallingCode,
             DefaultMonthlyFee: null,
             settings.DefaultMonthlyFeeChanges,
-            BillingMode: null));
+            BillingMode: null,
+            LocationName: null,
+            LocationMapsUrl: null));
     }
 }

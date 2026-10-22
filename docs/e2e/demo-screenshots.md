@@ -11,6 +11,7 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 - A second instructor, Martín Díaz.
 - Four class groups: Natación inicial and Natación avanzada (Monday, Wednesday, Friday and whatever day the script runs, so "Hoy" always has classes), Aquagym and Natación adultos (Tuesday and Thursday).
 - Six students, nine enrollments from the first day of the current month, and attendance for today and for the last Natación inicial class before today.
+- A location: "Av. Costanera 1450, Ciudad" with a Google Maps link.
 - A default fee of $25.000, one student with its own fee, and payments that leave students paid, partially paid and owing.
 - A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
 - A private lesson for Valentina Fernández with Martín today at 21:00.
@@ -71,7 +72,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `12b4b-novedad-boton` | The optional button of the announcement, here a link |
 | `12b5-novedad-vista-previa`, `12b6-novedad-editar` | The preview of the announcement as a push and in the student news (with its button), and the edit screen of the published announcement |
 | `12h-novedades-vistas`, `12i-novedad-quien-lo-vio` | Announcements with how many families saw them, and who saw the event and who answered (from the student activity run) |
-| `12c-ajustes-negocio` | Business settings |
+| `12c-ajustes-negocio`, `12c2-ajustes-negocio-abajo` | Business settings, and scrolled to the end: the location with its Google Maps link and "Probar en Google Maps" |
+| `12c3-nueva-sede`, `12c4-nueva-sede-abajo` | New branch form, and scrolled to the end: its empty location |
 | `12d-logros-y-asistencia` | Levels for students and whether noticed absences keep the streak |
 | `12e-mediciones` | The measurements of the business, with who sees and records each one |
 | `12f-medicion-nueva` | New measurement form |
@@ -124,7 +126,7 @@ The student signs in through the sign-in screen, then the test captures:
 | `28d-alumno-mediciones` | Achievements on Mediciones: the measurements the student sees |
 | `28e-alumno-medicion` | A measurement in the student app: new personal best, goal and history |
 | `28f-alumno-cargar-medicion` | The form a student uses to record a measurement the team opened to them |
-| `29-alumno-ajustes` | Settings grouped like the team app: your phone (appearance, notifications) and account (sign out) |
+| `29-alumno-ajustes` | Settings grouped like the team app: the school's location (opens Google Maps), your phone (appearance, notifications) and account (sign out) |
 | `29b-alumno-ajustes-notificaciones`, `29c-alumno-ajustes-apariencia` | Notifications and appearance sheets opened from Ajustes |
 | `30-elegir-cuenta` | Choosing between the team and the student account when the same email has both |
 

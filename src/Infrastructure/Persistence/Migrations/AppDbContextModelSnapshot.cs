@@ -480,6 +480,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
+                    b.Property<string>("LocationMapsUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("LocationName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTimeOffset?>("LogoUpdatedAt")
                         .HasColumnType("datetimeoffset");
 
