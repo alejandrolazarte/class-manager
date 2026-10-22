@@ -6,6 +6,7 @@ public sealed record OutgoingEmail(
     string? FromName,
     string TextBody,
     string HtmlBody,
-    IReadOnlyList<EmailInlineImage> InlineImages);
+    IReadOnlyList<EmailInlineImage> InlineImages,
+    string? ReplyTo = null);
 
 public sealed record EmailInlineImage(string ContentId, byte[] Content, string ContentType);

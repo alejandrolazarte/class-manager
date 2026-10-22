@@ -19,8 +19,8 @@ describe("When upcoming default fee change is deleted", () => {
     await renderWithProviders(<DefaultMonthlyFeeScreen />, {
       business: buildBusiness({
         defaultMonthlyFeeChanges: [
-          { effectiveFrom: "2026-01", amount: 12000 },
-          { effectiveFrom: upcomingMonth, amount: 15000 },
+          { effectiveFrom: "2026-01", amount: 12000, billingMode: "MonthlyFee" },
+          { effectiveFrom: upcomingMonth, amount: 15000, billingMode: "MonthlyFee" },
         ],
       }),
     });

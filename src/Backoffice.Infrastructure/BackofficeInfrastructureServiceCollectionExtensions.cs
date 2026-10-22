@@ -2,14 +2,16 @@ using ClassManager.Backoffice.Core.Brands;
 using ClassManager.Backoffice.Core.Operators;
 using ClassManager.Backoffice.Core.UseCases;
 using ClassManager.Backoffice.Infrastructure.Brands;
+using ClassManager.Backoffice.Infrastructure.Logs;
 using ClassManager.Backoffice.Infrastructure.Operators;
 using ClassManager.Backoffice.Infrastructure.Persistence;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Infrastructure;
+using ClassManager.Infrastructure.Audit;
+using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Security;
 using ClassManager.Security.Tokens;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -17,8 +19,6 @@ namespace ClassManager.Backoffice.Infrastructure;
 
 public static class BackofficeInfrastructureServiceCollectionExtensions
 {
-    private const string MissingConnectionStringMessage = "Connection string 'BusinessDatabase' is not configured.";
-
     public static IServiceCollection AddBackofficeInfrastructure(this IServiceCollection services)
     {
         services
@@ -31,14 +31,15 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddDbContext<BackofficeDbContext>((serviceProvider, options) =>
-        {
-            var connectionString = serviceProvider.GetRequiredService<IConfiguration>()
-                .GetConnectionString(InfrastructureServiceCollectionExtensions.DatabaseConnectionStringName)
-                ?? throw new InvalidOperationException(MissingConnectionStringMessage);
-            options.UseSqlServer(connectionString, BackofficeDbContext.ConfigureSqlServer);
-        });
+            options.UseSqlServer(
+                serviceProvider.GetRequiredService<AppDbContext>().Database.GetDbConnection(),
+                BackofficeDbContext.ConfigureSqlServer));
+        services.AddScoped<ISharedTransactionContext>(serviceProvider => serviceProvider.GetRequiredService<BackofficeDbContext>());
         services.AddScoped<IBackofficeLoginRepository, BackofficeLoginRepository>();
         services.AddScoped<IPlatformOperatorDirectory, PlatformOperatorDirectory>();
+        services.AddScoped<IBackofficeSessionService, BackofficeSessionService>();
+        services.AddAuditLogReader();
+        services.Replace(ServiceDescriptor.Singleton(AuditSource.Backoffice));
         services.AddScoped<IBrandDirectory, BrandDirectory>();
         services.AddScoped<IBrandSubscriptionRepository, BrandSubscriptionRepository>();
         services.Replace(ServiceDescriptor.Scoped<ITokenSubjectResolver, BackofficeTokenSubjectResolver>());
@@ -54,6 +55,11 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddUseCase<GiveBrandAddOnCommand, BrandAddOnResponse, GiveBrandAddOnUseCase>();
         services.AddUseCase<RemoveBrandAddOnCommand, BrandAddOnResponse, RemoveBrandAddOnUseCase>();
         services.AddUseCase<RestoreBrandAddOnCommand, BrandAddOnResponse, RestoreBrandAddOnUseCase>();
+        services.AddUseCase<ListOperatorsQuery, OperatorListResponse, ListOperatorsUseCase>();
+        services.AddUseCase<EnableOperatorCommand, OperatorLoginResponse, EnableOperatorUseCase>();
+        services.AddUseCase<DisableOperatorCommand, OperatorLoginResponse, DisableOperatorUseCase>();
+        services.AddUseCase<ListCommandLogQuery, CommandLogResponse, ListCommandLogUseCase>();
+        services.AddUseCase<ListSecurityEventsQuery, SecurityEventListResponse, ListSecurityEventsUseCase>();
 
         return services;
     }

@@ -38,6 +38,7 @@ erDiagram
     Business ||--o{ Order : records
     Client |o--o{ Order : places
     Order ||--|{ OrderLine : contains
+    Order ||--o{ OrderPayment : "is paid with"
     OrderLine |o--o| ClassPackPurchase : "credits classes with"
 ```
 
@@ -52,6 +53,8 @@ erDiagram
 | `TimeZoneId` | `string` | IANA id, one of the country's time zones, for example `America/Argentina/Buenos_Aires` |
 | `DefaultCountryCallingCode` | `string` | The calling code of the country, for example `54`; used to normalize local phone numbers |
 | `CurrencyCode` | `string` | ISO 4217, 3 letters, for example `ARS`; normalized to upper case |
+| `LocationName` | `string?` | Optional, up to 200 characters: the name or address students read in the app. Required when there is a `LocationMapsUrl` |
+| `LocationMapsUrl` | `string?` | Optional, up to 500 characters, an `https` Google Maps link (`maps.app.goo.gl`, `goo.gl/maps`, `maps.google.com` or `google.<country>/maps`), checked by `GoogleMapsLink` |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 
 `Business` is the only entity that does **not** implement `ITenantOwned`.
@@ -275,9 +278,9 @@ Append-only ledger per variant; the stock is the sum of `Quantity`.
 |---|---|---|
 | `Restock` | 1–10,000 | Loading stock |
 | `Adjustment` | ±1–10,000, not leaving the stock below 0, with a note | Correcting a count (broken, lost) |
-| `Sale` | −units | Paying an order with tracked products |
+| `Sale` | −units | A counter sale with tracked products |
 | `Refund` | +units | Refunding units that came back to the shelf |
-| `Reservation` | −units | A client's order waiting for payment; it stays as the sale once paid |
+| `Reservation` | −units | A client's order; it stays as the sale |
 | `Cancellation` | +units | Releasing a reservation when the order is cancelled |
 
 Checking and taking stock (counter sales and client orders) runs in a transaction under a SQL Server application lock per variant (`sp_getapplock`, resource `stock:<variant id>`, taken in id order, 10 s timeout), so two sales can't both take the last unit.
@@ -291,14 +294,17 @@ One purchase: at the counter now, from the client app in step 3.
 | `Number` | `int` | Visible order number, consecutive **per business** starting at 1 (`n.º 1043`), unique per tenant. Counter sales and app orders share the sequence. Shown in the order lists, emails and team notifications; URLs and the API keep using `Id` |
 | `ClientId` | `Guid?` | Required when a line is a class pack; a counter sale of products can have no client |
 | `Channel` | `OrderChannel` | `Counter` or `App` |
-| `Status` | `OrderStatus` | `Requested` → `Paid` → `Delivered`, or `Requested` → `Cancelled`. A counter sale starts `Paid`; a client's order starts `Requested` |
-| `Method`, `PaidOn`, `Notes` | | Same rules as payments |
+| `Status` | `OrderStatus` | `Pending` → `Delivered`, or `Pending` → `Cancelled`. Only says whether it was handed over; a counter sale handed over at once starts `Delivered` |
+| `PaymentStatus` | `OrderPaymentStatus` | Computed from its payments: `Unpaid`, `Partial` or `Paid` |
+| `Notes` | | Same rules as payments |
 
-Lines (1–20) keep a snapshot of name and price. A **class pack line** creates the `ClassPackPurchase` when the order is paid, so the classes are credited at once; that purchase can only be undone by refunding the order (`409 class_pack_purchase.from_order`). A **product line** (variant, 1–99 units) records a `Sale` movement for tracked products; the order **awaits pickup** while it is `Paid` with product lines, until it is marked delivered.
+**Payments** (`OrderPayment`: `Amount`, `Method`, `PaidOn`, `RecordedByUserId`, soft deletable) are one or more per order, each at most what is left to pay. `Balance = Total − RefundedAmount − PaidAmount`, never below 0. See [orders paid in parts](20261020-order-partial-payments/plan.md).
+
+Lines (1–20) keep a snapshot of name and price. A **class pack line** creates the `ClassPackPurchase` when the order is handed over (whole, with its products, paid or not); that purchase can only be undone by refunding the order (`409 class_pack_purchase.from_order`). A **product line** (variant, 1–99 units) records a `Sale` movement for tracked products; the order **awaits pickup** while it is `Pending` with product lines, until it is marked delivered.
 
 An order with products is delivered by **pickup** at the branch or **in class** (`DeliveryClassGroupId`: a class group one of the client's students is enrolled in; the instructor of that class sees it and hands it over). `ReadyAt` records when the branch marked it ready to hand over.
 
-A **requested** order reserves its tracked units. The branch confirms the payment (which credits the packs) or cancels it; the client can cancel it too. An order still unpaid 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
+A client's order reserves its tracked units. The branch records payments, hands it over or cancels it; the client can cancel it too while it has no payment. When the team cancels an order with payments, everything paid is given back (`ReturnedAmount`) and counter-sale units go back to stock. A client's order without any payment 7 days after it was placed is cancelled by a background job (`ExpiredOrderCancellationWorker`, every hour, one business at a time) and its units are released.
 
 **Numbering**: the number is taken inside the transaction that creates the order, with a single atomic `UPDATE Businesses SET NextOrderNumber = NextOrderNumber + 1 OUTPUT deleted.NextOrderNumber` (`IOrderNumbers`). The row lock lasts until the commit, so two orders created at the same time never get the same number, and a rolled-back order gives its number back. The unique index `(TenantId, Number)` is the safety net. The migration `AddOrderNumbers` numbered the orders that already existed, by creation date within each business.
 

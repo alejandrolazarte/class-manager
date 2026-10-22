@@ -26,6 +26,13 @@ describe("When student cancels an unpaid order", () => {
     await fireEvent.press(
       await screen.findByRole("button", { name: translate("student.orders.cancel") }),
     );
+    await fireEvent.press(
+      screen
+        .getAllByRole("button", {
+          name: translate("student.orders.cancel"),
+        })
+        .at(-1)!,
+    );
 
     await waitFor(() => expect(cancelStudentAppOrder).toHaveBeenCalledWith("order-1"));
   });

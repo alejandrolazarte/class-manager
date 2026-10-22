@@ -79,8 +79,8 @@ internal sealed class FeeUseCaseBuilder
         }
     }
 
-    public void AddDefaultFeeChange(BillingMonth effectiveFrom, decimal? amount) =>
-        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, amount, TestData.Today, TestData.Now).Value!);
+    public void AddDefaultFeeChange(BillingMonth effectiveFrom, decimal? amount, BusinessBillingMode billingMode = BusinessBillingMode.MonthlyFee) =>
+        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, billingMode, amount, TestData.Today, TestData.Now).Value!);
 
     public void SetPlan(Guid clientId, BillingPlanKind kind, decimal? customFee = null, BillingMonth? effectiveFrom = null) =>
         PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom ?? SinceAlways, kind, customFee, TestData.Today, TestData.Now).Value!);

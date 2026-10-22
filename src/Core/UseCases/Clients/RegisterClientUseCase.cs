@@ -24,6 +24,7 @@ public sealed class RegisterClientUseCase(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IUserRepository userRepository,
+    IFeeScheduleRepository feeScheduleRepository,
     IPeopleLock peopleLock,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider,
@@ -88,7 +89,8 @@ public sealed class RegisterClientUseCase(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ClientDetailsResponse.Registered(newClient, students.Value!, business.TodayAt(timeProvider.GetUtcNow()));
+        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
+        return ClientDetailsResponse.Registered(newClient, students.Value!, defaultFeeChanges, business.TodayAt(timeProvider.GetUtcNow()));
     }
 
     private async Task<ResultError?> JoinSamePeopleAsync(

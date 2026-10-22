@@ -12,6 +12,7 @@ public sealed partial class UseCaseAuditRecorder(
     ITenantContext tenantContext,
     ICurrentUser currentUser,
     TimeProvider timeProvider,
+    AuditSource source,
     ILogger<UseCaseAuditRecorder> logger)
 {
     public async Task<Result<TResponse>> RunAsync<TResponse>(object input, UseCaseStep<TResponse> nextStep)
@@ -59,7 +60,8 @@ public sealed partial class UseCaseAuditRecorder(
                 Activity.Current?.TraceId.ToString(),
                 payload,
                 payloadTruncated,
-                rowCount));
+                rowCount,
+                source.Name));
         }
         catch (Exception exception)
         {

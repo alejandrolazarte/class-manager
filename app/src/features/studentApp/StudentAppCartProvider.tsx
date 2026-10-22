@@ -12,7 +12,7 @@ interface StudentAppCartContextValue {
   cart: StudentAppCart;
   units: number;
   setUnits: (itemId: string, units: number) => void;
-  addUnits: (itemId: string, units: number) => void;
+  addUnits: (itemId: string, units: number, maximumUnits: number) => void;
   clear: () => void;
 }
 
@@ -28,8 +28,10 @@ export function StudentAppCartProvider({ children }: PropsWithChildren) {
     [],
   );
   const addUnits = useCallback(
-    (itemId: string, units: number) =>
-      setCart((current) => withUnits(current, itemId, (current[itemId] ?? 0) + units)),
+    (itemId: string, units: number, maximumUnits: number) =>
+      setCart((current) =>
+        withUnits(current, itemId, (current[itemId] ?? 0) + units, maximumUnits),
+      ),
     [],
   );
   const clear = useCallback(() => setCart(emptyCart), []);

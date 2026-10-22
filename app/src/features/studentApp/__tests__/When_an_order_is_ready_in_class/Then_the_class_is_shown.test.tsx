@@ -12,7 +12,9 @@ describe("When an order is ready in class", () => {
     jest.mocked(getStudentAppHome).mockResolvedValue(buildStudentAppHome());
     jest.mocked(listStudentAppOrders).mockResolvedValue([
       buildStudentAppOrder({
-        status: "Paid",
+        paymentStatus: "Paid",
+        paidAmount: 120,
+        balance: 0,
         awaitsPickup: true,
         isReady: true,
         delivery: "InClass",

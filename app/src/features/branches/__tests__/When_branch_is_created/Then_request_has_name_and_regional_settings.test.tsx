@@ -39,6 +39,8 @@ describe("When branch is created", () => {
         countryCode: "ES",
         timeZoneId: "Europe/Madrid",
         currencyCode: "EUR",
+        locationName: null,
+        locationMapsUrl: null,
       }),
     );
     expect(routerMock.back).toHaveBeenCalled();

@@ -19,16 +19,23 @@ public sealed class Order : ITenantOwned, IAuditable
     private const string NotesLengthMessage = "Notes must be at most 200 characters.";
     private const string ClientRequiredMessage = "Choose the client to credit the classes to.";
     private const string NotAwaitingPickupMessage = "This order has nothing waiting to be picked up.";
-    private const string NotRefundableMessage = "Only paid orders can be refunded.";
+    private const string NotPendingMessage = "This order was already handed over or cancelled.";
+    private const string NotRefundableMessage = "Only orders that were paid or handed over can be refunded.";
+    private const string NothingOwedMessage = "This order has nothing left to pay.";
+    private const string AmountOverBalanceMessage = "The amount is more than what is left to pay.";
+    private const string PaymentNotFoundMessage = "The payment is not part of this order.";
+    private const string PaymentLockedMessage = "The payments of a cancelled order were given back and can't change.";
+    private const string NotCancellableMessage = "Only orders that were not handed over can be cancelled.";
+    private const string PaidNotCancellableMessage = "Only orders without payments can be cancelled from the app.";
     private const string NothingToRefundMessage = "There are no unused classes left to refund.";
     private const string NothingToDeliverMessage = "This order has no products to deliver.";
     private const string DeliveryClassRequiredMessage = "Choose the class where the products are handed over.";
     private const string AlreadyReadyMessage = "This order is already marked ready.";
-    private const string NotRequestedMessage = "Only orders waiting for payment can be paid or cancelled.";
     private const int RefundDecimals = 2;
     private const string AlreadyNumberedMessage = "The order already has a number.";
 
     private readonly List<OrderLine> _lines = [];
+    private readonly List<OrderPayment> _payments = [];
 
     private Order()
     {
@@ -41,9 +48,6 @@ public sealed class Order : ITenantOwned, IAuditable
     public OrderChannel Channel { get; private set; }
     public string CurrencyCode { get; private set; } = string.Empty;
     public OrderStatus Status { get; private set; }
-    public PaymentMethod? Method { get; private set; }
-    public DateOnly? PaidOn { get; private set; }
-    public Guid? PaymentRecordedByUserId { get; private set; }
     public DateTimeOffset? DeliveredAt { get; private set; }
     public Guid? DeliveredByUserId { get; private set; }
     public string? Notes { get; private set; }
@@ -57,14 +61,31 @@ public sealed class Order : ITenantOwned, IAuditable
     public DateTimeOffset? CancelledAt { get; private set; }
     public Guid? CancelledByUserId { get; private set; }
     public IReadOnlyList<OrderLine> Lines => _lines;
+    public IReadOnlyList<OrderPayment> Payments => _payments;
 
     public decimal Total => _lines.Sum(line => line.Total);
 
     public decimal RefundedAmount => _lines.Sum(line => line.RefundedAmount);
 
+    public decimal AmountDue => Total - RefundedAmount;
+
+    public decimal PaidAmount => _payments.Sum(payment => payment.Amount);
+
+    public decimal Balance => Math.Max(AmountDue - PaidAmount, 0);
+
+    public decimal CollectedAmount => Math.Min(PaidAmount, AmountDue);
+
+    public decimal ReturnedAmount => PaidAmount - CollectedAmount;
+
+    public DateOnly? LastPaidOn => _payments.Count == 0 ? null : _payments.Max(payment => payment.PaidOn);
+
+    public OrderPaymentStatus PaymentStatus => Status == OrderStatus.Cancelled || (PaidAmount == 0 && Balance > 0)
+        ? OrderPaymentStatus.Unpaid
+        : Balance > 0 ? OrderPaymentStatus.Partial : OrderPaymentStatus.Paid;
+
     public bool HasProducts => _lines.Any(line => line.Kind == OrderLineKind.Product);
 
-    public bool AwaitsPickup => Status == OrderStatus.Paid && HasProducts;
+    public bool AwaitsPickup => Status == OrderStatus.Pending && HasProducts;
 
     public bool IsReady => ReadyAt is not null;
 
@@ -72,6 +93,7 @@ public sealed class Order : ITenantOwned, IAuditable
         Guid? clientId,
         IReadOnlyList<OrderLine> lines,
         string currencyCode,
+        decimal? paidAmount,
         PaymentMethod? method,
         DateOnly paidOn,
         string? notes,
@@ -86,15 +108,19 @@ public sealed class Order : ITenantOwned, IAuditable
             return order;
         }
 
-        var payment = order.Value!.ConfirmPayment(method, paidOn, today, recordedByUserId);
-        if (payment.IsFailure)
+        var amount = paidAmount ?? order.Value!.Total;
+        if (amount != 0)
         {
-            return payment.Error!;
+            var payment = order.Value!.RecordPayment(amount, method, paidOn, today, recordedByUserId, createdAt);
+            if (payment.IsFailure)
+            {
+                return payment.Error!;
+            }
         }
 
-        if (isDelivered && order.Value.HasProducts)
+        if (isDelivered)
         {
-            order.Value.MarkDelivered(recordedByUserId, createdAt);
+            order.Value!.MarkDelivered(recordedByUserId, createdAt);
         }
 
         return order;
@@ -118,35 +144,101 @@ public sealed class Order : ITenantOwned, IAuditable
         Number = number;
     }
 
-    public Result ConfirmPayment(PaymentMethod? method, DateOnly paidOn, DateOnly today, Guid? recordedByUserId)
+    public Result RecordPayment(
+        decimal? amount, PaymentMethod? method, DateOnly paidOn, DateOnly today, Guid? recordedByUserId, DateTimeOffset recordedAt)
     {
-        if (Status != OrderStatus.Requested)
+        if (Status == OrderStatus.Cancelled || Balance == 0)
         {
-            return Result.Conflict(NotRequestedMessage, OrderErrorCodes.NotRequested);
+            return Result.Conflict(NothingOwedMessage, OrderErrorCodes.NothingOwed);
+        }
+
+        var amountValidation = MonthlyFee.Validate(amount ?? 0, nameof(OrderPayment.Amount));
+        if (amountValidation.IsFailure)
+        {
+            return amountValidation;
+        }
+
+        if (amount > Balance)
+        {
+            return Result.Validation(AmountOverBalanceMessage, OrderErrorCodes.AmountOverBalance, nameof(OrderPayment.Amount));
         }
 
         if (method is null || !Enum.IsDefined(method.Value))
         {
-            return Result.Validation(MethodRequiredMessage, fieldName: nameof(Method));
+            return Result.Validation(MethodRequiredMessage, fieldName: nameof(OrderPayment.Method));
         }
 
         if (paidOn > today)
         {
-            return Result.Validation(PaidOnInFutureMessage, fieldName: nameof(PaidOn));
+            return Result.Validation(PaidOnInFutureMessage, fieldName: nameof(OrderPayment.PaidOn));
         }
 
-        Status = OrderStatus.Paid;
-        Method = method;
-        PaidOn = paidOn;
-        PaymentRecordedByUserId = recordedByUserId;
+        _payments.Add(OrderPayment.Create(Id, amount!.Value, method.Value, paidOn, recordedByUserId, recordedAt));
         return Result.Success();
     }
 
+    public Result<OrderPayment> DeletePayment(Guid paymentId)
+    {
+        var payment = _payments.FirstOrDefault(candidate => candidate.Id == paymentId);
+        if (payment is null)
+        {
+            return Result.NotFound<OrderPayment>(PaymentNotFoundMessage, OrderErrorCodes.PaymentNotFound);
+        }
+
+        if (Status == OrderStatus.Cancelled)
+        {
+            return Result.Conflict<OrderPayment>(PaymentLockedMessage, OrderErrorCodes.PaymentLocked);
+        }
+
+        _payments.Remove(payment);
+        return payment;
+    }
+
+    public Result RestorePayment(OrderPayment payment)
+    {
+        if (payment.OrderId != Id || !payment.IsDeleted)
+        {
+            return Result.NotFound(PaymentNotFoundMessage, OrderErrorCodes.PaymentNotFound);
+        }
+
+        if (Status == OrderStatus.Cancelled)
+        {
+            return Result.Conflict(PaymentLockedMessage, OrderErrorCodes.PaymentLocked);
+        }
+
+        var paidByOthers = _payments.Where(candidate => candidate.Id != payment.Id).Sum(candidate => candidate.Amount);
+        if (payment.Amount > AmountDue - paidByOthers)
+        {
+            return Result.Conflict(AmountOverBalanceMessage, OrderErrorCodes.AmountOverBalance);
+        }
+
+        payment.Restore();
+        if (!_payments.Contains(payment))
+        {
+            _payments.Add(payment);
+        }
+
+        return Result.Success();
+    }
+
+    public Result CancelUnpaid(Guid? cancelledByUserId, DateTimeOffset cancelledAt) =>
+        _payments.Count > 0
+            ? Result.Conflict(PaidNotCancellableMessage, OrderErrorCodes.NotCancellable)
+            : Cancel(cancelledByUserId, cancelledAt);
+
     public Result Cancel(Guid? cancelledByUserId, DateTimeOffset cancelledAt)
     {
-        if (Status != OrderStatus.Requested)
+        if (Status != OrderStatus.Pending)
         {
-            return Result.Conflict(NotRequestedMessage, OrderErrorCodes.NotRequested);
+            return Result.Conflict(NotCancellableMessage, OrderErrorCodes.NotCancellable);
+        }
+
+        if (_payments.Count > 0)
+        {
+            foreach (var line in _lines)
+            {
+                line.RefundRemaining();
+            }
         }
 
         Status = OrderStatus.Cancelled;
@@ -155,7 +247,10 @@ public sealed class Order : ITenantOwned, IAuditable
         return Result.Success();
     }
 
-    public bool IsExpired(DateTimeOffset now) => Status == OrderStatus.Requested && CreatedAt + RequestLifetime <= now;
+    public DateTimeOffset? ExpiresAt =>
+        Channel == OrderChannel.App && Status == OrderStatus.Pending && _payments.Count == 0 ? CreatedAt + RequestLifetime : null;
+
+    public bool IsExpired(DateTimeOffset now) => ExpiresAt <= now;
 
     private static Result<Order> Create(
         Guid? clientId,
@@ -188,7 +283,7 @@ public sealed class Order : ITenantOwned, IAuditable
             ClientId = clientId,
             Channel = channel,
             CurrencyCode = currencyCode,
-            Status = OrderStatus.Requested,
+            Status = OrderStatus.Pending,
             Notes = trimmedNotes,
             CreatedByUserId = createdByUserId,
             CreatedAt = createdAt.ToUniversalTime(),
@@ -206,7 +301,7 @@ public sealed class Order : ITenantOwned, IAuditable
 
     public Result ChooseDelivery(DeliveryMethod? delivery, Guid? classGroupId)
     {
-        if (Status is not (OrderStatus.Requested or OrderStatus.Paid) || !HasProducts)
+        if (!AwaitsPickup)
         {
             return Result.Conflict(NothingToDeliverMessage, OrderErrorCodes.NotAwaitingPickup);
         }
@@ -244,9 +339,9 @@ public sealed class Order : ITenantOwned, IAuditable
 
     public Result MarkDelivered(Guid? deliveredByUserId, DateTimeOffset deliveredAt)
     {
-        if (!AwaitsPickup)
+        if (Status != OrderStatus.Pending)
         {
-            return Result.Conflict(NotAwaitingPickupMessage, OrderErrorCodes.NotAwaitingPickup);
+            return Result.Conflict(NotPendingMessage, OrderErrorCodes.NotPending);
         }
 
         Status = OrderStatus.Delivered;
@@ -280,7 +375,7 @@ public sealed class Order : ITenantOwned, IAuditable
     }
 
     private Result EnsureRefundable() =>
-        Status is OrderStatus.Paid or OrderStatus.Delivered
+        Status == OrderStatus.Delivered || (Status == OrderStatus.Pending && _payments.Count > 0)
             ? Result.Success()
             : Result.Conflict(NotRefundableMessage, OrderErrorCodes.NotRefundable);
 }

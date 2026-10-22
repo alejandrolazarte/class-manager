@@ -14,13 +14,14 @@ export default function SettingsLayout() {
       <Stack.Screen name="edit-profile" options={{ title: translate("profile.edit.title") }} />
       <Stack.Screen name="change-email" options={{ title: translate("profile.email.title") }} />
       <Stack.Screen name="delete-account" options={{ title: translate("profile.delete.title") }} />
+      <Stack.Screen name="feedback" options={{ title: translate("appFeedback.title") }} />
       <Stack.Screen name="brand" options={{ title: translate("brand.settings.title") }} />
       <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />
       <Stack.Screen
         name="achievements"
         options={{ title: translate("achievements.settings.title") }}
       />
-      <Stack.Screen name="monthly-fee" options={{ title: translate("fees.defaultFee.title") }} />
+      <Stack.Screen name="monthly-fee" options={{ title: translate("fees.billingPlan.title") }} />
       <Stack.Screen
         name="instructors/index"
         options={{ title: translate("instructors.list.title") }}
@@ -61,6 +62,7 @@ export default function SettingsLayout() {
       />
       <Stack.Screen name="orders/index" options={{ title: translate("orders.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
+      <Stack.Screen name="orders/[orderId]" options={{ title: translate("orders.detail.title") }} />
       <Stack.Screen name="import-export" options={{ title: translate("importExport.title") }} />
       <Stack.Screen
         name="announcements/index"

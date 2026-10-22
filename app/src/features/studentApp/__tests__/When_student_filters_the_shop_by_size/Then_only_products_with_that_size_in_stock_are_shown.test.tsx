@@ -20,7 +20,13 @@ describe("When student filters the shop by size", () => {
           description: null,
           price: 30,
           variants: [
-            { id: "variant-swimsuit-m", size: "M", color: null, availability: "Available" },
+            {
+              id: "variant-swimsuit-m",
+              size: "M",
+              color: null,
+              availability: "Available",
+              maximumUnits: null,
+            },
           ],
           images: [],
         },

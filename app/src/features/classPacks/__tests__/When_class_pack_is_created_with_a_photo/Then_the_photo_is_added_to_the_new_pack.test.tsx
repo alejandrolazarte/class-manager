@@ -35,6 +35,14 @@ describe("When class pack is created with a photo", () => {
     );
     await fireEvent.changeText(screen.getByLabelText(translate("classPacks.form.classCount")), "4");
     await fireEvent.changeText(screen.getByLabelText(translate("classPacks.form.price")), "80");
+    await fireEvent.press(
+      screen.getByRole("button", { name: translate("classPacks.form.kindPrivateLessons") }),
+    );
+    await fireEvent.press(
+      screen.getByRole("button", {
+        name: translate("classGroups.form.durationOption", { minutes: 45 }),
+      }),
+    );
     await fireEvent.press(screen.getByRole("button", { name: translate("catalogImages.add") }));
     await screen.findByTestId("catalog-image");
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));

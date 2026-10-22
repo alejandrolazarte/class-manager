@@ -9,7 +9,7 @@ import { CurrentBrandLogo } from "@/features/brand/components/CurrentBrandLogo";
 import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
-import { formatMoney } from "@/formatting/money";
+import { billingModeValue } from "@/features/fees/billingMode";
 import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { useProducts } from "@/features/products/useProducts";
@@ -103,14 +103,11 @@ export function SettingsScreen() {
           onPress: () => router.push(routes.branches),
         },
         {
-          key: "monthlyFee",
+          key: "billingMode",
           isVisible: canManageBusiness,
           icon: "monthlyFee",
-          label: translate("settings.monthlyFee"),
-          value:
-            business.defaultMonthlyFee === null
-              ? translate("settings.monthlyFeeMissing")
-              : formatMoney(business.defaultMonthlyFee, business.currencyCode),
+          label: translate("fees.billingPlan.title"),
+          value: billingModeValue(business),
           onPress: () => router.push(routes.defaultMonthlyFee),
         },
       ],
@@ -242,6 +239,13 @@ export function SettingsScreen() {
           icon: "home",
           label: translate("accounts.switch"),
           onPress: () => router.push(routes.chooseAccount),
+        },
+        {
+          key: "appFeedback",
+          isVisible: true,
+          icon: "comment",
+          label: translate("appFeedback.title"),
+          onPress: () => router.push(routes.appFeedback),
         },
         {
           key: "signOut",

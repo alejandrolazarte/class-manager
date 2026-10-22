@@ -20,10 +20,9 @@ export function setTranslationLanguage(language: Language): void {
 }
 
 export function translate(key: TranslationKey, values: TranslationValues = {}): string {
-  return translationsByLanguage[currentLanguage][key].replace(
-    placeholderPattern,
-    (placeholder, valueName: string) =>
-      valueName in values ? String(values[valueName]) : placeholder,
+  const translation: string | undefined = translationsByLanguage[currentLanguage][key];
+  return (translation ?? key).replace(placeholderPattern, (placeholder, valueName: string) =>
+    valueName in values ? String(values[valueName]) : placeholder,
   );
 }
 

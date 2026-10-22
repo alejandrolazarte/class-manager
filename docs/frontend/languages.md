@@ -7,6 +7,7 @@ The app's UI is available in Spanish (`es`, the default) and English (`en`). Eac
 - `app/src/i18n/es.json` and `app/src/i18n/en.json` hold every user-facing text, with the same keys.
 - `translate(key)` reads the file of the current language. Code never picks a file itself.
 - `languages.ts` lists the languages and types `en.json` as a `Record` of every Spanish key, so a key missing in English breaks `pnpm typecheck`.
+- A key built at runtime (`products.stock.kind.${kind}`) can still miss: `translate` then returns the key itself, so the screen shows the key instead of crashing. Seeing a key on screen means a translation is missing.
 - `src/i18n/__tests__/When_a_language_is_added/` fails when a language has a key Spanish doesn't, or a text with different `{placeholders}`.
 - The translation keys test ([unused code](unused-code.md)) still runs on `es.json`; since every language has the same keys, removing a key from Spanish means removing it from every language.
 

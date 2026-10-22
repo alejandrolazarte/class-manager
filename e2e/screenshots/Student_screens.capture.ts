@@ -230,10 +230,31 @@ test("Team screens with student activity", async ({ page, request }) => {
   await page.getByRole("button", { name: "Confirmar pago" }).waitFor();
   await capture(page, "10d-cobros-pedidos-cobrar");
 
+  await page.goto("/fees?view=orders");
+  await page
+    .getByRole("button", { name: /^Abrir pedido/ })
+    .filter({ hasText: "Botella térmica" })
+    .first()
+    .click();
+  await page.getByText("Qué lleva").filter({ visible: true }).first().waitFor();
+  await capture(page, "10d2-pedido-detalle");
+  await page
+    .getByRole("button", { name: "Cancelar pedido" })
+    .filter({ visible: true })
+    .first()
+    .scrollIntoViewIfNeeded();
+  await capture(page, "10d3-pedido-detalle-acciones");
+
   await page.goto(`/students/clients/${demo.studentAppClientId}/counter-sale`);
   await page.getByRole("button", { name: "Agregar productos o packs" }).click();
   await page.getByText("Remera del club").filter({ visible: true }).first().waitFor();
   await capture(page, "10e-venta-en-mostrador-catalogo");
+
+  await page.getByRole("button", { name: "Agregar Gorra del club" }).click();
+  await page.getByRole("button", { name: /^Listo/ }).click();
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByText("Cómo paga").filter({ visible: true }).first().waitFor();
+  await capture(page, "10f-venta-en-mostrador-pago");
 
   await page.goto("/settings/products");
   await page.getByText("Toalla microfibra").filter({ visible: true }).first().waitFor();

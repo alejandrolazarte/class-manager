@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Orders;
 
@@ -11,7 +12,10 @@ public sealed class DeliverInClassUseCase(
     IClassGroupRepository classGroupRepository,
     IOrderRepository orderRepository,
     IClientRepository clientRepository,
+    IClassPackRepository classPackRepository,
+    IClassPackPurchaseRepository purchaseRepository,
     IUnitOfWork unitOfWork,
+    IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
     TimeProvider timeProvider)
@@ -32,7 +36,14 @@ public sealed class DeliverInClassUseCase(
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);
-        var delivery = order.MarkDelivered(access?.UserId, timeProvider.GetUtcNow());
+        var delivery = await OrderDeliveries.DeliverAsync(
+            order,
+            classPackRepository,
+            purchaseRepository,
+            await businessCalendar.TodayAsync(cancellationToken),
+            timeProvider.GetUtcNow(),
+            access?.UserId,
+            cancellationToken);
         if (delivery.IsFailure)
         {
             return delivery.Error!;

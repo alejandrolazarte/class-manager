@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { View } from "react-native";
 import {
   orderStage,
@@ -13,6 +14,7 @@ import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { TonalBlockTone } from "@/ui/TonalBlock";
 import { Icon } from "@/ui/Icon";
@@ -39,15 +41,32 @@ function deliveryPlace(order: StudentAppOrder): string {
     : translate("student.orders.deliveryPickup");
 }
 
+function balanceNotice(order: StudentAppOrder): OrderNotice {
+  const money = (amount: number) => formatMoney(amount, order.currencyCode);
+  return {
+    message:
+      order.paidAmount > 0
+        ? translate("student.orders.paidAndBalance", {
+            paid: money(order.paidAmount),
+            balance: money(order.balance),
+          })
+        : translate("student.orders.balance", { balance: money(order.balance) }),
+    tone: "warning",
+  };
+}
+
 function noticeOf(order: StudentAppOrder): OrderNotice | null {
   const stage = orderStage(order);
-  if (stage === "awaitingPayment") {
+  if (stage === "awaitingPayment" && order.expiresAt !== null) {
     return {
       message: translate("student.orders.payBeforeOrCancelled", {
         date: inlineDate(order.expiresAt),
       }),
       tone: "warning",
     };
+  }
+  if ((stage === "awaitingPayment" || stage === "delivered") && order.balance > 0) {
+    return balanceNotice(order);
   }
   if (stage === "ready") {
     return {
@@ -70,6 +89,7 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
   const stage = orderStage(order);
   const currentStep = orderStepIndex(order);
   const notice = noticeOf(order);
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
 
   const cancel = async () => {
     try {
@@ -78,6 +98,7 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
     } catch {
       showToast(translate("common.unexpectedError"));
     }
+    setIsConfirmingCancel(false);
   };
 
   return (
@@ -123,13 +144,22 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
         ))}
       </View>
       {notice === null ? null : <Notice tone={notice.tone} message={notice.message} />}
-      {stage === "awaitingPayment" ? (
+      {stage === "awaitingPayment" && order.expiresAt !== null ? (
         <Button
           size="medium"
           variant="dangerOutline"
           label={translate("student.orders.cancel")}
-          onPress={cancel}
-          isLoading={cancelStudentAppOrderMutation.isPending}
+          onPress={() => setIsConfirmingCancel(true)}
+        />
+      ) : null}
+      {isConfirmingCancel ? (
+        <ConfirmDialog
+          title={translate("student.orders.cancelQuestion", { number: order.number })}
+          message={translate("student.orders.cancelMessage")}
+          confirmLabel={translate("student.orders.cancel")}
+          onCancel={() => setIsConfirmingCancel(false)}
+          onConfirm={cancel}
+          isConfirming={cancelStudentAppOrderMutation.isPending}
         />
       ) : null}
     </HairlineRow>

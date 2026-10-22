@@ -17,7 +17,7 @@ public sealed class Then_the_instructor_sees_it_and_hands_it_over(ApiFixture fix
             classGroupId, StudentAppShopRequests.ProductLine(product.Variants[0].Id, 1));
         placed.StatusCode.ShouldBe(HttpStatusCode.Created);
         var orderId = (await scenario.Student.ListStudentAppOrdersAsync()).Single().Id;
-        (await owner.PutOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
+        (await owner.PostOrderPaymentAsync(orderId)).EnsureSuccessStatusCode();
         (await scenario.Instructors.Instructor.ListClassDeliveriesAsync(classGroupId)).Single().OrderId.ShouldBe(orderId);
 
         using var delivered = await scenario.Instructors.Instructor.PutClassDeliveryAsync(classGroupId, orderId);

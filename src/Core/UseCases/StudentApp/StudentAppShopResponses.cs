@@ -7,7 +7,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record StudentAppShopPackResponse(Guid Id, string Name, string? Description, int ClassCount, decimal Price, int? ValidityMonths, IReadOnlyList<CatalogImageResponse> Images);
 
-public sealed record StudentAppShopVariantResponse(Guid Id, string Size, string? Color, StockAvailability Availability);
+public sealed record StudentAppShopVariantResponse(Guid Id, string Size, string? Color, StockAvailability Availability, int? MaximumUnits);
 
 public sealed record StudentAppShopProductResponse(
     Guid Id,
@@ -29,13 +29,16 @@ public sealed record StudentAppOrderResponse(
     Guid Id,
     int Number,
     OrderStatus Status,
+    OrderPaymentStatus PaymentStatus,
     bool AwaitsPickup,
     string CurrencyCode,
     decimal Total,
     decimal RefundedAmount,
+    decimal PaidAmount,
+    decimal Balance,
     DateTimeOffset CreatedAt,
-    DateOnly? PaidOn,
-    DateTimeOffset ExpiresAt,
+    DateOnly? LastPaidOn,
+    DateTimeOffset? ExpiresAt,
     IReadOnlyList<StudentAppOrderLineResponse> Lines,
     DeliveryMethod Delivery,
     string? DeliveryClassGroupName,
@@ -46,13 +49,16 @@ public sealed record StudentAppOrderResponse(
             order.Id,
             order.Number,
             order.Status,
+            order.PaymentStatus,
             order.AwaitsPickup,
             order.CurrencyCode,
             order.Total,
             order.RefundedAmount,
+            order.PaidAmount,
+            order.Balance,
             order.CreatedAt,
-            order.PaidOn,
-            order.CreatedAt + Order.RequestLifetime,
+            order.LastPaidOn,
+            order.ExpiresAt,
             [
                 .. order.Lines.Select(line => new StudentAppOrderLineResponse(
                     line.Id, line.Kind, line.Name, line.Quantity, line.Total, line.RefundedQuantity)),

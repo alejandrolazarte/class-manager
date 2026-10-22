@@ -11,7 +11,6 @@ import {
   cartTotal,
   cartUnits,
   StudentAppCartItem,
-  maximumUnitsPerItem,
 } from "@/features/studentApp/studentAppCart";
 import { studentAppErrorCodes } from "@/features/studentApp/studentAppErrorCodes";
 import { StudentAppShop } from "@/features/studentApp/types";
@@ -119,7 +118,7 @@ function CartLine({ item, currencyCode, onChangeUnits }: CartLineProps) {
           <QuantityStepper
             units={item.units}
             minimum={0}
-            maximum={item.isPack ? 1 : maximumUnitsPerItem}
+            maximum={item.maximumUnits}
             onChange={onChangeUnits}
             decreaseIcon={removesItem ? "delete" : "remove"}
             decreaseLabel={translate(

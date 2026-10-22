@@ -118,7 +118,7 @@ The first push creates the `class-manager-backoffice-api` package on GitHub as p
 
 ## Not yet
 
-- The backoffice's own PWA manifest and icon (**Laztty Admin**, ink tile): the web build still ships the app's `manifest.webmanifest`.
+- The logs account roles and URIs for the Registros tab: [audit log storage, section 9](audit-log-storage.md#9-the-backoffice).
 - `X-Robots-Tag: noindex` on the backoffice's static web app. The backoffice API already sends the app's security headers (`SecurityHeadersMiddleware`, now in `Infrastructure`).
 
 ## How it went

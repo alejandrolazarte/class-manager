@@ -9,7 +9,8 @@ public sealed class Then_it_waits_for_payment
     {
         var order = OrderTestData.Requested(TestData.Now, OrderTestData.ProductLine());
 
-        order.Status.ShouldBe(OrderStatus.Requested);
-        order.AwaitsPickup.ShouldBeFalse();
+        order.PaymentStatus.ShouldBe(OrderPaymentStatus.Unpaid);
+        order.Balance.ShouldBe(24m);
+        order.Status.ShouldBe(OrderStatus.Pending);
     }
 }

@@ -123,6 +123,11 @@ export interface StudentAppBilling {
   classes: StudentAppClassBalance | null;
 }
 
+export interface StudentAppLocation {
+  name: string;
+  mapsUrl: string | null;
+}
+
 export interface StudentAppHome {
   businessName: string;
   currencyCode: string;
@@ -132,6 +137,7 @@ export interface StudentAppHome {
   students: AccountStudent[];
   billing: StudentAppBilling;
   levels: StudentAppLevel[];
+  location: StudentAppLocation | null;
 }
 
 export interface StudentAppGuardianConsent {
@@ -172,6 +178,7 @@ export interface StudentAppShopVariant {
   size: string;
   color: string | null;
   availability: StockAvailability;
+  maximumUnits: number | null;
 }
 
 export interface StudentAppShopProduct {
@@ -198,7 +205,9 @@ export interface StudentAppShop {
   deliveryClasses: DeliveryClass[];
 }
 
-export type StudentAppOrderStatus = "Requested" | "Paid" | "Delivered" | "Cancelled";
+export type StudentAppOrderStatus = "Pending" | "Delivered" | "Cancelled";
+
+export type StudentAppOrderPaymentStatus = "Unpaid" | "Partial" | "Paid";
 
 export interface StudentAppOrderLine {
   id: string;
@@ -213,13 +222,16 @@ export interface StudentAppOrder {
   id: string;
   number: number;
   status: StudentAppOrderStatus;
+  paymentStatus: StudentAppOrderPaymentStatus;
   awaitsPickup: boolean;
   currencyCode: string;
   total: number;
   refundedAmount: number;
+  paidAmount: number;
+  balance: number;
   createdAt: string;
-  paidOn: string | null;
-  expiresAt: string;
+  lastPaidOn: string | null;
+  expiresAt: string | null;
   lines: StudentAppOrderLine[];
   delivery: DeliveryMethod;
   deliveryClassGroupName: string | null;

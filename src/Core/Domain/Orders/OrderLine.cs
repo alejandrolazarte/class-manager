@@ -104,6 +104,12 @@ public sealed class OrderLine : ITenantOwned, IAuditable
         return Result.Success();
     }
 
+    internal void RefundRemaining()
+    {
+        RefundedAmount += UnitPrice * (Quantity - RefundedQuantity);
+        RefundedQuantity = Quantity;
+    }
+
     internal void RefundClasses(decimal amount)
     {
         RefundedQuantity = Quantity;

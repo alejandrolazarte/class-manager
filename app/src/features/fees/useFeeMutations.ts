@@ -12,7 +12,11 @@ import {
   setClientBillingPlan,
   setDefaultMonthlyFee,
 } from "@/features/fees/feesApi";
-import { RecordPaymentRequest, SetBillingPlanRequest } from "@/features/fees/types";
+import {
+  RecordPaymentRequest,
+  SetBillingPlanRequest,
+  SetDefaultMonthlyFeeRequest,
+} from "@/features/fees/types";
 
 function useInvalidateFees() {
   const queryClient = useQueryClient();
@@ -65,8 +69,7 @@ function useInvalidateClientBillingPlan(clientId: string) {
 export function useSetDefaultMonthlyFee() {
   const invalidateDefaultFee = useInvalidateDefaultFee();
   return useMutation({
-    mutationFn: ({ amount, effectiveFrom }: { amount: number | null; effectiveFrom: string }) =>
-      setDefaultMonthlyFee(amount, effectiveFrom),
+    mutationFn: (request: SetDefaultMonthlyFeeRequest) => setDefaultMonthlyFee(request),
     onSuccess: invalidateDefaultFee,
   });
 }

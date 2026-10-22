@@ -8,12 +8,19 @@ public static class SettingsRequests
     public const string EuroCurrencyCode = "EUR";
 
     public static UpdateBusinessSettingsCommand SettingsOf(
-        SeededBusiness business, string? timeZoneId = null, string? name = null, string? currencyCode = null) =>
+        SeededBusiness business,
+        string? timeZoneId = null,
+        string? name = null,
+        string? currencyCode = null,
+        string? locationName = null,
+        string? locationMapsUrl = null) =>
         new(
             name ?? business.Business.Name,
             business.Business.CountryCode,
             timeZoneId ?? business.Business.TimeZoneId,
-            currencyCode ?? business.Business.CurrencyCode);
+            currencyCode ?? business.Business.CurrencyCode,
+            locationName,
+            locationMapsUrl);
 
     public static UpdateBusinessSettingsCommand SpainSettingsOf(SeededBusiness business) =>
         new(business.Business.Name, ApiFixture.SpainCountryCode, MadridTimeZoneId, EuroCurrencyCode);

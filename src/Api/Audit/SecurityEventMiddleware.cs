@@ -20,11 +20,13 @@ internal sealed class SecurityEventMiddleware(
 
         var statusCode = httpContext.Response.StatusCode;
         var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownAddress;
+        var routeTemplate = (endpoint as RouteEndpoint)?.RoutePattern.RawText;
+        var method = httpContext.Request.Method;
         if (EventOf(httpContext, endpoint, statusCode) is not { } securityEvent)
         {
             if (statusCode == StatusCodes.Status401Unauthorized)
             {
-                throttle.CountUnauthorized(ipAddress);
+                throttle.CountUnauthorized(ipAddress, RouteOf(method, routeTemplate), UserAgentOf(httpContext));
             }
 
             return;
@@ -32,24 +34,32 @@ internal sealed class SecurityEventMiddleware(
 
         if (!throttle.TryRecord(ipAddress))
         {
-            throttle.CountSuppressed(ipAddress);
+            throttle.CountSuppressed(ipAddress, RouteOf(method, routeTemplate), UserAgentOf(httpContext));
             return;
         }
 
-        var userAgent = httpContext.Request.Headers.UserAgent.ToString();
         securityEvents.Record(new SecurityEvent(
             timeProvider.GetUtcNow(),
             securityEvent,
             TenantIdOf(tenantContext),
             currentUser.AccountId,
             currentUser.UserId,
-            (endpoint as RouteEndpoint)?.RoutePattern.RawText,
-            httpContext.Request.Method,
+            routeTemplate,
+            method,
             statusCode,
             ipAddress,
-            userAgent.Length > UserAgentMaximumLength ? userAgent[..UserAgentMaximumLength] : userAgent,
+            UserAgentOf(httpContext),
             Count: null,
             Activity.Current?.TraceId.ToString()));
+    }
+
+    private static RequestRoute? RouteOf(string method, string? routeTemplate) =>
+        routeTemplate is null ? null : new RequestRoute(method, routeTemplate);
+
+    private static string UserAgentOf(HttpContext httpContext)
+    {
+        var userAgent = httpContext.Request.Headers.UserAgent.ToString();
+        return userAgent.Length > UserAgentMaximumLength ? userAgent[..UserAgentMaximumLength] : userAgent;
     }
 
     private static SecurityEventType? EventOf(HttpContext httpContext, Endpoint? endpoint, int statusCode)

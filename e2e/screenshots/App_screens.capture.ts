@@ -212,6 +212,8 @@ test("App screens", async ({ page, request }) => {
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "12c-ajustes-negocio.png") });
+  await page.getByRole("button", { name: "Guardar" }).scrollIntoViewIfNeeded();
+  await capture(page, "12c2-ajustes-negocio-abajo");
 
   await page.goto("/settings/achievements");
   await page.getByRole("switch", { name: "Faltar con aviso no corta la racha" }).waitFor();
@@ -266,6 +268,10 @@ test("App screens", async ({ page, request }) => {
   }
 
   await page.goto("/settings/branches/new");
+  await page.getByLabel("Nombre de la sede").waitFor();
+  await capture(page, "12c3-nueva-sede");
+  await page.getByRole("button", { name: "Crear sede" }).scrollIntoViewIfNeeded();
+  await capture(page, "12c4-nueva-sede-abajo");
   await page.getByLabel("Nombre de la sede").fill(secondBranchName);
   await page.getByRole("button", { name: "Crear sede" }).click();
   await page.getByText(`Creaste ${secondBranchName}`).filter({ visible: true }).first().waitFor();

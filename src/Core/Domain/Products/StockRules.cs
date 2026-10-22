@@ -17,4 +17,7 @@ public static class StockRules
             StockMode.TrackedWithBackorder => StockAvailability.OnOrder,
             _ => StockAvailability.SoldOut,
         };
+
+    public static int? MaximumUnitsOf(Product product, int currentStock) =>
+        product.StockMode == StockMode.Tracked ? Math.Max(currentStock, 0) : null;
 }

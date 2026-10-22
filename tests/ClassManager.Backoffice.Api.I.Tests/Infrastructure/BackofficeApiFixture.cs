@@ -13,6 +13,7 @@ using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Testcontainers.Azurite;
 using Testcontainers.MsSql;
 
 namespace ClassManager.Backoffice.Api.I.Tests.Infrastructure;
@@ -22,6 +23,8 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     public const string GoogleProvider = "google";
 
     private const string SqlServerImage = "mcr.microsoft.com/mssql/server:2022-latest";
+    private const string AzuriteImage = "mcr.microsoft.com/azure-storage/azurite:3.37.0";
+    private const string SkipApiVersionCheckFlag = "--skipApiVersionCheck";
     private const string PlatformOrganizationName = "Laztty";
     private const string OtherOrganizationName = "Otra marca";
     private const string ArgentinaCountryCode = "AR";
@@ -35,6 +38,10 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     private const string ClientPhoneNumber = "1155550000";
 
     private readonly MsSqlContainer _container = new MsSqlBuilder(SqlServerImage).Build();
+    private readonly AzuriteContainer _storageContainer = new AzuriteBuilder(AzuriteImage)
+        .WithInMemoryPersistence()
+        .WithCommand(SkipApiVersionCheckFlag)
+        .Build();
     private readonly Organization _platformOrganization = Organization.Create(PlatformOrganizationName, BackofficeApiFactory.Now).Value!;
     private BackofficeApiFactory? _apiFactory;
 
@@ -42,7 +49,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
 
     public async Task InitializeAsync()
     {
-        await _container.StartAsync();
+        await Task.WhenAll(_container.StartAsync(), _storageContainer.StartAsync());
         await using (var context = CreateAppDbContext(Guid.Empty))
         {
             await context.Database.MigrateAsync();
@@ -62,10 +69,16 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             await backofficeContext.Database.MigrateAsync();
         }
 
-        _apiFactory = new BackofficeApiFactory(_container.GetConnectionString(), _platformOrganization.Id);
+        _apiFactory = new BackofficeApiFactory(_container.GetConnectionString(), _storageContainer.GetConnectionString(), _platformOrganization.Id);
     }
 
-    public async Task DisposeAsync() => await _container.DisposeAsync();
+    public string StorageConnectionString => _storageContainer.GetConnectionString();
+
+    public async Task DisposeAsync()
+    {
+        await _container.DisposeAsync();
+        await _storageContainer.DisposeAsync();
+    }
 
     public void Dispose() => _apiFactory?.Dispose();
 
@@ -76,6 +89,9 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
 
     public Task<SeededOperator> SeedOperatorAsync(BusinessRole role = BusinessRole.PlatformOperator, bool isEnabled = true) =>
         SeedOperatorAsync(_platformOrganization.Id, role, isEnabled);
+
+    public Task<SeededOperator> SeedPlatformTeamMemberAsync() =>
+        SeedOperatorAsync(_platformOrganization.Id, BusinessRole.Viewer, isEnabled: false);
 
     public async Task<SeededOperator> SeedOperatorOfAnotherOrganizationAsync()
     {
@@ -93,6 +109,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     {
         var organization = Organization.Create(name, BackofficeApiFactory.Now).Value!;
         var ownerEmail = $"owner-{Guid.NewGuid():N}@example.com";
+        var branchIds = new List<Guid>();
         await using (var context = CreateAppDbContext(Guid.Empty))
         {
             context.Organizations.Add(organization);
@@ -108,6 +125,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             await using var context = CreateAppDbContext(business.Id);
             context.Countries.Attach(argentina);
             context.Businesses.Add(business);
+            branchIds.Add(business.Id);
             if (branchIndex == 0)
             {
                 var owner = User.Create(OwnerFullName, ownerEmail, BackofficeApiFactory.Now).Value!;
@@ -126,7 +144,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             await context.SaveChangesAsync();
         }
 
-        return new SeededBrand(organization.Id, ownerEmail);
+        return new SeededBrand(organization.Id, ownerEmail, branchIds);
     }
 
     private async Task<SeededOperator> SeedOperatorAsync(Guid organizationId, BusinessRole role, bool isEnabled)
@@ -134,6 +152,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         var accountId = Guid.CreateVersion7();
         var email = $"operator-{Guid.NewGuid():N}@example.com";
         var subject = $"google-{Guid.NewGuid():N}";
+        Guid memberId;
 
         using (var scope = ApiFactory.Services.CreateScope())
         {
@@ -149,12 +168,14 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             await using var context = CreateAppDbContext(business.Id);
             context.Countries.Attach(argentina);
             context.Businesses.Add(business);
-            context.BusinessMembers.Add(BusinessMember.Create(
+            var member = BusinessMember.Create(
                 business.Id,
                 User.CreateForAccount(accountId, OperatorFullName, null, BackofficeApiFactory.Now),
                 MemberRole.System(role),
-                instructorId: null).Value!);
+                instructorId: null).Value!;
+            context.BusinessMembers.Add(member);
             await context.SaveChangesAsync();
+            memberId = member.Id;
         }
 
         if (isEnabled)
@@ -165,7 +186,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
             await backofficeContext.SaveChangesAsync();
         }
 
-        return new SeededOperator(accountId, subject, email);
+        return new SeededOperator(accountId, memberId, subject, email);
     }
 
     private AppDbContext CreateAppDbContext(Guid businessId)
@@ -179,6 +200,6 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     }
 }
 
-public sealed record SeededOperator(Guid AccountId, string Subject, string Email);
+public sealed record SeededOperator(Guid AccountId, Guid MemberId, string Subject, string Email);
 
-public sealed record SeededBrand(Guid Id, string OwnerEmail);
+public sealed record SeededBrand(Guid Id, string OwnerEmail, IReadOnlyList<Guid> BranchIds);

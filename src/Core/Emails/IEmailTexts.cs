@@ -12,6 +12,10 @@ public interface IEmailTexts
 
     string OrderWillNotifyWhenReady { get; }
 
+    string OrderClassesWhenHandedOver { get; }
+
+    string OrderHandedOver { get; }
+
     EmailText TeamInvitation(string businessName, string acceptInvitationLink);
 
     EmailText StudentAppInvitation(string businessName, string acceptInvitationLink);
@@ -37,6 +41,8 @@ public interface IEmailTexts
     EmailText OrderCancelledUnpaid(OrderEmailDetails order, string studentAppOrdersLink);
 
     EmailText OrderCancelledByBranch(OrderEmailDetails order, string studentAppOrdersLink);
+
+    EmailText AppFeedback(AppFeedbackEmailDetails feedback);
 
     string OrderNumber(int orderNumber);
 

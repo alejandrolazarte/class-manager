@@ -77,6 +77,12 @@ Rendered from `laztty-mark.svg` by [`tools/BrandAssets/render-brand-assets.mjs`]
 | `app/public/icons/icon-192.png`, `icon-512.png` | 192, 512 | Violet tile with the mark (installed web app) |
 | `app/public/icons/icon-maskable-512.png` | 512 | Full-bleed violet, mark at 46 % (maskable) |
 | `app/public/icons/apple-touch-icon.png` | 180 | Full-bleed violet, mark at 58 % |
+| `app/backoffice-web/favicon.png` | 48 | Slate tile with the mark (backoffice) |
+| `app/backoffice-web/icons/icon-192.png`, `icon-512.png` | 192, 512 | Slate tile with the mark (installed backoffice) |
+| `app/backoffice-web/icons/icon-maskable-512.png` | 512 | Full-bleed slate, mark at 46 % (maskable) |
+| `app/backoffice-web/icons/apple-touch-icon.png` | 180 | Full-bleed slate, mark at 58 % |
+
+The backoffice (**Laztty Admin**) uses the same mark on slate `#334155` instead of violet, so the two installed web apps look related but are told apart at a glance, on dark and light wallpapers. Its manifest is `app/backoffice-web/manifest.webmanifest`; `pnpm export:backoffice` puts it and these icons in `dist-backoffice` in place of the app's, and sets the page's `theme-color`, description and iOS title from it (`scripts/applyBackofficeWebIdentity.js`).
 
 To change the mark, edit `laztty-mark.svg` and the geometry in `BrandMark.tsx` together, then render the icons again:
 

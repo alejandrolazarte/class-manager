@@ -19,6 +19,7 @@ const quotes = ['"', "'", "`"];
 const keysBuiltFromOneValue = [
   "backoffice.brands.status.",
   "countries.",
+  "fees.billingMode.hint.",
   "fees.billingPlan.hint.",
   "fees.methods.",
   "fees.plan.",

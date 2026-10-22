@@ -17,6 +17,7 @@ public sealed record CounterSaleLine(Guid? ClassPackId, Guid? ProductVariantId, 
 public sealed record CreateCounterSaleCommand(
     Guid? ClientId,
     IReadOnlyList<CounterSaleLine>? Lines,
+    decimal? PaidAmount,
     PaymentMethod? Method,
     DateOnly? PaidOn,
     [property: AuditPersonal] string? Notes,
@@ -76,8 +77,9 @@ public sealed class CreateCounterSaleUseCase(
         var now = timeProvider.GetUtcNow();
         var access = await currentMember.GetAccessAsync(cancellationToken);
         var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
+        var paidOn = command.PaidOn ?? today;
         var order = Order.CounterSale(
-            client?.Id, draft.Value!.Lines, currencyCode, command.Method, command.PaidOn ?? today, command.Notes, command.IsDelivered, today, access?.UserId, now);
+            client?.Id, draft.Value!.Lines, currencyCode, command.PaidAmount, command.Method, paidOn, command.Notes, command.IsDelivered, today, access?.UserId, now);
         if (order.IsFailure)
         {
             return order.Error!;
@@ -100,10 +102,14 @@ public sealed class CreateCounterSaleUseCase(
             return stockProblem;
         }
 
-        var credit = OrderPayments.CreditClassPacks(order.Value!, draft.Value.Packs, purchaseRepository, today, now, access?.UserId);
-        if (credit.IsFailure)
+        if (order.Value!.Status == OrderStatus.Delivered)
         {
-            return credit.Error!;
+            var credit = await OrderDeliveries.CreditClassPacksAsync(
+                order.Value, classPackRepository, purchaseRepository, paidOn, now, access?.UserId, cancellationToken);
+            if (credit.IsFailure)
+            {
+                return credit.Error!;
+            }
         }
 
         foreach (var line in order.Value!.Lines.Where(line => line.Kind == OrderLineKind.Product && draft.Value.ProductOf(line).TracksStock))

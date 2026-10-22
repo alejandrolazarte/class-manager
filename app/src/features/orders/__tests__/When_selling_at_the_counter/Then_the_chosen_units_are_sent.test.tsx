@@ -53,6 +53,7 @@ describe("When selling at the counter", () => {
             unitPrice: null,
           },
         ],
+        paidAmount: 24,
         method: "Cash",
         paidOn: null,
         notes: null,

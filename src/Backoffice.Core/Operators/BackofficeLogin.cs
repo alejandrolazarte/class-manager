@@ -28,4 +28,12 @@ public sealed class BackofficeLogin
         EnabledAt = enabledAt,
         EnabledByUserId = enabledByUserId,
     };
+
+    public void EnableAgain(ExternalIdentity identity, Guid accountId, DateTimeOffset enabledAt, Guid? enabledByUserId)
+    {
+        AccountId = accountId;
+        Email = identity.Email;
+        EnabledAt = enabledAt;
+        EnabledByUserId = enabledByUserId;
+    }
 }

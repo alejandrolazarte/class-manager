@@ -1,5 +1,4 @@
 import { httpClient } from "@/api/httpClient";
-import { PaymentMethod } from "@/features/fees/types";
 import { DeliveryClass } from "@/features/studentApp/types";
 import {
   ClassDelivery,
@@ -7,6 +6,7 @@ import {
   Order,
   OrderFilter,
   OrderSummary,
+  RecordOrderPaymentRequest,
   RefundLine,
 } from "@/features/orders/types";
 
@@ -14,7 +14,8 @@ const ordersPath = "/api/orders";
 const summaryPath = `${ordersPath}/summary`;
 const deliveredSegment = "delivered";
 const refundsSegment = "refunds";
-const paymentSegment = "payment";
+const paymentsSegment = "payments";
+const restoreSegment = "restore";
 const cancellationSegment = "cancellation";
 const readySegment = "ready";
 const deliveryClassesPath = `${ordersPath}/delivery-classes`;
@@ -28,12 +29,16 @@ function orderPath(orderId: string): string {
 export function listOrders(clientId: string | null, filter: OrderFilter): Promise<Order[]> {
   const queryParameters: Record<string, string> = {
     awaitingPickup: String(filter === "awaitingPickup"),
-    requested: String(filter === "requested"),
+    owing: String(filter === "owing"),
   };
   if (clientId !== null) {
     queryParameters.clientId = clientId;
   }
   return httpClient.get<Order[]>(ordersPath, queryParameters);
+}
+
+export function getOrder(orderId: string): Promise<Order> {
+  return httpClient.get<Order>(orderPath(orderId));
 }
 
 export function getOrderSummary(month: string): Promise<OrderSummary> {
@@ -52,16 +57,26 @@ export function refundOrder(orderId: string, lines: RefundLine[]): Promise<Order
   return httpClient.post<Order>(`${orderPath(orderId)}/${refundsSegment}`, { lines });
 }
 
-export function confirmOrderPayment(
+export function recordOrderPayment(
   orderId: string,
-  method: PaymentMethod,
-  isReady: boolean,
+  request: RecordOrderPaymentRequest,
 ): Promise<Order> {
-  return httpClient.put<Order>(`${orderPath(orderId)}/${paymentSegment}`, {
-    method,
+  return httpClient.post<Order>(`${orderPath(orderId)}/${paymentsSegment}`, {
+    ...request,
     paidOn: null,
-    isReady,
   });
+}
+
+function orderPaymentPath(orderId: string, paymentId: string): string {
+  return `${orderPath(orderId)}/${paymentsSegment}/${encodeURIComponent(paymentId)}`;
+}
+
+export function deleteOrderPayment(orderId: string, paymentId: string): Promise<Order> {
+  return httpClient.delete<Order>(orderPaymentPath(orderId, paymentId));
+}
+
+export function restoreOrderPayment(orderId: string, paymentId: string): Promise<Order> {
+  return httpClient.post<Order>(`${orderPaymentPath(orderId, paymentId)}/${restoreSegment}`, {});
 }
 
 export function markOrderReady(orderId: string): Promise<Order> {

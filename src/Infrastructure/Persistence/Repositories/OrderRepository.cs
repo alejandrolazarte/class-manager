@@ -7,11 +7,11 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
     public void Add(Order order) => context.Orders.Add(order);
 
     public Task<Order?> GetByIdAsync(Guid orderId, CancellationToken cancellationToken) =>
-        context.Orders.AsNoTracking().Include(order => order.Lines)
+        context.Orders.AsNoTracking().Include(order => order.Lines).Include(order => order.Payments).AsSplitQuery()
             .FirstOrDefaultAsync(order => order.Id == orderId, cancellationToken);
 
     public Task<Order?> GetForUpdateAsync(Guid orderId, CancellationToken cancellationToken) =>
-        context.Orders.Include(order => order.Lines)
+        context.Orders.Include(order => order.Lines).Include(order => order.Payments).AsSplitQuery()
             .FirstOrDefaultAsync(order => order.Id == orderId, cancellationToken);
 
     public async Task<IReadOnlyList<Order>> ListAsync(
@@ -29,26 +29,27 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             orders = orders.Where(order => order.ClientId == clientId);
         }
 
-        if (criteria.RequestedOnly)
+        if (criteria.OwingOnly)
         {
-            orders = orders.Where(order => order.Status == OrderStatus.Requested);
+            orders = orders.Where(OrderQueries.IsOwing());
         }
 
         if (criteria.AwaitingPickupOnly)
         {
             orders = orders.Where(order =>
-                order.Status == OrderStatus.Paid && order.Lines.Any(line => line.Kind == OrderLineKind.Product));
+                order.Status == OrderStatus.Pending && order.Lines.Any(line => line.Kind == OrderLineKind.Product));
         }
 
         return await orders
             .Include(order => order.Lines)
+            .Include(order => order.Payments)
             .OrderByDescending(order => order.CreatedAt)
             .Take(criteria.Limit)
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Order>> ListPaidBetweenOrRequestedAsync(
+    public async Task<IReadOnlyList<Order>> ListPaidBetweenOrOwingAsync(
         DateOnly firstDay, DateOnly lastDay, ClientScope? scope, CancellationToken cancellationToken)
     {
         var orders = context.Orders.AsNoTracking();
@@ -59,33 +60,46 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
         }
 
         return await orders
-            .Where(order => order.Status == OrderStatus.Requested
-                || ((order.Status == OrderStatus.Paid || order.Status == OrderStatus.Delivered)
-                    && order.PaidOn >= firstDay && order.PaidOn <= lastDay))
+            .Where(order => order.Status != OrderStatus.Cancelled
+                && (order.Lines.Sum(line => line.UnitPrice * line.Quantity - line.RefundedAmount) > order.Payments.Sum(payment => payment.Amount)
+                    || order.Payments.Any(payment => payment.PaidOn >= firstDay && payment.PaidOn <= lastDay)))
             .Include(order => order.Lines)
+            .Include(order => order.Payments)
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
     }
 
-    public Task<int> CountRequestedByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
-        context.Orders.CountAsync(order => order.ClientId == clientId && order.Status == OrderStatus.Requested, cancellationToken);
+    public Task<int> CountUnpaidRequestsByClientAsync(Guid clientId, CancellationToken cancellationToken) =>
+        context.Orders.Where(order => order.ClientId == clientId).CountAsync(OrderQueries.IsUnpaidRequest(), cancellationToken);
 
-    public async Task<IReadOnlyList<Order>> ListRequestedCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken) =>
+    public async Task<IReadOnlyList<Order>> ListUnpaidRequestsCreatedBeforeAsync(DateTimeOffset createdBefore, CancellationToken cancellationToken) =>
         await context.Orders
             .Include(order => order.Lines)
-            .Where(order => order.Status == OrderStatus.Requested && order.CreatedAt <= createdBefore)
+            .Include(order => order.Payments)
+            .Where(OrderQueries.IsUnpaidRequestCreatedBefore(createdBefore))
+            .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Order>> ListToDeliverInClassAsync(Guid classGroupId, CancellationToken cancellationToken) =>
         await context.Orders.AsNoTracking()
             .Include(order => order.Lines)
-            .Where(order => order.Status == OrderStatus.Paid
+            .Include(order => order.Payments)
+            .Where(order => order.Status == OrderStatus.Pending
+                && order.Lines.Any(line => line.Kind == OrderLineKind.Product)
                 && order.Delivery == DeliveryMethod.InClass
                 && order.DeliveryClassGroupId == classGroupId)
             .OrderBy(order => order.CreatedAt)
+            .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
     public Task<Order?> GetForUpdateByPurchaseAsync(Guid purchaseId, CancellationToken cancellationToken) =>
-        context.Orders.Include(order => order.Lines)
+        context.Orders.Include(order => order.Lines).Include(order => order.Payments).AsSplitQuery()
             .FirstOrDefaultAsync(order => order.Lines.Any(line => line.ClassPackPurchaseId == purchaseId), cancellationToken);
+
+    public void RemovePayment(OrderPayment payment) => context.OrderPayments.Remove(payment);
+
+    public Task<OrderPayment?> FindDeletedPaymentForUpdateAsync(Guid orderId, Guid paymentId, CancellationToken cancellationToken) =>
+        context.OrderPayments
+            .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
+            .FirstOrDefaultAsync(payment => payment.Id == paymentId && payment.OrderId == orderId && payment.IsDeleted, cancellationToken);
 }

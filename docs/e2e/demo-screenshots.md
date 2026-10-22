@@ -11,6 +11,7 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 - A second instructor, Martín Díaz.
 - Four class groups: Natación inicial and Natación avanzada (Monday, Wednesday, Friday and whatever day the script runs, so "Hoy" always has classes), Aquagym and Natación adultos (Tuesday and Thursday).
 - Six students, nine enrollments from the first day of the current month, and attendance for today and for the last Natación inicial class before today.
+- A location: "Av. Costanera 1450, Ciudad" with a Google Maps link.
 - A default fee of $25.000, one student with its own fee, and payments that leave students paid, partially paid and owing.
 - A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
 - A private lesson for Valentina Fernández with Martín today at 21:00.
@@ -71,7 +72,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `12b4b-novedad-boton` | The optional button of the announcement, here a link |
 | `12b5-novedad-vista-previa`, `12b6-novedad-editar` | The preview of the announcement as a push and in the student news (with its button), and the edit screen of the published announcement |
 | `12h-novedades-vistas`, `12i-novedad-quien-lo-vio` | Announcements with how many families saw them, and who saw the event and who answered (from the student activity run) |
-| `12c-ajustes-negocio` | Business settings |
+| `12c-ajustes-negocio`, `12c2-ajustes-negocio-abajo` | Business settings, and scrolled to the end: the location with its Google Maps link and "Probar en Google Maps" |
+| `12c3-nueva-sede`, `12c4-nueva-sede-abajo` | New branch form, and scrolled to the end: its empty location |
 | `12d-logros-y-asistencia` | Levels for students and whether noticed absences keep the streak |
 | `12e-mediciones` | The measurements of the business, with who sees and records each one |
 | `12f-medicion-nueva` | New measurement form |
@@ -98,7 +100,7 @@ When a new screen is added, add a row to `screens` in `e2e/screenshots/App_scree
 - Two announcements from the school (an event for everyone, and an important one for Natación inicial, pinned; the family answers that it goes to the event; and a reminder scheduled for next week), and next week's Natación inicial class cancelled for a holiday.
 - A "No voy" notice for Tomás on his next class after today (skipping the cancelled one).
 - A "Pack Aquagym" of 4 classes valid for Aquagym, sold to the Pérez client, with one Aquagym class booked for Lucía this week.
-- Three student orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled.
+- Three student orders: one paid and ready to hand over in Natación inicial, one class pack waiting for payment, and one cancelled; and a counter sale to the Pérez client paid in part, waiting to be picked up.
 - Material for Natación inicial: a link and a PDF. The PDF needs file storage: start Azurite and set `ConnectionStrings__FileStorage=UseDevelopmentStorage=true` before running (see [Storage, local development](../storage.md#local-development)); without it the run warns and the class only has the link.
 
 The student signs in through the sign-in screen, then the test captures:
@@ -124,7 +126,7 @@ The student signs in through the sign-in screen, then the test captures:
 | `28d-alumno-mediciones` | Achievements on Mediciones: the measurements the student sees |
 | `28e-alumno-medicion` | A measurement in the student app: new personal best, goal and history |
 | `28f-alumno-cargar-medicion` | The form a student uses to record a measurement the team opened to them |
-| `29-alumno-ajustes` | Settings grouped like the team app: your phone (appearance, notifications) and account (sign out) |
+| `29-alumno-ajustes` | Settings grouped like the team app: the school's location (opens Google Maps), your phone (appearance, notifications) and account (sign out) |
 | `29b-alumno-ajustes-notificaciones`, `29c-alumno-ajustes-apariencia` | Notifications and appearance sheets opened from Ajustes |
 | `30-elegir-cuenta` | Choosing between the team and the student account when the same email has both |
 
@@ -134,8 +136,10 @@ The same file also captures two team screens that need student activity, signed 
 |---|---|
 | `01c-avisos` | Team notifications (avisos): the "No voy", the makeup and the orders |
 | `05b-clase-editar-material` | The class form scrolled to "Material para los alumnos", with the link and the PDF |
-| `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment panel of an order open |
+| `10d-cobros-pedidos-cobrar` | Cobros on Pedidos with the payment sheet of an order open |
+| `10d2-pedido-detalle`, `10d3-pedido-detalle-acciones` | The counter sale paid in part, opened from Cobros › Pedidos: what it has, its delivery, its payments, and at the bottom the refund and cancel buttons |
 | `10e-venta-en-mostrador-catalogo` | Counter sale: the catalog of products and packs with its filters |
+| `10f-venta-en-mostrador-pago` | Counter sale, second step: hand over now or later, how much they pay now and how |
 | `12g-productos` | Ajustes › Productos with search and filters |
 
 Run only these with `pnpm screenshots:no-build Student_screens`.

@@ -104,6 +104,7 @@ export function buildStudentAppHome(overrides: Partial<StudentAppHome> = {}): St
     clientFullName: "Ana Pérez",
     signedInFullName: "Ana Pérez",
     pendingGuardianConsents: [],
+    location: null,
     students: [buildAccountStudent()],
     billing: {
       kind: "BusinessFee",
@@ -139,8 +140,8 @@ export function buildStudentAppShop(overrides: Partial<StudentAppShop> = {}): St
         description: null,
         price: 12,
         variants: [
-          { id: "variant-s", size: "S", color: null, availability: "Available" },
-          { id: "variant-m", size: "M", color: null, availability: "SoldOut" },
+          { id: "variant-s", size: "S", color: null, availability: "Available", maximumUnits: 2 },
+          { id: "variant-m", size: "M", color: null, availability: "SoldOut", maximumUnits: 0 },
         ],
         images: [],
       },
@@ -160,13 +161,16 @@ export function buildStudentAppOrder(overrides: Partial<StudentAppOrder> = {}): 
   return {
     id: "order-1",
     number: 1043,
-    status: "Requested",
+    status: "Pending",
+    paymentStatus: "Unpaid",
     awaitsPickup: false,
     currencyCode: "EUR",
     total: 120,
     refundedAmount: 0,
+    paidAmount: 0,
+    balance: 120,
     createdAt: "2026-09-29T10:00:00Z",
-    paidOn: null,
+    lastPaidOn: null,
     expiresAt: "2026-10-06T10:00:00Z",
     lines: [
       {

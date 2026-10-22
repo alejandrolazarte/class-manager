@@ -29,6 +29,11 @@ public sealed class AppendBlobSecurityEventStore(BlobContainerClient container, 
     public static string BlobNameOf(DateTimeOffset occurredAt) =>
         occurredAt.UtcDateTime.ToString(DayBlobNameFormat, CultureInfo.InvariantCulture) + DayBlobExtension;
 
+    public static IReadOnlyList<SecurityEvent> ReadLines(string lines) =>
+        [.. lines.Split(LineSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(line => JsonSerializer.Deserialize<SecurityEvent>(line, Options))
+            .OfType<SecurityEvent>()];
+
     public async Task WriteAsync(IReadOnlyList<SecurityEvent> entries, CancellationToken cancellationToken)
     {
         if (!_containerExists)

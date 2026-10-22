@@ -8,13 +8,18 @@ const requireFromE2e = createRequire(join(repositoryRoot, "e2e", "package.json")
 const { chromium } = requireFromE2e("@playwright/test");
 
 const brandColor = "#6d28d9";
+const backofficeColor = "#334155";
 const markSvg = readFileSync(join(repositoryRoot, "app", "assets", "brand", "laztty-mark.svg"), "utf8");
 const appImagesFolder = join(repositoryRoot, "app", "assets", "images");
 const webIconsFolder = join(repositoryRoot, "app", "public", "icons");
+const backofficeWebFolder = join(repositoryRoot, "app", "backoffice-web");
+const backofficeIconsFolder = join(backofficeWebFolder, "icons");
 
 const fullBleed = { background: brandColor, cornerRatio: 0 };
 const roundedTile = { background: brandColor, cornerRatio: 0.32 };
 const transparent = { background: "transparent", cornerRatio: 0 };
+const backofficeFullBleed = { background: backofficeColor, cornerRatio: 0 };
+const backofficeRoundedTile = { background: backofficeColor, cornerRatio: 0.32 };
 
 const outputs = [
   { path: join(appImagesFolder, "icon.png"), size: 1024, markRatio: 0.58, ...fullBleed },
@@ -27,6 +32,11 @@ const outputs = [
   { path: join(webIconsFolder, "icon-512.png"), size: 512, markRatio: 0.58, ...roundedTile },
   { path: join(webIconsFolder, "icon-maskable-512.png"), size: 512, markRatio: 0.46, ...fullBleed },
   { path: join(webIconsFolder, "apple-touch-icon.png"), size: 180, markRatio: 0.58, ...fullBleed },
+  { path: join(backofficeWebFolder, "favicon.png"), size: 48, markRatio: 0.62, ...backofficeRoundedTile },
+  { path: join(backofficeIconsFolder, "icon-192.png"), size: 192, markRatio: 0.58, ...backofficeRoundedTile },
+  { path: join(backofficeIconsFolder, "icon-512.png"), size: 512, markRatio: 0.58, ...backofficeRoundedTile },
+  { path: join(backofficeIconsFolder, "icon-maskable-512.png"), size: 512, markRatio: 0.46, ...backofficeFullBleed },
+  { path: join(backofficeIconsFolder, "apple-touch-icon.png"), size: 180, markRatio: 0.58, ...backofficeFullBleed },
 ];
 
 function pageFor({ size, markRatio, background, cornerRatio }) {

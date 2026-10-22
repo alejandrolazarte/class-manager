@@ -1,4 +1,5 @@
 using ClassManager.Infrastructure;
+using ClassManager.Infrastructure.Audit;
 using ClassManager.Security.Tokens;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -10,7 +11,8 @@ using Microsoft.Extensions.Time.Testing;
 
 namespace ClassManager.Backoffice.Api.I.Tests.Infrastructure;
 
-public sealed class BackofficeApiFactory(string databaseConnectionString, Guid platformOrganizationId) : WebApplicationFactory<Program>
+public sealed class BackofficeApiFactory(string databaseConnectionString, string auditLogConnectionString, Guid platformOrganizationId)
+    : WebApplicationFactory<Program>
 {
     public const string WebAppUrl = "https://admin.example.com";
     public const string TestSigningKey = "backoffice-tests-signing-key-with-more-than-32-bytes";
@@ -22,7 +24,7 @@ public sealed class BackofficeApiFactory(string databaseConnectionString, Guid p
     private const string RateLimitSetting = "Authentication:RateLimit:PermitLimit";
     private const string TestPermitLimit = "10000";
 
-    public static readonly DateTimeOffset Now = new(2026, 10, 20, 12, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset Now = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
     public FakeTimeProvider TimeProvider { get; } = new(Now);
 
@@ -38,6 +40,7 @@ public sealed class BackofficeApiFactory(string databaseConnectionString, Guid p
         builder.UseSetting(
             $"{ConnectionStringsSection}:{InfrastructureServiceCollectionExtensions.DatabaseConnectionStringName}",
             databaseConnectionString);
+        builder.UseSetting($"{ConnectionStringsSection}:{AuditLogOptions.ConnectionStringName}", auditLogConnectionString);
         builder.UseSetting($"{JwtOptions.SectionName}:{nameof(JwtOptions.SigningKey)}", TestSigningKey);
         builder.UseSetting(PlatformOrganizationSetting, platformOrganizationId.ToString());
         builder.UseSetting(WebAppUrlSetting, WebAppUrl);

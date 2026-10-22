@@ -11,7 +11,7 @@ public sealed record ClassPackUsageResponse(
     string CurrencyCode,
     DateOnly PurchasedOn,
     DateOnly? ExpiresOn,
-    PaymentMethod Method,
+    PaymentMethod? Method,
     int UsedClasses,
     int RemainingClasses,
     ClassPackPurchaseStatus Status,

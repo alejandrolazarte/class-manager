@@ -1,16 +1,13 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  CatalogFilter,
-  CatalogFilterValues,
+  ListFilter,
+  ListFilterValues,
   hasActiveFilters,
   isChosenOrUnfiltered,
-  noCatalogFilterValues,
-} from "@/features/catalogFilters/catalogFilters";
-import {
-  CatalogFilterControls,
-  CatalogFilterSummary,
-} from "@/features/catalogFilters/components/CatalogFilterControls";
+  noListFilterValues,
+} from "@/filters/listFilters";
+import { ListFilterControls, ListFilterSummary } from "@/filters/ListFilterControls";
 import {
   availabilityFilter,
   availabilityValues,
@@ -59,14 +56,14 @@ function statusesOf(product: Product): string[] {
     : [statusValues.active, statusValues.counterOnly];
 }
 
-function matchesAny(values: CatalogFilterValues, filterId: string, candidates: string[]): boolean {
+function matchesAny(values: ListFilterValues, filterId: string, candidates: string[]): boolean {
   return (
     isChosenOrUnfiltered(values, filterId, null) ||
     candidates.some((candidate) => isChosenOrUnfiltered(values, filterId, candidate))
   );
 }
 
-function matchesFilters(product: Product, values: CatalogFilterValues): boolean {
+function matchesFilters(product: Product, values: ListFilterValues): boolean {
   return (
     matchesAny(values, productFilterIds.availability, availabilitiesOf(product)) &&
     matchesAny(values, productFilterIds.status, statusesOf(product)) &&
@@ -85,7 +82,7 @@ function matchesSearch(product: Product, searchText: string): boolean {
   );
 }
 
-function productFiltersOf(products: readonly Product[]): CatalogFilter[] {
+function productFiltersOf(products: readonly Product[]): ListFilter[] {
   return [
     availabilityFilter({ offersSoldOut: true, hint: translate("products.list.soldOutHint") }),
     {
@@ -109,8 +106,8 @@ export function ProductListScreen() {
   const canManageProducts = useCan(permissions.productsManage);
   const { data: products = [], isPending, isError, isRefetching, refetch } = useProducts(true);
   const [searchText, setSearchText] = useState("");
-  const [filterValues, setFilterValues] = useState<CatalogFilterValues>(noCatalogFilterValues);
-  const productsMatching = (values: CatalogFilterValues) =>
+  const [filterValues, setFilterValues] = useState<ListFilterValues>(noListFilterValues);
+  const productsMatching = (values: ListFilterValues) =>
     products.filter(
       (product) => matchesFilters(product, values) && matchesSearch(product, searchText),
     );
@@ -132,17 +129,14 @@ export function ProductListScreen() {
               onChangeText={setSearchText}
               placeholder={translate("products.list.search")}
             />
-            <CatalogFilterControls
+            <ListFilterControls
               filters={productFiltersOf(products)}
               values={filterValues}
               onChange={setFilterValues}
               countMatching={(values) => productsMatching(values).length}
             />
             {isFiltered ? (
-              <CatalogFilterSummary
-                shownCount={visibleProducts.length}
-                totalCount={products.length}
-              />
+              <ListFilterSummary shownCount={visibleProducts.length} totalCount={products.length} />
             ) : null}
           </>
         )

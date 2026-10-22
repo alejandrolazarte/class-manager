@@ -95,6 +95,7 @@ const iconGlyphs = {
   document: "document-text-outline",
   openExternal: "open-outline",
   pin: "pin-outline",
+  location: "location-outline",
   preview: "eye-outline",
 } as const satisfies Record<string, IoniconsGlyph>;
 

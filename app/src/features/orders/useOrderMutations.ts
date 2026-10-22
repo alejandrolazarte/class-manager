@@ -2,17 +2,22 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
 import { orderQueryKeys } from "@/features/orders/orderQueryKeys";
-import { PaymentMethod } from "@/features/fees/types";
 import {
   cancelOrder,
-  confirmOrderPayment,
   createCounterSale,
+  deleteOrderPayment,
   deliverInClass,
   markOrderDelivered,
   markOrderReady,
+  recordOrderPayment,
   refundOrder,
+  restoreOrderPayment,
 } from "@/features/orders/ordersApi";
-import { CreateCounterSaleRequest, RefundLine } from "@/features/orders/types";
+import {
+  CreateCounterSaleRequest,
+  RecordOrderPaymentRequest,
+  RefundLine,
+} from "@/features/orders/types";
 import { productQueryKeys } from "@/features/products/productQueryKeys";
 
 function useInvalidateOrders() {
@@ -50,18 +55,29 @@ export function useRefundOrder() {
   });
 }
 
-export function useConfirmOrderPayment() {
+export function useRecordOrderPayment() {
   const invalidate = useInvalidateOrders();
   return useMutation({
-    mutationFn: ({
-      orderId,
-      method,
-      isReady,
-    }: {
-      orderId: string;
-      method: PaymentMethod;
-      isReady: boolean;
-    }) => confirmOrderPayment(orderId, method, isReady),
+    mutationFn: ({ orderId, request }: { orderId: string; request: RecordOrderPaymentRequest }) =>
+      recordOrderPayment(orderId, request),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteOrderPayment() {
+  const invalidate = useInvalidateOrders();
+  return useMutation({
+    mutationFn: ({ orderId, paymentId }: { orderId: string; paymentId: string }) =>
+      deleteOrderPayment(orderId, paymentId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useRestoreOrderPayment() {
+  const invalidate = useInvalidateOrders();
+  return useMutation({
+    mutationFn: ({ orderId, paymentId }: { orderId: string; paymentId: string }) =>
+      restoreOrderPayment(orderId, paymentId),
     onSuccess: invalidate,
   });
 }

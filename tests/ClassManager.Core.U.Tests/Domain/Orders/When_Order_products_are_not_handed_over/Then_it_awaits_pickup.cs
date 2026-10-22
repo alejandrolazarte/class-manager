@@ -10,6 +10,7 @@ public sealed class Then_it_awaits_pickup
         var order = OrderTestData.CounterSale(false, OrderTestData.ProductLine());
 
         order.AwaitsPickup.ShouldBeTrue();
-        order.Status.ShouldBe(OrderStatus.Paid);
+        order.Status.ShouldBe(OrderStatus.Pending);
+        order.PaymentStatus.ShouldBe(OrderPaymentStatus.Paid);
     }
 }
