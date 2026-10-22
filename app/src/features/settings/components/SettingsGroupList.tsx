@@ -10,8 +10,9 @@ export interface SettingsItem {
   icon: IconName;
   label: string;
   value?: string;
-  onPress: () => void;
+  onPress?: () => void;
   isDestructive?: boolean;
+  isExternal?: boolean;
 }
 
 export interface SettingsGroup {
@@ -38,6 +39,7 @@ export function SettingsGroupList({ groups }: SettingsGroupListProps) {
           value={item.value}
           onPress={item.onPress}
           isDestructive={item.isDestructive}
+          isExternal={item.isExternal}
           hasDivider={index < group.items.length - 1}
         />
       ))}

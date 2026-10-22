@@ -32,6 +32,8 @@ describe("When business moves to Spain", () => {
         countryCode: "ES",
         timeZoneId: "Europe/Madrid",
         currencyCode: "EUR",
+        locationName: null,
+        locationMapsUrl: null,
       }),
     );
   });

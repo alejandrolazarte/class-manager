@@ -12,6 +12,8 @@ export function buildBusiness(overrides: Partial<Business> = {}): Business {
       { effectiveFrom: "2026-01", amount: 12000, billingMode: "MonthlyFee" },
     ],
     billingMode: "MonthlyFee",
+    locationName: null,
+    locationMapsUrl: null,
     ...overrides,
   };
 }

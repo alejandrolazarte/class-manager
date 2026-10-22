@@ -7,8 +7,9 @@ interface SettingsRowProps {
   icon: IconName;
   label: string;
   value?: string;
-  onPress: () => void;
+  onPress?: () => void;
   isDestructive?: boolean;
+  isExternal?: boolean;
   hasDivider: boolean;
 }
 
@@ -18,6 +19,7 @@ export function SettingsRow({
   value,
   onPress,
   isDestructive = false,
+  isExternal = false,
   hasDivider,
 }: SettingsRowProps) {
   return (
@@ -39,7 +41,9 @@ export function SettingsRow({
           {value}
         </AppText>
       ) : null}
-      {isDestructive ? null : <Icon name="next" size="medium" tone="subtle-foreground" />}
+      {isDestructive || onPress === undefined ? null : (
+        <Icon name={isExternal ? "openExternal" : "next"} size="medium" tone="subtle-foreground" />
+      )}
     </HairlineRow>
   );
 }

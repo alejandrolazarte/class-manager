@@ -194,7 +194,8 @@ public sealed class GetStudentAppHomeUseCase(
             await BillingAsync(client.Id, business.CurrencyCode, today, cancellationToken),
             levels,
             signedInAccounts.Count > 0 ? signedInAccounts[0].FullName : client.User.FullName,
-            pendingGuardianConsents);
+            pendingGuardianConsents,
+            StudentAppLocationResponse.From(business));
     }
 
     private async Task<IReadOnlyList<StudentAppGuardianConsentResponse>> PendingGuardianConsentsAsync(

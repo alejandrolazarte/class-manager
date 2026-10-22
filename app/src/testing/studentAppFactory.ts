@@ -104,6 +104,7 @@ export function buildStudentAppHome(overrides: Partial<StudentAppHome> = {}): St
     clientFullName: "Ana Pérez",
     signedInFullName: "Ana Pérez",
     pendingGuardianConsents: [],
+    location: null,
     students: [buildAccountStudent()],
     billing: {
       kind: "BusinessFee",
