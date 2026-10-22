@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { ProductPhotoCarousel } from "@/features/studentApp/components/ProductPhotoCarousel";
-import { maximumUnitsPerItem } from "@/features/studentApp/studentAppCart";
+import { maximumUnitsPerItem, variantMaximumUnits } from "@/features/studentApp/studentAppCart";
 import { QuantityStepper } from "@/features/studentApp/components/QuantityStepper";
-import { StudentAppShopProduct } from "@/features/studentApp/types";
+import { StudentAppShopProduct, StudentAppShopVariant } from "@/features/studentApp/types";
 import { formatMoney } from "@/formatting/money";
 import { productColorName, productColorSwatch } from "@/features/products/productColors";
 import { colorsOf } from "@/features/products/variantOptions";
@@ -21,7 +21,7 @@ interface ProductDetailPageProps {
   product: StudentAppShopProduct;
   currencyCode: string;
   onClose: () => void;
-  onAdd: (variantId: string, units: number) => void;
+  onAdd: (variant: StudentAppShopVariant, units: number) => void;
 }
 
 export function ProductDetailPage({
@@ -56,6 +56,9 @@ export function ProductDetailPage({
     );
     setSelectedVariantId((sameSize ?? firstAvailable)?.id ?? null);
   };
+  const maximumUnits =
+    selectedVariant === undefined ? maximumUnitsPerItem : variantMaximumUnits(selectedVariant);
+  const pickedUnits = Math.max(Math.min(units, maximumUnits), 1);
   const note =
     selectedVariant === undefined
       ? translate("student.shop.soldOutNote")
@@ -71,9 +74,9 @@ export function ProductDetailPage({
         <View className="flex-row items-center gap-2.5 border-t border-border-subtle bg-background px-5 pb-4 pt-3">
           <View className="h-12 justify-center rounded-xl border border-border bg-surface">
             <QuantityStepper
-              units={units}
+              units={pickedUnits}
               minimum={1}
-              maximum={maximumUnitsPerItem}
+              maximum={maximumUnits}
               onChange={setUnits}
             />
           </View>
@@ -83,11 +86,11 @@ export function ProductDetailPage({
                 selectedVariant === undefined
                   ? translate("student.shop.soldOut")
                   : translate("student.shop.addToCart", {
-                      total: formatMoney(product.price * units, currencyCode),
+                      total: formatMoney(product.price * pickedUnits, currencyCode),
                     })
               }
               disabled={selectedVariant === undefined}
-              onPress={() => selectedVariant && onAdd(selectedVariant.id, units)}
+              onPress={() => selectedVariant && onAdd(selectedVariant, pickedUnits)}
             />
           </View>
         </View>

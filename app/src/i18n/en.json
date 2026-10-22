@@ -1041,6 +1041,8 @@
   "products.stock.kind.Adjustment": "Adjust",
   "products.stock.kind.Sale": "Sale",
   "products.stock.kind.Refund": "Refund",
+  "products.stock.kind.Reservation": "Reservation",
+  "products.stock.kind.Cancellation": "Reservation cancelled",
   "products.stock.kind.InitialStock": "Initial stock",
   "products.stock.quantity": "Units that arrived",
   "products.stock.adjustment": "Difference (for example -1)",

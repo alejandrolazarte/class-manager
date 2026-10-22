@@ -46,9 +46,18 @@ export function cartUnits(cart: StudentAppCart): number {
   return Object.values(cart).reduce((units, itemUnits) => units + itemUnits, 0);
 }
 
-export function withUnits(cart: StudentAppCart, itemId: string, units: number): StudentAppCart {
+export function variantMaximumUnits(variant: StudentAppShopVariant): number {
+  return Math.min(variant.maximumUnits ?? maximumUnitsPerItem, maximumUnitsPerItem);
+}
+
+export function withUnits(
+  cart: StudentAppCart,
+  itemId: string,
+  units: number,
+  maximumUnits: number = maximumUnitsPerItem,
+): StudentAppCart {
   const nextCart: Record<string, number> = { ...cart };
-  const cappedUnits = Math.min(units, maximumUnitsPerItem);
+  const cappedUnits = Math.min(units, maximumUnits);
   if (cappedUnits > 0) {
     nextCart[itemId] = cappedUnits;
   } else {
@@ -66,6 +75,7 @@ export interface StudentAppCartItem {
   imageUrl: string | null;
   unitPrice: number;
   units: number;
+  maximumUnits: number;
   total: number;
   isPack: boolean;
 }
@@ -90,6 +100,7 @@ export function cartItems(shop: StudentAppShop, cart: StudentAppCart): StudentAp
       imageUrl: pack.images[0]?.url ?? null,
       unitPrice: pack.price,
       units: 1,
+      maximumUnits: 1,
       total: pack.price,
       isPack: true,
     }));
@@ -105,6 +116,7 @@ export function cartItems(shop: StudentAppShop, cart: StudentAppCart): StudentAp
         imageUrl: product.images[0]?.url ?? null,
         unitPrice: product.price,
         units: cart[variant.id] ?? 0,
+        maximumUnits: variantMaximumUnits(variant),
         total: product.price * (cart[variant.id] ?? 0),
         isPack: false,
       })),

@@ -7,7 +7,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record StudentAppShopPackResponse(Guid Id, string Name, string? Description, int ClassCount, decimal Price, int? ValidityMonths, IReadOnlyList<CatalogImageResponse> Images);
 
-public sealed record StudentAppShopVariantResponse(Guid Id, string Size, string? Color, StockAvailability Availability);
+public sealed record StudentAppShopVariantResponse(Guid Id, string Size, string? Color, StockAvailability Availability, int? MaximumUnits);
 
 public sealed record StudentAppShopProductResponse(
     Guid Id,

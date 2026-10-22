@@ -24,7 +24,7 @@ import { PackDetailPage } from "@/features/studentApp/components/PackDetailPage"
 import { ProductDetailPage } from "@/features/studentApp/components/ProductDetailPage";
 import { ShopProductCard } from "@/features/studentApp/components/ShopProductCard";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
-import { cartTotal } from "@/features/studentApp/studentAppCart";
+import { cartTotal, variantMaximumUnits } from "@/features/studentApp/studentAppCart";
 import {
   StudentAppShop,
   StudentAppShopPack,
@@ -303,8 +303,8 @@ export function StudentAppShopScreen() {
           product={openProduct}
           currencyCode={shop.currencyCode}
           onClose={closeProduct}
-          onAdd={(variantId, addedUnits) => {
-            addUnits(variantId, addedUnits);
+          onAdd={(variant, addedUnits) => {
+            addUnits(variant.id, addedUnits, variantMaximumUnits(variant));
             closeProduct();
           }}
         />

@@ -178,6 +178,7 @@ export interface StudentAppShopVariant {
   size: string;
   color: string | null;
   availability: StockAvailability;
+  maximumUnits: number | null;
 }
 
 export interface StudentAppShopProduct {

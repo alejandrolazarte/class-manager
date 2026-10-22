@@ -38,7 +38,8 @@ export interface SaveProductRequest {
   variants: VariantChange[];
 }
 
-export type StockMovementKind = "Restock" | "Adjustment" | "Sale" | "Refund" | "InitialStock";
+export type StockMovementKind =
+  "Restock" | "Adjustment" | "Sale" | "Refund" | "Reservation" | "Cancellation" | "InitialStock";
 
 export type StockLoadKind = Extract<StockMovementKind, "Restock" | "Adjustment">;
 
