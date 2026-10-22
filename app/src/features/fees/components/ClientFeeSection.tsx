@@ -25,6 +25,7 @@ import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { IconButton } from "@/ui/IconButton";
+import { OutlinedBlock } from "@/ui/OutlinedBlock";
 import { TextLink } from "@/ui/TextLink";
 import { useToast } from "@/ui/ToastProvider";
 import { clientTabs, routes } from "@/navigation/routes";
@@ -176,15 +177,19 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
       {canViewClassPacks ? (
         <ClassBalanceSection clientId={client.id} isMonthlyPlan={isMonthlyPlan} />
       ) : null}
-      <View>
+      <OutlinedBlock>
         <SectionTitle title={translate("fees.client.payments")} isOverline />
         {payments.length === 0 ? (
           <AppText variant="body" tone="muted" className="py-2.5">
             {translate("fees.client.noPayments")}
           </AppText>
         ) : (
-          payments.map((payment) => (
-            <HairlineRow key={payment.id} className="flex-row items-center gap-2 py-2">
+          payments.map((payment, index) => (
+            <HairlineRow
+              key={payment.id}
+              hasDivider={index < payments.length - 1}
+              className="flex-row items-center gap-2 py-2"
+            >
               <View className="min-w-0 flex-1">
                 <AppText variant="bodyStrong">
                   {formatMoney(payment.amount, payment.currencyCode)}
@@ -216,7 +221,7 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
             </HairlineRow>
           ))
         )}
-      </View>
+      </OutlinedBlock>
     </View>
   );
 }
