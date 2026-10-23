@@ -1,7 +1,7 @@
 #!/bin/bash
 # Prepares a Claude Code on the web container: .NET 10 SDK, frontend tooling,
-# the Playwright browser for the e2e tests and the Azure CLI. The backend, the
-# frontend and the Azure CLI are prepared in parallel. The SQL Server image is not pulled here: the SessionStart
+# the Playwright browser for the e2e tests. The backend and the frontend are
+# prepared in parallel. The SQL Server image is not pulled here: the SessionStart
 # hook (cloud-session-start.sh) pulls it in the background when it is missing.
 # Meant to be run from the cloud environment's Setup script. Idempotent.
 set -euo pipefail
@@ -15,10 +15,6 @@ readonly E2E_DIRECTORY="$PROJECT_DIRECTORY/e2e"
 readonly GIT_HOOKS_DIRECTORY=".githooks"
 readonly PLAYWRIGHT_BROWSER="chromium"
 readonly PLAYWRIGHT_DOWNLOAD_HOST="cdn.playwright.dev"
-readonly AZURE_CLI_VERSION="2.91.0"
-readonly AZURE_CLI_DIRECTORY="/opt/azure-cli"
-readonly AZURE_CLI_LINK="/usr/local/bin/az"
-readonly AZURE_CLI_PACKAGE_HOST="pypi.org"
 
 log() { echo "[cloud-setup] $*" >&2; }
 
@@ -101,27 +97,6 @@ install_playwright_browser() {
     || log "Playwright browser download failed, allow $PLAYWRIGHT_DOWNLOAD_HOST in the environment's network access"
 }
 
-azure_cli_is_installed() {
-  [ -x "$AZURE_CLI_DIRECTORY/bin/az" ] \
-    && "$AZURE_CLI_DIRECTORY/bin/pip" show azure-cli 2>/dev/null | grep -q "^Version: $AZURE_CLI_VERSION$"
-}
-
-install_azure_cli() {
-  persist_environment_variable AZURE_CORE_COLLECT_TELEMETRY "0"
-  if azure_cli_is_installed; then
-    log "Azure CLI $AZURE_CLI_VERSION already installed"
-  else
-    log "Installing Azure CLI $AZURE_CLI_VERSION from PyPI into $AZURE_CLI_DIRECTORY"
-    run_as_root python3 -m venv "$AZURE_CLI_DIRECTORY"
-    run_as_root "$AZURE_CLI_DIRECTORY/bin/pip" install --quiet "azure-cli==$AZURE_CLI_VERSION"
-  fi
-  run_as_root ln -sf "$AZURE_CLI_DIRECTORY/bin/az" "$AZURE_CLI_LINK"
-}
-
-prepare_azure_cli() {
-  install_azure_cli || log "Azure CLI install failed, allow $AZURE_CLI_PACKAGE_HOST and files.pythonhosted.org in the environment's network access"
-}
-
 enable_git_hooks() {
   log "Enabling repository git hooks ($GIT_HOOKS_DIRECTORY)"
   git -C "$PROJECT_DIRECTORY" config core.hooksPath "$GIT_HOOKS_DIRECTORY"
@@ -143,9 +118,6 @@ prepare_backend &
 readonly BACKEND_PROCESS_ID=$!
 prepare_frontend &
 readonly FRONTEND_PROCESS_ID=$!
-prepare_azure_cli &
-readonly AZURE_CLI_PROCESS_ID=$!
 wait "$BACKEND_PROCESS_ID"
 wait "$FRONTEND_PROCESS_ID"
-wait "$AZURE_CLI_PROCESS_ID"
 log "Done"
