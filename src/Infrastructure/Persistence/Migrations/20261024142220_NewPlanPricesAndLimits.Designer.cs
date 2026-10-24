@@ -3762,7 +3762,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             PlanCode = "enterprise",
                             FeatureCode = "document-storage",
-                            Limit = 20480
+                            Limit = 10240
                         });
                 });
 

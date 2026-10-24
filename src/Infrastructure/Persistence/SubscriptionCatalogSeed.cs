@@ -24,7 +24,7 @@ internal static class SubscriptionCatalogSeed
     private const int FreeDocumentStorageInMegabytes = 100;
     private const int LiteDocumentStorageInMegabytes = 1024;
     private const int ProDocumentStorageInMegabytes = 5 * 1024;
-    private const int EnterpriseDocumentStorageInMegabytes = 20 * 1024;
+    private const int EnterpriseDocumentStorageInMegabytes = 10 * 1024;
 
     public static ModelBuilder SeedSubscriptionCatalog(this ModelBuilder modelBuilder)
     {
