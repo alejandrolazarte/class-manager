@@ -199,7 +199,7 @@ The daily core — students, families, class groups, enrollments, attendance, mo
 | `student-app` (family accounts, avisos) | | ✓ | ✓ | ✓ | ✓ | no |
 | `shop` (products and orders) | | | | ✓ | ✓ | no |
 | `brand` (brand theme, logo, theme lock) | | | | ✓ | ✓ | no |
-| `document-storage` (MB of uploaded files: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 20 GB | yes, 2 € per 10 GB more |
+| `document-storage` (MB of uploaded files of the branch: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 10 GB | yes, 2 € per 10 GB more |
 | Future paid features (online payments, reports, …) | | | | | | yes, priced |
 
 When a plan's prices or limits change, a brand already on it keeps its agreed price, because each subscription stores its own `Price`. The new limits apply to it; an operator who wants a brand to keep an old limit gives it the feature as an add-on at 0 with that limit (**Dar add-on** in the backoffice). Going past a limit never removes anything: only adding more is refused.
