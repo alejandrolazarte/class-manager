@@ -42,6 +42,8 @@ Each acceptance is a row in `LegalTermsAcceptances` (`UserId`, `Version`, `Accep
 
 `GET /api/me/account` answers `hasAcceptedCurrentLegalTerms`. When it is `false` (accounts created before this change, or after a new version), `LegalTermsGate` shows "Actualizamos los términos" instead of the app, for the team and the student app, until the person accepts (`POST /api/me/account/legal-terms-acceptance`) or signs out. Only a change people must agree to needs a new version; fixing a typo does not.
 
+Versions: 2026-10-13, the first; 2026-10-24, Sentry added to the providers in the privacy policy ([error reporting](error-reporting.md)).
+
 ## Still pending
 
 - Real holder data in `legalHolder.ts`, and a lawyer's review.

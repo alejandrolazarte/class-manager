@@ -326,6 +326,10 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
 
 Without these settings the API sends nothing and the app hides the option. On iPhone, notifications only work when the student opens the app from the home screen (Compartir → Agregar a inicio, iOS 16.4 or later); the app explains this when the browser can't show them. Subscriptions that the push service reports as gone are deleted automatically.
 
+## Error reporting
+
+The API and the web app report errors to Sentry once their DSNs are set: the Container Apps variable `Sentry__Dsn`, and the GitHub variables `EXPO_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_APP_PROJECT` with the secret `SENTRY_AUTH_TOKEN` for the source maps. Steps: [error reporting](error-reporting.md#setting-it-up).
+
 ## Automatic deploys
 
 | On | What happens |

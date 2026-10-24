@@ -6,6 +6,7 @@ using ClassManager.Api.BackgroundTasks;
 using ClassManager.Api.Cors;
 using ClassManager.Api.Endpoints;
 using ClassManager.Api.ErrorHandling;
+using ClassManager.Api.ErrorReporting;
 using ClassManager.Api.Orders;
 using ClassManager.Infrastructure.Audit;
 using ClassManager.Infrastructure.Json;
@@ -13,6 +14,7 @@ using ClassManager.Infrastructure.SecurityHeaders;
 using ClassManager.Subscriptions.AspNetCore.Limits;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddErrorReporting();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<FeatureLimitExceptionHandler>();

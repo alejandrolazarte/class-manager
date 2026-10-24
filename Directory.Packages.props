@@ -34,6 +34,10 @@
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
   </ItemGroup>
 
+  <ItemGroup Label="Error reporting">
+    <PackageVersion Include="Sentry.AspNetCore" Version="6.12.1" />
+  </ItemGroup>
+
   <ItemGroup Label="Security">
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
   </ItemGroup>

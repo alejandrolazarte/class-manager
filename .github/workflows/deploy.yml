@@ -39,6 +39,7 @@ jobs:
       - run: >-
           docker build
           --file src/Api/Containerfile
+          --build-arg "SOURCE_REVISION=$DEPLOYED_SHA"
           --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
           --label "org.opencontainers.image.revision=$DEPLOYED_SHA"
           --tag "$IMAGE_NAME:$DEPLOYED_SHA"
@@ -141,6 +142,11 @@ jobs:
       EXPO_PUBLIC_API_BASE_URL: ${{ vars.EXPO_PUBLIC_API_BASE_URL }}
       FILES_BASE_URL: ${{ vars.FILES_BASE_URL }}
       EXPO_PUBLIC_PLANS_CONTACT_URL: ${{ vars.EXPO_PUBLIC_PLANS_CONTACT_URL }}
+      EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN }}
+      EXPO_PUBLIC_SENTRY_RELEASE: ${{ github.event.workflow_run.head_sha }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ vars.SENTRY_APP_PROJECT }}
       STATIC_WEB_APPS_CLI: "@azure/static-web-apps-cli@2.0.10"
     steps:
       - uses: actions/checkout@v7
@@ -157,6 +163,15 @@ jobs:
           corepack enable
           pnpm install --frozen-lockfile
           pnpm export:web
+
+      - name: Upload source maps to Sentry
+        if: env.SENTRY_AUTH_TOKEN != ''
+        working-directory: app
+        run: pnpm exec sentry-cli sourcemaps upload --release "$EXPO_PUBLIC_SENTRY_RELEASE" dist/_expo
+
+      - name: Remove source maps from the published files
+        working-directory: app
+        run: find dist -name "*.map" -delete
 
       - name: Sign in to Azure with OpenID Connect
         run: |

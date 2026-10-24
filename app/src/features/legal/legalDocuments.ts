@@ -177,6 +177,7 @@ const privacy: LegalDocument = {
         "• Microsoft Azure: servidores, base de datos y fotos.",
         "• Cloudflare: publicación de la versión web de la app.",
         "• Google (Gmail): envío de emails.",
+        "• Sentry: registro de los errores de la app, guardado en la Unión Europea (Alemania).",
         "• Los servicios de notificaciones del navegador o del teléfono (Google, Apple, Mozilla): envío de notificaciones.",
         "• Expo: distribución de la app para teléfonos.",
         "Si algún proveedor trata datos fuera del Espacio Económico Europeo, lo hace con las garantías que exige la normativa, como las cláusulas contractuales tipo de la Comisión Europea.",
