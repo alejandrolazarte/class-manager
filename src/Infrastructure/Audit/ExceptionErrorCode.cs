@@ -16,6 +16,8 @@ internal static class ExceptionErrorCode
             }
         }
 
-        return null;
+        var innermostException = exception.GetBaseException();
+
+        return innermostException == exception ? null : innermostException.GetType().Name;
     }
 }
