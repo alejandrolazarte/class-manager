@@ -3603,6 +3603,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "free",
+                            FeatureCode = "class-packs"
+                        },
+                        new
+                        {
+                            PlanCode = "free",
                             FeatureCode = "import-export"
                         },
                         new

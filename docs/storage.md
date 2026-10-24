@@ -109,7 +109,7 @@ Every file a business uploads (product, pack and announcement photos, class PDFs
 - **Measured from `Documents.SizeInBytes`.** The space used is the sum of the branch's documents, so it needs no new column. The limit is stored in MB; usage is shown rounded up to the next MB.
 - **Checked when saving.** `FeatureLimits.Sum<Document>` registers it, and `FeatureLimitSaveChangesInterceptor` adds the new documents, subtracts the ones deleted in the same save (replacing a class PDF) and refuses with `feature.limit_reached` past the limit. The file was already uploaded, so the use case deletes it, as it does for any failed save.
 - **Why this limit and not a number of photos.** Keeping files is close to free: about 0.02 € per GB a month, so a full `Pro` costs about 0.10 € in Azure, 0.25 % of its 39 € price. The limit stops abuse and gives something to sell. Egress (each view of a public photo or PDF) costs more than storage, so the next saving is shrinking photos when they are uploaded, not a tighter limit.
-- **On `Free`**, which has neither the shop nor class packs, the space is only usable for class PDFs.
+- **On `Free`**, which has no shop, the space is used by class PDFs and pack and announcement photos.
 
 ## Configuration
 
