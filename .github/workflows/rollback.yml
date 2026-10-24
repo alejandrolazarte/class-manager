@@ -142,6 +142,8 @@ jobs:
       EXPO_PUBLIC_API_BASE_URL: ${{ vars.EXPO_PUBLIC_API_BASE_URL }}
       FILES_BASE_URL: ${{ vars.FILES_BASE_URL }}
       EXPO_PUBLIC_PLANS_CONTACT_URL: ${{ vars.EXPO_PUBLIC_PLANS_CONTACT_URL }}
+      EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN }}
+      EXPO_PUBLIC_SENTRY_RELEASE: ${{ needs.resolve.outputs.sha }}
       STATIC_WEB_APPS_CLI: "@azure/static-web-apps-cli@2.0.10"
     steps:
       - uses: actions/checkout@v7
@@ -158,6 +160,10 @@ jobs:
           corepack enable
           pnpm install --frozen-lockfile
           pnpm export:web
+
+      - name: Remove source maps from the published files
+        working-directory: app
+        run: find dist -name "*.map" -delete
 
       - name: Sign in to Azure with OpenID Connect
         run: |

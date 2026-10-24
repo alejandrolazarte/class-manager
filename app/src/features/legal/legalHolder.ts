@@ -7,4 +7,4 @@ export const legalHolder = {
   governingLaw: "[LEY Y TRIBUNALES APLICABLES]",
 } as const;
 
-export const legalTermsUpdatedOn = "13 de octubre de 2026";
+export const legalTermsUpdatedOn = "24 de octubre de 2026";

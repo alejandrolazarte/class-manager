@@ -21,7 +21,7 @@ It also sends `Access-Control-Allow-Origin: *` and a one-year immutable cache fo
 | `style-src` | `'self' 'unsafe-inline'` | `react-native-web` injects `<style>` tags at runtime. |
 | `img-src` | `'self' data: blob:` + the files origin | The business logo is fetched from the API and shown as a `data:` image. Product and class pack photos come from Blob Storage; its origin is taken from `FILES_BASE_URL` when set (see [storage](../storage.md)). |
 | `font-src` | `'self' data:` | Figtree and the icon fonts are bundled with the app. |
-| `connect-src` | `'self'` + the API origin | The app only talks to its API. A stolen token can't be sent anywhere else. |
+| `connect-src` | `'self'` + the API origin, + the Sentry ingest origin when `EXPO_PUBLIC_SENTRY_DSN` is set | The app only talks to its API and sends its errors to Sentry ([error reporting](../error-reporting.md)). A stolen token can't be sent anywhere else. |
 | `worker-src`, `manifest-src` | `'self'` | The service worker and the PWA manifest. |
 | `object-src` | `'none'` | No plugins. |
 | `base-uri`, `form-action` | `'self'` | Nobody can redirect relative links or form posts to another site. |

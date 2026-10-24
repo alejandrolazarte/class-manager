@@ -5,6 +5,7 @@ import { SplashScreen, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { refetchWhenAppReturns } from "@/api/appFocus";
+import { startErrorReporting } from "@/errorReporting/startErrorReporting";
 import { AppUpdateBanner } from "@/features/appUpdate/AppUpdateBanner";
 import { SessionProvider } from "@/features/authentication/SessionProvider";
 import { useSession } from "@/features/authentication/useSession";
@@ -17,6 +18,7 @@ import { fontAssets } from "@/theme/typography";
 import { ToastProvider } from "@/ui/ToastProvider";
 import { useStackScreenOptions } from "@/navigation/stackScreenOptions";
 
+startErrorReporting();
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 refetchWhenAppReturns();
 

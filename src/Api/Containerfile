@@ -9,6 +9,8 @@ RUN dotnet restore src/Api/Api.csproj
 RUN dotnet publish src/Api/Api.csproj --configuration Release --no-restore --output /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+ARG SOURCE_REVISION
+ENV SENTRY_RELEASE=$SOURCE_REVISION
 WORKDIR /app
 COPY --from=build /app ./
 

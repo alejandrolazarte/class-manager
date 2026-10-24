@@ -16,4 +16,4 @@ Ajustes → **Enviar comentarios**, in the team app and in the student app, lets
 
 ## Not included
 
-- Error reporting (crashes and failed requests nobody reports) is a separate step, still pending in the [pilot plan](pilot-df-swimming.md#also-needed-before-the-pilot-starts).
+- Crashes and failed requests nobody reports reach Sentry instead: [error reporting](error-reporting.md).
