@@ -56,9 +56,9 @@ The first list must include "France Central" and the second must show `GP_S_Gen5
 az group create --name $resourceGroup --location $location
 ```
 
-In the portal: **Cost Management → Budgets → Add**, scope `class-manager-rg`, USD 1 per month, email alert at 100%. It's the safety net if something stops being free.
+In the portal: **Cost Management → Budgets → Add**, scope the subscription, EUR 8 per month (the Basic database plus margin), email alerts on actual and forecasted cost at 100%. It only warns: it never stops a resource.
 
-## 3. SQL server and free database
+## 3. SQL server and database
 
 The server only accepts Microsoft Entra sign-ins (no SQL passwords). The owner is its Entra admin; a Gmail or Outlook account works as a guest user of the Azure directory.
 
@@ -69,14 +69,15 @@ az sql server create --name $sqlServer --resource-group $resourceGroup --locatio
   --external-admin-name $owner.name --external-admin-sid $owner.id
 
 az sql db create --name $database --server $sqlServer --resource-group $resourceGroup `
-  --edition GeneralPurpose --family Gen5 --capacity 2 --compute-model Serverless `
-  --use-free-limit --free-limit-exhaustion-behavior AutoPause --backup-storage-redundancy Local
+  --edition Basic --service-objective Basic --max-size 2GB --backup-storage-redundancy Local
 
 az sql server firewall-rule create --name AllowAzureServices --server $sqlServer --resource-group $resourceGroup `
   --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
 ```
 
 `AllowAzureServices` lets the API reach the database. The PC and GitHub get temporary rules only while they run migrations.
+
+The database is on the DTU **Basic** tier (5 DTU, 2 GB, about EUR 5 a month, always online) since 2026-10-24; the pilot started on the free offer, which paused when its monthly vCore-seconds ran out. Why Basic and what it includes: [Database on the Basic tier](database-basic-tier.md). In the portal, create it from **SQL databases → Create** with **Compute + storage → Basic**, **Locally-redundant** backups and **Microsoft Defender for SQL: Not now** (it costs more than the database).
 
 ## 4. Deploy identity for GitHub Actions
 
@@ -150,7 +151,7 @@ $apiHost = az containerapp show --name $containerApp --resource-group $resourceG
 "https://$apiHost"
 ```
 
-The connection string has no password: the app signs in to SQL with its managed identity. `ConnectRetry*` covers the few seconds the free database takes to resume after a pause.
+The connection string has no password: the app signs in to SQL with its managed identity. `ConnectRetry*` covers short connection drops, such as a maintenance failover.
 
 `ASPNETCORE_ENVIRONMENT` is left unset, so the container runs as **Production** (ASP.NET Core's default). This is the only deployed environment. It matters for security: the OpenAPI document (the full list of endpoints) is served only under `Development`, so it is never exposed in Azure. To regenerate it for a security scan, run the API locally, where it listens on `/openapi/v1.json`.
 
@@ -196,8 +197,8 @@ Re-run the latest CI run on `main` from the Actions tab (or merge any pull reque
 
 1. Builds the image and pushes it to `ghcr.io/alejandrolazarte/class-manager-api:<commit>`.
 2. Signs in to Azure with OpenID Connect and opens the SQL firewall to the runner's IP.
-3. Applies the migrations, then closes the firewall rule. The free database pauses when idle and answers `40613 Database 'ClassManager' is not currently available` while it resumes (about a minute), so `scripts/migrate-database.mjs` retries each context on that error only, up to 4 attempts 30 seconds apart. Any other migration error fails the deploy on the first attempt.
-4. Points the container app at the new image and waits for `/health`.
+3. Applies the migrations, then closes the firewall rule. A database that is not online answers `40613 Database 'ClassManager' is not currently available` (the free offer did while resuming, about a minute), so `scripts/migrate-database.mjs` retries each context on that error only, up to 4 attempts 30 seconds apart. Any other migration error fails the deploy on the first attempt.
+4. Points the container app at the new image and runs `scripts/wait-for-container-app-revision.sh`: it waits until the new revision is the ready one and answers `/health`, and fails otherwise. `/health` alone is not enough: a revision that can't start leaves the previous one serving, and the old code answers `/health`.
 
 Check it: `https://<api host>/health` answers `Healthy`.
 
@@ -343,12 +344,12 @@ az containerapp show --name $containerApp --resource-group $resourceGroup --quer
 az containerapp secret list --name $containerApp --resource-group $resourceGroup --query "[].name"
 az containerapp show --name $containerApp --resource-group $resourceGroup --query "properties.template.containers[0].env[?starts_with(name, 'Cors') || starts_with(name, 'WebApp')]" --output table
 az sql server firewall-rule list --server $sqlServer --resource-group $resourceGroup --output table
-az sql db show --name $database --server $sqlServer --resource-group $resourceGroup --query "{free:useFreeLimit, whenExhausted:freeLimitExhaustionBehavior}"
+az sql db show --name $database --server $sqlServer --resource-group $resourceGroup --query "{tier:currentSku.tier, objective:currentServiceObjectiveName, free:useFreeLimit}"
 az role assignment list --assignee-object-id $deployObjectId --all --output table
 gh variable list --repo $repository
 ```
 
-Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, the database uses the free limit with `AutoPause`, and the only CORS origin is `https://app.laztty.com`.
+Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, the database is `Basic` / `Basic` without the free limit, and the only CORS origin is `https://app.laztty.com`.
 
 ## Rotating secrets
 
