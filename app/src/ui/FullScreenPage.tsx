@@ -2,6 +2,7 @@ import { PropsWithChildren, ReactNode } from "react";
 import { Modal, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { translate } from "@/i18n/translate";
+import { useCloseOnBack } from "@/navigation/useCloseOnBack";
 import { ThemeScope } from "@/theme/ThemeScope";
 import { AppText } from "@/ui/AppText";
 import { IconButton } from "@/ui/IconButton";
@@ -20,6 +21,7 @@ export function FullScreenPage({
   footer,
   children,
 }: FullScreenPageProps) {
+  useCloseOnBack(onClose);
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <ThemeScope className="flex-1 bg-background">
