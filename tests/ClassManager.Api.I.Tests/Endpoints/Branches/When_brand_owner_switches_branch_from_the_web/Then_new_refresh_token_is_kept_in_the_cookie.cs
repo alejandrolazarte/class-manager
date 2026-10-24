@@ -16,7 +16,7 @@ public sealed class Then_new_refresh_token_is_kept_in_the_cookie(ApiFixture fixt
         using var signInResponse = await client.SignUpAndSignInFromWebAsync(fixture.ApiFactory.EmailTransport);
         var signInBody = await signInResponse.Content.ReadFromJsonAsync<JsonElement>();
         using var ownerClient = fixture.CreateClientWithToken(signInBody.GetProperty(AccessTokenProperty).GetString()!);
-        await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
+        await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Enterprise);
         var branch = await ownerClient.CreateBranchAsync("Sede centro");
         var signInCookieValue = signInResponse.RefreshTokenCookieOf().Value.Value!;
 

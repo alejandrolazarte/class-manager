@@ -15,7 +15,7 @@ public sealed class Then_tokens_are_for_the_main_branch(ApiFixture fixture)
         var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
         var mainBusinessId = (await ownerClient.GetCurrentMemberAsync()).BusinessId;
-        await fixture.ChangePlanAsync(mainBusinessId, PlanCodes.Pro);
+        await fixture.ChangePlanAsync(mainBusinessId, PlanCodes.Enterprise);
         for (var branchNumber = 1; branchNumber <= BranchCount; branchNumber++)
         {
             await ownerClient.CreateBranchAsync($"Branch {branchNumber}");
