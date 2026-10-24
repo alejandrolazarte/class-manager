@@ -13,7 +13,7 @@ public sealed class Then_they_teach_in_it(ApiFixture fixture)
         using var client = fixture.ApiFactory.CreateClient();
         var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
-        await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
+        await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Enterprise);
         var branch = await ownerClient.CreateBranchAsync("DF Valencia");
 
         var switchedTokens = await client.SwitchBranchAsync(tokens.RefreshToken, branch.BusinessId);

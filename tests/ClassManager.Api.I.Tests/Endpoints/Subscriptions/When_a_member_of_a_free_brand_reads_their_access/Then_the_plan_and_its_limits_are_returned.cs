@@ -17,6 +17,6 @@ public sealed class Then_the_plan_and_its_limits_are_returned(ApiFixture fixture
         member.Subscription!.PlanCode.ShouldBe(PlanCodes.Free);
         member.Subscription.IsActive.ShouldBeTrue();
         member.Subscription.Features.Single(feature => feature.Code == Features.Students).Limit.ShouldBe(FreeStudentLimit);
-        member.Subscription.Features.ShouldNotContain(feature => feature.Code == Features.ImportExport);
+        member.Subscription.Features.ShouldNotContain(feature => feature.Code == Features.ClassPacks);
     }
 }

@@ -14,7 +14,6 @@ public sealed class Then_the_import_is_refused(ApiFixture fixture)
     public async Task Then_the_import_is_refused_Run()
     {
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
-        await fixture.AddFeatureAsync(business, Features.ImportExport);
         await fixture.SeedStudentsAsync(business, SeededStudents);
         const string CsvText = """
             Alumno;Teléfono;Fecha de nacimiento;Responsable
