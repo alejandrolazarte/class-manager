@@ -30,3 +30,12 @@ Following Material Design (full-screen dialogs use only ✕) and Apple's HIG (mo
 Both call `router.back()`, and the Android back button behaves the same. Loading and error states of a form keep ✕ (`SettingsItemState navigation="close"`), so the icon doesn't change while the form loads.
 
 Enforced by `src/navigation/__tests__/When_a_screen_edits_a_form/`: a screen with `useForm(` or `SettingsFormScreenLayout` must not show ←.
+
+## 3. Back closes the sheet on top, not the screen behind it
+
+Sheets, dialogs and full-screen pickers (`BottomSheet`, `FilterSheet`, `ConfirmDialog`, `FullScreenPage`, `SearchPage`) are not routes: they are a `Modal` drawn over the screen that owns them. Pressing back (the Android back button, a back gesture or the browser's back) closes only the one on top and leaves the screen as it was.
+
+- **Android and iOS apps**: the native `Modal` receives the back press and calls its `onRequestClose`.
+- **Web and the installed web app (PWA)**: a `Modal` knows nothing about browser history, so back used to move the router to the previous page. A sheet owned by a tab screen (Ajustes) stayed open over the previous tab, because tabs keep their screens mounted; a sheet owned by a stack screen disappeared together with the screen. Now each of these primitives calls `useCloseOnBack`, which pushes a history entry (same URL, same router id) when the sheet opens. Back pops that entry: a capture `popstate` listener closes the top sheet and stops the event before expo-router sees it. A sheet closed any other way (its button, the backdrop) removes its own entry, so the next back goes to the previous page; if the screen that owns it is removed (`router.back()` after confirming), the entry is removed first (`beforeRemove`) so the router goes back to the right page.
+
+A new sheet-like component builds on these primitives, or calls `useCloseOnBack(onClose)` itself. The rules (`src/navigation/layerHistory.ts`) are covered by `src/navigation/__tests__/When_back_is_pressed_with_a_sheet_open/` and its siblings.
