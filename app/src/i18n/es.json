@@ -486,6 +486,7 @@
   "classPacks.form.price": "Precio",
   "classPacks.form.validityMonths": "Vence a los (meses)",
   "classPacks.form.validityPlaceholder": "Vacío: las clases no vencen",
+  "classPacks.form.validityHint": "Plazo para usar las clases desde que se compra el pack. Después, las que no se usen se pierden.",
   "classPacks.form.saved": "Pack guardado",
   "classPacks.form.activate": "Volver a vender este pack",
   "classPacks.form.deactivate": "Dejar de vender este pack",

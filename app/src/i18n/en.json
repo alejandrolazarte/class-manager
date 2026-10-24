@@ -486,6 +486,7 @@
   "classPacks.form.price": "Price",
   "classPacks.form.validityMonths": "Expires after (months)",
   "classPacks.form.validityPlaceholder": "Empty: classes don't expire",
+  "classPacks.form.validityHint": "Time to use the classes from the pack's purchase. After that, unused ones are lost.",
   "classPacks.form.saved": "Pack saved",
   "classPacks.form.activate": "Sell this pack again",
   "classPacks.form.deactivate": "Stop selling this pack",
