@@ -54,6 +54,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                 schema: "billing",
                 table: "PlanFeatures",
                 keyColumns: new[] { "FeatureCode", "PlanCode" },
+                keyValues: new object[] { "document-storage", "enterprise" },
+                column: "Limit",
+                value: 20480);
+
+            migrationBuilder.UpdateData(
+                schema: "billing",
+                table: "PlanFeatures",
+                keyColumns: new[] { "FeatureCode", "PlanCode" },
                 keyValues: new object[] { "students", "lite" },
                 column: "Limit",
                 value: 100);
@@ -145,6 +153,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                 keyValues: new object[] { "branches", "enterprise" },
                 column: "Limit",
                 value: null);
+
+            migrationBuilder.UpdateData(
+                schema: "billing",
+                table: "PlanFeatures",
+                keyColumns: new[] { "FeatureCode", "PlanCode" },
+                keyValues: new object[] { "document-storage", "enterprise" },
+                column: "Limit",
+                value: 10240);
 
             migrationBuilder.UpdateData(
                 schema: "billing",
