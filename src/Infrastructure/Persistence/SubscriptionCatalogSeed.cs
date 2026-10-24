@@ -50,6 +50,7 @@ internal static class SubscriptionCatalogSeed
             PlanFeature.Create(PlanCodes.Free, Features.Students, FreeStudents),
             PlanFeature.Create(PlanCodes.Free, Features.Branches, SingleBranch),
             PlanFeature.Create(PlanCodes.Free, Features.Team, FreeTeam),
+            PlanFeature.Create(PlanCodes.Free, Features.ClassPacks),
             PlanFeature.Create(PlanCodes.Free, Features.ImportExport),
             PlanFeature.Create(PlanCodes.Free, Features.StudentApp),
             PlanFeature.Create(PlanCodes.Free, Features.DocumentStorage, FreeDocumentStorageInMegabytes),

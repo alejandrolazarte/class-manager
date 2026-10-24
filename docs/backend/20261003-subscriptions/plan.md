@@ -35,6 +35,7 @@ Four is enough: fewer and `Lite` and `Pro` merge into one plan that is either to
 - A brand that never pays still costs storage and support, so `Free` is not forever: it lasts `Plan.DurationInDays` (30), and sign-up sets the subscription's `ExpiredOn` to the last day. 30 rather than 15 because the business runs on monthly fees: a month is enough to collect one full round of them, which is what convinces an owner. Changing the length is an update of the plan row, no deploy.
 - **No active subscription means read-only.** Every change (any authenticated request that isn't `GET`, `HEAD` or `OPTIONS`) answers `403 subscription.inactive` until the operator gives the brand `Lite`, `Pro` or `Enterprise`. Reads keep working, so the owner still sees students, classes and payments and nothing is lost.
 - The same rule covers a paid plan that stops being paid: the operator ends the subscription and the brand turns read-only. There is no automatic fallback to `Free` after a trial or a paid plan ends.
+- The trial is `Free` with its own features (the daily core, class packs and private lessons, import and export, the student app), not `Pro` features taken away when it ends: choosing a paid plan only adds to what the brand already used. Decided by the owner on 2026-10-24.
 - Anonymous endpoints (sign-in, refresh, sign-out, branch switch, invitations) keep working, and an endpoint can opt out with `.AllowInactiveSubscription()`.
 - The check is a middleware after authorization (`UseActiveSubscriptionForChanges`), so a member without the permission still gets the permission's `403` first.
 - Downgrading (for example `Enterprise` to `Lite`) is a new active subscription: the brand keeps writing, only the actions the smaller plan doesn't include are refused, and existing data stays.
@@ -193,7 +194,7 @@ The daily core — students, families, class groups, enrollments, attendance, mo
 | `students` (students of the branch) | yes | 30 | 100 | 300 | unlimited | no |
 | `branches` | yes | 1 | 1 | 1 | 3 | yes, 20 € per extra branch |
 | `team` (members of the branch besides its owners, pending invitations included) | yes | 0 | 2 | 10 | unlimited | no |
-| `class-packs` and private lessons | | | ✓ | ✓ | ✓ | no |
+| `class-packs` and private lessons | | ✓ | ✓ | ✓ | ✓ | no |
 | `import-export` | | ✓ | ✓ | ✓ | ✓ | no |
 | `custom-roles` | | | | ✓ | ✓ | no |
 | `student-app` (family accounts, avisos) | | ✓ | ✓ | ✓ | ✓ | no |
@@ -280,5 +281,4 @@ Step 6 replaces the lock notices (`LockedFeatureNotice`, a banner on top of an o
 ## Later, not in the MVP
 
 - Online billing (Mercado Pago / Stripe subscriptions): webhooks set `ExpiredOn` or replace the subscription, and a `Status` column (`PastDue`, grace period) arrives with them; until then `IsDeleted` and `ExpiredOn` say whether a subscription is active.
-- A trial with `Pro` features instead of `Free` limits, if conversions ask for it: the sign-up plan setting and `DurationInDays` already allow it.
 - Yearly billing (`BillingPeriod = Yearly`), coupons, and a platform admin screen.
