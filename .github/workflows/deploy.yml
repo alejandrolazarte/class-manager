@@ -121,12 +121,8 @@ jobs:
           az containerapp update --name "$AZURE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
             --image "$IMAGE_NAME:$DEPLOYED_SHA" --output none
 
-      - name: Wait for the API to answer
-        run: |
-          api_host=$(az containerapp show --name "$AZURE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
-            --query properties.configuration.ingress.fqdn --output tsv)
-          curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors --max-time 60 \
-            "https://$api_host/health"
+      - name: Wait for the new revision to answer
+        run: bash scripts/wait-for-container-app-revision.sh "$AZURE_CONTAINER_APP" "$AZURE_RESOURCE_GROUP"
 
   web:
     needs: api
@@ -195,6 +191,10 @@ jobs:
       AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
       AZURE_BACKOFFICE_CONTAINER_APP: ${{ vars.AZURE_BACKOFFICE_CONTAINER_APP }}
     steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOYED_SHA }}
+
       - name: Sign in to Azure with OpenID Connect
         run: |
           az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors
@@ -211,12 +211,8 @@ jobs:
           az containerapp update --name "$AZURE_BACKOFFICE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
             --image "$BACKOFFICE_IMAGE_NAME:$DEPLOYED_SHA" --output none
 
-      - name: Wait for the backoffice API to answer
-        run: |
-          api_host=$(az containerapp show --name "$AZURE_BACKOFFICE_CONTAINER_APP" --resource-group "$AZURE_RESOURCE_GROUP" \
-            --query properties.configuration.ingress.fqdn --output tsv)
-          curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors --max-time 60 \
-            "https://$api_host/health"
+      - name: Wait for the new backoffice revision to answer
+        run: bash scripts/wait-for-container-app-revision.sh "$AZURE_BACKOFFICE_CONTAINER_APP" "$AZURE_RESOURCE_GROUP"
 
   backoffice-web:
     needs: backoffice-api

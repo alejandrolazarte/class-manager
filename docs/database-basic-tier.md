@@ -4,6 +4,8 @@ Date: 2026-10-09
 
 The difference between the DTU and vCore purchasing models, what the Azure SQL **Basic** tier costs and includes, and the runbook to move the pilot database from the free offer to Basic for a trial month and back. Variables (`$resourceGroup`, `$sqlServer`, `$database`, `$containerApp`) are the ones from step 1 of the [pilot deployment runbook](pilot-deployment.md#1-names-and-sign-in).
 
+The pilot moved on 2026-10-24 without this runbook: its data was only the owner's, so the free database was deleted and a Basic one created with the same name on the same server, the database users recreated (API, backoffice and deploy, [step 6 of the pilot runbook](pilot-deployment.md#6-database-users) and [the backoffice's](backoffice-deployment.md#2-database-user)) and the schema applied by re-running the deploy. Use the runbook below when the data has to be kept.
+
 ## DTU and vCore
 
 Azure SQL Database sells the same SQL Server engine through two purchasing models. They differ in how compute is chosen and billed, not in what the database can store or run.
