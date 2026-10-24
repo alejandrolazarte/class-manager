@@ -14,7 +14,6 @@ public sealed class Then_a_plan_limit_event_is_written(ApiFixture fixture)
     public async Task Then_a_plan_limit_event_is_written_Run()
     {
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
-        await fixture.AddFeatureAsync(business, Features.ImportExport);
         await fixture.SeedStudentsAsync(business, SeededStudents);
         var tenantId = business.Business.Id.ToString(CultureInfo.InvariantCulture);
         const string CsvText = """

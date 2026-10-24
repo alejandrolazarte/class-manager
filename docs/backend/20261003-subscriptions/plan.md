@@ -1,6 +1,6 @@
 # Backend plan — Subscriptions, plans and features
 
-Status: steps 1–6 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks), and the operator script to change a plan; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and the exact split of features per plan are placeholders for the owner to decide.
+Status: steps 1–6 built (every feature and limit enforced centrally, a 30-day `Free` trial, read-only brands once their subscription ends, the app shows the trial, the plans, usage and locks), and the operator script to change a plan; see [Steps](#steps). Closes the "Pricing model" [open decision](../../mvp-plan.md#open-decisions) for the MVP; the prices and limits were set by the owner on 2026-10-24 (see [Feature catalog and split](#feature-catalog-and-split)).
 
 ## Goal
 
@@ -24,9 +24,9 @@ Status: steps 1–6 built (every feature and limit enforced centrally, a 30-day 
 | Plan | Who it is for | Price shown |
 |---|---|---|
 | `Free` | A **30-day trial** for every new sign-up, with limits | 0 |
-| `Lite` | One instructor or a small studio | Placeholder |
-| `Pro` | A studio with a team, a shop and its own brand | Placeholder |
-| `Enterprise` | Brands with several branches; agreed by hand | "Consultar" (no list price) |
+| `Lite` | One instructor or a small studio | 19 € a month |
+| `Pro` | A studio with a team, a shop and its own brand | 39 € a month |
+| `Enterprise` | Brands with several branches; agreed by hand, from 89 € a month | "Consultar" (no list price) |
 
 Four is enough: fewer and `Lite` and `Pro` merge into one plan that is either too cheap for studios or too expensive for instructors; more and the plan screen needs a comparison table nobody reads. Plan codes are stable identifiers (`free`, `lite`, `pro`, `enterprise`); the display name is UI copy.
 
@@ -184,23 +184,25 @@ sequenceDiagram
 
 `RequireFeature` is an endpoint filter, not an authorization policy: authorization already has the app's `permission:` policy provider, and a filter can answer with the problem body (`code`, `feature`) the app needs to show an upgrade. It also adds `RequiredFeatureMetadata`, and a test checks every required code is in `Features.All`.
 
-## Feature catalog and split (first version, placeholders)
+## Feature catalog and split
 
 The daily core — students, families, class groups, enrollments, attendance, monthly fees — is never a feature: every plan has it, otherwise `Free` is useless.
 
 | Feature | Counted | `Free` | `Lite` | `Pro` | `Enterprise` | Add-on |
 |---|---|---|---|---|---|---|
-| `students` (students of the branch) | yes | 30 | 150 | unlimited | unlimited | no |
-| `branches` | yes | 1 | 1 | 3 | unlimited | yes, per extra branch |
+| `students` (students of the branch) | yes | 30 | 100 | 300 | unlimited | no |
+| `branches` | yes | 1 | 1 | 1 | 3 | yes, 20 € per extra branch |
 | `team` (members of the branch besides its owners, pending invitations included) | yes | 0 | 2 | 10 | unlimited | no |
 | `class-packs` and private lessons | | | ✓ | ✓ | ✓ | no |
-| `import-export` | | | ✓ | ✓ | ✓ | yes |
+| `import-export` | | ✓ | ✓ | ✓ | ✓ | no |
 | `custom-roles` | | | | ✓ | ✓ | no |
-| `family-app` (family accounts, avisos) | | | | ✓ | ✓ | yes |
-| `shop` (products and orders) | | | | ✓ | ✓ | yes |
-| `brand` (brand theme, logo, theme lock) | | | | ✓ | ✓ | yes |
-| `document-storage` (MB of uploaded files: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 10 GB | yes, 2 € per 10 GB more |
+| `student-app` (family accounts, avisos) | | ✓ | ✓ | ✓ | ✓ | no |
+| `shop` (products and orders) | | | | ✓ | ✓ | no |
+| `brand` (brand theme, logo, theme lock) | | | | ✓ | ✓ | no |
+| `document-storage` (MB of uploaded files: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 20 GB | yes, 2 € per 10 GB more |
 | Future paid features (online payments, reports, …) | | | | | | yes, priced |
+
+When a plan's prices or limits change, a brand already on it keeps its agreed price, because each subscription stores its own `Price`. The new limits apply to it; an operator who wants a brand to keep an old limit gives it the feature as an add-on at 0 with that limit (**Dar add-on** in the backoffice). Going past a limit never removes anything: only adding more is refused.
 
 ## Library or part of Core?
 

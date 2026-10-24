@@ -3425,7 +3425,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             Code = "branches",
-                            AddOnListPrice = 10m,
+                            AddOnListPrice = 20m,
                             Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = true
@@ -3445,9 +3445,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             Code = "import-export",
-                            AddOnListPrice = 3m,
-                            Currency = "EUR",
-                            IsAddOn = true,
+                            IsAddOn = false,
                             IsCounted = false
                         },
                         new
@@ -3465,17 +3463,13 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             Code = "shop",
-                            AddOnListPrice = 5m,
-                            Currency = "EUR",
-                            IsAddOn = true,
+                            IsAddOn = false,
                             IsCounted = false
                         },
                         new
                         {
                             Code = "brand",
-                            AddOnListPrice = 5m,
-                            Currency = "EUR",
-                            IsAddOn = true,
+                            IsAddOn = false,
                             IsCounted = false
                         },
                         new
@@ -3545,7 +3539,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             DisplayOrder = 2,
                             IsActive = true,
                             IsDefault = false,
-                            ListPrice = 9m
+                            ListPrice = 19m
                         },
                         new
                         {
@@ -3555,7 +3549,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             DisplayOrder = 3,
                             IsActive = true,
                             IsDefault = false,
-                            ListPrice = 19m
+                            ListPrice = 39m
                         },
                         new
                         {
@@ -3609,6 +3603,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "free",
+                            FeatureCode = "import-export"
+                        },
+                        new
+                        {
+                            PlanCode = "free",
                             FeatureCode = "student-app"
                         },
                         new
@@ -3621,7 +3620,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             PlanCode = "lite",
                             FeatureCode = "students",
-                            Limit = 150
+                            Limit = 100
                         },
                         new
                         {
@@ -3659,13 +3658,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "pro",
-                            FeatureCode = "students"
+                            FeatureCode = "students",
+                            Limit = 300
                         },
                         new
                         {
                             PlanCode = "pro",
                             FeatureCode = "branches",
-                            Limit = 3
+                            Limit = 1
                         },
                         new
                         {
@@ -3717,7 +3717,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         new
                         {
                             PlanCode = "enterprise",
-                            FeatureCode = "branches"
+                            FeatureCode = "branches",
+                            Limit = 3
                         },
                         new
                         {
@@ -3758,7 +3759,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             PlanCode = "enterprise",
                             FeatureCode = "document-storage",
-                            Limit = 10240
+                            Limit = 20480
                         });
                 });
 

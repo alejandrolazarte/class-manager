@@ -12,7 +12,7 @@ public sealed class Then_tokens_are_for_the_last_used_branch(ApiFixture fixture)
         var command = AuthenticationRequests.SignUpCommand();
         var tokens = await client.SignUpAsync(fixture.ApiFactory.EmailTransport, command);
         using var ownerClient = fixture.CreateClientWithToken(tokens.AccessToken);
-        await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
+        await fixture.ChangePlanAsync((await ownerClient.GetCurrentMemberAsync()).BusinessId, PlanCodes.Enterprise);
         var usedBranch = await ownerClient.CreateBranchAsync("Branch used last");
         await ownerClient.CreateBranchAsync("Branch created last");
         await client.SwitchBranchAsync(tokens.RefreshToken, usedBranch.BusinessId);

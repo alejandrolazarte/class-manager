@@ -11,7 +11,7 @@ public sealed class Then_the_token_carries_their_user_in_that_branch(ApiFixture 
         using var anonymous = fixture.ApiFactory.CreateClient();
         var tokens = await anonymous.SignUpAsync(fixture.ApiFactory.EmailTransport, AuthenticationRequests.SignUpCommand());
         using var owner = fixture.CreateClientWithToken(tokens.AccessToken);
-        await fixture.ChangePlanAsync((await owner.GetCurrentMemberAsync()).BusinessId, PlanCodes.Pro);
+        await fixture.ChangePlanAsync((await owner.GetCurrentMemberAsync()).BusinessId, PlanCodes.Enterprise);
         var branch = await owner.CreateBranchAsync("DF Barcelona");
 
         var switchedTokens = await anonymous.SwitchBranchAsync(tokens.RefreshToken, branch.BusinessId);
