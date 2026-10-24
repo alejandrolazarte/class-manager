@@ -26,7 +26,7 @@ public sealed partial class UseCaseAuditRecorder(
         }
         catch (Exception exception)
         {
-            Record(input, occurredAt, startedAt, CommandOutcome.Exception, exception.GetType().Name, errorCode: null, rowCount: null);
+            Record(input, occurredAt, startedAt, CommandOutcome.Exception, exception.GetType().Name, ExceptionErrorCode.Of(exception), rowCount: null);
             throw;
         }
 

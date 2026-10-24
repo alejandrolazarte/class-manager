@@ -120,7 +120,7 @@ Table `Commands{yyyyMM}` (one table per month, see [Retention](#retention)).
 | `AccountId` | The account (`sub` claim), or empty |
 | `UserId` | The session's user in the branch (`ICurrentUser.UserId`), or empty. Both are kept: the account says who the person is across branches, the user matches the `...ByUserId` columns of the rows |
 | `Outcome` | `Succeeded`, `Failed` or `Exception` |
-| `ErrorKind`, `ErrorCode` | From `Result` when it failed, or the exception type |
+| `ErrorKind`, `ErrorCode` | From `Result` when it failed, or the exception type and, when a SQL Server error caused it, `sql.<number>` as the code (the number only: SQL messages can quote the values) |
 | `DurationMs` | Duration of the use case with its transaction |
 | `TraceId` | `Activity.Current.TraceId`, the same one as in the logs and in security events |
 | `Payload` | The command as JSON, after removing sensitive fields (below) |
