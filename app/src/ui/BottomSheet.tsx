@@ -2,6 +2,7 @@ import { PropsWithChildren, ReactNode } from "react";
 import { Modal, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { translate } from "@/i18n/translate";
+import { useCloseOnBack } from "@/navigation/useCloseOnBack";
 import { ThemeScope } from "@/theme/ThemeScope";
 import { Entrance } from "@/ui/motion/Entrance";
 
@@ -11,6 +12,7 @@ interface BottomSheetProps extends PropsWithChildren {
 }
 
 export function BottomSheet({ onClose, header, children }: BottomSheetProps) {
+  useCloseOnBack(onClose);
   return (
     <Modal transparent visible animationType="none" onRequestClose={onClose}>
       <ThemeScope className="flex-1 justify-end">

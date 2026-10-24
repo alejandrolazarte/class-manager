@@ -1,5 +1,6 @@
 import { Modal, Pressable, View } from "react-native";
 import { translate } from "@/i18n/translate";
+import { useCloseOnBack } from "@/navigation/useCloseOnBack";
 import { ThemeScope } from "@/theme/ThemeScope";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
@@ -22,6 +23,7 @@ export function ConfirmDialog({
   onConfirm,
   isConfirming = false,
 }: ConfirmDialogProps) {
+  useCloseOnBack(onCancel);
   return (
     <Modal transparent visible animationType="none" onRequestClose={onCancel}>
       <ThemeScope className="flex-1 items-center justify-center px-6">
