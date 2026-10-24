@@ -91,7 +91,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Running the e2e tests](docs/e2e/running-e2e-tests.md) — Playwright against the web app, the real API and SQL Server
 - [Demo screenshots](docs/e2e/demo-screenshots.md) — load a demo business and capture every screen at phone size
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
-- [Hosting plan](docs/hosting-plan.md) — free Azure setup for a pilot, limits and costs to watch
+- [Hosting plan](docs/hosting-plan.md) — Azure setup for the pilot (a Basic database, everything else on free allowances), limits and costs to watch
 - [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Azure Static Web Apps, the installable web app (PWA) and the Android APK
 - [Rolling back a deploy](docs/rollback.md) — the manual Rollback workflow: list the last successful deploys, put one back online (API image and web app, no migrations), and why migrations stay backward compatible
 - [Domain and DNS](docs/domain-and-dns.md) — `laztty.com` on Cloudflare Registrar, `app.` and `api.` records, and why no record goes through the Cloudflare proxy (LaLiga blocks in Spain)

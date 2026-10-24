@@ -21,7 +21,7 @@ Limits checked on 2026-09-24. Free offers change often: re-check them before rel
 flowchart LR
     Phone[Android / iOS app<br/>EAS Build] --> Api
     Browser[Web app<br/>Azure Static Web Apps] --> Api
-    Api[API .NET 10<br/>Azure Container Apps] -->|managed identity| Sql[(Azure SQL Database<br/>free offer)]
+    Api[API .NET 10<br/>Azure Container Apps] -->|managed identity| Sql[(Azure SQL Database<br/>Basic)]
     Api -->|connection string| Blob[(Azure Blob Storage<br/>photos)]
     Browser -.photos.-> Blob
     Phone -.photos.-> Blob
@@ -30,7 +30,7 @@ flowchart LR
 
 | Piece | Service | Free allowance |
 |---|---|---|
-| Database | Azure SQL Database, free offer (serverless) | 100,000 vCore-seconds, 32 GB data and 32 GB backups per database per month, up to 10 databases per subscription, no expiry |
+| Database | Azure SQL Database, DTU Basic (since 2026-10-24) | Not free: about EUR 5 a month, fixed, always online, 2 GB. The pilot started on the free offer (100,000 vCore-seconds a month), which ran out and paused the database; see [When to leave the free setup](#when-to-leave-the-free-setup) |
 | API | Azure Container Apps, consumption plan | 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per subscription per month; nothing is billed while scaled to zero |
 | Photos | Azure Blob Storage, hot LRS | Not free, but cents per month at pilot scale; see [storage](storage.md) |
 | Container image | GitHub Container Registry (`ghcr.io`), private package | Included in the GitHub plan's Packages storage; avoids Azure Container Registry, which has no free tier |
@@ -39,9 +39,8 @@ flowchart LR
 
 ## What "free" really means here
 
-- **100,000 vCore-seconds is about 28 vCore-hours per month.** The database only consumes while it is active and auto-pauses when idle. That covers development, demos and one or two pilot businesses with light use. A business using the app all day exhausts it in days.
-- **When the database allowance runs out**, keep the default behavior: auto-pause until next month. Switching to "bill over usage" is a deliberate decision, not a default.
-- **Scale to zero means cold starts.** The first request after a quiet period takes a few seconds (API container start + database resume). Acceptable for a pilot; not for production.
+- **The database is the one paid piece** (Basic, about EUR 5 a month). The free offer's 100,000 vCore-seconds (about 28 vCore-hours a month) ran out during development and paused the database until the next month.
+- **Scale to zero means cold starts.** The first request after a quiet period waits for the API container to start (10 to 20 seconds). The database no longer pauses. Acceptable for a pilot; not for production.
 - **Production will cost money** on any cloud. The API is a container, so moving providers later is cheap.
 
 ## Prerequisite: authentication
@@ -82,12 +81,12 @@ Moving to Spain later (for example when paying for the database is acceptable) i
 az group create --name class-manager-rg --location <region>
 ```
 
-Create a **USD 1 monthly budget with an email alert** in Cost Management. It is the safety net if something stops being free.
+Create a **EUR 8 monthly budget** in Cost Management, with email alerts on actual and forecasted cost at 100%. It covers the Basic database and warns if anything else starts costing money.
 
-### 2. Azure SQL Database (free offer)
+### 2. Azure SQL Database (Basic)
 
-- Create a logical server with **Microsoft Entra authentication only** (no SQL logins, no passwords to leak).
-- Create the database with the **free offer** option (`--use-free-limit --free-limit-exhaustion-behavior AutoPause`).
+- Create a logical server with **Microsoft Entra authentication only** (no SQL logins, no passwords to leak). The server itself costs nothing; each database is billed.
+- Create the database on the DTU **Basic** tier (`--edition Basic --service-objective Basic --max-size 2GB`), with locally redundant backups and without Microsoft Defender for SQL.
 - Firewall: allow Azure services; add the owner's IP only while running migrations from the PC.
 
 ### 3. Container image
@@ -157,7 +156,7 @@ Flow (`.github/workflows/deploy.yml`): PR merged to `main` → CI green → push
 
 | Risk | Mitigation |
 |---|---|
-| Database exceeds free vCore-seconds | Auto-pause behavior; monitor usage in the portal |
+| Database outgrows Basic (5 DTU, 2 GB) | Watch DTU percentage and data space in the portal; move to Standard S0 when DTU stays above 80% at peak hours |
 | Log Analytics ingestion | Short retention, low log level in production |
 | Azure Container Registry created by `az containerapp up` | Don't use `az containerapp up`; use `ghcr.io` |
 | `minReplicas` > 0 | Keep 0 during the pilot |
@@ -169,6 +168,8 @@ Flow (`.github/workflows/deploy.yml`): PR merged to `main` → CI green → push
 - The database hits the monthly allowance before the month ends.
 
 At that point: move the database to the Basic tier (about USD 5 a month, online all the time; runbook in [Database on the Basic tier](database-basic-tier.md)) and set `minReplicas: 1`, or compare with other providers using real usage numbers.
+
+**Done for the database on 2026-10-24**, when the free allowance ran out during development. The pilot data was only the owner's, so the free database was deleted and a Basic one created on the same server with the same name: connection strings and GitHub variables stayed valid, and the deploy recreated the schema. It stays in France Central: Spain Central was about EUR 1 a month dearer for the same setup and only 20 ms closer. `minReplicas` stays 0 until a business depends on scheduled work such as reminders.
 
 ## Sources
 

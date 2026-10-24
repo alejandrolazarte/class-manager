@@ -13,7 +13,7 @@ How the backoffice reaches production: a second container app for `Backoffice.Ap
 | Job | Runs when | Does |
 |---|---|---|
 | `image` | always | Also builds and pushes `ghcr.io/alejandrolazarte/class-manager-backoffice-api:<commit>` from `src/Backoffice.Api/Containerfile` |
-| `backoffice-api` | `AZURE_BACKOFFICE_CONTAINER_APP` is set | Points the container app at the new image and waits for `/health` |
+| `backoffice-api` | `AZURE_BACKOFFICE_CONTAINER_APP` is set | Points the container app at the new image and waits until the new revision is ready and answers `/health` (`scripts/wait-for-container-app-revision.sh`) |
 | `backoffice-web` | `AZURE_BACKOFFICE_STATIC_WEB_APP` is set | `pnpm export:backoffice` with `EXPO_PUBLIC_API_BASE_URL` = `BACKOFFICE_API_BASE_URL`, uploads `app/dist-backoffice` |
 
 Until the variables exist the jobs are skipped, so the app's deploy is unaffected. The backoffice image is built and pushed only once `AZURE_BACKOFFICE_CONTAINER_APP` is set.
@@ -47,6 +47,8 @@ az containerapp create --name $backofficeContainerApp --resource-group $resource
     "Backoffice__WebAppUrl=https://admin.laztty.com" `
     "Cors__AllowedOrigins__0=https://admin.laztty.com"
 ```
+
+`Backoffice__PlatformOrganizationId` is the number in `Organizations.Id` (`SELECT Id, Name FROM Organizations`). A database recreated from scratch gives Laztty a new id, so update the variable then. A value the app can't read as a number (an id from before ids were numbers, for example) stops every new revision from starting.
 
 It starts with Microsoft's sample image, like the API did; the first deploy replaces it. Rotating the Google secret later is one line:
 
