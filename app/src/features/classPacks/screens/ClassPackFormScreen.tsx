@@ -57,6 +57,7 @@ interface ClassPackFieldOptions {
   name: Exclude<keyof ClassPackFormValues, "classGroupIds" | "kind">;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
+  hintKey?: TranslationKey;
   isMultiline?: boolean;
   isRequired?: boolean;
   keyboardType?: "default" | "number-pad" | "decimal-pad";
@@ -133,6 +134,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
     name,
     labelKey,
     placeholderKey,
+    hintKey,
     isMultiline = false,
     isRequired = false,
     keyboardType,
@@ -145,6 +147,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
           label={translate(labelKey)}
           isRequired={isRequired}
           placeholder={placeholderKey ? translate(placeholderKey) : undefined}
+          hint={hintKey ? translate(hintKey) : undefined}
           keyboardType={keyboardType}
           multiline={isMultiline}
           value={field.value}
@@ -191,6 +194,7 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         name: "validityMonths",
         labelKey: "classPacks.form.validityMonths",
         placeholderKey: "classPacks.form.validityPlaceholder",
+        hintKey: "classPacks.form.validityHint",
         keyboardType: "number-pad",
       })}
       <Controller
