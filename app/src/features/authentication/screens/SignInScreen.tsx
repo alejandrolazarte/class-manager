@@ -53,6 +53,10 @@ export function SignInScreen() {
       setSignInFailure("network");
       return;
     }
+    if (method === "passkey" && !isApiError(signInError)) {
+      setSignInFailure("passkeyNotVerified");
+      return;
+    }
     if (
       isApiError(signInError) &&
       signInError.hasCode(authenticationErrorCodes.invalidCredentials)

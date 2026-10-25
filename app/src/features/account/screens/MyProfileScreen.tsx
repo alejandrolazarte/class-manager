@@ -2,9 +2,10 @@ import { Href, useRouter } from "expo-router";
 import { View } from "react-native";
 import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { useMyAccount } from "@/features/account/useMyAccount";
+import { useMyPasskeys } from "@/features/passkeys/useMyPasskeys";
 import { usePasskeySupport } from "@/features/passkeys/usePasskeySupport";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
@@ -31,6 +32,7 @@ export function MyProfileScreen({
 }: MyProfileScreenProps) {
   const router = useRouter();
   const isPasskeySupported = usePasskeySupport();
+  const passkeyCount = useMyPasskeys(isPasskeySupported).data?.length ?? 0;
   const accountQuery = useMyAccount();
   const account = accountQuery.data;
 
@@ -103,8 +105,13 @@ export function MyProfileScreen({
             {isPasskeySupported ? (
               <ListRow
                 icon="passkey"
+                iconTone={passkeyCount > 0 ? "success" : undefined}
                 label={translate("profile.passkeys.title")}
-                detail={translate("profile.passkeys.detail")}
+                detail={
+                  passkeyCount > 0
+                    ? translateCount("profile.passkeys.configured", passkeyCount)
+                    : translate("profile.passkeys.detail")
+                }
                 onPress={() => router.push(passkeysRoute)}
               />
             ) : null}

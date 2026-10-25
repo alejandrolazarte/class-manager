@@ -78,7 +78,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `12e-mediciones` | The measurements of the business, with who sees and records each one |
 | `12f-medicion-nueva` | New measurement form |
 | `14-alumno-por-clases` | Student paying per class: classes left and packs |
-| `30-ingresar-con-passkey` … `30f-quitar-passkey` | `Passkey_screens.capture.ts`, with Chromium's virtual authenticator: sign-in with "Ingresar con passkey", Mi perfil with the Passkeys row, the empty passkeys list, the add form, the list with one passkey, and the confirm dialog before removing it |
+| `30-ingresar-con-passkey` … `30f-quitar-passkey` | `Passkey_screens.capture.ts`, with Chromium's virtual authenticator: sign-in with "Ingresar con passkey", Mi perfil with the Passkeys row, the empty passkeys list, the add form, the list with one passkey, Mi perfil showing "1 passkey configurada", and the confirm dialog before removing it |
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
 | `16b-pack-nuevo` | New class pack form, with the classes where the pack can be booked |
