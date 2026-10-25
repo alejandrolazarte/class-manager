@@ -50,7 +50,7 @@ DECLARE @Now datetimeoffset = SYSUTCDATETIME();
 BEGIN TRANSACTION;
 
 UPDATE BusinessMembers
-SET Role = @Role, CustomRoleId = NULL, InstructorId = NULL, UpdatedAt = @Now
+SET Role = @Role, CustomRoleId = NULL, UpdatedAt = @Now
 WHERE Id = (SELECT MemberId FROM @Members);
 
 INSERT INTO backoffice.BackofficeLogins (Provider, ProviderKey, AccountId, Email, EnabledAt, EnabledByUserId)
