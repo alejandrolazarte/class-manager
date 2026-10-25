@@ -12,7 +12,7 @@ Where the `laztty.com` domain is registered, which DNS records it has and why no
 | DNS | Cloudflare DNS, every record **DNS only** (grey cloud) | See [Why DNS only](#why-dns-only) |
 | Web app | `app.laztty.com` → Azure Static Web Apps | See [hosting plan](hosting-plan.md#6-web-app-azure-static-web-apps) |
 | API | `api.laztty.com` → Azure Container Apps | Free managed certificate from Container Apps |
-| `laztty.com` (apex) | No record yet | Kept free for a landing page. A redirect from Cloudflare would need the proxy, see below |
+| `laztty.com` (apex) | No record yet; planned as a second custom domain of the web app | It must serve `/.well-known/assetlinks.json` for passkeys in the Android app ([Passkeys in the Android app](pilot-deployment.md#passkeys-in-the-android-app)); until a landing page exists it shows the web app. A redirect from Cloudflare would need the proxy, see below |
 
 Hosting and registrar are independent: moving the web app or the API to another host only changes the records below, never the registration.
 

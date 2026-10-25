@@ -4,7 +4,13 @@ const { join } = require("node:path");
 const configFileName = "staticwebapp.config.json";
 const reportOnlyPolicyHeader = "Content-Security-Policy-Report-Only";
 const singlePageEntry = "/index.html";
-const filesExcludedFromFallback = ["/_expo/*", "/assets/*", "/fonts/*", "/icons/*"];
+const filesExcludedFromFallback = [
+  "/_expo/*",
+  "/assets/*",
+  "/fonts/*",
+  "/icons/*",
+  "/.well-known/*",
+];
 const emailFontsRoute = "/fonts/*";
 const emailFontsHeaders = {
   "Access-Control-Allow-Origin": "*",

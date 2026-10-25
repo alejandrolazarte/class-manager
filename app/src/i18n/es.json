@@ -1615,6 +1615,8 @@
   "profile.email.wrongPassword": "La contraseña no es correcta.",
   "profile.passkeys.title": "Passkeys",
   "profile.passkeys.detail": "Ingresá con la huella, la cara o el bloqueo de pantalla",
+  "profile.passkeys.configured.one": "1 passkey configurada",
+  "profile.passkeys.configured.other": "{count} passkeys configuradas",
   "profile.passkeys.hint": "Una passkey te permite ingresar con la huella, la cara o el bloqueo de pantalla de tu dispositivo, sin escribir la contraseña.",
   "profile.passkeys.empty": "Todavía no agregaste ninguna passkey.",
   "profile.passkeys.add": "Agregar passkey",

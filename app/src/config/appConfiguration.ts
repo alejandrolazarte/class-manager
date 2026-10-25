@@ -1,4 +1,5 @@
 const defaultApiBaseUrl = "http://localhost:5000";
+const enabledFlag = "true";
 
 export const appConfiguration = {
   get apiBaseUrl(): string {
@@ -12,5 +13,8 @@ export const appConfiguration = {
   },
   get errorReportingRelease(): string | undefined {
     return process.env.EXPO_PUBLIC_SENTRY_RELEASE || undefined;
+  },
+  get areAndroidPasskeysEnabled(): boolean {
+    return process.env.EXPO_PUBLIC_ANDROID_PASSKEYS === enabledFlag;
   },
 };

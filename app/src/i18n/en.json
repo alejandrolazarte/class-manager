@@ -1615,6 +1615,8 @@
   "profile.email.wrongPassword": "The password isn't correct.",
   "profile.passkeys.title": "Passkeys",
   "profile.passkeys.detail": "Sign in with your fingerprint, face or screen lock",
+  "profile.passkeys.configured.one": "1 passkey set up",
+  "profile.passkeys.configured.other": "{count} passkeys set up",
   "profile.passkeys.hint": "A passkey lets you sign in with your device's fingerprint, face or screen lock, without typing your password.",
   "profile.passkeys.empty": "You haven't added a passkey yet.",
   "profile.passkeys.add": "Add passkey",

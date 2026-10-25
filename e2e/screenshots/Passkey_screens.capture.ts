@@ -47,6 +47,12 @@ test("Passkey screens", async ({ page, request }) => {
   await page.getByText(passkeyName).filter({ visible: true }).first().waitFor();
   await capture(page, "30e-passkeys");
 
+  await page.goto("/settings/profile");
+  await page.getByText("1 passkey configurada").filter({ visible: true }).first().waitFor();
+  await capture(page, "30e2-mi-perfil-con-una-passkey");
+  await page.goto("/settings/passkeys");
+  await page.getByText(passkeyName).filter({ visible: true }).first().waitFor();
+
   await page.getByRole("button", { name: `Quitar la passkey ${passkeyName}` }).click();
   await page.getByText("¿Quitar esta passkey?").filter({ visible: true }).first().waitFor();
   await capture(page, "30f-quitar-passkey");
