@@ -17,7 +17,8 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.HasOne<Business>().WithMany().HasForeignKey(payment => payment.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Client>().WithMany().HasForeignKey(payment => payment.ClientId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(payment => new { payment.TenantId, payment.Month, payment.ClientId });
+        builder.HasIndex(payment => new { payment.TenantId, payment.Month, payment.ClientId })
+            .IncludeProperties(payment => new { payment.Amount, payment.CurrencyCode, payment.IsDeleted });
         builder.HasIndex(payment => new { payment.TenantId, payment.ClientId, payment.PaidOn });
     }
 }

@@ -1112,6 +1112,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId", "RegisteredByUserId");
 
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TenantId", "RegisteredByUserId"), new[] { "UserId" });
+
                     b.ToTable("Clients");
                 });
 
@@ -1524,6 +1526,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UpdatedByUserId");
 
+                    b.HasIndex("TenantId", "StartDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TenantId", "StartDate"), new[] { "EndDate", "ClassGroupId", "StudentId" });
+
                     b.HasIndex("TenantId", "ClassGroupId", "EndDate");
 
                     b.HasIndex("TenantId", "StudentId", "ClassGroupId")
@@ -1740,6 +1746,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ClientId", "PaidOn");
 
                     b.HasIndex("TenantId", "Month", "ClientId");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TenantId", "Month", "ClientId"), new[] { "Amount", "CurrencyCode", "IsDeleted" });
 
                     b.ToTable("Payments", t =>
                         {
@@ -2984,6 +2992,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ClassSessionId", "StudentId")
                         .IsUnique();
 
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TenantId", "ClassSessionId", "StudentId"), new[] { "Status" });
+
                     b.ToTable("Attendances");
                 });
 
@@ -3265,6 +3275,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.HasIndex("TenantId", "ClientId");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TenantId", "ClientId"), new[] { "UserId", "Notes" });
 
                     b.ToTable("Students");
                 });
