@@ -5,9 +5,9 @@ import {
   attendanceSwipeLimit,
   attendanceSwipeThreshold,
 } from "@/features/sessions/attendanceSwipe";
-import { AttendanceStatus, SessionStudent } from "@/features/sessions/types";
+import { AttendanceStatus, SessionClassBalance, SessionStudent } from "@/features/sessions/types";
 import { normalizeStudentName } from "@/features/students/studentSchema";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Avatar, AvatarTone } from "@/ui/Avatar";
 import { Icon, IconName } from "@/ui/Icon";
@@ -18,12 +18,13 @@ import { TextLink } from "@/ui/TextLink";
 
 type AttendanceRowStudent = Omit<
   SessionStudent,
-  "feedback" | "absenceNotified" | "isMakeup" | "isPackBooking"
+  "feedback" | "absenceNotified" | "isMakeup" | "isPackBooking" | "classBalance"
 > & {
   feedback?: string | null;
   absenceNotified?: boolean;
   isMakeup?: boolean;
   isPackBooking?: boolean;
+  classBalance?: SessionClassBalance | null;
 };
 
 interface AttendanceRowProps {
@@ -63,6 +64,27 @@ const avatarTones: Record<AttendanceStatus | "Unmarked", AvatarTone> = {
   Absent: "danger",
   Unmarked: "muted",
 };
+
+function classBalanceBadge(
+  classBalance: SessionClassBalance | null | undefined,
+): { label: string; tone: "danger" | "warning" } | null {
+  if (!classBalance) {
+    return null;
+  }
+  if (classBalance.unpaidClasses > 0) {
+    return {
+      label: translateCount("classPacks.balance.unpaid", classBalance.unpaidClasses),
+      tone: "danger",
+    };
+  }
+  if (classBalance.availableClasses === 0) {
+    return { label: translate("sessions.attendance.noClassesLeft"), tone: "danger" };
+  }
+  if (classBalance.availableClasses === 1) {
+    return { label: translate("sessions.attendance.oneClassLeft"), tone: "warning" };
+  }
+  return null;
+}
 
 function MarkButton({
   icon,
@@ -140,6 +162,7 @@ export function AttendanceRow({
   const responsibleLabel = translate("students.list.responsible", {
     name: student.clientFullName,
   });
+  const balanceBadge = classBalanceBadge(student.classBalance);
   const toggle = (selectedStatus: AttendanceStatus) =>
     onChangeStatus(status === selectedStatus ? null : selectedStatus);
   const presentHintOpacity = horizontalOffset.interpolate({
@@ -216,6 +239,11 @@ export function AttendanceRow({
                 {translate("sessions.attendance.packBooking")}
               </AppText>
             ) : null}
+            {balanceBadge === null ? null : (
+              <AppText variant="badge" tone={balanceBadge.tone}>
+                {balanceBadge.label}
+              </AppText>
+            )}
             {details}
             {onOpenFeedback === undefined || isReadOnly ? null : (
               <TextLink

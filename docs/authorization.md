@@ -78,6 +78,7 @@ The system `Instructor` role has no money permissions. A custom role can add the
 - Payments and pack sales store `RecordedByUserId`, the member's user in the branch ([users per business](backend/20261017-users/plan.md)). A student's payments show who recorded each one (`recordedByUserId`, `recordedByFullName`, from `Users`); `GET /api/me` returns the same id as `userId`.
 - Without `payments.view.all`, a member only deletes payments and pack sales they recorded themselves.
 - A student's class balance (`GET /api/clients/{id}/class-balance`) follows the student scope.
+- Taking attendance shows the class balance of each student whose family pays per class (`GET .../sessions/{date}` returns `classBalance`: classes left and owed). It follows the session scope, not the money permissions: anyone who takes attendance, the system `Instructor` role included, sees how many classes a student has left or owes, never amounts or payments.
 
 ## Products and orders
 

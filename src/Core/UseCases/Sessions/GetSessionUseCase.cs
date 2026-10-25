@@ -1,15 +1,23 @@
 using System.Globalization;
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.ClassPacks;
+using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
 
 namespace ClassManager.Core.UseCases.Sessions;
 
 public sealed record GetSessionQuery(long ClassGroupId, DateOnly Date) : IQuery;
+
+public sealed record SessionClassBalanceResponse(int AvailableClasses, int UnpaidClasses)
+{
+    public static SessionClassBalanceResponse From(ClassBalance balance) => new(balance.AvailableClasses, balance.UnpaidClasses);
+}
 
 public sealed record SessionStudentResponse(
     long StudentId,
@@ -20,7 +28,8 @@ public sealed record SessionStudentResponse(
     string? Feedback,
     bool AbsenceNotified,
     bool IsMakeup,
-    bool IsPackBooking = false);
+    bool IsPackBooking = false,
+    SessionClassBalanceResponse? ClassBalance = null);
 
 public sealed record SessionDetailsResponse(
     long ClassGroupId,
@@ -49,6 +58,8 @@ public sealed class GetSessionUseCase(
     IAbsenceNoticeRepository absenceNoticeRepository,
     IMakeupBookingRepository makeupBookingRepository,
     IPackBookingRepository packBookingRepository,
+    IFeeScheduleRepository feeScheduleRepository,
+    IClassBalanceService classBalanceService,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes)
     : IUseCase<GetSessionQuery, SessionDetailsResponse>
@@ -91,6 +102,11 @@ public sealed class GetSessionUseCase(
         var packStudents = session is null
             ? []
             : await packBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
+        var classBalances = await ClassBalancesOfPayingPerClassAsync(
+            [.. roster.Select(entry => entry.ClientId), .. makeupStudents.Select(student => student.ClientId)],
+            [.. packStudents.Select(student => student.ClientId)],
+            command.Date,
+            cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var isCancelled = session?.IsCancelled ?? false;
         var usualStartTime = classGroup.Value!.StartTime;
@@ -120,7 +136,8 @@ public sealed class GetSessionUseCase(
                     statuses.TryGetValue(entry.StudentId, out var status) ? status : null,
                     feedbacks.GetValueOrDefault(entry.StudentId),
                     notifiedStudentIds.Contains(entry.StudentId),
-                    IsMakeup: false)),
+                    IsMakeup: false,
+                    ClassBalance: classBalances.GetValueOrDefault(entry.ClientId))),
                 .. makeupStudents.Select(student => new SessionStudentResponse(
                     student.StudentId,
                     student.StudentFullName,
@@ -129,7 +146,8 @@ public sealed class GetSessionUseCase(
                     statuses.TryGetValue(student.StudentId, out var status) ? status : null,
                     feedbacks.GetValueOrDefault(student.StudentId),
                     AbsenceNotified: false,
-                    IsMakeup: true)),
+                    IsMakeup: true,
+                    ClassBalance: classBalances.GetValueOrDefault(student.ClientId))),
                 .. packStudents.Select(student => new SessionStudentResponse(
                     student.StudentId,
                     student.StudentFullName,
@@ -139,8 +157,28 @@ public sealed class GetSessionUseCase(
                     feedbacks.GetValueOrDefault(student.StudentId),
                     AbsenceNotified: false,
                     IsMakeup: false,
-                    IsPackBooking: true)),
+                    IsPackBooking: true,
+                    ClassBalance: classBalances.GetValueOrDefault(student.ClientId))),
             ]);
+    }
+
+    private async Task<IReadOnlyDictionary<long, SessionClassBalanceResponse>> ClassBalancesOfPayingPerClassAsync(
+        IReadOnlyCollection<long> enrolledClientIds,
+        IReadOnlyCollection<long> packBookingClientIds,
+        DateOnly sessionDate,
+        CancellationToken cancellationToken)
+    {
+        var month = BillingMonth.From(sessionDate);
+        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
+        var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync([.. enrolledClientIds.Distinct()], cancellationToken);
+        var payingPerClassClientIds = enrolledClientIds
+            .Distinct()
+            .Where(clientId => FeeTimeline.PlanIn(planChanges.Where(change => change.ClientId == clientId), defaultFeeChanges, month).PaysPerClass)
+            .Concat(packBookingClientIds)
+            .Distinct()
+            .ToList();
+        var balances = await classBalanceService.CalculateAsync(payingPerClassClientIds, cancellationToken);
+        return balances.ToDictionary(balance => balance.Key, balance => SessionClassBalanceResponse.From(balance.Value));
     }
 
     private static string FormatTime(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);

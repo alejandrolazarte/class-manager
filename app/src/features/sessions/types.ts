@@ -33,6 +33,12 @@ export interface SessionStudent {
   absenceNotified: boolean;
   isMakeup: boolean;
   isPackBooking: boolean;
+  classBalance: SessionClassBalance | null;
+}
+
+export interface SessionClassBalance {
+  availableClasses: number;
+  unpaidClasses: number;
 }
 
 export interface SessionDetails {
