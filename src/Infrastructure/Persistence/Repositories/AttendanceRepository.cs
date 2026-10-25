@@ -11,6 +11,11 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
             attendance => attendance.ClassSessionId == classSessionId && attendance.StudentId == studentId,
             cancellationToken);
 
+    public async Task<IReadOnlyList<Attendance>> ListBySessionForUpdateAsync(long classSessionId, CancellationToken cancellationToken) =>
+        await context.Attendances
+            .Where(attendance => attendance.ClassSessionId == classSessionId)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Attendance>> ListBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
         await context.Attendances.AsNoTracking()
             .Where(attendance => attendance.ClassSessionId == classSessionId)

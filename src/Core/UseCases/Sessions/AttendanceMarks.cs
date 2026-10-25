@@ -13,6 +13,16 @@ internal static class AttendanceMarks
         CancellationToken cancellationToken)
     {
         var attendance = await attendanceRepository.FindForUpdateAsync(session.Id, studentId, cancellationToken);
+        Apply(attendanceRepository, session, studentId, status, attendance);
+    }
+
+    public static void Apply(
+        IAttendanceRepository attendanceRepository,
+        ClassSession session,
+        long studentId,
+        AttendanceStatus? status,
+        Attendance? attendance)
+    {
         if (status is null)
         {
             if (attendance is not null)

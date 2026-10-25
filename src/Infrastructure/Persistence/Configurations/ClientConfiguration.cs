@@ -14,6 +14,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
 
         builder.HasOne<Business>().WithMany().HasForeignKey(client => client.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(client => client.User).WithMany().HasForeignKey(client => client.UserId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(client => new { client.TenantId, client.RegisteredByUserId });
+        builder.HasIndex(client => new { client.TenantId, client.RegisteredByUserId })
+            .IncludeProperties(client => client.UserId);
     }
 }

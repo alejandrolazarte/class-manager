@@ -10,6 +10,8 @@ public interface IAttendanceRepository
 
     Task<Attendance?> FindForUpdateAsync(long classSessionId, long studentId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Attendance>> ListBySessionForUpdateAsync(long classSessionId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Attendance>> ListBySessionAsync(long classSessionId, CancellationToken cancellationToken);
 
     Task<IReadOnlyDictionary<long, AttendanceCount>> CountBySessionsAsync(IReadOnlyCollection<long> classSessionIds, CancellationToken cancellationToken);

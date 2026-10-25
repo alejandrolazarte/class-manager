@@ -75,15 +75,22 @@ public sealed class RecordClassAttendanceUseCase(
             return Result.Conflict<IReadOnlyList<RecordAttendanceResponse>>(CancelledMessage, SessionErrorCodes.Cancelled);
         }
 
+        IReadOnlyDictionary<long, Attendance> recordedMarks;
         if (session is null)
         {
             session = ClassSession.Create(command.ClassGroupId, command.Date, timeProvider.GetUtcNow());
             sessionRepository.Add(session);
+            recordedMarks = new Dictionary<long, Attendance>();
+        }
+        else
+        {
+            var marks = await attendanceRepository.ListBySessionForUpdateAsync(session.Id, cancellationToken);
+            recordedMarks = marks.ToDictionary(attendance => attendance.StudentId);
         }
 
         foreach (var student in students)
         {
-            await AttendanceMarks.ApplyAsync(attendanceRepository, session, student.StudentId, student.Status, cancellationToken);
+            AttendanceMarks.Apply(attendanceRepository, session, student.StudentId, student.Status, recordedMarks.GetValueOrDefault(student.StudentId));
         }
 
         try

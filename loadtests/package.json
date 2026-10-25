@@ -1,0 +1,10 @@
+{
+  "name": "class-manager-loadtests",
+  "version": "1.0.0",
+  "private": true,
+  "license": "SEE LICENSE IN ../LICENSE.md",
+  "type": "module",
+  "scripts": {
+    "seed": "node seed.mjs"
+  }
+}
