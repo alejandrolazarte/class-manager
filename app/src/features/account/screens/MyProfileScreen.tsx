@@ -2,6 +2,7 @@ import { Href, useRouter } from "expo-router";
 import { View } from "react-native";
 import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { useMyAccount } from "@/features/account/useMyAccount";
+import { usePasskeySupport } from "@/features/passkeys/usePasskeySupport";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -19,14 +20,17 @@ interface MyProfileScreenProps {
   editProfileRoute: Href;
   changeEmailRoute: Href;
   deleteAccountRoute: Href;
+  passkeysRoute: Href;
 }
 
 export function MyProfileScreen({
   editProfileRoute,
   changeEmailRoute,
   deleteAccountRoute,
+  passkeysRoute,
 }: MyProfileScreenProps) {
   const router = useRouter();
+  const isPasskeySupported = usePasskeySupport();
   const accountQuery = useMyAccount();
   const account = accountQuery.data;
 
@@ -96,6 +100,14 @@ export function MyProfileScreen({
               detail={translate("profile.signsInWith", { email: account.email })}
               onPress={() => router.push(changeEmailRoute)}
             />
+            {isPasskeySupported ? (
+              <ListRow
+                icon="passkey"
+                label={translate("profile.passkeys.title")}
+                detail={translate("profile.passkeys.detail")}
+                onPress={() => router.push(passkeysRoute)}
+              />
+            ) : null}
             <ListRow
               icon="delete"
               iconTone="danger"

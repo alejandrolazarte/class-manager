@@ -7,6 +7,7 @@ export default function MyProfileRoute() {
       editProfileRoute={routes.editMyProfile}
       changeEmailRoute={routes.changeMyEmail}
       deleteAccountRoute={routes.deleteMyAccount}
+      passkeysRoute={routes.myPasskeys}
     />
   );
 }

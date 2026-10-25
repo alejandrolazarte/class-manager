@@ -30,7 +30,7 @@ test("App screens", async ({ page, request }) => {
 
   await page.getByLabel("Email").fill(demo.email);
   await page.getByLabel("Contraseña", { exact: true }).fill(wrongPassword);
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await page
     .getByText("Email o contraseña incorrectos")
     .filter({ visible: true })
@@ -71,7 +71,7 @@ test("App screens", async ({ page, request }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(demo.email);
   await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await expect(page).toHaveURL(/\/today/);
 
   const screens: [fileName: string, path: string, visibleText: string][] = [

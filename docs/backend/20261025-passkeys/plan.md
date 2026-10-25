@@ -1,6 +1,6 @@
 # Passkeys: signing in with a fingerprint or face
 
-Status: step 1 (API and Security) is built. Steps 2 and 3 are still a proposal.
+Status: steps 1 (API and Security) and 2 (web app and PWA) are built. Step 3 (Android) is still a proposal.
 
 ## Why
 
@@ -40,7 +40,7 @@ A stolen access token must not be enough to add a passkey, because that passkey 
 
 ### Signing in without typing the email
 
-The sign-in options ask for any passkey of `laztty.com` (discoverable credentials, `ResidentKeyRequirement = "required"`), so the person taps **Entrar con huella o cara** without typing an email. The device shows its own account picker if it has several. The API never says whether an email has passkeys, so this adds no way to find out who has an account.
+The sign-in options ask for any passkey of `laztty.com` (discoverable credentials, `ResidentKeyRequirement = "required"`), so the person taps **Ingresar con passkey** without typing an email. The device shows its own account picker if it has several. The API never says whether an email has passkeys, so this adds no way to find out who has an account.
 
 A sign-in with a passkey follows the same rules as with a password:
 
@@ -94,7 +94,7 @@ The ceremony id is `[AuditSecret]`: while it lives it is the handle that finishe
 
 ### Texts
 
-New keys in `es.json` and `en.json` (sign-in button, Mi perfil section, add sheet, confirm dialog, errors) and the new email in every `IEmailTexts` language. The word **passkey** stays in both languages, as Apple, Google and Microsoft use it; the button explains it: "Entrar con huella o cara".
+New keys in `es.json` and `en.json` (sign-in button, Mi perfil row, passkeys list, add form, confirm dialog, errors) and the new email in every `IEmailTexts` language. The word **passkey** stays in both languages. The buttons never name the fingerprint or the face, because a passkey can also be unlocked with the device PIN, a password manager or another phone: the sign-in button is **Ingresar con passkey** ("Sign in with a passkey"), and the explanation in Mi perfil names the ways to unlock it ("Una passkey te permite ingresar con la huella, la cara o el bloqueo de pantalla de tu dispositivo, sin escribir la contraseña.").
 
 ## API
 
@@ -111,16 +111,17 @@ New keys in `es.json` and `en.json` (sign-in button, Mi perfil section, add shee
 
 ## App
 
-- **Support check**: `isPasskeySupported()` in `app/src/features/passkeys`, with a `.web.ts` version (`window.PublicKeyCredential` and `isUserVerifyingPlatformAuthenticatorAvailable()`) and a `.native.ts` version that returns `false` until step 3. Nothing about passkeys shows where they don't work.
+- **Support check**: `isPasskeySupported()` in `app/src/features/passkeys/webAuthn.web.ts` (`browserSupportsPasskeys()` from the library: a platform authenticator or a phone over the hybrid transport), and `webAuthn.ts` for Android and iOS, which returns `false` until step 3. `usePasskeySupport()` reads it. Nothing about passkeys shows where they don't work.
 - **WebAuthn calls**: `@simplewebauthn/browser` (`startRegistration`, `startAuthentication`). It converts the JSON options and credentials, which `PublicKeyCredential.parseCreationOptionsFromJSON` only does natively on recent browsers (Safari 18+), and works around password managers whose `toJSON` throws "Illegal invocation" (a known issue in Microsoft's docs). No install script, so nothing to add to `pnpm.onlyBuiltDependencies`.
-- **Sign-in screen**: below the password form, a `secondary` `Button` **Entrar con huella o cara**, only when supported. It runs the two requests and then follows the same path as a password sign-in. Cancelling the device prompt does nothing; any other failure shows a toast.
-- **Mi perfil** (team and student): a **Passkeys** group listing each passkey (name and when it was added), a `dashed` button **Agregar passkey** that opens a sheet with the password (`isRequired`) and the name, and a `dangerGhost` small button per row that opens the `ConfirmDialog`. Empty list: one line explaining what a passkey is, no button inside it.
+- **Sign-in screen**: below **Ingresar**, a `secondary` `Button` **Ingresar con passkey** with the fingerprint icon, only when supported. `SessionProvider.signInWithPasskey()` runs the two requests and starts the session like a password sign-in (including the account chooser for someone with a team and a student account). Cancelling the device prompt does nothing; a passkey the API refuses shows a banner ("No pudimos verificar la passkey…"), and lockout and network errors show the same banners as the password.
+- **Mi perfil** (team and student): a **Passkeys** row in Acceso, only when supported, opens the passkeys screen (`/settings/passkeys`, `/student-app/passkeys`). It follows the list rules: each passkey with its name and the day it was added, a `dangerGhost` small **Quitar** per row that asks first with `ConfirmDialog`, the floating **Agregar passkey** button as the only create action, and an `EmptyState` that points to it.
+- **Agregar passkey** (`/settings/add-passkey`, `/student-app/add-passkey`): a form closed with ✕, with the current password and the name (both required, the name filled in with the device the browser reports, up to 60 characters). It asks the API for the options, lets the device create the passkey and saves it; then goes back with the toast "Passkey agregada". A wrong password shows under the field, a device that already has a passkey of the account shows a warning, and cancelling the device prompt does nothing.
 - **Content Security Policy**: no change: WebAuthn needs no new source, and the app is never framed.
 
 ## Steps
 
 1. **API and Security**: schema version 3 and migration, ceremonies, `PasskeyService`, use cases, endpoints, notice email, configuration (`Passkeys:ServerDomain`, `Passkeys:AllowedOrigins` in `appsettings`, the pilot deployment and [Pilot deployment](../../pilot-deployment.md)), integration tests with a software authenticator.
-2. **Web app and PWA**: sign-in button, Mi perfil group, texts, jest tests, and one e2e test of the full flow with Chromium's virtual authenticator. Before/after screenshots of the sign-in screen and Mi perfil for the owner.
+2. **Web app and PWA**: sign-in button, Mi perfil row, passkeys list and add form, texts, jest tests, and one e2e test of the full flow with Chromium's virtual authenticator (`When_signing_in_with_a_passkey`). The demo screenshots capture the passkey screens with the same virtual authenticator (`Passkey_screens.capture.ts`).
 3. **Android app**: `react-native-passkey` (a native module: it works in the APK built by `eas build`, not in Expo Go), `assetlinks.json` served at `https://laztty.com/.well-known/assetlinks.json` with the APK's signing certificate fingerprint, and the `android:apk-key-hash` origin. iOS when there is an iOS app (`apple-app-site-association`, associated domains).
 
 ## Tests
@@ -146,7 +147,11 @@ Integration tests (`ClassManager.Api.I.Tests`, `Endpoints/Passkeys`) use `Softwa
 - `When_the_account_with_a_passkey_is_deleted/Then_its_passkeys_are_deleted`
 - `When_a_passkey_sign_in_fails/Then_a_security_event_is_written`
 
-Unit tests (`ClassManager.Core.U.Tests`): the existing sign-in tests run through `SignInSessionService`, and the passkey use cases are tested with fakes (missing password, name too long, missing credential, passkey not found, a verified passkey starts the session). Jest: the sign-in button only shows when supported, cancelling the prompt does nothing, removing asks first and nothing happens until confirmed. E2E: add a passkey from Mi perfil, sign out, sign in with it (Playwright's CDP `WebAuthn.addVirtualAuthenticator` with user verification on).
+Unit tests (`ClassManager.Core.U.Tests`): the existing sign-in tests run through `SignInSessionService`, and the passkey use cases are tested with fakes (missing password, name too long, missing credential, passkey not found, a verified passkey starts the session).
+
+App tests (`app/src/features/passkeys/__tests__`, `authentication/__tests__`, `account/__tests__`): the sign-in button only shows when passkeys are supported, a passkey sign-in starts the session, cancelling the prompt shows nothing, a refused passkey shows the banner, Mi perfil opens the passkeys screen, the empty list points to the floating button, adding sends the password and the name, a wrong password shows under the field, the add button stays grey until the form is filled, and removing asks first and nothing happens until the person confirms.
+
+E2E (`e2e/tests/When_signing_in_with_a_passkey`): add a passkey from Mi perfil, sign out, and sign in with it, with Playwright's CDP `WebAuthn.addVirtualAuthenticator` (user verification on).
 
 ## Later
 

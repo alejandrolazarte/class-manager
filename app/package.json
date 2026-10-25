@@ -25,6 +25,7 @@
     "@expo/vector-icons": "^15.1.1",
     "@hookform/resolvers": "^5.9.1",
     "@sentry/react-native": "~7.11.0",
+    "@simplewebauthn/browser": "^14.0.0",
     "@tanstack/react-query": "^5.104.0",
     "date-fns": "^4.4.0",
     "expo": "~57.0.26",
