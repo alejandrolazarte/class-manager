@@ -1,4 +1,5 @@
 import { Passkey, PasskeyCreateRequest, PasskeyGetRequest } from "react-native-passkey";
+import { appConfiguration } from "@/config/appConfiguration";
 import {
   PasskeyCreationOptions,
   PasskeyRegistrationCredential,
@@ -9,7 +10,7 @@ import {
 const publicKeyCredentialType = "public-key";
 
 export function isPasskeySupported(): Promise<boolean> {
-  return Promise.resolve(Passkey.isSupported());
+  return Promise.resolve(appConfiguration.areAndroidPasskeysEnabled && Passkey.isSupported());
 }
 
 export async function createPasskeyCredential(

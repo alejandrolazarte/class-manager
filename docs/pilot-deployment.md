@@ -248,7 +248,7 @@ Never change `Passkeys__ServerDomain` once people have added passkeys: every pas
 
 ### Passkeys in the Android app
 
-The Android app uses the same passkeys as the web app, so Android must trust that the app belongs to `laztty.com`. It checks `https://laztty.com/.well-known/assetlinks.json`, which names the app's package and the SHA-256 fingerprint of the certificate that signs the APK. Until the three steps below are done, the Android app shows nothing about passkeys that works: the button appears, but Android refuses the request and the app shows "No pudimos verificar la passkey".
+The Android app uses the same passkeys as the web app, so Android must trust that the app belongs to `laztty.com`. It checks `https://laztty.com/.well-known/assetlinks.json`, which names the app's package and the SHA-256 fingerprint of the certificate that signs the APK. The Android app hides passkeys until the APK is built with `EXPO_PUBLIC_ANDROID_PASSKEYS=true` (step 4), so an APK built before the other steps never shows a passkey button that Android would refuse.
 
 1. **The fingerprint.** `eas credentials --platform android`, profile `pilot`: copy **SHA256 Fingerprint** (32 bytes as `AA:BB:…`). Save it as a repository variable; the next web deploy writes `dist/.well-known/assetlinks.json` with it (`scripts/writeAndroidAssetLinks.js`, skipped while the variable is empty):
 
@@ -268,7 +268,14 @@ The Android app uses the same passkeys as the web app, so Android must trust tha
      --set-env-vars "Passkeys__AllowedOrigins__1=android:apk-key-hash:$apkKeyHash"
    ```
 
-Then build a new APK (`eas build --profile pilot`). Check: `https://laztty.com/.well-known/assetlinks.json` answers the JSON with the fingerprint, and [Google's Digital Asset Links tester](https://developers.google.com/digital-asset-links/tools/generator) confirms the link for `com.alejandrolazarte.classmanager`. A new signing key (a new keystore, or Google Play App Signing later) means a new fingerprint: update the variable and the API origin, and add the Play signing fingerprint as a second entry when the app goes to Google Play.
+4. **Turn them on in the APK**, only after the three steps above, and build a new APK:
+
+   ```powershell
+   pnpm dlx eas-cli env:create --environment preview --name EXPO_PUBLIC_ANDROID_PASSKEYS --value "true" --visibility plaintext
+   pnpm dlx eas-cli build --platform android --profile pilot
+   ```
+
+   Without the variable (or with any value other than `true`), the APK hides "Ingresar con passkey" and the Passkeys row in Mi perfil. The web app and the PWA don't read it. Check: `https://laztty.com/.well-known/assetlinks.json` answers the JSON with the fingerprint, and [Google's Digital Asset Links tester](https://developers.google.com/digital-asset-links/tools/generator) confirms the link for `com.alejandrolazarte.classmanager`. A new signing key (a new keystore, or Google Play App Signing later) means a new fingerprint: update the variable and the API origin, and add the Play signing fingerprint as a second entry when the app goes to Google Play.
 
 ### The previous host (Cloudflare Pages)
 
