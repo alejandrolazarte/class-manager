@@ -11,6 +11,7 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
+import { PasswordManagerUsername } from "@/ui/PasswordManagerUsername";
 import { TextField } from "@/ui/TextField";
 
 export interface InvitationAnswerTexts {
@@ -127,6 +128,7 @@ export function InvitationAnswerForm({
             onChangeText={setBirthDate}
             errorMessage={birthDateError ?? fieldErrors.birthDate}
           />
+          <PasswordManagerUsername email={invitation.email} />
           <PasswordField
             label={texts.password}
             autoComplete="new-password"

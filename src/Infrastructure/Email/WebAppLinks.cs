@@ -9,6 +9,7 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public const string SignInPath = "/sign-in";
     public const string CompleteSignUpPath = "/complete-sign-up?token=";
     public const string ResetPasswordPath = "/reset-password?token=";
+    public const string EmailParameter = "&email=";
     public const string ConfirmEmailChangePath = "/confirm-email-change?token=";
     public const string AcceptInvitationPath = "/accept-invitation?token=";
     public const string AcceptStudentAppInvitationPath = "/accept-student-invitation?token=";
@@ -21,11 +22,11 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
 
     public string SignIn() => WebAppUrl() + SignInPath;
 
-    public string CompleteSignUp(string token) =>
-        WebAppUrl() + CompleteSignUpPath + Uri.EscapeDataString(token);
+    public string CompleteSignUp(string token, string email) =>
+        WebAppUrl() + CompleteSignUpPath + Uri.EscapeDataString(token) + EmailParameter + Uri.EscapeDataString(email);
 
-    public string ResetPassword(string token) =>
-        WebAppUrl() + ResetPasswordPath + Uri.EscapeDataString(token);
+    public string ResetPassword(string token, string email) =>
+        WebAppUrl() + ResetPasswordPath + Uri.EscapeDataString(token) + EmailParameter + Uri.EscapeDataString(email);
 
     public string ConfirmEmailChange(string token) =>
         WebAppUrl() + ConfirmEmailChangePath + Uri.EscapeDataString(token);

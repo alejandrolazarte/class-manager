@@ -11,7 +11,7 @@ const darkColorScheme = "dark";
 const colorScheme = process.env.SCREENSHOTS_COLOR_SCHEME === darkColorScheme ? "dark" : "light";
 const wrongPassword = "not-the-right-password";
 const signUpEmail = "valeria.sosa@example.com";
-const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s]+)/;
+const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s&]+)/;
 const secondBranchName = "Sede Norte";
 
 test.use({ locale: "es-AR", timezoneId: demoTimeZoneId, colorScheme });
