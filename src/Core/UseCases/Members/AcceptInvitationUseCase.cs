@@ -63,6 +63,14 @@ public sealed class AcceptInvitationUseCase(
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var userId = await identityService.FindUserIdByEmailAsync(invitation.Email, cancellationToken);
+        var instructor = invitation.InstructorId is { } invitedInstructorId
+            ? await instructorRepository.GetForUpdateAsync(invitedInstructorId, cancellationToken)
+            : null;
+        if (instructor?.User.AccountId is { } instructorAccountId && instructorAccountId != userId)
+        {
+            return Result.Conflict<TokenResponse>(InstructorTakenMessage, MemberErrorCodes.InstructorTaken);
+        }
+
         if (userId is null)
         {
             var invitedName = await InvitedPersonName.FindAsync(invitation, instructorRepository, cancellationToken);
@@ -101,9 +109,6 @@ public sealed class AcceptInvitationUseCase(
             return Result.Conflict<TokenResponse>(AlreadyMemberMessage, MemberErrorCodes.AlreadyMember);
         }
 
-        var instructor = invitation.InstructorId is { } invitedInstructorId
-            ? await instructorRepository.GetForUpdateAsync(invitedInstructorId, cancellationToken)
-            : null;
         var user = await AccountUsers.ResolveAsync(userRepository, identityService, instructor?.User, userId.Value, now, cancellationToken);
         var member = BusinessMember.Create(invitation.TenantId, user, role.Value!, invitation.InstructorId);
         if (member.IsFailure)

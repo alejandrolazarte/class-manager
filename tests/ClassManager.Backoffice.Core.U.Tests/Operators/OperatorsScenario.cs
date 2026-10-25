@@ -49,12 +49,12 @@ internal sealed class OperatorsScenario
         return accessRequest;
     }
 
-    public BusinessMember WithTeamMember(string fullName, BusinessRole role, Guid? accountId)
+    public BusinessMember WithTeamMember(string fullName, BusinessRole role, Guid? accountId, long? instructorId = null)
     {
         var user = accountId is { } account
             ? User.CreateForAccount(account, fullName, null, Now)
             : User.Create(fullName, null, Now).Value!;
-        var member = BusinessMember.Create(BranchId, user, MemberRole.System(role), instructorId: null).Value!;
+        var member = BusinessMember.Create(BranchId, user, MemberRole.System(role), instructorId).Value!;
         Operators.TeamMembers.Add(member);
         return member;
     }
