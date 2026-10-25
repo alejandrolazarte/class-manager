@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -17,7 +18,8 @@ public sealed class MarkOrderDeliveredUseCase(
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IFeatureAccess featureAccess)
     : IUseCase<MarkOrderDeliveredCommand, OrderResponse>
 {
     public async Task<Result<OrderResponse>> ExecuteAsync(MarkOrderDeliveredCommand command, CancellationToken cancellationToken)
@@ -26,6 +28,11 @@ public sealed class MarkOrderDeliveredUseCase(
         if (order is null || !await OrderAccess.CanReachAsync(accessScopes, clientRepository, order, cancellationToken))
         {
             return OrderFailures.NotFound();
+        }
+
+        if (await OrderAccess.PlanRefusalAsync(featureAccess, order, cancellationToken) is { } planRefusal)
+        {
+            return planRefusal;
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);

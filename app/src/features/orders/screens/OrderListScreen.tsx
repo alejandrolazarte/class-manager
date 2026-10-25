@@ -4,12 +4,11 @@ import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { formatMoney } from "@/formatting/money";
 import { monthOf } from "@/features/fees/months";
-import { useCan } from "@/features/members/CurrentMemberProvider";
-import { permissions } from "@/features/members/permissions";
 import { OrderRow } from "@/features/orders/components/OrderRow";
 import { OrderMonthSummary } from "@/features/orders/components/OrderMonthSummary";
 import { OrderFilter, orderFilters } from "@/features/orders/types";
 import { useOrders, useOrderSummary, usePendingOrders } from "@/features/orders/useOrders";
+import { useCanSellAtCounter } from "@/features/orders/useOrderPermissions";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { orderTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -32,7 +31,7 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
   const router = useRouter();
   const business = useCurrentBusiness();
   const orderTab = useCurrentTab(orderTabs);
-  const canManageOrders = useCan(permissions.ordersManage);
+  const canSellAtCounter = useCanSellAtCounter();
   const isInCollections = viewSwitcher !== undefined;
   const [filter, setFilter] = useState<OrderFilter>("all");
   const { data: orders = [], isPending, isError, refetch } = useOrders(null, filter);
@@ -42,7 +41,7 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
 
   return (
     <ScrollScreen
-      hasFloatingAction={isInCollections && canManageOrders}
+      hasFloatingAction={isInCollections && canSellAtCounter}
       header={
         isInCollections ? (
           <ScreenHeader eyebrow={translate("collections.shop")} title={translate("orders.title")} />
@@ -51,7 +50,7 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
         )
       }
       overlay={
-        isInCollections && canManageOrders ? (
+        isInCollections && canSellAtCounter ? (
           <FloatingActionButton
             label={translate("orders.counterSale.open")}
             onPress={openCounterSale}
@@ -67,7 +66,7 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
           money={(amount) => formatMoney(amount, business.currencyCode)}
         />
       ) : null}
-      {canManageOrders && !isInCollections ? (
+      {canSellAtCounter && !isInCollections ? (
         <Button icon="add" label={translate("orders.counterSale.open")} onPress={openCounterSale} />
       ) : null}
       <ChipGroup
@@ -93,7 +92,7 @@ export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListSc
         <View>
           {orders.map((order, index) => (
             <AnimatedListItem key={order.id} index={index}>
-              <OrderRow order={order} canManage={canManageOrders} />
+              <OrderRow order={order} />
             </AnimatedListItem>
           ))}
         </View>

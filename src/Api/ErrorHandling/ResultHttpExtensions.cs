@@ -40,7 +40,7 @@ internal static class ResultHttpExtensions
             Extensions = extensions,
         });
 
-        return error.Code == FeatureErrorCodes.LimitReached ? new PlanLimitResult(problem) : problem;
+        return error.Code is FeatureErrorCodes.LimitReached or FeatureErrorCodes.NotInPlan ? new PlanLimitResult(problem) : problem;
     }
 
     private static int ToStatusCode(ErrorKind kind) => kind switch

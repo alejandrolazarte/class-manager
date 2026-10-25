@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useContext } from "react";
 import { Permission } from "@/features/members/permissions";
 import { CurrentMember } from "@/features/members/types";
-import { featureByPermission } from "@/features/subscriptions/featureGatedPermissions";
+import { anyFeatureByPermission } from "@/features/subscriptions/featureGatedPermissions";
 
 const CurrentMemberContext = createContext<CurrentMember | null>(null);
 
@@ -29,11 +29,13 @@ export function useRoleCan(...anyOfPermissions: Permission[]): boolean {
 export function useCan(...anyOfPermissions: Permission[]): boolean {
   const { permissions, subscription } = useCurrentMember();
   const planIncludes = (permission: Permission) => {
-    const featureCode = featureByPermission[permission];
+    const featureCodes = anyFeatureByPermission[permission];
     return (
-      featureCode === undefined ||
+      featureCodes === undefined ||
       subscription == null ||
-      subscription.features.some((feature) => feature.code === featureCode)
+      subscription.features.some((feature) =>
+        featureCodes.some((featureCode) => featureCode === feature.code),
+      )
     );
   };
   return anyOfPermissions.some(

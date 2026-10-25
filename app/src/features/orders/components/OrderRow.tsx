@@ -12,6 +12,7 @@ import {
 } from "@/features/orders/orderLabels";
 import { Order } from "@/features/orders/types";
 import { useOrderActions } from "@/features/orders/useOrderActions";
+import { useCanManageOrder } from "@/features/orders/useOrderPermissions";
 import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { orderTabs, routes } from "@/navigation/routes";
@@ -24,10 +25,10 @@ import { StatusPill } from "@/ui/StatusPill";
 
 interface OrderRowProps {
   order: Order;
-  canManage: boolean;
 }
 
-export function OrderRow({ order, canManage }: OrderRowProps) {
+export function OrderRow({ order }: OrderRowProps) {
+  const canManage = useCanManageOrder(order);
   const router = useRouter();
   const orderTab = useCurrentTab(orderTabs);
   const { markDelivered, isDelivering } = useOrderActions(order);
