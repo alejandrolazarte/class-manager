@@ -49,5 +49,5 @@ internal sealed class SignInUseCaseBuilder
             .Setup(directory => directory.FindAsync(UserId, LastUsedBranch.BusinessId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(LastUsedBranch);
 
-    public SignInUseCase Build() => new(Identity.Object, Tokens.Object, Branches.Object, StudentApp.Object);
+    public SignInUseCase Build() => new(Identity.Object, new SignInSessionService(Tokens.Object, Branches.Object, StudentApp.Object));
 }

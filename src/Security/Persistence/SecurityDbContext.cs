@@ -1,5 +1,7 @@
 using ClassManager.Security.Accounts;
+using ClassManager.Security.Passkeys;
 using ClassManager.Security.Tokens;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -12,6 +14,8 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
     public const string SchemaName = "identity";
     public const string MigrationsHistoryTableName = "__EFMigrationsHistory";
 
+    public static readonly Version IdentitySchemaVersion = IdentitySchemaVersions.Version3;
+
     private const string EmailIndexName = "EmailIndex";
     private const string NormalizedEmailIsNotNullFilter = "[NormalizedEmail] IS NOT NULL";
 
@@ -20,6 +24,8 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     public DbSet<EmailChangeToken> EmailChangeTokens => Set<EmailChangeToken>();
+
+    public DbSet<PasskeyCeremony> PasskeyCeremonies => Set<PasskeyCeremony>();
 
     public static void ConfigureSqlServer(SqlServerDbContextOptionsBuilder sqlServer) =>
         sqlServer.MigrationsHistoryTable(MigrationsHistoryTableName, SchemaName);
@@ -74,6 +80,19 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
             emailChangeToken.HasIndex(token => token.TokenHash).IsUnique();
             emailChangeToken.HasIndex(token => token.UserId);
             emailChangeToken.HasOne<ApplicationUser>().WithMany().HasForeignKey(token => token.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<PasskeyCeremony>(passkeyCeremony =>
+        {
+            passkeyCeremony.HasKey(ceremony => ceremony.Id);
+            passkeyCeremony.Property(ceremony => ceremony.Id).ValueGeneratedNever();
+            passkeyCeremony.Property(ceremony => ceremony.CeremonyIdHash)
+                .HasMaxLength(PasskeyCeremony.CeremonyIdHashLength).IsFixedLength().IsRequired();
+            passkeyCeremony.Property(ceremony => ceremony.Kind)
+                .HasConversion<string>().HasMaxLength(PasskeyCeremony.KindMaxLength).IsRequired();
+            passkeyCeremony.HasIndex(ceremony => ceremony.CeremonyIdHash).IsUnique();
+            passkeyCeremony.HasIndex(ceremony => ceremony.ExpiresAt);
+            passkeyCeremony.HasOne<ApplicationUser>().WithMany().HasForeignKey(ceremony => ceremony.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -15,8 +15,9 @@ The project boundary gives most of the benefit now: business concepts can't leak
 | Area | Types |
 |---|---|
 | Accounts | `ApplicationUser`, `ApplicationRole`, `IUserAccountService` (create with the email confirmed, because the app only creates accounts after a link proved the email; verify credentials with lockout), `IPasswordResetService` (single-use reset tokens stored hashed; a reset clears the lockout and revokes every session) |
+| Passkeys | `IPasskeyService` (register and sign in with a passkey over Identity's `IPasskeyHandler`, list and remove), `PasskeyCeremony` (the state between the two requests of each ceremony, single use, 5 minutes), `PasskeyOptions` (`Passkeys:ServerDomain`, `Passkeys:AllowedOrigins`); see [Passkeys](backend/20261025-passkeys/plan.md) |
 | Tokens | `ITokenIssuer` (issue, refresh with rotation and reuse detection, revoke), `JwtOptions`, `SecurityClaimTypes`, `TokenSubject` |
-| Persistence | `SecurityDbContext` (schema `identity`) and its migrations |
+| Persistence | `SecurityDbContext` (schema `identity`, Identity schema version 3 for passkeys) and its migrations; a context created outside the application (design time, test fixtures) calls `UseIdentitySchema()` so it builds the same model |
 | Hosting | `AddSecurityServices`, `AddSecurityAuthentication` (JWT bearer validation + rate limit policy `authentication`) |
 
 Tokens carry `sub`, `email`, `role` and a **tenant claim whose name the application chooses** (`TenantClaimType`, default `tenant_id`). This application uses the default, `tenant_id` (`TenantClaimTypes.TenantId` from the [tenancy library](tenancy.md)). The application can add its own claims through `TokenSubject.Claims`; they never replace the ones Security writes. This application adds `user_id`, the person in the branch (`Users`), found by the account (`sub`) and the branch on every issue, refresh and switch; `ICurrentUser.AccountId` reads `sub` and `ICurrentUser.UserId` reads `user_id` ([users per business](backend/20261017-users/plan.md)).

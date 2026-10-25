@@ -23,6 +23,7 @@ using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.Measurements;
 using ClassManager.Core.UseCases.Members;
 using ClassManager.Core.UseCases.Orders;
+using ClassManager.Core.UseCases.Passkeys;
 using ClassManager.Core.UseCases.PrivateLessons;
 using ClassManager.Core.UseCases.Products;
 using ClassManager.Core.UseCases.Roles;
@@ -50,6 +51,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<ICatalogImageService, CatalogImageService>();
         services.AddScoped<IAnnouncementResponseService, AnnouncementResponseService>();
         services.AddScoped<IAccessScopes, AccessScopes>();
+        services.AddScoped<ISignInSessionService, SignInSessionService>();
         services.AddSingleton<CsvTabularReader>();
         services.AddSingleton(new XlsxTabularReader());
         services.AddSingleton<ITabularReader, XlsxOrCsvTabularReader>();
@@ -79,6 +81,12 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<RequestEmailChangeCommand, RequestEmailChangeResponse, RequestEmailChangeUseCase>();
         services.AddUseCase<SendAppFeedbackCommand, SendAppFeedbackResponse, SendAppFeedbackUseCase>();
         services.AddUseCase<ConfirmEmailChangeCommand, ConfirmEmailChangeResponse, ConfirmEmailChangeUseCase>();
+        services.AddUseCase<BeginPasskeyRegistrationCommand, PasskeyCeremonyResponse, BeginPasskeyRegistrationUseCase>();
+        services.AddUseCase<FinishPasskeyRegistrationCommand, PasskeyResponse, FinishPasskeyRegistrationUseCase>();
+        services.AddUseCase<ListMyPasskeysQuery, IReadOnlyList<PasskeyResponse>, ListMyPasskeysUseCase>();
+        services.AddUseCase<RemoveMyPasskeyCommand, RemoveMyPasskeyResponse, RemoveMyPasskeyUseCase>();
+        services.AddUseCase<BeginPasskeySignInCommand, PasskeyCeremonyResponse, BeginPasskeySignInUseCase>();
+        services.AddUseCase<SignInWithPasskeyCommand, TokenResponse, SignInWithPasskeyUseCase>();
         services.AddUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse, DeleteMyAccountUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();
         services.AddUseCase<GetBrandQuery, BrandResponse, GetBrandUseCase>();

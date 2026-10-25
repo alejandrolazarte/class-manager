@@ -171,6 +171,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IStudentAppAccess, CurrentStudentApp>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IPasskeyIdentityService, PasskeyIdentityService>();
         services.AddScoped<ICurrentMember, CurrentMember>();
         services.AddScoped<IBranchDirectory, BranchDirectory>();
         services.AddSingleton<ISecretTokenGenerator, SecretTokenGenerator>();

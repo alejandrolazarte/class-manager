@@ -59,6 +59,7 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
 
         await using (var securityContext = new SecurityDbContext(new DbContextOptionsBuilder<SecurityDbContext>()
             .UseSqlServer(_container.GetConnectionString(), SecurityDbContext.ConfigureSqlServer)
+            .UseIdentitySchema()
             .Options))
         {
             await securityContext.Database.MigrateAsync();

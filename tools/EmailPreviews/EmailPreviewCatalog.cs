@@ -27,6 +27,7 @@ internal static class EmailPreviewCatalog
     private const string AppFeedbackRole = "BranchOwner";
     private const string AppFeedbackPlatform = "web";
     private const string AppFeedbackAppVersion = "1.0.0";
+    private const string PasskeyName = "iPhone";
 
     public static Uri WebFontsUrl { get; } = new(WebAppUrl + WebAppLinks.WebFontsPath);
 
@@ -91,6 +92,9 @@ internal static class EmailPreviewCatalog
                 "16-comentario-de-la-app" + nameSuffix,
                 texts.AppFeedback(new AppFeedbackEmailDetails(
                     AppFeedbackMessage, ClientName, AppFeedbackSenderEmail, PreviewBrands.BusinessName, AppFeedbackRole, AppFeedbackPlatform, AppFeedbackAppVersion))),
+            App(
+                "17-passkey-agregada" + nameSuffix,
+                texts.PasskeyAddedNotice(PasskeyName)),
         ];
     }
 

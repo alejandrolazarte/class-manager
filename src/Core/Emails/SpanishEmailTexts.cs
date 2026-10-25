@@ -152,6 +152,18 @@ internal sealed class SpanishEmailTexts : IEmailTexts
                 "Si no fuiste vos, avisá enseguida al lugar donde tomás clases o trabajás."));
     }
 
+    public EmailText PasskeyAddedNotice(string passkeyName)
+    {
+        const string subject = "Se agregó una passkey a tu cuenta";
+        return new(
+            subject,
+            Content(
+                AccountEyebrow,
+                subject,
+                $"Desde ahora podés entrar a la app con la passkey {passkeyName}, con la huella, la cara o el PIN de ese dispositivo.",
+                "Si no fuiste vos, quitala desde Mi perfil y cambiá tu contraseña."));
+    }
+
     public EmailText OrderPlaced(OrderEmailDetails order, string clientName, string? delivery, string teamOrdersLink) =>
         new(
             $"Nuevo pedido {OrderNumber(order.Number)} de {clientName}",

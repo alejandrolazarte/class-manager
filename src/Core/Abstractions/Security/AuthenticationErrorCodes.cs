@@ -14,6 +14,9 @@ public static class AuthenticationErrorCodes
     public const string OwnerMustBeAdult = "auth.owner_must_be_adult";
     public const string InvalidSignUpToken = "auth.invalid_sign_up_token";
     public const string LegalTermsNotAccepted = "auth.legal_terms_not_accepted";
+    public const string InvalidPasskeyCeremony = "auth.invalid_passkey_ceremony";
+    public const string InvalidPasskey = "auth.invalid_passkey";
+    public const string PasskeyNotFound = "auth.passkey_not_found";
 
     public const string EmailTakenMessage = "An account with this email already exists.";
     public const string InvalidRefreshTokenMessage = "The session has expired. Sign in again.";
@@ -24,5 +27,8 @@ public static class AuthenticationErrorCodes
     public const string OwnerMustBeAdultMessage = "The owner of a business must be an adult.";
     public const string InvalidSignUpTokenMessage = "The link is invalid, expired or already used. Sign up again.";
     public const string LegalTermsNotAcceptedMessage = "Accept the terms of use and the privacy policy to create an account.";
+    public const string InvalidPasskeyCeremonyMessage = "The passkey request expired or was already used. Try again.";
+    public const string InvalidPasskeyMessage = "The passkey could not be verified.";
+    public const string PasskeyNotFoundMessage = "The passkey does not exist.";
     public const string InvalidEmailChangeTokenMessage = "The link is invalid, expired or already used. Ask for the change again.";
 }

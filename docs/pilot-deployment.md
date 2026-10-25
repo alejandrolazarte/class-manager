@@ -236,6 +236,15 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
 
 `WebApp__Url` is where the links in emails point (see [Email](#email)), and where emails load their fonts from, so change it only once the web app answers on that domain.
 
+Passkeys (sign-in with a fingerprint, face or device PIN, see [Passkeys](backend/20261025-passkeys/plan.md)) belong to `laztty.com` and only work from the web app's origin. Without these settings the API keeps the `localhost` defaults from `appsettings.json` and passkeys only work locally:
+
+```powershell
+az containerapp update --name $containerApp --resource-group $resourceGroup `
+  --set-env-vars "Passkeys__ServerDomain=laztty.com" "Passkeys__AllowedOrigins__0=https://app.laztty.com"
+```
+
+Never change `Passkeys__ServerDomain` once people have added passkeys: every passkey belongs to that domain and stops working with another one.
+
 ### The previous host (Cloudflare Pages)
 
 Until 2026-10-14 the web app was on Cloudflare Pages, at `class-manager-3cm.pages.dev` (see the [hosting plan](hosting-plan.md#6-web-app-azure-static-web-apps) for why it moved). The switch was done in this order:

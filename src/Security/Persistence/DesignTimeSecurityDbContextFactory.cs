@@ -11,6 +11,7 @@ internal sealed class DesignTimeSecurityDbContextFactory : IDesignTimeDbContextF
     {
         var options = new DbContextOptionsBuilder<SecurityDbContext>()
             .UseSqlServer(DesignTimeConnectionString, SecurityDbContext.ConfigureSqlServer)
+            .UseIdentitySchema()
             .Options;
 
         return new SecurityDbContext(options);

@@ -59,6 +59,7 @@ app.UseRateLimiter();
 
 app.MapHealthChecks(ApiRoutes.Health).AllowAnonymous();
 app.MapAuthenticationEndpoints();
+app.MapPasskeyEndpoints();
 app.MapBusinessEndpoints();
 app.MapBrandEndpoints();
 app.MapMemberEndpoints();
