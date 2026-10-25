@@ -222,6 +222,7 @@ gh variable set FILES_BASE_URL --repo $repository --body "https://<storage accou
 | `EXPO_PUBLIC_API_BASE_URL` | The API's address |
 | `FILES_BASE_URL` | The blob endpoint for photos (see [storage](storage.md)); optional |
 | `EXPO_PUBLIC_PLANS_CONTACT_URL` (optional) | Where "Quiero cambiar de plan" opens, for example `https://wa.me/<number>`; without it the plan screens show "escribinos" as text |
+| `ANDROID_SIGNING_CERT_SHA256` (optional) | SHA-256 fingerprint of the APK's signing certificate; the web export publishes `/.well-known/assetlinks.json` with it so the Android app can use passkeys (see [Passkeys in the Android app](#passkeys-in-the-android-app)) |
 
 The pipeline's identity is `Contributor` on the resource group ([step 4](#4-deploy-identity-for-github-actions)), which is enough to read the deployment token, so nothing is stored in GitHub.
 
@@ -244,6 +245,30 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
 ```
 
 Never change `Passkeys__ServerDomain` once people have added passkeys: every passkey belongs to that domain and stops working with another one.
+
+### Passkeys in the Android app
+
+The Android app uses the same passkeys as the web app, so Android must trust that the app belongs to `laztty.com`. It checks `https://laztty.com/.well-known/assetlinks.json`, which names the app's package and the SHA-256 fingerprint of the certificate that signs the APK. Until the three steps below are done, the Android app shows nothing about passkeys that works: the button appears, but Android refuses the request and the app shows "No pudimos verificar la passkey".
+
+1. **The fingerprint.** `eas credentials --platform android`, profile `pilot`: copy **SHA256 Fingerprint** (32 bytes as `AA:BB:…`). Save it as a repository variable; the next web deploy writes `dist/.well-known/assetlinks.json` with it (`scripts/writeAndroidAssetLinks.js`, skipped while the variable is empty):
+
+   ```powershell
+   gh variable set ANDROID_SIGNING_CERT_SHA256 --repo $repository --body "AA:BB:…"
+   ```
+
+2. **The apex domain.** `laztty.com` has no record yet ([Domain and DNS](domain-and-dns.md)). Add it as a second custom domain of the web app's static web app (the Free plan allows two), so it serves the same files, `assetlinks.json` included. In the static web app, **Custom domains → Add → Custom domain on other DNS**, enter `laztty.com`, choose **TXT** validation and create the `TXT` record it shows in Cloudflare; then add a `CNAME` for `@` pointing to the static web app's default host (Cloudflare flattens it at the apex), **DNS only**. Until there is a landing page, `laztty.com` opens the web app too. A landing page that replaces it must keep serving `/.well-known/assetlinks.json`.
+
+3. **The app's origin in the API.** Requests from the Android app carry the origin `android:apk-key-hash:` followed by the same fingerprint in base64url. Allow it as a second origin:
+
+   ```powershell
+   $fingerprint = "AA:BB:…"
+   $bytes = [byte[]]($fingerprint.Split(":") | ForEach-Object { [Convert]::ToByte($_, 16) })
+   $apkKeyHash = [Convert]::ToBase64String($bytes).TrimEnd("=").Replace("+", "-").Replace("/", "_")
+   az containerapp update --name $containerApp --resource-group $resourceGroup `
+     --set-env-vars "Passkeys__AllowedOrigins__1=android:apk-key-hash:$apkKeyHash"
+   ```
+
+Then build a new APK (`eas build --profile pilot`). Check: `https://laztty.com/.well-known/assetlinks.json` answers the JSON with the fingerprint, and [Google's Digital Asset Links tester](https://developers.google.com/digital-asset-links/tools/generator) confirms the link for `com.alejandrolazarte.classmanager`. A new signing key (a new keystore, or Google Play App Signing later) means a new fingerprint: update the variable and the API origin, and add the Play signing fingerprint as a second entry when the app goes to Google Play.
 
 ### The previous host (Cloudflare Pages)
 

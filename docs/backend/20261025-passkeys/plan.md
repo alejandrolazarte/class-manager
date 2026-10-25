@@ -1,6 +1,6 @@
 # Passkeys: signing in with a fingerprint or face
 
-Status: steps 1 (API and Security) and 2 (web app and PWA) are built. Step 3 (Android) is still a proposal.
+Status: steps 1 (API and Security) and 2 (web app and PWA) are built. Step 3 (Android) is built in the app and waits on the infrastructure in [Passkeys in the Android app](../../pilot-deployment.md#passkeys-in-the-android-app) (the signing fingerprint, the `laztty.com` apex and the app's origin in the API) before it can be tried on a phone.
 
 ## Why
 
@@ -122,7 +122,7 @@ New keys in `es.json` and `en.json` (sign-in button, Mi perfil row, passkeys lis
 
 1. **API and Security**: schema version 3 and migration, ceremonies, `PasskeyService`, use cases, endpoints, notice email, configuration (`Passkeys:ServerDomain`, `Passkeys:AllowedOrigins` in `appsettings`, the pilot deployment and [Pilot deployment](../../pilot-deployment.md)), integration tests with a software authenticator.
 2. **Web app and PWA**: sign-in button, Mi perfil row, passkeys list and add form, texts, jest tests, and one e2e test of the full flow with Chromium's virtual authenticator (`When_signing_in_with_a_passkey`). The demo screenshots capture the passkey screens with the same virtual authenticator (`Passkey_screens.capture.ts`).
-3. **Android app**: `react-native-passkey` (a native module: it works in the APK built by `eas build`, not in Expo Go), `assetlinks.json` served at `https://laztty.com/.well-known/assetlinks.json` with the APK's signing certificate fingerprint, and the `android:apk-key-hash` origin. iOS when there is an iOS app (`apple-app-site-association`, associated domains).
+3. **Android app**: `react-native-passkey` (a native module: it works in the APK built by `eas build`, not in Expo Go) in `webAuthn.android.ts`, which maps its results to the same WebAuthn JSON the web sends. Android 9 (API 28) or later; older versions hide passkeys. Errors from the device that are not a cancellation (no passkey on the phone, a refused request) show the same banner as a refused passkey. `scripts/writeAndroidAssetLinks.js` writes `/.well-known/assetlinks.json` in the web export from `ANDROID_SIGNING_CERT_SHA256`, the apex `laztty.com` serves it, and the API allows the `android:apk-key-hash:` origin. iOS stays hidden (`webAuthn.ts`) until there is an iOS app (`apple-app-site-association`, associated domains).
 
 ## Tests
 
