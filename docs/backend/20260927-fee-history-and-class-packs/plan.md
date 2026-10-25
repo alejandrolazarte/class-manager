@@ -15,6 +15,7 @@ Follow-up to [monthly fees](../20260926-monthly-fees/plan.md), asked by the pilo
 - **Expiry is optional per pack.** With a validity, classes left after `expiresOn` (purchase date + validity − 1 day) are lost; without one, they stay until used.
 - **Which pack pays an attendance**: attendances in months when the family was on `ClassPacks`, oldest first, each one from the pack valid on that date that expires first (packs without expiry last), then the oldest purchase. An attendance with no pack left is an **unpaid class**; the next pack sold covers it.
 - The balance is **computed, not stored**: purchases + attendances → classes used, left, expired and unpaid. No counters to keep in sync when attendance is corrected.
+- **The team and the family see it before money changes hands.** The attendance row shows "Le queda 1 clase", "Sin clases en el pack" or "Debe N clases" for students paying per class, and the student app's next class card warns "No te quedan clases en el pack." or "Debés N clases." with a link to buy classes (hidden once the student said they won't come). Attendance is never blocked: a class with no pack left is recorded as unpaid, as before.
 
 ## Scope
 
