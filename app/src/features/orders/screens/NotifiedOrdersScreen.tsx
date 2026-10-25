@@ -4,7 +4,8 @@ import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { OrderListScreen } from "@/features/orders/screens/OrderListScreen";
 import { routes } from "@/navigation/routes";
-import { LoadingScreen } from "@/ui/LoadingScreen";
+import { SkeletonList } from "@/ui/motion/SkeletonList";
+import { Screen } from "@/ui/Screen";
 
 const homeScreenName = "index";
 
@@ -26,5 +27,12 @@ export function NotifiedOrdersScreen() {
     return () => clearTimeout(leaveForCollections);
   }, [canViewPayments, navigation, router]);
 
-  return canViewPayments ? <LoadingScreen /> : <OrderListScreen />;
+  if (!canViewPayments) {
+    return <OrderListScreen />;
+  }
+  return (
+    <Screen>
+      <SkeletonList className="w-full max-w-2xl self-center px-5 pt-4" />
+    </Screen>
+  );
 }
