@@ -55,7 +55,27 @@ public static class SecurityServiceCollectionExtensions
         services.Configure<EmailChangeOptions>(emailChangeOptions =>
             emailChangeOptions.TokenLifetime = securityOptions.EmailChangeTokenLifetime);
         services.AddScoped<IEmailChangeService, EmailChangeService>();
-        AddPasskeys(services, securityOptions);
+        services.Configure<PasskeyCeremonyOptions>(ceremonyOptions => ceremonyOptions.Lifetime = securityOptions.PasskeyCeremonyLifetime);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Passkey registration and sign-in (<see cref="IPasskeyService"/>), configured from the <see cref="PasskeyOptions.SectionName"/>
+    /// section. Call it after <see cref="AddSecurityServices"/>, only in a host whose users sign in with passkeys.
+    /// </summary>
+    public static IServiceCollection AddSecurityPasskeys(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddOptions<PasskeyOptions>()
+            .BindConfiguration(PasskeyOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddOptions<IdentityPasskeyOptions>()
+            .Configure<IOptions<PasskeyOptions>, IOptions<PasskeyCeremonyOptions>>((identityPasskeyOptions, passkeyOptions, ceremonyOptions) =>
+                ConfigurePasskeys(identityPasskeyOptions, passkeyOptions.Value, ceremonyOptions.Value.Lifetime));
+        services.AddScoped<IPasskeyHandler<ApplicationUser>, PasskeyHandler<ApplicationUser>>();
+        services.AddScoped<IPasskeyService, PasskeyService>();
 
         return services;
     }
@@ -82,21 +102,6 @@ public static class SecurityServiceCollectionExtensions
         });
 
         return services;
-    }
-
-    private static void AddPasskeys(IServiceCollection services, SecurityOptions securityOptions)
-    {
-        services.AddHttpContextAccessor();
-        services.AddOptions<PasskeyOptions>()
-            .BindConfiguration(PasskeyOptions.SectionName)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-        services.AddOptions<IdentityPasskeyOptions>()
-            .Configure<IOptions<PasskeyOptions>>((identityPasskeyOptions, passkeyOptions) =>
-                ConfigurePasskeys(identityPasskeyOptions, passkeyOptions.Value, securityOptions.PasskeyCeremonyLifetime));
-        services.Configure<PasskeyCeremonyOptions>(ceremonyOptions => ceremonyOptions.Lifetime = securityOptions.PasskeyCeremonyLifetime);
-        services.AddScoped<IPasskeyHandler<ApplicationUser>, PasskeyHandler<ApplicationUser>>();
-        services.AddScoped<IPasskeyService, PasskeyService>();
     }
 
     private static void ConfigurePasskeys(IdentityPasskeyOptions options, PasskeyOptions passkeyOptions, TimeSpan ceremonyLifetime)

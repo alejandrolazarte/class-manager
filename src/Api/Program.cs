@@ -23,6 +23,7 @@ builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.W
 builder.Services.AddAppCors(builder.Configuration);
 builder.Services.AddAppAuthentication();
 builder.Services.AddInfrastructure();
+builder.Services.AddPasskeys();
 builder.Services.AddUseCases();
 builder.Services.AddSingleton<IExpiredOrderCancellationService, ExpiredOrderCancellationService>();
 builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();

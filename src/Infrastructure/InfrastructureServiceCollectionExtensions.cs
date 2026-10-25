@@ -142,6 +142,14 @@ public static class InfrastructureServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddPasskeys(this IServiceCollection services)
+    {
+        services.AddSecurityPasskeys();
+        services.AddScoped<IPasskeyIdentityService, PasskeyIdentityService>();
+
+        return services;
+    }
+
     private static IServiceCollection AddCatalogImages(this IServiceCollection services)
     {
         services.AddAzureBlobFileStorage();
@@ -171,7 +179,6 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IStudentAppAccess, CurrentStudentApp>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IPasskeyIdentityService, PasskeyIdentityService>();
         services.AddScoped<ICurrentMember, CurrentMember>();
         services.AddScoped<IBranchDirectory, BranchDirectory>();
         services.AddSingleton<ISecretTokenGenerator, SecretTokenGenerator>();
