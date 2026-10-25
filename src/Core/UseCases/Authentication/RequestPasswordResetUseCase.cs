@@ -30,7 +30,7 @@ public sealed class RequestPasswordResetUseCase(
         if (token is not null)
         {
             var emailTexts = await RecipientEmailTexts.OfEmailAsync(identityService, email, cancellationToken);
-            var passwordReset = emailTexts.PasswordReset(webAppLinks.ResetPassword(token));
+            var passwordReset = emailTexts.PasswordReset(webAppLinks.ResetPassword(token, email));
             await emailSender.SendAsync(new EmailMessage(email, passwordReset.Subject, passwordReset.Content), cancellationToken);
         }
 

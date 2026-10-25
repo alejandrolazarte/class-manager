@@ -22,6 +22,7 @@ import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
+import { PasswordManagerUsername } from "@/ui/PasswordManagerUsername";
 
 const badRequestStatus = 400;
 
@@ -30,7 +31,7 @@ type CompleteSignUpFailure = "invalidLink" | "emailTaken" | "network" | "unexpec
 export function CompleteSignUpScreen() {
   const router = useRouter();
   const { completeSignUp } = useSession();
-  const { token } = useLocalSearchParams<{ token?: string }>();
+  const { token, email } = useLocalSearchParams<{ token?: string; email?: string }>();
   const [failure, setFailure] = useState<CompleteSignUpFailure | null>(
     token ? null : "invalidLink",
   );
@@ -116,6 +117,7 @@ export function CompleteSignUpScreen() {
       {isFormShown ? (
         <>
           <AppText tone="muted">{translate("authentication.completeSignUp.hint")}</AppText>
+          {email ? <PasswordManagerUsername email={email} /> : null}
           <Controller
             control={form.control}
             name="password"
