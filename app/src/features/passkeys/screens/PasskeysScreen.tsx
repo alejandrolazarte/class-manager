@@ -2,13 +2,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Href, useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { formatLongDate } from "@/dates/dates";
+import { parseIsoDate } from "@/dates/dates";
 import { removeMyPasskey } from "@/features/passkeys/passkeysApi";
 import { passkeyQueryKeys } from "@/features/passkeys/passkeyQueryKeys";
 import { Passkey } from "@/features/passkeys/types";
 import { useMyPasskeys } from "@/features/passkeys/useMyPasskeys";
 import { SettingsListScreenLayout } from "@/features/settings/components/SettingsListScreenLayout";
-import { translate } from "@/i18n/translate";
+import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
@@ -16,6 +16,15 @@ import { HairlineRow } from "@/ui/HairlineRow";
 import { useToast } from "@/ui/ToastProvider";
 
 const isoDateLength = 10;
+
+function addedOn(createdAt: string): string {
+  const date = parseIsoDate(createdAt.slice(0, isoDateLength));
+  return translate("profile.passkeys.addedOn", {
+    day: date.getDate(),
+    month: translate(`months.${date.getMonth() + 1}` as TranslationKey),
+    year: date.getFullYear(),
+  });
+}
 
 interface PasskeysScreenProps {
   addPasskeyRoute: Href;
@@ -32,9 +41,7 @@ function PasskeyRow({ passkey, onRemove }: PasskeyRowProps) {
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{passkey.name}</AppText>
         <AppText variant="caption" tone="muted">
-          {translate("profile.passkeys.addedOn", {
-            date: formatLongDate(passkey.createdAt.slice(0, isoDateLength)),
-          })}
+          {addedOn(passkey.createdAt)}
         </AppText>
       </View>
       <Button

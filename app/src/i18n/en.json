@@ -1618,7 +1618,7 @@
   "profile.passkeys.hint": "A passkey lets you sign in with your device's fingerprint, face or screen lock, without typing your password.",
   "profile.passkeys.empty": "You haven't added a passkey yet.",
   "profile.passkeys.add": "Add passkey",
-  "profile.passkeys.addedOn": "Added on {date}",
+  "profile.passkeys.addedOn": "Added on {month} {day}, {year}",
   "profile.passkeys.removeAccessibility": "Remove the passkey {name}",
   "profile.passkeys.removeQuestion": "Remove this passkey?",
   "profile.passkeys.removeConsequence": "You won't be able to sign in with it on that device.",

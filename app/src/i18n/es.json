@@ -1618,7 +1618,7 @@
   "profile.passkeys.hint": "Una passkey te permite ingresar con la huella, la cara o el bloqueo de pantalla de tu dispositivo, sin escribir la contraseña.",
   "profile.passkeys.empty": "Todavía no agregaste ninguna passkey.",
   "profile.passkeys.add": "Agregar passkey",
-  "profile.passkeys.addedOn": "Agregada el {date}",
+  "profile.passkeys.addedOn": "Agregada el {day} de {month} de {year}",
   "profile.passkeys.removeAccessibility": "Quitar la passkey {name}",
   "profile.passkeys.removeQuestion": "¿Quitar esta passkey?",
   "profile.passkeys.removeConsequence": "No vas a poder ingresar con ella en ese dispositivo.",
