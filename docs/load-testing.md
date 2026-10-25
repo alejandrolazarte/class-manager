@@ -207,7 +207,42 @@ The database work per request halved and the median fell to a third, but with 70
 | Shop | 14 |
 | Measurements | 10 |
 
-The staff app screens make about 8. The home screen is also the one families open most. See [Next steps](#next-steps).
+The staff app screens make about 8. The home screen is also the one families open most.
+
+### Home screen with fewer queries
+
+What the home screen ran more than once per opening:
+
+- **The business, twice in full**: once for the screen and once more through `BusinessCalendarService.TodayAsync`, which loads it to know the business's date. Every endpoint that asks for today's date or the current business paid for it.
+- **Per student, that student's enrollments, then each class by id** (`ClassGroupRepository.GetByIdAsync`, which also loads the class's material files), and each class again for every makeup and pack booking. The news screen did the same and read the enrollments twice.
+
+Changes:
+
+1. **`BusinessRepository.GetCurrentAsync` reads the business once per request** and returns the same row afterwards. It reads it again every time once the request has loaded the business for update (`GetCurrentForUpdateAsync`) or added one, so a change is never answered with the old values. This applies to the whole API.
+2. **The home and news screens read the family's enrollments in one query** (`IEnrollmentRepository.ListCurrentByStudentsAsync`) **and every class they need in another** (`IClassGroupRepository.ListByIdsAsync`), whatever the number of students, classes and bookings. Marking news as seen and replying to an announcement use the same single query for the family's classes.
+
+Covered by integration tests that count the SQL commands of a request (`SqlCommandCounter`, from EF Core's command log): a family with two students in two classes makes as many queries as a family with one student in one class, and neither the home nor the news screen runs the same query twice.
+
+Queries per opening, counted from EF Core's command log:
+
+| Screen | One student, before | One student, after | Two students, before | Two students, after |
+|---|---:|---:|---:|---:|
+| Home | 30 | 29 | 32 | 29 |
+| News | 16 | 16 | 18 | 16 |
+| Makeups | 20 | 19 | 20 | 19 |
+| Pack classes | 26 | 24 | 26 | 24 |
+| Shop | 12 | 11 | 13 | 12 |
+
+Load test, same data:
+
+| Families at once | Median | p95 | SQL CPU per request | Queries per request |
+|---:|---:|---:|---:|---:|
+| 300, before | 27 ms | 71 ms | 2.6 ms | 19.5 |
+| 300, after | 27 ms | 65 ms | 2.1 ms | 18.6 |
+| 700, before | 219 ms | 2.16 s | 3.1 ms | 19.9 |
+| 700, after | 130 ms | 1.23 s | 2.4 ms | 18.5 |
+
+The 29 queries left on the home screen each run once and take about 1 ms; together they are what the screen shows (students, next classes, streaks, makeups, feedback, fees). The largest fixed group is the check that the business's plan includes the student app (`RequireFeature`): four queries on every student app request (the business's organization, its subscription, the plan's features and the subscription's add-ons). See [Next steps](#next-steps).
 
 The staff scenario on the same year of data, 300 users: median 13 ms, p95 42 ms. A year of history doesn't slow the staff app down.
 
@@ -219,7 +254,7 @@ Rough estimate, to be checked against Azure metrics: Microsoft equates 100 DTU t
 
 In order of expected gain:
 
-1. **Fewer queries in the student app home screen** (34 per opening). For each student it reads that student's enrollments, then each class by id (`ClassGroupRepository.GetByIdAsync`, which also loads the class's material files) and does the same for each makeup and pack booking; the news screen does it again. Reading the family's enrollments in one query and the active classes once (`ListActiveAsync`) would remove most of them; caching the business and the student app access per request would remove a few more on every screen.
+1. **Cache the plan's features for a short time.** Checking that the plan includes a feature costs four queries on every student app request and every staff request to a feature-gated endpoint. Caching the result per brand for a minute would remove them, at the cost of a plan change taking up to that minute to apply. It needs that decision. Merging the four into one query keeps the behavior and saves three round trips.
 2. **Measure in Azure** with the pilot's real database: Query Performance Insight and `sys.dm_db_resource_stats` show DTU use per query; run k6 against a copy of the environment, never against production.
 3. **Move the database to Standard S0/S1 when a few businesses use it daily** (10–20 DTU, about USD 15–30 a month): two to four times the database power of Basic. See [Database on the Basic tier](database-basic-tier.md).
 4. **One query for the member's access**: `CurrentMember` runs two queries per request (branch member and brand owner); one query with both answers saves a round trip on every request. Caching it across requests would save more but delays a role change or a removal, so it needs a decision on how long that may take.

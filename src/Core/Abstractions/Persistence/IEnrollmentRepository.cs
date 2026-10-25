@@ -27,4 +27,6 @@ public interface IEnrollmentRepository
     Task<IReadOnlyList<EnrolledStudentInPeriod>> ListEnrolledInPeriodAsync(DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(long studentId, DateOnly today, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Enrollment>> ListCurrentByStudentsAsync(IReadOnlyCollection<long> studentIds, DateOnly today, CancellationToken cancellationToken);
 }

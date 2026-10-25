@@ -84,18 +84,29 @@ public sealed class GetStudentAppHomeUseCase(
             .ToLookup(booking => booking.StudentId);
         var latestFeedbacks = (await feedbackRepository.ListLatestByStudentsAsync(studentIds, cancellationToken))
             .ToDictionary(feedback => feedback.StudentId);
+        var currentEnrollments = (await enrollmentRepository.ListCurrentByStudentsAsync(studentIds, today, cancellationToken))
+            .ToLookup(enrollment => enrollment.StudentId);
+        IReadOnlyCollection<long> classGroupIds =
+        [
+            .. currentEnrollments.SelectMany(enrollments => enrollments).Select(enrollment => enrollment.ClassGroupId)
+                .Concat(bookedMakeups.SelectMany(bookings => bookings).Select(booking => booking.ClassGroupId))
+                .Concat(bookedPackClasses.SelectMany(bookings => bookings).Select(booking => booking.ClassGroupId))
+                .Distinct(),
+        ];
+        var classGroups = (await classGroupRepository.ListByIdsAsync(classGroupIds, cancellationToken))
+            .ToDictionary(classGroup => classGroup.Id);
 
         var studentResponses = new List<AccountStudentResponse>();
         foreach (var student in students
             .OrderBy(student => student.CreatedAt)
             .ThenBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase))
         {
-            var enrollments = await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken);
+            var enrollments = currentEnrollments[student.Id];
             var nextClasses = new List<StudentAppNextClassResponse>();
             var studentClassGroups = new List<ClassGroup>();
             foreach (var enrollment in enrollments)
             {
-                var classGroup = await classGroupRepository.GetByIdAsync(enrollment.ClassGroupId, cancellationToken);
+                var classGroup = classGroups.GetValueOrDefault(enrollment.ClassGroupId);
                 if (classGroup is not { IsActive: true })
                 {
                     continue;
@@ -122,7 +133,7 @@ public sealed class GetStudentAppHomeUseCase(
 
             foreach (var booking in bookedMakeups[student.Id])
             {
-                var classGroup = await classGroupRepository.GetByIdAsync(booking.ClassGroupId, cancellationToken);
+                var classGroup = classGroups.GetValueOrDefault(booking.ClassGroupId);
                 if (classGroup is not null)
                 {
                     studentClassGroups.Add(classGroup);
@@ -138,7 +149,7 @@ public sealed class GetStudentAppHomeUseCase(
 
             foreach (var booking in bookedPackClasses[student.Id])
             {
-                var classGroup = await classGroupRepository.GetByIdAsync(booking.ClassGroupId, cancellationToken);
+                var classGroup = classGroups.GetValueOrDefault(booking.ClassGroupId);
                 if (classGroup is not null)
                 {
                     studentClassGroups.Add(classGroup);

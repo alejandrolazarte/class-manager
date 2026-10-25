@@ -14,6 +14,8 @@ public interface IClassGroupRepository
 
     Task<IReadOnlyList<ClassGroup>> ListActiveAsync(CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<ClassGroup>> ListByIdsAsync(IReadOnlyCollection<long> classGroupIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<ClassGroup>> ListActiveByInstructorAsync(long instructorId, CancellationToken cancellationToken);
 
     Task<int> CountActiveByInstructorAsync(long instructorId, CancellationToken cancellationToken);
