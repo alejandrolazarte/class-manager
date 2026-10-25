@@ -90,7 +90,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Dependency and secret scanning](docs/dependency-and-secret-scanning.md) — Dependabot alerts and version updates, push protection, gitleaks, and what to do when a secret leaks
 - [Running the e2e tests](docs/e2e/running-e2e-tests.md) — Playwright against the web app, the real API and SQL Server
 - [Demo screenshots](docs/e2e/demo-screenshots.md) — load a demo business and capture every screen at phone size
-- [Load testing](docs/load-testing.md) — k6 scenarios for many businesses working at once, how to seed data and run them, the slow endpoints found (N+1 when marking a class, missing covering indexes), the results before and after, and what limits production first
+- [Load testing](docs/load-testing.md) — k6 scenarios for many businesses working at once, how to seed data and run them, the slow endpoints found (N+1 when marking a class, missing covering indexes), the student app with a year of attendance (streak index, makeup slots counted once, a 500 when taking back an absence twice), the results before and after, and what limits production first
 - [Cloud environment](docs/cloud-environment.md) — setup script for the Claude Code on the web environment
 - [Hosting plan](docs/hosting-plan.md) — Azure setup for the pilot (a Basic database, everything else on free allowances), limits and costs to watch
 - [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Azure Static Web Apps, the installable web app (PWA) and the Android APK

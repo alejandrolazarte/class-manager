@@ -57,6 +57,8 @@ internal static class OpenClassSlots
         var makeupCounts = await repositories.Bookings.CountBySessionsAsync(sessionIds, cancellationToken);
         var packBookingCounts = await repositories.PackBookings.CountBySessionsAsync(sessionIds, cancellationToken);
         var enrollments = await repositories.Enrollments.ListCurrentByStudentAsync(studentId, today, cancellationToken);
+        var enrollmentPeriods = (await repositories.Enrollments.ListActiveInPeriodAsync(today, lastDate, cancellationToken))
+            .ToLookup(period => period.ClassGroupId);
         var classGroups = (await classGroupRepository.ListActiveAsync(cancellationToken)).Where(isOffered).ToList();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
@@ -64,7 +66,6 @@ internal static class OpenClassSlots
         var slots = new List<OpenClassSlot>();
         for (var date = today; date <= lastDate; date = date.AddDays(1))
         {
-            var enrolledCounts = await repositories.Enrollments.CountActiveOnByClassGroupAsync(date, cancellationToken);
             foreach (var classGroup in classGroups.Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)))
             {
                 var session = sessions.GetValueOrDefault((classGroup.Id, date));
@@ -77,7 +78,7 @@ internal static class OpenClassSlots
 
                 var spotsLeft = SpotsLeft(
                     classGroup,
-                    enrolledCounts.GetValueOrDefault(classGroup.Id),
+                    enrollmentPeriods[classGroup.Id].Count(period => period.IsActiveOn(date)),
                     session is null ? 0 : noticeCounts.GetValueOrDefault(session.Id),
                     session is null ? 0 : makeupCounts.GetValueOrDefault(session.Id),
                     session is null ? 0 : packBookingCounts.GetValueOrDefault(session.Id));

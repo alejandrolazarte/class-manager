@@ -18,13 +18,15 @@ How the API behaves with many users at once, measured with [k6](https://grafana.
 | Large business | 5% | Any of the flows above on a business with 1,000 families |
 | Sign-ins | 1 per second | `POST /api/auth/sign-in` (configurable) |
 
+`loadtests/scenarios/student-app.js` simulates families using the student app. Each virtual user signs in with one family's app account, opens the app (`/api/student-app`, `/news`, `/shop`, `/api/me/accounts`, `/push-key`) and then repeats one action with 3–8 seconds between them: look at the home screen again (twice as often as the rest), read the news and mark them seen, look at a student's makeups and pack classes, look at their measurements, or warn that a student won't come to the next class and take the warning back.
+
 Requests are tagged with the route template (`GET /api/clients/{id}`), so `loadtests/report.mjs` prints median, p95, p99 and max per endpoint; the large business's requests are reported apart with `[large]`.
 
 ## Data
 
-`loadtests/seed.mjs` creates the businesses through the API, the same way a user would: it signs up each owner (reading the confirmation link from an SMTP sink, the one in `e2e/support/smtpSink.ts`), sets a monthly fee, creates 12 weekly classes (more, with extra instructors, for large businesses), registers families with one or two students, enrolls each student in one or two classes ten weeks ago, records this month's payment for 60% of the families and the attendance of every class for the last four weeks.
+`loadtests/seed.mjs` creates the businesses through the API, the same way a user would: it signs up each owner (reading the confirmation link from an SMTP sink, the one in `e2e/support/smtpSink.ts`), sets a monthly fee, creates 12 weekly classes (more, with extra instructors, for large businesses), registers families with one or two students, enrolls each student in one or two classes from before the attendance history starts, records this month's payment for 60% of the families and the attendance of every class for the last year (52 weeks), a teacher's comment for three students of every class in the last four weeks and eight announcements (half of them for one class). It also invites the first 30 families of each business to the student app and accepts the invitations with a password, reading the link from the same sink.
 
-The measured database had 21 businesses: 20 with 150 families each and one with 1,000. About 4,250 families, 4,250 students, 6,000 enrollments, 37,000 attendance marks and 1,900 payments.
+The first measurement ([staff app](#findings)) used four weeks of attendance: 21 businesses, 20 with 150 families each and one with 1,000, about 4,250 families, 6,000 enrollments, 37,000 attendance marks and 1,900 payments. The [student app measurement](#student-app-with-a-year-of-data) used a year: 21 businesses of the same sizes, 4,000 families, 5,200 students, 24,000 sessions, 632,000 attendance marks, 5,400 comments, 176 announcements and 703 student app accounts (30 per business, 100 in the large one).
 
 ## Running it
 
@@ -52,21 +54,24 @@ Use a dedicated database, never the development or e2e one. In the cloud environ
    dotnet Api.dll
    ```
 
-3. Seed the businesses (about 70 seconds for the default 20 × 150; `LOAD_APPEND=true` adds to the existing file):
+3. Seed the businesses (about 4 minutes for the default 20 × 150 with a year of attendance; `LOAD_APPEND=true` adds to the existing file):
 
    ```bash
    cd loadtests
    node seed.mjs
-   LOAD_APPEND=true LOAD_BUSINESSES=1 LOAD_CLIENTS_PER_BUSINESS=1000 node seed.mjs
+   LOAD_APPEND=true LOAD_BUSINESSES=1 LOAD_CLIENTS_PER_BUSINESS=1000 LOAD_STUDENT_ACCOUNTS_PER_BUSINESS=100 node seed.mjs
    ```
 
-   Variables: `LOAD_API_URL` (default `http://localhost:5000`), `LOAD_SMTP_PORT` (2525), `LOAD_BUSINESSES` (20), `LOAD_CLIENTS_PER_BUSINESS` (150), `LOAD_ATTENDANCE_WEEKS` (4), `LOAD_SEED_CONCURRENCY` (4). The credentials and ids go to `loadtests/.data/businesses.json` (ignored by git).
+   Variables: `LOAD_API_URL` (default `http://localhost:5000`), `LOAD_SMTP_PORT` (2525), `LOAD_BUSINESSES` (20), `LOAD_CLIENTS_PER_BUSINESS` (150), `LOAD_ATTENDANCE_WEEKS` (52), `LOAD_STUDENT_ACCOUNTS_PER_BUSINESS` (30), `LOAD_SEED_CONCURRENCY` (4). The credentials and ids go to `loadtests/.data/businesses.json` (ignored by git).
 
 4. Run k6 (through Docker, `grafana/k6:1.3.0`, so nothing has to be installed) and print the per-endpoint table:
 
    ```bash
    LOAD_PEAK_USERS=300 LOAD_RAMP_SECONDS=60 LOAD_HOLD_SECONDS=120 ./run-k6.sh scenarios/staff-day.js run-300
+   LOAD_PEAK_USERS=300 LOAD_RAMP_SECONDS=60 LOAD_HOLD_SECONDS=120 ./run-k6.sh scenarios/student-app.js students-300
    ```
+
+   In the student app scenario each virtual user takes one family account, so more users than accounts make some families use the app from two devices at once.
 
    `LOAD_PEAK_USERS` is the number of simultaneous users at the peak, `LOAD_SIGN_INS_PER_SECOND` the sign-in rate (default 1). The raw results go to `loadtests/.results/<name>.csv` (ignored by git); `node report.mjs .results/<name>.csv` prints the table again.
 
@@ -149,6 +154,63 @@ The database does about half the work per request. With 600 users, by endpoint:
 
 Every other endpoint improved too, because the whole container had more CPU left.
 
+## Student app with a year of data
+
+Measured after the staff app changes above were merged, on the year of data described in [Data](#data).
+
+### Before the changes
+
+| Families at once | Requests/s | Median | p95 | SQL CPU per request | Logical reads per request | Queries per request | Failed |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 300 | 79 | 40 ms | 119 ms | 5.8 ms | 613 | 22 | 0 |
+| 700 | 146 | 694 ms | 2.37 s | 7.0 ms | 591 | 21.5 | 5 |
+
+With 300 families the student app answered well, but it cost the database almost three times as much per request as the staff app (5.8 ms of SQL CPU against 2.1 ms). With 700 families, which here means every account at once, it collapsed: the home screen took 1.4 s at the median and makeups and pack classes 1.5–1.7 s.
+
+What the database spent its time on:
+
+- **Attendance streaks read a year of marks the slow way.** The home screen loads 52 weeks of each student's marks (`AttendanceStreaks.LookBackWeeks`) and counts every class they attended. Both queries filter `Attendances` by `StudentId`, and the only index on that column was the foreign key one, without `TenantId`, `ClassSessionId` or `Status`: about 2,100 logical reads and 30 ms of CPU for one student of the large business, and almost 40% of all the SQL CPU of the run. This is the cost that grows with history: with four weeks of data it didn't show.
+- **Makeups and pack classes counted enrollments once per day.** `OpenClassSlots.ListAsync` walks the next days and asked the database for the enrolled count of every class on each of them: about 15 queries per request, 43,000 in the 300-family run.
+- **Taking back an absence warning from two devices at once failed with a 500.** The second request found the warning already deleted, `SaveChangesAsync` threw `ConcurrencyConflictException` and nothing handled it. Warning twice at the same time already answered 409.
+
+### Changes
+
+1. **Index `Attendances (TenantId, StudentId) INCLUDE (ClassSessionId, Status)`** (migration `StudentAttendanceHistoryIndex`). The streak query for that student: 2,079 → 4 logical reads, 32 → 2 ms of CPU; the attended classes count: 650 → 4 reads.
+2. **Open class slots read the enrollment periods of the whole range once** (`IEnrollmentRepository.ListActiveInPeriodAsync`, the same way the month calendar does) and count them in memory per class and day. The existing integration tests on spots left in makeups and pack classes cover it.
+3. **Taking back a warning that another request already took back succeeds**, the same as taking back a warning that doesn't exist. Covered by the unit test `When_WithdrawAbsence_races_another_withdrawal`.
+
+### After the changes
+
+| Families at once | Requests/s | Median | p95 | SQL CPU per request | Logical reads per request | Queries per request | Failed |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 300 | 80 | 27 ms | 71 ms | 2.6 ms | 279 | 19.5 | 0 |
+| 700 | 163 | 219 ms | 2.16 s | 3.1 ms | 270 | 19.9 | 0 |
+
+With 700 families, by endpoint:
+
+| Endpoint | Median before | Median after |
+|---|---:|---:|
+| `GET /api/student-app/students/{id}/pack-classes` | 1,699 ms | 233 ms |
+| `GET /api/student-app/students/{id}/makeups` | 1,454 ms | 177 ms |
+| `GET /api/student-app` (home) | 1,369 ms | 292 ms |
+| `GET /api/student-app/news` | 729 ms | 190 ms |
+| `PUT .../absences/{classGroupId}/{date}` | 607 ms | 192 ms |
+
+The database work per request halved and the median fell to a third, but with 700 families the container is still out of CPU and the p95 stays around 2 s. What is left is the number of queries, not their cost: SQL Server still used about 1.5 cores answering about 3,200 queries per second, most of them cheap. One opening of each screen, counted on an idle database:
+
+| Screen | Queries |
+|---|---:|
+| Home (`GET /api/student-app`) | 34 |
+| Pack classes | 27 |
+| Makeups | 21 |
+| News | 20 |
+| Shop | 14 |
+| Measurements | 10 |
+
+The staff app screens make about 8. The home screen is also the one families open most. See [Next steps](#next-steps).
+
+The staff scenario on the same year of data, 300 users: median 13 ms, p95 42 ms. A year of history doesn't slow the staff app down.
+
 ## What this means for production
 
 Rough estimate, to be checked against Azure metrics: Microsoft equates 100 DTU to about 1 vCore, so the Basic database (5 DTU) has about 50 ms of CPU per second. At 3.4–3.7 ms of SQL CPU per request it saturated at about 14 requests per second (about 30 users working at once with this scenario's pace); at 1.7–2.1 ms it reaches about 25 (about 55 users). The API at 0.25 vCPU handles roughly 45 requests per second with this mix, but only about 2–3 sign-ins per second. So with one Basic database the database is the first limit, then sign-in bursts on the API.
@@ -157,9 +219,11 @@ Rough estimate, to be checked against Azure metrics: Microsoft equates 100 DTU t
 
 In order of expected gain:
 
-1. **Measure in Azure** with the pilot's real database: Query Performance Insight and `sys.dm_db_resource_stats` show DTU use per query; run k6 against a copy of the environment, never against production.
-2. **Move the database to Standard S0/S1 when a few businesses use it daily** (10–20 DTU, about USD 15–30 a month): two to four times the database power of Basic. See [Database on the Basic tier](database-basic-tier.md).
-3. **One query for the member's access**: `CurrentMember` runs two queries per request (branch member and brand owner); one query with both answers saves a round trip on every request. Caching it across requests would save more but delays a role change or a removal, so it needs a decision on how long that may take.
-4. **Cache business settings per request or for a short time** (time zone, currency): read on most requests and rarely changed.
-5. **Fees and student search read users one by one**: `GET /api/fees` joins enrollments, students, clients and users and SQL Server seeks `Users` by id about 2,000 times for the large business (3,900 logical reads). Selecting the client and student names with fewer joins, or projecting them from a single `Users` read, would cut it; worth it when businesses pass a few hundred families.
-6. **Sign-in bursts**: if many people sign in at the same time (a new business importing students and inviting them), the API needs more than 0.25 vCPU or a second replica; the password hash cost should not be lowered.
+1. **Fewer queries in the student app home screen** (34 per opening). For each student it reads that student's enrollments, then each class by id (`ClassGroupRepository.GetByIdAsync`, which also loads the class's material files) and does the same for each makeup and pack booking; the news screen does it again. Reading the family's enrollments in one query and the active classes once (`ListActiveAsync`) would remove most of them; caching the business and the student app access per request would remove a few more on every screen.
+2. **Measure in Azure** with the pilot's real database: Query Performance Insight and `sys.dm_db_resource_stats` show DTU use per query; run k6 against a copy of the environment, never against production.
+3. **Move the database to Standard S0/S1 when a few businesses use it daily** (10–20 DTU, about USD 15–30 a month): two to four times the database power of Basic. See [Database on the Basic tier](database-basic-tier.md).
+4. **One query for the member's access**: `CurrentMember` runs two queries per request (branch member and brand owner); one query with both answers saves a round trip on every request. Caching it across requests would save more but delays a role change or a removal, so it needs a decision on how long that may take.
+5. **Cache business settings per request or for a short time** (time zone, currency): read on most requests and rarely changed.
+6. **Fees and student search read users one by one**: `GET /api/fees` joins enrollments, students, clients and users and SQL Server seeks `Users` by id about 2,000 times for the large business (3,900 logical reads). Selecting the client and student names with fewer joins, or projecting them from a single `Users` read, would cut it; worth it when businesses pass a few hundred families.
+7. **Sign-in bursts**: if many people sign in at the same time (a new business importing students and inviting them), the API needs more than 0.25 vCPU or a second replica; the password hash cost should not be lowered.
+8. **No use case handles `ConcurrencyConflictException`**: any other delete or update of a row that another request deleted at the same moment still answers 500. The load test only reached it for absence warnings; deciding per use case whether that means "already done" or 409 would close the rest.

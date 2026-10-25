@@ -13,17 +13,25 @@ const apiUrl = process.env.LOAD_API_URL ?? "http://localhost:5000";
 const smtpPort = Number(process.env.LOAD_SMTP_PORT ?? 2525);
 const businessCount = Number(process.env.LOAD_BUSINESSES ?? 20);
 const clientsPerBusiness = Number(process.env.LOAD_CLIENTS_PER_BUSINESS ?? 150);
-const attendanceWeeks = Number(process.env.LOAD_ATTENDANCE_WEEKS ?? 4);
+const attendanceWeeks = Number(process.env.LOAD_ATTENDANCE_WEEKS ?? 52);
+const studentAccountsPerBusiness = Number(process.env.LOAD_STUDENT_ACCOUNTS_PER_BUSINESS ?? 30);
 const businessConcurrency = Number(process.env.LOAD_SEED_CONCURRENCY ?? 4);
 const appendToExisting = process.env.LOAD_APPEND === "true";
 
 const ownerPassword = "load-test-owner-password";
+const studentAccountPassword = "load-test-student-password";
+const studentAccountBirthDate = "1980-04-12";
 const timeZoneId = "America/Argentina/Buenos_Aires";
 const businessUtcOffsetHours = -3;
-const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s]+)/;
+const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s&"]+)/;
+const acceptStudentInvitationLinkPattern = /accept-student-invitation\?token=([^\s&"]+)/;
 const emailWaitMilliseconds = 30_000;
 const emailPollMilliseconds = 100;
-const enrollmentHistoryWeeks = 10;
+const enrollmentHistoryWeeks = attendanceWeeks + 2;
+const attendanceConcurrency = 8;
+const feedbackWeeks = 4;
+const feedbacksPerSession = 3;
+const announcementCount = 8;
 const monthlyFeeAmount = 30000;
 const paidClientsRatio = 0.6;
 const secondStudentRatio = 0.3;
@@ -82,19 +90,32 @@ async function call(method, path, body, accessToken) {
   return text ? JSON.parse(text) : undefined;
 }
 
-async function waitForSignUpToken(email) {
+const receivedEmails = new Map();
+
+function readNewEmails() {
+  for (const fileName of readdirSync(mailboxDirectory)) {
+    if (!receivedEmails.has(fileName)) {
+      receivedEmails.set(
+        fileName,
+        JSON.parse(readFileSync(join(mailboxDirectory, fileName), "utf8")),
+      );
+    }
+  }
+}
+
+async function waitForLinkToken(email, linkPattern) {
   const deadline = Date.now() + emailWaitMilliseconds;
   while (Date.now() < deadline) {
-    for (const fileName of readdirSync(mailboxDirectory)) {
-      const received = JSON.parse(readFileSync(join(mailboxDirectory, fileName), "utf8"));
-      const token = completeSignUpLinkPattern.exec(received.body)?.[1];
+    readNewEmails();
+    for (const received of receivedEmails.values()) {
+      const token = linkPattern.exec(received.body)?.[1];
       if (received.to.includes(email) && token) {
         return decodeURIComponent(token);
       }
     }
     await new Promise((resolve) => setTimeout(resolve, emailPollMilliseconds));
   }
-  throw new Error(`No sign-up email reached ${email}.`);
+  throw new Error(`No email with ${linkPattern} reached ${email}.`);
 }
 
 async function inBatches(items, concurrency, work) {
@@ -122,12 +143,31 @@ async function signUp(businessNumber) {
     ownerBirthDate: "1985-06-20",
     acceptsLegalTerms: true,
   });
-  const token = await waitForSignUpToken(email);
+  const token = await waitForLinkToken(email, completeSignUpLinkPattern);
   const tokens = await call("POST", "/api/auth/sign-up/complete", {
     token,
     password: ownerPassword,
   });
   return { email, accessToken: tokens.accessToken };
+}
+
+async function createStudentAccount(post, client) {
+  const email = `load-family-${randomUUID()}@load.local`;
+  await post(`/api/clients/${client.id}/app-invitation`, { email, confirmsContactIsAdult: true });
+  const token = await waitForLinkToken(email, acceptStudentInvitationLinkPattern);
+  await call("POST", "/api/auth/student-app-invitations/accept", {
+    token,
+    fullName: null,
+    password: studentAccountPassword,
+    birthDate: studentAccountBirthDate,
+    acceptsLegalTerms: true,
+  });
+  return {
+    email,
+    password: studentAccountPassword,
+    clientId: client.id,
+    studentIds: client.studentIds,
+  };
 }
 
 function pastSessionDates(weekdays, weeks) {
@@ -239,7 +279,7 @@ async function seedBusiness(businessNumber) {
         sessionDate,
       })),
     );
-  await inBatches(attendanceSessions, 4, ({ group, sessionDate }) =>
+  await inBatches(attendanceSessions, attendanceConcurrency, ({ group, sessionDate }) =>
     put(`/api/class-groups/${group.id}/sessions/${sessionDate}/attendance`, {
       students: group.studentIds.map((studentId) => ({
         studentId,
@@ -248,8 +288,35 @@ async function seedBusiness(businessNumber) {
     }),
   );
 
+  const feedbackSessions = attendanceSessions.filter(
+    ({ sessionDate }) =>
+      sessionDate >= isoDate(addDays(businessToday(), -feedbackWeeks * daysPerWeek)),
+  );
+  await inBatches(feedbackSessions, attendanceConcurrency, async ({ group, sessionDate }) => {
+    for (const studentId of group.studentIds.slice(0, feedbacksPerSession)) {
+      await put(`/api/class-groups/${group.id}/sessions/${sessionDate}/feedback/${studentId}`, {
+        text: "Good progress today.",
+      });
+    }
+  });
+
+  for (let index = 0; index < announcementCount; index++) {
+    const isForOneClass = index % 2 === 1;
+    await post("/api/announcements", {
+      title: `Announcement ${index + 1}`,
+      body: "The schedule changes next week.",
+      classGroupIds: isForOneClass ? [classGroups[index % classGroups.length].id] : null,
+    });
+  }
+
+  const studentAccounts = await inBatches(
+    clients.slice(0, studentAccountsPerBusiness),
+    4,
+    (client) => createStudentAccount(post, client),
+  );
+
   console.log(
-    `business ${businessNumber}: ${clients.length} clients, ${attendanceSessions.length} sessions with attendance`,
+    `business ${businessNumber}: ${clients.length} clients, ${attendanceSessions.length} sessions with attendance, ${studentAccounts.length} student app accounts`,
   );
   return {
     email,
@@ -260,6 +327,7 @@ async function seedBusiness(businessNumber) {
       studentIds: group.studentIds,
     })),
     clients,
+    studentAccounts,
   };
 }
 
