@@ -6,19 +6,38 @@ import {
   nextClassOf,
   relativeDayLabel,
 } from "@/features/studentApp/studentAppSchedule";
-import { AccountStudent } from "@/features/studentApp/types";
+import { AccountStudent, StudentAppClassBalance } from "@/features/studentApp/types";
 import { useAbsenceNotice } from "@/features/studentApp/useAbsenceNotice";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
+import { Icon } from "@/ui/Icon";
+import { TextLink } from "@/ui/TextLink";
 import { TonalBlock } from "@/ui/TonalBlock";
 
 interface NextClassHeroProps {
   student: AccountStudent;
   onSeeWeek: () => void;
+  classBalance: StudentAppClassBalance | null;
+  onBuyClasses: () => void;
 }
 
-export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
+function uncoveredClassMessage(classBalance: StudentAppClassBalance | null): string | null {
+  if (classBalance === null) {
+    return null;
+  }
+  if (classBalance.unpaidClasses > 0) {
+    return translateCount("student.nextClass.unpaidClasses", classBalance.unpaidClasses);
+  }
+  return classBalance.availableClasses === 0 ? translate("student.nextClass.noClassesLeft") : null;
+}
+
+export function NextClassHero({
+  student,
+  onSeeWeek,
+  classBalance,
+  onBuyClasses,
+}: NextClassHeroProps) {
   const { toggleAbsence, isPending } = useAbsenceNotice();
   const nextClass = nextClassOf(student);
   if (nextClass === null) {
@@ -37,6 +56,7 @@ export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
   const countdown = absenceNotified
     ? translate("student.absence.notified")
     : countdownLabel(nextClass);
+  const uncoveredMessage = absenceNotified ? null : uncoveredClassMessage(classBalance);
   const absenceLabel = translate(
     absenceNotified ? "student.absence.undo" : "student.absence.notGoing",
   );
@@ -64,6 +84,23 @@ export function NextClassHero({ student, onSeeWeek }: NextClassHeroProps) {
           {classDetails(nextClass)}
         </AppText>
       </View>
+      {uncoveredMessage === null ? null : (
+        <TonalBlock tone="danger" isCompact>
+          <View className="flex-row items-center gap-2">
+            <Icon name="warning" tone="danger" />
+            <View className="min-w-0 flex-1">
+              <AppText variant="caption" tone="dangerSoft">
+                {uncoveredMessage}
+              </AppText>
+            </View>
+          </View>
+          <TextLink
+            label={translate("student.classes.buyMore")}
+            trailingIcon="next"
+            onPress={onBuyClasses}
+          />
+        </TonalBlock>
+      )}
       <View className="flex-row gap-2">
         <View className="flex-1">
           <Button

@@ -113,6 +113,8 @@ export function StudentAppHomeScreen() {
             <NextClassHero
               student={student}
               onSeeWeek={() => router.navigate(routes.studentAppClasses)}
+              classBalance={home.billing.classes}
+              onBuyClasses={() => router.navigate(routes.studentAppShop)}
             />
           </Entrance>
         </AnimatedListItem>

@@ -18,7 +18,7 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
             join student in context.Students.AsNoTracking() on booking.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
             orderby student.User.FullName
-            select new BookedStudent(student.Id, student.User.FullName, student.User.BirthDate, client.User.FullName))
+            select new BookedStudent(student.Id, student.User.FullName, student.User.BirthDate, client.Id, client.User.FullName))
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyDictionary<long, int>> CountBySessionsAsync(
