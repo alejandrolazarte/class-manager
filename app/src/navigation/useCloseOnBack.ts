@@ -25,11 +25,11 @@ export function useCloseOnBack(onClose: () => void): void {
     if (Platform.OS !== "web") {
       return undefined;
     }
-    const release = backDismissal().open(() => onCloseReference.current());
-    const stopListeningToRemoval = navigation?.addListener(BeforeRemoveEvent, release);
+    const layerEntry = backDismissal().open(() => onCloseReference.current());
+    const stopListeningToRemoval = navigation?.addListener(BeforeRemoveEvent, layerEntry.remove);
     return () => {
       stopListeningToRemoval?.();
-      release();
+      layerEntry.removeAfterNavigation();
     };
   }, [navigation]);
 }

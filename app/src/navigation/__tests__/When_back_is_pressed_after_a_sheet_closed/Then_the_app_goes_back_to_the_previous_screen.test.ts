@@ -6,8 +6,9 @@ describe("When back is pressed after a sheet closed", () => {
     const history = new FakeLayerHistory("/today");
     history.navigateTo("/settings");
     const closeSheet = jest.fn();
-    const release = createBackDismissal(history).open(closeSheet);
-    release();
+    const layerEntry = createBackDismissal(history).open(closeSheet);
+    layerEntry.removeAfterNavigation();
+    history.runPendingTasks();
 
     history.pressBack();
 

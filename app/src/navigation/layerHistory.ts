@@ -2,6 +2,7 @@ export interface LayerHistory {
   pushLayerEntry(layerKey: string): void;
   currentLayerKey(): string | undefined;
   goBack(steps: number): void;
+  afterNavigation(task: () => void): void;
   listenToBack(listener: (stopPropagation: () => void) => void): void;
 }
 
@@ -11,8 +12,13 @@ interface OpenLayer {
   close: () => void;
 }
 
+export interface LayerEntry {
+  remove(): void;
+  removeAfterNavigation(): void;
+}
+
 export interface BackDismissal {
-  open(close: () => void): () => void;
+  open(close: () => void): LayerEntry;
 }
 
 export function createBackDismissal(history: LayerHistory): BackDismissal {
@@ -73,7 +79,10 @@ export function createBackDismissal(history: LayerHistory): BackDismissal {
       const layer: OpenLayer = { key: `layer-${nextLayerNumber}`, isOpen: true, close };
       history.pushLayerEntry(layer.key);
       layersWithEntries.push(layer);
-      return () => release(layer);
+      return {
+        remove: () => release(layer),
+        removeAfterNavigation: () => history.afterNavigation(() => release(layer)),
+      };
     },
   };
 }
