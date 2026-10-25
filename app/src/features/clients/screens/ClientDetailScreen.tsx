@@ -14,6 +14,7 @@ import { SamePersonNotice } from "@/features/users/components/SamePersonNotice";
 import { ClientFeeSection } from "@/features/fees/components/ClientFeeSection";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
+import { useCanSellAtCounter } from "@/features/orders/useOrderPermissions";
 import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { translate } from "@/i18n/translate";
@@ -140,7 +141,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
   const { data: client, isPending, isError, refetch } = useClient(clientId);
   const canManageStudents = useCan(permissions.studentsManage);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
-  const canSellAtCounter = useCan(permissions.ordersManage);
+  const canSellAtCounter = useCanSellAtCounter();
   const canViewProgress = useCan(permissions.studentsViewAll, permissions.studentsViewOwn);
 
   if (isPending) {

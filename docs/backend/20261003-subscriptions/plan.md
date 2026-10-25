@@ -66,7 +66,8 @@ Add-ons are not a separate concept: an add-on is a **feature that can also be bo
 | What | Where | Answer |
 |---|---|---|
 | Subscription ended | `UseActiveSubscriptionForChanges` middleware: every authenticated change | `403 subscription.inactive` |
-| On/off features | `FeatureGatedPermissions` (Core) maps action permissions to the feature that unlocks them (`products.manage` → `shop`, `classPacks.sell` → `class-packs`, `importExport.run` → `import-export`, …). `PermissionAuthorizationHandler` refuses a permission the role has but the plan lacks | `403 feature.not_in_plan` |
+| On/off features | `FeatureGatedPermissions` (Core) maps action permissions to the features that unlock them, any of them is enough (`products.manage` → `shop`, `classPacks.sell` → `class-packs`, `orders.manage` → `shop` or `class-packs`, `importExport.run` → `import-export`, …). `PermissionAuthorizationHandler` refuses a permission the role has but the plan lacks | `403 feature.not_in_plan` |
+| Orders | `orders.manage` opens with `class-packs` because the family app sells packs on every plan with `student-app`. What touches products asks for `shop` on top: the counter sale, marking ready, choosing pickup or a class and listing delivery classes (`.RequireFeature`), and paying, delivering, cancelling or refunding an order that has products (`OrderAccess.PlanRefusalAsync`). Without `shop`, the family shop lists no products and refuses them | `403 feature.not_in_plan` |
 | Endpoints whose permission is shared with free actions | `.RequireFeature(...)`: brand changes (`business.manage` also edits settings) and the family app (`/api/family`, family invitations) | `403 feature.not_in_plan` |
 | Counted limits | `FeatureLimitSaveChangesInterceptor`: before saving, counts the added `Student`, `MemberInvitation` (not for branch owners) and `Business` rows and the existing ones (`SubscriptionLimits` in Infrastructure); every path that creates them is covered, imports included | `403 feature.limit_reached` (`FeatureLimitReachedException`, `FeatureLimitExceptionHandler`) |
 
@@ -74,7 +75,7 @@ Add-ons are not a separate concept: an add-on is a **feature that can also be bo
 - **The front prevents the normal case; the interceptor is the safety net.** `GET /api/me` returns `used` for counted features, and the app locks "Nuevo alumno", "Invitar" and "Nueva sede" at the limit. The interceptor only answers in races (two devices adding the last seat), with stale screens or direct API calls. The import preview is the one place the front can't know in advance, so it reports `planLimit` (`{ featureCode, remaining }`) and the import refuses with `feature.limit_reached` before saving.
 - **Unlimited is `null`.** Enterprise has no limit on students, branches or team, and the interceptor doesn't even count them. An add-on with `Limit = null` lifts a plan's limit for one brand, and an add-on with a number sets one, even on Enterprise.
 - Read rules that depend on the plan stay in the read use case: without `brand`, `GET /api/business/brand` drops the colors, the lock and the logo, so the theme stops applying while the data stays.
-- The app mirrors the table (`featureGatedPermissions.ts`): `useCan` is plan-aware, so buttons for actions the plan lacks disappear everywhere `useCan` is used; `useRoleCan` keeps the role-only check for entries and buttons that offer the plan instead of disappearing (Importar y exportar, the create buttons of packs, products and roles).
+- The app mirrors the table (`featureGatedPermissions.ts`): `useCan` is plan-aware, so buttons for actions the plan lacks disappear everywhere `useCan` is used (orders use `useCanManageOrder` and `useCanSellAtCounter`, which add the `shop` check for products); `useRoleCan` keeps the role-only check for entries and buttons that offer the plan instead of disappearing (Importar y exportar, the create buttons of packs, products and roles).
 - **Gates block actions, not reads.** Creating, editing, importing and exporting need the feature; listing what already exists doesn't, so a brand that drops to a smaller plan still sees its data. Deleting a custom role stays allowed too, so a downgraded brand can clean up.
 - A missing feature returns `403` with the code `feature.not_in_plan` (and `feature.limit_reached` for limits) and the feature code in `feature`, never the permission's code, so the app can offer an upgrade instead of acting as if the button didn't exist.
 - Effective features are read once per request, like permissions, so a plan change applies on the next request.
@@ -198,7 +199,7 @@ The daily core — students, families, class groups, enrollments, attendance, mo
 | `import-export` | | ✓ | ✓ | ✓ | ✓ | no |
 | `custom-roles` | | | | ✓ | ✓ | no |
 | `student-app` (family accounts, avisos) | | ✓ | ✓ | ✓ | ✓ | no |
-| `shop` (products and orders) | | | | ✓ | ✓ | no |
+| `shop` (products, orders with products, counter sales) | | | | ✓ | ✓ | no |
 | `brand` (brand theme, logo, theme lock) | | | | ✓ | ✓ | no |
 | `document-storage` (MB of uploaded files of the branch: photos and class PDFs, see [storage](../../storage.md#document-storage-limit)) | yes | 100 MB | 1 GB | 5 GB | 10 GB | yes, 2 € per 10 GB more |
 | Future paid features (online payments, reports, …) | | | | | | yes, priced |

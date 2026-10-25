@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Orders;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -13,7 +14,8 @@ public sealed class RestoreOrderPaymentUseCase(
     IClassGroupRepository classGroupRepository,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
-    ICurrentMember currentMember)
+    ICurrentMember currentMember,
+    IFeatureAccess featureAccess)
     : IUseCase<RestoreOrderPaymentCommand, OrderResponse>
 {
     private const string DeletedPaymentNotFoundMessage = "The deleted payment does not exist.";
@@ -24,6 +26,11 @@ public sealed class RestoreOrderPaymentUseCase(
         if (order is null || !await OrderAccess.CanReachAsync(accessScopes, clientRepository, order, cancellationToken))
         {
             return OrderFailures.NotFound();
+        }
+
+        if (await OrderAccess.PlanRefusalAsync(featureAccess, order, cancellationToken) is { } planRefusal)
+        {
+            return planRefusal;
         }
 
         var payment = await orderRepository.FindDeletedPaymentForUpdateAsync(order.Id, command.PaymentId, cancellationToken);

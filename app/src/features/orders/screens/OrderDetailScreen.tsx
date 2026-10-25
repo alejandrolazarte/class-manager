@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { permissions } from "@/features/members/permissions";
-import { useCan } from "@/features/members/CurrentMemberProvider";
 import { CollectSheet } from "@/features/orders/components/CollectSheet";
 import { OrderPaymentsPanel } from "@/features/orders/components/OrderPaymentsPanel";
 import { RefundPanel } from "@/features/orders/components/RefundPanel";
@@ -19,6 +17,7 @@ import { Order } from "@/features/orders/types";
 import { useOrderActions } from "@/features/orders/useOrderActions";
 import { useCancelOrder } from "@/features/orders/useOrderMutations";
 import { useOrder } from "@/features/orders/useOrders";
+import { useCanManageOrder } from "@/features/orders/useOrderPermissions";
 import { formatMoney } from "@/formatting/money";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -93,7 +92,7 @@ export function OrderDetailScreen({ orderId }: OrderDetailScreenProps) {
 function OrderDetail({ order }: { order: Order }) {
   const { showToast } = useToast();
   const business = useCurrentBusiness();
-  const canManage = useCan(permissions.ordersManage);
+  const canManage = useCanManageOrder(order);
   const { markDelivered, isDelivering, markReady, isMarkingReady } = useOrderActions(order);
   const cancelOrderMutation = useCancelOrder();
   const [isCollecting, setIsCollecting] = useState(false);

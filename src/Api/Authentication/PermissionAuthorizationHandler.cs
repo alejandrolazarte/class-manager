@@ -33,21 +33,21 @@ internal sealed class PermissionAuthorizationHandler(ICurrentMember currentMembe
         }
 
         var gatedFeatureCodes = grantedPermissions
-            .Select(permission => FeatureGatedPermissions.FeatureByPermission.GetValueOrDefault(permission))
+            .Select(permission => FeatureGatedPermissions.AnyFeatureByPermission.GetValueOrDefault(permission))
             .ToList();
-        if (gatedFeatureCodes.Any(featureCode => featureCode is null))
+        if (gatedFeatureCodes.Any(featureCodes => featureCodes is null))
         {
             context.Succeed(requirement);
             return;
         }
 
         var features = await featureAccess.GetCurrentAsync(CancellationToken.None);
-        if (gatedFeatureCodes.Any(featureCode => features.Has(featureCode!)))
+        if (gatedFeatureCodes.SelectMany(featureCodes => featureCodes!).Any(features.Has))
         {
             context.Succeed(requirement);
             return;
         }
 
-        context.Fail(features.IsActive ? new FeatureNotInPlanReason(this, gatedFeatureCodes[0]!) : new SubscriptionInactiveReason(this));
+        context.Fail(features.IsActive ? new FeatureNotInPlanReason(this, gatedFeatureCodes[0]![0]) : new SubscriptionInactiveReason(this));
     }
 }

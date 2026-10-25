@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -18,7 +19,8 @@ public sealed class CancelOrderUseCase(
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
     IOrderNotificationService orderNotifications,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IFeatureAccess featureAccess)
     : IUseCase<CancelOrderCommand, OrderResponse>
 {
     public async Task<Result<OrderResponse>> ExecuteAsync(CancelOrderCommand command, CancellationToken cancellationToken)
@@ -27,6 +29,11 @@ public sealed class CancelOrderUseCase(
         if (order is null || !await OrderAccess.CanReachAsync(accessScopes, clientRepository, order, cancellationToken))
         {
             return OrderFailures.NotFound();
+        }
+
+        if (await OrderAccess.PlanRefusalAsync(featureAccess, order, cancellationToken) is { } planRefusal)
+        {
+            return planRefusal;
         }
 
         var access = await currentMember.GetAccessAsync(cancellationToken);

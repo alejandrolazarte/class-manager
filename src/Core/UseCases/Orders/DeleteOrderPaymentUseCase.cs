@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -12,7 +13,8 @@ public sealed class DeleteOrderPaymentUseCase(
     IClassGroupRepository classGroupRepository,
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
-    ICurrentMember currentMember)
+    ICurrentMember currentMember,
+    IFeatureAccess featureAccess)
     : IUseCase<DeleteOrderPaymentCommand, OrderResponse>
 {
     public async Task<Result<OrderResponse>> ExecuteAsync(DeleteOrderPaymentCommand command, CancellationToken cancellationToken)
@@ -21,6 +23,11 @@ public sealed class DeleteOrderPaymentUseCase(
         if (order is null || !await OrderAccess.CanReachAsync(accessScopes, clientRepository, order, cancellationToken))
         {
             return OrderFailures.NotFound();
+        }
+
+        if (await OrderAccess.PlanRefusalAsync(featureAccess, order, cancellationToken) is { } planRefusal)
+        {
+            return planRefusal;
         }
 
         var deletion = order.DeletePayment(command.PaymentId);
