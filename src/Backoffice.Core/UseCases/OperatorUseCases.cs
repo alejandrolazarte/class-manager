@@ -112,7 +112,7 @@ public sealed class EnableOperatorUseCase(
         }
 
         tenantScope.Establish(member.TenantId);
-        var roleChange = member.ChangeRole(MemberRole.System(command.Role), instructorId: null);
+        var roleChange = member.ChangeRole(MemberRole.System(command.Role), member.InstructorId);
         if (roleChange.Error is { } roleError)
         {
             return roleError;
