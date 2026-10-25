@@ -7,8 +7,8 @@ public sealed class Then_the_total_is_shown_after_the_items
     {
         var content = new EmailContent("Tu pedido", "Recibimos tu pago", "Intro", "Footer")
         {
-            Lines = [new EmailLine("3 Remeras", "54,00 EUR")],
-            Total = "54,00 EUR",
+            Lines = [new EmailLine("3 Remeras", "€ 54")],
+            Total = "€ 54",
         };
 
         var html = BrandedEmailHtml.Render(content, new EmailBrand("Laztty", null, null, null), new Uri("https://app.example.com/fonts/"));
