@@ -1,6 +1,7 @@
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Orders;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -17,6 +18,12 @@ internal static class OrderFailures
         new(OrderErrorCodes.LineNotFound, LineNotFoundMessage, ErrorKind.Validation) { FieldName = OrderLine.LinesFieldName };
 
     public static ResultError PackGone() => new(ClassPackErrorCodes.NotFound, PackGoneMessage, ErrorKind.Conflict);
+
+    public static ResultError NotInPlan(string featureCode) =>
+        new(FeatureErrorCodes.NotInPlan, FeatureErrorCodes.NotInPlanMessage, ErrorKind.Forbidden)
+        {
+            Details = new Dictionary<string, object?> { [FeatureErrorCodes.FeatureDetail] = featureCode },
+        };
 
     public static ResultError LineItemRequired() =>
         new(Result.ValidationCode, LineItemMessage, ErrorKind.Validation) { FieldName = OrderLine.LinesFieldName };

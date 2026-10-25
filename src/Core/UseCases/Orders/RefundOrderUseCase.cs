@@ -4,6 +4,7 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Orders;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -27,7 +28,8 @@ public sealed class RefundOrderUseCase(
     IUnitOfWork unitOfWork,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IFeatureAccess featureAccess)
     : IUseCase<RefundOrderCommand, OrderResponse>
 {
     public async Task<Result<OrderResponse>> ExecuteAsync(RefundOrderCommand command, CancellationToken cancellationToken)
@@ -36,6 +38,11 @@ public sealed class RefundOrderUseCase(
         if (order is null || !await OrderAccess.CanReachAsync(accessScopes, clientRepository, order, cancellationToken))
         {
             return OrderFailures.NotFound();
+        }
+
+        if (await OrderAccess.PlanRefusalAsync(featureAccess, order, cancellationToken) is { } planRefusal)
+        {
+            return planRefusal;
         }
 
         var refundLines = command.Lines ?? [];

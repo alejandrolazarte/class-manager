@@ -5,6 +5,7 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Orders;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.Orders;
 
@@ -27,7 +28,8 @@ public sealed class RecordOrderPaymentUseCase(
     TimeProvider timeProvider,
     IAccessScopes accessScopes,
     ICurrentMember currentMember,
-    IOrderNotificationService orderNotifications)
+    IOrderNotificationService orderNotifications,
+    IFeatureAccess featureAccess)
     : IUseCase<RecordOrderPaymentCommand, OrderResponse>
 {
     public async Task<Result<OrderResponse>> ExecuteAsync(RecordOrderPaymentCommand command, CancellationToken cancellationToken)
@@ -36,6 +38,11 @@ public sealed class RecordOrderPaymentUseCase(
         if (order is null || !await OrderAccess.CanReachAsync(accessScopes, clientRepository, order, cancellationToken))
         {
             return OrderFailures.NotFound();
+        }
+
+        if (await OrderAccess.PlanRefusalAsync(featureAccess, order, cancellationToken) is { } planRefusal)
+        {
+            return planRefusal;
         }
 
         var today = await businessCalendar.TodayAsync(cancellationToken);

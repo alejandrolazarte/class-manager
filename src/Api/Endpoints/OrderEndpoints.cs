@@ -12,15 +12,15 @@ internal static class OrderEndpoints
         orders.MapGet("/", ListOrdersAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
         orders.MapGet(ApiRoutes.OrderById, GetOrderAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
         orders.MapGet(ApiRoutes.OrderSummary, GetOrderSummaryAsync).RequirePermission(Permissions.Orders.ViewAll, Permissions.Orders.ViewOwn);
-        orders.MapPost("/", CreateCounterSaleAsync).RequirePermission(Permissions.Orders.Manage);
+        orders.MapPost("/", CreateCounterSaleAsync).RequirePermission(Permissions.Orders.Manage).RequireFeature(Features.Shop);
         orders.MapPost(ApiRoutes.OrderById + ApiRoutes.PaymentsSegment, RecordOrderPaymentAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapDelete(ApiRoutes.OrderById + ApiRoutes.PaymentsSegment + ApiRoutes.PaymentById, DeleteOrderPaymentAsync)
             .RequirePermission(Permissions.Orders.Manage);
         orders.MapPost(ApiRoutes.OrderById + ApiRoutes.PaymentsSegment + ApiRoutes.PaymentById + ApiRoutes.Restore, RestoreOrderPaymentAsync)
             .RequirePermission(Permissions.Orders.Manage);
-        orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Ready, MarkOrderReadyAsync).RequirePermission(Permissions.Orders.Manage);
-        orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Delivery, ChooseOrderDeliveryAsync).RequirePermission(Permissions.Orders.Manage);
-        orders.MapGet(ApiRoutes.DeliveryClasses, ListDeliveryClassesAsync).RequirePermission(Permissions.Orders.Manage);
+        orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Ready, MarkOrderReadyAsync).RequirePermission(Permissions.Orders.Manage).RequireFeature(Features.Shop);
+        orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Delivery, ChooseOrderDeliveryAsync).RequirePermission(Permissions.Orders.Manage).RequireFeature(Features.Shop);
+        orders.MapGet(ApiRoutes.DeliveryClasses, ListDeliveryClassesAsync).RequirePermission(Permissions.Orders.Manage).RequireFeature(Features.Shop);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Cancellation, CancelOrderAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPut(ApiRoutes.OrderById + ApiRoutes.Delivered, MarkOrderDeliveredAsync).RequirePermission(Permissions.Orders.Manage);
         orders.MapPost(ApiRoutes.OrderById + ApiRoutes.Refunds, RefundOrderAsync).RequirePermission(Permissions.Orders.Manage);

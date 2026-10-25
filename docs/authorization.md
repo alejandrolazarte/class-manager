@@ -93,6 +93,8 @@ The system `Instructor` role has no money permissions. A custom role can add the
 | Mark ready (emails the student), choose pickup or a class, the student's classes | `PUT /api/orders/{id}/ready`, `PUT /api/orders/{id}/delivery`, `GET /api/orders/delivery-classes?clientId=` | `orders.manage` |
 | What to hand over in a class, hand it over | `GET /api/class-groups/{id}/deliveries`, `PUT /api/class-groups/{id}/deliveries/{orderId}` | `attendance.record.all` or `attendance.record.own` (own class groups only, like attendance) |
 
+Orders need `shop` or `class-packs` in the plan. Counter sales, marking an order ready, choosing pickup or a class, and any change to an order that has products need `shop`, so a plan without the shop still collects and hands over the packs families order from the app (see [subscriptions](backend/20261003-subscriptions/plan.md)).
+
 - `orders.view.own` narrows orders to the students the member reaches (the student client scope); orders without a student are only visible with `orders.view.all`. With it, selling to another student returns `403 member.not_yours`, and delivering or refunding its orders returns `404`.
 - The system `Instructor` role has no shop permissions; `Viewer` gets `products.view` and `orders.view.all`.
 

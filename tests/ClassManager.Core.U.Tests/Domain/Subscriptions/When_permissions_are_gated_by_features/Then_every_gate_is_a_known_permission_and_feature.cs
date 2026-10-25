@@ -8,10 +8,10 @@ public sealed class Then_every_gate_is_a_known_permission_and_feature
     [Fact]
     public void Then_every_gate_is_a_known_permission_and_feature_Run()
     {
-        var gates = FeatureGatedPermissions.FeatureByPermission;
+        var gates = FeatureGatedPermissions.AnyFeatureByPermission;
 
         gates.ShouldNotBeEmpty();
         gates.Keys.ShouldAllBe(permission => Permissions.All.Contains(permission));
-        gates.Values.ShouldAllBe(featureCode => Features.All.Contains(featureCode));
+        gates.Values.ShouldAllBe(featureCodes => featureCodes.Count > 0 && featureCodes.All(featureCode => Features.All.Contains(featureCode)));
     }
 }

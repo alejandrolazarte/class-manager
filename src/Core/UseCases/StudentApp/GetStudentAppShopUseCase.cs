@@ -4,8 +4,10 @@ using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.UseCases.Images;
 using ClassManager.Core.UseCases.Orders;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
@@ -21,7 +23,8 @@ public sealed class GetStudentAppShopUseCase(
     IEnrollmentRepository enrollmentRepository,
     IClassGroupRepository classGroupRepository,
     IBusinessCalendarService businessCalendar,
-    IDocumentStorageService documentStorage)
+    IDocumentStorageService documentStorage,
+    IFeatureAccess featureAccess)
     : IUseCase<GetStudentAppShopQuery, StudentAppShopResponse>
 {
     public async Task<Result<StudentAppShopResponse>> ExecuteAsync(GetStudentAppShopQuery command, CancellationToken cancellationToken)
@@ -34,9 +37,12 @@ public sealed class GetStudentAppShopUseCase(
         }
 
         var packs = await classPackRepository.ListAsync(includeInactive: false, cancellationToken);
-        var products = (await productRepository.ListAsync(includeInactive: false, cancellationToken))
-            .Where(product => product.IsVisibleInApp)
-            .ToList();
+        var features = await featureAccess.GetCurrentAsync(cancellationToken);
+        var products = features.Has(Features.Shop)
+            ? (await productRepository.ListAsync(includeInactive: false, cancellationToken))
+                .Where(product => product.IsVisibleInApp)
+                .ToList()
+            : [];
         var stockByVariant = await stockMovementRepository.StockByVariantAsync(
             [.. products.SelectMany(product => product.Variants).Select(variant => variant.Id)], cancellationToken);
 

@@ -6,7 +6,10 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Orders;
 using ClassManager.Core.Domain.Products;
+using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.UseCases.Orders;
+using ClassManager.Core.UseCases.Products;
+using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
@@ -32,7 +35,8 @@ public sealed class PlaceStudentAppOrderUseCase(
     IBusinessCalendarService businessCalendar,
     IBusinessCurrencyService businessCurrency,
     IOrderNotificationService orderNotifications,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IFeatureAccess featureAccess)
     : IUseCase<PlaceStudentAppOrderCommand, StudentAppOrderResponse>
 {
     public async Task<Result<StudentAppOrderResponse>> ExecuteAsync(PlaceStudentAppOrderCommand command, CancellationToken cancellationToken)
@@ -46,6 +50,12 @@ public sealed class PlaceStudentAppOrderUseCase(
         var requestedLines = (command.Lines ?? [])
             .Select(line => new RequestedOrderLine(line.ClassPackId, line.ProductVariantId, line.Quantity, null))
             .ToList();
+        if (requestedLines.Any(line => line.ProductVariantId is not null)
+            && !(await featureAccess.GetCurrentAsync(cancellationToken)).Has(Features.Shop))
+        {
+            return ProductFailures.VariantNotFound();
+        }
+
         var draft = await OrderDrafts.BuildAsync(requestedLines, OrderAudience.Student, classPackRepository, productRepository, cancellationToken);
         if (draft.IsFailure)
         {
