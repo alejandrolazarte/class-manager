@@ -8,7 +8,7 @@ export const ownerPassword = "e2e-owner-password";
 export const clientFullName = "Ana Pérez";
 
 const clientPhoneNumber = "11 2233-4455";
-const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s]+)/;
+const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s&]+)/;
 
 export interface BusinessAccount {
   email: string;

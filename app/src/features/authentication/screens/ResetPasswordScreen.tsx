@@ -19,6 +19,7 @@ import { Banner } from "@/ui/Banner";
 import { BrandMark } from "@/ui/BrandMark";
 import { Button } from "@/ui/Button";
 import { PasswordField } from "@/ui/PasswordField";
+import { PasswordManagerUsername } from "@/ui/PasswordManagerUsername";
 import { useToast } from "@/ui/ToastProvider";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
@@ -30,7 +31,7 @@ type ResetPasswordFailure = "invalidLink" | "network" | "unexpected";
 export function ResetPasswordScreen() {
   const router = useRouter();
   const { showToast } = useToast();
-  const { token } = useLocalSearchParams<{ token?: string }>();
+  const { token, email } = useLocalSearchParams<{ token?: string; email?: string }>();
   const [failure, setFailure] = useState<ResetPasswordFailure | null>(token ? null : "invalidLink");
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -101,6 +102,7 @@ export function ResetPasswordScreen() {
       {failure === "unexpected" ? <Banner message={translate("common.unexpectedError")} /> : null}
       {token && failure !== "invalidLink" ? (
         <>
+          {email ? <PasswordManagerUsername email={email} /> : null}
           <Controller
             control={form.control}
             name="newPassword"

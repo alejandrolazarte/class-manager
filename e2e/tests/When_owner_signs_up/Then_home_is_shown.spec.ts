@@ -3,7 +3,7 @@ import { ownerPassword, uniqueOwnerEmail } from "../../support/businessApi";
 import { linkTokenSentTo } from "../../support/mailbox";
 import { personal } from "../../support/personalData";
 
-const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s]+)/;
+const completeSignUpLinkPattern = /complete-sign-up\?token=([^\s&]+)/;
 
 test("Then home is shown", async ({ page }) => {
   const email = uniqueOwnerEmail();
