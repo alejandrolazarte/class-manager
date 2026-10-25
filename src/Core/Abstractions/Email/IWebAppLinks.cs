@@ -4,9 +4,9 @@ public interface IWebAppLinks
 {
     string SignIn();
 
-    string CompleteSignUp(string token);
+    string CompleteSignUp(string token, string email);
 
-    string ResetPassword(string token);
+    string ResetPassword(string token, string email);
 
     string ConfirmEmailChange(string token);
 

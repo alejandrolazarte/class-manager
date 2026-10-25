@@ -11,7 +11,7 @@ internal sealed class RequestSignUpUseCaseBuilder
 {
     public const string Token = "sign-up-token";
     public const string TokenHash = "sign-up-token-hash";
-    public const string CompleteSignUpLink = "https://app.example.com/complete-sign-up?token=sign-up-token";
+    public const string CompleteSignUpLink = "https://app.example.com/complete-sign-up?token=sign-up-token&email=laura%40example.com";
     public const string SignInLink = "https://app.example.com/sign-in";
 
     public PendingSignUp? AddedPendingSignUp { get; private set; }
@@ -40,7 +40,7 @@ internal sealed class RequestSignUpUseCaseBuilder
             .Setup(repository => repository.IsSlugTakenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         SecretTokens.Setup(generator => generator.Create()).Returns(new SecretToken(Token, TokenHash));
-        WebAppLinks.Setup(links => links.CompleteSignUp(Token)).Returns(CompleteSignUpLink);
+        WebAppLinks.Setup(links => links.CompleteSignUp(Token, TestData.OwnerEmail)).Returns(CompleteSignUpLink);
         WebAppLinks.Setup(links => links.SignIn()).Returns(SignInLink);
     }
 

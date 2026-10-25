@@ -12,6 +12,11 @@ import {
   switchBranch as switchBranchRequest,
 } from "@/features/authentication/authenticationApi";
 import { SessionKind, sessionKindOf } from "@/features/authentication/sessionKind";
+import {
+  beginPasskeySignIn,
+  signInWithPasskey as signInWithPasskeyRequest,
+} from "@/features/passkeys/passkeysApi";
+import { getPasskeyCredential } from "@/features/passkeys/webAuthn";
 import { refreshTokenStorage } from "@/features/authentication/sessionStorage";
 import {
   AcceptStudentAppInvitationRequest,
@@ -44,6 +49,7 @@ export type SessionState =
 export interface SessionContextValue {
   session: SessionState;
   signIn: (request: SignInRequest) => Promise<void>;
+  signInWithPasskey: () => Promise<void>;
   completeSignUp: (request: CompleteSignUpRequest) => Promise<void>;
   acceptInvitation: (request: AcceptInvitationRequest) => Promise<void>;
   acceptStudentAppInvitation: (request: AcceptStudentAppInvitationRequest) => Promise<void>;
@@ -152,6 +158,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
     [startSession],
   );
 
+  const signInWithPasskey = useCallback(async () => {
+    const ceremony = await beginPasskeySignIn();
+    const credential = await getPasskeyCredential(ceremony.options);
+    const tokens = await signInWithPasskeyRequest({ ceremonyId: ceremony.ceremonyId, credential });
+    await startSession(tokens, "signIn", true);
+  }, [startSession]);
+
   const completeSignUp = useCallback(
     async (request: CompleteSignUpRequest) =>
       startSession(await completeSignUpRequest(request), "signUp"),
@@ -221,6 +234,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     () => ({
       session,
       signIn,
+      signInWithPasskey,
       completeSignUp,
       acceptInvitation,
       acceptStudentAppInvitation,
@@ -232,6 +246,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     [
       session,
       signIn,
+      signInWithPasskey,
       completeSignUp,
       acceptInvitation,
       acceptStudentAppInvitation,

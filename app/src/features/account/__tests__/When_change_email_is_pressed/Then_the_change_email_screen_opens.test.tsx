@@ -24,6 +24,7 @@ describe("When change email is pressed", () => {
         editProfileRoute={routes.editMyProfile}
         changeEmailRoute={routes.changeMyEmail}
         deleteAccountRoute={routes.deleteMyAccount}
+        passkeysRoute={routes.myPasskeys}
       />,
     );
 

@@ -81,6 +81,10 @@ export const routes = {
   studentAppChangeEmail: "/student-app/change-email",
   deleteMyAccount: "/settings/delete-account",
   studentAppDeleteAccount: "/student-app/delete-account",
+  myPasskeys: "/settings/passkeys",
+  addMyPasskey: "/settings/add-passkey",
+  studentAppPasskeys: "/student-app/passkeys",
+  studentAppAddPasskey: "/student-app/add-passkey",
   forgotPassword: (email: string) =>
     email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
   settings: "/settings",

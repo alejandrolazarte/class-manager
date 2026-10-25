@@ -25,7 +25,7 @@ public sealed class Then_the_email_is_in_english
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new UserAccount(userId, TestData.OwnerEmail, TestData.OwnerFullName, TestData.OwnerBirthDate, AccountLanguage.English)]);
         var webAppLinks = new Mock<IWebAppLinks>();
-        webAppLinks.Setup(links => links.ResetPassword(token)).Returns(link);
+        webAppLinks.Setup(links => links.ResetPassword(token, TestData.OwnerEmail)).Returns(link);
         var emailSender = new Mock<IEmailSender>();
         var useCase = new RequestPasswordResetUseCase(identity.Object, emailSender.Object, webAppLinks.Object);
 

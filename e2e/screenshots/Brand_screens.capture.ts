@@ -45,7 +45,7 @@ async function signIn(page: Page, email: string, password: string): Promise<void
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contraseña", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
 }
 
 test("Brand screens", async ({ browser, page, request }) => {

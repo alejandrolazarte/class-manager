@@ -1,4 +1,5 @@
 using ClassManager.Core.UseCases.Authentication;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
@@ -19,6 +20,8 @@ public static class AuthenticationRequests
     public const string PasswordResetRequestRoute = ApiRoutes.Authentication + ApiRoutes.PasswordResetRequest;
     public const string WebAppResetPasswordUrl = "http://localhost:8081/reset-password?token=";
     public const string WebAppCompleteSignUpUrl = "http://localhost:8081/complete-sign-up?token=";
+    private const string TokenParameter = "token";
+    private const string EmailParameter = "email";
 
     public static string UniqueEmail() => $"owner-{TestIds.Next()}@example.com";
 
@@ -48,11 +51,13 @@ public static class AuthenticationRequests
         return emailTransport.SignUpTokenSentTo(command.Email!);
     }
 
-    public static string SignUpTokenSentTo(this RecordingEmailTransport emailTransport, string email)
+    public static string SignUpTokenSentTo(this RecordingEmailTransport emailTransport, string email) =>
+        TokenOf(emailTransport.SignUpLinkSentTo(email));
+
+    public static string SignUpLinkSentTo(this RecordingEmailTransport emailTransport, string email)
     {
         var body = emailTransport.SentTo(email)[^1].TextBody;
-        var link = body.Split('\n').Single(line => line.StartsWith(WebAppCompleteSignUpUrl, StringComparison.Ordinal));
-        return Uri.UnescapeDataString(link[WebAppCompleteSignUpUrl.Length..]);
+        return body.Split('\n').Single(line => line.StartsWith(WebAppCompleteSignUpUrl, StringComparison.Ordinal));
     }
 
     public static async Task<TokenResponse> SignUpAsync(this HttpClient httpClient, RecordingEmailTransport emailTransport, RequestSignUpCommand command)
@@ -96,8 +101,12 @@ public static class AuthenticationRequests
         return body.Split('\n').Single(line => line.StartsWith(WebAppResetPasswordUrl, StringComparison.Ordinal));
     }
 
-    public static string TokenOf(string passwordResetLink) =>
-        Uri.UnescapeDataString(passwordResetLink[WebAppResetPasswordUrl.Length..]);
+    public static string TokenOf(string emailedLink) => QueryParameterOf(emailedLink, TokenParameter);
+
+    public static string EmailOf(string emailedLink) => QueryParameterOf(emailedLink, EmailParameter);
+
+    private static string QueryParameterOf(string emailedLink, string parameterName) =>
+        QueryHelpers.ParseQuery(new Uri(emailedLink.Trim()).Query)[parameterName].ToString();
 
     public static string? AccessTokenClaim(string accessToken, string claimType) =>
         new JsonWebTokenHandler().ReadJsonWebToken(accessToken).Claims.FirstOrDefault(claim => claim.Type == claimType)?.Value;

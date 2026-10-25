@@ -90,7 +90,7 @@ public sealed class RequestSignUpUseCase(
         pendingSignUpRepository.Add(pendingSignUp);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var confirmation = EmailTexts.Spanish.SignUpConfirmation(pendingSignUp.BusinessName, webAppLinks.CompleteSignUp(token.Value));
+        var confirmation = EmailTexts.Spanish.SignUpConfirmation(pendingSignUp.BusinessName, webAppLinks.CompleteSignUp(token.Value, pendingSignUp.Email));
         await emailSender.SendAsync(new EmailMessage(pendingSignUp.Email, confirmation.Subject, confirmation.Content), cancellationToken);
 
         return new RequestSignUpResponse();

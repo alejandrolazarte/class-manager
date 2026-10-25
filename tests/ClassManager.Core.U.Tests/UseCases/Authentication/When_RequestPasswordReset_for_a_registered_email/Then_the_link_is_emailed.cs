@@ -16,7 +16,7 @@ public sealed class Then_the_link_is_emailed
             .Setup(service => service.CreatePasswordResetTokenAsync(TestData.OwnerEmail, It.IsAny<CancellationToken>()))
             .ReturnsAsync(token);
         var webAppLinks = new Mock<IWebAppLinks>();
-        webAppLinks.Setup(links => links.ResetPassword(token)).Returns(link);
+        webAppLinks.Setup(links => links.ResetPassword(token, TestData.OwnerEmail)).Returns(link);
         var emailSender = new Mock<IEmailSender>();
         var useCase = new RequestPasswordResetUseCase(identity.Object, emailSender.Object, webAppLinks.Object);
 

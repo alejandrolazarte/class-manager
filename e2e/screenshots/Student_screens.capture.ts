@@ -73,7 +73,7 @@ test("Student screens", async ({ page, request }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(student.email);
   await page.getByLabel("Contraseña", { exact: true }).fill(demoStudentAppPassword);
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await expect(page).toHaveURL(/\/student-app/);
 
   await page.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
@@ -186,7 +186,7 @@ test("Account chooser", async ({ page, request }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(demo.email);
   await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await expect(page).toHaveURL(/\/choose-account/);
   await page.getByText("¿Cómo querés entrar?").filter({ visible: true }).first().waitFor();
   await capture(page, "30-elegir-cuenta");
@@ -204,7 +204,7 @@ test("Team screens with student activity", async ({ page, request }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(demo.email);
   await page.getByLabel("Contraseña", { exact: true }).fill(demoPassword);
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await expect(page).toHaveURL(/\/today/);
 
   await page.goto("/today/notifications");
