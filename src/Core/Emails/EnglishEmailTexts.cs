@@ -155,6 +155,18 @@ internal sealed class EnglishEmailTexts : IEmailTexts
                 "If it wasn't you, let the place where you take classes or work know right away."));
     }
 
+    public EmailText PasskeyAddedNotice(string passkeyName)
+    {
+        const string subject = "A passkey was added to your account";
+        return new(
+            subject,
+            Content(
+                AccountEyebrow,
+                subject,
+                $"From now on you can sign in to the app with the passkey {passkeyName}, using that device's fingerprint, face or PIN.",
+                "If it wasn't you, remove it from My profile and change your password."));
+    }
+
     public EmailText OrderPlaced(OrderEmailDetails order, string clientName, string? delivery, string teamOrdersLink) =>
         new(
             $"New order {OrderNumber(order.Number)} from {clientName}",

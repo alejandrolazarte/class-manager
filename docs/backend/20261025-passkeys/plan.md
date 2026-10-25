@@ -1,6 +1,6 @@
 # Passkeys: signing in with a fingerprint or face
 
-Status: proposal to review before building it.
+Status: step 1 (API and Security) is built. Steps 2 and 3 are still a proposal.
 
 ## Why
 
@@ -67,28 +67,30 @@ Removing a passkey asks first with `ConfirmDialog` ("¿Quitar esta passkey?", co
 | Area | Types |
 |---|---|
 | Passkeys | `IPasskeyService` (begin and finish registration, begin and finish sign-in, list, rename, remove), `PasskeyService` over `IPasskeyHandler<ApplicationUser>` and `UserManager.AddOrUpdatePasskeyAsync` / `GetPasskeysAsync` / `RemovePasskeyAsync` |
-| Ceremonies | `PasskeyCeremony` (id, hash of the ceremony id, kind `registration` or `sign-in`, `UserId` for registrations, protected state, expiry), `PasskeyCeremonyKind` |
+| Ceremonies | `PasskeyCeremony` (id, hash of the ceremony id, kind `Registration` or `SignIn`, `UserId` for registrations, the handler's state, expiry), `PasskeyCeremonyKind`, `PasskeyCeremonyOptions` |
 | Options | `PasskeyOptions` (`ServerDomain`, `AllowedOrigins`), bound from `Passkeys` and validated on start; `SecurityOptions.PasskeyCeremonyLifetime` |
 | Persistence | `options.Stores.SchemaVersion = IdentitySchemaVersions.Version3`; migration `AddPasskeys` (`AspNetUserPasskeys`, `PasskeyCeremonies`) |
+
+Identity reads the schema version from the application's `IdentityOptions`, so a `SecurityDbContext` created outside the application (the design-time factory, the test fixtures) calls `UseIdentitySchema()` to build the same model. Schema version 3 also includes version 2, which shortens the keys of `AspNetUserLogins` and `AspNetUserTokens` to 128 characters and `AspNetUsers.PhoneNumber` to 256. The app uses none of the three (both tables are empty), and SQL Server can't shorten a primary key column, so the migration drops and re-adds those two primary keys around the change.
 
 The handler's state is stored as it comes and never leaves the database: the app only ever holds the ceremony id. It is not encrypted with Data Protection, whose keys would need persisting outside the container for a ceremony to survive a restart, and anyone who can write to the database could change the passkeys directly anyway. Nothing in it is business-specific (ARCH003 still holds).
 
 ### Core and Infrastructure
 
-- Core port `IPasskeyIdentityService` with the five operations the use cases need, adapted in Infrastructure over `IPasskeyService`, like `IIdentityService` over `IUserAccountService`.
-- `SessionUserChooser` (Core): the "last session, else default branch, else default student link" choice, moved out of `SignInUseCase` and used by both sign-in use cases.
+- Core port `IPasskeyIdentityService` with the operations the use cases need, adapted in Infrastructure (`PasskeyIdentityService`) over `IPasskeyService`, like `IIdentityService` over `IUserAccountService`. A passkey sign-in returns the same `CredentialVerification` as a password check.
+- `ISignInSessionService` (`SignInSessionService`, Core): lockout, then the "last session, else default branch, else default student link" choice, moved out of `SignInUseCase` and used by both sign-in use cases.
 - Use cases, each registered with `AddUseCase`:
 
 | Use case | Input | Kind |
 |---|---|---|
 | `BeginPasskeyRegistrationUseCase` | `BeginPasskeyRegistrationCommand([AuditSecret] Password)` | command |
-| `FinishPasskeyRegistrationUseCase` | `FinishPasskeyRegistrationCommand([AuditPlain] CeremonyId, [AuditSecret] Credential, [AuditPersonal] Name)` | command |
+| `FinishPasskeyRegistrationUseCase` | `FinishPasskeyRegistrationCommand([AuditSecret] CeremonyId, [AuditSecret] Credential, [AuditPersonal] Name)` | command |
 | `ListMyPasskeysUseCase` | `ListMyPasskeysQuery` | query |
 | `RemoveMyPasskeyUseCase` | `RemoveMyPasskeyCommand([AuditPlain] PasskeyId)` | command |
 | `BeginPasskeySignInUseCase` | `BeginPasskeySignInCommand` | command (stores a ceremony) |
-| `SignInWithPasskeyUseCase` | `SignInWithPasskeyCommand([AuditPlain] CeremonyId, [AuditSecret] Credential)` | command |
+| `SignInWithPasskeyUseCase` | `SignInWithPasskeyCommand([AuditSecret] CeremonyId, [AuditSecret] Credential)` | command |
 
-The passkey name defaults to the device the browser reports (for example "iPhone" or "Chrome en Windows") and the person can change it while adding it. `ListMyPasskeysQuery` returns the name, when it was added and when it was last used, never key material.
+The ceremony id is `[AuditSecret]`: while it lives it is the handle that finishes the ceremony. The passkey name (1 to 60 characters) is filled in by the app with the device the browser reports (for example "iPhone" or "Chrome en Windows") and the person can change it while adding it. `ListMyPasskeysQuery` returns the id (the credential id in base64url), the name and when it was added, never key material. Identity doesn't store when a passkey was last used, so the list doesn't show it.
 
 ### Texts
 
@@ -112,7 +114,7 @@ New keys in `es.json` and `en.json` (sign-in button, Mi perfil section, add shee
 - **Support check**: `isPasskeySupported()` in `app/src/features/passkeys`, with a `.web.ts` version (`window.PublicKeyCredential` and `isUserVerifyingPlatformAuthenticatorAvailable()`) and a `.native.ts` version that returns `false` until step 3. Nothing about passkeys shows where they don't work.
 - **WebAuthn calls**: `@simplewebauthn/browser` (`startRegistration`, `startAuthentication`). It converts the JSON options and credentials, which `PublicKeyCredential.parseCreationOptionsFromJSON` only does natively on recent browsers (Safari 18+), and works around password managers whose `toJSON` throws "Illegal invocation" (a known issue in Microsoft's docs). No install script, so nothing to add to `pnpm.onlyBuiltDependencies`.
 - **Sign-in screen**: below the password form, a `secondary` `Button` **Entrar con huella o cara**, only when supported. It runs the two requests and then follows the same path as a password sign-in. Cancelling the device prompt does nothing; any other failure shows a toast.
-- **Mi perfil** (team and student): a **Passkeys** group listing each passkey (name, added, last used), a `dashed` button **Agregar passkey** that opens a sheet with the password (`isRequired`) and the name, and a `dangerGhost` small button per row that opens the `ConfirmDialog`. Empty list: one line explaining what a passkey is, no button inside it.
+- **Mi perfil** (team and student): a **Passkeys** group listing each passkey (name and when it was added), a `dashed` button **Agregar passkey** that opens a sheet with the password (`isRequired`) and the name, and a `dangerGhost` small button per row that opens the `ConfirmDialog`. Empty list: one line explaining what a passkey is, no button inside it.
 - **Content Security Policy**: no change: WebAuthn needs no new source, and the app is never framed.
 
 ## Steps
@@ -123,25 +125,28 @@ New keys in `es.json` and `en.json` (sign-in button, Mi perfil section, add shee
 
 ## Tests
 
-Integration tests (`ClassManager.Api.I.Tests`) use a software authenticator in the test project that creates real WebAuthn attestations and assertions (ES256), so the API runs Identity's real checks:
+Integration tests (`ClassManager.Api.I.Tests`, `Endpoints/Passkeys`) use `SoftwareAuthenticator`, a platform authenticator in memory that creates real WebAuthn attestations and assertions (ES256, `none` attestation), so the API runs Identity's real checks:
 
 - `When_a_passkey_is_added_with_the_right_password/Then_it_signs_in`
-- `When_a_passkey_is_added_with_a_wrong_password/Then_no_ceremony_starts`
+- `When_a_passkey_is_added_with_a_wrong_password/Then_returns_400`
 - `When_a_registration_is_finished_by_another_account/Then_it_is_refused`
-- `When_a_ceremony_is_used_twice/Then_the_second_is_refused`
-- `When_a_ceremony_expired/Then_it_is_refused`
+- `When_a_passkey_of_another_account_is_registered_again/Then_it_is_refused`
+- `When_a_sign_in_ceremony_is_used_twice/Then_the_second_is_refused`
+- `When_a_sign_in_ceremony_expired/Then_it_is_refused`
 - `When_the_origin_is_not_allowed/Then_the_sign_in_is_refused`
+- `When_the_device_does_not_verify_the_user/Then_the_sign_in_is_refused`
 - `When_the_account_is_locked_out/Then_the_passkey_sign_in_is_refused`
-- `When_a_team_member_signs_in_with_a_passkey/Then_the_session_starts_in_the_last_branch`
+- `When_a_team_member_signs_in_with_a_passkey/Then_the_session_starts_in_their_business`
 - `When_a_student_signs_in_with_a_passkey/Then_the_session_is_a_student_session`
-- `When_signing_in_from_the_web/Then_the_refresh_token_is_a_cookie`
+- `When_signing_in_with_a_passkey_from_the_web/Then_the_refresh_token_is_a_cookie`
 - `When_a_passkey_is_removed/Then_it_no_longer_signs_in`
-- `When_a_passkey_of_another_account_is_removed/Then_it_is_not_found`
+- `When_a_passkey_of_another_account_is_removed/Then_returns_404`
+- `When_passkeys_are_listed/Then_only_the_accounts_own_are_shown`
 - `When_a_passkey_is_added/Then_the_account_gets_a_notice_email`
-- `When_the_account_is_deleted/Then_its_passkeys_are_deleted`
+- `When_the_account_with_a_passkey_is_deleted/Then_its_passkeys_are_deleted`
 - `When_a_passkey_sign_in_fails/Then_a_security_event_is_written`
 
-Unit tests (`ClassManager.Core.U.Tests`) for `SessionUserChooser` and the use cases with fakes. Jest: the sign-in button only shows when supported, cancelling the prompt does nothing, removing asks first and nothing happens until confirmed. E2E: add a passkey from Mi perfil, sign out, sign in with it (Playwright's CDP `WebAuthn.addVirtualAuthenticator` with user verification on).
+Unit tests (`ClassManager.Core.U.Tests`): the existing sign-in tests run through `SignInSessionService`, and the passkey use cases are tested with fakes (missing password, name too long, missing credential, passkey not found, a verified passkey starts the session). Jest: the sign-in button only shows when supported, cancelling the prompt does nothing, removing asks first and nothing happens until confirmed. E2E: add a passkey from Mi perfil, sign out, sign in with it (Playwright's CDP `WebAuthn.addVirtualAuthenticator` with user verification on).
 
 ## Later
 

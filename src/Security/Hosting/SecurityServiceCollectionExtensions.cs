@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using ClassManager.Security.Accounts;
+using ClassManager.Security.Passkeys;
 using ClassManager.Security.Persistence;
 using ClassManager.Security.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +19,7 @@ public static class SecurityServiceCollectionExtensions
 
     private const string UnknownClientPartition = "unknown";
     private const string MissingDbContextConfigurationMessage = "SecurityOptions.ConfigureDbContext must be set.";
+    private const string RequiredRequirement = "required";
 
     private static readonly TimeSpan TokenClockSkew = TimeSpan.FromSeconds(30);
 
@@ -53,6 +55,27 @@ public static class SecurityServiceCollectionExtensions
         services.Configure<EmailChangeOptions>(emailChangeOptions =>
             emailChangeOptions.TokenLifetime = securityOptions.EmailChangeTokenLifetime);
         services.AddScoped<IEmailChangeService, EmailChangeService>();
+        services.Configure<PasskeyCeremonyOptions>(ceremonyOptions => ceremonyOptions.Lifetime = securityOptions.PasskeyCeremonyLifetime);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Passkey registration and sign-in (<see cref="IPasskeyService"/>), configured from the <see cref="PasskeyOptions.SectionName"/>
+    /// section. Call it after <see cref="AddSecurityServices"/>, only in a host whose users sign in with passkeys.
+    /// </summary>
+    public static IServiceCollection AddSecurityPasskeys(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddOptions<PasskeyOptions>()
+            .BindConfiguration(PasskeyOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddOptions<IdentityPasskeyOptions>()
+            .Configure<IOptions<PasskeyOptions>, IOptions<PasskeyCeremonyOptions>>((identityPasskeyOptions, passkeyOptions, ceremonyOptions) =>
+                ConfigurePasskeys(identityPasskeyOptions, passkeyOptions.Value, ceremonyOptions.Value.Lifetime));
+        services.AddScoped<IPasskeyHandler<ApplicationUser>, PasskeyHandler<ApplicationUser>>();
+        services.AddScoped<IPasskeyService, PasskeyService>();
 
         return services;
     }
@@ -81,8 +104,20 @@ public static class SecurityServiceCollectionExtensions
         return services;
     }
 
+    private static void ConfigurePasskeys(IdentityPasskeyOptions options, PasskeyOptions passkeyOptions, TimeSpan ceremonyLifetime)
+    {
+        var allowedOrigins = passkeyOptions.AllowedOrigins.ToHashSet(StringComparer.Ordinal);
+
+        options.ServerDomain = passkeyOptions.ServerDomain;
+        options.UserVerificationRequirement = RequiredRequirement;
+        options.ResidentKeyRequirement = RequiredRequirement;
+        options.AuthenticatorTimeout = ceremonyLifetime;
+        options.ValidateOrigin = context => ValueTask.FromResult(!context.CrossOrigin && allowedOrigins.Contains(context.Origin));
+    }
+
     private static void ConfigureIdentity(IdentityOptions options, SecurityOptions securityOptions)
     {
+        options.Stores.SchemaVersion = SecurityDbContext.IdentitySchemaVersion;
         options.User.RequireUniqueEmail = true;
         options.User.AllowedUserNameCharacters = string.Empty;
 

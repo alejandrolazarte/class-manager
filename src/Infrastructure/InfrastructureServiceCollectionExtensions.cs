@@ -142,6 +142,14 @@ public static class InfrastructureServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddPasskeys(this IServiceCollection services)
+    {
+        services.AddSecurityPasskeys();
+        services.AddScoped<IPasskeyIdentityService, PasskeyIdentityService>();
+
+        return services;
+    }
+
     private static IServiceCollection AddCatalogImages(this IServiceCollection services)
     {
         services.AddAzureBlobFileStorage();

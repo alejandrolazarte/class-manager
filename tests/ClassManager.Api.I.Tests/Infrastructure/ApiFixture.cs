@@ -108,6 +108,7 @@ public sealed class ApiFixture : IAsyncLifetime, IDisposable
     {
         var options = new DbContextOptionsBuilder<SecurityDbContext>()
             .UseSqlServer(ConnectionString, SecurityDbContext.ConfigureSqlServer)
+            .UseIdentitySchema()
             .Options;
 
         return new SecurityDbContext(options);
