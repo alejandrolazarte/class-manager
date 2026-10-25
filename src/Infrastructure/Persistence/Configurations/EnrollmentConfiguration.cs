@@ -17,5 +17,7 @@ internal sealed class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollm
             .IsUnique()
             .HasFilter(OpenEnrollmentFilter);
         builder.HasIndex(enrollment => new { enrollment.TenantId, enrollment.ClassGroupId, enrollment.EndDate });
+        builder.HasIndex(enrollment => new { enrollment.TenantId, enrollment.StartDate })
+            .IncludeProperties(enrollment => new { enrollment.EndDate, enrollment.ClassGroupId, enrollment.StudentId });
     }
 }

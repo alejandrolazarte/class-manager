@@ -14,6 +14,8 @@ internal sealed class AttendanceConfiguration : IEntityTypeConfiguration<Attenda
         builder.HasOne<Business>().WithMany().HasForeignKey(attendance => attendance.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(attendance => attendance.Session).WithMany().HasForeignKey(attendance => attendance.ClassSessionId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Student>().WithMany().HasForeignKey(attendance => attendance.StudentId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(attendance => new { attendance.TenantId, attendance.ClassSessionId, attendance.StudentId }).IsUnique();
+        builder.HasIndex(attendance => new { attendance.TenantId, attendance.ClassSessionId, attendance.StudentId })
+            .IsUnique()
+            .IncludeProperties(attendance => attendance.Status);
     }
 }

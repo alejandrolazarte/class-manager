@@ -86,6 +86,14 @@ internal sealed class SessionUseCaseBuilder
         return anotherStudentId;
     }
 
+    public ClassSession RecordedSession(params Attendance[] recordedMarks)
+    {
+        var session = ClassSession.Create(ClassGroup.Id, TestData.Today, TestData.Now).WithId();
+        Sessions.Setup(repository => repository.FindForUpdateAsync(ClassGroup.Id, TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync(session);
+        Attendances.Setup(repository => repository.ListBySessionForUpdateAsync(session.Id, It.IsAny<CancellationToken>())).ReturnsAsync(recordedMarks);
+        return session;
+    }
+
     public ClassSession CancelledSession()
     {
         var session = ClassSession.Create(ClassGroup.Id, TestData.Today, TestData.Now).WithId();
