@@ -10,6 +10,7 @@ export class FakeLayerHistory implements LayerHistory {
   private entries: HistoryEntry[];
   private index = 0;
   private backListener: ((stopPropagation: () => void) => void) | undefined;
+  private pendingTasks: (() => void)[] = [];
 
   constructor(page: string) {
     this.entries = [{ page }];
@@ -32,8 +33,17 @@ export class FakeLayerHistory implements LayerHistory {
   }
 
   goBack(steps: number): void {
-    this.index -= steps;
-    this.notifyPop();
+    this.pendingTasks.push(() => this.traverseBack(steps));
+  }
+
+  afterNavigation(task: () => void): void {
+    this.pendingTasks.push(task);
+  }
+
+  runPendingTasks(): void {
+    while (this.pendingTasks.length > 0) {
+      this.pendingTasks.shift()!();
+    }
   }
 
   listenToBack(listener: (stopPropagation: () => void) => void): void {
@@ -45,7 +55,12 @@ export class FakeLayerHistory implements LayerHistory {
   }
 
   pressBack(): void {
-    this.goBack(1);
+    this.traverseBack(1);
+  }
+
+  private traverseBack(steps: number): void {
+    this.index -= steps;
+    this.notifyPop();
   }
 
   private push(entry: HistoryEntry): void {

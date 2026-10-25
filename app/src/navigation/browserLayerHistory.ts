@@ -17,6 +17,9 @@ export const browserLayerHistory: LayerHistory = {
   goBack(steps) {
     window.history.go(-steps);
   },
+  afterNavigation(task) {
+    setTimeout(task);
+  },
   listenToBack(listener) {
     window.addEventListener(
       PopStateEvent,
