@@ -23,6 +23,7 @@ describe("When the profile is opened", () => {
         editProfileRoute={routes.editMyProfile}
         changeEmailRoute={routes.changeMyEmail}
         deleteAccountRoute={routes.deleteMyAccount}
+        passkeysRoute={routes.myPasskeys}
       />,
     );
 

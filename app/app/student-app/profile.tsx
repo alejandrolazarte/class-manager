@@ -7,6 +7,7 @@ export default function StudentAppProfileRoute() {
       editProfileRoute={routes.studentAppEditProfile}
       changeEmailRoute={routes.studentAppChangeEmail}
       deleteAccountRoute={routes.studentAppDeleteAccount}
+      passkeysRoute={routes.studentAppPasskeys}
     />
   );
 }

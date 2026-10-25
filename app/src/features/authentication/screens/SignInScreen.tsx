@@ -12,6 +12,8 @@ import {
   toSignInRequest,
 } from "@/features/authentication/signInSchema";
 import { useSession } from "@/features/authentication/useSession";
+import { isPasskeyPromptCancelled } from "@/features/passkeys/passkeyErrors";
+import { usePasskeySupport } from "@/features/passkeys/usePasskeySupport";
 import { applyServerFieldErrors } from "@/forms/applyServerFieldErrors";
 import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
@@ -25,13 +27,19 @@ import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 
 const badRequestStatus = 400;
 
-type SignInFailure = "invalidCredentials" | "lockedOut" | "network" | "unexpected";
+type SignInFailure =
+  "invalidCredentials" | "passkeyNotVerified" | "lockedOut" | "network" | "unexpected";
+
+type SignInMethod = "password" | "passkey";
 
 export function SignInScreen() {
   const router = useRouter();
   const { email: prefilledEmail } = useLocalSearchParams<{ email?: string }>();
-  const { signIn } = useSession();
+  const { signIn, signInWithPasskey } = useSession();
+  const isPasskeySupported = usePasskeySupport();
   const [signInFailure, setSignInFailure] = useState<SignInFailure | null>(null);
+  const [failedMethod, setFailedMethod] = useState<SignInMethod>("password");
+  const [isSigningInWithPasskey, setIsSigningInWithPasskey] = useState(false);
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: prefilledEmail ?? "", password: "" },
@@ -39,7 +47,8 @@ export function SignInScreen() {
   });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(form.control, signInFieldNames);
 
-  const handleSignInError = (signInError: unknown) => {
+  const handleSignInError = (signInError: unknown, method: SignInMethod) => {
+    setFailedMethod(method);
     if (isNetworkError(signInError)) {
       setSignInFailure("network");
       return;
@@ -48,7 +57,7 @@ export function SignInScreen() {
       isApiError(signInError) &&
       signInError.hasCode(authenticationErrorCodes.invalidCredentials)
     ) {
-      setSignInFailure("invalidCredentials");
+      setSignInFailure(method === "passkey" ? "passkeyNotVerified" : "invalidCredentials");
       return;
     }
     if (isApiError(signInError) && signInError.hasCode(authenticationErrorCodes.lockedOut)) {
@@ -70,9 +79,23 @@ export function SignInScreen() {
     try {
       await signIn(toSignInRequest(formValues));
     } catch (signInError) {
-      handleSignInError(signInError);
+      handleSignInError(signInError, "password");
     }
   });
+
+  const signInUsingPasskey = async () => {
+    setSignInFailure(null);
+    setIsSigningInWithPasskey(true);
+    try {
+      await signInWithPasskey();
+    } catch (signInError) {
+      if (!isPasskeyPromptCancelled(signInError)) {
+        handleSignInError(signInError, "passkey");
+      }
+    } finally {
+      setIsSigningInWithPasskey(false);
+    }
+  };
 
   return (
     <AuthenticationScreenLayout
@@ -91,12 +114,19 @@ export function SignInScreen() {
       {signInFailure === "invalidCredentials" ? (
         <Banner message={translate("authentication.signIn.invalidCredentials")} />
       ) : null}
+      {signInFailure === "passkeyNotVerified" ? (
+        <Banner message={translate("authentication.signIn.passkeyNotVerified")} />
+      ) : null}
       {signInFailure === "lockedOut" ? (
         <Banner tone="warning" message={translate("authentication.signIn.lockedOut")} />
       ) : null}
       {signInFailure === "network" ? (
         <Banner message={translate("common.networkError")}>
-          <Button variant="secondary" label={translate("common.retry")} onPress={submit} />
+          <Button
+            variant="secondary"
+            label={translate("common.retry")}
+            onPress={failedMethod === "passkey" ? signInUsingPasskey : submit}
+          />
         </Banner>
       ) : null}
       {signInFailure === "unexpected" ? (
@@ -139,6 +169,15 @@ export function SignInScreen() {
         disabled={!areRequiredFieldsFilled}
         isLoading={form.formState.isSubmitting}
       />
+      {isPasskeySupported ? (
+        <Button
+          variant="secondary"
+          icon="passkey"
+          label={translate("authentication.signIn.withPasskey")}
+          onPress={signInUsingPasskey}
+          isLoading={isSigningInWithPasskey}
+        />
+      ) : null}
       <TextLink
         alignment="center"
         label={translate("authentication.signIn.forgotPassword")}

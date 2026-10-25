@@ -7,7 +7,7 @@ test("Then error is shown", async ({ page, request }) => {
   await page.getByLabel("Email").fill(account.email);
   await page.getByLabel("Contraseña", { exact: true }).fill("not-the-right-password");
 
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
 
   await expect(page.getByText("Email o contraseña incorrectos")).toBeVisible();
   await expect(page).toHaveURL(/\/sign-in/);

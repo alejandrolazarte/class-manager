@@ -14,6 +14,8 @@ export default function SettingsLayout() {
       <Stack.Screen name="edit-profile" options={{ title: translate("profile.edit.title") }} />
       <Stack.Screen name="change-email" options={{ title: translate("profile.email.title") }} />
       <Stack.Screen name="delete-account" options={{ title: translate("profile.delete.title") }} />
+      <Stack.Screen name="passkeys" options={{ title: translate("profile.passkeys.title") }} />
+      <Stack.Screen name="add-passkey" options={{ title: translate("profile.passkeys.add") }} />
       <Stack.Screen name="feedback" options={{ title: translate("appFeedback.title") }} />
       <Stack.Screen name="brand" options={{ title: translate("brand.settings.title") }} />
       <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />

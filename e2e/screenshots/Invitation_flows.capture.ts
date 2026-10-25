@@ -157,7 +157,7 @@ async function signInAsOwner(page: Page, business: FlowBusiness): Promise<void> 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(business.ownerEmail);
   await page.getByLabel("Contraseña", { exact: true }).fill(ownerPassword);
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await expect(page).toHaveURL(/\/today/);
 }
 
@@ -225,7 +225,7 @@ test("Invitation flows", async ({ page, request, browser }) => {
   await guardianPage.goto("/sign-in");
   await guardianPage.getByLabel("Email").fill(business.guardianEmail);
   await guardianPage.getByLabel("Contraseña", { exact: true }).fill(guardianPassword);
-  await guardianPage.getByRole("button", { name: "Ingresar" }).click();
+  await guardianPage.getByRole("button", { name: "Ingresar", exact: true }).click();
   await expect(guardianPage).toHaveURL(/\/student-app/);
   await guardianPage.getByText("Tomás quiere usar la app").waitFor();
   await capture(guardianPage, "07-responsable-autoriza-desde-la-app");

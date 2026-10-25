@@ -45,6 +45,7 @@ const iconGlyphs = {
   palette: "color-palette-outline",
   signOut: "log-out-outline",
   password: "key-outline",
+  passkey: "finger-print-outline",
   search: "search-outline",
   filter: "options-outline",
   call: "call-outline",

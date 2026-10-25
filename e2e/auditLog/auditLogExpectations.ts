@@ -12,6 +12,8 @@ export const auditLogExpectations: AuditLogExpectations = {
     "RequestSignUpCommand",
     "CompleteSignUpCommand",
     "SignInCommand",
+    "BeginPasskeySignInCommand",
+    "SignInWithPasskeyCommand",
     "RefreshSessionCommand",
   ],
   expectedSecurityEvents: ["SignInFailed"],
