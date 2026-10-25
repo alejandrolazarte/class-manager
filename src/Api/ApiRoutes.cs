@@ -137,6 +137,9 @@ public static class ApiRoutes
     public const string MyAppFeedback = "/api/me/app-feedback";
     public const string MyLanguage = "/api/me/account/language";
     public const string MyLegalTermsAcceptance = "/api/me/account/legal-terms-acceptance";
+    public const string MyPasskeys = "/api/me/passkeys";
+    public const string PasskeyRegistrationOptions = "/registration-options";
+    public const string PasskeyById = "/{passkeyId}";
     public const string SwitchBranch = "/branch";
     public const string OrganizationBranches = "/api/organization/branches";
     public const string OrganizationSubscription = "/api/organization/subscription";
@@ -152,4 +155,6 @@ public static class ApiRoutes
     public const string PasswordReset = "/password-reset";
     public const string PasswordResetRequest = "/password-reset-request";
     public const string ConfirmEmailChange = "/email-change/confirm";
+    public const string PasskeySignInOptions = "/passkey/sign-in-options";
+    public const string PasskeySignIn = "/passkey/sign-in";
 }

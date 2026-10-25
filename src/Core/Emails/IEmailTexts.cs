@@ -32,6 +32,8 @@ public interface IEmailTexts
 
     EmailText EmailChangedNotice(string newEmail);
 
+    EmailText PasskeyAddedNotice(string passkeyName);
+
     EmailText OrderPlaced(OrderEmailDetails order, string clientName, string? delivery, string teamOrdersLink);
 
     EmailText OrderPaid(OrderEmailDetails order, string nextStep, bool hasProducts, string studentAppOrdersLink);
