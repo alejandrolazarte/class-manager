@@ -34,6 +34,7 @@ public sealed class InviteMemberUseCase(
     : IUseCase<InviteMemberCommand, InvitationResponse>
 {
     private const string AlreadyMemberMessage = "This person is already part of the team.";
+    private const string InstructorHasAccountMessage = "This instructor already uses the app with another account.";
 
     public async Task<Result<InvitationResponse>> ExecuteAsync(InviteMemberCommand command, CancellationToken cancellationToken)
     {
@@ -85,9 +86,14 @@ public sealed class InviteMemberUseCase(
         {
             await peopleLock.LockAsync(cancellationToken);
             var instructor = await instructorRepository.GetForUpdateAsync(instructorId, cancellationToken);
+            if (instructor!.User.AccountId is { } instructorAccountId && instructorAccountId != existingAccountId)
+            {
+                return Result.Conflict<InvitationResponse>(InstructorHasAccountMessage, MemberErrorCodes.InstructorTaken);
+            }
+
             var samePerson = await SamePerson.FindAsync(
                 userRepository,
-                instructor!.User,
+                instructor.User,
                 invitation.Value.Email,
                 command.SamePersonUserId,
                 roles => !roles.IsInstructor && !roles.IsTeamMember,
