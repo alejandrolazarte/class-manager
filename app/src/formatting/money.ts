@@ -5,12 +5,20 @@ const thousandsSeparatorPattern = /\./g;
 const whitespacePattern = /\s/g;
 const decimalComma = ",";
 const decimalPoint = ".";
+const usDollarCode = "USD";
+const signDisplay = "narrowSymbol";
+const usDollarDisplay = "symbol";
+
+function currencyDisplayFor(currencyCode: string): Intl.NumberFormatOptions["currencyDisplay"] {
+  return currencyCode === usDollarCode ? usDollarDisplay : signDisplay;
+}
 
 export function formatMoney(amount: number, currencyCode: string): string {
   const isWhole = Number.isInteger(amount);
   return new Intl.NumberFormat(moneyLocale, {
     style: "currency",
     currency: currencyCode,
+    currencyDisplay: currencyDisplayFor(currencyCode),
     minimumFractionDigits: isWhole ? 0 : 2,
     maximumFractionDigits: isWhole ? 0 : 2,
   }).format(amount);
@@ -39,6 +47,7 @@ export function currencySymbol(currencyCode: string): string {
   const currencyPart = new Intl.NumberFormat(moneyLocale, {
     style: "currency",
     currency: currencyCode,
+    currencyDisplay: currencyDisplayFor(currencyCode),
   })
     .formatToParts(0)
     .find((part) => part.type === currencyPartType);
