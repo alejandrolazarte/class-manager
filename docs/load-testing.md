@@ -254,6 +254,8 @@ Endpoints that need a plan feature (`RequireFeature`, every student app endpoint
 
 Covered by an integration test that counts the queries to the `billing` schema in a student app request (`When_a_student_app_request_checks_the_plan`), and by the existing tests on plans, add-ons and limits.
 
+Afterwards the organization query went too: the access token carries the branch's organization as `organization_id` ([security](security.md)), so `OrganizationSubscriberResolver` takes it from the session and only reads `Businesses` for a token issued before the claim existed or a call without a request. Every feature-gated request now checks the plan with one query. Covered by `When_student_signs_in_to_the_app/Then_the_token_carries_their_brand` and `When_a_student_app_request_checks_the_plan/Then_the_brand_is_taken_from_the_session`.
+
 Queries per opening, family with one student:
 
 | Screen | Before | After |
@@ -273,7 +275,7 @@ Rough estimate, to be checked against Azure metrics: Microsoft equates 100 DTU t
 
 In order of expected gain:
 
-1. **Cache the plan's features for a short time.** Checking that the plan includes a feature costs two queries on every student app request and every staff request to a feature-gated endpoint (see [Plan check in fewer queries](#plan-check-in-fewer-queries)). Caching the result per brand for a minute would remove them, at the cost of a plan change taking up to that minute to apply; it needs that decision. The business's organization could also travel in the session token, which would remove the first query without a cache but changes the authentication claims.
+1. **Cache the plan's features for a short time.** Checking that the plan includes a feature costs one query on every student app request and every staff request to a feature-gated endpoint (see [Plan check in fewer queries](#plan-check-in-fewer-queries)). Caching the result per brand for a minute would remove it, at the cost of a plan change taking up to that minute to apply; it needs that decision.
 2. **Measure in Azure** with the pilot's real database: Query Performance Insight and `sys.dm_db_resource_stats` show DTU use per query; run k6 against a copy of the environment, never against production.
 3. **Move the database to Standard S0/S1 when a few businesses use it daily** (10–20 DTU, about USD 15–30 a month): two to four times the database power of Basic. See [Database on the Basic tier](database-basic-tier.md).
 4. **One query for the member's access**: `CurrentMember` runs two queries per request (branch member and brand owner); one query with both answers saves a round trip on every request. Caching it across requests would save more but delays a role change or a removal, so it needs a decision on how long that may take.

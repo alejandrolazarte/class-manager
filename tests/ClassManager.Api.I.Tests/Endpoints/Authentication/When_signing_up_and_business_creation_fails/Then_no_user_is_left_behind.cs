@@ -43,5 +43,8 @@ public sealed class Then_no_user_is_left_behind(ApiFixture fixture)
             businessRepository.GetCurrentForUpdateAsync(cancellationToken);
 
         public Task<bool> IsSlugTakenAsync(string slug, CancellationToken cancellationToken) => Task.FromResult(false);
+
+        public Task<long?> FindOrganizationIdAsync(long businessId, CancellationToken cancellationToken) =>
+            businessRepository.FindOrganizationIdAsync(businessId, cancellationToken);
     }
 }
