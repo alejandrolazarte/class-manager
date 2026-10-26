@@ -4,6 +4,8 @@ Date: 2026-10-26
 
 How `laztty.com` receives and sends email: Cloudflare Email Routing forwards incoming mail to personal inboxes, and Resend sends mail, both what the API sends and replies written from Gmail. Replaces the pilot's Gmail account as the API's sender ([pilot deployment](pilot-deployment.md#email)).
 
+The accounts that own each service, the inbox each address forwards to and where the keys are kept stay in the owner's private notes, not in this repository.
+
 ## Decision
 
 | Piece | Choice | Why |
