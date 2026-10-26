@@ -23,25 +23,25 @@ internal sealed class FeatureAccess(
             return EffectiveFeatures.Inactive(string.Empty);
         }
 
-        var subscription = await context.Subscriptions
+        var planFeatures = context.PlanFeatures.AsNoTracking();
+        var subscriptionFeatures = context.SubscriptionFeatures.AsNoTracking().WhereNotDeleted();
+        var current = await context.Subscriptions
             .AsNoTracking()
             .WhereNotDeleted()
-            .FirstOrDefaultAsync(candidate => candidate.SubscriberId == subscriberId, cancellationToken);
-        if (subscription is null || !subscription.IsActiveOn(today))
+            .Where(candidate => candidate.SubscriberId == subscriberId)
+            .Select(subscription => new
+            {
+                Subscription = subscription,
+                PlanFeatures = planFeatures.Where(planFeature => planFeature.PlanCode == subscription.PlanCode).ToList(),
+                SubscriptionFeatures = subscriptionFeatures.Where(subscriptionFeature => subscriptionFeature.SubscriptionId == subscription.Id).ToList(),
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (current is null || !current.Subscription.IsActiveOn(today))
         {
-            return EffectiveFeatures.Inactive(subscription?.PlanCode ?? string.Empty, subscription?.ExpiredOn);
+            return EffectiveFeatures.Inactive(current?.Subscription.PlanCode ?? string.Empty, current?.Subscription.ExpiredOn);
         }
 
-        var planFeatures = await context.PlanFeatures
-            .AsNoTracking()
-            .Where(planFeature => planFeature.PlanCode == subscription.PlanCode)
-            .ToListAsync(cancellationToken);
-        var subscriptionFeatures = await context.SubscriptionFeatures
-            .AsNoTracking()
-            .WhereNotDeleted()
-            .Where(subscriptionFeature => subscriptionFeature.SubscriptionId == subscription.Id)
-            .ToListAsync(cancellationToken);
-
-        return EffectiveFeatures.Combine(subscription.PlanCode, planFeatures, subscriptionFeatures, today, subscription.ExpiredOn);
+        return EffectiveFeatures.Combine(
+            current.Subscription.PlanCode, current.PlanFeatures, current.SubscriptionFeatures, today, current.Subscription.ExpiredOn);
     }
 }
