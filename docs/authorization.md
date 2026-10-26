@@ -4,7 +4,7 @@ How the API decides what a signed-in user may do. The full design is in the [rol
 
 ## Model
 
-- An **organization** is the brand. It groups **businesses** (branches). The tenant is still the business: `tenant_id` in the access token, `TenantId` on every tenant-owned row ([tenancy](tenancy.md)).
+- An **organization** is the brand. It groups **businesses** (branches). The tenant is still the business: `tenant_id` in the access token, `TenantId` on every tenant-owned row ([tenancy](tenancy.md)). The token also carries the branch's organization as `organization_id`, which the plan check uses to find the brand's subscription ([security](security.md)).
 - `OrganizationMembers` holds brand-level roles. Today: `BrandOwner`.
 - `BusinessMembers` holds the role inside one business (`BranchOwner`, `Instructor`, `Viewer`, or `Custom` with a `CustomRoleId`) and, for roles that only see their own classes, the linked `InstructorId`.
 - The `Instructor` role is shown as "Profe" in the app, the same word as the instructors themselves. It was called `Coach` until the `RenameCoachRoleToInstructor` migration, which rewrote the stored `Role` of `BusinessMembers` and `MemberInvitations`.

@@ -116,4 +116,6 @@ internal sealed class FixedCurrentUser(Guid accountId, long userId) : ICurrentUs
     public Guid? AccountId { get; } = accountId;
 
     public long? UserId { get; } = userId;
+
+    public long? OrganizationId => null;
 }
