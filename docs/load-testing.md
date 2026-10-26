@@ -248,6 +248,23 @@ The 29 queries left on the home screen each run once and take about 1 ms; togeth
 
 The staff scenario on the same year of data, 300 users: median 13 ms, p95 42 ms. A year of history doesn't slow the staff app down.
 
+### Plan check in fewer queries
+
+Endpoints that need a plan feature (`RequireFeature`, every student app endpoint among them) ran four queries one after another: the business's organization (`OrganizationSubscriberResolver`, in the app), then, in `FeatureAccess` (`src/Subscriptions.AspNetCore`), the brand's current subscription, its plan's features and its add-ons. The last three now run as one query: the subscription with its plan's features and its add-ons joined to it. `EffectiveFeatures.Combine` decides what the plan allows exactly as before; the query brings one row per plan feature and add-on pair, a few dozen rows at most, and when the subscription is no longer active it also brings the plan's features, which are not used. The organization query stays apart: the subscriptions library does not know the app's `Businesses` table (ARCH007) and asks through `ISubscriberResolver`.
+
+Covered by an integration test that counts the queries to the `billing` schema in a student app request (`When_a_student_app_request_checks_the_plan`), and by the existing tests on plans, add-ons and limits.
+
+Queries per opening, family with one student:
+
+| Screen | Before | After |
+|---|---:|---:|
+| Home | 29 | 27 |
+| News | 16 | 14 |
+| Makeups | 20 | 18 |
+| Pack classes | 26 | 24 |
+| Shop | 12 | 10 |
+| Measurements | 9 | 7 |
+
 ## What this means for production
 
 Rough estimate, to be checked against Azure metrics: Microsoft equates 100 DTU to about 1 vCore, so the Basic database (5 DTU) has about 50 ms of CPU per second. At 3.4–3.7 ms of SQL CPU per request it saturated at about 14 requests per second (about 30 users working at once with this scenario's pace); at 1.7–2.1 ms it reaches about 25 (about 55 users). The API at 0.25 vCPU handles roughly 45 requests per second with this mix, but only about 2–3 sign-ins per second. So with one Basic database the database is the first limit, then sign-in bursts on the API.
@@ -256,7 +273,7 @@ Rough estimate, to be checked against Azure metrics: Microsoft equates 100 DTU t
 
 In order of expected gain:
 
-1. **Cache the plan's features for a short time.** Checking that the plan includes a feature costs four queries on every student app request and every staff request to a feature-gated endpoint. Caching the result per brand for a minute would remove them, at the cost of a plan change taking up to that minute to apply. It needs that decision. Merging the four into one query keeps the behavior and saves three round trips.
+1. **Cache the plan's features for a short time.** Checking that the plan includes a feature costs two queries on every student app request and every staff request to a feature-gated endpoint (see [Plan check in fewer queries](#plan-check-in-fewer-queries)). Caching the result per brand for a minute would remove them, at the cost of a plan change taking up to that minute to apply; it needs that decision. The business's organization could also travel in the session token, which would remove the first query without a cache but changes the authentication claims.
 2. **Measure in Azure** with the pilot's real database: Query Performance Insight and `sys.dm_db_resource_stats` show DTU use per query; run k6 against a copy of the environment, never against production.
 3. **Move the database to Standard S0/S1 when a few businesses use it daily** (10–20 DTU, about USD 15–30 a month): two to four times the database power of Basic. See [Database on the Basic tier](database-basic-tier.md).
 4. **One query for the member's access**: `CurrentMember` runs two queries per request (branch member and brand owner); one query with both answers saves a round trip on every request. Caching it across requests would save more but delays a role change or a removal, so it needs a decision on how long that may take.
