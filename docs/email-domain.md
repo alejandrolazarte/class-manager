@@ -100,6 +100,8 @@ Rolling back is running the [Gmail commands](pilot-deployment.md#email) again, p
 
 Check it: a new email with `soporte@laztty.com` picked in **From** arrives at another account without "via gmail.com" next to the sender.
 
+Resend refuses an email without a subject (`550 Missing subject field`), and Gmail reports it as "The settings for your 'Send mail as' account are misconfigured". The settings are fine: write a subject and send it again.
+
 ## Audit commands
 
 ```powershell
