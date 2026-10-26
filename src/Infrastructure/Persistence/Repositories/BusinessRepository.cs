@@ -12,4 +12,11 @@ internal sealed class BusinessRepository(AppDbContext context, ITenantContext te
 
     public Task<bool> IsSlugTakenAsync(string slug, CancellationToken cancellationToken) =>
         context.Businesses.AnyAsync(business => business.Slug == slug, cancellationToken);
+
+    public Task<long?> FindOrganizationIdAsync(long businessId, CancellationToken cancellationToken) =>
+        context.Businesses
+            .AsNoTracking()
+            .Where(business => business.Id == businessId)
+            .Select(business => (long?)business.OrganizationId)
+            .FirstOrDefaultAsync(cancellationToken);
 }

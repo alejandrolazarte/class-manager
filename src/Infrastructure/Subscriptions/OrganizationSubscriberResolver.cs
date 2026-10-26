@@ -1,17 +1,13 @@
-using ClassManager.Infrastructure.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Subscriptions.Access;
 
 namespace ClassManager.Infrastructure.Subscriptions;
 
-internal sealed class OrganizationSubscriberResolver(AppDbContext context, ITenantContext tenantContext) : ISubscriberResolver
+internal sealed class OrganizationSubscriberResolver(
+    IBusinessRepository businessRepository,
+    ICurrentUser currentUser,
+    ITenantContext tenantContext) : ISubscriberResolver
 {
-    public async Task<long?> ResolveCurrentSubscriberIdAsync(CancellationToken cancellationToken)
-    {
-        var businessId = tenantContext.TenantId;
-        return await context.Businesses
-            .AsNoTracking()
-            .Where(business => business.Id == businessId)
-            .Select(business => (long?)business.OrganizationId)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
+    public async Task<long?> ResolveCurrentSubscriberIdAsync(CancellationToken cancellationToken) =>
+        currentUser.OrganizationId ?? await businessRepository.FindOrganizationIdAsync(tenantContext.TenantId, cancellationToken);
 }
