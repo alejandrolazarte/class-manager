@@ -32,6 +32,7 @@ Every record is **DNS only**; `MX` and `TXT` records can't be proxied anyway ([w
 |---|---|---|---|
 | `MX` | `@` | `route1.mx.cloudflare.net`, `route2.mx.cloudflare.net`, `route3.mx.cloudflare.net` (priorities set by Cloudflare) | Email Routing |
 | `TXT` | `@` | `v=spf1 include:_spf.mx.cloudflare.net ~all` | Email Routing |
+| `TXT` | `cf2024-1._domainkey` | `v=DKIM1; h=sha256; k=rsa; p=<public key shown by Cloudflare>` | Email Routing |
 | `MX` | `send` | `feedback-smtp.eu-west-1.amazonses.com`, priority `10` | Resend |
 | `TXT` | `send` | `v=spf1 include:amazonses.com ~all` | Resend |
 | `TXT` | `resend._domainkey` | `p=<public key shown by Resend>` | Resend |
@@ -50,7 +51,7 @@ Run once, in this order: receiving first, because Gmail and Resend send verifica
 1. In Cloudflare, open `laztty.com` → **Email → Email Routing → Get started**.
 2. **Destination addresses → Add**: the owner's personal address. Cloudflare sends a confirmation link; open it.
 3. **Routing rules → Create address**: `hola` → that destination. Repeat for `no-reply`.
-4. **Enable Email Routing**. Cloudflare offers to add the `MX` and SPF `TXT` records above; accept. It refuses if the apex already has `MX` records from another host.
+4. **Enable Email Routing**. Cloudflare offers to add the `MX`, DKIM and SPF `TXT` records above (**Verify DNS records → Activate**); accept. It refuses if the apex already has `MX` records from another host.
 
 Check it: an email sent from another account to `hola@laztty.com` arrives in the personal inbox.
 
@@ -99,6 +100,7 @@ Check it: a new email with `hola@laztty.com` picked in **From** arrives at anoth
 ```powershell
 Resolve-DnsName laztty.com -Type MX
 Resolve-DnsName laztty.com -Type TXT
+Resolve-DnsName cf2024-1._domainkey.laztty.com -Type TXT
 Resolve-DnsName send.laztty.com -Type MX
 Resolve-DnsName send.laztty.com -Type TXT
 Resolve-DnsName resend._domainkey.laztty.com -Type TXT
@@ -106,4 +108,4 @@ Resolve-DnsName _dmarc.laztty.com -Type TXT
 az containerapp show --name $containerApp --resource-group $resourceGroup --query "properties.template.containers[0].env[?starts_with(name, 'Email__')]" --output table
 ```
 
-Expected: the apex `MX` points only to `route*.mx.cloudflare.net`, the apex has a single SPF record, `send` points to Amazon SES, the DKIM and DMARC records exist, and the API's `Email__Smtp__Host` is `smtp.resend.com` with `Email__Smtp__FromAddress` set to `no-reply@laztty.com`. In Cloudflare, **Email Routing → Overview** shows **Enabled** and both addresses; in Resend, the domain shows **Verified**.
+Expected: the apex `MX` points only to `route*.mx.cloudflare.net`, the apex has a single SPF record, `send` points to Amazon SES, both DKIM records and the DMARC record exist, and the API's `Email__Smtp__Host` is `smtp.resend.com` with `Email__Smtp__FromAddress` set to `no-reply@laztty.com`. In Cloudflare, **Email Routing → Overview** shows **Enabled** and both addresses; in Resend, the domain shows **Verified**.
