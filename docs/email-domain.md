@@ -36,12 +36,12 @@ Every record is **DNS only**; `MX` and `TXT` records can't be proxied anyway ([w
 | `MX` | `@` | `route1.mx.cloudflare.net`, `route2.mx.cloudflare.net`, `route3.mx.cloudflare.net` (priorities set by Cloudflare) | Email Routing |
 | `TXT` | `@` | `v=spf1 include:_spf.mx.cloudflare.net ~all` | Email Routing |
 | `TXT` | `cf2024-1._domainkey` | `v=DKIM1; h=sha256; k=rsa; p=<public key shown by Cloudflare>` | Email Routing |
-| `MX` | `send` | `feedback-smtp.eu-west-1.amazonses.com`, priority `10` | Resend |
-| `TXT` | `send` | `v=spf1 include:amazonses.com ~all` | Resend |
+| `CNAME` | `send` | `send.forge.rmta.net` (as shown by Resend) | Resend |
+| `CNAME` | `rsend` | `rsend-euw1.forge.rmta.net` (as shown by Resend) | Resend |
 | `TXT` | `resend._domainkey` | `p=<public key shown by Resend>` | Resend |
 | `TXT` | `_dmarc` | `v=DMARC1; p=none; rua=mailto:administracion@laztty.com` | By hand |
 
-The two SPF records don't clash: Cloudflare's is on the apex and Resend's on `send`, the bounce domain Resend uses. There is only one SPF record per name; if another service later needs the apex, add its `include:` to the existing record instead of creating a second one.
+Resend's records are `CNAME`s on subdomains (`send` is the bounce domain that carries its SPF), so they don't clash with Email Routing's apex records. A `CNAME` is the one record type Cloudflare can proxy: these must stay **DNS only** or verification fails. There is only one SPF record per name; if another service later needs the apex, add its `include:` to the existing record instead of creating a second one.
 
 DMARC starts at `p=none`, which only reports. After a few weeks of reports showing every legitimate email passing (Resend and Gmail through Resend), raise it to `p=quarantine`.
 
@@ -62,9 +62,10 @@ Check it: an email sent from another account to `soporte@laztty.com` arrives in 
 
 1. Create an account at <https://resend.com> with the owner's address.
 2. **Domains → Add domain**: `laztty.com`, region **Ireland (eu-west-1)**, the same region as the rest of the pilot's data (Azure France Central, Sentry EU).
-3. Create the `MX`, SPF and DKIM records Resend shows in Cloudflare (**DNS → Records → Add record**), DNS only. Resend can also add them itself through Cloudflare's sign-in; either works. Add the `_dmarc` record by hand.
-4. **Verify DNS records**. It takes minutes, up to a few hours.
-5. **API Keys → Create API key**, twice, both with **Sending access** limited to `laztty.com`:
+3. Leave **Enable Receiving** off: it would need the apex `MX` records, which belong to Email Routing. Keep **Enable Sending** on.
+4. **Auto configure** signs in to Cloudflare and creates the DKIM and `CNAME` records; **Manual setup** lists them to add under **DNS → Records → Add record**. Either way, check afterwards that both `CNAME`s are **DNS only** (grey cloud). Add the `_dmarc` record with the `rua` above instead of Resend's suggested one.
+5. **Verify DNS records**. It takes minutes, up to a few hours.
+6. **API Keys → Create API key**, twice, both with **Sending access** limited to `laztty.com`:
    - `class-manager-api`, for the API.
    - `gmail-send-as`, for Gmail.
 
@@ -105,11 +106,11 @@ Check it: a new email with `soporte@laztty.com` picked in **From** arrives at an
 Resolve-DnsName laztty.com -Type MX
 Resolve-DnsName laztty.com -Type TXT
 Resolve-DnsName cf2024-1._domainkey.laztty.com -Type TXT
-Resolve-DnsName send.laztty.com -Type MX
-Resolve-DnsName send.laztty.com -Type TXT
+Resolve-DnsName send.laztty.com -Type CNAME
+Resolve-DnsName rsend.laztty.com -Type CNAME
 Resolve-DnsName resend._domainkey.laztty.com -Type TXT
 Resolve-DnsName _dmarc.laztty.com -Type TXT
 az containerapp show --name $containerApp --resource-group $resourceGroup --query "properties.template.containers[0].env[?starts_with(name, 'Email__')]" --output table
 ```
 
-Expected: the apex `MX` points only to `route*.mx.cloudflare.net`, the apex has a single SPF record, `send` points to Amazon SES, both DKIM records and the DMARC record exist, and the API's `Email__Smtp__Host` is `smtp.resend.com` with `Email__Smtp__FromAddress` set to `no-reply@laztty.com`. In Cloudflare, **Email Routing → Overview** shows **Enabled** and both addresses; in Resend, the domain shows **Verified**.
+Expected: the apex `MX` points only to `route*.mx.cloudflare.net`, the apex has a single SPF record, `send` and `rsend` are `CNAME`s to `forge.rmta.net` hosts (not Cloudflare addresses), both DKIM records and the DMARC record exist, and the API's `Email__Smtp__Host` is `smtp.resend.com` with `Email__Smtp__FromAddress` set to `no-reply@laztty.com`. In Cloudflare, **Email Routing → Overview** shows **Enabled** and the three addresses; in Resend, the domain shows **Verified**.
