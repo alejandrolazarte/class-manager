@@ -36,6 +36,8 @@ Check the status of the blocking before turning the proxy on for anything.
 | `CNAME` | `admin-api` | The backoffice container app's **Application Url** host | DNS only |
 | `TXT` | `asuid.admin-api` | The backoffice container app's **Custom domain verification ID** | DNS only |
 
+Email records (`MX`, SPF, DKIM, DMARC) are in [Email on the domain](email-domain.md#records).
+
 ## Setup
 
 Run once. `$resourceGroup` and `$containerApp` are the names from the [pilot deployment](pilot-deployment.md#1-names-and-sign-in).
