@@ -213,12 +213,12 @@ The staff app screens make about 8. The home screen is also the one families ope
 
 What the home screen ran more than once per opening:
 
-- **The business, twice in full**: once for the screen and once more through `BusinessCalendarService.TodayAsync`, which loads it to know the business's date. Every endpoint that asks for today's date or the current business paid for it.
+- **The business, twice in full**: once for the screen and once more through `BusinessCalendarService.TodayAsync`, which loads it to know the business's date.
 - **Per student, that student's enrollments, then each class by id** (`ClassGroupRepository.GetByIdAsync`, which also loads the class's material files), and each class again for every makeup and pack booking. The news screen did the same and read the enrollments twice.
 
 Changes:
 
-1. **`BusinessRepository.GetCurrentAsync` reads the business once per request** and returns the same row afterwards. It reads it again every time once the request has loaded the business for update (`GetCurrentForUpdateAsync`) or added one, so a change is never answered with the old values. This applies to the whole API.
+1. **The home screen takes today's date from the business it already loaded** (`Business.TodayAt`) instead of asking `BusinessCalendarService`, which loaded it again. Other endpoints that read the business and also ask for the date still read it twice; caching it per request inside the repository was tried and left out, because a repository should not keep state between calls.
 2. **The home and news screens read the family's enrollments in one query** (`IEnrollmentRepository.ListCurrentByStudentsAsync`) **and every class they need in another** (`IClassGroupRepository.ListByIdsAsync`), whatever the number of students, classes and bookings. Marking news as seen and replying to an announcement use the same single query for the family's classes.
 
 Covered by integration tests that count the SQL commands of a request (`SqlCommandCounter`, from EF Core's command log): a family with two students in two classes makes as many queries as a family with one student in one class, and neither the home nor the news screen runs the same query twice.
@@ -229,9 +229,9 @@ Queries per opening, counted from EF Core's command log:
 |---|---:|---:|---:|---:|
 | Home | 30 | 29 | 32 | 29 |
 | News | 16 | 16 | 18 | 16 |
-| Makeups | 20 | 19 | 20 | 19 |
-| Pack classes | 26 | 24 | 26 | 24 |
-| Shop | 12 | 11 | 13 | 12 |
+| Makeups | 20 | 20 | 20 | 20 |
+| Pack classes | 26 | 26 | 26 | 26 |
+| Shop | 12 | 12 | 13 | 13 |
 
 Load test, same data:
 
@@ -241,6 +241,8 @@ Load test, same data:
 | 300, after | 27 ms | 65 ms | 2.1 ms | 18.6 |
 | 700, before | 219 ms | 2.16 s | 3.1 ms | 19.9 |
 | 700, after | 130 ms | 1.23 s | 2.4 ms | 18.5 |
+
+These "after" runs were measured with a first version that also cached the business per request in `BusinessRepository` for every endpoint. After replacing it with the change above, both versions were measured again on the same machine, which by then ran about twice as slow as before because the container had been restarted: 300 families, median 56 ms and p95 140 ms with the cache, 49 ms and 128 ms without it, 18.3 and 18.8 queries per request. The difference is within the noise of the measurement.
 
 The 29 queries left on the home screen each run once and take about 1 ms; together they are what the screen shows (students, next classes, streaks, makeups, feedback, fees). The largest fixed group is the check that the business's plan includes the student app (`RequireFeature`): four queries on every student app request (the business's organization, its subscription, the plan's features and the subscription's add-ons). See [Next steps](#next-steps).
 
@@ -258,7 +260,7 @@ In order of expected gain:
 2. **Measure in Azure** with the pilot's real database: Query Performance Insight and `sys.dm_db_resource_stats` show DTU use per query; run k6 against a copy of the environment, never against production.
 3. **Move the database to Standard S0/S1 when a few businesses use it daily** (10–20 DTU, about USD 15–30 a month): two to four times the database power of Basic. See [Database on the Basic tier](database-basic-tier.md).
 4. **One query for the member's access**: `CurrentMember` runs two queries per request (branch member and brand owner); one query with both answers saves a round trip on every request. Caching it across requests would save more but delays a role change or a removal, so it needs a decision on how long that may take.
-5. **Cache business settings per request or for a short time** (time zone, currency): read on most requests and rarely changed.
+5. **Read the business once per request** (time zone, currency): most endpoints read it, and those that also ask `BusinessCalendarService` or `BusinessCurrencyService` read it twice. Passing the loaded business to the date and currency calculations, as the student app home screen now does, removes the second read without keeping state in a repository.
 6. **Fees and student search read users one by one**: `GET /api/fees` joins enrollments, students, clients and users and SQL Server seeks `Users` by id about 2,000 times for the large business (3,900 logical reads). Selecting the client and student names with fewer joins, or projecting them from a single `Users` read, would cut it; worth it when businesses pass a few hundred families.
 7. **Sign-in bursts**: if many people sign in at the same time (a new business importing students and inviting them), the API needs more than 0.25 vCPU or a second replica; the password hash cost should not be lowered.
 8. **No use case handles `ConcurrencyConflictException`**: any other delete or update of a row that another request deleted at the same moment still answers 500. The load test only reached it for absence warnings; deciding per use case whether that means "already done" or 409 would close the rest.

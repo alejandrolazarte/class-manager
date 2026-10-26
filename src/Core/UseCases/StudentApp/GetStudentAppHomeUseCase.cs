@@ -3,7 +3,6 @@ using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
-using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Achievements;
 using ClassManager.Core.Domain.ClassGroups;
@@ -35,7 +34,6 @@ public sealed class GetStudentAppHomeUseCase(
     IFeeScheduleRepository feeScheduleRepository,
     IPaymentRepository paymentRepository,
     IClassBalanceService classBalanceService,
-    IBusinessCalendarService businessCalendar,
     IDocumentStorageService documentStorage,
     IIdentityService identityService,
     IClientAccountRepository clientAccountRepository,
@@ -59,7 +57,7 @@ public sealed class GetStudentAppHomeUseCase(
             return Result.Unauthorized<StudentAppHomeResponse>(NoAccessMessage, NoAccessCode);
         }
 
-        var today = await businessCalendar.TodayAsync(cancellationToken);
+        var today = business.TodayAt(timeProvider.GetUtcNow());
         var lastDate = today.AddDays(LookAheadDays);
         var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
