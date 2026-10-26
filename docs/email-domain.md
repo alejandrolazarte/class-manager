@@ -17,8 +17,11 @@ How `laztty.com` receives and sends email: Cloudflare Email Routing forwards inc
 
 | Address | Use | Forwards to |
 |---|---|---|
-| `hola@laztty.com` | Contact for people (businesses, students) | The owner's inbox |
+| `soporte@laztty.com` | Help for businesses and students using the app; the address shown in the app, the web and emails | The owner's inbox |
+| `administracion@laztty.com` | Billing, plan payments, providers, legal matters; receives the DMARC reports | The owner's inbox |
 | `no-reply@laztty.com` | `From` of every email the API sends | The owner's inbox, so replies and bounces sent by people anyway are not lost |
+
+Addresses name a role, never a person: when someone joins, the rule changes its destination and customers keep writing to the same address. Addresses have no accents (`administracion`, not `administración`).
 
 ### Limits
 
@@ -36,7 +39,7 @@ Every record is **DNS only**; `MX` and `TXT` records can't be proxied anyway ([w
 | `MX` | `send` | `feedback-smtp.eu-west-1.amazonses.com`, priority `10` | Resend |
 | `TXT` | `send` | `v=spf1 include:amazonses.com ~all` | Resend |
 | `TXT` | `resend._domainkey` | `p=<public key shown by Resend>` | Resend |
-| `TXT` | `_dmarc` | `v=DMARC1; p=none; rua=mailto:hola@laztty.com` | By hand |
+| `TXT` | `_dmarc` | `v=DMARC1; p=none; rua=mailto:administracion@laztty.com` | By hand |
 
 The two SPF records don't clash: Cloudflare's is on the apex and Resend's on `send`, the bounce domain Resend uses. There is only one SPF record per name; if another service later needs the apex, add its `include:` to the existing record instead of creating a second one.
 
@@ -50,10 +53,10 @@ Run once, in this order: receiving first, because Gmail and Resend send verifica
 
 1. In Cloudflare, open `laztty.com` → **Email → Email Routing → Get started**.
 2. **Destination addresses → Add**: the owner's personal address. Cloudflare sends a confirmation link; open it.
-3. **Routing rules → Create address**: `hola` → that destination. Repeat for `no-reply`.
+3. **Routing rules → Create routing rule**: **Email pattern** `soporte`, **Action** *Send to an email*, **Destination** that address. Repeat for `administracion` and `no-reply`. Leave **Catch-all** off: mail to any other address bounces instead of bringing spam.
 4. **Enable Email Routing**. Cloudflare offers to add the `MX`, DKIM and SPF `TXT` records above (**Verify DNS records → Activate**); accept. It refuses if the apex already has `MX` records from another host.
 
-Check it: an email sent from another account to `hola@laztty.com` arrives in the personal inbox.
+Check it: an email sent from another account to `soporte@laztty.com` arrives in the personal inbox.
 
 ### 2. Resend (sending)
 
@@ -85,15 +88,16 @@ Check it: **¿Olvidaste tu contraseña?** on the web app sends an email from `no
 
 Rolling back is running the [Gmail commands](pilot-deployment.md#email) again, plus `--remove-env-vars Email__Smtp__FromAddress`.
 
-### 4. Replying from Gmail as `hola@laztty.com`
+### 4. Replying from Gmail as `soporte@` and `administracion@`
 
 1. In the Gmail account that receives the forwarded mail: **Settings → See all settings → Accounts and Import → Send mail as → Add another email address**.
-2. Name `Laztty`, address `hola@laztty.com`, untick **Treat as an alias**, **Next step**.
+2. Name `Laztty`, address `soporte@laztty.com`, untick **Treat as an alias**, **Next step**.
 3. SMTP server `smtp.resend.com`, port `587`, user name `resend`, password the `gmail-send-as` key, **Secured connection using TLS**.
-4. Gmail sends a code to `hola@laztty.com`; Email Routing forwards it to the same inbox. Enter it.
-5. Optional: under **When replying to a message**, choose **Reply from the same address the message was sent to**.
+4. Gmail sends a code to `soporte@laztty.com`; Email Routing forwards it to the same inbox. Enter it.
+5. Repeat steps 1–4 for `administracion@laztty.com`, with the same SMTP settings and key.
+6. Optional: under **When replying to a message**, choose **Reply from the same address the message was sent to**.
 
-Check it: a new email with `hola@laztty.com` picked in **From** arrives at another account without "via gmail.com" next to the sender.
+Check it: a new email with `soporte@laztty.com` picked in **From** arrives at another account without "via gmail.com" next to the sender.
 
 ## Audit commands
 
