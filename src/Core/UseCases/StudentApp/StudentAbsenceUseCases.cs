@@ -163,7 +163,15 @@ public sealed class WithdrawAbsenceUseCase(
         }
 
         makeupRepositories.Notices.Remove(notice);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (ConcurrencyConflictException)
+        {
+            return true;
+        }
+
         return true;
     }
 

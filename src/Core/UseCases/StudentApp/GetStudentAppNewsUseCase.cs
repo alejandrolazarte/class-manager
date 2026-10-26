@@ -5,6 +5,7 @@ using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.Enrollments;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
@@ -80,15 +81,11 @@ public sealed class GetStudentAppNewsUseCase(
                 orderId,
                 classStartTime);
 
-        var enrolledClassGroupIds = await StudentAnnouncements.EnrolledClassGroupIdsAsync(enrollmentRepository, studentIds, today, cancellationToken);
-        var enrolledClassGroupNames = new Dictionary<long, string>();
-        foreach (var classGroupId in enrolledClassGroupIds)
-        {
-            if (await classGroupRepository.GetByIdAsync(classGroupId, cancellationToken) is { } classGroup)
-            {
-                enrolledClassGroupNames[classGroupId] = classGroup.Name;
-            }
-        }
+        var currentEnrollments = await enrollmentRepository.ListCurrentByStudentsAsync(studentIds, today, cancellationToken);
+        var enrolledClassGroupIds = StudentAnnouncements.EnrolledClassGroupIds(currentEnrollments);
+        var enrolledClassGroups = (await classGroupRepository.ListByIdsAsync(enrolledClassGroupIds, cancellationToken))
+            .ToDictionary(classGroup => classGroup.Id);
+        var enrolledClassGroupNames = enrolledClassGroups.ToDictionary(entry => entry.Key, entry => entry.Value.Name);
 
         var announcements = await StudentAnnouncements.VisibleAsync(announcementRepository, enrolledClassGroupIds, today, now, cancellationToken);
         var isGoingByAnnouncement = (await announcementRepository.ListRepliesAsync(
@@ -131,6 +128,8 @@ public sealed class GetStudentAppNewsUseCase(
 
         items.AddRange(await UpcomingClassChangesAsync(
             students,
+            currentEnrollments.ToLookup(enrollment => enrollment.StudentId),
+            enrolledClassGroups,
             today,
             (session, classGroup, studentFullNames) => session.IsCancelled
                 ? Item(
@@ -158,6 +157,8 @@ public sealed class GetStudentAppNewsUseCase(
 
     private async Task<IReadOnlyList<StudentAppNewsItemResponse>> UpcomingClassChangesAsync(
         IReadOnlyList<Domain.Students.Student> students,
+        ILookup<long, Enrollment> currentEnrollments,
+        IReadOnlyDictionary<long, ClassGroup> enrolledClassGroups,
         DateOnly today,
         Func<Domain.Sessions.ClassSession, ClassGroup, IReadOnlyList<string>, StudentAppNewsItemResponse> item,
         CancellationToken cancellationToken)
@@ -174,9 +175,9 @@ public sealed class GetStudentAppNewsUseCase(
         var classGroups = new Dictionary<long, ClassGroup>();
         foreach (var student in students)
         {
-            foreach (var enrollment in await enrollmentRepository.ListCurrentByStudentAsync(student.Id, today, cancellationToken))
+            foreach (var enrollment in currentEnrollments[student.Id])
             {
-                var classGroup = await classGroupRepository.GetByIdAsync(enrollment.ClassGroupId, cancellationToken);
+                var classGroup = enrolledClassGroups.GetValueOrDefault(enrollment.ClassGroupId);
                 if (classGroup is null)
                 {
                     continue;

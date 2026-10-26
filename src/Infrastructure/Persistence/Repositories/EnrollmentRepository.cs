@@ -93,6 +93,14 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
     public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(long studentId, DateOnly today, CancellationToken cancellationToken) =>
         await Current(today).Where(enrollment => enrollment.StudentId == studentId).ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentsAsync(
+        IReadOnlyCollection<long> studentIds,
+        DateOnly today,
+        CancellationToken cancellationToken) =>
+        studentIds.Count == 0
+            ? []
+            : await Current(today).Where(enrollment => studentIds.Contains(enrollment.StudentId)).ToListAsync(cancellationToken);
+
     private IQueryable<Enrollment> ActiveOn(DateOnly sessionDate) =>
         context.Enrollments.AsNoTracking().Where(enrollment =>
             enrollment.StartDate <= sessionDate && (enrollment.EndDate == null || enrollment.EndDate >= sessionDate));

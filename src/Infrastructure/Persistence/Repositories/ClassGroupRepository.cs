@@ -16,6 +16,11 @@ internal sealed class ClassGroupRepository(AppDbContext context) : IClassGroupRe
     public async Task<IReadOnlyList<ClassGroup>> ListActiveAsync(CancellationToken cancellationToken) =>
         await context.ClassGroups.AsNoTracking().Where(classGroup => classGroup.IsActive).ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<ClassGroup>> ListByIdsAsync(IReadOnlyCollection<long> classGroupIds, CancellationToken cancellationToken) =>
+        classGroupIds.Count == 0
+            ? []
+            : await context.ClassGroups.AsNoTracking().Where(classGroup => classGroupIds.Contains(classGroup.Id)).ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<ClassGroup>> ListActiveByInstructorAsync(long instructorId, CancellationToken cancellationToken) =>
         await context.ClassGroups.AsNoTracking()
             .Where(classGroup => classGroup.IsActive && classGroup.InstructorId == instructorId)

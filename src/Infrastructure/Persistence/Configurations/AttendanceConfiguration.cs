@@ -17,5 +17,7 @@ internal sealed class AttendanceConfiguration : IEntityTypeConfiguration<Attenda
         builder.HasIndex(attendance => new { attendance.TenantId, attendance.ClassSessionId, attendance.StudentId })
             .IsUnique()
             .IncludeProperties(attendance => attendance.Status);
+        builder.HasIndex(attendance => new { attendance.TenantId, attendance.StudentId })
+            .IncludeProperties(attendance => new { attendance.ClassSessionId, attendance.Status });
     }
 }

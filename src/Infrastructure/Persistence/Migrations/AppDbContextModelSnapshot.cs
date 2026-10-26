@@ -2989,6 +2989,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UpdatedByUserId");
 
+                    b.HasIndex("TenantId", "StudentId");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TenantId", "StudentId"), new[] { "ClassSessionId", "Status" });
+
                     b.HasIndex("TenantId", "ClassSessionId", "StudentId")
                         .IsUnique();
 

@@ -39,6 +39,15 @@ export function largeBusinessOfThisUser() {
   return businesses[largeBusinessIndexes[(__VU - 1) % largeBusinessIndexes.length]];
 }
 
+export function studentAccountOfThisUser() {
+  const business = businesses[(__VU - 1) % businessClientCounts.length];
+  const account =
+    business.studentAccounts[
+      Math.floor((__VU - 1) / businessClientCounts.length) % business.studentAccounts.length
+    ];
+  return { business, account };
+}
+
 export function anyRegularBusinessCredentials() {
   const business = businesses[pick(regularBusinessIndexes)];
   return { email: business.email, password: business.password };
@@ -75,10 +84,21 @@ export function lastSessionDate(weekdays) {
   return isoDate(today);
 }
 
-export function signIn(business) {
+export function nextSessionDate(weekdays) {
+  const today = businessToday();
+  for (let daysAhead = 1; daysAhead <= 7; daysAhead++) {
+    const day = new Date(today.getTime() + daysAhead * millisecondsPerDay);
+    if (weekdays.includes(weekdayNames[day.getUTCDay()])) {
+      return isoDate(day);
+    }
+  }
+  return isoDate(today);
+}
+
+export function signIn(credentials) {
   const response = http.post(
     `${apiUrl}/api/auth/sign-in`,
-    JSON.stringify({ email: business.email, password: business.password }),
+    JSON.stringify({ email: credentials.email, password: credentials.password }),
     { headers: { "Content-Type": "application/json" }, tags: { name: "POST /api/auth/sign-in" } },
   );
   if (!check(response, { "sign-in 200": (r) => r.status === 200 })) {
@@ -88,13 +108,14 @@ export function signIn(business) {
 }
 
 export class Session {
-  constructor(business) {
+  constructor(business, credentials = business) {
     this.business = business;
+    this.credentials = credentials;
     this.signIn();
   }
 
   signIn() {
-    this.accessToken = signIn(this.business);
+    this.accessToken = signIn(this.credentials);
     this.signedInAt = Date.now();
   }
 

@@ -29,8 +29,8 @@ public sealed class CapturingLoggerProvider : ILoggerProvider
             TState state,
             Exception? exception,
             Func<TState, Exception?, string> formatter) =>
-            entries.Enqueue(new CapturedLogEntry(categoryName, logLevel));
+            entries.Enqueue(new CapturedLogEntry(categoryName, logLevel, formatter(state, exception)));
     }
 }
 
-public sealed record CapturedLogEntry(string CategoryName, LogLevel LogLevel);
+public sealed record CapturedLogEntry(string CategoryName, LogLevel LogLevel, string Message);
