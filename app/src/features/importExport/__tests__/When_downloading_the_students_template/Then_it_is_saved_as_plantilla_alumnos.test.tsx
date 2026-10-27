@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { downloadTemplate, getImportSchema } from "@/features/importExport/importExportApi";
 import { saveSpreadsheetFile } from "@/features/importExport/saveSpreadsheetFile";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
+import { ImportScreen } from "@/features/importExport/screens/ImportScreen";
 import { translate } from "@/i18n/translate";
 import { buildStudentsSchema } from "@/testing/importExportFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -19,7 +19,7 @@ describe("When downloading the students template", () => {
   });
 
   it("Then it is saved as plantilla alumnos", async () => {
-    await renderWithProviders(<ImportExportScreen />);
+    await renderWithProviders(<ImportScreen module="students" />);
 
     await fireEvent.press(
       screen.getByRole("button", { name: translate("importExport.downloadTemplate") }),

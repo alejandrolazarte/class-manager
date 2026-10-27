@@ -70,7 +70,12 @@ export function ImportPreviewSection({
             <View key={row.line} className="gap-1">
               {index > 0 ? <ListDivider /> : null}
               <AppText variant="bodyStrong">
-                {translate("importExport.preview.line", { line: row.line })}
+                {row.name
+                  ? translate("importExport.preview.lineWithName", {
+                      line: row.line,
+                      name: row.name,
+                    })
+                  : translate("importExport.preview.line", { line: row.line })}
               </AppText>
               {row.errors.map((error) => (
                 <AppText

@@ -33,6 +33,7 @@ export interface ImportRowResult {
   line: number;
   status: ImportRowStatus;
   errors: ImportCellError[];
+  name?: string | null;
 }
 
 export interface ImportSummary {

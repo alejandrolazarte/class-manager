@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { getImportSchema, previewImport } from "@/features/importExport/importExportApi";
 import { pickImportFile } from "@/features/importExport/pickImportFile";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
+import { ImportScreen } from "@/features/importExport/screens/ImportScreen";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentsReport,
@@ -22,7 +22,7 @@ describe("When previewing a students file", () => {
   });
 
   it("Then rows that won't be imported are explained", async () => {
-    await renderWithProviders(<ImportExportScreen />);
+    await renderWithProviders(<ImportScreen module="students" />);
 
     await fireEvent.press(
       screen.getByRole("button", { name: translate("importExport.chooseFile") }),

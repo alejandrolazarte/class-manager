@@ -10,6 +10,7 @@ export default function StudentsLayout() {
     <Stack screenOptions={stackScreenOptions}>
       <Stack.Screen name="index" options={{ title: translate("students.list.title") }} />
       <Stack.Screen name="new" options={{ title: translate("clients.register.title") }} />
+      <Stack.Screen name="import" options={{ title: translate("importExport.import.students") }} />
       <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />
       <Stack.Screen
         name="clients/[clientId]/index"

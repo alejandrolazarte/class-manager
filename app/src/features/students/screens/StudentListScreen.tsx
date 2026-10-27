@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { ImportExportMenu } from "@/features/importExport/components/ImportExportMenu";
+import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { StudentListItem } from "@/features/students/components/StudentListItem";
 import { useStudentSearch } from "@/features/students/useStudentSearch";
@@ -25,6 +26,9 @@ export function StudentListScreen() {
   const router = useRouter();
   const isAtStudentLimit = useIsAtLimit(featureCodes.students);
   const canManageStudents = useCan(permissions.studentsManage);
+  const canRunImportExport = useRoleCan(permissions.importExportRun);
+  const canSeeWholeList = useCan(permissions.studentsViewAll);
+  const canImportExportStudents = canRunImportExport && canSeeWholeList;
   const withinStudentPlan = usePlanAllowing(featureCodes.students, !isAtStudentLimit);
   const [searchText, setSearchText] = useState("");
   const {
@@ -63,7 +67,14 @@ export function StudentListScreen() {
       }
     >
       <View className="gap-3.5 pb-2">
-        <ScreenHeader title={translate("students.list.title")} />
+        <ScreenHeader
+          title={translate("students.list.title")}
+          accessory={
+            canImportExportStudents ? (
+              <ImportExportMenu module="students" importRoute={routes.importStudents} />
+            ) : undefined
+          }
+        />
         <View className="gap-3.5 px-5">
           <SearchInput
             value={searchText}

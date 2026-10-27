@@ -41,6 +41,8 @@ public sealed class StudentImportModule(
 
     public string? CountedFeatureCode => Features.Students;
 
+    public string RowNameKey => StudentNameKey;
+
     public IReadOnlyList<ImportColumn> Columns { get; } =
     [
         new(StudentNameKey, "Alumno", ColumnType.Text, IsRequired: true)

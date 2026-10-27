@@ -1,9 +1,9 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
-import { downloadExport, getImportSchema } from "@/features/importExport/importExportApi";
+import { ImportExportMenu } from "@/features/importExport/components/ImportExportMenu";
+import { downloadExport } from "@/features/importExport/importExportApi";
 import { saveSpreadsheetFile } from "@/features/importExport/saveSpreadsheetFile";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
 import { translate } from "@/i18n/translate";
-import { buildInstructorsSchema } from "@/testing/importExportFactory";
+import { routes } from "@/navigation/routes";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/importExport/importExportApi");
@@ -14,22 +14,19 @@ const exportedWorkbook = new Uint8Array([0x50, 0x4b, 0x03, 0x04]).buffer;
 
 describe("When exporting instructors", () => {
   beforeEach(() => {
-    jest.mocked(getImportSchema).mockResolvedValue(buildInstructorsSchema());
     jest.mocked(downloadExport).mockResolvedValue(exportedWorkbook);
   });
 
   it("Then the file is saved with a dated spanish name", async () => {
-    await renderWithProviders(<ImportExportScreen />);
+    await renderWithProviders(
+      <ImportExportMenu module="instructors" importRoute={routes.importInstructors} />,
+    );
 
     await fireEvent.press(
-      screen.getByRole("button", { name: translate("importExport.module.instructors") }),
+      screen.getByRole("button", { name: translate("importExport.moreOptions") }),
     );
     await fireEvent.press(
-      screen.getByRole("button", {
-        name: translate("importExport.export", {
-          module: translate("importExport.fileModule.instructors"),
-        }),
-      }),
+      screen.getByRole("menuitem", { name: translate("importExport.export.instructors") }),
     );
 
     await waitFor(() =>

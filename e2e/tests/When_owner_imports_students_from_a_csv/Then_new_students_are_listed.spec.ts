@@ -10,7 +10,9 @@ const studentsCsv = [
 
 test("Then new students are listed", async ({ page, request }) => {
   await signIn(page, await signUpBusiness(request));
-  await page.goto("/settings/import-export");
+  await page.goto("/students");
+  await page.getByRole("button", { name: "Más opciones" }).click();
+  await page.getByRole("menuitem", { name: "Importar alumnos" }).click();
 
   const fileChooserPromise = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Elegir archivo (Excel o CSV)" }).click();

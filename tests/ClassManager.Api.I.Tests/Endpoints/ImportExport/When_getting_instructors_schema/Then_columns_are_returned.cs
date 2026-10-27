@@ -14,6 +14,6 @@ public sealed class Then_columns_are_returned(ApiFixture fixture)
         var schema = await business.HttpClient.GetFromJsonAsync<ImportSchemaResponse>(
             new Uri(ImportRequests.ModuleRoute(InstructorImportModule.ModuleName, ApiRoutes.SchemaAction), UriKind.Relative), ApiRequests.JsonOptions);
 
-        schema!.Columns.Select(column => column.Key).ShouldBe([InstructorImportModule.FullNameKey]);
+        schema!.Columns.Select(column => column.Key).ShouldBe([InstructorImportModule.FullNameKey, InstructorImportModule.EmailKey]);
     }
 }

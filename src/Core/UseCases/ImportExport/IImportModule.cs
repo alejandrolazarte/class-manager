@@ -10,6 +10,8 @@ public interface IImportModule
 
     IReadOnlyList<ImportColumn> Columns { get; }
 
+    string RowNameKey { get; }
+
     string? CountedFeatureCode { get; }
 
     Task<Result<ImportPlan>> PlanAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken);

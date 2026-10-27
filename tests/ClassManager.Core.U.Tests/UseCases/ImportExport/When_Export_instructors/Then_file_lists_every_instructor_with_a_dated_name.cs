@@ -13,7 +13,7 @@ public sealed class Then_file_lists_every_instructor_with_a_dated_name
 
         var file = await builder.ExportUseCase.ExecuteAsync(new ExportQuery(InstructorImportModule.ModuleName), CancellationToken.None);
 
-        ImportUseCaseBuilder.Lines(file.Value!).ShouldBe(["Profesor", TestData.InstructorFullName, "Marta Ruiz"]);
+        ImportUseCaseBuilder.Lines(file.Value!).ShouldBe(["Profesor;Email", $"{TestData.InstructorFullName};", "Marta Ruiz;"]);
         file.Value!.FileName.ShouldBe("instructors-2026-09-24.csv");
     }
 }

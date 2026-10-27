@@ -2,18 +2,18 @@
 
 Backend: [plan](../../backend/20260929-import-export/plan.md).
 
-## Screen
+## Screens
 
-Settings → **Importar y exportar** (`/settings/import-export`), one screen for both modules:
+Since 2026-10-27 import and export live next to each list instead of in Settings:
 
 | Part | Behavior |
 |---|---|
-| Alumnos / Profes | Segmented control; picks the module (`students` / `instructors`) |
-| Columnas del archivo | From `GET /schema`: every header, required ones marked, so the owner can fix a file without the template |
+| ⋮ in Alumnos and Profes | `OverflowMenu` (from `src/ui`) at the top right with **Importar alumnos/profes** and **Exportar alumnos/profes (Excel)**. Shown only with `importExport.run` and the whole list: `students.view.all` for Alumnos, `instructors.view` for Profes. Without the plan, both options open the plan offer |
+| Exportar | `GET /export`, saved as `alumnos-2026-09-29.xlsx` / `profes-2026-09-29.xlsx`; a toast if the download fails |
+| Importar alumnos / profes | `/students/import` and `/settings/instructors/import`, three numbered steps: download the template, fill it in (every column from `GET /schema`, required ones marked, with its example), upload the file |
 | Descargar plantilla | `GET /template`, saved as `plantilla-alumnos.xlsx` / `plantilla-profes.xlsx` |
-| Elegir archivo (Excel o CSV) | Document picker, then `POST /preview`: counts (to import, with errors, already loaded), ignored columns and every row that won't be imported, with its line, column and reason in Spanish |
-| Importar N filas | `POST /import` with the same file; shows the result and refreshes students, families and coaches |
-| Exportar | `GET /export`, saved as `alumnos-2026-09-29.xlsx` / `profes-2026-09-29.xlsx` |
+| Elegir archivo (Excel o CSV) | Document picker, then `POST /preview`: counts (to import, with errors, already loaded), ignored columns and every row that won't be imported, with its line, the person's name, and the reason in Spanish |
+| Importar N filas | `POST /import` with the same file; shows the result with **Ver alumnos/profes** (back to the list) and **Importar otro archivo** |
 
 ## Decisions
 
@@ -30,4 +30,6 @@ Settings → **Importar y exportar** (`/settings/import-export`), one screen for
 - A file without a required column shows the file error.
 - Cancelling the picker previews nothing.
 - Downloading the template and exporting save the XLSX with the Spanish file name.
+- The ⋮ is hidden without the whole list; choosing import opens its screen; a failed export shows a toast.
+- A problem row shows its name; the instructors file lists the Email column.
 - `postForm` doesn't send `Content-Type: application/json`.

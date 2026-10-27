@@ -4,6 +4,8 @@ namespace ClassManager.Core.UseCases.ImportExport;
 
 public sealed record ImportRowResult(int Line, ImportRowStatus Status, IReadOnlyList<ImportCellError> Errors)
 {
+    public string? Name { get; init; }
+
     public static ImportRowResult Valid(int line) => new(line, ImportRowStatus.Valid, []);
 
     public static ImportRowResult Error(int line, IReadOnlyList<ImportCellError> errors) => new(line, ImportRowStatus.Error, errors);

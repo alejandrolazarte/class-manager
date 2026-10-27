@@ -33,6 +33,10 @@ export default function SettingsLayout() {
         options={{ title: translate("instructors.form.newTitle") }}
       />
       <Stack.Screen
+        name="instructors/import"
+        options={{ title: translate("importExport.import.instructors") }}
+      />
+      <Stack.Screen
         name="instructors/[instructorId]/index"
         options={{ title: translate("instructors.detail.title") }}
       />
@@ -65,7 +69,6 @@ export default function SettingsLayout() {
       <Stack.Screen name="orders/index" options={{ title: translate("orders.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
       <Stack.Screen name="orders/[orderId]" options={{ title: translate("orders.detail.title") }} />
-      <Stack.Screen name="import-export" options={{ title: translate("importExport.title") }} />
       <Stack.Screen
         name="announcements/index"
         options={{ title: translate("announcements.title") }}

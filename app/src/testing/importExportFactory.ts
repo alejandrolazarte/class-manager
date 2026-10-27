@@ -48,7 +48,15 @@ export function buildInstructorsSchema(): ImportSchema {
         type: "Text",
         isRequired: true,
         aliases: [],
-        example: null,
+        example: "Laura Gómez",
+      },
+      {
+        key: "email",
+        header: "Email",
+        type: "Email",
+        isRequired: false,
+        aliases: [],
+        example: "laura@example.com",
       },
     ],
   };
@@ -74,6 +82,7 @@ export function buildStudentsReport(): ImportReport {
         line: 4,
         status: "Skipped",
         errors: [{ key: "studentName", code: "student.already_registered", message: "Exists." }],
+        name: "Carla Méndez",
       },
     ],
   };
