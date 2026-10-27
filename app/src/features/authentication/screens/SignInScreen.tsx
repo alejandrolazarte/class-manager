@@ -28,7 +28,12 @@ import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 const badRequestStatus = 400;
 
 type SignInFailure =
-  "invalidCredentials" | "passkeyNotVerified" | "lockedOut" | "network" | "unexpected";
+  | "invalidCredentials"
+  | "passkeyNotVerified"
+  | "lockedOut"
+  | "noBusinessAccess"
+  | "network"
+  | "unexpected";
 
 type SignInMethod = "password" | "passkey";
 
@@ -62,6 +67,10 @@ export function SignInScreen() {
       signInError.hasCode(authenticationErrorCodes.invalidCredentials)
     ) {
       setSignInFailure(method === "passkey" ? "passkeyNotVerified" : "invalidCredentials");
+      return;
+    }
+    if (isApiError(signInError) && signInError.hasCode(authenticationErrorCodes.noBusinessAccess)) {
+      setSignInFailure("noBusinessAccess");
       return;
     }
     if (isApiError(signInError) && signInError.hasCode(authenticationErrorCodes.lockedOut)) {
@@ -120,6 +129,9 @@ export function SignInScreen() {
       ) : null}
       {signInFailure === "passkeyNotVerified" ? (
         <Banner message={translate("authentication.signIn.passkeyNotVerified")} />
+      ) : null}
+      {signInFailure === "noBusinessAccess" ? (
+        <Banner message={translate("authentication.signIn.noBusinessAccess")} />
       ) : null}
       {signInFailure === "lockedOut" ? (
         <Banner tone="warning" message={translate("authentication.signIn.lockedOut")} />

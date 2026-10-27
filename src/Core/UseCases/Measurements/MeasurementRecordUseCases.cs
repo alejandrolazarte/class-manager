@@ -58,12 +58,15 @@ internal sealed class MeasurementStudentAccess(
     IClientRepository clientRepository,
     IAccessScopes accessScopes)
 {
-    public async Task<bool> CanReachAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken)
-    {
-        var students = await studentRepository.ListSummariesByIdsAsync(studentIds, cancellationToken);
-        return students.Count == studentIds.Distinct().Count()
+    public async Task<bool> CanReachAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken) =>
+        await CanReachAsync(studentIds, await studentRepository.ListSummariesByIdsAsync(studentIds, cancellationToken), cancellationToken);
+
+    public async Task<bool> CanReadAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken) =>
+        await CanReachAsync(studentIds, await studentRepository.ListSummariesIncludingDeletedByIdsAsync(studentIds, cancellationToken), cancellationToken);
+
+    private async Task<bool> CanReachAsync(IReadOnlyCollection<long> studentIds, IReadOnlyList<StudentSummary> students, CancellationToken cancellationToken) =>
+        students.Count == studentIds.Distinct().Count()
             && await AccessRules.CanReachClientsAsync(accessScopes, clientRepository, students.Select(student => student.ClientId), cancellationToken);
-    }
 }
 
 internal static class MeasurementRecording
@@ -247,7 +250,7 @@ public sealed class ListClassMeasurementRecordsUseCase(
             return Result.Success<IReadOnlyList<MeasurementRecordResponse>>([]);
         }
 
-        if (!await new MeasurementStudentAccess(studentRepository, clientRepository, accessScopes).CanReachAsync(studentIds, cancellationToken))
+        if (!await new MeasurementStudentAccess(studentRepository, clientRepository, accessScopes).CanReadAsync(studentIds, cancellationToken))
         {
             return AccessRules.NotYours();
         }

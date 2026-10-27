@@ -175,7 +175,7 @@ What each screen does today, read from the code on 2026-10-11. The Calma version
 ### Alumnos and client card
 
 - Search by student, responsible or phone, no results message, empty state, locked notice at the plan's student limit, error with retry, "Nuevo alumno" with permission, rows with age, responsible and notes.
-- Card: edit, avatar, name, phone, email, Llamar, WhatsApp, Email, notes, invite to the student app (client and each student, with the minor rules), Clases / Cobro tabs (only with payment permission), each student's classes, add student or "Agregar hijo/a u otra persona", counter sale.
+- Card: edit, avatar, name, phone, email, Llamar, WhatsApp, Email, notes, invite to the student app (client and each student, with the minor rules), Clases / Cobro tabs (only with payment permission), each student's classes, edit and delete each student (delete behind a confirm dialog that counts the classes they leave), add student or "Agregar hijo/a u otra persona", counter sale.
 - Cobro: billing plan with upcoming changes (delete with undo), month balance, "Registrar pago", payments with delete and undo, class packs (sell, usage, expiry, "Anular" behind a confirm dialog, kept classes).
 
 ### Cobros

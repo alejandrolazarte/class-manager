@@ -41,23 +41,11 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
                 enrollment.EndDate))
             .ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
-        await (
-            from enrollment in ActiveOn(sessionDate)
-            where enrollment.ClassGroupId == classGroupId
-            join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
-            join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
-            orderby student.User.FullName
-            select new RosterEntry(
-                enrollment.Id,
-                student.Id,
-                student.User.FullName,
-                student.User.BirthDate,
-                client.Id,
-                client.User.FullName,
-                enrollment.StartDate,
-                enrollment.EndDate))
-            .ToListAsync(cancellationToken);
+    public Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
+        ListRosterOnAsync(ActiveOn(sessionDate), classGroupId, cancellationToken);
+
+    public Task<IReadOnlyList<RosterEntry>> ListRosterOnIncludingDeletedAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken) =>
+        ListRosterOnAsync(ActiveOn(sessionDate).IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter]), classGroupId, cancellationToken);
 
     public async Task<IReadOnlyDictionary<long, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken) =>
         await ActiveOn(sessionDate)
@@ -80,7 +68,7 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
         CancellationToken cancellationToken)
     {
         var rows = await (
-            from enrollment in context.Enrollments.AsNoTracking()
+            from enrollment in context.Enrollments.AsNoTracking().IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             where enrollment.StartDate <= periodEnd && (enrollment.EndDate == null || enrollment.EndDate >= periodStart)
             join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
@@ -89,6 +77,9 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
 
         return [.. rows.Select(row => new EnrolledStudentInPeriod(row.Id, row.FullName, row.PhoneNumber!.Value, row.StudentFullName))];
     }
+
+    public async Task<IReadOnlyList<Enrollment>> ListOpenByStudentForUpdateAsync(long studentId, CancellationToken cancellationToken) =>
+        await context.Enrollments.Where(enrollment => enrollment.StudentId == studentId && enrollment.EndDate == null).ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(long studentId, DateOnly today, CancellationToken cancellationToken) =>
         await Current(today).Where(enrollment => enrollment.StudentId == studentId).ToListAsync(cancellationToken);
@@ -100,6 +91,27 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
         studentIds.Count == 0
             ? []
             : await Current(today).Where(enrollment => studentIds.Contains(enrollment.StudentId)).ToListAsync(cancellationToken);
+
+    private async Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(
+        IQueryable<Enrollment> activeEnrollments,
+        long classGroupId,
+        CancellationToken cancellationToken) =>
+        await (
+            from enrollment in activeEnrollments
+            where enrollment.ClassGroupId == classGroupId
+            join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
+            join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
+            orderby student.User.FullName
+            select new RosterEntry(
+                enrollment.Id,
+                student.Id,
+                student.User.FullName,
+                student.User.BirthDate,
+                client.Id,
+                client.User.FullName,
+                enrollment.StartDate,
+                enrollment.EndDate))
+            .ToListAsync(cancellationToken);
 
     private IQueryable<Enrollment> ActiveOn(DateOnly sessionDate) =>
         context.Enrollments.AsNoTracking().Where(enrollment =>

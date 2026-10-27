@@ -14,6 +14,8 @@ internal static class StudentEndpoints
 
         var students = endpoints.MapGroup(ApiRoutes.Students);
         students.MapPost(ApiRoutes.StudentById + ApiRoutes.Separation, SeparateStudentAsync).RequirePermission(Permissions.Students.Manage);
+        students.MapPut(ApiRoutes.StudentById, UpdateStudentAsync).RequirePermission(Permissions.Students.Manage);
+        students.MapDelete(ApiRoutes.StudentById, DeleteStudentAsync).RequirePermission(Permissions.Students.Manage);
         students.MapGet(ApiRoutes.StudentById, GetStudentAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
         students.MapGet("/", SearchStudentsAsync).RequirePermission(Permissions.Students.ViewAll, Permissions.Students.ViewOwn);
 
@@ -29,6 +31,27 @@ internal static class StudentEndpoints
         var result = await useCase.ExecuteAsync(new SeparateStudentCommand(studentId, request.FullName, request.Email), cancellationToken);
 
         return result.ToOkResult();
+    }
+
+    private static async Task<IResult> UpdateStudentAsync(
+        long studentId,
+        UpdateStudentRequest request,
+        IUseCase<UpdateStudentCommand, StudentResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(request.ToCommand(studentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> DeleteStudentAsync(
+        long studentId,
+        IUseCase<DeleteStudentCommand, DeleteStudentResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new DeleteStudentCommand(studentId), cancellationToken);
+
+        return result.ToHttpResult(_ => TypedResults.NoContent());
     }
 
     private static async Task<IResult> AddStudentAsync(

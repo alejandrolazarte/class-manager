@@ -3252,6 +3252,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<long?>("CreatedByUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DeletedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -3274,6 +3283,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
+                    b.HasIndex("DeletedByUserId");
+
                     b.HasIndex("UpdatedByUserId");
 
                     b.HasIndex("UserId");
@@ -3282,7 +3293,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TenantId", "ClientId"), new[] { "UserId", "Notes" });
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", t =>
+                        {
+                            t.HasCheckConstraint("CK_Students_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Users.User", b =>
@@ -5514,6 +5528,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasOne("ClassManager.Core.Domain.Users.User", null)
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)

@@ -16,7 +16,9 @@ import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { useCanSellAtCounter } from "@/features/orders/useOrderPermissions";
 import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
+import { DeleteStudentDialog } from "@/features/students/components/DeleteStudentDialog";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
+import { Student } from "@/features/students/types";
 import { translate } from "@/i18n/translate";
 import { ClientTab, clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -26,6 +28,7 @@ import { AppText } from "@/ui/AppText";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { Avatar } from "@/ui/Avatar";
 import { ActionTile } from "@/ui/ActionTile";
+import { IconButton } from "@/ui/IconButton";
 import { TonalBlock } from "@/ui/TonalBlock";
 import { Screen, ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -58,17 +61,18 @@ interface ClientClassesProps {
   client: ClientDetails;
   clientIsTheOnlyStudent: boolean;
   hasTitle: boolean;
-  canInviteStudents: boolean;
+  canManageStudents: boolean;
 }
 
 function ClientClasses({
   client,
   clientIsTheOnlyStudent,
   hasTitle,
-  canInviteStudents,
+  canManageStudents,
 }: ClientClassesProps) {
   const router = useRouter();
   const clientTab = useCurrentTab(clientTabs);
+  const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
   if (clientIsTheOnlyStudent) {
     return (
       <>
@@ -96,21 +100,47 @@ function ClientClasses({
           const ageLabel = studentAgeLabel(student.birthDate);
           return (
             <View key={student.id} className="gap-2 border-b border-border-subtle pb-3">
-              <View>
-                <AppText variant="bodyStrong">{student.fullName}</AppText>
-                {student.birthDate && ageLabel ? (
-                  <AppText variant="footnote" tone="subtle">
-                    {`${formatBirthDateForDisplay(student.birthDate)} · ${ageLabel}`}
-                  </AppText>
-                ) : null}
-                {student.notes ? (
-                  <AppText variant="footnote" tone="subtle">
-                    {student.notes}
-                  </AppText>
+              <View className="flex-row items-start gap-1">
+                <View className="min-w-0 flex-1">
+                  <AppText variant="bodyStrong">{student.fullName}</AppText>
+                  {student.birthDate && ageLabel ? (
+                    <AppText variant="footnote" tone="subtle">
+                      {`${formatBirthDateForDisplay(student.birthDate)} · ${ageLabel}`}
+                    </AppText>
+                  ) : null}
+                  {student.notes ? (
+                    <AppText variant="footnote" tone="subtle">
+                      {student.notes}
+                    </AppText>
+                  ) : null}
+                </View>
+                {canManageStudents ? (
+                  <>
+                    <IconButton
+                      icon="edit"
+                      variant="compact"
+                      tone="muted-foreground"
+                      accessibilityLabel={translate("students.edit.accessibility", {
+                        name: student.fullName,
+                      })}
+                      onPress={() =>
+                        router.push(routes.editStudent(clientTab, client.id, student.id))
+                      }
+                    />
+                    <IconButton
+                      icon="delete"
+                      variant="compact"
+                      tone="muted-foreground"
+                      accessibilityLabel={translate("students.delete.accessibility", {
+                        name: student.fullName,
+                      })}
+                      onPress={() => setStudentToDelete(student)}
+                    />
+                  </>
                 ) : null}
               </View>
               <StudentClasses studentId={student.id} />
-              {canInviteStudents && student.isOnTheTeam && !client.isOnTheTeam ? (
+              {canManageStudents && student.isOnTheTeam && !client.isOnTheTeam ? (
                 <SamePersonNotice
                   message={translate("people.alsoOnTheTeam", { name: student.fullName })}
                   onSeparate={() =>
@@ -118,7 +148,7 @@ function ClientClasses({
                   }
                 />
               ) : null}
-              {canInviteStudents &&
+              {canManageStudents &&
               normalizedName(student.fullName) !== normalizedName(client.fullName) ? (
                 <InviteStudentAppSection client={client} student={student} />
               ) : null}
@@ -126,6 +156,9 @@ function ClientClasses({
           );
         })
       )}
+      {studentToDelete ? (
+        <DeleteStudentDialog student={studentToDelete} onClose={() => setStudentToDelete(null)} />
+      ) : null}
     </>
   );
 }
@@ -262,7 +295,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
             client={client}
             clientIsTheOnlyStudent={clientIsTheOnlyStudent}
             hasTitle={sectionOptions.length === 1}
-            canInviteStudents={canManageStudents}
+            canManageStudents={canManageStudents}
           />
           {canManageStudents ? (
             <Button

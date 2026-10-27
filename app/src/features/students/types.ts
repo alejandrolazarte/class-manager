@@ -30,6 +30,13 @@ export interface NewStudentRequest {
   samePersonUserId?: string;
 }
 
+export interface UpdateStudentRequest {
+  fullName: string;
+  birthDate: string | null;
+  notes: string | null;
+  email: string | null;
+}
+
 export interface SearchStudentsRequest {
   search: string;
   limit: number;

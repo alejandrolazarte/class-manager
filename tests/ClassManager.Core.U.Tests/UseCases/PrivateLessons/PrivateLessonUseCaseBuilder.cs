@@ -30,6 +30,9 @@ internal sealed class PrivateLessonUseCaseBuilder
         Students
             .Setup(repository => repository.ListSummariesByIdsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new StudentSummary(StudentId, TestData.StudentFullName, null, null, TestIds.Next(), TestData.ClientFullName, TestData.NormalizedClientPhoneNumber)]);
+        Students
+            .Setup(repository => repository.ListSummariesIncludingDeletedByIdsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new StudentSummary(StudentId, TestData.StudentFullName, null, null, TestIds.Next(), TestData.ClientFullName, TestData.NormalizedClientPhoneNumber)]);
         ClassGroups.Setup(repository => repository.ListActiveByInstructorAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Sessions
             .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))

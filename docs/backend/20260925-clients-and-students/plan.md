@@ -207,6 +207,6 @@ The last three are the tenancy guarantees.
 
 ## Out of scope
 
-- Editing and deleting clients and students (next iteration; deleting needs a decision on history once attendance exists).
+- Deleting clients (editing them is `PUT /api/clients/{id}`; editing and deleting students are in [Deleting data](../../deleting-data.md#students)).
 - Moving a student to another client.
 - Medical certificate, level and emergency contact.

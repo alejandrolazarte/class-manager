@@ -28,7 +28,7 @@ public sealed class SignInSessionService(
             ?? await FindDefaultSessionUserAsync(verification.UserId, verification.Email, cancellationToken);
         if (sessionUser is null)
         {
-            return InvalidCredentials();
+            return Result.Forbidden<TokenResponse>(AuthenticationErrorCodes.NoBusinessAccessMessage, AuthenticationErrorCodes.NoBusinessAccess);
         }
 
         return TokenResponse.From(await tokenService.IssueAsync(sessionUser, cancellationToken));

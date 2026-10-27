@@ -122,6 +122,6 @@ The existing client tests move to the new routes and keep passing.
 
 ## Out of scope
 
-- Editing and deleting clients and students.
+- Deleting clients (editing clients and editing and deleting students came later: [Deleting data](../../deleting-data.md#students)).
 - A student detail screen (arrives with enrollments in M3).
 - Native date picker.
