@@ -29,6 +29,10 @@ function textsFor(invitation: CheckedInvitation) {
   };
 }
 
+function alwaysAsksBirthDate() {
+  return true;
+}
+
 export function AcceptInvitationScreen() {
   const { acceptInvitation } = useSession();
   const accept = useCallback(
@@ -44,7 +48,7 @@ export function AcceptInvitationScreen() {
       invalidInvitationCode={memberErrorCodes.invalidInvitation}
       conflictMessages={conflictMessages}
       successRoute={routes.today}
-      asksBirthDate
+      asksBirthDateFor={alwaysAsksBirthDate}
       textsFor={textsFor}
       check={checkInvitation}
       accept={accept}

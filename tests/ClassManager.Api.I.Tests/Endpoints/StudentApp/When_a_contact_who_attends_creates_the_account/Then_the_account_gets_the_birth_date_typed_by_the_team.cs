@@ -9,9 +9,10 @@ public sealed class Then_the_account_gets_the_birth_date_typed_by_the_team(ApiFi
     [Fact]
     public async Task Then_the_account_gets_the_birth_date_typed_by_the_team_Run()
     {
+        var birthDateTypedByTheTeam = new DateOnly(1985, 6, 20);
         var business = await fixture.SeedBusinessAsync();
         var client = await business.HttpClient.RegisterClientAsync(
-            students: [new NewStudent(ApiRequests.ClientFullName, AuthenticationRequests.AdultBirthDate, null)]);
+            students: [new NewStudent(ApiRequests.ClientFullName, birthDateTypedByTheTeam, null)]);
         var contactEmail = StudentAppRequests.UniqueStudentEmail();
         (await business.HttpClient.PostStudentAppInvitationAsync(client.Id, contactEmail)).EnsureSuccessStatusCode();
         using var anonymous = fixture.ApiFactory.CreateClient();
@@ -20,6 +21,6 @@ public sealed class Then_the_account_gets_the_birth_date_typed_by_the_team(ApiFi
             .EnsureSuccessStatusCode();
 
         await using var securityContext = fixture.CreateSecurityDbContext();
-        (await securityContext.Users.SingleAsync(user => user.Email == contactEmail)).BirthDate.ShouldBe(AuthenticationRequests.AdultBirthDate);
+        (await securityContext.Users.SingleAsync(user => user.Email == contactEmail)).BirthDate.ShouldBe(birthDateTypedByTheTeam);
     }
 }

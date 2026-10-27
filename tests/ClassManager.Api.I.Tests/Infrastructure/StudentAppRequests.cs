@@ -88,10 +88,16 @@ public static class StudentAppRequests
         httpClient.PostAsJsonAsync(
             ApiRoutes.Authentication + ApiRoutes.RefuseGuardianConsent, new RefuseGuardianConsentCommand(token), ApiRequests.JsonOptions);
 
+    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, DateOnly? birthDate, string password = StudentAppPassword) =>
+        httpClient.PostAsJsonAsync(
+            ApiRoutes.Authentication + ApiRoutes.AcceptStudentAppInvitation,
+            new AcceptStudentAppInvitationCommand(token, null, password, birthDate, AcceptsLegalTerms: true),
+            ApiRequests.JsonOptions);
+
     public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, string password = StudentAppPassword) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.Authentication + ApiRoutes.AcceptStudentAppInvitation,
-            new AcceptStudentAppInvitationCommand(token, StudentAppFullName, password, AcceptsLegalTerms: true),
+            new AcceptStudentAppInvitationCommand(token, StudentAppFullName, password, AuthenticationRequests.AdultBirthDate, AcceptsLegalTerms: true),
             ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PostDeclineStudentAppInvitationAsync(this HttpClient httpClient, string token) =>

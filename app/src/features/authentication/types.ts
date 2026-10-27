@@ -46,6 +46,7 @@ export interface AcceptStudentAppInvitationRequest {
   token: string;
   fullName: string;
   password: string;
+  birthDate?: string;
   acceptsLegalTerms?: boolean;
 }
 
@@ -66,6 +67,7 @@ export interface CheckedInvitation {
   businessName: string;
   hasAccount: boolean;
   fullName?: string | null;
+  asksBirthDate?: boolean;
 }
 
 export interface SwitchBranchRequest extends RefreshSessionRequest {

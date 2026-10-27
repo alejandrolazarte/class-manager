@@ -9,7 +9,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record CheckStudentAppInvitationCommand([property: AuditSecret] string? Token) : ICommand;
 
-public sealed record CheckStudentAppInvitationResponse(string Email, string BusinessName, bool HasAccount, string? FullName = null);
+public sealed record CheckStudentAppInvitationResponse(string Email, string BusinessName, bool HasAccount, string? FullName = null, bool AsksBirthDate = false);
 
 public sealed class CheckStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
@@ -44,7 +44,8 @@ public sealed class CheckStudentAppInvitationUseCase(
             invitation.Email,
             business?.BrandDisplayName ?? string.Empty,
             hasAccount,
-            invitedStudent.FullName);
+            invitedStudent.FullName,
+            !hasAccount && invitedStudent.AsksBirthDate);
     }
 
     private static Result<CheckStudentAppInvitationResponse> InvalidInvitation() =>

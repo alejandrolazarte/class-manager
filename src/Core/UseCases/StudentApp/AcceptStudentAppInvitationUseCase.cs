@@ -12,7 +12,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record AcceptStudentAppInvitationCommand([property: AuditSecret] string? Token, [property: AuditPersonal] string? FullName, [property: AuditSecret] string? Password, bool AcceptsLegalTerms = false) : ICommand;
+public sealed record AcceptStudentAppInvitationCommand([property: AuditSecret] string? Token, [property: AuditPersonal] string? FullName, [property: AuditSecret] string? Password, [property: AuditPersonal] DateOnly? BirthDate = null, bool AcceptsLegalTerms = false) : ICommand;
 
 public sealed class AcceptStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
@@ -58,8 +58,10 @@ public sealed class AcceptStudentAppInvitationUseCase(
         DateOnly? accountBirthDate;
         if (userId is null)
         {
-            var account = OwnerAccount.CreateForInvitedStudent(
-                invitedPerson?.FullName ?? command.FullName, invitation.Email, command.Password, invitedPerson?.BirthDate);
+            var fullName = invitedPerson?.FullName ?? command.FullName;
+            var account = InvitedStudent.IsBirthDateAsked(invitation, invitedPerson?.BirthDate)
+                ? OwnerAccount.Create(fullName, invitation.Email, command.Password, command.BirthDate, today)
+                : OwnerAccount.CreateForInvitedStudent(fullName, invitation.Email, command.Password, invitedPerson?.BirthDate);
             if (account.IsFailure)
             {
                 return account.Error!;
@@ -162,7 +164,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
         }
 
         var birthDate = accountBirthDate ?? (await ClientWhoAttendsAsync(invitation, cancellationToken))?.User.BirthDate;
-        return AttendingContact.MinorError(birthDate, today, nameof(OwnerAccount.BirthDate));
+        return AttendingContact.MinorError(birthDate, today, nameof(AcceptStudentAppInvitationCommand.BirthDate));
     }
 
     private async Task CompleteContactBirthDateAsync(ClientInvitation invitation, DateOnly? accountBirthDate, DateOnly today, CancellationToken cancellationToken)
