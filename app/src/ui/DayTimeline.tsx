@@ -42,7 +42,7 @@ function hourTicks(startMinutes: number, endMinutes: number): number[] {
   const lastHour = Math.floor(endMinutes / minutesPerHour);
   const stepHours = Math.max(1, Math.ceil((lastHour - firstHour) / (maximumTickCount - 1)));
   const hours: number[] = [];
-  for (let hour = firstHour; hour < lastHour; hour += stepHours) {
+  for (let hour = firstHour; lastHour - hour > stepHours / 2; hour += stepHours) {
     hours.push(hour);
   }
   return [...hours, lastHour];
