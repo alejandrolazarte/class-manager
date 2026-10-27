@@ -8,6 +8,7 @@ export type TodayHighlight =
 
 const timeDigits = 2;
 const minutesPerHour = 60;
+const minutesPerDay = 1_440;
 const millisecondsPerDay = 86_400_000;
 const timeSeparator = ":";
 
@@ -18,6 +19,11 @@ export function currentTimeLabel(now: Date = new Date()): string {
 function minutesOf(time: string): number {
   const [hours, minutes] = time.split(timeSeparator).map(Number);
   return (hours ?? 0) * minutesPerHour + (minutes ?? 0);
+}
+
+function endMinutesOf(session: DaySession): number {
+  const endMinutes = minutesOf(session.endTime);
+  return endMinutes <= minutesOf(session.startTime) ? endMinutes + minutesPerDay : endMinutes;
 }
 
 function utcDayOf(isoDate: string): number {
@@ -40,7 +46,7 @@ export function sessionTimingOf(
   if (session.date !== today) {
     return session.date < today ? "ended" : "upcoming";
   }
-  if (minutesOf(session.endTime) <= minutesOf(timeNow)) {
+  if (endMinutesOf(session) <= minutesOf(timeNow)) {
     return "ended";
   }
   return minutesOf(session.startTime) <= minutesOf(timeNow) ? "live" : "upcoming";
