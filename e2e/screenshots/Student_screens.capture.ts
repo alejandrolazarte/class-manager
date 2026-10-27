@@ -58,6 +58,18 @@ async function scrollToBottom(page: Page): Promise<void> {
   await page.mouse.wheel(0, scrollDistancePixels);
 }
 
+async function forgetLastSeenMedal(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const seenMedalsKeyPrefix = "seen-medals.";
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith(seenMedalsKeyPrefix))
+      .forEach((key) => {
+        const seenMedals: string[] = JSON.parse(localStorage.getItem(key) ?? "[]");
+        localStorage.setItem(key, JSON.stringify(seenMedals.slice(0, -1)));
+      });
+  });
+}
+
 async function askForNotificationsLikeAFreshBrowser(page: Page): Promise<void> {
   await page.addInitScript(() => {
     Object.defineProperty(Notification, "permission", { get: () => "default" });
@@ -139,10 +151,25 @@ test("Student screens", async ({ page, request }) => {
   await capture(page, "28-alumno-pedidos-anteriores");
 
   await page.goto("/student-app/progress");
-  await page.getByText("Camino de niveles").filter({ visible: true }).first().waitFor();
+  await page.getByText("Ver todos los niveles").filter({ visible: true }).first().waitFor();
   await capture(page, "28b-alumno-logros");
   await scrollToBottom(page);
   await capture(page, "28c-alumno-logros-medallas");
+
+  await page.getByRole("button", { name: "Ver todos los niveles" }).click();
+  await page.getByText("Nivel actual").filter({ visible: true }).first().waitFor();
+  await capture(page, "28c2-alumno-niveles");
+
+  await page.goto("/student-app/progress");
+  await page.getByRole("button", { name: "Ver racha" }).click();
+  await page.getByText("Metas de racha").filter({ visible: true }).first().waitFor();
+  await capture(page, "28c3-alumno-racha");
+
+  await forgetLastSeenMedal(page);
+  await page.goto("/student-app/progress");
+  await page.getByText("¡Nueva medalla!").filter({ visible: true }).first().waitFor();
+  await capture(page, "28c4-alumno-nueva-medalla");
+  await page.getByRole("button", { name: "Continuar" }).click();
 
   await page.goto("/student-app/progress");
   await page.getByRole("tab", { name: "Mediciones" }).click();

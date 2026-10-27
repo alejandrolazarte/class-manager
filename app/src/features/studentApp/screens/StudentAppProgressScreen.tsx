@@ -4,38 +4,32 @@ import { View } from "react-native";
 import { StudentAppMeasurementsSection } from "@/features/measurements/components/StudentAppMeasurementsSection";
 import { useStudentAppMeasurements } from "@/features/measurements/useMeasurements";
 import { LevelHero } from "@/features/studentApp/components/LevelHero";
-import { LevelPath } from "@/features/studentApp/components/LevelPath";
+import { MedalCelebration } from "@/features/studentApp/components/MedalCelebration";
 import { MedalGrid } from "@/features/studentApp/components/MedalGrid";
+import { NextMedalBanner } from "@/features/studentApp/components/NextMedalBanner";
+import { StreakCard } from "@/features/studentApp/components/StreakCard";
 import { StudentChips } from "@/features/studentApp/components/StudentChips";
-import { RecentWeeks } from "@/features/studentApp/components/RecentWeeks";
 import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider";
-import { allMedals, levelProgress } from "@/features/studentApp/studentAppAchievements";
+import {
+  allMedals,
+  levelProgress,
+  nextMedalGoal,
+} from "@/features/studentApp/studentAppAchievements";
+import { useNewMedal } from "@/features/studentApp/useNewMedal";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
-import { translate, translateCount } from "@/i18n/translate";
+import { translate } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
-import { HairlineColumns } from "@/ui/HairlineColumns";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { Tabs } from "@/ui/Tabs";
-
-function Stat({ value, label }: { value: number | string; label: string }) {
-  return (
-    <>
-      <AppText variant="headline">{value}</AppText>
-      <AppText variant="footnote" tone="muted">
-        {label}
-      </AppText>
-    </>
-  );
-}
 
 type ProgressSection = "constancy" | "measurements";
 
@@ -47,6 +41,7 @@ export function StudentAppProgressScreen() {
   useRefetchOnFocus(refetch);
   useRefetchOnFocus(measurements.refetch);
   const { student, selectStudent } = useSelectedStudent(home?.students ?? []);
+  const { newMedal, dismissNewMedal } = useNewMedal(student);
   const header = <ScreenHeader title={translate("student.progress.title")} />;
 
   if (isPending) {
@@ -88,6 +83,7 @@ export function StudentAppProgressScreen() {
     (item) => item.measurement.isRecordedByStudents,
   );
   const isShowingMeasurements = section === "measurements";
+  const nextMedal = nextMedalGoal(attendance);
   return (
     <ScrollScreen
       header={header}
@@ -136,34 +132,34 @@ export function StudentAppProgressScreen() {
         <>
           <LevelHero
             level={attendance.level}
+            attendedClasses={attendance.attendedClasses}
             progress={levelProgress(home.levels, attendance.level, attendance.attendedClasses)}
+            onSeeAllLevels={() => router.push(routes.studentAppLevels)}
           />
-          <HairlineColumns>
-            <Stat
-              value={attendance.attendedClasses}
-              label={translateCount("student.progress.stats.classes", attendance.attendedClasses)}
-            />
-            <Stat
-              value={attendance.streakWeeks}
-              label={translateCount("student.progress.stats.streak", attendance.streakWeeks)}
-            />
-            <Stat
-              value={`${attendance.medals.length}/${allMedals.length}`}
-              label={translate("student.progress.stats.medals")}
-            />
-          </HairlineColumns>
-          <View className="gap-1">
-            <SectionTitle title={translate("student.progress.path")} />
-            <LevelPath levels={home.levels} currentLevel={attendance.level} />
-          </View>
+          <StreakCard
+            attendance={attendance}
+            onSeeStreak={() => router.push(routes.studentAppStreak)}
+          />
+          {nextMedal === null ? null : <NextMedalBanner goal={nextMedal} />}
           <View className="gap-2.5">
-            <SectionTitle title={translate("student.progress.medals")} />
-            <MedalGrid earned={attendance.medals} />
+            <View className="flex-row items-baseline justify-between">
+              <SectionTitle title={translate("student.progress.medals")} />
+              <AppText variant="caption" tone="muted">
+                {translate("student.progress.medalsCount", {
+                  count: attendance.medals.length,
+                  total: allMedals.length,
+                })}
+              </AppText>
+            </View>
+            <MedalGrid attendance={attendance} />
           </View>
-          <View className="gap-2.5">
-            <SectionTitle title={translate("student.progress.recentWeeks")} />
-            <RecentWeeks attendance={attendance} />
-          </View>
+          {newMedal === null ? null : (
+            <MedalCelebration
+              medal={newMedal}
+              nextMedal={nextMedal?.medal ?? null}
+              onClose={dismissNewMedal}
+            />
+          )}
         </>
       )}
     </ScrollScreen>

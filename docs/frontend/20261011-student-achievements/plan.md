@@ -2,7 +2,7 @@
 
 Date: 2026-10-11
 
-Status: proposal, to design and decide later. Logros is the screen where a student sees their own progress, so it matters for coming back to class. The owner wants it to feel exciting: reaching a level or a medal should be a moment, not a line that changed.
+Status: decided on 2026-10-27 (see [Decision](#decision)); first version built. Logros is the screen where a student sees their own progress, so it matters for coming back to class. The owner wants it to feel exciting: reaching a level or a medal should be a moment, not a line that changed.
 
 The [Calma redesign](../20261011-calma-redesign/plan.md) only restyles Logros (its board is in the design artifact) and keeps what it shows today. Everything below is new behavior with its own design, texts and PRs, so it follows its own plan, not the redesign's "no new texts" rule.
 
@@ -43,6 +43,20 @@ To be drawn as variants in the design artifact and picked by the owner; not all 
 2. Owner picks; record the decision here.
 3. Backend: what was already celebrated or seen, if the chosen direction needs it.
 4. Build after Calma step 4 (student app), so it starts from the new primitives.
+
+## Decision
+
+2026-10-27: the owner compared ideas in a design canvas and kept the medal showcase and the medal celebration, with all the levels and the streak each on their own screen. First version, app only (no API change):
+
+- **Logros (Constancia).** The level as a ring with "N de M clases" and **Ver todos los niveles**; a dark streak card (flame, weeks of streak, best streak, the last 8 weeks) with **Ver racha**; **Próxima medalla**, the locked medal closest to being earned with what is left (ideas 3 and 4); the six medals drawn as SVG medals in bronze, silver or gold, and locked ones with their progress ("7 / 10") when the app can compute it (Primera clase, 10 clases, 100 clases, Racha de 4 semanas). The stats row is gone: classes are in the ring, the streak in its card and the medals count next to Medallas.
+- **Camino de niveles** (`/student-app/levels`): every level the business configured, top to bottom, with "Logrado", "Nivel actual" with the progress to the next one, the classes left for each level ahead, and "Meta final" on the last one. Works with 2 to 10 levels.
+- **Racha** (`/student-app/streak`): the flame, the best streak, the last 12 weeks as flames, and streak goals of 4, 8, 12 and 26 weeks with the next one (idea 5, without guilt copy).
+- **Nueva medalla** (idea 2): a full-screen moment with the medal, its description, the next medal and confetti, closed with **Continuar**. With reduced motion there is no confetti and the medal appears still.
+- **What was already seen** is kept on the device (`SecureStore`, `localStorage` on web) per student, not in the API: the first time a device opens Logros it remembers the medals without celebrating, so old medals are never celebrated. A second device celebrates again; moving this to the API is a later step if it matters.
+- **No sharing.** The share card was left out because minors use this screen (see Constraints).
+- Medals and the ring use `react-native-svg` (the version Expo pins), through new primitives in `src/ui`: `MedalBadge`, `ProgressRing`, `StreakFlame` and `motion/Confetti`. Metal and flame colors live in `src/theme/achievementColors.ts` and don't change with the brand; the ribbons use the brand color.
+
+Not built yet: the level-up moment (idea 1), level badges in brand colors (idea 6) and instructor recognition (idea 7).
 
 ## Open questions
 

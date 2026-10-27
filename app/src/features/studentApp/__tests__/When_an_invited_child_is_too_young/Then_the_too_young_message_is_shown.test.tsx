@@ -24,9 +24,7 @@ describe("When an invited child is too young", () => {
     searchParametersMock.current = { token: "invitation-token" };
     jest
       .mocked(checkStudentAppInvitation)
-      .mockResolvedValue(
-        buildCheckedInvitation({ fullName: "Tomás Pérez", birthDate: "2012-05-01" }),
-      );
+      .mockResolvedValue(buildCheckedInvitation({ fullName: "Tomás Pérez" }));
     jest
       .mocked(acceptStudentAppInvitation)
       .mockRejectedValue(
@@ -34,14 +32,10 @@ describe("When an invited child is too young", () => {
       );
   });
 
-  it("Then the birth date error is shown", async () => {
+  it("Then the too young message is shown", async () => {
     await renderWithSession(<AcceptStudentAppInvitationScreen />);
     await fireEvent.changeText(
-      await screen.findByLabelText(translate("birthDate.label")),
-      "01052016",
-    );
-    await fireEvent.changeText(
-      screen.getByLabelText(translate("studentAppInvitation.password")),
+      await screen.findByLabelText(translate("studentAppInvitation.password")),
       password,
     );
     await fireEvent.changeText(

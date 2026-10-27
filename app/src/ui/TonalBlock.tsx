@@ -1,7 +1,8 @@
 import { PropsWithChildren } from "react";
 import { View } from "react-native";
 
-export type TonalBlockTone = "primary" | "warning" | "success" | "danger" | "muted";
+export type TonalBlockTone =
+  "primary" | "warning" | "success" | "danger" | "muted" | "surface" | "inverse";
 
 interface TonalBlockProps extends PropsWithChildren {
   tone: TonalBlockTone;
@@ -15,6 +16,8 @@ const toneClassNames: Record<TonalBlockTone, string> = {
   success: "bg-success-soft",
   danger: "bg-danger-soft",
   muted: "bg-muted",
+  surface: "bg-surface",
+  inverse: "bg-inverse",
 };
 
 export function TonalBlock({ tone, isCompact = false, testID, children }: TonalBlockProps) {

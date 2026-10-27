@@ -36,6 +36,8 @@ const keysBuiltFromOneValue = [
   "roles.",
   "student.app.",
   "student.medals.",
+  "student.medals.description.",
+  "student.medals.metal.",
   "subscriptions.feature.",
   "subscriptions.plan.",
   "themes.",

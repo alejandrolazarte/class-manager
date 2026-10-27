@@ -23,7 +23,9 @@ describe("When student invitation is accepted", () => {
   beforeEach(() => {
     mockRefreshTokenStorage(null);
     searchParametersMock.current = { token: invitationToken };
-    jest.mocked(checkStudentAppInvitation).mockResolvedValue(buildCheckedInvitation());
+    jest
+      .mocked(checkStudentAppInvitation)
+      .mockResolvedValue(buildCheckedInvitation({ asksBirthDate: true }));
     jest
       .mocked(acceptStudentAppInvitation)
       .mockResolvedValue(buildTokenResponse({ accessToken: buildStudentAccessToken() }));

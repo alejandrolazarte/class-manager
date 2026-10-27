@@ -88,7 +88,7 @@ public static class StudentAppRequests
         httpClient.PostAsJsonAsync(
             ApiRoutes.Authentication + ApiRoutes.RefuseGuardianConsent, new RefuseGuardianConsentCommand(token), ApiRequests.JsonOptions);
 
-    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, DateOnly birthDate, string password = StudentAppPassword) =>
+    public static Task<HttpResponseMessage> PostAcceptStudentAppInvitationAsync(this HttpClient httpClient, string token, DateOnly? birthDate, string password = StudentAppPassword) =>
         httpClient.PostAsJsonAsync(
             ApiRoutes.Authentication + ApiRoutes.AcceptStudentAppInvitation,
             new AcceptStudentAppInvitationCommand(token, null, password, birthDate, AcceptsLegalTerms: true),

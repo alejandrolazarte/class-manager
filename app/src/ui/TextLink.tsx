@@ -14,6 +14,7 @@ interface TextLinkProps {
   trailingIcon?: IconName;
   isExpanded?: boolean;
   alignment?: TextLinkAlignment;
+  isOnInverse?: boolean;
 }
 
 const alignmentClassNames: Record<TextLinkAlignment, string> = {
@@ -35,7 +36,9 @@ export function TextLink({
   trailingIcon,
   isExpanded,
   alignment = "start",
+  isOnInverse = false,
 }: TextLinkProps) {
+  const iconTone = isOnInverse ? "inverse-foreground" : "primary";
   return (
     <PressableScale
       accessibilityRole={accessibilityRole}
@@ -47,19 +50,19 @@ export function TextLink({
     >
       {icon === undefined ? null : (
         <View className="mr-0.5">
-          <Icon name={icon} size="small" tone="primary" />
+          <Icon name={icon} size="small" tone={iconTone} />
         </View>
       )}
       <AppText
         variant="link"
-        tone="primary"
+        tone={isOnInverse ? "inverse" : "primary"}
         className={`flex-shrink ${textAlignmentClassNames[alignment]}`}
       >
         {label}
       </AppText>
       {trailingIcon === undefined ? null : (
         <View>
-          <Icon name={trailingIcon} size="small" tone="primary" />
+          <Icon name={trailingIcon} size="small" tone={iconTone} />
         </View>
       )}
     </PressableScale>
