@@ -143,6 +143,7 @@
   "authentication.signIn.submit": "Ingresar",
   "authentication.signIn.invalidCredentials": "Email o contraseña incorrectos",
   "authentication.signIn.lockedOut": "Demasiados intentos. Probá de nuevo en 15 minutos",
+  "authentication.signIn.noBusinessAccess": "Tu cuenta ya no tiene acceso a ninguna escuela. Si creés que es un error, hablá con tu escuela.",
   "authentication.signIn.withPasskey": "Ingresar con passkey",
   "authentication.signIn.passkeyNotVerified": "No pudimos verificar la passkey. Probá de nuevo o ingresá con tu contraseña",
   "authentication.signIn.goToSignUp": "¿Todavía no tenés cuenta? Registrá tu negocio",

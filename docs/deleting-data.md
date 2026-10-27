@@ -94,7 +94,7 @@ A student (a child or another person a client brings, or the client themselves w
 
 - Current enrollments end today; one that hasn't started yet is removed, as unenrolling does.
 - The student is soft deleted (`Students` implements `ISoftDeletable`, migration `SoftDeleteStudents`), so the student disappears from the card, the student list, rosters, attendance and the month's fees, while attendance, measurements and payments stay in the database.
-- Their student app access is soft deleted and pending invitations are revoked.
+- Their student app access in this business is soft deleted and pending invitations are revoked. Links to other businesses and the account itself (email and password, which no business owns) stay: the person keeps using the app in their other businesses, and with no business left, signing in says so ([Student accounts](student-accounts.md#pending)).
 - Their person (`Users`) is soft deleted too unless it is also the client, an instructor or a team member, so the email can be used again.
 
 There is no undo: the delete ends enrollments, which a restore couldn't bring back as they were. There is no "suspended" state either: a student who stops coming is unenrolled from their classes and stays on the card.
