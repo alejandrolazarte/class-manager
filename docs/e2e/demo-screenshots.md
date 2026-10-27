@@ -122,8 +122,11 @@ The student signs in through the sign-in screen, then the test captures:
 | `25-alumno-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |
 | `26-alumno-carrito` | Cart: lines, delivery place, payment and total |
 | `27-alumno-pedidos`, `28-alumno-pedidos-anteriores` | Orders in progress with tracking, and past orders |
-| `28b-alumno-logros` | Achievements: level, progress to the next one and level path |
-| `28c-alumno-logros-medallas` | Achievements: medals and the last 12 weeks |
+| `28b-alumno-logros` | Achievements: level ring, streak card and the next medal |
+| `28c-alumno-logros-medallas` | Achievements: medals, earned and locked with their progress |
+| `28c2-alumno-niveles` | Every level of the business, from Ver todos los niveles |
+| `28c3-alumno-racha` | Streak: best streak, the last 12 weeks and the streak goals |
+| `28c4-alumno-nueva-medalla` | The new medal celebration (the capture forgets the last seen medal first) |
 | `28d-alumno-mediciones` | Achievements on Mediciones: the measurements the student sees |
 | `28e-alumno-medicion` | A measurement in the student app: new personal best, goal and history |
 | `28f-alumno-cargar-medicion` | The form a student uses to record a measurement the team opened to them |

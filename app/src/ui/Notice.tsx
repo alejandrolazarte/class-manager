@@ -12,6 +12,8 @@ const textTones: Record<TonalBlockTone, TextTone> = {
   success: "successSoft",
   danger: "dangerSoft",
   muted: "muted",
+  surface: "default",
+  inverse: "inverse",
 };
 
 export function Notice({ message, tone }: NoticeProps) {
