@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react-native";
 import { getImportSchema, previewImport } from "@/features/importExport/importExportApi";
 import { pickImportFile } from "@/features/importExport/pickImportFile";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
+import { ImportScreen } from "@/features/importExport/screens/ImportScreen";
 import { translate, translateCount } from "@/i18n/translate";
 import {
   buildStudentsReport,
@@ -28,7 +28,7 @@ describe("When an import goes past the student limit", () => {
   });
 
   it("Then the preview explains the room left", async () => {
-    await renderWithProviders(<ImportExportScreen />);
+    await renderWithProviders(<ImportScreen module="students" />);
 
     await fireEvent.press(
       screen.getByRole("button", { name: translate("importExport.chooseFile") }),

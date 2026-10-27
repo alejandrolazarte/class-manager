@@ -16,6 +16,8 @@ internal sealed class ImportUseCaseBuilder
     public const string UnknownModule = "payments";
 
     public Mock<IInstructorRepository> Instructors { get; } = new();
+    public Mock<IUserRepository> Users { get; } = new();
+    public HashSet<string> TakenEmails { get; } = new(StringComparer.OrdinalIgnoreCase);
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public List<Instructor> AddedInstructors { get; } = [];
     public ImportParser Parser { get; } = new(new CsvTabularReader());
@@ -27,9 +29,10 @@ internal sealed class ImportUseCaseBuilder
         var existingInstructors = ExistingInstructors;
         Instructors.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(existingInstructors);
         Instructors.Setup(repository => repository.Add(It.IsAny<Instructor>())).Callback<Instructor>(AddedInstructors.Add);
+        Users.Setup(repository => repository.ListEmailsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TakenEmails);
     }
 
-    public InstructorImportModule InstructorModule => new(Instructors.Object, new FakeTimeProvider(TestData.Now));
+    public InstructorImportModule InstructorModule => new(Instructors.Object, Users.Object, new FakeTimeProvider(TestData.Now));
 
     public PreviewImportUseCase PreviewUseCase => new([InstructorModule], Parser, Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>());
 

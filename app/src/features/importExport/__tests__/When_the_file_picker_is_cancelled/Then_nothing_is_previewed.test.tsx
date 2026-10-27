@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { getImportSchema, previewImport } from "@/features/importExport/importExportApi";
 import { pickImportFile } from "@/features/importExport/pickImportFile";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
+import { ImportScreen } from "@/features/importExport/screens/ImportScreen";
 import { translate } from "@/i18n/translate";
 import { buildStudentsSchema } from "@/testing/importExportFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -17,7 +17,7 @@ describe("When the file picker is cancelled", () => {
   });
 
   it("Then nothing is previewed", async () => {
-    await renderWithProviders(<ImportExportScreen />);
+    await renderWithProviders(<ImportScreen module="students" />);
 
     await fireEvent.press(
       screen.getByRole("button", { name: translate("importExport.chooseFile") }),

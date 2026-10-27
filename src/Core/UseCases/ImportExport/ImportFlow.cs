@@ -44,11 +44,13 @@ internal static class ImportFlow
             return plan.Error!;
         }
 
+        var nameByLine = parsed.Import.Rows.ToDictionary(row => row.LineNumber, row => row.GetText(module.Value.RowNameKey));
         var rows = parsed.Import.Rows
             .Where(row => row.HasErrors)
             .Select(row => ImportRowResult.Error(row.LineNumber, row.Errors))
             .Concat(plan.Value!.Rows)
             .OrderBy(row => row.Line)
+            .Select(row => row with { Name = nameByLine.GetValueOrDefault(row.Line) })
             .ToList();
 
         var summary = ImportSummary.From(rows);

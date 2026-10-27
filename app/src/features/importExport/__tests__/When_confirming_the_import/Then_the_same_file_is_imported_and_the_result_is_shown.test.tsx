@@ -5,7 +5,7 @@ import {
   previewImport,
 } from "@/features/importExport/importExportApi";
 import { pickImportFile } from "@/features/importExport/pickImportFile";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
+import { ImportScreen } from "@/features/importExport/screens/ImportScreen";
 import { translate, translateCount } from "@/i18n/translate";
 import {
   buildStudentsReport,
@@ -27,7 +27,7 @@ describe("When confirming the import", () => {
   });
 
   it("Then the same file is imported and the result is shown", async () => {
-    await renderWithProviders(<ImportExportScreen />);
+    await renderWithProviders(<ImportScreen module="students" />);
     await fireEvent.press(
       screen.getByRole("button", { name: translate("importExport.chooseFile") }),
     );

@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
+import { ImportScreen } from "@/features/importExport/screens/ImportScreen";
 import { pickImportFile } from "@/features/importExport/pickImportFile";
 import { translate } from "@/i18n/translate";
 import { buildCurrentMember } from "@/testing/memberFactory";
@@ -11,7 +11,7 @@ jest.mock("@/features/importExport/pickImportFile");
 
 describe("When the plan does not include import and export", () => {
   it("Then choosing a file offers a plan", async () => {
-    await renderWithProviders(<ImportExportScreen />, {
+    await renderWithProviders(<ImportScreen module="students" />, {
       member: buildCurrentMember({ subscription: buildSubscription() }),
     });
 

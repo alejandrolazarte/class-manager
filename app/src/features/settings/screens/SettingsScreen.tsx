@@ -10,7 +10,7 @@ import { useBranches } from "@/features/branches/useBranches";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { billingModeValue } from "@/features/fees/billingMode";
-import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
+import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { useProducts } from "@/features/products/useProducts";
 import {
@@ -56,7 +56,6 @@ export function SettingsScreen() {
   const canViewProducts = useCan(permissions.productsView);
   const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
-  const canImportExport = useRoleCan(permissions.importExportRun);
   const canManageAnnouncements = useCan(permissions.announcementsManage);
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
@@ -213,13 +212,6 @@ export function SettingsScreen() {
           label: translate("student.notifications.title"),
           value: notificationsValue(pushNotifications),
           onPress: () => setOpenSheet("notifications"),
-        },
-        {
-          key: "importExport",
-          isVisible: canImportExport,
-          icon: "importExport",
-          label: translate("settings.importExport"),
-          onPress: () => router.push(routes.importExport),
         },
       ],
     },

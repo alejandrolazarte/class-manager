@@ -12,7 +12,7 @@ public sealed class Then_file_has_the_header_and_an_example_row
 
         var file = await builder.TemplateUseCase.ExecuteAsync(new GetImportTemplateQuery(InstructorImportModule.ModuleName), CancellationToken.None);
 
-        ImportUseCaseBuilder.Lines(file.Value!).ShouldBe(["Profesor", "Laura Gómez"]);
+        ImportUseCaseBuilder.Lines(file.Value!).ShouldBe(["Profesor;Email", "Laura Gómez;laura@example.com"]);
         file.Value!.FileName.ShouldBe("instructors-template.csv");
     }
 }

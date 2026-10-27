@@ -15,6 +15,6 @@ public sealed class Then_file_has_only_that_business_instructors(ApiFixture fixt
 
         var exported = await business.HttpClient.DownloadWorkbookAsync(InstructorImportModule.ModuleName, ApiRoutes.ExportAction);
 
-        ImportRequests.WorkbookRows(exported).ShouldBe([["Profesor"], ["Marta Ruiz"]]);
+        ImportRequests.WorkbookRows(exported).ShouldBe([["Profesor", "Email"], ["Marta Ruiz"]]);
     }
 }

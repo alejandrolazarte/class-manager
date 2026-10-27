@@ -56,8 +56,11 @@ Domain errors land on the column that caused them: the phone on `phone`, the cli
 | Key | Header | Type | Required | Aliases | Rule |
 |---|---|---|---|---|---|
 | `fullName` | Profesor | text | yes | nombre, coach, entrenador, monitor, instructor | `Instructor.Create` |
+| `email` | Email | email | no | mail, correo, correo electrónico, e-mail | `Instructor.Create`; an email another person of the business already uses, or repeated in the file → `Error` `user.email_taken` (added 2026-10-27, the instructor form already asked for it) |
 
 A coach with the same name already exists (case-insensitive, as today) → `Skipped`.
+
+Every row of the preview and import report carries `name`, the value of the module's `RowNameKey` column (`Alumno`, `Profesor`), so the app can say "Fila 4 · Carla Méndez".
 
 ### Export
 

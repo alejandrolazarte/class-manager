@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { InstructorListItem } from "@/features/instructors/components/InstructorListItem";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { ImportExportMenu } from "@/features/importExport/components/ImportExportMenu";
+import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { SettingsListScreenLayout } from "@/features/settings/components/SettingsListScreenLayout";
 import { translate } from "@/i18n/translate";
@@ -11,6 +12,9 @@ export function InstructorListScreen() {
   const router = useRouter();
   const canManageInstructors = useCan(permissions.instructorsManage);
   const canOpenInstructor = useCan(permissions.instructorsManage, permissions.membersManage);
+  const canRunImportExport = useRoleCan(permissions.importExportRun);
+  const canSeeWholeList = useCan(permissions.instructorsView);
+  const canImportExportInstructors = canRunImportExport && canSeeWholeList;
   const {
     data: instructors = [],
     isPending,
@@ -21,6 +25,11 @@ export function InstructorListScreen() {
   return (
     <SettingsListScreenLayout
       title={translate("instructors.list.title")}
+      headerAction={
+        canImportExportInstructors ? (
+          <ImportExportMenu module="instructors" importRoute={routes.importInstructors} />
+        ) : undefined
+      }
       items={instructors}
       isPending={isPending}
       isError={isError}

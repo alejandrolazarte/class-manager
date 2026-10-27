@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react-native";
 import { ApiError } from "@/api/apiErrors";
 import { getImportSchema, previewImport } from "@/features/importExport/importExportApi";
 import { pickImportFile } from "@/features/importExport/pickImportFile";
-import { ImportExportScreen } from "@/features/importExport/screens/ImportExportScreen";
+import { ImportScreen } from "@/features/importExport/screens/ImportScreen";
 import { translate } from "@/i18n/translate";
 import { buildStudentsSchema, pickedStudentsFile } from "@/testing/importExportFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -26,7 +26,7 @@ describe("When the file misses a required column", () => {
   });
 
   it("Then the file error is shown", async () => {
-    await renderWithProviders(<ImportExportScreen />);
+    await renderWithProviders(<ImportScreen module="students" />);
 
     await fireEvent.press(
       screen.getByRole("button", { name: translate("importExport.chooseFile") }),
