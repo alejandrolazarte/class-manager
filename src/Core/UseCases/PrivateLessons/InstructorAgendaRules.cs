@@ -38,13 +38,27 @@ internal static class InstructorAgendaRules
         long? ignoredClassGroupId,
         CancellationToken cancellationToken)
     {
+        var taughtClasses = await ListTaughtClassesAsync(repositories, instructorId, dates, cancellationToken);
+        var overlappingClass = taughtClasses.FirstOrDefault(taughtClass =>
+            taughtClass.ClassGroup.Id != ignoredClassGroupId
+            && taughtClass.Schedule.OverlapsWith(ClassSchedule.ForDay(taughtClass.Date.DayOfWeek, startTime, durationMinutes)));
+
+        return overlappingClass is null ? null : new ClassGroupOverlap(overlappingClass.Date, overlappingClass.ClassGroup);
+    }
+
+    public static async Task<IReadOnlyList<TaughtClass>> ListTaughtClassesAsync(
+        InstructorAgendaRepositories repositories,
+        long instructorId,
+        IReadOnlyList<DateOnly> dates,
+        CancellationToken cancellationToken)
+    {
         var firstDate = dates.Min();
         var lastDate = dates.Max();
         var usualClassGroups = await repositories.ClassGroups.ListActiveByInstructorAsync(instructorId, cancellationToken);
         var substitutions = await repositories.Sessions.ListSubstitutionsAsync(instructorId, firstDate, lastDate, cancellationToken);
         if (usualClassGroups.Count == 0 && substitutions.Count == 0)
         {
-            return null;
+            return [];
         }
 
         var classGroupsById = usualClassGroups.ToDictionary(classGroup => classGroup.Id);
@@ -59,30 +73,24 @@ internal static class InstructorAgendaRules
 
         var sessions = (await repositories.Sessions.ListBetweenAsync(firstDate, lastDate, cancellationToken))
             .ToDictionary(session => (session.ClassGroupId, session.Date));
+        var taughtClasses = new List<TaughtClass>();
         foreach (var date in dates)
         {
-            var requestedTime = ClassSchedule.ForDay(date.DayOfWeek, startTime, durationMinutes);
-            var overlappingClassGroup = classGroupsById.Values
-                .Where(classGroup => classGroup.Id != ignoredClassGroupId && classGroup.Schedule.MeetsOn(date.DayOfWeek))
-                .FirstOrDefault(classGroup =>
-                {
-                    var session = sessions.GetValueOrDefault((classGroup.Id, date));
-                    if (session?.IsCancelled == true
-                        || (session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId) != instructorId)
-                    {
-                        return false;
-                    }
-
-                    var sessionStartTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
-                    return ClassSchedule.ForDay(date.DayOfWeek, sessionStartTime, classGroup.DurationMinutes).OverlapsWith(requestedTime);
-                });
-            if (overlappingClassGroup is not null)
+            foreach (var classGroup in classGroupsById.Values.Where(classGroup => classGroup.Schedule.MeetsOn(date.DayOfWeek)))
             {
-                return new ClassGroupOverlap(date, overlappingClassGroup);
+                var session = sessions.GetValueOrDefault((classGroup.Id, date));
+                if (session?.IsCancelled == true
+                    || (session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId) != instructorId)
+                {
+                    continue;
+                }
+
+                var sessionStartTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
+                taughtClasses.Add(new TaughtClass(date, classGroup, ClassSchedule.ForDay(date.DayOfWeek, sessionStartTime, classGroup.DurationMinutes)));
             }
         }
 
-        return null;
+        return taughtClasses;
     }
 
     public static async Task<ResultError?> FindPrivateLessonConflictAsync(
@@ -132,6 +140,8 @@ internal static class InstructorAgendaRules
 }
 
 internal sealed record ClassGroupOverlap(DateOnly Date, ClassGroup ClassGroup);
+
+internal sealed record TaughtClass(DateOnly Date, ClassGroup ClassGroup, ClassSchedule Schedule);
 
 internal sealed record InstructorAgendaRepositories(
     IClassGroupRepository ClassGroups,

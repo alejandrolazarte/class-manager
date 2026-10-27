@@ -19,3 +19,10 @@ export function toMinutesOfDay(startTime: string): number {
   const [hours, minutes] = startTime.split(timeSeparator).map(Number);
   return (hours ?? 0) * minutesPerHour + (minutes ?? 0);
 }
+
+export function formatMinutesOfDay(minutesOfDay: number): string {
+  const wrappedMinutes = minutesOfDay % minutesPerDay;
+  const hours = String(Math.floor(wrappedMinutes / minutesPerHour)).padStart(2, "0");
+  const minutes = String(wrappedMinutes % minutesPerHour).padStart(2, "0");
+  return `${hours}${timeSeparator}${minutes}`;
+}

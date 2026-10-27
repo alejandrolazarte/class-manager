@@ -1,4 +1,8 @@
-import { PrivateLesson, PrivateLessonStudent } from "@/features/privateLessons/types";
+import {
+  InstructorAgendaSlot,
+  PrivateLesson,
+  PrivateLessonStudent,
+} from "@/features/privateLessons/types";
 import { sessionDate } from "@/testing/sessionFactory";
 
 export function buildPrivateLessonStudent(
@@ -33,6 +37,18 @@ export function buildPrivateLesson(overrides: Partial<PrivateLesson> = {}): Priv
     students: [buildPrivateLessonStudent()],
     isTrial: false,
     trialPrice: null,
+    ...overrides,
+  };
+}
+
+export function buildInstructorAgendaSlot(
+  overrides: Partial<InstructorAgendaSlot> = {},
+): InstructorAgendaSlot {
+  return {
+    startTime: "18:00",
+    durationMinutes: 45,
+    kind: "ClassGroup",
+    classGroupName: "Grupo adultos",
     ...overrides,
   };
 }

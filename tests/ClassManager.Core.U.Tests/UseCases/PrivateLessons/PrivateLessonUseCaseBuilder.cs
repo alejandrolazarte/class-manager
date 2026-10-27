@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Instructors;
@@ -75,6 +76,21 @@ internal sealed class PrivateLessonUseCaseBuilder
         return session;
     }
 
+    public ClassSession CancelTodayIn(ClassGroup classGroup)
+    {
+        var session = ClassSession.Create(classGroup.Id, TestData.Today, TestData.Now).WithId();
+        session.Cancel(null, TestData.Now);
+        Sessions
+            .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([session]);
+        return session;
+    }
+
+    public void InstructorHasLessons(params PrivateLesson[] lessons) =>
+        PrivateLessons
+            .Setup(repository => repository.ListByInstructorOnDatesAsync(Instructor.Id, It.IsAny<IReadOnlyCollection<DateOnly>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(lessons);
+
     public PrivateLesson ExistingLesson(DateOnly date, string startTime = "18:00") =>
         PrivateLesson.Create(
             Instructor.Id,
@@ -101,6 +117,14 @@ internal sealed class PrivateLessonUseCaseBuilder
             new FakeTimeProvider(TestData.Now),
             new Mock<IClientRepository>().Object,
             new EveryAccessScopes());
+
+    public ListInstructorAgendaUseCase BuildListAgenda(IAccessScopes? accessScopes = null) =>
+        new(
+            Instructors.Object,
+            ClassGroups.Object,
+            Sessions.Object,
+            PrivateLessons.Object,
+            accessScopes ?? new EveryAccessScopes());
 
     public RecordPrivateLessonAttendanceUseCase BuildRecordAttendance() =>
         new(PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, new EveryAccessScopes());

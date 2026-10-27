@@ -6,7 +6,11 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { getStringExtension } from "@/api/problemDetails";
-import { commonDurationsInMinutes } from "@/features/classGroups/classGroupSchema";
+import {
+  classGroupLimits,
+  commonDurationsInMinutes,
+  isWholeNumberBetween,
+} from "@/features/classGroups/classGroupSchema";
 import { InstructorField } from "@/features/instructors/components/InstructorField";
 import { Instructor } from "@/features/instructors/types";
 import { useActiveInstructors } from "@/features/instructors/useActiveInstructors";
@@ -14,6 +18,7 @@ import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import { getClassBalance } from "@/features/classPacks/classPacksApi";
 import { useCan, useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
+import { InstructorAgendaCard } from "@/features/privateLessons/components/InstructorAgendaCard";
 import { LessonStudentPicker } from "@/features/privateLessons/components/LessonStudentPicker";
 import {
   conflictingDateExtension,
@@ -35,6 +40,7 @@ import {
   useReschedulePrivateLesson,
   useSchedulePrivateLesson,
 } from "@/features/privateLessons/usePrivateLessonMutations";
+import { parseBirthDate } from "@/dates/birthDateFormatting";
 import { formatLongDate, todayIsoDate } from "@/dates/dates";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
@@ -87,6 +93,16 @@ function FieldError({ message }: { message?: string }) {
   ) : null;
 }
 
+function toValidDurationMinutes(typedDuration: string): number | null {
+  return isWholeNumberBetween(
+    typedDuration,
+    classGroupLimits.minimumDurationMinutes,
+    classGroupLimits.maximumDurationMinutes,
+  )
+    ? Number(typedDuration)
+    : null;
+}
+
 function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLessonEditorProps) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -108,6 +124,11 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
   const { control } = form;
   const queryClient = useQueryClient();
   const isTrial = useWatch({ control, name: "isTrial" });
+  const [instructorId, typedDate, startTime, typedDuration] = useWatch({
+    control,
+    name: ["instructorId", "date", "startTime", "durationMinutes"],
+  });
+  const chosenInstructor = instructors.find((instructor) => instructor.id === instructorId);
   const areRequiredFieldsFilled = useRequiredFieldsFilled(control, [
     "students",
     "instructorId",
@@ -287,6 +308,21 @@ function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLesson
             <FieldError message={fieldState.error?.message} />
           </View>
         )}
+      />
+      <InstructorAgendaCard
+        instructorId={instructorId}
+        instructorFullName={chosenInstructor?.fullName ?? ""}
+        date={parseBirthDate(typedDate)}
+        durationMinutes={toValidDurationMinutes(typedDuration)}
+        startTime={startTime.trim()}
+        ignoredPrivateLessonId={lesson?.id}
+        onPickStartTime={(pickedStartTime) =>
+          form.setValue("startTime", pickedStartTime, {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+          })
+        }
       />
       <Controller
         control={control}

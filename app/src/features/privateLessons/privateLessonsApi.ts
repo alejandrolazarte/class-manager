@@ -1,5 +1,6 @@
 import { httpClient } from "@/api/httpClient";
 import {
+  InstructorAgendaSlot,
   PrivateLesson,
   PrivateLessonDetails,
   SchedulePrivateLessonRequest,
@@ -9,6 +10,7 @@ import { AttendanceStatus } from "@/features/sessions/types";
 const privateLessonsPath = "/api/private-lessons";
 const cancellationSegment = "cancellation";
 const attendanceSegment = "attendance";
+const instructorAgendaSegment = "instructor-agenda";
 
 function privateLessonPath(privateLessonId: string): string {
   return `${privateLessonsPath}/${encodeURIComponent(privateLessonId)}`;
@@ -18,6 +20,21 @@ export function schedulePrivateLesson(
   request: SchedulePrivateLessonRequest,
 ): Promise<PrivateLesson[]> {
   return httpClient.post<PrivateLesson[]>(privateLessonsPath, request);
+}
+
+export function listInstructorAgenda(
+  instructorId: string,
+  date: string,
+  ignoredPrivateLessonId: string | undefined,
+): Promise<InstructorAgendaSlot[]> {
+  return httpClient.get<InstructorAgendaSlot[]>(
+    `${privateLessonsPath}/${instructorAgendaSegment}`,
+    {
+      instructorId,
+      date,
+      ignoredPrivateLessonId,
+    },
+  );
 }
 
 export function getPrivateLesson(privateLessonId: string): Promise<PrivateLesson> {
