@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Enrollments;
+using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.Students;
 using Microsoft.Extensions.Time.Testing;
@@ -13,6 +14,8 @@ internal sealed class DeleteStudentUseCaseBuilder
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
     public Mock<IEnrollmentRepository> Enrollments { get; } = new();
+    public Mock<IMakeupBookingRepository> Makeups { get; } = new();
+    public Mock<IPackBookingRepository> PackBookings { get; } = new();
     public Mock<IClientAccountRepository> ClientAccounts { get; } = new();
     public Mock<IClientInvitationRepository> Invitations { get; } = new();
     public Mock<IUserRepository> Users { get; } = new();
@@ -29,6 +32,8 @@ internal sealed class DeleteStudentUseCaseBuilder
         Students.Setup(repository => repository.FindForUpdateAsync(Student.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Student);
         Enrollments.Setup(repository => repository.ListOpenByStudentForUpdateAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         ClientAccounts.Setup(repository => repository.ListForUpdateByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Makeups.Setup(repository => repository.ListUnattendedForUpdateByStudentFromAsync(It.IsAny<long>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        PackBookings.Setup(repository => repository.ListUnattendedForUpdateByStudentFromAsync(It.IsAny<long>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Invitations
             .Setup(repository => repository.ListPendingForUpdateByPersonAsync(It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
@@ -52,6 +57,14 @@ internal sealed class DeleteStudentUseCaseBuilder
         return enrollment;
     }
 
+    public PackBooking WithUpcomingPackClass()
+    {
+        var session = ClassSession.Create(TestIds.Next(), TestData.Today.AddDays(2), TestData.Now).WithId();
+        var booking = PackBooking.Create(session, Student.Id, TestData.Now).WithId();
+        PackBookings.Setup(repository => repository.ListUnattendedForUpdateByStudentFromAsync(Student.Id, TestData.Today, It.IsAny<CancellationToken>())).ReturnsAsync([booking]);
+        return booking;
+    }
+
     public ClientAccount WithStudentAppAccount()
     {
         var account = ClientAccount.Create(Client.Id, TestData.UserOfAccount(Guid.CreateVersion7()), TestData.Now, Student.Id).WithId();
@@ -67,6 +80,8 @@ internal sealed class DeleteStudentUseCaseBuilder
             Clients.Object,
             Students.Object,
             Enrollments.Object,
+            Makeups.Object,
+            PackBookings.Object,
             ClientAccounts.Object,
             Invitations.Object,
             Users.Object,

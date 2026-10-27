@@ -95,19 +95,26 @@ public sealed class GetSessionUseCase(
         var notifiedStudentIds = session is null
             ? new HashSet<long>()
             : await absenceNoticeRepository.ListStudentIdsBySessionAsync(session.Id, cancellationToken);
-        var roster = await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
+        var today = await businessCalendar.TodayAsync(cancellationToken);
+        var isPast = command.Date < today;
+        var roster = isPast
+            ? await enrollmentRepository.ListRosterOnIncludingDeletedAsync(command.ClassGroupId, command.Date, cancellationToken)
+            : await enrollmentRepository.ListRosterOnAsync(command.ClassGroupId, command.Date, cancellationToken);
         var makeupStudents = session is null
             ? []
-            : await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
+            : isPast
+                ? await makeupBookingRepository.ListStudentsBySessionIncludingDeletedAsync(session.Id, cancellationToken)
+                : await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
         var packStudents = session is null
             ? []
-            : await packBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
+            : isPast
+                ? await packBookingRepository.ListStudentsBySessionIncludingDeletedAsync(session.Id, cancellationToken)
+                : await packBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken);
         var classBalances = await ClassBalancesOfPayingPerClassAsync(
             [.. roster.Select(entry => entry.ClientId), .. makeupStudents.Select(student => student.ClientId)],
             [.. packStudents.Select(student => student.ClientId)],
             command.Date,
             cancellationToken);
-        var today = await businessCalendar.TodayAsync(cancellationToken);
         var isCancelled = session?.IsCancelled ?? false;
         var usualStartTime = classGroup.Value!.StartTime;
         var startTime = session?.EffectiveStartTime(usualStartTime) ?? usualStartTime;
@@ -126,7 +133,7 @@ public sealed class GetSessionUseCase(
             session?.CancellationReason,
             CanTakeAttendance: !isCancelled && command.Date <= today,
             CanReschedule: !isCancelled && command.Date >= today,
-            IsPast: command.Date < today,
+            IsPast: isPast,
             [
                 .. roster.Select(entry => new SessionStudentResponse(
                     entry.StudentId,

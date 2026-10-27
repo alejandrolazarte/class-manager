@@ -47,7 +47,7 @@ internal sealed class SessionUseCaseBuilder
             .Setup(repository => repository.ListByInstructorOnDatesAsync(It.IsAny<long>(), It.IsAny<IReadOnlyCollection<DateOnly>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         Students
-            .Setup(repository => repository.ListSummariesByIdsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListSummariesIncludingDeletedByIdsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         PrivateLessons
             .Setup(repository => repository.ListBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
@@ -62,11 +62,23 @@ internal sealed class SessionUseCaseBuilder
         PackBookings
             .Setup(repository => repository.ListStudentsBySessionAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        PackBookings
+            .Setup(repository => repository.ListStudentsBySessionIncludingDeletedAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         MakeupBookings
             .Setup(repository => repository.ListStudentsBySessionAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        MakeupBookings
+            .Setup(repository => repository.ListStudentsBySessionIncludingDeletedAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         Enrollments
             .Setup(repository => repository.ListRosterOnAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RosterEntry(TestIds.Next(), EnrolledStudentId, TestData.StudentFullName, null, TestIds.Next(), TestData.ClientFullName, TestData.Today, null),
+            ]);
+        Enrollments
+            .Setup(repository => repository.ListRosterOnIncludingDeletedAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new RosterEntry(TestIds.Next(), EnrolledStudentId, TestData.StudentFullName, null, TestIds.Next(), TestData.ClientFullName, TestData.Today, null),
@@ -78,6 +90,13 @@ internal sealed class SessionUseCaseBuilder
         var anotherStudentId = TestIds.Next();
         Enrollments
             .Setup(repository => repository.ListRosterOnAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RosterEntry(TestIds.Next(), EnrolledStudentId, TestData.StudentFullName, null, TestIds.Next(), TestData.ClientFullName, TestData.Today, null),
+                new RosterEntry(TestIds.Next(), anotherStudentId, TestData.StudentFullName, null, TestIds.Next(), TestData.ClientFullName, TestData.Today, null),
+            ]);
+        Enrollments
+            .Setup(repository => repository.ListRosterOnIncludingDeletedAsync(ClassGroup.Id, It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new RosterEntry(TestIds.Next(), EnrolledStudentId, TestData.StudentFullName, null, TestIds.Next(), TestData.ClientFullName, TestData.Today, null),

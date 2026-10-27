@@ -78,7 +78,7 @@ public sealed class ListDaySessionsUseCase(
         var privateLessons = (await privateLessonRepository.ListBetweenAsync(date, date, cancellationToken))
             .Where(lesson => scope.Includes(lesson.InstructorId))
             .ToList();
-        var studentNames = (await studentRepository.ListSummariesByIdsAsync(
+        var studentNames = (await studentRepository.ListSummariesIncludingDeletedByIdsAsync(
                 [.. privateLessons.SelectMany(lesson => lesson.Students).Select(lessonStudent => lessonStudent.StudentId).Distinct()],
                 cancellationToken))
             .ToDictionary(student => student.Id, student => student.FullName);

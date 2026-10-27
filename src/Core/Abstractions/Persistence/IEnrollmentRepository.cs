@@ -20,6 +20,8 @@ public interface IEnrollmentRepository
 
     Task<IReadOnlyList<RosterEntry>> ListRosterOnAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<RosterEntry>> ListRosterOnIncludingDeletedAsync(long classGroupId, DateOnly sessionDate, CancellationToken cancellationToken);
+
     Task<IReadOnlyDictionary<long, int>> CountActiveOnByClassGroupAsync(DateOnly sessionDate, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ClassGroupEnrollmentPeriod>> ListActiveInPeriodAsync(DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken);

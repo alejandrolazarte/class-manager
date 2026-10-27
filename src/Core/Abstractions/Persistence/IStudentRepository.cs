@@ -22,5 +22,7 @@ public interface IStudentRepository
 
     Task<IReadOnlyList<StudentSummary>> ListSummariesByIdsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<StudentSummary>> ListSummariesIncludingDeletedByIdsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<StudentSummary>> SearchAsync(StudentSearchCriteria criteria, CancellationToken cancellationToken);
 }

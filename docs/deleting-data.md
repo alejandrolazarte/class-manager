@@ -93,7 +93,21 @@ A student (a child or another person a client brings, or the client themselves w
 **Deleting** (`DELETE /api/students/{id}`) asks first with `ConfirmDialog` ("¿Borrar a {name}?", **Volver** / **Borrar**). When the student is enrolled, the message says how many classes they leave ("Se va a dar de baja de N clases."); without classes there is no message. In one transaction:
 
 - Current enrollments end today; one that hasn't started yet is removed, as unenrolling does.
-- The student is soft deleted (`Students` implements `ISoftDeletable`, migration `SoftDeleteStudents`), so the student disappears from the card, the student list, rosters and attendance, while attendance, measurements and payments stay in the database. Cobros is the exception: the months a deleted student was enrolled still list them and count what was paid (`ListEnrolledInPeriodAsync` reads deleted students and people), so deleting never changes the money of this or any past month; from next month on they are gone, as after unenrolling.
+- Upcoming makeup and pack class bookings (from today, without attendance yet) are cancelled, so they free their spot and give the pack class back.
+- The student is soft deleted (`Students` implements `ISoftDeletable`, migration `SoftDeleteStudents`).
+
+**What a deleted student looks like afterwards.** One rule: they leave everything about now and the future, and stay in everything that already happened, above all money.
+
+| Where | Deleted student |
+| --- | --- |
+| Client card, student list, search, enrolling, today's and future classes, attendance to take, student app, notifications, plan limit count | Gone |
+| Cobros: the months they were enrolled (`ListEnrolledInPeriodAsync`) | Listed, with what was paid; from next month on, gone, as after unenrolling |
+| Class packs: classes the family already used (`ListAttendedClassesByClientsAsync`, attendance and private lessons) and paid trial lessons | Still counted, so the pack balance doesn't go up |
+| A past class (before today): its roster, makeups and pack bookings, and its measurements | Listed, as they were that day, and its attendance can still be corrected |
+| Private lessons (past or upcoming) | Still named (`ListSummariesIncludingDeletedByIdsAsync`); an upcoming one is not cancelled on its own |
+| Payments, pack sales, orders | Untouched: they belong to the client, not to the student |
+
+These reads use `IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])`, which keeps the tenant filter. Integration tests cover the Cobros total, the pack balance, a past class and today's class.
 - Their student app access in this business is soft deleted and pending invitations are revoked. Links to other businesses and the account itself (email and password, which no business owns) stay: the person keeps using the app in their other businesses, and with no business left, signing in says so ([Student accounts](student-accounts.md#pending)).
 - Their person (`Users`) is soft deleted too unless it is also the client, an instructor or a team member, so the email can be used again.
 

@@ -15,6 +15,8 @@ public sealed class DeleteStudentUseCase(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IEnrollmentRepository enrollmentRepository,
+    IMakeupBookingRepository makeupBookingRepository,
+    IPackBookingRepository packBookingRepository,
     IClientAccountRepository clientAccountRepository,
     IClientInvitationRepository invitationRepository,
     IUserRepository userRepository,
@@ -42,7 +44,9 @@ public sealed class DeleteStudentUseCase(
         }
 
         var now = timeProvider.GetUtcNow();
-        var endedEnrollments = await EndEnrollmentsAsync(student, business.TodayAt(now), cancellationToken);
+        var today = business.TodayAt(now);
+        var endedEnrollments = await EndEnrollmentsAsync(student, today, cancellationToken);
+        await CancelUpcomingBookingsAsync(student, today, cancellationToken);
         await RemoveAppAccessAsync(student, now, cancellationToken);
 
         var roles = await userRepository.GetRolesAsync(student.UserId, cancellationToken);
@@ -72,6 +76,19 @@ public sealed class DeleteStudentUseCase(
         }
 
         return enrollments.Count;
+    }
+
+    private async Task CancelUpcomingBookingsAsync(Student student, DateOnly today, CancellationToken cancellationToken)
+    {
+        foreach (var makeup in await makeupBookingRepository.ListUnattendedForUpdateByStudentFromAsync(student.Id, today, cancellationToken))
+        {
+            makeupBookingRepository.Remove(makeup);
+        }
+
+        foreach (var packClass in await packBookingRepository.ListUnattendedForUpdateByStudentFromAsync(student.Id, today, cancellationToken))
+        {
+            packBookingRepository.Remove(packClass);
+        }
     }
 
     private async Task RemoveAppAccessAsync(Student student, DateTimeOffset now, CancellationToken cancellationToken)
