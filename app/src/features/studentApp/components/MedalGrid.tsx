@@ -1,16 +1,23 @@
 import { View } from "react-native";
-import { allMedals, medalIcons } from "@/features/studentApp/studentAppAchievements";
-import { Medal } from "@/features/studentApp/types";
+import {
+  allMedals,
+  medalGoal,
+  medalIcons,
+  medalMetals,
+} from "@/features/studentApp/studentAppAchievements";
+import { StudentAppAttendance } from "@/features/studentApp/types";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { Icon } from "@/ui/Icon";
+import { MedalBadge } from "@/ui/MedalBadge";
+import { ProgressBar } from "@/ui/ProgressBar";
 
-export function MedalGrid({ earned }: { earned: readonly Medal[] }) {
+export function MedalGrid({ attendance }: { attendance: StudentAppAttendance }) {
   return (
-    <View className="flex-row flex-wrap gap-y-3.5">
+    <View className="flex-row flex-wrap justify-between gap-y-2.5">
       {allMedals.map((medal) => {
-        const isEarned = earned.includes(medal);
+        const isEarned = attendance.medals.includes(medal);
         const name = translate(`student.medals.${medal}` as TranslationKey);
+        const goal = isEarned ? null : medalGoal(medal, attendance);
         return (
           <View
             key={medal}
@@ -19,23 +26,33 @@ export function MedalGrid({ earned }: { earned: readonly Medal[] }) {
               isEarned ? "student.progress.medalEarned" : "student.progress.medalLocked",
               { name },
             )}
-            className="w-1/3 items-center gap-1.5 px-1"
+            className="w-[31.5%] items-center gap-1.5 rounded-2xl bg-surface px-1.5 pb-3 pt-2.5"
           >
-            <View
-              className={`h-12 w-12 items-center justify-center rounded-full ${isEarned ? "bg-warning-soft" : "bg-muted"}`}
-            >
-              <Icon
-                name={isEarned ? medalIcons[medal] : "locked"}
-                tone={isEarned ? "warning" : "disabled-foreground"}
-              />
-            </View>
+            <MedalBadge icon={medalIcons[medal]} metal={isEarned ? medalMetals[medal] : null} />
             <AppText
               variant="footnote"
-              tone={isEarned ? "default" : "subtle"}
+              tone={isEarned ? "default" : "muted"}
               className="text-center font-label"
             >
               {name}
             </AppText>
+            {isEarned ? (
+              <AppText variant="overline" tone="warning">
+                {translate(`student.medals.metal.${medalMetals[medal]}` as TranslationKey)}
+              </AppText>
+            ) : goal === null ? null : (
+              <View className="w-3/4 items-center gap-1">
+                <View className="w-full flex-row">
+                  <ProgressBar ratio={goal.done / goal.total} />
+                </View>
+                <AppText variant="pill" tone="primary">
+                  {translate("student.progress.medalProgress", {
+                    count: goal.done,
+                    total: goal.total,
+                  })}
+                </AppText>
+              </View>
+            )}
           </View>
         );
       })}

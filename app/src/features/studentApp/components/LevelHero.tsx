@@ -2,30 +2,35 @@ import { View } from "react-native";
 import { LevelProgress } from "@/features/studentApp/studentAppAchievements";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
-import { ProgressBar } from "@/ui/ProgressBar";
+import { ProgressRing } from "@/ui/ProgressRing";
+import { TextLink } from "@/ui/TextLink";
+import { TonalBlock } from "@/ui/TonalBlock";
 
 interface LevelHeroProps {
   level: number;
+  attendedClasses: number;
   progress: LevelProgress;
+  onSeeAllLevels: () => void;
 }
 
 const fullPercentage = 100;
 
-export function LevelHero({ level, progress }: LevelHeroProps) {
+export function LevelHero({ level, attendedClasses, progress, onSeeAllLevels }: LevelHeroProps) {
+  const levelLabel = translate("student.progress.level", {
+    number: level,
+    name: progress.current?.name ?? "",
+  });
   return (
-    <View className="gap-3">
-      <View className="flex-row items-center gap-3.5">
-        <View className="h-[60px] w-[60px] items-center justify-center rounded-full border-4 border-primary bg-primary-soft">
-          <AppText variant="headline" tone="primarySoft">
+    <TonalBlock tone="surface">
+      <View className="flex-row items-center gap-4">
+        <ProgressRing ratio={progress.percent / fullPercentage} accessibilityLabel={levelLabel}>
+          <AppText variant="hero" tone="primarySoft">
             {level}
           </AppText>
-        </View>
-        <View className="min-w-0 flex-1 gap-0.5">
+        </ProgressRing>
+        <View className="min-w-0 flex-1 gap-1">
           <AppText variant="badge" tone="primary">
-            {translate("student.progress.level", {
-              number: level,
-              name: progress.current?.name ?? "",
-            })}
+            {levelLabel}
           </AppText>
           <AppText variant="bodyStrong">
             {progress.next === null
@@ -34,11 +39,23 @@ export function LevelHero({ level, progress }: LevelHeroProps) {
                   name: progress.next.name,
                 })}
           </AppText>
+          {progress.next === null ? null : (
+            <AppText variant="footnote" tone="muted">
+              {translate("student.progress.classesOfNext", {
+                count: attendedClasses,
+                total: progress.next.requiredClasses,
+              })}
+            </AppText>
+          )}
         </View>
       </View>
-      <View className="flex-row">
-        <ProgressBar ratio={progress.percent / fullPercentage} isThin />
+      <View className="border-t border-border-subtle pt-1">
+        <TextLink
+          label={translate("student.progress.allLevels")}
+          trailingIcon="next"
+          onPress={onSeeAllLevels}
+        />
       </View>
-    </View>
+    </TonalBlock>
   );
 }

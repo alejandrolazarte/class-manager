@@ -138,6 +138,8 @@ export const routes = {
   studentAppProduct: (productId: string) =>
     `/student-app/shop?productId=${encodeURIComponent(productId)}`,
   studentAppOrders: "/student-app/orders",
+  studentAppLevels: "/student-app/levels",
+  studentAppStreak: "/student-app/streak",
   studentAppMeasurement: (studentId: string, measurementId: string) =>
     `/student-app/measurement?studentId=${encodeURIComponent(studentId)}&measurementId=${encodeURIComponent(measurementId)}`,
   studentAppRecordMeasurement: (studentId: string) =>
