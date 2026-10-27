@@ -56,6 +56,17 @@ internal sealed class StudentRepository(AppDbContext context) : IStudentReposito
                 .Select(ToSummary)
                 .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<StudentSummary>> ListSummariesIncludingDeletedByIdsAsync(
+        IReadOnlyCollection<long> studentIds,
+        CancellationToken cancellationToken) =>
+        studentIds.Count == 0
+            ? []
+            : await StudentsWithClient()
+                .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
+                .Where(studentWithClient => studentIds.Contains(studentWithClient.Student.Id))
+                .Select(ToSummary)
+                .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<StudentSummary>> SearchAsync(StudentSearchCriteria criteria, CancellationToken cancellationToken)
     {
         var studentsWithClient = StudentsWithClient();

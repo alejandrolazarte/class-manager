@@ -67,7 +67,7 @@ export interface CheckedInvitation {
   businessName: string;
   hasAccount: boolean;
   fullName?: string | null;
-  birthDate?: string | null;
+  asksBirthDate?: boolean;
 }
 
 export interface SwitchBranchRequest extends RefreshSessionRequest {

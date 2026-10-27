@@ -32,7 +32,8 @@ A guardian's consent is given for one invitation to one business ([ages and mino
 ## Pending
 
 - [x] **"Eliminar mi cuenta"** in Mi perfil (student app and team app): asks for the current password and confirms with `ConfirmDialog`, deletes the account in `Security`, soft deletes its `ClientAccounts` links and team memberships, deletes its push subscriptions, and keeps the student data each business owns, with the person's user unlinked from the account ([Users per business, step 6](backend/20261017-users/plan.md#steps)). The only brand owner of a brand can't delete their account until someone else is a brand owner.
-- [ ] **Home with no link:** what a signed-in person with no business sees ("Todavía no estás en ninguna escuela") instead of an error.
+- [x] **Signing in with no link:** a right password for an account with no business left (its student was deleted, or it was removed from every team) gets `403 auth.no_business_access` and "Tu cuenta ya no tiene acceso a ninguna escuela. Si creés que es un error, hablá con tu escuela." instead of "Email o contraseña incorrectos". A wrong password still gets the generic message, so nobody learns whether an email exists. An open session ends at the next request: the API refuses it and refreshing the token fails too, since the refresh checks the link.
+- [ ] **Home with no link:** a screen for a signed-in person with no business (for example, to find one) instead of the sign-in message above.
 - [ ] **Find a business and ask to join:** the self sign-up and search flow. Proposal only; needs its own plan.
 - [ ] **Minors with no link:** block actions that need a guardian's consent until a new one is given.
 - [ ] **Inactive accounts (optional):** decide whether to delete accounts with no link and no sign-in for a long time, and the warning email.

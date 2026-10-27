@@ -17,9 +17,9 @@ Sources: Law 25.326 and the AAIP criteria (Argentina); LOPDGDD art. 7, GDPR art.
 
 ## Where the birth date comes from
 
-- **Every new account** asks for it: the owner when signing up, and anyone accepting an invitation without an account (client, student, instructor, team member). It is stored on the account (`AspNetUsers.BirthDate`) and the person can correct it from Editar perfil.
-- **Students** also have a birth date typed by the team (`Students.BirthDate`). Inviting a student to the app requires it, and the invitation screen comes with it filled in so the person confirms or corrects it.
-- **The client (contact)** is never asked for it by the team: neither the registration form nor the app invitation has the field. The contact gives it when they create their account, and a contact who already uses the app has it on their account. When the contact attends class (they have a student with their own name) and that student has no birth date, accepting the invitation copies the account's onto it.
+- **The owner and the team** type it when they create their account: the owner when signing up, an instructor or team member when accepting their invitation without an account. It is stored on the account (`AspNetUsers.BirthDate`) and the person can correct it from Editar perfil.
+- **Students** have a birth date typed by the team (`Students.BirthDate`). Inviting a student to the app requires it. Accepting the app invitation never asks for it: the new account takes the one the team typed. Asking again added nothing: the guardian already authorized a minor, an adult can change it from Editar perfil anyway, and a wrong date would leave the account disagreeing with the student card.
+- **The client (contact)** is never asked for it by the team: neither the registration form nor the app invitation has the field. When the team typed one anyway (the contact attends class and their student has a birth date) the new account takes it and accepting doesn't ask. Otherwise the contact types it when they create their account (`CheckStudentAppInvitationResponse.AsksBirthDate`), and a contact who already uses the app has it on their account. When the contact attends class and that student has no birth date, accepting the invitation copies the account's onto it.
 - **Accounts created before this change** have no birth date; they add it from Editar perfil (the form requires it to save).
 
 ## Rules
@@ -31,7 +31,7 @@ All of them live in `PersonAge` (`src/Core/Domain/Accounts`).
 | The owner of a business is an adult (18) | Sign-up | `auth.owner_must_be_adult` |
 | The client (contact) is an adult (18): they pay and get the reminders, and both countries need 18 to contract. A minor is registered as a student of an adult client, never as the client | Accepting the app invitation of the client, with the birth date of their account (new or existing); registering or inviting a client who attends class when the team already has a birth date for them; importing a student without Responsable (the student becomes the client) (`AttendingContact` in `src/Core/UseCases/Clients`) | `client.contact_must_be_adult` |
 | Below the minimum age of the branch's country (`Countries.OwnAccountMinimumAge`: 13 in Argentina, 14 in Spain, 16 in the other countries, the GDPR maximum) a person still gets an account of their own, but only after the client who pays authorizes it | Inviting a student | — |
-| Anyone accepting an invitation below that age needs that authorization | Accepting any invitation | `auth.too_young_for_own_account` |
+| Anyone accepting an invitation below that age needs that authorization | Accepting any invitation (for a student, with the birth date on the student card, in case the team changed it after inviting) | `auth.too_young_for_own_account` |
 | The team member who invites the client (contact) to the app confirms that they are 18 or older | Inviting the client: the "Enviarle invitación a la app" switch of Nuevo alumno and Invitar on the client card | `student_invitation.contact_adult_confirmation_required` |
 
 ### The team confirms that the contact is an adult
@@ -56,4 +56,4 @@ The age comes from the branch's country (`Businesses.CountryCode`, see [Countrie
 
 ### Next: orders of minors
 
-Orders placed from the account of someone under 18 will wait for the approval of the client who pays (purchases need the parents in both countries). That decision uses the **most protective** of the two birth dates it can find: the one on the account and the one the team typed on the student. If a 14-year-old types a date that makes them 20, the team's date still makes them a minor, so lying does not skip the approval.
+Orders placed from the account of someone under 18 will wait for the approval of the client who pays (purchases need the parents in both countries). That decision uses the **most protective** of the two birth dates it can find: the one on the account and the one the team typed on the student. If a 14-year-old changes their account to a date that makes them 20 from Editar perfil, the team's date still makes them a minor, so lying does not skip the approval.

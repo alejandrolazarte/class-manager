@@ -108,6 +108,11 @@ test("App screens", async ({ page, request }) => {
       "Registrar medición",
     ],
     [
+      "08e-editar-alumno",
+      `/students/clients/${demo.studentAppClientId}/edit-student?studentId=${demo.measuredStudentId}`,
+      "Guardar cambios",
+    ],
+    [
       "02d-clase-pasada",
       `/today/${demo.beginnersClassGroupId}/${demo.pastClassDate}`,
       "Clase cerrada",
@@ -153,6 +158,12 @@ test("App screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Dar de baja a Tomás Pérez" }).click();
   await page.getByText("¿Dar de baja a Tomás Pérez?").filter({ visible: true }).first().waitFor();
   await capture(page, "04b-confirmar-dar-de-baja");
+  await page.getByRole("alert").getByRole("button", { name: "Volver" }).click();
+
+  await page.goto(`/students/clients/${demo.studentAppClientId}`);
+  await page.getByRole("button", { name: "Borrar a Tomás Pérez" }).click();
+  await page.getByText("¿Borrar a Tomás Pérez?").filter({ visible: true }).first().waitFor();
+  await capture(page, "08f-confirmar-borrar-alumno");
   await page.getByRole("alert").getByRole("button", { name: "Volver" }).click();
 
   await page.goto(`/today/${demo.beginnersClassGroupId}/${demo.today}`);

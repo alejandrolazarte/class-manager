@@ -17,8 +17,10 @@ public static class AuthenticationErrorCodes
     public const string InvalidPasskeyCeremony = "auth.invalid_passkey_ceremony";
     public const string InvalidPasskey = "auth.invalid_passkey";
     public const string PasskeyNotFound = "auth.passkey_not_found";
+    public const string NoBusinessAccess = "auth.no_business_access";
 
     public const string EmailTakenMessage = "An account with this email already exists.";
+    public const string NoBusinessAccessMessage = "The account has no access to any business anymore.";
     public const string InvalidRefreshTokenMessage = "The session has expired. Sign in again.";
     public const string InvalidPasswordResetTokenMessage = "The link is invalid, expired or already used. Ask for a new one.";
     public const string InvalidCurrentPasswordMessage = "The current password is not correct.";

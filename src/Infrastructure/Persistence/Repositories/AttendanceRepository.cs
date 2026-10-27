@@ -54,7 +54,7 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
         }
 
         var rows = await (
-            from attendance in context.Attendances.AsNoTracking()
+            from attendance in context.Attendances.AsNoTracking().IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             let isPackBooking = context.PackBookings.Any(booking =>
                 booking.ClassSessionId == attendance.ClassSessionId && booking.StudentId == attendance.StudentId)
             where attendance.Status == AttendanceStatus.Present || isPackBooking

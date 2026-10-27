@@ -62,6 +62,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `08b-alumno-avance` | Client card on Avance: each measurement with its latest value, change and trend |
 | `08c-alumno-medicion` | A measurement of Tomás: personal best, trend, goal and history |
 | `08d-registrar-medicion` | Record a measurement |
+| `08e-editar-alumno` | Edit a student (Tomás) |
+| `08f-confirmar-borrar-alumno` | The confirm dialog before deleting Tomás, with the classes he leaves (closed with "Volver") |
 | `09-nuevo-alumno` | Register form with "¿Quién viene a clase?" |
 | `10-cuotas`, `10b-cuotas-todos` | Month fees, debtors and everyone |
 | `10c-cobros-pedidos` | Cobros on Pedidos: orders summary, filters and order cards |

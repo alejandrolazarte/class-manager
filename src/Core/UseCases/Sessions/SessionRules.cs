@@ -42,14 +42,14 @@ internal static class SessionRules
         long studentId,
         CancellationToken cancellationToken)
     {
-        var roster = await enrollmentRepository.ListRosterOnAsync(classGroupId, date, cancellationToken);
+        var roster = await enrollmentRepository.ListRosterOnIncludingDeletedAsync(classGroupId, date, cancellationToken);
         if (roster.Any(entry => entry.StudentId == studentId))
         {
             return true;
         }
 
         return session is not null
-            && ((await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken)).Any(student => student.StudentId == studentId)
+            && ((await makeupBookingRepository.ListStudentsBySessionIncludingDeletedAsync(session.Id, cancellationToken)).Any(student => student.StudentId == studentId)
                 || await packBookingRepository.FindForUpdateAsync(session.Id, studentId, cancellationToken) is not null);
     }
 
@@ -63,7 +63,7 @@ internal static class SessionRules
         IReadOnlyCollection<long> studentIds,
         CancellationToken cancellationToken)
     {
-        var roster = (await enrollmentRepository.ListRosterOnAsync(classGroupId, date, cancellationToken)).Select(entry => entry.StudentId).ToHashSet();
+        var roster = (await enrollmentRepository.ListRosterOnIncludingDeletedAsync(classGroupId, date, cancellationToken)).Select(entry => entry.StudentId).ToHashSet();
         var outsideRoster = studentIds.Where(studentId => !roster.Contains(studentId)).ToList();
         if (outsideRoster.Count == 0)
         {
@@ -75,7 +75,7 @@ internal static class SessionRules
             return false;
         }
 
-        var makeups = (await makeupBookingRepository.ListStudentsBySessionAsync(session.Id, cancellationToken)).Select(student => student.StudentId).ToHashSet();
+        var makeups = (await makeupBookingRepository.ListStudentsBySessionIncludingDeletedAsync(session.Id, cancellationToken)).Select(student => student.StudentId).ToHashSet();
         foreach (var studentId in outsideRoster.Where(studentId => !makeups.Contains(studentId)))
         {
             if (await packBookingRepository.FindForUpdateAsync(session.Id, studentId, cancellationToken) is null)

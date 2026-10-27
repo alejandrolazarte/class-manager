@@ -96,6 +96,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Pilot deployment](docs/pilot-deployment.md) — runbook: Azure, GitHub deploy pipeline, Azure Static Web Apps, the installable web app (PWA) and the Android APK
 - [Rolling back a deploy](docs/rollback.md) — the manual Rollback workflow: list the last successful deploys, put one back online (API image and web app, no migrations), and why migrations stay backward compatible
 - [Domain and DNS](docs/domain-and-dns.md) — `laztty.com` on Cloudflare Registrar, `app.` and `api.` records, and why no record goes through the Cloudflare proxy (LaLiga blocks in Spain)
+- [Email on the domain](docs/email-domain.md) — `@laztty.com` addresses: Cloudflare Email Routing forwards incoming mail, Resend sends the API's emails from `no-reply@laztty.com` and Gmail replies as `soporte@` and `administracion@laztty.com`; SPF, DKIM and DMARC records
 - [Database on the Basic tier](docs/database-basic-tier.md) — DTU vs vCore, what Basic costs and includes, and the runbook to move the pilot database from the free offer to Basic and back
 - [Domain model](docs/backend/domain-model.md) — entities, invariants and multi-tenancy rules
 - [Use case behaviors](docs/backend/use-case-behaviors.md) — the pipeline around every use case: commands run in a transaction, queries don't track, and how to add a behavior

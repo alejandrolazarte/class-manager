@@ -15,6 +15,9 @@ interface StudentFieldsProps<TFormValues extends FieldValues> {
   control: Control<TFormValues>;
   paths: StudentFieldPaths<TFormValues>;
   autoFocus?: boolean;
+  emailHint?: string;
+  isEmailEditable?: boolean;
+  isAttendingContact?: boolean;
 }
 
 function toText(value: unknown): string {
@@ -25,25 +28,30 @@ export function StudentFields<TFormValues extends FieldValues>({
   control,
   paths,
   autoFocus = false,
+  emailHint = translate("students.fields.emailHint"),
+  isEmailEditable = true,
+  isAttendingContact = false,
 }: StudentFieldsProps<TFormValues>) {
   return (
     <View className="gap-3">
-      <Controller
-        control={control}
-        name={paths.fullName}
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("students.fields.fullName")}
-            isRequired
-            autoFocus={autoFocus}
-            autoCapitalize="words"
-            value={toText(field.value)}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
-          />
-        )}
-      />
+      {isAttendingContact ? null : (
+        <Controller
+          control={control}
+          name={paths.fullName}
+          render={({ field, fieldState }) => (
+            <TextField
+              label={translate("students.fields.fullName")}
+              isRequired
+              autoFocus={autoFocus}
+              autoCapitalize="words"
+              value={toText(field.value)}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              errorMessage={fieldState.error?.message}
+            />
+          )}
+        />
+      )}
       <Controller
         control={control}
         name={paths.birthDate}
@@ -58,23 +66,26 @@ export function StudentFields<TFormValues extends FieldValues>({
           />
         )}
       />
-      <Controller
-        control={control}
-        name={paths.email}
-        render={({ field, fieldState }) => (
-          <TextField
-            label={translate("students.fields.email")}
-            hint={translate("students.fields.emailHint")}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="off"
-            value={toText(field.value)}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            errorMessage={fieldState.error?.message}
-          />
-        )}
-      />
+      {isAttendingContact ? null : (
+        <Controller
+          control={control}
+          name={paths.email}
+          render={({ field, fieldState }) => (
+            <TextField
+              label={translate("students.fields.email")}
+              hint={emailHint}
+              editable={isEmailEditable}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="off"
+              value={toText(field.value)}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              errorMessage={fieldState.error?.message}
+            />
+          )}
+        />
+      )}
       <Controller
         control={control}
         name={paths.notes}

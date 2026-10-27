@@ -87,7 +87,9 @@ public sealed class AcceptInvitationUseCase(
                 return LegalTermsNotAccepted.For<TokenResponse>(nameof(AcceptInvitationCommand.AcceptsLegalTerms));
             }
 
-            if (business is not null && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.Country))
+            if (business is not null
+                && account.Value!.BirthDate is { } birthDate
+                && !PersonAge.CanHaveOwnAccount(birthDate, today, business.Country))
             {
                 return Result.Validation<TokenResponse>(
                     AuthenticationErrorCodes.TooYoungForOwnAccountMessage,

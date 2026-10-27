@@ -123,6 +123,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<SeparateInstructorCommand, InstructorResponse, SeparateInstructorUseCase>();
         services.AddUseCase<SeparateClientCommand, SeparatedPersonResponse, SeparateClientUseCase>();
         services.AddUseCase<SeparateStudentCommand, SeparatedPersonResponse, SeparateStudentUseCase>();
+        services.AddUseCase<UpdateStudentCommand, StudentResponse, UpdateStudentUseCase>();
+        services.AddUseCase<DeleteStudentCommand, DeleteStudentResponse, DeleteStudentUseCase>();
         services.AddUseCase<UpdateInstructorCommand, InstructorResponse, UpdateInstructorUseCase>();
         services.AddUseCase<SetInstructorActiveCommand, InstructorResponse, SetInstructorActiveUseCase>();
         services.AddUseCase<ListClassGroupsQuery, IReadOnlyList<ClassGroupResponse>, ListClassGroupsUseCase>();
