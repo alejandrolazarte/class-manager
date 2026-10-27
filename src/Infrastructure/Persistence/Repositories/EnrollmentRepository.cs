@@ -80,7 +80,7 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
         CancellationToken cancellationToken)
     {
         var rows = await (
-            from enrollment in context.Enrollments.AsNoTracking()
+            from enrollment in context.Enrollments.AsNoTracking().IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             where enrollment.StartDate <= periodEnd && (enrollment.EndDate == null || enrollment.EndDate >= periodStart)
             join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
             join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
