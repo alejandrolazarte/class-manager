@@ -5,6 +5,7 @@ import {
   SearchStudentsRequest,
   Student,
   StudentSummary,
+  UpdateStudentRequest,
 } from "@/features/students/types";
 
 const studentsPath = "/api/students";
@@ -22,4 +23,12 @@ export function searchStudents({
   limit,
 }: SearchStudentsRequest): Promise<StudentSummary[]> {
   return httpClient.get<StudentSummary[]>(studentsPath, { search, limit });
+}
+
+export function updateStudent(studentId: string, request: UpdateStudentRequest): Promise<Student> {
+  return httpClient.put<Student>(`${studentsPath}/${encodeURIComponent(studentId)}`, request);
+}
+
+export function deleteStudent(studentId: string): Promise<void> {
+  return httpClient.delete<void>(`${studentsPath}/${encodeURIComponent(studentId)}`);
 }

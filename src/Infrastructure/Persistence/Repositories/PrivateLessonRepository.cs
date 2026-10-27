@@ -40,7 +40,7 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
 
     public async Task<IReadOnlyList<PaidTrialLesson>> ListPaidTrialsByClientAsync(long clientId, CancellationToken cancellationToken) =>
         await (
-            from lesson in context.PrivateLessons.AsNoTracking()
+            from lesson in context.PrivateLessons.AsNoTracking().IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             where lesson.IsTrial && lesson.TrialPrice != null && !lesson.IsCancelled
             join lessonStudent in context.PrivateLessonStudents.AsNoTracking() on lesson.Id equals lessonStudent.PrivateLessonId
             join student in context.Students.AsNoTracking() on lessonStudent.StudentId equals student.Id
@@ -59,7 +59,7 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
         }
 
         var rows = await (
-            from lessonStudent in context.PrivateLessonStudents.AsNoTracking()
+            from lessonStudent in context.PrivateLessonStudents.AsNoTracking().IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             where lessonStudent.Status == AttendanceStatus.Present
             join student in context.Students.AsNoTracking() on lessonStudent.StudentId equals student.Id
             where clientIds.Contains(student.ClientId)

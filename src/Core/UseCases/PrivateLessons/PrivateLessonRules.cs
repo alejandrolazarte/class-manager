@@ -18,7 +18,7 @@ internal static class PrivateLessonRules
         CancellationToken cancellationToken)
     {
         var instructor = await instructorRepository.GetByIdAsync(lesson.InstructorId, cancellationToken);
-        var students = await studentRepository.ListSummariesByIdsAsync(
+        var students = await studentRepository.ListSummariesIncludingDeletedByIdsAsync(
             [.. lesson.Students.Select(lessonStudent => lessonStudent.StudentId)], cancellationToken);
         return PrivateLessonResponse.From(lesson, instructor?.User.FullName ?? string.Empty, students, today);
     }

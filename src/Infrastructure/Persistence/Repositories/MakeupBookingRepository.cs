@@ -11,14 +11,21 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
             booking => booking.ClassSessionId == classSessionId && booking.StudentId == studentId,
             cancellationToken);
 
-    public async Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
+    public Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(long classSessionId, CancellationToken cancellationToken) =>
+        ListStudentsBySessionAsync(context.MakeupBookings.AsNoTracking(), classSessionId, cancellationToken);
+
+    public Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionIncludingDeletedAsync(long classSessionId, CancellationToken cancellationToken) =>
+        ListStudentsBySessionAsync(context.MakeupBookings.AsNoTracking().IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter]), classSessionId, cancellationToken);
+
+    public async Task<IReadOnlyList<MakeupBooking>> ListUnattendedForUpdateByStudentFromAsync(long studentId, DateOnly firstDate, CancellationToken cancellationToken) =>
         await (
-            from booking in context.MakeupBookings.AsNoTracking()
-            where booking.ClassSessionId == classSessionId
-            join student in context.Students.AsNoTracking() on booking.StudentId equals student.Id
-            join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
-            orderby student.User.FullName
-            select new BookedStudent(student.Id, student.User.FullName, student.User.BirthDate, client.Id, client.User.FullName))
+            from booking in context.MakeupBookings
+            where booking.StudentId == studentId
+            join session in context.ClassSessions.AsNoTracking() on booking.ClassSessionId equals session.Id
+            where session.Date >= firstDate
+                && !context.Attendances.Any(attendance =>
+                    attendance.ClassSessionId == booking.ClassSessionId && attendance.StudentId == booking.StudentId)
+            select booking)
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyDictionary<long, int>> CountBySessionsAsync(
@@ -51,4 +58,17 @@ internal sealed class MakeupBookingRepository(AppDbContext context) : IMakeupBoo
             select new BookedClass(booking.StudentId, session.ClassGroupId, session.Date, session.IsCancelled))
             .ToListAsync(cancellationToken);
     }
+
+    private async Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(
+        IQueryable<MakeupBooking> bookings,
+        long classSessionId,
+        CancellationToken cancellationToken) =>
+        await (
+            from booking in bookings
+            where booking.ClassSessionId == classSessionId
+            join student in context.Students.AsNoTracking() on booking.StudentId equals student.Id
+            join client in context.Clients.AsNoTracking() on student.ClientId equals client.Id
+            orderby student.User.FullName
+            select new BookedStudent(student.Id, student.User.FullName, student.User.BirthDate, client.Id, client.User.FullName))
+            .ToListAsync(cancellationToken);
 }

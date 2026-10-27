@@ -12,6 +12,10 @@ public interface IPackBookingRepository
 
     Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionAsync(long classSessionId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<BookedStudent>> ListStudentsBySessionIncludingDeletedAsync(long classSessionId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<PackBooking>> ListUnattendedForUpdateByStudentFromAsync(long studentId, DateOnly firstDate, CancellationToken cancellationToken);
+
     Task<IReadOnlyDictionary<long, int>> CountBySessionsAsync(IReadOnlyCollection<long> classSessionIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<BookedClass>> ListByStudentsBetweenAsync(
