@@ -16,7 +16,7 @@ public sealed class Then_the_child_creates_the_account(ApiFixture fixture)
         (await anonymous.PostGiveGuardianConsentAsync(fixture.ApiFactory.EmailTransport.GuardianConsentTokenSentTo(clientEmail))).EnsureSuccessStatusCode();
 
         using var response = await anonymous.PostAcceptStudentAppInvitationAsync(
-            fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(childEmail), StudentAppRequests.ElevenYearsOld);
+            fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(childEmail));
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }

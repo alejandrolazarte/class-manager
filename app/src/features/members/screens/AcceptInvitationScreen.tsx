@@ -44,6 +44,7 @@ export function AcceptInvitationScreen() {
       invalidInvitationCode={memberErrorCodes.invalidInvitation}
       conflictMessages={conflictMessages}
       successRoute={routes.today}
+      asksBirthDate
       textsFor={textsFor}
       check={checkInvitation}
       accept={accept}

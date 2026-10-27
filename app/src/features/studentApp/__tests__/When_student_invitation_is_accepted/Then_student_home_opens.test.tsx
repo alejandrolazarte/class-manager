@@ -35,7 +35,6 @@ describe("When student invitation is accepted", () => {
       await screen.findByLabelText(translate("studentAppInvitation.fullName")),
       fullName,
     );
-    await fireEvent.changeText(screen.getByLabelText(translate("birthDate.label")), "12041990");
     await fireEvent.changeText(
       screen.getByLabelText(translate("studentAppInvitation.password")),
       password,
@@ -55,7 +54,6 @@ describe("When student invitation is accepted", () => {
       token: invitationToken,
       fullName,
       password,
-      birthDate: "1990-04-12",
       acceptsLegalTerms: true,
     });
   });

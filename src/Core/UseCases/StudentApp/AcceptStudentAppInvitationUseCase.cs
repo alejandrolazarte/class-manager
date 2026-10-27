@@ -12,7 +12,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.UseCases.StudentApp;
 
-public sealed record AcceptStudentAppInvitationCommand([property: AuditSecret] string? Token, [property: AuditPersonal] string? FullName, [property: AuditSecret] string? Password, [property: AuditPersonal] DateOnly? BirthDate = null, bool AcceptsLegalTerms = false) : ICommand;
+public sealed record AcceptStudentAppInvitationCommand([property: AuditSecret] string? Token, [property: AuditPersonal] string? FullName, [property: AuditSecret] string? Password, bool AcceptsLegalTerms = false) : ICommand;
 
 public sealed class AcceptStudentAppInvitationUseCase(
     IClientInvitationRepository invitationRepository,
@@ -53,12 +53,13 @@ public sealed class AcceptStudentAppInvitationUseCase(
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
         var today = business?.TodayAt(now) ?? DateOnly.FromDateTime(now.UtcDateTime);
         var userId = await identityService.FindUserIdByEmailAsync(invitation.Email, cancellationToken);
+        var invitedPerson = await InvitedPersonAsync(invitation, cancellationToken);
         ClientAccount? existingAccount = null;
         DateOnly? accountBirthDate;
         if (userId is null)
         {
-            var invitedName = (await InvitedStudent.FindAsync(invitation, clientRepository, studentRepository, cancellationToken)).FullName;
-            var account = OwnerAccount.Create(invitedName ?? command.FullName, invitation.Email, command.Password, command.BirthDate, today);
+            var account = OwnerAccount.CreateForInvitedStudent(
+                invitedPerson?.FullName ?? command.FullName, invitation.Email, command.Password, invitedPerson?.BirthDate);
             if (account.IsFailure)
             {
                 return account.Error!;
@@ -77,7 +78,8 @@ public sealed class AcceptStudentAppInvitationUseCase(
 
             if (business is not null
                 && invitation.GuardianConsentedAt is null
-                && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.Country))
+                && accountBirthDate is { } birthDate
+                && !PersonAge.CanHaveOwnAccount(birthDate, today, business.Country))
             {
                 return Result.Validation<TokenResponse>(
                     AuthenticationErrorCodes.TooYoungForOwnAccountMessage,
@@ -112,7 +114,6 @@ public sealed class AcceptStudentAppInvitationUseCase(
 
         if (existingAccount is null)
         {
-            var invitedPerson = await InvitedPersonAsync(invitation, cancellationToken);
             var user = await AccountUsers.ResolveAsync(userRepository, identityService, invitedPerson, userId!.Value, now, cancellationToken);
             accountRepository.Add(ClientAccount.Create(invitation.ClientId, user, now, invitation.StudentId));
         }
@@ -161,7 +162,7 @@ public sealed class AcceptStudentAppInvitationUseCase(
         }
 
         var birthDate = accountBirthDate ?? (await ClientWhoAttendsAsync(invitation, cancellationToken))?.User.BirthDate;
-        return AttendingContact.MinorError(birthDate, today, nameof(AcceptStudentAppInvitationCommand.BirthDate));
+        return AttendingContact.MinorError(birthDate, today, nameof(OwnerAccount.BirthDate));
     }
 
     private async Task CompleteContactBirthDateAsync(ClientInvitation invitation, DateOnly? accountBirthDate, DateOnly today, CancellationToken cancellationToken)

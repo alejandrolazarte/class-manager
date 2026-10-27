@@ -19,9 +19,7 @@ describe("When the passwords do not match", () => {
     searchParametersMock.current = { token: "invitation-token" };
     jest
       .mocked(checkStudentAppInvitation)
-      .mockResolvedValue(
-        buildCheckedInvitation({ fullName: "Tomás Pérez", birthDate: "2012-05-01" }),
-      );
+      .mockResolvedValue(buildCheckedInvitation({ fullName: "Tomás Pérez" }));
   });
 
   it("Then the account is not created", async () => {

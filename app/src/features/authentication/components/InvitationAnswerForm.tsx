@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { CheckedInvitation } from "@/features/authentication/types";
-import {
-  formatBirthDateForDisplay,
-  isValidBirthDate,
-  parseBirthDate,
-} from "@/dates/birthDateFormatting";
+import { isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
 import { LegalTermsConsent } from "@/features/legal/components/LegalTermsConsent";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { translate } from "@/i18n/translate";
@@ -32,6 +28,7 @@ export interface InvitationFieldErrors {
 interface InvitationAnswerFormProps {
   invitation: CheckedInvitation;
   texts: InvitationAnswerTexts;
+  asksBirthDate: boolean;
   fieldErrors: InvitationFieldErrors;
   isAccepting: boolean;
   isDeclining: boolean;
@@ -47,6 +44,7 @@ interface InvitationAnswerFormProps {
 export function InvitationAnswerForm({
   invitation,
   texts,
+  asksBirthDate,
   fieldErrors,
   isAccepting,
   isDeclining,
@@ -55,9 +53,7 @@ export function InvitationAnswerForm({
 }: InvitationAnswerFormProps) {
   const knownFullName = invitation.fullName ?? null;
   const [fullName, setFullName] = useState("");
-  const [birthDate, setBirthDate] = useState(
-    invitation.birthDate ? formatBirthDateForDisplay(invitation.birthDate) : "",
-  );
+  const [birthDate, setBirthDate] = useState("");
   const [birthDateError, setBirthDateError] = useState<string | undefined>();
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -67,7 +63,7 @@ export function InvitationAnswerForm({
     invitation.hasAccount ||
     (password.length > 0 &&
       passwordConfirmation.length > 0 &&
-      birthDate.length > 0 &&
+      (!asksBirthDate || birthDate.length > 0) &&
       acceptsLegalTerms &&
       (knownFullName !== null || fullName.trim().length > 0));
 
@@ -76,7 +72,7 @@ export function InvitationAnswerForm({
       onAccept("", "");
       return;
     }
-    const hasValidBirthDate = isValidBirthDate(birthDate);
+    const hasValidBirthDate = !asksBirthDate || isValidBirthDate(birthDate);
     const passwordsMatch = password === passwordConfirmation;
     setBirthDateError(hasValidBirthDate ? undefined : translate("birthDate.invalid"));
     setConfirmationError(
@@ -88,7 +84,7 @@ export function InvitationAnswerForm({
     onAccept(
       knownFullName ?? fullName.trim(),
       password,
-      parseBirthDate(birthDate) ?? undefined,
+      asksBirthDate ? (parseBirthDate(birthDate) ?? undefined) : undefined,
       acceptsLegalTerms,
     );
   };
@@ -103,7 +99,12 @@ export function InvitationAnswerForm({
         <>
           <AppText variant="body" tone="muted">
             {knownFullName
-              ? translate("invitationAnswer.greeting", { name: knownFullName })
+              ? translate(
+                  asksBirthDate
+                    ? "invitationAnswer.greeting"
+                    : "invitationAnswer.greetingWithoutBirthDate",
+                  { name: knownFullName },
+                )
               : texts.newAccountSubtitle}
           </AppText>
           {knownFullName ? null : (
@@ -116,18 +117,14 @@ export function InvitationAnswerForm({
               errorMessage={fieldErrors.fullName}
             />
           )}
-          <BirthDateField
-            hint={
-              invitation.birthDate
-                ? translate("invitationAnswer.birthDateFromTeam", {
-                    business: invitation.businessName,
-                  })
-                : translate("invitationAnswer.birthDateHint")
-            }
-            value={birthDate}
-            onChangeText={setBirthDate}
-            errorMessage={birthDateError ?? fieldErrors.birthDate}
-          />
+          {asksBirthDate ? (
+            <BirthDateField
+              hint={translate("invitationAnswer.birthDateHint")}
+              value={birthDate}
+              onChangeText={setBirthDate}
+              errorMessage={birthDateError ?? fieldErrors.birthDate}
+            />
+          ) : null}
           <PasswordManagerUsername email={invitation.email} />
           <PasswordField
             label={texts.password}

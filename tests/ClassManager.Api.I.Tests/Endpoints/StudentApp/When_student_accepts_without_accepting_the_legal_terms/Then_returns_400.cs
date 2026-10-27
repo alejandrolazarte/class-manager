@@ -20,8 +20,7 @@ public sealed class Then_returns_400(ApiFixture fixture)
             new AcceptStudentAppInvitationCommand(
                 fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email),
                 StudentAppRequests.StudentAppFullName,
-                StudentAppRequests.StudentAppPassword,
-                AuthenticationRequests.AdultBirthDate),
+                StudentAppRequests.StudentAppPassword),
             ApiRequests.JsonOptions);
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);

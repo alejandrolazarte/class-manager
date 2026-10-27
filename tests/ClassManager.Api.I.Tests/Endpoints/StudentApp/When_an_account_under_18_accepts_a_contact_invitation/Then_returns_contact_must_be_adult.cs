@@ -15,7 +15,7 @@ public sealed class Then_returns_contact_must_be_adult(ApiFixture fixture)
         (await firstBusiness.HttpClient.PostChildAppInvitationAsync(firstFamily.Id, firstFamily.Students.Single().Id, teenagerEmail, fifteenYearsAgo))
             .EnsureSuccessStatusCode();
         using var anonymous = fixture.ApiFactory.CreateClient();
-        (await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(teenagerEmail), fifteenYearsAgo))
+        (await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(teenagerEmail)))
             .EnsureSuccessStatusCode();
         var secondBusiness = await fixture.SeedBusinessAsync();
         var secondFamily = await secondBusiness.HttpClient.RegisterFamilyAsync(StudentAppRequests.UniqueStudentEmail());

@@ -48,6 +48,7 @@ export function AcceptStudentAppInvitationScreen() {
       invalidInvitationCode={studentAppErrorCodes.invalidInvitation}
       conflictMessages={conflictMessages}
       successRoute={routes.studentApp}
+      asksBirthDate={false}
       textsFor={textsFor}
       check={checkStudentAppInvitation}
       accept={accept}
