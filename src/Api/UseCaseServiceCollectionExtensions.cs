@@ -142,6 +142,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<ListMonthCalendarQuery, MonthCalendarResponse, ListMonthCalendarUseCase>();
         services.AddUseCase<SchedulePrivateLessonCommand, IReadOnlyList<PrivateLessonResponse>, SchedulePrivateLessonUseCase>();
         services.AddUseCase<GetPrivateLessonQuery, PrivateLessonResponse, GetPrivateLessonUseCase>();
+        services.AddUseCase<ListInstructorAgendaQuery, IReadOnlyList<InstructorAgendaSlotResponse>, ListInstructorAgendaUseCase>();
         services.AddUseCase<ReschedulePrivateLessonCommand, PrivateLessonResponse, ReschedulePrivateLessonUseCase>();
         services.AddUseCase<CancelPrivateLessonCommand, PrivateLessonResponse, CancelPrivateLessonUseCase>();
         services.AddUseCase<RestorePrivateLessonCommand, PrivateLessonResponse, RestorePrivateLessonUseCase>();

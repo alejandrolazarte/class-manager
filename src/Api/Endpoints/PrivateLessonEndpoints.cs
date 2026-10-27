@@ -12,6 +12,8 @@ internal static class PrivateLessonEndpoints
         var privateLessons = endpoints.MapGroup(ApiRoutes.PrivateLessons);
 
         privateLessons.MapPost("/", ScheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
+        privateLessons.MapGet(ApiRoutes.InstructorAgenda, ListInstructorAgendaAsync)
+            .RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
         privateLessons.MapGet(ApiRoutes.PrivateLessonById, GetAsync).RequirePermission(Permissions.PrivateLessons.ViewAll, Permissions.PrivateLessons.ViewOwn);
         privateLessons.MapPut(ApiRoutes.PrivateLessonById, RescheduleAsync).RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
         privateLessons.MapDelete(ApiRoutes.PrivateLessonById, DeleteAsync).RequirePermission(Permissions.PrivateLessons.ManageAll, Permissions.PrivateLessons.ManageOwn);
@@ -33,6 +35,18 @@ internal static class PrivateLessonEndpoints
         var result = await useCase.ExecuteAsync(command, cancellationToken);
 
         return result.ToHttpResult(lessons => TypedResults.Created($"{ApiRoutes.PrivateLessons}/{lessons[0].Id}", lessons));
+    }
+
+    private static async Task<IResult> ListInstructorAgendaAsync(
+        long? instructorId,
+        DateOnly? date,
+        long? ignoredPrivateLessonId,
+        IUseCase<ListInstructorAgendaQuery, IReadOnlyList<InstructorAgendaSlotResponse>> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ListInstructorAgendaQuery(instructorId, date, ignoredPrivateLessonId), cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> GetAsync(

@@ -33,6 +33,10 @@ public static class PrivateLessonRequests
         return (await response.Content.ReadFromJsonAsync<List<PrivateLessonResponse>>(ApiRequests.JsonOptions))![0];
     }
 
+    public static Task<HttpResponseMessage> GetInstructorAgendaAsync(this HttpClient httpClient, long instructorId, DateOnly date) =>
+        httpClient.GetAsync(new Uri(
+            $"{ApiRoutes.PrivateLessons}{ApiRoutes.InstructorAgenda}?instructorId={instructorId}&date={date:yyyy-MM-dd}", UriKind.Relative));
+
     public static Task<HttpResponseMessage> PutPrivateLessonAttendanceAsync(
         this HttpClient httpClient, long privateLessonId, long studentId, AttendanceStatus? status) =>
         httpClient.PutAsJsonAsync(

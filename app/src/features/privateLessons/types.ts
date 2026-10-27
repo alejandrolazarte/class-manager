@@ -43,3 +43,12 @@ export interface SchedulePrivateLessonRequest extends PrivateLessonDetails {
   studentIds: string[];
   repeatWeeks: number;
 }
+
+export type InstructorAgendaSlotKind = "ClassGroup" | "PrivateLesson";
+
+export interface InstructorAgendaSlot {
+  startTime: string;
+  durationMinutes: number;
+  kind: InstructorAgendaSlotKind;
+  classGroupName: string | null;
+}

@@ -105,6 +105,7 @@ public static class ApiRoutes
     public const string Fees = "/api/fees";
     public const string PrivateLessons = "/api/private-lessons";
     public const string PrivateLessonById = "/{privateLessonId:long}";
+    public const string InstructorAgenda = "/instructor-agenda";
     public const string ImportExport = "/api/import-export";
     public const string ImportModule = "/{module}";
     public const string SchemaAction = "/schema";
