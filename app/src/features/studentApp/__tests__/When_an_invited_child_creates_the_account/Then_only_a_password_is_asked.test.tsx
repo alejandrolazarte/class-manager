@@ -22,20 +22,21 @@ describe("When an invited child creates the account", () => {
     searchParametersMock.current = { token: invitationToken };
     jest
       .mocked(checkStudentAppInvitation)
-      .mockResolvedValue(
-        buildCheckedInvitation({ fullName: "Tomás Pérez", birthDate: "2012-05-01" }),
-      );
+      .mockResolvedValue(buildCheckedInvitation({ fullName: "Tomás Pérez" }));
     jest.mocked(acceptStudentAppInvitation).mockResolvedValue(buildTokenResponse());
   });
 
   it("Then only a password is asked", async () => {
     await renderWithSession(<AcceptStudentAppInvitationScreen />);
     expect(
-      await screen.findByText(translate("invitationAnswer.greeting", { name: "Tomás Pérez" })),
+      await screen.findByText(
+        translate("invitationAnswer.greetingWithoutBirthDate", { name: "Tomás Pérez" }),
+      ),
     ).toBeOnTheScreen();
     expect(
       screen.queryByLabelText(translate("studentAppInvitation.fullName")),
     ).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText(translate("birthDate.label"))).not.toBeOnTheScreen();
     await fireEvent.changeText(
       screen.getByLabelText(translate("studentAppInvitation.password")),
       password,
@@ -55,7 +56,6 @@ describe("When an invited child creates the account", () => {
         token: invitationToken,
         fullName: "Tomás Pérez",
         password,
-        birthDate: "2012-05-01",
         acceptsLegalTerms: true,
       }),
     );

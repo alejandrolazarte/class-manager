@@ -32,6 +32,7 @@ interface InvitationScreenProps {
   invalidInvitationCode: string;
   conflictMessages: Record<string, string>;
   successRoute: string;
+  asksBirthDateFor: (invitation: CheckedInvitation) => boolean;
   textsFor: (invitation: CheckedInvitation) => InvitationAnswerTexts;
   check: (request: CheckInvitationRequest) => Promise<CheckedInvitation>;
   accept: (answer: AcceptInvitationAnswer) => Promise<void>;
@@ -52,6 +53,7 @@ export function InvitationScreen({
   invalidInvitationCode,
   conflictMessages,
   successRoute,
+  asksBirthDateFor,
   textsFor,
   check,
   accept,
@@ -111,6 +113,9 @@ export function InvitationScreen({
       isApiError(answerError) &&
       answerError.hasCode(authenticationErrorCodes.tooYoungForOwnAccount)
     ) {
+      if (!invitation || !asksBirthDateFor(invitation)) {
+        return { kind: "message", message: translate("invitationAnswer.tooYoung") };
+      }
       setFieldErrors({ birthDate: translate("invitationAnswer.tooYoung") });
       return null;
     }
@@ -219,6 +224,7 @@ export function InvitationScreen({
         <InvitationAnswerForm
           invitation={invitation}
           texts={textsFor(invitation)}
+          asksBirthDate={asksBirthDateFor(invitation)}
           fieldErrors={fieldErrors}
           isAccepting={isAccepting}
           isDeclining={isDeclining}

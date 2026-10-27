@@ -53,12 +53,15 @@ public sealed class AcceptStudentAppInvitationUseCase(
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
         var today = business?.TodayAt(now) ?? DateOnly.FromDateTime(now.UtcDateTime);
         var userId = await identityService.FindUserIdByEmailAsync(invitation.Email, cancellationToken);
+        var invitedPerson = await InvitedPersonAsync(invitation, cancellationToken);
         ClientAccount? existingAccount = null;
         DateOnly? accountBirthDate;
         if (userId is null)
         {
-            var invitedName = (await InvitedStudent.FindAsync(invitation, clientRepository, studentRepository, cancellationToken)).FullName;
-            var account = OwnerAccount.Create(invitedName ?? command.FullName, invitation.Email, command.Password, command.BirthDate, today);
+            var fullName = invitedPerson?.FullName ?? command.FullName;
+            var account = InvitedStudent.IsBirthDateAsked(invitation, invitedPerson?.BirthDate)
+                ? OwnerAccount.Create(fullName, invitation.Email, command.Password, command.BirthDate, today)
+                : OwnerAccount.CreateForInvitedStudent(fullName, invitation.Email, command.Password, invitedPerson?.BirthDate);
             if (account.IsFailure)
             {
                 return account.Error!;
@@ -77,7 +80,8 @@ public sealed class AcceptStudentAppInvitationUseCase(
 
             if (business is not null
                 && invitation.GuardianConsentedAt is null
-                && !PersonAge.CanHaveOwnAccount(account.Value!.BirthDate, today, business.Country))
+                && accountBirthDate is { } birthDate
+                && !PersonAge.CanHaveOwnAccount(birthDate, today, business.Country))
             {
                 return Result.Validation<TokenResponse>(
                     AuthenticationErrorCodes.TooYoungForOwnAccountMessage,
@@ -112,7 +116,6 @@ public sealed class AcceptStudentAppInvitationUseCase(
 
         if (existingAccount is null)
         {
-            var invitedPerson = await InvitedPersonAsync(invitation, cancellationToken);
             var user = await AccountUsers.ResolveAsync(userRepository, identityService, invitedPerson, userId!.Value, now, cancellationToken);
             accountRepository.Add(ClientAccount.Create(invitation.ClientId, user, now, invitation.StudentId));
         }

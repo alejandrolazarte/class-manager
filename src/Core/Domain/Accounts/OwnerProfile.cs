@@ -23,16 +23,11 @@ public sealed class OwnerProfile
 
     public static Result<OwnerProfile> Create(string? fullName, string? email, DateOnly? birthDate, DateOnly today)
     {
-        var trimmedFullName = fullName?.Trim() ?? string.Empty;
-        if (trimmedFullName.Length is < OwnerAccount.FullNameMinLength or > OwnerAccount.FullNameMaxLength)
+        var trimmedFullName = Trimmed(fullName);
+        var trimmedEmail = Trimmed(email);
+        if (FullNameOrEmailError(trimmedFullName, trimmedEmail) is { } fullNameOrEmailError)
         {
-            return Result.Validation<OwnerProfile>(FullNameLengthMessage, fieldName: nameof(FullName));
-        }
-
-        var trimmedEmail = email?.Trim() ?? string.Empty;
-        if (!IsValidEmail(trimmedEmail))
-        {
-            return Result.Validation<OwnerProfile>(EmailFormatMessage, fieldName: nameof(Email));
+            return fullNameOrEmailError;
         }
 
         if (birthDate is not { } validBirthDate || !PersonAge.IsValidBirthDate(validBirthDate, today))
@@ -41,6 +36,20 @@ public sealed class OwnerProfile
         }
 
         return new OwnerProfile(trimmedFullName, trimmedEmail, validBirthDate);
+    }
+
+    internal static string Trimmed(string? text) => text?.Trim() ?? string.Empty;
+
+    internal static ResultError? FullNameOrEmailError(string trimmedFullName, string trimmedEmail)
+    {
+        if (trimmedFullName.Length is < OwnerAccount.FullNameMinLength or > OwnerAccount.FullNameMaxLength)
+        {
+            return Result.Validation<OwnerProfile>(FullNameLengthMessage, fieldName: nameof(FullName)).Error;
+        }
+
+        return IsValidEmail(trimmedEmail)
+            ? null
+            : Result.Validation<OwnerProfile>(EmailFormatMessage, fieldName: nameof(Email)).Error;
     }
 
     private static bool IsValidEmail(string email) =>
