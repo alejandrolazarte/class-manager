@@ -6,7 +6,7 @@ using ClassManager.Tenancy;
 
 namespace ClassManager.Core.Domain.Students;
 
-public sealed class Student : ITenantOwned, IAuditable
+public sealed class Student : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int NotesMaxLength = 1000;
 
@@ -27,6 +27,9 @@ public sealed class Student : ITenantOwned, IAuditable
     public long? UpdatedByUserId { get; private set; }
     public long UserId { get; private set; }
     public User User { get; private set; } = null!;
+    public bool IsDeleted { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public long? DeletedByUserId { get; private set; }
 
     public static Result<Student> Create(
         Client client,
@@ -81,6 +84,36 @@ public sealed class Student : ITenantOwned, IAuditable
     {
         UserId = person.Id;
         User = person;
+    }
+
+    public Result Update(string? fullName, DateOnly? birthDate, string? notes, string? email, DateOnly today)
+    {
+        var rename = User.Rename(fullName);
+        if (rename.IsFailure)
+        {
+            return rename;
+        }
+
+        var emailChange = User.ChangeEmail(email);
+        return emailChange.IsFailure ? emailChange : UpdateDetails(birthDate, notes, today);
+    }
+
+    public Result UpdateDetails(DateOnly? birthDate, string? notes, DateOnly today)
+    {
+        var details = PersonDetails(User, birthDate, notes, today);
+        if (details.IsFailure)
+        {
+            return Result.Failure(details.Error!);
+        }
+
+        Notes = details.Value;
+        return Result.Success();
+    }
+
+    public void Delete(DateTimeOffset deletedAt)
+    {
+        DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
+        IsDeleted = true;
     }
 
     private static Result<string?> PersonDetails(User person, DateOnly? birthDate, string? notes, DateOnly today)

@@ -90,6 +90,9 @@ internal sealed class EnrollmentRepository(AppDbContext context) : IEnrollmentRe
         return [.. rows.Select(row => new EnrolledStudentInPeriod(row.Id, row.FullName, row.PhoneNumber!.Value, row.StudentFullName))];
     }
 
+    public async Task<IReadOnlyList<Enrollment>> ListOpenByStudentForUpdateAsync(long studentId, CancellationToken cancellationToken) =>
+        await context.Enrollments.Where(enrollment => enrollment.StudentId == studentId && enrollment.EndDate == null).ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Enrollment>> ListCurrentByStudentAsync(long studentId, DateOnly today, CancellationToken cancellationToken) =>
         await Current(today).Where(enrollment => enrollment.StudentId == studentId).ToListAsync(cancellationToken);
 

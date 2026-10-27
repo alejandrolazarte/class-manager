@@ -33,6 +33,10 @@ export default function FeesLayout() {
         options={{ title: translate("students.add.title") }}
       />
       <Stack.Screen
+        name="clients/[clientId]/edit-student"
+        options={{ title: translate("students.edit.title") }}
+      />
+      <Stack.Screen
         name="clients/[clientId]/sell-pack"
         options={{ title: translate("classPacks.sell.title") }}
       />
