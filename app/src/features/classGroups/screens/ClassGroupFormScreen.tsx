@@ -205,6 +205,8 @@ function ClassGroupEditor({ classGroup, initialWeekday, instructors }: ClassGrou
       <ClassGroupForm
         form={form}
         instructors={instructors}
+        showsInstructorWeek={classGroup?.isActive ?? true}
+        ignoredClassGroupId={classGroup?.id}
         material={{
           materialFile: shownMaterialFile,
           errorMessage: materialFileError,

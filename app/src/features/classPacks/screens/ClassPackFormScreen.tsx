@@ -39,6 +39,7 @@ import { Chip } from "@/ui/Chip";
 import { Notice } from "@/ui/Notice";
 import { SegmentedControl } from "@/ui/SegmentedControl";
 import { TextField } from "@/ui/TextField";
+import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { useToast } from "@/ui/ToastProvider";
 import { useRequiredFieldsFilled } from "@/forms/requiredFields";
 import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
@@ -54,7 +55,7 @@ interface ClassPackEditorProps {
 }
 
 interface ClassPackFieldOptions {
-  name: Exclude<keyof ClassPackFormValues, "classGroupIds" | "kind">;
+  name: Exclude<keyof ClassPackFormValues, "classGroupIds" | "kind" | "coversAnyGroupClass">;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
   hintKey?: TranslationKey;
@@ -78,9 +79,10 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
     mode: "onTouched",
   });
   const kind = useWatch({ control: form.control, name: "kind" });
+  const coversAnyGroupClass = useWatch({ control: form.control, name: "coversAnyGroupClass" });
   const areRequiredFieldsFilled = useRequiredFieldsFilled(
     form.control,
-    requiredClassPackFields(kind),
+    requiredClassPackFields(kind, coversAnyGroupClass),
   );
 
   const save = form.handleSubmit(async (formValues) => {
@@ -223,27 +225,41 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         )}
       />
       {kind === "groupClasses" ? (
-        classGroups.length > 0 ? (
+        <>
           <Controller
             control={form.control}
-            name="classGroupIds"
+            name="coversAnyGroupClass"
             render={({ field }) => (
-              <ClassGroupsField
-                classGroups={classGroups}
-                classGroupIds={field.value}
-                onChange={field.onChange}
-                label={withRequiredMark(translate("classPacks.form.classGroups"))}
-                chooseLabel={translate("classPacks.form.chooseClassGroup")}
-                addLabel={translate("classPacks.form.addClassGroup")}
-                removeLabel={(name) => translate("classPacks.form.removeClassGroup", { name })}
-                hint={translate("classPacks.form.classGroupsHint")}
-                pickerTestID="class-pack-class-group-picker"
+              <ToggleSwitch
+                label={translate("classPacks.form.anyGroupClass")}
+                hint={translate("classPacks.form.anyGroupClassHint")}
+                value={field.value}
+                onValueChange={field.onChange}
               />
             )}
           />
-        ) : (
-          <Notice tone="muted" message={translate("classPacks.form.noClassGroupsYet")} />
-        )
+          {coversAnyGroupClass ? null : classGroups.length > 0 ? (
+            <Controller
+              control={form.control}
+              name="classGroupIds"
+              render={({ field }) => (
+                <ClassGroupsField
+                  classGroups={classGroups}
+                  classGroupIds={field.value}
+                  onChange={field.onChange}
+                  label={withRequiredMark(translate("classPacks.form.classGroups"))}
+                  chooseLabel={translate("classPacks.form.chooseClassGroup")}
+                  addLabel={translate("classPacks.form.addClassGroup")}
+                  removeLabel={(name) => translate("classPacks.form.removeClassGroup", { name })}
+                  hint={translate("classPacks.form.classGroupsHint")}
+                  pickerTestID="class-pack-class-group-picker"
+                />
+              )}
+            />
+          ) : (
+            <Notice tone="muted" message={translate("classPacks.form.noClassGroupsYet")} />
+          )}
+        </>
       ) : (
         <Controller
           control={form.control}

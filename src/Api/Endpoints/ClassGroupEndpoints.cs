@@ -16,6 +16,7 @@ internal static class ClassGroupEndpoints
 
         classGroups.MapGet("/", ListClassGroupsAsync).RequirePermission(Permissions.ClassGroups.ViewAll, Permissions.ClassGroups.ViewOwn);
         classGroups.MapGet(ApiRoutes.ClassGroupById, GetClassGroupAsync).RequirePermission(Permissions.ClassGroups.ViewAll, Permissions.ClassGroups.ViewOwn);
+        classGroups.MapGet(ApiRoutes.InstructorWeek, ListInstructorWeekAsync).RequirePermission(Permissions.ClassGroups.Manage);
         classGroups.MapPost("/", CreateClassGroupAsync).RequirePermission(Permissions.ClassGroups.Manage);
         classGroups.MapPut(ApiRoutes.ClassGroupById, UpdateClassGroupAsync).RequirePermission(Permissions.ClassGroups.Manage);
         classGroups.MapPut(ApiRoutes.ClassGroupById + ApiRoutes.Active, SetClassGroupActiveAsync).RequirePermission(Permissions.ClassGroups.Manage);
@@ -45,6 +46,17 @@ internal static class ClassGroupEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetClassGroupQuery(classGroupId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> ListInstructorWeekAsync(
+        long? instructorId,
+        long? ignoredClassGroupId,
+        IUseCase<ListInstructorWeekQuery, IReadOnlyList<InstructorWeekSlotResponse>> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new ListInstructorWeekQuery(instructorId, ignoredClassGroupId), cancellationToken);
 
         return result.ToOkResult();
     }

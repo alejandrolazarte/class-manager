@@ -14,6 +14,8 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     private const string MethodRequiredMessage = "Choose a payment method.";
     private const string NotesLengthMessage = "Notes must be at most 200 characters.";
 
+    private readonly List<ClassPackPurchaseClassGroup> _classGroups = [];
+
     private ClassPackPurchase()
     {
     }
@@ -31,6 +33,9 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
     public PaymentMethod? Method { get; private set; }
     public string? Notes { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
+    public bool CoversAnyGroupClass { get; private set; }
+    public IReadOnlyList<ClassPackPurchaseClassGroup> ClassGroups => _classGroups;
+    public bool IsForPrivateLessons => ClassDurationMinutes is not null;
     public long? TrialLessonId { get; private set; }
     public long? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
@@ -100,6 +105,14 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
 
     public bool IsValidOn(DateOnly date) => ExpiresOn is null || ExpiresOn >= date;
 
+    public bool CoversGroupClass(long classGroupId) =>
+        !IsForPrivateLessons && (CoversAnyGroupClass || _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId));
+
+    public bool Covers(AttendedClass attendedClass) =>
+        attendedClass.IsPrivateLesson
+            ? IsForPrivateLessons
+            : attendedClass.ClassGroupId is { } classGroupId && CoversGroupClass(classGroupId);
+
     public void Delete(DateTimeOffset deletedAt)
     {
         DeletedAt = SoftDeleteGuard.Delete(DeletedAt, deletedAt);
@@ -123,7 +136,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
             return Result.Validation<ClassPackPurchase>(NotesLengthMessage, fieldName: nameof(Notes));
         }
 
-        return new ClassPackPurchase
+        var purchase = new ClassPackPurchase
         {
             ClientId = clientId,
             ClassPackId = pack.Id,
@@ -136,8 +149,11 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
             Method = method,
             Notes = trimmedNotes,
             ClassDurationMinutes = pack.ClassDurationMinutes,
+            CoversAnyGroupClass = pack.CoversAnyGroupClass,
             RecordedByUserId = recordedByUserId,
             CreatedAt = createdAt.ToUniversalTime(),
         };
+        purchase._classGroups.AddRange(pack.ClassGroupIds.Select(classGroupId => ClassPackPurchaseClassGroup.Create(purchase.Id, classGroupId)));
+        return purchase;
     }
 }

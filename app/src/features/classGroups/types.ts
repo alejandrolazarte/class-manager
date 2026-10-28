@@ -1,4 +1,5 @@
 import { Weekday } from "@/dates/weekdays";
+import { InstructorAgendaSlot } from "@/features/privateLessons/types";
 
 export interface ClassMaterialFile {
   id: string;
@@ -32,4 +33,8 @@ export interface SaveClassGroupRequest {
   capacity: number;
   location: string | null;
   materialUrl: string | null;
+}
+
+export interface InstructorWeekSlot extends InstructorAgendaSlot {
+  weekday: Weekday;
 }

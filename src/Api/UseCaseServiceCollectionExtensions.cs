@@ -130,6 +130,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<SetInstructorActiveCommand, InstructorResponse, SetInstructorActiveUseCase>();
         services.AddUseCase<ListClassGroupsQuery, IReadOnlyList<ClassGroupResponse>, ListClassGroupsUseCase>();
         services.AddUseCase<GetClassGroupQuery, ClassGroupResponse, GetClassGroupUseCase>();
+        services.AddUseCase<ListInstructorWeekQuery, IReadOnlyList<InstructorWeekSlotResponse>, ListInstructorWeekUseCase>();
         services.AddUseCase<CreateClassGroupCommand, ClassGroupResponse, CreateClassGroupUseCase>();
         services.AddUseCase<UpdateClassGroupCommand, ClassGroupResponse, UpdateClassGroupUseCase>();
         services.AddUseCase<SetClassGroupActiveCommand, ClassGroupResponse, SetClassGroupActiveUseCase>();

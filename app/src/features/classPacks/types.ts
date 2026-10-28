@@ -11,6 +11,7 @@ export interface ClassPack {
   isActive: boolean;
   classDurationMinutes: number | null;
   classGroupIds: string[];
+  coversAnyGroupClass: boolean;
   images: CatalogImage[];
 }
 
@@ -22,6 +23,7 @@ export interface SaveClassPackRequest {
   validityMonths: number | null;
   classDurationMinutes: number | null;
   classGroupIds: string[];
+  coversAnyGroupClass: boolean;
 }
 
 export interface ClassPackPurchase {

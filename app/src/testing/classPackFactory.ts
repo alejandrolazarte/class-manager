@@ -11,6 +11,7 @@ export function buildClassPack(overrides: Partial<ClassPack> = {}): ClassPack {
     isActive: true,
     classDurationMinutes: null,
     classGroupIds: [],
+    coversAnyGroupClass: false,
     images: [],
     ...overrides,
   };

@@ -10,6 +10,7 @@ internal static class ClassPackClassGroups
         ClassPack classPack,
         IReadOnlyList<long>? classGroupIds,
         int? classDurationMinutes,
+        bool coversAnyGroupClass,
         string fieldName,
         IClassGroupRepository classGroupRepository,
         CancellationToken cancellationToken)
@@ -23,6 +24,6 @@ internal static class ClassPackClassGroups
             }
         }
 
-        return classPack.DefineLessons(requestedIds, classDurationMinutes);
+        return classPack.DefineLessons(requestedIds, classDurationMinutes, coversAnyGroupClass);
     }
 }

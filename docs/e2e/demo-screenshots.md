@@ -84,6 +84,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
 | `16b-pack-nuevo` | New class pack form, with the classes where the pack can be booked |
+| `16c-pack-nuevo-clases`, `16d-pack-nuevo-cualquier-clase` | New class pack form scrolled to what the pack is for: "Cualquier clase grupal" off with the class list, then on |
 | `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
 | `18-apariencia` | Appearance sheet in Ajustes |
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |

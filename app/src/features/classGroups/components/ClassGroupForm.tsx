@@ -1,14 +1,16 @@
-import { Controller, UseFormReturn } from "react-hook-form";
+import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import {
   ClassMaterialField,
   ShownMaterialFile,
 } from "@/features/classGroups/components/ClassMaterialField";
+import { InstructorWeekCard } from "@/features/classGroups/components/InstructorWeekCard";
 import { WeekdayChips } from "@/features/classGroups/components/WeekdayChips";
 import {
   ClassGroupFormValues,
   classGroupLimits,
   commonDurationsInMinutes,
+  toValidDurationMinutes,
 } from "@/features/classGroups/classGroupSchema";
 import { TimeField } from "@/forms/TimeField";
 import { InstructorField } from "@/features/instructors/components/InstructorField";
@@ -31,6 +33,8 @@ interface ClassGroupFormProps {
   form: UseFormReturn<ClassGroupFormValues>;
   instructors: Instructor[];
   material: ClassGroupMaterialProps;
+  showsInstructorWeek: boolean;
+  ignoredClassGroupId?: string;
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -49,8 +53,18 @@ function FieldLabel({ label }: { label: string }) {
   );
 }
 
-export function ClassGroupForm({ form, instructors, material }: ClassGroupFormProps) {
+export function ClassGroupForm({
+  form,
+  instructors,
+  material,
+  showsInstructorWeek,
+  ignoredClassGroupId,
+}: ClassGroupFormProps) {
   const { control } = form;
+  const [instructorId, weekdays, startTime, durationMinutes] = useWatch({
+    control,
+    name: ["instructorId", "weekdays", "startTime", "durationMinutes"],
+  });
   return (
     <View className="gap-[18px]">
       <RequiredFieldsLegend />
@@ -66,6 +80,21 @@ export function ClassGroupForm({ form, instructors, material }: ClassGroupFormPr
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
+            errorMessage={fieldState.error?.message}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="instructorId"
+        render={({ field, fieldState }) => (
+          <InstructorField
+            testID="class-group-instructor-picker"
+            label={withRequiredMark(translate("classGroups.form.instructor"))}
+            instructors={instructors}
+            instructorId={field.value || null}
+            onChange={(instructorId) => field.onChange(instructorId ?? "")}
+            emptyMessage={translate("instructors.picker.noInstructors")}
             errorMessage={fieldState.error?.message}
           />
         )}
@@ -157,21 +186,25 @@ export function ClassGroupForm({ form, instructors, material }: ClassGroupFormPr
           </View>
         )}
       />
-      <Controller
-        control={control}
-        name="instructorId"
-        render={({ field, fieldState }) => (
-          <InstructorField
-            testID="class-group-instructor-picker"
-            label={withRequiredMark(translate("classGroups.form.instructor"))}
-            instructors={instructors}
-            instructorId={field.value || null}
-            onChange={(instructorId) => field.onChange(instructorId ?? "")}
-            emptyMessage={translate("instructors.picker.noInstructors")}
-            errorMessage={fieldState.error?.message}
-          />
-        )}
-      />
+      {showsInstructorWeek ? (
+        <InstructorWeekCard
+          instructorId={instructorId}
+          instructorFullName={
+            instructors.find((instructor) => instructor.id === instructorId)?.fullName ?? ""
+          }
+          weekdays={weekdays}
+          durationMinutes={toValidDurationMinutes(durationMinutes)}
+          startTime={startTime.trim()}
+          ignoredClassGroupId={ignoredClassGroupId}
+          onPickStartTime={(pickedStartTime) =>
+            form.setValue("startTime", pickedStartTime, {
+              shouldDirty: true,
+              shouldTouch: true,
+              shouldValidate: true,
+            })
+          }
+        />
+      ) : null}
       <Controller
         control={control}
         name="location"

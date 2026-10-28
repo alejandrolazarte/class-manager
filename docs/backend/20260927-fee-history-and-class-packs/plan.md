@@ -13,7 +13,7 @@ Follow-up to [monthly fees](../20260926-monthly-fees/plan.md), asked by the pilo
 - **Selling a pack records the money** (it is the payment): price (defaults to the catalog's, can be lowered for a discount), date, method, notes. The purchase copies name, classes and validity, so editing the catalog never changes what was sold.
 - **A class is used only when the student attended** ("Vino"). Absences and cancelled sessions don't use classes.
 - **Expiry is optional per pack.** With a validity, classes left after `expiresOn` (purchase date + validity − 1 day) are lost; without one, they stay until used.
-- **Which pack pays an attendance**: attendances in months when the family was on `ClassPacks`, oldest first, each one from the pack valid on that date that expires first (packs without expiry last), then the oldest purchase. An attendance with no pack left is an **unpaid class**; the next pack sold covers it.
+- **Which pack pays an attendance**: attendances in months when the family was on `ClassPacks`, oldest first, each one from the pack that covers it ([class pack coverage](../20261028-class-pack-coverage/plan.md)) and is valid on that date, the one that expires first (packs without expiry last), then the oldest purchase. An attendance with no pack left is an **unpaid class**; the next pack sold covers it.
 - The balance is **computed, not stored**: purchases + attendances → classes used, left, expired and unpaid. No counters to keep in sync when attendance is corrected.
 - **The team and the family see it before money changes hands.** The attendance row shows "Le queda 1 clase", "Sin clases en el pack" or "Debe N clases" for students paying per class, and the student app's next class card warns "No te quedan clases en el pack." or "Debés N clases." with a link to buy classes (hidden once the student said they won't come). Attendance is never blocked: a class with no pack left is recorded as unpaid, as before.
 
@@ -71,7 +71,7 @@ Purchase `status`: `Active`, `UsedUp` or `Expired`. `classPackClients` lists fam
 | P4 | Only active packs can be sold | Validation |
 | P5 | Sale date not after today; method required; notes ≤ 200 characters | Validation |
 | P6 | Pack, purchase and client belong to the business | `404` |
-| P7 | A pack is either for group classes or for private lessons. For group classes it covers at least one class and has no duration of its own (each class keeps its own). For private lessons it covers no class and needs the lesson duration (15–240 minutes, in steps of 5), which is suggested when scheduling the lesson | Validation on `classDurationMinutes` |
+| P7 | A pack is either for group classes or for private lessons. For group classes it covers at least one class, or any group class ([class pack coverage](../20261028-class-pack-coverage/plan.md)), and has no duration of its own (each class keeps its own). For private lessons it covers no class and needs the lesson duration (15–240 minutes, in steps of 5), which is suggested when scheduling the lesson | Validation on `classDurationMinutes` |
 
 ## Data
 

@@ -70,6 +70,7 @@ export const classPackSchema = z.object({
   kind: z.enum(classPackKinds),
   classDurationMinutes: z.string(),
   classGroupIds: z.array(z.string()),
+  coversAnyGroupClass: z.boolean(),
 });
 
 export type ClassPackFormValues = z.input<typeof classPackSchema>;
@@ -92,29 +93,33 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
     price: classPack ? String(classPack.price).replace(".", ",") : "",
     validityMonths: classPack?.validityMonths ? String(classPack.validityMonths) : "",
     kind:
-      classPack === undefined || classPack.classGroupIds.length > 0
+      classPack === undefined || classPack.classGroupIds.length > 0 || classPack.coversAnyGroupClass
         ? "groupClasses"
         : "privateLessons",
     classDurationMinutes: classPack?.classDurationMinutes
       ? String(classPack.classDurationMinutes)
       : "",
     classGroupIds: classPack?.classGroupIds ?? [],
+    coversAnyGroupClass: classPack?.coversAnyGroupClass ?? false,
   };
 }
 
-export function requiredClassPackFields(kind: ClassPackKind) {
-  return [
-    "name",
-    "classCount",
-    "price",
-    kind === "groupClasses" ? "classGroupIds" : "classDurationMinutes",
-  ] as const satisfies readonly (keyof ClassPackFormValues)[];
+const baseRequiredClassPackFields = ["name", "classCount", "price"] as const;
+
+export function requiredClassPackFields(kind: ClassPackKind, coversAnyGroupClass: boolean) {
+  if (kind === "privateLessons") {
+    return [...baseRequiredClassPackFields, "classDurationMinutes"] as const;
+  }
+  return coversAnyGroupClass
+    ? baseRequiredClassPackFields
+    : ([...baseRequiredClassPackFields, "classGroupIds"] as const);
 }
 
 export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveClassPackRequest {
   const validityMonths = formValues.validityMonths.trim();
   const description = formValues.description.trim();
   const isForGroupClasses = formValues.kind === "groupClasses";
+  const coversAnyGroupClass = isForGroupClasses && formValues.coversAnyGroupClass;
   return {
     name: formValues.name.trim(),
     description: description.length === 0 ? null : description,
@@ -122,6 +127,7 @@ export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveCla
     price: parseAmount(formValues.price) ?? 0,
     validityMonths: validityMonths.length === 0 ? null : Number(validityMonths),
     classDurationMinutes: isForGroupClasses ? null : Number(formValues.classDurationMinutes),
-    classGroupIds: isForGroupClasses ? formValues.classGroupIds : [],
+    classGroupIds: isForGroupClasses && !coversAnyGroupClass ? formValues.classGroupIds : [],
+    coversAnyGroupClass,
   };
 }

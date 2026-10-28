@@ -832,6 +832,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<int?>("ClassDurationMinutes")
                         .HasColumnType("int");
 
+                    b.Property<bool>("CoversAnyGroupClass")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -974,6 +977,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<long>("ClientId")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("CoversAnyGroupClass")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -1061,6 +1067,42 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_ClassPackPurchases_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchaseClassGroup", b =>
+                {
+                    b.Property<long>("ClassPackPurchaseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ClassGroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("CreatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("UpdatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ClassPackPurchaseId", "ClassGroupId");
+
+                    b.HasIndex("ClassGroupId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.HasIndex("TenantId", "ClassGroupId");
+
+                    b.ToTable("ClassPackPurchaseClassGroups");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.Client", b =>
@@ -4389,6 +4431,37 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchaseClassGroup", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.ClassGroups.ClassGroup", null)
+                        .WithMany()
+                        .HasForeignKey("ClassGroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.ClassPacks.ClassPackPurchase", null)
+                        .WithMany("ClassGroups")
+                        .HasForeignKey("ClassPackPurchaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Clients.Client", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Users.User", null)
@@ -5653,6 +5726,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Navigation("ClassGroups");
 
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchase", b =>
+                {
+                    b.Navigation("ClassGroups");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Orders.Order", b =>

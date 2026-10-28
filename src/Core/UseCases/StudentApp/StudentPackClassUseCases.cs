@@ -18,29 +18,21 @@ public sealed record CancelPackClassCommand(long StudentId, long ClassGroupId, D
 
 public sealed record PackCreditRepositories(
     IStudentRepository Students,
-    IClassPackRepository ClassPacks,
     IClassBalanceService ClassBalances);
-
-internal sealed record PackCoverage(ClassPackUsage Usage, ClassPack ClassPack);
 
 internal static class PackCredits
 {
-    public static async Task<IReadOnlyList<PackCoverage>> ListActiveAsync(
+    public static async Task<IReadOnlyList<ClassPackUsage>> ListActiveAsync(
         long clientId,
         PackCreditRepositories repositories,
         CancellationToken cancellationToken)
     {
         var balances = await repositories.ClassBalances.CalculateAsync([clientId], cancellationToken);
-        var coverages = new List<PackCoverage>();
-        foreach (var usage in balances[clientId].Purchases.Where(usage => usage.Status == ClassPackPurchaseStatus.Active))
-        {
-            if (await repositories.ClassPacks.GetByIdAsync(usage.Purchase.ClassPackId, cancellationToken) is { ClassGroupIds.Count: > 0 } classPack)
-            {
-                coverages.Add(new PackCoverage(usage, classPack));
-            }
-        }
-
-        return coverages;
+        return
+        [
+            .. balances[clientId].Purchases
+                .Where(usage => usage.Status == ClassPackPurchaseStatus.Active && !usage.Purchase.IsForPrivateLessons),
+        ];
     }
 
     public static async Task<int> WaitingBookingsAsync(
@@ -53,8 +45,8 @@ internal static class PackCredits
         return await packBookingRepository.CountWaitingForAttendanceAsync(studentIds, cancellationToken);
     }
 
-    public static int ClassesLeft(IEnumerable<PackCoverage> coverages, int waitingBookings) =>
-        Math.Max(coverages.Sum(coverage => coverage.Usage.RemainingClasses) - waitingBookings, 0);
+    public static int ClassesLeft(IEnumerable<ClassPackUsage> usages, int waitingBookings) =>
+        Math.Max(usages.Sum(usage => usage.RemainingClasses) - waitingBookings, 0);
 }
 
 public sealed class GetStudentAppPackClassesUseCase(
@@ -76,9 +68,8 @@ public sealed class GetStudentAppPackClassesUseCase(
         }
 
         var clientId = (await studentAppAccess.GetAsync(cancellationToken))!.ClientId;
-        var coverages = await PackCredits.ListActiveAsync(clientId, packCreditRepositories, cancellationToken);
+        var usages = await PackCredits.ListActiveAsync(clientId, packCreditRepositories, cancellationToken);
         var waitingBookings = await PackCredits.WaitingBookingsAsync(clientId, packCreditRepositories, makeupRepositories.PackBookings, cancellationToken);
-        var coveredClassGroupIds = coverages.SelectMany(coverage => coverage.ClassPack.ClassGroupIds).ToHashSet();
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var localNow = await businessCalendar.LocalNowAsync(cancellationToken);
@@ -86,10 +77,10 @@ public sealed class GetStudentAppPackClassesUseCase(
                 [command.StudentId], today, today.AddDays(GetStudentAppHomeUseCase.LookAheadDays), cancellationToken))
             .Select(booking => (booking.ClassGroupId, booking.Date))
             .ToHashSet();
-        coveredClassGroupIds.UnionWith(booked.Select(booking => booking.ClassGroupId));
+        var bookedClassGroupIds = booked.Select(booking => booking.ClassGroupId).ToHashSet();
         var slots = await OpenClassSlots.ListAsync(
             command.StudentId,
-            classGroup => coveredClassGroupIds.Contains(classGroup.Id),
+            classGroup => bookedClassGroupIds.Contains(classGroup.Id) || usages.Any(usage => usage.Purchase.CoversGroupClass(classGroup.Id)),
             classGroupRepository,
             instructorRepository,
             makeupRepositories,
@@ -98,7 +89,7 @@ public sealed class GetStudentAppPackClassesUseCase(
             cancellationToken);
 
         return new StudentAppPackClassesResponse(
-            PackCredits.ClassesLeft(coverages, waitingBookings),
+            PackCredits.ClassesLeft(usages, waitingBookings),
             [.. slots.Select(slot => new StudentAppClassSlotResponse(
                 slot.ClassGroupId,
                 slot.Name,
@@ -173,10 +164,10 @@ public sealed class BookPackClassUseCase(
         }
 
         var clientId = (await studentAppAccess.GetAsync(cancellationToken))!.ClientId;
-        var coverages = (await PackCredits.ListActiveAsync(clientId, packCreditRepositories, cancellationToken))
-            .Where(coverage => coverage.ClassPack.CoversClassGroup(command.ClassGroupId) && coverage.Usage.Purchase.IsValidOn(command.Date));
+        var usages = (await PackCredits.ListActiveAsync(clientId, packCreditRepositories, cancellationToken))
+            .Where(usage => usage.Purchase.CoversGroupClass(command.ClassGroupId) && usage.Purchase.IsValidOn(command.Date));
         var waitingBookings = await PackCredits.WaitingBookingsAsync(clientId, packCreditRepositories, makeupRepositories.PackBookings, cancellationToken);
-        if (PackCredits.ClassesLeft(coverages, waitingBookings) <= 0)
+        if (PackCredits.ClassesLeft(usages, waitingBookings) <= 0)
         {
             return Result.Conflict<bool>(NoClassesMessage, SessionErrorCodes.PackNoClasses);
         }

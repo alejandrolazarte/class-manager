@@ -35,6 +35,16 @@ export function isWholeNumberBetween(value: string, minimum: number, maximum: nu
   return number >= minimum && number <= maximum;
 }
 
+export function toValidDurationMinutes(typedDuration: string): number | null {
+  return isWholeNumberBetween(
+    typedDuration,
+    classGroupLimits.minimumDurationMinutes,
+    classGroupLimits.maximumDurationMinutes,
+  )
+    ? Number(typedDuration)
+    : null;
+}
+
 export const classGroupSchema = z
   .object({
     name: z

@@ -23,7 +23,9 @@ public sealed record ClassBalance(
         foreach (var attendedClass in attendedClasses.OrderBy(attended => attended.Date))
         {
             var payingPurchase = purchases
-                .Where(purchase => purchase.IsValidOn(attendedClass.Date) && usedClassesByPurchase[purchase] < purchase.ClassCount)
+                .Where(purchase => purchase.IsValidOn(attendedClass.Date)
+                    && purchase.Covers(attendedClass)
+                    && usedClassesByPurchase[purchase] < purchase.ClassCount)
                 .OrderBy(purchase => purchase.ExpiresOn ?? DateOnly.MaxValue)
                 .ThenBy(purchase => purchase.PurchasedOn)
                 .ThenBy(purchase => purchase.CreatedAt)

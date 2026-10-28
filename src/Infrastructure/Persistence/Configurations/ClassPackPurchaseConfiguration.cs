@@ -24,5 +24,12 @@ internal sealed class ClassPackPurchaseConfiguration : IEntityTypeConfiguration<
         builder.HasOne<ClassPack>().WithMany().HasForeignKey(purchase => purchase.ClassPackId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(purchase => new { purchase.TenantId, purchase.ClientId });
         builder.HasIndex(purchase => new { purchase.TenantId, purchase.PurchasedOn });
+        builder.Ignore(purchase => purchase.IsForPrivateLessons);
+
+        builder.HasMany(purchase => purchase.ClassGroups)
+            .WithOne()
+            .HasForeignKey(classGroup => classGroup.ClassPackPurchaseId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(purchase => purchase.ClassGroups).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
     }
 }
