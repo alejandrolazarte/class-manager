@@ -60,6 +60,7 @@ export function buildStudentAppPastClass(
     status: "Attended",
     isMakeup: false,
     isPackBooking: false,
+    paidWithPack: null,
     ...overrides,
   };
 }

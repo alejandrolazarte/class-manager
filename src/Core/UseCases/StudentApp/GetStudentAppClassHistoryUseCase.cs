@@ -1,9 +1,11 @@
 using System.Globalization;
+using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.PrivateLessons;
 using ClassManager.Core.Domain.Sessions;
@@ -32,7 +34,14 @@ public sealed record StudentAppPastClassResponse(
     long? ClassGroupId,
     PastClassStatus Status,
     bool IsMakeup,
-    bool IsPackBooking);
+    bool IsPackBooking,
+    StudentAppPaidWithPackResponse? PaidWithPack);
+
+public sealed record StudentAppPaidWithPackResponse(string Name, DateOnly PurchasedOn)
+{
+    public static StudentAppPaidWithPackResponse? From(ClassPackPurchase? purchase) =>
+        purchase is null ? null : new(purchase.Name, purchase.PurchasedOn);
+}
 
 public sealed record StudentAppClassHistoryResponse(string Month, IReadOnlyList<StudentAppPastClassResponse> Classes);
 
@@ -48,6 +57,7 @@ public sealed class GetStudentAppClassHistoryUseCase(
     IPackBookingRepository packBookingRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
+    IClassBalanceService classBalanceService,
     IBusinessCalendarService businessCalendar)
     : IUseCase<GetStudentAppClassHistoryQuery, StudentAppClassHistoryResponse>
 {
@@ -99,6 +109,16 @@ public sealed class GetStudentAppClassHistoryUseCase(
             .ToHashSet();
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
+        var access = await studentAppAccess.GetAsync(cancellationToken);
+        var balance = (await classBalanceService.CalculateAsync([access!.ClientId], cancellationToken))[access.ClientId];
+        var packPurchases = balance.PaidClasses
+            .Where(paidClass => paidClass.AttendedClass.StudentId == command.StudentId
+                && paidClass.AttendedClass.Date >= firstDate
+                && paidClass.AttendedClass.Date <= lastDate)
+            .GroupBy(paidClass => (paidClass.AttendedClass.ClassGroupId, paidClass.AttendedClass.Date))
+            .ToDictionary(paidClasses => paidClasses.Key, paidClasses => new Queue<ClassPackPurchase>(paidClasses.Select(paidClass => paidClass.Purchase)));
+        ClassPackPurchase? PackPurchaseOf(long? classGroupId, DateOnly date) =>
+            packPurchases.TryGetValue((classGroupId, date), out var purchases) && purchases.Count > 0 ? purchases.Dequeue() : null;
 
         var pastClasses = new List<StudentAppPastClassResponse>();
         var listedClasses = new HashSet<(long ClassGroupId, DateOnly Date)>();
@@ -114,7 +134,7 @@ public sealed class GetStudentAppClassHistoryUseCase(
                 session?.IsCancelled ?? false,
                 attendances.TryGetValue((classGroupId, date), out var attendance) ? attendance : null,
                 notices.Contains((classGroupId, date)));
-            pastClasses.Add(GroupClass(classGroup, session, date, instructorNames, status, isMakeup, isPackBooking));
+            pastClasses.Add(GroupClass(classGroup, session, date, instructorNames, status, isMakeup, isPackBooking, PackPurchaseOf(classGroupId, date)));
         }
 
         foreach (var enrollment in enrollments)
@@ -146,7 +166,7 @@ public sealed class GetStudentAppClassHistoryUseCase(
             var lessonStudent = lesson.Students.FirstOrDefault(lessonStudent => lessonStudent.StudentId == command.StudentId);
             if (lessonStudent is not null)
             {
-                pastClasses.Add(PrivateLesson(lesson, lessonStudent, instructorNames));
+                pastClasses.Add(PrivateLesson(lesson, lessonStudent, instructorNames, PackPurchaseOf(null, lesson.Date)));
             }
         }
 
@@ -186,7 +206,8 @@ public sealed class GetStudentAppClassHistoryUseCase(
         IReadOnlyDictionary<long, string> instructorNames,
         PastClassStatus status,
         bool isMakeup,
-        bool isPackBooking)
+        bool isPackBooking,
+        ClassPackPurchase? packPurchase)
     {
         var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
         var instructorId = session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId;
@@ -201,13 +222,15 @@ public sealed class GetStudentAppClassHistoryUseCase(
             classGroup.Id,
             status,
             isMakeup,
-            isPackBooking);
+            isPackBooking,
+            StudentAppPaidWithPackResponse.From(packPurchase));
     }
 
     private static StudentAppPastClassResponse PrivateLesson(
         PrivateLesson lesson,
         PrivateLessonStudent lessonStudent,
-        IReadOnlyDictionary<long, string> instructorNames) =>
+        IReadOnlyDictionary<long, string> instructorNames,
+        ClassPackPurchase? packPurchase) =>
         new(
             lesson.IsTrial ? GetStudentAppHomeUseCase.TrialName : GetStudentAppHomeUseCase.PrivateLessonName,
             lesson.Date,
@@ -219,7 +242,8 @@ public sealed class GetStudentAppClassHistoryUseCase(
             ClassGroupId: null,
             StatusOf(lesson.IsCancelled, lessonStudent.Status, absenceNotified: false),
             IsMakeup: false,
-            IsPackBooking: false);
+            IsPackBooking: false,
+            StudentAppPaidWithPackResponse.From(packPurchase));
 
     private static string Format(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);
 }

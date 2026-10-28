@@ -15,6 +15,7 @@ Clases uses the same agenda block as the team's Inicio (`AgendaCalendar` in `src
 - **Día / Mes.** Día shows the week strip; Mes shows the month calendar. The arrows move a week or a month, and **Hoy** comes back to today.
 - **How far.** Back 52 weeks, the same window as the streak (`AttendanceStreaks.LookBackWeeks`); forward up to the second week after this one, as before.
 - **A past day** lists each class with what happened: **Fuiste**, **Recuperaste** (a makeup they came to), **Faltaste**, **Avisaste** (they gave notice), **Cancelada** or **Sin registrar** (the team didn't take attendance).
+- **Which pack paid it.** A past class paid with a class pack adds a line under it: "Del Pack 8 clases comprado el 10 de octubre". The purchase date tells two purchases of the same pack apart. A class paid with the monthly fee, or with no pack left to pay it, shows nothing.
 - **Today and later** keep the rows they had: Hoy, Próxima, No va, Recuperación, Reservada and Cancelada, with the class detail and every action.
 - **Actions only from today on.** "Reservar clases del pack" and "Recuperar clases" show while the selected day is today or later; a past day only lists its classes.
 - **Dots.** Each day of the week strip and the month calendar has a dot: green when they came, red when they missed a class, grey for classes without attendance (still to come, or not recorded). A day where every class was cancelled is drawn as cancelled, as on the team calendar.
@@ -32,9 +33,12 @@ Which classes:
 
 The status of a group class comes from its session and the student's attendance (`IAttendanceRepository.ListByStudentBetweenAsync`): cancelled session → Cancelled; present → Attended; an absence notice → AbsenceNotified; absent → Absent; nothing recorded → Unmarked. A private lesson uses its own attendance and cancellation.
 
+Which pack paid a class is not stored: the class balance is recalculated every time (`ClassBalance.Calculate`). Classes are taken in date order, and each one is paid by the valid purchase with classes left that expires first (then the oldest purchase). The calculation now also returns that pairing (`ClassBalance.PaidClasses`), and the history reads it for the student's classes (`PaidWithPack`: the pack name and purchase date). Since it is a calculation, a later change (a corrected old attendance, a pack sold with an earlier date) can move a class to another purchase; the total left is always right. Packs belong to the client (the family), but the history only shows the selected student's classes.
+
 Today stays out of the history: today's classes come from the home response (`nextClasses`), with their actions.
 
 ## Tests
 
-- Integration (`tests/ClassManager.Api.I.Tests/Endpoints/StudentAppClassHistory`): each status, classes before joining and from today on left out, makeups and private lessons, another family's and another business's student, an invalid month.
-- App (`app/src/features/studentApp/__tests__`): a past day shows whether the student came, and Mes shows the month summary.
+- Unit: with two valid packs, each class names the purchase that paid it.
+- Integration (`tests/ClassManager.Api.I.Tests/Endpoints/StudentAppClassHistory`): each status, the pack that paid a class and none for a monthly fee, classes before joining and from today on left out, makeups and private lessons, another family's and another business's student, an invalid month.
+- App (`app/src/features/studentApp/__tests__`): a past day shows whether the student came and which pack paid it, offers no booking or makeup, and Mes shows the month summary.

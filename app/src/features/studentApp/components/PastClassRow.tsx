@@ -1,7 +1,8 @@
 import { View } from "react-native";
 import { pastClassStatusOf } from "@/features/studentApp/studentAppAgenda";
-import { classDetails } from "@/features/studentApp/studentAppSchedule";
+import { classDetails, dayAndMonthLabel } from "@/features/studentApp/studentAppSchedule";
 import { StudentAppPastClass } from "@/features/studentApp/types";
+import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { StatusPill } from "@/ui/StatusPill";
@@ -26,6 +27,14 @@ export function PastClassRow({ pastClass }: PastClassRowProps) {
         <AppText variant="caption" tone="muted">
           {classDetails(pastClass)}
         </AppText>
+        {pastClass.paidWithPack === null ? null : (
+          <AppText variant="caption" tone="subtle">
+            {translate("student.history.paidWithPack", {
+              pack: pastClass.paidWithPack.name,
+              date: dayAndMonthLabel(pastClass.paidWithPack.purchasedOn),
+            })}
+          </AppText>
+        )}
       </View>
       <StatusPill isSmall label={statusLabel} tone={statusTone} />
     </HairlineRow>

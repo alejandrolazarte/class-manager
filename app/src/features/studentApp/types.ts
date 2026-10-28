@@ -31,6 +31,12 @@ export interface StudentAppPastClass {
   status: PastClassStatus;
   isMakeup: boolean;
   isPackBooking: boolean;
+  paidWithPack: StudentAppPaidWithPack | null;
+}
+
+export interface StudentAppPaidWithPack {
+  name: string;
+  purchasedOn: string;
 }
 
 export interface StudentAppClassHistory {

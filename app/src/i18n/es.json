@@ -1284,6 +1284,7 @@
   "student.history.absent": "Faltaste",
   "student.history.absenceNotified": "Avisaste",
   "student.history.unmarked": "Sin registrar",
+  "student.history.paidWithPack": "Del {pack} comprado el {date}",
   "student.history.monthSummary.one": "Fuiste a {attended} de 1 clase este mes",
   "student.history.monthSummary.other": "Fuiste a {attended} de {count} clases este mes",
   "student.shop.search": "Buscar en la tienda",
