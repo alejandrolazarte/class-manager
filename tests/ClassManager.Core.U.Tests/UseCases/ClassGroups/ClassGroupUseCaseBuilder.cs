@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Instructors;
+using ClassManager.Core.Domain.PrivateLessons;
 using ClassManager.Core.UseCases.ClassGroups;
 
 namespace ClassManager.Core.U.Tests.UseCases.ClassGroups;
@@ -34,11 +35,33 @@ internal sealed class ClassGroupUseCaseBuilder
     public ClassGroup ExistingClassGroup(string startTime = "18:00") =>
         ClassGroup.Create("Aquagym", Instructor.Id, ClassSchedule.Create([DayOfWeek.Thursday], startTime, 60).Value!, 10, null).Value!.WithId();
 
+    public PrivateLesson ExistingLesson(DateOnly date, string startTime) =>
+        PrivateLesson.Create(
+            Instructor.Id,
+            date,
+            ClassSchedule.Create([date.DayOfWeek], startTime, 45).Value!,
+            [TestIds.Next()],
+            null,
+            null,
+            null,
+            TestData.Now).Value!.WithId();
+
+    public void InstructorHasClassGroups(params ClassGroup[] classGroups) =>
+        ClassGroups.Setup(repository => repository.ListActiveByInstructorAsync(Instructor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(classGroups);
+
+    public void InstructorHasUpcomingLessons(params PrivateLesson[] lessons) =>
+        PrivateLessons
+            .Setup(repository => repository.ListByInstructorFromAsync(Instructor.Id, TestData.Today, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(lessons);
+
     public CreateClassGroupUseCase BuildCreate() =>
         new(Instructors.Object, ClassGroups.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, DocumentStorage.Object);
 
     public UpdateClassGroupUseCase BuildUpdate() =>
         new(Instructors.Object, ClassGroups.Object, Enrollments.Object, PrivateLessons.Object, UnitOfWork.Object, BusinessCalendar.Object, DocumentStorage.Object);
+
+    public ListInstructorWeekUseCase BuildListInstructorWeek() =>
+        new(Instructors.Object, ClassGroups.Object, PrivateLessons.Object, BusinessCalendar.Object);
 
     public SetClassGroupActiveUseCase BuildSetActive() =>
         new(Instructors.Object, ClassGroups.Object, Enrollments.Object, UnitOfWork.Object, BusinessCalendar.Object, DocumentStorage.Object);

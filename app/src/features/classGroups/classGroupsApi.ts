@@ -1,10 +1,15 @@
 import { PickedFile, toFileForm } from "@/api/fileForm";
 import { httpClient } from "@/api/httpClient";
-import { ClassGroup, SaveClassGroupRequest } from "@/features/classGroups/types";
+import {
+  ClassGroup,
+  InstructorWeekSlot,
+  SaveClassGroupRequest,
+} from "@/features/classGroups/types";
 
 const classGroupsPath = "/api/class-groups";
 const activeSegment = "active";
 const materialSegment = "material";
+const instructorWeekSegment = "instructor-week";
 const includeInactiveParameters = { includeInactive: "true" };
 
 function classGroupPath(classGroupId: string): string {
@@ -17,6 +22,16 @@ export function listActiveClassGroups(): Promise<ClassGroup[]> {
 
 export function listClassGroupsIncludingInactive(): Promise<ClassGroup[]> {
   return httpClient.get<ClassGroup[]>(classGroupsPath, includeInactiveParameters);
+}
+
+export function listInstructorWeek(
+  instructorId: string,
+  ignoredClassGroupId: string | undefined,
+): Promise<InstructorWeekSlot[]> {
+  return httpClient.get<InstructorWeekSlot[]>(`${classGroupsPath}/${instructorWeekSegment}`, {
+    instructorId,
+    ignoredClassGroupId,
+  });
 }
 
 export function createClassGroup(request: SaveClassGroupRequest): Promise<ClassGroup> {

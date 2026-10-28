@@ -39,6 +39,15 @@ function overlaps(first: MinutesRange, second: MinutesRange): boolean {
   return first.startMinutes < second.endMinutes && second.startMinutes < first.endMinutes;
 }
 
+export function isLessonInsideGap(lesson: PlannedLesson | null, gap: FreeGap): boolean {
+  return (
+    lesson !== null &&
+    lesson.conflict === null &&
+    lesson.startMinutes >= gap.startMinutes &&
+    lesson.endMinutes <= gap.endMinutes
+  );
+}
+
 function toBusyPeriod(slot: InstructorAgendaSlot): BusyPeriod {
   const startMinutes = toMinutesOfDay(slot.startTime);
   return { startMinutes, endMinutes: startMinutes + slot.durationMinutes, slot };

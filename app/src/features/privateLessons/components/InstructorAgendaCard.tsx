@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { formatMinutesOfDay } from "@/features/classGroups/startTimeFormatting";
+import { freeGapLabel } from "@/features/privateLessons/freeGapLabel";
 import {
   BusyPeriod,
-  FreeGap,
   InstructorDay,
+  isLessonInsideGap,
   planInstructorDay,
 } from "@/features/privateLessons/instructorDay";
 import { InstructorAgendaSlot } from "@/features/privateLessons/types";
 import { useInstructorAgenda } from "@/features/privateLessons/useInstructorAgenda";
+import { firstNameOf } from "@/features/studentApp/studentAppSchedule";
 import { formatLongDate } from "@/dates/dates";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
@@ -32,42 +34,10 @@ interface InstructorAgendaCardProps {
   onPickStartTime: (startTime: string) => void;
 }
 
-const nameSeparator = " ";
 const loadingRowCount = 1;
-
-function firstNameOf(fullName: string): string {
-  return fullName.split(nameSeparator)[0] ?? fullName;
-}
 
 function slotName(slot: InstructorAgendaSlot, privateLessonName: string): string {
   return slot.classGroupName ?? privateLessonName;
-}
-
-function gapLabel(gap: FreeGap): string {
-  if (gap.isOpenStart) {
-    return translate("privateLessons.agenda.gapUntil", {
-      time: formatMinutesOfDay(gap.endMinutes),
-    });
-  }
-  if (gap.isOpenEnd) {
-    return translate("privateLessons.agenda.gapFrom", {
-      time: formatMinutesOfDay(gap.startMinutes),
-    });
-  }
-  return translate("privateLessons.agenda.gapBetween", {
-    start: formatMinutesOfDay(gap.startMinutes),
-    end: formatMinutesOfDay(gap.endMinutes),
-  });
-}
-
-function isLessonInside(instructorDay: InstructorDay, gap: FreeGap): boolean {
-  const { lesson } = instructorDay;
-  return (
-    lesson !== null &&
-    lesson.conflict === null &&
-    lesson.startMinutes >= gap.startMinutes &&
-    lesson.endMinutes <= gap.endMinutes
-  );
 }
 
 function timelinePeriods(instructorDay: InstructorDay): DayTimelinePeriod[] {
@@ -211,8 +181,8 @@ export function InstructorAgendaCard({
               {instructorDay.freeGaps.map((gap) => (
                 <Chip
                   key={gap.startMinutes}
-                  label={gapLabel(gap)}
-                  isSelected={isLessonInside(instructorDay, gap)}
+                  label={freeGapLabel(gap)}
+                  isSelected={isLessonInsideGap(instructorDay.lesson, gap)}
                   onPress={() => onPickStartTime(formatMinutesOfDay(gap.suggestedStartMinutes))}
                 />
               ))}
