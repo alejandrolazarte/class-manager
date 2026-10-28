@@ -134,11 +134,16 @@ export function countdownLabel(
   return translate("student.nextClass.inDays", { count: days });
 }
 
-export function classTitle(nextClass: StudentAppNextClass): string {
+type ClassSummary = Pick<
+  StudentAppNextClass,
+  "name" | "isPrivateLesson" | "instructorFullName" | "location"
+>;
+
+export function classTitle(nextClass: ClassSummary): string {
   return nextClass.isPrivateLesson ? translate("student.student.privateLesson") : nextClass.name;
 }
 
-export function classDetails(nextClass: StudentAppNextClass): string {
+export function classDetails(nextClass: ClassSummary): string {
   const withInstructor = nextClass.instructorFullName
     ? `${classTitle(nextClass)} ${translate("student.student.with", { instructor: nextClass.instructorFullName })}`
     : classTitle(nextClass);

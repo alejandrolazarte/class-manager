@@ -17,6 +17,8 @@ public static class ApiRoutes
     public const string PushKey = "/push-key";
     public const string StudentMakeups = "/students/{studentId:long}/makeups";
     public const string StudentMakeup = "/students/{studentId:long}/makeups/{classGroupId:long}/{sessionDate}";
+    public const string ClassHistory = "/class-history";
+    public const string StudentClassHistory = "/students/{studentId:long}/class-history";
     public const string PackClasses = "/pack-classes";
     public const string StudentPackClasses = "/students/{studentId:long}/pack-classes";
     public const string StudentPackClass = "/students/{studentId:long}/pack-classes/{classGroupId:long}/{sessionDate}";

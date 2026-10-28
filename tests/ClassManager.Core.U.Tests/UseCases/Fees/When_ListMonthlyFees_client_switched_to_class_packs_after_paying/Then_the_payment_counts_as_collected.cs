@@ -15,7 +15,7 @@ public sealed class Then_the_payment_counts_as_collected
         var classPackClientId = builder.AddEnrolledClient("Ana Pérez");
         builder.SetPlan(classPackClientId, BillingPlanKind.ClassPacks, effectiveFrom: builder.CurrentMonth);
         builder.PaidByClient[classPackClientId] = FeeUseCaseBuilder.DefaultFee;
-        builder.ClassBalancesByClient[classPackClientId] = new ClassBalance([], []);
+        builder.ClassBalancesByClient[classPackClientId] = new ClassBalance([], [], []);
 
         var response = await builder.BuildList().ExecuteAsync(new ListMonthlyFeesQuery(null), CancellationToken.None);
 

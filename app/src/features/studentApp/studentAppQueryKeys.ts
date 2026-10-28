@@ -7,6 +7,8 @@ export const studentAppQueryKeys = {
   pushKey: () => [...studentAppQueryKeys.all, "push-key"] as const,
   pushSubscription: () => [...studentAppQueryKeys.all, "push-subscription"] as const,
   makeups: (studentId: string) => [...studentAppQueryKeys.all, "makeups", studentId] as const,
+  classHistory: (studentId: string, month: string) =>
+    [...studentAppQueryKeys.all, "class-history", studentId, month] as const,
   packClasses: (studentId: string) =>
     [...studentAppQueryKeys.all, "pack-classes", studentId] as const,
 };

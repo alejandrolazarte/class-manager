@@ -62,11 +62,22 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
             where clientIds.Contains(student.ClientId)
             join session in context.ClassSessions.AsNoTracking() on attendance.ClassSessionId equals session.Id
             join classGroup in context.ClassGroups.AsNoTracking() on session.ClassGroupId equals classGroup.Id
-            select new { student.ClientId, session.Date, StudentFullName = student.User.FullName, ClassGroupName = classGroup.Name, IsPackBooking = isPackBooking })
+            select new
+            {
+                student.ClientId,
+                StudentId = student.Id,
+                session.Date,
+                session.ClassGroupId,
+                StudentFullName = student.User.FullName,
+                ClassGroupName = classGroup.Name,
+                IsPackBooking = isPackBooking,
+            })
             .ToListAsync(cancellationToken);
 
         return [.. rows.Select(row => new ClientAttendedClass(
-            row.ClientId, new AttendedClass(row.Date, row.StudentFullName, row.ClassGroupName, IsPackBooking: row.IsPackBooking)))];
+            row.ClientId,
+            new AttendedClass(
+                row.Date, row.StudentFullName, row.ClassGroupName, IsPackBooking: row.IsPackBooking, StudentId: row.StudentId, ClassGroupId: row.ClassGroupId)))];
     }
 
     public async Task<IReadOnlyList<StudentAttendanceMark>> ListMarksByStudentsAsync(
@@ -117,6 +128,19 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
             .. privateLessonMarks.Select(row => new StudentAttendanceMark(row.StudentId, new AttendanceMark(row.Date, row.Status))),
         ];
     }
+
+    public async Task<IReadOnlyList<StudentClassAttendance>> ListByStudentBetweenAsync(
+        long studentId,
+        DateOnly firstDate,
+        DateOnly lastDate,
+        CancellationToken cancellationToken) =>
+        await (
+            from attendance in context.Attendances.AsNoTracking()
+            where attendance.StudentId == studentId
+            join session in context.ClassSessions.AsNoTracking() on attendance.ClassSessionId equals session.Id
+            where session.Date >= firstDate && session.Date <= lastDate
+            select new StudentClassAttendance(session.ClassGroupId, session.Date, attendance.Status))
+            .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyDictionary<long, int>> CountAttendedClassesByStudentsAsync(
         IReadOnlyCollection<long> studentIds,

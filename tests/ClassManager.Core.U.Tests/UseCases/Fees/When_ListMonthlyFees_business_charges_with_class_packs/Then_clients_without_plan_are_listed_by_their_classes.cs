@@ -13,7 +13,7 @@ public sealed class Then_clients_without_plan_are_listed_by_their_classes
         builder.AddDefaultFeeChange(builder.CurrentMonth, FeeUseCaseBuilder.DefaultFee, BusinessBillingMode.ClassPacks);
         var classPackClientId = builder.AddEnrolledClient("Ana Pérez");
         var customFeeClientId = builder.AddEnrolledClient("Sofía Martínez", 20000m);
-        builder.ClassBalancesByClient[classPackClientId] = new ClassBalance([], []);
+        builder.ClassBalancesByClient[classPackClientId] = new ClassBalance([], [], []);
 
         var response = await builder.BuildList().ExecuteAsync(new ListMonthlyFeesQuery(null), CancellationToken.None);
 

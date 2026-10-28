@@ -1,5 +1,6 @@
 import { LayoutRectangle, Pressable, View } from "react-native";
 import { AppText } from "@/ui/AppText";
+import { DayMarker, dayMarkerClassNames } from "@/ui/DayMarker";
 import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 export interface DayStripDay {
@@ -7,7 +8,7 @@ export interface DayStripDay {
   label: string;
   accessibilityLabel: string;
   dayNumber?: number;
-  hasClasses?: boolean;
+  marker?: DayMarker;
   isToday?: boolean;
 }
 
@@ -37,11 +38,11 @@ function circleLayoutOf(
   };
 }
 
-function dotClassName(hasClasses: boolean, isSelected: boolean): string {
-  if (!hasClasses) {
-    return "bg-transparent";
+function dotClassName(marker: DayMarker, isSelected: boolean): string {
+  if (marker === "none") {
+    return dayMarkerClassNames.none;
   }
-  return isSelected ? "bg-primary" : "bg-subtle-foreground";
+  return isSelected ? "bg-primary" : dayMarkerClassNames[marker];
 }
 
 export function DayStrip({ days, selectedKeys, onSelect, showsClassDots = true }: DayStripProps) {
@@ -60,6 +61,7 @@ export function DayStrip({ days, selectedKeys, onSelect, showsClassDots = true }
         const isSelected = selectedKeys.includes(day.key);
         const circleBackground = isSelected && slidingKey === undefined ? "bg-primary" : "";
         const circleText = day.dayNumber === undefined ? day.label : String(day.dayNumber);
+        const marker = day.marker ?? "none";
         return (
           <Pressable
             key={day.key}
@@ -87,8 +89,8 @@ export function DayStrip({ days, selectedKeys, onSelect, showsClassDots = true }
             </View>
             {showsClassDots ? (
               <View
-                testID={day.hasClasses ? `${classDotTestIdPrefix}${day.key}` : undefined}
-                className={`mt-0.5 h-1 w-1 rounded-full ${dotClassName(day.hasClasses ?? false, isSelected)}`}
+                testID={marker === "none" ? undefined : `${classDotTestIdPrefix}${day.key}`}
+                className={`mt-0.5 h-1 w-1 rounded-full ${dotClassName(marker, isSelected)}`}
               />
             ) : null}
           </Pressable>

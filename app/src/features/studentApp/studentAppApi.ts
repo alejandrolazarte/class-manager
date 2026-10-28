@@ -1,6 +1,7 @@
 import { httpClient } from "@/api/httpClient";
 import { BrowserPushSubscription } from "@/features/studentApp/push/browserPush";
 import {
+  StudentAppClassHistory,
   StudentAppHome,
   StudentAppInvitation,
   StudentAppMakeups,
@@ -152,6 +153,24 @@ export function cancelMakeup(
   sessionDate: string,
 ): Promise<void> {
   return httpClient.delete<void>(makeupPath(studentId, classGroupId, sessionDate));
+}
+
+const classHistorySegment = "class-history";
+const monthParameter = "month";
+
+export function getStudentAppClassHistory(
+  studentId: string,
+  month: string,
+): Promise<StudentAppClassHistory> {
+  const path = [
+    studentAppPath,
+    studentsSegment,
+    encodeURIComponent(studentId),
+    classHistorySegment,
+  ].join("/");
+  return httpClient.get<StudentAppClassHistory>(
+    `${path}?${monthParameter}=${encodeURIComponent(month)}`,
+  );
 }
 
 const packClassesSegment = "pack-classes";
