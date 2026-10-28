@@ -113,7 +113,9 @@ The student signs in through the sign-in screen, then the test captures:
 | `20-alumno-inicio` | Home: next class, streak, monthly fee, instructor comment, the school's news led by the pinned announcement, and shop preview |
 | `21-alumno-inicio-otro-alumno` | Home after picking the other student |
 | `21b-alumno-novedades` | News: announcements, ready order, instructor comments and the cancelled class, grouped by day |
-| `22-alumno-clases` | Week of classes for the selected student |
+| `22-alumno-clases` | Clases for the selected student: the agenda with Día and Mes, today selected |
+| `22g-alumno-clase-pasada` | A past day of Tomás, the class he missed: each past class says whether he came |
+| `22h-alumno-clases-mes` | Clases in month view: a dot per day (came, missed, scheduled) and how many classes he came to this month |
 | `22b-alumno-clases-no-voy` | A class the student won't attend, with "Voy a ir igual" |
 | `22c-alumno-clase-de-recuperacion` | A booked makeup class in the student schedule |
 | `22d-alumno-recuperar-clases` | Classes to make up, with open slots to book |

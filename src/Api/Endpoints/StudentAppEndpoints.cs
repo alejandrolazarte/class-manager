@@ -22,6 +22,7 @@ internal static class StudentAppEndpoints
         student.MapPut(ApiRoutes.StudentAbsence, NotifyAbsenceAsync);
         student.MapDelete(ApiRoutes.StudentAbsence, WithdrawAbsenceAsync);
         student.MapGet(ApiRoutes.StudentMakeups, GetStudentAppMakeupsAsync);
+        student.MapGet(ApiRoutes.StudentClassHistory, GetStudentAppClassHistoryAsync);
         student.MapGet(ApiRoutes.PushKey, GetStudentAppPushKeyAsync);
         student.MapPut(ApiRoutes.PushSubscription, SavePushSubscriptionAsync);
         student.MapDelete(ApiRoutes.PushSubscription, RemovePushSubscriptionAsync);
@@ -140,6 +141,17 @@ internal static class StudentAppEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetStudentAppMakeupsQuery(studentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> GetStudentAppClassHistoryAsync(
+        long studentId,
+        string? month,
+        IUseCase<GetStudentAppClassHistoryQuery, StudentAppClassHistoryResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetStudentAppClassHistoryQuery(studentId, month), cancellationToken);
 
         return result.ToOkResult();
     }

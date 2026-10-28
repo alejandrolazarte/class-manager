@@ -35,7 +35,7 @@ internal sealed class EnrollmentUseCaseBuilder
         Students.Setup(repository => repository.GetSummaryByIdAsync(Student.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Student);
         ClassBalances
             .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new Dictionary<long, ClassBalance> { [Student.ClientId] = new(ClientPackUsages, []) });
+            .ReturnsAsync(() => new Dictionary<long, ClassBalance> { [Student.ClientId] = new(ClientPackUsages, [], []) });
         FeeSchedule
             .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);

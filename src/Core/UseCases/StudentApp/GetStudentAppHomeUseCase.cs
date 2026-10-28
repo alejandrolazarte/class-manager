@@ -230,8 +230,8 @@ public sealed class GetStudentAppHomeUseCase(
         ];
     }
 
-    private const string PrivateLessonName = "Clase particular";
-    private const string TrialName = "Clase de prueba";
+    internal const string PrivateLessonName = "Clase particular";
+    internal const string TrialName = "Clase de prueba";
 
     private static StudentAppNextClassResponse GroupClass(
         ClassGroup classGroup,
