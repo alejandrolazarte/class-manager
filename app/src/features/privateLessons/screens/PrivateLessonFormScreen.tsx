@@ -7,9 +7,8 @@ import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { getStringExtension } from "@/api/problemDetails";
 import {
-  classGroupLimits,
   commonDurationsInMinutes,
-  isWholeNumberBetween,
+  toValidDurationMinutes,
 } from "@/features/classGroups/classGroupSchema";
 import { InstructorField } from "@/features/instructors/components/InstructorField";
 import { Instructor } from "@/features/instructors/types";
@@ -91,16 +90,6 @@ function FieldError({ message }: { message?: string }) {
       {message}
     </AppText>
   ) : null;
-}
-
-function toValidDurationMinutes(typedDuration: string): number | null {
-  return isWholeNumberBetween(
-    typedDuration,
-    classGroupLimits.minimumDurationMinutes,
-    classGroupLimits.maximumDurationMinutes,
-  )
-    ? Number(typedDuration)
-    : null;
 }
 
 function PrivateLessonEditor({ lesson, initialDate, instructors }: PrivateLessonEditorProps) {

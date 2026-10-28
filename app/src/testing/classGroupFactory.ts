@@ -1,5 +1,5 @@
 import { PickedFile } from "@/api/fileForm";
-import { ClassGroup } from "@/features/classGroups/types";
+import { ClassGroup, InstructorWeekSlot } from "@/features/classGroups/types";
 import { Instructor } from "@/features/instructors/types";
 
 export function buildInstructor(overrides: Partial<Instructor> = {}): Instructor {
@@ -38,6 +38,19 @@ export function buildPickedMaterialFile(overrides: Partial<PickedFile> = {}): Pi
     uri: "file:///cache/guia-natacion.pdf",
     mimeType: "application/pdf",
     size: 2_400_000,
+    ...overrides,
+  };
+}
+
+export function buildInstructorWeekSlot(
+  overrides: Partial<InstructorWeekSlot> = {},
+): InstructorWeekSlot {
+  return {
+    weekday: "Monday",
+    startTime: "18:00",
+    durationMinutes: 45,
+    kind: "ClassGroup",
+    classGroupName: "Grupo adultos",
     ...overrides,
   };
 }

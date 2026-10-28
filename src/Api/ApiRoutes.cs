@@ -42,6 +42,7 @@ public static class ApiRoutes
     public const string Separation = "/separation";
     public const string ClassGroups = "/api/class-groups";
     public const string ClassGroupById = "/{classGroupId:long}";
+    public const string InstructorWeek = "/instructor-week";
     public const string Active = "/active";
     public const string EnrollmentsSegment = "/enrollments";
     public const string Enrollments = "/api/enrollments";
