@@ -368,7 +368,7 @@
   "enrollments.enroll.alreadyEnrolledError": "Ya está en esta clase",
   "enrollments.enroll.classFull": "La clase está completa",
   "enrollments.enroll.outsidePackQuestion": "¿Inscribir a {student} igual?",
-  "enrollments.enroll.outsidePackMessage": "Su pack no incluye {classGroup}. Si lo inscribís, cada clase que tome se descuenta igual de su pack.",
+  "enrollments.enroll.outsidePackMessage": "Su pack no incluye {classGroup}. Si lo inscribís, las clases que tome quedan debidas hasta que compre un pack que la incluya.",
   "enrollments.enroll.confirmOutsidePack": "Inscribir igual",
   "enrollments.enroll.noStudents": "No encontramos alumnos",
   "enrollments.enroll.success": "{student} ya está en {classGroup}",

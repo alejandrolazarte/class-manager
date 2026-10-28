@@ -17,6 +17,10 @@ A pack is for some group classes, or for private lessons (P7 in [fee history and
 
 Packs stay one of two kinds; "any group class" is an option of the group kind, chosen with the "Cualquier clase grupal" switch in Ajustes → Packs de clases, which hides the class list. An empty class list never means "any": the form still requires a class when the switch is off, so forgetting to pick one can't create a pack that pays everything.
 
+## Enrolling outside the pack
+
+Enrolling a student who pays per class in a class none of their active packs covers still asks first ("¿Inscribir a {student} igual?"). It now checks each sale's coverage, so a pack for any group class never asks, and the message says what really happens: "Su pack no incluye {classGroup}. Si lo inscribís, las clases que tome quedan debidas hasta que compre un pack que la incluya." (before, it said each class was deducted from the pack anyway).
+
 ## What each sale keeps
 
 A sale keeps what the pack covered when it was sold (`ClassPackPurchases.CoversAnyGroupClass` and `ClassPackPurchaseClassGroups`), next to the lesson duration it already kept. Editing a pack's classes later changes future sales only. Booking a pack class from the student app reads the same copy.
@@ -35,4 +39,5 @@ The list is a review list, not the exact new balance: a class in a month the fam
 
 - Unit (`tests/ClassManager.Core.U.Tests/Domain/ClassPacks`): a pack that doesn't cover the class leaves it unpaid; "any group class" pays a class it doesn't list; group and private lesson packs each pay their own kind; the covering pack pays even if another expires first; a sale keeps its classes when the pack changes; "any group class" keeps no class list and takes no duration.
 - Integration: the option is saved and returned; a class no pack covers is owed; a sale still pays a class removed from its pack later; a student books any class with an "any group class" pack; `ClassPackPurchaseClassGroups` of another business is not returned.
+- Unit (enrollments): a pack for any group class enrolls without asking.
 - App: the switch saves without choosing classes, and editing such a pack shows the switch on and no class list.
