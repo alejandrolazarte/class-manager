@@ -25,6 +25,9 @@ public static class ClassGroupRequests
         int durationMinutes = 45) =>
         new(ClassGroupName, instructorId, weekdays ?? [DayOfWeek.Tuesday, DayOfWeek.Thursday], startTime, durationMinutes, 8, "Pileta chica");
 
+    public static Task<HttpResponseMessage> GetInstructorWeekAsync(this HttpClient httpClient, long instructorId) =>
+        httpClient.GetAsync(new Uri($"{ApiRoutes.ClassGroups}{ApiRoutes.InstructorWeek}?instructorId={instructorId}", UriKind.Relative));
+
     public static Task<HttpResponseMessage> PostClassGroupAsync(this HttpClient httpClient, ClassGroupDetails details) =>
         httpClient.PostAsJsonAsync(ApiRoutes.ClassGroups, details, ApiRequests.JsonOptions);
 
