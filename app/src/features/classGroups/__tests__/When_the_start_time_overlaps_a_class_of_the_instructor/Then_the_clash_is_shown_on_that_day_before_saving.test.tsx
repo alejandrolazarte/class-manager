@@ -39,7 +39,7 @@ describe("When the start time overlaps a class of the instructor", () => {
 
     expect(
       await screen.findByText(
-        translate("classGroups.week.conflict", {
+        translate("classGroups.instructorWeek.conflict", {
           name: "Grupo mañana",
           busyStart: "09:00",
           busyEnd: "10:00",
@@ -47,7 +47,9 @@ describe("When the start time overlaps a class of the instructor", () => {
       ),
     ).toBeOnTheScreen();
     expect(
-      screen.getByText(translate("classGroups.week.conflictSummary", { count: 1, total: 2 })),
+      screen.getByText(
+        translate("classGroups.instructorWeek.conflictSummary", { count: 1, total: 2 }),
+      ),
     ).toBeOnTheScreen();
   });
 });
