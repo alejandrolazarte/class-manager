@@ -350,7 +350,7 @@
   "enrollments.enroll.alreadyEnrolledError": "Already in this class",
   "enrollments.enroll.classFull": "The class is full",
   "enrollments.enroll.outsidePackQuestion": "Enroll {student} anyway?",
-  "enrollments.enroll.outsidePackMessage": "Their pack doesn't include {classGroup}. If you enroll them, each class they take is still deducted from their pack.",
+  "enrollments.enroll.outsidePackMessage": "Their pack doesn't include {classGroup}. If you enroll them, the classes they take stay unpaid until they buy a pack that includes it.",
   "enrollments.enroll.confirmOutsidePack": "Enroll anyway",
   "enrollments.enroll.noStudents": "We couldn't find students",
   "enrollments.enroll.success": "{student} is now in {classGroup}",
