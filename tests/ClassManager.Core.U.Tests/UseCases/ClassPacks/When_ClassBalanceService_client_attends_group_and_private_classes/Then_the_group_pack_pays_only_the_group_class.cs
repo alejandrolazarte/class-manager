@@ -3,10 +3,10 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.U.Tests.UseCases.ClassPacks.When_ClassBalanceService_client_attends_group_and_private_classes;
 
-public sealed class Then_both_use_classes_from_the_pack
+public sealed class Then_the_group_pack_pays_only_the_group_class
 {
     [Fact]
-    public async Task Then_both_use_classes_from_the_pack_Run()
+    public async Task Then_the_group_pack_pays_only_the_group_class_Run()
     {
         var builder = new ClassPackUseCaseBuilder();
         var clientId = TestIds.Next();
@@ -19,6 +19,7 @@ public sealed class Then_both_use_classes_from_the_pack
 
         var balances = await builder.BuildBalanceService().CalculateAsync([clientId], CancellationToken.None);
 
-        balances[clientId].Purchases.Single().UsedClasses.ShouldBe(2);
+        balances[clientId].Purchases.Single().UsedClasses.ShouldBe(1);
+        balances[clientId].UnpaidClasses.ShouldBe(1);
     }
 }

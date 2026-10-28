@@ -42,6 +42,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     public decimal Price { get; private set; }
     public int? ValidityMonths { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
+    public bool CoversAnyGroupClass { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public long? CreatedByUserId { get; private set; }
@@ -96,13 +97,26 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         return Result.Success();
     }
 
-    public Result DefineLessons(IReadOnlyCollection<long> classGroupIds, int? classDurationMinutes)
+    public Result DefineLessons(IReadOnlyCollection<long> classGroupIds, int? classDurationMinutes, bool coversAnyGroupClass = false)
     {
         if (classDurationMinutes is not null
             && (classDurationMinutes is < ClassSchedule.MinimumDurationMinutes or > ClassSchedule.MaximumDurationMinutes
                 || classDurationMinutes % ClassSchedule.DurationStepMinutes != 0))
         {
             return Result.Validation(ClassDurationMessage, fieldName: nameof(ClassDurationMinutes));
+        }
+
+        if (coversAnyGroupClass)
+        {
+            if (classDurationMinutes is not null)
+            {
+                return Result.Validation(GroupClassDurationNotAllowedMessage, fieldName: nameof(ClassDurationMinutes));
+            }
+
+            ClassDurationMinutes = null;
+            CoversAnyGroupClass = true;
+            CoverClassGroups([]);
+            return Result.Success();
         }
 
         if (classGroupIds.Count == 0 && classDurationMinutes is null)
@@ -116,6 +130,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         }
 
         ClassDurationMinutes = classDurationMinutes;
+        CoversAnyGroupClass = false;
         CoverClassGroups(classGroupIds);
         return Result.Success();
     }

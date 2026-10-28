@@ -139,6 +139,13 @@ test("App screens", async ({ page, request }) => {
     await page.screenshot({ path: join(outputDirectory, `${fileName}.png`) });
   }
 
+  await page.goto("/settings/class-packs/new");
+  await page.getByRole("button", { name: "Guardar" }).scrollIntoViewIfNeeded();
+  await capture(page, "16c-pack-nuevo-clases");
+  await page.getByRole("switch", { name: "Cualquier clase grupal" }).click();
+  await page.getByRole("button", { name: "Guardar" }).scrollIntoViewIfNeeded();
+  await capture(page, "16d-pack-nuevo-cualquier-clase");
+
   await page.goto("/today");
   await page.getByText("Próxima clase").filter({ visible: true }).first().waitFor();
   await page.getByRole("button", { name: "Mes", exact: true }).click();

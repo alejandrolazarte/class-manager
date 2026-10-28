@@ -12,10 +12,11 @@ public sealed record UpdateClassPackRequest(
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
     IReadOnlyList<long>? ClassGroupIds = null,
-    string? Description = null)
+    string? Description = null,
+    bool CoversAnyGroupClass = false)
 {
     public UpdateClassPackCommand ToCommand(long classPackId) =>
-        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description);
+        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description, CoversAnyGroupClass);
 }
 
 public sealed record UpdateClassPackCommand(
@@ -26,7 +27,8 @@ public sealed record UpdateClassPackCommand(
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
     IReadOnlyList<long>? ClassGroupIds = null,
-    [property: AuditPlain] string? Description = null) : ICommand;
+    [property: AuditPlain] string? Description = null,
+    bool CoversAnyGroupClass = false) : ICommand;
 
 public sealed class UpdateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -59,6 +61,7 @@ public sealed class UpdateClassPackUseCase(
             classPack,
             command.ClassGroupIds,
             command.ClassDurationMinutes,
+            command.CoversAnyGroupClass,
             nameof(UpdateClassPackCommand.ClassGroupIds),
             classGroupRepository,
             cancellationToken);

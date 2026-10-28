@@ -747,6 +747,8 @@
   "classPacks.form.kind": "Para qué es el pack",
   "classPacks.form.kindGroupClasses": "Clases grupales",
   "classPacks.form.kindPrivateLessons": "Clases particulares",
+  "classPacks.form.anyGroupClass": "Cualquier clase grupal",
+  "classPacks.form.anyGroupClassHint": "Sirve para todas las clases, también las que crees más adelante.",
   "classPacks.form.noClassGroupsYet": "Todavía no hay clases. Para armar un pack de clases grupales, creá la clase primero.",
   "classPacks.form.privateLessonsHint": "Para que el alumno use este pack, creá la clase particular y agregalo como alumno: cada clase que tome se descuenta del pack.",
   "classPacks.form.classDuration": "Duración de cada clase",

@@ -747,6 +747,8 @@
   "classPacks.form.kind": "What the pack is for",
   "classPacks.form.kindGroupClasses": "Group classes",
   "classPacks.form.kindPrivateLessons": "Private lessons",
+  "classPacks.form.anyGroupClass": "Any group class",
+  "classPacks.form.anyGroupClassHint": "Works for every class, including the ones you create later.",
   "classPacks.form.noClassGroupsYet": "There are no classes yet. To set up a group class pack, create the class first.",
   "classPacks.form.privateLessonsHint": "For the student to use this pack, create the private lesson and add them as a student: each lesson they take is deducted from the pack.",
   "classPacks.form.classDuration": "Length of each class",
