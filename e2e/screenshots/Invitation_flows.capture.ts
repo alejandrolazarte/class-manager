@@ -250,6 +250,9 @@ test("Invitation flows", async ({ page, request, browser }) => {
   await expect(childPage).toHaveURL(/\/student-app/);
   await childPage.getByText("Próxima clase").or(childPage.getByText("Tomás")).first().waitFor();
   await capture(childPage, "10-tomas-entra-a-la-app");
+  await childPage.goto("/student-app/shop");
+  await childPage.getByRole("heading", { name: "Tienda" }).waitFor();
+  await capture(childPage, "10b-tomas-tienda");
   await childPhone.close();
 
   const teenPhone = await newPhone(browser);

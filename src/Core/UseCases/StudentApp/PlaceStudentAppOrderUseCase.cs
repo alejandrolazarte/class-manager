@@ -21,7 +21,7 @@ public sealed record PlaceStudentAppOrderCommand(
     long? DeliveryClassGroupId = null) : ICommand;
 
 public sealed class PlaceStudentAppOrderUseCase(
-    IStudentAppAccess studentAppAccess,
+    IStudentAppFamilyService studentAppFamily,
     IClassPackRepository classPackRepository,
     IProductRepository productRepository,
     IStockMovementRepository stockMovementRepository,
@@ -41,11 +41,18 @@ public sealed class PlaceStudentAppOrderUseCase(
 {
     public async Task<Result<StudentAppOrderResponse>> ExecuteAsync(PlaceStudentAppOrderCommand command, CancellationToken cancellationToken)
     {
-        var access = await studentAppAccess.GetAsync(cancellationToken);
-        if (access is null)
+        var family = await studentAppFamily.GetAsync(cancellationToken);
+        if (family is null)
         {
             return StudentAppFailures.NoAccess();
         }
+
+        if (!family.CanBuy)
+        {
+            return StudentAppFailures.BuyerMustBeAdult();
+        }
+
+        var access = family.Access;
 
         var requestedLines = (command.Lines ?? [])
             .Select(line => new RequestedOrderLine(line.ClassPackId, line.ProductVariantId, line.Quantity, null))

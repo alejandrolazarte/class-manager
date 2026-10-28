@@ -16,8 +16,7 @@ public sealed record BookMakeupCommand(long StudentId, long ClassGroupId, DateOn
 public sealed record CancelMakeupCommand(long StudentId, long ClassGroupId, DateOnly Date) : ICommand;
 
 public sealed class GetStudentAppMakeupsUseCase(
-    IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     IInstructorRepository instructorRepository,
     MakeupRepositories makeupRepositories,
@@ -26,7 +25,7 @@ public sealed class GetStudentAppMakeupsUseCase(
 {
     public async Task<Result<StudentAppMakeupsResponse>> ExecuteAsync(GetStudentAppMakeupsQuery command, CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppAccess, studentRepository, command.StudentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;
@@ -60,8 +59,7 @@ public sealed class GetStudentAppMakeupsUseCase(
 }
 
 public sealed class BookMakeupUseCase(
-    IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     MakeupRepositories makeupRepositories,
     IUnitOfWork unitOfWork,
@@ -79,7 +77,7 @@ public sealed class BookMakeupUseCase(
 
     public async Task<Result<bool>> ExecuteAsync(BookMakeupCommand command, CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppAccess, studentRepository, command.StudentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;
@@ -156,8 +154,7 @@ public sealed class BookMakeupUseCase(
 }
 
 public sealed class CancelMakeupUseCase(
-    IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     MakeupRepositories makeupRepositories,
     IUnitOfWork unitOfWork,
@@ -168,7 +165,7 @@ public sealed class CancelMakeupUseCase(
 
     public async Task<Result<bool>> ExecuteAsync(CancelMakeupCommand command, CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppAccess, studentRepository, command.StudentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;

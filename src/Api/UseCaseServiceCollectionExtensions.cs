@@ -47,6 +47,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
+        services.AddScoped<IStudentAppFamilyService, StudentAppFamilyService>();
         services.AddScoped<IBusinessCurrencyService, BusinessCurrencyService>();
         services.AddScoped<ICatalogImageService, CatalogImageService>();
         services.AddScoped<IAnnouncementResponseService, AnnouncementResponseService>();

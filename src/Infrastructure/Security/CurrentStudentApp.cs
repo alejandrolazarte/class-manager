@@ -27,12 +27,12 @@ internal sealed class CurrentStudentApp(AppDbContext context, ICurrentUser curre
         }
 
         var businessId = tenantContext.TenantId;
-        var clientId = await context.ClientAccounts
+        var link = await context.ClientAccounts
             .AsNoTracking()
             .Where(account => account.User.AccountId == accountId)
-            .Select(account => (long?)account.ClientId)
+            .Select(account => new { account.ClientId, account.StudentId })
             .FirstOrDefaultAsync(cancellationToken);
 
-        return clientId is { } linkedClientId ? new StudentAppAccess(accountId, currentUser.UserId, businessId, linkedClientId) : null;
+        return link is null ? null : new StudentAppAccess(accountId, currentUser.UserId, businessId, link.ClientId, link.StudentId);
     }
 }

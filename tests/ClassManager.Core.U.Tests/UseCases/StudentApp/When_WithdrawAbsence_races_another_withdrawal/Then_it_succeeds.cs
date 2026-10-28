@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.StudentApp;
@@ -18,11 +19,10 @@ public sealed class Then_it_succeeds
         var student = Student.Create(client, TestData.StudentFullName, null, null, TestData.Today, TestData.Now).Value!.WithId();
         var classGroup = ClassGroup.Create("Clase", TestIds.Next(), ClassSchedule.Create([classDate.DayOfWeek], "18:00", 45).Value!, 8, null).Value!.WithId();
         var session = ClassSession.Create(classGroup.Id, classDate, TestData.Now).WithId();
-        var studentAppAccess = new Mock<IStudentAppAccess>();
-        studentAppAccess.Setup(access => access.GetAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StudentAppAccess(Guid.NewGuid(), TestIds.Next(), TestIds.Next(), client.Id));
-        var students = new Mock<IStudentRepository>();
-        students.Setup(repository => repository.ListByClientAsync(client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([student]);
+        var studentAppAccess = new StudentAppAccess(Guid.NewGuid(), TestIds.Next(), TestIds.Next(), client.Id);
+        var studentAppFamily = new Mock<IStudentAppFamilyService>();
+        studentAppFamily.Setup(family => family.GetAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StudentAppFamily(studentAppAccess, TestData.Business(), TestData.Today, client, [new StudentAppFamilyMember(student, FamilyMemberView.Everything)], [], CanBuy: true));
         var classGroups = new Mock<IClassGroupRepository>();
         classGroups.Setup(repository => repository.GetByIdAsync(classGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(classGroup);
         var enrollments = new Mock<IEnrollmentRepository>();
@@ -47,8 +47,7 @@ public sealed class Then_it_succeeds
         var unitOfWork = new Mock<IUnitOfWork>();
         unitOfWork.Setup(work => work.SaveChangesAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new ConcurrencyConflictException());
         var useCase = new WithdrawAbsenceUseCase(
-            studentAppAccess.Object,
-            students.Object,
+            studentAppFamily.Object,
             classGroups.Object,
             new MakeupRepositories(notices.Object, bookings.Object, new Mock<IPackBookingRepository>().Object, sessions.Object, enrollments.Object),
             unitOfWork.Object,

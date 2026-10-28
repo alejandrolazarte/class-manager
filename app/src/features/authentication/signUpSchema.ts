@@ -2,10 +2,8 @@ import { z } from "zod";
 import { emailAddressSchema } from "@/forms/emailAddress";
 import { authenticationLimits } from "@/features/authentication/authenticationLimits";
 import { SignUpRequest } from "@/features/authentication/types";
-import { ageInYears, isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
+import { isAdult, isValidBirthDate, parseBirthDate } from "@/dates/birthDateFormatting";
 import { translate } from "@/i18n/translate";
-
-const adultAge = 18;
 
 export const signUpSchema = z.object({
   ownerFullName: z
@@ -30,7 +28,7 @@ export const signUpSchema = z.object({
     .refine(isValidBirthDate, translate("birthDate.invalid"))
     .refine((typedBirthDate) => {
       const isoBirthDate = parseBirthDate(typedBirthDate);
-      return isoBirthDate === null || ageInYears(isoBirthDate) >= adultAge;
+      return isoBirthDate === null || isAdult(isoBirthDate);
     }, translate("authentication.validation.ownerMustBeAdult")),
   businessName: z
     .string()

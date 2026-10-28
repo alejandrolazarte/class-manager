@@ -18,7 +18,7 @@ internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTas
     }
 
     public async Task PublishToStudentAccountsAsync(
-        long clientId,
+        IReadOnlyCollection<long> clientIds,
         IReadOnlyCollection<Guid> userIds,
         LocalizedPushMessage message,
         CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ internal sealed class PushPublisher(ITenantContext tenantContext, IBackgroundTas
         }
 
         await EnqueueAsync(
-            new StudentAppPush(tenantContext.TenantId, [clientId], message.Default, userIds) { MessagesByLanguage = message.ByLanguage },
+            new StudentAppPush(tenantContext.TenantId, clientIds, message.Default, userIds) { MessagesByLanguage = message.ByLanguage },
             cancellationToken);
     }
 

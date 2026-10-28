@@ -40,6 +40,7 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { EmptyState } from "@/ui/EmptyState";
+import { Notice } from "@/ui/Notice";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
@@ -220,6 +221,9 @@ export function StudentAppShopScreen() {
         ) : null
       }
     >
+      {shop.canBuy ? null : (
+        <Notice tone="primary" message={translate("student.shop.guardianBuys")} />
+      )}
       {shop.packs.length === 0 && shop.products.length === 0 ? (
         <AppText variant="body" tone="muted">
           {translate("student.shop.empty")}
@@ -263,7 +267,7 @@ export function StudentAppShopScreen() {
                 currencyCode={shop.currencyCode}
                 isInCart={isPackInCart(pack)}
                 onOpen={() => setOpenPackId(pack.id)}
-                onToggle={() => togglePack(pack)}
+                onToggle={shop.canBuy ? () => togglePack(pack) : undefined}
               />
             ))}
           </ScrollView>
@@ -303,10 +307,14 @@ export function StudentAppShopScreen() {
           product={openProduct}
           currencyCode={shop.currencyCode}
           onClose={closeProduct}
-          onAdd={(variant, addedUnits) => {
-            addUnits(variant.id, addedUnits, variantMaximumUnits(variant));
-            closeProduct();
-          }}
+          onAdd={
+            shop.canBuy
+              ? (variant, addedUnits) => {
+                  addUnits(variant.id, addedUnits, variantMaximumUnits(variant));
+                  closeProduct();
+                }
+              : undefined
+          }
         />
       )}
       {openPack === undefined ? null : (
@@ -316,10 +324,14 @@ export function StudentAppShopScreen() {
           currencyCode={shop.currencyCode}
           isInCart={isPackInCart(openPack)}
           onClose={() => setOpenPackId(null)}
-          onToggle={() => {
-            togglePack(openPack);
-            setOpenPackId(null);
-          }}
+          onToggle={
+            shop.canBuy
+              ? () => {
+                  togglePack(openPack);
+                  setOpenPackId(null);
+                }
+              : undefined
+          }
         />
       )}
       {isCartOpen ? (

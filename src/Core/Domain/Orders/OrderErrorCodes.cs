@@ -17,4 +17,5 @@ public static class OrderErrorCodes
     public const string TooManyOpen = "order.too_many_open";
     public const string ClassNotValid = "order.class_not_valid";
     public const string AlreadyReady = "order.already_ready";
+    public const string BuyerMustBeAdult = "order.buyer_must_be_adult";
 }

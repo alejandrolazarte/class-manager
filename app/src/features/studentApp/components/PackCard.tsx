@@ -12,7 +12,7 @@ interface PackCardProps {
   currencyCode: string;
   isInCart: boolean;
   onOpen: () => void;
-  onToggle: () => void;
+  onToggle?: () => void;
 }
 
 const detailSeparator = " · ";
@@ -69,15 +69,17 @@ export function PackCard({ pack, currencyCode, isInCart, onOpen, onToggle }: Pac
           {packDetails(pack, currencyCode)}
         </AppText>
       </PressableScale>
-      <View className="mt-2">
-        <Button
-          size="medium"
-          variant={isInCart ? "secondary" : "primary"}
-          label={isInCart ? translate("student.shop.inCart") : actionLabel}
-          accessibilityLabel={`${actionLabel} ${pack.name}`}
-          onPress={onToggle}
-        />
-      </View>
+      {onToggle === undefined ? null : (
+        <View className="mt-2">
+          <Button
+            size="medium"
+            variant={isInCart ? "secondary" : "primary"}
+            label={isInCart ? translate("student.shop.inCart") : actionLabel}
+            accessibilityLabel={`${actionLabel} ${pack.name}`}
+            onPress={onToggle}
+          />
+        </View>
+      )}
     </View>
   );
 }

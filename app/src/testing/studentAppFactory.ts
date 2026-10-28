@@ -185,6 +185,7 @@ export function buildStudentAppShop(overrides: Partial<StudentAppShop> = {}): St
         studentFullName: "Tomás Pérez",
       },
     ],
+    canBuy: true,
     ...overrides,
   };
 }
