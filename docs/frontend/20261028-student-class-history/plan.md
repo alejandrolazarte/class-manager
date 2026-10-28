@@ -16,6 +16,7 @@ Clases uses the same agenda block as the team's Inicio (`AgendaCalendar` in `src
 - **How far.** Back 52 weeks, the same window as the streak (`AttendanceStreaks.LookBackWeeks`); forward up to the second week after this one, as before.
 - **A past day** lists each class with what happened: **Fuiste**, **Recuperaste** (a makeup they came to), **Faltaste**, **Avisaste** (they gave notice), **Cancelada** or **Sin registrar** (the team didn't take attendance).
 - **Today and later** keep the rows they had: Hoy, Próxima, No va, Recuperación, Reservada and Cancelada, with the class detail and every action.
+- **Actions only from today on.** "Reservar clases del pack" and "Recuperar clases" show while the selected day is today or later; a past day only lists its classes.
 - **Dots.** Each day of the week strip and the month calendar has a dot: green when they came, red when they missed a class, grey for classes without attendance (still to come, or not recorded). A day where every class was cancelled is drawn as cancelled, as on the team calendar.
 - **Month summary.** In Mes, "Fuiste a X de Y clases este mes" counts the past classes that were not cancelled.
 

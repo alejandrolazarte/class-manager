@@ -213,8 +213,12 @@ export function StudentAppClassesScreen() {
           </View>
         )}
       </View>
-      <PackClassSection studentId={student.id} days={weekOf(selectedDate)} />
-      <MakeupSection studentId={student.id} days={weekOf(selectedDate)} />
+      {isPastDay ? null : (
+        <>
+          <PackClassSection studentId={student.id} days={weekOf(selectedDate)} />
+          <MakeupSection studentId={student.id} days={weekOf(selectedDate)} />
+        </>
+      )}
     </ScrollScreen>
   );
 }
