@@ -9,7 +9,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 public sealed record CancelStudentAppOrderCommand(long OrderId) : ICommand;
 
 public sealed class CancelStudentAppOrderUseCase(
-    IStudentAppAccess studentAppAccess,
+    IStudentAppFamilyService studentAppFamily,
     IOrderRepository orderRepository,
     IClassGroupRepository classGroupRepository,
     IStockMovementRepository stockMovementRepository,
@@ -19,14 +19,16 @@ public sealed class CancelStudentAppOrderUseCase(
 {
     public async Task<Result<StudentAppOrderResponse>> ExecuteAsync(CancelStudentAppOrderCommand command, CancellationToken cancellationToken)
     {
-        var access = await studentAppAccess.GetAsync(cancellationToken);
-        if (access is null)
+        var family = await studentAppFamily.GetAsync(cancellationToken);
+        if (family is null)
         {
             return StudentAppFailures.NoAccess();
         }
 
+        var access = family.Access;
+
         var order = await orderRepository.GetForUpdateAsync(command.OrderId, cancellationToken);
-        if (order is null || order.ClientId != access.ClientId || order.Channel != OrderChannel.App)
+        if (order is null || order.ClientId != access.ClientId || order.Channel != OrderChannel.App || !family.SeesOrderPlacedBy(order.CreatedByUserId))
         {
             return StudentAppFailures.OrderNotFound();
         }

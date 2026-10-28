@@ -13,7 +13,7 @@ interface PackDetailPageProps {
   currencyCode: string;
   isInCart: boolean;
   onClose: () => void;
-  onToggle: () => void;
+  onToggle?: () => void;
 }
 
 export function PackDetailPage({
@@ -29,17 +29,19 @@ export function PackDetailPage({
       title={pack.name}
       onClose={onClose}
       footer={
-        <View className="border-t border-border-subtle bg-background px-5 pb-4 pt-3">
-          <Button
-            variant={isInCart ? "secondary" : "primary"}
-            label={
-              isInCart
-                ? translate("student.shop.removePack")
-                : translate("student.shop.addToCart", { total: price })
-            }
-            onPress={onToggle}
-          />
-        </View>
+        onToggle === undefined ? undefined : (
+          <View className="border-t border-border-subtle bg-background px-5 pb-4 pt-3">
+            <Button
+              variant={isInCart ? "secondary" : "primary"}
+              label={
+                isInCart
+                  ? translate("student.shop.removePack")
+                  : translate("student.shop.addToCart", { total: price })
+              }
+              onPress={onToggle}
+            />
+          </View>
+        )
       }
     >
       <View>

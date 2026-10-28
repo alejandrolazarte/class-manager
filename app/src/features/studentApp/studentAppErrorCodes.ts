@@ -6,6 +6,7 @@ export const studentAppErrorCodes = {
   contactAdultConfirmationRequired: "student_invitation.contact_adult_confirmation_required",
   outOfStock: "product.out_of_stock",
   tooManyOpenOrders: "order.too_many_open",
+  buyerMustBeAdult: "order.buyer_must_be_adult",
   classStarted: "absence.class_started",
   attendanceTaken: "absence.attendance_taken",
   makeupNoCredit: "makeup.no_credit",

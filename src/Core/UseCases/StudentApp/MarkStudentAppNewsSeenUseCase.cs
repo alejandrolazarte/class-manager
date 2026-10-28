@@ -11,7 +11,7 @@ public sealed record MarkStudentAppNewsSeenCommand : ICommand;
 public sealed class MarkStudentAppNewsSeenUseCase(
     IStudentAppAccess studentAppAccess,
     IClientAccountRepository clientAccountRepository,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IEnrollmentRepository enrollmentRepository,
     IAnnouncementRepository announcementRepository,
     IBusinessCalendarService businessCalendar,
@@ -34,7 +34,7 @@ public sealed class MarkStudentAppNewsSeenUseCase(
         var now = timeProvider.GetUtcNow();
         account.MarkNewsSeen(now);
         var today = await businessCalendar.TodayAsync(cancellationToken);
-        var studentIds = (await studentRepository.ListByClientAsync(access.ClientId, cancellationToken)).Select(student => student.Id);
+        var studentIds = (await studentAppFamily.GetAsync(cancellationToken))?.StudentIds ?? [];
         var enrolledClassGroupIds = await StudentAnnouncements.EnrolledClassGroupIdsAsync(enrollmentRepository, studentIds, today, cancellationToken);
         var announcements = await StudentAnnouncements.VisibleAsync(announcementRepository, enrolledClassGroupIds, today, now, cancellationToken);
         var viewedIds = (await announcementRepository.ListViewsAsync([.. announcements.Select(announcement => announcement.Id)], cancellationToken))

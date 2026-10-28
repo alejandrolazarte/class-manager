@@ -119,7 +119,7 @@ The API and the app run on the host; only SQL Server runs in a container.
 - [Security library](docs/security.md) — what `src/Security` contains, how the app plugs into it, and when to extract it to a NuGet package
 - [Student accounts](docs/student-accounts.md) — an app account belongs to the person and is kept when no business links it; deleted only when the person asks ("Eliminar mi cuenta" in Mi perfil; pending: home with no business, finding a business)
 - [Legal texts and acceptance](docs/legal-and-privacy.md) — aviso legal, términos de uso and política de privacidad, the acceptance required to create an account, and how to publish a new version
-- [Ages and minors](docs/ages-and-minors.md) — every account has a birth date, the legal minimum ages in Argentina and Spain, and the age rules the app enforces
+- [Ages and minors](docs/ages-and-minors.md) — every account has a birth date, the legal minimum ages in Argentina and Spain, the age rules the app enforces, and what each account of a family sees and can buy
 - [Countries](docs/countries.md) — the `Countries` table: calling code, currency, minimum age for an own account and time zones of each country, and what a business takes from its country
 - [Authorization](docs/authorization.md) — organizations, brand and branch roles, and the permission every endpoint requires
 - [Tenancy library](docs/tenancy.md) — what `src/Tenancy` and `src/Tenancy.AspNetCore` contain and how the app plugs into them

@@ -54,6 +54,29 @@ Inviting a student below the minimum age does not email the student. It emails t
 
 The age comes from the branch's country (`Businesses.CountryCode`, see [Countries](countries.md)), never from a phone number: a student of a branch in Spain may have an Argentine number and still follows the rules of Spain.
 
-### Next: orders of minors
+## What each account of a family sees
 
-Orders placed from the account of someone under 18 will wait for the approval of the client who pays (purchases need the parents in both countries). That decision uses the **most protective** of the two birth dates it can find: the one on the account and the one the team typed on the student. If a 14-year-old changes their account to a date that makes them 20 from Editar perfil, the team's date still makes them a minor, so lying does not skip the approval.
+A family (a client) can have several app accounts: the client who pays (`ClientAccounts.StudentId` empty) and one per student who has their own (`StudentId` set). A student can be a child or another adult the client pays for (a partner who comes along). The rule lives in `FamilyVisibility` (`src/Core/Domain/Clients`) and every student app endpoint reads it through `IStudentAppFamilyService`.
+
+| What the account sees of a student of the family | Own student | Client who pays, student under the minimum age (13 / 14 / 16) | Client who pays, student from that age to 17 | Client who pays, adult student | Any other account |
+|---|---|---|---|---|---|
+| Classes, attendance, absences, makeups, pack bookings, class history | Yes | Yes | Yes | No | No |
+| Instructor comments and measurements | Yes | Yes | No | No | No |
+
+- **Own student**: for a student account, its own student; for the client who pays, the student that shares their user when they attend class themselves.
+- **The family's balance** (the monthly fee or the classes left of the packs) is shared, so every account sees it.
+- **The age** of a student is the **most protective** of the two birth dates it can find: the one the team typed on the student and the one on the student's account. If a 14-year-old changes their account to a date that makes them 20 from Editar perfil, the team's date still makes them a minor. A student without any birth date counts as a child for the client who pays (the team often registers young children without one; inviting them to the app requires it).
+- **Push notifications follow the same rule**: class changes and cancellations go to the accounts that see the student's classes, instructor comments to the accounts that see their personal data, and announcements for some classes to the accounts that see a student of those classes.
+- **The team app** labels a student of another client "A cargo de {client}" when they are a minor or have no birth date, and "Viene con {client}" when they are an adult.
+
+### Purchases
+
+Only adults buy from the app (purchases need the parents in both countries). The client who pays is always an adult; another account buys when its student is 18 or older, by the same most protective birth date. A minor sees the shop with no buttons to add and "Las compras las hace la persona que paga por tu familia", and placing an order answers `403 order.buyer_must_be_adult` (`StudentAppShopResponse.CanBuy` tells the app).
+
+- An order belongs to the account that placed it: an account sees and cancels the orders it placed, and the client who pays also sees the counter sales and the orders of the minors they pay for, but not the orders of the adults of the family.
+- A pack bought by any account is added to the family's balance, which everyone shares.
+
+### Next: purchase approvals and own payment methods
+
+- Orders requested from the account of a minor could wait for the approval of the client who pays, instead of being refused.
+- When online payments arrive, each adult of the family pays their own orders with their own card.

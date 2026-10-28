@@ -51,6 +51,7 @@ internal static class PackCredits
 
 public sealed class GetStudentAppPackClassesUseCase(
     IStudentAppAccess studentAppAccess,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     IInstructorRepository instructorRepository,
     MakeupRepositories makeupRepositories,
@@ -60,8 +61,7 @@ public sealed class GetStudentAppPackClassesUseCase(
 {
     public async Task<Result<StudentAppPackClassesResponse>> ExecuteAsync(GetStudentAppPackClassesQuery command, CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(
-            studentAppAccess, packCreditRepositories.Students, command.StudentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;
@@ -105,6 +105,7 @@ public sealed class GetStudentAppPackClassesUseCase(
 
 public sealed class BookPackClassUseCase(
     IStudentAppAccess studentAppAccess,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     MakeupRepositories makeupRepositories,
     PackCreditRepositories packCreditRepositories,
@@ -123,8 +124,7 @@ public sealed class BookPackClassUseCase(
 
     public async Task<Result<bool>> ExecuteAsync(BookPackClassCommand command, CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(
-            studentAppAccess, packCreditRepositories.Students, command.StudentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;
@@ -200,10 +200,9 @@ public sealed class BookPackClassUseCase(
 }
 
 public sealed class CancelPackClassUseCase(
-    IStudentAppAccess studentAppAccess,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     MakeupRepositories makeupRepositories,
-    IStudentRepository studentRepository,
     IUnitOfWork unitOfWork,
     IBusinessCalendarService businessCalendar)
     : IUseCase<CancelPackClassCommand, bool>
@@ -212,7 +211,7 @@ public sealed class CancelPackClassUseCase(
 
     public async Task<Result<bool>> ExecuteAsync(CancelPackClassCommand command, CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppAccess, studentRepository, command.StudentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;

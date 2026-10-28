@@ -1,4 +1,3 @@
-using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Students;
@@ -10,20 +9,33 @@ internal static class AccountStudentRules
     private const string StudentNotFoundMessage = "The student is not part of this account.";
 
     public static async Task<ResultError?> FindOwnStudentErrorAsync(
-        IStudentAppAccess studentAppAccess,
-        IStudentRepository studentRepository,
+        IStudentAppFamilyService studentAppFamily,
         long studentId,
         CancellationToken cancellationToken)
     {
-        var access = await studentAppAccess.GetAsync(cancellationToken);
-        if (access is null)
+        var family = await studentAppFamily.GetAsync(cancellationToken);
+        if (family is null)
         {
             return StudentAppFailures.NoAccess();
         }
 
-        var students = await studentRepository.ListByClientAsync(access.ClientId, cancellationToken);
-        return students.Any(student => student.Id == studentId)
-            ? null
-            : new ResultError(StudentErrorCodes.NotFound, StudentNotFoundMessage, ErrorKind.NotFound);
+        return family.Find(studentId) is null ? StudentNotFound() : null;
     }
+
+    public static async Task<ResultError?> FindPersonalDataErrorAsync(
+        IStudentAppFamilyService studentAppFamily,
+        long studentId,
+        CancellationToken cancellationToken)
+    {
+        var family = await studentAppFamily.GetAsync(cancellationToken);
+        if (family is null)
+        {
+            return StudentAppFailures.NoAccess();
+        }
+
+        return family.Find(studentId) is { ShowsPersonalData: true } ? null : StudentNotFound();
+    }
+
+    private static ResultError StudentNotFound() =>
+        new(StudentErrorCodes.NotFound, StudentNotFoundMessage, ErrorKind.NotFound);
 }

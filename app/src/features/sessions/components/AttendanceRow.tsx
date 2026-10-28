@@ -1,3 +1,4 @@
+import { responsibleLabel } from "@/features/students/responsibleLabel";
 import { ReactNode, useMemo, useState } from "react";
 import { Animated, PanResponder, View } from "react-native";
 import {
@@ -159,9 +160,7 @@ export function AttendanceRow({
       : status === "Absent"
         ? translate("sessions.attendance.absent")
         : translate("sessions.attendance.unmarked");
-  const responsibleLabel = translate("students.list.responsible", {
-    name: student.clientFullName,
-  });
+  const responsibleText = responsibleLabel(student.clientFullName, student.birthDate);
   const balanceBadge = classBalanceBadge(student.classBalance);
   const toggle = (selectedStatus: AttendanceStatus) =>
     onChangeStatus(status === selectedStatus ? null : selectedStatus);
@@ -218,10 +217,10 @@ export function AttendanceRow({
             {isReadOnly && isOwnClient ? null : (
               <AppText variant="footnote" tone="subtle">
                 {isReadOnly
-                  ? responsibleLabel
+                  ? responsibleText
                   : isOwnClient
                     ? statusLabel
-                    : `${statusLabel} · ${responsibleLabel}`}
+                    : `${statusLabel} · ${responsibleText}`}
               </AppText>
             )}
             {student.absenceNotified ? (
