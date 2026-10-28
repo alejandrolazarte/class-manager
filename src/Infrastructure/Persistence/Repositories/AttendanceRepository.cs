@@ -118,6 +118,19 @@ internal sealed class AttendanceRepository(AppDbContext context) : IAttendanceRe
         ];
     }
 
+    public async Task<IReadOnlyList<StudentClassAttendance>> ListByStudentBetweenAsync(
+        long studentId,
+        DateOnly firstDate,
+        DateOnly lastDate,
+        CancellationToken cancellationToken) =>
+        await (
+            from attendance in context.Attendances.AsNoTracking()
+            where attendance.StudentId == studentId
+            join session in context.ClassSessions.AsNoTracking() on attendance.ClassSessionId equals session.Id
+            where session.Date >= firstDate && session.Date <= lastDate
+            select new StudentClassAttendance(session.ClassGroupId, session.Date, attendance.Status))
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyDictionary<long, int>> CountAttendedClassesByStudentsAsync(
         IReadOnlyCollection<long> studentIds,
         CancellationToken cancellationToken)

@@ -102,6 +102,7 @@ const productSeeds: ProductSeed[] = [
 
 export interface DemoStudentApp {
   email: string;
+  missedDate: string;
   absenceDate: string;
   makeupDate: string;
   packClassDate: string;
@@ -441,7 +442,13 @@ export async function seedDemoStudentApp(
     );
   }
 
-  return { email, absenceDate, makeupDate: makeupSlot.date, packClassDate: packSlot.date };
+  return {
+    email,
+    missedDate: isoDateOf(missedDay),
+    absenceDate,
+    makeupDate: makeupSlot.date,
+    packClassDate: packSlot.date,
+  };
 }
 
 export async function inviteOwnerAsStudent(

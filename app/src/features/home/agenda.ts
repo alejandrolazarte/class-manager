@@ -1,5 +1,9 @@
+import { dayOfMonth, monthOfDate, parseIsoDate } from "@/dates/dates";
+import { weekdayOf, weekdayShortLabel } from "@/dates/weekdays";
+import { formatMonth } from "@/features/fees/months";
 import { DaySession } from "@/features/sessions/types";
-import { translate, translateCount } from "@/i18n/translate";
+import { translate, translateCount, TranslationKey } from "@/i18n/translate";
+import { AgendaView } from "@/ui/AgendaCalendar";
 
 export type SessionTiming = "cancelled" | "live" | "ended" | "upcoming";
 
@@ -11,6 +15,12 @@ const minutesPerHour = 60;
 const minutesPerDay = 1_440;
 const millisecondsPerDay = 86_400_000;
 const timeSeparator = ":";
+const shortMonthLength = 3;
+
+export interface AgendaHeading {
+  eyebrow: string;
+  title: string;
+}
 
 export function currentTimeLabel(now: Date = new Date()): string {
   return `${String(now.getHours()).padStart(timeDigits, "0")}:${String(now.getMinutes()).padStart(timeDigits, "0")}`;
@@ -78,6 +88,19 @@ export function relativeDayLabel(isoDate: string, today: string): string {
   return difference > 0
     ? translateCount("home.agenda.inDays", difference)
     : translateCount("home.agenda.daysAgo", -difference);
+}
+
+function shortDateLabel(isoDate: string): string {
+  const monthName = translate(
+    `months.${parseIsoDate(isoDate).getMonth() + 1}` as TranslationKey,
+  ).slice(0, shortMonthLength);
+  return `${weekdayShortLabel(weekdayOf(parseIsoDate(isoDate)))} ${dayOfMonth(isoDate)} ${monthName}`;
+}
+
+export function agendaHeadingOf(view: AgendaView, isoDate: string, today: string): AgendaHeading {
+  return view === "month"
+    ? { eyebrow: translate("home.view.calendar"), title: formatMonth(monthOfDate(isoDate)) }
+    : { eyebrow: relativeDayLabel(isoDate, today), title: shortDateLabel(isoDate) };
 }
 
 export function todayHighlightOf(

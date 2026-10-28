@@ -1,7 +1,6 @@
 import { Pressable, View } from "react-native";
 import { AppText, TextTone } from "@/ui/AppText";
-
-export type MonthDayMarker = "none" | "classes" | "pending";
+import { DayMarker, dayMarkerClassNames } from "@/ui/DayMarker";
 
 export interface MonthCalendarDay {
   key: string;
@@ -11,7 +10,7 @@ export interface MonthCalendarDay {
   isToday: boolean;
   isOutside: boolean;
   isCancelled: boolean;
-  marker: MonthDayMarker;
+  marker: DayMarker;
 }
 
 interface MonthCalendarProps {
@@ -21,12 +20,6 @@ interface MonthCalendarProps {
 }
 
 const daysPerWeek = 7;
-
-const markerClassNames: Record<MonthDayMarker, string> = {
-  none: "bg-transparent",
-  classes: "bg-subtle-foreground",
-  pending: "bg-warning",
-};
 
 function circleClassName(day: MonthCalendarDay): string {
   if (day.isSelected) {
@@ -82,7 +75,7 @@ export function MonthCalendar({ weekdayLabels, days, onSelect }: MonthCalendarPr
                   {day.dayNumber}
                 </AppText>
               </View>
-              <View className={`h-1 w-1 rounded-full ${markerClassNames[day.marker]}`} />
+              <View className={`h-1 w-1 rounded-full ${dayMarkerClassNames[day.marker]}`} />
             </Pressable>
           ))}
         </View>
