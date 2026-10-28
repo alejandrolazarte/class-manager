@@ -16,10 +16,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 public sealed record GetStudentAppHomeQuery : IQuery;
 
 public sealed class GetStudentAppHomeUseCase(
-    IStudentAppAccess studentAppAccess,
-    IBusinessRepository businessRepository,
-    IClientRepository clientRepository,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IEnrollmentRepository enrollmentRepository,
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
@@ -49,17 +46,19 @@ public sealed class GetStudentAppHomeUseCase(
 
     public async Task<Result<StudentAppHomeResponse>> ExecuteAsync(GetStudentAppHomeQuery command, CancellationToken cancellationToken)
     {
-        var access = await studentAppAccess.GetAsync(cancellationToken);
-        var client = access is null ? null : await clientRepository.GetByIdAsync(access.ClientId, cancellationToken);
-        var business = await businessRepository.GetCurrentAsync(cancellationToken);
-        if (access is null || client is null || business is null)
+        var family = await studentAppFamily.GetAsync(cancellationToken);
+        if (family is null)
         {
             return Result.Unauthorized<StudentAppHomeResponse>(NoAccessMessage, NoAccessCode);
         }
 
-        var today = business.TodayAt(timeProvider.GetUtcNow());
+        var access = family.Access;
+        var client = family.Client;
+        var business = family.Business;
+
+        var today = family.Today;
         var lastDate = today.AddDays(LookAheadDays);
-        var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
+        var students = family.Students;
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
             .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
         var sessions = (await sessionRepository.ListBetweenAsync(today, lastDate, cancellationToken))
@@ -80,7 +79,7 @@ public sealed class GetStudentAppHomeUseCase(
             .ToLookup(booking => booking.StudentId);
         var bookedPackClasses = (await packBookingRepository.ListByStudentsBetweenAsync(studentIds, today, lastDate, cancellationToken))
             .ToLookup(booking => booking.StudentId);
-        var latestFeedbacks = (await feedbackRepository.ListLatestByStudentsAsync(studentIds, cancellationToken))
+        var latestFeedbacks = (await feedbackRepository.ListLatestByStudentsAsync(family.PersonalDataStudentIds, cancellationToken))
             .ToDictionary(feedback => feedback.StudentId);
         var currentEnrollments = (await enrollmentRepository.ListCurrentByStudentsAsync(studentIds, today, cancellationToken))
             .ToLookup(enrollment => enrollment.StudentId);
@@ -230,8 +229,8 @@ public sealed class GetStudentAppHomeUseCase(
         ];
     }
 
-    private const string PrivateLessonName = "Clase particular";
-    private const string TrialName = "Clase de prueba";
+    internal const string PrivateLessonName = "Clase particular";
+    internal const string TrialName = "Clase de prueba";
 
     private static StudentAppNextClassResponse GroupClass(
         ClassGroup classGroup,

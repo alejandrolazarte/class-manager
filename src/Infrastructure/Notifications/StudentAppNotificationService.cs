@@ -9,6 +9,7 @@ namespace ClassManager.Infrastructure.Notifications;
 internal sealed class StudentAppNotificationService(
     AppDbContext context,
     PushPublisher publisher,
+    StudentAppRecipients recipients,
     IBackgroundTaskOutbox backgroundTasks,
     TimeProvider timeProvider)
     : IStudentAppNotificationService
@@ -24,11 +25,16 @@ internal sealed class StudentAppNotificationService(
             return;
         }
 
-        await publisher.PublishToStudentsAsync(
-            announcement.IsForEveryone ? null : await ClientIdsEnrolledInAsync(announcement.ClassGroupIds, cancellationToken),
-            LocalizedPushMessage.SameInEveryLanguage(
-                new PushMessage(announcement.Title, PushBodies.Shorten(announcement.Body ?? string.Empty), StudentAppPushLinks.NewsUrl)),
-            cancellationToken);
+        var message = LocalizedPushMessage.SameInEveryLanguage(
+            new PushMessage(announcement.Title, PushBodies.Shorten(announcement.Body ?? string.Empty), StudentAppPushLinks.NewsUrl));
+        if (announcement.IsForEveryone)
+        {
+            await publisher.PublishToStudentsAsync(null, message, cancellationToken);
+            return;
+        }
+
+        await PublishToAccountsSeeingAsync(
+            await StudentIdsEnrolledInAsync(announcement.ClassGroupIds, cancellationToken), FamilyMemberView.Classes, message, cancellationToken);
     }
 
     public async Task AnnouncementRescheduledAsync(Announcement announcement, CancellationToken cancellationToken)
@@ -55,7 +61,7 @@ internal sealed class StudentAppNotificationService(
             .Select(account => account.User.AccountId!.Value)
             .ToListAsync(cancellationToken);
         await publisher.PublishToStudentAccountsAsync(
-            invitation.ClientId,
+            [invitation.ClientId],
             clientUserIds,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.GuardianConsentTitle(studentFullName),
@@ -72,8 +78,9 @@ internal sealed class StudentAppNotificationService(
             return;
         }
 
-        await publisher.PublishToStudentsAsync(
-            await EnrolledClientIdsAsync(session, cancellationToken),
+        await PublishToAccountsSeeingAsync(
+            await EnrolledStudentIdsAsync(session, cancellationToken),
+            FamilyMemberView.Classes,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.ClassCancelledTitle(classGroup.Name),
                 texts.ClassCancelledBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), session.CancellationReason),
@@ -95,8 +102,9 @@ internal sealed class StudentAppNotificationService(
                 .Where(instructor => instructor.Id == substituteId)
                 .Select(instructor => instructor.User.FullName)
                 .FirstOrDefaultAsync(cancellationToken);
-        await publisher.PublishToStudentsAsync(
-            await EnrolledClientIdsAsync(session, cancellationToken),
+        await PublishToAccountsSeeingAsync(
+            await EnrolledStudentIdsAsync(session, cancellationToken),
+            FamilyMemberView.Classes,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.ClassChangedTitle(classGroup.Name),
                 texts.ClassChangedBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), substituteFullName),
@@ -117,8 +125,9 @@ internal sealed class StudentAppNotificationService(
             .Where(instructor => instructor.Id == feedback.InstructorId)
             .Select(instructor => instructor.User.FullName)
             .FirstOrDefaultAsync(cancellationToken);
-        await publisher.PublishToStudentsAsync(
-            [student.ClientId],
+        await PublishToAccountsSeeingAsync(
+            [student.Id],
+            FamilyMemberView.Everything,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.FeedbackTitle(instructorFullName, student.User.FullName),
                 PushBodies.Shorten(feedback.Text),
@@ -139,7 +148,17 @@ internal sealed class StudentAppNotificationService(
             .FirstOrDefaultAsync(candidate => candidate.Id == session.ClassGroupId, cancellationToken);
     }
 
-    private async Task<List<long>> ClientIdsEnrolledInAsync(IReadOnlyList<long> classGroupIds, CancellationToken cancellationToken)
+    private async Task PublishToAccountsSeeingAsync(
+        IReadOnlyCollection<long> studentIds,
+        FamilyMemberView minimumView,
+        LocalizedPushMessage message,
+        CancellationToken cancellationToken)
+    {
+        var accounts = await recipients.SeeingAsync(studentIds, minimumView, cancellationToken);
+        await publisher.PublishToStudentAccountsAsync(accounts.ClientIds, accounts.AccountIds, message, cancellationToken);
+    }
+
+    private async Task<List<long>> StudentIdsEnrolledInAsync(IReadOnlyList<long> classGroupIds, CancellationToken cancellationToken)
     {
         var business = await context.Businesses.AsNoTracking()
             .FirstAsync(candidate => candidate.Id == context.CurrentTenantId, cancellationToken);
@@ -149,20 +168,18 @@ internal sealed class StudentAppNotificationService(
             where classGroupIds.Contains(enrollment.ClassGroupId)
                 && enrollment.StartDate <= today
                 && (enrollment.EndDate == null || enrollment.EndDate >= today)
-            join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
-            select student.ClientId)
+            select enrollment.StudentId)
             .Distinct()
             .ToListAsync(cancellationToken);
     }
 
-    private Task<List<long>> EnrolledClientIdsAsync(ClassSession session, CancellationToken cancellationToken) =>
+    private Task<List<long>> EnrolledStudentIdsAsync(ClassSession session, CancellationToken cancellationToken) =>
         (
             from enrollment in context.Enrollments.AsNoTracking()
             where enrollment.ClassGroupId == session.ClassGroupId
                 && enrollment.StartDate <= session.Date
                 && (enrollment.EndDate == null || enrollment.EndDate >= session.Date)
-            join student in context.Students.AsNoTracking() on enrollment.StudentId equals student.Id
-            select student.ClientId)
+            select enrollment.StudentId)
             .Distinct()
             .ToListAsync(cancellationToken);
 }

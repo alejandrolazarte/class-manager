@@ -34,6 +34,22 @@ public static class ClassPackRequests
         return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
     }
 
+    public static async Task<ClassPackResponse> CreateAnyGroupClassPackAsync(this HttpClient httpClient, string name = PackName, int classCount = 4)
+    {
+        using var response = await httpClient.PostAsJsonAsync(
+            ApiRoutes.ClassPacks,
+            new CreateClassPackCommand(name, classCount, 80m, 1, CoversAnyGroupClass: true),
+            ApiRequests.JsonOptions);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
+    }
+
+    public static Task<HttpResponseMessage> PutClassPackClassGroupsAsync(this HttpClient httpClient, ClassPackResponse classPack, IReadOnlyList<long> classGroupIds) =>
+        httpClient.PutAsJsonAsync(
+            $"{ApiRoutes.ClassPacks}/{classPack.Id}",
+            new UpdateClassPackRequest(classPack.Name, classPack.ClassCount, classPack.Price, classPack.ValidityMonths, ClassGroupIds: classGroupIds),
+            ApiRequests.JsonOptions);
+
     public static Task<HttpResponseMessage> PostClassPackSaleAsync(
         this HttpClient httpClient, long clientId, long classPackId, decimal? price = null, long? trialLessonId = null) =>
         httpClient.PostAsJsonAsync(

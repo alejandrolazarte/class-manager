@@ -17,8 +17,7 @@ public sealed record StudentAppMeasurementsResponse(IReadOnlyList<StudentAppStud
 public sealed record RecordStudentAppMeasurementCommand(long StudentId, long MeasurementId, DateOnly? MeasuredOn, [property: AuditPersonal] decimal? Value, [property: AuditPersonal] string? Note) : ICommand;
 
 public sealed class GetStudentAppMeasurementsUseCase(
-    IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IMeasurementDefinitionRepository definitionRepository,
     IMeasurementRecordRepository recordRepository,
     IMeasurementGoalRepository goalRepository,
@@ -27,13 +26,13 @@ public sealed class GetStudentAppMeasurementsUseCase(
 {
     public async Task<Result<StudentAppMeasurementsResponse>> ExecuteAsync(GetStudentAppMeasurementsQuery command, CancellationToken cancellationToken)
     {
-        var access = await studentAppAccess.GetAsync(cancellationToken);
-        if (access is null)
+        var family = await studentAppFamily.GetAsync(cancellationToken);
+        if (family is null)
         {
             return StudentAppFailures.NoAccess();
         }
 
-        var students = await studentRepository.ListByClientAsync(access.ClientId, cancellationToken);
+        var students = family.Members.Where(member => member.ShowsPersonalData).Select(member => member.Student).ToList();
         var studentIds = students.Select(student => student.Id).ToList();
         var definitions = (await definitionRepository.ListAsync(cancellationToken))
             .Where(definition => definition.IsVisibleToStudents)
@@ -57,8 +56,7 @@ public sealed class GetStudentAppMeasurementsUseCase(
 }
 
 public sealed class RecordStudentAppMeasurementUseCase(
-    IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IMeasurementDefinitionRepository definitionRepository,
     IMeasurementRecordRepository recordRepository,
     IUnitOfWork unitOfWork,
@@ -70,7 +68,7 @@ public sealed class RecordStudentAppMeasurementUseCase(
 
     public async Task<Result<MeasurementRecordResponse>> ExecuteAsync(RecordStudentAppMeasurementCommand command, CancellationToken cancellationToken)
     {
-        var ownStudentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppAccess, studentRepository, command.StudentId, cancellationToken);
+        var ownStudentError = await AccountStudentRules.FindPersonalDataErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (ownStudentError is not null)
         {
             return ownStudentError;

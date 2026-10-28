@@ -2,12 +2,7 @@ import { expect, Page, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { demoPassword, demoTimeZoneId, seedDemoBusiness } from "./demoBusiness";
-import {
-  inviteOwnerAsStudent,
-  demoStudentAppPassword,
-  seedDemoStudentApp,
-  weekEndOf,
-} from "./demoStudentApp";
+import { inviteOwnerAsStudent, demoStudentAppPassword, seedDemoStudentApp } from "./demoStudentApp";
 import { waitForBrandWelcomeToClose } from "./brandWelcome";
 
 const outputDirectory = process.env.SCREENSHOTS_DIR ?? "screenshots-output";
@@ -24,6 +19,19 @@ test.use({
 });
 
 const shortWeekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const daysPerWeek = 7;
+const millisecondsPerDay = 86_400_000;
+
+function weekStartTimeOf(isoDate: string): number {
+  const date = new Date(`${isoDate}T12:00:00Z`);
+  const daysSinceMonday = (date.getUTCDay() + daysPerWeek - 1) % daysPerWeek;
+  return date.getTime() - daysSinceMonday * millisecondsPerDay;
+}
+
+async function openClasses(page: Page): Promise<void> {
+  await page.goto("/student-app/classes");
+  await page.getByRole("button", { name: "Mes", exact: true }).filter({ visible: true }).waitFor();
+}
 
 async function openClassesDay(
   page: Page,
@@ -31,10 +39,14 @@ async function openClassesDay(
   today: string,
   studentName = "Tomás",
 ): Promise<void> {
-  await page.goto("/student-app/classes");
-  await page.getByText("Hoy,", { exact: false }).filter({ visible: true }).first().waitFor();
-  if (isoDate > weekEndOf(today)) {
-    await page.getByRole("button", { name: "Semana siguiente" }).click();
+  await openClasses(page);
+  const weeksAway = Math.round(
+    (weekStartTimeOf(isoDate) - weekStartTimeOf(today)) / (daysPerWeek * millisecondsPerDay),
+  );
+  for (let week = 0; week < Math.abs(weeksAway); week++) {
+    await page
+      .getByRole("button", { name: weeksAway > 0 ? "Semana siguiente" : "Semana anterior" })
+      .click();
   }
   await page.getByRole("button", { name: studentName }).click();
   const day = new Date(`${isoDate}T12:00:00Z`);
@@ -98,9 +110,20 @@ test("Student screens", async ({ page, request }) => {
   await page.getByText("Lunes 12 de octubre cerrado").filter({ visible: true }).first().waitFor();
   await capture(page, "21b-alumno-novedades");
 
-  await page.goto("/student-app/classes");
-  await page.getByText("Hoy,", { exact: false }).filter({ visible: true }).first().waitFor();
+  await openClasses(page);
   await capture(page, "22-alumno-clases");
+
+  await openClassesDay(page, student.missedDate, demo.today);
+  await page.getByText("Faltaste", { exact: true }).filter({ visible: true }).first().waitFor();
+  await capture(page, "22g-alumno-clase-pasada");
+
+  await page.getByRole("button", { name: "Mes", exact: true }).click();
+  await page
+    .getByText(/^Fuiste a \d+ de/)
+    .filter({ visible: true })
+    .first()
+    .waitFor();
+  await capture(page, "22h-alumno-clases-mes");
 
   await openClassesDay(page, demo.today, demo.today);
   await page.getByRole("button", { name: "Ver clase de Natación inicial" }).first().click();

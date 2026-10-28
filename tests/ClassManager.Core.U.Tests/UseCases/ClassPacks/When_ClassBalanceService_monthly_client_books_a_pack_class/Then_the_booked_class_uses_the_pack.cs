@@ -15,7 +15,7 @@ public sealed class Then_the_booked_class_uses_the_pack
             clientId, builder.Pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!.WithId());
         builder.Attend(clientId, TestData.Today);
         builder.ClientAttendedClasses.Add(new ClientAttendedClass(
-            clientId, new AttendedClass(TestData.Today, TestData.StudentFullName, "Aquagym", IsPackBooking: true)));
+            clientId, new AttendedClass(TestData.Today, TestData.StudentFullName, "Aquagym", IsPackBooking: true, ClassGroupId: ClassPackUseCaseBuilder.ClassGroupId)));
 
         var balances = await builder.BuildBalanceService().CalculateAsync([clientId], CancellationToken.None);
 

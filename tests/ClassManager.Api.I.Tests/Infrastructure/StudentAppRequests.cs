@@ -5,6 +5,11 @@ using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Api.I.Tests.Infrastructure;
 
+public sealed record FamilyMemberApp(StudentResponse Student, HttpClient App) : IDisposable
+{
+    public void Dispose() => App.Dispose();
+}
+
 public sealed record StudentAppScenario(InstructorScenario Instructors, long ClientId, string Email, TokenResponse Tokens, HttpClient Student);
 
 public static class StudentAppRequests
@@ -13,6 +18,7 @@ public static class StudentAppRequests
     public const string ChildFullName = "Tomás Pérez";
     public static readonly DateOnly ChildBirthDate = new(2012, 5, 1);
     public static readonly DateOnly ElevenYearsOld = new(2015, 3, 10);
+    public static readonly DateOnly AdultMemberBirthDate = new(1995, 4, 10);
     public const string StudentAppPassword = "a long student passphrase";
     public const string WebAppAcceptStudentAppInvitationUrl = "http://localhost:8081/accept-student-invitation?token=";
     public const string WebAppAuthorizeStudentAppUrl = "http://localhost:8081/authorize-student-app?token=";
@@ -75,6 +81,19 @@ public static class StudentAppRequests
         using var accepted = await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email));
         accepted.EnsureSuccessStatusCode();
         return (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!.AccessToken;
+    }
+
+    public static async Task<FamilyMemberApp> SignInFamilyMemberAsync(
+        this ApiFixture fixture, HttpClient team, long clientId, string fullName, DateOnly birthDate)
+    {
+        var student = await team.AddStudentAsync(clientId, fullName);
+        var email = UniqueStudentEmail();
+        (await team.PostChildAppInvitationAsync(clientId, student.Id, email, birthDate)).EnsureSuccessStatusCode();
+        using var anonymous = fixture.ApiFactory.CreateClient();
+        using var accepted = await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email));
+        accepted.EnsureSuccessStatusCode();
+        var tokens = (await accepted.Content.ReadFromJsonAsync<TokenResponse>(ApiRequests.JsonOptions))!;
+        return new FamilyMemberApp(student, fixture.CreateClientWithToken(tokens.AccessToken));
     }
 
     public static Task<HttpResponseMessage> PostGuardianConsentInAppAsync(this HttpClient httpClient, long invitationId) =>

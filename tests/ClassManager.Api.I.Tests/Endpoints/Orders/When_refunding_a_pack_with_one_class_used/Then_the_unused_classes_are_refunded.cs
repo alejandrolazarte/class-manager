@@ -17,7 +17,7 @@ public sealed class Then_the_unused_classes_are_refunded(ApiFixture fixture)
         var studentId = client.Students[0].Id;
         await business.HttpClient.EnrollAsync(classGroup.Id, studentId);
         (await business.HttpClient.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks)).EnsureSuccessStatusCode();
-        var classPack = await business.HttpClient.CreateClassPackAsync();
+        var classPack = await business.HttpClient.CreateClassPackAsync(classGroupIds: [classGroup.Id]);
         var order = await business.HttpClient.SellAtCounterAsync(client.Id, [OrderRequests.PackLine(classPack.Id)]);
         (await business.HttpClient.PutAttendanceAsync(classGroup.Id, EnrollmentRequests.Today, studentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
 

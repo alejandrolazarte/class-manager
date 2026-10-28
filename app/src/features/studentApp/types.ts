@@ -17,6 +17,33 @@ export interface StudentAppNextClass {
   isPackBooking: boolean;
 }
 
+export type PastClassStatus = "Attended" | "Absent" | "AbsenceNotified" | "Cancelled" | "Unmarked";
+
+export interface StudentAppPastClass {
+  name: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  instructorFullName: string | null;
+  location: string | null;
+  isPrivateLesson: boolean;
+  classGroupId: string | null;
+  status: PastClassStatus;
+  isMakeup: boolean;
+  isPackBooking: boolean;
+  paidWithPack: StudentAppPaidWithPack | null;
+}
+
+export interface StudentAppPaidWithPack {
+  name: string;
+  purchasedOn: string;
+}
+
+export interface StudentAppClassHistory {
+  month: string;
+  classes: StudentAppPastClass[];
+}
+
 export interface StudentAppPushKey {
   publicKey: string | null;
 }
@@ -203,6 +230,7 @@ export interface StudentAppShop {
   packs: StudentAppShopPack[];
   products: StudentAppShopProduct[];
   deliveryClasses: DeliveryClass[];
+  canBuy: boolean;
 }
 
 export type StudentAppOrderStatus = "Pending" | "Delivered" | "Cancelled";

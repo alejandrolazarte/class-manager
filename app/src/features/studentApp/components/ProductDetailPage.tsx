@@ -21,7 +21,7 @@ interface ProductDetailPageProps {
   product: StudentAppShopProduct;
   currencyCode: string;
   onClose: () => void;
-  onAdd: (variant: StudentAppShopVariant, units: number) => void;
+  onAdd?: (variant: StudentAppShopVariant, units: number) => void;
 }
 
 export function ProductDetailPage({
@@ -71,29 +71,31 @@ export function ProductDetailPage({
       title={product.name}
       onClose={onClose}
       footer={
-        <View className="flex-row items-center gap-2.5 border-t border-border-subtle bg-background px-5 pb-4 pt-3">
-          <View className="h-12 justify-center rounded-xl border border-border bg-surface">
-            <QuantityStepper
-              units={pickedUnits}
-              minimum={1}
-              maximum={maximumUnits}
-              onChange={setUnits}
-            />
+        onAdd === undefined ? undefined : (
+          <View className="flex-row items-center gap-2.5 border-t border-border-subtle bg-background px-5 pb-4 pt-3">
+            <View className="h-12 justify-center rounded-xl border border-border bg-surface">
+              <QuantityStepper
+                units={pickedUnits}
+                minimum={1}
+                maximum={maximumUnits}
+                onChange={setUnits}
+              />
+            </View>
+            <View className="flex-1">
+              <Button
+                label={
+                  selectedVariant === undefined
+                    ? translate("student.shop.soldOut")
+                    : translate("student.shop.addToCart", {
+                        total: formatMoney(product.price * pickedUnits, currencyCode),
+                      })
+                }
+                disabled={selectedVariant === undefined}
+                onPress={() => selectedVariant && onAdd(selectedVariant, pickedUnits)}
+              />
+            </View>
           </View>
-          <View className="flex-1">
-            <Button
-              label={
-                selectedVariant === undefined
-                  ? translate("student.shop.soldOut")
-                  : translate("student.shop.addToCart", {
-                      total: formatMoney(product.price * pickedUnits, currencyCode),
-                    })
-              }
-              disabled={selectedVariant === undefined}
-              onPress={() => selectedVariant && onAdd(selectedVariant, pickedUnits)}
-            />
-          </View>
-        </View>
+        )
       }
     >
       <ProductPhotoCarousel images={product.images} sizeClassName="aspect-square" size="page" />

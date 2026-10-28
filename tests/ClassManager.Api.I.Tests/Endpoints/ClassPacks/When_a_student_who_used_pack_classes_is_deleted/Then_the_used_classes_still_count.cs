@@ -17,7 +17,7 @@ public sealed class Then_the_used_classes_still_count(ApiFixture fixture)
         var studentId = client.Students.Single(student => student.FullName == ApiRequests.StudentFullName).Id;
         await owner.EnrollAsync(classGroup.Id, studentId);
         (await owner.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks)).EnsureSuccessStatusCode();
-        var classPack = await owner.CreateClassPackAsync();
+        var classPack = await owner.CreateClassPackAsync(classGroupIds: [classGroup.Id]);
         await owner.SellClassPackAsync(client.Id, classPack.Id);
         (await owner.PutAttendanceAsync(classGroup.Id, EnrollmentRequests.Today, studentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
 

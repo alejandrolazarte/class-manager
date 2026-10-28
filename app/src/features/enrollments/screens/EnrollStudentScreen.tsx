@@ -1,3 +1,4 @@
+import { responsibleLabel } from "@/features/students/responsibleLabel";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
@@ -120,9 +121,7 @@ export function EnrollStudentScreen({ classGroupId }: EnrollStudentScreenProps) 
               normalizeStudentName(student.clientFullName);
             const details = [
               studentAgeLabel(student.birthDate),
-              isOwnClient
-                ? null
-                : translate("students.list.responsible", { name: student.clientFullName }),
+              isOwnClient ? null : responsibleLabel(student.clientFullName, student.birthDate),
             ].filter((detail): detail is string => Boolean(detail));
             return (
               <HairlineRow

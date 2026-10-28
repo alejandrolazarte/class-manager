@@ -1,5 +1,7 @@
 import {
   StudentAppAttendance,
+  StudentAppClassHistory,
+  StudentAppPastClass,
   StudentAppHome,
   StudentAppMakeups,
   StudentAppMakeupSlot,
@@ -39,6 +41,36 @@ export function buildStudentAppNextClass(
     absenceNotified: false,
     isMakeup: false,
     isPackBooking: false,
+    ...overrides,
+  };
+}
+
+export function buildStudentAppPastClass(
+  overrides: Partial<StudentAppPastClass> = {},
+): StudentAppPastClass {
+  return {
+    name: "Natación inicial",
+    date: "2026-09-22",
+    startTime: "18:00",
+    endTime: "18:45",
+    instructorFullName: "Laura Gómez",
+    location: null,
+    isPrivateLesson: false,
+    classGroupId: "class-group-1",
+    status: "Attended",
+    isMakeup: false,
+    isPackBooking: false,
+    paidWithPack: null,
+    ...overrides,
+  };
+}
+
+export function buildStudentAppClassHistory(
+  overrides: Partial<StudentAppClassHistory> = {},
+): StudentAppClassHistory {
+  return {
+    month: "2026-09",
+    classes: [buildStudentAppPastClass()],
     ...overrides,
   };
 }
@@ -153,6 +185,7 @@ export function buildStudentAppShop(overrides: Partial<StudentAppShop> = {}): St
         studentFullName: "Tomás Pérez",
       },
     ],
+    canBuy: true,
     ...overrides,
   };
 }

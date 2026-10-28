@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import baseConfig from "./playwright.config";
 
-const captureTimeoutMilliseconds = 180_000;
+const captureTimeoutMilliseconds = 240_000;
 
 export default defineConfig({
   ...baseConfig,

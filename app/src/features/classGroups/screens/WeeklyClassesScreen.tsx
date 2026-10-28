@@ -73,7 +73,7 @@ export function WeeklyClassesScreen() {
               key: weekday,
               label: weekdayShortLabel(weekday),
               accessibilityLabel: weekdayLongLabel(weekday),
-              hasClasses: classesOfDay(classGroups, weekday).length > 0,
+              marker: classesOfDay(classGroups, weekday).length > 0 ? "classes" : "none",
               isToday: weekday === todayWeekday,
             }))}
             selectedKeys={[selectedWeekday]}

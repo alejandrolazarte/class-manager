@@ -1,6 +1,9 @@
 namespace ClassManager.Core.Domain.ClassPacks;
 
-public sealed record ClassBalance(IReadOnlyList<ClassPackUsage> Purchases, IReadOnlyList<AttendedClass> UnpaidAttendances)
+public sealed record ClassBalance(
+    IReadOnlyList<ClassPackUsage> Purchases,
+    IReadOnlyList<AttendedClass> UnpaidAttendances,
+    IReadOnlyList<PackPaidClass> PaidClasses)
 {
     public int AvailableClasses => Purchases
         .Where(usage => usage.Status == ClassPackPurchaseStatus.Active)
@@ -15,11 +18,14 @@ public sealed record ClassBalance(IReadOnlyList<ClassPackUsage> Purchases, IRead
     {
         var usedClassesByPurchase = purchases.ToDictionary(purchase => purchase, _ => 0);
         var unpaidAttendances = new List<AttendedClass>();
+        var paidClasses = new List<PackPaidClass>();
 
         foreach (var attendedClass in attendedClasses.OrderBy(attended => attended.Date))
         {
             var payingPurchase = purchases
-                .Where(purchase => purchase.IsValidOn(attendedClass.Date) && usedClassesByPurchase[purchase] < purchase.ClassCount)
+                .Where(purchase => purchase.IsValidOn(attendedClass.Date)
+                    && purchase.Covers(attendedClass)
+                    && usedClassesByPurchase[purchase] < purchase.ClassCount)
                 .OrderBy(purchase => purchase.ExpiresOn ?? DateOnly.MaxValue)
                 .ThenBy(purchase => purchase.PurchasedOn)
                 .ThenBy(purchase => purchase.CreatedAt)
@@ -31,6 +37,7 @@ public sealed record ClassBalance(IReadOnlyList<ClassPackUsage> Purchases, IRead
             }
 
             usedClassesByPurchase[payingPurchase]++;
+            paidClasses.Add(new PackPaidClass(attendedClass, payingPurchase));
         }
 
         var usages = purchases
@@ -39,7 +46,7 @@ public sealed record ClassBalance(IReadOnlyList<ClassPackUsage> Purchases, IRead
             .Select(purchase => new ClassPackUsage(purchase, usedClassesByPurchase[purchase], StatusOf(purchase, usedClassesByPurchase[purchase], today)))
             .ToList();
 
-        return new ClassBalance(usages, unpaidAttendances);
+        return new ClassBalance(usages, unpaidAttendances, paidClasses);
     }
 
     private static ClassPackPurchaseStatus StatusOf(ClassPackPurchase purchase, int usedClasses, DateOnly today) =>

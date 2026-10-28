@@ -29,11 +29,12 @@ import { TotalBar } from "@/ui/TotalBar";
 import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 import { Entrance } from "@/ui/motion/Entrance";
 
-type OrderProblem = "outOfStock" | "tooManyOpenOrders" | "unexpected";
+type OrderProblem = "outOfStock" | "tooManyOpenOrders" | "buyerMustBeAdult" | "unexpected";
 
 const orderProblemMessages: Record<OrderProblem, TranslationKey> = {
   outOfStock: "student.shop.outOfStock",
   tooManyOpenOrders: "student.shop.tooManyOpenOrders",
+  buyerMustBeAdult: "student.shop.guardianBuys",
   unexpected: "common.unexpectedError",
 };
 
@@ -43,6 +44,9 @@ function orderProblemOf(orderError: unknown): OrderProblem {
   }
   if (isApiError(orderError) && orderError.hasCode(studentAppErrorCodes.tooManyOpenOrders)) {
     return "tooManyOpenOrders";
+  }
+  if (isApiError(orderError) && orderError.hasCode(studentAppErrorCodes.buyerMustBeAdult)) {
+    return "buyerMustBeAdult";
   }
   return "unexpected";
 }

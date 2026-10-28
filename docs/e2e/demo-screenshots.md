@@ -84,6 +84,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `15-vender-pack` | Sell a pack |
 | `16-packs` | Class pack catalog |
 | `16b-pack-nuevo` | New class pack form, with the classes where the pack can be booked |
+| `16c-pack-nuevo-clases`, `16d-pack-nuevo-cualquier-clase` | New class pack form scrolled to what the pack is for: "Cualquier clase grupal" off with the class list, then on |
 | `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
 | `18-apariencia` | Appearance sheet in Ajustes |
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
@@ -113,7 +114,9 @@ The student signs in through the sign-in screen, then the test captures:
 | `20-alumno-inicio` | Home: next class, streak, monthly fee, instructor comment, the school's news led by the pinned announcement, and shop preview |
 | `21-alumno-inicio-otro-alumno` | Home after picking the other student |
 | `21b-alumno-novedades` | News: announcements, ready order, instructor comments and the cancelled class, grouped by day |
-| `22-alumno-clases` | Week of classes for the selected student |
+| `22-alumno-clases` | Clases for the selected student: the agenda with Día and Mes, today selected |
+| `22g-alumno-clase-pasada` | A past day of Tomás, the class he missed: each past class says whether he came |
+| `22h-alumno-clases-mes` | Clases in month view: a dot per day (came, missed, scheduled) and how many classes he came to this month |
 | `22b-alumno-clases-no-voy` | A class the student won't attend, with "Voy a ir igual" |
 | `22c-alumno-clase-de-recuperacion` | A booked makeup class in the student schedule |
 | `22d-alumno-recuperar-clases` | Classes to make up, with open slots to book |
@@ -170,7 +173,8 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `05-tomas-11-anos-espera-autorizacion` | Inviting a child below the minimum age: waiting for the client, with "Recordar al responsable" |
 | `06-responsable-autoriza-desde-el-mail` | The client can authorize from the email link |
 | `07-responsable-autoriza-desde-la-app`, `08-responsable-autorizo` | Or from the card on the home of their app |
-| `09-tomas-crea-su-cuenta`, `10-tomas-entra-a-la-app` | The child creates the account (name and birth date from the team) and sees the family |
+| `09-tomas-crea-su-cuenta`, `10-tomas-entra-a-la-app` | The child creates the account (name and birth date from the team) and sees their own card |
+| `10b-tomas-tienda` | The child's shop: minors see it without buying, with "Las compras las hace la persona que paga por tu familia" |
 | `11-lucia-crea-su-cuenta-sin-autorizacion` | A 14-year-old creates the account with no authorization needed |
 | `12-ya-tiene-cuenta-aceptar-o-rechazar`, `13-rechazo-la-invitacion` | Someone who already has an account only accepts or declines |
 | `14-aviso-al-equipo` | The team is notified of the decline |

@@ -46,7 +46,7 @@ describe("When student picks a day of the week", () => {
     expect(await screen.findByText("18:00–18:45")).toBeOnTheScreen();
 
     await fireEvent.press(
-      screen.getByRole("button", { name: translate("student.schedule.nextWeek") }),
+      screen.getByRole("button", { name: translate("sessions.calendar.nextWeek") }),
     );
     await fireEvent.press(screen.getByRole("button", { name: shortDayLabel(addDays(today, 7)) }));
 

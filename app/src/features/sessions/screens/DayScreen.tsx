@@ -4,19 +4,17 @@ import { RefreshControl, ScrollView, View } from "react-native";
 import { AccountSwitcher } from "@/features/authentication/components/AccountSwitcher";
 import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { weekdayOf, weekdayShortLabel } from "@/dates/weekdays";
+import { weekdayLongLabel, weekdayOf } from "@/dates/weekdays";
 import { firstNameOf } from "@/features/studentApp/studentAppSchedule";
-import { formatMonth } from "@/features/fees/months";
 import {
+  agendaHeadingOf,
   currentTimeLabel,
-  relativeDayLabel,
   sessionTimingOf,
   todayHighlightOf,
 } from "@/features/home/agenda";
 import { TodayBanner } from "@/features/home/components/TodayBanner";
 import { useCan, useCurrentMember } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
-import { AgendaCalendar, AgendaView } from "@/features/sessions/components/AgendaCalendar";
 import { AgendaSessionRow } from "@/features/sessions/components/AgendaSessionRow";
 import {
   addDays,
@@ -27,23 +25,23 @@ import {
   todayIsoDate,
   weekOf,
 } from "@/dates/dates";
-import { DaySession } from "@/features/sessions/types";
+import { CalendarDay, DaySession } from "@/features/sessions/types";
 import { useDaySessions } from "@/features/sessions/useDaySessions";
 import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";
 import { TeamNotificationBell } from "@/features/teamNotifications/components/TeamNotificationBell";
-import { translate, translateCount, TranslationKey } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
-import { OutlinedBlock } from "@/ui/OutlinedBlock";
 import { IconCircle } from "@/ui/IconCircle";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { Screen } from "@/ui/Screen";
 import { TonalButton } from "@/ui/TonalButton";
 import { ScreenHeader } from "@/ui/ScreenHeader";
-import { SegmentedControl } from "@/ui/SegmentedControl";
+import { AgendaCalendar, AgendaMonthDay, AgendaView } from "@/ui/AgendaCalendar";
+import { DayMarker } from "@/ui/DayMarker";
 import { SubscriptionNotice } from "@/features/subscriptions/components/SubscriptionNotice";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
@@ -55,7 +53,7 @@ interface DayScreenProps {
 const summarySeparator = " · ";
 const studentNameSeparator = ", ";
 const daysPerWeek = 7;
-const shortMonthLength = 3;
+const labelSeparator = " · ";
 
 function sessionRoute(session: DaySession): string {
   return session.kind === "Private"
@@ -69,11 +67,37 @@ function sessionTitle(session: DaySession): string {
     : session.classGroupName;
 }
 
-function shortDateLabel(isoDate: string): string {
-  const monthName = translate(
-    `months.${parseIsoDate(isoDate).getMonth() + 1}` as TranslationKey,
-  ).slice(0, shortMonthLength);
-  return `${weekdayShortLabel(weekdayOf(parseIsoDate(isoDate)))} ${dayOfMonth(isoDate)} ${monthName}`;
+function dayLabel(isoDate: string): string {
+  return translate("sessions.day.pickDay", {
+    weekday: weekdayLongLabel(weekdayOf(parseIsoDate(isoDate))),
+    day: dayOfMonth(isoDate),
+  });
+}
+
+function monthDayLabel(isoDate: string, calendarDay: CalendarDay | undefined): string {
+  const parts = [
+    translate("sessions.calendar.dayLabel", {
+      weekday: weekdayLongLabel(weekdayOf(parseIsoDate(isoDate))),
+      day: dayOfMonth(isoDate),
+    }),
+  ];
+  if (calendarDay) {
+    parts.push(translateCount("sessions.day.classCount", calendarDay.classCount));
+    if (calendarDay.pendingAttendanceCount > 0) {
+      parts.push(translate("sessions.calendar.pending"));
+    }
+    if (calendarDay.cancelledCount > 0) {
+      parts.push(translate("sessions.calendar.cancelled"));
+    }
+  }
+  return parts.join(labelSeparator);
+}
+
+function markerOf(calendarDay: CalendarDay | undefined): DayMarker {
+  if ((calendarDay?.pendingAttendanceCount ?? 0) > 0) {
+    return "pending";
+  }
+  return (calendarDay?.classCount ?? 0) > 0 ? "classes" : "none";
 }
 
 export function DayScreen({ initialDate }: DayScreenProps) {
@@ -113,6 +137,18 @@ export function DayScreen({ initialDate }: DayScreenProps) {
       .map((calendarDay) => calendarDay.date),
   );
   const hasClassesOn = (isoDate: string) => datesWithClasses.has(isoDate);
+  const monthCalendarDays = new Map(
+    (monthCalendar?.days ?? []).map((calendarDay) => [calendarDay.date, calendarDay]),
+  );
+  const monthDayOf = (isoDate: string): AgendaMonthDay => {
+    const calendarDay = monthCalendarDays.get(isoDate);
+    return {
+      marker: markerOf(calendarDay),
+      isCancelled: (calendarDay?.cancelledCount ?? 0) > 0,
+      accessibilityLabel: monthDayLabel(isoDate, calendarDay),
+    };
+  };
+  const heading = agendaHeadingOf(view, sessionDate, today);
 
   const openSession = (session: DaySession) => router.push(sessionRoute(session));
   const openNewPrivateLesson = () => router.push(routes.newPrivateLesson(sessionDate));
@@ -170,40 +206,22 @@ export function DayScreen({ initialDate }: DayScreenProps) {
               titleOf={sessionTitle}
               onOpen={openSession}
             />
-            <OutlinedBlock className="mt-1 gap-3">
-              <View className="h-11 flex-row items-end justify-between gap-3">
-                <View className="min-w-0 flex-1">
-                  <AppText variant="eyebrow" tone="subtle" numberOfLines={1}>
-                    {isMonthView
-                      ? translate("home.view.calendar")
-                      : relativeDayLabel(sessionDate, today)}
-                  </AppText>
-                  <AppText variant="heading" accessibilityRole="header" numberOfLines={1}>
-                    {isMonthView ? formatMonth(calendarMonth) : shortDateLabel(sessionDate)}
-                  </AppText>
-                </View>
-                <SegmentedControl
-                  isCompact
-                  options={[
-                    { value: "day", label: translate("home.view.day") },
-                    { value: "month", label: translate("home.view.month") },
-                  ]}
-                  selectedValue={view}
-                  onChange={setView}
-                />
-              </View>
-              <AgendaCalendar
-                view={view}
-                selectedDate={sessionDate}
-                today={today}
-                month={calendarMonth}
-                monthDays={monthCalendar?.days ?? []}
-                hasClassesOn={hasClassesOn}
-                onSelectDate={setSessionDate}
-                onPrevious={() => step(-1)}
-                onNext={() => step(1)}
-              />
-            </OutlinedBlock>
+            <AgendaCalendar
+              view={view}
+              onChangeView={setView}
+              eyebrow={heading.eyebrow}
+              title={heading.title}
+              selectedDate={sessionDate}
+              today={today}
+              weekDayOf={(isoDate) => ({
+                marker: hasClassesOn(isoDate) ? "classes" : "none",
+                accessibilityLabel: dayLabel(isoDate),
+              })}
+              monthDayOf={monthDayOf}
+              onSelectDate={setSessionDate}
+              onPrevious={() => step(-1)}
+              onNext={() => step(1)}
+            />
             <View className="h-7 flex-row items-center justify-between">
               <AppText variant="caption" tone="subtle">
                 {isPending ? "" : summary}

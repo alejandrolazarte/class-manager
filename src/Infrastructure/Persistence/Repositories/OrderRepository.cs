@@ -29,6 +29,16 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             orders = orders.Where(order => order.ClientId == clientId);
         }
 
+        if (criteria.CreatorUserId is { } creatorUserId)
+        {
+            orders = orders.Where(order => order.CreatedByUserId == creatorUserId);
+        }
+
+        if (criteria.HiddenCreatorUserIds is { Count: > 0 } hiddenCreatorUserIds)
+        {
+            orders = orders.Where(order => order.CreatedByUserId == null || !hiddenCreatorUserIds.Contains(order.CreatedByUserId.Value));
+        }
+
         if (criteria.OwingOnly)
         {
             orders = orders.Where(OrderQueries.IsOwing());

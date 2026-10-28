@@ -66,14 +66,14 @@ internal sealed class PrivateLessonRepository(AppDbContext context) : IPrivateLe
             join lesson in context.PrivateLessons.AsNoTracking() on lessonStudent.PrivateLessonId equals lesson.Id
             where !lesson.IsTrial
             join instructor in context.Instructors.AsNoTracking() on lesson.InstructorId equals instructor.Id
-            select new { student.ClientId, lesson.Date, StudentFullName = student.User.FullName, InstructorFullName = instructor.User.FullName })
+            select new { student.ClientId, StudentId = student.Id, lesson.Date, StudentFullName = student.User.FullName, InstructorFullName = instructor.User.FullName })
             .ToListAsync(cancellationToken);
 
         return
         [
             .. rows.Select(row => new ClientAttendedClass(
                 row.ClientId,
-                new AttendedClass(row.Date, row.StudentFullName, row.InstructorFullName, IsPrivateLesson: true))),
+                new AttendedClass(row.Date, row.StudentFullName, row.InstructorFullName, IsPrivateLesson: true, StudentId: row.StudentId))),
         ];
     }
 }

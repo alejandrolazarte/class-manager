@@ -130,6 +130,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddBackgroundTask<SendPushBackgroundTaskCommand, SendPushBackgroundTaskHandler>();
         services.AddSingleton<IWebPushKeyProvider, WebPushKeyProvider>();
         services.AddScoped<PushPublisher>();
+        services.AddScoped<StudentAppRecipients>();
         services.AddScoped(serviceProvider => new PushDispatcher(
             serviceProvider.GetRequiredService<AppDbContext>(),
             serviceProvider.GetRequiredService<IWebPushSender>(),
