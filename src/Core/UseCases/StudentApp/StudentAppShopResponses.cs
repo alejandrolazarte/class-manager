@@ -21,7 +21,8 @@ public sealed record StudentAppShopResponse(
     string CurrencyCode,
     IReadOnlyList<StudentAppShopPackResponse> Packs,
     IReadOnlyList<StudentAppShopProductResponse> Products,
-    IReadOnlyList<DeliveryClassResponse> DeliveryClasses);
+    IReadOnlyList<DeliveryClassResponse> DeliveryClasses,
+    bool CanBuy);
 
 public sealed record StudentAppOrderLineResponse(long Id, OrderLineKind Kind, string Name, int Quantity, decimal Total, int RefundedQuantity);
 

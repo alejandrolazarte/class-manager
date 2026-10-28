@@ -26,15 +26,14 @@ internal static class AbsenceRules
         long studentId,
         long classGroupId,
         DateOnly date,
-        IStudentAppAccess studentAppAccess,
-        IStudentRepository studentRepository,
+        IStudentAppFamilyService studentAppFamily,
         IClassGroupRepository classGroupRepository,
         IEnrollmentRepository enrollmentRepository,
         IClassSessionRepository sessionRepository,
         IBusinessCalendarService businessCalendar,
         CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppAccess, studentRepository, studentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, studentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;
@@ -70,8 +69,7 @@ internal static class AbsenceRules
 }
 
 public sealed class NotifyAbsenceUseCase(
-    IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
     IClassSessionRepository sessionRepository,
@@ -90,7 +88,7 @@ public sealed class NotifyAbsenceUseCase(
     public async Task<Result<bool>> ExecuteAsync(NotifyAbsenceCommand command, CancellationToken cancellationToken)
     {
         var target = await AbsenceRules.FindAsync(
-            command.StudentId, command.ClassGroupId, command.Date, studentAppAccess, studentRepository,
+            command.StudentId, command.ClassGroupId, command.Date, studentAppFamily,
             classGroupRepository, enrollmentRepository, sessionRepository, businessCalendar, cancellationToken);
         if (target.IsFailure)
         {
@@ -130,8 +128,7 @@ public sealed class NotifyAbsenceUseCase(
 }
 
 public sealed class WithdrawAbsenceUseCase(
-    IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IClassGroupRepository classGroupRepository,
     MakeupRepositories makeupRepositories,
     IUnitOfWork unitOfWork,
@@ -143,7 +140,7 @@ public sealed class WithdrawAbsenceUseCase(
     public async Task<Result<bool>> ExecuteAsync(WithdrawAbsenceCommand command, CancellationToken cancellationToken)
     {
         var target = await AbsenceRules.FindAsync(
-            command.StudentId, command.ClassGroupId, command.Date, studentAppAccess, studentRepository,
+            command.StudentId, command.ClassGroupId, command.Date, studentAppFamily,
             classGroupRepository, makeupRepositories.Enrollments, makeupRepositories.Sessions, businessCalendar, cancellationToken);
         if (target.IsFailure)
         {

@@ -1,8 +1,8 @@
+import { responsibleLabel } from "@/features/students/responsibleLabel";
 import { View } from "react-native";
 import { studentAgeLabel } from "@/features/students/studentAgeLabel";
 import { normalizeStudentName } from "@/features/students/studentSchema";
 import { StudentSummary } from "@/features/students/types";
-import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { HairlineRow } from "@/ui/HairlineRow";
@@ -26,7 +26,7 @@ export function StudentListItem({ student, onPress }: StudentListItemProps) {
         </AppText>
         {isOwnClient ? null : (
           <AppText variant="caption" tone="muted">
-            {translate("students.list.responsible", { name: student.clientFullName })}
+            {responsibleLabel(student.clientFullName, student.birthDate)}
           </AppText>
         )}
         {student.notes ? (

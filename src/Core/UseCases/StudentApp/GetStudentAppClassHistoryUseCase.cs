@@ -47,7 +47,7 @@ public sealed record StudentAppClassHistoryResponse(string Month, IReadOnlyList<
 
 public sealed class GetStudentAppClassHistoryUseCase(
     IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IEnrollmentRepository enrollmentRepository,
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
@@ -63,7 +63,7 @@ public sealed class GetStudentAppClassHistoryUseCase(
 {
     public async Task<Result<StudentAppClassHistoryResponse>> ExecuteAsync(GetStudentAppClassHistoryQuery command, CancellationToken cancellationToken)
     {
-        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppAccess, studentRepository, command.StudentId, cancellationToken);
+        var studentError = await AccountStudentRules.FindOwnStudentErrorAsync(studentAppFamily, command.StudentId, cancellationToken);
         if (studentError is not null)
         {
             return studentError;

@@ -13,7 +13,7 @@ public sealed record ReplyToAnnouncementCommand(long AnnouncementId, bool IsGoin
 
 public sealed class ReplyToAnnouncementUseCase(
     IStudentAppAccess studentAppAccess,
-    IStudentRepository studentRepository,
+    IStudentAppFamilyService studentAppFamily,
     IEnrollmentRepository enrollmentRepository,
     IAnnouncementRepository announcementRepository,
     IBusinessCalendarService businessCalendar,
@@ -35,7 +35,7 @@ public sealed class ReplyToAnnouncementUseCase(
 
         var now = timeProvider.GetUtcNow();
         var today = await businessCalendar.TodayAsync(cancellationToken);
-        var studentIds = (await studentRepository.ListByClientAsync(access.ClientId, cancellationToken)).Select(student => student.Id);
+        var studentIds = (await studentAppFamily.GetAsync(cancellationToken))?.StudentIds ?? [];
         var enrolledClassGroupIds = await StudentAnnouncements.EnrolledClassGroupIdsAsync(enrollmentRepository, studentIds, today, cancellationToken);
         var announcement = await announcementRepository.FindForUpdateAsync(command.AnnouncementId, cancellationToken);
         if (announcement is null

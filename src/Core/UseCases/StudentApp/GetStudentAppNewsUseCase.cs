@@ -2,7 +2,6 @@ using System.Globalization;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
-using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassGroups;
 using ClassManager.Core.Domain.Enrollments;
@@ -12,9 +11,8 @@ namespace ClassManager.Core.UseCases.StudentApp;
 public sealed record GetStudentAppNewsQuery : IQuery;
 
 public sealed class GetStudentAppNewsUseCase(
-    IStudentAppAccess studentAppAccess,
+    IStudentAppFamilyService studentAppFamily,
     IClientAccountRepository clientAccountRepository,
-    IStudentRepository studentRepository,
     IEnrollmentRepository enrollmentRepository,
     IClassGroupRepository classGroupRepository,
     IClassSessionRepository sessionRepository,
@@ -23,7 +21,6 @@ public sealed class GetStudentAppNewsUseCase(
     IOrderRepository orderRepository,
     IInstructorRepository instructorRepository,
     IDocumentStorageService documentStorage,
-    IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider)
     : IUseCase<GetStudentAppNewsQuery, StudentAppNewsResponse>
 {
@@ -39,16 +36,18 @@ public sealed class GetStudentAppNewsUseCase(
 
     public async Task<Result<StudentAppNewsResponse>> ExecuteAsync(GetStudentAppNewsQuery command, CancellationToken cancellationToken)
     {
-        var access = await studentAppAccess.GetAsync(cancellationToken);
-        if (access is null)
+        var family = await studentAppFamily.GetAsync(cancellationToken);
+        if (family is null)
         {
             return Result.Unauthorized<StudentAppNewsResponse>(NoAccessMessage, NoAccessCode);
         }
 
+        var access = family.Access;
+
         var now = timeProvider.GetUtcNow();
         var seenAt = (await clientAccountRepository.FindByAccountAsync(access.AccountId, cancellationToken))?.NewsSeenAt;
-        var today = await businessCalendar.TodayAsync(cancellationToken);
-        var students = await studentRepository.ListByClientAsync(access.ClientId, cancellationToken);
+        var today = family.Today;
+        var students = family.Students;
         var studentIds = students.Select(student => student.Id).ToList();
         var studentNames = students.ToDictionary(student => student.Id, student => student.User.FullName);
         var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
@@ -111,11 +110,11 @@ public sealed class GetStudentAppNewsUseCase(
                 ],
             }));
 
-        items.AddRange((await orderRepository.ListAsync(new OrderSearchCriteria(access.ClientId, true, OrderLimit), null, cancellationToken))
+        items.AddRange((await orderRepository.ListAsync(family.Orders(awaitingPickupOnly: true, OrderLimit), null, cancellationToken))
             .Where(order => order.ReadyAt is not null)
             .Select(order => Item(StudentAppNewsKind.OrderReady, order.Id.ToString(CultureInfo.InvariantCulture), order.ReadyAt!.Value, orderId: order.Id)));
 
-        items.AddRange((await feedbackRepository.ListUpdatedSinceAsync(studentIds, now.AddDays(-FeedbackDays), cancellationToken))
+        items.AddRange((await feedbackRepository.ListUpdatedSinceAsync(family.PersonalDataStudentIds, now.AddDays(-FeedbackDays), cancellationToken))
             .Select(feedback => Item(
                 StudentAppNewsKind.InstructorFeedback,
                 string.Join(IdSeparator, feedback.StudentId, feedback.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture)),

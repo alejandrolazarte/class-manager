@@ -1,3 +1,4 @@
+import { responsibleLabel } from "@/features/students/responsibleLabel";
 import { View } from "react-native";
 import { RosterEntry } from "@/features/enrollments/types";
 import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
@@ -23,7 +24,7 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
     normalizeStudentName(entry.studentFullName) === normalizeStudentName(entry.clientFullName);
   const details = [
     ageLabel,
-    isOwnClient ? null : translate("students.list.responsible", { name: entry.clientFullName }),
+    isOwnClient ? null : responsibleLabel(entry.clientFullName, entry.birthDate),
   ].filter((detail): detail is string => Boolean(detail));
   return (
     <HairlineRow className="flex-row items-center gap-3 py-2.5">

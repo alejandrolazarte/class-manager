@@ -230,6 +230,7 @@ export interface StudentAppShop {
   packs: StudentAppShopPack[];
   products: StudentAppShopProduct[];
   deliveryClasses: DeliveryClass[];
+  canBuy: boolean;
 }
 
 export type StudentAppOrderStatus = "Pending" | "Delivered" | "Cancelled";

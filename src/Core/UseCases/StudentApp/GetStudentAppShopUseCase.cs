@@ -14,7 +14,7 @@ namespace ClassManager.Core.UseCases.StudentApp;
 public sealed record GetStudentAppShopQuery : IQuery;
 
 public sealed class GetStudentAppShopUseCase(
-    IStudentAppAccess studentAppAccess,
+    IStudentAppFamilyService studentAppFamily,
     IBusinessRepository businessRepository,
     IClassPackRepository classPackRepository,
     IProductRepository productRepository,
@@ -29,9 +29,9 @@ public sealed class GetStudentAppShopUseCase(
 {
     public async Task<Result<StudentAppShopResponse>> ExecuteAsync(GetStudentAppShopQuery command, CancellationToken cancellationToken)
     {
-        var access = await studentAppAccess.GetAsync(cancellationToken);
+        var family = await studentAppFamily.GetAsync(cancellationToken);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
-        if (access is null || business is null)
+        if (family is null || business is null)
         {
             return StudentAppFailures.NoAccess();
         }
@@ -48,7 +48,7 @@ public sealed class GetStudentAppShopUseCase(
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var deliveryClasses = await DeliveryClasses.ListAsync(
-            access.ClientId, today, studentRepository, enrollmentRepository, classGroupRepository, cancellationToken);
+            family.Client.Id, today, studentRepository, enrollmentRepository, classGroupRepository, cancellationToken);
 
         return new StudentAppShopResponse(
             business.CurrencyCode,
@@ -72,6 +72,7 @@ public sealed class GetStudentAppShopUseCase(
                     ],
                     CatalogImageResponse.ListFrom(product.ImagesInOrder, documentStorage))),
             ],
-            deliveryClasses);
+            deliveryClasses,
+            family.CanBuy);
     }
 }

@@ -42,6 +42,12 @@ export function formatBirthDateForDisplay(isoDate: string): string {
   return [day, month, year].join(dateSeparator);
 }
 
+export const adultAge = 18;
+
+export function isAdult(isoDate: string): boolean {
+  return ageInYears(isoDate) >= adultAge;
+}
+
 export function ageInYears(isoDate: string, today: Date = new Date()): number {
   const [year, month, day] = isoDate.split("-").map(Number);
   const hasHadBirthdayThisYear =
