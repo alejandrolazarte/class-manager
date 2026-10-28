@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { View } from "react-native";
 import { AppText } from "@/ui/AppText";
 
@@ -15,6 +16,26 @@ interface DayTimelineProps {
   periods: DayTimelinePeriod[];
   accessibilityLabel: string;
   legendLabels: Record<DayTimelineTone, string>;
+}
+
+export interface WeekTimelineRow {
+  key: string;
+  label: string;
+  periods: DayTimelinePeriod[];
+  accessibilityLabel: string;
+  caption?: ReactNode;
+}
+
+interface WeekTimelineProps {
+  startMinutes: number;
+  endMinutes: number;
+  rows: WeekTimelineRow[];
+  legendLabels: Record<DayTimelineTone, string>;
+}
+
+interface TimelineRange {
+  startMinutes: number;
+  endMinutes: number;
 }
 
 const toneOrder: readonly DayTimelineTone[] = ["busy", "free", "chosen", "conflict"];
@@ -48,6 +69,97 @@ function hourTicks(startMinutes: number, endMinutes: number): number[] {
   return [...hours, lastHour];
 }
 
+function percentageWithin(range: TimelineRange, minutes: number): `${number}%` {
+  const visibleMinutes = Math.max(1, range.endMinutes - range.startMinutes);
+  const clampedMinutes = Math.min(Math.max(minutes, range.startMinutes), range.endMinutes);
+  return `${((clampedMinutes - range.startMinutes) / visibleMinutes) * fullPercentage}%`;
+}
+
+function widthWithin(range: TimelineRange, period: DayTimelinePeriod): `${number}%` {
+  const visibleMinutes = Math.max(1, range.endMinutes - range.startMinutes);
+  const visibleStart = Math.max(period.startMinutes, range.startMinutes);
+  const visibleEnd = Math.min(period.endMinutes, range.endMinutes);
+  return `${(Math.max(0, visibleEnd - visibleStart) / visibleMinutes) * fullPercentage}%`;
+}
+
+function TimelineBar({
+  range,
+  periods,
+  accessibilityLabel,
+}: {
+  range: TimelineRange;
+  periods: DayTimelinePeriod[];
+  accessibilityLabel: string;
+}) {
+  const drawnPeriods = toneOrder.flatMap((tone) =>
+    periods.filter((period) => period.tone === tone),
+  );
+  return (
+    <View
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={accessibilityLabel}
+      className="h-6 rounded-md bg-muted"
+    >
+      {drawnPeriods.map((period) => (
+        <View
+          key={`${period.tone}-${period.startMinutes}`}
+          testID={`day-timeline-period-${period.tone}`}
+          className={`absolute ${periodClassNames[period.tone]}`}
+          style={{
+            left: percentageWithin(range, period.startMinutes),
+            width: widthWithin(range, period),
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+function HourTicks({ range, className }: { range: TimelineRange; className?: string }) {
+  return (
+    <View className={`h-4 ${className ?? ""}`} importantForAccessibility="no-hide-descendants">
+      {hourTicks(range.startMinutes, range.endMinutes).map((hour, tickIndex, hours) => {
+        const isFirst = tickIndex === 0;
+        const isLast = tickIndex === hours.length - 1;
+        return (
+          <AppText
+            key={hour}
+            variant="footnote"
+            tone="subtle"
+            className={`absolute ${isLast ? "-translate-x-full" : isFirst ? "" : "-translate-x-1/2"}`}
+            style={{ left: percentageWithin(range, hour * minutesPerHour) }}
+          >
+            {String(hour)}
+          </AppText>
+        );
+      })}
+    </View>
+  );
+}
+
+function TimelineLegend({
+  periods,
+  legendLabels,
+}: {
+  periods: DayTimelinePeriod[];
+  legendLabels: Record<DayTimelineTone, string>;
+}) {
+  const shownTones = toneOrder.filter((tone) => periods.some((period) => period.tone === tone));
+  return (
+    <View className="flex-row flex-wrap gap-3">
+      {shownTones.map((tone) => (
+        <View key={tone} className="flex-row items-center gap-1.5">
+          <View className={`h-3 w-3 rounded-sm ${swatchClassNames[tone]}`} />
+          <AppText variant="footnote" tone="muted">
+            {legendLabels[tone]}
+          </AppText>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export function DayTimeline({
   startMinutes,
   endMinutes,
@@ -55,62 +167,39 @@ export function DayTimeline({
   accessibilityLabel,
   legendLabels,
 }: DayTimelineProps) {
-  const visibleMinutes = Math.max(1, endMinutes - startMinutes);
-  const percentageOf = (minutes: number): `${number}%` =>
-    `${((Math.min(Math.max(minutes, startMinutes), endMinutes) - startMinutes) / visibleMinutes) * fullPercentage}%`;
-  const widthOf = (period: DayTimelinePeriod): `${number}%` => {
-    const visibleStart = Math.max(period.startMinutes, startMinutes);
-    const visibleEnd = Math.min(period.endMinutes, endMinutes);
-    return `${(Math.max(0, visibleEnd - visibleStart) / visibleMinutes) * fullPercentage}%`;
-  };
-  const drawnPeriods = toneOrder.flatMap((tone) =>
-    periods.filter((period) => period.tone === tone),
-  );
-  const shownTones = toneOrder.filter((tone) => periods.some((period) => period.tone === tone));
+  const range = { startMinutes, endMinutes };
   return (
     <View className="gap-2">
-      <View
-        accessible
-        accessibilityRole="image"
-        accessibilityLabel={accessibilityLabel}
-        className="h-6 rounded-md bg-muted"
-      >
-        {drawnPeriods.map((period) => (
-          <View
-            key={`${period.tone}-${period.startMinutes}`}
-            testID={`day-timeline-period-${period.tone}`}
-            className={`absolute ${periodClassNames[period.tone]}`}
-            style={{ left: percentageOf(period.startMinutes), width: widthOf(period) }}
-          />
-        ))}
-      </View>
-      <View className="h-4" importantForAccessibility="no-hide-descendants">
-        {hourTicks(startMinutes, endMinutes).map((hour, tickIndex, hours) => {
-          const isFirst = tickIndex === 0;
-          const isLast = tickIndex === hours.length - 1;
-          return (
-            <AppText
-              key={hour}
-              variant="footnote"
-              tone="subtle"
-              className={`absolute ${isLast ? "-translate-x-full" : isFirst ? "" : "-translate-x-1/2"}`}
-              style={{ left: percentageOf(hour * minutesPerHour) }}
-            >
-              {String(hour)}
+      <TimelineBar range={range} periods={periods} accessibilityLabel={accessibilityLabel} />
+      <HourTicks range={range} />
+      <TimelineLegend periods={periods} legendLabels={legendLabels} />
+    </View>
+  );
+}
+
+export function WeekTimeline({ startMinutes, endMinutes, rows, legendLabels }: WeekTimelineProps) {
+  const range = { startMinutes, endMinutes };
+  return (
+    <View className="gap-2">
+      {rows.map((row) => (
+        <View key={row.key} className="gap-1">
+          <View className="flex-row items-center gap-3">
+            <AppText variant="label" className="w-10">
+              {row.label}
             </AppText>
-          );
-        })}
-      </View>
-      <View className="flex-row flex-wrap gap-3">
-        {shownTones.map((tone) => (
-          <View key={tone} className="flex-row items-center gap-1.5">
-            <View className={`h-3 w-3 rounded-sm ${swatchClassNames[tone]}`} />
-            <AppText variant="footnote" tone="muted">
-              {legendLabels[tone]}
-            </AppText>
+            <View className="flex-1">
+              <TimelineBar
+                range={range}
+                periods={row.periods}
+                accessibilityLabel={row.accessibilityLabel}
+              />
+            </View>
           </View>
-        ))}
-      </View>
+          {row.caption ? <View className="pl-[52px]">{row.caption}</View> : null}
+        </View>
+      ))}
+      <HourTicks range={range} className="ml-[52px]" />
+      <TimelineLegend periods={rows.flatMap((row) => row.periods)} legendLabels={legendLabels} />
     </View>
   );
 }
