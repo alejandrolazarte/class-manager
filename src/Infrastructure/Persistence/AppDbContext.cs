@@ -54,6 +54,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<ClassPackImage> ClassPackImages => Set<ClassPackImage>();
     public DbSet<ClassPackPurchase> ClassPackPurchases => Set<ClassPackPurchase>();
     public DbSet<ClassPackClassGroup> ClassPackClassGroups => Set<ClassPackClassGroup>();
+    public DbSet<ClassPackPurchaseClassGroup> ClassPackPurchaseClassGroups => Set<ClassPackPurchaseClassGroup>();
     public DbSet<PrivateLesson> PrivateLessons => Set<PrivateLesson>();
     public DbSet<PrivateLessonStudent> PrivateLessonStudents => Set<PrivateLessonStudent>();
     public DbSet<Product> Products => Set<Product>();

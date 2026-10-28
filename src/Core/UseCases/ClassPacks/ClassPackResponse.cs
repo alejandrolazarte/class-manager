@@ -14,7 +14,8 @@ public sealed record ClassPackResponse(
     bool IsActive,
     int? ClassDurationMinutes,
     IReadOnlyList<long> ClassGroupIds,
-    IReadOnlyList<CatalogImageResponse> Images)
+    IReadOnlyList<CatalogImageResponse> Images,
+    bool CoversAnyGroupClass)
 {
     public static ClassPackResponse From(ClassPack classPack, IDocumentStorageService documentStorage) =>
         new(
@@ -27,5 +28,6 @@ public sealed record ClassPackResponse(
             classPack.IsActive,
             classPack.ClassDurationMinutes,
             classPack.ClassGroupIds,
-            CatalogImageResponse.ListFrom(classPack.ImagesInOrder, documentStorage));
+            CatalogImageResponse.ListFrom(classPack.ImagesInOrder, documentStorage),
+            classPack.CoversAnyGroupClass);
 }

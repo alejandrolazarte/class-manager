@@ -26,13 +26,22 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<IBusinessCurrencyService> BusinessCurrency { get; } = new();
-    public ClassPack Pack { get; } = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!.WithId();
+    public static readonly long ClassGroupId = TestIds.Next();
+
+    public ClassPack Pack { get; } = AnyGroupClassPack();
     public List<ClassPackPurchase> ClientPurchases { get; } = [];
     public List<ClientAttendedClass> ClientAttendedClasses { get; } = [];
     public List<ClientAttendedClass> ClientAttendedPrivateLessons { get; } = [];
     public List<ClientBillingPlanChange> PlanChanges { get; } = [];
     public List<DefaultMonthlyFeeChange> DefaultFeeChanges { get; } = [];
     public List<ClientPaidMonth> PaidMonths { get; } = [];
+
+    private static ClassPack AnyGroupClassPack()
+    {
+        var pack = ClassPack.Create("8 clases", 8, 160m, 2, TestData.Now).Value!.WithId();
+        pack.DefineLessons([], null, coversAnyGroupClass: true);
+        return pack;
+    }
 
     public ClassPackUseCaseBuilder()
     {
@@ -70,7 +79,7 @@ internal sealed class ClassPackUseCaseBuilder
     public void PayFee(long clientId, BillingMonth month) => PaidMonths.Add(new ClientPaidMonth(clientId, month.FirstDay));
 
     public void Attend(long clientId, DateOnly date) =>
-        ClientAttendedClasses.Add(new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, "Natación")));
+        ClientAttendedClasses.Add(new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, "Natación", ClassGroupId: ClassGroupId)));
 
     public void AttendPrivateLesson(long clientId, DateOnly date) =>
         ClientAttendedPrivateLessons.Add(

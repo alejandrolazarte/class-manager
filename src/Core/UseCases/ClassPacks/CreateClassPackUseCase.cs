@@ -13,7 +13,8 @@ public sealed record CreateClassPackCommand(
     int? ValidityMonths,
     int? ClassDurationMinutes = null,
     IReadOnlyList<long>? ClassGroupIds = null,
-    [property: AuditPlain] string? Description = null) : ICommand;
+    [property: AuditPlain] string? Description = null,
+    bool CoversAnyGroupClass = false) : ICommand;
 
 public sealed class CreateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -41,6 +42,7 @@ public sealed class CreateClassPackUseCase(
             classPack.Value,
             command.ClassGroupIds,
             command.ClassDurationMinutes,
+            command.CoversAnyGroupClass,
             nameof(CreateClassPackCommand.ClassGroupIds),
             classGroupRepository,
             cancellationToken);
