@@ -4,6 +4,7 @@ export interface Instructor {
   email: string | null;
   isActive: boolean;
   samePersonClientId?: string | null;
+  photoUrl?: string | null;
 }
 
 export interface SaveInstructorRequest {

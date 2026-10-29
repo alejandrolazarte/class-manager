@@ -26,11 +26,11 @@ The age is the most protective of the two birth dates (the one the team typed an
 
 | Photo of | Seen by | Where |
 |---|---|---|
-| An instructor | The team, and the students of the business | Class attendance (team); the class detail of the student app, as a larger avatar |
+| An instructor | The team, and the students of the business | Class attendance, the instructor list, the instructor picker of group classes and private lessons, and the instructor card (team); the class detail of the student app, as a larger avatar |
 | A student | The team | Class attendance |
 | Anyone | Themselves | Mi perfil |
 
-Students never see other students' photos. Each response that carries a photo URL decides who sees it (`IUserPhotoUrlService.OfStudentsAsync` / `OfInstructorsAsync`), and photos awaiting the guardian are never returned there.
+Students never see other students' photos. Each response that carries a photo URL decides who sees it (`IUserPhotoUrlService.OfStudentsAsync` / `OfInstructorsAsync`, also used by `GET /api/instructors`), and photos awaiting the guardian are never returned there.
 
 ## Only avatar size
 

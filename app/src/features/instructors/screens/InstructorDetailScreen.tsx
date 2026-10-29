@@ -58,7 +58,14 @@ export function InstructorDetailScreen({ instructorId }: InstructorDetailScreenP
               />
             ) : undefined
           }
-          leading={<Avatar name={instructor.fullName} tone="primary" size="large" />}
+          leading={
+            <Avatar
+              name={instructor.fullName}
+              tone="primary"
+              size="large"
+              photoUrl={instructor.photoUrl}
+            />
+          }
           eyebrow={translate("instructors.detail.title")}
           title={instructor.fullName}
           caption={instructor.email ?? undefined}
