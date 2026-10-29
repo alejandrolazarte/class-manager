@@ -175,6 +175,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<RemoveTeamPushSubscriptionCommand, bool, RemoveTeamPushSubscriptionUseCase>();
         services.AddUseCase<GetStudentAppMakeupsQuery, StudentAppMakeupsResponse, GetStudentAppMakeupsUseCase>();
         services.AddUseCase<GetStudentAppClassHistoryQuery, StudentAppClassHistoryResponse, GetStudentAppClassHistoryUseCase>();
+        services.AddUseCase<GetStudentAppClassPacksQuery, StudentAppClassPacksResponse, GetStudentAppClassPacksUseCase>();
         services.AddUseCase<BookMakeupCommand, bool, BookMakeupUseCase>();
         services.AddUseCase<CancelMakeupCommand, bool, CancelMakeupUseCase>();
         services.AddUseCase<GetStudentAppPackClassesQuery, StudentAppPackClassesResponse, GetStudentAppPackClassesUseCase>();

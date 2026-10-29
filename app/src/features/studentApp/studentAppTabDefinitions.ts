@@ -32,5 +32,6 @@ export const studentAppHiddenRouteNames: readonly string[] = [
   "record-measurement",
   "levels",
   "streak",
+  "class-packs",
   "class",
 ];

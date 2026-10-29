@@ -128,12 +128,15 @@ export function StudentAppHomeScreen() {
               </OutlinedBlock>
             )}
             {hasBillingTile(home.billing) ? (
-              <OutlinedBlock className="min-w-0 flex-1 gap-1">
-                <BillingTile
-                  billing={home.billing}
-                  currencyCode={home.currencyCode}
-                  onBuyClasses={() => router.navigate(routes.studentAppShop)}
-                />
+              <OutlinedBlock
+                className="min-w-0 flex-1 gap-1"
+                onPress={
+                  home.billing.monthlyFee !== null || home.billing.classes === null
+                    ? undefined
+                    : () => router.navigate(routes.studentAppClassPacks)
+                }
+              >
+                <BillingTile billing={home.billing} currencyCode={home.currencyCode} />
               </OutlinedBlock>
             ) : null}
           </View>

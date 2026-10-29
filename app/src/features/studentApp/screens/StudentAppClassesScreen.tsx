@@ -180,7 +180,10 @@ export function StudentAppClassesScreen() {
                 key={`${pastClass.date}-${pastClass.startTime}-${pastClass.name}`}
                 index={index}
               >
-                <PastClassRow pastClass={pastClass} />
+                <PastClassRow
+                  pastClass={pastClass}
+                  onOpenUnpaid={() => router.navigate(routes.studentAppClassPacks)}
+                />
               </AnimatedListItem>
             ))}
           </View>
