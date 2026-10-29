@@ -1712,7 +1712,6 @@
   "profile.photo.upload": "Subir foto",
   "profile.photo.change": "Cambiar foto",
   "profile.photo.remove": "Quitar foto",
-  "profile.photo.hint": "Solo se ve como avatar, dentro de este negocio.",
   "profile.photo.needsGuardian": "Tu responsable tiene que aprobarla antes de que se vea.",
   "profile.photo.awaitsGuardian": "Esperando que tu responsable la apruebe.",
   "profile.photo.saved": "Foto guardada.",

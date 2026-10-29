@@ -22,11 +22,11 @@ function photoErrorMessage(photoError: unknown): string {
   return translate(messageKey ?? "common.unexpectedError");
 }
 
-function hintKeyOf(photo: MyPhoto): TranslationKey {
+function hintKeyOf(photo: MyPhoto): TranslationKey | null {
   if (photo.awaitsGuardian) {
     return "profile.photo.awaitsGuardian";
   }
-  return photo.needsGuardian ? "profile.photo.needsGuardian" : "profile.photo.hint";
+  return photo.needsGuardian ? "profile.photo.needsGuardian" : null;
 }
 
 interface MyPhotoActionsProps {
@@ -39,6 +39,7 @@ export function MyPhotoActions({ photo }: MyPhotoActionsProps) {
   const removeMutation = useRemoveMyPhoto();
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [isConfirmingRemoval, setIsConfirmingRemoval] = useState(false);
+  const hintKey = hintKeyOf(photo);
 
   const changePhoto = async () => {
     setPhotoError(null);
@@ -94,13 +95,15 @@ export function MyPhotoActions({ photo }: MyPhotoActionsProps) {
           />
         )}
       </View>
-      <AppText
-        variant="caption"
-        tone={photoError === null ? "subtle" : "danger"}
-        className="text-center"
-      >
-        {photoError ?? translate(hintKeyOf(photo))}
-      </AppText>
+      {photoError === null && hintKey === null ? null : (
+        <AppText
+          variant="caption"
+          tone={photoError === null ? "subtle" : "danger"}
+          className="text-center"
+        >
+          {photoError ?? (hintKey === null ? null : translate(hintKey))}
+        </AppText>
+      )}
       {isConfirmingRemoval ? (
         <ConfirmDialog
           title={translate("profile.photo.removeQuestion")}

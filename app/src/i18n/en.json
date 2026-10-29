@@ -1712,7 +1712,6 @@
   "profile.photo.upload": "Add photo",
   "profile.photo.change": "Change photo",
   "profile.photo.remove": "Remove photo",
-  "profile.photo.hint": "It's only shown as an avatar, inside this business.",
   "profile.photo.needsGuardian": "Your guardian has to approve it before it's shown.",
   "profile.photo.awaitsGuardian": "Waiting for your guardian to approve it.",
   "profile.photo.saved": "Photo saved.",
