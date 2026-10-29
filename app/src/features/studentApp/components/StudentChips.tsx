@@ -7,7 +7,7 @@ import { PressableScale } from "@/ui/motion/PressableScale";
 import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 interface StudentChipsProps {
-  students: readonly Pick<AccountStudent, "id" | "fullName">[];
+  students: readonly (Pick<AccountStudent, "id" | "fullName"> & { photoUrl?: string | null })[];
   selectedStudentId: string;
   onSelect: (studentId: string) => void;
 }
@@ -42,6 +42,7 @@ export function StudentChips({ students, selectedStudentId, onSelect }: StudentC
               name={student.fullName}
               size="tiny"
               tone={isSelected ? "onPrimary" : "primarySoft"}
+              photoUrl={student.photoUrl}
             />
             <AppText variant="bodyStrong" tone={isSelected ? "onPrimary" : "default"}>
               {firstName}

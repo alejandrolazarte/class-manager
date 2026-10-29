@@ -95,6 +95,7 @@ public sealed class GetStudentAppHomeUseCase(
         var classGroups = (await classGroupRepository.ListByIdsAsync(classGroupIds, cancellationToken))
             .ToDictionary(classGroup => classGroup.Id);
 
+        var studentPhotoUrls = await userPhotoUrls.OfStudentsAsync(studentIds, cancellationToken);
         var studentResponses = new List<AccountStudentResponse>();
         foreach (var student in students
             .OrderBy(student => student.CreatedAt)
@@ -195,7 +196,8 @@ public sealed class GetStudentAppHomeUseCase(
                 latestFeedbacks.TryGetValue(student.Id, out var feedback)
                     ? new StudentAppFeedbackResponse(feedback.Date, feedback.ClassGroupName, instructorNames.GetValueOrDefault(feedback.InstructorId), feedback.Text)
                     : null,
-                Materials(studentClassGroups)));
+                Materials(studentClassGroups),
+                studentPhotoUrls.GetValueOrDefault(student.Id)));
         }
 
         var signedInAccounts = await identityService.ListAccountsAsync([access.AccountId], cancellationToken);

@@ -24,6 +24,7 @@ import { routes } from "@/navigation/routes";
 import { useTheme } from "@/theme/useTheme";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
+import { useMyPhoto } from "@/features/userPhotos/useMyPhoto";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 
@@ -31,6 +32,7 @@ export function StudentAppSettingsScreen() {
   const router = useRouter();
   const { signOut } = useSession();
   const { data: home } = useStudentAppHome();
+  const myPhoto = useMyPhoto().data;
   const { data: family } = useStudentAppFamily();
   const { colorSchemePreference } = useTheme();
   const { language } = useLanguage();
@@ -145,7 +147,7 @@ export function StudentAppSettingsScreen() {
     <ScrollScreen header={<ScreenHeader title={translate("settings.title")} />}>
       {home === undefined ? null : (
         <View className="flex-row items-center gap-3 py-1">
-          <Avatar name={home.signedInFullName} />
+          <Avatar name={home.signedInFullName} photoUrl={myPhoto?.url} />
           <View className="min-w-0 flex-1 gap-0.5">
             <AppText variant="heading">{home.signedInFullName}</AppText>
             <AppText variant="caption" tone="muted">

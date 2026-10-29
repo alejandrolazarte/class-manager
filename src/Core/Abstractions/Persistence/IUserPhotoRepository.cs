@@ -11,6 +11,8 @@ public interface IUserPhotoRepository
 
     Task<IReadOnlyList<UserPhoto>> ListAwaitingGuardianAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<OwnedPhoto>> ListVisibleOfUsersAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<OwnedPhoto>> ListVisibleOfStudentsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<OwnedPhoto>> ListVisibleOfInstructorsAsync(IReadOnlyCollection<long> instructorIds, CancellationToken cancellationToken);

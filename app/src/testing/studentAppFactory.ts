@@ -174,6 +174,7 @@ export function buildAccountStudent(overrides: Partial<AccountStudent> = {}): Ac
     attendance: buildStudentAppAttendance(),
     latestFeedback: null,
     materials: [],
+    photoUrl: null,
     ...overrides,
   };
 }
@@ -315,8 +316,15 @@ export function buildStudentAppFamily(overrides: Partial<StudentAppFamily> = {})
         email: "ana@example.com",
         paysForFamily: true,
         isSignedIn: false,
+        photoUrl: null,
       },
-      { fullName: "Tomás Pérez", email: null, paysForFamily: false, isSignedIn: true },
+      {
+        fullName: "Tomás Pérez",
+        email: null,
+        paysForFamily: false,
+        isSignedIn: true,
+        photoUrl: null,
+      },
     ],
     ...overrides,
   };
