@@ -1,5 +1,7 @@
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Tokens;
+using ClassManager.Subscriptions.Billing;
+using ClassManager.Subscriptions.Stripe.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -16,6 +18,7 @@ public sealed class BusinessApiFactory(
 {
     public const string TestSigningKey = "integration-tests-signing-key-with-more-than-32-bytes";
     public const int TestAuthenticationPermitLimit = 10_000;
+    public const string TestStripeWebhookSecret = "whsec_integration-tests";
 
     private const string ConnectionStringsSection = "ConnectionStrings";
 
@@ -28,6 +31,8 @@ public sealed class BusinessApiFactory(
     public RecordingEmailTransport EmailTransport { get; } = new();
 
     internal RecordingWebPushSender PushSender { get; } = new();
+
+    public FakeBillingGateway BillingGateway { get; } = new();
 
     public BusinessApiFactory(string databaseConnectionString)
         : this(databaseConnectionString, new FakeTimeProvider(Now))
@@ -46,6 +51,7 @@ public sealed class BusinessApiFactory(
         builder.UseSetting(
             $"{AuthenticationRateLimitOptions.SectionName}:{nameof(AuthenticationRateLimitOptions.PermitLimit)}",
             TestAuthenticationPermitLimit.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        builder.UseSetting($"{StripeBillingOptions.SectionName}:{nameof(StripeBillingOptions.WebhookSecret)}", TestStripeWebhookSecret);
         foreach (var (settingName, settingValue) in extraSettings ?? new Dictionary<string, string>())
         {
             builder.UseSetting(settingName, settingValue);
@@ -56,6 +62,7 @@ public sealed class BusinessApiFactory(
             services.Replace(ServiceDescriptor.Singleton(timeProvider));
             services.Replace(ServiceDescriptor.Singleton<IEmailTransport>(EmailTransport));
             services.Replace(ServiceDescriptor.Singleton<IWebPushSender>(PushSender));
+            services.Replace(ServiceDescriptor.Singleton<IBillingGateway>(BillingGateway));
         });
     }
 }

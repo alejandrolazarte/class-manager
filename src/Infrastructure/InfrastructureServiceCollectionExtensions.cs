@@ -23,6 +23,7 @@ using ClassManager.Security.Tokens;
 using ClassManager.Storage.AzureBlob.Hosting;
 using ClassManager.Subscriptions.AspNetCore.Hosting;
 using ClassManager.Subscriptions.AspNetCore.Limits;
+using ClassManager.Subscriptions.Stripe.Hosting;
 using ClassManager.Tenancy.AspNetCore.Hosting;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.Extensions.Configuration;
@@ -62,6 +63,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddSubscriptions<AppDbContext, OrganizationSubscriberResolver>(SubscriptionLimits.Configure);
+        services.AddStripeBilling();
         services.AddScoped<IOrganizationMemberRepository, OrganizationMemberRepository>();
         services.AddScoped<IAccountLinkRepository, AccountLinkRepository>();
         services.AddScoped<IBusinessRepository, BusinessRepository>();

@@ -23,6 +23,7 @@
 
   <ItemGroup Label="Subscriptions">
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
+    <PackageVersion Include="Stripe.net"                               Version="53.0.0" />
   </ItemGroup>
 
   <ItemGroup Label="Storage">

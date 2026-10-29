@@ -18,6 +18,7 @@
     <ProjectReference Include="../Security/Security.csproj" />
     <ProjectReference Include="../Storage.AzureBlob/Storage.AzureBlob.csproj" />
     <ProjectReference Include="../Subscriptions.AspNetCore/Subscriptions.AspNetCore.csproj" />
+    <ProjectReference Include="../Subscriptions.Stripe/Subscriptions.Stripe.csproj" />
     <ProjectReference Include="../Tenancy.AspNetCore/Tenancy.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>

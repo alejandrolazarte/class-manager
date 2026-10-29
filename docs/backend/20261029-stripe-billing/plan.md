@@ -1,6 +1,6 @@
 # Backend plan — Paying the plan with Stripe (Europe)
 
-Status: proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
+Status: steps 2 and 3 built (model, sync and the Stripe webhook), the rest is a proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
 
 ## Goal
 
@@ -81,9 +81,9 @@ The [records convention](../../../CLAUDE.md#records-that-change-over-time) alrea
 
 | Table (`billing` schema) | Change |
 |---|---|
-| `BillingCustomers` (new) | `SubscriberId` (PK, the organization) → `ExternalCustomerId` (Stripe `cus_…`). Created on the first checkout, reused for every later one and for the portal, so a brand has one Stripe customer |
+| `BillingCustomers` (new, step 4) | `SubscriberId` (PK, the organization) → `ExternalCustomerId` (Stripe `cus_…`). Created on the first checkout, reused for every later one and for the portal, so a brand has one Stripe customer |
 | `Subscriptions` | `ExternalSubscriptionId` (nullable, `sub_…`, filtered unique index on current rows), `PaymentStatus` (nullable: `Current`, `PastDue`; null for rows set by hand) |
-| `ProcessedBillingEvents` (new) | `EventId` (PK), `ProcessedAt`. Physical rows with no business meaning; kept 90 days |
+| `ProcessedBillingEvents` (new) | `EventId` (PK), `ProcessedAt`. Physical rows with no business meaning; a cleanup of rows older than 90 days comes later, they are a few per brand and month |
 
 None of these are tenant-owned, like the rest of the `billing` schema.
 
@@ -93,9 +93,9 @@ Same split as the rest of the subscriptions work ([library or part of Core](../2
 
 | Project | What |
 |---|---|
-| `src/Subscriptions` | The port `IBillingGateway` (create checkout, create portal session, get subscription) and the provider-neutral records it returns (`ExternalSubscription`: id, customer, lookup key, unit amount, status, period end, cancel at period end). The rules that turn an `ExternalSubscription` into row changes (`ExternalSubscriptionSync`), unit tested without Stripe |
-| `src/Subscriptions.Stripe` (new, ARCH rule like ARCH007: may only reference `Subscriptions`) | `StripeBillingGateway` with the official `Stripe.net` package; webhook signature check (`EventUtility.ConstructEvent`); `AddStripeBilling()` with options `Stripe:SecretKey`, `Stripe:WebhookSecret` |
-| `src/Subscriptions.AspNetCore` | Model of the new tables and columns; `MapBillingWebhook()` (anonymous, `.AllowInactiveSubscription()`) that verifies, deduplicates and calls the sync |
+| `src/Subscriptions` | The port `IBillingGateway` (get subscription now; create checkout and portal session in step 4) and the provider-neutral records (`ExternalSubscription`: id, subscriber from the metadata `subscriber_id`, price lookup key, unit amount, currency, status, last day before cancelling, day it ended; `BillingEvent`: event id and subscription id). `PlanPriceLookupKey` builds and reads `{plan}-monthly-{currency}`. The rules that turn an `ExternalSubscription` into row changes (`ExternalSubscriptionSync`), unit tested without Stripe |
+| `src/Subscriptions.Stripe` (new; ARCH007 already covers it, so it can't use the app) | `StripeBillingGateway` with the official `Stripe.net` package; `MapStripeBillingWebhook(pattern)`, which checks the signature (`EventUtility.ConstructEvent`, without failing on another API version, since only ids are read and the subscription is fetched again) and hands the event to `IBillingWebhookProcessor`; `AddStripeBilling()` with options `Stripe:SecretKey`, `Stripe:WebhookSecret`. Without `SecretKey` the gateway is a placeholder that fails when used, so development and CI run without Stripe |
+| `src/Subscriptions.AspNetCore` | Model of the new tables and columns; `IBillingWebhookProcessor`, which deduplicates by event id, reads the subscription through `IBillingGateway`, applies the sync and saves in one `SaveChanges` |
 | App (`Core`, `Api`) | `StartPlanCheckoutUseCase` and `OpenBillingPortalUseCase` (commands, `subscription.manage`), the brand's country check, the customer's email and language, the return URLs |
 
 Argentina later is a second implementation of `IBillingGateway` (Mercado Pago `preapproval`) chosen by the brand's country; the sync and the rows don't change.
@@ -139,8 +139,8 @@ All new texts go in `es.json` and `en.json`; the screens use the existing `src/u
 ## Steps
 
 1. **Stripe account and runbook** (owner, by hand, test mode first): account, tax registration, products and prices with lookup keys, portal, webhook. The runbook in `docs/`.
-2. **Model and sync:** new tables and columns with their migration, `IBillingGateway`, `ExternalSubscriptionSync` with its unit tests.
-3. **Stripe and webhook:** `Subscriptions.Stripe`, `POST /api/billing/stripe/webhooks` with signature check and idempotency; integration tests with signed fake events.
+2. ✅ **Model and sync:** new tables and columns with their migration, `IBillingGateway`, `ExternalSubscriptionSync` with its unit tests.
+3. ✅ **Stripe and webhook:** `Subscriptions.Stripe`, `POST /api/billing/stripe/webhooks` with signature check and idempotency; integration tests with signed fake events and a fake gateway. The webhook endpoint in Stripe listens to `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid` and `invoice.payment_failed`; any other event is recorded and ignored.
 4. **Checkout and portal:** the `self-service-billing` feature (add-on at 0, in no plan), `subscription.manage`, the two endpoints, the country check, `GET /api/organization/subscription` additions.
 5. **App:** Ajustes → Plan on the web, return page, past-due notice, native apps message; screenshots before and after for the owner.
 6. **Backoffice:** Stripe status and dashboard link on the brand, **Cambiar plan** refused for paying brands.
