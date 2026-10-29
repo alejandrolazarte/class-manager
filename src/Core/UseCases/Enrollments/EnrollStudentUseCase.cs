@@ -29,7 +29,6 @@ public sealed class EnrollStudentUseCase(
     IAccessScopes accessScopes,
     IClientRepository clientRepository,
     IClassBalanceService classBalanceService,
-    IClassPackRepository classPackRepository,
     IFeeScheduleRepository feeScheduleRepository)
     : IUseCase<EnrollStudentCommand, EnrollmentResponse>
 {
@@ -122,16 +121,7 @@ public sealed class EnrollStudentUseCase(
             .Where(usage => usage.Status == ClassPackPurchaseStatus.Active)
             .Select(usage => usage.Purchase)
             .ToList();
-        foreach (var purchase in activePurchases)
-        {
-            if (await classPackRepository.GetByIdAsync(purchase.ClassPackId, cancellationToken) is { } classPack
-                && classPack.CoversClassGroup(classGroupId))
-            {
-                return false;
-            }
-        }
-
-        return activePurchases.Count > 0;
+        return activePurchases.Count > 0 && !activePurchases.Any(purchase => purchase.CoversGroupClass(classGroupId));
     }
 
     private async Task<Result<EnrollmentResponse>> ContinueAsync(long leavingEnrollmentId, CancellationToken cancellationToken)

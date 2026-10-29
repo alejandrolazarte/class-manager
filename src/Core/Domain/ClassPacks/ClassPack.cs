@@ -157,7 +157,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         }
     }
 
-    public bool CoversClassGroup(long classGroupId) => _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId);
+    private bool CoversClassGroup(long classGroupId) => _classGroups.Any(classGroup => classGroup.ClassGroupId == classGroupId);
 
     public void AddImage(Document document) => _images.Add(ClassPackImage.Create(Id, document, _images.Count));
 

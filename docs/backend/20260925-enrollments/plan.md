@@ -100,7 +100,7 @@ PUT /api/enrollments/{enrollmentId}/end
 | E5 | An enrollment already ended can't be ended again | `409 enrollment.already_ended` |
 | E6 | A class group with current enrollments can't be deactivated | `409 class_group.has_enrollments` with `enrollmentCount` |
 | E7 | Lowering capacity below the current enrollments is rejected | `400` on `capacity` |
-| E8 | A student whose client pays per class this month and has active class packs, none of which covers the class group, is enrolled only when the request confirms it with `allowOutsidePack: true` (the app asks first). The attendance still uses a class from the pack | `409 enrollment.outside_pack` |
+| E8 | A student whose client pays per class this month and has active class packs, none of which covers the class group, is enrolled only when the request confirms it with `allowOutsidePack: true` (the app asks first). Its classes stay unpaid until a pack that covers them is sold ([class pack coverage](../20261028-class-pack-coverage/plan.md)); a pack for any group class covers every class group | `409 enrollment.outside_pack` |
 
 "Current" means not ended before today in the business's time zone: `EndDate is null or EndDate >= today`.
 

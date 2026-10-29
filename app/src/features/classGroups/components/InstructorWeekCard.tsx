@@ -61,9 +61,9 @@ function timelinePeriods(day: InstructorWeekday): DayTimelinePeriod[] {
 function dayAccessibilityLabel(day: InstructorWeekday): string {
   const weekday = weekdayLongLabel(day.weekday);
   if (day.busyPeriods.length === 0) {
-    return translate("classGroups.week.timelineFreeDay", { day: weekday });
+    return translate("classGroups.instructorWeek.timelineFreeDay", { day: weekday });
   }
-  return translate("classGroups.week.timelineLabel", {
+  return translate("classGroups.instructorWeek.timelineLabel", {
     day: weekday,
     classes: day.busyPeriods
       .map((busyPeriod) =>
@@ -86,7 +86,7 @@ function DayStatus({ day }: { day: InstructorWeekday }) {
       <View accessibilityRole="text" className="flex-row items-center gap-1.5">
         <Icon name="warning" size="small" tone="danger" />
         <AppText variant="caption" tone="danger" className="flex-1">
-          {translate("classGroups.week.conflict", {
+          {translate("classGroups.instructorWeek.conflict", {
             name: busyName(lesson.conflict),
             busyStart: formatMinutesOfDay(lesson.conflict.startMinutes),
             busyEnd: formatMinutesOfDay(lesson.conflict.endMinutes),
@@ -99,7 +99,7 @@ function DayStatus({ day }: { day: InstructorWeekday }) {
     <View accessibilityRole="text" className="flex-row items-center gap-1.5">
       <Icon name="fieldValid" size="small" tone="primary" />
       <AppText variant="caption" tone="primary" className="flex-1">
-        {translate("classGroups.week.fits", {
+        {translate("classGroups.instructorWeek.fits", {
           start: formatMinutesOfDay(lesson.startMinutes),
           end: formatMinutesOfDay(lesson.endMinutes),
         })}
@@ -119,7 +119,7 @@ function WeekStatus({
   if (!instructorWeek.isClassPlanned) {
     return (
       <AppText variant="caption" tone="subtle">
-        {translate("classGroups.week.pickStartTime")}
+        {translate("classGroups.instructorWeek.pickStartTime")}
       </AppText>
     );
   }
@@ -129,8 +129,8 @@ function WeekStatus({
         tone="warning"
         message={
           dayCount === singleDayCount
-            ? translate("classGroups.week.conflictOnTheDay", { name: instructorName })
-            : translate("classGroups.week.conflictSummary", {
+            ? translate("classGroups.instructorWeek.conflictOnTheDay", { name: instructorName })
+            : translate("classGroups.instructorWeek.conflictSummary", {
                 count: instructorWeek.clashingDayCount,
                 total: dayCount,
               })
@@ -143,8 +143,8 @@ function WeekStatus({
       <Icon name="fieldValid" size="small" tone="primary" />
       <AppText variant="link" tone="primary" className="flex-1">
         {dayCount === singleDayCount
-          ? translate("classGroups.week.fitsTheDay")
-          : translate("classGroups.week.fitsEveryDay", { count: dayCount })}
+          ? translate("classGroups.instructorWeek.fitsTheDay")
+          : translate("classGroups.instructorWeek.fitsEveryDay", { count: dayCount })}
       </AppText>
     </View>
   );
@@ -168,7 +168,7 @@ function FreeTimes({
       <AppText variant="label" tone="muted">
         {isSingleDay
           ? translate("privateLessons.agenda.freeFor", { minutes: durationMinutes })
-          : translate("classGroups.week.freeOnEveryDay", {
+          : translate("classGroups.instructorWeek.freeOnEveryDay", {
               days: dayNames,
               minutes: durationMinutes,
             })}
@@ -177,7 +177,9 @@ function FreeTimes({
         <AppText variant="caption" tone="subtle">
           {isSingleDay
             ? translate("privateLessons.agenda.noGaps", { minutes: durationMinutes })
-            : translate("classGroups.week.noGapsOnEveryDay", { minutes: durationMinutes })}
+            : translate("classGroups.instructorWeek.noGapsOnEveryDay", {
+                minutes: durationMinutes,
+              })}
         </AppText>
       ) : (
         <>
@@ -220,7 +222,7 @@ export function InstructorWeekCard({
     return (
       <OutlinedBlock className="bg-surface">
         <AppText variant="caption" tone="muted">
-          {translate("classGroups.week.pickWeekdays", { name: instructorName })}
+          {translate("classGroups.instructorWeek.pickWeekdays", { name: instructorName })}
         </AppText>
       </OutlinedBlock>
     );
@@ -236,7 +238,7 @@ export function InstructorWeekCard({
         <AppText variant="caption" tone="muted">
           {dayCount === singleDayCount
             ? translate("privateLessons.agenda.freeDay", { name: instructorName })
-            : translate("classGroups.week.freeDays", { name: instructorName })}
+            : translate("classGroups.instructorWeek.freeDays", { name: instructorName })}
         </AppText>
       </OutlinedBlock>
     );
@@ -253,12 +255,12 @@ export function InstructorWeekCard({
     <OutlinedBlock className="gap-3 bg-surface">
       <View className="flex-row items-start justify-between gap-2">
         <AppText variant="bodyStrong" className="flex-1">
-          {translate("classGroups.week.title", { name: instructorName, days: dayNames })}
+          {translate("classGroups.instructorWeek.title", { name: instructorName, days: dayNames })}
         </AppText>
         <StatusPill
           tone="neutral"
           isSmall
-          label={translateCount("classGroups.week.dayCount", dayCount)}
+          label={translateCount("classGroups.instructorWeek.dayCount", dayCount)}
         />
       </View>
       <WeekTimeline
@@ -268,8 +270,8 @@ export function InstructorWeekCard({
         legendLabels={{
           busy: translate("privateLessons.agenda.busy"),
           free: translate("privateLessons.agenda.free"),
-          chosen: translate("classGroups.week.thisClass"),
-          conflict: translate("classGroups.week.thisClass"),
+          chosen: translate("classGroups.instructorWeek.thisClass"),
+          conflict: translate("classGroups.instructorWeek.thisClass"),
         }}
       />
       <WeekStatus instructorWeek={instructorWeek} instructorName={instructorName} />

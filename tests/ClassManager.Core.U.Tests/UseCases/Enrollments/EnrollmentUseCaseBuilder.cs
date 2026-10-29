@@ -19,7 +19,6 @@ internal sealed class EnrollmentUseCaseBuilder
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IClassBalanceService> ClassBalances { get; } = new();
-    public Mock<IClassPackRepository> ClassPacks { get; } = new();
     public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
     public List<ClientBillingPlanChange> PlanChanges { get; } = [];
     public List<ClassPackUsage> ClientPackUsages { get; } = [];
@@ -46,11 +45,10 @@ internal sealed class EnrollmentUseCaseBuilder
         PlanChanges.Add(ClientBillingPlanChange.Create(
             Student.ClientId, BillingMonth.From(TestData.Today), BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId());
 
-    public void BuyActivePack(IReadOnlyCollection<long> classGroupIds)
+    public void BuyActivePack(IReadOnlyCollection<long> classGroupIds, bool coversAnyGroupClass = false)
     {
         var pack = ClassPack.Create("8 clases", 8, 160m, null, TestData.Now).Value!.WithId();
-        pack.DefineLessons(classGroupIds, classGroupIds.Count == 0 ? 45 : null);
-        ClassPacks.Setup(repository => repository.GetByIdAsync(pack.Id, It.IsAny<CancellationToken>())).ReturnsAsync(pack);
+        pack.DefineLessons(classGroupIds, classGroupIds.Count == 0 && !coversAnyGroupClass ? 45 : null, coversAnyGroupClass);
         var purchase = ClassPackPurchase.Sell(
             Student.ClientId, pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!.WithId();
         ClientPackUsages.Add(new ClassPackUsage(purchase, 0, ClassPackPurchaseStatus.Active));
@@ -69,7 +67,6 @@ internal sealed class EnrollmentUseCaseBuilder
             new EveryAccessScopes(),
             Clients.Object,
             ClassBalances.Object,
-            ClassPacks.Object,
             FeeSchedule.Object);
 
     public EndEnrollmentUseCase BuildEnd() =>
