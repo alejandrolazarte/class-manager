@@ -281,5 +281,5 @@ Step 6 replaces the lock notices (`LockedFeatureNotice`, a banner on top of an o
 
 ## Later, not in the MVP
 
-- Online billing (Mercado Pago / Stripe subscriptions): webhooks set `ExpiredOn` or replace the subscription, and a `Status` column (`PastDue`, grace period) arrives with them; until then `IsDeleted` and `ExpiredOn` say whether a subscription is active.
+- Online billing: Stripe for Europe is planned in the [Stripe billing plan](../20261029-stripe-billing/plan.md) (webhooks replace the subscription or set `ExpiredOn`, and `PaymentStatus` marks a failed payment); Mercado Pago for Argentina comes after it.
 - Yearly billing (`BillingPeriod = Yearly`), coupons, and a platform admin screen.
