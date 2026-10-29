@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
+import { View } from "react-native";
 import { ClassMaterialList } from "@/features/studentApp/components/ClassMaterialList";
 import { ScheduledClassRow } from "@/features/studentApp/components/ScheduledClassRow";
 import { useSelectedStudent } from "@/features/studentApp/AccountStudentProvider";
@@ -7,6 +8,8 @@ import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { todayIsoDate } from "@/dates/dates";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
 import { translate } from "@/i18n/translate";
+import { AppText } from "@/ui/AppText";
+import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { ScrollScreen } from "@/ui/Screen";
@@ -80,6 +83,21 @@ export function StudentAppClassScreen() {
           isToday={date === today}
         />
       )}
+      {scheduledClass?.instructorFullName ? (
+        <View className="flex-row items-center gap-3.5">
+          <Avatar
+            name={scheduledClass.instructorFullName}
+            photoUrl={scheduledClass.instructorPhotoUrl}
+            size="extraLarge"
+          />
+          <View className="min-w-0 flex-1 gap-0.5">
+            <AppText variant="caption" tone="subtle">
+              {translate("student.class.instructor")}
+            </AppText>
+            <AppText variant="bodyStrong">{scheduledClass.instructorFullName}</AppText>
+          </View>
+        </View>
+      ) : null}
       {material === null ? null : <ClassMaterialList material={material} />}
     </ScrollScreen>
   );

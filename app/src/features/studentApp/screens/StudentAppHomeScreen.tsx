@@ -6,6 +6,7 @@ import { useCurrentBrand } from "@/features/brand/BrandProvider";
 import { BillingTile, hasBillingTile } from "@/features/studentApp/components/BillingTile";
 import { FeedbackNote } from "@/features/studentApp/components/FeedbackNote";
 import { GuardianConsentCard } from "@/features/studentApp/components/GuardianConsentCard";
+import { PhotoApprovalCards } from "@/features/userPhotos/components/PhotoApprovalCards";
 import { NewsBell } from "@/features/studentApp/components/NewsBell";
 import { NewsRow } from "@/features/studentApp/components/NewsRow";
 import { PinnedNews } from "@/features/studentApp/components/PinnedNews";
@@ -98,6 +99,7 @@ export function StudentAppHomeScreen() {
       {home.pendingGuardianConsents.map((consent) => (
         <GuardianConsentCard key={consent.invitationId} consent={consent} />
       ))}
+      <PhotoApprovalCards />
       {student === null ? (
         <AppText variant="body" tone="muted">
           {translate("student.students.empty")}

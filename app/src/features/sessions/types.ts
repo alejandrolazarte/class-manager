@@ -34,6 +34,7 @@ export interface SessionStudent {
   isMakeup: boolean;
   isPackBooking: boolean;
   classBalance: SessionClassBalance | null;
+  photoUrl: string | null;
 }
 
 export interface SessionClassBalance {
@@ -57,6 +58,7 @@ export interface SessionDetails {
   canReschedule: boolean;
   isPast: boolean;
   students: SessionStudent[];
+  instructorPhotoUrl: string | null;
 }
 
 export interface CalendarDay {

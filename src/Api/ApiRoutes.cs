@@ -102,6 +102,8 @@ public static class ApiRoutes
     public const string StudentAppFamily = "/family";
     public const string StudentAppOrders = "/orders";
     public const string StudentAppGuardianConsent = "/guardian-consents/{invitationId:long}";
+    public const string StudentAppPhotoApprovals = "/photo-approvals";
+    public const string PhotoApprovalById = "/{photoId:long}";
     public const string Authorization = "/authorization";
     public const string Refusal = "/refusal";
     public const string PaymentsSegment = "/payments";
@@ -138,6 +140,7 @@ public static class ApiRoutes
     public const string MyBranches = "/api/me/branches";
     public const string MyAccounts = "/api/me/accounts";
     public const string MyAccount = "/api/me/account";
+    public const string MyPhoto = "/api/me/photo";
     public const string MyEmailChange = "/api/me/account/email-change";
     public const string MyAccountDeletion = "/api/me/account/deletion";
     public const string MyAppFeedback = "/api/me/app-feedback";

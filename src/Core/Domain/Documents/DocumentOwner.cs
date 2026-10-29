@@ -6,4 +6,5 @@ public enum DocumentOwner
     ClassPack,
     ClassGroup,
     Announcement,
+    User,
 }

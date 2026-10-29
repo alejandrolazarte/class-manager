@@ -24,7 +24,7 @@ At pilot scale both are almost free. For example, 500 photos of 300 KB are about
 
 | Type | Purpose |
 |---|---|
-| `Files/IFileStorage` | `SaveAsync(FileToStore)`, `DeleteAsync(path, visibility)` (returns `false` when the file is already gone) and `PublicUrlOf(path)` |
+| `Files/IFileStorage` | `SaveAsync(FileToStore)`, `DeleteAsync(path, visibility)` (returns `false` when the file is already gone), `PublicUrlOf(path)` and `PrivateReadUrlOf(path, expiresAt)` (a read-only signed link to a private file) |
 | `Files/FileToStore` | Path, content, content type and visibility of a file to save |
 | `Files/FileVisibility` | `Public` (anyone with the URL can read it) or `Private` (only the API can read it) |
 | `Files/FilePath` | `Combine(segments)` joins path segments with `/` and rejects empty, `.`, `..` and segments containing a slash |
@@ -56,7 +56,7 @@ erDiagram
 
 - **One table for every file, link tables per owner.** `Documents` describes files; `ProductImages` and `ClassPackImages` link them with real foreign keys and a `Position`. A generic `OwnerType` + `OwnerId` column would have no foreign key, so the database could not stop orphaned or wrong links. A new kind of owner (a class photo, a student certificate) is one more link table.
 - **The path is stored, not the URL.** URLs are built when answering (`PublicUrlOf`). Moving to a CDN or another provider changes configuration, not data, and private documents can get signed links later without a migration.
-- **Visibility.** Shop photos are `Public`. `Private` exists so private documents (medical certificates, IDs) can use the same table and storage later: they go to the private container, and serving them needs short-lived signed links (SAS), which are not built yet. `PublicUrlOf` refuses private documents.
+- **Visibility.** Shop photos are `Public`. `Private` documents go to the private container and are served with short-lived signed links (SAS, `IDocumentStorageService.PrivateUrlOf`); [profile photos](profile-photos.md) are the first. `PublicUrlOf` refuses private documents and `PrivateUrlOf` public ones. A SAS is signed with the account key of the connection string; moving to managed identity would sign with a user delegation key instead.
 - **Paths** are `<tenantId>/<products|class-packs>/<ownerId>/<fileName>.<extension>`, where the file name is a random GUID and not the document id: ids are sequential, and a public URL must not be guessable by counting. Each upload gets a new name, so the long cache header is safe.
 - **How many photos.** A fixed rule, not a plan limit: up to 5 per product (`Product.MaximumImages`) and 1 per class pack (`ClassPack.MaximumImages`). It needs no column or table, and a pack that already had more photos keeps them.
 - **How much space.** The plan limit is the total size of the business's files, the `document-storage` feature, in MB (see [Document storage limit](#document-storage-limit)).
@@ -99,7 +99,7 @@ An announcement can carry one photo (`AnnouncementImages`, the same link table s
 
 ## Document storage limit
 
-Every file a business uploads (product, pack and announcement photos, class PDFs) counts against the `document-storage` feature of its plan. The brand logo doesn't: it lives in the database.
+Every file a business uploads (product, pack and announcement photos, class PDFs, profile photos) counts against the `document-storage` feature of its plan. The brand logo doesn't: it lives in the database.
 
 | `Free` | `Lite` | `Pro` | `Enterprise` | Add-on |
 |---|---|---|---|---|

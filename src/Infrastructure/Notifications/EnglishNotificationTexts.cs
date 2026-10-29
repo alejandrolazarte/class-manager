@@ -17,6 +17,8 @@ internal sealed class EnglishNotificationTexts : INotificationTexts
 
     public string GuardianConsentBody => "Open the app to authorize their access or not.";
 
+    public string PhotoApprovalBody => "Open the app to approve it or not.";
+
     public string StudentAppInvitationDeclinedBody => "If it was a mistake, you can invite them again from their profile.";
 
     public string GuardianConsentRefusedBody => "Their guardian didn't give authorization. Their classes are still visible from the guardian's account.";
@@ -26,6 +28,8 @@ internal sealed class EnglishNotificationTexts : INotificationTexts
     public string AnnouncementReminderTitle(string announcementTitle) => $"Reminder: {announcementTitle}";
 
     public string GuardianConsentTitle(string studentFullName) => $"{PersonNames.FirstNameOf(studentFullName)} wants to use the app";
+
+    public string PhotoApprovalTitle(string studentFullName) => $"{PersonNames.FirstNameOf(studentFullName)} wants to add a profile photo";
 
     public string ClassCancelledTitle(string classGroupName) => $"{classGroupName} is cancelled";
 

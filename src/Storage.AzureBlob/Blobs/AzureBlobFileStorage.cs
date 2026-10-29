@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using ClassManager.Storage.Files;
 
 namespace ClassManager.Storage.AzureBlob.Blobs;
@@ -30,6 +31,9 @@ internal sealed class AzureBlobFileStorage(BlobContainer publicContainer, BlobCo
     }
 
     public Uri PublicUrlOf(string path) => publicContainer.Client.GetBlobClient(path).Uri;
+
+    public Uri PrivateReadUrlOf(string path, DateTimeOffset expiresAt) =>
+        privateContainer.Client.GetBlobClient(path).GenerateSasUri(BlobSasPermissions.Read, expiresAt);
 
     public void Dispose()
     {

@@ -19,9 +19,10 @@ import { TextLink } from "@/ui/TextLink";
 
 type AttendanceRowStudent = Omit<
   SessionStudent,
-  "feedback" | "absenceNotified" | "isMakeup" | "isPackBooking" | "classBalance"
+  "feedback" | "absenceNotified" | "isMakeup" | "isPackBooking" | "classBalance" | "photoUrl"
 > & {
   feedback?: string | null;
+  photoUrl?: string | null;
   absenceNotified?: boolean;
   isMakeup?: boolean;
   isPackBooking?: boolean;
@@ -211,6 +212,7 @@ export function AttendanceRow({
             name={student.studentFullName}
             tone={avatarTones[status ?? "Unmarked"]}
             size="small"
+            photoUrl={student.photoUrl}
           />
           <View className="min-w-0 flex-1 gap-0.5">
             <AppText variant="bodyStrong">{student.studentFullName}</AppText>

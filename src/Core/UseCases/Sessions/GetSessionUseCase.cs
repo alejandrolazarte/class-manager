@@ -2,6 +2,7 @@ using System.Globalization;
 using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
@@ -29,7 +30,8 @@ public sealed record SessionStudentResponse(
     bool AbsenceNotified,
     bool IsMakeup,
     bool IsPackBooking = false,
-    SessionClassBalanceResponse? ClassBalance = null);
+    SessionClassBalanceResponse? ClassBalance = null,
+    string? PhotoUrl = null);
 
 public sealed record SessionDetailsResponse(
     long ClassGroupId,
@@ -46,7 +48,8 @@ public sealed record SessionDetailsResponse(
     bool CanTakeAttendance,
     bool CanReschedule,
     bool IsPast,
-    IReadOnlyList<SessionStudentResponse> Students);
+    IReadOnlyList<SessionStudentResponse> Students,
+    string? InstructorPhotoUrl = null);
 
 public sealed class GetSessionUseCase(
     IClassGroupRepository classGroupRepository,
@@ -61,7 +64,8 @@ public sealed class GetSessionUseCase(
     IFeeScheduleRepository feeScheduleRepository,
     IClassBalanceService classBalanceService,
     IBusinessCalendarService businessCalendar,
-    IAccessScopes accessScopes)
+    IAccessScopes accessScopes,
+    IUserPhotoUrlService userPhotoUrls)
     : IUseCase<GetSessionQuery, SessionDetailsResponse>
 {
     public async Task<Result<SessionDetailsResponse>> ExecuteAsync(GetSessionQuery command, CancellationToken cancellationToken)
@@ -115,6 +119,14 @@ public sealed class GetSessionUseCase(
             [.. packStudents.Select(student => student.ClientId)],
             command.Date,
             cancellationToken);
+        var studentPhotoUrls = await userPhotoUrls.OfStudentsAsync(
+            [
+                .. roster.Select(entry => entry.StudentId),
+                .. makeupStudents.Select(student => student.StudentId),
+                .. packStudents.Select(student => student.StudentId),
+            ],
+            cancellationToken);
+        var instructorPhotoUrls = await userPhotoUrls.OfInstructorsAsync([instructor?.Id], cancellationToken);
         var isCancelled = session?.IsCancelled ?? false;
         var usualStartTime = classGroup.Value!.StartTime;
         var startTime = session?.EffectiveStartTime(usualStartTime) ?? usualStartTime;
@@ -144,7 +156,8 @@ public sealed class GetSessionUseCase(
                     feedbacks.GetValueOrDefault(entry.StudentId),
                     notifiedStudentIds.Contains(entry.StudentId),
                     IsMakeup: false,
-                    ClassBalance: classBalances.GetValueOrDefault(entry.ClientId))),
+                    ClassBalance: classBalances.GetValueOrDefault(entry.ClientId),
+                    PhotoUrl: studentPhotoUrls.GetValueOrDefault(entry.StudentId))),
                 .. makeupStudents.Select(student => new SessionStudentResponse(
                     student.StudentId,
                     student.StudentFullName,
@@ -154,7 +167,8 @@ public sealed class GetSessionUseCase(
                     feedbacks.GetValueOrDefault(student.StudentId),
                     AbsenceNotified: false,
                     IsMakeup: true,
-                    ClassBalance: classBalances.GetValueOrDefault(student.ClientId))),
+                    ClassBalance: classBalances.GetValueOrDefault(student.ClientId),
+                    PhotoUrl: studentPhotoUrls.GetValueOrDefault(student.StudentId))),
                 .. packStudents.Select(student => new SessionStudentResponse(
                     student.StudentId,
                     student.StudentFullName,
@@ -165,8 +179,10 @@ public sealed class GetSessionUseCase(
                     AbsenceNotified: false,
                     IsMakeup: false,
                     IsPackBooking: true,
-                    ClassBalance: classBalances.GetValueOrDefault(student.ClientId))),
-            ]);
+                    ClassBalance: classBalances.GetValueOrDefault(student.ClientId),
+                    PhotoUrl: studentPhotoUrls.GetValueOrDefault(student.StudentId))),
+            ],
+            instructor is null ? null : instructorPhotoUrls.GetValueOrDefault(instructor.Id));
     }
 
     private async Task<IReadOnlyDictionary<long, SessionClassBalanceResponse>> ClassBalancesOfPayingPerClassAsync(

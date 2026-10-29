@@ -12,5 +12,7 @@ internal sealed class UnconfiguredFileStorage : IFileStorage
 
     public Uri PublicUrlOf(string path) => throw NotConfigured();
 
+    public Uri PrivateReadUrlOf(string path, DateTimeOffset expiresAt) => throw NotConfigured();
+
     private static InvalidOperationException NotConfigured() => new(MissingConnectionStringMessage);
 }

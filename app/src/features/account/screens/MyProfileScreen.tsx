@@ -5,6 +5,8 @@ import { useMyAccount } from "@/features/account/useMyAccount";
 import { useMyPasskeys } from "@/features/passkeys/useMyPasskeys";
 import { usePasskeySupport } from "@/features/passkeys/usePasskeySupport";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
+import { MyPhotoActions } from "@/features/userPhotos/components/MyPhotoActions";
+import { useMyPhoto } from "@/features/userPhotos/useMyPhoto";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
@@ -35,6 +37,7 @@ export function MyProfileScreen({
   const passkeyCount = useMyPasskeys(isPasskeySupported).data?.length ?? 0;
   const accountQuery = useMyAccount();
   const account = accountQuery.data;
+  const photo = useMyPhoto().data;
 
   return (
     <ScrollScreen
@@ -74,10 +77,11 @@ export function MyProfileScreen({
       {account ? (
         <>
           <View className="items-center gap-2 py-2">
-            <Avatar name={account.fullName} size="large" />
+            <Avatar name={account.fullName} size="large" photoUrl={photo?.url} />
             <AppText variant="heading" className="text-center">
               {account.fullName}
             </AppText>
+            {photo === undefined ? null : <MyPhotoActions photo={photo} />}
           </View>
           <View className="gap-0.5">
             <SectionTitle title={translate("profile.personalData")} isOverline />

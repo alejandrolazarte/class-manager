@@ -69,6 +69,7 @@ app.MapSubscriptionEndpoints();
 app.MapCountryEndpoints();
 app.MapClientEndpoints();
 app.MapStudentAppEndpoints();
+app.MapUserPhotoEndpoints();
 app.MapTeamNotificationEndpoints();
 app.MapAnnouncementEndpoints();
 app.MapMeasurementEndpoints();

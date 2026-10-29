@@ -8,6 +8,8 @@ internal interface INotificationTexts
 
     string GuardianConsentBody { get; }
 
+    string PhotoApprovalBody { get; }
+
     string StudentAppInvitationDeclinedBody { get; }
 
     string GuardianConsentRefusedBody { get; }
@@ -17,6 +19,8 @@ internal interface INotificationTexts
     string AnnouncementReminderTitle(string announcementTitle);
 
     string GuardianConsentTitle(string studentFullName);
+
+    string PhotoApprovalTitle(string studentFullName);
 
     string ClassCancelledTitle(string classGroupName);
 

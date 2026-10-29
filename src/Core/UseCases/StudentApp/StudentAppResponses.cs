@@ -17,7 +17,8 @@ public sealed record StudentAppNextClassResponse(
     long? ClassGroupId,
     bool AbsenceNotified,
     bool IsMakeup,
-    bool IsPackBooking = false);
+    bool IsPackBooking = false,
+    string? InstructorPhotoUrl = null);
 
 public sealed record StudentAppAttendanceResponse(
     int StreakWeeks,

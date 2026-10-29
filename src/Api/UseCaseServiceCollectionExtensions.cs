@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Accounts;
@@ -32,6 +33,7 @@ using ClassManager.Core.UseCases.StudentApp;
 using ClassManager.Core.UseCases.Students;
 using ClassManager.Core.UseCases.Subscriptions;
 using ClassManager.Core.UseCases.TeamNotifications;
+using ClassManager.Core.UseCases.UserPhotos;
 using ClassManager.Core.UseCases.Users;
 using ClassManager.ImportExport.Parsing;
 using ClassManager.ImportExport.Tabular;
@@ -50,6 +52,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IStudentAppFamilyService, StudentAppFamilyService>();
         services.AddScoped<IBusinessCurrencyService, BusinessCurrencyService>();
         services.AddScoped<ICatalogImageService, CatalogImageService>();
+        services.AddScoped<IUserPhotoUrlService, UserPhotoUrlService>();
         services.AddScoped<IAnnouncementResponseService, AnnouncementResponseService>();
         services.AddScoped<IAccessScopes, AccessScopes>();
         services.AddScoped<ISignInSessionService, SignInSessionService>();
@@ -63,6 +66,12 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCaseBehaviors();
 
         services.AddUseCase<RequestSignUpCommand, RequestSignUpResponse, RequestSignUpUseCase>();
+        services.AddUseCase<GetMyPhotoQuery, MyPhotoResponse, GetMyPhotoUseCase>();
+        services.AddUseCase<ChangeMyPhotoCommand, MyPhotoResponse, ChangeMyPhotoUseCase>();
+        services.AddUseCase<RemoveMyPhotoCommand, PhotoDecisionResponse, RemoveMyPhotoUseCase>();
+        services.AddUseCase<ListPhotoApprovalsQuery, IReadOnlyList<PhotoApprovalResponse>, ListPhotoApprovalsUseCase>();
+        services.AddUseCase<ApprovePhotoCommand, PhotoDecisionResponse, ApprovePhotoUseCase>();
+        services.AddUseCase<RefusePhotoCommand, PhotoDecisionResponse, RefusePhotoUseCase>();
         services.AddUseCase<CompleteSignUpCommand, TokenResponse, CompleteSignUpUseCase>();
         services.AddUseCase<GetImportSchemaQuery, ImportSchemaResponse, GetImportSchemaUseCase>();
         services.AddUseCase<PreviewImportCommand, ImportReport, PreviewImportUseCase>();

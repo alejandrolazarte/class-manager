@@ -25,6 +25,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Instructor> Instructors => Set<Instructor>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserPhoto> UserPhotos => Set<UserPhoto>();
     public DbSet<ClassGroup> ClassGroups => Set<ClassGroup>();
     public DbSet<ClassGroupMaterialFile> ClassGroupMaterialFiles => Set<ClassGroupMaterialFile>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
