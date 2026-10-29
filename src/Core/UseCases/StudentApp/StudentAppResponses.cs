@@ -41,7 +41,8 @@ public sealed record AccountStudentResponse(
     IReadOnlyList<StudentAppNextClassResponse> NextClasses,
     StudentAppAttendanceResponse Attendance,
     StudentAppFeedbackResponse? LatestFeedback,
-    IReadOnlyList<StudentAppClassMaterialResponse> Materials);
+    IReadOnlyList<StudentAppClassMaterialResponse> Materials,
+    string? PhotoUrl = null);
 
 public sealed record StudentAppMonthlyFeeResponse(string Month, decimal? Fee, decimal Paid, decimal Balance, FeeStatus Status);
 

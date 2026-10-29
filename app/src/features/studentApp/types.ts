@@ -131,6 +131,7 @@ export interface AccountStudent {
   attendance: StudentAppAttendance;
   latestFeedback: StudentAppFeedback | null;
   materials: StudentAppClassMaterial[];
+  photoUrl: string | null;
 }
 
 export interface StudentAppMonthlyFee {
@@ -262,6 +263,7 @@ export interface StudentAppFamilyMember {
   email: string | null;
   paysForFamily: boolean;
   isSignedIn: boolean;
+  photoUrl: string | null;
 }
 
 export interface StudentAppFamily {

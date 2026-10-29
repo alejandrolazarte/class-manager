@@ -17,6 +17,13 @@ internal sealed class UserPhotoRepository(AppDbContext context) : IUserPhotoRepo
             .OrderBy(photo => photo.Id)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<OwnedPhoto>> ListVisibleOfUsersAsync(IReadOnlyCollection<long> userIds, CancellationToken cancellationToken) =>
+        await VisiblePhotos()
+            .AsNoTracking()
+            .Where(photo => userIds.Contains(photo.UserId))
+            .Select(photo => new OwnedPhoto(photo.UserId, photo.Document))
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<OwnedPhoto>> ListVisibleOfStudentsAsync(IReadOnlyCollection<long> studentIds, CancellationToken cancellationToken) =>
         await context.Students
             .AsNoTracking()

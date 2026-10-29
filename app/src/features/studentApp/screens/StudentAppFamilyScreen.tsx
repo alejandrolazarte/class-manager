@@ -24,7 +24,7 @@ function FamilyMemberRow({
     : member.fullName;
   return (
     <HairlineRow accessibilityLabel={fullName} hasDivider={hasDivider}>
-      <Avatar name={member.fullName} size="small" />
+      <Avatar name={member.fullName} size="small" photoUrl={member.photoUrl} />
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong" numberOfLines={1}>
           {fullName}
