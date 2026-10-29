@@ -1,6 +1,9 @@
 import {
   StudentAppAttendance,
   StudentAppClassHistory,
+  StudentAppClassPacks,
+  StudentAppPackClass,
+  StudentAppPackPurchase,
   StudentAppPastClass,
   StudentAppHome,
   StudentAppMakeups,
@@ -61,6 +64,7 @@ export function buildStudentAppPastClass(
     isMakeup: false,
     isPackBooking: false,
     paidWithPack: null,
+    isUnpaid: false,
     ...overrides,
   };
 }
@@ -71,6 +75,49 @@ export function buildStudentAppClassHistory(
   return {
     month: "2026-09",
     classes: [buildStudentAppPastClass()],
+    ...overrides,
+  };
+}
+
+export function buildStudentAppPackClass(
+  overrides: Partial<StudentAppPackClass> = {},
+): StudentAppPackClass {
+  return {
+    date: "2026-09-22",
+    className: "Natación inicial",
+    studentId: "0192f0c5-0000-7000-8000-000000000001",
+    isPrivateLesson: false,
+    ...overrides,
+  };
+}
+
+export function buildStudentAppPackPurchase(
+  overrides: Partial<StudentAppPackPurchase> = {},
+): StudentAppPackPurchase {
+  return {
+    id: "purchase-1",
+    name: "Pack 8 clases",
+    classCount: 8,
+    purchasedOn: "2026-09-01",
+    expiresOn: "2026-10-31",
+    usedClasses: 0,
+    remainingClasses: 8,
+    status: "Active",
+    coversAnyGroupClass: false,
+    isForPrivateLessons: false,
+    classGroupNames: ["Natación inicial"],
+    classes: [],
+    ...overrides,
+  };
+}
+
+export function buildStudentAppClassPacks(
+  overrides: Partial<StudentAppClassPacks> = {},
+): StudentAppClassPacks {
+  return {
+    availableClasses: 8,
+    unpaidClasses: [],
+    purchases: [buildStudentAppPackPurchase()],
     ...overrides,
   };
 }

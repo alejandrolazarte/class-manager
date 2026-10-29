@@ -35,7 +35,8 @@ public sealed record StudentAppPastClassResponse(
     PastClassStatus Status,
     bool IsMakeup,
     bool IsPackBooking,
-    StudentAppPaidWithPackResponse? PaidWithPack);
+    StudentAppPaidWithPackResponse? PaidWithPack,
+    bool IsUnpaid);
 
 public sealed record StudentAppPaidWithPackResponse(string Name, DateOnly PurchasedOn)
 {
@@ -119,6 +120,20 @@ public sealed class GetStudentAppClassHistoryUseCase(
             .ToDictionary(paidClasses => paidClasses.Key, paidClasses => new Queue<ClassPackPurchase>(paidClasses.Select(paidClass => paidClass.Purchase)));
         ClassPackPurchase? PackPurchaseOf(long? classGroupId, DateOnly date) =>
             packPurchases.TryGetValue((classGroupId, date), out var purchases) && purchases.Count > 0 ? purchases.Dequeue() : null;
+        var unpaidClasses = balance.UnpaidAttendances
+            .Where(attendedClass => attendedClass.StudentId == command.StudentId)
+            .GroupBy(attendedClass => (attendedClass.ClassGroupId, attendedClass.Date))
+            .ToDictionary(attendedClasses => attendedClasses.Key, attendedClasses => attendedClasses.Count());
+        bool IsUnpaid(long? classGroupId, DateOnly date)
+        {
+            if (!unpaidClasses.TryGetValue((classGroupId, date), out var remainingClasses) || remainingClasses == 0)
+            {
+                return false;
+            }
+
+            unpaidClasses[(classGroupId, date)] = remainingClasses - 1;
+            return true;
+        }
 
         var pastClasses = new List<StudentAppPastClassResponse>();
         var listedClasses = new HashSet<(long ClassGroupId, DateOnly Date)>();
@@ -134,7 +149,9 @@ public sealed class GetStudentAppClassHistoryUseCase(
                 session?.IsCancelled ?? false,
                 attendances.TryGetValue((classGroupId, date), out var attendance) ? attendance : null,
                 notices.Contains((classGroupId, date)));
-            pastClasses.Add(GroupClass(classGroup, session, date, instructorNames, status, isMakeup, isPackBooking, PackPurchaseOf(classGroupId, date)));
+            var packPurchase = PackPurchaseOf(classGroupId, date);
+            pastClasses.Add(GroupClass(
+                classGroup, session, date, instructorNames, status, isMakeup, isPackBooking, packPurchase, packPurchase is null && IsUnpaid(classGroupId, date)));
         }
 
         foreach (var enrollment in enrollments)
@@ -166,7 +183,8 @@ public sealed class GetStudentAppClassHistoryUseCase(
             var lessonStudent = lesson.Students.FirstOrDefault(lessonStudent => lessonStudent.StudentId == command.StudentId);
             if (lessonStudent is not null)
             {
-                pastClasses.Add(PrivateLesson(lesson, lessonStudent, instructorNames, PackPurchaseOf(null, lesson.Date)));
+                var packPurchase = PackPurchaseOf(null, lesson.Date);
+                pastClasses.Add(PrivateLesson(lesson, lessonStudent, instructorNames, packPurchase, packPurchase is null && IsUnpaid(null, lesson.Date)));
             }
         }
 
@@ -207,7 +225,8 @@ public sealed class GetStudentAppClassHistoryUseCase(
         PastClassStatus status,
         bool isMakeup,
         bool isPackBooking,
-        ClassPackPurchase? packPurchase)
+        ClassPackPurchase? packPurchase,
+        bool isUnpaid)
     {
         var startTime = session?.EffectiveStartTime(classGroup.StartTime) ?? classGroup.StartTime;
         var instructorId = session?.EffectiveInstructorId(classGroup.InstructorId) ?? classGroup.InstructorId;
@@ -223,14 +242,16 @@ public sealed class GetStudentAppClassHistoryUseCase(
             status,
             isMakeup,
             isPackBooking,
-            StudentAppPaidWithPackResponse.From(packPurchase));
+            StudentAppPaidWithPackResponse.From(packPurchase),
+            isUnpaid);
     }
 
     private static StudentAppPastClassResponse PrivateLesson(
         PrivateLesson lesson,
         PrivateLessonStudent lessonStudent,
         IReadOnlyDictionary<long, string> instructorNames,
-        ClassPackPurchase? packPurchase) =>
+        ClassPackPurchase? packPurchase,
+        bool isUnpaid) =>
         new(
             lesson.IsTrial ? GetStudentAppHomeUseCase.TrialName : GetStudentAppHomeUseCase.PrivateLessonName,
             lesson.Date,
@@ -243,7 +264,8 @@ public sealed class GetStudentAppClassHistoryUseCase(
             StatusOf(lesson.IsCancelled, lessonStudent.Status, absenceNotified: false),
             IsMakeup: false,
             IsPackBooking: false,
-            StudentAppPaidWithPackResponse.From(packPurchase));
+            StudentAppPaidWithPackResponse.From(packPurchase),
+            isUnpaid);
 
     private static string Format(TimeOnly time) => time.ToString(ClassSchedule.TimeFormat, CultureInfo.InvariantCulture);
 }

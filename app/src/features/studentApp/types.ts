@@ -32,6 +32,7 @@ export interface StudentAppPastClass {
   isMakeup: boolean;
   isPackBooking: boolean;
   paidWithPack: StudentAppPaidWithPack | null;
+  isUnpaid: boolean;
 }
 
 export interface StudentAppPaidWithPack {
@@ -142,6 +143,36 @@ export interface StudentAppMonthlyFee {
 export interface StudentAppClassBalance {
   availableClasses: number;
   unpaidClasses: number;
+}
+
+export interface StudentAppPackClass {
+  date: string;
+  className: string;
+  studentId: string | null;
+  isPrivateLesson: boolean;
+}
+
+export type StudentAppPackPurchaseStatus = "Active" | "UsedUp" | "Expired";
+
+export interface StudentAppPackPurchase {
+  id: string;
+  name: string;
+  classCount: number;
+  purchasedOn: string;
+  expiresOn: string | null;
+  usedClasses: number;
+  remainingClasses: number;
+  status: StudentAppPackPurchaseStatus;
+  coversAnyGroupClass: boolean;
+  isForPrivateLessons: boolean;
+  classGroupNames: string[];
+  classes: StudentAppPackClass[];
+}
+
+export interface StudentAppClassPacks {
+  availableClasses: number;
+  unpaidClasses: StudentAppPackClass[];
+  purchases: StudentAppPackPurchase[];
 }
 
 export interface StudentAppBilling {

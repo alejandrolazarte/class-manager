@@ -4,21 +4,20 @@ import { formatMoney } from "@/formatting/money";
 import { StudentAppBilling } from "@/features/studentApp/types";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { Icon } from "@/ui/Icon";
 import { ProgressBar } from "@/ui/ProgressBar";
 import { StatusText } from "@/ui/StatusText";
-import { TextLink } from "@/ui/TextLink";
 
 interface BillingTileProps {
   billing: StudentAppBilling;
   currencyCode: string;
-  onBuyClasses: () => void;
 }
 
 export function hasBillingTile(billing: StudentAppBilling): boolean {
   return billing.monthlyFee !== null || billing.classes !== null;
 }
 
-export function BillingTile({ billing, currencyCode, onBuyClasses }: BillingTileProps) {
+export function BillingTile({ billing, currencyCode }: BillingTileProps) {
   if (billing.monthlyFee !== null) {
     const { monthlyFee } = billing;
     const paidRatio =
@@ -48,9 +47,12 @@ export function BillingTile({ billing, currencyCode, onBuyClasses }: BillingTile
     const { classes } = billing;
     return (
       <>
-        <AppText variant="badge" tone="muted">
-          {translate("student.classes.title")}
-        </AppText>
+        <View className="flex-row items-center justify-between gap-2">
+          <AppText variant="badge" tone="muted" className="min-w-0 flex-1">
+            {translate("student.classes.title")}
+          </AppText>
+          <Icon name="next" size="small" tone="subtle-foreground" />
+        </View>
         <AppText variant="headline">
           {translateCount("student.classes.available", classes.availableClasses)}
         </AppText>
@@ -59,11 +61,6 @@ export function BillingTile({ billing, currencyCode, onBuyClasses }: BillingTile
             {translateCount("student.classes.unpaid", classes.unpaidClasses)}
           </AppText>
         ) : null}
-        <TextLink
-          label={translate("student.classes.buyMore")}
-          trailingIcon="next"
-          onPress={onBuyClasses}
-        />
       </>
     );
   }

@@ -20,6 +20,7 @@ public static class ApiRoutes
     public const string ClassHistory = "/class-history";
     public const string StudentClassHistory = "/students/{studentId:long}/class-history";
     public const string PackClasses = "/pack-classes";
+    public const string StudentAppClassPacks = "/class-packs";
     public const string StudentPackClasses = "/students/{studentId:long}/pack-classes";
     public const string StudentPackClass = "/students/{studentId:long}/pack-classes/{classGroupId:long}/{sessionDate}";
     public const string Seen = "/seen";

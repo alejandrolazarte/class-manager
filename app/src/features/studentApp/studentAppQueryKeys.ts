@@ -4,6 +4,7 @@ export const studentAppQueryKeys = {
   shop: () => [...studentAppQueryKeys.all, "shop"] as const,
   orders: () => [...studentAppQueryKeys.all, "orders"] as const,
   news: () => [...studentAppQueryKeys.all, "news"] as const,
+  classPacks: () => [...studentAppQueryKeys.all, "class-packs"] as const,
   pushKey: () => [...studentAppQueryKeys.all, "push-key"] as const,
   pushSubscription: () => [...studentAppQueryKeys.all, "push-subscription"] as const,
   makeups: (studentId: string) => [...studentAppQueryKeys.all, "makeups", studentId] as const,

@@ -141,6 +141,7 @@ export const routes = {
   studentAppOrders: "/student-app/orders",
   studentAppLevels: "/student-app/levels",
   studentAppStreak: "/student-app/streak",
+  studentAppClassPacks: "/student-app/class-packs",
   studentAppMeasurement: (studentId: string, measurementId: string) =>
     `/student-app/measurement?studentId=${encodeURIComponent(studentId)}&measurementId=${encodeURIComponent(measurementId)}`,
   studentAppRecordMeasurement: (studentId: string) =>

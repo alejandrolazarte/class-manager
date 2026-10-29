@@ -2,6 +2,7 @@ import { httpClient } from "@/api/httpClient";
 import { BrowserPushSubscription } from "@/features/studentApp/push/browserPush";
 import {
   StudentAppClassHistory,
+  StudentAppClassPacks,
   StudentAppHome,
   StudentAppInvitation,
   StudentAppMakeups,
@@ -25,9 +26,14 @@ const newsPath = `${studentAppPath}/news`;
 const announcementsSegment = "announcements";
 const replySegment = "reply";
 const seenSegment = "seen";
+const classPacksPath = `${studentAppPath}/class-packs`;
 
 export function getStudentAppHome(): Promise<StudentAppHome> {
   return httpClient.get<StudentAppHome>(studentAppPath);
+}
+
+export function getStudentAppClassPacks(): Promise<StudentAppClassPacks> {
+  return httpClient.get<StudentAppClassPacks>(classPacksPath);
 }
 
 export function inviteStudentApp(
