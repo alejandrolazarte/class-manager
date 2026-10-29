@@ -20,7 +20,8 @@ public sealed record ClassGroupResponse(
     string? MaterialUrl,
     ClassMaterialFileResponse? MaterialFile,
     bool IsActive,
-    int EnrolledCount)
+    int EnrolledCount,
+    string? InstructorPhotoUrl = null)
 {
     public static ClassGroupResponse From(
         ClassGroup classGroup, string instructorFullName, int enrolledCount, IDocumentStorageService documentStorage)

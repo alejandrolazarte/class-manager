@@ -26,10 +26,10 @@ The age is the most protective of the two birth dates (the one the team typed an
 
 | Photo of | Seen by | Where |
 |---|---|---|
-| An instructor | The team, and the students of the business | Class attendance, the instructor list, the instructor picker of group classes and private lessons, and the instructor card (team); the class detail of the student app, as a larger avatar |
+| An instructor | The team, and the students of the business | The class detail where students are enrolled, class attendance, the instructor list, the instructor picker of group classes and private lessons, and the instructor card (team); the class detail of the student app, as a larger avatar |
 | A student | The team | Class attendance |
 | Anyone of a family (the client who pays and every student of that client) | Every account of the same family | Tu familia, the student buttons of the app home, and Ajustes |
-| Anyone | Themselves | Mi perfil |
+| Anyone | Themselves | Mi perfil, and the avatar right of the bell in the Inicio header (team and student), which opens Mi perfil |
 
 Students never see the photos of students of other families. Each response that carries a photo URL decides who sees it (`IUserPhotoUrlService.OfStudentsAsync` / `OfInstructorsAsync`, also used by `GET /api/instructors`), and photos awaiting the guardian are never returned there.
 

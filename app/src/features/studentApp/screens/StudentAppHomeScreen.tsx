@@ -7,6 +7,7 @@ import { BillingTile, hasBillingTile } from "@/features/studentApp/components/Bi
 import { FeedbackNote } from "@/features/studentApp/components/FeedbackNote";
 import { GuardianConsentCard } from "@/features/studentApp/components/GuardianConsentCard";
 import { PhotoApprovalCards } from "@/features/userPhotos/components/PhotoApprovalCards";
+import { MyAvatarButton } from "@/features/userPhotos/components/MyAvatarButton";
 import { NewsBell } from "@/features/studentApp/components/NewsBell";
 import { NewsRow } from "@/features/studentApp/components/NewsRow";
 import { PinnedNews } from "@/features/studentApp/components/PinnedNews";
@@ -86,12 +87,15 @@ export function StudentAppHomeScreen() {
           eyebrow={brandName ?? home.businessName}
           title={translate("student.greeting", { name: firstNameOf(home.signedInFullName) })}
           accessory={
-            news === undefined ? undefined : (
-              <NewsBell
-                unreadCount={news.unreadCount}
-                onPress={() => router.navigate(routes.studentAppNews)}
-              />
-            )
+            <View className="flex-row items-center gap-1">
+              {news === undefined ? null : (
+                <NewsBell
+                  unreadCount={news.unreadCount}
+                  onPress={() => router.navigate(routes.studentAppNews)}
+                />
+              )}
+              <MyAvatarButton profileRoute={routes.studentAppProfile} />
+            </View>
           }
         />
       }

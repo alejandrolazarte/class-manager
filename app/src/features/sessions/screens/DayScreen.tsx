@@ -31,6 +31,7 @@ import { useMonthCalendar } from "@/features/sessions/useMonthCalendar";
 import { TeamNotificationBell } from "@/features/teamNotifications/components/TeamNotificationBell";
 import { translate, translateCount } from "@/i18n/translate";
 import { routes } from "@/navigation/routes";
+import { MyAvatarButton } from "@/features/userPhotos/components/MyAvatarButton";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -196,7 +197,12 @@ export function DayScreen({ initialDate }: DayScreenProps) {
                 ? translate("home.greeting", { name: firstNameOf(member.fullName) })
                 : translate("home.title")
             }
-            accessory={<TeamNotificationBell />}
+            accessory={
+              <View className="flex-row items-center gap-1">
+                <TeamNotificationBell />
+                <MyAvatarButton profileRoute={routes.todayMyProfile} />
+              </View>
+            }
           />
           <View className="gap-3 px-5">
             <SubscriptionNotice />

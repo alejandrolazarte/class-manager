@@ -18,6 +18,8 @@ import { Button } from "@/ui/Button";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { useToast } from "@/ui/ToastProvider";
 import { AppText } from "@/ui/AppText";
+import { OutlinedBlock } from "@/ui/OutlinedBlock";
+import { Avatar } from "@/ui/Avatar";
 import { ProgressBar } from "@/ui/ProgressBar";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
@@ -61,7 +63,6 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
   const isFull = enrolledCount >= classGroup.capacity;
   const details = [
     `${summarizeSchedule(classGroup.weekdays, classGroup.startTime)}–${classGroup.endTime}`,
-    classGroup.instructorFullName,
     classGroup.location,
   ].filter((detail): detail is string => Boolean(detail));
 
@@ -105,6 +106,19 @@ export function ClassGroupDetailScreen({ classGroupId }: ClassGroupDetailScreenP
         />
       }
     >
+      <OutlinedBlock className="flex-row items-center gap-3">
+        <Avatar
+          name={classGroup.instructorFullName}
+          size="medium"
+          photoUrl={classGroup.instructorPhotoUrl}
+        />
+        <View className="min-w-0 flex-1 gap-0.5">
+          <AppText variant="caption" tone="subtle">
+            {translate("enrollments.detail.instructor")}
+          </AppText>
+          <AppText variant="bodyStrong">{classGroup.instructorFullName}</AppText>
+        </View>
+      </OutlinedBlock>
       <View className="mt-1 gap-2">
         <View className="flex-row items-baseline justify-between">
           <AppText variant="headline" tone="primary">

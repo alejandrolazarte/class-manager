@@ -15,7 +15,8 @@ public sealed class ListClassGroupsUseCase(
     IEnrollmentRepository enrollmentRepository,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes,
-    IDocumentStorageService documentStorage)
+    IDocumentStorageService documentStorage,
+    IUserPhotoUrlService userPhotoUrls)
     : IUseCase<ListClassGroupsQuery, IReadOnlyList<ClassGroupResponse>>
 {
     public async Task<Result<IReadOnlyList<ClassGroupResponse>>> ExecuteAsync(ListClassGroupsQuery command, CancellationToken cancellationToken)
@@ -25,8 +26,9 @@ public sealed class ListClassGroupsUseCase(
             ? await classGroupRepository.ListAllAsync(cancellationToken)
             : await classGroupRepository.ListActiveAsync(cancellationToken))
             .Where(classGroup => scope.Includes(classGroup.InstructorId));
-        var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
+        var instructors = await instructorRepository.ListAllAsync(cancellationToken);
+        var instructorNames = instructors.ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
+        var instructorPhotoUrls = await userPhotoUrls.OfInstructorsAsync(instructors.Select(instructor => (long?)instructor.Id), cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var enrolledCounts = await enrollmentRepository.CountCurrentByClassGroupAsync(today, cancellationToken);
 
@@ -39,7 +41,10 @@ public sealed class ListClassGroupsUseCase(
                     classGroup,
                     instructorNames.GetValueOrDefault(classGroup.InstructorId, string.Empty),
                     enrolledCounts.GetValueOrDefault(classGroup.Id),
-                    documentStorage)),
+                    documentStorage) with
+                {
+                    InstructorPhotoUrl = instructorPhotoUrls.GetValueOrDefault(classGroup.InstructorId),
+                }),
         ]);
     }
 }
