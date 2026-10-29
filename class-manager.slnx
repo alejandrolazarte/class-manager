@@ -15,6 +15,7 @@
     <Project Path="src/Storage.AzureBlob/Storage.AzureBlob.csproj" />
     <Project Path="src/Storage/Storage.csproj" />
     <Project Path="src/Subscriptions.AspNetCore/Subscriptions.AspNetCore.csproj" />
+    <Project Path="src/Subscriptions.Stripe/Subscriptions.Stripe.csproj" />
     <Project Path="src/Subscriptions/Subscriptions.csproj" />
     <Project Path="src/Tenancy.AspNetCore/Tenancy.AspNetCore.csproj" />
     <Project Path="src/Tenancy/Tenancy.csproj" />

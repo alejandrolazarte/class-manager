@@ -1,5 +1,6 @@
 using ClassManager.Subscriptions.Access;
 using ClassManager.Subscriptions.AspNetCore.Access;
+using ClassManager.Subscriptions.AspNetCore.Billing;
 using ClassManager.Subscriptions.AspNetCore.Limits;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ public static class SubscriptionsServiceCollectionExtensions
         services.AddScoped<ISubscriptionsDbContext>(serviceProvider => serviceProvider.GetRequiredService<TDbContext>());
         services.AddScoped<ISubscriberResolver, TSubscriberResolver>();
         services.AddScoped<IFeatureAccess, FeatureAccess>();
+        services.AddScoped<IBillingWebhookProcessor, BillingWebhookProcessor<TDbContext>>();
 
         return services;
     }
