@@ -1,6 +1,7 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Subscriptions;
+using ClassManager.Subscriptions.Stripe.Webhooks;
 
 namespace ClassManager.Api.Endpoints;
 
@@ -11,6 +12,7 @@ internal static class SubscriptionEndpoints
         endpoints.MapGet(ApiRoutes.Plans, ListPlansAsync).AllowAnonymous();
         endpoints.MapGet(ApiRoutes.OrganizationSubscription, GetOrganizationSubscriptionAsync)
             .RequirePermission(Permissions.Brand.ViewSubscription);
+        endpoints.MapStripeBillingWebhook(ApiRoutes.StripeBillingWebhook);
 
         return endpoints;
     }

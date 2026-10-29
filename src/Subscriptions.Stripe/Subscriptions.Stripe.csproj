@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ClassManager.Subscriptions.Stripe</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Stripe.net" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Subscriptions/Subscriptions.csproj" />
+    <ProjectReference Include="../Subscriptions.AspNetCore/Subscriptions.AspNetCore.csproj" />
+  </ItemGroup>
+</Project>

@@ -3462,6 +3462,20 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("BackgroundTasks");
                 });
 
+            modelBuilder.Entity("ClassManager.Subscriptions.Billing.ProcessedBillingEvent", b =>
+                {
+                    b.Property<string>("EventId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTimeOffset>("ProcessedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("ProcessedBillingEvents", "billing");
+                });
+
             modelBuilder.Entity("ClassManager.Subscriptions.Catalog.Feature", b =>
                 {
                     b.Property<string>("Code")
@@ -3866,12 +3880,20 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly?>("ExpiredOn")
                         .HasColumnType("date");
 
+                    b.Property<string>("ExternalSubscriptionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("PlanCode")
                         .IsRequired()
@@ -3888,6 +3910,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("ExternalSubscriptionId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0 AND [ExternalSubscriptionId] IS NOT NULL");
 
                     b.HasIndex("PlanCode");
 

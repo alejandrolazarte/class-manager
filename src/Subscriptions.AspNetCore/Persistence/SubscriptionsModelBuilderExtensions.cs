@@ -1,3 +1,4 @@
+using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +13,12 @@ public static class SubscriptionsModelBuilderExtensions
     public const string PlanFeaturesTable = "PlanFeatures";
     public const string SubscriptionsTable = "Subscriptions";
     public const string SubscriptionFeaturesTable = "SubscriptionFeatures";
+    public const string ProcessedBillingEventsTable = "ProcessedBillingEvents";
 
     private const string NotDeletedFilter = "[IsDeleted] = 0";
+    private const string CurrentExternalSubscriptionFilter = "[IsDeleted] = 0 AND [ExternalSubscriptionId] IS NOT NULL";
     private const int BillingPeriodMaxLength = 20;
+    private const int PaymentStatusMaxLength = 20;
 
     public static ModelBuilder ApplySubscriptionsModel(this ModelBuilder modelBuilder, string schema = DefaultSchema)
     {
@@ -58,7 +62,10 @@ public static class SubscriptionsModelBuilderExtensions
             subscription.Property(entity => entity.Currency).HasMaxLength(CatalogRules.CurrencyLength).IsFixedLength().IsRequired();
             subscription.Property(entity => entity.Note).HasMaxLength(CatalogRules.NoteMaxLength);
             subscription.HasOne<Plan>().WithMany().HasForeignKey(entity => entity.PlanCode).OnDelete(DeleteBehavior.Restrict);
+            subscription.Property(entity => entity.ExternalSubscriptionId).HasMaxLength(Subscription.ExternalSubscriptionIdMaxLength);
+            subscription.Property(entity => entity.PaymentStatus).HasConversion<string>().HasMaxLength(PaymentStatusMaxLength);
             subscription.HasIndex(entity => entity.SubscriberId).IsUnique().HasFilter(NotDeletedFilter);
+            subscription.HasIndex(entity => entity.ExternalSubscriptionId).IsUnique().HasFilter(CurrentExternalSubscriptionFilter);
         });
 
         modelBuilder.Entity<SubscriptionFeature>(subscriptionFeature =>
@@ -71,6 +78,13 @@ public static class SubscriptionsModelBuilderExtensions
             subscriptionFeature.HasOne<Subscription>().WithMany().HasForeignKey(entity => entity.SubscriptionId).OnDelete(DeleteBehavior.Cascade);
             subscriptionFeature.HasOne<Feature>().WithMany().HasForeignKey(entity => entity.FeatureCode).OnDelete(DeleteBehavior.Restrict);
             subscriptionFeature.HasIndex(entity => new { entity.SubscriptionId, entity.FeatureCode }).IsUnique().HasFilter(NotDeletedFilter);
+        });
+
+        modelBuilder.Entity<ProcessedBillingEvent>(processedEvent =>
+        {
+            processedEvent.ToTable(ProcessedBillingEventsTable, schema);
+            processedEvent.HasKey(entity => entity.EventId);
+            processedEvent.Property(entity => entity.EventId).HasMaxLength(ProcessedBillingEvent.EventIdMaxLength);
         });
 
         return modelBuilder;

@@ -1,6 +1,7 @@
 using ClassManager.Core.Domain.Accounts;
 using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
+using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
@@ -71,6 +72,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<PlanFeature> PlanFeatures => Set<PlanFeature>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionFeature> SubscriptionFeatures => Set<SubscriptionFeature>();
+    public DbSet<ProcessedBillingEvent> ProcessedBillingEvents => Set<ProcessedBillingEvent>();
 
     public long CurrentTenantId => tenantContext.TenantId;
 
