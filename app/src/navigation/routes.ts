@@ -77,6 +77,7 @@ export const routes = {
   myProfile: "/settings/profile",
   appFeedback: "/settings/feedback",
   studentAppProfile: "/student-app/profile",
+  studentAppFamily: "/student-app/family",
   studentAppEditProfile: "/student-app/edit-profile",
   studentAppFeedback: "/student-app/feedback",
   editMyProfile: "/settings/edit-profile",

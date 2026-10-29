@@ -256,6 +256,17 @@ export interface DeliveryClass {
   studentFullName: string;
 }
 
+export interface StudentAppFamilyMember {
+  fullName: string;
+  email: string | null;
+  paysForFamily: boolean;
+  isSignedIn: boolean;
+}
+
+export interface StudentAppFamily {
+  members: StudentAppFamilyMember[];
+}
+
 export interface StudentAppShop {
   currencyCode: string;
   packs: StudentAppShopPack[];

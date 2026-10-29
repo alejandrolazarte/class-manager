@@ -62,6 +62,7 @@ public sealed class StudentAppFamilyService(
             client,
             [.. views.Where(member => member.View != FamilyMemberView.None)],
             [.. views.Where(member => member.View == FamilyMemberView.None).Select(member => member.Student.UserId).Distinct()],
-            FamilyVisibility.CanBuy(access.PaysForFamily, ownStudent is null ? null : BirthDateOf(ownStudent), today));
+            FamilyVisibility.CanBuy(access.PaysForFamily, ownStudent is null ? null : BirthDateOf(ownStudent), today),
+            students);
     }
 }

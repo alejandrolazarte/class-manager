@@ -4,6 +4,7 @@ import {
   StudentAppClassPacks,
   StudentAppPackClass,
   StudentAppPackPurchase,
+  StudentAppFamily,
   StudentAppPastClass,
   StudentAppHome,
   StudentAppMakeups,
@@ -301,6 +302,21 @@ export function buildStudentAppNews(overrides: Partial<StudentAppNews> = {}): St
   return {
     items: [buildStudentAppNewsItem()],
     unreadCount: 1,
+    ...overrides,
+  };
+}
+
+export function buildStudentAppFamily(overrides: Partial<StudentAppFamily> = {}): StudentAppFamily {
+  return {
+    members: [
+      {
+        fullName: "Ana Pérez",
+        email: "ana@example.com",
+        paysForFamily: true,
+        isSignedIn: false,
+      },
+      { fullName: "Tomás Pérez", email: null, paysForFamily: false, isSignedIn: true },
+    ],
     ...overrides,
   };
 }

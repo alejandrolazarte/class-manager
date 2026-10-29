@@ -27,6 +27,7 @@ export const studentAppHiddenRouteNames: readonly string[] = [
   "passkeys",
   "add-passkey",
   "feedback",
+  "family",
   "measurement",
   "record-measurement",
   "levels",

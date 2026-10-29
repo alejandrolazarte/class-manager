@@ -253,6 +253,9 @@ test("Invitation flows", async ({ page, request, browser }) => {
   await childPage.goto("/student-app/shop");
   await childPage.getByRole("heading", { name: "Tienda" }).waitFor();
   await capture(childPage, "10b-tomas-tienda");
+  await childPage.goto("/student-app/settings");
+  await childPage.getByRole("heading", { name: "Ajustes" }).waitFor();
+  await capture(childPage, "10c-tomas-ajustes");
   await childPhone.close();
 
   const teenPhone = await newPhone(browser);

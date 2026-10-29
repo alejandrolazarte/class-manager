@@ -67,6 +67,7 @@ A family (a client) can have several app accounts: the client who pays (`ClientA
 - **The family's balance** (the monthly fee or the classes left of the packs) is shared, so every account sees it.
 - **The age** of a student is the **most protective** of the two birth dates it can find: the one the team typed on the student and the one on the student's account. If a 14-year-old changes their account to a date that makes them 20 from Editar perfil, the team's date still makes them a minor. A student without any birth date counts as a child for the client who pays (the team often registers young children without one; inviting them to the app requires it).
 - **Push notifications follow the same rule**: class changes and cancellations go to the accounts that see the student's classes, instructor comments to the accounts that see their personal data, and announcements for some classes to the accounts that see a student of those classes.
+- **Tu familia** (Ajustes → Familia, `GET /api/student-app/family`) lists every person of the family to every account, so each one knows who is responsible and how many they are, the way Google families do: only the name, the email the business has for them, "Responsable" next to the client who pays and "(vos)" next to the signed-in person. Nothing else of the others is shown there.
 - **The team app** labels a student of another client "A cargo de {client}" when they are a minor or have no birth date, and "Viene con {client}" when they are an adult.
 
 ### Purchases

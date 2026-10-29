@@ -152,6 +152,9 @@ public static class StudentAppRequests
         return new StudentAppScenario(instructors, clientId, email, tokens, fixture.CreateClientWithToken(tokens.AccessToken));
     }
 
+    public static Task<StudentAppFamilyResponse?> GetStudentAppFamilyAsync(this HttpClient httpClient) =>
+        httpClient.GetFromJsonAsync<StudentAppFamilyResponse>(new Uri(ApiRoutes.StudentApp + ApiRoutes.StudentAppFamily, UriKind.Relative), ApiRequests.JsonOptions);
+
     public static Task<StudentAppHomeResponse?> GetStudentAppHomeAsync(this HttpClient httpClient) =>
         httpClient.GetFromJsonAsync<StudentAppHomeResponse>(new Uri(ApiRoutes.StudentApp, UriKind.Relative), ApiRequests.JsonOptions);
 }
