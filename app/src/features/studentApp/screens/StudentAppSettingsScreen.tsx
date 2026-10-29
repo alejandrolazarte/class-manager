@@ -8,6 +8,7 @@ import {
   stopStudentAppNotifications,
   useStudentAppNotifications,
 } from "@/features/studentApp/push/useStudentAppNotifications";
+import { useStudentAppFamily } from "@/features/studentApp/useStudentAppFamily";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import {
   colorSchemeValue,
@@ -17,7 +18,7 @@ import {
 } from "@/features/settings/components/DeviceSettingsSheet";
 import { languageValue } from "@/features/settings/components/languageValue";
 import { SettingsGroup, SettingsGroupList } from "@/features/settings/components/SettingsGroupList";
-import { translate } from "@/i18n/translate";
+import { translate, translateCount } from "@/i18n/translate";
 import { useLanguage } from "@/i18n/useLanguage";
 import { routes } from "@/navigation/routes";
 import { useTheme } from "@/theme/useTheme";
@@ -30,6 +31,7 @@ export function StudentAppSettingsScreen() {
   const router = useRouter();
   const { signOut } = useSession();
   const { data: home } = useStudentAppHome();
+  const { data: family } = useStudentAppFamily();
   const { colorSchemePreference } = useTheme();
   const { language } = useLanguage();
   const hasTeamAccount = useHasOtherAccountKind("student");
@@ -54,6 +56,22 @@ export function StudentAppSettingsScreen() {
           value: locationMapsUrl === null ? undefined : translate("student.location.openMaps"),
           onPress: locationMapsUrl === null ? undefined : () => Linking.openURL(locationMapsUrl),
           isExternal: true,
+        },
+      ],
+    },
+    {
+      titleKey: "settings.group.family",
+      items: [
+        {
+          key: "family",
+          isVisible: family !== undefined,
+          icon: "students",
+          label: translate("student.family.title"),
+          value:
+            family === undefined
+              ? undefined
+              : translateCount("student.family.count", family.members.length),
+          onPress: () => router.push(routes.studentAppFamily),
         },
       ],
     },

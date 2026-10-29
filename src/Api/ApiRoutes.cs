@@ -98,6 +98,7 @@ public static class ApiRoutes
     public const string DeliveryClasses = "/delivery-classes";
     public const string Deliveries = "/deliveries";
     public const string StudentAppShop = "/shop";
+    public const string StudentAppFamily = "/family";
     public const string StudentAppOrders = "/orders";
     public const string StudentAppGuardianConsent = "/guardian-consents/{invitationId:long}";
     public const string Authorization = "/authorization";
