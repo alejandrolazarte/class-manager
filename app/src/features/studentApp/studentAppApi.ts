@@ -2,6 +2,7 @@ import { httpClient } from "@/api/httpClient";
 import { BrowserPushSubscription } from "@/features/studentApp/push/browserPush";
 import {
   StudentAppClassHistory,
+  StudentAppFamily,
   StudentAppHome,
   StudentAppInvitation,
   StudentAppMakeups,
@@ -19,12 +20,17 @@ const studentAppPath = "/api/student-app";
 const clientsPath = "/api/clients";
 const appInvitationSegment = "app-invitation";
 const shopPath = `${studentAppPath}/shop`;
+const familyPath = `${studentAppPath}/family`;
 const ordersPath = `${studentAppPath}/orders`;
 const cancellationSegment = "cancellation";
 const newsPath = `${studentAppPath}/news`;
 const announcementsSegment = "announcements";
 const replySegment = "reply";
 const seenSegment = "seen";
+
+export function getStudentAppFamily(): Promise<StudentAppFamily> {
+  return httpClient.get<StudentAppFamily>(familyPath);
+}
 
 export function getStudentAppHome(): Promise<StudentAppHome> {
   return httpClient.get<StudentAppHome>(studentAppPath);

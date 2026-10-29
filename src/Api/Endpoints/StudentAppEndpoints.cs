@@ -11,6 +11,7 @@ internal static class StudentAppEndpoints
         var student = endpoints.MapGroup(ApiRoutes.StudentApp).RequireStudent().RequireFeature(Features.StudentApp);
         student.MapGet("/", GetStudentAppHomeAsync);
         student.MapGet(ApiRoutes.StudentAppShop, GetStudentAppShopAsync);
+        student.MapGet(ApiRoutes.StudentAppFamily, GetStudentAppFamilyAsync);
         student.MapGet(ApiRoutes.StudentAppOrders, ListStudentAppOrdersAsync);
         student.MapPost(ApiRoutes.StudentAppOrders, PlaceStudentAppOrderAsync);
         student.MapPut(ApiRoutes.StudentAppOrders + ApiRoutes.OrderById + ApiRoutes.Cancellation, CancelStudentAppOrderAsync);
@@ -212,6 +213,15 @@ internal static class StudentAppEndpoints
         var result = await useCase.ExecuteAsync(new CancelPackClassCommand(studentId, classGroupId, sessionDate), cancellationToken);
 
         return result.ToHttpResult(_ => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> GetStudentAppFamilyAsync(
+        IUseCase<GetStudentAppFamilyQuery, StudentAppFamilyResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new GetStudentAppFamilyQuery(), cancellationToken);
+
+        return result.ToOkResult();
     }
 
     private static async Task<IResult> GetStudentAppShopAsync(

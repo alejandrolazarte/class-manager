@@ -175,6 +175,7 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `07-responsable-autoriza-desde-la-app`, `08-responsable-autorizo` | Or from the card on the home of their app |
 | `09-tomas-crea-su-cuenta`, `10-tomas-entra-a-la-app` | The child creates the account (name and birth date from the team) and sees their own card |
 | `10b-tomas-tienda` | The child's shop: minors see it without buying, with "Las compras las hace la persona que paga por tu familia" |
+| `10c-tomas-ajustes` | The child's Ajustes, with Familia: how many people the family has |
 | `11-lucia-crea-su-cuenta-sin-autorizacion` | A 14-year-old creates the account with no authorization needed |
 | `12-ya-tiene-cuenta-aceptar-o-rechazar`, `13-rechazo-la-invitacion` | Someone who already has an account only accepts or declines |
 | `14-aviso-al-equipo` | The team is notified of the decline |

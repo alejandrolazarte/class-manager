@@ -22,7 +22,7 @@ public sealed class Then_it_succeeds
         var studentAppAccess = new StudentAppAccess(Guid.NewGuid(), TestIds.Next(), TestIds.Next(), client.Id);
         var studentAppFamily = new Mock<IStudentAppFamilyService>();
         studentAppFamily.Setup(family => family.GetAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StudentAppFamily(studentAppAccess, TestData.Business(), TestData.Today, client, [new StudentAppFamilyMember(student, FamilyMemberView.Everything)], [], CanBuy: true));
+            .ReturnsAsync(new StudentAppFamily(studentAppAccess, TestData.Business(), TestData.Today, client, [new StudentAppFamilyMember(student, FamilyMemberView.Everything)], [], CanBuy: true, [student]));
         var classGroups = new Mock<IClassGroupRepository>();
         classGroups.Setup(repository => repository.GetByIdAsync(classGroup.Id, It.IsAny<CancellationToken>())).ReturnsAsync(classGroup);
         var enrollments = new Mock<IEnrollmentRepository>();
