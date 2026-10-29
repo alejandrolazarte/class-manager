@@ -1,6 +1,6 @@
 # Backend plan — Paying the plan with Stripe (Europe)
 
-Status: proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
+Status: proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
 
 ## Goal
 
@@ -16,6 +16,13 @@ Out of scope for the first version: `Enterprise` (agreed by hand, the operator k
 
 - This is **us charging the brands**, so it runs on the platform's Stripe account with Stripe Billing (Products, Prices, Subscriptions). It has nothing to do with Stripe Connect in the [online payments plan](../20260929-online-shop-and-payments/plan.md), where each branch charges its families on its own account. Both can share the account later; they don't share code beyond the webhook signature check.
 - **Stripe Checkout** (hosted page) to subscribe, and the **Customer Portal** (hosted) to change plan, update the card, download invoices and cancel. No card data and no billing screens of our own: less code, PCI SAQ A, 3-D Secure (SCA, required in the EU) handled by Stripe.
+
+### An add-on first, a feature of every plan later
+
+- Paying online is a feature, `self-service-billing`, added to the `Features` class and the catalog as an **add-on at 0 €** that **no plan includes**. While we try it, the operator gives it to one brand with **Dar add-on** in the backoffice (an `ExpiredOn` is optional), and only that brand sees **Elegir plan**. Every other brand keeps the contact, as today.
+- The feature gates **starting a checkout** only: `RequireFeature(self-service-billing)` on the checkout endpoint and `useFeature('self-service-billing')` in Ajustes → Plan. A brand that already pays through Stripe (its current subscription has an `ExternalSubscriptionId`) always reaches the portal, and the webhook always applies, with or without the add-on. That matters because add-ons belong to a subscription and don't carry over: when the checkout replaces the trial with the paid plan, the add-on stays behind on the trial row, and the brand must still be able to change its card or cancel. A pilot brand that cancels and wants to pay again needs the add-on again.
+- **Making it a feature for everyone** is data, not code: a migration adds `self-service-billing` to the `Free`, `Lite` and `Pro` plans (`PlanFeature`). The add-on rows given during the tests can stay; they change nothing once the plan includes the feature. `Enterprise` doesn't get it, since its price is agreed by hand.
+- Without the add-on, `GET /api/organization/subscription` answers `selfService = false` and the app shows today's screen, so a brand outside the test never sees a half-built flow.
 
 ### Who, where and in which countries
 
@@ -102,11 +109,11 @@ Argentina later is a second implementation of `IBillingGateway` (Mercado Pago `p
 | Stripe webhooks | `POST /api/billing/stripe/webhooks` | anonymous, signature checked |
 | Whether self-service billing applies, payment status | added to `GET /api/organization/subscription` (`selfService`, `paymentStatus`, `isExternal`) | `subscription.view` |
 
-Both `POST` endpoints allow an inactive subscription (a read-only brand must be able to pay). Checkout refuses `enterprise`, `free`, a plan the brand already pays through Stripe (it goes to the portal) and a country outside `Billing:Countries` (`billing.not_available`).
+Both `POST` endpoints allow an inactive subscription (a read-only brand must be able to pay). Checkout refuses a brand without `self-service-billing` (`403 feature.not_in_plan`), `enterprise`, `free`, a plan the brand already pays through Stripe (it goes to the portal) and a country outside `Billing:Countries` (`billing.not_available`).
 
 ## In the app (web)
 
-- Ajustes → Plan, brand owners on the web in a billing country: each paid plan shows its price "+ IVA" and **Elegir plan**; a brand already paying through Stripe sees **Gestionar suscripción** (portal) instead. `Enterprise` keeps the contact.
+- Ajustes → Plan, brand owners on the web in a billing country whose brand has `self-service-billing`: each paid plan shows its price "+ IVA" and **Elegir plan**; a brand already paying through Stripe sees **Gestionar suscripción** (portal) instead. `Enterprise` keeps the contact.
 - The ended-subscription gate and `PlanOfferSheet` **Ver planes** keep going to Ajustes → Plan, where the button is.
 - Return from Checkout: `?checkout=success` shows "Procesando el pago…" and reloads `GET /api/me` until the plan changes (a short limit, then "Puede tardar unos minutos"); `?checkout=cancelled` shows nothing special.
 - Past due: a notice on Inicio and Ajustes → Plan with **Actualizar tarjeta** (portal) for brand owners, and nothing for the rest of the team.
@@ -125,8 +132,8 @@ All new texts go in `es.json` and `en.json`; the screens use the existing `src/u
 ## Testing
 
 - Unit (`Subscriptions.U.Tests`): every row in the event table above, out-of-order and repeated events converge, an unknown lookup key changes nothing.
-- Integration (`Api.I.Tests`, fake gateway): a signed fake `checkout.session.completed` turns the trial into `Pro` and the brand gets `Pro` features; the same event twice changes nothing; a bad signature is `400`; an event for brand A never touches brand B; `subscription.deleted` makes the brand read-only; checkout is refused to a branch owner, for `enterprise` and outside the billing countries; the backoffice refuses **Cambiar plan** for a brand paying through Stripe.
-- App (jest): the buttons appear only on the web, only for brand owners in a billing country; the success return polls `GET /api/me`; past due shows the notice.
+- Integration (`Api.I.Tests`, fake gateway): a signed fake `checkout.session.completed` turns the trial into `Pro` and the brand gets `Pro` features; the same event twice changes nothing; a bad signature is `400`; an event for brand A never touches brand B; `subscription.deleted` makes the brand read-only; checkout is refused to a brand without the `self-service-billing` add-on (and allowed once the operator gives it), to a branch owner, for `enterprise` and outside the billing countries; the portal still opens after the checkout replaced the trial and its add-on; the backoffice refuses **Cambiar plan** for a brand paying through Stripe.
+- App (jest): the buttons appear only on the web, only for brand owners in a billing country whose brand has the feature; the success return polls `GET /api/me`; past due shows the notice.
 - No e2e against Stripe: the hosted pages are Stripe's, and the critical part (the webhook) is covered by integration tests.
 
 ## Steps
@@ -134,10 +141,11 @@ All new texts go in `es.json` and `en.json`; the screens use the existing `src/u
 1. **Stripe account and runbook** (owner, by hand, test mode first): account, tax registration, products and prices with lookup keys, portal, webhook. The runbook in `docs/`.
 2. **Model and sync:** new tables and columns with their migration, `IBillingGateway`, `ExternalSubscriptionSync` with its unit tests.
 3. **Stripe and webhook:** `Subscriptions.Stripe`, `POST /api/billing/stripe/webhooks` with signature check and idempotency; integration tests with signed fake events.
-4. **Checkout and portal:** `subscription.manage`, the two endpoints, the country check, `GET /api/organization/subscription` additions.
+4. **Checkout and portal:** the `self-service-billing` feature (add-on at 0, in no plan), `subscription.manage`, the two endpoints, the country check, `GET /api/organization/subscription` additions.
 5. **App:** Ajustes → Plan on the web, return page, past-due notice, native apps message; screenshots before and after for the owner.
 6. **Backoffice:** Stripe status and dashboard link on the brand, **Cambiar plan** refused for paying brands.
-7. **Go live:** live keys, live webhook, terms of sale, one real subscription paid and cancelled by the owner.
+7. **Go live for one brand:** live keys, live webhook, terms of sale; the operator gives `self-service-billing` to one brand, and the owner pays and cancels one real subscription.
+8. **For everyone:** a migration adds `self-service-billing` to `Free`, `Lite` and `Pro`.
 
 ## Open decisions
 
