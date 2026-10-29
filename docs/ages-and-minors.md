@@ -70,6 +70,10 @@ A family (a client) can have several app accounts: the client who pays (`ClientA
 - **Tu familia** (Ajustes → Familia, `GET /api/student-app/family`) lists every person of the family to every account, so each one knows who is responsible and how many they are, the way Google families do: only the name, the email the business has for them, "Responsable" next to the client who pays and "(vos)" next to the signed-in person. Nothing else of the others is shown there.
 - **The team app** labels a student of another client "A cargo de {client}" when they are a minor or have no birth date, and "Viene con {client}" when they are an adult.
 
+### Profile photos
+
+Below the minimum age, a student's profile photo waits for the approval of the client who pays before anyone else sees it (`StudentAppFamily.OwnStudentNeedsGuardian`). See [Profile photos](profile-photos.md#guardian-approval).
+
 ### Purchases
 
 Only adults buy from the app (purchases need the parents in both countries). The client who pays is always an adult; another account buys when its student is 18 or older, by the same most protective birth date. A minor sees the shop with no buttons to add and "Las compras las hace la persona que paga por tu familia", and placing an order answers `403 order.buyer_must_be_adult` (`StudentAppShopResponse.CanBuy` tells the app).

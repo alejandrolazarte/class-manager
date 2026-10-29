@@ -16,8 +16,13 @@ internal sealed partial class DocumentStorageService(
     private const string ClassPacksFolder = "class-packs";
     private const string ClassGroupsFolder = "class-groups";
     private const string AnnouncementsFolder = "announcements";
+    private const string UsersFolder = "users";
     private const string RandomFileNameFormat = "N";
     private const string PrivateDocumentUrlMessage = "Private documents have no public URL.";
+    private const string PublicDocumentSignedUrlMessage = "Public documents need no signed URL.";
+
+    private static readonly TimeSpan SignedUrlWindow = TimeSpan.FromHours(1);
+    private static readonly TimeProvider StorageServiceClock = TimeProvider.System;
 
     public async Task<Document> StoreAsync(
         DocumentOwner owner,
@@ -54,6 +59,17 @@ internal sealed partial class DocumentStorageService(
             ? fileStorage.PublicUrlOf(document.Path)
             : throw new InvalidOperationException(PrivateDocumentUrlMessage);
 
+    public Uri PrivateUrlOf(Document document) =>
+        document.Visibility == DocumentVisibility.Private
+            ? fileStorage.PrivateReadUrlOf(document.Path, SignedUrlExpiry(StorageServiceClock.GetUtcNow()))
+            : throw new InvalidOperationException(PublicDocumentSignedUrlMessage);
+
+    private static DateTimeOffset SignedUrlExpiry(DateTimeOffset now)
+    {
+        var windowStart = new DateTimeOffset(now.UtcTicks - (now.UtcTicks % SignedUrlWindow.Ticks), TimeSpan.Zero);
+        return windowStart + SignedUrlWindow + SignedUrlWindow;
+    }
+
     private static FileVisibility ToFileVisibility(DocumentVisibility visibility) =>
         visibility == DocumentVisibility.Public ? FileVisibility.Public : FileVisibility.Private;
 
@@ -63,6 +79,7 @@ internal sealed partial class DocumentStorageService(
         DocumentOwner.ClassPack => ClassPacksFolder,
         DocumentOwner.ClassGroup => ClassGroupsFolder,
         DocumentOwner.Announcement => AnnouncementsFolder,
+        DocumentOwner.User => UsersFolder,
         _ => throw new ArgumentOutOfRangeException(nameof(owner), owner, null),
     };
 

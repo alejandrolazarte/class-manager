@@ -19,4 +19,6 @@ public interface IStudentAppNotificationService
     Task FeedbackLeftAsync(ClassFeedback feedback, CancellationToken cancellationToken);
 
     Task GuardianConsentRequestedAsync(ClientInvitation invitation, string studentFullName, CancellationToken cancellationToken);
+
+    Task PhotoApprovalRequestedAsync(long clientId, string studentFullName, CancellationToken cancellationToken);
 }

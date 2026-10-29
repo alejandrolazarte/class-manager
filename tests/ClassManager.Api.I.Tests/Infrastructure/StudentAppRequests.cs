@@ -40,11 +40,13 @@ public static class StudentAppRequests
         httpClient.PostAsJsonAsync(
             $"{ApiRoutes.Clients}/{clientId}{ApiRoutes.AppInvitation}", new InviteStudentAppRequest(email, studentId, birthDate), ApiRequests.JsonOptions);
 
-    public static async Task<ClientDetailsResponse> RegisterFamilyAsync(this HttpClient httpClient, string clientEmail)
+    public const string FamilyPhoneNumber = "11 4321-8765";
+
+    public static async Task<ClientDetailsResponse> RegisterFamilyAsync(this HttpClient httpClient, string clientEmail, string phoneNumber = FamilyPhoneNumber)
     {
         using var response = await httpClient.PostAsJsonAsync(
             ApiRoutes.Clients,
-            new RegisterClientCommand(ApiRequests.ClientFullName, "11 4321-8765", clientEmail, null, [new NewStudent(ChildFullName, null, null)]),
+            new RegisterClientCommand(ApiRequests.ClientFullName, phoneNumber, clientEmail, null, [new NewStudent(ChildFullName, null, null)]),
             ApiRequests.JsonOptions);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<ClientDetailsResponse>(ApiRequests.JsonOptions))!;

@@ -70,6 +70,23 @@ internal sealed class StudentAppNotificationService(
             cancellationToken);
     }
 
+    public async Task PhotoApprovalRequestedAsync(long clientId, string studentFullName, CancellationToken cancellationToken)
+    {
+        var clientAccountIds = await context.ClientAccounts.AsNoTracking()
+            .Where(account => account.ClientId == clientId && account.StudentId == null)
+            .Where(account => account.User.AccountId != null)
+            .Select(account => account.User.AccountId!.Value)
+            .ToListAsync(cancellationToken);
+        await publisher.PublishToStudentAccountsAsync(
+            [clientId],
+            clientAccountIds,
+            LocalizedPushMessage.Build(texts => new PushMessage(
+                texts.PhotoApprovalTitle(studentFullName),
+                texts.PhotoApprovalBody,
+                StudentAppPushLinks.HomeUrl)),
+            cancellationToken);
+    }
+
     public async Task ClassCancelledAsync(ClassSession session, CancellationToken cancellationToken)
     {
         var classGroup = await UpcomingClassGroupAsync(session, cancellationToken);

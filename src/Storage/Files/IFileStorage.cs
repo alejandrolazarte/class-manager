@@ -7,4 +7,6 @@ public interface IFileStorage
     Task<bool> DeleteAsync(string path, FileVisibility visibility, CancellationToken cancellationToken);
 
     Uri PublicUrlOf(string path);
+
+    Uri PrivateReadUrlOf(string path, DateTimeOffset expiresAt);
 }

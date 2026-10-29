@@ -7,6 +7,7 @@ import { IconButton } from "@/ui/IconButton";
 export interface PickedPerson {
   name: string;
   detail: string;
+  photoUrl?: string | null;
 }
 
 interface PickerChooseButtonProps {
@@ -104,7 +105,7 @@ export function PickerField({
         <PickerChooseButton label={chooseLabel} hint={hint} icon={chooseIcon} onPress={onChoose} />
       ) : (
         <View className="flex-row items-center gap-3 rounded-[10px] border border-primary bg-surface py-1.5 pl-3.5 pr-1.5">
-          <Avatar name={picked.name} size="small" />
+          <Avatar name={picked.name} size="small" photoUrl={picked.photoUrl} />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={chooseLabel}

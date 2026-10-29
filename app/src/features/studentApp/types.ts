@@ -15,6 +15,7 @@ export interface StudentAppNextClass {
   absenceNotified: boolean;
   isMakeup: boolean;
   isPackBooking: boolean;
+  instructorPhotoUrl: string | null;
 }
 
 export type PastClassStatus = "Attended" | "Absent" | "AbsenceNotified" | "Cancelled" | "Unmarked";

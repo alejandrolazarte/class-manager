@@ -14,4 +14,6 @@ public interface IDocumentStorageService
     Task DeleteFileAsync(Document document, CancellationToken cancellationToken);
 
     Uri PublicUrlOf(Document document);
+
+    Uri PrivateUrlOf(Document document);
 }

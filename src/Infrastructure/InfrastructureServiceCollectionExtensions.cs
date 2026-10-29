@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Email;
+using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
@@ -157,6 +158,8 @@ public static class InfrastructureServiceCollectionExtensions
     {
         services.AddAzureBlobFileStorage();
         services.AddScoped<IDocumentRepository, DocumentRepository>();
+        services.AddScoped<IUserPhotoRepository, UserPhotoRepository>();
+        services.AddSingleton<IAvatarImageService, SkiaAvatarImageService>();
         services.AddScoped<IDocumentStorageService, DocumentStorageService>();
 
         return services;

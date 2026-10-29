@@ -1,14 +1,15 @@
-import { View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { AppText, TextTone, TextVariant } from "@/ui/AppText";
 
 export type AvatarTone = "primarySoft" | "primary" | "onPrimary" | "muted" | "success" | "danger";
 
-type AvatarSize = "tiny" | "small" | "medium" | "large";
+type AvatarSize = "tiny" | "small" | "medium" | "large" | "extraLarge";
 
 interface AvatarProps {
   name: string;
   tone?: AvatarTone;
   size?: AvatarSize;
+  photoUrl?: string | null;
 }
 
 const maximumInitials = 2;
@@ -37,6 +38,7 @@ const sizeClassNames: Record<AvatarSize, string> = {
   small: "h-10 w-10",
   medium: "h-11 w-11",
   large: "h-[60px] w-[60px]",
+  extraLarge: "h-[88px] w-[88px]",
 };
 
 const textVariants: Record<AvatarSize, TextVariant> = {
@@ -44,6 +46,7 @@ const textVariants: Record<AvatarSize, TextVariant> = {
   small: "link",
   medium: "bodyStrong",
   large: "headline",
+  extraLarge: "display",
 };
 
 export function initialsOf(name: string): string {
@@ -56,16 +59,30 @@ export function initialsOf(name: string): string {
     .join("");
 }
 
-export function Avatar({ name, tone = "primarySoft", size = "medium" }: AvatarProps) {
+export function Avatar({
+  name,
+  tone = "primarySoft",
+  size = "medium",
+  photoUrl = null,
+}: AvatarProps) {
   return (
     <View
       importantForAccessibility="no-hide-descendants"
       accessibilityElementsHidden
-      className={`items-center justify-center rounded-full ${sizeClassNames[size]} ${toneClassNames[tone]}`}
+      className={`items-center justify-center overflow-hidden rounded-full ${sizeClassNames[size]} ${toneClassNames[tone]}`}
     >
-      <AppText variant={textVariants[size]} tone={textTones[tone]} className="font-heavy">
-        {initialsOf(name)}
-      </AppText>
+      {photoUrl === null ? (
+        <AppText variant={textVariants[size]} tone={textTones[tone]} className="font-heavy">
+          {initialsOf(name)}
+        </AppText>
+      ) : (
+        <Image
+          testID="avatar-photo"
+          source={{ uri: photoUrl }}
+          resizeMode="cover"
+          style={StyleSheet.absoluteFill}
+        />
+      )}
     </View>
   );
 }

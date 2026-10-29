@@ -32,6 +32,7 @@ public sealed class GetStudentAppHomeUseCase(
     IPaymentRepository paymentRepository,
     IClassBalanceService classBalanceService,
     IDocumentStorageService documentStorage,
+    IUserPhotoUrlService userPhotoUrls,
     IIdentityService identityService,
     IClientAccountRepository clientAccountRepository,
     IClientInvitationRepository invitationRepository,
@@ -59,8 +60,9 @@ public sealed class GetStudentAppHomeUseCase(
         var today = family.Today;
         var lastDate = today.AddDays(LookAheadDays);
         var students = family.Students;
-        var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
+        var instructors = await instructorRepository.ListAllAsync(cancellationToken);
+        var instructorNames = instructors.ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
+        var instructorPhotoUrls = await userPhotoUrls.OfInstructorsAsync(instructors.Select(instructor => (long?)instructor.Id), cancellationToken);
         var sessions = (await sessionRepository.ListBetweenAsync(today, lastDate, cancellationToken))
             .ToDictionary(session => (session.ClassGroupId, session.Date));
         var privateLessons = (await privateLessonRepository.ListBetweenAsync(today, lastDate, cancellationToken))
@@ -123,6 +125,7 @@ public sealed class GetStudentAppHomeUseCase(
                         sessions.GetValueOrDefault((classGroup.Id, date)),
                         date,
                         instructorNames,
+                        instructorPhotoUrls,
                         notifiedAbsences.Contains(new NotifiedAbsence(student.Id, classGroup.Id, date)),
                         isMakeup: false));
                 }
@@ -139,6 +142,7 @@ public sealed class GetStudentAppHomeUseCase(
                         sessions.GetValueOrDefault((classGroup.Id, booking.Date)),
                         booking.Date,
                         instructorNames,
+                        instructorPhotoUrls,
                         absenceNotified: false,
                         isMakeup: true));
                 }
@@ -155,6 +159,7 @@ public sealed class GetStudentAppHomeUseCase(
                         sessions.GetValueOrDefault((classGroup.Id, booking.Date)),
                         booking.Date,
                         instructorNames,
+                        instructorPhotoUrls,
                         absenceNotified: false,
                         isMakeup: false) with
                     { IsPackBooking = true });
@@ -174,7 +179,8 @@ public sealed class GetStudentAppHomeUseCase(
                     lesson.IsCancelled,
                     ClassGroupId: null,
                     AbsenceNotified: false,
-                    IsMakeup: false)));
+                    IsMakeup: false,
+                    InstructorPhotoUrl: instructorPhotoUrls.GetValueOrDefault(lesson.InstructorId))));
 
             studentResponses.Add(new AccountStudentResponse(
                 student.Id,
@@ -237,6 +243,7 @@ public sealed class GetStudentAppHomeUseCase(
         Domain.Sessions.ClassSession? session,
         DateOnly date,
         IReadOnlyDictionary<long, string> instructorNames,
+        IReadOnlyDictionary<long, string> instructorPhotoUrls,
         bool absenceNotified,
         bool isMakeup)
     {
@@ -253,7 +260,8 @@ public sealed class GetStudentAppHomeUseCase(
             session?.IsCancelled ?? false,
             classGroup.Id,
             absenceNotified,
-            isMakeup);
+            isMakeup,
+            InstructorPhotoUrl: instructorPhotoUrls.GetValueOrDefault(instructorId));
     }
 
     private List<StudentAppClassMaterialResponse> Materials(IEnumerable<ClassGroup> classGroups) =>

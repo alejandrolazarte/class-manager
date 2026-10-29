@@ -17,7 +17,7 @@ export function InstructorListItem({ instructor, onPress }: InstructorListItemPr
       onPress={onPress ? () => onPress(instructor) : undefined}
       accessibilityLabel={instructor.fullName}
     >
-      <Avatar name={instructor.fullName} size="small" />
+      <Avatar name={instructor.fullName} size="small" photoUrl={instructor.photoUrl} />
       <AppText variant="bodyStrong" className="min-w-0 flex-1">
         {instructor.fullName}
       </AppText>

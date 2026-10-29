@@ -45,6 +45,7 @@ export function buildStudentAppNextClass(
     absenceNotified: false,
     isMakeup: false,
     isPackBooking: false,
+    instructorPhotoUrl: null,
     ...overrides,
   };
 }

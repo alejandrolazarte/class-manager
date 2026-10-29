@@ -14,6 +14,7 @@ export function buildSessionStudent(overrides: Partial<SessionStudent> = {}): Se
     isMakeup: false,
     isPackBooking: false,
     classBalance: null,
+    photoUrl: null,
     ...overrides,
   };
 }
@@ -35,6 +36,7 @@ export function buildSessionDetails(overrides: Partial<SessionDetails> = {}): Se
     canReschedule: true,
     isPast: false,
     students: [buildSessionStudent()],
+    instructorPhotoUrl: null,
     ...overrides,
   };
 }

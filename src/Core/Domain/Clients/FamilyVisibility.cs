@@ -30,6 +30,9 @@ public static class FamilyVisibility
         return years < PersonAge.AdultAge ? FamilyMemberView.Classes : FamilyMemberView.None;
     }
 
+    public static bool NeedsGuardian(DateOnly? birthDate, DateOnly today, int ownAccountMinimumAge) =>
+        birthDate is not { } knownBirthDate || PersonAge.YearsOn(knownBirthDate, today) < ownAccountMinimumAge;
+
     public static bool CanBuy(bool viewerPaysForFamily, DateOnly? birthDate, DateOnly today) =>
         viewerPaysForFamily || (birthDate is { } knownBirthDate && PersonAge.IsAdult(knownBirthDate, today));
 

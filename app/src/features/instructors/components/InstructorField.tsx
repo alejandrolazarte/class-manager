@@ -37,7 +37,11 @@ export function InstructorField({
         picked={
           pickedInstructor === undefined
             ? null
-            : { name: pickedInstructor.fullName, detail: pickedInstructor.email ?? "" }
+            : {
+                name: pickedInstructor.fullName,
+                detail: pickedInstructor.email ?? "",
+                photoUrl: pickedInstructor.photoUrl,
+              }
         }
         onChoose={() => setIsPickerOpen(true)}
         onRemove={() => onChange(null)}

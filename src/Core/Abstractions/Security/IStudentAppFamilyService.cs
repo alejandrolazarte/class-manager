@@ -18,7 +18,8 @@ public sealed record StudentAppFamily(
     IReadOnlyList<StudentAppFamilyMember> Members,
     IReadOnlyCollection<long> HiddenMemberUserIds,
     bool CanBuy,
-    IReadOnlyList<Student> EveryStudent)
+    IReadOnlyList<Student> EveryStudent,
+    bool OwnStudentNeedsGuardian = false)
 {
     public IReadOnlyList<Student> Students => [.. Members.Select(member => member.Student)];
 

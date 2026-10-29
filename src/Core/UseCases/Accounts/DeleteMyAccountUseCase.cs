@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
@@ -16,6 +17,8 @@ public sealed class DeleteMyAccountUseCase(
     IIdentityService identityService,
     IOrganizationMemberRepository organizationMemberRepository,
     IAccountLinkRepository accountLinkRepository,
+    IUserPhotoRepository photoRepository,
+    IDocumentStorageService documentStorage,
     TimeProvider timeProvider)
     : IUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse>
 {
@@ -48,10 +51,16 @@ public sealed class DeleteMyAccountUseCase(
             return Result.Conflict<DeleteMyAccountResponse>(BranchErrorCodes.LastBrandOwnerMessage, BranchErrorCodes.LastBrandOwner);
         }
 
+        var photoDocuments = await photoRepository.DeleteEveryPhotoOfAccountAsync(accountId, cancellationToken);
         await accountLinkRepository.UnlinkFromEveryBusinessAsync(accountId, timeProvider.GetUtcNow(), cancellationToken);
         if (!await identityService.DeleteAccountAsync(accountId, cancellationToken))
         {
             throw new InvalidOperationException(AccountNotDeletedMessage);
+        }
+
+        foreach (var photoDocument in photoDocuments)
+        {
+            await documentStorage.DeleteFileAsync(photoDocument, cancellationToken);
         }
 
         return new DeleteMyAccountResponse();

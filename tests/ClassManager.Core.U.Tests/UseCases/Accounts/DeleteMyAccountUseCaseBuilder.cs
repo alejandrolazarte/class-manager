@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.UseCases.Accounts;
 using Microsoft.Extensions.Time.Testing;
 
@@ -19,6 +20,8 @@ internal sealed class DeleteMyAccountUseCaseBuilder
 
     public Mock<IAccountLinkRepository> AccountLinks { get; } = new();
 
+    public Mock<IUserPhotoRepository> Photos { get; } = new();
+
     public DeleteMyAccountUseCaseBuilder WithCorrectPassword()
     {
         Identity
@@ -27,6 +30,9 @@ internal sealed class DeleteMyAccountUseCaseBuilder
         Identity
             .Setup(service => service.DeleteAccountAsync(AccountId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
+        Photos
+            .Setup(repository => repository.DeleteEveryPhotoOfAccountAsync(AccountId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
         return this;
     }
 
@@ -43,7 +49,13 @@ internal sealed class DeleteMyAccountUseCaseBuilder
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(user => user.AccountId).Returns(AccountId);
         return new DeleteMyAccountUseCase(
-            currentUser.Object, Identity.Object, OrganizationMembers.Object, AccountLinks.Object, new FakeTimeProvider(Now));
+            currentUser.Object,
+            Identity.Object,
+            OrganizationMembers.Object,
+            AccountLinks.Object,
+            Photos.Object,
+            new Mock<IDocumentStorageService>().Object,
+            new FakeTimeProvider(Now));
     }
 
     public void VerifyNothingWasDeleted()
@@ -52,5 +64,6 @@ internal sealed class DeleteMyAccountUseCaseBuilder
         AccountLinks.Verify(
             repository => repository.UnlinkFromEveryBusinessAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        Photos.Verify(repository => repository.DeleteEveryPhotoOfAccountAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

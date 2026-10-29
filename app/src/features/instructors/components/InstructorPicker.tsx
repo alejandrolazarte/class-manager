@@ -73,7 +73,7 @@ export function InstructorPicker({
             onPress={() => onPick(instructor)}
             className="flex-row items-center gap-3 rounded-2xl py-2.5 active:bg-muted"
           >
-            <Avatar name={instructor.fullName} size="small" />
+            <Avatar name={instructor.fullName} size="small" photoUrl={instructor.photoUrl} />
             <View className="min-w-0 flex-1">
               <AppText variant="bodyStrong">{instructor.fullName}</AppText>
               {instructor.email ? (
