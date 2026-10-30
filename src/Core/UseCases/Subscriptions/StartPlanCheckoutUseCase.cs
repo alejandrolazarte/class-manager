@@ -65,6 +65,15 @@ public sealed class StartPlanCheckoutUseCase(
             return Result.Forbidden<BillingRedirectResponse>(BillingErrorCodes.NotAvailableMessage, BillingErrorCodes.NotAvailable);
         }
 
+        var plans = await subscriptionRepository.ListActivePlansAsync(cancellationToken);
+        if (plans.FirstOrDefault(plan => plan.Code == command.PlanCode) is not { ListPrice: { } listPrice } chosenPlan)
+        {
+            return Result.Validation<BillingRedirectResponse>(
+                BillingErrorCodes.PlanNotAvailableMessage,
+                BillingErrorCodes.PlanNotAvailable,
+                nameof(command.PlanCode));
+        }
+
         var externalCustomerId = await FindOrCreateCustomerAsync(business.OrganizationId, cancellationToken);
         if (externalCustomerId is null)
         {
@@ -75,7 +84,7 @@ public sealed class StartPlanCheckoutUseCase(
             new BillingCheckoutRequest(
                 business.OrganizationId,
                 externalCustomerId,
-                PlanPriceLookupKey.For(command.PlanCode, SelfServiceBilling.Currency),
+                SelfServiceBilling.PriceOf(chosenPlan, AgreedPriceOr(subscription, command.PlanCode, listPrice)),
                 FirstChargeAt(subscription, today),
                 new Uri(webAppLinks.PlanCheckoutSucceeded()),
                 new Uri(webAppLinks.PlanCheckoutCancelled())),
@@ -104,6 +113,11 @@ public sealed class StartPlanCheckoutUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return externalCustomerId;
     }
+
+    private static decimal AgreedPriceOr(Subscription subscription, string planCode, decimal listPrice) =>
+        subscription.PlanCode == planCode && subscription.ExternalSubscriptionId is null && subscription.Price > 0
+            ? subscription.Price
+            : listPrice;
 
     private static DateTimeOffset? FirstChargeAt(Subscription subscription, DateOnly today) =>
         subscription.PlanCode == PlanCodes.Free && subscription.IsActiveOn(today) && subscription.ExpiredOn is { } lastTrialDay

@@ -14,6 +14,7 @@ public sealed class FakeBillingGateway : IBillingGateway
     private readonly ConcurrentDictionary<string, int> _readCounts = new(StringComparer.Ordinal);
     private readonly ConcurrentQueue<BillingCustomerRequest> _customerRequests = new();
     private readonly ConcurrentQueue<BillingCheckoutRequest> _checkoutRequests = new();
+    private readonly ConcurrentQueue<BillingPortalRequest> _portalRequests = new();
 
     public void Set(ExternalSubscription subscription) => _subscriptions[subscription.Id] = subscription;
 
@@ -24,6 +25,9 @@ public sealed class FakeBillingGateway : IBillingGateway
 
     public IReadOnlyList<BillingCheckoutRequest> CheckoutsFor(long subscriberId) =>
         [.. _checkoutRequests.Where(request => request.SubscriberId == subscriberId)];
+
+    public IReadOnlyList<BillingPortalRequest> PortalsFor(string externalCustomerId) =>
+        [.. _portalRequests.Where(request => request.ExternalCustomerId == externalCustomerId)];
 
     public Task<ExternalSubscription?> GetSubscriptionAsync(string externalSubscriptionId, CancellationToken cancellationToken)
     {
@@ -43,6 +47,9 @@ public sealed class FakeBillingGateway : IBillingGateway
         return Task.FromResult(new Uri(CheckoutHost + request.ExternalCustomerId));
     }
 
-    public Task<Uri> CreatePortalSessionAsync(string externalCustomerId, Uri returnUrl, CancellationToken cancellationToken) =>
-        Task.FromResult(new Uri(PortalHost + externalCustomerId));
+    public Task<Uri> CreatePortalSessionAsync(BillingPortalRequest request, CancellationToken cancellationToken)
+    {
+        _portalRequests.Enqueue(request);
+        return Task.FromResult(new Uri(PortalHost + request.ExternalCustomerId));
+    }
 }

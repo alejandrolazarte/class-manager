@@ -32,7 +32,7 @@ public static class BillingWebhookRequests
         long subscriberId,
         ExternalSubscriptionStatus status = ExternalSubscriptionStatus.Active,
         DateOnly? endedOn = null) =>
-        new(externalSubscriptionId, subscriberId, PlanPriceLookupKey.For(ProPlanCode, Euro), ProPrice, Euro, status, CancelOn: null, endedOn);
+        new(externalSubscriptionId, subscriberId, ProPlanCode, ProPrice, Euro, status, CancelOn: null, endedOn);
 
     public static async Task<HttpResponseMessage> PostStripeEventAsync(
         this HttpClient httpClient,

@@ -5,7 +5,11 @@ import { getOrganizationSubscription, listPlans } from "@/features/subscriptions
 import { translate } from "@/i18n/translate";
 import { buildCurrentMember } from "@/testing/memberFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
-import { buildPlans, buildSubscription } from "@/testing/subscriptionFactory";
+import {
+  buildOrganizationSubscription,
+  buildPlans,
+  buildSubscription,
+} from "@/testing/subscriptionFactory";
 
 jest.mock("@/features/subscriptions/subscriptionsApi");
 
@@ -14,14 +18,11 @@ const agreedPrice = 12;
 describe("When the plan screen opens", () => {
   beforeEach(() => {
     jest.mocked(listPlans).mockResolvedValue(buildPlans());
-    jest.mocked(getOrganizationSubscription).mockResolvedValue({
-      planCode: "lite",
-      price: agreedPrice,
-      currency: "USD",
-      createdOn: "2026-10-01T12:00:00Z",
-      expiredOn: null,
-      isActive: true,
-    });
+    jest
+      .mocked(getOrganizationSubscription)
+      .mockResolvedValue(
+        buildOrganizationSubscription({ planCode: "lite", price: agreedPrice, currency: "USD" }),
+      );
   });
 
   it("Then the price and the plans are shown", async () => {

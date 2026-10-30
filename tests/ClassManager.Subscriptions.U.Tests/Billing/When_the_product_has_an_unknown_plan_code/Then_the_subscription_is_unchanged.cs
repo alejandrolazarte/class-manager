@@ -1,6 +1,6 @@
 using static ClassManager.Subscriptions.U.Tests.BillingTestData;
 
-namespace ClassManager.Subscriptions.U.Tests.Billing.When_the_price_has_an_unknown_lookup_key;
+namespace ClassManager.Subscriptions.U.Tests.Billing.When_the_product_has_an_unknown_plan_code;
 
 public sealed class Then_the_subscription_is_unchanged
 {
@@ -9,9 +9,9 @@ public sealed class Then_the_subscription_is_unchanged
     {
         var trial = Trial();
 
-        var result = Sync(trial, External(lookupKey: "premium-monthly-eur"));
+        var result = Sync(trial, External(planCode: "premium"));
 
-        result.Outcome.ShouldBe(ExternalSubscriptionSyncOutcome.UnknownPrice);
+        result.Outcome.ShouldBe(ExternalSubscriptionSyncOutcome.UnknownPlan);
         trial.IsDeleted.ShouldBeFalse();
     }
 }

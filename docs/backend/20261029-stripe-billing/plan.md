@@ -1,6 +1,6 @@
 # Backend plan — Paying the plan with Stripe (Europe)
 
-Status: steps 2 to 4 built (model, sync, the Stripe webhook, checkout and portal endpoints), the rest is a proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
+Status: steps 2 to 5 built (model, sync, the Stripe webhook, checkout and portal endpoints, Ajustes → Plan on the web), the rest is a proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
 
 ## Goal
 
@@ -59,7 +59,7 @@ The [records convention](../../../CLAUDE.md#records-that-change-over-time) alrea
 
 | Stripe | Our rows |
 |---|---|
-| `checkout.session.completed` (mode `subscription`) | `Delete(now)` the current subscription (the trial) and start the paid one: plan from the price's lookup key, `Price` = the Stripe price before tax, `Currency` = `EUR`, no `ExpiredOn`, `ExternalSubscriptionId` = Stripe's id |
+| `checkout.session.completed` (mode `subscription`) | `Delete(now)` the current subscription (the trial) and start the paid one: plan from the `plan_code` metadata of the price's product, `Price` = the Stripe price before tax, `Currency` = `EUR`, no `ExpiredOn`, `ExternalSubscriptionId` = Stripe's id |
 | `customer.subscription.updated`, other price | Replace the row with the new plan and price, same `ExternalSubscriptionId` |
 | `customer.subscription.updated`, `cancel_at_period_end` | Set `ExpiredOn` to the last day of the paid period; clearing it (the customer resumes) clears `ExpiredOn` |
 | `customer.subscription.updated`, `past_due` | `PaymentStatus = PastDue`: the brand keeps working while Stripe retries (Smart Retries, about 2 weeks), and Inicio and Ajustes → Plan show "No pudimos cobrar tu plan" with **Actualizar tarjeta** for the brand owner |
@@ -71,11 +71,32 @@ The [records convention](../../../CLAUDE.md#records-that-change-over-time) alrea
 - **The webhook confirms, never the return page.** The success URL only shows "Procesando el pago…" in Ajustes → Plan and reloads `GET /api/me` until the plan changes.
 - A paid row is tied to Stripe (`ExternalSubscriptionId` not null). The backoffice shows the Stripe status and a link to the customer in the Stripe dashboard, and **refuses Cambiar plan** for it (`brand.subscription_external`): plan changes of a paying brand go through Stripe, or the rows and the charges disagree. Giving add-ons by hand keeps working.
 
-### Mapping plans to Stripe prices
+### Offering a plan: a payment link, and the plan changes only once paid
 
-- Prices are found by **lookup key**, `{planCode}-monthly-eur` (`lite-monthly-eur`, `pro-monthly-eur`), so no Stripe ids live in code, settings or migrations, and test and live mode use the same keys.
-- The webhook takes the plan code from the lookup key of the subscription's price; a price without a known lookup key is logged as an error and changes nothing.
-- `Plan.ListPrice` stays the price the app shows. A startup check is not possible without calling Stripe, so the runbook says to change both together; a mismatch only affects what is shown, the charge is always Stripe's.
+Decided with the owner on 2026-10-30. **Cambiar plan** in the backoffice stays a manual change: the brand gets the plan at once, nobody is charged, and the price is only recorded (pilots, `Enterprise` paid by bank transfer, fixing a mistake). To charge a brand a price agreed by hand, the operator **offers** the plan instead:
+
+- **Ofrecer plan** (backoffice, on the brand): plan (`lite` or `pro`), monthly price before VAT, an optional last day and a note. It creates a `PlanOffer` for the brand and replaces its current offer, if any. The brand's subscription doesn't change: it keeps its trial or its plan until it pays.
+- **Copiar link de pago**: the backoffice copies a link to the app, `{WebApp:Url}/settings/plan?offer=1`, for the operator to send by WhatsApp or email. Not a Stripe link: Checkout sessions expire after 24 hours, and the app link only works for a member of that brand with `subscription.manage`, so the payment can't end up on another brand.
+- **In the app (web):** Ajustes → Plan shows the offer above the plans, "Te ofrecemos Lite · 10 € por mes + IVA" (and "hasta el {date}" when it has a last day), with a button that starts the checkout at the offered price. In the native apps, the offer shows with the line that says to pay from the web version.
+- **The offer is its own permission to pay online:** it doesn't need the `self-service-billing` add-on (the operator offering it is the permission), but the brand's country must still be in the billing countries, because Stripe Tax is only set up for them.
+- **Charging:** the checkout for an offered plan uses the offer's price (+ IVA, like every price), with the same trial rule: during the trial, the first charge is when the trial ends. The price is found or created in Stripe like any other.
+- **The plan changes only when Stripe confirms the payment:** the webhook starts the paid subscription as today, and then marks the offer as used (`Delete(now)`). An offer whose last day passed is not shown and can't be paid; the checkout of that plan goes back to the list price.
+- **Retirar oferta** deletes the current offer (soft delete, so it can be restored by offering it again).
+- Replaces the earlier rule "a brand with an operator-set price for the same plan is charged that price": with offers, an agreed price is always an explicit offer, and a manual **Cambiar plan** never turns into a charge.
+
+`PlanOffer` (billing schema, in `src/Subscriptions`): `Id`, `SubscriberId`, `PlanCode`, `Price`, `Currency`, `Note`, `CreatedOn`, `ExpiredOn` (optional, inclusive), `IsDeleted`, `DeletedAt`, `DeletedByUserId`; a filtered unique index keeps one current offer per brand. `GET /api/organization/subscription` adds `offer` (plan, price, currency, last day) when there is an active one.
+
+### Products and prices are created by the app
+
+Nobody creates products or prices by hand in Stripe: our database is the catalog, and the app makes Stripe match it when it needs to.
+
+- **One product per plan**, with an id we choose (`plan-lite`, `plan-pro`) so the app finds it without storing Stripe ids, and with the metadata **`plan_code`** (`lite`, `pro`). The name ("Laztty Pro") is only for Stripe's dashboard and the invoices; it can change without breaking anything. The product carries the tax code for software as a service for business use (`txcd_10103001`), which Stripe Tax needs.
+- **Prices are found or created by amount.** Before a checkout, the app looks among the product's active prices for one with the same amount, `EUR`, monthly and tax exclusive; it reuses it, or creates it (with `plan_code` in its metadata too). Stripe prices can't change, so a new amount is always a new price; old prices stay for the brands that already pay them.
+- **The amount comes from our database:** the plan's `ListPrice`, or the price of an active offer for that plan (see [Offering a plan](#offering-a-plan-a-payment-link-and-the-plan-changes-only-once-paid)). Step 5 charges a price set by hand with **Cambiar plan** for the same plan; step 6 replaces that rule with offers. Any other amount is just another price of the same product.
+- **The webhook reads the plan from `product.metadata.plan_code`** (the subscription is read with its prices' products expanded), never from names or price ids, so agreed prices and price changes need nothing extra. A product without a known `plan_code` is logged and changes nothing. The plan doesn't come from the subscription's metadata, because switching plan in the portal changes the price, not that metadata.
+- **The Customer Portal configuration is ours too:** every time a brand opens the portal, the app updates its own configuration (marked with the metadata `managed_by = subscriptions`) with the `lite` and `pro` list prices, switching with proration, cancelling at period end, card update and invoice history. A new list price in the database reaches the portal on the next opening, with no step in Stripe.
+- Only the app's key writes to the catalog. Editing these products' metadata in Stripe's dashboard would change what the webhook reads, so the runbook says not to touch them there.
+- `Plan.ListPrice` stays the price the app shows, and now it is also what Stripe charges new subscribers.
 
 ## Model changes
 
@@ -93,8 +114,8 @@ Same split as the rest of the subscriptions work ([library or part of Core](../2
 
 | Project | What |
 |---|---|
-| `src/Subscriptions` | The port `IBillingGateway` (get a subscription, create a customer, a checkout and a portal session) and the provider-neutral records (`ExternalSubscription`: id, subscriber from the metadata `subscriber_id`, price lookup key, unit amount, currency, status, last day before cancelling, day it ended; `BillingEvent`: event id and subscription id). `PlanPriceLookupKey` builds and reads `{plan}-monthly-{currency}`. The rules that turn an `ExternalSubscription` into row changes (`ExternalSubscriptionSync`), unit tested without Stripe |
-| `src/Subscriptions.Stripe` (new; ARCH007 already covers it, so it can't use the app) | `StripeBillingGateway` with the official `Stripe.net` package; `MapStripeBillingWebhook(pattern)`, which checks the signature (`EventUtility.ConstructEvent`, without failing on another API version, since only ids are read and the subscription is fetched again) and hands the event to `IBillingWebhookProcessor`; `AddStripeBilling()` with options `Stripe:SecretKey`, `Stripe:WebhookSecret`. Without `SecretKey` the gateway is a placeholder that fails when used, so development and CI run without Stripe |
+| `src/Subscriptions` | The port `IBillingGateway` (get a subscription, create a customer, a checkout and a portal session) and the provider-neutral records (`ExternalSubscription`: id, subscriber from the metadata `subscriber_id`, plan code from the product's metadata `plan_code`, unit amount, currency, status, last day before cancelling, day it ended; `BillingEvent`: event id and subscription id).; `BillingPlanPrice` (plan code, product name, amount, currency) for checkouts and the portal. The rules that turn an `ExternalSubscription` into row changes (`ExternalSubscriptionSync`), unit tested without Stripe |
+| `src/Subscriptions.Stripe` (new; ARCH007 already covers it, so it can't use the app) | `StripeBillingGateway` with the official `Stripe.net` package and `StripePlanCatalog`, which finds or creates products, prices and the portal configuration; `MapStripeBillingWebhook(pattern)`, which checks the signature (`EventUtility.ConstructEvent`, without failing on another API version, since only ids are read and the subscription is fetched again) and hands the event to `IBillingWebhookProcessor`; `AddStripeBilling()` with options `Stripe:SecretKey`, `Stripe:WebhookSecret`. Without `SecretKey` the gateway is a placeholder that fails when used, so development and CI run without Stripe |
 | `src/Subscriptions.AspNetCore` | Model of the new tables and columns; `IBillingWebhookProcessor`, which deduplicates by event id, reads the subscription through `IBillingGateway`, applies the sync and saves in one `SaveChanges` |
 | App (`Core`, `Api`) | `StartPlanCheckoutUseCase` and `OpenBillingPortalUseCase` (commands, `subscription.manage`); `ISelfServiceBillingService`, which says whether the brand can pay online (the add-on, read from its current subscription even when it has ended, and the country), used by checkout and by `GET /api/organization/subscription`; the return URLs from `IWebAppLinks` (`/settings/plan`, `?checkout=success` or `cancelled`) |
 
@@ -126,24 +147,24 @@ All new texts go in `es.json` and `en.json`; the screens use the existing `src/u
 - Keys: a **restricted key** with only the Billing, Checkout, Customer Portal and Customers permissions it needs, and the webhook signing secret, in the App Service settings like the other secrets; never in the repository. Test mode keys in development.
 - `api.stripe.com` is not reachable from the cloud development environment's network policy; tests never call Stripe (fake gateway, signed fake events), and Stripe is tried by hand in test mode with the Stripe CLI (`stripe listen --forward-to`).
 - A webhook that fails answers `500` so Stripe retries for up to 3 days; Sentry reports it.
-- Runbook (written in step 1): create the Stripe account (owner's legal entity), business details for invoices, invoice numbering and prefix, Stripe Tax registration, products and prices with their lookup keys, Customer Portal settings (allow switching between `Lite` and `Pro`, cancel at period end, update card, invoice history), Smart Retries and the emails Stripe sends, the webhook endpoint and its events, the keys. Linked from `README.md`.
+- Runbook (written in step 1): create the Stripe account (owner's legal entity), business details for invoices, invoice numbering and prefix, Stripe Tax registration (products, prices and the portal configuration are created by the app), Smart Retries and the emails Stripe sends, the webhook endpoint and its events, the keys. Linked from `README.md`.
 - Terms of sale for the plans (B2B, no withdrawal right, renewal, cancellation) go in the legal texts before going live ([legal and privacy](../../legal-and-privacy.md)).
 
 ## Testing
 
-- Unit (`Subscriptions.U.Tests`): every row in the event table above, out-of-order and repeated events converge, an unknown lookup key changes nothing.
+- Unit (`Subscriptions.U.Tests`): every row in the event table above, out-of-order and repeated events converge, an unknown plan code changes nothing.
 - Integration (`Api.I.Tests`, fake gateway): a signed fake `checkout.session.completed` turns the trial into `Pro` and the brand gets `Pro` features; the same event twice changes nothing; a bad signature is `400`; an event for brand A never touches brand B; `subscription.deleted` makes the brand read-only; checkout is refused to a brand without the `self-service-billing` add-on (and allowed once the operator gives it), to a branch owner, for `enterprise` and outside the billing countries; the portal still opens after the checkout replaced the trial and its add-on; the backoffice refuses **Cambiar plan** for a brand paying through Stripe.
 - App (jest): the buttons appear only on the web, only for brand owners in a billing country whose brand has the feature; the success return polls `GET /api/me`; past due shows the notice.
 - No e2e against Stripe: the hosted pages are Stripe's, and the critical part (the webhook) is covered by integration tests.
 
 ## Steps
 
-1. **Stripe account and runbook** (owner, by hand, test mode first): account, tax registration, products and prices with lookup keys, portal, webhook. The runbook in `docs/`.
+1. **Stripe account and runbook** (owner, by hand, test mode first): account, tax registration, webhook and keys; products, prices and the portal configuration are created by the app. The runbook in `docs/`.
 2. ✅ **Model and sync:** new tables and columns with their migration, `IBillingGateway`, `ExternalSubscriptionSync` with its unit tests.
 3. ✅ **Stripe and webhook:** `Subscriptions.Stripe`, `POST /api/billing/stripe/webhooks` with signature check and idempotency; integration tests with signed fake events and a fake gateway. The webhook endpoint in Stripe listens to `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid` and `invoice.payment_failed`; any other event is recorded and ignored.
 4. ✅ **Checkout and portal:** the `self-service-billing` feature (add-on at 0, in no plan), `subscription.manage`, the two endpoints, the country check, `GET /api/organization/subscription` additions.
-5. **App:** Ajustes → Plan on the web, return page, past-due notice, native apps message; screenshots before and after for the owner.
-6. **Backoffice:** Stripe status and dashboard link on the brand, **Cambiar plan** refused for paying brands.
+5. ✅ **App:** Ajustes → Plan on the web (**Elegir plan** and "+ IVA" on `lite` and `pro`, **Gestionar suscripción** for a brand that pays online), the return from Checkout (polls `GET /api/me` and the subscription every 3 s for up to a minute), the past-due notice on Inicio and Ajustes → Plan, and the line for the native apps. The contact line stays, because `Enterprise` is still agreed by hand.
+6. **Backoffice and offers:** Stripe status and dashboard link on the brand, **Cambiar plan** refused for paying brands; `PlanOffer` with **Ofrecer plan**, **Copiar link de pago** and **Retirar oferta**; the offer in Ajustes → Plan; the checkout at the offered price; the webhook marks the offer used. Tests: the plan doesn't change until the webhook confirms the payment, the offered price is charged, an expired offer is not shown and charges the list price, the link only works for that brand's members with `subscription.manage`, and the offer works without the add-on but not outside the billing countries.
 7. **Go live for one brand:** live keys, live webhook, terms of sale; the operator gives `self-service-billing` to one brand, and the owner pays and cancels one real subscription.
 8. **For everyone:** a migration adds `self-service-billing` to `Free`, `Lite` and `Pro`.
 
@@ -154,6 +175,6 @@ All new texts go in `es.json` and `en.json`; the screens use the existing `src/u
 | Customers in Canarias (IGIC) | Ask the gestoría; Stripe Tax collects nothing there |
 | VeriFactu (2027) | Check Stripe's support before 2027; otherwise export Stripe invoices to compliant software |
 | Yearly billing | Later: a `{plan}-yearly-eur` price and `BillingPeriod = Yearly`, two months free |
-| Add-ons (extra branch 20 €, storage 2 €/10 GB) through Stripe | Later: subscription items with their own lookup keys, mapped to `SubscriptionFeature` |
+| Add-ons (extra branch 20 €, storage 2 €/10 GB) through Stripe | Later: one product per add-on with the metadata `feature_code`, found or created like the plans, as subscription items (an extra branch is a quantity), mapped to `SubscriptionFeature` |
 | `Enterprise` through Stripe | Later: the operator creates a Stripe subscription with an agreed price from the backoffice; until then it is set by hand |
 | Argentina | Mercado Pago subscriptions behind `IBillingGateway`, prices in ARS, when Spain is live |

@@ -29,6 +29,8 @@ export const countedFeatureCodes: readonly string[] = [
   featureCodes.documentStorage,
 ];
 
+export const selfServicePlanCodes: readonly string[] = [planCodes.lite, planCodes.pro];
+
 export const subscriptionErrorCodes = {
   inactive: "subscription.inactive",
   featureNotInPlan: "feature.not_in_plan",

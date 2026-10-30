@@ -52,7 +52,7 @@ internal sealed partial class BillingWebhookProcessor<TDbContext>(
             context.Subscriptions.Add(started);
         }
 
-        if (result.Outcome is ExternalSubscriptionSyncOutcome.MissingSubscriber or ExternalSubscriptionSyncOutcome.UnknownPrice)
+        if (result.Outcome is ExternalSubscriptionSyncOutcome.MissingSubscriber or ExternalSubscriptionSyncOutcome.UnknownPlan)
         {
             LogNotApplied(eventId, externalSubscriptionId, result.Outcome);
         }
