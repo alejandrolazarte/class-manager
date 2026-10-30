@@ -8,6 +8,7 @@ export const permissions = {
   branchesCreate: "branches.create",
   brandOwnersManage: "brandOwners.manage",
   subscriptionView: "subscription.view",
+  subscriptionManage: "subscription.manage",
   instructorsView: "instructors.view",
   instructorsManage: "instructors.manage",
   classGroupsViewOwn: "classGroups.view.own",
@@ -52,6 +53,7 @@ export const brandOnlyPermissions: readonly Permission[] = [
   permissions.branchesCreate,
   permissions.brandOwnersManage,
   permissions.subscriptionView,
+  permissions.subscriptionManage,
 ];
 
 export const everyInstructorPermissionByOwnPermission: Readonly<

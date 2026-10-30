@@ -1,4 +1,5 @@
 using ClassManager.Core.Abstractions.Persistence;
+using ClassManager.Core.Abstractions.Subscriptions;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Records;
@@ -10,6 +11,7 @@ public sealed record GetOrganizationSubscriptionQuery : IQuery;
 public sealed class GetOrganizationSubscriptionUseCase(
     IBusinessRepository businessRepository,
     ISubscriptionRepository subscriptionRepository,
+    ISelfServiceBillingService selfServiceBillingService,
     TimeProvider timeProvider)
     : IUseCase<GetOrganizationSubscriptionQuery, OrganizationSubscriptionResponse>
 {
@@ -30,12 +32,17 @@ public sealed class GetOrganizationSubscriptionUseCase(
             return Result.NotFound<OrganizationSubscriptionResponse>(SubscriptionNotFoundMessage);
         }
 
+        var selfServiceAccess = await selfServiceBillingService.GetAccessAsync(subscription, cancellationToken);
+
         return new OrganizationSubscriptionResponse(
             subscription.PlanCode,
             subscription.Price,
             subscription.Currency,
             subscription.CreatedOn,
             subscription.ExpiredOn,
-            subscription.IsActiveOn(today));
+            subscription.IsActiveOn(today),
+            selfServiceAccess is SelfServiceBillingAccess.Available,
+            subscription.ExternalSubscriptionId is not null,
+            subscription.PaymentStatus);
     }
 }

@@ -16,7 +16,7 @@ public static class StripeBillingServiceCollectionExtensions
             var options = serviceProvider.GetRequiredService<IOptions<StripeBillingOptions>>().Value;
             return string.IsNullOrWhiteSpace(options.SecretKey)
                 ? new UnconfiguredBillingGateway()
-                : new StripeBillingGateway(new StripeClient(options.SecretKey));
+                : new StripeBillingGateway(new StripeClient(options.SecretKey), serviceProvider.GetRequiredService<TimeProvider>());
         });
 
         return services;

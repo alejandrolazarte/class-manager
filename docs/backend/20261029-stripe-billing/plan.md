@@ -1,6 +1,6 @@
 # Backend plan — Paying the plan with Stripe (Europe)
 
-Status: steps 2 and 3 built (model, sync and the Stripe webhook), the rest is a proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
+Status: steps 2 to 4 built (model, sync, the Stripe webhook, checkout and portal endpoints), the rest is a proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
 
 ## Goal
 
@@ -28,7 +28,7 @@ Out of scope for the first version: `Enterprise` (agreed by hand, the operator k
 
 - Only the **brand** pays, as today: a new brand-only permission `subscription.manage` (brand owners). `subscription.view` stays for seeing the plan.
 - **Web only.** Ajustes → Plan shows **Elegir plan** / **Gestionar suscripción** only when `Platform.OS === 'web'`. In the iOS and Android apps the screen stays as today (plans and contact) and says to manage the plan from the web version, without a link, so App Store and Play rules on external payments don't apply. The API doesn't check the platform.
-- **Countries:** self-service billing is offered when the brand's country is in the billing countries setting (`Billing:Countries`, Spain and the EU/EEA codes). The brand's country is the country of its first branch (organizations have no country of their own). Any other country sees the contact as today.
+- **Countries:** self-service billing is offered when the brand's country is in `SelfServiceBilling.CountryCodes` (Core): Spain and the rest of the EU and the EEA. It is a constant, not a setting, because adding a country also means checking its taxes in Stripe Tax; Argentina comes with its own provider. The brand's country is the country of its first branch (organizations have no country of their own). Any other country sees the contact as today.
 - **Currency: EUR** for every Stripe price. A Spanish branch that charges its families in USD still pays us in EUR.
 
 ### Prices are + IVA, with Stripe Tax
@@ -49,7 +49,7 @@ Out of scope for the first version: `Enterprise` (agreed by hand, the operator k
 ### Trial and timing
 
 - Sign-up doesn't change: no card, `Free` for 30 days.
-- **Subscribing during the trial:** the paid plan applies at once (the brand gets `Pro` features the same day) and the first charge happens when the trial would have ended (`subscription_data.trial_end`), so nobody loses trial days by paying early. Checkout still collects the card.
+- **Subscribing during the trial:** the paid plan applies at once (the brand gets `Pro` features the same day) and the first charge happens when the trial would have ended (`subscription_data.trial_end`), so nobody loses trial days by paying early. Checkout still collects the card. Stripe Checkout needs a trial of at least 48 hours, so in the trial's last two days the first charge is immediate.
 - **Subscribing after the trial ended** (brand read-only): the first charge is immediate and the brand writes again as soon as the webhook arrives.
 - Monthly, charged on the same day of the month; Stripe prorates changes between `Lite` and `Pro` through the portal (upgrade charged now, downgrade credited to the next invoice).
 
@@ -81,7 +81,7 @@ The [records convention](../../../CLAUDE.md#records-that-change-over-time) alrea
 
 | Table (`billing` schema) | Change |
 |---|---|
-| `BillingCustomers` (new, step 4) | `SubscriberId` (PK, the organization) → `ExternalCustomerId` (Stripe `cus_…`). Created on the first checkout, reused for every later one and for the portal, so a brand has one Stripe customer |
+| `BillingCustomers` (new) | `SubscriberId` (PK, the organization) → `ExternalCustomerId` (Stripe `cus_…`). Created on the first checkout with the brand owner's name, email and language, reused for every later one and for the portal, so a brand has one Stripe customer. If creating the checkout fails right after creating the customer, the row is rolled back and the next attempt creates another Stripe customer; the unused one stays in Stripe and costs nothing |
 | `Subscriptions` | `ExternalSubscriptionId` (nullable, `sub_…`, filtered unique index on current rows), `PaymentStatus` (nullable: `Current`, `PastDue`; null for rows set by hand) |
 | `ProcessedBillingEvents` (new) | `EventId` (PK), `ProcessedAt`. Physical rows with no business meaning; a cleanup of rows older than 90 days comes later, they are a few per brand and month |
 
@@ -93,10 +93,10 @@ Same split as the rest of the subscriptions work ([library or part of Core](../2
 
 | Project | What |
 |---|---|
-| `src/Subscriptions` | The port `IBillingGateway` (get subscription now; create checkout and portal session in step 4) and the provider-neutral records (`ExternalSubscription`: id, subscriber from the metadata `subscriber_id`, price lookup key, unit amount, currency, status, last day before cancelling, day it ended; `BillingEvent`: event id and subscription id). `PlanPriceLookupKey` builds and reads `{plan}-monthly-{currency}`. The rules that turn an `ExternalSubscription` into row changes (`ExternalSubscriptionSync`), unit tested without Stripe |
+| `src/Subscriptions` | The port `IBillingGateway` (get a subscription, create a customer, a checkout and a portal session) and the provider-neutral records (`ExternalSubscription`: id, subscriber from the metadata `subscriber_id`, price lookup key, unit amount, currency, status, last day before cancelling, day it ended; `BillingEvent`: event id and subscription id). `PlanPriceLookupKey` builds and reads `{plan}-monthly-{currency}`. The rules that turn an `ExternalSubscription` into row changes (`ExternalSubscriptionSync`), unit tested without Stripe |
 | `src/Subscriptions.Stripe` (new; ARCH007 already covers it, so it can't use the app) | `StripeBillingGateway` with the official `Stripe.net` package; `MapStripeBillingWebhook(pattern)`, which checks the signature (`EventUtility.ConstructEvent`, without failing on another API version, since only ids are read and the subscription is fetched again) and hands the event to `IBillingWebhookProcessor`; `AddStripeBilling()` with options `Stripe:SecretKey`, `Stripe:WebhookSecret`. Without `SecretKey` the gateway is a placeholder that fails when used, so development and CI run without Stripe |
 | `src/Subscriptions.AspNetCore` | Model of the new tables and columns; `IBillingWebhookProcessor`, which deduplicates by event id, reads the subscription through `IBillingGateway`, applies the sync and saves in one `SaveChanges` |
-| App (`Core`, `Api`) | `StartPlanCheckoutUseCase` and `OpenBillingPortalUseCase` (commands, `subscription.manage`), the brand's country check, the customer's email and language, the return URLs |
+| App (`Core`, `Api`) | `StartPlanCheckoutUseCase` and `OpenBillingPortalUseCase` (commands, `subscription.manage`); `ISelfServiceBillingService`, which says whether the brand can pay online (the add-on, read from its current subscription even when it has ended, and the country), used by checkout and by `GET /api/organization/subscription`; the return URLs from `IWebAppLinks` (`/settings/plan`, `?checkout=success` or `cancelled`) |
 
 Argentina later is a second implementation of `IBillingGateway` (Mercado Pago `preapproval`) chosen by the brand's country; the sync and the rows don't change.
 
@@ -109,7 +109,7 @@ Argentina later is a second implementation of `IBillingGateway` (Mercado Pago `p
 | Stripe webhooks | `POST /api/billing/stripe/webhooks` | anonymous, signature checked |
 | Whether self-service billing applies, payment status | added to `GET /api/organization/subscription` (`selfService`, `paymentStatus`, `isExternal`) | `subscription.view` |
 
-Both `POST` endpoints allow an inactive subscription (a read-only brand must be able to pay). Checkout refuses a brand without `self-service-billing` (`403 feature.not_in_plan`), `enterprise`, `free`, a plan the brand already pays through Stripe (it goes to the portal) and a country outside `Billing:Countries` (`billing.not_available`).
+Both `POST` endpoints allow an inactive subscription (a read-only brand must be able to pay). The add-on is not checked with `RequireFeature`, because an ended subscription has no features and the brand must still be able to pay: the use case reads it from the current subscription. Checkout refuses a brand without `self-service-billing` (`403 feature.not_in_plan`), any plan but `lite` and `pro` (`400 billing.plan_not_available`), a brand that already pays through Stripe (`409 billing.already_subscribed`; it goes to the portal) and a country outside the list (`403 billing.not_available`). The portal answers `404 billing.no_customer` to a brand that never started a checkout.
 
 ## In the app (web)
 
@@ -141,7 +141,7 @@ All new texts go in `es.json` and `en.json`; the screens use the existing `src/u
 1. **Stripe account and runbook** (owner, by hand, test mode first): account, tax registration, products and prices with lookup keys, portal, webhook. The runbook in `docs/`.
 2. ✅ **Model and sync:** new tables and columns with their migration, `IBillingGateway`, `ExternalSubscriptionSync` with its unit tests.
 3. ✅ **Stripe and webhook:** `Subscriptions.Stripe`, `POST /api/billing/stripe/webhooks` with signature check and idempotency; integration tests with signed fake events and a fake gateway. The webhook endpoint in Stripe listens to `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid` and `invoice.payment_failed`; any other event is recorded and ignored.
-4. **Checkout and portal:** the `self-service-billing` feature (add-on at 0, in no plan), `subscription.manage`, the two endpoints, the country check, `GET /api/organization/subscription` additions.
+4. ✅ **Checkout and portal:** the `self-service-billing` feature (add-on at 0, in no plan), `subscription.manage`, the two endpoints, the country check, `GET /api/organization/subscription` additions.
 5. **App:** Ajustes → Plan on the web, return page, past-due notice, native apps message; screenshots before and after for the owner.
 6. **Backoffice:** Stripe status and dashboard link on the brand, **Cambiar plan** refused for paying brands.
 7. **Go live for one brand:** live keys, live webhook, terms of sale; the operator gives `self-service-billing` to one brand, and the owner pays and cancels one real subscription.

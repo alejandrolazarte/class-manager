@@ -14,6 +14,7 @@ public static class SubscriptionsModelBuilderExtensions
     public const string SubscriptionsTable = "Subscriptions";
     public const string SubscriptionFeaturesTable = "SubscriptionFeatures";
     public const string ProcessedBillingEventsTable = "ProcessedBillingEvents";
+    public const string BillingCustomersTable = "BillingCustomers";
 
     private const string NotDeletedFilter = "[IsDeleted] = 0";
     private const string CurrentExternalSubscriptionFilter = "[IsDeleted] = 0 AND [ExternalSubscriptionId] IS NOT NULL";
@@ -85,6 +86,15 @@ public static class SubscriptionsModelBuilderExtensions
             processedEvent.ToTable(ProcessedBillingEventsTable, schema);
             processedEvent.HasKey(entity => entity.EventId);
             processedEvent.Property(entity => entity.EventId).HasMaxLength(ProcessedBillingEvent.EventIdMaxLength);
+        });
+
+        modelBuilder.Entity<BillingCustomer>(billingCustomer =>
+        {
+            billingCustomer.ToTable(BillingCustomersTable, schema);
+            billingCustomer.HasKey(entity => entity.SubscriberId);
+            billingCustomer.Property(entity => entity.SubscriberId).ValueGeneratedNever();
+            billingCustomer.Property(entity => entity.ExternalCustomerId).HasMaxLength(BillingCustomer.ExternalCustomerIdMaxLength).IsRequired();
+            billingCustomer.HasIndex(entity => entity.ExternalCustomerId).IsUnique();
         });
 
         return modelBuilder;

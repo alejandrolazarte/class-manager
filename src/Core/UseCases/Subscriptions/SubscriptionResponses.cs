@@ -1,5 +1,6 @@
 using ClassManager.Subscriptions.Access;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Subscribers;
 
 namespace ClassManager.Core.UseCases.Subscriptions;
 
@@ -38,4 +39,7 @@ public sealed record OrganizationSubscriptionResponse(
     string Currency,
     DateTimeOffset CreatedOn,
     DateOnly? ExpiredOn,
-    bool IsActive);
+    bool IsActive,
+    bool SelfService,
+    bool IsExternal,
+    SubscriptionPaymentStatus? PaymentStatus);

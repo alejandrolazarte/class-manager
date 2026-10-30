@@ -3511,6 +3511,24 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("BackgroundTasks");
                 });
 
+            modelBuilder.Entity("ClassManager.Subscriptions.Billing.BillingCustomer", b =>
+                {
+                    b.Property<long>("SubscriberId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ExternalCustomerId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("SubscriberId");
+
+                    b.HasIndex("ExternalCustomerId")
+                        .IsUnique();
+
+                    b.ToTable("BillingCustomers", "billing");
+                });
+
             modelBuilder.Entity("ClassManager.Subscriptions.Billing.ProcessedBillingEvent", b =>
                 {
                     b.Property<string>("EventId")
@@ -3614,6 +3632,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = true
+                        },
+                        new
+                        {
+                            Code = "self-service-billing",
+                            AddOnListPrice = 0m,
+                            Currency = "EUR",
+                            IsAddOn = true,
+                            IsCounted = false
                         });
                 });
 
@@ -5760,6 +5786,15 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Document");
+                });
+
+            modelBuilder.Entity("ClassManager.Subscriptions.Billing.BillingCustomer", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClassManager.Subscriptions.Catalog.PlanFeature", b =>

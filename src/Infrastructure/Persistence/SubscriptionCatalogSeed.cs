@@ -11,6 +11,7 @@ internal static class SubscriptionCatalogSeed
     private const decimal ProPrice = 39m;
     private const decimal ExtraBranchPrice = 20m;
     private const decimal ExtraDocumentStoragePrice = 2m;
+    private const decimal SelfServiceBillingPrice = 0m;
 
     private const int FreeTrialDays = 30;
     private const int FreeStudents = 30;
@@ -44,7 +45,8 @@ internal static class SubscriptionCatalogSeed
             Feature.Create(Features.StudentApp, isCounted: false),
             Feature.Create(Features.Shop, isCounted: false),
             Feature.Create(Features.Brand, isCounted: false),
-            Feature.CreateAddOn(Features.DocumentStorage, isCounted: true, ExtraDocumentStoragePrice, ListPriceCurrency));
+            Feature.CreateAddOn(Features.DocumentStorage, isCounted: true, ExtraDocumentStoragePrice, ListPriceCurrency),
+            Feature.CreateAddOn(Features.SelfServiceBilling, isCounted: false, SelfServiceBillingPrice, ListPriceCurrency));
 
         modelBuilder.Entity<PlanFeature>().HasData(
             PlanFeature.Create(PlanCodes.Free, Features.Students, FreeStudents),
