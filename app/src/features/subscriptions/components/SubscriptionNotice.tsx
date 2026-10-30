@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { PastDueNotice } from "@/features/subscriptions/components/PastDueNotice";
 import { planCodes } from "@/features/subscriptions/subscriptionCodes";
 import { daysLeftOf, isTrial, useSubscription } from "@/features/subscriptions/useSubscription";
 import { translate, translateCount } from "@/i18n/translate";
@@ -46,5 +47,5 @@ export function SubscriptionNotice() {
       </Banner>
     );
   }
-  return null;
+  return <PastDueNotice />;
 }

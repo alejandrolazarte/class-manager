@@ -1,4 +1,8 @@
-import { CurrentSubscription, Plan } from "@/features/subscriptions/types";
+import {
+  CurrentSubscription,
+  OrganizationSubscription,
+  Plan,
+} from "@/features/subscriptions/types";
 
 export function buildSubscription(
   overrides: Partial<CurrentSubscription> = {},
@@ -46,4 +50,21 @@ export function buildPlans(): Plan[] {
       features: [{ code: "students", limit: null }],
     },
   ];
+}
+
+export function buildOrganizationSubscription(
+  overrides: Partial<OrganizationSubscription> = {},
+): OrganizationSubscription {
+  return {
+    planCode: "free",
+    price: 0,
+    currency: "EUR",
+    createdOn: "2026-10-01T12:00:00Z",
+    expiredOn: null,
+    isActive: true,
+    selfService: false,
+    isExternal: false,
+    paymentStatus: null,
+    ...overrides,
+  };
 }

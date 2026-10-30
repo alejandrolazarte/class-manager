@@ -27,4 +27,13 @@ export interface OrganizationSubscription {
   createdOn: string;
   expiredOn: string | null;
   isActive: boolean;
+  selfService: boolean;
+  isExternal: boolean;
+  paymentStatus: PaymentStatus | null;
+}
+
+export type PaymentStatus = "Current" | "PastDue";
+
+export interface BillingRedirect {
+  url: string;
 }
