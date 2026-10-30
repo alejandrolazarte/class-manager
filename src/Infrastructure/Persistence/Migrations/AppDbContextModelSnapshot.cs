@@ -3929,6 +3929,67 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ClassManager.Subscriptions.Offers.PlanOffer", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nchar(3)")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DeletedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly?>("ExpiredOn")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PlanCode")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("SubscriberId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("PlanCode");
+
+                    b.HasIndex("SubscriberId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("PlanOffers", "billing", t =>
+                        {
+                            t.HasCheckConstraint("CK_PlanOffers_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("ClassManager.Subscriptions.Subscribers.Subscription", b =>
                 {
                     b.Property<long>("Id")
@@ -5809,6 +5870,26 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("PlanCode")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Subscriptions.Offers.PlanOffer", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Subscriptions.Catalog.Plan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriberId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

@@ -1,6 +1,7 @@
 using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.UseCases.Authentication;
 using ClassManager.Core.UseCases.Subscriptions;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ public static class SelfServiceBillingRequests
 {
     public const string MadridTimeZoneId = "Europe/Madrid";
     public const string Euro = "EUR";
+    public const decimal OfferedPrice = 10m;
 
     private const int DaysSinceTheTrialStarted = 40;
 
@@ -60,6 +62,45 @@ public static class SelfServiceBillingRequests
             expiredOn: null,
             BusinessApiFactory.Now));
         await context.SaveChangesAsync();
+    }
+
+    public static async Task OfferPlanAsync(
+        this ApiFixture fixture,
+        long organizationId,
+        string planCode,
+        decimal price = OfferedPrice,
+        DateOnly? expiredOn = null,
+        int createdDaysAgo = 0)
+    {
+        await using var context = fixture.CreateDbContext(0L);
+        context.PlanOffers.Add(PlanOffer.Create(
+            organizationId,
+            planCode,
+            price,
+            Euro,
+            note: null,
+            expiredOn,
+            BusinessApiFactory.Now.AddDays(-createdDaysAgo)));
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task<PlanOffer?> CurrentOfferAsync(this ApiFixture fixture, long organizationId)
+    {
+        await using var context = fixture.CreateDbContext(0L);
+        return await context.PlanOffers.AsNoTracking().SingleOrDefaultAsync(offer => offer.SubscriberId == organizationId);
+    }
+
+    public static async Task<Subscription> CurrentSubscriptionAsync(this ApiFixture fixture, long organizationId)
+    {
+        await using var context = fixture.CreateDbContext(0L);
+        return await context.Subscriptions.AsNoTracking()
+            .SingleAsync(subscription => subscription.SubscriberId == organizationId && !subscription.IsDeleted);
+    }
+
+    public static async Task<OrganizationSubscriptionResponse> ReadOrganizationSubscriptionAsync(this HttpClient httpClient)
+    {
+        using var response = await httpClient.GetOrganizationSubscriptionAsync();
+        return (await response.Content.ReadFromJsonAsync<OrganizationSubscriptionResponse>(ApiRequests.JsonOptions))!;
     }
 
     public static async Task EndTrialAsync(this ApiFixture fixture, long organizationId)

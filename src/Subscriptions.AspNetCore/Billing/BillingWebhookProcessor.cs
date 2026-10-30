@@ -1,6 +1,7 @@
 using ClassManager.Records;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
 using ClassManager.Subscriptions.Billing;
+using ClassManager.Subscriptions.Subscribers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -50,11 +51,22 @@ internal sealed partial class BillingWebhookProcessor<TDbContext>(
         if (result.Started is { } started)
         {
             context.Subscriptions.Add(started);
+            await MarkOfferPaidAsync(started, now, cancellationToken);
         }
 
         if (result.Outcome is ExternalSubscriptionSyncOutcome.MissingSubscriber or ExternalSubscriptionSyncOutcome.UnknownPlan)
         {
             LogNotApplied(eventId, externalSubscriptionId, result.Outcome);
+        }
+    }
+
+    private async Task MarkOfferPaidAsync(Subscription started, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var offer = await context.PlanOffers.WhereNotDeleted()
+            .SingleOrDefaultAsync(candidate => candidate.SubscriberId == started.SubscriberId, cancellationToken);
+        if (offer is not null && offer.IsPaidBy(started))
+        {
+            offer.Delete(now);
         }
     }
 

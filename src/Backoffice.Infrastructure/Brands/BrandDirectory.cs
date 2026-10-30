@@ -58,6 +58,12 @@ internal sealed class BrandDirectory(AppDbContext context, TimeProvider timeProv
         var planFeatures = current is null ? [] : await context.PlanFeatures.AsNoTracking()
             .Where(planFeature => planFeature.PlanCode == current.PlanCode)
             .ToListAsync(cancellationToken);
+        var offer = await context.PlanOffers.AsNoTracking()
+            .FirstOrDefaultAsync(candidate => candidate.SubscriberId == brandId, cancellationToken);
+        var externalCustomerId = await context.BillingCustomers.AsNoTracking()
+            .Where(customer => customer.SubscriberId == brandId)
+            .Select(customer => customer.ExternalCustomerId)
+            .FirstOrDefaultAsync(cancellationToken);
 
         return new BrandRecord(
             organization.Id,
@@ -67,7 +73,9 @@ internal sealed class BrandDirectory(AppDbContext context, TimeProvider timeProv
             await BranchesOfAsync(brandId, cancellationToken),
             subscriptions,
             addOns,
-            planFeatures);
+            planFeatures,
+            offer,
+            externalCustomerId);
     }
 
     public async Task<IReadOnlyList<ExpiringAddOn>> ListAddOnsExpiringBetweenAsync(DateOnly from, DateOnly until, CancellationToken cancellationToken) =>

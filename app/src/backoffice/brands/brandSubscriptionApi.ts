@@ -1,5 +1,5 @@
 import { getBackofficeJson, sendBackofficeJson } from "@/backoffice/api/backofficeHttpClient";
-import { BrandAddOn } from "@/backoffice/brands/brandsApi";
+import { BrandAddOn, BrandPlanOffer } from "@/backoffice/brands/brandsApi";
 
 const catalogPath = "/api/subscription-catalog";
 const brandsPath = "/api/brands";
@@ -32,6 +32,13 @@ export interface ChangeBrandPlanRequest {
   expiredOn: string | null;
 }
 
+export interface OfferBrandPlanRequest {
+  planCode: string;
+  price: number;
+  note: string | null;
+  expiredOn: string | null;
+}
+
 export interface GiveBrandAddOnRequest {
   featureCode: string;
   price: number;
@@ -57,6 +64,17 @@ export function changeBrandPlan(
   request: ChangeBrandPlanRequest,
 ): Promise<{ subscriptionId: string }> {
   return sendBackofficeJson("PUT", `${brandPath(brandId)}/subscription`, request);
+}
+
+export function offerBrandPlan(
+  brandId: string,
+  request: OfferBrandPlanRequest,
+): Promise<BrandPlanOffer> {
+  return sendBackofficeJson("PUT", `${brandPath(brandId)}/offer`, request);
+}
+
+export function withdrawBrandPlanOffer(brandId: string): Promise<BrandPlanOffer> {
+  return sendBackofficeJson("DELETE", `${brandPath(brandId)}/offer`);
 }
 
 export function giveBrandAddOn(

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
-import { View } from "react-native";
+import { Linking, View } from "react-native";
 import {
   isBackofficeNotFound,
   isBackofficeSessionEnded,
@@ -10,8 +10,21 @@ import { backofficeRoutes } from "@/backoffice/backofficeRoutes";
 import { featureLabel, planLabel, statusLabel, statusTone } from "@/backoffice/brands/brandLabels";
 import { brandQueryKey, brandsQueryKey } from "@/backoffice/brands/brandQueryKeys";
 import { BrandUsage, countedFeatureCodes } from "@/backoffice/brands/BrandUsage";
-import { BrandAddOn, BrandDetail, BrandFeature, getBrand } from "@/backoffice/brands/brandsApi";
-import { removeBrandAddOn, restoreBrandAddOn } from "@/backoffice/brands/brandSubscriptionApi";
+import {
+  BrandAddOn,
+  BrandCurrentSubscription,
+  BrandDetail,
+  BrandFeature,
+  BrandPlanOffer,
+  getBrand,
+} from "@/backoffice/brands/brandsApi";
+import {
+  offerBrandPlan,
+  removeBrandAddOn,
+  restoreBrandAddOn,
+  withdrawBrandPlanOffer,
+} from "@/backoffice/brands/brandSubscriptionApi";
+import { copyText } from "@/backoffice/clipboard";
 import { useBackofficeSession } from "@/backoffice/session/useBackofficeSession";
 import { formatMoney } from "@/formatting/money";
 import { formatMegabytes } from "@/formatting/storageSize";
@@ -25,6 +38,7 @@ import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { StatusPill } from "@/ui/StatusPill";
+import { TextLink } from "@/ui/TextLink";
 import { useToast } from "@/ui/ToastProvider";
 
 const documentStorageFeatureCode = "document-storage";
@@ -79,10 +93,128 @@ function useAddOnRemoval(brandId: string) {
   return remove;
 }
 
+function useOfferActions(brandId: string) {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const refreshBrand = () => queryClient.invalidateQueries({ queryKey: brandsQueryKey });
+  const offerAgain = useMutation({
+    mutationFn: (offer: BrandPlanOffer) =>
+      offerBrandPlan(brandId, {
+        planCode: offer.planCode,
+        price: offer.price,
+        note: offer.note,
+        expiredOn: offer.expiredOn,
+      }),
+    onSettled: refreshBrand,
+    onError: () => showToast(translate("common.unexpectedError")),
+  });
+  const withdraw = useMutation({
+    mutationFn: () => withdrawBrandPlanOffer(brandId),
+    onSettled: refreshBrand,
+    onSuccess: (withdrawnOffer) =>
+      showToast(translate("backoffice.brand.offerWithdrawn"), {
+        label: translate("common.undo"),
+        onPress: () => offerAgain.mutate(withdrawnOffer),
+      }),
+    onError: () => showToast(translate("common.unexpectedError")),
+  });
+  const copyPaymentLink = async (offer: BrandPlanOffer) => {
+    try {
+      await copyText(offer.paymentLink);
+      showToast(translate("backoffice.brand.paymentLinkCopied"));
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
+  };
+  return { withdraw, copyPaymentLink };
+}
+
+function paysThroughStripe(subscription: BrandCurrentSubscription | null): boolean {
+  return subscription !== null && subscription.isExternal && subscription.status !== "Ended";
+}
+
+function stripeStatusText(subscription: BrandCurrentSubscription): string {
+  return subscription.paymentStatus === "PastDue"
+    ? translate("backoffice.brand.stripePastDue")
+    : translate("backoffice.brand.stripeCurrent");
+}
+
+function offerDetailText(offer: BrandPlanOffer): string {
+  if (offer.expiredOn === null) {
+    return translate("backoffice.brand.offerSince", {
+      date: formatDateTimeAsDate(offer.createdOn),
+    });
+  }
+  return offer.isActive
+    ? translate("backoffice.brand.until", { date: formatDateOnly(offer.expiredOn) })
+    : translate("backoffice.brand.offerExpiredOn", { date: formatDateOnly(offer.expiredOn) });
+}
+
+interface OfferSectionProps {
+  brand: BrandDetail;
+  canManage: boolean;
+}
+
+function OfferSection({ brand, canManage }: OfferSectionProps) {
+  const router = useRouter();
+  const { withdraw, copyPaymentLink } = useOfferActions(brand.id);
+  const offer = brand.offer;
+  const canOffer = canManage && !paysThroughStripe(brand.subscription);
+  return (
+    <HairlineSection title={translate("backoffice.brand.offerTitle")} isCompact>
+      {offer === null ? (
+        <AppText tone="muted">{translate("backoffice.brand.noOffer")}</AppText>
+      ) : (
+        <View className="gap-0.5">
+          <AppText variant="bodyStrong">
+            {`${planLabel(offer.planCode)} · ${translate("subscriptions.pricePerMonthPlusVat", {
+              price: formatMoney(offer.price, offer.currency),
+            })}`}
+          </AppText>
+          <AppText variant="caption" tone={offer.isActive ? "muted" : "danger"}>
+            {offerDetailText(offer)}
+          </AppText>
+          {offer.note === null ? null : (
+            <AppText variant="caption" tone="subtle">
+              {offer.note}
+            </AppText>
+          )}
+        </View>
+      )}
+      {offer !== null && offer.isActive ? (
+        <Button
+          variant="secondary"
+          size="medium"
+          label={translate("backoffice.brand.copyPaymentLink")}
+          onPress={() => copyPaymentLink(offer)}
+        />
+      ) : null}
+      {offer !== null && canManage ? (
+        <Button
+          variant="dangerGhost"
+          size="medium"
+          label={translate("backoffice.brand.withdrawOffer")}
+          onPress={() => withdraw.mutate()}
+          disabled={withdraw.isPending}
+        />
+      ) : null}
+      {canOffer ? (
+        <Button
+          variant="dashed"
+          label={translate("backoffice.brand.offerPlan")}
+          onPress={() => router.push(backofficeRoutes.offerPlan(brand.id))}
+        />
+      ) : null}
+    </HairlineSection>
+  );
+}
+
 function BrandSections({ brand, canManage }: BrandSectionsProps) {
   const router = useRouter();
   const removeAddOn = useAddOnRemoval(brand.id);
   const subscription = brand.subscription;
+  const isPayingThroughStripe = paysThroughStripe(subscription);
+  const billingCustomerUrl = brand.billingCustomerUrl;
   const includedFeatures = brand.features.filter(
     (feature) => !countedFeatureCodes.includes(feature.code),
   );
@@ -121,9 +253,29 @@ function BrandSections({ brand, canManage }: BrandSectionsProps) {
                 {subscription.note}
               </AppText>
             )}
+            {subscription.isExternal ? (
+              <AppText
+                variant="caption"
+                tone={subscription.paymentStatus === "PastDue" ? "danger" : "muted"}
+              >
+                {stripeStatusText(subscription)}
+              </AppText>
+            ) : null}
           </View>
         )}
-        {canManage ? (
+        {billingCustomerUrl === null ? null : (
+          <TextLink
+            label={translate("backoffice.brand.openInStripe")}
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(billingCustomerUrl)}
+          />
+        )}
+        {isPayingThroughStripe ? (
+          <AppText variant="caption" tone="muted">
+            {translate("backoffice.brand.planChangesInStripe")}
+          </AppText>
+        ) : null}
+        {canManage && !isPayingThroughStripe ? (
           <Button
             variant="secondary"
             size="medium"
@@ -132,6 +284,7 @@ function BrandSections({ brand, canManage }: BrandSectionsProps) {
           />
         ) : null}
       </HairlineSection>
+      <OfferSection brand={brand} canManage={canManage} />
       <HairlineSection title={translate("backoffice.brand.usageTitle")} isCompact>
         <BrandUsage brand={brand} />
       </HairlineSection>

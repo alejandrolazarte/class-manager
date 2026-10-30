@@ -1,5 +1,6 @@
 using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 
 namespace ClassManager.Core.Abstractions.Persistence;
@@ -21,4 +22,6 @@ public interface ISubscriptionRepository
     Task<BillingCustomer?> GetBillingCustomerAsync(long subscriberId, CancellationToken cancellationToken);
 
     void AddBillingCustomer(BillingCustomer billingCustomer);
+
+    Task<PlanOffer?> GetCurrentOfferAsync(long subscriberId, CancellationToken cancellationToken);
 }

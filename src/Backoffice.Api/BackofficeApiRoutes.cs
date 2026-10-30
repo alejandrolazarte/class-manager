@@ -12,6 +12,7 @@ internal static class BackofficeApiRoutes
     public const string Brands = "/api/brands";
     public const string BrandById = "/{brandId:long}";
     public const string BrandSubscription = "/{brandId:long}/subscription";
+    public const string BrandOffer = "/{brandId:long}/offer";
     public const string BrandAddOns = "/{brandId:long}/add-ons";
     public const string BrandAddOnById = "/{brandId:long}/add-ons/{addOnId:long}";
     public const string BrandAddOnRestore = "/{brandId:long}/add-ons/{addOnId:long}/restore";

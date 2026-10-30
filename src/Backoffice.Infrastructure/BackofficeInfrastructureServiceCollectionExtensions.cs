@@ -42,6 +42,7 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.Replace(ServiceDescriptor.Singleton(AuditSource.Backoffice));
         services.AddScoped<IBrandDirectory, BrandDirectory>();
         services.AddScoped<IBrandSubscriptionRepository, BrandSubscriptionRepository>();
+        services.AddScoped<IBrandBillingLinks, BrandBillingLinks>();
         services.Replace(ServiceDescriptor.Scoped<ITokenSubjectResolver, BackofficeTokenSubjectResolver>());
 
         services.AddUseCase<SignInOperatorCommand, OperatorSignInResponse, SignInOperatorUseCase>();
@@ -55,6 +56,8 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddUseCase<GiveBrandAddOnCommand, BrandAddOnResponse, GiveBrandAddOnUseCase>();
         services.AddUseCase<RemoveBrandAddOnCommand, BrandAddOnResponse, RemoveBrandAddOnUseCase>();
         services.AddUseCase<RestoreBrandAddOnCommand, BrandAddOnResponse, RestoreBrandAddOnUseCase>();
+        services.AddUseCase<OfferBrandPlanCommand, BrandPlanOfferResponse, OfferBrandPlanUseCase>();
+        services.AddUseCase<WithdrawBrandPlanOfferCommand, BrandPlanOfferResponse, WithdrawBrandPlanOfferUseCase>();
         services.AddUseCase<ListOperatorsQuery, OperatorListResponse, ListOperatorsUseCase>();
         services.AddUseCase<EnableOperatorCommand, OperatorLoginResponse, EnableOperatorUseCase>();
         services.AddUseCase<DisableOperatorCommand, OperatorLoginResponse, DisableOperatorUseCase>();

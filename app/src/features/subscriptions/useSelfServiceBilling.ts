@@ -19,12 +19,15 @@ export function useSelfServiceBilling() {
   const isWeb = Platform.OS === "web";
   const paysOnline = subscription?.isExternal === true;
   const mayPayOnline = canManageSubscription && (subscription?.selfService === true || paysOnline);
+  const offer = canManageSubscription && !paysOnline ? (subscription?.offer ?? null) : null;
 
   return {
     organizationSubscription,
     canChoosePlan: isWeb && mayPayOnline && !paysOnline,
     canManageBilling: isWeb && canManageSubscription && paysOnline,
-    managesOnTheWebOnly: !isWeb && mayPayOnline,
+    offer,
+    canAcceptOffer: isWeb && offer !== null,
+    managesOnTheWebOnly: !isWeb && (mayPayOnline || offer !== null),
     isPastDue: canManageSubscription && subscription?.paymentStatus === pastDueStatus,
   };
 }

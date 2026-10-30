@@ -16,12 +16,14 @@ public sealed class BackofficeApiFactory(string databaseConnectionString, string
     : WebApplicationFactory<Program>
 {
     public const string WebAppUrl = "https://admin.example.com";
+    public const string BusinessWebAppUrl = "https://app.example.com";
     public const string TestSigningKey = "backoffice-tests-signing-key-with-more-than-32-bytes";
 
     private const string ConnectionStringsSection = "ConnectionStrings";
     private const string GoogleScheme = "google";
     private const string PlatformOrganizationSetting = "Backoffice:PlatformOrganizationId";
     private const string WebAppUrlSetting = "Backoffice:WebAppUrl";
+    private const string BusinessWebAppUrlSetting = "WebApp:Url";
     private const string RateLimitSetting = "Authentication:RateLimit:PermitLimit";
     private const string TestPermitLimit = "10000";
 
@@ -45,6 +47,7 @@ public sealed class BackofficeApiFactory(string databaseConnectionString, string
         builder.UseSetting($"{JwtOptions.SectionName}:{nameof(JwtOptions.SigningKey)}", TestSigningKey);
         builder.UseSetting(PlatformOrganizationSetting, platformOrganizationId.ToString(CultureInfo.InvariantCulture));
         builder.UseSetting(WebAppUrlSetting, WebAppUrl);
+        builder.UseSetting(BusinessWebAppUrlSetting, BusinessWebAppUrl);
         builder.UseSetting(RateLimitSetting, TestPermitLimit);
 
         builder.ConfigureTestServices(services =>

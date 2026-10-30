@@ -1,5 +1,6 @@
 using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,4 +15,5 @@ public interface ISubscriptionsDbContext
     DbSet<SubscriptionFeature> SubscriptionFeatures { get; }
     DbSet<ProcessedBillingEvent> ProcessedBillingEvents { get; }
     DbSet<BillingCustomer> BillingCustomers { get; }
+    DbSet<PlanOffer> PlanOffers { get; }
 }

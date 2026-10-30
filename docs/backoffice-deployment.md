@@ -45,8 +45,17 @@ az containerapp create --name $backofficeContainerApp --resource-group $resource
     "ConnectionStrings__BusinessDatabase=$databaseConnectionString" `
     "Backoffice__PlatformOrganizationId=$platformOrganizationId" `
     "Backoffice__WebAppUrl=https://admin.laztty.com" `
+    "WebApp__Url=https://app.laztty.com" `
     "Cors__AllowedOrigins__0=https://admin.laztty.com"
 ```
+
+`WebApp__Url` is the business app, the same value the API has: **Copiar link de pago** on a brand's offer copies `{WebApp__Url}/settings/plan?offer=1` ([offering a plan](backend/20261029-stripe-billing/plan.md#offering-a-plan-a-payment-link-and-the-plan-changes-only-once-paid)). A backoffice created before plan offers needs it added once, or a brand with an offer fails to open:
+
+```powershell
+az containerapp update --name $backofficeContainerApp --resource-group $resourceGroup --set-env-vars "WebApp__Url=https://app.laztty.com"
+```
+
+**Ver en Stripe** links a paying brand to `https://dashboard.stripe.com/customers/{id}`. While Stripe runs in test mode, point it at the test dashboard with `Backoffice__StripeDashboardUrl=https://dashboard.stripe.com/test/`; remove it when going live.
 
 `Backoffice__PlatformOrganizationId` is the number in `Organizations.Id` (`SELECT Id, Name FROM Organizations`). A database recreated from scratch gives Laztty a new id, so update the variable then. A value the app can't read as a number (an id from before ids were numbers, for example) stops every new revision from starting.
 

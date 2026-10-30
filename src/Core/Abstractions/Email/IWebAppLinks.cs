@@ -25,4 +25,6 @@ public interface IWebAppLinks
     string PlanCheckoutSucceeded();
 
     string PlanCheckoutCancelled();
+
+    string PlanOfferPayment();
 }

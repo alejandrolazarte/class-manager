@@ -26,4 +26,14 @@ public static class BrandErrorCodes
     public const string NoteTooLongMessage = "The note must be at most 200 characters.";
     public const string EndDateInThePast = "backoffice.end_date_in_the_past";
     public const string EndDateInThePastMessage = "The end date can't be before today.";
+    public const string SubscriptionExternal = "backoffice.subscription_external";
+    public const string SubscriptionExternalMessage = "The brand pays through Stripe: its plan changes from Stripe.";
+    public const string PlanNotOfferable = "backoffice.plan_not_offerable";
+    public const string PlanNotOfferableMessage = "Only the plans paid online can be offered.";
+    public const string OfferPriceNotPositive = "backoffice.offer_price_not_positive";
+    public const string OfferPriceNotPositiveMessage = "An offered price must be more than zero.";
+    public const string BillingNotAvailable = "backoffice.billing_not_available";
+    public const string BillingNotAvailableMessage = "The brand's country can't pay online.";
+    public const string OfferNotFound = "backoffice.offer_not_found";
+    public const string OfferNotFoundMessage = "The brand has no current offer.";
 }

@@ -33,6 +33,13 @@ public sealed class GetOrganizationSubscriptionUseCase(
         }
 
         var selfServiceAccess = await selfServiceBillingService.GetAccessAsync(subscription, cancellationToken);
+        var isActive = subscription.IsActiveOn(today);
+        var paysOnline = subscription.ExternalSubscriptionId is not null && isActive;
+        var offer = paysOnline ? null : await selfServiceBillingService.FindActiveOfferAsync(business.OrganizationId, cancellationToken);
+        var payableOffer = offer is not null
+            && await selfServiceBillingService.GetAccessAsync(offer, cancellationToken) is SelfServiceBillingAccess.Available
+                ? new PlanOfferResponse(offer.PlanCode, offer.Price, offer.Currency, offer.ExpiredOn)
+                : null;
 
         return new OrganizationSubscriptionResponse(
             subscription.PlanCode,
@@ -40,9 +47,10 @@ public sealed class GetOrganizationSubscriptionUseCase(
             subscription.Currency,
             subscription.CreatedOn,
             subscription.ExpiredOn,
-            subscription.IsActiveOn(today),
+            isActive,
             selfServiceAccess is SelfServiceBillingAccess.Available,
             subscription.ExternalSubscriptionId is not null,
-            subscription.PaymentStatus);
+            subscription.PaymentStatus,
+            payableOffer);
     }
 }

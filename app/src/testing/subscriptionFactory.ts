@@ -65,6 +65,7 @@ export function buildOrganizationSubscription(
     selfService: false,
     isExternal: false,
     paymentStatus: null,
+    offer: null,
     ...overrides,
   };
 }

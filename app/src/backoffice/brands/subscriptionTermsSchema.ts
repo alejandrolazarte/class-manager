@@ -12,6 +12,16 @@ function isEmpty(text: string): boolean {
   return text.trim() === "";
 }
 
+const expiredOnShape = z.string().refine((typedDate) => {
+  if (isEmpty(typedDate)) {
+    return true;
+  }
+  const isoDate = parseBirthDate(typedDate);
+  return isoDate !== null && isoDate >= todayIsoDate();
+}, translate("backoffice.validation.expiredOn"));
+
+const noteShape = z.string().max(noteMaximumLength, translate("backoffice.validation.note"));
+
 const termsShape = {
   price: z
     .string()
@@ -25,19 +35,23 @@ const termsShape = {
       (typedCurrency) => currencyPattern.test(typedCurrency.trim()),
       translate("backoffice.validation.currency"),
     ),
-  expiredOn: z.string().refine((typedDate) => {
-    if (isEmpty(typedDate)) {
-      return true;
-    }
-    const isoDate = parseBirthDate(typedDate);
-    return isoDate !== null && isoDate >= todayIsoDate();
-  }, translate("backoffice.validation.expiredOn")),
+  expiredOn: expiredOnShape,
 };
 
 export const changePlanSchema = z.object({
   planCode: z.string().min(1),
-  note: z.string().max(noteMaximumLength, translate("backoffice.validation.note")),
+  note: noteShape,
   ...termsShape,
+});
+
+export const offerPlanSchema = z.object({
+  planCode: z.string().min(1),
+  price: z.string().refine((typedPrice) => {
+    const price = parseAmount(typedPrice);
+    return price !== null && price > 0;
+  }, translate("backoffice.validation.offerPrice")),
+  note: noteShape,
+  expiredOn: expiredOnShape,
 });
 
 export const giveAddOnSchema = z.object({
@@ -55,6 +69,8 @@ export type ChangePlanFormValues = z.input<typeof changePlanSchema>;
 
 export type GiveAddOnFormValues = z.input<typeof giveAddOnSchema>;
 
+export type OfferPlanFormValues = z.input<typeof offerPlanSchema>;
+
 function optionalIsoDate(typedDate: string): string | null {
   return isEmpty(typedDate) ? null : parseBirthDate(typedDate);
 }
@@ -65,6 +81,16 @@ export function toChangePlanRequest(values: ChangePlanFormValues) {
     planCode: values.planCode,
     price: parseAmount(values.price) ?? 0,
     currency: values.currency.trim().toUpperCase(),
+    note: note === "" ? null : note,
+    expiredOn: optionalIsoDate(values.expiredOn),
+  };
+}
+
+export function toOfferPlanRequest(values: OfferPlanFormValues) {
+  const note = values.note.trim();
+  return {
+    planCode: values.planCode,
+    price: parseAmount(values.price) ?? 0,
     note: note === "" ? null : note,
     expiredOn: optionalIsoDate(values.expiredOn),
   };

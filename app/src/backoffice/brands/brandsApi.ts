@@ -27,6 +27,21 @@ export interface BrandCurrentSubscription {
   expiredOn: string | null;
   status: BrandStatus;
   trialDaysLeft: number | null;
+  isExternal: boolean;
+  paymentStatus: BrandPaymentStatus | null;
+}
+
+export type BrandPaymentStatus = "Current" | "PastDue";
+
+export interface BrandPlanOffer {
+  planCode: string;
+  price: number;
+  currency: string;
+  note: string | null;
+  createdOn: string;
+  expiredOn: string | null;
+  isActive: boolean;
+  paymentLink: string;
 }
 
 export interface BrandFeature {
@@ -75,6 +90,8 @@ export interface BrandDetail {
   branches: BrandBranch[];
   addOns: BrandAddOn[];
   pastSubscriptions: BrandPastSubscription[];
+  offer: BrandPlanOffer | null;
+  billingCustomerUrl: string | null;
 }
 
 export async function getBrands(): Promise<BrandSummary[]> {
