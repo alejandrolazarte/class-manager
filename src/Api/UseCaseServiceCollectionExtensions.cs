@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Abstractions.Subscriptions;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.Accounts;
@@ -51,6 +52,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
         services.AddScoped<IStudentAppFamilyService, StudentAppFamilyService>();
         services.AddScoped<IBusinessCurrencyService, BusinessCurrencyService>();
+        services.AddScoped<ISelfServiceBillingService, SelfServiceBillingService>();
         services.AddScoped<ICatalogImageService, CatalogImageService>();
         services.AddScoped<IUserPhotoUrlService, UserPhotoUrlService>();
         services.AddScoped<IAnnouncementResponseService, AnnouncementResponseService>();
@@ -108,6 +110,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<ListPlansQuery, IReadOnlyList<PlanResponse>, ListPlansUseCase>();
         services.AddUseCase<ListCountriesQuery, IReadOnlyList<CountryResponse>, ListCountriesUseCase>();
         services.AddUseCase<GetOrganizationSubscriptionQuery, OrganizationSubscriptionResponse, GetOrganizationSubscriptionUseCase>();
+        services.AddUseCase<StartPlanCheckoutCommand, BillingRedirectResponse, StartPlanCheckoutUseCase>();
+        services.AddUseCase<OpenBillingPortalCommand, BillingRedirectResponse, OpenBillingPortalUseCase>();
         services.AddUseCase<GetTeamQuery, TeamResponse, GetTeamUseCase>();
         services.AddUseCase<InviteMemberCommand, InvitationResponse, InviteMemberUseCase>();
         services.AddUseCase<RevokeInvitationCommand, RevokedInvitationResponse, RevokeInvitationUseCase>();

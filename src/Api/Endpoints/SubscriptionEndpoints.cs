@@ -12,6 +12,12 @@ internal static class SubscriptionEndpoints
         endpoints.MapGet(ApiRoutes.Plans, ListPlansAsync).AllowAnonymous();
         endpoints.MapGet(ApiRoutes.OrganizationSubscription, GetOrganizationSubscriptionAsync)
             .RequirePermission(Permissions.Brand.ViewSubscription);
+        endpoints.MapPost(ApiRoutes.OrganizationSubscriptionCheckout, StartPlanCheckoutAsync)
+            .RequirePermission(Permissions.Brand.ManageSubscription)
+            .AllowInactiveSubscription();
+        endpoints.MapPost(ApiRoutes.OrganizationSubscriptionPortal, OpenBillingPortalAsync)
+            .RequirePermission(Permissions.Brand.ManageSubscription)
+            .AllowInactiveSubscription();
         endpoints.MapStripeBillingWebhook(ApiRoutes.StripeBillingWebhook);
 
         return endpoints;
@@ -31,6 +37,25 @@ internal static class SubscriptionEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new GetOrganizationSubscriptionQuery(), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> StartPlanCheckoutAsync(
+        StartPlanCheckoutCommand command,
+        IUseCase<StartPlanCheckoutCommand, BillingRedirectResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> OpenBillingPortalAsync(
+        IUseCase<OpenBillingPortalCommand, BillingRedirectResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new OpenBillingPortalCommand(), cancellationToken);
 
         return result.ToOkResult();
     }

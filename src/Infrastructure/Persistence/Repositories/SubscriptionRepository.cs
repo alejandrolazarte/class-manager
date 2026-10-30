@@ -1,5 +1,6 @@
 using ClassManager.Infrastructure.Subscriptions;
 using ClassManager.Records;
+using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.Extensions.Configuration;
@@ -26,4 +27,16 @@ internal sealed class SubscriptionRepository(AppDbContext context, IConfiguratio
             .AsNoTracking()
             .WhereNotDeleted()
             .FirstOrDefaultAsync(subscription => subscription.SubscriberId == subscriberId, cancellationToken);
+
+    public async Task<IReadOnlyList<SubscriptionFeature>> ListFeaturesAsync(long subscriptionId, CancellationToken cancellationToken) =>
+        await context.SubscriptionFeatures
+            .AsNoTracking()
+            .WhereNotDeleted()
+            .Where(feature => feature.SubscriptionId == subscriptionId)
+            .ToListAsync(cancellationToken);
+
+    public Task<BillingCustomer?> GetBillingCustomerAsync(long subscriberId, CancellationToken cancellationToken) =>
+        context.BillingCustomers.AsNoTracking().FirstOrDefaultAsync(customer => customer.SubscriberId == subscriberId, cancellationToken);
+
+    public void AddBillingCustomer(BillingCustomer billingCustomer) => context.BillingCustomers.Add(billingCustomer);
 }

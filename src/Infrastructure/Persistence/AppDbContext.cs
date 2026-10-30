@@ -74,6 +74,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionFeature> SubscriptionFeatures => Set<SubscriptionFeature>();
     public DbSet<ProcessedBillingEvent> ProcessedBillingEvents => Set<ProcessedBillingEvent>();
+    public DbSet<BillingCustomer> BillingCustomers => Set<BillingCustomer>();
 
     public long CurrentTenantId => tenantContext.TenantId;
 
@@ -87,6 +88,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
             configurationType => configurationType.Namespace == typeof(Configurations.BusinessConfiguration).Namespace);
         modelBuilder.ApplySubscriptionsModel();
         modelBuilder.Entity<Subscription>().HasOne<Organization>().WithMany().HasForeignKey(subscription => subscription.SubscriberId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<BillingCustomer>().HasOne<Organization>().WithMany().HasForeignKey(customer => customer.SubscriberId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.ApplyWhoDidWhatForeignKeys();
         modelBuilder.SeedSubscriptionCatalog();
         modelBuilder.SeedCountryCatalog();
