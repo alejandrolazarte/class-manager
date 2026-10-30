@@ -18,6 +18,7 @@ public sealed record SendAppFeedbackResponse(bool IsSent);
 public sealed class SendAppFeedbackUseCase(
     ICurrentUser currentUser,
     IIdentityService identityService,
+    IUserRepository userRepository,
     IBusinessRepository businessRepository,
     ICurrentMember currentMember,
     IAppFeedbackInbox appFeedbackInbox,
@@ -51,8 +52,9 @@ public sealed class SendAppFeedbackUseCase(
         }
 
         var accounts = await identityService.ListAccountsAsync([userId], cancellationToken);
+        var user = await userRepository.FindByAccountAsync(userId, cancellationToken);
         var business = await businessRepository.GetCurrentAsync(cancellationToken);
-        if (accounts.Count == 0 || business is null)
+        if (accounts.Count == 0 || user is null || business is null)
         {
             return Result.Unauthorized<SendAppFeedbackResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
@@ -60,7 +62,7 @@ public sealed class SendAppFeedbackUseCase(
         var sender = accounts[0];
         var details = new AppFeedbackEmailDetails(
             message,
-            sender.FullName,
+            user.FullName,
             sender.Email,
             business.Name,
             RoleOf(await currentMember.GetAccessAsync(cancellationToken)),

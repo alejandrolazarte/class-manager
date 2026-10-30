@@ -12,6 +12,7 @@ public sealed record UpdateMyProfileCommand([property: AuditPersonal] string? Fu
 public sealed class UpdateMyProfileUseCase(
     ICurrentUser currentUser,
     IIdentityService identityService,
+    IUserRepository userRepository,
     ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
     TimeProvider timeProvider)
     : IUseCase<UpdateMyProfileCommand, MyAccountResponse>
@@ -43,8 +44,8 @@ public sealed class UpdateMyProfileUseCase(
             return NoAccess();
         }
 
-        var accounts = await identityService.ListAccountsAsync([userId], cancellationToken);
-        return await MyAccountResponse.ForAsync(accounts[0], legalTermsAcceptanceRepository, cancellationToken);
+        await userRepository.ChangeProfileInEveryBusinessByAccountAsync(userId, fullName, birthDate, cancellationToken);
+        return await MyAccountResponse.OfAsync(userId, identityService, userRepository, legalTermsAcceptanceRepository, cancellationToken);
     }
 
     private static Result<MyAccountResponse> NoAccess() =>

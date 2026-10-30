@@ -128,6 +128,15 @@ Brand owners act in every branch of their brand. They get a user in each branch:
 | Sign-in | `AspNetUsers` only | The person, from Mi perfil. The app then copies it to every user with that `AccountId`, as it does today with `Clients` |
 | Contact | `Users` only | The business, while the person has no account. Locked once they sign in (`client.email_used_to_sign_in` today) |
 
+### Name and birth date
+
+The app shows a person's name and birth date only from `Users`: the family, the student chips, the greetings ("Hola, …" in the student app and in the team's day), the team list, Mi perfil and the avatar. `AspNetUsers.FullName` and `AspNetUsers.BirthDate` are never shown; the name only seeds the user of an account that joins a business (`AccountUsers`, new branches, brand owners) and names its passkeys, and the birth date backs the age checks of the account.
+
+| Changed from | Writes |
+|---|---|
+| Mi perfil (`PUT /api/me/account`) | The account and every user with that `AccountId`, in every business (`IUserRepository.ChangeProfileInEveryBusinessByAccountAsync`) |
+| The business (client, student or instructor) | That business's user only. Mi perfil in that business shows it right away |
+
 ## Audit columns
 
 `Users` and every tenant table implement `IAuditable`, step 2 of the [audit log plan](../20261012-audit-log/plan.md#iauditable-built) (built):
