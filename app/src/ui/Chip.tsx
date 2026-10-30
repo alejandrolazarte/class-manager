@@ -1,4 +1,5 @@
 import { LayoutChangeEvent, View } from "react-native";
+import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Icon, IconName } from "@/ui/Icon";
 import { PressableScale } from "@/ui/motion/PressableScale";
@@ -57,6 +58,13 @@ export function Chip({
       : hasSlidingSelection
         ? "muted"
         : "default";
+  const iconTone: ThemeColorToken = isSelected
+    ? hasSlidingSelection
+      ? "inverse-foreground"
+      : "primary-foreground"
+    : hasSlidingSelection
+      ? "muted-foreground"
+      : "foreground";
   const countClassName = isSelected
     ? hasSlidingSelection
       ? "bg-inverse-foreground/20"
@@ -75,7 +83,7 @@ export function Chip({
     >
       {icon ? (
         <View>
-          <Icon name={icon} size="medium" tone={isSelected ? "primary-foreground" : "foreground"} />
+          <Icon name={icon} size={hasSlidingSelection ? "small" : "medium"} tone={iconTone} />
         </View>
       ) : null}
       <AppText
