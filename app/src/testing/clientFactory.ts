@@ -12,6 +12,7 @@ export function buildClient(overrides: Partial<ClientDetails> = {}): ClientDetai
     billingPlanChanges: [],
     students: [],
     appAccess: { status: "NotInvited", invitedEmail: null },
+    photoUrl: null,
     ...overrides,
   };
 }

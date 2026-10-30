@@ -11,6 +11,7 @@ import { useMakeupBooking } from "@/features/studentApp/useMakeupBooking";
 import { usePackClassBooking } from "@/features/studentApp/usePackClassBooking";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { Avatar } from "@/ui/Avatar";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
@@ -75,6 +76,13 @@ export function ScheduledClassRow({
         })}
         onPress={onOpen}
       >
+        {scheduledClass.instructorFullName === null ? null : (
+          <Avatar
+            name={scheduledClass.instructorFullName}
+            size="tiny"
+            photoUrl={scheduledClass.instructorPhotoUrl}
+          />
+        )}
         {summary}
         <Icon name="next" size="small" tone="subtle-foreground" />
       </HairlineRow>

@@ -27,6 +27,8 @@ public sealed record StudentAppNewsItemResponse(
 {
     public long? AnnouncementId { get; init; }
 
+    public string? InstructorPhotoUrl { get; init; }
+
     public AnnouncementCategory? Category { get; init; }
 
     public bool? IsGoing { get; init; }

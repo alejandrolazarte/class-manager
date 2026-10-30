@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
@@ -18,6 +19,7 @@ public sealed class GetClientUseCase(
     IUserRepository userRepository,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes,
+    IUserPhotoUrlService userPhotoUrls,
     TimeProvider timeProvider)
     : IUseCase<GetClientQuery, ClientDetailsResponse>
 {
@@ -46,11 +48,20 @@ public sealed class GetClientUseCase(
 
         var onTheTeam = await userRepository.ListOnTheTeamAsync([client.UserId, .. students.Select(student => student.UserId)], cancellationToken);
         var userIdsByStudent = students.ToDictionary(student => student.Id, student => student.UserId);
+        var photoUrls = await userPhotoUrls.OfUsersAsync([client.UserId, .. userIdsByStudent.Values], cancellationToken);
         var details = ClientDetailsResponse.From(client, students, billingPlanChanges, defaultFeeChanges, today, clientAppAccess, studentAppAccesses);
         return details with
         {
             IsOnTheTeam = onTheTeam.Contains(client.UserId),
-            Students = [.. details.Students.Select(student => student with { IsOnTheTeam = onTheTeam.Contains(userIdsByStudent[student.Id]) })],
+            PhotoUrl = photoUrls.GetValueOrDefault(client.UserId),
+            Students =
+            [
+                .. details.Students.Select(student => student with
+                {
+                    IsOnTheTeam = onTheTeam.Contains(userIdsByStudent[student.Id]),
+                    PhotoUrl = photoUrls.GetValueOrDefault(userIdsByStudent[student.Id]),
+                }),
+            ],
         };
     }
 

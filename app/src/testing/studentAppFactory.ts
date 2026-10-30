@@ -296,6 +296,7 @@ export function buildStudentAppNewsItem(
     audienceClassNames: [],
     action: null,
     actionUrl: null,
+    instructorPhotoUrl: null,
     ...overrides,
   };
 }

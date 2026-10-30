@@ -71,7 +71,7 @@ export function StudentPicker({
             onPress={() => onPick(student)}
             className="flex-row items-center gap-3 rounded-2xl py-2.5 active:bg-muted"
           >
-            <Avatar name={student.fullName} size="small" />
+            <Avatar name={student.fullName} size="small" photoUrl={student.photoUrl} />
             <View className="min-w-0 flex-1">
               <AppText variant="bodyStrong">{student.fullName}</AppText>
               <AppText variant="caption" tone="subtle">

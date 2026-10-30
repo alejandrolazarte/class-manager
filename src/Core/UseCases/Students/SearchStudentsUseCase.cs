@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
@@ -11,7 +12,8 @@ public sealed record SearchStudentsQuery(string? Search, int? Limit) : IQuery;
 public sealed class SearchStudentsUseCase(
     IBusinessRepository businessRepository,
     IStudentRepository studentRepository,
-    IAccessScopes accessScopes)
+    IAccessScopes accessScopes,
+    IUserPhotoUrlService userPhotoUrls)
     : IUseCase<SearchStudentsQuery, IReadOnlyList<StudentSummaryResponse>>
 {
     public const int DefaultLimit = 20;
@@ -34,7 +36,9 @@ public sealed class SearchStudentsUseCase(
             await accessScopes.ForClientsAsync(cancellationToken));
 
         var students = await studentRepository.SearchAsync(criteria, cancellationToken);
+        var photoUrls = await userPhotoUrls.OfStudentsAsync(students.Select(student => student.Id), cancellationToken);
 
-        return Result.Success<IReadOnlyList<StudentSummaryResponse>>([.. students.Select(StudentSummaryResponse.From)]);
+        return Result.Success<IReadOnlyList<StudentSummaryResponse>>(
+            [.. students.Select(student => StudentSummaryResponse.From(student, photoUrls.GetValueOrDefault(student.Id)))]);
     }
 }

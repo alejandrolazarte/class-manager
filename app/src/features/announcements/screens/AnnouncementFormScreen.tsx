@@ -178,6 +178,7 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
     studentFullNames: [],
     className: null,
     instructorFullName: null,
+    instructorPhotoUrl: null,
     classDate: null,
     orderId: null,
     classStartTime: null,

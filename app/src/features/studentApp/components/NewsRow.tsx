@@ -7,6 +7,7 @@ import { StudentAppNewsItem, StudentAppNewsKind } from "@/features/studentApp/ty
 import { translate } from "@/i18n/translate";
 import { ThemeColorToken } from "@/theme/themeColorTokens";
 import { AppText } from "@/ui/AppText";
+import { Avatar } from "@/ui/Avatar";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { IconCircle } from "@/ui/IconCircle";
@@ -34,7 +35,11 @@ export function NewsRow({ item, action }: NewsRowProps) {
         />
       )}
       <View className="flex-row gap-3">
-        <IconCircle icon={icon} tone={iconTone ?? iconTones[item.kind] ?? "primary"} />
+        {item.kind === "InstructorFeedback" && item.instructorFullName !== null ? (
+          <Avatar name={item.instructorFullName} photoUrl={item.instructorPhotoUrl} />
+        ) : (
+          <IconCircle icon={icon} tone={iconTone ?? iconTones[item.kind] ?? "primary"} />
+        )}
         <View className="min-w-0 flex-1 gap-0.5">
           {categoryPill === undefined && audience === undefined ? null : (
             <View className="mb-1 flex-row flex-wrap items-center gap-1.5">
