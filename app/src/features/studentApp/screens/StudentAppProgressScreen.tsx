@@ -15,6 +15,7 @@ import {
   levelProgress,
   nextMedalGoal,
 } from "@/features/studentApp/studentAppAchievements";
+import { Medal } from "@/features/studentApp/types";
 import { useNewMedal } from "@/features/studentApp/useNewMedal";
 import { useStudentAppHome } from "@/features/studentApp/useStudentAppHome";
 import { useRefetchOnFocus } from "@/hooks/useRefetchOnFocus";
@@ -36,6 +37,7 @@ type ProgressSection = "constancy" | "measurements";
 export function StudentAppProgressScreen() {
   const router = useRouter();
   const [section, setSection] = useState<ProgressSection>("constancy");
+  const [openedMedal, setOpenedMedal] = useState<Medal | null>(null);
   const { data: home, isPending, isError, refetch } = useStudentAppHome();
   const measurements = useStudentAppMeasurements();
   useRefetchOnFocus(refetch);
@@ -84,6 +86,13 @@ export function StudentAppProgressScreen() {
   );
   const isShowingMeasurements = section === "measurements";
   const nextMedal = nextMedalGoal(attendance);
+  const celebratedMedal = newMedal ?? openedMedal;
+  function closeCelebration() {
+    if (newMedal !== null) {
+      dismissNewMedal();
+    }
+    setOpenedMedal(null);
+  }
   return (
     <ScrollScreen
       header={header}
@@ -151,13 +160,13 @@ export function StudentAppProgressScreen() {
                 })}
               </AppText>
             </View>
-            <MedalGrid attendance={attendance} />
+            <MedalGrid attendance={attendance} onOpenEarnedMedal={setOpenedMedal} />
           </View>
-          {newMedal === null ? null : (
+          {celebratedMedal === null ? null : (
             <MedalCelebration
-              medal={newMedal}
+              medal={celebratedMedal}
               nextMedal={nextMedal?.medal ?? null}
-              onClose={dismissNewMedal}
+              onClose={closeCelebration}
             />
           )}
         </>
