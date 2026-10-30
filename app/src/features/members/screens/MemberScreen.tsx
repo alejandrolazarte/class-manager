@@ -21,12 +21,14 @@ import { SettingsFormScreenLayout } from "@/features/settings/components/Setting
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
 import { SubmissionFailure, toSubmissionFailure } from "@/features/settings/submissionFailure";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { useToast } from "@/ui/ToastProvider";
 import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
+import { TextLink } from "@/ui/TextLink";
 
 interface MemberScreenProps {
   memberId: string;
@@ -45,6 +47,7 @@ function MemberEditor({ member, team }: MemberEditorProps) {
   const removeMutation = useRemoveMember();
   const brandOwnerMutation = useSetBrandOwner(member.id);
   const canManageBrandOwners = useCan(permissions.brandOwnersManage);
+  const canOpenInstructor = useCan(permissions.instructorsView);
   const [isLastBrandOwner, setIsLastBrandOwner] = useState(false);
   const { data: roles } = useRoles();
   const [roleKey, setRoleKey] = useState(roleKeyOf(member.role, member.customRoleId));
@@ -119,6 +122,13 @@ function MemberEditor({ member, team }: MemberEditorProps) {
       submissionFailure={submissionFailure}
       onRetry={save}
     >
+      {member.instructorId !== null && canOpenInstructor ? (
+        <TextLink
+          label={translate("team.member.openInstructor")}
+          icon="instructors"
+          onPress={() => router.push(routes.instructor(member.instructorId ?? ""))}
+        />
+      ) : null}
       <RequiredFieldsLegend />
       <RoleFields
         roleKey={roleKey}

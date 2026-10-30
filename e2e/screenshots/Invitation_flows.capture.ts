@@ -318,15 +318,15 @@ test("Invitation flows", async ({ page, request, browser }) => {
   await capture(page, "18-confirmar-eliminar-cuenta");
   await page.getByRole("button", { name: "Volver" }).last().click();
 
-  await page.goto("/settings/instructors/new");
+  await page.goto("/settings/team/invite");
   await page.getByLabel("Nombre y apellido").filter({ visible: true }).fill("Ana Pérez");
   await page.getByLabel("Email").filter({ visible: true }).fill(business.guardianEmail);
   await page.getByRole("button", { name: "Guardar" }).filter({ visible: true }).click();
   await page.getByText("¿Ana Pérez es la misma persona?").waitFor();
   await capture(page, "19-es-la-misma-persona");
   await page.getByRole("button", { name: "Unir" }).click();
-  await expect(page).not.toHaveURL(/\/new$/);
-  await page.goto("/settings/instructors");
+  await expect(page).not.toHaveURL(/\/invite$/);
+  await page.goto("/settings/team");
 
   await page.getByText("Ana Pérez", { exact: true }).filter({ visible: true }).first().click();
   await page.getByText("Ana Pérez también está en Alumnos.").filter({ visible: true }).waitFor();

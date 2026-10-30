@@ -1,25 +1,25 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { createInstructor } from "@/features/instructors/instructorsApi";
-import { InstructorFormScreen } from "@/features/instructors/screens/InstructorFormScreen";
+import { AddTeamMemberScreen } from "@/features/members/screens/AddTeamMemberScreen";
 import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/instructors/instructorsApi");
 
-describe("When instructor is saved with an email", () => {
+describe("When an instructor is added with a padded email", () => {
   beforeEach(() => {
     jest.mocked(createInstructor).mockResolvedValue(buildInstructor());
   });
 
   it("Then request has the email", async () => {
-    await renderWithProviders(<InstructorFormScreen />);
+    await renderWithProviders(<AddTeamMemberScreen />);
     await fireEvent.changeText(
       screen.getByLabelText(translate("instructors.form.fullName")),
       "Laura Gómez",
     );
     await fireEvent.changeText(
-      screen.getByLabelText(translate("instructors.form.email")),
+      screen.getByLabelText(translate("team.invite.email")),
       " laura@example.com ",
     );
 

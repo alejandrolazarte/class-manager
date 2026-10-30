@@ -106,8 +106,6 @@ export const routes = {
   measurementSettings: "/settings/measurements",
   newMeasurement: "/settings/measurements/new",
   defaultMonthlyFee: "/settings/monthly-fee",
-  instructors: "/settings/instructors",
-  newInstructor: "/settings/instructors/new",
   importInstructors: "/settings/instructors/import",
   classesNewInstructor: "/classes/instructors/new",
   instructor: (instructorId: string) => `/settings/instructors/${instructorId}`,

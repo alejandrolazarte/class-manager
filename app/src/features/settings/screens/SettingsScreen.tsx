@@ -116,7 +116,7 @@ export function SettingsScreen() {
       items: [
         {
           key: "team",
-          isVisible: canViewTeam,
+          isVisible: canViewTeam || canViewInstructors,
           icon: "students",
           label: translate("settings.team"),
           onPress: () => router.push(routes.team),
@@ -127,13 +127,6 @@ export function SettingsScreen() {
           icon: "roles",
           label: translate("settings.roles"),
           onPress: () => router.push(routes.roles),
-        },
-        {
-          key: "instructors",
-          isVisible: canViewInstructors,
-          icon: "instructors",
-          label: translate("settings.instructors"),
-          onPress: () => router.push(routes.instructors),
         },
         {
           key: "achievements",

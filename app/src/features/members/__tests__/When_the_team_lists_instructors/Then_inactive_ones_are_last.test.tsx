@@ -1,13 +1,16 @@
 import { screen } from "@testing-library/react-native";
 import { listInstructorsIncludingInactive } from "@/features/instructors/instructorsApi";
-import { InstructorListScreen } from "@/features/instructors/screens/InstructorListScreen";
+import { getTeam } from "@/features/members/membersApi";
+import { TeamScreen } from "@/features/members/screens/TeamScreen";
 import { buildInstructor } from "@/testing/classGroupFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
+jest.mock("@/features/members/membersApi");
 jest.mock("@/features/instructors/instructorsApi");
 
-describe("When listing instructors", () => {
+describe("When the team lists instructors", () => {
   beforeEach(() => {
+    jest.mocked(getTeam).mockResolvedValue({ members: [], invitations: [] });
     jest
       .mocked(listInstructorsIncludingInactive)
       .mockResolvedValue([
@@ -17,7 +20,7 @@ describe("When listing instructors", () => {
   });
 
   it("Then inactive ones are last", async () => {
-    await renderWithProviders(<InstructorListScreen />);
+    await renderWithProviders(<TeamScreen />);
 
     const instructorButtons = await screen.findAllByRole("button", { name: /Gómez|Ruiz/ });
     expect(instructorButtons.map((button) => button.props.accessibilityLabel)).toEqual([

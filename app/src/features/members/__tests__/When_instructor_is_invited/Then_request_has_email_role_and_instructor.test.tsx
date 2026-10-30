@@ -1,7 +1,7 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react-native";
+import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { getTeam, inviteMember } from "@/features/members/membersApi";
-import { InviteMemberScreen } from "@/features/members/screens/InviteMemberScreen";
+import { AddTeamMemberScreen } from "@/features/members/screens/AddTeamMemberScreen";
 import { translate } from "@/i18n/translate";
 import { listRoles } from "@/features/roles/rolesApi";
 import { buildInstructor } from "@/testing/classGroupFactory";
@@ -15,7 +15,7 @@ jest.mock("@/features/instructors/instructorsApi");
 jest.mock("@/features/roles/rolesApi");
 
 const freeInstructor = buildInstructor({ id: "instructor-free", fullName: "Marcos Díaz" });
-const linkedInstructor = buildInstructor({ id: "instructor-linked", fullName: "Laura Gómez" });
+const linkedInstructor = buildInstructor({ id: "instructor-linked", fullName: "Marcos Gómez" });
 const email = "marcos@example.com";
 
 describe("When instructor is invited", () => {
@@ -30,14 +30,21 @@ describe("When instructor is invited", () => {
   });
 
   it("Then request has email role and instructor", async () => {
-    await renderWithProviders(<InviteMemberScreen />);
+    await renderWithProviders(<AddTeamMemberScreen />);
     await fireEvent.changeText(screen.getByLabelText(translate("team.invite.email")), email);
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("instructors.picker.choose") }),
+    await fireEvent.changeText(
+      screen.getByLabelText(translate("instructors.form.fullName")),
+      "Marcos",
     );
-    const picker = within(screen.getByTestId("linked-instructor-picker"));
-    expect(picker.queryByRole("button", { name: linkedInstructor.fullName })).toBeNull();
-    await fireEvent.press(picker.getByRole("button", { name: freeInstructor.fullName }));
+    const freeInstructorSuggestion = await screen.findByRole("button", {
+      name: translate("team.add.useExisting", { name: freeInstructor.fullName }),
+    });
+    expect(
+      screen.queryByRole("button", {
+        name: translate("team.add.useExisting", { name: linkedInstructor.fullName }),
+      }),
+    ).toBeNull();
+    await fireEvent.press(freeInstructorSuggestion);
 
     await fireEvent.press(screen.getByRole("button", { name: translate("team.invite.submit") }));
 

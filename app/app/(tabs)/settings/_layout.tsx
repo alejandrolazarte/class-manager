@@ -25,14 +25,6 @@ export default function SettingsLayout() {
       />
       <Stack.Screen name="monthly-fee" options={{ title: translate("fees.billingPlan.title") }} />
       <Stack.Screen
-        name="instructors/index"
-        options={{ title: translate("instructors.list.title") }}
-      />
-      <Stack.Screen
-        name="instructors/new"
-        options={{ title: translate("instructors.form.newTitle") }}
-      />
-      <Stack.Screen
         name="instructors/import"
         options={{ title: translate("importExport.import.instructors") }}
       />
@@ -91,7 +83,7 @@ export default function SettingsLayout() {
       />
       <Stack.Screen name="measurements/new" options={{ title: translate("measurements.new") }} />
       <Stack.Screen name="team/index" options={{ title: translate("team.title") }} />
-      <Stack.Screen name="team/invite" options={{ title: translate("team.invite.title") }} />
+      <Stack.Screen name="team/invite" options={{ title: translate("team.add.title") }} />
       <Stack.Screen name="team/[memberId]" options={{ title: translate("team.title") }} />
       <Stack.Screen name="roles/index" options={{ title: translate("roles.title") }} />
       <Stack.Screen name="roles/new" options={{ title: translate("roles.editor.newTitle") }} />

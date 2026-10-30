@@ -1,5 +1,5 @@
-import { InstructorFormScreen } from "@/features/instructors/screens/InstructorFormScreen";
+import { AddTeamMemberScreen } from "@/features/members/screens/AddTeamMemberScreen";
 
-export default function NewInstructorRoute() {
-  return <InstructorFormScreen />;
+export default function AddTeamMemberRoute() {
+  return <AddTeamMemberScreen />;
 }

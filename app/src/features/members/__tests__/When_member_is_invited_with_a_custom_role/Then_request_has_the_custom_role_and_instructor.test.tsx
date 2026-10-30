@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { getTeam, inviteMember } from "@/features/members/membersApi";
-import { InviteMemberScreen } from "@/features/members/screens/InviteMemberScreen";
+import { AddTeamMemberScreen } from "@/features/members/screens/AddTeamMemberScreen";
 import { listRoles } from "@/features/roles/rolesApi";
 import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
@@ -28,13 +28,18 @@ describe("When member is invited with a custom role", () => {
   });
 
   it("Then request has the custom role and instructor", async () => {
-    await renderWithProviders(<InviteMemberScreen />);
+    await renderWithProviders(<AddTeamMemberScreen />);
     await fireEvent.changeText(screen.getByLabelText(translate("team.invite.email")), email);
     await fireEvent.press(await screen.findByRole("button", { name: customRole.name! }));
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("instructors.picker.choose") }),
+    await fireEvent.changeText(
+      screen.getByLabelText(translate("instructors.form.fullName")),
+      "Marcos",
     );
-    await fireEvent.press(await screen.findByRole("button", { name: instructor.fullName }));
+    await fireEvent.press(
+      await screen.findByRole("button", {
+        name: translate("team.add.useExisting", { name: instructor.fullName }),
+      }),
+    );
 
     await fireEvent.press(screen.getByRole("button", { name: translate("team.invite.submit") }));
 

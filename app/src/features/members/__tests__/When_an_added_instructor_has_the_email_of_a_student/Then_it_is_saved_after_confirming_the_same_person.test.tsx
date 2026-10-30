@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { ApiError } from "@/api/httpClient";
 import { createInstructor } from "@/features/instructors/instructorsApi";
-import { InstructorFormScreen } from "@/features/instructors/screens/InstructorFormScreen";
+import { AddTeamMemberScreen } from "@/features/members/screens/AddTeamMemberScreen";
 import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { translate } from "@/i18n/translate";
 import { buildInstructor } from "@/testing/classGroupFactory";
@@ -12,7 +12,7 @@ jest.mock("@/features/instructors/instructorsApi");
 const conflictStatus = 409;
 const studentUserId = "user-of-the-student";
 
-describe("When a new instructor has the email of a student", () => {
+describe("When an added instructor has the email of a student", () => {
   beforeEach(() => {
     jest
       .mocked(createInstructor)
@@ -28,13 +28,13 @@ describe("When a new instructor has the email of a student", () => {
   });
 
   it("Then it is saved after confirming the same person", async () => {
-    await renderWithProviders(<InstructorFormScreen />);
+    await renderWithProviders(<AddTeamMemberScreen />);
     await fireEvent.changeText(
       screen.getByLabelText(translate("instructors.form.fullName")),
       "Ana Gómez",
     );
     await fireEvent.changeText(
-      screen.getByLabelText(translate("instructors.form.email")),
+      screen.getByLabelText(translate("team.invite.email")),
       "ana@example.com",
     );
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));

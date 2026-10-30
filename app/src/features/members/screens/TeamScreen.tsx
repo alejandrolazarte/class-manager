@@ -1,10 +1,13 @@
 import { useRouter } from "expo-router";
 import { View } from "react-native";
+import { ImportExportMenu } from "@/features/importExport/components/ImportExportMenu";
+import { InstructorListItem } from "@/features/instructors/components/InstructorListItem";
+import { Instructor } from "@/features/instructors/types";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
-import { useCan } from "@/features/members/CurrentMemberProvider";
+import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { roleDescription } from "@/features/members/roleLabels";
-import { Invitation, Member } from "@/features/members/types";
+import { Invitation, Member, Team } from "@/features/members/types";
 import { useTeam } from "@/features/members/useTeam";
 import { useResendInvitation, useRevokeInvitation } from "@/features/members/useTeamMutations";
 import { isPlatformRole, memberRoleLabel } from "@/features/roles/roleChoices";
@@ -17,6 +20,7 @@ import { AppText } from "@/ui/AppText";
 import { Avatar } from "@/ui/Avatar";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
+import { EmptyState } from "@/ui/EmptyState";
 import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { Icon } from "@/ui/Icon";
@@ -28,9 +32,7 @@ import { StatusPill } from "@/ui/StatusPill";
 import { useToast } from "@/ui/ToastProvider";
 import { TitleWithPills } from "@/ui/TitleWithPills";
 import { PlanUsage } from "@/features/subscriptions/components/PlanUsage";
-import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
-import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
 
 const isoDateLength = 10;
 
@@ -122,13 +124,23 @@ function InvitationRow({
   );
 }
 
+function withoutAccount(instructors: Instructor[], team: Team): Instructor[] {
+  const linkedInstructorIds = new Set(team.members.map((member) => member.instructorId));
+  return instructors.filter((instructor) => !linkedInstructorIds.has(instructor.id));
+}
+
 export function TeamScreen() {
   const router = useRouter();
   const { showToast } = useToast();
-  const isAtTeamLimit = useIsAtLimit(featureCodes.team);
+  const canViewMembers = useCan(permissions.membersView);
   const canManageMembers = useCan(permissions.membersManage);
-  const withinTeamPlan = usePlanAllowing(featureCodes.team, !isAtTeamLimit);
-  const teamQuery = useTeam();
+  const canViewInstructors = useCan(permissions.instructorsView);
+  const canManageInstructors = useCan(permissions.instructorsManage);
+  const canOpenInstructor = useCan(permissions.instructorsManage, permissions.membersManage);
+  const canRunImportExport = useRoleCan(permissions.importExportRun);
+  const canImportExportInstructors = canRunImportExport && canViewInstructors;
+  const canAdd = canManageMembers || canManageInstructors;
+  const teamQuery = useTeam({ enabled: canViewMembers });
   const { data: roles } = useRoles();
   const instructorsQuery = useInstructorsIncludingInactive();
   const revokeMutation = useRevokeInvitation();
@@ -138,6 +150,13 @@ export function TeamScreen() {
   );
   const instructorNameOf = (instructorId: string | null) =>
     instructorId === null ? undefined : instructorNames.get(instructorId);
+  const listedInstructors =
+    teamQuery.data === undefined
+      ? (instructorsQuery.data ?? [])
+      : withoutAccount(instructorsQuery.data ?? [], teamQuery.data);
+  const isPending = (canViewMembers && teamQuery.isPending) || instructorsQuery.isPending;
+  const isError = (canViewMembers && teamQuery.isError) || instructorsQuery.isError;
+  const isTeamShown = !canViewMembers || teamQuery.data !== undefined;
 
   const resend = async (invitationId: string) => {
     await resendMutation.mutateAsync(invitationId);
@@ -149,28 +168,43 @@ export function TeamScreen() {
     showToast(translate("team.revoked"));
   };
 
+  const retry = () => {
+    void teamQuery.refetch();
+    void instructorsQuery.refetch();
+  };
+
   return (
     <ScrollScreen
-      header={<ScreenHeader navigation="back" title={translate("team.title")} />}
-      hasFloatingAction={canManageMembers}
+      header={
+        <ScreenHeader
+          navigation="back"
+          title={translate("team.title")}
+          navigationAction={
+            canImportExportInstructors ? (
+              <ImportExportMenu module="instructors" importRoute={routes.importInstructors} />
+            ) : undefined
+          }
+        />
+      }
+      hasFloatingAction={canAdd}
       overlay={
-        canManageMembers ? (
+        canAdd ? (
           <FloatingActionButton
-            label={translate("team.invite")}
-            onPress={withinTeamPlan(() => router.push(routes.inviteMember))}
+            label={translate("team.add")}
+            onPress={() => router.push(routes.inviteMember)}
           />
         ) : undefined
       }
     >
       {canManageMembers ? <PlanUsage featureCode={featureCodes.team} /> : null}
-      {teamQuery.isPending ? <SkeletonList /> : null}
-      {teamQuery.isError ? (
+      {isPending && !isError ? <SkeletonList /> : null}
+      {isError ? (
         <Banner message={translate("common.unexpectedError")}>
           <Button
             variant="secondary"
             size="medium"
             label={translate("common.retry")}
-            onPress={() => teamQuery.refetch()}
+            onPress={retry}
           />
         </Banner>
       ) : null}
@@ -216,6 +250,36 @@ export function TeamScreen() {
             </>
           ) : null}
         </>
+      ) : null}
+      {isTeamShown && instructorsQuery.data ? (
+        listedInstructors.length > 0 ? (
+          <>
+            <SectionTitle
+              title={translate(
+                canViewMembers ? "team.instructorsWithoutAccount" : "instructors.list.title",
+              )}
+            />
+            <View>
+              {listedInstructors.map((instructor) => (
+                <InstructorListItem
+                  key={instructor.id}
+                  instructor={instructor}
+                  onPress={
+                    canOpenInstructor
+                      ? () => router.push(routes.instructor(instructor.id))
+                      : undefined
+                  }
+                />
+              ))}
+            </View>
+          </>
+        ) : canViewMembers ? null : (
+          <EmptyState
+            icon="instructors"
+            message={translate("instructors.list.empty")}
+            createActionLabel={canAdd ? translate("team.add") : undefined}
+          />
+        )
       ) : null}
     </ScrollScreen>
   );

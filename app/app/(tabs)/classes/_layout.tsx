@@ -22,10 +22,7 @@ export default function ClassesLayout() {
         name="[classGroupId]/enroll"
         options={{ title: translate("enrollments.enroll.title") }}
       />
-      <Stack.Screen
-        name="instructors/new"
-        options={{ title: translate("instructors.form.newTitle") }}
-      />
+      <Stack.Screen name="instructors/new" options={{ title: translate("team.add.title") }} />
     </Stack>
   );
 }
