@@ -63,7 +63,12 @@ export function AnnouncementRow({
         {hasCategoryPill(announcement.category) || announcement.isPinned ? (
           <View className="mb-1 flex-row flex-wrap gap-1.5">
             {hasCategoryPill(announcement.category) ? (
-              <StatusPill label={translate(category.labelKey)} tone={category.tone} isSmall />
+              <StatusPill
+                label={translate(category.labelKey)}
+                tone={category.tone}
+                icon={category.icon}
+                isSmall
+              />
             ) : null}
             {announcement.isPinned ? (
               <StatusPill label={translate("announcements.pinnedPill")} tone="neutral" isSmall />

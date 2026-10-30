@@ -244,6 +244,7 @@ function AnnouncementEditor({ announcement }: AnnouncementEditorProps) {
           options={announcementCategories.map((option) => ({
             value: option,
             label: translate(announcementCategoryPresentations[option].labelKey),
+            icon: announcementCategoryPresentations[option].icon,
           }))}
           selectedValue={category}
           onChange={setCategory}

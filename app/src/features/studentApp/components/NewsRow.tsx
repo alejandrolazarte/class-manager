@@ -44,7 +44,12 @@ export function NewsRow({ item, action }: NewsRowProps) {
           {categoryPill === undefined && audience === undefined ? null : (
             <View className="mb-1 flex-row flex-wrap items-center gap-1.5">
               {categoryPill === undefined ? null : (
-                <StatusPill label={categoryPill.label} tone={categoryPill.tone} isSmall />
+                <StatusPill
+                  label={categoryPill.label}
+                  tone={categoryPill.tone}
+                  icon={categoryPill.icon}
+                  isSmall
+                />
               )}
               {audience === undefined ? null : (
                 <AppText variant="footnote" tone="muted">

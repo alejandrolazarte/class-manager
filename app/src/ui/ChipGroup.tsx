@@ -1,11 +1,13 @@
 import { ScrollView, View } from "react-native";
 import { Chip } from "@/ui/Chip";
+import { IconName } from "@/ui/Icon";
 import { SlidingIndicator, useOptionLayouts } from "@/ui/motion/SlidingIndicator";
 
 export interface ChipGroupOption<TValue extends string> {
   value: TValue;
   label: string;
   accessibilityLabel?: string;
+  icon?: IconName;
   count?: number;
 }
 
@@ -31,6 +33,7 @@ export function ChipGroup<TValue extends string>({
           key={option.value}
           label={option.label}
           accessibilityLabel={option.accessibilityLabel}
+          icon={option.icon}
           count={option.count}
           isSelected={option.value === selectedValue}
           onPress={() => onChange(option.value)}
