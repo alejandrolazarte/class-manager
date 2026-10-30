@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
@@ -25,7 +26,7 @@ public sealed record CurrentMemberResponse(
 
 public sealed class GetCurrentMemberUseCase(
     ICurrentMember currentMember,
-    IIdentityService identityService,
+    IUserRepository userRepository,
     IFeatureAccess featureAccess,
     IFeatureUsage featureUsage)
     : IUseCase<GetCurrentMemberQuery, CurrentMemberResponse>
@@ -38,7 +39,7 @@ public sealed class GetCurrentMemberUseCase(
             return Result.Unauthorized<CurrentMemberResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
 
-        var accounts = await identityService.ListAccountsAsync([access.AccountId], cancellationToken);
+        var user = await userRepository.FindByAccountAsync(access.AccountId, cancellationToken);
         var features = await featureAccess.GetCurrentAsync(cancellationToken);
         var usageByFeatureCode = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var featureCode in featureUsage.CountedFeatureCodes.Where(features.Has))
@@ -48,7 +49,7 @@ public sealed class GetCurrentMemberUseCase(
 
         return CurrentMemberResponse.From(
             access,
-            accounts.Count > 0 ? accounts[0].FullName : null,
+            user?.FullName,
             CurrentSubscriptionResponse.From(features, usageByFeatureCode));
     }
 }

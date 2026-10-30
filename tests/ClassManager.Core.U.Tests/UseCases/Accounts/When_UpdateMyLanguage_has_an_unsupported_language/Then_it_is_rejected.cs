@@ -15,7 +15,7 @@ public sealed class Then_it_is_rejected
         currentUser.Setup(user => user.AccountId).Returns(Guid.CreateVersion7());
         var identity = new Mock<IIdentityService>();
 
-        var response = await new UpdateMyLanguageUseCase(currentUser.Object, identity.Object, Mock.Of<ILegalTermsAcceptanceRepository>())
+        var response = await new UpdateMyLanguageUseCase(currentUser.Object, identity.Object, Mock.Of<IUserRepository>(), Mock.Of<ILegalTermsAcceptanceRepository>())
             .ExecuteAsync(new UpdateMyLanguageCommand(UnsupportedLanguage), CancellationToken.None);
 
         response.Error!.Kind.ShouldBe(ErrorKind.Validation);

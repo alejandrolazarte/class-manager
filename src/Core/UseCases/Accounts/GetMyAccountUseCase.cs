@@ -15,21 +15,34 @@ public sealed record MyAccountResponse(
     bool HasAcceptedCurrentLegalTerms,
     string PreferredLanguage)
 {
-    public static async Task<MyAccountResponse> ForAsync(
-        UserAccount account,
+    public static async Task<Result<MyAccountResponse>> OfAsync(
+        Guid accountId,
+        IIdentityService identityService,
+        IUserRepository userRepository,
         ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository,
-        CancellationToken cancellationToken) =>
-        new(
+        CancellationToken cancellationToken)
+    {
+        var accounts = await identityService.ListAccountsAsync([accountId], cancellationToken);
+        var user = await userRepository.FindByAccountAsync(accountId, cancellationToken);
+        if (accounts.Count == 0 || user is null)
+        {
+            return Result.Unauthorized<MyAccountResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
+        }
+
+        var account = accounts[0];
+        return new MyAccountResponse(
             account.Email,
-            account.FullName,
-            account.BirthDate,
+            user.FullName,
+            user.BirthDate,
             await legalTermsAcceptanceRepository.HasAcceptedAsync(account.UserId, LegalTerms.CurrentVersion, cancellationToken),
             account.PreferredLanguage);
+    }
 }
 
 public sealed class GetMyAccountUseCase(
     ICurrentUser currentUser,
     IIdentityService identityService,
+    IUserRepository userRepository,
     ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository)
     : IUseCase<GetMyAccountQuery, MyAccountResponse>
 {
@@ -40,12 +53,6 @@ public sealed class GetMyAccountUseCase(
             return Result.Unauthorized<MyAccountResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
         }
 
-        var accounts = await identityService.ListAccountsAsync([userId], cancellationToken);
-        if (accounts.Count == 0)
-        {
-            return Result.Unauthorized<MyAccountResponse>(MemberErrorCodes.NoAccessMessage, MemberErrorCodes.NoAccess);
-        }
-
-        return await MyAccountResponse.ForAsync(accounts[0], legalTermsAcceptanceRepository, cancellationToken);
+        return await MyAccountResponse.OfAsync(userId, identityService, userRepository, legalTermsAcceptanceRepository, cancellationToken);
     }
 }

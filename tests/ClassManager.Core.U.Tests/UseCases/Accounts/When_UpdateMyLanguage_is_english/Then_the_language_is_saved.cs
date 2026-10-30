@@ -21,7 +21,12 @@ public sealed class Then_the_language_is_saved
             .Setup(service => service.ListAccountsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new UserAccount(userId, TestData.OwnerEmail, TestData.OwnerFullName, TestData.OwnerBirthDate, AccountLanguage.English)]);
 
-        var response = await new UpdateMyLanguageUseCase(currentUser.Object, identity.Object, Mock.Of<ILegalTermsAcceptanceRepository>())
+        var users = new Mock<IUserRepository>();
+        users
+            .Setup(repository => repository.FindByAccountAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(User.CreateForAccount(userId, TestData.OwnerFullName, TestData.OwnerEmail, DateTimeOffset.UnixEpoch));
+
+        var response = await new UpdateMyLanguageUseCase(currentUser.Object, identity.Object, users.Object, Mock.Of<ILegalTermsAcceptanceRepository>())
             .ExecuteAsync(new UpdateMyLanguageCommand(AccountLanguage.English), CancellationToken.None);
 
         response.Value!.PreferredLanguage.ShouldBe(AccountLanguage.English);

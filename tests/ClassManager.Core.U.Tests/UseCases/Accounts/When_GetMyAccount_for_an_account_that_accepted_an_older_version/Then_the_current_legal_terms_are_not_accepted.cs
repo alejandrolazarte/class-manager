@@ -23,7 +23,12 @@ public sealed class Then_the_current_legal_terms_are_not_accepted
             .Setup(repository => repository.HasAcceptedAsync(userId, OlderVersion, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var response = await new GetMyAccountUseCase(currentUser.Object, identity.Object, acceptances.Object)
+        var users = new Mock<IUserRepository>();
+        users
+            .Setup(repository => repository.FindByAccountAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(User.CreateForAccount(userId, TestData.OwnerFullName, TestData.OwnerEmail, DateTimeOffset.UnixEpoch));
+
+        var response = await new GetMyAccountUseCase(currentUser.Object, identity.Object, users.Object, acceptances.Object)
             .ExecuteAsync(new GetMyAccountQuery(), CancellationToken.None);
 
         response.Value!.HasAcceptedCurrentLegalTerms.ShouldBeFalse();
