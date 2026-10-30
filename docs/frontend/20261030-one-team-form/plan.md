@@ -8,7 +8,7 @@ Ajustes had two entries, **Equipo** (accounts with a role) and **Profes** (instr
 
 - Ajustes shows a single **Equipo** entry, visible with `members.view` or `instructors.view`. The **Profes** entry and its list screen are gone.
 - **Equipo** lists:
-  - Miembros and Invitaciones pendientes (`members.view`), as before.
+  - Miembros and Invitaciones pendientes (`members.view`). An invitation linked to a profe is not listed there: the profe is listed under Profes sin cuenta en la app, and its row shows "Invitado" and its profile has **Reenviar** and **Revocar**.
   - **Profes sin cuenta en la app**: instructors not linked to a member (no account yet, or invited and not accepted). A profe with an account is listed once, as a member.
   - Without `members.view` (for example a profe), every instructor is listed under **Profes**.
   - The instructors import/export menu moved to the Equipo header.
