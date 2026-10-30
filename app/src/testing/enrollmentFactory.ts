@@ -10,6 +10,7 @@ export function buildRosterEntry(overrides: Partial<RosterEntry> = {}): RosterEn
     clientFullName: "Ana Pérez",
     startDate: "2026-09-24",
     endDate: null,
+    studentPhotoUrl: null,
     ...overrides,
   };
 }

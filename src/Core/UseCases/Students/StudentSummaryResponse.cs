@@ -9,8 +9,9 @@ public sealed record StudentSummaryResponse(
     string? Notes,
     long ClientId,
     string ClientFullName,
-    string ClientPhoneNumber)
+    string ClientPhoneNumber,
+    string? PhotoUrl = null)
 {
-    public static StudentSummaryResponse From(StudentSummary student) =>
-        new(student.Id, student.FullName, student.BirthDate, student.Notes, student.ClientId, student.ClientFullName, student.ClientPhoneNumber);
+    public static StudentSummaryResponse From(StudentSummary student, string? photoUrl = null) =>
+        new(student.Id, student.FullName, student.BirthDate, student.Notes, student.ClientId, student.ClientFullName, student.ClientPhoneNumber, photoUrl);
 }

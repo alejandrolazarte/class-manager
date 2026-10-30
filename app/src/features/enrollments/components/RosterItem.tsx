@@ -28,7 +28,7 @@ export function RosterItem({ entry, today, onUnenroll }: RosterItemProps) {
   ].filter((detail): detail is string => Boolean(detail));
   return (
     <HairlineRow className="flex-row items-center gap-3 py-2.5">
-      <Avatar name={entry.studentFullName} size="small" />
+      <Avatar name={entry.studentFullName} size="small" photoUrl={entry.studentPhotoUrl} />
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong">{entry.studentFullName}</AppText>
         {details.length > 0 ? (

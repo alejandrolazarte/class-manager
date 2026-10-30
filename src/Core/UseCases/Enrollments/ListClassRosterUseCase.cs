@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
+using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
@@ -13,7 +14,8 @@ public sealed class ListClassRosterUseCase(
     IClassGroupRepository classGroupRepository,
     IEnrollmentRepository enrollmentRepository,
     IBusinessCalendarService businessCalendar,
-    IAccessScopes accessScopes)
+    IAccessScopes accessScopes,
+    IUserPhotoUrlService userPhotoUrls)
     : IUseCase<ListClassRosterQuery, IReadOnlyList<RosterEntryResponse>>
 {
     private const string ClassGroupNotFoundMessage = "The class group does not exist.";
@@ -29,7 +31,9 @@ public sealed class ListClassRosterUseCase(
 
         var today = await businessCalendar.TodayAsync(cancellationToken);
         var roster = await enrollmentRepository.ListRosterAsync(classGroup.Id, today, cancellationToken);
+        var photoUrls = await userPhotoUrls.OfStudentsAsync(roster.Select(entry => entry.StudentId), cancellationToken);
 
-        return Result.Success<IReadOnlyList<RosterEntryResponse>>([.. roster.Select(RosterEntryResponse.From)]);
+        return Result.Success<IReadOnlyList<RosterEntryResponse>>(
+            [.. roster.Select(entry => RosterEntryResponse.From(entry, photoUrls.GetValueOrDefault(entry.StudentId)))]);
     }
 }

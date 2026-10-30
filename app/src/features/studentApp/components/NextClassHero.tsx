@@ -10,6 +10,7 @@ import { AccountStudent, StudentAppClassBalance } from "@/features/studentApp/ty
 import { useAbsenceNotice } from "@/features/studentApp/useAbsenceNotice";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { Avatar } from "@/ui/Avatar";
 import { Button } from "@/ui/Button";
 import { Icon } from "@/ui/Icon";
 import { TextLink } from "@/ui/TextLink";
@@ -80,9 +81,20 @@ export function NextClassHero({
         <AppText variant="hero" className={absenceNotified ? "line-through opacity-50" : ""}>
           {`${relativeDayLabel(nextClass.date)} · ${nextClass.startTime}`}
         </AppText>
-        <AppText variant="body" tone="muted">
-          {classDetails(nextClass)}
-        </AppText>
+        <View className="flex-row items-center gap-2">
+          {nextClass.instructorFullName === null ? null : (
+            <Avatar
+              name={nextClass.instructorFullName}
+              size="tiny"
+              photoUrl={nextClass.instructorPhotoUrl}
+            />
+          )}
+          <View className="min-w-0 flex-1">
+            <AppText variant="body" tone="muted">
+              {classDetails(nextClass)}
+            </AppText>
+          </View>
+        </View>
       </View>
       {uncoveredMessage === null ? null : (
         <TonalBlock tone="danger" isCompact>

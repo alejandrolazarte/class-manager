@@ -12,7 +12,8 @@ public sealed record StudentResponse(
     string? Email,
     DateTimeOffset CreatedAt,
     StudentAppAccessResponse AppAccess,
-    bool IsOnTheTeam = false)
+    bool IsOnTheTeam = false,
+    string? PhotoUrl = null)
 {
     public static StudentResponse From(Student student, StudentAppAccessResponse appAccess) =>
         new(student.Id, student.ClientId, student.User.FullName, student.User.BirthDate, student.Notes, student.User.Email, student.CreatedAt, appAccess);
