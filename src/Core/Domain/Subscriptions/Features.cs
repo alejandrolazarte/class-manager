@@ -12,6 +12,7 @@ public static class Features
     public const string Shop = "shop";
     public const string Brand = "brand";
     public const string DocumentStorage = "document-storage";
+    public const string SelfServiceBilling = "self-service-billing";
 
     public static IReadOnlyList<string> All { get; } =
     [
@@ -25,6 +26,7 @@ public static class Features
         Shop,
         Brand,
         DocumentStorage,
+        SelfServiceBilling,
     ];
 
     public static IReadOnlyList<string> Counted { get; } = [Students, Branches, Team, DocumentStorage];

@@ -13,4 +13,6 @@ public interface IBusinessRepository
     Task<bool> IsSlugTakenAsync(string slug, CancellationToken cancellationToken);
 
     Task<long?> FindOrganizationIdAsync(long businessId, CancellationToken cancellationToken);
+
+    Task<string?> FindFirstBranchCountryCodeAsync(long organizationId, CancellationToken cancellationToken);
 }

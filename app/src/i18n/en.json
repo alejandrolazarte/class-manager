@@ -1915,6 +1915,7 @@
   "subscriptions.feature.shop": "Shop",
   "subscriptions.feature.brand": "Own brand",
   "subscriptions.feature.document-storage": "File storage",
+  "subscriptions.feature.self-service-billing": "Card payment for the plan",
   "settings.plan": "Plan",
   "subscriptions.readOnlyTrial": "Your free trial ended: you can see your data, but not make changes.",
   "subscriptions.featureUnlimited": "{feature}: unlimited",

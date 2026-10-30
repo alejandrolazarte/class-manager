@@ -5,6 +5,12 @@ namespace ClassManager.Core.UseCases.Subscriptions;
 
 public static class FeatureErrors
 {
+    public static ResultError NotInPlan(string featureCode) =>
+        new(FeatureErrorCodes.NotInPlan, FeatureErrorCodes.NotInPlanMessage, ErrorKind.Forbidden)
+        {
+            Details = new Dictionary<string, object?> { [FeatureErrorCodes.FeatureDetail] = featureCode },
+        };
+
     public static ResultError LimitReached(string featureCode) =>
         new(FeatureErrorCodes.LimitReached, FeatureErrorCodes.LimitReachedMessage, ErrorKind.Forbidden)
         {

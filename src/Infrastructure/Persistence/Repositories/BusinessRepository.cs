@@ -19,4 +19,13 @@ internal sealed class BusinessRepository(AppDbContext context, ITenantContext te
             .Where(business => business.Id == businessId)
             .Select(business => (long?)business.OrganizationId)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<string?> FindFirstBranchCountryCodeAsync(long organizationId, CancellationToken cancellationToken) =>
+        context.Businesses
+            .AsNoTracking()
+            .Where(business => business.OrganizationId == organizationId)
+            .OrderBy(business => business.CreatedAt)
+            .ThenBy(business => business.Id)
+            .Select(business => business.CountryCode)
+            .FirstOrDefaultAsync(cancellationToken);
 }

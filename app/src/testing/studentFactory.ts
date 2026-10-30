@@ -10,6 +10,7 @@ export function buildStudent(overrides: Partial<Student> = {}): Student {
     email: null,
     createdAt: "2026-09-24T14:05:00Z",
     appAccess: { status: "NotInvited", invitedEmail: null },
+    photoUrl: null,
     ...overrides,
   };
 }
@@ -23,6 +24,7 @@ export function buildStudentSummary(overrides: Partial<StudentSummary> = {}): St
     clientId: "0192f0c4-0000-7000-8000-000000000001",
     clientFullName: "Ana Pérez",
     clientPhoneNumber: "+5491122334455",
+    photoUrl: null,
     ...overrides,
   };
 }

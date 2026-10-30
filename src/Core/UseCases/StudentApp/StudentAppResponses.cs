@@ -29,7 +29,7 @@ public sealed record StudentAppAttendanceResponse(
     int Level,
     IReadOnlyList<Medal> Medals);
 
-public sealed record StudentAppFeedbackResponse(DateOnly Date, string ClassName, string? InstructorFullName, string Text);
+public sealed record StudentAppFeedbackResponse(DateOnly Date, string ClassName, string? InstructorFullName, string Text, string? InstructorPhotoUrl = null);
 
 public sealed record StudentAppClassMaterialResponse(long ClassGroupId, string ClassName, string? LinkUrl, StudentAppClassMaterialFileResponse? File);
 

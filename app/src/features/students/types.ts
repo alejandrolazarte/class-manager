@@ -10,6 +10,7 @@ export interface Student {
   createdAt: string;
   appAccess: StudentAppAccess;
   isOnTheTeam?: boolean;
+  photoUrl: string | null;
 }
 
 export interface StudentSummary {
@@ -20,6 +21,7 @@ export interface StudentSummary {
   clientId: string;
   clientFullName: string;
   clientPhoneNumber: string;
+  photoUrl: string | null;
 }
 
 export interface NewStudentRequest {

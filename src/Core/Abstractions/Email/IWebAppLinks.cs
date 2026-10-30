@@ -19,4 +19,10 @@ public interface IWebAppLinks
     string StudentAppOrders();
 
     string TeamOrders();
+
+    string PlanSettings();
+
+    string PlanCheckoutSucceeded();
+
+    string PlanCheckoutCancelled();
 }

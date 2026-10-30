@@ -1,3 +1,4 @@
+using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 
@@ -14,4 +15,10 @@ public interface ISubscriptionRepository
     Task<IReadOnlyList<PlanFeature>> ListPlanFeaturesAsync(CancellationToken cancellationToken);
 
     Task<Subscription?> GetCurrentAsync(long subscriberId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<SubscriptionFeature>> ListFeaturesAsync(long subscriptionId, CancellationToken cancellationToken);
+
+    Task<BillingCustomer?> GetBillingCustomerAsync(long subscriberId, CancellationToken cancellationToken);
+
+    void AddBillingCustomer(BillingCustomer billingCustomer);
 }

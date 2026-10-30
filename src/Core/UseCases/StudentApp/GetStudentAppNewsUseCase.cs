@@ -21,6 +21,7 @@ public sealed class GetStudentAppNewsUseCase(
     IOrderRepository orderRepository,
     IInstructorRepository instructorRepository,
     IDocumentStorageService documentStorage,
+    IUserPhotoUrlService userPhotoUrls,
     TimeProvider timeProvider)
     : IUseCase<GetStudentAppNewsQuery, StudentAppNewsResponse>
 {
@@ -50,8 +51,9 @@ public sealed class GetStudentAppNewsUseCase(
         var students = family.Students;
         var studentIds = students.Select(student => student.Id).ToList();
         var studentNames = students.ToDictionary(student => student.Id, student => student.User.FullName);
-        var instructorNames = (await instructorRepository.ListAllAsync(cancellationToken))
-            .ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
+        var instructors = await instructorRepository.ListAllAsync(cancellationToken);
+        var instructorNames = instructors.ToDictionary(instructor => instructor.Id, instructor => instructor.User.FullName);
+        var instructorPhotoUrls = await userPhotoUrls.OfInstructorsAsync(instructors.Select(instructor => (long?)instructor.Id), cancellationToken);
 
         var items = new List<StudentAppNewsItemResponse>();
         StudentAppNewsItemResponse Item(
@@ -123,7 +125,10 @@ public sealed class GetStudentAppNewsUseCase(
                 studentFullNames: [studentNames.GetValueOrDefault(feedback.StudentId) ?? string.Empty],
                 className: feedback.ClassGroupName,
                 instructorFullName: instructorNames.GetValueOrDefault(feedback.InstructorId),
-                classDate: feedback.Date)));
+                classDate: feedback.Date) with
+            {
+                InstructorPhotoUrl = instructorPhotoUrls.GetValueOrDefault(feedback.InstructorId),
+            }));
 
         items.AddRange(await UpcomingClassChangesAsync(
             students,

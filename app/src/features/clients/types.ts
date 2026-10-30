@@ -25,6 +25,7 @@ export interface ClientDetails extends Client {
   students: Student[];
   appAccess: StudentAppAccess;
   isOnTheTeam?: boolean;
+  photoUrl: string | null;
 }
 
 export interface UpdateClientRequest {

@@ -25,6 +25,7 @@ describe("When instructor left a comment", () => {
               className: "Natación inicial",
               instructorFullName: "Martín Díaz",
               text: comment,
+              instructorPhotoUrl: null,
             },
           }),
         ],
