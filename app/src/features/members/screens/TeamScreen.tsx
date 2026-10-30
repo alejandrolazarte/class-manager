@@ -157,6 +157,9 @@ export function TeamScreen() {
   const isPending = (canViewMembers && teamQuery.isPending) || instructorsQuery.isPending;
   const isError = (canViewMembers && teamQuery.isError) || instructorsQuery.isError;
   const isTeamShown = !canViewMembers || teamQuery.data !== undefined;
+  const listedInvitations = (teamQuery.data?.invitations ?? []).filter(
+    (invitation) => !canViewInstructors || invitation.instructorId === null,
+  );
 
   const resend = async (invitationId: string) => {
     await resendMutation.mutateAsync(invitationId);
@@ -226,11 +229,11 @@ export function TeamScreen() {
               />
             ))}
           </View>
-          {teamQuery.data.invitations.length > 0 ? (
+          {listedInvitations.length > 0 ? (
             <>
               <SectionTitle title={translate("team.invitations")} />
               <View>
-                {teamQuery.data.invitations.map((invitation) => (
+                {listedInvitations.map((invitation) => (
                   <InvitationRow
                     key={invitation.id}
                     invitation={invitation}
