@@ -5,29 +5,30 @@ import {
   medalIcons,
   medalMetals,
 } from "@/features/studentApp/studentAppAchievements";
-import { StudentAppAttendance } from "@/features/studentApp/types";
+import { Medal, StudentAppAttendance } from "@/features/studentApp/types";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { MedalBadge } from "@/ui/MedalBadge";
+import { PressableScale } from "@/ui/motion/PressableScale";
 import { ProgressBar } from "@/ui/ProgressBar";
 
-export function MedalGrid({ attendance }: { attendance: StudentAppAttendance }) {
+interface MedalGridProps {
+  attendance: StudentAppAttendance;
+  onOpenEarnedMedal: (medal: Medal) => void;
+}
+
+const medalCellClassName =
+  "w-[31.5%] items-center gap-1.5 rounded-2xl bg-surface px-1.5 pb-3 pt-2.5";
+
+export function MedalGrid({ attendance, onOpenEarnedMedal }: MedalGridProps) {
   return (
     <View className="flex-row flex-wrap justify-between gap-y-2.5">
       {allMedals.map((medal) => {
         const isEarned = attendance.medals.includes(medal);
         const name = translate(`student.medals.${medal}` as TranslationKey);
         const goal = isEarned ? null : medalGoal(medal, attendance);
-        return (
-          <View
-            key={medal}
-            accessible
-            accessibilityLabel={translate(
-              isEarned ? "student.progress.medalEarned" : "student.progress.medalLocked",
-              { name },
-            )}
-            className="w-[31.5%] items-center gap-1.5 rounded-2xl bg-surface px-1.5 pb-3 pt-2.5"
-          >
+        const content = (
+          <>
             <MedalBadge icon={medalIcons[medal]} metal={isEarned ? medalMetals[medal] : null} />
             <AppText
               variant="footnote"
@@ -53,6 +54,29 @@ export function MedalGrid({ attendance }: { attendance: StudentAppAttendance }) 
                 </AppText>
               </View>
             )}
+          </>
+        );
+        if (isEarned) {
+          return (
+            <PressableScale
+              key={medal}
+              accessibilityRole="button"
+              accessibilityLabel={translate("student.progress.medalEarned", { name })}
+              onPress={() => onOpenEarnedMedal(medal)}
+              className={`${medalCellClassName} active:bg-muted`}
+            >
+              {content}
+            </PressableScale>
+          );
+        }
+        return (
+          <View
+            key={medal}
+            accessible
+            accessibilityLabel={translate("student.progress.medalLocked", { name })}
+            className={medalCellClassName}
+          >
+            {content}
           </View>
         );
       })}
