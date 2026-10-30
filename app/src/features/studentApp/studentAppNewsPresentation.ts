@@ -45,6 +45,7 @@ export function newsWhenLabel(item: StudentAppNewsItem, today: string = todayIso
 export interface NewsCategoryPill {
   label: string;
   tone: StatusTone;
+  icon: IconName;
 }
 
 export interface NewsPresentation {
@@ -133,7 +134,7 @@ function presentAnnouncement(item: StudentAppNewsItem): NewsPresentation {
     categoryPill:
       item.category === null || category === null || !hasCategoryPill(item.category)
         ? undefined
-        : { label: translate(category.labelKey), tone: category.tone },
+        : { label: translate(category.labelKey), tone: category.tone, icon: category.icon },
     audience:
       item.audienceClassNames.length === 0
         ? undefined
