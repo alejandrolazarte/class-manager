@@ -1,6 +1,6 @@
 # Backend plan — Paying the plan with Stripe (Europe)
 
-Status: steps 2 to 4 built (model, sync, the Stripe webhook, checkout and portal endpoints), the rest is a proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
+Status: steps 2 to 5 built (model, sync, the Stripe webhook, checkout and portal endpoints, Ajustes → Plan on the web), the rest is a proposal. Decided by the owner on 2026-10-29: prices are **+ IVA**, the plan is paid **only on the web**, and **Stripe Invoicing** issues the invoices, and paying online starts as an **add-on** given to one brand at a time for testing, until it is a feature of every plan. Builds on the [subscriptions plan](../20261003-subscriptions/plan.md), which left "online billing" for later.
 
 ## Goal
 
@@ -142,7 +142,7 @@ All new texts go in `es.json` and `en.json`; the screens use the existing `src/u
 2. ✅ **Model and sync:** new tables and columns with their migration, `IBillingGateway`, `ExternalSubscriptionSync` with its unit tests.
 3. ✅ **Stripe and webhook:** `Subscriptions.Stripe`, `POST /api/billing/stripe/webhooks` with signature check and idempotency; integration tests with signed fake events and a fake gateway. The webhook endpoint in Stripe listens to `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid` and `invoice.payment_failed`; any other event is recorded and ignored.
 4. ✅ **Checkout and portal:** the `self-service-billing` feature (add-on at 0, in no plan), `subscription.manage`, the two endpoints, the country check, `GET /api/organization/subscription` additions.
-5. **App:** Ajustes → Plan on the web, return page, past-due notice, native apps message; screenshots before and after for the owner.
+5. ✅ **App:** Ajustes → Plan on the web (**Elegir plan** and "+ IVA" on `lite` and `pro`, **Gestionar suscripción** for a brand that pays online), the return from Checkout (polls `GET /api/me` and the subscription every 3 s for up to a minute), the past-due notice on Inicio and Ajustes → Plan, and the line for the native apps. The contact line stays, because `Enterprise` is still agreed by hand.
 6. **Backoffice:** Stripe status and dashboard link on the brand, **Cambiar plan** refused for paying brands.
 7. **Go live for one brand:** live keys, live webhook, terms of sale; the operator gives `self-service-billing` to one brand, and the owner pays and cancels one real subscription.
 8. **For everyone:** a migration adds `self-service-billing` to `Free`, `Lite` and `Pro`.
