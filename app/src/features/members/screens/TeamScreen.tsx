@@ -157,6 +157,9 @@ export function TeamScreen() {
   const isPending = (canViewMembers && teamQuery.isPending) || instructorsQuery.isPending;
   const isError = (canViewMembers && teamQuery.isError) || instructorsQuery.isError;
   const isTeamShown = !canViewMembers || teamQuery.data !== undefined;
+  const invitedInstructorIds = new Set(
+    (teamQuery.data?.invitations ?? []).map((invitation) => invitation.instructorId),
+  );
   const listedInvitations = (teamQuery.data?.invitations ?? []).filter(
     (invitation) => !canViewInstructors || invitation.instructorId === null,
   );
@@ -267,6 +270,7 @@ export function TeamScreen() {
                 <InstructorListItem
                   key={instructor.id}
                   instructor={instructor}
+                  isInvited={invitedInstructorIds.has(instructor.id)}
                   onPress={
                     canOpenInstructor
                       ? () => router.push(routes.instructor(instructor.id))

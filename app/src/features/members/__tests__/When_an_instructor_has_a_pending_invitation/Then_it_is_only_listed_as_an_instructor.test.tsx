@@ -33,6 +33,7 @@ describe("When an instructor has a pending invitation", () => {
     expect(
       await screen.findByRole("button", { name: invitedInstructor.fullName }),
     ).toBeOnTheScreen();
+    expect(screen.getByText(translate("team.invited"))).toBeOnTheScreen();
     expect(screen.getByText(viewerInvitation.email)).toBeOnTheScreen();
     expect(screen.queryByText(instructorInvitation.email)).toBeNull();
     expect(
