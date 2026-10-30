@@ -91,7 +91,7 @@ test("App screens", async ({ page, request }) => {
       "Forma de pago",
     ],
     ["12-ajustes", "/settings", "Cuota mensual"],
-    ["13-profes", "/settings/instructors", "Martín Díaz"],
+    ["13-equipo", "/settings/team", "Martín Díaz"],
     ["14-alumno-por-clases", `/fees/clients/${demo.classPackClientId}`, "Quedan"],
     ["15-vender-pack", `/students/clients/${demo.classPackClientId}/sell-pack`, "Forma de pago"],
     ["16-packs", "/settings/class-packs", "8 clases"],

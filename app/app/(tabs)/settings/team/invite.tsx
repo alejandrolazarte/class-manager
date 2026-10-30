@@ -1,5 +1,5 @@
-import { InviteMemberScreen } from "@/features/members/screens/InviteMemberScreen";
+import { AddTeamMemberScreen } from "@/features/members/screens/AddTeamMemberScreen";
 
-export default function InviteMemberRoute() {
-  return <InviteMemberScreen />;
+export default function AddTeamMemberRoute() {
+  return <AddTeamMemberScreen />;
 }

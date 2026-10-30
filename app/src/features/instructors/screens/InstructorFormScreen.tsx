@@ -46,29 +46,24 @@ import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 const badRequestStatus = 400;
 
 interface InstructorFormScreenProps {
-  instructorId?: string;
+  instructorId: string;
 }
 
 interface InstructorEditorProps {
-  instructor?: Instructor;
-  access?: InstructorAppAccess;
+  instructor: Instructor;
+  access: InstructorAppAccess;
 }
-
-const notInvited: InstructorAppAccess = { status: "NotInvited" };
 
 function isSameEmail(firstEmail: string, secondEmail: string): boolean {
   return firstEmail.toLocaleLowerCase() === secondEmail.toLocaleLowerCase();
 }
 
-const instructorRole = "Instructor";
-
-function InstructorEditor({ instructor, access = notInvited }: InstructorEditorProps) {
+function InstructorEditor({ instructor, access }: InstructorEditorProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const saveInstructorMutation = useSaveInstructor();
   const setInstructorActiveMutation = useSetInstructorActive();
   const inviteMemberMutation = useInviteMember();
-  const canManageMembers = useCan(permissions.membersManage);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [activeClassGroupCount, setActiveClassGroupCount] = useState(0);
   const { askIfSamePerson, samePersonDialog } = useSamePersonQuestion(
@@ -88,7 +83,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
 
   const resendInvitationIfEmailChanged = async (email: string | null) => {
     const { invitation } = access;
-    if (instructor === undefined || invitation === undefined || email === null) {
+    if (invitation === undefined || email === null) {
       return;
     }
     if (isSameEmail(email, invitation.email)) {
@@ -106,35 +101,14 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
     }
   };
 
-  const inviteNewInstructor = async (createdInstructorId: string, email: string) => {
-    try {
-      await inviteMemberMutation.mutateAsync({
-        email,
-        role: instructorRole,
-        customRoleId: null,
-        instructorId: createdInstructorId,
-      });
-      showToast(translate("instructors.form.savedAndInvited"));
-    } catch {
-      showToast(translate("instructors.form.savedButNotInvited"));
-    }
-  };
-
   const save = form.handleSubmit((formValues) => saveRequest(toSaveInstructorRequest(formValues)));
 
   const saveRequest = async (request: SaveInstructorRequest) => {
     setSubmissionFailure(null);
     try {
-      const savedInstructor = await saveInstructorMutation.mutateAsync({
-        instructorId: instructor?.id,
-        request,
-      });
-      if (instructor === undefined && request.email !== null && canManageMembers) {
-        await inviteNewInstructor(savedInstructor.id, request.email);
-      } else {
-        await resendInvitationIfEmailChanged(request.email);
-        showToast(translate("instructors.form.saved"));
-      }
+      await saveInstructorMutation.mutateAsync({ instructorId: instructor.id, request });
+      await resendInvitationIfEmailChanged(request.email);
+      showToast(translate("instructors.form.saved"));
       router.back();
     } catch (saveError) {
       if (
@@ -176,9 +150,6 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
   };
 
   const toggleActive = async () => {
-    if (instructor === undefined) {
-      return;
-    }
     setSubmissionFailure(null);
     const isActive = !instructor.isActive;
     try {
@@ -203,7 +174,7 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
 
   return (
     <SettingsFormScreenLayout
-      title={translate(instructor ? "instructors.form.editTitle" : "instructors.form.newTitle")}
+      title={translate("instructors.form.editTitle")}
       submissionFailure={submissionFailure}
       onRetry={save}
     >
@@ -256,15 +227,13 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
           disabled={!areRequiredFieldsFilled}
           isLoading={saveInstructorMutation.isPending}
         />
-        {instructor ? (
-          <Button
-            variant={instructor.isActive ? "dangerOutline" : "secondary"}
-            size="medium"
-            label={translate(instructor.isActive ? "common.deactivate" : "common.activate")}
-            onPress={toggleActive}
-            isLoading={setInstructorActiveMutation.isPending}
-          />
-        ) : null}
+        <Button
+          variant={instructor.isActive ? "dangerOutline" : "secondary"}
+          size="medium"
+          label={translate(instructor.isActive ? "common.deactivate" : "common.activate")}
+          onPress={toggleActive}
+          isLoading={setInstructorActiveMutation.isPending}
+        />
       </View>
     </SettingsFormScreenLayout>
   );
@@ -272,11 +241,8 @@ function InstructorEditor({ instructor, access = notInvited }: InstructorEditorP
 
 export function InstructorFormScreen({ instructorId }: InstructorFormScreenProps) {
   const canManageMembers = useCan(permissions.membersManage);
-  const instructorsQuery = useInstructorsIncludingInactive({ enabled: instructorId !== undefined });
-  const teamQuery = useTeam({ enabled: instructorId !== undefined && canManageMembers });
-  if (instructorId === undefined) {
-    return <InstructorEditor />;
-  }
+  const instructorsQuery = useInstructorsIncludingInactive();
+  const teamQuery = useTeam({ enabled: canManageMembers });
   const instructor = instructorsQuery.data?.find((candidate) => candidate.id === instructorId);
   const isTeamPending = canManageMembers && teamQuery.isPending;
   if (instructor === undefined || isTeamPending) {

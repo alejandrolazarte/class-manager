@@ -32,10 +32,9 @@ Backend contract: [backend/20260928-roles-and-permissions](../../backend/2026092
 | Ficha de familia: saldo de clases | `classPacks.view` |
 | Ficha de familia: vender pack, borrar venta | `classPacks.sell` |
 | Ajustes: negocio, cuota mensual | `business.manage` |
-| Ajustes: profes | `instructors.view` (nuevo profe: `instructors.manage`) |
 | Ajustes: packs | `classPacks.view` (nuevo pack: `classPacks.manage`) |
 | Ajustes: importar y exportar | `importExport.run` |
-| Ajustes: equipo | `members.view` |
+| Ajustes: equipo | `members.view` or `instructors.view` (members and invitations need `members.view`; "Sumar al equipo" needs `members.manage` or `instructors.manage`) |
 
 ## Navigation
 
@@ -43,7 +42,7 @@ Backend contract: [backend/20260928-roles-and-permissions](../../backend/2026092
 app/
   accept-invitation.tsx                → AcceptInvitationScreen (?token=), outside the tabs
   (tabs)/settings/team/index.tsx       → TeamScreen
-  (tabs)/settings/team/invite.tsx      → InviteMemberScreen
+  (tabs)/settings/team/invite.tsx      → AddTeamMemberScreen
   (tabs)/settings/team/[memberId].tsx  → MemberScreen
 ```
 
@@ -53,11 +52,12 @@ app/
 
 - Members: name, email, role ("Dueño de la sede", "Coach · Marcos Díaz", "Solo lectura"), "Vos" on the current user. Tap → member.
 - Pending invitations: email, role, "Vence el dd/mm", "Reenviar" (new link, 7 more days), "Revocar".
-- "Invitar" (`members.manage`).
+- Profes sin cuenta en la app: instructors not linked to a member. Without `members.view`, every instructor is listed under "Profes".
+- "Sumar al equipo" (`members.manage` or `instructors.manage`).
 
-### Invitar — `settings/team/invite.tsx`
+### Sumar al equipo — `settings/team/invite.tsx`
 
-Email, role chips (Coach, Solo lectura, and Dueño de la sede only for `branchOwners.manage`), coach picker when the role is Coach (active coaches not linked to anyone yet). Sent → toast "Invitación enviada", back to Equipo.
+One form for the whole team, replacing "Invitar al equipo" and "Nuevo profe". See [20261030-one-team-form](../20261030-one-team-form/plan.md).
 
 ### Miembro — `settings/team/[memberId].tsx`
 

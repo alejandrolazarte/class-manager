@@ -68,7 +68,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `10-cuotas`, `10b-cuotas-todos` | Month fees, debtors and everyone |
 | `10c-cobros-pedidos` | Cobros on Pedidos: orders summary, filters and order cards |
 | `11-registrar-pago` | Record a payment |
-| `12-ajustes`, `13-profes` | Settings and instructors |
+| `12-ajustes`, `13-equipo` | Settings and team |
 | `12b-novedades` | Announcements for students, empty, with the "Nuevo aviso" button |
 | `12b2-novedad-nueva`, `12b3-novedad-nueva-final`, `12b4-novedad-programada` | New announcement: kind, title and text, then photo, audience, "Visible hasta" and pin, then the day and time when it is scheduled |
 | `12b4b-novedad-boton` | The optional button of the announcement, here a link |

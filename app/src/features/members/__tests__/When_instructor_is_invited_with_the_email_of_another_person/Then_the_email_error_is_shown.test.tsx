@@ -1,8 +1,8 @@
-import { fireEvent, screen, within } from "@testing-library/react-native";
+import { fireEvent, screen } from "@testing-library/react-native";
 import { ApiError } from "@/api/httpClient";
 import { listActiveInstructors } from "@/features/instructors/instructorsApi";
 import { getTeam, inviteMember } from "@/features/members/membersApi";
-import { InviteMemberScreen } from "@/features/members/screens/InviteMemberScreen";
+import { AddTeamMemberScreen } from "@/features/members/screens/AddTeamMemberScreen";
 import { listRoles } from "@/features/roles/rolesApi";
 import { userErrorCodes } from "@/features/users/userErrorCodes";
 import { translate } from "@/i18n/translate";
@@ -29,17 +29,18 @@ describe("When instructor is invited with the email of another person", () => {
   });
 
   it("Then the email error is shown", async () => {
-    await renderWithProviders(<InviteMemberScreen />);
+    await renderWithProviders(<AddTeamMemberScreen />);
     await fireEvent.changeText(
       screen.getByLabelText(translate("team.invite.email")),
       "ana@example.com",
     );
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("instructors.picker.choose") }),
+    await fireEvent.changeText(
+      screen.getByLabelText(translate("instructors.form.fullName")),
+      freeInstructor.fullName.split(" ")[0]!,
     );
     await fireEvent.press(
-      within(screen.getByTestId("linked-instructor-picker")).getByRole("button", {
-        name: freeInstructor.fullName,
+      await screen.findByRole("button", {
+        name: translate("team.add.useExisting", { name: freeInstructor.fullName }),
       }),
     );
 

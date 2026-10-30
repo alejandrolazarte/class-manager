@@ -18,10 +18,10 @@ describe("When instructor opens settings", () => {
   it("Then only allowed rows are shown", async () => {
     await renderWithProviders(<SettingsScreen />, { member: buildInstructorMember() });
 
-    expect(screen.getByText(translate("settings.instructors"))).toBeOnTheScreen();
+    expect(screen.getByText(translate("settings.team"))).toBeOnTheScreen();
     expect(screen.queryByText(translate("fees.billingPlan.title"))).toBeNull();
     expect(screen.queryByText(translate("settings.classPacks"))).toBeNull();
-    expect(screen.queryByText(translate("settings.team"))).toBeNull();
+    expect(screen.queryByText(translate("settings.roles"))).toBeNull();
     expect(screen.queryByText(translate("settings.branches"))).toBeNull();
     expect(screen.queryByRole("button", { name: translate("settings.business") })).toBeNull();
   });
