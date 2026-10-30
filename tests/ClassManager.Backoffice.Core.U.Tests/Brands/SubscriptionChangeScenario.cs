@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.Extensions.Time.Testing;
 
@@ -10,6 +11,8 @@ namespace ClassManager.Backoffice.Core.U.Tests.Brands;
 internal sealed class SubscriptionChangeScenario
 {
     public const string Currency = "EUR";
+    public const string SpainCountryCode = "ES";
+    public const decimal OfferedPrice = 10m;
 
     public static readonly DateTimeOffset Now = new(2026, 10, 20, 12, 0, 0, TimeSpan.Zero);
 
@@ -20,7 +23,9 @@ internal sealed class SubscriptionChangeScenario
     public SubscriptionChangeScenario()
     {
         Repository.Plans.Add(Plan.Create(PlanCodes.Free, 0, 0m, Currency, BillingPeriod.Monthly, isDefault: true, durationInDays: 30));
+        Repository.Plans.Add(Plan.Create(PlanCodes.Lite, 1, 19m, Currency, BillingPeriod.Monthly));
         Repository.Plans.Add(Plan.Create(PlanCodes.Pro, 2, 29m, Currency, BillingPeriod.Monthly));
+        Repository.Plans.Add(Plan.Create(PlanCodes.Enterprise, 3, null, Currency, BillingPeriod.Monthly));
         Repository.Features.Add(Feature.CreateAddOn(Features.Branches, isCounted: true, 10m, Currency));
         Repository.Features.Add(Feature.CreateAddOn(Features.Shop, isCounted: false, 5m, Currency));
     }
@@ -39,6 +44,21 @@ internal sealed class SubscriptionChangeScenario
         return subscription;
     }
 
+    public Subscription WithStripeSubscription()
+    {
+        Repository.BrandIds.Add(BrandId);
+        var subscription = Subscription.StartExternal(BrandId, PlanCodes.Pro, 39m, Currency, "sub_paying", Now.AddDays(-10));
+        Repository.Subscriptions.Add(subscription);
+        return subscription;
+    }
+
+    public PlanOffer WithOffer(string planCode = PlanCodes.Lite)
+    {
+        var offer = PlanOffer.Create(BrandId, planCode, OfferedPrice, Currency, note: null, expiredOn: null, Now.AddDays(-2));
+        Repository.Offers.Add(offer);
+        return offer;
+    }
+
     public SubscriptionFeature WithAddOn(Subscription subscription, string featureCode, int? limit = null)
     {
         var addOn = SubscriptionFeature.Create(subscription.Id, featureCode, 10m, Currency, limit, expiredOn: null, Now.AddDays(-5));
@@ -49,6 +69,14 @@ internal sealed class SubscriptionChangeScenario
     public Task<Result<BrandPlanChangedResponse>> ChangePlanAsync(string planCode, DateOnly? expiredOn = null) =>
         new ChangeBrandPlanUseCase(Repository, UnitOfWork, _timeProvider)
             .ExecuteAsync(new ChangeBrandPlanCommand(BrandId, planCode, 29m, Currency, "Precio acordado", expiredOn), CancellationToken.None);
+
+    public Task<Result<BrandPlanOfferResponse>> OfferPlanAsync(string planCode, decimal price = OfferedPrice) =>
+        new OfferBrandPlanUseCase(Repository, new FakeBrandBillingLinks(), UnitOfWork, _timeProvider)
+            .ExecuteAsync(new OfferBrandPlanCommand(BrandId, planCode, price, "Precio acordado", ExpiredOn: null), CancellationToken.None);
+
+    public Task<Result<BrandPlanOfferResponse>> WithdrawOfferAsync() =>
+        new WithdrawBrandPlanOfferUseCase(Repository, new FakeBrandBillingLinks(), UnitOfWork, _timeProvider)
+            .ExecuteAsync(new WithdrawBrandPlanOfferCommand(BrandId), CancellationToken.None);
 
     public Task<Result<BrandAddOnResponse>> GiveAddOnAsync(string featureCode, int? limit) =>
         new GiveBrandAddOnUseCase(Repository, UnitOfWork, _timeProvider)
@@ -75,6 +103,10 @@ internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRe
 
     public List<SubscriptionFeature> AddOns { get; } = [];
 
+    public List<PlanOffer> Offers { get; } = [];
+
+    public string? CountryCode { get; set; } = SubscriptionChangeScenario.SpainCountryCode;
+
     public Task<bool> BrandExistsAsync(long brandId, CancellationToken cancellationToken) =>
         Task.FromResult(BrandIds.Contains(brandId));
 
@@ -90,9 +122,27 @@ internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRe
     public Task<IReadOnlyList<SubscriptionFeature>> ListAddOnsIncludingRemovedAsync(long subscriptionId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<SubscriptionFeature>>([.. AddOns.Where(addOn => addOn.SubscriptionId == subscriptionId)]);
 
+    public Task<PlanOffer?> FindCurrentOfferAsync(long brandId, CancellationToken cancellationToken) =>
+        Task.FromResult(Offers.FirstOrDefault(offer => offer.SubscriberId == brandId && !offer.IsDeleted));
+
+    public Task<string?> FindFirstBranchCountryCodeAsync(long brandId, CancellationToken cancellationToken) =>
+        Task.FromResult(BrandIds.Contains(brandId) ? CountryCode : null);
+
     public void Add(Subscription subscription) => Subscriptions.Add(subscription);
 
+    public void Add(PlanOffer offer) => Offers.Add(offer);
+
     public void Add(SubscriptionFeature addOn) => AddOns.Add(addOn);
+}
+
+internal sealed class FakeBrandBillingLinks : IBrandBillingLinks
+{
+    public const string PlanOfferPaymentLink = "https://app.example.com/settings/plan?offer=1";
+    public const string CustomerLinkPrefix = "https://dashboard.stripe.test/customers/";
+
+    public string PlanOfferPayment() => PlanOfferPaymentLink;
+
+    public string Customer(string externalCustomerId) => CustomerLinkPrefix + externalCustomerId;
 }
 
 internal sealed class CountingUnitOfWork : IUnitOfWork

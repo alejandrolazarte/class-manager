@@ -8,6 +8,7 @@ using ClassManager.Core.Domain.Users;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Security.Accounts;
 using ClassManager.Security.Persistence;
+using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -27,9 +28,12 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
     private const string SkipApiVersionCheckFlag = "--skipApiVersionCheck";
     private const string PlatformOrganizationName = "Laztty";
     private const string OtherOrganizationName = "Otra marca";
-    private const string ArgentinaCountryCode = "AR";
+    public const string ArgentinaCountryCode = "AR";
+    public const string SpainCountryCode = "ES";
     private const string TimeZoneId = "America/Argentina/Buenos_Aires";
     private const string CurrencyCode = "ARS";
+    private const string SpainTimeZoneId = "Europe/Madrid";
+    private const string SpainCurrencyCode = "EUR";
     private const string OperatorFullName = "Operadora";
     private const string OwnerFullName = "Dueña de la marca";
     private const string BranchName = "Sede";
@@ -106,8 +110,13 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         return await SeedOperatorAsync(organization.Id, BusinessRole.PlatformOperator, isEnabled: true);
     }
 
-    public async Task<SeededBrand> SeedBrandAsync(string name, IReadOnlyList<int> studentsPerBranch, Func<long, IReadOnlyList<Subscription>> subscriptionsOf)
+    public async Task<SeededBrand> SeedBrandAsync(
+        string name,
+        IReadOnlyList<int> studentsPerBranch,
+        Func<long, IReadOnlyList<Subscription>> subscriptionsOf,
+        string countryCode = ArgentinaCountryCode)
     {
+        var isSpain = countryCode == SpainCountryCode;
         var organization = Organization.Create(name, BackofficeApiFactory.Now).Value!;
         var ownerEmail = $"owner-{TestIds.Next()}@example.com";
         var branchIds = new List<long>();
@@ -122,9 +131,16 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         foreach (var (studentCount, branchIndex) in studentsPerBranch.Select((count, index) => (count, index)))
         {
             await using var lookupContext = CreateAppDbContext(0L);
-            var argentina = await lookupContext.Countries.AsNoTracking().SingleAsync(country => country.Code == ArgentinaCountryCode);
-            var business = Business.Create(organization.Id, $"{BranchName} {branchIndex + 1}", $"branch-{TestIds.Next()}", argentina, TimeZoneId, CurrencyCode, BackofficeApiFactory.Now).Value!;
-            lookupContext.Countries.Attach(argentina);
+            var country = await lookupContext.Countries.AsNoTracking().SingleAsync(candidate => candidate.Code == countryCode);
+            var business = Business.Create(
+                organization.Id,
+                $"{BranchName} {branchIndex + 1}",
+                $"branch-{TestIds.Next()}",
+                country,
+                isSpain ? SpainTimeZoneId : TimeZoneId,
+                isSpain ? SpainCurrencyCode : CurrencyCode,
+                BackofficeApiFactory.Now).Value!;
+            lookupContext.Countries.Attach(country);
             lookupContext.Businesses.Add(business);
             await lookupContext.SaveChangesAsync();
             await using var context = CreateAppDbContext(business.Id);
@@ -148,6 +164,13 @@ public sealed class BackofficeApiFixture : IAsyncLifetime, IDisposable
         }
 
         return new SeededBrand(organization.Id, ownerEmail, branchIds);
+    }
+
+    public async Task SeedBillingCustomerAsync(long brandId, string externalCustomerId)
+    {
+        await using var context = CreateAppDbContext(0L);
+        context.BillingCustomers.Add(BillingCustomer.Create(brandId, externalCustomerId));
+        await context.SaveChangesAsync();
     }
 
     private async Task<SeededOperator> SeedOperatorAsync(long organizationId, BusinessRole role, bool isEnabled)

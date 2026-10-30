@@ -30,6 +30,14 @@ export interface OrganizationSubscription {
   selfService: boolean;
   isExternal: boolean;
   paymentStatus: PaymentStatus | null;
+  offer: PlanOffer | null;
+}
+
+export interface PlanOffer {
+  planCode: string;
+  price: number;
+  currency: string;
+  expiredOn: string | null;
 }
 
 export type PaymentStatus = "Current" | "PastDue";

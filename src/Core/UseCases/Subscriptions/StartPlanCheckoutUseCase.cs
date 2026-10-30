@@ -54,7 +54,11 @@ public sealed class StartPlanCheckoutUseCase(
             return Result.Conflict<BillingRedirectResponse>(BillingErrorCodes.AlreadySubscribedMessage, BillingErrorCodes.AlreadySubscribed);
         }
 
-        var access = await selfServiceBillingService.GetAccessAsync(subscription, cancellationToken);
+        var activeOffer = await selfServiceBillingService.FindActiveOfferAsync(business.OrganizationId, cancellationToken);
+        var offer = activeOffer?.PlanCode == command.PlanCode ? activeOffer : null;
+        var access = offer is null
+            ? await selfServiceBillingService.GetAccessAsync(subscription, cancellationToken)
+            : await selfServiceBillingService.GetAccessAsync(offer, cancellationToken);
         if (access is SelfServiceBillingAccess.NotInPlan)
         {
             return FeatureErrors.NotInPlan(Features.SelfServiceBilling);
@@ -84,7 +88,7 @@ public sealed class StartPlanCheckoutUseCase(
             new BillingCheckoutRequest(
                 business.OrganizationId,
                 externalCustomerId,
-                SelfServiceBilling.PriceOf(chosenPlan, AgreedPriceOr(subscription, command.PlanCode, listPrice)),
+                SelfServiceBilling.PriceOf(chosenPlan, offer?.Price ?? listPrice),
                 FirstChargeAt(subscription, today),
                 new Uri(webAppLinks.PlanCheckoutSucceeded()),
                 new Uri(webAppLinks.PlanCheckoutCancelled())),
@@ -113,11 +117,6 @@ public sealed class StartPlanCheckoutUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return externalCustomerId;
     }
-
-    private static decimal AgreedPriceOr(Subscription subscription, string planCode, decimal listPrice) =>
-        subscription.PlanCode == planCode && subscription.ExternalSubscriptionId is null && subscription.Price > 0
-            ? subscription.Price
-            : listPrice;
 
     private static DateTimeOffset? FirstChargeAt(Subscription subscription, DateOnly today) =>
         subscription.PlanCode == PlanCodes.Free && subscription.IsActiveOn(today) && subscription.ExpiredOn is { } lastTrialDay

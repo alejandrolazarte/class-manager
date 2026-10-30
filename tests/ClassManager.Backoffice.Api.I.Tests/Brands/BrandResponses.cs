@@ -13,7 +13,11 @@ internal sealed record BrandDetailResponse(
     IReadOnlyList<BrandFeatureResponse> Features,
     IReadOnlyList<BrandBranchResponse> Branches,
     IReadOnlyList<BrandAddOnResponse> AddOns,
-    IReadOnlyList<BrandSubscriptionResponse> PastSubscriptions);
+    IReadOnlyList<BrandSubscriptionResponse> PastSubscriptions,
+    BrandOfferResponse? Offer = null,
+    string? BillingCustomerUrl = null);
+
+internal sealed record BrandOfferResponse(string PlanCode, decimal Price, string Currency, bool IsActive, string PaymentLink);
 
 internal sealed record BrandOwnerResponse(string FullName, string? Email);
 

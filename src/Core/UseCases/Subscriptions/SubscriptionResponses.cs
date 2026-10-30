@@ -42,4 +42,7 @@ public sealed record OrganizationSubscriptionResponse(
     bool IsActive,
     bool SelfService,
     bool IsExternal,
-    SubscriptionPaymentStatus? PaymentStatus);
+    SubscriptionPaymentStatus? PaymentStatus,
+    PlanOfferResponse? Offer);
+
+public sealed record PlanOfferResponse(string PlanCode, decimal Price, string Currency, DateOnly? ExpiredOn);

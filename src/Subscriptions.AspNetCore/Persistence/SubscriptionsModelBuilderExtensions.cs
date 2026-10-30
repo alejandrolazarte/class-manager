@@ -1,5 +1,6 @@
 using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,7 @@ public static class SubscriptionsModelBuilderExtensions
     public const string SubscriptionFeaturesTable = "SubscriptionFeatures";
     public const string ProcessedBillingEventsTable = "ProcessedBillingEvents";
     public const string BillingCustomersTable = "BillingCustomers";
+    public const string PlanOffersTable = "PlanOffers";
 
     private const string NotDeletedFilter = "[IsDeleted] = 0";
     private const string CurrentExternalSubscriptionFilter = "[IsDeleted] = 0 AND [ExternalSubscriptionId] IS NOT NULL";
@@ -95,6 +97,18 @@ public static class SubscriptionsModelBuilderExtensions
             billingCustomer.Property(entity => entity.SubscriberId).ValueGeneratedNever();
             billingCustomer.Property(entity => entity.ExternalCustomerId).HasMaxLength(BillingCustomer.ExternalCustomerIdMaxLength).IsRequired();
             billingCustomer.HasIndex(entity => entity.ExternalCustomerId).IsUnique();
+        });
+
+        modelBuilder.Entity<PlanOffer>(planOffer =>
+        {
+            planOffer.ToTable(PlanOffersTable, schema);
+            planOffer.HasKey(entity => entity.Id);
+            planOffer.Property(entity => entity.PlanCode).HasMaxLength(CatalogRules.CodeMaxLength).IsRequired();
+            planOffer.Property(entity => entity.Price).HasPrecision(CatalogRules.PricePrecision, CatalogRules.PriceScale);
+            planOffer.Property(entity => entity.Currency).HasMaxLength(CatalogRules.CurrencyLength).IsFixedLength().IsRequired();
+            planOffer.Property(entity => entity.Note).HasMaxLength(CatalogRules.NoteMaxLength);
+            planOffer.HasOne<Plan>().WithMany().HasForeignKey(entity => entity.PlanCode).OnDelete(DeleteBehavior.Restrict);
+            planOffer.HasIndex(entity => entity.SubscriberId).IsUnique().HasFilter(NotDeletedFilter);
         });
 
         return modelBuilder;

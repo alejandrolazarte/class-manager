@@ -2,6 +2,7 @@ using ClassManager.Infrastructure.Subscriptions;
 using ClassManager.Records;
 using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.Extensions.Configuration;
 
@@ -39,4 +40,7 @@ internal sealed class SubscriptionRepository(AppDbContext context, IConfiguratio
         context.BillingCustomers.AsNoTracking().FirstOrDefaultAsync(customer => customer.SubscriberId == subscriberId, cancellationToken);
 
     public void AddBillingCustomer(BillingCustomer billingCustomer) => context.BillingCustomers.Add(billingCustomer);
+
+    public Task<PlanOffer?> GetCurrentOfferAsync(long subscriberId, CancellationToken cancellationToken) =>
+        context.PlanOffers.AsNoTracking().FirstOrDefaultAsync(offer => offer.SubscriberId == subscriberId, cancellationToken);
 }

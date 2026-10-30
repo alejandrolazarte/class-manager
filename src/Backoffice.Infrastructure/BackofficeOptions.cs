@@ -11,6 +11,9 @@ public sealed class BackofficeOptions
     [Required]
     public string WebAppUrl { get; set; } = string.Empty;
 
+    [Required]
+    public string StripeDashboardUrl { get; set; } = "https://dashboard.stripe.com/";
+
     public GoogleSignInOptions Google { get; set; } = new();
 }
 

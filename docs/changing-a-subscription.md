@@ -4,11 +4,13 @@ Date: 2026-10-11
 
 A platform operator changes a brand's plan and price, and gives or removes add-ons, from the backoffice at `admin.laztty.com`: **Marcas** → the brand → **Cambiar plan** or **Dar add-on** (see the [backoffice plan](backend/20261017-backoffice/plan.md)). Both follow the same rules as the script below.
 
+**Cambiar plan** changes the plan at once and charges nobody. To charge a brand an agreed price, use **Ofrecer plan** instead and send it the link from **Copiar link de pago**: the plan changes only when the brand pays by card ([offering a plan](backend/20261029-stripe-billing/plan.md#offering-a-plan-a-payment-link-and-the-plan-changes-only-once-paid)). A brand that pays through Stripe can't be changed here (the backoffice and the script refuse it): its plan changes from Stripe.
+
 [`scripts/set-subscription.sql`](../scripts/set-subscription.sql) stays as the fallback when the backoffice is not reachable: it runs in the Azure portal and needs nothing installed.
 
 ## What it does
 
-- Finds the brand (organization) by its **brand owner's email**. It stops with an error if the email owns no brand or more than one, or if the plan doesn't exist.
+- Finds the brand (organization) by its **brand owner's email**. It stops with an error if the email owns no brand or more than one, if the plan doesn't exist, or if the brand pays through Stripe.
 - In one transaction, ends the current subscription (`IsDeleted = 1`, `DeletedAt = now`) and starts the new one with the given plan, price, currency and note, following the [records convention](../CLAUDE.md#records-that-change-over-time). No row is deleted, so the history stays.
 - The new subscription has no `ExpiredOn`: it lasts until the next change. That includes `free`, which only expires after 30 days when it is created by sign-up.
 - Add-ons belong to the previous subscription and don't carry over.

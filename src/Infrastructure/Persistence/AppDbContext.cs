@@ -3,6 +3,7 @@ using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
 using ClassManager.Subscriptions.Billing;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -75,6 +76,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<SubscriptionFeature> SubscriptionFeatures => Set<SubscriptionFeature>();
     public DbSet<ProcessedBillingEvent> ProcessedBillingEvents => Set<ProcessedBillingEvent>();
     public DbSet<BillingCustomer> BillingCustomers => Set<BillingCustomer>();
+    public DbSet<PlanOffer> PlanOffers => Set<PlanOffer>();
 
     public long CurrentTenantId => tenantContext.TenantId;
 
@@ -89,6 +91,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
         modelBuilder.ApplySubscriptionsModel();
         modelBuilder.Entity<Subscription>().HasOne<Organization>().WithMany().HasForeignKey(subscription => subscription.SubscriberId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<BillingCustomer>().HasOne<Organization>().WithMany().HasForeignKey(customer => customer.SubscriberId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<PlanOffer>().HasOne<Organization>().WithMany().HasForeignKey(offer => offer.SubscriberId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.ApplyWhoDidWhatForeignKeys();
         modelBuilder.SeedSubscriptionCatalog();
         modelBuilder.SeedCountryCatalog();

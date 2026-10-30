@@ -21,7 +21,9 @@ public sealed record BrandCurrentSubscriptionResponse(
     DateTimeOffset CreatedOn,
     DateOnly? ExpiredOn,
     BrandStatus Status,
-    int? TrialDaysLeft);
+    int? TrialDaysLeft,
+    bool IsExternal,
+    SubscriptionPaymentStatus? PaymentStatus);
 
 public sealed record BrandFeatureResponse(string Code, int? Limit);
 
@@ -66,9 +68,11 @@ public sealed record BrandDetailResponse(
     IReadOnlyList<BrandFeatureResponse> Features,
     IReadOnlyList<BrandBranchResponse> Branches,
     IReadOnlyList<BrandAddOnResponse> AddOns,
-    IReadOnlyList<BrandPastSubscriptionResponse> PastSubscriptions);
+    IReadOnlyList<BrandPastSubscriptionResponse> PastSubscriptions,
+    BrandPlanOfferResponse? Offer,
+    string? BillingCustomerUrl);
 
-public sealed class GetBrandUseCase(IBrandDirectory brandDirectory, TimeProvider timeProvider)
+public sealed class GetBrandUseCase(IBrandDirectory brandDirectory, IBrandBillingLinks billingLinks, TimeProvider timeProvider)
     : IUseCase<GetBrandQuery, BrandDetailResponse>
 {
     private const long BytesPerMegabyte = 1024 * 1024;
@@ -104,7 +108,9 @@ public sealed class GetBrandUseCase(IBrandDirectory brandDirectory, TimeProvider
                 current.CreatedOn,
                 current.ExpiredOn,
                 BrandSubscriptionStatus.Of(current, today),
-                BrandSubscriptionStatus.TrialDaysLeft(current, today)),
+                BrandSubscriptionStatus.TrialDaysLeft(current, today),
+                current.ExternalSubscriptionId is not null,
+                current.PaymentStatus),
             features,
             [.. brand.Branches
                 .OrderBy(branch => branch.CreatedAt)
@@ -129,6 +135,8 @@ public sealed class GetBrandUseCase(IBrandDirectory brandDirectory, TimeProvider
                     subscription.Note,
                     subscription.CreatedOn,
                     subscription.ExpiredOn,
-                    subscription.DeletedAt))]);
+                    subscription.DeletedAt))],
+            brand.CurrentOffer is { } offer ? BrandPlanOfferResponse.From(offer, today, billingLinks) : null,
+            brand.ExternalCustomerId is { } externalCustomerId ? billingLinks.Customer(externalCustomerId) : null);
     }
 }

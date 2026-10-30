@@ -25,6 +25,12 @@ IF NOT EXISTS (SELECT 1 FROM billing.Plans WHERE Code = @PlanCode)
 DECLARE @OrganizationId bigint = (SELECT OrganizationId FROM @Brands);
 DECLARE @Now datetimeoffset = SYSUTCDATETIME();
 
+IF EXISTS (
+    SELECT 1 FROM billing.Subscriptions
+    WHERE SubscriberId = @OrganizationId AND IsDeleted = 0 AND ExternalSubscriptionId IS NOT NULL
+      AND (ExpiredOn IS NULL OR ExpiredOn >= CAST(@Now AS date)))
+    THROW 50002, 'The brand pays through Stripe: change its plan from Stripe.', 1;
+
 BEGIN TRANSACTION;
 
 UPDATE billing.Subscriptions

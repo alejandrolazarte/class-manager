@@ -2,6 +2,7 @@ import { formatLongDate } from "@/dates/dates";
 import { formatMoney } from "@/formatting/money";
 import { CheckoutReturnNotice } from "@/features/subscriptions/components/CheckoutReturnNotice";
 import { FeatureList } from "@/features/subscriptions/components/FeatureList";
+import { OfferedPlan } from "@/features/subscriptions/components/OfferedPlan";
 import { PastDueNotice } from "@/features/subscriptions/components/PastDueNotice";
 import { PlanCatalog } from "@/features/subscriptions/components/PlanCatalog";
 import { PlansContact } from "@/features/subscriptions/components/PlansContact";
@@ -39,8 +40,14 @@ function statusLabel(subscription: CurrentSubscription): string {
 
 export function PlanScreen() {
   const subscription = useSubscription();
-  const { organizationSubscription, canChoosePlan, canManageBilling, managesOnTheWebOnly } =
-    useSelfServiceBilling();
+  const {
+    organizationSubscription,
+    canChoosePlan,
+    canManageBilling,
+    managesOnTheWebOnly,
+    offer,
+    canAcceptOffer,
+  } = useSelfServiceBilling();
   const { checkout, portal } = useBillingRedirects();
   const price = organizationSubscription.data;
 
@@ -50,6 +57,13 @@ export function PlanScreen() {
     >
       <CheckoutReturnNotice paysOnline={price?.isExternal === true} />
       <PastDueNotice />
+      {offer ? (
+        <OfferedPlan
+          offer={offer}
+          onAccept={canAcceptOffer ? () => checkout.mutate(offer.planCode) : undefined}
+          isAccepting={checkout.isPending && checkout.variables === offer.planCode}
+        />
+      ) : null}
       <TonalBlock tone="muted">
         <AppText variant="eyebrow" tone="accent">
           {translate("subscriptions.yourPlan")}

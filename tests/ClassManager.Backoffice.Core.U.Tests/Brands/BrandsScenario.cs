@@ -50,7 +50,7 @@ internal sealed class BrandsScenario
     }
 
     public Task<Result<BrandDetailResponse>> GetAsync(long? brandId = null) =>
-        new GetBrandUseCase(_directory, new FakeTimeProvider(Now))
+        new GetBrandUseCase(_directory, new FakeBrandBillingLinks(), new FakeTimeProvider(Now))
             .ExecuteAsync(new GetBrandQuery(brandId ?? BrandId), CancellationToken.None);
 }
 

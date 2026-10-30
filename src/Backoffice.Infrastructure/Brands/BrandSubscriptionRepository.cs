@@ -2,6 +2,7 @@ using ClassManager.Backoffice.Core.Brands;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Records;
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +27,20 @@ internal sealed class BrandSubscriptionRepository(AppDbContext context) : IBrand
             .Where(addOn => addOn.SubscriptionId == subscriptionId)
             .ToListAsync(cancellationToken);
 
+    public Task<PlanOffer?> FindCurrentOfferAsync(long brandId, CancellationToken cancellationToken) =>
+        context.PlanOffers.FirstOrDefaultAsync(offer => offer.SubscriberId == brandId, cancellationToken);
+
+    public Task<string?> FindFirstBranchCountryCodeAsync(long brandId, CancellationToken cancellationToken) =>
+        context.Businesses
+            .Where(business => business.OrganizationId == brandId)
+            .OrderBy(business => business.CreatedAt)
+            .ThenBy(business => business.Id)
+            .Select(business => business.CountryCode)
+            .FirstOrDefaultAsync(cancellationToken);
+
     public void Add(Subscription subscription) => context.Subscriptions.Add(subscription);
+
+    public void Add(PlanOffer offer) => context.PlanOffers.Add(offer);
 
     public void Add(SubscriptionFeature addOn) => context.SubscriptionFeatures.Add(addOn);
 }

@@ -3,6 +3,7 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.UseCases;
+using ClassManager.Records;
 using ClassManager.Subscriptions.Catalog;
 using ClassManager.Subscriptions.Subscribers;
 
@@ -84,6 +85,11 @@ public sealed class ChangeBrandPlanUseCase(IBrandSubscriptionRepository reposito
         }
 
         var current = await repository.FindCurrentSubscriptionAsync(command.BrandId, cancellationToken);
+        if (current is { ExternalSubscriptionId: not null } && current.IsActiveOn(DateOnly.FromDateTime(now.UtcDateTime)))
+        {
+            return Result.Conflict<BrandPlanChangedResponse>(BrandErrorCodes.SubscriptionExternalMessage, BrandErrorCodes.SubscriptionExternal);
+        }
+
         current?.Delete(now);
         var replacement = Subscription.Start(command.BrandId, plan.Code, command.Price, command.Currency!, command.Note, now);
         if (command.ExpiredOn is { } expiredOn)

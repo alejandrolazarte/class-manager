@@ -28,6 +28,21 @@ internal static class BrandEndpoints
                 new ChangeBrandPlanCommand(brandId, request.PlanCode, request.Price, request.Currency, request.Note, request.ExpiredOn),
                 cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.Manage);
+        group.MapPut(BackofficeApiRoutes.BrandOffer, async (
+            long brandId,
+            OfferBrandPlanRequest request,
+            IUseCase<OfferBrandPlanCommand, BrandPlanOfferResponse> useCase,
+            CancellationToken cancellationToken) =>
+            (await useCase.ExecuteAsync(
+                new OfferBrandPlanCommand(brandId, request.PlanCode, request.Price, request.Note, request.ExpiredOn),
+                cancellationToken)).ToOkResult())
+            .RequirePlatformPermission(Permissions.Platform.Manage);
+        group.MapDelete(BackofficeApiRoutes.BrandOffer, async (
+            long brandId,
+            IUseCase<WithdrawBrandPlanOfferCommand, BrandPlanOfferResponse> useCase,
+            CancellationToken cancellationToken) =>
+            (await useCase.ExecuteAsync(new WithdrawBrandPlanOfferCommand(brandId), cancellationToken)).ToOkResult())
+            .RequirePlatformPermission(Permissions.Platform.Manage);
         group.MapPost(BackofficeApiRoutes.BrandAddOns, async (
             long brandId,
             GiveBrandAddOnRequest request,
@@ -69,5 +84,7 @@ internal static class BrandEndpoints
 }
 
 internal sealed record ChangeBrandPlanRequest(string? PlanCode, decimal Price, string? Currency, string? Note, DateOnly? ExpiredOn);
+
+internal sealed record OfferBrandPlanRequest(string? PlanCode, decimal Price, string? Note, DateOnly? ExpiredOn);
 
 internal sealed record GiveBrandAddOnRequest(string? FeatureCode, decimal Price, string? Currency, int? Limit, DateOnly? ExpiredOn);

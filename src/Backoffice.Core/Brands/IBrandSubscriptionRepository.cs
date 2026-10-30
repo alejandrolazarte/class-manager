@@ -1,4 +1,5 @@
 using ClassManager.Subscriptions.Catalog;
+using ClassManager.Subscriptions.Offers;
 using ClassManager.Subscriptions.Subscribers;
 
 namespace ClassManager.Backoffice.Core.Brands;
@@ -15,7 +16,13 @@ public interface IBrandSubscriptionRepository
 
     Task<IReadOnlyList<SubscriptionFeature>> ListAddOnsIncludingRemovedAsync(long subscriptionId, CancellationToken cancellationToken);
 
+    Task<PlanOffer?> FindCurrentOfferAsync(long brandId, CancellationToken cancellationToken);
+
+    Task<string?> FindFirstBranchCountryCodeAsync(long brandId, CancellationToken cancellationToken);
+
     void Add(Subscription subscription);
+
+    void Add(PlanOffer offer);
 
     void Add(SubscriptionFeature addOn);
 }

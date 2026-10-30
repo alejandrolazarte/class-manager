@@ -14,6 +14,14 @@ internal sealed class BrandChanges(BackofficeApiFixture fixture)
 
     public string AccessToken { get; private set; } = string.Empty;
 
+    public static async Task<BrandChanges> InSpainAsync(BackofficeApiFixture fixture, Func<long, IReadOnlyList<Subscription>> subscriptionsOf)
+    {
+        var changes = new BrandChanges(fixture);
+        changes.Brand = await fixture.SeedBrandAsync($"Marca {TestIds.Next()}", [0], subscriptionsOf, BackofficeApiFixture.SpainCountryCode);
+        changes.AccessToken = await changes.Client.OpenSessionAsync(await fixture.SeedOperatorAsync(BusinessRole.PlatformOperator));
+        return changes;
+    }
+
     public static async Task<BrandChanges> OnProAsync(BackofficeApiFixture fixture, BusinessRole role = BusinessRole.PlatformOperator)
     {
         var changes = new BrandChanges(fixture);
@@ -29,6 +37,12 @@ internal sealed class BrandChanges(BackofficeApiFixture fixture)
 
     public Task<HttpResponseMessage> ChangePlanAsync(string planCode, decimal price = 12m) =>
         Client.SendAsync(HttpMethod.Put, $"{BrandRoute}/subscription", AccessToken, new { planCode, price, currency = Currency, note = "Precio acordado" });
+
+    public Task<HttpResponseMessage> OfferPlanAsync(string planCode, decimal price) =>
+        Client.SendAsync(HttpMethod.Put, $"{BrandRoute}/offer", AccessToken, new { planCode, price, note = "Precio de lanzamiento" });
+
+    public Task<HttpResponseMessage> WithdrawOfferAsync() =>
+        Client.SendAsync(HttpMethod.Delete, $"{BrandRoute}/offer", AccessToken);
 
     public async Task<BrandAddOnResponse> GiveAddOnAsync(string featureCode, int? limit)
     {
