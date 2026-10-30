@@ -353,6 +353,7 @@
   "enrollments.detail.enrollStudent": "Enroll student",
   "enrollments.detail.classFull": "Class full",
   "enrollments.detail.editClass": "Edit class",
+  "enrollments.detail.instructor": "Teaches this class",
   "enrollments.detail.students": "Students",
   "enrollments.detail.noStudents": "No students enrolled yet",
   "enrollments.detail.startsOn": "Starts on {date}",

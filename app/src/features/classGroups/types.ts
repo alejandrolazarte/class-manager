@@ -12,6 +12,7 @@ export interface ClassGroup {
   name: string;
   instructorId: string;
   instructorFullName: string;
+  instructorPhotoUrl?: string | null;
   weekdays: Weekday[];
   startTime: string;
   endTime: string;

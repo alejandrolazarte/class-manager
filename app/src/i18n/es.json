@@ -353,6 +353,7 @@
   "enrollments.detail.enrollStudent": "Inscribir alumno",
   "enrollments.detail.classFull": "Clase completa",
   "enrollments.detail.editClass": "Editar clase",
+  "enrollments.detail.instructor": "Da la clase",
   "enrollments.detail.students": "Alumnos",
   "enrollments.detail.noStudents": "Todavía no hay alumnos inscriptos",
   "enrollments.detail.startsOn": "Empieza el {date}",
