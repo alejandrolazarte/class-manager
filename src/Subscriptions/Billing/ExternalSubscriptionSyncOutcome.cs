@@ -6,5 +6,5 @@ public enum ExternalSubscriptionSyncOutcome
     MissingSubscriber,
     NotStarted,
     NotCurrent,
-    UnknownPrice,
+    UnknownPlan,
 }

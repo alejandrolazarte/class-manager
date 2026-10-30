@@ -8,5 +8,5 @@ public interface IBillingGateway
 
     Task<Uri> CreateCheckoutAsync(BillingCheckoutRequest request, CancellationToken cancellationToken);
 
-    Task<Uri> CreatePortalSessionAsync(string externalCustomerId, Uri returnUrl, CancellationToken cancellationToken);
+    Task<Uri> CreatePortalSessionAsync(BillingPortalRequest request, CancellationToken cancellationToken);
 }

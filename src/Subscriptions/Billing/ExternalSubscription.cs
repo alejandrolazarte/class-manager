@@ -3,7 +3,7 @@ namespace ClassManager.Subscriptions.Billing;
 public sealed record ExternalSubscription(
     string Id,
     long? SubscriberId,
-    string? PriceLookupKey,
+    string? PlanCode,
     decimal UnitAmount,
     string Currency,
     ExternalSubscriptionStatus Status,

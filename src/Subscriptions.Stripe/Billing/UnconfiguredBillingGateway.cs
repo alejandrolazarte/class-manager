@@ -15,6 +15,6 @@ internal sealed class UnconfiguredBillingGateway : IBillingGateway
     public Task<Uri> CreateCheckoutAsync(BillingCheckoutRequest request, CancellationToken cancellationToken) =>
         throw new InvalidOperationException(NotConfiguredMessage);
 
-    public Task<Uri> CreatePortalSessionAsync(string externalCustomerId, Uri returnUrl, CancellationToken cancellationToken) =>
+    public Task<Uri> CreatePortalSessionAsync(BillingPortalRequest request, CancellationToken cancellationToken) =>
         throw new InvalidOperationException(NotConfiguredMessage);
 }

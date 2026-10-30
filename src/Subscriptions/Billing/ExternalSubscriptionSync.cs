@@ -36,10 +36,9 @@ public static class ExternalSubscriptionSync
             return new ExternalSubscriptionSyncResult(ExternalSubscriptionSyncOutcome.Applied);
         }
 
-        var planCode = PlanPriceLookupKey.PlanCodeOf(external.PriceLookupKey);
-        if (planCode is null || !planCodes.Contains(planCode))
+        if (external.PlanCode is not { } planCode || !planCodes.Contains(planCode))
         {
-            return new ExternalSubscriptionSyncResult(ExternalSubscriptionSyncOutcome.UnknownPrice);
+            return new ExternalSubscriptionSyncResult(ExternalSubscriptionSyncOutcome.UnknownPlan);
         }
 
         Subscription? started = null;

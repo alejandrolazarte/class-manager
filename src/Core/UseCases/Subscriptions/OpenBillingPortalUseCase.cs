@@ -2,6 +2,7 @@ using ClassManager.Core.Abstractions.Email;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
+using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Subscriptions.Billing;
 
 namespace ClassManager.Core.UseCases.Subscriptions;
@@ -29,9 +30,13 @@ public sealed class OpenBillingPortalUseCase(
             return Result.NotFound<BillingRedirectResponse>(BillingErrorCodes.NoCustomerMessage, BillingErrorCodes.NoCustomer);
         }
 
+        var plans = await subscriptionRepository.ListActivePlansAsync(cancellationToken);
+        var switchablePlans = plans
+            .Where(plan => SelfServiceBilling.PlanCodes.Contains(plan.Code) && plan.ListPrice is not null)
+            .Select(plan => SelfServiceBilling.PriceOf(plan, plan.ListPrice!.Value))
+            .ToList();
         var portalUrl = await billingGateway.CreatePortalSessionAsync(
-            customer.ExternalCustomerId,
-            new Uri(webAppLinks.PlanSettings()),
+            new BillingPortalRequest(customer.ExternalCustomerId, switchablePlans, new Uri(webAppLinks.PlanSettings())),
             cancellationToken);
         return new BillingRedirectResponse(portalUrl);
     }

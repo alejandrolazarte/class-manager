@@ -3,7 +3,7 @@ namespace ClassManager.Subscriptions.Billing;
 public sealed record BillingCheckoutRequest(
     long SubscriberId,
     string ExternalCustomerId,
-    string PriceLookupKey,
+    BillingPlanPrice Plan,
     DateTimeOffset? FirstChargeAt,
     Uri SuccessUrl,
     Uri CancelUrl);

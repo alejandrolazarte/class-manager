@@ -5,7 +5,7 @@ using Stripe.Checkout;
 
 namespace ClassManager.Subscriptions.Stripe.Billing;
 
-internal sealed class StripeBillingGateway(StripeClient client, TimeProvider timeProvider) : IBillingGateway
+internal sealed class StripeBillingGateway(StripeClient client, StripePlanCatalog planCatalog, TimeProvider timeProvider) : IBillingGateway
 {
     private const string ResourceMissingCode = "resource_missing";
     private const decimal MinorUnitsPerMajorUnit = 100m;
@@ -14,7 +14,7 @@ internal sealed class StripeBillingGateway(StripeClient client, TimeProvider tim
     private const string UpdateFromCheckout = "auto";
     private const string LocaleFromBrowser = "auto";
     private const int SingleUnit = 1;
-    private const string PriceNotFoundMessage = "No active Stripe price has the lookup key ";
+    private const string ExpandPriceProducts = "items.data.price.product";
 
     private static readonly TimeSpan ShortestTrial = TimeSpan.FromHours(48);
 
@@ -34,7 +34,10 @@ internal sealed class StripeBillingGateway(StripeClient client, TimeProvider tim
     {
         try
         {
-            var subscription = await client.V1.Subscriptions.GetAsync(externalSubscriptionId, cancellationToken: cancellationToken);
+            var subscription = await client.V1.Subscriptions.GetAsync(
+                externalSubscriptionId,
+                new SubscriptionGetOptions { Expand = [ExpandPriceProducts] },
+                cancellationToken: cancellationToken);
             return ToExternal(subscription);
         }
         catch (StripeException exception) when (exception.StripeError?.Code == ResourceMissingCode)
@@ -59,7 +62,7 @@ internal sealed class StripeBillingGateway(StripeClient client, TimeProvider tim
 
     public async Task<Uri> CreateCheckoutAsync(BillingCheckoutRequest request, CancellationToken cancellationToken)
     {
-        var priceId = await FindPriceIdAsync(request.PriceLookupKey, cancellationToken);
+        var priceId = await planCatalog.EnsurePriceAsync(request.Plan, cancellationToken);
         var session = await client.V1.Checkout.Sessions.CreateAsync(
             new SessionCreateOptions
             {
@@ -84,24 +87,18 @@ internal sealed class StripeBillingGateway(StripeClient client, TimeProvider tim
         return new Uri(session.Url);
     }
 
-    public async Task<Uri> CreatePortalSessionAsync(string externalCustomerId, Uri returnUrl, CancellationToken cancellationToken)
+    public async Task<Uri> CreatePortalSessionAsync(BillingPortalRequest request, CancellationToken cancellationToken)
     {
+        var configurationId = await planCatalog.EnsurePortalConfigurationAsync(request.SwitchablePlans, cancellationToken);
         var session = await client.V1.BillingPortal.Sessions.CreateAsync(
             new global::Stripe.BillingPortal.SessionCreateOptions
             {
-                Customer = externalCustomerId,
-                ReturnUrl = returnUrl.ToString(),
+                Customer = request.ExternalCustomerId,
+                Configuration = configurationId,
+                ReturnUrl = request.ReturnUrl.ToString(),
             },
             cancellationToken: cancellationToken);
         return new Uri(session.Url);
-    }
-
-    private async Task<string> FindPriceIdAsync(string lookupKey, CancellationToken cancellationToken)
-    {
-        var prices = await client.V1.Prices.ListAsync(
-            new PriceListOptions { LookupKeys = [lookupKey], Active = true },
-            cancellationToken: cancellationToken);
-        return prices.Data.SingleOrDefault()?.Id ?? throw new InvalidOperationException(PriceNotFoundMessage + lookupKey);
     }
 
     private DateTime? TrialEndOrNull(DateTimeOffset? firstChargeAt) =>
@@ -120,13 +117,16 @@ internal sealed class StripeBillingGateway(StripeClient client, TimeProvider tim
         return new ExternalSubscription(
             subscription.Id,
             SubscriberIdOf(subscription),
-            item.Price.LookupKey,
+            PlanCodeOf(item.Price.Product),
             (item.Price.UnitAmount ?? 0) / MinorUnitsPerMajorUnit,
             item.Price.Currency.ToUpperInvariant(),
             Statuses[subscription.Status],
             DateOfOrNull(cancelAt),
             DateOfOrNull(subscription.EndedAt));
     }
+
+    private static string? PlanCodeOf(Product? product) =>
+        product is not null && product.Metadata.TryGetValue(StripeMetadataKeys.PlanCode, out var planCode) ? planCode : null;
 
     private static long? SubscriberIdOf(Subscription subscription) =>
         subscription.Metadata.TryGetValue(StripeMetadataKeys.SubscriberId, out var value)

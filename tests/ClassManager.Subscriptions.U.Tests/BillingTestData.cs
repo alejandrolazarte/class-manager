@@ -22,9 +22,8 @@ internal static class BillingTestData
         string id = ExternalSubscriptionId,
         long? subscriberId = SubscriptionsTestData.SubscriberId,
         DateOnly? cancelOn = null,
-        DateOnly? endedOn = null,
-        string? lookupKey = null) =>
-        new(id, subscriberId, lookupKey ?? PlanPriceLookupKey.For(planCode, Euro), unitAmount, Euro, status, cancelOn, endedOn);
+        DateOnly? endedOn = null) =>
+        new(id, subscriberId, planCode, unitAmount, Euro, status, cancelOn, endedOn);
 
     public static Subscription Trial() =>
         Subscription.Start(SubscriptionsTestData.SubscriberId, TrialPlanCode, price: 0m, Euro, note: null, Now.AddDays(-5));
