@@ -1914,6 +1914,7 @@
   "subscriptions.feature.shop": "Tienda",
   "subscriptions.feature.brand": "Marca propia",
   "subscriptions.feature.document-storage": "Espacio para archivos",
+  "subscriptions.feature.self-service-billing": "Pago del plan con tarjeta",
   "settings.plan": "Plan",
   "subscriptions.readOnlyTrial": "Tu prueba gratis terminó: podés ver tus datos, pero no cargar cambios.",
   "subscriptions.featureUnlimited": "{feature}: sin límite",

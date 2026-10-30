@@ -46,5 +46,8 @@ public sealed class Then_no_user_is_left_behind(ApiFixture fixture)
 
         public Task<long?> FindOrganizationIdAsync(long businessId, CancellationToken cancellationToken) =>
             businessRepository.FindOrganizationIdAsync(businessId, cancellationToken);
+
+        public Task<string?> FindFirstBranchCountryCodeAsync(long organizationId, CancellationToken cancellationToken) =>
+            businessRepository.FindFirstBranchCountryCodeAsync(organizationId, cancellationToken);
     }
 }

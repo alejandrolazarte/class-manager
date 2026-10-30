@@ -15,6 +15,7 @@ export function buildSystemRoles(): Role[] {
             "branches.create",
             "brandOwners.manage",
             "subscription.view",
+            "subscription.manage",
           ].includes(permission),
       ),
       copiedFrom: null,

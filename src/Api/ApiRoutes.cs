@@ -154,6 +154,8 @@ public static class ApiRoutes
     public const string OrganizationSubscription = "/api/organization/subscription";
     public const string Plans = "/api/plans";
     public const string StripeBillingWebhook = "/api/billing/stripe/webhooks";
+    public const string OrganizationSubscriptionCheckout = "/api/organization/subscription/checkout";
+    public const string OrganizationSubscriptionPortal = "/api/organization/subscription/portal";
     public const string Countries = "/api/countries";
     public const string BrandOwnerSegment = "/brand-owner";
     public const string Authentication = "/api/auth";

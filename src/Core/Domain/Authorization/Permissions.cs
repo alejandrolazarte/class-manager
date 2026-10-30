@@ -15,6 +15,7 @@ public static class Permissions
         Brand.CreateBranches,
         Brand.ManageBrandOwners,
         Brand.ViewSubscription,
+        Brand.ManageSubscription,
         Instructors.View,
         Instructors.Manage,
         ClassGroups.ViewOwn,
@@ -51,7 +52,7 @@ public static class Permissions
     ];
 
     public static IReadOnlyList<string> BrandOnly { get; } =
-        [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners, Brand.ViewSubscription];
+        [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners, Brand.ViewSubscription, Brand.ManageSubscription];
 
     public static IReadOnlyList<string> PlatformOnly { get; } = [Platform.View, Platform.Manage];
 
@@ -101,6 +102,7 @@ public static class Permissions
         public const string CreateBranches = "branches.create";
         public const string ManageBrandOwners = "brandOwners.manage";
         public const string ViewSubscription = "subscription.view";
+        public const string ManageSubscription = "subscription.manage";
     }
 
     public static class Instructors
