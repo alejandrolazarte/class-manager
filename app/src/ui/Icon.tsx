@@ -101,6 +101,7 @@ const iconGlyphs = {
 } as const satisfies Record<string, IoniconsGlyph>;
 
 export const iconSizes = {
+  tiny: 13,
   small: 16,
   medium: 20,
   large: 22,
