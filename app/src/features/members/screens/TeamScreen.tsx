@@ -46,7 +46,7 @@ interface MemberRowProps {
 function MemberRow({ member, roles, instructorFullName, onPress }: MemberRowProps) {
   return (
     <HairlineRow onPress={onPress} accessibilityLabel={onPress ? member.fullName : undefined}>
-      <Avatar name={member.fullName} size="small" />
+      <Avatar name={member.fullName} size="small" photoUrl={member.photoUrl} />
       <View className="min-w-0 flex-1 gap-0.5">
         <TitleWithPills title={member.fullName}>
           {member.isBrandOwner ? (

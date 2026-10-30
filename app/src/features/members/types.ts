@@ -32,6 +32,7 @@ export interface Member {
   instructorId: string | null;
   isCurrentUser: boolean;
   isBrandOwner: boolean;
+  photoUrl?: string | null;
 }
 
 export interface Invitation {
