@@ -6,6 +6,8 @@ import { updateMyProfile } from "@/features/account/accountApi";
 import { accountQueryKeys } from "@/features/account/accountQueryKeys";
 import { MyAccount, UpdateMyProfileRequest } from "@/features/account/types";
 import { useMyAccount } from "@/features/account/useMyAccount";
+import { memberQueryKeys } from "@/features/members/memberQueryKeys";
+import { studentAppQueryKeys } from "@/features/studentApp/studentAppQueryKeys";
 import { BirthDateField } from "@/forms/BirthDateField";
 import { isFilled } from "@/forms/requiredFields";
 import {
@@ -86,6 +88,9 @@ function EditMyProfileForm({ account }: EditMyProfileFormProps) {
         birthDate: isoBirthDate,
       });
       queryClient.setQueryData(accountQueryKeys.myAccount, updatedAccount);
+      void queryClient.invalidateQueries({ queryKey: memberQueryKeys.all });
+      void queryClient.invalidateQueries({ queryKey: studentAppQueryKeys.home() });
+      void queryClient.invalidateQueries({ queryKey: studentAppQueryKeys.family() });
     } catch (saveError) {
       setFailure(isNetworkError(saveError) ? "network" : "unexpected");
       return;

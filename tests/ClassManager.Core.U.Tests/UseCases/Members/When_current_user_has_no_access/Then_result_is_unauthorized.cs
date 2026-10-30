@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.UseCases.Members;
 using ClassManager.Subscriptions.Access;
@@ -14,7 +15,7 @@ public sealed class Then_result_is_unauthorized
             .Setup(member => member.GetAccessAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((MemberAccess?)null);
 
-        var response = await new GetCurrentMemberUseCase(currentMember.Object, Mock.Of<IIdentityService>(), Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>()).ExecuteAsync(new GetCurrentMemberQuery(), CancellationToken.None);
+        var response = await new GetCurrentMemberUseCase(currentMember.Object, Mock.Of<IUserRepository>(), Mock.Of<IFeatureAccess>(), Mock.Of<IFeatureUsage>()).ExecuteAsync(new GetCurrentMemberQuery(), CancellationToken.None);
 
         response.Error!.Kind.ShouldBe(ErrorKind.Unauthorized);
     }

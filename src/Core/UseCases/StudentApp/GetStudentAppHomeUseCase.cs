@@ -33,7 +33,7 @@ public sealed class GetStudentAppHomeUseCase(
     IClassBalanceService classBalanceService,
     IDocumentStorageService documentStorage,
     IUserPhotoUrlService userPhotoUrls,
-    IIdentityService identityService,
+    IUserRepository userRepository,
     IClientAccountRepository clientAccountRepository,
     IClientInvitationRepository invitationRepository,
     TimeProvider timeProvider)
@@ -205,7 +205,7 @@ public sealed class GetStudentAppHomeUseCase(
                 studentPhotoUrls.GetValueOrDefault(student.Id)));
         }
 
-        var signedInAccounts = await identityService.ListAccountsAsync([access.AccountId], cancellationToken);
+        var signedInUser = await userRepository.FindByAccountAsync(access.AccountId, cancellationToken);
         var pendingGuardianConsents = await PendingGuardianConsentsAsync(access, students, cancellationToken);
         return new StudentAppHomeResponse(
             business.Name,
@@ -214,7 +214,7 @@ public sealed class GetStudentAppHomeUseCase(
             studentResponses,
             await BillingAsync(client.Id, business.CurrencyCode, today, cancellationToken),
             levels,
-            signedInAccounts.Count > 0 ? signedInAccounts[0].FullName : client.User.FullName,
+            signedInUser?.FullName ?? client.User.FullName,
             pendingGuardianConsents,
             StudentAppLocationResponse.From(business));
     }

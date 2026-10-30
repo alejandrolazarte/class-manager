@@ -47,6 +47,9 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
             await context.Instructors.AnyAsync(instructor => instructor.UserId == userId, cancellationToken),
             await context.BusinessMembers.AnyAsync(member => member.UserId == userId, cancellationToken));
 
+    public Task<User?> FindByAccountAsync(Guid accountId, CancellationToken cancellationToken) =>
+        context.Users.AsNoTracking().FirstOrDefaultAsync(user => user.AccountId == accountId, cancellationToken);
+
     public Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken) =>
         context.Users.FirstOrDefaultAsync(user => user.AccountId == accountId, cancellationToken);
 
@@ -128,4 +131,14 @@ internal sealed class UserRepository(AppDbContext context) : IUserRepository
             .Where(user => user.AccountId == accountId
                 && !context.Users.IgnoreTenantFilter().Any(other => other.TenantId == user.TenantId && other.Id != user.Id && other.Email == email))
             .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.Email, email), cancellationToken);
+
+    public Task ChangeProfileInEveryBusinessByAccountAsync(Guid accountId, string fullName, DateOnly birthDate, CancellationToken cancellationToken) =>
+        context.Users
+            .IgnoreTenantFilter()
+            .Where(user => user.AccountId == accountId)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(user => user.FullName, fullName)
+                    .SetProperty(user => user.BirthDate, birthDate),
+                cancellationToken);
 }

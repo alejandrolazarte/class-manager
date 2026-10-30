@@ -17,7 +17,7 @@ public sealed record MemberResponse(
     public static MemberResponse From(BusinessMember member, UserAccount? account, Guid? currentAccountId, bool isBrandOwner, string? photoUrl = null) =>
         new(
             member.Id,
-            account?.FullName ?? string.Empty,
+            member.User.FullName,
             account?.Email ?? string.Empty,
             member.Role,
             member.CustomRoleId,

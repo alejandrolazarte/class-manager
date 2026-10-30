@@ -12,6 +12,7 @@ public sealed record UpdateMyLanguageCommand([property: AuditPlain] string? Pref
 public sealed class UpdateMyLanguageUseCase(
     ICurrentUser currentUser,
     IIdentityService identityService,
+    IUserRepository userRepository,
     ILegalTermsAcceptanceRepository legalTermsAcceptanceRepository)
     : IUseCase<UpdateMyLanguageCommand, MyAccountResponse>
 {
@@ -36,8 +37,7 @@ public sealed class UpdateMyLanguageUseCase(
             return NoAccess();
         }
 
-        var accounts = await identityService.ListAccountsAsync([userId], cancellationToken);
-        return await MyAccountResponse.ForAsync(accounts[0], legalTermsAcceptanceRepository, cancellationToken);
+        return await MyAccountResponse.OfAsync(userId, identityService, userRepository, legalTermsAcceptanceRepository, cancellationToken);
     }
 
     private static Result<MyAccountResponse> NoAccess() =>

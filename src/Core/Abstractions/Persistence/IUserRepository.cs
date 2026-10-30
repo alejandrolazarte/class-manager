@@ -19,6 +19,8 @@ public interface IUserRepository
 
     Task<long?> FindIdByAccountAsync(long businessId, Guid accountId, CancellationToken cancellationToken);
 
+    Task<User?> FindByAccountAsync(Guid accountId, CancellationToken cancellationToken);
+
     Task<User?> FindByAccountForUpdateAsync(Guid accountId, CancellationToken cancellationToken);
 
     Task<bool> IsEmailTakenAsync(string email, long exceptUserId, CancellationToken cancellationToken);
@@ -32,4 +34,6 @@ public interface IUserRepository
     Task AddMissingInEveryBranchAsync(long organizationId, IReadOnlyList<UserAccount> accounts, DateTimeOffset createdAt, CancellationToken cancellationToken);
 
     Task ChangeEmailInEveryBusinessByAccountAsync(Guid accountId, string email, CancellationToken cancellationToken);
+
+    Task ChangeProfileInEveryBusinessByAccountAsync(Guid accountId, string fullName, DateOnly birthDate, CancellationToken cancellationToken);
 }
