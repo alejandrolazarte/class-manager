@@ -7,7 +7,11 @@ import { instructorQueryKeys } from "@/features/instructors/instructorQueryKeys"
 import { Instructor, InstructorAppAccessStatus } from "@/features/instructors/types";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
 import { useTeam } from "@/features/members/useTeam";
-import { useInviteMember, useResendInvitation } from "@/features/members/useTeamMutations";
+import {
+  useInviteMember,
+  useResendInvitation,
+  useRevokeInvitation,
+} from "@/features/members/useTeamMutations";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
 import { AppText, TextTone } from "@/ui/AppText";
@@ -37,6 +41,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
   const teamQuery = useTeam();
   const inviteMutation = useInviteMember();
   const resendMutation = useResendInvitation();
+  const revokeMutation = useRevokeInvitation();
   const emailOnFile = (instructor.email ?? "").trim();
   const [isAskingEmail, setIsAskingEmail] = useState(false);
   const [email, setEmail] = useState(emailOnFile);
@@ -62,6 +67,7 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
   const access = instructorAppAccess(instructor.id, teamQuery.data);
   const isSending = inviteMutation.isPending || resendMutation.isPending;
   const accessEmail = access.member?.email ?? access.invitation?.email ?? "";
+  const pendingInvitation = access.invitation;
 
   const sendTo = async (recipientEmail: string) => {
     setFailureMessage(undefined);
@@ -105,6 +111,16 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
     }
   };
 
+  const revoke = async (invitationId: string) => {
+    setFailureMessage(undefined);
+    try {
+      await revokeMutation.mutateAsync(invitationId);
+      showToast(translate("team.revoked"));
+    } catch {
+      setFailureMessage(translate("common.unexpectedError"));
+    }
+  };
+
   const invite = () => {
     if (access.invitation !== undefined) {
       void resend(access.invitation.id);
@@ -130,20 +146,32 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
           </AppText>
         </View>
         {access.status === "Active" || isAskingEmail ? null : (
-          <Button
-            variant="ghost"
-            size="small"
-            label={translate(
-              access.status === "Invited" ? "instructors.app.resend" : "instructors.app.invite",
+          <View className="items-end">
+            <Button
+              variant="ghost"
+              size="small"
+              label={translate(
+                access.status === "Invited" ? "instructors.app.resend" : "instructors.app.invite",
+              )}
+              accessibilityLabel={translate(
+                access.status === "Invited"
+                  ? "instructors.app.resendAccessibility"
+                  : "instructors.app.inviteAccessibility",
+              )}
+              onPress={invite}
+              isLoading={isSending}
+            />
+            {pendingInvitation === undefined ? null : (
+              <Button
+                variant="ghost"
+                size="small"
+                label={translate("team.revoke")}
+                accessibilityLabel={`${translate("team.revoke")} ${pendingInvitation.email}`}
+                onPress={() => revoke(pendingInvitation.id)}
+                isLoading={revokeMutation.isPending}
+              />
             )}
-            accessibilityLabel={translate(
-              access.status === "Invited"
-                ? "instructors.app.resendAccessibility"
-                : "instructors.app.inviteAccessibility",
-            )}
-            onPress={invite}
-            isLoading={isSending}
-          />
+          </View>
         )}
       </View>
       {failureMessage ? <Banner message={failureMessage} /> : null}
