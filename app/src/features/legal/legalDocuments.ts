@@ -152,6 +152,7 @@ const privacy: LegalDocument = {
       paragraphs: [
         "• De la cuenta: nombre, email, contraseña (guardada cifrada, nadie puede leerla), fecha de nacimiento y la fecha en que se aceptaron estos textos.",
         "• Los que carga el negocio: nombre de alumnos y responsables, datos de contacto, fecha de nacimiento, clases, asistencia, cuotas, packs, pedidos y pagos, mediciones, comentarios del equipo, fotos y logos.",
+        "• La foto de perfil, si la persona elige poner una. Se guarda solo en tamaño chico y sin los datos de ubicación que agrega el teléfono. La ven solo quienes la necesitan dentro de ese negocio: el equipo, la propia familia y, si es de un profe, sus alumnos. Se borra al quitarla o al borrar la cuenta.",
         "• Técnicos: registros de acceso para la seguridad, las suscripciones a notificaciones del dispositivo y la sesión guardada en el dispositivo.",
       ],
     },
@@ -168,6 +169,7 @@ const privacy: LegalDocument = {
       heading: "4. Menores",
       paragraphs: [
         "Para saber quién es menor, cada cuenta tiene fecha de nacimiento. Por debajo de la edad mínima del país (13 años en Argentina, 14 en España y 16 en los demás), la cuenta propia necesita la autorización del adulto responsable, que queda registrada con su fecha. El adulto puede negarla y la cuenta no se crea.",
+        "La foto de perfil de un menor de esa edad no la ve nadie más hasta que el adulto responsable la aprueba. Si la rechaza, se borra.",
       ],
     },
     {

@@ -19,7 +19,7 @@ export function StudentListItem({ student, onPress }: StudentListItemProps) {
     normalizeStudentName(student.fullName) === normalizeStudentName(student.clientFullName);
   return (
     <HairlineRow onPress={() => onPress(student)} accessibilityLabel={student.fullName}>
-      <Avatar name={student.fullName} size="small" />
+      <Avatar name={student.fullName} size="small" photoUrl={student.photoUrl} />
       <View className="min-w-0 flex-1 gap-0.5">
         <AppText variant="bodyStrong" numberOfLines={1}>
           {ageLabel ? `${student.fullName} · ${ageLabel}` : student.fullName}

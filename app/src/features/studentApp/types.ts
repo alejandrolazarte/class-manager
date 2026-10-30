@@ -110,6 +110,7 @@ export interface StudentAppFeedback {
   className: string;
   instructorFullName: string | null;
   text: string;
+  instructorPhotoUrl: string | null;
 }
 
 export interface StudentAppClassMaterialFile {
@@ -346,6 +347,7 @@ export interface StudentAppNewsItem {
   audienceClassNames: string[];
   action: AnnouncementAction | null;
   actionUrl: string | null;
+  instructorPhotoUrl: string | null;
 }
 
 export interface StudentAppNews {

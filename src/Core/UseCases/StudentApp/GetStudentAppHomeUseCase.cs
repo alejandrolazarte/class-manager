@@ -194,7 +194,12 @@ public sealed class GetStudentAppHomeUseCase(
                 ],
                 Attendance(attendanceMarks[student.Id].ToList(), attendedClasses.GetValueOrDefault(student.Id), levels, today),
                 latestFeedbacks.TryGetValue(student.Id, out var feedback)
-                    ? new StudentAppFeedbackResponse(feedback.Date, feedback.ClassGroupName, instructorNames.GetValueOrDefault(feedback.InstructorId), feedback.Text)
+                    ? new StudentAppFeedbackResponse(
+                        feedback.Date,
+                        feedback.ClassGroupName,
+                        instructorNames.GetValueOrDefault(feedback.InstructorId),
+                        feedback.Text,
+                        instructorPhotoUrls.GetValueOrDefault(feedback.InstructorId))
                     : null,
                 Materials(studentClassGroups),
                 studentPhotoUrls.GetValueOrDefault(student.Id)));

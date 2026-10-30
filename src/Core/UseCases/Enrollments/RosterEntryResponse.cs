@@ -10,8 +10,9 @@ public sealed record RosterEntryResponse(
     long ClientId,
     string ClientFullName,
     DateOnly StartDate,
-    DateOnly? EndDate)
+    DateOnly? EndDate,
+    string? StudentPhotoUrl = null)
 {
-    public static RosterEntryResponse From(RosterEntry entry) =>
-        new(entry.EnrollmentId, entry.StudentId, entry.StudentFullName, entry.BirthDate, entry.ClientId, entry.ClientFullName, entry.StartDate, entry.EndDate);
+    public static RosterEntryResponse From(RosterEntry entry, string? studentPhotoUrl = null) =>
+        new(entry.EnrollmentId, entry.StudentId, entry.StudentFullName, entry.BirthDate, entry.ClientId, entry.ClientFullName, entry.StartDate, entry.EndDate, studentPhotoUrl);
 }

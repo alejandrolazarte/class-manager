@@ -17,6 +17,7 @@ export interface RosterEntry {
   clientFullName: string;
   startDate: string;
   endDate: string | null;
+  studentPhotoUrl: string | null;
 }
 
 export interface StudentEnrollment {

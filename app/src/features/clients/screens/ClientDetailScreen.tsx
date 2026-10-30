@@ -101,6 +101,9 @@ function ClientClasses({
           return (
             <View key={student.id} className="gap-2 border-b border-border-subtle pb-3">
               <View className="flex-row items-start gap-1">
+                <View className="mr-2">
+                  <Avatar name={student.fullName} size="small" photoUrl={student.photoUrl} />
+                </View>
                 <View className="min-w-0 flex-1">
                   <AppText variant="bodyStrong">{student.fullName}</AppText>
                   {student.birthDate && ageLabel ? (
@@ -244,7 +247,16 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
               />
             ) : undefined
           }
-          leading={<Avatar name={client.fullName} tone="primary" size="large" />}
+          leading={
+            <Avatar
+              name={client.fullName}
+              tone="primary"
+              size="large"
+              photoUrl={
+                client.photoUrl ?? (clientIsTheOnlyStudent ? client.students[0].photoUrl : null)
+              }
+            />
+          }
           eyebrow={clientIsTheOnlyStudent ? undefined : translate("clients.detail.title")}
           title={client.fullName}
           subtitle={formatPhoneNumberForDisplay(client.phoneNumber)}

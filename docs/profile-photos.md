@@ -26,12 +26,14 @@ The age is the most protective of the two birth dates (the one the team typed an
 
 | Photo of | Seen by | Where |
 |---|---|---|
-| An instructor | The team, and the students of the business | The class detail where students are enrolled, class attendance, the instructor list, the instructor picker of group classes and private lessons, and the instructor card (team); the class detail of the student app, as a larger avatar |
-| A student | The team | Class attendance |
+| An instructor | The team, and the students of the business | The class detail where students are enrolled, class attendance, the instructor list, the instructor picker of group classes and private lessons, and the instructor card (team); the next class, the class list and the class detail of the student app (larger there), next to the instructor's comment on the home and in its news |
+| A student | The team | Class attendance, the class roster, the student list and pickers, and the client detail (each student, and the header for the client who pays) |
 | Anyone of a family (the client who pays and every student of that client) | Every account of the same family | Tu familia, the student buttons of the app home, and Ajustes |
 | Anyone | Themselves | Mi perfil, and the avatar right of the bell in the Inicio header (team and student), which opens Mi perfil |
 
-Students never see the photos of students of other families. Each response that carries a photo URL decides who sees it (`IUserPhotoUrlService.OfStudentsAsync` / `OfInstructorsAsync`, also used by `GET /api/instructors`), and photos awaiting the guardian are never returned there.
+Students never see the photos of students of other families. Each response that carries a photo URL decides who sees it (`IUserPhotoUrlService.OfStudentsAsync` / `OfInstructorsAsync` / `OfUsersAsync`, also used by `GET /api/instructors`, `GET /api/students`, `GET /api/clients/{id}` and the class roster), and photos awaiting the guardian are never returned there.
+
+The privacy policy (version 2026-10-30) explains who sees a profile photo and that a minor's photo waits for the guardian, see [legal texts](legal-and-privacy.md).
 
 ## Only avatar size
 

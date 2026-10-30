@@ -62,6 +62,7 @@ internal sealed class GetClientUseCaseBuilder
             Users.Object,
             new Mock<IBusinessCalendarService>().Object,
             new EveryAccessScopes(),
+            new NoUserPhotoUrls(),
             new FakeTimeProvider(TestData.Now));
     }
 }
