@@ -60,9 +60,12 @@ export function PlanScreen() {
         </AppText>
         {price && !isTrial(subscription) ? (
           <AppText variant="bodyStrong">
-            {translate("subscriptions.pricePerMonth", {
-              price: formatMoney(price.price, price.currency),
-            })}
+            {translate(
+              price.isExternal
+                ? "subscriptions.pricePerMonthPlusVat"
+                : "subscriptions.pricePerMonth",
+              { price: formatMoney(price.price, price.currency) },
+            )}
           </AppText>
         ) : null}
         <FeatureList features={subscription.features} />
