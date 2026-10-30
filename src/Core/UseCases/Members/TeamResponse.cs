@@ -11,9 +11,10 @@ public sealed record MemberResponse(
     long? CustomRoleId,
     long? InstructorId,
     bool IsCurrentUser,
-    bool IsBrandOwner)
+    bool IsBrandOwner,
+    string? PhotoUrl = null)
 {
-    public static MemberResponse From(BusinessMember member, UserAccount? account, Guid? currentAccountId, bool isBrandOwner) =>
+    public static MemberResponse From(BusinessMember member, UserAccount? account, Guid? currentAccountId, bool isBrandOwner, string? photoUrl = null) =>
         new(
             member.Id,
             account?.FullName ?? string.Empty,
@@ -22,7 +23,8 @@ public sealed record MemberResponse(
             member.CustomRoleId,
             member.InstructorId,
             member.User.AccountId == currentAccountId,
-            isBrandOwner);
+            isBrandOwner,
+            photoUrl);
 }
 
 public sealed record InvitationResponse(
