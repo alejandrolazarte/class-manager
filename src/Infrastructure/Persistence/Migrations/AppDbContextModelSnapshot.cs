@@ -826,7 +826,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("ClassCount")
+                    b.Property<bool>("AppliesFamilyDiscount")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ClassCount")
                         .HasColumnType("int");
 
                     b.Property<int?>("ClassDurationMinutes")
@@ -857,6 +860,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
+                    b.Property<bool>("RenewsMonthly")
+                        .HasColumnType("bit");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
 
@@ -878,7 +884,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "Name")
                         .IsUnique();
 
-                    b.ToTable("ClassPacks");
+                    b.ToTable("ClassPacks", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClassPacks_ClassCount_RenewsMonthly", "[ClassCount] IS NOT NULL OR [RenewsMonthly] = 1");
+                        });
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackClassGroup", b =>

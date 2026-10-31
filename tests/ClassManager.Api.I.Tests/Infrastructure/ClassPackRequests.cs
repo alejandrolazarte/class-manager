@@ -6,6 +6,7 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 public static class ClassPackRequests
 {
     public const string PackName = "4 clases";
+    public const string MonthlyPlanName = "Cuota mensual";
     public const int PrivateLessonMinutes = 45;
 
     public static Task<HttpResponseMessage> PostClassPackAsync(
@@ -39,6 +40,16 @@ public static class ClassPackRequests
         using var response = await httpClient.PostAsJsonAsync(
             ApiRoutes.ClassPacks,
             new CreateClassPackCommand(name, classCount, 80m, 1, CoversAnyGroupClass: true),
+            ApiRequests.JsonOptions);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
+    }
+
+    public static async Task<ClassPackResponse> CreateMonthlyPlanAsync(this HttpClient httpClient, string name = MonthlyPlanName, int? classCount = null)
+    {
+        using var response = await httpClient.PostAsJsonAsync(
+            ApiRoutes.ClassPacks,
+            new CreateClassPackCommand(name, classCount, 25000m, null, CoversAnyGroupClass: true, RenewsMonthly: true),
             ApiRequests.JsonOptions);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;

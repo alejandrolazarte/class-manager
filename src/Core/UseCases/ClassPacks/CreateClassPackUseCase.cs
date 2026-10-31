@@ -14,7 +14,9 @@ public sealed record CreateClassPackCommand(
     int? ClassDurationMinutes = null,
     IReadOnlyList<long>? ClassGroupIds = null,
     [property: AuditPlain] string? Description = null,
-    bool CoversAnyGroupClass = false) : ICommand;
+    bool CoversAnyGroupClass = false,
+    bool RenewsMonthly = false,
+    bool? AppliesFamilyDiscount = null) : ICommand;
 
 public sealed class CreateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -26,7 +28,14 @@ public sealed class CreateClassPackUseCase(
 {
     public async Task<Result<ClassPackResponse>> ExecuteAsync(CreateClassPackCommand command, CancellationToken cancellationToken)
     {
-        var classPack = ClassPack.Create(command.Name, command.ClassCount, command.Price, command.ValidityMonths, timeProvider.GetUtcNow());
+        var classPack = ClassPack.Create(
+            command.Name,
+            command.ClassCount,
+            command.Price,
+            command.ValidityMonths,
+            timeProvider.GetUtcNow(),
+            command.RenewsMonthly,
+            command.AppliesFamilyDiscount);
         if (classPack.IsFailure)
         {
             return classPack.Error!;

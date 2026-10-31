@@ -26,7 +26,7 @@ describe("When a pack is sold from the client card", () => {
       id: "purchase",
       clientId,
       name: classPack.name,
-      classCount: classPack.classCount,
+      classCount: 8,
       price: classPack.price,
       currencyCode: "ARS",
       purchasedOn: "2026-09-05",

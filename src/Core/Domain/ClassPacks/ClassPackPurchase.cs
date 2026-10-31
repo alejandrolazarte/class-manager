@@ -9,6 +9,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
 {
     public const int NotesMaxLength = 200;
 
+    private const string RenewsMonthlyMessage = "A plan that renews every month is given to a person, not sold.";
     private const string InactivePackMessage = "This pack is no longer sold.";
     private const string PurchasedOnInFutureMessage = "The sale date can't be in the future.";
     private const string MethodRequiredMessage = "Choose a payment method.";
@@ -61,6 +62,11 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
         if (!pack.IsActive)
         {
             return Result.Validation<ClassPackPurchase>(InactivePackMessage, fieldName: nameof(ClassPackId));
+        }
+
+        if (!pack.IsSoldOnce)
+        {
+            return new ResultError(ClassPackErrorCodes.RenewsMonthly, RenewsMonthlyMessage, ErrorKind.Validation) { FieldName = nameof(ClassPackId) };
         }
 
         var chargedPrice = price ?? pack.Price;
@@ -141,7 +147,7 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
             ClientId = clientId,
             ClassPackId = pack.Id,
             Name = pack.Name,
-            ClassCount = pack.ClassCount,
+            ClassCount = pack.ClassCount!.Value,
             Price = price,
             CurrencyCode = currencyCode,
             PurchasedOn = purchasedOn,

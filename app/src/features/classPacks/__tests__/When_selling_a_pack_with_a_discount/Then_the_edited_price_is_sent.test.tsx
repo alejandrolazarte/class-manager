@@ -17,7 +17,7 @@ describe("When selling a pack with a discount", () => {
       id: "purchase",
       clientId,
       name: classPack.name,
-      classCount: classPack.classCount,
+      classCount: 8,
       price: 150,
       currencyCode: "ARS",
       purchasedOn: "2026-09-05",

@@ -16,11 +16,14 @@ interface ClassPackListItemProps {
 
 export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps) {
   const currencyCode = useBusinessCurrency();
-  const summary = translateCount("classPacks.list.summary", classPack.classCount, {
-    price: formatMoney(classPack.price, currencyCode),
-  });
-  const validity =
-    classPack.validityMonths === null
+  const price = formatMoney(classPack.price, currencyCode);
+  const summary =
+    classPack.classCount === null
+      ? translate("classPacks.list.libreSummary", { price })
+      : translateCount("classPacks.list.summary", classPack.classCount, { price });
+  const validity = classPack.renewsMonthly
+    ? translate("classPacks.list.renewsMonthly")
+    : classPack.validityMonths === null
       ? translate("classPacks.list.noExpiry")
       : translateCount("classPacks.list.validity", classPack.validityMonths);
   return (

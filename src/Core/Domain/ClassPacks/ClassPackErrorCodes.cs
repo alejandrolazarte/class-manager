@@ -7,4 +7,5 @@ public static class ClassPackErrorCodes
     public const string PurchaseNotFound = "class_pack_purchase.not_found";
     public const string TrialNotDeductible = "class_pack_purchase.trial_not_deductible";
     public const string ClassGroupNotFound = "class_pack.class_group_not_found";
+    public const string RenewsMonthly = "class_pack.renews_monthly";
 }

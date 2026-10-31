@@ -2,7 +2,7 @@
 
 Date: 2026-10-31
 
-Status: proposal, agreed with the owner in conversation; nothing built yet. Builds on [default billing mode](../20261020-default-billing-mode/plan.md) (every family has its billing plan written down since #325 and #326), [fee history and class packs](../20260927-fee-history-and-class-packs/plan.md) and [class pack coverage](../20261028-class-pack-coverage/plan.md).
+Status: agreed with the owner on 2026-10-31, including the decisions below; nothing built yet. Builds on [default billing mode](../20261020-default-billing-mode/plan.md) (every family has its billing plan written down since #325 and #326), [fee history and class packs](../20260927-fee-history-and-class-packs/plan.md) and [class pack coverage](../20261028-class-pack-coverage/plan.md).
 
 ## Why
 
@@ -29,7 +29,7 @@ The owner's observation: **everything is a pack**. A monthly fee is "unlimited c
 | Offered | active or not: an item no longer offered stays with whoever has it | exists (`IsActive`) |
 
 - The catalog stays the `ClassPack` entity, extended: `ClassCount` becomes nullable (null = libre), `RenewsMonthly` is added, and renewing items get a price history (`ClassPackPriceChanges`: `EffectiveFrom` month and `Price`, a business date like today's fee changes). Non-renewing items keep a single price: a new price applies to the next purchases and never to packs already bought.
-- UI name: open decision (see the end). Not "Planes", which is already Ajustes › Plan (the business's subscription to the app).
+- The catalog is called **Planes y packs** in the app (decided by the owner). Ajustes › Plan, the business's subscription to the app, keeps its name.
 - When the business creates its first item, the screen offers two shortcuts: **Cuota mensual libre** (libre, renews monthly) and **Pack de clases** (N classes, one month, doesn't renew), so a small instructor doesn't need to understand every property to start.
 
 ### Each person has their own items
@@ -88,23 +88,23 @@ One data migration, run when step 4 ships, so nobody pays a different amount the
 | Packs and purchases | Unchanged |
 | Payments | Unchanged (still per family and month) |
 
-Today a family pays **one** fee whatever the number of students, and per person it would pay one per student. To keep every family's amount the same, the migration gives the first student (oldest registration) the family's amount and the other students a `CustomPrice` of 0, shown as "Incluido en la cuota de la familia" until the instructor changes it. Open decision below.
+Today a family pays **one** fee whatever the number of students, and per person it would pay one per student. To keep every family's amount the same, the migration gives the first student (oldest registration) the family's amount and the other students a `CustomPrice` of 0, shown as "Incluido en la cuota de la familia" until the instructor changes it (decided by the owner).
 
 After the migration `BusinessBillingMode`, `DefaultMonthlyFeeChanges`, `ClientBillingPlanChanges`, Ajustes › Forma de cobro, "Cuota general/propia" and their texts, tests and endpoints are deleted (a redesign replaces, it doesn't pile up).
 
 ## Steps
 
-1. **Catalog**: `ClassCount` nullable (libre), `RenewsMonthly`, `AppliesFamilyDiscount`, price history for renewing items. The catalog screen (today Ajustes › Packs) shows both kinds, with the two shortcuts. Packs keep working exactly as today.
-2. **Plans per person**: `StudentPlans`, assigning and changing a person's item from the student card, attendance paid by the renewing item first, the amount due per family computed from its people. Cobros and the family card read it. Behind the existing fee screens until step 4.
+1. **Catalog** (built): `ClassCount` nullable (libre, only for items that renew monthly), `RenewsMonthly` (no validity: it lasts the month), `AppliesFamilyDiscount` (stored, on for renewing items; not shown until step 3). Ajustes › Planes y packs lists both kinds, and the form starts with "¿Qué ofrecés?" (Plan mensual / Pack de clases, the two shortcuts), with "Clases libres" or "Clases por mes" for a plan. A renewing item is never sold as a pack: the counter sale, selling from the client card and the student app shop leave it out, and the API refuses it (`class_pack.renews_monthly`). Packs keep working exactly as today.
+2. **Plans per person**: price history for renewing items (`ClassPackPriceChanges`), `StudentPlans`, assigning and changing a person's item from the student card, attendance paid by the renewing item first, the amount due per family computed from its people. Cobros and the family card read it. Behind the existing fee screens until step 4.
 3. **Family discount tiers**: Ajustes screen and the computation, with the per-person lines on the family card.
 4. **Migration and removal**: the data migration above; Nuevo alumno asks what each person pays; delete the billing mode, default fee, family plans and their screens.
 5. **Later, when asked**: a weekly limit or a warning for items like "2 veces por semana", moving many people to another item at once, paying in parts and online with Stripe.
 
 Each step: tests first, tenancy test for every new tenant-owned table, `[AuditPlain]`/`[AuditPersonal]` on every text property of the commands, texts in `es.json` and `en.json`, screenshots before and after for the screens that change.
 
-## Open decisions
+## Decided
 
-- **Name in the app** for the catalog: "Planes y packs", "Abonos y packs", "Lo que vendés"…
-- **Families with several students at migration**: first student pays the family amount and the others are "incluido" at 0 (proposed), or every student gets the full price and the instructor fixes it (amounts change), or the migration asks the instructor in the app before applying.
-- **Order of payment** when a person has a renewing item with N classes and also packs: renewing item first (proposed), or the one that expires first.
-- **Family discount on packs**: off by default and set per item (proposed), or never.
+- **Name in the app**: Planes y packs.
+- **Families with several students at migration**: the first student pays the family amount and the others are "incluido" at 0.
+- **Order of payment**: a renewing item with classes left pays first, then packs.
+- **Family discount on packs**: off by default, set per item.

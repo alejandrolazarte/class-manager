@@ -1,4 +1,4 @@
-import { ClassPack } from "@/features/classPacks/types";
+import { SoldOnceClassPack } from "@/features/classPacks/types";
 import { CounterSaleLine } from "@/features/orders/types";
 import { variantDisplayName } from "@/features/products/productColors";
 import { Product, ProductVariant } from "@/features/products/types";
@@ -55,7 +55,7 @@ function productItemName(product: Product, variant: ProductVariant): string {
 }
 
 export function counterSaleItems(
-  classPacks: readonly ClassPack[],
+  classPacks: readonly SoldOnceClassPack[],
   products: readonly Product[],
 ): CounterSaleItem[] {
   return [

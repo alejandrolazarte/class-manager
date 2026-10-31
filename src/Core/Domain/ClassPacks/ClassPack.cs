@@ -26,6 +26,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     private const string PrivateLessonDurationRequiredMessage = "A pack for private lessons needs the lesson duration.";
     private const string GroupClassDurationNotAllowedMessage = "A pack for group classes uses the duration of each class.";
     private const string DescriptionLengthMessage = "The description must be at most 500 characters.";
+    private const string RenewingValidityMessage = "A plan that renews every month lasts a month; leave the validity empty.";
 
     private readonly List<ClassPackClassGroup> _classGroups = [];
     private readonly List<ClassPackImage> _images = [];
@@ -38,7 +39,9 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     public long TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
-    public int ClassCount { get; private set; }
+    public int? ClassCount { get; private set; }
+    public bool RenewsMonthly { get; private set; }
+    public bool AppliesFamilyDiscount { get; private set; }
     public decimal Price { get; private set; }
     public int? ValidityMonths { get; private set; }
     public int? ClassDurationMinutes { get; private set; }
@@ -55,18 +58,33 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     public IReadOnlyList<ClassPackClassGroup> ClassGroups => _classGroups;
     public IReadOnlyList<long> ClassGroupIds => [.. _classGroups.Select(classGroup => classGroup.ClassGroupId)];
 
-    public static Result<ClassPack> Create(string? name, int? classCount, decimal? price, int? validityMonths, DateTimeOffset createdAt)
+    public bool IsSoldOnce => !RenewsMonthly;
+
+    public static Result<ClassPack> Create(
+        string? name,
+        int? classCount,
+        decimal? price,
+        int? validityMonths,
+        DateTimeOffset createdAt,
+        bool renewsMonthly = false,
+        bool? appliesFamilyDiscount = null)
     {
         var pack = new ClassPack
         {
             IsActive = true,
             CreatedAt = createdAt.ToUniversalTime(),
         };
-        var update = pack.Update(name, classCount, price, validityMonths);
+        var update = pack.Update(name, classCount, price, validityMonths, renewsMonthly, appliesFamilyDiscount);
         return update.IsFailure ? update.Error! : pack;
     }
 
-    public Result Update(string? name, int? classCount, decimal? price, int? validityMonths)
+    public Result Update(
+        string? name,
+        int? classCount,
+        decimal? price,
+        int? validityMonths,
+        bool renewsMonthly = false,
+        bool? appliesFamilyDiscount = null)
     {
         var trimmedName = name?.Trim() ?? string.Empty;
         if (trimmedName.Length is < NameMinLength or > NameMaxLength)
@@ -74,7 +92,8 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
             return Result.Validation(NameLengthMessage, fieldName: nameof(Name));
         }
 
-        if (classCount is null or < MinimumClassCount or > MaximumClassCount)
+        var hasLibreClasses = renewsMonthly && classCount is null;
+        if (!hasLibreClasses && classCount is null or < MinimumClassCount or > MaximumClassCount)
         {
             return Result.Validation(ClassCountRangeMessage, fieldName: nameof(ClassCount));
         }
@@ -90,10 +109,17 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
             return Result.Validation(ValidityRangeMessage, fieldName: nameof(ValidityMonths));
         }
 
+        if (renewsMonthly && validityMonths is not null)
+        {
+            return Result.Validation(RenewingValidityMessage, fieldName: nameof(ValidityMonths));
+        }
+
         Name = trimmedName;
-        ClassCount = classCount.Value;
+        ClassCount = classCount;
         Price = price!.Value;
         ValidityMonths = validityMonths;
+        RenewsMonthly = renewsMonthly;
+        AppliesFamilyDiscount = appliesFamilyDiscount ?? renewsMonthly;
         return Result.Success();
     }
 

@@ -110,7 +110,7 @@ internal static class OrderDrafts
                     return ClassPackFailures.NotFound();
                 }
 
-                return pack.IsActive ? OrderLine.ForClassPack(pack, unitPrice) : ProductFailures.NotSold();
+                return pack.IsActive && pack.IsSoldOnce ? OrderLine.ForClassPack(pack, unitPrice) : ProductFailures.NotSold();
             case { ProductVariantId: { } variantId, ClassPackId: null }:
                 var product = products.FirstOrDefault(candidate => candidate.FindVariant(variantId) is not null);
                 if (product is null || (audience == OrderAudience.Student && !product.IsVisibleInApp))
