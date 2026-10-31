@@ -28,6 +28,7 @@ export interface MonthlyFees {
   totalPaid: number;
   clients: ClientFee[];
   classPackClients: ClassPackClient[];
+  classPackSales: number;
 }
 
 export interface StudentPlanChange {

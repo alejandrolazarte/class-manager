@@ -5,6 +5,7 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Fees;
 
@@ -33,7 +34,8 @@ public sealed record MonthlyFeesResponse(
     decimal TotalDue,
     decimal TotalPaid,
     IReadOnlyList<ClientFeeResponse> Clients,
-    IReadOnlyList<ClassPackClientResponse> ClassPackClients);
+    IReadOnlyList<ClassPackClientResponse> ClassPackClients,
+    decimal ClassPackSales);
 
 public sealed class ListMonthlyFeesUseCase(
     IEnrollmentRepository enrollmentRepository,
@@ -41,6 +43,7 @@ public sealed class ListMonthlyFeesUseCase(
     IFamilyBillingService familyBillingService,
     IClassBalanceService classBalanceService,
     IClientRepository clientRepository,
+    IOrderRepository orderRepository,
     IBusinessCalendarService businessCalendar,
     IBusinessCurrencyService businessCurrency,
     IAccessScopes accessScopes)
@@ -70,8 +73,8 @@ public sealed class ListMonthlyFeesUseCase(
 
         var billingByClient = await familyBillingService.CalculateAsync(clientIds, month.Value, cancellationToken);
 
-        var paidByClient = await paymentRepository.SumByClientForMonthAsync(
-            month.Value.FirstDay, await businessCurrency.CurrencyCodeAsync(cancellationToken), cancellationToken);
+        var currencyCode = await businessCurrency.CurrencyCodeAsync(cancellationToken);
+        var paidByClient = await paymentRepository.SumByClientForMonthAsync(month.Value.FirstDay, currencyCode, cancellationToken);
         var monthlyClients = ListMonthlyClients(
             enrolledClients.Where(enrolledClient => billingByClient[enrolledClient.Row.ClientId].HasMonthlyPlan).ToList(),
             billingByClient,
@@ -80,12 +83,16 @@ public sealed class ListMonthlyFeesUseCase(
             enrolledClients.Where(enrolledClient => !billingByClient[enrolledClient.Row.ClientId].HasMonthlyPlan).ToList(),
             cancellationToken);
 
+        var orders = await orderRepository.ListPaidBetweenOrOwingAsync(month.Value.FirstDay, month.Value.LastDay, scope, cancellationToken);
+        var classPackSales = OrderIncome.In(orders, month.Value, currencyCode).ClassPacksCollected;
+
         return new MonthlyFeesResponse(
             month.Value.ToString(),
             monthlyClients.Sum(client => client.Fee ?? 0),
             clientIds.Sum(clientId => paidByClient.GetValueOrDefault(clientId)),
             monthlyClients,
-            classPackClients);
+            classPackClients,
+            classPackSales);
     }
 
     private static IReadOnlyList<ClientFeeResponse> ListMonthlyClients(

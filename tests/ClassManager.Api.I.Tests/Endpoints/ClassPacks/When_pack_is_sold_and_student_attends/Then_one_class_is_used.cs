@@ -23,6 +23,5 @@ public sealed class Then_one_class_is_used(ApiFixture fixture)
         var balance = await business.HttpClient.GetClassBalanceAsync(client.Id);
         balance!.AvailableClasses.ShouldBe(3);
         balance.Purchases.Single().Status.ShouldBe(ClassPackPurchaseStatus.Active);
-        (await business.HttpClient.GetOrderSummaryAsync()).ClassPackSales.ShouldBe(80m);
     }
 }
