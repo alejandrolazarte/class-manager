@@ -45,6 +45,7 @@ public sealed record ClientDetailsResponse(
     public static ClientDetailsResponse Registered(
         Client client,
         IEnumerable<Student> students,
+        IReadOnlyCollection<ClientBillingPlanChange> billingPlanChanges,
         IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
         DateOnly today) =>
         new(
@@ -54,8 +55,8 @@ public sealed record ClientDetailsResponse(
             client.User.Email,
             client.Notes,
             client.CreatedAt,
-            BillingPlanResponse.From(FeeTimeline.PlanIn([], defaultFeeChanges, BillingMonth.From(today))),
-            BillingPlanChangeResponse.From([]),
+            BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, defaultFeeChanges, BillingMonth.From(today))),
+            BillingPlanChangeResponse.From(billingPlanChanges),
             [.. students
                 .OrderBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase)
                 .Select(StudentResponse.NotInvited)],
