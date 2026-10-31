@@ -14,5 +14,7 @@ public interface IFeeScheduleRepository
 
     Task<IReadOnlyList<ClientBillingPlanChange>> ListClientPlanChangesAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<long>> ListClientIdsWithoutPlanAsync(CancellationToken cancellationToken);
+
     Task<ClientBillingPlanChange?> FindClientPlanChangeForUpdateAsync(long clientId, DateOnly effectiveFrom, CancellationToken cancellationToken);
 }
