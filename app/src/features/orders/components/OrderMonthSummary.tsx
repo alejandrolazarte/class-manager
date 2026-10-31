@@ -1,10 +1,14 @@
 import { View } from "react-native";
 import { monthName } from "@/features/fees/months";
-import { OrderSummary } from "@/features/orders/types";
+import { Order, OrderSummary } from "@/features/orders/types";
 import { PendingOrders } from "@/features/orders/useOrders";
 import { translate, translateCount } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { SummaryBlock } from "@/ui/SummaryBlock";
+
+function hasProducts(order: Order): boolean {
+  return order.lines.some((line) => line.kind === "Product");
+}
 
 interface OrderMonthSummaryProps {
   orderSummary: OrderSummary;
@@ -14,7 +18,7 @@ interface OrderMonthSummaryProps {
 
 export function OrderMonthSummary({ orderSummary, pendingOrders, money }: OrderMonthSummaryProps) {
   const total = orderSummary.collected + orderSummary.unpaid;
-  const unpaidCount = pendingOrders.owing.length;
+  const unpaidCount = pendingOrders.owing.filter(hasProducts).length;
   return (
     <SummaryBlock
       label={translate("collections.collectedIn", { month: monthName(orderSummary.month) })}
@@ -38,11 +42,6 @@ export function OrderMonthSummary({ orderSummary, pendingOrders, money }: OrderM
           {translate("collections.toHandOverCount", { count: pendingOrders.awaitingPickup.length })}
         </AppText>
       </View>
-      {orderSummary.classPackSales > 0 ? (
-        <AppText variant="footnote" tone="subtle">
-          {translate("collections.classPackSales", { amount: money(orderSummary.classPackSales) })}
-        </AppText>
-      ) : null}
     </SummaryBlock>
   );
 }

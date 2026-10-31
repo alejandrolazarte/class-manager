@@ -72,7 +72,6 @@ export function buildOrderSummary(overrides: Partial<OrderSummary> = {}): OrderS
     month: "2026-09",
     collected: 0,
     unpaid: 0,
-    classPackSales: 0,
     ...overrides,
   };
 }

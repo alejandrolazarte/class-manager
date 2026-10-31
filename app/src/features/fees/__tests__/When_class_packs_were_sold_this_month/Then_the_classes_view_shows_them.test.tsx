@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react-native";
+import { screen } from "@testing-library/react-native";
 import { listMonthlyFees } from "@/features/fees/feesApi";
 import { CollectionsScreen } from "@/features/fees/screens/CollectionsScreen";
 import { formatMoney } from "@/formatting/money";
@@ -12,25 +12,21 @@ import { renderWithProviders } from "@/testing/renderWithProviders";
 jest.mock("@/features/fees/feesApi");
 jest.mock("@/features/orders/ordersApi");
 
-describe("When orders view is open", () => {
+describe("When class packs were sold this month", () => {
   beforeEach(() => {
-    jest.mocked(listMonthlyFees).mockResolvedValue(buildMonthlyFees([]));
     jest
-      .mocked(getOrderSummary)
-      .mockResolvedValue(buildOrderSummary({ collected: 200, classPackSales: 200 }));
+      .mocked(listMonthlyFees)
+      .mockResolvedValue({ ...buildMonthlyFees([]), classPackSales: 200 });
+    jest.mocked(getOrderSummary).mockResolvedValue(buildOrderSummary());
     jest.mocked(listOrders).mockResolvedValue([]);
   });
 
-  it("Then the class packs sold this month are shown", async () => {
+  it("Then the classes view shows them", async () => {
     await renderWithProviders(<CollectionsScreen initialMonth={feeMonth} />);
-
-    await fireEvent.press(
-      await screen.findByRole("tab", { name: translate("collections.orders") }),
-    );
 
     expect(
       await screen.findByText(
-        translate("collections.classPackSales", {
+        translate("fees.month.classPackSales", {
           amount: formatMoney(200, buildBusiness().currencyCode),
         }),
       ),

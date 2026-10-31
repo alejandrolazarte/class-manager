@@ -48,6 +48,11 @@ export function MonthlySummary({
           {translateCount("fees.month.owingClasses", classDebtorCount)}
         </AppText>
       ) : null}
+      {monthlyFees.classPackSales > 0 ? (
+        <AppText variant="footnote" tone="subtle">
+          {translate("fees.month.classPackSales", { amount: money(monthlyFees.classPackSales) })}
+        </AppText>
+      ) : null}
       {paidByClassPackClients > 0 ? (
         <AppText variant="footnote" tone="subtle">
           {translate("fees.month.paidByClassPackClients", {

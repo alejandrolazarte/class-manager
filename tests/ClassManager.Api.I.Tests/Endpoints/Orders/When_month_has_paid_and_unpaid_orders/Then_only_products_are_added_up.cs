@@ -3,10 +3,10 @@ using ClassManager.Core.UseCases.Orders;
 namespace ClassManager.Api.I.Tests.Endpoints.Orders.When_month_has_paid_and_unpaid_orders;
 
 [Collection(SqlServerCollectionDefinition.Name)]
-public sealed class Then_the_summary_adds_them_up(ApiFixture fixture)
+public sealed class Then_only_products_are_added_up(ApiFixture fixture)
 {
     [Fact]
-    public async Task Then_the_summary_adds_them_up_Run()
+    public async Task Then_only_products_are_added_up_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var owner = scenario.Instructors.Business.HttpClient;
@@ -17,6 +17,6 @@ public sealed class Then_the_summary_adds_them_up(ApiFixture fixture)
 
         var summary = await owner.GetOrderSummaryAsync();
 
-        summary.ShouldBe(new OrderSummaryResponse(FeeRequests.CurrentMonth, 92m, 24m, 80m));
+        summary.ShouldBe(new OrderSummaryResponse(FeeRequests.CurrentMonth, 12m, 24m));
     }
 }
