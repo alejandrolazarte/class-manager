@@ -16,6 +16,7 @@ import {
   toSellClassPackRequest,
 } from "@/features/classPacks/sellClassPackSchema";
 import { useSellClassPack } from "@/features/classPacks/useClassPackMutations";
+import { isSoldOnce } from "@/features/classPacks/types";
 import { useClassBalance, useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatMoney, toAmountText } from "@/formatting/money";
 import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
@@ -49,7 +50,8 @@ export function SellClassPackScreen({ clientId }: SellClassPackScreenProps) {
   const canManageClassPacks = useCan(permissions.classPacksManage);
   const { showToast } = useToast();
   const currencyCode = useBusinessCurrency();
-  const { data: classPacks = [], isPending } = useClassPacks(false);
+  const { data: catalog = [], isPending } = useClassPacks(false);
+  const classPacks = catalog.filter(isSoldOnce);
   const sellClassPackMutation = useSellClassPack(clientId);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [isPackPickerOpen, setIsPackPickerOpen] = useState(false);

@@ -9,6 +9,7 @@ import { CatalogImageField } from "@/features/catalogImages/components/CatalogIm
 import { useCatalogImageDraft } from "@/features/catalogImages/useCatalogImageDraft";
 import { classPackErrorCodes } from "@/features/classPacks/classPackErrorCodes";
 import {
+  asksClassCount,
   classPackFieldNames,
   ClassPackFormValues,
   ClassPackKind,
@@ -37,6 +38,7 @@ import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { Chip } from "@/ui/Chip";
 import { Notice } from "@/ui/Notice";
+import { OptionCard } from "@/ui/OptionCard";
 import { SegmentedControl } from "@/ui/SegmentedControl";
 import { TextField } from "@/ui/TextField";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
@@ -55,7 +57,10 @@ interface ClassPackEditorProps {
 }
 
 interface ClassPackFieldOptions {
-  name: Exclude<keyof ClassPackFormValues, "classGroupIds" | "kind" | "coversAnyGroupClass">;
+  name: Exclude<
+    keyof ClassPackFormValues,
+    "classGroupIds" | "kind" | "coversAnyGroupClass" | "renewsMonthly" | "hasLibreClasses"
+  >;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
   hintKey?: TranslationKey;
@@ -80,9 +85,12 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
   });
   const kind = useWatch({ control: form.control, name: "kind" });
   const coversAnyGroupClass = useWatch({ control: form.control, name: "coversAnyGroupClass" });
+  const renewsMonthly = useWatch({ control: form.control, name: "renewsMonthly" });
+  const hasLibreClasses = useWatch({ control: form.control, name: "hasLibreClasses" });
+  const isClassCountAsked = asksClassCount(renewsMonthly, hasLibreClasses);
   const areRequiredFieldsFilled = useRequiredFieldsFilled(
     form.control,
-    requiredClassPackFields(kind, coversAnyGroupClass),
+    requiredClassPackFields(kind, coversAnyGroupClass, isClassCountAsked),
   );
 
   const save = form.handleSubmit(async (formValues) => {
@@ -163,11 +171,34 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
 
   return (
     <SettingsFormScreenLayout
-      title={translate(classPack ? "classPacks.form.editTitle" : "classPacks.form.newTitle")}
+      title={translate(editorTitleKey(classPack))}
       submissionFailure={submissionFailure}
       onRetry={save}
     >
       <RequiredFieldsLegend />
+      <Controller
+        control={form.control}
+        name="renewsMonthly"
+        render={({ field }) => (
+          <View className="gap-2" accessibilityRole="radiogroup">
+            <AppText variant="label" tone="muted">
+              {withRequiredMark(translate("classPacks.form.offer"))}
+            </AppText>
+            <OptionCard
+              label={translate("classPacks.form.offerMonthlyPlan")}
+              hint={translate("classPacks.form.offerMonthlyPlanHint")}
+              isSelected={field.value}
+              onPress={() => field.onChange(true)}
+            />
+            <OptionCard
+              label={translate("classPacks.form.offerPack")}
+              hint={translate("classPacks.form.offerPackHint")}
+              isSelected={!field.value}
+              onPress={() => field.onChange(false)}
+            />
+          </View>
+        )}
+      />
       {renderField({
         name: "name",
         labelKey: "classPacks.form.name",
@@ -180,25 +211,45 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         placeholderKey: "classPacks.form.descriptionPlaceholder",
         isMultiline: true,
       })}
-      {renderField({
-        name: "classCount",
-        labelKey: "classPacks.form.classCount",
-        keyboardType: "number-pad",
-        isRequired: true,
-      })}
+      {renewsMonthly ? (
+        <Controller
+          control={form.control}
+          name="hasLibreClasses"
+          render={({ field }) => (
+            <ToggleSwitch
+              label={translate("classPacks.form.libreClasses")}
+              hint={translate("classPacks.form.libreClassesHint")}
+              value={field.value}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
+      ) : null}
+      {isClassCountAsked
+        ? renderField({
+            name: "classCount",
+            labelKey: renewsMonthly
+              ? "classPacks.form.classesPerMonth"
+              : "classPacks.form.classCount",
+            keyboardType: "number-pad",
+            isRequired: true,
+          })
+        : null}
       {renderField({
         name: "price",
         labelKey: "classPacks.form.price",
         keyboardType: "decimal-pad",
         isRequired: true,
       })}
-      {renderField({
-        name: "validityMonths",
-        labelKey: "classPacks.form.validityMonths",
-        placeholderKey: "classPacks.form.validityPlaceholder",
-        hintKey: "classPacks.form.validityHint",
-        keyboardType: "number-pad",
-      })}
+      {renewsMonthly
+        ? null
+        : renderField({
+            name: "validityMonths",
+            labelKey: "classPacks.form.validityMonths",
+            placeholderKey: "classPacks.form.validityPlaceholder",
+            hintKey: "classPacks.form.validityHint",
+            keyboardType: "number-pad",
+          })}
       <Controller
         control={form.control}
         name="kind"
@@ -314,6 +365,13 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
       </View>
     </SettingsFormScreenLayout>
   );
+}
+
+function editorTitleKey(classPack: ClassPack | undefined): TranslationKey {
+  if (classPack === undefined) {
+    return "classPacks.form.newTitle";
+  }
+  return classPack.renewsMonthly ? "classPacks.form.editPlanTitle" : "classPacks.form.editTitle";
 }
 
 export function ClassPackFormScreen({ classPackId }: ClassPackFormScreenProps) {

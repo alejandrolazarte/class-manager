@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BackHandler, View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
+import { isSoldOnce } from "@/features/classPacks/types";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { formatPhoneNumberForDisplay } from "@/features/clients/phoneNumberFormatting";
 import { useClient } from "@/features/clients/useClient";
@@ -76,7 +77,8 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
   const { showToast } = useToast();
   const currencyCode = useBusinessCurrency();
   const { data: products = [], isPending: isLoadingProducts } = useProducts(false);
-  const { data: classPacks = [] } = useClassPacks(false);
+  const { data: catalog = [] } = useClassPacks(false);
+  const classPacks = catalog.filter(isSoldOnce);
   const { data: initialClient } = useClient(clientId);
   const createCounterSaleMutation = useCreateCounterSale();
   const [step, setStep] = useState<SaleStep>(1);

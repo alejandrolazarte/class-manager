@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
-import { ClassPack } from "@/features/classPacks/types";
+import { SoldOnceClassPack } from "@/features/classPacks/types";
 import { formatMoney } from "@/formatting/money";
 import { searchableText } from "@/forms/searchableText";
 import { translate, translateCount } from "@/i18n/translate";
@@ -10,19 +10,19 @@ import { Avatar } from "@/ui/Avatar";
 import { SearchPage } from "@/ui/SearchPage";
 
 interface ClassPackPickerProps {
-  classPacks: ClassPack[];
-  onPick: (classPack: ClassPack) => void;
+  classPacks: SoldOnceClassPack[];
+  onPick: (classPack: SoldOnceClassPack) => void;
   onClose: () => void;
   testID?: string;
 }
 
-export function classPackSummaryLine(classPack: ClassPack, currencyCode: string): string {
+export function classPackSummaryLine(classPack: SoldOnceClassPack, currencyCode: string): string {
   return translateCount("classPacks.list.summary", classPack.classCount, {
     price: formatMoney(classPack.price, currencyCode),
   });
 }
 
-function matchesSearch(classPack: ClassPack, searchText: string): boolean {
+function matchesSearch(classPack: SoldOnceClassPack, searchText: string): boolean {
   const normalizedSearch = searchableText(searchText);
   return normalizedSearch.length === 0 || searchableText(classPack.name).includes(normalizedSearch);
 }

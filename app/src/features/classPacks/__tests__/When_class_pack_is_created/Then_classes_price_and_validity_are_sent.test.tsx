@@ -46,6 +46,7 @@ describe("When class pack is created", () => {
         classDurationMinutes: 45,
         classGroupIds: [],
         coversAnyGroupClass: false,
+        renewsMonthly: false,
       }),
     );
   });

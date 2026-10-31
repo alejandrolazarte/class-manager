@@ -13,6 +13,8 @@ export function buildClassPack(overrides: Partial<ClassPack> = {}): ClassPack {
     classGroupIds: [],
     coversAnyGroupClass: false,
     images: [],
+    renewsMonthly: false,
+    appliesFamilyDiscount: false,
     ...overrides,
   };
 }

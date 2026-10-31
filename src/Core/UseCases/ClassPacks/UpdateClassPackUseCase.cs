@@ -13,10 +13,12 @@ public sealed record UpdateClassPackRequest(
     int? ClassDurationMinutes = null,
     IReadOnlyList<long>? ClassGroupIds = null,
     string? Description = null,
-    bool CoversAnyGroupClass = false)
+    bool CoversAnyGroupClass = false,
+    bool RenewsMonthly = false,
+    bool? AppliesFamilyDiscount = null)
 {
     public UpdateClassPackCommand ToCommand(long classPackId) =>
-        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description, CoversAnyGroupClass);
+        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description, CoversAnyGroupClass, RenewsMonthly, AppliesFamilyDiscount);
 }
 
 public sealed record UpdateClassPackCommand(
@@ -28,7 +30,9 @@ public sealed record UpdateClassPackCommand(
     int? ClassDurationMinutes = null,
     IReadOnlyList<long>? ClassGroupIds = null,
     [property: AuditPlain] string? Description = null,
-    bool CoversAnyGroupClass = false) : ICommand;
+    bool CoversAnyGroupClass = false,
+    bool RenewsMonthly = false,
+    bool? AppliesFamilyDiscount = null) : ICommand;
 
 public sealed class UpdateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -45,7 +49,13 @@ public sealed class UpdateClassPackUseCase(
             return ClassPackFailures.NotFound();
         }
 
-        var update = classPack.Update(command.Name, command.ClassCount, command.Price, command.ValidityMonths);
+        var update = classPack.Update(
+            command.Name,
+            command.ClassCount,
+            command.Price,
+            command.ValidityMonths,
+            command.RenewsMonthly,
+            command.AppliesFamilyDiscount);
         if (update.IsFailure)
         {
             return update.Error!;

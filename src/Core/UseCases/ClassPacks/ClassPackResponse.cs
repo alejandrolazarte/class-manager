@@ -8,14 +8,16 @@ public sealed record ClassPackResponse(
     long Id,
     string Name,
     string? Description,
-    int ClassCount,
+    int? ClassCount,
     decimal Price,
     int? ValidityMonths,
     bool IsActive,
     int? ClassDurationMinutes,
     IReadOnlyList<long> ClassGroupIds,
     IReadOnlyList<CatalogImageResponse> Images,
-    bool CoversAnyGroupClass)
+    bool CoversAnyGroupClass,
+    bool RenewsMonthly,
+    bool AppliesFamilyDiscount)
 {
     public static ClassPackResponse From(ClassPack classPack, IDocumentStorageService documentStorage) =>
         new(
@@ -29,5 +31,7 @@ public sealed record ClassPackResponse(
             classPack.ClassDurationMinutes,
             classPack.ClassGroupIds,
             CatalogImageResponse.ListFrom(classPack.ImagesInOrder, documentStorage),
-            classPack.CoversAnyGroupClass);
+            classPack.CoversAnyGroupClass,
+            classPack.RenewsMonthly,
+            classPack.AppliesFamilyDiscount);
 }

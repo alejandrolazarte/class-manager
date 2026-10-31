@@ -52,7 +52,7 @@ public sealed class GetStudentAppShopUseCase(
 
         return new StudentAppShopResponse(
             business.CurrencyCode,
-            [.. packs.Select(pack => new StudentAppShopPackResponse(pack.Id, pack.Name, pack.Description, pack.ClassCount, pack.Price, pack.ValidityMonths, CatalogImageResponse.ListFrom(pack.ImagesInOrder, documentStorage)))],
+            [.. packs.Where(pack => pack.IsSoldOnce).Select(pack => new StudentAppShopPackResponse(pack.Id, pack.Name, pack.Description, pack.ClassCount!.Value, pack.Price, pack.ValidityMonths, CatalogImageResponse.ListFrom(pack.ImagesInOrder, documentStorage)))],
             [
                 .. products.Select(product => new StudentAppShopProductResponse(
                     product.Id,

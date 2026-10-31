@@ -5,7 +5,7 @@ export interface ClassPack {
   id: string;
   name: string;
   description: string | null;
-  classCount: number;
+  classCount: number | null;
   price: number;
   validityMonths: number | null;
   isActive: boolean;
@@ -13,17 +13,26 @@ export interface ClassPack {
   classGroupIds: string[];
   coversAnyGroupClass: boolean;
   images: CatalogImage[];
+  renewsMonthly: boolean;
+  appliesFamilyDiscount: boolean;
+}
+
+export type SoldOnceClassPack = ClassPack & { classCount: number; renewsMonthly: false };
+
+export function isSoldOnce(classPack: ClassPack): classPack is SoldOnceClassPack {
+  return !classPack.renewsMonthly && classPack.classCount !== null;
 }
 
 export interface SaveClassPackRequest {
   name: string;
   description: string | null;
-  classCount: number;
+  classCount: number | null;
   price: number;
   validityMonths: number | null;
   classDurationMinutes: number | null;
   classGroupIds: string[];
   coversAnyGroupClass: boolean;
+  renewsMonthly: boolean;
 }
 
 export interface ClassPackPurchase {
