@@ -142,7 +142,11 @@ export function ClientForm({ form, onSubmit, isSubmitting, asksBillingMode }: Cl
             control={control}
             name="billingMode"
             render={({ field }) => (
-              <BillingModeChoice billingMode={field.value} onChange={field.onChange} />
+              <BillingModeChoice
+                billingMode={field.value}
+                onChange={field.onChange}
+                note={translate("clients.register.billingModeNote")}
+              />
             )}
           />
         </View>

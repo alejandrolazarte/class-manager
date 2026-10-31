@@ -114,7 +114,11 @@ export function DefaultMonthlyFeeScreen() {
       onRetry={save}
     >
       <RequiredFieldsLegend />
-      <BillingModeChoice billingMode={billingMode} onChange={setBillingMode} />
+      <BillingModeChoice
+        billingMode={billingMode}
+        onChange={setBillingMode}
+        note={translate("fees.billingMode.appliesToNewStudents")}
+      />
       {billingMode === "MonthlyFee" ? (
         <TextField
           label={translate("fees.payment.amount")}

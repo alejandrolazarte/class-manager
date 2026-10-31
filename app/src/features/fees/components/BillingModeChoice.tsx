@@ -10,9 +10,10 @@ const billingModes: readonly BusinessBillingMode[] = ["MonthlyFee", "ClassPacks"
 interface BillingModeChoiceProps {
   billingMode: BusinessBillingMode | null;
   onChange: (billingMode: BusinessBillingMode) => void;
+  note: string;
 }
 
-export function BillingModeChoice({ billingMode, onChange }: BillingModeChoiceProps) {
+export function BillingModeChoice({ billingMode, onChange, note }: BillingModeChoiceProps) {
   return (
     <View className="gap-2" accessibilityRole="radiogroup">
       <AppText variant="label" tone="muted">
@@ -28,7 +29,7 @@ export function BillingModeChoice({ billingMode, onChange }: BillingModeChoicePr
         />
       ))}
       <AppText variant="caption" tone="muted">
-        {translate("fees.billingMode.appliesToNewStudents")}
+        {note}
       </AppText>
     </View>
   );
