@@ -41,8 +41,8 @@ export const routes = {
   separateClient: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/separate`,
   separateStudent: (tab: ClientTab, clientId: string, studentId: string) =>
     `/${tab}/clients/${clientId}/separate?studentId=${encodeURIComponent(studentId)}`,
-  clientBillingPlan: (tab: ClientTab, clientId: string) =>
-    `/${tab}/clients/${clientId}/billing-plan`,
+  studentPlan: (tab: ClientTab, clientId: string, studentId: string) =>
+    `/${tab}/clients/${clientId}/student-plan?studentId=${studentId}`,
   sellClassPack: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/sell-pack`,
   clientCounterSale: (tab: ClientTab, clientId: string) =>
     `/${tab}/clients/${clientId}/counter-sale`,
@@ -67,7 +67,6 @@ export const routes = {
     `/${tab}/clients/${clientId}/pay?month=${encodeURIComponent(month)}`,
   fees: "/fees",
   collections: (view: CollectionsView) => `/fees?view=${view}`,
-  feesDefaultMonthlyFee: "/fees/monthly-fee",
   welcome: "/welcome",
   signIn: "/sign-in",
   signUp: "/sign-up",
@@ -105,13 +104,13 @@ export const routes = {
   achievementSettings: "/settings/achievements",
   measurementSettings: "/settings/measurements",
   newMeasurement: "/settings/measurements/new",
-  defaultMonthlyFee: "/settings/monthly-fee",
   importInstructors: "/settings/instructors/import",
   classesNewInstructor: "/classes/instructors/new",
   instructor: (instructorId: string) => `/settings/instructors/${instructorId}`,
   editInstructor: (instructorId: string) => `/settings/instructors/${instructorId}/edit`,
   separateInstructor: (instructorId: string) => `/settings/instructors/${instructorId}/separate`,
   classPacks: "/settings/class-packs",
+  feesNewPlan: "/fees/new-plan",
   newClassPack: "/settings/class-packs/new",
   classPack: (classPackId: string) => `/settings/class-packs/${classPackId}`,
   products: "/settings/products",

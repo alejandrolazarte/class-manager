@@ -72,7 +72,7 @@ Soft delete is the only way to delete. A record that another one replaces (a sub
 
 Rows are physically deleted only when they have no value once gone, for example web push subscriptions or rows the system recreates on its own.
 
-Example: upcoming fee changes (`DefaultMonthlyFeeChange`, `ClientBillingPlanChange`). Only changes for months after the current one can be deleted. The row keeps `IsDeleted` and `DeletedAt`, and saving the same month again creates a new row.
+Example: upcoming plan changes (`StudentPlanChange`, `ClassPackPriceChange`). Only changes for months after the current one can be deleted. The row keeps `IsDeleted` and `DeletedAt`, and saving the same month again creates a new row.
 
 ## Hard deletes on purpose
 

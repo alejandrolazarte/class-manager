@@ -1,4 +1,4 @@
-import { BillingPlan, BillingPlanChange, BusinessBillingMode } from "@/features/fees/types";
+import { FamilyPlans } from "@/features/fees/types";
 import { NewStudentRequest, Student } from "@/features/students/types";
 
 export interface Client {
@@ -20,8 +20,7 @@ export interface StudentAppAccess {
 }
 
 export interface ClientDetails extends Client {
-  billingPlan: BillingPlan;
-  billingPlanChanges: BillingPlanChange[];
+  plans: FamilyPlans;
   students: Student[];
   appAccess: StudentAppAccess;
   isOnTheTeam?: boolean;
@@ -42,5 +41,5 @@ export interface RegisterClientRequest {
   notes?: string;
   students: NewStudentRequest[];
   samePersonUserId?: string;
-  billingMode?: BusinessBillingMode;
+  planId?: string;
 }

@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Tenancy.AspNetCore.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,15 +11,14 @@ public sealed class Then_deleted_rows_stay_hidden(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync();
         var otherBusiness = await fixture.SeedBusinessAsync();
-        var client = await business.HttpClient.RegisterClientAsync();
-        (await business.HttpClient.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks)).EnsureSuccessStatusCode();
-        (await business.HttpClient.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks, effectiveFrom: FeeRequests.NextMonth)).EnsureSuccessStatusCode();
-        (await business.HttpClient.DeleteBillingPlanChangeAsync(client.Id, FeeRequests.NextMonth)).EnsureSuccessStatusCode();
+        var family = await business.HttpClient.EnrollClientWithMonthlyPlanAsync();
+        (await business.HttpClient.PutStudentPlanAsync(family.StudentId, null, effectiveFrom: FeeRequests.NextMonth)).EnsureSuccessStatusCode();
+        (await business.HttpClient.DeleteStudentPlanChangeAsync(family.StudentId, FeeRequests.NextMonth)).EnsureSuccessStatusCode();
 
         await using var context = fixture.CreateDbContext(otherBusiness.Business.Id);
-        var visibleChanges = await context.ClientBillingPlanChanges
+        var visibleChanges = await context.StudentPlanChanges
             .IgnoreTenantFilter()
-            .Where(change => change.ClientId == client.Id)
+            .Where(change => change.StudentId == family.StudentId)
             .ToListAsync();
 
         visibleChanges.ShouldHaveSingleItem().IsDeleted.ShouldBeFalse();

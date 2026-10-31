@@ -49,7 +49,6 @@ public sealed record StudentAppMonthlyFeeResponse(string Month, decimal? Fee, de
 public sealed record StudentAppClassBalanceResponse(int AvailableClasses, int UnpaidClasses);
 
 public sealed record StudentAppBillingResponse(
-    BillingPlanKind Kind,
     StudentAppMonthlyFeeResponse? MonthlyFee,
     StudentAppClassBalanceResponse? Classes);
 

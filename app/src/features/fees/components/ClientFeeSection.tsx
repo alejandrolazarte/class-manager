@@ -1,31 +1,29 @@
-import { useState } from "react";
 import { useRouter } from "expo-router";
 import { View } from "react-native";
-import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
+import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
 import { ClassBalanceSection } from "@/features/classPacks/components/ClassBalanceSection";
 import { ClientDetails } from "@/features/clients/types";
-import { describeBillingPlan } from "@/features/fees/billingPlanDescription";
+import { describeStudentPlan, describeStudentPlanChange } from "@/features/fees/planDescriptions";
 import { formatMoney } from "@/formatting/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
-import { BillingPlanChange, Payment } from "@/features/fees/types";
+import { Payment, StudentPlan, StudentPlanChange } from "@/features/fees/types";
 import {
-  useDeleteClientBillingPlanChange,
   useDeletePayment,
+  useDeleteStudentPlanChange,
   useRestorePayment,
-  useSetClientBillingPlan,
+  useSetStudentPlan,
 } from "@/features/fees/useFeeMutations";
 import { useCanUndoCollection } from "@/features/fees/useCanUndoCollection";
 import { useClientPayments } from "@/features/fees/useFees";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
 import { formatBirthDateForDisplay } from "@/dates/birthDateFormatting";
-import { translate, translateCount, TranslationKey } from "@/i18n/translate";
+import { translate, TranslationKey } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { HairlineRow } from "@/ui/HairlineRow";
 import { SectionTitle } from "@/ui/SectionTitle";
 import { IconButton } from "@/ui/IconButton";
-import { TextLink } from "@/ui/TextLink";
 import { useToast } from "@/ui/ToastProvider";
 import { clientTabs, routes } from "@/navigation/routes";
 import { useCurrentTab } from "@/navigation/useCurrentTab";
@@ -34,42 +32,23 @@ interface ClientFeeSectionProps {
   client: ClientDetails;
 }
 
-function currentPlanStart(
-  changes: readonly BillingPlanChange[],
-  currentMonth: string,
-): string | null {
-  return changes.reduce<string | null>(
-    (latestStart, change) =>
-      change.effectiveFrom <= currentMonth &&
-      (latestStart === null || change.effectiveFrom > latestStart)
-        ? change.effectiveFrom
-        : latestStart,
-    null,
-  );
-}
-
 export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   const router = useRouter();
   const clientTab = useCurrentTab(clientTabs);
-  const business = useCurrentBusiness();
+  const currencyCode = useBusinessCurrency();
   const { data: payments = [] } = useClientPayments(client.id);
   const canRecordPayments = useCan(permissions.paymentsRecord);
   const canViewClassPacks = useCan(permissions.classPacksView);
   const canUndoPayment = useCanUndoCollection(permissions.paymentsRecord);
   const deletePaymentMutation = useDeletePayment();
-  const deletePlanChangeMutation = useDeleteClientBillingPlanChange(client.id);
+  const deletePlanChangeMutation = useDeleteStudentPlanChange(client.id);
   const restorePaymentMutation = useRestorePayment();
-  const setPlanMutation = useSetClientBillingPlan(client.id);
+  const setPlanMutation = useSetStudentPlan(client.id);
   const { showToast } = useToast();
-  const [isShowingUpcomingChanges, setIsShowingUpcomingChanges] = useState(false);
-  const describePlan = (plan: BillingPlanChange | ClientDetails["billingPlan"]) =>
-    describeBillingPlan(plan, business.defaultMonthlyFee, business.currencyCode);
   const currentMonth = monthOf();
-  const upcomingChanges = client.billingPlanChanges.filter(
-    (change) => change.effectiveFrom > currentMonth,
+  const isMonthlyPlan = client.plans.students.some(
+    (studentPlan) => studentPlan.classPackId !== null,
   );
-  const planStart = currentPlanStart(client.billingPlanChanges, currentMonth);
-  const isMonthlyPlan = client.billingPlan.kind !== "ClassPacks";
 
   const undo = (restore: () => Promise<unknown>) => ({
     label: translate("common.undo"),
@@ -78,16 +57,22 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
     },
   });
 
-  const deletePlanChange = async (change: BillingPlanChange) => {
+  const deletePlanChange = async (studentPlan: StudentPlan, change: StudentPlanChange) => {
     try {
-      await deletePlanChangeMutation.mutateAsync(change.effectiveFrom);
+      await deletePlanChangeMutation.mutateAsync({
+        studentId: studentPlan.studentId,
+        month: change.effectiveFrom,
+      });
       showToast(
         translate("fees.client.upcomingChangeDeleted"),
         undo(() =>
           setPlanMutation.mutateAsync({
-            effectiveFrom: change.effectiveFrom,
-            kind: change.kind,
-            customFee: change.customFee,
+            studentId: studentPlan.studentId,
+            request: {
+              classPackId: change.classPackId,
+              customPrice: change.customPrice,
+              effectiveFrom: change.effectiveFrom,
+            },
           }),
         ),
       );
@@ -111,58 +96,62 @@ export function ClientFeeSection({ client }: ClientFeeSectionProps) {
   return (
     <View className="gap-4">
       <View className="gap-2.5 border-b border-border-subtle pb-3">
-        <View className="flex-row items-start gap-3">
-          <View className="min-w-0 flex-1 gap-0.5">
-            <SectionTitle title={translate("fees.client.planOverline")} isOverline />
-            <AppText variant="body">{describePlan(client.billingPlan)}</AppText>
-            {planStart ? (
-              <AppText variant="caption" tone="muted">
-                {translate("fees.client.since", { month: formatMonth(planStart) })}
-              </AppText>
-            ) : null}
+        <SectionTitle title={translate("fees.client.planOverline")} isOverline />
+        {client.plans.students.map((studentPlan) => (
+          <View key={studentPlan.studentId} className="gap-1">
+            <View className="flex-row items-start gap-3">
+              <View className="min-w-0 flex-1 gap-0.5">
+                <AppText variant="bodyStrong">{studentPlan.studentFullName}</AppText>
+                <AppText variant="body">{describeStudentPlan(studentPlan, currencyCode)}</AppText>
+                {studentPlan.since && studentPlan.classPackId !== null ? (
+                  <AppText variant="caption" tone="muted">
+                    {translate("fees.client.since", { month: formatMonth(studentPlan.since) })}
+                  </AppText>
+                ) : null}
+              </View>
+              {canRecordPayments ? (
+                <Button
+                  variant="ghost"
+                  size="small"
+                  label={translate("common.change")}
+                  accessibilityLabel={translate("fees.client.changeStudentPlanAccessibility", {
+                    name: studentPlan.studentFullName,
+                  })}
+                  onPress={() =>
+                    router.push(routes.studentPlan(clientTab, client.id, studentPlan.studentId))
+                  }
+                />
+              ) : null}
+            </View>
+            {studentPlan.upcomingChanges.map((change) => (
+              <View key={change.effectiveFrom} className="flex-row items-center gap-2">
+                <AppText variant="caption" tone="subtle" className="min-w-0 flex-1">
+                  {translate("fees.client.upcomingChange", {
+                    month: formatMonth(change.effectiveFrom),
+                    plan: describeStudentPlanChange(change, currencyCode),
+                  })}
+                </AppText>
+                {canRecordPayments ? (
+                  <IconButton
+                    icon="delete"
+                    tone="muted-foreground"
+                    accessibilityLabel={translate("fees.client.deleteUpcomingChange", {
+                      month: formatMonth(change.effectiveFrom),
+                    })}
+                    disabled={deletePlanChangeMutation.isPending}
+                    onPress={() => deletePlanChange(studentPlan, change)}
+                  />
+                ) : null}
+              </View>
+            ))}
           </View>
-          {canRecordPayments ? (
-            <Button
-              variant="ghost"
-              size="small"
-              label={translate("common.change")}
-              accessibilityLabel={translate("fees.client.changePlanAccessibility")}
-              onPress={() => router.push(routes.clientBillingPlan(clientTab, client.id))}
-            />
-          ) : null}
-        </View>
-        {upcomingChanges.length > 0 ? (
-          <View className="gap-1.5">
-            <TextLink
-              label={translateCount("fees.client.upcomingChanges", upcomingChanges.length)}
-              trailingIcon={isShowingUpcomingChanges ? "collapse" : "expand"}
-              isExpanded={isShowingUpcomingChanges}
-              onPress={() => setIsShowingUpcomingChanges(!isShowingUpcomingChanges)}
-            />
-            {isShowingUpcomingChanges
-              ? upcomingChanges.map((change) => (
-                  <View key={change.effectiveFrom} className="flex-row items-center gap-2">
-                    <AppText variant="caption" tone="subtle" className="min-w-0 flex-1">
-                      {translate("fees.client.upcomingChange", {
-                        month: formatMonth(change.effectiveFrom),
-                        plan: describePlan(change),
-                      })}
-                    </AppText>
-                    {canRecordPayments ? (
-                      <IconButton
-                        icon="delete"
-                        tone="muted-foreground"
-                        accessibilityLabel={translate("fees.client.deleteUpcomingChange", {
-                          month: formatMonth(change.effectiveFrom),
-                        })}
-                        disabled={deletePlanChangeMutation.isPending}
-                        onPress={() => deletePlanChange(change)}
-                      />
-                    ) : null}
-                  </View>
-                ))
-              : null}
-          </View>
+        ))}
+        {client.plans.monthlyDue !== null ? (
+          <AppText variant="bodyStrong">
+            {translate("fees.client.monthTotal", {
+              amount: formatMoney(client.plans.monthlyDue, currencyCode),
+            })}
+          </AppText>
         ) : null}
         {isMonthlyPlan && canRecordPayments ? (
           <Button

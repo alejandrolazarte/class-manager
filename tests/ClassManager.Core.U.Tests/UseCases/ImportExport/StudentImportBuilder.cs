@@ -1,7 +1,6 @@
 using System.Text;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Domain.Clients;
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.ImportExport;
 using ClassManager.Core.UseCases.ImportExport.Students;
@@ -20,9 +19,6 @@ internal sealed class StudentImportBuilder
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
     public Mock<IUserRepository> Users { get; } = new();
-    public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
-    public List<DefaultMonthlyFeeChange> DefaultFeeChanges { get; } = [];
-    public List<ClientBillingPlanChange> AddedPlanChanges { get; } = [];
     public List<Client> ExistingClients { get; } = [];
     public List<Student> ExistingStudents { get; } = [];
     public List<Client> AddedClients { get; } = [];
@@ -44,12 +40,10 @@ internal sealed class StudentImportBuilder
         Students.Setup(repository => repository.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => ExistingStudents);
         Clients.Setup(repository => repository.Add(It.IsAny<Client>())).Callback<Client>(AddedClients.Add);
         Students.Setup(repository => repository.Add(It.IsAny<Student>())).Callback<Student>(AddedStudents.Add);
-        FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => DefaultFeeChanges);
-        FeeSchedule.Setup(repository => repository.Add(It.IsAny<ClientBillingPlanChange>())).Callback<ClientBillingPlanChange>(AddedPlanChanges.Add);
     }
 
     public StudentImportModule Module =>
-        new(Businesses.Object, Clients.Object, Students.Object, Users.Object, FeeSchedule.Object, new FakeTimeProvider(TestData.Now));
+        new(Businesses.Object, Clients.Object, Students.Object, Users.Object, new FakeTimeProvider(TestData.Now));
 
     public Client AddExistingClient(params string[] studentNames)
     {

@@ -4,6 +4,20 @@ internal sealed class ClassPackRepository(AppDbContext context) : IClassPackRepo
 {
     public void Add(ClassPack classPack) => context.ClassPacks.Add(classPack);
 
+    public void Add(ClassPackPriceChange priceChange) => context.ClassPackPriceChanges.Add(priceChange);
+
+    public void Remove(ClassPackPriceChange priceChange) => context.ClassPackPriceChanges.Remove(priceChange);
+
+    public async Task<IReadOnlyList<ClassPackPriceChange>> ListPriceChangesAsync(CancellationToken cancellationToken) =>
+        await context.ClassPackPriceChanges.AsNoTracking()
+            .OrderBy(change => change.EffectiveFrom)
+            .ToListAsync(cancellationToken);
+
+    public Task<ClassPackPriceChange?> FindPriceChangeForUpdateAsync(long classPackId, DateOnly effectiveFrom, CancellationToken cancellationToken) =>
+        context.ClassPackPriceChanges.FirstOrDefaultAsync(
+            change => change.ClassPackId == classPackId && change.EffectiveFrom == effectiveFrom,
+            cancellationToken);
+
     public Task<ClassPack?> GetByIdAsync(long classPackId, CancellationToken cancellationToken) =>
         context.ClassPacks.AsNoTracking().FirstOrDefaultAsync(classPack => classPack.Id == classPackId, cancellationToken);
 

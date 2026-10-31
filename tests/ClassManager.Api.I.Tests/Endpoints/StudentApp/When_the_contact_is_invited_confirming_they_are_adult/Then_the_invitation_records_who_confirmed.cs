@@ -10,7 +10,7 @@ public sealed class Then_the_invitation_records_who_confirmed(ApiFixture fixture
     {
         var instructors = await fixture.SeedInstructorScenarioAsync();
         var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
-        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.InstructorStudentFullName)).ClientId;
+        var clientId = fees!.ClientIdOf(InstructorScenario.InstructorStudentFullName);
         using var response = await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, StudentAppRequests.UniqueStudentEmail());
 
         await using var context = fixture.CreateDbContext(instructors.Business.Business.Id);

@@ -189,7 +189,6 @@ export function buildStudentAppHome(overrides: Partial<StudentAppHome> = {}): St
     location: null,
     students: [buildAccountStudent()],
     billing: {
-      kind: "BusinessFee",
       monthlyFee: { month: "2026-09", fee: 60, paid: 0, balance: 60, status: "Unpaid" },
       classes: null,
     },

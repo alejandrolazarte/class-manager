@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.ClassPacks;
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Core.U.Tests.UseCases.Fees.When_ListMonthlyFees_client_switched_to_class_packs_after_paying;
@@ -13,7 +12,7 @@ public sealed class Then_the_payment_counts_as_collected
         var monthlyClientId = builder.AddEnrolledClient("Carla Sosa");
         builder.PaidByClient[monthlyClientId] = 4000m;
         var classPackClientId = builder.AddEnrolledClient("Ana Pérez");
-        builder.SetPlan(classPackClientId, BillingPlanKind.ClassPacks, effectiveFrom: builder.CurrentMonth);
+        builder.PaysPerClass(classPackClientId);
         builder.PaidByClient[classPackClientId] = FeeUseCaseBuilder.DefaultFee;
         builder.ClassBalancesByClient[classPackClientId] = new ClassBalance([], [], []);
 

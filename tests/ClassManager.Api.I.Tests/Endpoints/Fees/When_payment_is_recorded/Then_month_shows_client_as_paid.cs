@@ -9,8 +9,7 @@ public sealed class Then_month_shows_client_as_paid(ApiFixture fixture)
     public async Task Then_month_shows_client_as_paid_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        await business.HttpClient.SetDefaultFeeAsync();
-        var clientId = await business.HttpClient.EnrollClientAsync();
+        var clientId = (await business.HttpClient.EnrollClientWithMonthlyPlanAsync()).ClientId;
 
         using var response = await business.HttpClient.PostPaymentAsync(clientId);
 

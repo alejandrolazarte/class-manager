@@ -1,5 +1,7 @@
 # Default billing mode of a business
 
+> Superseded by the [plans catalog](../20261031-plans-catalog/plan.md): the business billing mode, the default fee and the family plans were replaced by monthly plans per student in step 2. Kept as the record of how it worked.
+
 Follow-up to [fee history and class packs](../20260927-fee-history-and-class-packs/plan.md). Until now every family without a billing plan of its own paid the business's monthly fee, and Cobros told every new business "Todavía no definiste la cuota mensual", even a studio that only sells class packs.
 
 ## Decisions

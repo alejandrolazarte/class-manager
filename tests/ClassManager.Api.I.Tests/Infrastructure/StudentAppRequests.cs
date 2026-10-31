@@ -139,7 +139,7 @@ public static class StudentAppRequests
     public static async Task<StudentAppScenario> InviteStudentAppOfAsync(this ApiFixture fixture, InstructorScenario instructors, string studentFullName)
     {
         var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
-        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(studentFullName)).ClientId;
+        var clientId = fees!.ClientIdOf(studentFullName);
         var email = UniqueStudentEmail();
         using (var invitation = await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email))
         {

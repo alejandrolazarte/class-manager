@@ -1,6 +1,5 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
-using ClassManager.Core.UseCases.Businesses;
 using ClassManager.Core.UseCases.Fees;
 
 namespace ClassManager.Api.Endpoints;
@@ -9,16 +8,13 @@ internal static class FeeEndpoints
 {
     public static IEndpointRouteBuilder MapFeeEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPut(ApiRoutes.Business + ApiRoutes.MonthlyFee, SetDefaultMonthlyFeeAsync)
-            .RequirePermission(Permissions.Business.Manage);
-        endpoints.MapDelete(ApiRoutes.Business + ApiRoutes.MonthlyFeeChangeByMonth, DeleteDefaultMonthlyFeeChangeAsync)
-            .RequirePermission(Permissions.Business.Manage);
+        var students = endpoints.MapGroup(ApiRoutes.Students);
+        students.MapPut(ApiRoutes.StudentById + ApiRoutes.StudentPlan, SetStudentPlanAsync)
+            .RequirePermission(Permissions.Payments.Record);
+        students.MapDelete(ApiRoutes.StudentById + ApiRoutes.StudentPlanChangeByMonth, DeleteStudentPlanChangeAsync)
+            .RequirePermission(Permissions.Payments.Record);
 
         var clients = endpoints.MapGroup(ApiRoutes.Clients);
-        clients.MapPut(ApiRoutes.ClientById + ApiRoutes.BillingPlan, SetClientBillingPlanAsync)
-            .RequirePermission(Permissions.Payments.Record);
-        clients.MapDelete(ApiRoutes.ClientById + ApiRoutes.BillingPlanChangeByMonth, DeleteClientBillingPlanChangeAsync)
-            .RequirePermission(Permissions.Payments.Record);
         clients.MapPost(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, RecordPaymentAsync)
             .RequirePermission(Permissions.Payments.Record);
         clients.MapGet(ApiRoutes.ClientById + ApiRoutes.PaymentsSegment, ListClientPaymentsAsync)
@@ -36,44 +32,24 @@ internal static class FeeEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> SetDefaultMonthlyFeeAsync(
-        SetMonthlyFeeRequest request,
-        IUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse> useCase,
+    private static async Task<IResult> SetStudentPlanAsync(
+        long studentId,
+        SetStudentPlanRequest request,
+        IUseCase<SetStudentPlanCommand, FamilyPlansResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new SetDefaultMonthlyFeeCommand(request.Amount, request.EffectiveFrom, request.BillingMode), cancellationToken);
+        var result = await useCase.ExecuteAsync(request.ToCommand(studentId), cancellationToken);
 
         return result.ToOkResult();
     }
 
-    private static async Task<IResult> DeleteDefaultMonthlyFeeChangeAsync(
+    private static async Task<IResult> DeleteStudentPlanChangeAsync(
+        long studentId,
         string month,
-        IUseCase<DeleteDefaultMonthlyFeeChangeCommand, BusinessResponse> useCase,
+        IUseCase<DeleteStudentPlanChangeCommand, FamilyPlansResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new DeleteDefaultMonthlyFeeChangeCommand(month), cancellationToken);
-
-        return result.ToOkResult();
-    }
-
-    private static async Task<IResult> DeleteClientBillingPlanChangeAsync(
-        long clientId,
-        string month,
-        IUseCase<DeleteClientBillingPlanChangeCommand, ClientBillingResponse> useCase,
-        CancellationToken cancellationToken)
-    {
-        var result = await useCase.ExecuteAsync(new DeleteClientBillingPlanChangeCommand(clientId, month), cancellationToken);
-
-        return result.ToOkResult();
-    }
-
-    private static async Task<IResult> SetClientBillingPlanAsync(
-        long clientId,
-        SetClientBillingPlanRequest request,
-        IUseCase<SetClientBillingPlanCommand, ClientBillingResponse> useCase,
-        CancellationToken cancellationToken)
-    {
-        var result = await useCase.ExecuteAsync(request.ToCommand(clientId), cancellationToken);
+        var result = await useCase.ExecuteAsync(new DeleteStudentPlanChangeCommand(studentId, month), cancellationToken);
 
         return result.ToOkResult();
     }

@@ -14,7 +14,8 @@ internal sealed class GetClientUseCaseBuilder
 
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IStudentRepository> Students { get; } = new();
-    public Mock<IFeeScheduleRepository> FeeSchedules { get; } = new();
+    public Mock<IStudentPlanRepository> StudentPlans { get; } = new();
+    public Mock<IClassPackRepository> ClassPacks { get; } = new();
     public Mock<IClientAccountRepository> ClientAccounts { get; } = new();
     public Mock<IClientInvitationRepository> Invitations { get; } = new();
     public Mock<IIdentityService> Identity { get; } = new();
@@ -27,10 +28,11 @@ internal sealed class GetClientUseCaseBuilder
         Students.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         ClientAccounts.Setup(repository => repository.ListByClientAsync(Client.Id, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Invitations.Setup(repository => repository.ListPendingByClientAsync(Client.Id, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        FeeSchedules
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+        StudentPlans
+            .Setup(repository => repository.ListByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        FeeSchedules.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        ClassPacks.Setup(repository => repository.ListAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        ClassPacks.Setup(repository => repository.ListPriceChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     public void WithPendingInvitation() =>
@@ -55,7 +57,8 @@ internal sealed class GetClientUseCaseBuilder
         return new(
             Clients.Object,
             Students.Object,
-            FeeSchedules.Object,
+            StudentPlans.Object,
+            ClassPacks.Object,
             ClientAccounts.Object,
             Invitations.Object,
             Identity.Object,

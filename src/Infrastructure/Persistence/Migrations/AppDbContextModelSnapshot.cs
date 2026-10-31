@@ -966,6 +966,68 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("ClassPackImages");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPriceChange", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ClassPackId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("CreatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DeletedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("UpdatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassPackId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.HasIndex("TenantId", "ClassPackId", "EffectiveFrom")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ClassPackPriceChanges", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClassPackPriceChanges_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchase", b =>
                 {
                     b.Property<long>("Id")
@@ -1590,135 +1652,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("Enrollments");
                 });
 
-            modelBuilder.Entity("ClassManager.Core.Domain.Fees.ClientBillingPlanChange", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("ClientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<long?>("CreatedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal?>("CustomFee")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<long?>("DeletedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateOnly>("EffectiveFrom")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<long?>("UpdatedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("DeletedByUserId");
-
-                    b.HasIndex("UpdatedByUserId");
-
-                    b.HasIndex("TenantId", "ClientId", "EffectiveFrom")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("ClientBillingPlanChanges", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClientBillingPlanChanges_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Fees.DefaultMonthlyFeeChange", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal?>("Amount")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<string>("BillingMode")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<long?>("CreatedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<long?>("DeletedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateOnly>("EffectiveFrom")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<long?>("UpdatedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("DeletedByUserId");
-
-                    b.HasIndex("UpdatedByUserId");
-
-                    b.HasIndex("TenantId", "EffectiveFrom")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("DefaultMonthlyFeeChanges", t =>
-                        {
-                            t.HasCheckConstraint("CK_DefaultMonthlyFeeChanges_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
-                        });
-                });
-
             modelBuilder.Entity("ClassManager.Core.Domain.Fees.Payment", b =>
                 {
                     b.Property<long>("Id")
@@ -1803,6 +1736,73 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("Payments", t =>
                         {
                             t.HasCheckConstraint("CK_Payments_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Fees.StudentPlanChange", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ClassPackId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("CreatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("CustomPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DeletedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("UpdatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassPackId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.HasIndex("TenantId", "StudentId", "EffectiveFrom")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("StudentPlanChanges", t =>
+                        {
+                            t.HasCheckConstraint("CK_StudentPlanChanges_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -4556,6 +4556,36 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Navigation("Document");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPriceChange", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.ClassPacks.ClassPack", null)
+                        .WithMany()
+                        .HasForeignKey("ClassPackId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.ClassPacks.ClassPackPurchase", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.ClassPacks.ClassPack", null)
@@ -4953,62 +4983,6 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("ClassManager.Core.Domain.Fees.ClientBillingPlanChange", b =>
-                {
-                    b.HasOne("ClassManager.Core.Domain.Clients.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("DeletedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UpdatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("ClassManager.Core.Domain.Fees.DefaultMonthlyFeeChange", b =>
-                {
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("DeletedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UpdatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
             modelBuilder.Entity("ClassManager.Core.Domain.Fees.Payment", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
@@ -5042,6 +5016,43 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UpdatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Fees.StudentPlanChange", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.ClassPacks.ClassPack", null)
+                        .WithMany()
+                        .HasForeignKey("ClassPackId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Students.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Instructors.Instructor", b =>

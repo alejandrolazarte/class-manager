@@ -33,13 +33,12 @@ public sealed record MonthlyFeesResponse(
     decimal TotalDue,
     decimal TotalPaid,
     IReadOnlyList<ClientFeeResponse> Clients,
-    IReadOnlyList<ClassPackClientResponse> ClassPackClients,
-    BusinessBillingMode BillingMode);
+    IReadOnlyList<ClassPackClientResponse> ClassPackClients);
 
 public sealed class ListMonthlyFeesUseCase(
     IEnrollmentRepository enrollmentRepository,
     IPaymentRepository paymentRepository,
-    IFeeScheduleRepository feeScheduleRepository,
+    IFamilyBillingService familyBillingService,
     IClassBalanceService classBalanceService,
     IClientRepository clientRepository,
     IBusinessCalendarService businessCalendar,
@@ -69,23 +68,16 @@ public sealed class ListMonthlyFeesUseCase(
             .ToList();
         var clientIds = enrolledClients.Select(enrolledClient => enrolledClient.Row.ClientId).ToList();
 
-        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
-        var defaultFee = FeeTimeline.DefaultFeeIn(defaultFeeChanges, month.Value);
-        var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync(clientIds, cancellationToken);
-        var planByClient = enrolledClients.ToDictionary(
-            enrolledClient => enrolledClient.Row.ClientId,
-            enrolledClient => FeeTimeline.PlanIn(
-                planChanges.Where(change => change.ClientId == enrolledClient.Row.ClientId), defaultFeeChanges, month.Value));
+        var billingByClient = await familyBillingService.CalculateAsync(clientIds, month.Value, cancellationToken);
 
         var paidByClient = await paymentRepository.SumByClientForMonthAsync(
             month.Value.FirstDay, await businessCurrency.CurrencyCodeAsync(cancellationToken), cancellationToken);
         var monthlyClients = ListMonthlyClients(
-            enrolledClients.Where(enrolledClient => !planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
-            planByClient,
-            defaultFee,
+            enrolledClients.Where(enrolledClient => billingByClient[enrolledClient.Row.ClientId].HasMonthlyPlan).ToList(),
+            billingByClient,
             paidByClient);
         var classPackClients = await ListClassPackClientsAsync(
-            enrolledClients.Where(enrolledClient => planByClient[enrolledClient.Row.ClientId].PaysPerClass).ToList(),
+            enrolledClients.Where(enrolledClient => !billingByClient[enrolledClient.Row.ClientId].HasMonthlyPlan).ToList(),
             cancellationToken);
 
         return new MonthlyFeesResponse(
@@ -93,21 +85,19 @@ public sealed class ListMonthlyFeesUseCase(
             monthlyClients.Sum(client => client.Fee ?? 0),
             clientIds.Sum(clientId => paidByClient.GetValueOrDefault(clientId)),
             monthlyClients,
-            classPackClients,
-            FeeTimeline.BillingModeIn(defaultFeeChanges, month.Value) ?? BusinessBillingMode.MonthlyFee);
+            classPackClients);
     }
 
     private static IReadOnlyList<ClientFeeResponse> ListMonthlyClients(
         IReadOnlyList<EnrolledClient> enrolledClients,
-        Dictionary<long, BillingPlan> planByClient,
-        decimal? defaultFee,
+        IReadOnlyDictionary<long, FamilyMonthBilling> billingByClient,
         IReadOnlyDictionary<long, decimal> paidByClient)
     {
         return [.. enrolledClients
             .Select(enrolledClient =>
             {
                 var clientId = enrolledClient.Row.ClientId;
-                var fee = planByClient[clientId].MonthlyFee(defaultFee);
+                var fee = billingByClient[clientId].Due;
                 var paid = paidByClient.GetValueOrDefault(clientId);
                 return new ClientFeeResponse(
                     clientId,

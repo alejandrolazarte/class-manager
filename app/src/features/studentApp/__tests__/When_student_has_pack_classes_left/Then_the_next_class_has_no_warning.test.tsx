@@ -29,7 +29,6 @@ describe("When student has pack classes left", () => {
           }),
         ],
         billing: {
-          kind: "ClassPacks",
           monthlyFee: null,
           classes: { availableClasses: 3, unpaidClasses: 0 },
         },

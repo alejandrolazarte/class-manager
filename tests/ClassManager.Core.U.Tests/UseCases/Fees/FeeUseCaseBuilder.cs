@@ -16,13 +16,12 @@ internal sealed class FeeUseCaseBuilder
 {
     public const decimal DefaultFee = 12000m;
 
-    public static readonly BillingMonth SinceAlways = BillingMonth.Parse("2000-01").Value!;
 
     public Mock<IBusinessRepository> Businesses { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IEnrollmentRepository> Enrollments { get; } = new();
     public Mock<IPaymentRepository> Payments { get; } = new();
-    public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
+    public Mock<IFamilyBillingService> FamilyBilling { get; } = new();
     public Mock<IClassBalanceService> ClassBalances { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
@@ -35,8 +34,7 @@ internal sealed class FeeUseCaseBuilder
     public BillingMonth CurrentMonth { get; } = BillingMonth.From(TestData.Today);
     public List<EnrolledStudentInPeriod> EnrolledStudents { get; } = [];
     public Dictionary<long, decimal> PaidByClient { get; } = [];
-    public List<DefaultMonthlyFeeChange> DefaultFeeChanges { get; } = [];
-    public List<ClientBillingPlanChange> PlanChanges { get; } = [];
+    public Dictionary<long, FamilyMonthBilling> BillingByClient { get; } = [];
     public Dictionary<long, ClassBalance> ClassBalancesByClient { get; } = [];
 
     public FeeUseCaseBuilder()
@@ -45,7 +43,6 @@ internal sealed class FeeUseCaseBuilder
         ActAs(SystemRolePermissions.BrandOwner);
         AccessScopes.Setup(scopes => scopes.ForClientsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((ClientScope?)null);
         Clients.Setup(repository => repository.IsInScopeAsync(It.IsAny<long>(), It.IsAny<ClientScope>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        AddDefaultFeeChange(SinceAlways, DefaultFee);
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Business);
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
         Enrollments
@@ -54,10 +51,10 @@ internal sealed class FeeUseCaseBuilder
         Payments
             .Setup(repository => repository.SumByClientForMonthAsync(CurrentMonth.FirstDay, TestData.CurrencyCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(PaidByClient);
-        FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(DefaultFeeChanges);
-        FeeSchedule
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(PlanChanges);
+        FamilyBilling
+            .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<BillingMonth>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyCollection<long> clientIds, BillingMonth _, CancellationToken _) =>
+                clientIds.Distinct().ToDictionary(clientId => clientId, clientId => BillingByClient.GetValueOrDefault(clientId) ?? new FamilyMonthBilling(clientId, [])));
         ClassBalances
             .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClassBalancesByClient);
@@ -79,11 +76,10 @@ internal sealed class FeeUseCaseBuilder
         }
     }
 
-    public void AddDefaultFeeChange(BillingMonth effectiveFrom, decimal? amount, BusinessBillingMode billingMode = BusinessBillingMode.MonthlyFee) =>
-        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, billingMode, amount, TestData.Today, TestData.Now).Value!.WithId());
+    public void SetMonthlyPrice(long clientId, decimal price) =>
+        BillingByClient[clientId] = new FamilyMonthBilling(clientId, [new StudentPlanLine(TestIds.Next(), TestData.StudentFullName, TestIds.Next(), "Cuota mensual", price, null)]);
 
-    public void SetPlan(long clientId, BillingPlanKind kind, decimal? customFee = null, BillingMonth? effectiveFrom = null) =>
-        PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom ?? SinceAlways, kind, customFee, TestData.Today, TestData.Now).Value!.WithId());
+    public void PaysPerClass(long clientId) => BillingByClient[clientId] = new FamilyMonthBilling(clientId, []);
 
     public long AddEnrolledClient(string clientFullName, decimal? clientFee = null, params string[] studentNames)
     {
@@ -93,10 +89,7 @@ internal sealed class FeeUseCaseBuilder
             EnrolledStudents.Add(new EnrolledStudentInPeriod(clientId, clientFullName, TestData.NormalizedClientPhoneNumber, studentName));
         }
 
-        if (clientFee is not null)
-        {
-            SetPlan(clientId, BillingPlanKind.CustomFee, clientFee);
-        }
+        SetMonthlyPrice(clientId, clientFee ?? DefaultFee);
 
         return clientId;
     }
@@ -105,7 +98,7 @@ internal sealed class FeeUseCaseBuilder
         new(
             Enrollments.Object,
             Payments.Object,
-            FeeSchedule.Object,
+            FamilyBilling.Object,
             ClassBalances.Object,
             Clients.Object,
             BusinessCalendar.Object,
@@ -124,16 +117,4 @@ internal sealed class FeeUseCaseBuilder
             CurrentMember.Object);
 
     public DeletePaymentUseCase BuildDelete() => new(Payments.Object, Clients.Object, UnitOfWork.Object, AccessScopes.Object, CurrentMember.Object);
-
-    public SetDefaultMonthlyFeeUseCase BuildSetDefaultFee() =>
-        new(Businesses.Object, FeeSchedule.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
-
-    public SetClientBillingPlanUseCase BuildSetClientPlan() =>
-        new(Clients.Object, FeeSchedule.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), AccessScopes.Object);
-
-    public DeleteDefaultMonthlyFeeChangeUseCase BuildDeleteDefaultFeeChange() =>
-        new(Businesses.Object, FeeSchedule.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now));
-
-    public DeleteClientBillingPlanChangeUseCase BuildDeleteClientPlanChange() =>
-        new(Clients.Object, FeeSchedule.Object, UnitOfWork.Object, BusinessCalendar.Object, new FakeTimeProvider(TestData.Now), AccessScopes.Object);
 }

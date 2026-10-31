@@ -15,6 +15,12 @@ export interface ClassPack {
   images: CatalogImage[];
   renewsMonthly: boolean;
   appliesFamilyDiscount: boolean;
+  priceChanges: ClassPackPriceChange[];
+}
+
+export interface ClassPackPriceChange {
+  effectiveFrom: string;
+  price: number;
 }
 
 export type SoldOnceClassPack = ClassPack & { classCount: number; renewsMonthly: false };
@@ -33,6 +39,7 @@ export interface SaveClassPackRequest {
   classGroupIds: string[];
   coversAnyGroupClass: boolean;
   renewsMonthly: boolean;
+  priceEffectiveFrom?: string;
 }
 
 export interface ClassPackPurchase {

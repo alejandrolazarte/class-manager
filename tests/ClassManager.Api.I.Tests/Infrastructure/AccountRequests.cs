@@ -42,7 +42,7 @@ public static class AccountRequests
         var ownBusiness = (await ownerClient.ListBranchesAsync()).Single();
 
         var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
-        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.InstructorStudentFullName)).ClientId;
+        var clientId = fees!.ClientIdOf(InstructorScenario.InstructorStudentFullName);
         (await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, email)).EnsureSuccessStatusCode();
         using var accepted = await anonymous.PostAcceptStudentAppInvitationAsync(fixture.ApiFactory.EmailTransport.StudentAppInvitationTokenSentTo(email));
         accepted.EnsureSuccessStatusCode();

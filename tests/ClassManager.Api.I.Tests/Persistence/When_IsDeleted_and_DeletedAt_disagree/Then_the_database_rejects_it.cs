@@ -12,8 +12,7 @@ public sealed class Then_the_database_rejects_it(ApiFixture fixture)
     public async Task Then_the_database_rejects_it_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        await business.HttpClient.SetDefaultFeeAsync();
-        var clientId = await business.HttpClient.EnrollClientAsync();
+        var clientId = (await business.HttpClient.EnrollClientWithMonthlyPlanAsync()).ClientId;
         (await business.HttpClient.PostPaymentAsync(clientId)).EnsureSuccessStatusCode();
         await using var context = fixture.CreateDbContext(business.Business.Id);
 

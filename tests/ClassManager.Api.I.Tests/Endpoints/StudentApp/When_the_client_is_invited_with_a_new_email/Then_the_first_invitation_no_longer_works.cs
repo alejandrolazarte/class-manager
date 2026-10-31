@@ -8,7 +8,7 @@ public sealed class Then_the_first_invitation_no_longer_works(ApiFixture fixture
     {
         var instructors = await fixture.SeedInstructorScenarioAsync();
         var fees = await instructors.Business.HttpClient.GetMonthlyFeesAsync();
-        var clientId = fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.InstructorStudentFullName)).ClientId;
+        var clientId = fees!.ClientIdOf(InstructorScenario.InstructorStudentFullName);
         var firstEmail = StudentAppRequests.UniqueStudentEmail();
         var secondEmail = StudentAppRequests.UniqueStudentEmail();
         using var firstInvitation = await instructors.Business.HttpClient.PostStudentAppInvitationAsync(clientId, firstEmail);

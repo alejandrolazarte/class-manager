@@ -5,6 +5,8 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Clients;
 
+using ClassManager.Core.UseCases.Fees;
+
 namespace ClassManager.Core.UseCases.Clients;
 
 public sealed record GetClientQuery(long ClientId) : IQuery;
@@ -12,7 +14,8 @@ public sealed record GetClientQuery(long ClientId) : IQuery;
 public sealed class GetClientUseCase(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
-    IFeeScheduleRepository feeScheduleRepository,
+    IStudentPlanRepository studentPlanRepository,
+    IClassPackRepository classPackRepository,
     IClientAccountRepository clientAccountRepository,
     IClientInvitationRepository invitationRepository,
     IIdentityService identityService,
@@ -34,9 +37,14 @@ public sealed class GetClientUseCase(
         }
 
         var students = await studentRepository.ListByClientAsync(client.Id, cancellationToken);
-        var billingPlanChanges = await feeScheduleRepository.ListClientPlanChangesAsync([client.Id], cancellationToken);
-        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
         var today = await businessCalendar.TodayAsync(cancellationToken);
+        var plans = FamilyPlansResponse.From(
+            client.Id,
+            students,
+            await studentPlanRepository.ListByClientsAsync([client.Id], cancellationToken),
+            await classPackRepository.ListAsync(includeInactive: true, cancellationToken),
+            await classPackRepository.ListPriceChangesAsync(cancellationToken),
+            today);
         var accounts = await clientAccountRepository.ListByClientAsync(client.Id, cancellationToken);
         var pendingInvitations = await invitationRepository.ListPendingByClientAsync(client.Id, timeProvider.GetUtcNow(), cancellationToken);
         var clientAppAccess = await AppAccessOfAsync(null, accounts, pendingInvitations, cancellationToken);
@@ -49,7 +57,7 @@ public sealed class GetClientUseCase(
         var onTheTeam = await userRepository.ListOnTheTeamAsync([client.UserId, .. students.Select(student => student.UserId)], cancellationToken);
         var userIdsByStudent = students.ToDictionary(student => student.Id, student => student.UserId);
         var photoUrls = await userPhotoUrls.OfUsersAsync([client.UserId, .. userIdsByStudent.Values], cancellationToken);
-        var details = ClientDetailsResponse.From(client, students, billingPlanChanges, defaultFeeChanges, today, clientAppAccess, studentAppAccesses);
+        var details = ClientDetailsResponse.From(client, students, plans, clientAppAccess, studentAppAccesses);
         return details with
         {
             IsOnTheTeam = onTheTeam.Contains(client.UserId),

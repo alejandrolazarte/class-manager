@@ -20,14 +20,15 @@ public sealed record RegisterClientCommand(
     [property: AuditPersonal] string? Notes,
     IReadOnlyList<NewStudent>? Students,
     long? SamePersonUserId = null,
-    BusinessBillingMode? BillingMode = null) : ICommand;
+    long? PlanId = null) : ICommand;
 
 public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IUserRepository userRepository,
-    IFeeScheduleRepository feeScheduleRepository,
+    IStudentPlanRepository studentPlanRepository,
+    IClassPackRepository classPackRepository,
     IPeopleLock peopleLock,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider,
@@ -86,34 +87,44 @@ public sealed class RegisterClientUseCase(
         }
 
         var today = business.TodayAt(now);
-        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
-        if (defaultFeeChanges.Count == 0 && command.BillingMode is { } firstBillingMode)
+        var plan = command.PlanId is { } planId ? await classPackRepository.GetByIdAsync(planId, cancellationToken) : null;
+        if (command.PlanId is not null && plan is not { IsActive: true, RenewsMonthly: true })
         {
-            var firstChoice = DefaultMonthlyFeeChange.Create(BillingMonth.From(today), firstBillingMode, null, today, now);
-            if (firstChoice.IsFailure)
-            {
-                return firstChoice.Error!;
-            }
-
-            feeScheduleRepository.Add(firstChoice.Value!);
-            defaultFeeChanges = [firstChoice.Value!];
-            await FirstBillingModeChoice.KeepItForRegisteredClientsAsync(feeScheduleRepository, defaultFeeChanges, today, now, cancellationToken);
+            return StudentPlanFailures.PlanNotOffered(nameof(RegisterClientCommand.PlanId));
         }
 
-        var billingPlanChanges = ClientBillingPlanChange.ForNewClient(newClient, defaultFeeChanges, today, now);
+        var planChanges = new List<StudentPlanChange>();
+        foreach (var student in plan is null ? [] : students.Value!)
+        {
+            var planChange = StudentPlanChange.ForStudent(student, BillingMonth.From(today), plan, null, today, now);
+            if (planChange.IsFailure)
+            {
+                return planChange.Error!;
+            }
+
+            planChanges.Add(planChange.Value!);
+        }
+
         clientRepository.Add(newClient);
         foreach (var student in students.Value!)
         {
             studentRepository.Add(student);
         }
 
-        foreach (var billingPlanChange in billingPlanChanges)
+        foreach (var planChange in planChanges)
         {
-            feeScheduleRepository.Add(billingPlanChange);
+            studentPlanRepository.Add(planChange);
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ClientDetailsResponse.Registered(newClient, students.Value!, billingPlanChanges, defaultFeeChanges, today);
+        var plans = FamilyPlansResponse.From(
+            newClient.Id,
+            students.Value!,
+            planChanges,
+            plan is null ? [] : [plan],
+            await classPackRepository.ListPriceChangesAsync(cancellationToken),
+            today);
+        return ClientDetailsResponse.Registered(newClient, students.Value!, plans);
     }
 
     private async Task<ResultError?> JoinSamePeopleAsync(

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ClassPack, SaveClassPackRequest } from "@/features/classPacks/types";
 import { parseAmount } from "@/formatting/money";
+import { monthOf } from "@/features/fees/months";
 import { amountSchema } from "@/features/fees/paymentSchema";
 import { translate } from "@/i18n/translate";
 
@@ -64,6 +65,7 @@ export const classPackSchema = z
     coversAnyGroupClass: z.boolean(),
     renewsMonthly: z.boolean(),
     hasLibreClasses: z.boolean(),
+    priceEffectiveFrom: z.string(),
   })
   .superRefine((formValues, context) => {
     if (hasLibreClasses(formValues)) {
@@ -118,6 +120,7 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
     coversAnyGroupClass: classPack?.coversAnyGroupClass ?? false,
     renewsMonthly: classPack?.renewsMonthly ?? false,
     hasLibreClasses: classPack ? classPack.classCount === null : true,
+    priceEffectiveFrom: monthOf(),
   };
 }
 
@@ -158,5 +161,6 @@ export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveCla
     classGroupIds: isForGroupClasses && !coversAnyGroupClass ? formValues.classGroupIds : [],
     coversAnyGroupClass,
     renewsMonthly: formValues.renewsMonthly,
+    ...(formValues.renewsMonthly ? { priceEffectiveFrom: formValues.priceEffectiveFrom } : {}),
   };
 }

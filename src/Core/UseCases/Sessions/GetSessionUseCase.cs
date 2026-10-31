@@ -61,7 +61,7 @@ public sealed class GetSessionUseCase(
     IAbsenceNoticeRepository absenceNoticeRepository,
     IMakeupBookingRepository makeupBookingRepository,
     IPackBookingRepository packBookingRepository,
-    IFeeScheduleRepository feeScheduleRepository,
+    IFamilyBillingService familyBillingService,
     IClassBalanceService classBalanceService,
     IBusinessCalendarService businessCalendar,
     IAccessScopes accessScopes,
@@ -192,11 +192,10 @@ public sealed class GetSessionUseCase(
         CancellationToken cancellationToken)
     {
         var month = BillingMonth.From(sessionDate);
-        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
-        var planChanges = await feeScheduleRepository.ListClientPlanChangesAsync([.. enrolledClientIds.Distinct()], cancellationToken);
+        var billingByClient = await familyBillingService.CalculateAsync(enrolledClientIds, month, cancellationToken);
         var payingPerClassClientIds = enrolledClientIds
             .Distinct()
-            .Where(clientId => FeeTimeline.PlanIn(planChanges.Where(change => change.ClientId == clientId), defaultFeeChanges, month).PaysPerClass)
+            .Where(clientId => !billingByClient[clientId].HasMonthlyPlan)
             .Concat(packBookingClientIds)
             .Distinct()
             .ToList();

@@ -19,8 +19,8 @@ internal sealed class EnrollmentUseCaseBuilder
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<IClientRepository> Clients { get; } = new();
     public Mock<IClassBalanceService> ClassBalances { get; } = new();
-    public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
-    public List<ClientBillingPlanChange> PlanChanges { get; } = [];
+    public Mock<IFamilyBillingService> FamilyBilling { get; } = new();
+    public bool HasMonthlyPlan { get; private set; } = true;
     public List<ClassPackUsage> ClientPackUsages { get; } = [];
     public ClassGroup ClassGroup { get; } = ClassGroup.Create(
         "Natación inicial", TestIds.Next(), ClassSchedule.Create([DayOfWeek.Tuesday], "18:00", 45).Value!, 2, null).Value!.WithId();
@@ -35,15 +35,17 @@ internal sealed class EnrollmentUseCaseBuilder
         ClassBalances
             .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new Dictionary<long, ClassBalance> { [Student.ClientId] = new(ClientPackUsages, [], []) });
-        FeeSchedule
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(PlanChanges);
-        FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<DefaultMonthlyFeeChange>());
+        FamilyBilling
+            .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<BillingMonth>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new Dictionary<long, FamilyMonthBilling>
+            {
+                [Student.ClientId] = new(
+                    Student.ClientId,
+                    HasMonthlyPlan ? [new StudentPlanLine(Student.Id, Student.FullName, TestIds.Next(), "Cuota mensual", 25000m, null)] : []),
+            });
     }
 
-    public void PayPerClass() =>
-        PlanChanges.Add(ClientBillingPlanChange.Create(
-            Student.ClientId, BillingMonth.From(TestData.Today), BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId());
+    public void PayPerClass() => HasMonthlyPlan = false;
 
     public void BuyActivePack(IReadOnlyCollection<long> classGroupIds, bool coversAnyGroupClass = false)
     {
@@ -67,7 +69,7 @@ internal sealed class EnrollmentUseCaseBuilder
             new EveryAccessScopes(),
             Clients.Object,
             ClassBalances.Object,
-            FeeSchedule.Object);
+            FamilyBilling.Object);
 
     public EndEnrollmentUseCase BuildEnd() =>
         new(Enrollments.Object, ClassGroups.Object, UnitOfWork.Object, BusinessCalendar.Object, new EveryAccessScopes());

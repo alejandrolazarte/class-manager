@@ -8,4 +8,5 @@ public static class ClassPackErrorCodes
     public const string TrialNotDeductible = "class_pack_purchase.trial_not_deductible";
     public const string ClassGroupNotFound = "class_pack.class_group_not_found";
     public const string RenewsMonthly = "class_pack.renews_monthly";
+    public const string PriceChangeNotFound = "class_pack.price_change_not_found";
 }

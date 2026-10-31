@@ -10,6 +10,8 @@ public sealed class Then_only_their_students_are_listed(ApiFixture fixture)
 
         var fees = await scenario.Collector.GetMonthlyFeesAsync();
 
-        fees!.Clients.Select(client => client.ClientId).ShouldBe([scenario.CollectorClientId]);
+        fees!.Clients.Select(client => client.ClientId)
+            .Concat(fees.ClassPackClients.Select(client => client.ClientId))
+            .ShouldBe([scenario.CollectorClientId]);
     }
 }

@@ -4,7 +4,9 @@ using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Domain.ClassPacks;
+using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
+using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Services;
 using ClassManager.Core.UseCases.ClassPacks;
 using Microsoft.Extensions.Time.Testing;
@@ -19,7 +21,7 @@ internal sealed class ClassPackUseCaseBuilder
     public Mock<IClassGroupRepository> ClassGroups { get; } = new();
     public Mock<IAttendanceRepository> Attendances { get; } = new();
     public Mock<IPrivateLessonRepository> PrivateLessons { get; } = new();
-    public Mock<IFeeScheduleRepository> FeeSchedule { get; } = new();
+    public Mock<IStudentPlanRepository> StudentPlans { get; } = new();
     public Mock<IPaymentRepository> Payments { get; } = new();
     public Mock<IOrderNumbers> OrderNumbers { get; } = new();
     public Mock<IOrderRepository> Orders { get; } = new();
@@ -32,8 +34,10 @@ internal sealed class ClassPackUseCaseBuilder
     public List<ClassPackPurchase> ClientPurchases { get; } = [];
     public List<ClientAttendedClass> ClientAttendedClasses { get; } = [];
     public List<ClientAttendedClass> ClientAttendedPrivateLessons { get; } = [];
-    public List<ClientBillingPlanChange> PlanChanges { get; } = [];
-    public List<DefaultMonthlyFeeChange> DefaultFeeChanges { get; } = [];
+    public List<StudentPlanChange> PlanChanges { get; } = [];
+    public List<ClassPack> Catalog { get; } = [];
+    public Client Client { get; } = TestData.Client();
+    public Student Student { get; }
     public List<ClientPaidMonth> PaidMonths { get; } = [];
 
     private static ClassPack AnyGroupClassPack()
@@ -45,6 +49,7 @@ internal sealed class ClassPackUseCaseBuilder
 
     public ClassPackUseCaseBuilder()
     {
+        Student = TestUsers.StudentOf(Client, TestData.StudentFullName);
         BusinessCalendar.Setup(calendar => calendar.TodayAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Today);
         BusinessCurrency.Setup(currency => currency.CurrencyCodeAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.CurrencyCode);
         UnitOfWork
@@ -61,32 +66,40 @@ internal sealed class ClassPackUseCaseBuilder
         PrivateLessons
             .Setup(repository => repository.ListAttendedClassesByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClientAttendedPrivateLessons);
-        FeeSchedule
-            .Setup(repository => repository.ListClientPlanChangesAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
+        StudentPlans
+            .Setup(repository => repository.ListByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PlanChanges);
-        FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(DefaultFeeChanges);
+        ClassPacks.Setup(repository => repository.ListAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(Catalog);
         Payments
             .Setup(repository => repository.ListPaidMonthsByClientsAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PaidMonths);
     }
 
-    public void ChargeBusinessWithClassPacksFrom(BillingMonth effectiveFrom) =>
-        DefaultFeeChanges.Add(DefaultMonthlyFeeChange.Create(effectiveFrom, BusinessBillingMode.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId());
+    public void HoldMonthlyPlanFrom(BillingMonth firstMonthWithPlan)
+    {
+        var monthlyPlan = ClassPack.Create("Cuota mensual", null, 25000m, null, TestData.Now, renewsMonthly: true).Value!.WithId();
+        monthlyPlan.DefineLessons([], null, coversAnyGroupClass: true);
+        Catalog.Add(monthlyPlan);
+        PlanChanges.Add(StudentPlanChange.ForStudent(Student, firstMonthWithPlan, monthlyPlan, null, TestData.Today, TestData.Now).Value!);
+    }
 
-    public void PayPerClassFrom(long clientId, BillingMonth effectiveFrom) =>
-        PlanChanges.Add(ClientBillingPlanChange.Create(clientId, effectiveFrom, BillingPlanKind.ClassPacks, null, TestData.Today, TestData.Now).Value!.WithId());
+    public void HoldMonthlyPlanUntil(BillingMonth firstMonthWithoutPlan)
+    {
+        HoldMonthlyPlanFrom(firstMonthWithoutPlan.AddMonths(-1));
+        PlanChanges.Add(StudentPlanChange.ForStudent(Student, firstMonthWithoutPlan, null, null, TestData.Today, TestData.Now).Value!);
+    }
 
     public void PayFee(long clientId, BillingMonth month) => PaidMonths.Add(new ClientPaidMonth(clientId, month.FirstDay));
 
     public void Attend(long clientId, DateOnly date) =>
-        ClientAttendedClasses.Add(new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, "Natación", ClassGroupId: ClassGroupId)));
+        ClientAttendedClasses.Add(new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, "Natación", StudentId: Student.Id, ClassGroupId: ClassGroupId)));
 
     public void AttendPrivateLesson(long clientId, DateOnly date) =>
         ClientAttendedPrivateLessons.Add(
-            new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, TestData.InstructorFullName, IsPrivateLesson: true)));
+            new ClientAttendedClass(clientId, new AttendedClass(date, TestData.StudentFullName, TestData.InstructorFullName, IsPrivateLesson: true, StudentId: Student.Id)));
 
     public ClassBalanceService BuildBalanceService() =>
-        new(Purchases.Object, Attendances.Object, PrivateLessons.Object, FeeSchedule.Object, Payments.Object, BusinessCalendar.Object);
+        new(Purchases.Object, Attendances.Object, PrivateLessons.Object, new MonthlyPlansReader(StudentPlans.Object, ClassPacks.Object), Payments.Object, BusinessCalendar.Object);
 
     public SellClassPackUseCase BuildSell() =>
         new(
@@ -104,5 +117,5 @@ internal sealed class ClassPackUseCaseBuilder
             new Mock<ICurrentMember>().Object);
 
     public CreateClassPackUseCase BuildCreate() =>
-        new(ClassPacks.Object, ClassGroups.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now), new Mock<IDocumentStorageService>().Object);
+        new(ClassPacks.Object, ClassGroups.Object, UnitOfWork.Object, new FakeTimeProvider(TestData.Now), BusinessCalendar.Object, new Mock<IDocumentStorageService>().Object);
 }

@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.Clients;
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.UseCases.Fees;
 using ClassManager.Core.UseCases.Students;
@@ -13,8 +12,7 @@ public sealed record ClientDetailsResponse(
     string? Email,
     string? Notes,
     DateTimeOffset CreatedAt,
-    BillingPlanResponse BillingPlan,
-    IReadOnlyList<BillingPlanChangeResponse> BillingPlanChanges,
+    FamilyPlansResponse Plans,
     IReadOnlyList<StudentResponse> Students,
     StudentAppAccessResponse AppAccess,
     bool IsOnTheTeam = false,
@@ -22,10 +20,8 @@ public sealed record ClientDetailsResponse(
 {
     public static ClientDetailsResponse From(
         Client client,
-        IEnumerable<Student> students,
-        IReadOnlyCollection<ClientBillingPlanChange> billingPlanChanges,
-        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
-        DateOnly today,
+        IReadOnlyCollection<Student> students,
+        FamilyPlansResponse plans,
         StudentAppAccessResponse appAccess,
         IReadOnlyDictionary<long, StudentAppAccessResponse> studentAppAccesses) =>
         new(
@@ -35,19 +31,13 @@ public sealed record ClientDetailsResponse(
             client.User.Email,
             client.Notes,
             client.CreatedAt,
-            BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, defaultFeeChanges, BillingMonth.From(today))),
-            BillingPlanChangeResponse.From(billingPlanChanges),
+            plans,
             [.. students
                 .OrderBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase)
                 .Select(student => StudentResponse.From(student, studentAppAccesses.GetValueOrDefault(student.Id, StudentAppAccessResponse.NotInvited)))],
             appAccess);
 
-    public static ClientDetailsResponse Registered(
-        Client client,
-        IEnumerable<Student> students,
-        IReadOnlyCollection<ClientBillingPlanChange> billingPlanChanges,
-        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
-        DateOnly today) =>
+    public static ClientDetailsResponse Registered(Client client, IReadOnlyCollection<Student> students, FamilyPlansResponse plans) =>
         new(
             client.Id,
             client.User.FullName,
@@ -55,8 +45,7 @@ public sealed record ClientDetailsResponse(
             client.User.Email,
             client.Notes,
             client.CreatedAt,
-            BillingPlanResponse.From(FeeTimeline.PlanIn(billingPlanChanges, defaultFeeChanges, BillingMonth.From(today))),
-            BillingPlanChangeResponse.From(billingPlanChanges),
+            plans,
             [.. students
                 .OrderBy(student => student.User.FullName, StringComparer.CurrentCultureIgnoreCase)
                 .Select(StudentResponse.NotInvited)],

@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { ReactNode, useState } from "react";
 import { FlatList, View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { hasChosenBillingMode } from "@/features/fees/billingMode";
+import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { ClassPackClientRow } from "@/features/fees/components/ClassPackClientRow";
 import { ClientFeeRow } from "@/features/fees/components/ClientFeeRow";
 import { MonthlySummary } from "@/features/fees/components/MonthlySummary";
@@ -39,6 +39,8 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
   const router = useRouter();
   const business = useCurrentBusiness();
   const canViewEveryPayment = useCan(permissions.paymentsViewAll);
+  const canViewClassPacks = useCan(permissions.classPacksView);
+  const { data: catalog } = useClassPacks(false, { enabled: canViewClassPacks });
   const [month, setMonth] = useState(initialMonth ?? monthOf());
   const [filter, setFilter] = useState<FeeFilter>("debtors");
   const { data: monthlyFees, isPending, isError, isRefetching, refetch } = useMonthlyFees(month);
@@ -54,7 +56,7 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
     (classPackClient) => classPackClient.unpaidClasses > 0,
   );
   const classPackClients = filter === "all" ? allClassPackClients : classPackDebtors;
-  const isChargingWithClassPacks = monthlyFees?.billingMode === "ClassPacks";
+  const isChargingWithClassPacks = allClassPackClients.length > allClients.length;
   const filterOptions = [
     {
       value: "debtors" as const,
@@ -110,22 +112,13 @@ export function MonthlyFeesScreen({ initialMonth, viewSwitcher }: MonthlyFeesScr
       />
       <View className="gap-4 px-5">
         {viewSwitcher}
-        {!hasChosenBillingMode(business) ? (
-          <Banner tone="warning" message={translate("fees.month.noBillingMode")}>
+        {catalog?.length === 0 ? (
+          <Banner tone="warning" message={translate("fees.month.noPlansYet")}>
             <Button
               variant="secondary"
               size="medium"
-              label={translate("fees.month.chooseBillingMode")}
-              onPress={() => router.push(routes.feesDefaultMonthlyFee)}
-            />
-          </Banner>
-        ) : business.billingMode !== "ClassPacks" && business.defaultMonthlyFee === null ? (
-          <Banner tone="warning" message={translate("fees.month.noDefaultFee")}>
-            <Button
-              variant="secondary"
-              size="medium"
-              label={translate("fees.month.setDefaultFee")}
-              onPress={() => router.push(routes.feesDefaultMonthlyFee)}
+              label={translate("fees.month.goToPlans")}
+              onPress={() => router.push(routes.feesNewPlan)}
             />
           </Banner>
         ) : null}

@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,16 +10,16 @@ public sealed class Then_it_is_kept_but_not_returned(ApiFixture fixture)
     public async Task Then_it_is_kept_but_not_returned_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        var client = await business.HttpClient.RegisterClientAsync();
-        (await business.HttpClient.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks, effectiveFrom: FeeRequests.NextMonth)).EnsureSuccessStatusCode();
-        (await business.HttpClient.DeleteBillingPlanChangeAsync(client.Id, FeeRequests.NextMonth)).EnsureSuccessStatusCode();
+        var family = await business.HttpClient.EnrollClientWithMonthlyPlanAsync();
+        (await business.HttpClient.PutStudentPlanAsync(family.StudentId, null, effectiveFrom: FeeRequests.NextMonth)).EnsureSuccessStatusCode();
+        (await business.HttpClient.DeleteStudentPlanChangeAsync(family.StudentId, FeeRequests.NextMonth)).EnsureSuccessStatusCode();
 
         await using var context = fixture.CreateDbContext(business.Business.Id);
 
-        (await context.ClientBillingPlanChanges.AnyAsync(change => change.ClientId == client.Id)).ShouldBeFalse();
-        (await context.ClientBillingPlanChanges
+        (await context.StudentPlanChanges.AnyAsync(change => change.StudentId == family.StudentId && change.EffectiveFrom > new DateOnly(2026, 9, 30))).ShouldBeFalse();
+        (await context.StudentPlanChanges
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
-            .SingleAsync(change => change.ClientId == client.Id))
+            .SingleAsync(change => change.StudentId == family.StudentId && change.IsDeleted))
             .DeletedAt.ShouldNotBeNull();
     }
 }

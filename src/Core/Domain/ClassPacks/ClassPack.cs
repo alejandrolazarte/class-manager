@@ -191,6 +191,13 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
 
     public Result ReorderImages(IReadOnlyList<long>? documentIds) => CatalogImageGallery.Reorder(_images, documentIds);
 
+    public bool Covers(AttendedClass attendedClass) =>
+        attendedClass.IsPrivateLesson
+            ? ClassDurationMinutes is not null
+            : ClassDurationMinutes is null
+                && attendedClass.ClassGroupId is { } classGroupId
+                && (CoversAnyGroupClass || CoversClassGroup(classGroupId));
+
     public void Activate() => IsActive = true;
 
     public void Deactivate() => IsActive = false;

@@ -1,7 +1,8 @@
 import { Controller, UseFormReturn } from "react-hook-form";
 import { View } from "react-native";
 import { AttendeesSection } from "@/features/clients/components/AttendeesSection";
-import { BillingModeChoice } from "@/features/fees/components/BillingModeChoice";
+import { ClassPack } from "@/features/classPacks/types";
+import { MonthlyPlanChoice } from "@/features/fees/components/MonthlyPlanChoice";
 import { formatPhoneNumberAsTyped } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientFormValues } from "@/features/clients/registerClientSchema";
 import { ContactAdultConfirmation } from "@/features/studentApp/components/ContactAdultConfirmation";
@@ -18,10 +19,11 @@ interface ClientFormProps {
   form: UseFormReturn<RegisterClientFormValues>;
   onSubmit: () => void;
   isSubmitting: boolean;
-  asksBillingMode: boolean;
+  monthlyPlans: readonly ClassPack[];
 }
 
-export function ClientForm({ form, onSubmit, isSubmitting, asksBillingMode }: ClientFormProps) {
+export function ClientForm({ form, onSubmit, isSubmitting, monthlyPlans }: ClientFormProps) {
+  const asksPlan = monthlyPlans.length > 0;
   const { control, formState, watch } = form;
   const isAppInvitationOffered = watch("email").trim().length > 0;
   const isAppInvitationOn = isAppInvitationOffered && watch("sendAppInvitation");
@@ -31,7 +33,7 @@ export function ClientForm({ form, onSubmit, isSubmitting, asksBillingMode }: Cl
     areFilled([watch("fullName"), watch("phoneNumber")]) &&
     areFilled(additionalStudents.map((additionalStudent) => additionalStudent.fullName)) &&
     (!isAppInvitationOn || watch("confirmsContactIsAdult")) &&
-    (!asksBillingMode || watch("billingMode") !== null);
+    (!asksPlan || watch("planChoice") !== null);
 
   return (
     <View className="gap-[18px]">
@@ -135,17 +137,17 @@ export function ClientForm({ form, onSubmit, isSubmitting, asksBillingMode }: Cl
         />
       </View>
       <AttendeesSection form={form} />
-      {asksBillingMode ? (
+      {asksPlan ? (
         <View className="gap-3">
           <SectionTitle title={translate("fees.billingPlan.title")} isOverline />
           <Controller
             control={control}
-            name="billingMode"
+            name="planChoice"
             render={({ field }) => (
-              <BillingModeChoice
-                billingMode={field.value}
+              <MonthlyPlanChoice
+                monthlyPlans={monthlyPlans}
+                choice={field.value}
                 onChange={field.onChange}
-                note={translate("clients.register.billingModeNote")}
               />
             )}
           />

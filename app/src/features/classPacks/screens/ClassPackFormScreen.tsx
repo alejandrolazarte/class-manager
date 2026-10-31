@@ -19,12 +19,18 @@ import {
   toClassPackFormValues,
   toSaveClassPackRequest,
 } from "@/features/classPacks/classPackSchema";
-import { ClassPack } from "@/features/classPacks/types";
+import { ClassPack, ClassPackPriceChange } from "@/features/classPacks/types";
 import {
   useApplyClassPackImages,
+  useDeleteClassPackPriceChange,
   useSaveClassPack,
   useSetClassPackActive,
 } from "@/features/classPacks/useClassPackMutations";
+import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
+import { formatMonth, monthOf } from "@/features/fees/months";
+import { useBusinessCurrency } from "@/features/business/CurrentBusinessProvider";
+import { formatMoney } from "@/formatting/money";
+import { IconButton } from "@/ui/IconButton";
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { SettingsFormScreenLayout } from "@/features/settings/components/SettingsFormScreenLayout";
 import { SettingsItemState } from "@/features/settings/components/SettingsItemState";
@@ -59,7 +65,12 @@ interface ClassPackEditorProps {
 interface ClassPackFieldOptions {
   name: Exclude<
     keyof ClassPackFormValues,
-    "classGroupIds" | "kind" | "coversAnyGroupClass" | "renewsMonthly" | "hasLibreClasses"
+    | "classGroupIds"
+    | "kind"
+    | "coversAnyGroupClass"
+    | "renewsMonthly"
+    | "hasLibreClasses"
+    | "priceEffectiveFrom"
   >;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
@@ -74,6 +85,9 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
   const { showToast } = useToast();
   const saveClassPackMutation = useSaveClassPack();
   const setClassPackActiveMutation = useSetClassPackActive();
+  const deletePriceChangeMutation = useDeleteClassPackPriceChange();
+  const currencyCode = useBusinessCurrency();
+  const currentMonth = monthOf();
   const applyClassPackImagesMutation = useApplyClassPackImages();
   const images = useCatalogImageDraft(classPack?.images ?? []);
   const { data: classGroups = [] } = useActiveClassGroups();
@@ -124,6 +138,32 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
       }
     }
   });
+
+  const deletePriceChange = async (plan: ClassPack, change: ClassPackPriceChange) => {
+    try {
+      await deletePriceChangeMutation.mutateAsync({
+        classPackId: plan.id,
+        month: change.effectiveFrom,
+      });
+      showToast(translate("classPacks.form.priceChangeDeleted"), {
+        label: translate("common.undo"),
+        onPress: () => {
+          saveClassPackMutation
+            .mutateAsync({
+              classPackId: plan.id,
+              request: {
+                ...toSaveClassPackRequest(toClassPackFormValues(plan)),
+                price: change.price,
+                priceEffectiveFrom: change.effectiveFrom,
+              },
+            })
+            .catch(() => showToast(translate("common.undoFailed")));
+        },
+      });
+    } catch {
+      showToast(translate("common.unexpectedError"));
+    }
+  };
 
   const toggleActive = async () => {
     if (classPack === undefined) {
@@ -241,6 +281,52 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         keyboardType: "decimal-pad",
         isRequired: true,
       })}
+      {renewsMonthly && classPack?.renewsMonthly ? (
+        <Controller
+          control={form.control}
+          name="priceEffectiveFrom"
+          render={({ field }) => (
+            <View className="gap-1.5">
+              <EffectiveMonthPicker
+                label={translate("classPacks.form.priceFrom")}
+                month={field.value}
+                onChange={field.onChange}
+              />
+              <AppText variant="caption" tone="muted">
+                {translate("classPacks.form.priceFromHint")}
+              </AppText>
+            </View>
+          )}
+        />
+      ) : null}
+      {classPack?.renewsMonthly && classPack.priceChanges.length > 0 ? (
+        <View className="gap-1">
+          <AppText variant="label" tone="subtle">
+            {translate("classPacks.form.priceHistory")}
+          </AppText>
+          {[...classPack.priceChanges].reverse().map((change) => (
+            <View key={change.effectiveFrom} className="flex-row items-center gap-2">
+              <AppText variant="body" className="min-w-0 flex-1">
+                {translate("classPacks.form.priceHistoryItem", {
+                  month: formatMonth(change.effectiveFrom),
+                  price: formatMoney(change.price, currencyCode),
+                })}
+              </AppText>
+              {change.effectiveFrom > currentMonth ? (
+                <IconButton
+                  icon="delete"
+                  tone="muted-foreground"
+                  accessibilityLabel={translate("classPacks.form.deletePriceChange", {
+                    month: formatMonth(change.effectiveFrom),
+                  })}
+                  disabled={deletePriceChangeMutation.isPending}
+                  onPress={() => deletePriceChange(classPack, change)}
+                />
+              ) : null}
+            </View>
+          ))}
+        </View>
+      ) : null}
       {renewsMonthly
         ? null
         : renderField({

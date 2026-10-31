@@ -1,22 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { businessQueryKeys } from "@/features/business/businessQueryKeys";
 import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import { clientQueryKeys } from "@/features/clients/clientQueryKeys";
 import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
 import {
-  deleteClientBillingPlanChange,
-  deleteDefaultMonthlyFeeChange,
   deletePayment,
+  deleteStudentPlanChange,
   restorePayment,
   recordPayment,
-  setClientBillingPlan,
-  setDefaultMonthlyFee,
+  setStudentPlan,
 } from "@/features/fees/feesApi";
-import {
-  RecordPaymentRequest,
-  SetBillingPlanRequest,
-  SetDefaultMonthlyFeeRequest,
-} from "@/features/fees/types";
+import { RecordPaymentRequest, SetStudentPlanRequest } from "@/features/fees/types";
 
 function useInvalidateFees() {
   const queryClient = useQueryClient();
@@ -47,16 +40,7 @@ export function useRestorePayment() {
   });
 }
 
-function useInvalidateDefaultFee() {
-  const queryClient = useQueryClient();
-  return () =>
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: businessQueryKeys.all }),
-      queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
-    ]);
-}
-
-function useInvalidateClientBillingPlan(clientId: string) {
+function useInvalidateFamilyPlans(clientId: string) {
   const queryClient = useQueryClient();
   return () =>
     Promise.all([
@@ -66,34 +50,20 @@ function useInvalidateClientBillingPlan(clientId: string) {
     ]);
 }
 
-export function useSetDefaultMonthlyFee() {
-  const invalidateDefaultFee = useInvalidateDefaultFee();
+export function useSetStudentPlan(clientId: string) {
+  const invalidateFamilyPlans = useInvalidateFamilyPlans(clientId);
   return useMutation({
-    mutationFn: (request: SetDefaultMonthlyFeeRequest) => setDefaultMonthlyFee(request),
-    onSuccess: invalidateDefaultFee,
+    mutationFn: ({ studentId, request }: { studentId: string; request: SetStudentPlanRequest }) =>
+      setStudentPlan(studentId, request),
+    onSuccess: invalidateFamilyPlans,
   });
 }
 
-export function useDeleteDefaultMonthlyFeeChange() {
-  const invalidateDefaultFee = useInvalidateDefaultFee();
+export function useDeleteStudentPlanChange(clientId: string) {
+  const invalidateFamilyPlans = useInvalidateFamilyPlans(clientId);
   return useMutation({
-    mutationFn: (month: string) => deleteDefaultMonthlyFeeChange(month),
-    onSuccess: invalidateDefaultFee,
-  });
-}
-
-export function useSetClientBillingPlan(clientId: string) {
-  const invalidateClientBillingPlan = useInvalidateClientBillingPlan(clientId);
-  return useMutation({
-    mutationFn: (request: SetBillingPlanRequest) => setClientBillingPlan(clientId, request),
-    onSuccess: invalidateClientBillingPlan,
-  });
-}
-
-export function useDeleteClientBillingPlanChange(clientId: string) {
-  const invalidateClientBillingPlan = useInvalidateClientBillingPlan(clientId);
-  return useMutation({
-    mutationFn: (month: string) => deleteClientBillingPlanChange(clientId, month),
-    onSuccess: invalidateClientBillingPlan,
+    mutationFn: ({ studentId, month }: { studentId: string; month: string }) =>
+      deleteStudentPlanChange(studentId, month),
+    onSuccess: invalidateFamilyPlans,
   });
 }

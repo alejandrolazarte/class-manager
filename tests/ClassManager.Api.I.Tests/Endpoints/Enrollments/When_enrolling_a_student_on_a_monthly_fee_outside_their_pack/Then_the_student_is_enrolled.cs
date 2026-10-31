@@ -15,6 +15,7 @@ public sealed class Then_the_student_is_enrolled(ApiFixture fixture)
         var client = await business.HttpClient.RegisterClientAsync(students: [new NewStudent(ApiRequests.StudentFullName, null, null)]);
         var classPack = await business.HttpClient.CreateClassPackAsync(classGroupIds: [packClassGroup.Id]);
         await business.HttpClient.SellClassPackAsync(client.Id, classPack.Id);
+        await business.HttpClient.GiveMonthlyPlanAsync(client.Students[0].Id);
 
         using var response = await business.HttpClient.PostEnrollmentAsync(otherClassGroup.Id, client.Students[0].Id);
 

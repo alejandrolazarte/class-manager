@@ -14,6 +14,8 @@ internal static class ClassPackEndpoints
         classPacks.MapPost("/", CreateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
         classPacks.MapPut(ApiRoutes.ClassPackById, UpdateClassPackAsync).RequirePermission(Permissions.ClassPacks.Manage);
         classPacks.MapPut(ApiRoutes.ClassPackById + ApiRoutes.Active, SetClassPackActiveAsync).RequirePermission(Permissions.ClassPacks.Manage);
+        classPacks.MapDelete(ApiRoutes.ClassPackById + ApiRoutes.ClassPackPriceChangeByMonth, DeleteClassPackPriceChangeAsync)
+            .RequirePermission(Permissions.ClassPacks.Manage);
         classPacks.MapPost(ApiRoutes.ClassPackById + ApiRoutes.Images, AddClassPackImageAsync)
             .RequirePermission(Permissions.ClassPacks.Manage)
             .AcceptsImageUpload();
@@ -138,6 +140,17 @@ internal static class ClassPackEndpoints
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(new ReorderClassPackImagesCommand(classPackId, request.DocumentIds), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> DeleteClassPackPriceChangeAsync(
+        long classPackId,
+        string month,
+        IUseCase<DeleteClassPackPriceChangeCommand, ClassPackResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(new DeleteClassPackPriceChangeCommand(classPackId, month), cancellationToken);
 
         return result.ToOkResult();
     }

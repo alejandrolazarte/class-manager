@@ -1,5 +1,3 @@
-using ClassManager.Core.Domain.Fees;
-
 namespace ClassManager.Api.I.Tests.Endpoints.StudentAppClassPacks.When_another_business_sold_a_pack;
 
 [Collection(SqlServerCollectionDefinition.Name)]
@@ -11,7 +9,6 @@ public sealed class Then_it_is_not_listed(ApiFixture fixture)
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var otherBusiness = await fixture.SeedStudentAppScenarioAsync();
         var otherOwner = otherBusiness.Instructors.Business.HttpClient;
-        (await otherOwner.PutBillingPlanAsync(otherBusiness.ClientId, BillingPlanKind.ClassPacks)).EnsureSuccessStatusCode();
         var classPack = await otherOwner.CreateAnyGroupClassPackAsync();
         await otherOwner.SellClassPackAsync(otherBusiness.ClientId, classPack.Id);
 

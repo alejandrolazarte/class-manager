@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
@@ -23,6 +24,7 @@ public sealed class CreateClassPackUseCase(
     IClassGroupRepository classGroupRepository,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider,
+    IBusinessCalendarService businessCalendar,
     IDocumentStorageService documentStorage)
     : IUseCase<CreateClassPackCommand, ClassPackResponse>
 {
@@ -75,6 +77,6 @@ public sealed class CreateClassPackUseCase(
             return ClassPackFailures.NameTaken();
         }
 
-        return ClassPackResponse.From(classPack.Value, documentStorage);
+        return await ClassPackResponses.ForAsync(classPack.Value, classPackRepository, businessCalendar, documentStorage, cancellationToken);
     }
 }

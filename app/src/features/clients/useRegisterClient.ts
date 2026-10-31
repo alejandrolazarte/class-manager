@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { businessQueryKeys } from "@/features/business/businessQueryKeys";
+import { feeQueryKeys } from "@/features/fees/feeQueryKeys";
 import { clientQueryKeys } from "@/features/clients/clientQueryKeys";
 import { registerClient } from "@/features/clients/clientsApi";
 import { RegisterClientRequest } from "@/features/clients/types";
@@ -14,9 +14,9 @@ export function useRegisterClient() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: clientQueryKeys.all, refetchType: "active" }),
         queryClient.invalidateQueries({ queryKey: studentQueryKeys.all, refetchType: "active" }),
-        ...(request.billingMode === undefined
+        ...(request.planId === undefined
           ? []
-          : [queryClient.invalidateQueries({ queryKey: businessQueryKeys.all })]),
+          : [queryClient.invalidateQueries({ queryKey: feeQueryKeys.all })]),
       ]);
     },
   });

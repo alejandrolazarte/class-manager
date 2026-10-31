@@ -45,15 +45,32 @@ public static class ClassPackRequests
         return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
     }
 
-    public static async Task<ClassPackResponse> CreateMonthlyPlanAsync(this HttpClient httpClient, string name = MonthlyPlanName, int? classCount = null)
+    public static async Task<ClassPackResponse> CreateMonthlyPlanAsync(
+        this HttpClient httpClient, string name = MonthlyPlanName, int? classCount = null, decimal price = 25000m)
     {
         using var response = await httpClient.PostAsJsonAsync(
             ApiRoutes.ClassPacks,
-            new CreateClassPackCommand(name, classCount, 25000m, null, CoversAnyGroupClass: true, RenewsMonthly: true),
+            new CreateClassPackCommand(name, classCount, price, null, CoversAnyGroupClass: true, RenewsMonthly: true),
             ApiRequests.JsonOptions);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<ClassPackResponse>(ApiRequests.JsonOptions))!;
     }
+
+    public static Task<HttpResponseMessage> PutPlanPriceAsync(this HttpClient httpClient, ClassPackResponse plan, decimal price, string? effectiveFrom) =>
+        httpClient.PutAsJsonAsync(
+            $"{ApiRoutes.ClassPacks}/{plan.Id}",
+            new UpdateClassPackRequest(
+                plan.Name,
+                plan.ClassCount,
+                price,
+                plan.ValidityMonths,
+                CoversAnyGroupClass: plan.CoversAnyGroupClass,
+                RenewsMonthly: true,
+                PriceEffectiveFrom: effectiveFrom),
+            ApiRequests.JsonOptions);
+
+    public static Task<HttpResponseMessage> DeletePlanPriceChangeAsync(this HttpClient httpClient, long planId, string month) =>
+        httpClient.DeleteAsync(new Uri($"{ApiRoutes.ClassPacks}/{planId}{ApiRoutes.ClassPackPriceChangeByMonth.Replace("{month}", month)}", UriKind.Relative));
 
     public static Task<HttpResponseMessage> PutClassPackClassGroupsAsync(this HttpClient httpClient, ClassPackResponse classPack, IReadOnlyList<long> classGroupIds) =>
         httpClient.PutAsJsonAsync(

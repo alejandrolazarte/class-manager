@@ -10,7 +10,8 @@ public sealed class Then_the_booked_class_uses_the_pack
     public async Task Then_the_booked_class_uses_the_pack_Run()
     {
         var builder = new ClassPackUseCaseBuilder();
-        var clientId = TestIds.Next();
+        var clientId = builder.Client.Id;
+        builder.HoldMonthlyPlanFrom(BillingMonth.From(TestData.Today));
         builder.ClientPurchases.Add(ClassPackPurchase.Sell(
             clientId, builder.Pack, null, TestData.CurrencyCode, TestData.Today, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!.WithId());
         builder.Attend(clientId, TestData.Today);
