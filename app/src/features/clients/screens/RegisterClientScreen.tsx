@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { getFieldErrors, getStringExtension, toCamelCase } from "@/api/problemDetails";
 import { isApiError, isNetworkError } from "@/api/httpClient";
+import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import {
   clientErrorCodes,
   phoneNumberTakenClientIdExtension,
@@ -19,6 +20,7 @@ import {
   toRegisterClientRequest,
 } from "@/features/clients/registerClientSchema";
 import { ClientDetails, RegisterClientRequest } from "@/features/clients/types";
+import { hasChosenBillingMode } from "@/features/fees/billingMode";
 import { useClient } from "@/features/clients/useClient";
 import { useRegisterClient } from "@/features/clients/useRegisterClient";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
@@ -62,6 +64,7 @@ export function RegisterClientScreen() {
   const router = useRouter();
   const { showToast } = useToast();
   const registerClientMutation = useRegisterClient();
+  const asksBillingMode = !hasChosenBillingMode(useCurrentBusiness());
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [samePerson, setSamePerson] = useState<SamePerson | null>(null);
   const [confirmedSamePeople, setConfirmedSamePeople] = useState<ConfirmedSamePeople>({});
@@ -244,7 +247,12 @@ export function RegisterClientScreen() {
         />
       ) : null}
       <View>
-        <ClientForm form={form} onSubmit={submit} isSubmitting={form.formState.isSubmitting} />
+        <ClientForm
+          form={form}
+          onSubmit={submit}
+          isSubmitting={form.formState.isSubmitting}
+          asksBillingMode={asksBillingMode}
+        />
       </View>
     </ScrollScreen>
   );

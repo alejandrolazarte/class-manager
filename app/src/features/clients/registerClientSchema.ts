@@ -63,6 +63,7 @@ const clientFieldsSchema = clientContactSchema.extend({
   sendAppInvitation: z.boolean(),
   confirmsContactIsAdult: z.boolean(),
   additionalStudents: z.array(studentFormSchema),
+  billingMode: z.enum(["MonthlyFee", "ClassPacks"]).nullable(),
 });
 
 export const registerClientSchema = clientFieldsSchema.superRefine((formValues, context) => {
@@ -124,6 +125,7 @@ export const emptyRegisterClientFormValues: RegisterClientFormValues = {
   sendAppInvitation: true,
   confirmsContactIsAdult: false,
   additionalStudents: [],
+  billingMode: null,
 };
 
 export type RegisterClientFieldName =
@@ -192,5 +194,6 @@ export function toRegisterClientRequest(
     ...(email.length > 0 ? { email } : {}),
     ...(notes.length > 0 ? { notes } : {}),
     students: toStudentRequests(formValues),
+    ...(formValues.billingMode === null ? {} : { billingMode: formValues.billingMode }),
   };
 }

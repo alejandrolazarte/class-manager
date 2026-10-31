@@ -7,6 +7,7 @@ using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Users;
+using ClassManager.Core.UseCases.Fees;
 using ClassManager.Core.UseCases.Students;
 using ClassManager.Core.UseCases.Users;
 
@@ -18,7 +19,8 @@ public sealed record RegisterClientCommand(
     [property: AuditPersonal] string? Email,
     [property: AuditPersonal] string? Notes,
     IReadOnlyList<NewStudent>? Students,
-    long? SamePersonUserId = null) : ICommand;
+    long? SamePersonUserId = null,
+    BusinessBillingMode? BillingMode = null) : ICommand;
 
 public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,
@@ -83,8 +85,22 @@ public sealed class RegisterClientUseCase(
             return samePersonError;
         }
 
+        var today = business.TodayAt(now);
         var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
-        var billingPlanChanges = ClientBillingPlanChange.ForNewClient(newClient, defaultFeeChanges, business.TodayAt(now), now);
+        if (defaultFeeChanges.Count == 0 && command.BillingMode is { } firstBillingMode)
+        {
+            var firstChoice = DefaultMonthlyFeeChange.Create(BillingMonth.From(today), firstBillingMode, null, today, now);
+            if (firstChoice.IsFailure)
+            {
+                return firstChoice.Error!;
+            }
+
+            feeScheduleRepository.Add(firstChoice.Value!);
+            defaultFeeChanges = [firstChoice.Value!];
+            await FirstBillingModeChoice.KeepItForRegisteredClientsAsync(feeScheduleRepository, defaultFeeChanges, today, now, cancellationToken);
+        }
+
+        var billingPlanChanges = ClientBillingPlanChange.ForNewClient(newClient, defaultFeeChanges, today, now);
         clientRepository.Add(newClient);
         foreach (var student in students.Value!)
         {
@@ -97,7 +113,7 @@ public sealed class RegisterClientUseCase(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ClientDetailsResponse.Registered(newClient, students.Value!, billingPlanChanges, defaultFeeChanges, business.TodayAt(now));
+        return ClientDetailsResponse.Registered(newClient, students.Value!, billingPlanChanges, defaultFeeChanges, today);
     }
 
     private async Task<ResultError?> JoinSamePeopleAsync(
