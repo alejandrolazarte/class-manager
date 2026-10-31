@@ -4,6 +4,7 @@ using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
+using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Students;
@@ -82,15 +83,21 @@ public sealed class RegisterClientUseCase(
             return samePersonError;
         }
 
+        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
+        var billingPlanChanges = ClientBillingPlanChange.ForNewClient(newClient, defaultFeeChanges, business.TodayAt(now), now);
         clientRepository.Add(newClient);
         foreach (var student in students.Value!)
         {
             studentRepository.Add(student);
         }
 
+        foreach (var billingPlanChange in billingPlanChanges)
+        {
+            feeScheduleRepository.Add(billingPlanChange);
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
-        return ClientDetailsResponse.Registered(newClient, students.Value!, defaultFeeChanges, business.TodayAt(timeProvider.GetUtcNow()));
+        return ClientDetailsResponse.Registered(newClient, students.Value!, billingPlanChanges, defaultFeeChanges, business.TodayAt(now));
     }
 
     private async Task<ResultError?> JoinSamePeopleAsync(

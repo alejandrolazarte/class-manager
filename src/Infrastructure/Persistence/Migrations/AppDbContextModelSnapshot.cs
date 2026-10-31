@@ -4946,7 +4946,7 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Fees.ClientBillingPlanChange", b =>
                 {
-                    b.HasOne("ClassManager.Core.Domain.Clients.Client", null)
+                    b.HasOne("ClassManager.Core.Domain.Clients.Client", "Client")
                         .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -4972,6 +4972,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UpdatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Fees.DefaultMonthlyFeeChange", b =>

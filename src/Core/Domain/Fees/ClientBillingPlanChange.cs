@@ -1,4 +1,5 @@
 using ClassManager.Core.Common;
+using ClassManager.Core.Domain.Clients;
 using ClassManager.Records;
 using ClassManager.Tenancy;
 
@@ -16,6 +17,7 @@ public sealed class ClientBillingPlanChange : ITenantOwned, IAuditable, ISoftDel
     public long Id { get; private set; }
     public long TenantId { get; private set; }
     public long ClientId { get; private set; }
+    public Client? Client { get; private set; }
     public DateOnly EffectiveFrom { get; private set; }
     public BillingPlanKind Kind { get; private set; }
     public decimal? CustomFee { get; private set; }
@@ -66,6 +68,47 @@ public sealed class ClientBillingPlanChange : ITenantOwned, IAuditable, ISoftDel
             CustomFee = kind == BillingPlanKind.CustomFee ? customFee : null,
             CreatedAt = createdAt.ToUniversalTime(),
         };
+    }
+
+    public static IReadOnlyList<ClientBillingPlanChange> ForNewClient(
+        Client client,
+        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
+        DateOnly today,
+        DateTimeOffset createdAt)
+    {
+        var currentMonth = BillingMonth.From(today);
+        var monthsFromNow = defaultFeeChanges
+            .Where(change => change.EffectiveFrom > currentMonth.FirstDay)
+            .Select(change => BillingMonth.From(change.EffectiveFrom))
+            .Prepend(currentMonth)
+            .Distinct()
+            .OrderBy(month => month.FirstDay);
+
+        var planChanges = new List<ClientBillingPlanChange>();
+        foreach (var month in monthsFromNow)
+        {
+            if (FeeTimeline.BillingModeIn(defaultFeeChanges, month) is not { } billingMode)
+            {
+                continue;
+            }
+
+            var kind = BillingPlan.ForBusiness(billingMode).Kind;
+            if (kind == planChanges.LastOrDefault()?.Kind)
+            {
+                continue;
+            }
+
+            planChanges.Add(new ClientBillingPlanChange
+            {
+                ClientId = client.Id,
+                Client = client,
+                EffectiveFrom = month.FirstDay,
+                Kind = kind,
+                CreatedAt = createdAt.ToUniversalTime(),
+            });
+        }
+
+        return planChanges;
     }
 
     public void ReplaceWith(ClientBillingPlanChange change)

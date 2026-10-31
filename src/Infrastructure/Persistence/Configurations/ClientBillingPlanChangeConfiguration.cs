@@ -14,7 +14,7 @@ internal sealed class ClientBillingPlanChangeConfiguration : IEntityTypeConfigur
         builder.Ignore(change => change.Plan);
 
         builder.HasOne<Business>().WithMany().HasForeignKey(change => change.TenantId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne<Client>().WithMany().HasForeignKey(change => change.ClientId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(change => change.Client).WithMany().HasForeignKey(change => change.ClientId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(change => new { change.TenantId, change.ClientId, change.EffectiveFrom }).IsUnique().HasFilter(SoftDeleteModelBuilderExtensions.NotDeletedFilter);
     }
 }
