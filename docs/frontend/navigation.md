@@ -10,7 +10,8 @@ Opening a screen that lives in another tab's stack switches tabs, and back then 
   - the client subtree `clients/[clientId]/…` (detail, new student, sell pack, counter sale, payment, new class pack) lives under both `/students` and `/fees`;
   - Pedidos is the second view of Cobros (`/fees?view=orders`), and also lives under `/today/orders` (the order aviso opens the Inicio one) and `/settings/orders` (for members who see orders but not Cobros); the counter sale lives under each of them (`/fees/orders/new`, …);
   - the new-instructor form lives under `/settings/instructors/new` and `/classes/instructors/new`;
-  - the default monthly fee form lives under `/settings/monthly-fee` and `/fees/monthly-fee`;
+  - the new plan or pack form lives under `/settings/class-packs/new` and `/fees/new-plan` (Cobros offers it when nothing is offered yet);
+  - a student's monthly plan (`clients/[clientId]/student-plan`) lives under `/students` and `/fees`;
   - Mi perfil and its screens (edit, email, delete account, passkeys) live under `/settings` and `/today` (the avatar in the Inicio header opens the Inicio one).
 - **Tab-aware routes**: shared screens build their links with the tab they were opened from (`routes.clientDetail(tab, clientId)`, `routes.orders(tab)`), using `useCurrentTab(clientTabs)` / `useCurrentTab(orderTabs)` from `src/navigation/useCurrentTab.ts`.
 - Opening a tab root (`/today`, `/fees`, …) is allowed: it is a deliberate tab switch.

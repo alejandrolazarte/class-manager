@@ -9,8 +9,7 @@ public sealed class Then_it_is_listed_again(ApiFixture fixture)
     public async Task Then_it_is_listed_again_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        await business.HttpClient.SetDefaultFeeAsync();
-        var clientId = await business.HttpClient.EnrollClientAsync();
+        var clientId = (await business.HttpClient.EnrollClientWithMonthlyPlanAsync()).ClientId;
         using var paymentResponse = await business.HttpClient.PostPaymentAsync(clientId);
         var payment = await paymentResponse.Content.ReadFromJsonAsync<PaymentResponse>(ApiRequests.JsonOptions);
         (await business.HttpClient.DeletePaymentAsync(payment!.Id)).EnsureSuccessStatusCode();

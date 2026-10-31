@@ -30,8 +30,8 @@ internal static class OrderCollectorScenarioRequests
         return new OrderCollectorScenario(
             owner,
             orderCollector,
-            fees!.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.OtherStudentFullName)).ClientId,
-            fees.Clients.Single(client => client.StudentNames.Contains(InstructorScenario.InstructorStudentFullName)).ClientId,
+            fees!.ClientIdOf(InstructorScenario.OtherStudentFullName),
+            fees!.ClientIdOf(InstructorScenario.InstructorStudentFullName),
             product.Variants[0].Id);
     }
 }

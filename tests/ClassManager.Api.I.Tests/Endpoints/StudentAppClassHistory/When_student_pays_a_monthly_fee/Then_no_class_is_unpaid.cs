@@ -12,6 +12,7 @@ public sealed class Then_no_class_is_unpaid(ApiFixture fixture)
         var studentId = scenario.Instructors.InstructorStudentId;
         var lastWeek = InstructorScenario.ClassDate.AddDays(-7);
         var weekly = await scenario.EnrollInWeeklyClassSinceAsync(lastWeek);
+        await scenario.Instructors.Business.HttpClient.GiveMonthlyPlanAsync(studentId);
         (await scenario.Instructors.Business.HttpClient.PutAttendanceAsync(weekly.Id, lastWeek, studentId, AttendanceStatus.Present)).EnsureSuccessStatusCode();
 
         var history = await scenario.Student.GetClassHistoryAsync(studentId, ClassHistoryRequests.CurrentMonth);

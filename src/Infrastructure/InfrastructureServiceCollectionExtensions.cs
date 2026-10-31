@@ -98,7 +98,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IMemberPushSubscriptionRepository, MemberPushSubscriptionRepository>();
         services.AddScoped<ITeamNotificationRepository, TeamNotificationRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
-        services.AddScoped<IFeeScheduleRepository, FeeScheduleRepository>();
+        services.AddScoped<IStudentPlanRepository, StudentPlanRepository>();
         services.AddScoped<IClassPackRepository, ClassPackRepository>();
         services.AddScoped<IClassPackPurchaseRepository, ClassPackPurchaseRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();

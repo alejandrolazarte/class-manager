@@ -27,8 +27,8 @@ erDiagram
     ClassSession ||--o{ Attendance : records
     Student ||--o{ Attendance : has
     Client ||--o{ Payment : makes
-    Business ||--o{ DefaultMonthlyFeeChange : "sets fee"
-    Client ||--o{ ClientBillingPlanChange : "is billed by"
+    Student ||--o{ StudentPlanChange : "holds"
+    ClassPack ||--o{ ClassPackPriceChange : "is priced by"
     Business ||--o{ ClassPack : sells
     Client ||--o{ ClassPackPurchase : buys
     ClassPack ||--o{ ClassPackPurchase : "sold as"
@@ -205,27 +205,28 @@ Money received from a client for a month. The fee is per client (a client pays o
 | `Notes` | `string?` | Optional, max 200 characters |
 | `CreatedAt` | `DateTimeOffset` | UTC |
 
-A month's fees list the clients with a student enrolled at any point of that month and a monthly plan that month. Effective fee: the client's own fee (`CustomFee` plan), else the business's default fee in force that month, else none. Status: `Paid` (paid ≥ fee), `Partial`, `Unpaid` or `NoFee`.
+A month's fees list the clients with a student enrolled at any point of that month and at least one student with a monthly plan that month. What the family owes is the sum of its students' plans that month (each one's `CustomPrice`, else the plan's price that month); nothing owed is `NoFee`. Status: `Paid` (paid ≥ fee), `Partial`, `Unpaid` or `NoFee`.
 
-### DefaultMonthlyFeeChange (added in M6)
+### StudentPlanChange (replaced `DefaultMonthlyFeeChange` and `ClientBillingPlanChange`)
 
-The business's default fee from a month on. The fee of a month is the change with the latest `EffectiveFrom` on or before it; earlier months keep theirs. Replaced `Business.DefaultMonthlyFee`.
-
-| Property | Type | Rules |
-|---|---|---|
-| `EffectiveFrom` | `DateOnly` | First day of a month, 2000-01 to 12 months ahead; unique per business |
-| `Amount` | `decimal?` | Same rule as payments; `null` removes the default fee from that month |
-
-### ClientBillingPlanChange (added in M6)
-
-How a client pays from a month on. No change means `BusinessFee`. Replaced `Client.MonthlyFee`.
+The monthly plan a student holds from a month on ([plans catalog](20261031-plans-catalog/plan.md)). The plan of a month is the change with the latest `EffectiveFrom` on or before it; earlier months keep theirs.
 
 | Property | Type | Rules |
 |---|---|---|
-| `ClientId` | `long` | A client of the same business |
-| `EffectiveFrom` | `DateOnly` | First day of a month, 2000-01 to 12 months ahead; unique per client |
-| `Kind` | `BillingPlanKind` | `BusinessFee`, `CustomFee` or `ClassPacks`, stored as a string |
-| `CustomFee` | `decimal?` | Required for `CustomFee`, `null` otherwise |
+| `StudentId` | `long` | A student of the same business |
+| `EffectiveFrom` | `DateOnly` | First day of a month, 2000-01 to 12 months ahead; unique per student |
+| `ClassPackId` | `long?` | A `ClassPack` that renews monthly; `null` = no monthly plan (pays with packs) |
+| `CustomPrice` | `decimal?` | Only with a plan; replaces the plan's price for this student; `0` = included in the family's fee |
+
+### ClassPackPriceChange
+
+The price of a monthly plan from a month on. The price of a month is the change with the latest `EffectiveFrom` on or before it, else the plan's `Price`.
+
+| Property | Type | Rules |
+|---|---|---|
+| `ClassPackId` | `long` | A `ClassPack` of the same business |
+| `EffectiveFrom` | `DateOnly` | First day of a month; unique per plan |
+| `Price` | `decimal` | Same rule as payments |
 
 ### ClassPack (added in M6)
 

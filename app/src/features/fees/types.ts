@@ -22,47 +22,41 @@ export interface ClassPackClient {
   unpaidClasses: number;
 }
 
-export type BusinessBillingMode = "MonthlyFee" | "ClassPacks";
-
 export interface MonthlyFees {
   month: string;
   totalDue: number;
   totalPaid: number;
   clients: ClientFee[];
   classPackClients: ClassPackClient[];
-  billingMode: BusinessBillingMode;
 }
 
-export interface MonthlyFeeChange {
+export interface StudentPlanChange {
   effectiveFrom: string;
-  amount: number | null;
-  billingMode: BusinessBillingMode;
+  classPackId: string | null;
+  planName: string | null;
+  customPrice: number | null;
 }
 
-export interface SetDefaultMonthlyFeeRequest {
-  amount: number | null;
+export interface StudentPlan {
+  studentId: string;
+  studentFullName: string;
+  classPackId: string | null;
+  planName: string | null;
+  price: number | null;
+  customPrice: number | null;
+  since: string | null;
+  upcomingChanges: StudentPlanChange[];
+}
+
+export interface FamilyPlans {
+  monthlyDue: number | null;
+  students: StudentPlan[];
+}
+
+export interface SetStudentPlanRequest {
+  classPackId: string | null;
+  customPrice: number | null;
   effectiveFrom: string;
-  billingMode: BusinessBillingMode;
-}
-
-export type BillingPlanKind = "BusinessFee" | "CustomFee" | "ClassPacks";
-
-export interface BillingPlan {
-  kind: BillingPlanKind;
-  customFee: number | null;
-}
-
-export interface BillingPlanChange extends BillingPlan {
-  effectiveFrom: string;
-}
-
-export interface SetBillingPlanRequest extends BillingPlan {
-  effectiveFrom: string;
-}
-
-export interface ClientBilling {
-  billingPlan: BillingPlan;
-  billingPlanChanges: BillingPlanChange[];
 }
 
 export interface Payment {

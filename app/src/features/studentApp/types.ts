@@ -179,7 +179,6 @@ export interface StudentAppClassPacks {
 }
 
 export interface StudentAppBilling {
-  kind: "BusinessFee" | "CustomFee" | "ClassPacks";
   monthlyFee: StudentAppMonthlyFee | null;
   classes: StudentAppClassBalance | null;
 }

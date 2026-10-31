@@ -29,7 +29,6 @@ describe("When student owes pack classes", () => {
           }),
         ],
         billing: {
-          kind: "ClassPacks",
           monthlyFee: null,
           classes: { availableClasses: 0, unpaidClasses: 2 },
         },

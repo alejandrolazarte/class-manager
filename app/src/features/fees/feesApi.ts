@@ -1,20 +1,18 @@
 import { httpClient } from "@/api/httpClient";
-import { Business } from "@/features/business/types";
 import {
-  ClientBilling,
+  FamilyPlans,
   MonthlyFees,
   Payment,
   RecordPaymentRequest,
-  SetBillingPlanRequest,
-  SetDefaultMonthlyFeeRequest,
+  SetStudentPlanRequest,
 } from "@/features/fees/types";
 
 const feesPath = "/api/fees";
-const businessMonthlyFeePath = "/api/business/monthly-fee";
+const studentsPath = "/api/students";
 const clientsPath = "/api/clients";
 const paymentsPath = "/api/payments";
 const restoreSegment = "restore";
-const billingPlanSegment = "billing-plan";
+const planSegment = "plan";
 const paymentsSegment = "payments";
 
 function clientPath(clientId: string): string {
@@ -25,27 +23,20 @@ export function listMonthlyFees(month: string): Promise<MonthlyFees> {
   return httpClient.get<MonthlyFees>(feesPath, { month });
 }
 
-export function setDefaultMonthlyFee(request: SetDefaultMonthlyFeeRequest): Promise<Business> {
-  return httpClient.put<Business>(businessMonthlyFeePath, request);
+function studentPlanPath(studentId: string): string {
+  return `${studentsPath}/${encodeURIComponent(studentId)}/${planSegment}`;
 }
 
-export function setClientBillingPlan(
-  clientId: string,
-  request: SetBillingPlanRequest,
-): Promise<ClientBilling> {
-  return httpClient.put<ClientBilling>(`${clientPath(clientId)}/${billingPlanSegment}`, request);
+export function setStudentPlan(
+  studentId: string,
+  request: SetStudentPlanRequest,
+): Promise<FamilyPlans> {
+  return httpClient.put<FamilyPlans>(studentPlanPath(studentId), request);
 }
 
-export function deleteDefaultMonthlyFeeChange(month: string): Promise<Business> {
-  return httpClient.delete<Business>(`${businessMonthlyFeePath}/${encodeURIComponent(month)}`);
-}
-
-export function deleteClientBillingPlanChange(
-  clientId: string,
-  month: string,
-): Promise<ClientBilling> {
-  return httpClient.delete<ClientBilling>(
-    `${clientPath(clientId)}/${billingPlanSegment}/${encodeURIComponent(month)}`,
+export function deleteStudentPlanChange(studentId: string, month: string): Promise<FamilyPlans> {
+  return httpClient.delete<FamilyPlans>(
+    `${studentPlanPath(studentId)}/${encodeURIComponent(month)}`,
   );
 }
 

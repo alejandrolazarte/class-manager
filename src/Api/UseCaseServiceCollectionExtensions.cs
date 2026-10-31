@@ -50,6 +50,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBusinessCalendarService, BusinessCalendarService>();
         services.AddScoped<IClassBalanceService, ClassBalanceService>();
+        services.AddScoped<IMonthlyPlansReader, MonthlyPlansReader>();
+        services.AddScoped<IFamilyBillingService, FamilyBillingService>();
         services.AddScoped<IStudentAppFamilyService, StudentAppFamilyService>();
         services.AddScoped<IBusinessCurrencyService, BusinessCurrencyService>();
         services.AddScoped<ISelfServiceBillingService, SelfServiceBillingService>();
@@ -235,10 +237,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<DeleteRoleCommand, DeletedRoleResponse, DeleteRoleUseCase>();
         services.AddUseCase<AssignSubstituteCommand, SessionStatusResponse, AssignSubstituteUseCase>();
         services.AddUseCase<RemoveSubstituteCommand, SessionStatusResponse, RemoveSubstituteUseCase>();
-        services.AddUseCase<SetDefaultMonthlyFeeCommand, BusinessResponse, SetDefaultMonthlyFeeUseCase>();
-        services.AddUseCase<SetClientBillingPlanCommand, ClientBillingResponse, SetClientBillingPlanUseCase>();
-        services.AddUseCase<DeleteDefaultMonthlyFeeChangeCommand, BusinessResponse, DeleteDefaultMonthlyFeeChangeUseCase>();
-        services.AddUseCase<DeleteClientBillingPlanChangeCommand, ClientBillingResponse, DeleteClientBillingPlanChangeUseCase>();
+        services.AddUseCase<SetStudentPlanCommand, FamilyPlansResponse, SetStudentPlanUseCase>();
+        services.AddUseCase<DeleteStudentPlanChangeCommand, FamilyPlansResponse, DeleteStudentPlanChangeUseCase>();
+        services.AddUseCase<DeleteClassPackPriceChangeCommand, ClassPackResponse, DeleteClassPackPriceChangeUseCase>();
         services.AddUseCase<ListClassPacksQuery, IReadOnlyList<ClassPackResponse>, ListClassPacksUseCase>();
         services.AddUseCase<CreateClassPackCommand, ClassPackResponse, CreateClassPackUseCase>();
         services.AddUseCase<UpdateClassPackCommand, ClassPackResponse, UpdateClassPackUseCase>();

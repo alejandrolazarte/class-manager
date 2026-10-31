@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.ClassPacks;
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.Students;
 
@@ -16,7 +15,6 @@ public sealed class Then_one_class_is_used(ApiFixture fixture)
         var client = await business.HttpClient.RegisterClientAsync(students: [new NewStudent(ApiRequests.StudentFullName, null, null)]);
         var studentId = client.Students[0].Id;
         await business.HttpClient.EnrollAsync(classGroup.Id, studentId);
-        (await business.HttpClient.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks)).EnsureSuccessStatusCode();
         var classPack = await business.HttpClient.CreateClassPackAsync(classGroupIds: [classGroup.Id]);
         await business.HttpClient.SellClassPackAsync(client.Id, classPack.Id);
 

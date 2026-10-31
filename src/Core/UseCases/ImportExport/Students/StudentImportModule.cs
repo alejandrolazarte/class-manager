@@ -3,7 +3,6 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Subscriptions;
 using ClassManager.Core.Domain.Users;
@@ -18,7 +17,6 @@ public sealed class StudentImportModule(
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IUserRepository userRepository,
-    IFeeScheduleRepository feeScheduleRepository,
     TimeProvider timeProvider)
     : IImportModule
 {
@@ -97,8 +95,7 @@ public sealed class StudentImportModule(
         var now = timeProvider.GetUtcNow();
         var clients = await LoadExistingClientsAsync(rows, business.DefaultCountryCallingCode, cancellationToken);
         var takenEmails = await userRepository.ListEmailsAsync(cancellationToken);
-        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
-        var context = new StudentImportContext(business.DefaultCountryCallingCode, business.TodayAt(now), now, clients, takenEmails, defaultFeeChanges);
+        var context = new StudentImportContext(business.DefaultCountryCallingCode, business.TodayAt(now), now, clients, takenEmails);
         var results = rows.Select(context.Plan).ToList();
 
         return new ImportPlan(results, () => AddValidRows(context));
@@ -172,10 +169,6 @@ public sealed class StudentImportModule(
         foreach (var client in context.NewClients)
         {
             clientRepository.Add(client.Client);
-            foreach (var billingPlanChange in context.BillingPlanChangesFor(client.Client))
-            {
-                feeScheduleRepository.Add(billingPlanChange);
-            }
         }
 
         foreach (var student in context.NewStudents)
@@ -189,17 +182,13 @@ public sealed class StudentImportModule(
         DateOnly today,
         DateTimeOffset now,
         Dictionary<PhoneNumber, StudentImportClient> clientsByPhoneNumber,
-        IReadOnlySet<string> takenEmails,
-        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges)
+        IReadOnlySet<string> takenEmails)
     {
         private readonly HashSet<string> _plannedEmails = new(StringComparer.OrdinalIgnoreCase);
 
         public List<StudentImportClient> NewClients { get; } = [];
 
         public List<Student> NewStudents { get; } = [];
-
-        public IReadOnlyList<ClientBillingPlanChange> BillingPlanChangesFor(Client client) =>
-            ClientBillingPlanChange.ForNewClient(client, defaultFeeChanges, today, now);
 
         public ImportRowResult Plan(ImportRow row)
         {

@@ -8,8 +8,7 @@ public sealed class Then_the_month_still_counts_the_payment(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync();
         var owner = business.HttpClient;
-        await owner.SetDefaultFeeAsync();
-        var clientId = await owner.EnrollClientAsync();
+        var clientId = (await owner.EnrollClientWithMonthlyPlanAsync()).ClientId;
         (await owner.PostPaymentAsync(clientId)).EnsureSuccessStatusCode();
         var studentId = (await owner.GetClientAsync(clientId)).Students.Single().Id;
 

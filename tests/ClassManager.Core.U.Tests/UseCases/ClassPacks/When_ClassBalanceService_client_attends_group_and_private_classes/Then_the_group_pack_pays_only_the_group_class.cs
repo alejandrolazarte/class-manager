@@ -9,9 +9,9 @@ public sealed class Then_the_group_pack_pays_only_the_group_class
     public async Task Then_the_group_pack_pays_only_the_group_class_Run()
     {
         var builder = new ClassPackUseCaseBuilder();
-        var clientId = TestIds.Next();
+        var clientId = builder.Client.Id;
         var currentMonth = BillingMonth.From(TestData.Today);
-        builder.PayPerClassFrom(clientId, currentMonth);
+        builder.HoldMonthlyPlanUntil(currentMonth);
         builder.ClientPurchases.Add(ClassPackPurchase.Sell(
             clientId, builder.Pack, null, TestData.CurrencyCode, currentMonth.FirstDay, PaymentMethod.Cash, null, TestData.Today, TestData.Now).Value!.WithId());
         builder.Attend(clientId, currentMonth.FirstDay.AddDays(1));

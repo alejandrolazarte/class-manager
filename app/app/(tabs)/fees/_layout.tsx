@@ -9,7 +9,7 @@ export default function FeesLayout() {
   return (
     <Stack screenOptions={stackScreenOptions}>
       <Stack.Screen name="index" options={{ title: translate("fees.month.title") }} />
-      <Stack.Screen name="monthly-fee" options={{ title: translate("fees.billingPlan.title") }} />
+      <Stack.Screen name="new-plan" options={{ title: translate("classPacks.form.newTitle") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />
       <Stack.Screen name="orders/[orderId]" options={{ title: translate("orders.detail.title") }} />
       <Stack.Screen
@@ -25,8 +25,8 @@ export default function FeesLayout() {
         options={{ title: translate("people.separate.title") }}
       />
       <Stack.Screen
-        name="clients/[clientId]/billing-plan"
-        options={{ title: translate("fees.billingPlan.title") }}
+        name="clients/[clientId]/student-plan"
+        options={{ title: translate("fees.studentPlan.title") }}
       />
       <Stack.Screen
         name="clients/[clientId]/new-student"

@@ -12,8 +12,8 @@ It reuses the e2e setup: the same web build, API start, database and Playwright 
 - Four class groups: Natación inicial and Natación avanzada (Monday, Wednesday, Friday and whatever day the script runs, so "Hoy" always has classes), Aquagym and Natación adultos (Tuesday and Thursday).
 - Six students, nine enrollments from the first day of the current month, and attendance for today and for the last Natación inicial class before today.
 - A location: "Av. Costanera 1450, Ciudad" with a Google Maps link.
-- A default fee of $25.000, one student with its own fee, and payments that leave students paid, partially paid and owing.
-- A raise to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
+- A monthly plan "Cuota mensual" of $25.000 held by every student but Emma Suárez (a sibling included in the family's fee at $0, one student with a price of its own), and payments that leave families paid, partially paid and owing.
+- The plan raised to $28.000 from next month, three class packs (single class, 4 classes for a month, 8 classes for two months), and the Suárez client paying per class with a discounted 4-class pack and one class already used.
 - A private lesson for Valentina Fernández with Martín today at 21:00.
 - Three measurements (25 m crol, Nado continuo that students can record, and Altura only for the team), with half a year of values for Tomás Pérez, a few for Lucía Pérez, a 28 s goal for Tomás's 25 m crol, and measurements recorded in the last Natación inicial class before today.
 
@@ -85,7 +85,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `16-packs` | Class pack catalog |
 | `16b-pack-nuevo` | New class pack form, with the classes where the pack can be booked |
 | `16c-pack-nuevo-clases`, `16d-pack-nuevo-cualquier-clase` | New class pack form scrolled to what the pack is for: "Cualquier clase grupal" off with the class list, then on |
-| `17-cuota-mensual` | Default fee with "Desde" and the fee changes |
+| `17-cuota-mensual` | The monthly plan in Planes y packs: "El precio nuevo rige desde" and its price changes |
 | `18-apariencia` | Appearance sheet in Ajustes |
 | `19-hoy-tema-<name>` | Today in each built-in theme; Agua goes last so the run ends on the default |
 

@@ -28,7 +28,7 @@ public sealed class GetStudentAppHomeUseCase(
     IAchievementLevelRepository levelRepository,
     IPrivateLessonRepository privateLessonRepository,
     IInstructorRepository instructorRepository,
-    IFeeScheduleRepository feeScheduleRepository,
+    IFamilyBillingService familyBillingService,
     IPaymentRepository paymentRepository,
     IClassBalanceService classBalanceService,
     IDocumentStorageService documentStorage,
@@ -307,20 +307,17 @@ public sealed class GetStudentAppHomeUseCase(
     private async Task<StudentAppBillingResponse> BillingAsync(long clientId, string currencyCode, DateOnly today, CancellationToken cancellationToken)
     {
         var month = BillingMonth.From(today);
-        var defaultFeeChanges = await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken);
-        var plan = FeeTimeline.PlanIn(await feeScheduleRepository.ListClientPlanChangesAsync([clientId], cancellationToken), defaultFeeChanges, month);
-        if (plan.PaysPerClass)
+        var billing = (await familyBillingService.CalculateAsync([clientId], month, cancellationToken))[clientId];
+        if (!billing.HasMonthlyPlan)
         {
-            var balance = (await classBalanceService.CalculateAsync([clientId], cancellationToken))[clientId];
+            var balance = (await classBalanceService.CalculateAsync([clientId], today, cancellationToken))[clientId];
             return new StudentAppBillingResponse(
-                plan.Kind, MonthlyFee: null, new StudentAppClassBalanceResponse(balance.AvailableClasses, balance.UnpaidClasses));
+                MonthlyFee: null, new StudentAppClassBalanceResponse(balance.AvailableClasses, balance.UnpaidClasses));
         }
 
-        var defaultFee = FeeTimeline.DefaultFeeIn(defaultFeeChanges, month);
-        var fee = plan.MonthlyFee(defaultFee);
+        var fee = billing.Due;
         var paid = (await paymentRepository.SumByClientForMonthAsync(month.FirstDay, currencyCode, cancellationToken)).GetValueOrDefault(clientId);
         return new StudentAppBillingResponse(
-            plan.Kind,
             new StudentAppMonthlyFeeResponse(month.ToString(), fee, paid, fee is null ? 0 : Math.Max(fee.Value - paid, 0), FeeRules.StatusOf(fee, paid)),
             Classes: null);
     }

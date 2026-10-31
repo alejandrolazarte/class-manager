@@ -2,7 +2,7 @@
 
 Date: 2026-10-31
 
-Status: agreed with the owner on 2026-10-31, including the decisions below; nothing built yet. Builds on [default billing mode](../20261020-default-billing-mode/plan.md) (every family has its billing plan written down since #325 and #326), [fee history and class packs](../20260927-fee-history-and-class-packs/plan.md) and [class pack coverage](../20261028-class-pack-coverage/plan.md).
+Status: agreed with the owner on 2026-10-31. Steps 1, 2 and 4 built (2 and 4 in one pull request, so the old fees and the plans never coexist); step 3 (family discount tiers) and step 5 next. Builds on [default billing mode](../20261020-default-billing-mode/plan.md) (every family had its billing plan written down since #325 and #326), [fee history and class packs](../20260927-fee-history-and-class-packs/plan.md) and [class pack coverage](../20261028-class-pack-coverage/plan.md).
 
 ## Why
 
@@ -34,7 +34,7 @@ The owner's observation: **everything is a pack**. A monthly fee is "unlimited c
 
 ### Each person has their own items
 
-- A renewing item is held **per person** (student), not per family: `StudentPlans` (`StudentId`, `ClientId`, `ClassPackId`, optional `CustomPrice`, `CreatedOn` month it applies from, `ExpiredOn` optional). Changing someone's plan follows the records convention: `Delete(now)` on the current row and add the new one in one save (`ISoftDeletable`, `ICreatedOn`, `IExpiredOn`; active = `IsActiveOn(date)`).
+- A renewing item is held **per person** (student), not per family: `StudentPlanChanges` (`StudentId`, `EffectiveFrom` month, `ClassPackId` or none, optional `CustomPrice`). Like the old fee changes, a change applies from a month and the plan of a month is the latest change on or before it, so earlier months keep what they owed; `EffectiveFrom` is a business date with its own meaning, not the records convention's `CreatedOn`. Upcoming changes can be deleted (soft delete) and the toast offers Deshacer, which saves the change again.
 - Non-renewing packs stay bought by the family as today (`ClassPackPurchases`), used by whichever student attends, with the coverage rules already built.
 - A person can have a renewing item **and** buy packs (for extra classes or other classes): attendance is paid first by the renewing item when it covers that class and has classes left that month, then by packs as today.
 - A renewing item with N classes gives N classes each month, valid until the end of that month (they don't carry over). A libre item doesn't count classes.
@@ -95,12 +95,18 @@ After the migration `BusinessBillingMode`, `DefaultMonthlyFeeChanges`, `ClientBi
 ## Steps
 
 1. **Catalog** (built): `ClassCount` nullable (libre, only for items that renew monthly), `RenewsMonthly` (no validity: it lasts the month), `AppliesFamilyDiscount` (stored, on for renewing items; not shown until step 3). Ajustes › Planes y packs lists both kinds, and the form starts with "¿Qué ofrecés?" (Plan mensual / Pack de clases, the two shortcuts), with "Clases libres" or "Clases por mes" for a plan. A renewing item is never sold as a pack: the counter sale, selling from the client card and the student app shop leave it out, and the API refuses it (`class_pack.renews_monthly`). Packs keep working exactly as today.
-2. **Plans per person**: price history for renewing items (`ClassPackPriceChanges`), `StudentPlans`, assigning and changing a person's item from the student card, attendance paid by the renewing item first, the amount due per family computed from its people. Cobros and the family card read it. Behind the existing fee screens until step 4.
+2. **Plans per person** (built): price history for renewing items (`ClassPackPriceChanges`; editing a plan's price asks from which month and lists the changes, upcoming ones can be deleted), `StudentPlanChanges`, the student plan screen opened from each student's line on the family card (plan, own price, from which month, upcoming changes), the amount due per family (`IFamilyBillingService`), attendance paid by the student's plan first (`PlanCoverage`), and every reader switched: Cobros, the family card, the class session, enrolling, the student app.
 3. **Family discount tiers**: Ajustes screen and the computation, with the per-person lines on the family card.
-4. **Migration and removal**: the data migration above; Nuevo alumno asks what each person pays; delete the billing mode, default fee, family plans and their screens.
+4. **Migration and removal** (built): migration `MonthlyPlansReplaceFees` with the rules above (checked on SQL Server with data written by the previous API); Nuevo alumno asks "¿Qué paga?" (one of the monthly plans, preselected when there is only one, or packs) for the people it registers; the students import registers people without a plan. Ajustes › Forma de cobro, the business billing mode, the default fee, the family plans and their endpoints, screens, texts and tests are deleted; when the business offers nothing yet, Cobros offers to create a plan or pack.
 5. **Later, when asked**: a weekly limit or a warning for items like "2 veces por semana", moving many people to another item at once, paying in parts and online with Stripe.
 
 Each step: tests first, tenancy test for every new tenant-owned table, `[AuditPlain]`/`[AuditPersonal]` on every text property of the commands, texts in `es.json` and `en.json`, screenshots before and after for the screens that change.
+
+## Built behavior worth knowing
+
+- A family is listed in Cobros for a month when one of its students is enrolled that month, as before; it is listed with what it owes when at least one student has a monthly plan, and by its classes otherwise. It owes the sum of its students' plans; a total of 0 shows as no fee.
+- A student's plan pays the classes it covers (the same coverage as packs: any group class, some classes, or private lessons of a duration); a plan with N classes pays the first N covered classes of each month. The rest are paid by packs. A month the family paid still covers the classes of a student without a plan, as before.
+- The migrated "Cuota mensual" covers any group class, not private lessons: a private lesson of a family that paid a fee used to need nothing, and now needs a pack (or a trial). The instructor can change that plan's classes.
 
 ## Decided
 

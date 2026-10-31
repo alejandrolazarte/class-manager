@@ -1,6 +1,7 @@
 using ClassManager.Core.Abstractions.Images;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Documents;
@@ -15,6 +16,7 @@ public sealed record ReorderClassPackImagesCommand(long ClassPackId, IReadOnlyLi
 
 public sealed class AddClassPackImageUseCase(
     IClassPackRepository classPackRepository,
+    IBusinessCalendarService businessCalendar,
     IDocumentStorageService documentStorage,
     ICatalogImageService catalogImageService)
     : IUseCase<AddClassPackImageCommand, ClassPackResponse>
@@ -22,6 +24,7 @@ public sealed class AddClassPackImageUseCase(
     public Task<Result<ClassPackResponse>> ExecuteAsync(AddClassPackImageCommand command, CancellationToken cancellationToken) =>
         ClassPackImageEditing.ChangeAsync(
             classPackRepository,
+            businessCalendar,
             documentStorage,
             command.ClassPackId,
             classPack => catalogImageService.AddAsync(classPack, DocumentOwner.ClassPack, command.Content, cancellationToken),
@@ -30,6 +33,7 @@ public sealed class AddClassPackImageUseCase(
 
 public sealed class RemoveClassPackImageUseCase(
     IClassPackRepository classPackRepository,
+    IBusinessCalendarService businessCalendar,
     IDocumentStorageService documentStorage,
     ICatalogImageService catalogImageService)
     : IUseCase<RemoveClassPackImageCommand, ClassPackResponse>
@@ -37,6 +41,7 @@ public sealed class RemoveClassPackImageUseCase(
     public Task<Result<ClassPackResponse>> ExecuteAsync(RemoveClassPackImageCommand command, CancellationToken cancellationToken) =>
         ClassPackImageEditing.ChangeAsync(
             classPackRepository,
+            businessCalendar,
             documentStorage,
             command.ClassPackId,
             classPack => catalogImageService.RemoveAsync(classPack, command.DocumentId, cancellationToken),
@@ -45,6 +50,7 @@ public sealed class RemoveClassPackImageUseCase(
 
 public sealed class ReorderClassPackImagesUseCase(
     IClassPackRepository classPackRepository,
+    IBusinessCalendarService businessCalendar,
     IDocumentStorageService documentStorage,
     ICatalogImageService catalogImageService)
     : IUseCase<ReorderClassPackImagesCommand, ClassPackResponse>
@@ -52,6 +58,7 @@ public sealed class ReorderClassPackImagesUseCase(
     public Task<Result<ClassPackResponse>> ExecuteAsync(ReorderClassPackImagesCommand command, CancellationToken cancellationToken) =>
         ClassPackImageEditing.ChangeAsync(
             classPackRepository,
+            businessCalendar,
             documentStorage,
             command.ClassPackId,
             classPack => catalogImageService.ReorderAsync(classPack, command.DocumentIds, cancellationToken),
@@ -62,6 +69,7 @@ internal static class ClassPackImageEditing
 {
     public static async Task<Result<ClassPackResponse>> ChangeAsync(
         IClassPackRepository classPackRepository,
+        IBusinessCalendarService businessCalendar,
         IDocumentStorageService documentStorage,
         long classPackId,
         Func<ClassPack, Task<Result>> change,
@@ -79,6 +87,6 @@ internal static class ClassPackImageEditing
             return result.Error!;
         }
 
-        return ClassPackResponse.From(classPack, documentStorage);
+        return await ClassPackResponses.ForAsync(classPack, classPackRepository, businessCalendar, documentStorage, cancellationToken);
     }
 }

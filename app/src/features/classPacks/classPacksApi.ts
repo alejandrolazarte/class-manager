@@ -12,6 +12,7 @@ const classPacksPath = "/api/class-packs";
 const clientsPath = "/api/clients";
 const classPackPurchasesPath = "/api/class-pack-purchases";
 const activeSegment = "active";
+const pricesSegment = "prices";
 const imagesSegment = "images";
 const imagesOrderSegment = "images/order";
 const purchasesSegment = "class-pack-purchases";
@@ -41,6 +42,12 @@ export function updateClassPack(
   request: SaveClassPackRequest,
 ): Promise<ClassPack> {
   return httpClient.put<ClassPack>(classPackPath(classPackId), request);
+}
+
+export function deleteClassPackPriceChange(classPackId: string, month: string): Promise<ClassPack> {
+  return httpClient.delete<ClassPack>(
+    `${classPackPath(classPackId)}/${pricesSegment}/${encodeURIComponent(month)}`,
+  );
 }
 
 export function setClassPackActive(classPackId: string, isActive: boolean): Promise<ClassPack> {

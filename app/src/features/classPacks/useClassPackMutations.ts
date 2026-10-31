@@ -8,6 +8,7 @@ import { classPackQueryKeys } from "@/features/classPacks/classPackQueryKeys";
 import {
   addClassPackImage,
   createClassPack,
+  deleteClassPackPriceChange,
   deleteClassPackPurchase,
   removeClassPackImage,
   reorderClassPackImages,
@@ -61,6 +62,15 @@ export function useApplyClassPackImages() {
         reorder: reorderClassPackImages,
       }),
     onSettled: invalidate,
+  });
+}
+
+export function useDeleteClassPackPriceChange() {
+  const invalidate = useInvalidateClassPacksAndFees();
+  return useMutation({
+    mutationFn: ({ classPackId, month }: { classPackId: string; month: string }) =>
+      deleteClassPackPriceChange(classPackId, month),
+    onSuccess: invalidate,
   });
 }
 

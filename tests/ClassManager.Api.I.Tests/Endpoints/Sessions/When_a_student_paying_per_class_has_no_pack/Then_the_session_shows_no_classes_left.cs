@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.UseCases.Sessions;
 using ClassManager.Core.UseCases.Students;
 
@@ -11,7 +10,6 @@ public sealed class Then_the_session_shows_no_classes_left(ApiFixture fixture)
     public async Task Then_the_session_shows_no_classes_left_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        await business.HttpClient.SetDefaultFeeAsync(billingMode: BusinessBillingMode.ClassPacks);
         var classGroup = await business.HttpClient.CreateClassGroupWithInstructorAsync();
         var client = await business.HttpClient.RegisterClientAsync(students: [new NewStudent(ApiRequests.StudentFullName, null, null)]);
         var studentId = client.Students[0].Id;

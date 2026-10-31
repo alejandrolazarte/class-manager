@@ -1,9 +1,4 @@
-import {
-  BusinessBillingMode,
-  ClassPackClient,
-  ClientFee,
-  MonthlyFees,
-} from "@/features/fees/types";
+import { ClassPackClient, ClientFee, MonthlyFees, StudentPlan } from "@/features/fees/types";
 
 export const feeMonth = "2026-09";
 
@@ -36,7 +31,6 @@ export function buildClassPackClient(overrides: Partial<ClassPackClient> = {}): 
 export function buildMonthlyFees(
   clients: ClientFee[],
   classPackClients: ClassPackClient[] = [],
-  billingMode: BusinessBillingMode = "MonthlyFee",
 ): MonthlyFees {
   return {
     month: feeMonth,
@@ -44,6 +38,19 @@ export function buildMonthlyFees(
     totalPaid: clients.reduce((total, client) => total + client.paid, 0),
     clients,
     classPackClients,
-    billingMode,
+  };
+}
+
+export function buildStudentPlan(overrides: Partial<StudentPlan> = {}): StudentPlan {
+  return {
+    studentId: "0192f0c4-0000-7000-8000-0000000057d1",
+    studentFullName: "Tomás Pérez",
+    classPackId: "0192f0c4-0000-7000-8000-00000000c1a6",
+    planName: "Cuota mensual",
+    price: 25000,
+    customPrice: null,
+    since: "2026-01",
+    upcomingChanges: [],
+    ...overrides,
   };
 }

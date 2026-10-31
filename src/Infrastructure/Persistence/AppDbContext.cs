@@ -51,8 +51,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<TeamNotification> TeamNotifications => Set<TeamNotification>();
     public DbSet<BackgroundTask> BackgroundTasks => Set<BackgroundTask>();
     public DbSet<Payment> Payments => Set<Payment>();
-    public DbSet<DefaultMonthlyFeeChange> DefaultMonthlyFeeChanges => Set<DefaultMonthlyFeeChange>();
-    public DbSet<ClientBillingPlanChange> ClientBillingPlanChanges => Set<ClientBillingPlanChange>();
+    public DbSet<StudentPlanChange> StudentPlanChanges => Set<StudentPlanChange>();
+    public DbSet<ClassPackPriceChange> ClassPackPriceChanges => Set<ClassPackPriceChange>();
     public DbSet<ClassPack> ClassPacks => Set<ClassPack>();
     public DbSet<ClassPackImage> ClassPackImages => Set<ClassPackImage>();
     public DbSet<ClassPackPurchase> ClassPackPurchases => Set<ClassPackPurchase>();

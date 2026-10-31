@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Storage;
+using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 
 namespace ClassManager.Core.UseCases.ClassPacks;
@@ -9,6 +10,7 @@ public sealed record SetClassPackActiveCommand(long ClassPackId, bool IsActive) 
 public sealed class SetClassPackActiveUseCase(
     IClassPackRepository classPackRepository,
     IUnitOfWork unitOfWork,
+    IBusinessCalendarService businessCalendar,
     IDocumentStorageService documentStorage)
     : IUseCase<SetClassPackActiveCommand, ClassPackResponse>
 {
@@ -31,6 +33,6 @@ public sealed class SetClassPackActiveUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ClassPackResponse.From(classPack, documentStorage);
+        return await ClassPackResponses.ForAsync(classPack, classPackRepository, businessCalendar, documentStorage, cancellationToken);
     }
 }

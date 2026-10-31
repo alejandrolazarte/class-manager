@@ -1,14 +1,9 @@
-import { BusinessBillingMode, MonthlyFeeChange } from "@/features/fees/types";
-
 export interface Business {
   name: string;
   countryCode: string;
   timeZoneId: string;
   currencyCode: string;
   defaultCountryCallingCode: string;
-  defaultMonthlyFee: number | null;
-  defaultMonthlyFeeChanges: MonthlyFeeChange[];
-  billingMode: BusinessBillingMode | null;
   locationName: string | null;
   locationMapsUrl: string | null;
 }
@@ -22,7 +17,4 @@ export interface UpdateBusinessSettingsRequest {
   locationMapsUrl: string | null;
 }
 
-export type UpdateBusinessSettingsResponse = Omit<
-  Business,
-  "defaultMonthlyFee" | "defaultMonthlyFeeChanges" | "billingMode"
->;
+export type UpdateBusinessSettingsResponse = Business;

@@ -25,6 +25,7 @@ export interface DemoBusiness {
   studentAppClientId: string;
   debtorClientId: string;
   classPackClientId: string;
+  monthlyPlanId: string;
   privateLessonId: string;
   measuredStudentId: string;
   timeMeasurementId: string;
@@ -99,7 +100,6 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
 
   const [laura] = await send<Identified[]>("GET", "/api/instructors");
   const martin = await send<Identified>("POST", "/api/instructors", { fullName: "Martín Díaz" });
-  await send("PUT", "/api/business/monthly-fee", { amount: 25000 });
   await send("PUT", "/api/business", {
     name: "Escuela de Natación Brazada",
     countryCode: "AR",
@@ -166,11 +166,24 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     "Pileta grande",
   );
 
+  const monthlyPlan = await send<Identified & { name: string; price: number }>(
+    "POST",
+    "/api/class-packs",
+    {
+      name: "Cuota mensual",
+      classCount: null,
+      price: 25000,
+      validityMonths: null,
+      coversAnyGroupClass: true,
+      renewsMonthly: true,
+    },
+  );
   const registerStudentApp = (
     fullName: string,
     phoneNumber: string,
     notes: string | null,
     students: { fullName: string; birthDate: string | null; notes: string | null }[],
+    planId: string | null = monthlyPlan.id,
   ) =>
     send<RegisteredClient>("POST", "/api/clients", {
       fullName,
@@ -178,6 +191,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
       email: null,
       notes,
       students,
+      ...(planId === null ? {} : { planId }),
     });
   const ana = await registerStudentApp("Ana Pérez", "11 2233-4455", "Paga por transferencia", [
     { fullName: "Tomás Pérez", birthDate: "2018-03-14", notes: "Le cuesta meter la cabeza" },
@@ -201,9 +215,13 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   const jorge = await registerStudentApp("Jorge Ramírez", "11 7788-9900", null, [
     { fullName: "Jorge Ramírez", birthDate: null, notes: null },
   ]);
-  const paula = await registerStudentApp("Paula Suárez", "11 8899-0011", null, [
-    { fullName: "Emma Suárez", birthDate: "2017-09-30", notes: null },
-  ]);
+  const paula = await registerStudentApp(
+    "Paula Suárez",
+    "11 8899-0011",
+    null,
+    [{ fullName: "Emma Suárez", birthDate: "2017-09-30", notes: null }],
+    null,
+  );
 
   const studentId = (client: RegisteredClient, fullName: string) =>
     client.students.find((student) => student.fullName === fullName)!.id;
@@ -245,10 +263,15 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await mark(beginners.id, studentId(sofia, "Mateo Martínez"), "Absent", pastClassDate);
   await mark(beginners.id, studentId(paula, "Emma Suárez"), "Present", pastClassDate);
 
-  await send("PUT", `/api/clients/${sofia.id}/billing-plan`, {
-    kind: "CustomFee",
-    customFee: 40000,
-  });
+  const setStudentPlanPrice = (planStudentId: string, customPrice: number) =>
+    send("PUT", `/api/students/${planStudentId}/plan`, {
+      classPackId: monthlyPlan.id,
+      customPrice,
+      effectiveFrom: month,
+    });
+  await setStudentPlanPrice(studentId(ana, "Lucía Pérez"), 0);
+  await setStudentPlanPrice(studentId(sofia, "Benjamín Martínez"), 40000);
+  await setStudentPlanPrice(studentId(sofia, "Mateo Martínez"), 0);
   const pay = (clientId: string, amount: number, method: string) =>
     send("POST", `/api/clients/${clientId}/payments`, {
       amount,
@@ -261,9 +284,14 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await pay(carla.id, 25000, "Cash");
   await pay(sofia.id, 20000, "Transfer");
 
-  await send("PUT", "/api/business/monthly-fee", {
-    amount: 28000,
-    effectiveFrom: nextMonthOf(month),
+  await send("PUT", `/api/class-packs/${monthlyPlan.id}`, {
+    name: monthlyPlan.name,
+    classCount: null,
+    price: 28000,
+    validityMonths: null,
+    coversAnyGroupClass: true,
+    renewsMonthly: true,
+    priceEffectiveFrom: nextMonthOf(month),
   });
   const createClassPack = (
     name: string,
@@ -281,11 +309,6 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
   await createClassPack("Clase suelta", 1, 7000, null);
   const fourClasses = await createClassPack("4 clases", 4, 24000, 1);
   await createClassPack("8 clases", 8, 44000, 2);
-  await send("PUT", `/api/clients/${paula.id}/billing-plan`, {
-    kind: "ClassPacks",
-    customFee: null,
-    effectiveFrom: month,
-  });
   await send("POST", `/api/clients/${paula.id}/class-pack-purchases`, {
     classPackId: fourClasses.id,
     price: 22000,
@@ -406,6 +429,7 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
     studentAppClientId: ana.id,
     debtorClientId: diego.id,
     classPackClientId: paula.id,
+    monthlyPlanId: monthlyPlan.id,
     privateLessonId: privateLesson!.id,
     measuredStudentId: tomasId,
     timeMeasurementId: crol.id,

@@ -14,7 +14,7 @@ jest.mock("@/features/enrollments/enrollmentsApi");
 jest.mock("@/features/fees/feesApi");
 jest.mock("@/features/classPacks/classPacksApi");
 
-const client = buildClient({ billingPlan: { kind: "ClassPacks", customFee: null } });
+const client = buildClient();
 
 describe("When instructor opens a client", () => {
   beforeEach(() => {

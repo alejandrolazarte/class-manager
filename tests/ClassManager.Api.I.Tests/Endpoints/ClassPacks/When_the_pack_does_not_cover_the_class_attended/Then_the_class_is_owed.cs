@@ -1,4 +1,3 @@
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Sessions;
 using ClassManager.Core.UseCases.Students;
 
@@ -18,7 +17,6 @@ public sealed class Then_the_class_is_owed(ApiFixture fixture)
         var client = await owner.RegisterClientAsync(students: [new NewStudent(ApiRequests.StudentFullName, null, null)]);
         var studentId = client.Students[0].Id;
         await owner.EnrollAsync(attendedClassGroup.Id, studentId);
-        (await owner.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks)).EnsureSuccessStatusCode();
         var classPack = await owner.CreateClassPackAsync(classGroupIds: [otherClassGroup.Id]);
         await owner.SellClassPackAsync(client.Id, classPack.Id);
 

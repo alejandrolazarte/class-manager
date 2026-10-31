@@ -40,5 +40,5 @@ public static class CollectorScenarioRequests
         httpClient.PostAsync(new Uri($"{ApiRoutes.Payments}/{paymentId}{ApiRoutes.Restore}", UriKind.Relative), null);
 
     private static long ClientOf(MonthlyFeesResponse fees, string studentFullName) =>
-        fees.Clients.Single(client => client.StudentNames.Contains(studentFullName)).ClientId;
+        fees.ClientIdOf(studentFullName);
 }

@@ -11,8 +11,7 @@ public sealed class Then_it_is_kept_as_deleted(ApiFixture fixture)
     public async Task Then_it_is_kept_as_deleted_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        await business.HttpClient.SetDefaultFeeAsync();
-        var clientId = await business.HttpClient.EnrollClientAsync();
+        var clientId = (await business.HttpClient.EnrollClientWithMonthlyPlanAsync()).ClientId;
         using var paymentResponse = await business.HttpClient.PostPaymentAsync(clientId);
         var payment = await paymentResponse.Content.ReadFromJsonAsync<PaymentResponse>(ApiRequests.JsonOptions);
 

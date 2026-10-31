@@ -1,5 +1,4 @@
 using ClassManager.Core.Domain.Enrollments;
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.UseCases.Students;
 
 namespace ClassManager.Api.I.Tests.Endpoints.Enrollments.When_enrolling_outside_the_classes_of_the_pack;
@@ -15,7 +14,6 @@ public sealed class Then_returns_409(ApiFixture fixture)
         var otherClassGroup = await business.HttpClient.CreateClassGroupAsync(
             ClassGroupRequests.ClassGroupFor(packClassGroup.InstructorId, startTime: "20:00") with { Name = "Aquagym" });
         var client = await business.HttpClient.RegisterClientAsync(students: [new NewStudent(ApiRequests.StudentFullName, null, null)]);
-        (await business.HttpClient.PutBillingPlanAsync(client.Id, BillingPlanKind.ClassPacks)).EnsureSuccessStatusCode();
         var classPack = await business.HttpClient.CreateClassPackAsync(classGroupIds: [packClassGroup.Id]);
         await business.HttpClient.SellClassPackAsync(client.Id, classPack.Id);
 

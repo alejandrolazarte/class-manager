@@ -68,13 +68,12 @@ public static class ApiRoutes
     public const string Reply = "/reply";
     public const string Schedule = "/schedule";
     public const string Substitute = "/substitute";
-    public const string MonthlyFee = "/monthly-fee";
-    public const string MonthlyFeeChangeByMonth = "/monthly-fee/{month}";
     public const string Achievements = "/achievements";
     public const string Brand = "/brand";
     public const string BrandLogo = "/brand/logo";
-    public const string BillingPlan = "/billing-plan";
-    public const string BillingPlanChangeByMonth = "/billing-plan/{month}";
+    public const string StudentPlan = "/plan";
+    public const string StudentPlanChangeByMonth = "/plan/{month}";
+    public const string ClassPackPriceChangeByMonth = "/prices/{month}";
     public const string ClassPacks = "/api/class-packs";
     public const string ClassPackById = "/{classPackId:long}";
     public const string ClassPackPurchasesSegment = "/class-pack-purchases";

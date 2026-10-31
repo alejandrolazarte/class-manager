@@ -29,7 +29,6 @@ describe("When student without pack classes won't come", () => {
           }),
         ],
         billing: {
-          kind: "ClassPacks",
           monthlyFee: null,
           classes: { availableClasses: 0, unpaidClasses: 0 },
         },

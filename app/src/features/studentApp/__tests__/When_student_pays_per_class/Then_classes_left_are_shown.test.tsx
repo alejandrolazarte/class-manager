@@ -13,7 +13,6 @@ describe("When student pays per class", () => {
     jest.mocked(getStudentAppHome).mockResolvedValue(
       buildStudentAppHome({
         billing: {
-          kind: "ClassPacks",
           monthlyFee: null,
           classes: { availableClasses: 5, unpaidClasses: 0 },
         },

@@ -10,8 +10,7 @@ public sealed class Then_returns_404(ApiFixture fixture)
     {
         var business = await fixture.SeedBusinessAsync();
         var otherBusiness = await fixture.SeedBusinessAsync();
-        await business.HttpClient.SetDefaultFeeAsync();
-        var clientId = await business.HttpClient.EnrollClientAsync();
+        var clientId = (await business.HttpClient.EnrollClientWithMonthlyPlanAsync()).ClientId;
         using var paymentResponse = await business.HttpClient.PostPaymentAsync(clientId);
         var payment = await paymentResponse.Content.ReadFromJsonAsync<PaymentResponse>(ApiRequests.JsonOptions);
         (await business.HttpClient.DeletePaymentAsync(payment!.Id)).EnsureSuccessStatusCode();

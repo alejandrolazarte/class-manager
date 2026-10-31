@@ -29,7 +29,7 @@ public sealed class EnrollStudentUseCase(
     IAccessScopes accessScopes,
     IClientRepository clientRepository,
     IClassBalanceService classBalanceService,
-    IFeeScheduleRepository feeScheduleRepository)
+    IFamilyBillingService familyBillingService)
     : IUseCase<EnrollStudentCommand, EnrollmentResponse>
 {
     private const string ClassGroupNotFoundMessage = "The class group does not exist.";
@@ -107,11 +107,8 @@ public sealed class EnrollStudentUseCase(
 
     private async Task<bool> IsOutsideActivePacksAsync(long clientId, long classGroupId, DateOnly today, CancellationToken cancellationToken)
     {
-        var plan = FeeTimeline.PlanIn(
-            await feeScheduleRepository.ListClientPlanChangesAsync([clientId], cancellationToken),
-            await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken),
-            BillingMonth.From(today));
-        if (!plan.PaysPerClass)
+        var billing = await familyBillingService.CalculateAsync([clientId], BillingMonth.From(today), cancellationToken);
+        if (billing[clientId].HasMonthlyPlan)
         {
             return false;
         }

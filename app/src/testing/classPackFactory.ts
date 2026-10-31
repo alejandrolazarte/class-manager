@@ -15,6 +15,7 @@ export function buildClassPack(overrides: Partial<ClassPack> = {}): ClassPack {
     images: [],
     renewsMonthly: false,
     appliesFamilyDiscount: false,
+    priceChanges: [],
     ...overrides,
   };
 }

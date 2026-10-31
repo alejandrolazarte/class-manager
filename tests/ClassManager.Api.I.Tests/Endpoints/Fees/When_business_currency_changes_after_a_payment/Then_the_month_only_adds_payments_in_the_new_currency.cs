@@ -10,8 +10,7 @@ public sealed class Then_the_month_only_adds_payments_in_the_new_currency(ApiFix
     public async Task Then_the_month_only_adds_payments_in_the_new_currency_Run()
     {
         var business = await fixture.SeedBusinessAsync();
-        await business.HttpClient.SetDefaultFeeAsync();
-        var clientId = await business.HttpClient.EnrollClientAsync();
+        var clientId = (await business.HttpClient.EnrollClientWithMonthlyPlanAsync()).ClientId;
         (await business.HttpClient.PostPaymentAsync(clientId)).EnsureSuccessStatusCode();
         (await business.HttpClient.PutBusinessAsync(SettingsRequests.SettingsOf(business, currencyCode: DollarCurrencyCode))).EnsureSuccessStatusCode();
 
