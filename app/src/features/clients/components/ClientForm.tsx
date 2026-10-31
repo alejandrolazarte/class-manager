@@ -1,6 +1,7 @@
 import { Controller, UseFormReturn } from "react-hook-form";
 import { View } from "react-native";
 import { AttendeesSection } from "@/features/clients/components/AttendeesSection";
+import { BillingModeChoice } from "@/features/fees/components/BillingModeChoice";
 import { formatPhoneNumberAsTyped } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientFormValues } from "@/features/clients/registerClientSchema";
 import { ContactAdultConfirmation } from "@/features/studentApp/components/ContactAdultConfirmation";
@@ -17,9 +18,10 @@ interface ClientFormProps {
   form: UseFormReturn<RegisterClientFormValues>;
   onSubmit: () => void;
   isSubmitting: boolean;
+  asksBillingMode: boolean;
 }
 
-export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
+export function ClientForm({ form, onSubmit, isSubmitting, asksBillingMode }: ClientFormProps) {
   const { control, formState, watch } = form;
   const isAppInvitationOffered = watch("email").trim().length > 0;
   const isAppInvitationOn = isAppInvitationOffered && watch("sendAppInvitation");
@@ -28,7 +30,8 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
   const areRequiredFieldsFilled =
     areFilled([watch("fullName"), watch("phoneNumber")]) &&
     areFilled(additionalStudents.map((additionalStudent) => additionalStudent.fullName)) &&
-    (!isAppInvitationOn || watch("confirmsContactIsAdult"));
+    (!isAppInvitationOn || watch("confirmsContactIsAdult")) &&
+    (!asksBillingMode || watch("billingMode") !== null);
 
   return (
     <View className="gap-[18px]">
@@ -132,6 +135,18 @@ export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
         />
       </View>
       <AttendeesSection form={form} />
+      {asksBillingMode ? (
+        <View className="gap-3">
+          <SectionTitle title={translate("fees.billingPlan.title")} isOverline />
+          <Controller
+            control={control}
+            name="billingMode"
+            render={({ field }) => (
+              <BillingModeChoice billingMode={field.value} onChange={field.onChange} />
+            )}
+          />
+        </View>
+      ) : null}
       <Button
         label={translate("clients.register.submit")}
         onPress={onSubmit}

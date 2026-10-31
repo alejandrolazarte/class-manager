@@ -1,4 +1,4 @@
-import { BillingPlan, BillingPlanChange } from "@/features/fees/types";
+import { BillingPlan, BillingPlanChange, BusinessBillingMode } from "@/features/fees/types";
 import { NewStudentRequest, Student } from "@/features/students/types";
 
 export interface Client {
@@ -42,4 +42,5 @@ export interface RegisterClientRequest {
   notes?: string;
   students: NewStudentRequest[];
   samePersonUserId?: string;
+  billingMode?: BusinessBillingMode;
 }

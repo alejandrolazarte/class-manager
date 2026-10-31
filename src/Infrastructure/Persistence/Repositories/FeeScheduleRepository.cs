@@ -29,6 +29,12 @@ internal sealed class FeeScheduleRepository(AppDbContext context) : IFeeSchedule
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<long>> ListClientIdsWithoutPlanAsync(CancellationToken cancellationToken) =>
+        await context.Clients.AsNoTracking()
+            .Where(client => !context.ClientBillingPlanChanges.Any(change => change.ClientId == client.Id))
+            .Select(client => client.Id)
+            .ToListAsync(cancellationToken);
+
     public Task<ClientBillingPlanChange?> FindClientPlanChangeForUpdateAsync(long clientId, DateOnly effectiveFrom, CancellationToken cancellationToken) =>
         context.ClientBillingPlanChanges.FirstOrDefaultAsync(
             change => change.ClientId == clientId && change.EffectiveFrom == effectiveFrom,

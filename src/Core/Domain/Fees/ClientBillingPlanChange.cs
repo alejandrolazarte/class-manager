@@ -74,6 +74,21 @@ public sealed class ClientBillingPlanChange : ITenantOwned, IAuditable, ISoftDel
         Client client,
         IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
         DateOnly today,
+        DateTimeOffset createdAt) =>
+        FollowingTheBusiness(client.Id, client, defaultFeeChanges, today, createdAt);
+
+    public static IReadOnlyList<ClientBillingPlanChange> ForRegisteredClient(
+        long clientId,
+        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
+        DateOnly today,
+        DateTimeOffset createdAt) =>
+        FollowingTheBusiness(clientId, null, defaultFeeChanges, today, createdAt);
+
+    private static List<ClientBillingPlanChange> FollowingTheBusiness(
+        long clientId,
+        Client? client,
+        IReadOnlyCollection<DefaultMonthlyFeeChange> defaultFeeChanges,
+        DateOnly today,
         DateTimeOffset createdAt)
     {
         var currentMonth = BillingMonth.From(today);
@@ -100,7 +115,7 @@ public sealed class ClientBillingPlanChange : ITenantOwned, IAuditable, ISoftDel
 
             planChanges.Add(new ClientBillingPlanChange
             {
-                ClientId = client.Id,
+                ClientId = clientId,
                 Client = client,
                 EffectiveFrom = month.FirstDay,
                 Kind = kind,

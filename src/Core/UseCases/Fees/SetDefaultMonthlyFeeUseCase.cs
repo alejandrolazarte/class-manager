@@ -36,12 +36,14 @@ public sealed class SetDefaultMonthlyFeeUseCase(
             return effectiveFrom.Error!;
         }
 
-        var change = DefaultMonthlyFeeChange.Create(effectiveFrom.Value!, command.BillingMode, command.Amount, today, timeProvider.GetUtcNow());
+        var now = timeProvider.GetUtcNow();
+        var change = DefaultMonthlyFeeChange.Create(effectiveFrom.Value!, command.BillingMode, command.Amount, today, now);
         if (change.IsFailure)
         {
             return change.Error!;
         }
 
+        var isFirstChoice = (await feeScheduleRepository.ListDefaultFeeChangesAsync(cancellationToken)).Count == 0;
         var existingChange = await feeScheduleRepository.FindDefaultFeeChangeForUpdateAsync(change.Value!.EffectiveFrom, cancellationToken);
         if (existingChange is null)
         {
@@ -50,6 +52,11 @@ public sealed class SetDefaultMonthlyFeeUseCase(
         else
         {
             existingChange.ReplaceWith(change.Value);
+        }
+
+        if (isFirstChoice)
+        {
+            await FirstBillingModeChoice.KeepItForRegisteredClientsAsync(feeScheduleRepository, [change.Value], today, now, cancellationToken);
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
 import { hasChosenBillingMode } from "@/features/fees/billingMode";
+import { BillingModeChoice } from "@/features/fees/components/BillingModeChoice";
 import { EffectiveMonthPicker } from "@/features/fees/components/EffectiveMonthPicker";
 import { formatMoney, parseAmount, toAmountText } from "@/formatting/money";
 import { formatMonth, monthOf } from "@/features/fees/months";
@@ -21,12 +22,9 @@ import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
 import { Button } from "@/ui/Button";
 import { IconButton } from "@/ui/IconButton";
-import { OptionCard } from "@/ui/OptionCard";
-import { RequiredFieldsLegend, withRequiredMark } from "@/ui/RequiredFieldsLegend";
+import { RequiredFieldsLegend } from "@/ui/RequiredFieldsLegend";
 import { TextField } from "@/ui/TextField";
 import { useToast } from "@/ui/ToastProvider";
-
-const billingModes: readonly BusinessBillingMode[] = ["MonthlyFee", "ClassPacks"];
 
 function historyItemText(change: MonthlyFeeChange, currencyCode: string): string {
   const month = formatMonth(change.effectiveFrom);
@@ -116,20 +114,7 @@ export function DefaultMonthlyFeeScreen() {
       onRetry={save}
     >
       <RequiredFieldsLegend />
-      <View className="gap-2" accessibilityRole="radiogroup">
-        <AppText variant="label" tone="muted">
-          {withRequiredMark(translate("fees.billingMode.question"))}
-        </AppText>
-        {billingModes.map((mode) => (
-          <OptionCard
-            key={mode}
-            label={translate(`fees.billingMode.${mode}`)}
-            hint={translate(`fees.billingMode.hint.${mode}`)}
-            isSelected={billingMode === mode}
-            onPress={() => setBillingMode(mode)}
-          />
-        ))}
-      </View>
+      <BillingModeChoice billingMode={billingMode} onChange={setBillingMode} />
       {billingMode === "MonthlyFee" ? (
         <TextField
           label={translate("fees.payment.amount")}

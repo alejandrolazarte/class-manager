@@ -21,6 +21,7 @@ internal sealed class RegisterClientUseCaseBuilder
     {
         Businesses.Setup(repository => repository.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(TestData.Business());
         FeeSchedule.Setup(repository => repository.ListDefaultFeeChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        FeeSchedule.Setup(repository => repository.ListClientIdsWithoutPlanAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     public static RegisterClientCommand ValidCommand() =>
