@@ -4,30 +4,30 @@
   </PropertyGroup>
 
   <ItemGroup Label="App">
-    <PackageVersion Include="MailKit"                                                        Version="4.18.1" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer"                  Version="10.0.12" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"              Version="10.0.12" />
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi"                                   Version="10.0.12" />
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.12" />
+    <PackageVersion Include="MailKit"                                                        Version="4.18.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer"                  Version="10.0.14" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"              Version="10.0.14" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi"                                   Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup Label="Data">
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design"           Version="10.0.12" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer"        Version="10.0.12" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design"           Version="10.0.14" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer"        Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup Label="Tenancy">
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup Label="Subscriptions">
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
-    <PackageVersion Include="Stripe.net"                               Version="53.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.14" />
+    <PackageVersion Include="Stripe.net"                               Version="53.1.0" />
   </ItemGroup>
 
   <ItemGroup Label="Storage">
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.1" />
     <PackageVersion Include="SkiaSharp" Version="4.154.0" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.154.0" />
   </ItemGroup>
@@ -42,11 +42,11 @@
   </ItemGroup>
 
   <ItemGroup Label="Security">
-    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup Label="Transitive security fixes">
-    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup Label="Analyzers">
@@ -55,16 +55,16 @@
   </ItemGroup>
 
   <ItemGroup Label="Testing">
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing"          Version="10.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing"          Version="10.0.14" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.4" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  Version="4.14.0" />
-    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.10.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk"                    Version="18.10.1" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk"                    Version="18.11.0" />
     <PackageVersion Include="Moq"                                       Version="4.21.0" />
     <PackageVersion Include="Shouldly"                                  Version="4.3.0" />
-    <PackageVersion Include="Testcontainers.Azurite"                    Version="4.15.0" />
-    <PackageVersion Include="Testcontainers.MsSql"                      Version="4.15.0" />
+    <PackageVersion Include="Testcontainers.Azurite"                    Version="4.16.0" />
+    <PackageVersion Include="Testcontainers.MsSql"                      Version="4.16.0" />
     <PackageVersion Include="xunit"                                     Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio"                 Version="4.0.0" />
+    <PackageVersion Include="xunit.runner.visualstudio"                 Version="4.0.1" />
   </ItemGroup>
 </Project>
