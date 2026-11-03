@@ -276,6 +276,7 @@ test("Team screens with student activity", async ({ page, request }) => {
   await capture(page, "05b-clase-editar-material");
 
   await page.goto("/fees");
+  await page.getByRole("button", { name: "Productos" }).click();
   await page.getByRole("button", { name: "Cobrar" }).first().click();
   await page.getByRole("button", { name: "Confirmar pago" }).waitFor();
   await capture(page, "10d-cobros-pedidos-cobrar");
