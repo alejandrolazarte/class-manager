@@ -5,7 +5,10 @@ import { translate, translateCount } from "@/i18n/translate";
 
 const includedInTheFamilyFee = 0;
 
-export function monthlyPlanHint(plan: ClassPack, currencyCode: string): string {
+export function monthlyPlanHint(
+  plan: Pick<ClassPack, "classCount" | "price">,
+  currencyCode: string,
+): string {
   const price = formatMoney(plan.price, currencyCode);
   return plan.classCount === null
     ? translate("fees.studentPlan.planHintLibre", { price })

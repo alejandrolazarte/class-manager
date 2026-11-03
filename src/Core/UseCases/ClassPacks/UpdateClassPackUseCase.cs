@@ -20,10 +20,11 @@ public sealed record UpdateClassPackRequest(
     bool CoversAnyGroupClass = false,
     bool RenewsMonthly = false,
     bool? AppliesFamilyDiscount = null,
-    string? PriceEffectiveFrom = null)
+    string? PriceEffectiveFrom = null,
+    bool? IsVisibleInApp = null)
 {
     public UpdateClassPackCommand ToCommand(long classPackId) =>
-        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description, CoversAnyGroupClass, RenewsMonthly, AppliesFamilyDiscount, PriceEffectiveFrom);
+        new(classPackId, Name, ClassCount, Price, ValidityMonths, ClassDurationMinutes, ClassGroupIds, Description, CoversAnyGroupClass, RenewsMonthly, AppliesFamilyDiscount, PriceEffectiveFrom, IsVisibleInApp);
 }
 
 public sealed record UpdateClassPackCommand(
@@ -38,7 +39,8 @@ public sealed record UpdateClassPackCommand(
     bool CoversAnyGroupClass = false,
     bool RenewsMonthly = false,
     bool? AppliesFamilyDiscount = null,
-    [property: AuditPlain] string? PriceEffectiveFrom = null) : ICommand;
+    [property: AuditPlain] string? PriceEffectiveFrom = null,
+    bool? IsVisibleInApp = null) : ICommand;
 
 public sealed class UpdateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -73,6 +75,7 @@ public sealed class UpdateClassPackUseCase(
             return update.Error!;
         }
 
+        classPack.ShowInApp(command.IsVisibleInApp ?? classPack.IsVisibleInApp);
         var description = classPack.Describe(command.Description);
         if (description.IsFailure)
         {

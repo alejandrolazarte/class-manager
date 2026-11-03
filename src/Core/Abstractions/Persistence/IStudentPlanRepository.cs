@@ -10,5 +10,7 @@ public interface IStudentPlanRepository
 
     Task<IReadOnlyList<StudentPlanChange>> ListByClientsAsync(IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<StudentPlanChange>> ListForUpdateAsync(long studentId, CancellationToken cancellationToken);
+
     Task<StudentPlanChange?> FindForUpdateAsync(long studentId, DateOnly effectiveFrom, CancellationToken cancellationToken);
 }

@@ -276,6 +276,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<DeliverInClassCommand, ClassDeliveryResponse, DeliverInClassUseCase>();
         services.AddUseCase<CancelExpiredOrdersCommand, int, CancelExpiredOrdersUseCase>();
         services.AddUseCase<GetStudentAppShopQuery, StudentAppShopResponse, GetStudentAppShopUseCase>();
+        services.AddUseCase<ChooseStudentAppPlanCommand, bool, ChooseStudentAppPlanUseCase>();
         services.AddUseCase<GetStudentAppFamilyQuery, StudentAppFamilyResponse, GetStudentAppFamilyUseCase>();
         services.AddUseCase<ListStudentAppOrdersQuery, IReadOnlyList<StudentAppOrderResponse>, ListStudentAppOrdersUseCase>();
         services.AddUseCase<PlaceStudentAppOrderCommand, StudentAppOrderResponse, PlaceStudentAppOrderUseCase>();

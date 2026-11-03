@@ -20,6 +20,7 @@ internal sealed class ClassPackConfiguration : IEntityTypeConfiguration<ClassPac
         builder.Ignore(classPack => classPack.ImageCount);
         builder.Ignore(classPack => classPack.MaximumImageCount);
         builder.Ignore(classPack => classPack.IsSoldOnce);
+        builder.Ignore(classPack => classPack.IsOfferedInApp);
         builder.ToTable(table => table.HasCheckConstraint(
             LibreClassesOnlyWhenRenewingConstraintName,
             "[ClassCount] IS NOT NULL OR [RenewsMonthly] = 1"));

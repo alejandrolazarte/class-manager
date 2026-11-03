@@ -47,6 +47,7 @@ describe("When class pack is created", () => {
         classGroupIds: [],
         coversAnyGroupClass: false,
         renewsMonthly: false,
+        isVisibleInApp: true,
       }),
     );
   });

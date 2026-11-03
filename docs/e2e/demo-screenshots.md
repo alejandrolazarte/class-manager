@@ -122,7 +122,8 @@ The student signs in through the sign-in screen, then the test captures:
 | `22d-alumno-recuperar-clases` | Classes to make up, with open slots to book |
 | `22e-alumno-clase-del-pack` | Lucía's booked Aquagym class from her pack, with "Reservar clases del pack": classes left and open dates |
 | `22f-alumno-clase-material` | Today's Natación inicial opened from Clases: the class, "Avisar que no voy" and its material, link and PDF |
-| `23-alumno-tienda`, `23b-alumno-tienda-productos` | Shop: search, filters, packs and product grid |
+| `23-alumno-tienda`, `23b-alumno-tienda-productos` | Shop: search, filters, monthly plans, packs and product grid |
+| `23c-alumno-plan-mensual`, `23d-alumno-confirmar-plan` | A monthly plan in the shop: each person of the family with their plan, and the confirm dialog before choosing or cancelling it (closed with "Volver") |
 | `24-alumno-producto` | Product sheet with sizes, a sold-out size and quantity |
 | `25-alumno-tienda-con-carrito` | Shop with the floating cart bar and the tab badge |
 | `26-alumno-carrito` | Cart: lines, delivery place, payment and total |

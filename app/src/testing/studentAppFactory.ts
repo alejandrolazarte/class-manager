@@ -235,6 +235,8 @@ export function buildStudentAppShop(overrides: Partial<StudentAppShop> = {}): St
       },
     ],
     canBuy: true,
+    plans: [],
+    planStudents: [],
     ...overrides,
   };
 }

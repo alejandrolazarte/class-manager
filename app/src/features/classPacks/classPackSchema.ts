@@ -66,6 +66,7 @@ export const classPackSchema = z
     renewsMonthly: z.boolean(),
     hasLibreClasses: z.boolean(),
     priceEffectiveFrom: z.string(),
+    isVisibleInApp: z.boolean(),
   })
   .superRefine((formValues, context) => {
     if (hasLibreClasses(formValues)) {
@@ -121,6 +122,7 @@ export function toClassPackFormValues(classPack?: ClassPack): ClassPackFormValue
     renewsMonthly: classPack?.renewsMonthly ?? false,
     hasLibreClasses: classPack ? classPack.classCount === null : true,
     priceEffectiveFrom: monthOf(),
+    isVisibleInApp: classPack?.isVisibleInApp ?? true,
   };
 }
 
@@ -161,6 +163,7 @@ export function toSaveClassPackRequest(formValues: ClassPackFormValues): SaveCla
     classGroupIds: isForGroupClasses && !coversAnyGroupClass ? formValues.classGroupIds : [],
     coversAnyGroupClass,
     renewsMonthly: formValues.renewsMonthly,
+    isVisibleInApp: formValues.isVisibleInApp,
     ...(formValues.renewsMonthly ? { priceEffectiveFrom: formValues.priceEffectiveFrom } : {}),
   };
 }

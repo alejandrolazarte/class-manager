@@ -152,6 +152,15 @@ test("Student screens", async ({ page, request }) => {
   await scrollToBottom(page);
   await capture(page, "23b-alumno-tienda-productos");
 
+  await page.getByRole("button", { name: "Cuota mensual" }).click();
+  await page.getByText("¿Para quién?").filter({ visible: true }).first().waitFor();
+  await capture(page, "23c-alumno-plan-mensual");
+  await page.getByRole("button", { name: /^Elegir plan|^Cancelar plan/ }).first().click();
+  await page.getByRole("button", { name: "Volver" }).last().waitFor();
+  await capture(page, "23d-alumno-confirmar-plan");
+  await page.getByRole("button", { name: "Volver" }).last().click();
+  await page.getByRole("button", { name: "Volver" }).first().click();
+
   await page.getByRole("button", { name: "Remera del club" }).click();
   await page.getByText("Talle").filter({ visible: true }).first().waitFor();
   await capture(page, "24-alumno-producto");
