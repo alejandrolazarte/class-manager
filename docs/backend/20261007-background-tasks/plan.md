@@ -102,5 +102,5 @@ The existing email and push tests (orders, team notifications, student app) keep
 
 - Delete failed tasks after a while, or show them somewhere, once the pilot shows how many there are.
 - Move invitation and password emails to tasks if the screens stop needing to know the result.
-- `ExpiredOrderCancellationWorker` runs every hour on a timer. With `minReplicas 0` it only runs while the container is up, but with `minReplicas 1` it would keep the database from pausing if the auto-pause delay is an hour or more. Move it to a due time stored in the database before changing `minReplicas`.
+- `ExpiredOrderCancellationWorker` runs every hour on a timer. The worry was that with `minReplicas 1` it would keep a serverless database from pausing; the database is on the Basic tier since 2026-10-24 and never pauses, so the API moved to `minReplicas 1` on 2026-11-03 without changing it.
 - Extract the engine to its own library (like `Notifications`) if another app needs it.
