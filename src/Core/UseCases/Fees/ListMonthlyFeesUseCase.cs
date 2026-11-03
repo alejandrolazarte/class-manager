@@ -5,7 +5,6 @@ using ClassManager.Core.Abstractions.Time;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
 using ClassManager.Core.Domain.Fees;
-using ClassManager.Core.Domain.Orders;
 
 namespace ClassManager.Core.UseCases.Fees;
 
@@ -34,8 +33,7 @@ public sealed record MonthlyFeesResponse(
     decimal TotalDue,
     decimal TotalPaid,
     IReadOnlyList<ClientFeeResponse> Clients,
-    IReadOnlyList<ClassPackClientResponse> ClassPackClients,
-    decimal ClassPackSales);
+    IReadOnlyList<ClassPackClientResponse> ClassPackClients);
 
 public sealed class ListMonthlyFeesUseCase(
     IEnrollmentRepository enrollmentRepository,
@@ -43,7 +41,6 @@ public sealed class ListMonthlyFeesUseCase(
     IFamilyBillingService familyBillingService,
     IClassBalanceService classBalanceService,
     IClientRepository clientRepository,
-    IOrderRepository orderRepository,
     IBusinessCalendarService businessCalendar,
     IBusinessCurrencyService businessCurrency,
     IAccessScopes accessScopes)
@@ -83,16 +80,12 @@ public sealed class ListMonthlyFeesUseCase(
             enrolledClients.Where(enrolledClient => !billingByClient[enrolledClient.Row.ClientId].HasMonthlyPlan).ToList(),
             cancellationToken);
 
-        var orders = await orderRepository.ListPaidBetweenOrOwingAsync(month.Value.FirstDay, month.Value.LastDay, scope, cancellationToken);
-        var classPackSales = OrderIncome.In(orders, month.Value, currencyCode).ClassPacksCollected;
-
         return new MonthlyFeesResponse(
             month.Value.ToString(),
             monthlyClients.Sum(client => client.Fee ?? 0),
             clientIds.Sum(clientId => paidByClient.GetValueOrDefault(clientId)),
             monthlyClients,
-            classPackClients,
-            classPackSales);
+            classPackClients);
     }
 
     private static IReadOnlyList<ClientFeeResponse> ListMonthlyClients(

@@ -1,10 +1,10 @@
 namespace ClassManager.Api.I.Tests.Endpoints.Orders.When_a_class_pack_sold_at_the_counter_is_owed;
 
 [Collection(SqlServerCollectionDefinition.Name)]
-public sealed class Then_the_order_summary_does_not_count_it(ApiFixture fixture)
+public sealed class Then_the_order_summary_counts_it_as_unpaid(ApiFixture fixture)
 {
     [Fact]
-    public async Task Then_the_order_summary_does_not_count_it_Run()
+    public async Task Then_the_order_summary_counts_it_as_unpaid_Run()
     {
         var scenario = await fixture.SeedStudentAppScenarioAsync();
         var owner = scenario.Instructors.Business.HttpClient;
@@ -13,6 +13,6 @@ public sealed class Then_the_order_summary_does_not_count_it(ApiFixture fixture)
 
         var summary = await owner.GetOrderSummaryAsync();
 
-        summary.Unpaid.ShouldBe(0m);
+        summary.Unpaid.ShouldBe(80m);
     }
 }

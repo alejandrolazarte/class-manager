@@ -7,9 +7,6 @@ export type OrderTab = (typeof orderTabs)[number];
 export const planTabs = ["settings", "today", "students"] as const;
 export type PlanTab = (typeof planTabs)[number];
 
-export const collectionsViews = ["fees", "orders"] as const;
-export type CollectionsView = (typeof collectionsViews)[number];
-
 export interface StudentAppClassRoute {
   classGroupId: string;
   date: string;
@@ -66,7 +63,7 @@ export const routes = {
   recordPayment: (tab: ClientTab, clientId: string, month: string) =>
     `/${tab}/clients/${clientId}/pay?month=${encodeURIComponent(month)}`,
   fees: "/fees",
-  collections: (view: CollectionsView) => `/fees?view=${view}`,
+  collections: "/fees",
   welcome: "/welcome",
   signIn: "/sign-in",
   signUp: "/sign-up",

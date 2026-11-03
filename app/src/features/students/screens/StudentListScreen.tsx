@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
+import { ClassBalancesView } from "@/features/fees/components/ClassBalancesView";
 import { ImportExportMenu } from "@/features/importExport/components/ImportExportMenu";
 import { useCan, useRoleCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
@@ -15,6 +16,7 @@ import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { Screen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SearchInput } from "@/ui/SearchInput";
+import { Tabs } from "@/ui/Tabs";
 import { PlanUsage } from "@/features/subscriptions/components/PlanUsage";
 import { usePlanAllowing } from "@/features/subscriptions/PlanOfferProvider";
 import { featureCodes } from "@/features/subscriptions/subscriptionCodes";
@@ -22,12 +24,16 @@ import { useIsAtLimit } from "@/features/subscriptions/useSubscription";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
+type StudentListView = "students" | "classBalances";
+
 export function StudentListScreen() {
   const router = useRouter();
   const isAtStudentLimit = useIsAtLimit(featureCodes.students);
   const canManageStudents = useCan(permissions.studentsManage);
   const canRunImportExport = useRoleCan(permissions.importExportRun);
   const canSeeWholeList = useCan(permissions.studentsViewAll);
+  const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
+  const [view, setView] = useState<StudentListView>("students");
   const canImportExportStudents = canRunImportExport && canSeeWholeList;
   const withinStudentPlan = usePlanAllowing(featureCodes.students, !isAtStudentLimit);
   const [searchText, setSearchText] = useState("");
@@ -55,6 +61,34 @@ export function StudentListScreen() {
       />
     );
 
+  const viewTabs = canViewPayments ? (
+    <View className="px-5">
+      <Tabs
+        options={[
+          { value: "students" as const, label: translate("students.list.title") },
+          { value: "classBalances" as const, label: translate("classBalances.title") },
+        ]}
+        selectedValue={view}
+        onChange={setView}
+      />
+    </View>
+  ) : null;
+
+  if (view === "classBalances") {
+    return (
+      <Screen>
+        <ClassBalancesView
+          header={
+            <>
+              <ScreenHeader title={translate("students.list.title")} />
+              {viewTabs}
+            </>
+          }
+        />
+      </Screen>
+    );
+  }
+
   return (
     <Screen
       overlay={
@@ -75,6 +109,7 @@ export function StudentListScreen() {
             ) : undefined
           }
         />
+        {viewTabs}
         <View className="gap-3.5 px-5">
           <SearchInput
             value={searchText}

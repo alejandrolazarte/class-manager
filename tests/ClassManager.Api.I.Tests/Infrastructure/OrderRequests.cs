@@ -24,9 +24,11 @@ public static class OrderRequests
 
     public static CounterSaleLine ProductLine(long variantId, int quantity) => new(null, variantId, quantity, null);
 
-    public static async Task<List<OrderResponse>> ListOrdersAsync(this HttpClient httpClient, bool awaitingPickup = false, bool owing = false) =>
+    public static async Task<List<OrderResponse>> ListOrdersAsync(
+        this HttpClient httpClient, bool awaitingPickup = false, bool owing = false, string? month = null) =>
         (await httpClient.GetFromJsonAsync<List<OrderResponse>>(
-            new Uri($"{ApiRoutes.Orders}?awaitingPickup={awaitingPickup}&owing={owing}", UriKind.Relative), ApiRequests.JsonOptions))!;
+            new Uri($"{ApiRoutes.Orders}?awaitingPickup={awaitingPickup}&owing={owing}{(month is null ? string.Empty : $"&month={month}")}", UriKind.Relative),
+            ApiRequests.JsonOptions))!;
 
     public static async Task<OrderSummaryResponse> GetOrderSummaryAsync(this HttpClient httpClient, string month = FeeRequests.CurrentMonth) =>
         (await httpClient.GetFromJsonAsync<OrderSummaryResponse>(

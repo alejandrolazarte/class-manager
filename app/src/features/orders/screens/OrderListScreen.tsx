@@ -1,13 +1,9 @@
 import { useRouter } from "expo-router";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
-import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider";
-import { formatMoney } from "@/formatting/money";
-import { monthOf } from "@/features/fees/months";
 import { OrderRow } from "@/features/orders/components/OrderRow";
-import { OrderMonthSummary } from "@/features/orders/components/OrderMonthSummary";
 import { OrderFilter, orderFilters } from "@/features/orders/types";
-import { useOrders, useOrderSummary, usePendingOrders } from "@/features/orders/useOrders";
+import { useOrders } from "@/features/orders/useOrders";
 import { useCanSellAtCounter } from "@/features/orders/useOrderPermissions";
 import { translate, TranslationKey } from "@/i18n/translate";
 import { orderTabs, routes } from "@/navigation/routes";
@@ -16,57 +12,22 @@ import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
 import { ChipGroup } from "@/ui/ChipGroup";
-import { FloatingActionButton } from "@/ui/FloatingActionButton";
 import { ScrollScreen } from "@/ui/Screen";
 import { ScreenHeader } from "@/ui/ScreenHeader";
 import { SkeletonList } from "@/ui/motion/SkeletonList";
 import { AnimatedListItem } from "@/ui/motion/AnimatedListItem";
 
-interface OrderListScreenProps {
-  viewSwitcher?: ReactNode;
-  month?: string;
-}
-
-export function OrderListScreen({ viewSwitcher, month = monthOf() }: OrderListScreenProps) {
+export function OrderListScreen() {
   const router = useRouter();
-  const business = useCurrentBusiness();
   const orderTab = useCurrentTab(orderTabs);
   const canSellAtCounter = useCanSellAtCounter();
-  const isInCollections = viewSwitcher !== undefined;
   const [filter, setFilter] = useState<OrderFilter>("all");
   const { data: orders = [], isPending, isError, refetch } = useOrders(null, filter);
-  const pendingOrders = usePendingOrders({ enabled: isInCollections });
-  const { data: orderSummary } = useOrderSummary(month, { enabled: isInCollections });
   const openCounterSale = () => router.push(routes.newCounterSale(orderTab));
 
   return (
-    <ScrollScreen
-      hasFloatingAction={isInCollections && canSellAtCounter}
-      header={
-        isInCollections ? (
-          <ScreenHeader eyebrow={translate("collections.shop")} title={translate("orders.title")} />
-        ) : (
-          <ScreenHeader navigation="back" title={translate("orders.title")} />
-        )
-      }
-      overlay={
-        isInCollections && canSellAtCounter ? (
-          <FloatingActionButton
-            label={translate("orders.counterSale.open")}
-            onPress={openCounterSale}
-          />
-        ) : undefined
-      }
-    >
-      {viewSwitcher}
-      {isInCollections && orderSummary ? (
-        <OrderMonthSummary
-          orderSummary={orderSummary}
-          pendingOrders={pendingOrders}
-          money={(amount) => formatMoney(amount, business.currencyCode)}
-        />
-      ) : null}
-      {canSellAtCounter && !isInCollections ? (
+    <ScrollScreen header={<ScreenHeader navigation="back" title={translate("orders.title")} />}>
+      {canSellAtCounter ? (
         <Button icon="add" label={translate("orders.counterSale.open")} onPress={openCounterSale} />
       ) : null}
       <ChipGroup

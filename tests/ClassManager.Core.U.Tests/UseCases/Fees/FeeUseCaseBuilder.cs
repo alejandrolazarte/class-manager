@@ -23,7 +23,6 @@ internal sealed class FeeUseCaseBuilder
     public Mock<IPaymentRepository> Payments { get; } = new();
     public Mock<IFamilyBillingService> FamilyBilling { get; } = new();
     public Mock<IClassBalanceService> ClassBalances { get; } = new();
-    public Mock<IOrderRepository> Orders { get; } = new();
     public Mock<IUnitOfWork> UnitOfWork { get; } = new();
     public Mock<IBusinessCalendarService> BusinessCalendar { get; } = new();
     public Mock<ICurrentMember> CurrentMember { get; } = new();
@@ -56,9 +55,6 @@ internal sealed class FeeUseCaseBuilder
             .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<BillingMonth>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyCollection<long> clientIds, BillingMonth _, CancellationToken _) =>
                 clientIds.Distinct().ToDictionary(clientId => clientId, clientId => BillingByClient.GetValueOrDefault(clientId) ?? new FamilyMonthBilling(clientId, [])));
-        Orders
-            .Setup(repository => repository.ListPaidBetweenOrOwingAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<ClientScope?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
         ClassBalances
             .Setup(service => service.CalculateAsync(It.IsAny<IReadOnlyCollection<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ClassBalancesByClient);
@@ -105,7 +101,6 @@ internal sealed class FeeUseCaseBuilder
             FamilyBilling.Object,
             ClassBalances.Object,
             Clients.Object,
-            Orders.Object,
             BusinessCalendar.Object,
             new BusinessCurrencyService(Businesses.Object),
             AccessScopes.Object);

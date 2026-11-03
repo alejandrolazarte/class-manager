@@ -112,11 +112,12 @@ internal static class OrderEndpoints
         long? clientId,
         bool? awaitingPickup,
         bool? owing,
+        string? month,
         IUseCase<ListOrdersQuery, IReadOnlyList<OrderResponse>> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(
-            new ListOrdersQuery(clientId, awaitingPickup ?? false, owing ?? false), cancellationToken);
+            new ListOrdersQuery(clientId, awaitingPickup ?? false, owing ?? false, month), cancellationToken);
 
         return result.ToOkResult();
     }

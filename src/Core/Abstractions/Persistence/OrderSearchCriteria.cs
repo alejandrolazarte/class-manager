@@ -1,3 +1,5 @@
+using ClassManager.Core.Domain.Fees;
+
 namespace ClassManager.Core.Abstractions.Persistence;
 
 public sealed record OrderSearchCriteria(
@@ -6,4 +8,5 @@ public sealed record OrderSearchCriteria(
     int Limit,
     bool OwingOnly = false,
     long? CreatorUserId = null,
-    IReadOnlyCollection<long>? HiddenCreatorUserIds = null);
+    IReadOnlyCollection<long>? HiddenCreatorUserIds = null,
+    BillingMonth? Month = null);
