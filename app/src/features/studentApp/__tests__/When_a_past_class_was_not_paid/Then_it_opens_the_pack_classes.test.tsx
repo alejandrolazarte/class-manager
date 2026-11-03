@@ -8,6 +8,7 @@ import { routes } from "@/navigation/routes";
 import { routerMock } from "@/testing/expoRouterMock";
 import {
   buildStudentAppClassHistory,
+  classHistoryOnlyFor,
   buildStudentAppHome,
   buildStudentAppPastClass,
 } from "@/testing/studentAppFactory";
@@ -20,11 +21,13 @@ const lastWeek = addDays(todayIsoDate(), -7);
 describe("When a past class was not paid", () => {
   beforeEach(() => {
     jest.mocked(getStudentAppHome).mockResolvedValue(buildStudentAppHome());
-    jest.mocked(getStudentAppClassHistory).mockResolvedValue(
-      buildStudentAppClassHistory({
-        month: monthOfDate(lastWeek),
-        classes: [buildStudentAppPastClass({ date: lastWeek, isUnpaid: true })],
-      }),
+    jest.mocked(getStudentAppClassHistory).mockImplementation(
+      classHistoryOnlyFor(
+        buildStudentAppClassHistory({
+          month: monthOfDate(lastWeek),
+          classes: [buildStudentAppPastClass({ date: lastWeek, isUnpaid: true })],
+        }),
+      ),
     );
   });
 

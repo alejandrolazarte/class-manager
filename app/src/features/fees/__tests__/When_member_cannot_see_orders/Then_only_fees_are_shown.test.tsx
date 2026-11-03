@@ -20,6 +20,8 @@ describe("When member cannot see orders", () => {
     });
 
     expect(await screen.findByText(formatMonth(feeMonth))).toBeOnTheScreen();
-    expect(screen.queryByRole("tab", { name: translate("collections.orders") })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: translate("collections.kind.products") }),
+    ).toBeNull();
   });
 });

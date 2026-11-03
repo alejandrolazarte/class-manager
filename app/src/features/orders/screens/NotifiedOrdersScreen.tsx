@@ -22,7 +22,7 @@ export function NotifiedOrdersScreen() {
     }
     const leaveForCollections = setTimeout(() => {
       navigation.reset({ index: 0, routes: [{ name: homeScreenName }] });
-      router.navigate(routes.collections("orders"));
+      router.navigate(routes.collections);
     });
     return () => clearTimeout(leaveForCollections);
   }, [canViewPayments, navigation, router]);

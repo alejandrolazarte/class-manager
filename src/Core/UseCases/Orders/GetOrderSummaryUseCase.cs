@@ -11,7 +11,7 @@ namespace ClassManager.Core.UseCases.Orders;
 
 public sealed record GetOrderSummaryQuery(string? Month) : IQuery;
 
-public sealed record OrderSummaryResponse(string Month, decimal Collected, decimal Unpaid);
+public sealed record OrderSummaryResponse(string Month, decimal Collected, decimal Unpaid, decimal ClassPacksCollected, decimal ProductsCollected);
 
 public sealed class GetOrderSummaryUseCase(
     IOrderRepository orderRepository,
@@ -35,6 +35,6 @@ public sealed class GetOrderSummaryUseCase(
         var orders = await orderRepository.ListPaidBetweenOrOwingAsync(month.Value!.FirstDay, month.Value.LastDay, scope, cancellationToken);
         var income = OrderIncome.In(orders, month.Value, currencyCode);
 
-        return new OrderSummaryResponse(month.Value.ToString(), income.ProductsCollected, income.ProductsUnpaid);
+        return new OrderSummaryResponse(month.Value.ToString(), income.Collected, income.Unpaid, income.ClassPacksCollected, income.ProductsCollected);
     }
 }

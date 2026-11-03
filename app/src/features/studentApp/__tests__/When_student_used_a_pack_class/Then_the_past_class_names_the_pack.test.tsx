@@ -6,6 +6,7 @@ import { addDays, monthOfDate, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentAppClassHistory,
+  classHistoryOnlyFor,
   buildStudentAppHome,
   buildStudentAppPastClass,
 } from "@/testing/studentAppFactory";
@@ -19,16 +20,18 @@ const purchasedOn = addDays(todayIsoDate(), -20);
 describe("When student used a pack class", () => {
   beforeEach(() => {
     jest.mocked(getStudentAppHome).mockResolvedValue(buildStudentAppHome());
-    jest.mocked(getStudentAppClassHistory).mockResolvedValue(
-      buildStudentAppClassHistory({
-        month: monthOfDate(lastWeek),
-        classes: [
-          buildStudentAppPastClass({
-            date: lastWeek,
-            paidWithPack: { name: "Pack 8 clases", purchasedOn },
-          }),
-        ],
-      }),
+    jest.mocked(getStudentAppClassHistory).mockImplementation(
+      classHistoryOnlyFor(
+        buildStudentAppClassHistory({
+          month: monthOfDate(lastWeek),
+          classes: [
+            buildStudentAppPastClass({
+              date: lastWeek,
+              paidWithPack: { name: "Pack 8 clases", purchasedOn },
+            }),
+          ],
+        }),
+      ),
     );
   });
 

@@ -8,6 +8,12 @@ internal static class OrderQueries
         order => order.Status != OrderStatus.Cancelled
             && order.Lines.Sum(line => line.UnitPrice * line.Quantity - line.RefundedAmount) > order.Payments.Sum(payment => payment.Amount);
 
+    public static Expression<Func<Order, bool>> IsOpenOrPaidBetween(DateOnly firstDay, DateOnly lastDay) =>
+        order => order.Status != OrderStatus.Cancelled
+            && (order.Lines.Sum(line => line.UnitPrice * line.Quantity - line.RefundedAmount) > order.Payments.Sum(payment => payment.Amount)
+                || (order.Status == OrderStatus.Pending && order.Lines.Any(line => line.Kind == OrderLineKind.Product))
+                || order.Payments.Any(payment => payment.PaidOn >= firstDay && payment.PaidOn <= lastDay));
+
     public static Expression<Func<Order, bool>> IsUnpaidRequest() =>
         order => order.Channel == OrderChannel.App && order.Status == OrderStatus.Pending && !order.Payments.Any();
 

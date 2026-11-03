@@ -8,7 +8,7 @@ Opening a screen that lives in another tab's stack switches tabs, and back then 
 
 - **Shared screens** are registered in every tab that opens them, with the route file re-exporting the same screen component. Examples:
   - the client subtree `clients/[clientId]/…` (detail, new student, sell pack, counter sale, payment, new class pack) lives under both `/students` and `/fees`;
-  - Pedidos is the second view of Cobros (`/fees?view=orders`), and also lives under `/today/orders` (the order aviso opens the Inicio one) and `/settings/orders` (for members who see orders but not Cobros); the counter sale lives under each of them (`/fees/orders/new`, …);
+  - Orders are listed in Cobros (`/fees`) next to the monthly plans, and Pedidos also lives under `/today/orders` (the order aviso opens the Inicio one) and `/settings/orders` (for members who see orders but not Cobros); the counter sale lives under each of them (`/fees/orders/new`, …);
   - the new-instructor form lives under `/settings/instructors/new` and `/classes/instructors/new`;
   - the new plan or pack form lives under `/settings/class-packs/new` and `/fees/new-plan` (Cobros offers it when nothing is offered yet);
   - a student's monthly plan (`clients/[clientId]/student-plan`) lives under `/students` and `/fees`;

@@ -44,6 +44,11 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
             orders = orders.Where(OrderQueries.IsOwing());
         }
 
+        if (criteria.Month is { } month)
+        {
+            orders = orders.Where(OrderQueries.IsOpenOrPaidBetween(month.FirstDay, month.LastDay));
+        }
+
         if (criteria.AwaitingPickupOnly)
         {
             orders = orders.Where(order =>

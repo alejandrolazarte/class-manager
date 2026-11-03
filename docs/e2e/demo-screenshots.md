@@ -58,6 +58,7 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `05-clase-editar` | Class form |
 | `06-inscribir` | Enroll a student |
 | `07-alumnos` | Student list |
+| `07b-alumnos-saldo-de-clases` | Alumnos on Saldo de clases: families paying with packs and their classes |
 | `08-alumno` | Client card with students, classes, fee and payments |
 | `08b-alumno-avance` | Client card on Avance: each measurement with its latest value, change and trend |
 | `08c-alumno-medicion` | A measurement of Tomás: personal best, trend, goal and history |
@@ -65,8 +66,8 @@ The images land in `e2e/screenshots-output/` (git-ignored); set `SCREENSHOTS_DIR
 | `08e-editar-alumno` | Edit a student (Tomás) |
 | `08f-confirmar-borrar-alumno` | The confirm dialog before deleting Tomás, with the classes he leaves (closed with "Volver") |
 | `09-nuevo-alumno` | Register form with "¿Quién viene a clase?" |
-| `10-cuotas`, `10b-cuotas-todos` | Month fees, debtors and everyone |
-| `10c-cobros-pedidos` | Cobros on Pedidos: orders summary, filters and order cards |
+| `10-cuotas`, `10b-cuotas-todos` | Cobros of the month: summary with Clases and Productos, filters, plans and orders |
+| `10c-cobros-pedidos` | Cobros filtered by Productos |
 | `11-registrar-pago` | Record a payment |
 | `12-ajustes`, `13-equipo` | Settings and team |
 | `12b-novedades` | Announcements for students, empty, with the "Nuevo aviso" button |

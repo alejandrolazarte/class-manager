@@ -8,8 +8,8 @@ test("Then home tab goes back to home", async ({ page, request }) => {
 
   await page.goto(orderNotificationUrl);
 
-  await expect(page).toHaveURL(/\/fees\?view=orders/);
-  await expect(page.getByText("Tienda")).toBeVisible();
+  await expect(page).toHaveURL(/\/fees$/);
+  await expect(page.getByRole("button", { name: "Para entregar" })).toBeVisible();
 
   await page.getByRole("tab", { name: "Inicio" }).click();
 

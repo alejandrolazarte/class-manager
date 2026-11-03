@@ -73,6 +73,22 @@ export function OrderRow({ order }: OrderRowProps) {
           <ProgressBar ratio={order.paidAmount / (order.paidAmount + order.balance)} isThin />
         ) : null}
         <View className="mt-1 flex-row flex-wrap items-center gap-1.5">
+          {order.lines.some((line) => line.kind === "ClassPack") ? (
+            <StatusPill
+              label={translate("collections.tag.classPack")}
+              tone="neutral"
+              icon="classPacks"
+              isSmall
+            />
+          ) : null}
+          {order.lines.some((line) => line.kind === "Product") ? (
+            <StatusPill
+              label={translate("collections.tag.product")}
+              tone="neutral"
+              icon="products"
+              isSmall
+            />
+          ) : null}
           <StatusPill label={orderStatusLabel(order)} tone={orderStatusTone(order)} isSmall />
           {order.awaitsPickup && order.readyAt !== null ? (
             <StatusPill label={translate("orders.readyPill")} tone="primary" isSmall />

@@ -26,13 +26,20 @@ function orderPath(orderId: string): string {
   return `${ordersPath}/${encodeURIComponent(orderId)}`;
 }
 
-export function listOrders(clientId: string | null, filter: OrderFilter): Promise<Order[]> {
+export function listOrders(
+  clientId: string | null,
+  filter: OrderFilter,
+  month?: string,
+): Promise<Order[]> {
   const queryParameters: Record<string, string> = {
     awaitingPickup: String(filter === "awaitingPickup"),
     owing: String(filter === "owing"),
   };
   if (clientId !== null) {
     queryParameters.clientId = clientId;
+  }
+  if (month !== undefined) {
+    queryParameters.month = month;
   }
   return httpClient.get<Order[]>(ordersPath, queryParameters);
 }

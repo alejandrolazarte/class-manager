@@ -81,6 +81,13 @@ export function buildStudentAppClassHistory(
   };
 }
 
+export function classHistoryOnlyFor(
+  history: StudentAppClassHistory,
+): (studentId: string, month: string) => Promise<StudentAppClassHistory> {
+  return async (_studentId, month) =>
+    month === history.month ? history : buildStudentAppClassHistory({ month, classes: [] });
+}
+
 export function buildStudentAppPackClass(
   overrides: Partial<StudentAppPackClass> = {},
 ): StudentAppPackClass {
