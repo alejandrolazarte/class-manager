@@ -6,6 +6,7 @@ import { addDays, monthOfDate, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentAppClassHistory,
+  classHistoryOnlyFor,
   buildStudentAppHome,
   buildStudentAppPastClass,
 } from "@/testing/studentAppFactory";
@@ -18,19 +19,21 @@ const lastWeek = addDays(todayIsoDate(), -7);
 describe("When student opens a past day", () => {
   beforeEach(() => {
     jest.mocked(getStudentAppHome).mockResolvedValue(buildStudentAppHome());
-    jest.mocked(getStudentAppClassHistory).mockResolvedValue(
-      buildStudentAppClassHistory({
-        month: monthOfDate(lastWeek),
-        classes: [
-          buildStudentAppPastClass({ date: lastWeek, startTime: "09:00", endTime: "09:45" }),
-          buildStudentAppPastClass({
-            date: lastWeek,
-            startTime: "18:00",
-            endTime: "18:45",
-            status: "Absent",
-          }),
-        ],
-      }),
+    jest.mocked(getStudentAppClassHistory).mockImplementation(
+      classHistoryOnlyFor(
+        buildStudentAppClassHistory({
+          month: monthOfDate(lastWeek),
+          classes: [
+            buildStudentAppPastClass({ date: lastWeek, startTime: "09:00", endTime: "09:45" }),
+            buildStudentAppPastClass({
+              date: lastWeek,
+              startTime: "18:00",
+              endTime: "18:45",
+              status: "Absent",
+            }),
+          ],
+        }),
+      ),
     );
   });
 

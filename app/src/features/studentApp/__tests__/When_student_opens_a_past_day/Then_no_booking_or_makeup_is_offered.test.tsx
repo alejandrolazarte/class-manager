@@ -11,6 +11,7 @@ import { addDays, monthOfDate, todayIsoDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
 import {
   buildStudentAppClassHistory,
+  classHistoryOnlyFor,
   buildStudentAppHome,
   buildStudentAppMakeups,
   buildStudentAppMakeupSlot,
@@ -31,11 +32,13 @@ describe("When student opens a past day", () => {
       classesLeft: 4,
       slots: [buildStudentAppMakeupSlot({ date: today })],
     });
-    jest.mocked(getStudentAppClassHistory).mockResolvedValue(
-      buildStudentAppClassHistory({
-        month: monthOfDate(lastWeek),
-        classes: [buildStudentAppPastClass({ date: lastWeek })],
-      }),
+    jest.mocked(getStudentAppClassHistory).mockImplementation(
+      classHistoryOnlyFor(
+        buildStudentAppClassHistory({
+          month: monthOfDate(lastWeek),
+          classes: [buildStudentAppPastClass({ date: lastWeek })],
+        }),
+      ),
     );
   });
 
