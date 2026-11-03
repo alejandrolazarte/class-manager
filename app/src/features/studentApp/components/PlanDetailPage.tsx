@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { monthlyPlanHint } from "@/features/fees/planDescriptions";
+import { ClassOfferBadge } from "@/features/studentApp/components/ClassOfferCard";
+import { planBadge } from "@/features/studentApp/components/PlanCard";
 import { ProductPhotoCarousel } from "@/features/studentApp/components/ProductPhotoCarousel";
 import {
   PlanChoice,
@@ -68,12 +70,15 @@ export function PlanDetailPage({
 
   return (
     <FullScreenPage title={plan.name} onClose={onClose}>
-      <ProductPhotoCarousel
-        images={plan.images}
-        sizeClassName="aspect-square"
-        placeholderIcon="classPacks"
-        size="page"
-      />
+      <View>
+        <ProductPhotoCarousel
+          images={plan.images}
+          sizeClassName="aspect-square"
+          placeholderIcon="classPacks"
+          size="page"
+        />
+        <ClassOfferBadge label={planBadge(plan)} />
+      </View>
       <View className="gap-3.5 px-5 pb-6 pt-[18px]">
         <View className="gap-1">
           <AppText variant="display">{plan.name}</AppText>

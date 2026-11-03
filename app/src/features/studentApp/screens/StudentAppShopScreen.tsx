@@ -21,9 +21,9 @@ import { CartBar } from "@/features/studentApp/components/CartBar";
 import { CartPage } from "@/features/studentApp/components/CartPage";
 import { PackCard } from "@/features/studentApp/components/PackCard";
 import { PackDetailPage } from "@/features/studentApp/components/PackDetailPage";
+import { PlanCard } from "@/features/studentApp/components/PlanCard";
 import { PlanDetailPage } from "@/features/studentApp/components/PlanDetailPage";
 import { ProductDetailPage } from "@/features/studentApp/components/ProductDetailPage";
-import { ShopPlanRow } from "@/features/studentApp/components/ShopPlanRow";
 import { ShopProductCard } from "@/features/studentApp/components/ShopProductCard";
 import { isPlanOfFamily } from "@/features/studentApp/studentAppPlans";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
@@ -266,18 +266,25 @@ export function StudentAppShopScreen() {
         </>
       )}
       {plans.length > 0 ? (
-        <View>
+        <>
           <SectionTitle title={translate("student.shop.plans")} />
-          {plans.map((plan) => (
-            <ShopPlanRow
-              key={plan.id}
-              plan={plan}
-              currencyCode={shop.currencyCode}
-              isFamilyPlan={isPlanOfFamily(plan, shop.planStudents)}
-              onOpen={() => setOpenPlanId(plan.id)}
-            />
-          ))}
-        </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="-mx-5"
+            contentContainerClassName="gap-3 px-5 pb-1.5"
+          >
+            {plans.map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                currencyCode={shop.currencyCode}
+                isFamilyPlan={isPlanOfFamily(plan, shop.planStudents)}
+                onOpen={() => setOpenPlanId(plan.id)}
+              />
+            ))}
+          </ScrollView>
+        </>
       ) : null}
       {showsPacks ? (
         <>
