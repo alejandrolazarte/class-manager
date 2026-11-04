@@ -5,7 +5,6 @@ export interface AmountBreakdownItem {
   key: string;
   label: string;
   amount: string;
-  isNested?: boolean;
 }
 
 interface AmountBreakdownProps {
@@ -14,25 +13,18 @@ interface AmountBreakdownProps {
 
 export function AmountBreakdown({ items }: AmountBreakdownProps) {
   return (
-    <View className="mb-1.5 gap-1.5 border-b border-border-subtle pb-2.5">
+    <View className="gap-0.5 border-t border-border-subtle pt-1.5">
       {items.map((item) => (
-        <View
-          key={item.key}
-          className={`flex-row items-baseline justify-between gap-3 ${item.isNested ? "pl-3" : ""}`}
-        >
+        <View key={item.key} className="flex-row items-baseline justify-between gap-1.5">
           <AppText
-            variant={item.isNested ? "caption" : "body"}
-            tone={item.isNested ? "subtle" : "muted"}
+            variant="footnote"
+            tone="subtle"
             numberOfLines={1}
-            className="min-w-0 flex-1"
+            className="min-w-0 flex-shrink"
           >
             {item.label}
           </AppText>
-          <AppText
-            variant={item.isNested ? "caption" : "bodyStrong"}
-            tone={item.isNested ? "subtle" : "default"}
-            numberOfLines={1}
-          >
+          <AppText variant="footnote" tone="subtle" numberOfLines={1}>
             {item.amount}
           </AppText>
         </View>
