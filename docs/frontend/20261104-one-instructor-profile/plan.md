@@ -8,9 +8,10 @@ Same order as the student profile:
 
 1. Header: photo, "Profe", name, email, **Editar**.
 2. **Email** action tile.
-3. **App del equipo** card (same card shape as "App de alumno"): access status and Invitar / Reenviar / Revocar as before. When the profe has an account, the card also shows **Rol** (the branch role, or "Dueño de marca") with **Cambiar rol**, which opens the member screen. Hidden for your own membership and for platform roles, as in Equipo.
-4. Same-person notice, as before.
-5. **Clases**: the active class groups the profe teaches, with days and start time (`classGroups.view.own` or `.all`).
+3. **App del equipo** card (same card shape as "App de alumno"): access status and Invitar / Reenviar / Revocar as before, nothing else.
+4. **Rol** card, apart from the app card, when the profe has an account: the branch role, or "Dueño de marca", with **Cambiar rol**, which opens the member screen. Hidden for your own membership and for platform roles, as in Equipo.
+5. Same-person notice, as before.
+6. **Clases**: the active class groups the profe teaches, with days and start time (`classGroups.view.own` or `.all`).
 
 Private lessons are not listed yet: the API only lists them per day (`GET /api/private-lessons/instructor-agenda`), so a "Particulares" list needs a new endpoint first.
 

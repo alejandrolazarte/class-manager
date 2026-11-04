@@ -1,12 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { isApiError } from "@/api/httpClient";
 import { instructorAppAccess } from "@/features/instructors/instructorAppAccess";
 import { instructorQueryKeys } from "@/features/instructors/instructorQueryKeys";
 import { Instructor, InstructorAppAccessStatus } from "@/features/instructors/types";
-import { Member } from "@/features/members/types";
 import { memberErrorCodes } from "@/features/members/memberErrorCodes";
 import { useTeam } from "@/features/members/useTeam";
 import {
@@ -14,11 +12,8 @@ import {
   useResendInvitation,
   useRevokeInvitation,
 } from "@/features/members/useTeamMutations";
-import { isPlatformRole, memberRoleLabel } from "@/features/roles/roleChoices";
-import { useRoles } from "@/features/roles/useRoles";
 import { emailAddressPattern } from "@/forms/emailAddress";
 import { translate } from "@/i18n/translate";
-import { routes } from "@/navigation/routes";
 import { AppText, TextTone } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { Button } from "@/ui/Button";
@@ -38,38 +33,6 @@ const statusTones: Record<InstructorAppAccessStatus, TextTone> = {
 
 interface InviteInstructorAppSectionProps {
   instructor: Instructor;
-}
-
-interface MemberRoleRowProps {
-  member: Member;
-}
-
-function MemberRoleRow({ member }: MemberRoleRowProps) {
-  const router = useRouter();
-  const { data: roles } = useRoles();
-  return (
-    <View className="flex-row items-center gap-2.5 border-t border-border-subtle pt-2.5">
-      <View className="min-w-0 flex-1 gap-0.5">
-        <AppText variant="footnote" tone="subtle">
-          {translate("team.invite.role")}
-        </AppText>
-        <AppText variant="bodyStrong">
-          {member.isBrandOwner
-            ? translate("roles.BrandOwner")
-            : memberRoleLabel(member.role, member.customRoleId, roles)}
-        </AppText>
-      </View>
-      <Button
-        variant="secondary"
-        size="small"
-        label={translate("team.member.changeRole")}
-        accessibilityLabel={translate("team.member.changeRoleAccessibility", {
-          name: member.fullName,
-        })}
-        onPress={() => router.push(routes.teamMember(member.id))}
-      />
-    </View>
-  );
 }
 
 export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSectionProps) {
@@ -105,12 +68,6 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
   const isSending = inviteMutation.isPending || resendMutation.isPending;
   const accessEmail = access.member?.email ?? access.invitation?.email ?? "";
   const pendingInvitation = access.invitation;
-  const editableMember =
-    access.member !== undefined &&
-    !access.member.isCurrentUser &&
-    !isPlatformRole(access.member.role)
-      ? access.member
-      : undefined;
 
   const sendTo = async (recipientEmail: string) => {
     setFailureMessage(undefined);
@@ -217,7 +174,6 @@ export function InviteInstructorAppSection({ instructor }: InviteInstructorAppSe
           </View>
         )}
       </View>
-      {editableMember ? <MemberRoleRow member={editableMember} /> : null}
       {failureMessage ? <Banner message={failureMessage} /> : null}
       {isAskingEmail ? (
         <TonalBlock tone="muted">

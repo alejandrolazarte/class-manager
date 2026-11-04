@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { Linking, View } from "react-native";
 import { InstructorClasses } from "@/features/instructors/components/InstructorClasses";
+import { InstructorRoleSection } from "@/features/instructors/components/InstructorRoleSection";
 import { InviteInstructorAppSection } from "@/features/instructors/components/InviteInstructorAppSection";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
 import { useCan } from "@/features/members/CurrentMemberProvider";
@@ -90,6 +91,9 @@ export function InstructorDetailScreen({ instructorId }: InstructorDetailScreenP
       ) : null}
       {canManageMembers && instructor.isActive ? (
         <InviteInstructorAppSection instructor={instructor} />
+      ) : null}
+      {canManageMembers && instructor.isActive ? (
+        <InstructorRoleSection instructorId={instructor.id} />
       ) : null}
       {canManageInstructors && instructor.samePersonClientId ? (
         <SamePersonNotice
