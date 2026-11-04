@@ -71,6 +71,7 @@ interface ClassPackFieldOptions {
     | "renewsMonthly"
     | "hasLibreClasses"
     | "priceEffectiveFrom"
+    | "isVisibleInApp"
   >;
   labelKey: TranslationKey;
   placeholderKey?: TranslationKey;
@@ -429,6 +430,22 @@ function ClassPackEditor({ classPack }: ClassPackEditorProps) {
         images={images}
         placeholderIcon="classPacks"
         maximumImageCount={classPackLimits.maximumImageCount}
+      />
+      <Controller
+        control={form.control}
+        name="isVisibleInApp"
+        render={({ field }) => (
+          <ToggleSwitch
+            label={translate("classPacks.form.visibleInApp")}
+            hint={translate(
+              renewsMonthly
+                ? "classPacks.form.visibleInAppPlanHint"
+                : "classPacks.form.visibleInAppPackHint",
+            )}
+            value={field.value}
+            onValueChange={field.onChange}
+          />
+        )}
       />
       <View className="gap-3">
         <Button

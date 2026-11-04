@@ -1,5 +1,6 @@
 import { View } from "react-native";
-import { PackClassCountPill, packDetails } from "@/features/studentApp/components/PackCard";
+import { ClassOfferBadge } from "@/features/studentApp/components/ClassOfferCard";
+import { packBadge, packDetails } from "@/features/studentApp/components/PackCard";
 import { ProductPhotoCarousel } from "@/features/studentApp/components/ProductPhotoCarousel";
 import { StudentAppShopPack } from "@/features/studentApp/types";
 import { formatMoney } from "@/formatting/money";
@@ -51,7 +52,7 @@ export function PackDetailPage({
           placeholderIcon="classPacks"
           size="page"
         />
-        <PackClassCountPill classCount={pack.classCount} />
+        <ClassOfferBadge label={packBadge(pack)} />
       </View>
       <View className="gap-3.5 px-5 pb-6 pt-[18px]">
         <View className="gap-1">

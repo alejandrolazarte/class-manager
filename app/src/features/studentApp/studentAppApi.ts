@@ -108,6 +108,15 @@ export function markStudentAppNewsSeen(): Promise<void> {
 }
 
 const studentsSegment = "students";
+
+const planSegment = "plan";
+
+export function chooseStudentAppPlan(studentId: string, classPackId: string | null): Promise<void> {
+  return httpClient.put<void>(
+    `${studentAppPath}/${studentsSegment}/${encodeURIComponent(studentId)}/${planSegment}`,
+    { classPackId },
+  );
+}
 const absencesSegment = "absences";
 
 function absencePath(studentId: string, classGroupId: string, sessionDate: string): string {

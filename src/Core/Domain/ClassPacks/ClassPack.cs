@@ -47,6 +47,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
     public int? ClassDurationMinutes { get; private set; }
     public bool CoversAnyGroupClass { get; private set; }
     public bool IsActive { get; private set; }
+    public bool IsVisibleInApp { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public long? CreatedByUserId { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
@@ -60,6 +61,8 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
 
     public bool IsSoldOnce => !RenewsMonthly;
 
+    public bool IsOfferedInApp => IsActive && IsVisibleInApp;
+
     public static Result<ClassPack> Create(
         string? name,
         int? classCount,
@@ -72,6 +75,7 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
         var pack = new ClassPack
         {
             IsActive = true,
+            IsVisibleInApp = true,
             CreatedAt = createdAt.ToUniversalTime(),
         };
         var update = pack.Update(name, classCount, price, validityMonths, renewsMonthly, appliesFamilyDiscount);
@@ -197,6 +201,8 @@ public sealed class ClassPack : ITenantOwned, IAuditable, IHasCatalogImages
             : ClassDurationMinutes is null
                 && attendedClass.ClassGroupId is { } classGroupId
                 && (CoversAnyGroupClass || CoversClassGroup(classGroupId));
+
+    public void ShowInApp(bool isVisibleInApp) => IsVisibleInApp = isVisibleInApp;
 
     public void Activate() => IsActive = true;
 

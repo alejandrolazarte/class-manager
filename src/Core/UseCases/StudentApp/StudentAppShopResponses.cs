@@ -7,6 +7,10 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record StudentAppShopPackResponse(long Id, string Name, string? Description, int ClassCount, decimal Price, int? ValidityMonths, IReadOnlyList<CatalogImageResponse> Images);
 
+public sealed record StudentAppShopPlanResponse(long Id, string Name, string? Description, int? ClassCount, decimal Price, IReadOnlyList<CatalogImageResponse> Images);
+
+public sealed record StudentAppPlanStudentResponse(long StudentId, string FullName, long? CurrentPlanId, string? CurrentPlanName, long? NextMonthPlanId);
+
 public sealed record StudentAppShopVariantResponse(long Id, string Size, string? Color, StockAvailability Availability, int? MaximumUnits);
 
 public sealed record StudentAppShopProductResponse(
@@ -22,7 +26,9 @@ public sealed record StudentAppShopResponse(
     IReadOnlyList<StudentAppShopPackResponse> Packs,
     IReadOnlyList<StudentAppShopProductResponse> Products,
     IReadOnlyList<DeliveryClassResponse> DeliveryClasses,
-    bool CanBuy);
+    bool CanBuy,
+    IReadOnlyList<StudentAppShopPlanResponse> Plans,
+    IReadOnlyList<StudentAppPlanStudentResponse> PlanStudents);
 
 public sealed record StudentAppOrderLineResponse(long Id, OrderLineKind Kind, string Name, int Quantity, decimal Total, int RefundedQuantity);
 

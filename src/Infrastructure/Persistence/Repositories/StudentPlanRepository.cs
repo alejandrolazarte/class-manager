@@ -21,6 +21,11 @@ internal sealed class StudentPlanRepository(AppDbContext context) : IStudentPlan
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<StudentPlanChange>> ListForUpdateAsync(long studentId, CancellationToken cancellationToken) =>
+        await context.StudentPlanChanges
+            .Where(change => change.StudentId == studentId)
+            .ToListAsync(cancellationToken);
+
     public Task<StudentPlanChange?> FindForUpdateAsync(long studentId, DateOnly effectiveFrom, CancellationToken cancellationToken) =>
         context.StudentPlanChanges.FirstOrDefaultAsync(
             change => change.StudentId == studentId && change.EffectiveFrom == effectiveFrom,

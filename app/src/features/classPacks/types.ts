@@ -16,6 +16,7 @@ export interface ClassPack {
   renewsMonthly: boolean;
   appliesFamilyDiscount: boolean;
   priceChanges: ClassPackPriceChange[];
+  isVisibleInApp: boolean;
 }
 
 export interface ClassPackPriceChange {
@@ -39,6 +40,7 @@ export interface SaveClassPackRequest {
   classGroupIds: string[];
   coversAnyGroupClass: boolean;
   renewsMonthly: boolean;
+  isVisibleInApp: boolean;
   priceEffectiveFrom?: string;
 }
 
