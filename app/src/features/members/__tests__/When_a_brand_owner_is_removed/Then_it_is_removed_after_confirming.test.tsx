@@ -22,8 +22,9 @@ describe("When a brand owner is removed", () => {
     await renderWithProviders(<MemberScreen memberId={brandOwner.id} />);
 
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("team.member.removeBrandOwner") }),
+      await screen.findByRole("button", { name: translate("roles.BranchOwner") }),
     );
+    await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
     expect(removeBrandOwner).not.toHaveBeenCalled();
     await fireEvent.press(
       screen.getByRole("button", { name: translate("team.member.confirmRemoveBrandOwner") }),

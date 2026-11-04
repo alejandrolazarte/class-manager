@@ -22,8 +22,9 @@ describe("When member is made brand owner", () => {
     await renderWithProviders(<MemberScreen memberId={branchOwner.id} />);
 
     await fireEvent.press(
-      await screen.findByRole("button", { name: translate("team.member.makeBrandOwner") }),
+      await screen.findByRole("button", { name: translate("roles.BrandOwner") }),
     );
+    await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     await waitFor(() => expect(makeBrandOwner).toHaveBeenCalledWith(branchOwner.id));
   });

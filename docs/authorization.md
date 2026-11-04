@@ -161,6 +161,7 @@ The `role` claim in the token is informational; authorization never reads it.
 
 - `MemberProvider` loads `GET /api/me` next to the business; `useCan(...)` hides tabs, rows, buttons and sections the member can't use ([frontend plan](frontend/20260928-roles-and-team/plan.md)).
 - Ajustes → Equipo lists members and pending invitations, invites, changes roles and removes members.
+- A member linked to a profe is managed from the instructor profile: its role, brand owner included, is changed from there and the profe stays linked for every role ([one profile per instructor](frontend/20261104-one-instructor-profile/plan.md)).
 - Ajustes → Roles lists the branch's roles and the app's; a system role can be copied into a custom one, and custom roles are edited by module with "No / Solo lo suyo / Todo" for the modules tied to an instructor.
 - The email link opens `/accept-invitation?token=`, which creates the account if needed and signs in.
 

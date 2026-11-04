@@ -20,6 +20,19 @@ export interface RoleChoice {
 
 const instructorRole: SystemRole = "Instructor";
 
+export const brandOwnerRoleKey = "BrandOwner";
+
+const roleHintKeys: Partial<Record<string, TranslationKey>> = {
+  [brandOwnerRoleKey]: "team.member.brandOwnerHint",
+  BranchOwner: "roles.hint.BranchOwner",
+  Viewer: "roles.hint.Viewer",
+};
+
+export function roleHint(roleKey: string): string | undefined {
+  const hintKey = roleHintKeys[roleKey];
+  return hintKey ? translate(hintKey) : undefined;
+}
+
 export function systemRoleLabel(role: SystemRole | PlatformRole): string {
   return translate(`roles.${role}` as TranslationKey);
 }
