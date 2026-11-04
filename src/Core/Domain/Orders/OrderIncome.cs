@@ -2,7 +2,7 @@ using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.Domain.Orders;
 
-public sealed record OrderIncome(decimal ProductsCollected, decimal ProductsUnpaid, decimal ClassPacksCollected)
+public sealed record OrderIncome(decimal Collected, decimal Unpaid, decimal ClassPacksCollected, decimal ProductsCollected)
 {
     public static OrderIncome In(IEnumerable<Order> orders, BillingMonth month, string currencyCode)
     {
@@ -10,11 +10,14 @@ public sealed record OrderIncome(decimal ProductsCollected, decimal ProductsUnpa
             .Where(order => order.CurrencyCode == currencyCode && order.Status != OrderStatus.Cancelled)
             .Select(order => (Collected: CollectedIn(order, month), order.Balance, ClassPackShare: ClassPackShareOf(order)))
             .ToList();
+        var collected = Rounded(countedOrders.Sum(order => order.Collected));
+        var classPacksCollected = Rounded(countedOrders.Sum(order => order.Collected * order.ClassPackShare));
 
         return new OrderIncome(
-            Rounded(countedOrders.Sum(order => order.Collected * (1 - order.ClassPackShare))),
-            Rounded(countedOrders.Sum(order => order.Balance * (1 - order.ClassPackShare))),
-            Rounded(countedOrders.Sum(order => order.Collected * order.ClassPackShare)));
+            collected,
+            Rounded(countedOrders.Sum(order => order.Balance)),
+            classPacksCollected,
+            collected - classPacksCollected);
     }
 
     private static decimal CollectedIn(Order order, BillingMonth month)

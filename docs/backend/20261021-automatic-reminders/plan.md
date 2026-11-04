@@ -143,7 +143,7 @@ The month's fees list (`GET /api/fees`) gains `lastRemindedAt` per client.
 1. **Class reminders**: the planner, the class reminder task, `SentReminders`, the business and family settings. The pilot owner turns them on.
 2. **Payment reminders**: due day, the fee push and email, the pack and owed-classes pushes.
 3. **Reminding by hand** from Cobros → Deben.
-4. **Always on** (operations, no code): `minReplicas 1` and the database on Basic, when the first business pays. Until then reminders go out only while the container is running.
+4. **Always on** (operations, no code): `minReplicas 1` and the database on Basic, when the first business pays. Until then reminders go out only while the container is running. Done: the database on 2026-10-24, the API on 2026-11-03 ([hosting plan](../../hosting-plan.md#when-to-leave-the-free-setup)).
 
 Each code step is its own PR.
 

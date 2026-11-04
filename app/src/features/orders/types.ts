@@ -71,6 +71,8 @@ export interface OrderSummary {
   month: string;
   collected: number;
   unpaid: number;
+  classPacksCollected: number;
+  productsCollected: number;
 }
 
 export interface CounterSaleLine {

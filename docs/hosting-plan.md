@@ -31,7 +31,7 @@ flowchart LR
 | Piece | Service | Free allowance |
 |---|---|---|
 | Database | Azure SQL Database, DTU Basic (since 2026-10-24) | Not free: about EUR 5 a month, fixed, always online, 2 GB. The pilot started on the free offer (100,000 vCore-seconds a month), which ran out and paused the database; see [When to leave the free setup](#when-to-leave-the-free-setup) |
-| API | Azure Container Apps, consumption plan | 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per subscription per month; nothing is billed while scaled to zero |
+| API | Azure Container Apps, consumption plan, one replica always on (since 2026-11-03) | 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per subscription per month. One replica of 0.25 vCPU and 0.5 GiB running all month uses more than that, and the rest is billed (idle seconds at a lower rate); check the first invoice |
 | Photos | Azure Blob Storage, hot LRS | Not free, but cents per month at pilot scale; see [storage](storage.md) |
 | Container image | GitHub Container Registry (`ghcr.io`), private package | Included in the GitHub plan's Packages storage; avoids Azure Container Registry, which has no free tier |
 | Web app | Azure Static Web Apps, Free plan | 100 GB of bandwidth per subscription per month, 2 custom domains per app, free certificates, no SLA |
@@ -40,7 +40,7 @@ flowchart LR
 ## What "free" really means here
 
 - **The database is the one paid piece** (Basic, about EUR 5 a month). The free offer's 100,000 vCore-seconds (about 28 vCore-hours a month) ran out during development and paused the database until the next month.
-- **Scale to zero means cold starts.** The first request after a quiet period waits for the API container to start (10 to 20 seconds). The database no longer pauses. Acceptable for a pilot; not for production.
+- **The API no longer scales to zero.** With `minReplicas: 1` there are no cold starts, and the background workers (emails, push, expired orders, reminders) run at any hour. Before 2026-11-03 the first request after a quiet period waited 10 to 20 seconds for the container to start.
 - **Production will cost money** on any cloud. The API is a container, so moving providers later is cheap.
 
 ## Prerequisite: authentication
@@ -98,7 +98,7 @@ Create a **EUR 8 monthly budget** in Cost Management, with email alerts on actua
 
 - Create an environment on the consumption plan.
 - Create the app from the `ghcr.io` image, with registry credentials stored as a Container Apps secret (a classic token with `read:packages` only: GitHub Packages doesn't accept fine-grained tokens).
-- `minReplicas: 0`, `maxReplicas: 1` for the pilot.
+- `minReplicas: 1`, `maxReplicas: 1`: one replica always on, so scheduled work such as reminders runs at any hour.
 - **JWT signing key:** generate at least 32 random bytes and store them as a Container Apps secret, exposed to the app as the environment variable `Authentication__Jwt__SigningKey` (a `secretref`, never a plain value). Issuer, audience and token lifetimes come from `appsettings.json`. The API validates the key at startup and does not start if it is missing or shorter than 32 bytes.
 
   ```powershell
@@ -159,7 +159,7 @@ Flow (`.github/workflows/deploy.yml`): PR merged to `main` → CI green → push
 | Database outgrows Basic (5 DTU, 2 GB) | Watch DTU percentage and data space in the portal; move to Standard S0 when DTU stays above 80% at peak hours |
 | Log Analytics ingestion | Short retention, low log level in production |
 | Azure Container Registry created by `az containerapp up` | Don't use `az containerapp up`; use `ghcr.io` |
-| `minReplicas` > 0 | Keep 0 during the pilot |
+| `minReplicas: 1` bills the replica all month | Keep `maxReplicas: 1` and 0.25 vCPU / 0.5 GiB; watch Container Apps in Cost Management |
 | GitHub Packages storage | Delete old image versions (keep the last few) |
 
 ## When to leave the free setup
@@ -170,6 +170,14 @@ Flow (`.github/workflows/deploy.yml`): PR merged to `main` → CI green → push
 At that point: move the database to the Basic tier (about USD 5 a month, online all the time; runbook in [Database on the Basic tier](database-basic-tier.md)) and set `minReplicas: 1`, or compare with other providers using real usage numbers.
 
 **Done for the database on 2026-10-24**, when the free allowance ran out during development. The pilot data was only the owner's, so the free database was deleted and a Basic one created on the same server with the same name: connection strings and GitHub variables stayed valid, and the deploy recreated the schema. It stays in France Central: Spain Central was about EUR 1 a month dearer for the same setup and only 20 ms closer. `minReplicas` stays 0 until a business depends on scheduled work such as reminders.
+
+**Done for the API on 2026-11-03**: automatic reminders go out N hours before each class, at any hour, so the container can't stop between requests. Applied with:
+
+```powershell
+az containerapp update --name class-manager-api --resource-group class-manager-rg --min-replicas 1 --query "properties.template.scale" -o table
+```
+
+It printed `MinReplicas 1`, `MaxReplicas 1`. To go back to scale to zero, run the same command with `--min-replicas 0`.
 
 ## Sources
 

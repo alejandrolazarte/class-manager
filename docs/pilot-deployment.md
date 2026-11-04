@@ -142,7 +142,7 @@ $databaseConnectionString = "Server=tcp:$sqlServer.database.windows.net,1433;Dat
 
 az containerapp create --name $containerApp --resource-group $resourceGroup --environment $containerEnvironment `
   --image mcr.microsoft.com/dotnet/samples:aspnetapp --target-port 8080 --ingress external `
-  --min-replicas 0 --max-replicas 1 --cpu 0.25 --memory 0.5Gi --system-assigned `
+  --min-replicas 1 --max-replicas 1 --cpu 0.25 --memory 0.5Gi --system-assigned `
   --registry-server ghcr.io --registry-username alejandrolazarte --registry-password $githubPackagesToken `
   --secrets "jwt-signing-key=$jwtSigningKey" `
   --env-vars "Authentication__Jwt__SigningKey=secretref:jwt-signing-key" "ConnectionStrings__BusinessDatabase=$databaseConnectionString"
@@ -394,7 +394,7 @@ az role assignment list --assignee-object-id $deployObjectId --all --output tabl
 gh variable list --repo $repository
 ```
 
-Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 0, the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, the database is `Basic` / `Basic` without the free limit, and the only CORS origin is `https://app.laztty.com`.
+Expected: the image is `ghcr.io/...:<commit>`, `minReplicas` is 1 (always on since 2026-11-03, see [hosting plan](hosting-plan.md#when-to-leave-the-free-setup)), the only secrets are `jwt-signing-key`, `smtp-password` and the registry password, only `AllowAzureServices` remains in the firewall, the database is `Basic` / `Basic` without the free limit, and the only CORS origin is `https://app.laztty.com`.
 
 ## Rotating secrets
 

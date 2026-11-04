@@ -16,9 +16,7 @@ describe("When order notification is opened by collector", () => {
   it("Then collections orders are shown", async () => {
     await renderWithProviders(<NotifiedOrdersScreen />, { member: buildCurrentMember() });
 
-    await waitFor(() =>
-      expect(routerMock.navigate).toHaveBeenCalledWith(routes.collections("orders")),
-    );
+    await waitFor(() => expect(routerMock.navigate).toHaveBeenCalledWith(routes.collections));
     expect(navigationMock.reset).toHaveBeenCalledWith({ index: 0, routes: [{ name: "index" }] });
     expect(routerMock.replace).not.toHaveBeenCalled();
   });

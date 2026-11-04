@@ -16,6 +16,14 @@ export function useOrders(clientId: string | null, filter: OrderFilter) {
   });
 }
 
+export function useMonthOrders(month: string, { enabled = true } = {}) {
+  return useQuery({
+    queryKey: orderQueryKeys.month(month),
+    queryFn: () => listOrders(null, "all", month),
+    enabled,
+  });
+}
+
 export function useOrder(orderId: string) {
   return useQuery({
     queryKey: orderQueryKeys.detail(orderId),

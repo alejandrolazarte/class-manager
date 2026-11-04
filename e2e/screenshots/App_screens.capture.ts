@@ -245,7 +245,8 @@ test("App screens", async ({ page, request }) => {
   await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "10b-cuotas-todos.png") });
 
-  await page.goto("/fees?view=orders");
+  await page.goto("/fees");
+  await page.getByRole("button", { name: "Productos" }).click();
   await page
     .getByText(/para entregar$/)
     .filter({ visible: true })
@@ -254,6 +255,17 @@ test("App screens", async ({ page, request }) => {
   await page.waitForTimeout(settleMilliseconds);
   await waitForBrandWelcomeToClose(page);
   await page.screenshot({ path: join(outputDirectory, "10c-cobros-pedidos.png") });
+
+  await page.goto("/students");
+  await page.getByRole("tab", { name: "Saldo de clases" }).click();
+  await page
+    .getByText(/^(Quedan|Queda|Debe) /)
+    .filter({ visible: true })
+    .first()
+    .waitFor();
+  await page.waitForTimeout(settleMilliseconds);
+  await waitForBrandWelcomeToClose(page);
+  await page.screenshot({ path: join(outputDirectory, "07b-alumnos-saldo-de-clases.png") });
 
   await openAppearance(page);
   await page.getByText("Automático").filter({ visible: true }).first().waitFor();

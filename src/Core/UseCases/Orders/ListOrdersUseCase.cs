@@ -2,10 +2,11 @@ using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Authorization;
+using ClassManager.Core.Domain.Fees;
 
 namespace ClassManager.Core.UseCases.Orders;
 
-public sealed record ListOrdersQuery(long? ClientId, bool AwaitingPickupOnly, bool OwingOnly = false) : IQuery;
+public sealed record ListOrdersQuery(long? ClientId, bool AwaitingPickupOnly, bool OwingOnly = false, string? Month = null) : IQuery;
 
 public sealed class ListOrdersUseCase(
     IOrderRepository orderRepository,
@@ -18,9 +19,17 @@ public sealed class ListOrdersUseCase(
 
     public async Task<Result<IReadOnlyList<OrderResponse>>> ExecuteAsync(ListOrdersQuery command, CancellationToken cancellationToken)
     {
+        var month = command.Month is null ? null : BillingMonth.Parse(command.Month, nameof(ListOrdersQuery.Month));
+        if (month is { IsFailure: true })
+        {
+            return month.Error!;
+        }
+
         var scope = await accessScopes.ForClientsAsync(Permissions.Orders.ViewAll, cancellationToken);
         var orders = await orderRepository.ListAsync(
-            new OrderSearchCriteria(command.ClientId, command.AwaitingPickupOnly, OrderLimit, command.OwingOnly), scope, cancellationToken);
+            new OrderSearchCriteria(command.ClientId, command.AwaitingPickupOnly, OrderLimit, command.OwingOnly, Month: month?.Value),
+            scope,
+            cancellationToken);
         var clientIds = orders.Select(order => order.ClientId).OfType<long>().Distinct().ToList();
         var clientsById = (await clientRepository.ListByIdsAsync(clientIds, cancellationToken)).ToDictionary(client => client.Id);
         var classGroupNames = orders.Any(order => order.DeliveryClassGroupId is not null)
