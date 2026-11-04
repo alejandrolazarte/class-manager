@@ -17,7 +17,8 @@ internal sealed class OrderNotificationService(
     IBackgroundTaskOutbox backgroundTasks,
     IWebAppLinks webAppLinks,
     PushPublisher pushPublisher,
-    TeamNotifier teamNotifier)
+    TeamNotifier teamNotifier,
+    TeamRecipients teamRecipients)
     : IOrderNotificationService
 {
     public async Task OrderPlacedAsync(Order order, CancellationToken cancellationToken)
@@ -31,7 +32,7 @@ internal sealed class OrderNotificationService(
 
         var total = OrderEmails.Amount(order.Total, order.CurrencyCode);
         var deliveryClassName = order.HasProducts ? await DeliveryClassNameAsync(order, cancellationToken) : null;
-        var staffUserIds = await StaffUserIdsAsync(business, cancellationToken);
+        var staffUserIds = await teamRecipients.WithPermissionAsync(Permissions.Orders.Manage, cancellationToken);
         foreach (var recipient in await RecipientsOfAsync(staffUserIds, cancellationToken))
         {
             var delivery = order.HasProducts ? recipient.Texts.OrderDeliveryForBranch(deliveryClassName) : null;
@@ -176,22 +177,6 @@ internal sealed class OrderNotificationService(
         return clientEmail is null ? [] : [new OrderEmailRecipient(clientEmail, EmailTexts.Spanish)];
     }
 
-    private async Task<IReadOnlyCollection<Guid>> StaffUserIdsAsync(Business business, CancellationToken cancellationToken)
-    {
-        var members = await context.BusinessMembers.AsNoTracking().Include(member => member.User).ToListAsync(cancellationToken);
-        var customRoles = await context.CustomRoles.AsNoTracking().ToDictionaryAsync(role => role.Id, cancellationToken);
-        var userIds = members
-            .Where(member => PermissionsOf(member, customRoles).Contains(Permissions.Orders.Manage))
-            .Where(member => member.User.AccountId != null)
-            .Select(member => member.User.AccountId!.Value)
-            .ToHashSet();
-        userIds.UnionWith(await context.OrganizationMembers.AsNoTracking()
-            .Where(member => member.OrganizationId == business.OrganizationId && member.Role == OrganizationRole.BrandOwner)
-            .Select(member => member.UserId)
-            .ToListAsync(cancellationToken));
-        return userIds;
-    }
-
     private async Task<IReadOnlyList<OrderEmailRecipient>> RecipientsOfAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
         userIds.Count == 0
             ? []
@@ -200,11 +185,6 @@ internal sealed class OrderNotificationService(
                     .DistinctBy(account => account.Email)
                     .Select(account => new OrderEmailRecipient(account.Email, EmailTexts.For(account.PreferredLanguage))),
             ];
-
-    private static IReadOnlySet<string> PermissionsOf(BusinessMember member, Dictionary<long, CustomRole> customRoles) =>
-        member.CustomRoleId is { } customRoleId
-            ? customRoles.TryGetValue(customRoleId, out var customRole) ? MemberRole.Custom(customRole).Permissions : new HashSet<string>()
-            : SystemRolePermissions.Of(member.Role);
 
     private Task SendAsync(EmailMessage message, CancellationToken cancellationToken) =>
         backgroundTasks.EnqueueAsync(new SendEmailBackgroundTaskCommand(message), cancellationToken);

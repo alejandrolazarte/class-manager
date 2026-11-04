@@ -141,6 +141,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IStudentAppNotificationService, StudentAppNotificationService>();
         services.AddBackgroundTask<PublishScheduledAnnouncementBackgroundTaskCommand, PublishScheduledAnnouncementBackgroundTaskHandler>();
         services.AddScoped<TeamNotifier>();
+        services.AddScoped<TeamRecipients>();
         services.AddScoped<ITeamNotificationService, TeamNotificationService>();
 
         return services;

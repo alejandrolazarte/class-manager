@@ -9,6 +9,8 @@ internal sealed class SpanishNotificationTexts : INotificationTexts
 
     private static readonly string[] Weekdays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
     private static readonly string[] ShortWeekdays = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+    private static readonly string[] Months =
+        ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
     public string Language => AccountLanguage.Spanish;
 
@@ -70,6 +72,17 @@ internal sealed class SpanishNotificationTexts : INotificationTexts
     public string TeamInvitationDeclinedTitle(string email) => $"{email} rechazó la invitación al equipo";
 
     public string OrderPlacedTitle(string orderNumber, string clientFullName) => $"Nuevo pedido {orderNumber} de {clientFullName}";
+
+    public string StudentPlanChosenTitle(string studentFullName, string planName) =>
+        $"{PersonNames.FirstNameOf(studentFullName)} eligió el plan {planName}";
+
+    public string StudentPlanChosenBody(DateOnly effectiveFrom) => $"Desde {MonthOf(effectiveFrom)}.";
+
+    public string StudentPlanCancelledTitle(string studentFullName) => $"{PersonNames.FirstNameOf(studentFullName)} dio de baja su plan";
+
+    public string StudentPlanCancelledBody(DateOnly effectiveFrom) => $"Sin plan desde {MonthOf(effectiveFrom)}.";
+
+    private static string MonthOf(DateOnly date) => Months[date.Month - 1];
 
     private static string Time(TimeOnly time) => time.ToString(TimeFormat, CultureInfo.InvariantCulture);
 }

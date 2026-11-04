@@ -1,5 +1,6 @@
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.ClassGroups;
+using ClassManager.Core.Domain.ClassPacks;
 using ClassManager.Core.Domain.Clients;
 using ClassManager.Core.Domain.Sessions;
 
@@ -18,4 +19,6 @@ public interface ITeamNotificationService
     Task TeamInvitationDeclinedAsync(MemberInvitation invitation, CancellationToken cancellationToken);
 
     Task GuardianConsentRefusedAsync(ClientInvitation invitation, CancellationToken cancellationToken);
+
+    Task StudentPlanChangedAsync(long studentId, ClassPack? plan, DateOnly effectiveFrom, CancellationToken cancellationToken);
 }

@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Status: agreed with the owner on 2026-11-03. Step 1 built; steps 2 to 4 next. Builds on the [plans catalog](../20261031-plans-catalog/plan.md).
+Status: agreed with the owner on 2026-11-03. Steps 1 and 4 built; steps 2 and 3 next. Builds on the [plans catalog](../20261031-plans-catalog/plan.md).
 
 ## Why
 
@@ -42,7 +42,7 @@ The owner's point: a monthly plan is a subscription like in any other app. The s
 1. **Shop** (built): `IsVisibleInApp` on packs and plans with its migration and the toggle in the pack and plan form; the shop lists the plans; `PUT /api/student-app/students/{studentId}/plan` chooses (`classPackId`) or cancels (`null`) a plan with the rules above; the plan page in the shop with ConfirmDialog for both.
 2. **Counter**: sell a plan in Venta en mostrador (gives the plan and records the month's payment).
 3. **Nuevo alumno**: "¿Qué paga?" optional.
-4. **Team notice**: tell the team when a student chooses or cancels a plan from the app.
+4. **Team notice** (built): when a student chooses or cancels a plan from the app, the members who see every payment (`payments.view.all`) and the brand owners get an aviso ("Ana eligió el plan X · Desde diciembre.", "Ana dio de baja su plan · Sin plan desde diciembre.") that opens the family card. Choosing what the person already has for that month notifies nobody.
 
 Later, with [online payments](../20260929-online-shop-and-payments/plan.md): a plan maps to a Stripe subscription and is charged automatically every month.
 

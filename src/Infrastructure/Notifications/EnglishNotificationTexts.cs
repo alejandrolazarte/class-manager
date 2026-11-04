@@ -8,6 +8,7 @@ internal sealed class EnglishNotificationTexts : INotificationTexts
     private const string TimeFormat = "HH:mm";
     private const string DateFormat = "dddd, MMM d";
     private const string ShortDateFormat = "ddd MMM d";
+    private const string MonthFormat = "MMMM";
 
     private static readonly CultureInfo EnglishCulture = CultureInfo.GetCultureInfo("en-US");
 
@@ -71,6 +72,17 @@ internal sealed class EnglishNotificationTexts : INotificationTexts
     public string TeamInvitationDeclinedTitle(string email) => $"{email} declined the team invitation";
 
     public string OrderPlacedTitle(string orderNumber, string clientFullName) => $"New order {orderNumber} from {clientFullName}";
+
+    public string StudentPlanChosenTitle(string studentFullName, string planName) =>
+        $"{PersonNames.FirstNameOf(studentFullName)} chose the {planName} plan";
+
+    public string StudentPlanChosenBody(DateOnly effectiveFrom) => $"From {MonthOf(effectiveFrom)}.";
+
+    public string StudentPlanCancelledTitle(string studentFullName) => $"{PersonNames.FirstNameOf(studentFullName)} cancelled their plan";
+
+    public string StudentPlanCancelledBody(DateOnly effectiveFrom) => $"No plan from {MonthOf(effectiveFrom)}.";
+
+    private static string MonthOf(DateOnly date) => date.ToString(MonthFormat, EnglishCulture);
 
     private static string Date(DateOnly date) => date.ToString(DateFormat, EnglishCulture);
 

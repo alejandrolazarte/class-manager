@@ -11,6 +11,7 @@ Coaches and owners had no notifications: a new order sent an email to the staff,
 | A family says a student won't come (`PUT /api/family/.../absences/...`) | The coach of that session |
 | A family books a makeup class | The coach of that session |
 | A family places an order from the app | Members who manage orders (`Orders.Manage`) and brand owners, the same people who get the order email |
+| A student chooses or cancels a monthly plan from the app | Members who see every payment (`Payments.ViewAll`) and brand owners; the aviso opens the family card ([plans in the shop](../20261103-plans-in-the-shop/plan.md)) |
 
 - **Coach of the session:** members linked to the session's effective instructor (the substitute when there is one).
 - **No coach in the app:** when no member is linked to that instructor, the branch owners get it instead. This covers the common case of an owner who also teaches (sign-up creates the owner's instructor record, but it is not linked to the owner's membership), and instructors without an app account.
