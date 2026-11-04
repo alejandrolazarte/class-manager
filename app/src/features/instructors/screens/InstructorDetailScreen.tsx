@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import { Linking, View } from "react-native";
+import { InstructorClasses } from "@/features/instructors/components/InstructorClasses";
 import { InviteInstructorAppSection } from "@/features/instructors/components/InviteInstructorAppSection";
 import { useInstructorsIncludingInactive } from "@/features/instructors/useInstructorsIncludingInactive";
 import { useCan } from "@/features/members/CurrentMemberProvider";
@@ -26,6 +27,7 @@ export function InstructorDetailScreen({ instructorId }: InstructorDetailScreenP
   const instructorsQuery = useInstructorsIncludingInactive();
   const canManageInstructors = useCan(permissions.instructorsManage);
   const canManageMembers = useCan(permissions.membersManage);
+  const canViewClassGroups = useCan(permissions.classGroupsViewOwn, permissions.classGroupsViewAll);
   const instructor = instructorsQuery.data?.find((candidate) => candidate.id === instructorId);
 
   if (instructor === undefined) {
@@ -95,6 +97,7 @@ export function InstructorDetailScreen({ instructorId }: InstructorDetailScreenP
           onSeparate={() => router.push(routes.separateInstructor(instructor.id))}
         />
       ) : null}
+      {canViewClassGroups ? <InstructorClasses instructorId={instructor.id} /> : null}
     </ScrollScreen>
   );
 }

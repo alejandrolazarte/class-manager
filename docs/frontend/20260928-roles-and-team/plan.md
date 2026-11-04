@@ -98,7 +98,7 @@ src/features/members/__tests__/
 
 - Ajustes → **Sedes** (shown with more than one branch, or to brand owners): every branch the user can open, with their role there and "Actual". Tapping one switches the session (`useSession().switchBranch`, which stores the new refresh token and resets every query) and opens Hoy.
 - **Nueva sede** (`branches.create`): name, country and time zone (the Canary Islands are `Atlantic/Canary`), currency. The new branch appears in the list; tapping it enters.
-- Miembro: **Hacer dueño de marca** / **Quitar de dueños de marca** (`brandOwners.manage`). Equipo shows "Dueño de marca" on those members.
+- Miembro: **Dueño de marca** is one more role chip (`brandOwners.manage`), see [one profile per instructor](../20261104-one-instructor-profile/plan.md). Equipo shows "Dueño de marca" on those members.
 - Tests in `src/features/branches/__tests__` and `src/features/members/__tests__/When_member_is_made_brand_owner`.
 
 ## Custom roles (step 4)

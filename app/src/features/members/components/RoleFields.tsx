@@ -15,6 +15,8 @@ interface RoleFieldsProps {
   onRoleChange: (roleKey: string) => void;
   onInstructorChange: (instructorId: string | null) => void;
   instructorError?: string;
+  includesBrandOwner?: boolean;
+  isInstructorLinked?: boolean;
 }
 
 export function RoleFields({
@@ -24,14 +26,25 @@ export function RoleFields({
   onRoleChange,
   onInstructorChange,
   instructorError,
+  includesBrandOwner = false,
+  isInstructorLinked = false,
 }: RoleFieldsProps) {
   const { data: roles } = useRoles();
   const selectedChoice = findRoleChoice(roleKey, roles);
   const instructorLabel = withRequiredMark(translate("team.invite.instructor"));
   return (
     <View className="gap-4">
-      <RoleChips roleKey={roleKey} onRoleChange={onRoleChange} />
-      {selectedChoice?.needsInstructor ? (
+      <RoleChips
+        roleKey={roleKey}
+        onRoleChange={onRoleChange}
+        includesBrandOwner={includesBrandOwner}
+      />
+      {selectedChoice?.needsInstructor && isInstructorLinked ? (
+        <AppText variant="caption" tone="subtle">
+          {translate("team.invite.instructorHint")}
+        </AppText>
+      ) : null}
+      {selectedChoice?.needsInstructor && !isInstructorLinked ? (
         <View className="gap-2">
           {instructors.length === 0 ? (
             <>

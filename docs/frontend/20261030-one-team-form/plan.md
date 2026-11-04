@@ -21,7 +21,7 @@ Ajustes had two entries, **Equipo** (accounts with a role) and **Profes** (instr
   - Without `members.manage` (only `instructors.manage`) the form is name and email, as the old "Nuevo profe".
   - The team plan limit is checked when the form sends an invitation, not when it opens, so a profe without an account can still be added at the limit.
 - **Editar profe** only edits; it no longer creates.
-- The member screen of a profe has **Ver ficha de profe**, which opens the instructor profile (photo, email, same-person notice, edit, deactivate).
+- A profe on the team has a single profile, the instructor profile, which also holds their role ([one profile per instructor](../20261104-one-instructor-profile/plan.md)).
 
 ## Not changed
 
