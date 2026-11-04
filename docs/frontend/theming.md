@@ -82,6 +82,7 @@ Animations are short and live only in `app/src/ui/motion/`, built on Reanimated.
 | `GrowingFill` | Grows a bar to its value | `ProgressBar`, `StepProgress` |
 | `LivePulse` | A ring that pulses in a loop | The live class in Inicio: the dot of its `Highlight` and of its `TimelineRow` |
 | `Entrance` | Fade, scale from 0.96, slide up, spring rise or pop when a view appears | `ConfirmDialog`, `BottomSheet`, `ToastProvider`, the tab bar dot, attendance marks and the row tint behind them, the forgot password confirmation icon |
+| Sheet drag (`BottomSheet`, `sheetDrag.ts`) | The handle at the top follows the finger down while the backdrop fades; released past 110 px, or flicked down, the sheet slides away and closes, otherwise it springs back. Dragging up barely moves it | Every `BottomSheet` (`PickerSheet`, `FilterSheet` and every feature sheet) |
 | `Breathing` | Scales to 94 % and fades to 60 % in a loop, still with reduced motion | The Laztty mark on the loading screen while the session and the business load ([Laztty brand](../brand.md)) |
 | `Collapsible` | Opens and closes a panel by height; closing content is hidden from screen readers at once | Asistencia panels, private lesson cancel, order payment and refund |
 | `SkeletonList` | Placeholder rows that breathe while a list loads, announced as "Cargando…" | Every list screen while it loads |
