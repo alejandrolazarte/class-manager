@@ -72,6 +72,13 @@ export interface Payment {
   recordedByFullName: string | null;
 }
 
+export interface SellStudentPlanRequest {
+  classPackId: string;
+  paidAmount: number;
+  method: PaymentMethod;
+  notes: string | null;
+}
+
 export interface RecordPaymentRequest {
   amount: number;
   month: string;

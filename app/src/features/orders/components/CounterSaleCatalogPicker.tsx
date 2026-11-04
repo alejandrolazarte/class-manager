@@ -32,9 +32,10 @@ import { EmptyState } from "@/ui/EmptyState";
 import { ScreenFooter } from "@/ui/Screen";
 import { SearchPage } from "@/ui/SearchPage";
 
-const itemKinds: readonly CounterSaleItemKind[] = ["pack", "product"];
+const itemKinds: readonly CounterSaleItemKind[] = ["plan", "pack", "product"];
 
 const kindLabelKeys = {
+  plan: "orders.counterSale.filter.plans",
   pack: "orders.counterSale.filter.packs",
   product: "orders.counterSale.filter.products",
 } as const;
@@ -44,6 +45,7 @@ interface CounterSaleCatalogPickerProps {
   unitsByItem: UnitsByItem;
   onChangeUnits: (item: CounterSaleItem, units: number) => void;
   hasStudent: boolean;
+  hasPlanStudent: boolean;
   onClose: () => void;
 }
 
@@ -68,15 +70,16 @@ function matchesFilters(item: CounterSaleItem, values: ListFilterValues): boolea
 function catalogFiltersOf(items: readonly CounterSaleItem[]): ListFilter[] {
   const products = items.filter((item) => item.kind === "product");
   const hasPacks = items.some((item) => item.kind === "pack");
+  const presentKinds = itemKinds.filter((kind) => items.some((item) => item.kind === kind));
   return [
-    ...(hasPacks && products.length > 0
+    ...(presentKinds.length > 1
       ? [
           {
             id: productFilterIds.kind,
             title: translate("filters.kind"),
             choice: "single" as const,
             allLabel: translate("orders.counterSale.filter.all"),
-            options: itemKinds.map((kind) => ({
+            options: presentKinds.map((kind) => ({
               value: kind,
               label: translate(kindLabelKeys[kind]),
             })),
@@ -101,6 +104,7 @@ export function CounterSaleCatalogPicker({
   unitsByItem,
   onChangeUnits,
   hasStudent,
+  hasPlanStudent,
   onClose,
 }: CounterSaleCatalogPickerProps) {
   const [searchText, setSearchText] = useState("");
@@ -109,8 +113,11 @@ export function CounterSaleCatalogPicker({
     items.filter((item) => matchesFilters(item, values) && matchesSearch(item, searchText));
   const visibleItems = itemsMatching(filterValues);
   const isFiltered = hasActiveFilters(filterValues);
-  const showsPacks = !chosenValues(filterValues, productFilterIds.kind).includes("product");
+  const chosenKinds = chosenValues(filterValues, productFilterIds.kind);
+  const showsKind = (kind: CounterSaleItemKind) =>
+    chosenKinds.length === 0 || chosenKinds.includes(kind);
   const hasPacks = items.some((item) => item.kind === "pack");
+  const hasPlans = items.some((item) => item.kind === "plan");
   const unitCount = counterSaleUnitCount(items, unitsByItem);
 
   return (
@@ -142,8 +149,11 @@ export function CounterSaleCatalogPicker({
         </ScreenFooter>
       }
     >
-      {hasPacks && !hasStudent && showsPacks ? (
+      {hasPacks && !hasStudent && showsKind("pack") ? (
         <Banner tone="warning" message={translate("orders.counterSale.packsNeedStudent")} />
+      ) : null}
+      {hasPlans && !hasPlanStudent && showsKind("plan") ? (
+        <Banner tone="warning" message={translate("orders.counterSale.plansNeedStudent")} />
       ) : null}
       {items.length === 0 ? (
         <AppText variant="body" tone="muted">
@@ -168,7 +178,9 @@ export function CounterSaleCatalogPicker({
             item={item}
             units={unitsOf(unitsByItem, item)}
             onChangeUnits={(units) => onChangeUnits(item, units)}
-            isLocked={item.kind === "pack" && !hasStudent}
+            isLocked={
+              (item.kind === "pack" && !hasStudent) || (item.kind === "plan" && !hasPlanStudent)
+            }
           />
         ))}
       </View>

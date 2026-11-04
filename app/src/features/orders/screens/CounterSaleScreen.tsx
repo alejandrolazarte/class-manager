@@ -9,12 +9,16 @@ import { formatPhoneNumberForDisplay } from "@/features/clients/phoneNumberForma
 import { useClient } from "@/features/clients/useClient";
 import { AmountField } from "@/features/fees/components/AmountField";
 import { PaymentMethodPicker } from "@/features/fees/components/PaymentMethodPicker";
+import { useSellStudentPlan } from "@/features/fees/useFeeMutations";
+import { useCan } from "@/features/members/CurrentMemberProvider";
+import { permissions } from "@/features/members/permissions";
 import { formatMoney, toAmountText } from "@/formatting/money";
 import { PaymentMethod } from "@/features/fees/types";
 import { CounterSaleCatalogPicker } from "@/features/orders/components/CounterSaleCatalogPicker";
 import { CounterSaleItemRow } from "@/features/orders/components/CounterSaleItemRow";
 import {
   chosenItems,
+  chosenPlan,
   CounterSaleItem,
   counterSaleItems,
   counterSaleLines,
@@ -22,7 +26,8 @@ import {
   deliveryClassOptions,
   UnitsByItem,
   unitsOf,
-  withoutPacks,
+  withChangedUnits,
+  withoutStudentItems,
 } from "@/features/orders/counterSale";
 import { paidAmountOf, paymentAmountError } from "@/features/orders/orderPayments";
 import { useCreateCounterSale } from "@/features/orders/useOrderMutations";
@@ -53,6 +58,7 @@ interface CounterSaleScreenProps {
 
 interface SaleCustomer {
   clientId: string;
+  studentId: string | null;
   name: string;
   detail: string;
 }
@@ -67,6 +73,7 @@ const emptySaleFill = 0.4;
 function customerOfStudent(student: StudentSummary): SaleCustomer {
   return {
     clientId: student.clientId,
+    studentId: student.id,
     name: student.fullName,
     detail: studentContactLine(student),
   };
@@ -78,9 +85,14 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
   const currencyCode = useBusinessCurrency();
   const { data: products = [], isPending: isLoadingProducts } = useProducts(false);
   const { data: catalog = [] } = useClassPacks(false);
+  const canRecordPayments = useCan(permissions.paymentsRecord);
   const classPacks = catalog.filter(isSoldOnce);
+  const plans = canRecordPayments
+    ? catalog.filter((classPack) => classPack.renewsMonthly && classPack.isActive)
+    : [];
   const { data: initialClient } = useClient(clientId);
   const createCounterSaleMutation = useCreateCounterSale();
+  const sellStudentPlanMutation = useSellStudentPlan();
   const [step, setStep] = useState<SaleStep>(1);
   const [openPicker, setOpenPicker] = useState<SalePicker | null>(null);
   const [pickedCustomer, setPickedCustomer] = useState<SaleCustomer | null | undefined>();
@@ -97,13 +109,15 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
       ? null
       : {
           clientId,
+          studentId: null,
           name: initialClient?.fullName ?? "",
           detail: initialClient ? formatPhoneNumberForDisplay(initialClient.phoneNumber) : "",
         };
   const customer = pickedCustomer === undefined ? initialCustomer : pickedCustomer;
   const { data: deliveryClasses = [] } = useDeliveryClasses(customer?.clientId);
-  const items = counterSaleItems(classPacks, products);
+  const items = counterSaleItems(classPacks, products, plans);
   const saleItems = chosenItems(items, unitsByItem);
+  const salePlan = chosenPlan(items, unitsByItem);
   const totalAmount = counterSaleTotal(items, unitsByItem);
   const total = formatMoney(totalAmount, currencyCode);
   const hasItems = saleItems.length > 0;
@@ -112,15 +126,16 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
   const paidAmount = paidAmountOf(paidAmountText);
   const paidAmountError = paymentAmountError(paidAmountText, totalAmount, { allowsNothing: true });
   const pendsHandOver = hasProducts && !isDelivered;
+  const isSaving = createCounterSaleMutation.isPending || sellStudentPlanMutation.isPending;
 
   const changeUnits = (item: CounterSaleItem, units: number) =>
-    setUnitsByItem({ ...unitsByItem, [item.key]: Math.max(0, units) });
+    setUnitsByItem(withChangedUnits(items, unitsByItem, item, units));
 
   const chooseCustomer = (nextCustomer: SaleCustomer | null) => {
     setPickedCustomer(nextCustomer);
     setDeliveryClassGroupId(null);
     if (nextCustomer === null) {
-      setUnitsByItem(withoutPacks(items, unitsByItem));
+      setUnitsByItem(withoutStudentItems(items, unitsByItem));
     }
   };
 
@@ -137,7 +152,30 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
     return () => subscription.remove();
   }, [step]);
 
+  const sellPlan = async (plan: CounterSaleItem, studentId: string) => {
+    setSubmissionFailure(null);
+    try {
+      await sellStudentPlanMutation.mutateAsync({
+        studentId,
+        request: {
+          classPackId: plan.key,
+          paidAmount: paidAmount ?? 0,
+          method,
+          notes: notes.trim().length === 0 ? null : notes.trim(),
+        },
+      });
+      showToast(translate("orders.counterSale.saved"));
+      router.back();
+    } catch (saleError) {
+      setSubmissionFailure(toSubmissionFailure(saleError));
+    }
+  };
+
   const sell = async () => {
+    if (salePlan !== undefined && customer?.studentId) {
+      await sellPlan(salePlan, customer.studentId);
+      return;
+    }
     setIsOutOfStock(false);
     setSubmissionFailure(null);
     try {
@@ -183,6 +221,7 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
         unitsByItem={unitsByItem}
         onChangeUnits={changeUnits}
         hasStudent={customer !== null}
+        hasPlanStudent={Boolean(customer?.studentId)}
         onClose={() => setOpenPicker(null)}
       />
     ) : null;
@@ -237,6 +276,11 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
             label={translate("orders.counterSale.addItems")}
             onPress={() => setOpenPicker("catalog")}
           />
+          {salePlan === undefined ? null : (
+            <AppText variant="footnote" tone="subtle">
+              {translate("orders.counterSale.planSoldAlone")}
+            </AppText>
+          )}
         </View>
         {pickers}
       </StepScreen>
@@ -260,7 +304,7 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
             label={translate("orders.counterSale.charge")}
             disabled={!hasItems || paidAmount === null || paidAmountError !== null}
             onPress={sell}
-            isLoading={createCounterSaleMutation.isPending}
+            isLoading={isSaving}
           />
         </TotalBar>
       }
@@ -278,38 +322,40 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
       {submissionFailure === "unexpected" ? (
         <Banner message={translate("common.unexpectedError")} />
       ) : null}
-      <View className="gap-2">
-        <ToggleSwitch
-          icon="handOver"
-          label={translate("orders.counterSale.handedOver")}
-          hint={translate(
-            isDelivered
-              ? "orders.counterSale.handedOverHint"
-              : "orders.counterSale.pendingHandOverHint",
-          )}
-          value={isDelivered}
-          onValueChange={setIsDelivered}
-        />
-        {pendsHandOver ? (
-          <View className="gap-2" accessibilityRole="radiogroup">
-            <OptionCard
-              label={translate("delivery.pickup")}
-              hint={translate("orders.counterSale.pickupHint")}
-              isSelected={deliveryClassGroupId === null}
-              onPress={() => setDeliveryClassGroupId(null)}
-            />
-            {deliveryClassOptions(deliveryClasses).map((deliveryClass) => (
+      {salePlan === undefined ? (
+        <View className="gap-2">
+          <ToggleSwitch
+            icon="handOver"
+            label={translate("orders.counterSale.handedOver")}
+            hint={translate(
+              isDelivered
+                ? "orders.counterSale.handedOverHint"
+                : "orders.counterSale.pendingHandOverHint",
+            )}
+            value={isDelivered}
+            onValueChange={setIsDelivered}
+          />
+          {pendsHandOver ? (
+            <View className="gap-2" accessibilityRole="radiogroup">
               <OptionCard
-                key={deliveryClass.classGroupId}
-                label={translate("orders.counterSale.inClass")}
-                hint={deliveryClass.hint}
-                isSelected={deliveryClassGroupId === deliveryClass.classGroupId}
-                onPress={() => setDeliveryClassGroupId(deliveryClass.classGroupId)}
+                label={translate("delivery.pickup")}
+                hint={translate("orders.counterSale.pickupHint")}
+                isSelected={deliveryClassGroupId === null}
+                onPress={() => setDeliveryClassGroupId(null)}
               />
-            ))}
-          </View>
-        ) : null}
-      </View>
+              {deliveryClassOptions(deliveryClasses).map((deliveryClass) => (
+                <OptionCard
+                  key={deliveryClass.classGroupId}
+                  label={translate("orders.counterSale.inClass")}
+                  hint={deliveryClass.hint}
+                  isSelected={deliveryClassGroupId === deliveryClass.classGroupId}
+                  onPress={() => setDeliveryClassGroupId(deliveryClass.classGroupId)}
+                />
+              ))}
+            </View>
+          ) : null}
+        </View>
+      ) : null}
       <AmountField
         label={translate("orders.counterSale.paidNow")}
         isRequired

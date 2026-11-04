@@ -11,6 +11,8 @@ internal static class FeeEndpoints
         var students = endpoints.MapGroup(ApiRoutes.Students);
         students.MapPut(ApiRoutes.StudentById + ApiRoutes.StudentPlan, SetStudentPlanAsync)
             .RequirePermission(Permissions.Payments.Record);
+        students.MapPost(ApiRoutes.StudentById + ApiRoutes.StudentPlanSales, SellStudentPlanAsync)
+            .RequirePermission(Permissions.Payments.Record);
         students.MapDelete(ApiRoutes.StudentById + ApiRoutes.StudentPlanChangeByMonth, DeleteStudentPlanChangeAsync)
             .RequirePermission(Permissions.Payments.Record);
 
@@ -36,6 +38,17 @@ internal static class FeeEndpoints
         long studentId,
         SetStudentPlanRequest request,
         IUseCase<SetStudentPlanCommand, FamilyPlansResponse> useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.ExecuteAsync(request.ToCommand(studentId), cancellationToken);
+
+        return result.ToOkResult();
+    }
+
+    private static async Task<IResult> SellStudentPlanAsync(
+        long studentId,
+        SellStudentPlanRequest request,
+        IUseCase<SellStudentPlanCommand, FamilyPlansResponse> useCase,
         CancellationToken cancellationToken)
     {
         var result = await useCase.ExecuteAsync(request.ToCommand(studentId), cancellationToken);

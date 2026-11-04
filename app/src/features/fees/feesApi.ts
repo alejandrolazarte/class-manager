@@ -4,6 +4,7 @@ import {
   MonthlyFees,
   Payment,
   RecordPaymentRequest,
+  SellStudentPlanRequest,
   SetStudentPlanRequest,
 } from "@/features/fees/types";
 
@@ -13,6 +14,7 @@ const clientsPath = "/api/clients";
 const paymentsPath = "/api/payments";
 const restoreSegment = "restore";
 const planSegment = "plan";
+const salesSegment = "sales";
 const paymentsSegment = "payments";
 
 function clientPath(clientId: string): string {
@@ -32,6 +34,13 @@ export function setStudentPlan(
   request: SetStudentPlanRequest,
 ): Promise<FamilyPlans> {
   return httpClient.put<FamilyPlans>(studentPlanPath(studentId), request);
+}
+
+export function sellStudentPlan(
+  studentId: string,
+  request: SellStudentPlanRequest,
+): Promise<FamilyPlans> {
+  return httpClient.post<FamilyPlans>(`${studentPlanPath(studentId)}/${salesSegment}`, request);
 }
 
 export function deleteStudentPlanChange(studentId: string, month: string): Promise<FamilyPlans> {

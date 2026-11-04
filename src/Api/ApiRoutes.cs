@@ -74,6 +74,7 @@ public static class ApiRoutes
     public const string BrandLogo = "/brand/logo";
     public const string StudentPlan = "/plan";
     public const string StudentPlanChangeByMonth = "/plan/{month}";
+    public const string StudentPlanSales = "/plan/sales";
     public const string ClassPackPriceChangeByMonth = "/prices/{month}";
     public const string ClassPacks = "/api/class-packs";
     public const string ClassPackById = "/{classPackId:long}";
