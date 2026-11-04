@@ -3,7 +3,6 @@ import { listMonthlyFees } from "@/features/fees/feesApi";
 import { CollectionsScreen } from "@/features/fees/screens/CollectionsScreen";
 import { getOrderSummary, listOrders } from "@/features/orders/ordersApi";
 import { formatMoney } from "@/formatting/money";
-import { translate } from "@/i18n/translate";
 import { buildBusiness } from "@/testing/businessFactory";
 import { buildClientFee, buildMonthlyFees, feeMonth } from "@/testing/feeFactory";
 import { buildOrderSummary } from "@/testing/productFactory";
@@ -45,11 +44,8 @@ describe("When month has fees and orders", () => {
   it("Then the collected total adds them up", async () => {
     await renderWithProviders(<CollectionsScreen initialMonth={feeMonth} />);
 
-    expect(
-      await screen.findByText(
-        translate("collections.classesDetail", { plans: money(12000), classPacks: money(200) }),
-      ),
-    ).toBeOnTheScreen();
+    expect(await screen.findByText(money(12000))).toBeOnTheScreen();
+    expect(screen.getByText(money(200))).toBeOnTheScreen();
     expect(screen.getByText(money(12200))).toBeOnTheScreen();
     expect(screen.getByText(money(12300))).toBeOnTheScreen();
   });
