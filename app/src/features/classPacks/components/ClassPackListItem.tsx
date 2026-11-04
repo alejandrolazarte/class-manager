@@ -42,6 +42,7 @@ export function ClassPackListItem({ classPack, onPress }: ClassPackListItemProps
               ? translate("classPacks.list.duration", { minutes: classPack.classDurationMinutes })
               : null,
             validity,
+            classPack.isVisibleInApp ? null : translate("classPacks.list.hiddenFromShop"),
           ]
             .filter(Boolean)
             .join(" · ")}

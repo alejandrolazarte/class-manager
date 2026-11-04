@@ -21,7 +21,8 @@ public sealed record ClassPackResponse(
     bool CoversAnyGroupClass,
     bool RenewsMonthly,
     bool AppliesFamilyDiscount,
-    IReadOnlyList<ClassPackPriceChangeResponse> PriceChanges)
+    IReadOnlyList<ClassPackPriceChangeResponse> PriceChanges,
+    bool IsVisibleInApp)
 {
     public static ClassPackResponse From(
         ClassPack classPack,
@@ -47,5 +48,6 @@ public sealed record ClassPackResponse(
                     .Where(change => change.ClassPackId == classPack.Id)
                     .OrderBy(change => change.EffectiveFrom)
                     .Select(change => new ClassPackPriceChangeResponse(BillingMonth.From(change.EffectiveFrom).ToString(), change.Price))]
-                : []);
+                : [],
+            classPack.IsVisibleInApp);
 }

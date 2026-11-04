@@ -21,8 +21,11 @@ import { CartBar } from "@/features/studentApp/components/CartBar";
 import { CartPage } from "@/features/studentApp/components/CartPage";
 import { PackCard } from "@/features/studentApp/components/PackCard";
 import { PackDetailPage } from "@/features/studentApp/components/PackDetailPage";
+import { PlanCard } from "@/features/studentApp/components/PlanCard";
+import { PlanDetailPage } from "@/features/studentApp/components/PlanDetailPage";
 import { ProductDetailPage } from "@/features/studentApp/components/ProductDetailPage";
 import { ShopProductCard } from "@/features/studentApp/components/ShopProductCard";
+import { isPlanOfFamily } from "@/features/studentApp/studentAppPlans";
 import { useStudentAppCart } from "@/features/studentApp/StudentAppCartProvider";
 import { cartTotal, variantMaximumUnits } from "@/features/studentApp/studentAppCart";
 import {
@@ -74,10 +77,10 @@ function hasMatchingVariant(product: StudentAppShopProduct, values: ListFilterVa
   );
 }
 
-function filteredPacks(
-  packs: readonly StudentAppShopPack[],
+function filteredPacks<ClassOffer>(
+  packs: readonly ClassOffer[],
   values: ListFilterValues,
-): StudentAppShopPack[] {
+): ClassOffer[] {
   const isFilteredByVariant =
     chosenValues(values, productFilterIds.size).length > 0 ||
     chosenValues(values, productFilterIds.color).length > 0;
@@ -99,7 +102,7 @@ function filteredProducts(
 function shopFiltersOf(shop: StudentAppShop): ListFilter[] {
   const variants = shop.products.flatMap((product) => product.variants);
   return [
-    ...(shop.packs.length > 0 && shop.products.length > 0
+    ...(shop.packs.length + shop.plans.length > 0 && shop.products.length > 0
       ? [
           {
             id: productFilterIds.kind,
@@ -150,6 +153,7 @@ export function StudentAppShopScreen() {
   const [filterValues, setFilterValues] = useState<ListFilterValues>(noListFilterValues);
   const [openProductId, setOpenProductId] = useState<string | null>(null);
   const [openPackId, setOpenPackId] = useState<string | null>(null);
+  const [openPlanId, setOpenPlanId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const closeProduct = () => {
@@ -188,12 +192,15 @@ export function StudentAppShopScreen() {
     );
   }
 
+  const plansMatching = (values: ListFilterValues) =>
+    filteredPacks(shop.plans, values).filter((plan) => matchesSearch(plan.name, searchText));
   const packsMatching = (values: ListFilterValues) =>
     filteredPacks(shop.packs, values).filter((pack) => matchesSearch(pack.name, searchText));
   const productsMatching = (values: ListFilterValues) =>
     filteredProducts(shop.products, values).filter((product) =>
       matchesSearch(product.name, searchText),
     );
+  const plans = plansMatching(filterValues);
   const packs = packsMatching(filterValues);
   const products = productsMatching(filterValues);
   const isFiltered = hasActiveFilters(filterValues);
@@ -202,6 +209,7 @@ export function StudentAppShopScreen() {
   const shownProductId = openProductId ?? productId ?? null;
   const openProduct = shop.products.find((product) => product.id === shownProductId);
   const openPack = shop.packs.find((pack) => pack.id === openPackId);
+  const openPlan = shop.plans.find((plan) => plan.id === openPlanId);
   const isPackInCart = (pack: StudentAppShopPack) => (cart[pack.id] ?? 0) > 0;
   const togglePack = (pack: StudentAppShopPack) => setUnits(pack.id, isPackInCart(pack) ? 0 : 1);
   const isProductInCart = (product: StudentAppShopProduct) =>
@@ -212,7 +220,11 @@ export function StudentAppShopScreen() {
       header={header}
       hasFloatingAction={units > 0}
       overlay={
-        units > 0 && !isCartOpen && openProduct === undefined && openPack === undefined ? (
+        units > 0 &&
+        !isCartOpen &&
+        openProduct === undefined &&
+        openPack === undefined &&
+        openPlan === undefined ? (
           <CartBar
             units={units}
             totalLabel={formatMoney(cartTotal(shop, cart), shop.currencyCode)}
@@ -224,7 +236,7 @@ export function StudentAppShopScreen() {
       {shop.canBuy ? null : (
         <Notice tone="primary" message={translate("student.shop.guardianBuys")} />
       )}
-      {shop.packs.length === 0 && shop.products.length === 0 ? (
+      {shop.packs.length === 0 && shop.plans.length === 0 && shop.products.length === 0 ? (
         <AppText variant="body" tone="muted">
           {translate("student.shop.empty")}
         </AppText>
@@ -240,17 +252,40 @@ export function StudentAppShopScreen() {
             values={filterValues}
             onChange={setFilterValues}
             countMatching={(values) =>
-              packsMatching(values).length + productsMatching(values).length
+              plansMatching(values).length +
+              packsMatching(values).length +
+              productsMatching(values).length
             }
           />
           {isFiltered ? (
             <ListFilterSummary
-              shownCount={packs.length + products.length}
-              totalCount={shop.packs.length + shop.products.length}
+              shownCount={plans.length + packs.length + products.length}
+              totalCount={shop.plans.length + shop.packs.length + shop.products.length}
             />
           ) : null}
         </>
       )}
+      {plans.length > 0 ? (
+        <>
+          <SectionTitle title={translate("student.shop.plans")} />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="-mx-5"
+            contentContainerClassName="gap-3 px-5 pb-1.5"
+          >
+            {plans.map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                currencyCode={shop.currencyCode}
+                isFamilyPlan={isPlanOfFamily(plan, shop.planStudents)}
+                onOpen={() => setOpenPlanId(plan.id)}
+              />
+            ))}
+          </ScrollView>
+        </>
+      ) : null}
       {showsPacks ? (
         <>
           <SectionTitle title={translate("student.shop.packs")} />
@@ -292,11 +327,12 @@ export function StudentAppShopScreen() {
           ))}
         </>
       ) : null}
-      {isFiltered && packs.length === 0 && products.length === 0 ? (
+      {isFiltered && plans.length === 0 && packs.length === 0 && products.length === 0 ? (
         <EmptyState icon="filter" message={translate("filters.noResults")} />
       ) : null}
       {!isFiltered &&
       searchText.trim().length > 0 &&
+      plans.length === 0 &&
       packs.length === 0 &&
       products.length === 0 ? (
         <EmptyState icon="search" message={translate("student.shop.noResults")} />
@@ -332,6 +368,16 @@ export function StudentAppShopScreen() {
                 }
               : undefined
           }
+        />
+      )}
+      {openPlan === undefined ? null : (
+        <PlanDetailPage
+          key={openPlan.id}
+          plan={openPlan}
+          planStudents={shop.planStudents}
+          currencyCode={shop.currencyCode}
+          canBuy={shop.canBuy}
+          onClose={() => setOpenPlanId(null)}
         />
       )}
       {isCartOpen ? (
