@@ -572,7 +572,6 @@
   "collections.status.awaitingPickup": "To hand over",
   "collections.classes": "Classes",
   "collections.products": "Products",
-  "collections.classesDetail": "Plans {plans} · Packs {classPacks}",
   "collections.owing.one": "1 owes {amount}",
   "collections.owing.other": "{count} owe {amount}",
   "collections.everythingCollected": "Everything collected",

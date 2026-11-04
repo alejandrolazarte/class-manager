@@ -572,7 +572,6 @@
   "collections.status.awaitingPickup": "Para entregar",
   "collections.classes": "Clases",
   "collections.products": "Productos",
-  "collections.classesDetail": "Planes {plans} · Packs {classPacks}",
   "collections.owing.one": "1 debe {amount}",
   "collections.owing.other": "{count} deben {amount}",
   "collections.everythingCollected": "Todo cobrado",

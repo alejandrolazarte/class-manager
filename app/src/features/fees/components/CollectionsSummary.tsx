@@ -1,8 +1,8 @@
 import { View } from "react-native";
 import { monthName } from "@/features/fees/months";
 import { translate, translateCount } from "@/i18n/translate";
+import { AmountBreakdown } from "@/ui/AmountBreakdown";
 import { AppText } from "@/ui/AppText";
-import { OutlinedBlock } from "@/ui/OutlinedBlock";
 import { SummaryBlock } from "@/ui/SummaryBlock";
 
 export interface CollectionsTotals {
@@ -43,26 +43,32 @@ export function CollectionsSummary({
       })}
     >
       {showsOrders ? (
-        <View className="flex-row gap-2">
-          <OutlinedBlock className="min-w-0 flex-1 gap-0.5 px-3 py-2.5">
-            <AppText variant="caption" tone="subtle">
-              {translate("collections.classes")}
-            </AppText>
-            <AppText variant="headline">{money(classesCollected)}</AppText>
-            <AppText variant="footnote" tone="subtle">
-              {translate("collections.classesDetail", {
-                plans: money(totals.plansCollected),
-                classPacks: money(totals.classPacksCollected),
-              })}
-            </AppText>
-          </OutlinedBlock>
-          <OutlinedBlock className="min-w-0 flex-1 gap-0.5 px-3 py-2.5">
-            <AppText variant="caption" tone="subtle">
-              {translate("collections.products")}
-            </AppText>
-            <AppText variant="headline">{money(totals.productsCollected)}</AppText>
-          </OutlinedBlock>
-        </View>
+        <AmountBreakdown
+          items={[
+            {
+              key: "classes",
+              label: translate("collections.classes"),
+              amount: money(classesCollected),
+            },
+            {
+              key: "plans",
+              label: translate("collections.kind.plans"),
+              amount: money(totals.plansCollected),
+              isNested: true,
+            },
+            {
+              key: "classPacks",
+              label: translate("collections.kind.classPacks"),
+              amount: money(totals.classPacksCollected),
+              isNested: true,
+            },
+            {
+              key: "products",
+              label: translate("collections.products"),
+              amount: money(totals.productsCollected),
+            },
+          ]}
+        />
       ) : null}
       <View className="flex-row flex-wrap justify-between gap-x-2 gap-y-0.5">
         <AppText
