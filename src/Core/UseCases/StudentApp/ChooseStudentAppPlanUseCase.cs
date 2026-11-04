@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -19,6 +20,7 @@ public sealed class ChooseStudentAppPlanUseCase(
     IStudentPlanRepository studentPlanRepository,
     IClassPackRepository classPackRepository,
     IUnitOfWork unitOfWork,
+    ITeamNotificationService teamNotifications,
     IBusinessCalendarService businessCalendar,
     TimeProvider timeProvider)
     : IUseCase<ChooseStudentAppPlanCommand, bool>
@@ -55,6 +57,7 @@ public sealed class ChooseStudentAppPlanUseCase(
         var studentChanges = await studentPlanRepository.ListForUpdateAsync(command.StudentId, cancellationToken);
         var hasPlanThisMonth = StudentPlanTimeline.ChangeIn(studentChanges, currentMonth)?.HasPlan == true;
         var effectiveFrom = hasPlanThisMonth ? currentMonth.AddMonths(NextMonth) : currentMonth;
+        var planInEffectBefore = StudentPlanTimeline.ChangeIn(studentChanges, effectiveFrom)?.ClassPackId;
 
         foreach (var laterChange in studentChanges.Where(change => change.EffectiveFrom > effectiveFrom.FirstDay))
         {
@@ -91,6 +94,11 @@ public sealed class ChooseStudentAppPlanUseCase(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (planInEffectBefore != plan?.Id)
+        {
+            await teamNotifications.StudentPlanChangedAsync(command.StudentId, plan, effectiveFrom.FirstDay, cancellationToken);
+        }
+
         return true;
     }
 }

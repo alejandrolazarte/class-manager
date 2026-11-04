@@ -47,4 +47,12 @@ internal interface INotificationTexts
     string TeamInvitationDeclinedTitle(string email);
 
     string OrderPlacedTitle(string orderNumber, string clientFullName);
+
+    string StudentPlanChosenTitle(string studentFullName, string planName);
+
+    string StudentPlanChosenBody(DateOnly effectiveFrom);
+
+    string StudentPlanCancelledTitle(string studentFullName);
+
+    string StudentPlanCancelledBody(DateOnly effectiveFrom);
 }

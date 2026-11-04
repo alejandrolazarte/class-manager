@@ -1,11 +1,30 @@
 using ClassManager.Core.Abstractions.Notifications;
+using ClassManager.Core.Domain.Authorization;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Notifications.WebPush;
 
 namespace ClassManager.Infrastructure.Notifications;
 
-internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier notifier) : ITeamNotificationService
+internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier notifier, TeamRecipients teamRecipients) : ITeamNotificationService
 {
+    public async Task StudentPlanChangedAsync(long studentId, ClassPack? plan, DateOnly effectiveFrom, CancellationToken cancellationToken)
+    {
+        var student = await context.Students.AsNoTracking()
+            .Where(candidate => candidate.Id == studentId)
+            .Select(candidate => new { candidate.ClientId, candidate.User.FullName })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (student is null)
+        {
+            return;
+        }
+
+        var message = LocalizedPushMessage.Build(texts => new PushMessage(
+            plan is null ? texts.StudentPlanCancelledTitle(student.FullName) : texts.StudentPlanChosenTitle(student.FullName, plan.Name),
+            plan is null ? texts.StudentPlanCancelledBody(effectiveFrom) : texts.StudentPlanChosenBody(effectiveFrom),
+            TeamNotificationLinks.ClientUrl(student.ClientId)));
+        await notifier.NotifyAsync(await teamRecipients.WithPermissionAsync(Permissions.Payments.ViewAll, cancellationToken), message, cancellationToken);
+    }
+
     public Task AbsenceNotifiedAsync(long studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
         NotifyInstructorAsync(studentId, classGroup, session, (texts, name) => texts.AbsenceTitle(name), cancellationToken);
 

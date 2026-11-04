@@ -7,9 +7,14 @@ import {
   deleteStudentPlanChange,
   restorePayment,
   recordPayment,
+  sellStudentPlan,
   setStudentPlan,
 } from "@/features/fees/feesApi";
-import { RecordPaymentRequest, SetStudentPlanRequest } from "@/features/fees/types";
+import {
+  RecordPaymentRequest,
+  SellStudentPlanRequest,
+  SetStudentPlanRequest,
+} from "@/features/fees/types";
 
 function useInvalidateFees() {
   const queryClient = useQueryClient();
@@ -65,5 +70,18 @@ export function useDeleteStudentPlanChange(clientId: string) {
     mutationFn: ({ studentId, month }: { studentId: string; month: string }) =>
       deleteStudentPlanChange(studentId, month),
     onSuccess: invalidateFamilyPlans,
+  });
+}
+
+export function useSellStudentPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ studentId, request }: { studentId: string; request: SellStudentPlanRequest }) =>
+      sellStudentPlan(studentId, request),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: clientQueryKeys.all }),
+        queryClient.invalidateQueries({ queryKey: feeQueryKeys.all }),
+      ]),
   });
 }

@@ -1,4 +1,4 @@
-import { SoldOnceClassPack } from "@/features/classPacks/types";
+import { ClassPack, SoldOnceClassPack } from "@/features/classPacks/types";
 import { CounterSaleLine } from "@/features/orders/types";
 import { variantDisplayName } from "@/features/products/productColors";
 import { Product, ProductVariant } from "@/features/products/types";
@@ -8,7 +8,7 @@ import { translate, translateCount } from "@/i18n/translate";
 
 export const maximumUnitsPerLine = 99;
 
-export type CounterSaleItemKind = "pack" | "product";
+export type CounterSaleItemKind = "plan" | "pack" | "product";
 
 export interface CounterSaleItem {
   key: string;
@@ -54,11 +54,30 @@ function productItemName(product: Product, variant: ProductVariant): string {
     : product.name;
 }
 
+function planDetail(plan: ClassPack): string {
+  return plan.classCount === null
+    ? translate("student.shop.libreClasses")
+    : translateCount("student.shop.classesPerMonth", plan.classCount);
+}
+
 export function counterSaleItems(
   classPacks: readonly SoldOnceClassPack[],
   products: readonly Product[],
+  plans: readonly ClassPack[] = [],
 ): CounterSaleItem[] {
   return [
+    ...plans.map((plan) => ({
+      key: plan.id,
+      kind: "plan" as const,
+      name: plan.name,
+      price: plan.price,
+      detail: planDetail(plan),
+      imageUrl: plan.images[0]?.url ?? null,
+      maximumUnits: 1,
+      size: null,
+      color: null,
+      isSoldOut: false,
+    })),
     ...classPacks.map((classPack) => ({
       key: classPack.id,
       kind: "pack" as const,
@@ -129,12 +148,50 @@ export function counterSaleLines(
   );
 }
 
-export function withoutPacks(
+function withoutKinds(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+  kinds: readonly CounterSaleItemKind[],
+): UnitsByItem {
+  const removedKeys = new Set(
+    items.filter((item) => kinds.includes(item.kind)).map((item) => item.key),
+  );
+  return Object.fromEntries(Object.entries(unitsByItem).filter(([key]) => !removedKeys.has(key)));
+}
+
+export function withoutStudentItems(
   items: readonly CounterSaleItem[],
   unitsByItem: UnitsByItem,
 ): UnitsByItem {
-  const packKeys = new Set(items.filter((item) => item.kind === "pack").map((item) => item.key));
-  return Object.fromEntries(Object.entries(unitsByItem).filter(([key]) => !packKeys.has(key)));
+  return withoutKinds(items, unitsByItem, ["plan", "pack"]);
+}
+
+export function withoutPlans(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+): UnitsByItem {
+  return withoutKinds(items, unitsByItem, ["plan"]);
+}
+
+export function withChangedUnits(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+  changedItem: CounterSaleItem,
+  units: number,
+): UnitsByItem {
+  const nextUnits = Math.max(0, units);
+  if (changedItem.kind === "plan" && nextUnits > 0) {
+    return { [changedItem.key]: 1 };
+  }
+  const otherItems = nextUnits > 0 ? withoutPlans(items, unitsByItem) : unitsByItem;
+  return { ...otherItems, [changedItem.key]: nextUnits };
+}
+
+export function chosenPlan(
+  items: readonly CounterSaleItem[],
+  unitsByItem: UnitsByItem,
+): CounterSaleItem | undefined {
+  return chosenItems(items, unitsByItem).find((item) => item.kind === "plan");
 }
 
 export interface DeliveryClassOption {

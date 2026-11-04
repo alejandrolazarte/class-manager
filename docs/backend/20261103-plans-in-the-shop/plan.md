@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Status: agreed with the owner on 2026-11-03. Step 1 built; steps 2 to 4 next. Builds on the [plans catalog](../20261031-plans-catalog/plan.md).
+Status: agreed with the owner on 2026-11-03. Steps 1, 2 and 4 built; step 3 next. Builds on the [plans catalog](../20261031-plans-catalog/plan.md).
 
 ## Why
 
@@ -32,6 +32,9 @@ The owner's point: a monthly plan is a subscription like in any other app. The s
 ### At the counter (step 2)
 
 - Venta en mostrador offers the plans too. Selling one gives the person the plan from the current month and records the payment of the current month in Cobros (`Payment`), not as an order line, so the month shows as paid and next month is owed as usual.
+- A plan is sold on its own (decided by the owner on 2026-11-04): choosing a plan clears the other items, and adding a pack or product clears the plan, so the amount paid never has to be split between an order and a month.
+- A person who already has a plan this month changes to the sold plan from this month (decided by the owner on 2026-11-04); changes scheduled for later months are removed, as when choosing from the shop.
+- A plan needs a chosen student (a sale opened from the family card has no student yet), and is offered only to members who can record payments (`payments.record`), the permission of `POST /api/students/{id}/plan/sales`. Paying 0 or a part is allowed: the rest is owed in Cobros.
 
 ### Nuevo alumno (step 3)
 
@@ -40,9 +43,9 @@ The owner's point: a monthly plan is a subscription like in any other app. The s
 ## Steps
 
 1. **Shop** (built): `IsVisibleInApp` on packs and plans with its migration and the toggle in the pack and plan form; the shop lists the plans; `PUT /api/student-app/students/{studentId}/plan` chooses (`classPackId`) or cancels (`null`) a plan with the rules above; the plan page in the shop with ConfirmDialog for both.
-2. **Counter**: sell a plan in Venta en mostrador (gives the plan and records the month's payment).
+2. **Counter** (built): sell a plan in Venta en mostrador (gives the plan and records the month's payment) through `POST /api/students/{studentId}/plan/sales` (`SellStudentPlanUseCase`).
 3. **Nuevo alumno**: "¿Qué paga?" optional.
-4. **Team notice**: tell the team when a student chooses or cancels a plan from the app.
+4. **Team notice** (built): when a student chooses or cancels a plan from the app, the members who see every payment (`payments.view.all`) and the brand owners get an aviso ("Ana eligió el plan X · Desde diciembre.", "Ana dio de baja su plan · Sin plan desde diciembre.") that opens the family card. Choosing what the person already has for that month notifies nobody.
 
 Later, with [online payments](../20260929-online-shop-and-payments/plan.md): a plan maps to a Stripe subscription and is charged automatically every month.
 
