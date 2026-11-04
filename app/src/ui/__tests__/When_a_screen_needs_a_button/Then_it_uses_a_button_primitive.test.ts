@@ -23,7 +23,7 @@ const pressableFilesThatAreNotButtons: Readonly<Record<string, string>> = {
   "features/instructors/components/InstructorPicker.tsx": "picker rows",
   "features/sessions/components/AttendanceRow.tsx": "present and absent marks",
   "features/studentApp/components/MedalGrid.tsx": "earned medal cards",
-  "features/studentApp/components/PackCard.tsx": "pack card",
+  "features/studentApp/components/ClassOfferCard.tsx": "pack and plan card",
   "features/studentApp/components/ShopPreview.tsx": "product cards",
   "features/studentApp/components/ShopProductCard.tsx": "product card",
   "features/studentApp/components/StudentChips.tsx": "student selector",

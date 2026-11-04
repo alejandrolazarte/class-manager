@@ -17,7 +17,8 @@ public sealed record CreateClassPackCommand(
     [property: AuditPlain] string? Description = null,
     bool CoversAnyGroupClass = false,
     bool RenewsMonthly = false,
-    bool? AppliesFamilyDiscount = null) : ICommand;
+    bool? AppliesFamilyDiscount = null,
+    bool IsVisibleInApp = true) : ICommand;
 
 public sealed class CreateClassPackUseCase(
     IClassPackRepository classPackRepository,
@@ -43,7 +44,8 @@ public sealed class CreateClassPackUseCase(
             return classPack.Error!;
         }
 
-        var description = classPack.Value!.Describe(command.Description);
+        classPack.Value!.ShowInApp(command.IsVisibleInApp);
+        var description = classPack.Value.Describe(command.Description);
         if (description.IsFailure)
         {
             return description.Error!;

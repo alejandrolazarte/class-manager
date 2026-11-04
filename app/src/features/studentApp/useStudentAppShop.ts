@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cancelStudentAppOrder,
+  chooseStudentAppPlan,
   getStudentAppShop,
   listStudentAppOrders,
   placeStudentAppOrder,
@@ -39,6 +40,15 @@ export function useCancelStudentAppOrder() {
   const invalidate = useInvalidateStudentApp();
   return useMutation({
     mutationFn: (orderId: string) => cancelStudentAppOrder(orderId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useChooseStudentAppPlan() {
+  const invalidate = useInvalidateStudentApp();
+  return useMutation({
+    mutationFn: ({ studentId, classPackId }: { studentId: string; classPackId: string | null }) =>
+      chooseStudentAppPlan(studentId, classPackId),
     onSuccess: invalidate,
   });
 }

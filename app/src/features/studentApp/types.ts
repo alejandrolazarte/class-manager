@@ -233,6 +233,23 @@ export interface StudentAppShopPack {
   images: CatalogImage[];
 }
 
+export interface StudentAppShopPlan {
+  id: string;
+  name: string;
+  description: string | null;
+  classCount: number | null;
+  price: number;
+  images: CatalogImage[];
+}
+
+export interface StudentAppPlanStudent {
+  studentId: string;
+  fullName: string;
+  currentPlanId: string | null;
+  currentPlanName: string | null;
+  nextMonthPlanId: string | null;
+}
+
 export interface StudentAppShopVariant {
   id: string;
   size: string;
@@ -276,6 +293,8 @@ export interface StudentAppShop {
   products: StudentAppShopProduct[];
   deliveryClasses: DeliveryClass[];
   canBuy: boolean;
+  plans: StudentAppShopPlan[];
+  planStudents: StudentAppPlanStudent[];
 }
 
 export type StudentAppOrderStatus = "Pending" | "Delivered" | "Cancelled";
