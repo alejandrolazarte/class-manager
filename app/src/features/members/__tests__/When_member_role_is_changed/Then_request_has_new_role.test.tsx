@@ -15,26 +15,24 @@ jest.mock("@/features/instructors/instructorsApi");
 jest.mock("@/features/roles/rolesApi");
 
 const instructorOfMember = buildInstructor({ id: "instructor-of-member" });
-const instructor = buildMember({ instructorId: instructorOfMember.id });
+const branchOwner = buildMember({ role: "BranchOwner", instructorId: null });
 
 describe("When member role is changed", () => {
   beforeEach(() => {
     jest.mocked(listRoles).mockResolvedValue(buildSystemRoles());
     jest.mocked(listActiveInstructors).mockResolvedValue([instructorOfMember]);
-    jest.mocked(getTeam).mockResolvedValue({ members: [instructor], invitations: [] });
-    jest
-      .mocked(changeMemberRole)
-      .mockResolvedValue({ ...instructor, role: "Viewer", instructorId: null });
+    jest.mocked(getTeam).mockResolvedValue({ members: [branchOwner], invitations: [] });
+    jest.mocked(changeMemberRole).mockResolvedValue({ ...branchOwner, role: "Viewer" });
   });
 
   it("Then request has new role", async () => {
-    await renderWithProviders(<MemberScreen memberId={instructor.id} />);
+    await renderWithProviders(<MemberScreen memberId={branchOwner.id} />);
     await fireEvent.press(await screen.findByRole("button", { name: translate("roles.Viewer") }));
 
     await fireEvent.press(screen.getByRole("button", { name: translate("common.save") }));
 
     await waitFor(() =>
-      expect(changeMemberRole).toHaveBeenCalledWith(instructor.id, {
+      expect(changeMemberRole).toHaveBeenCalledWith(branchOwner.id, {
         role: "Viewer",
         customRoleId: null,
         instructorId: null,

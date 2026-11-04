@@ -174,6 +174,19 @@ export function TeamScreen() {
     showToast(translate("team.revoked"));
   };
 
+  const memberPressAction = (member: Member) => {
+    if (isPlatformRole(member.role)) {
+      return undefined;
+    }
+    const { instructorId } = member;
+    if (instructorId !== null && canOpenInstructor) {
+      return () => router.push(routes.instructor(instructorId));
+    }
+    return canManageMembers && !member.isCurrentUser
+      ? () => router.push(routes.teamMember(member.id))
+      : undefined;
+  };
+
   const retry = () => {
     void teamQuery.refetch();
     void instructorsQuery.refetch();
@@ -224,11 +237,7 @@ export function TeamScreen() {
                 member={member}
                 roles={roles}
                 instructorFullName={instructorNameOf(member.instructorId)}
-                onPress={
-                  canManageMembers && !member.isCurrentUser && !isPlatformRole(member.role)
-                    ? () => router.push(routes.teamMember(member.id))
-                    : undefined
-                }
+                onPress={memberPressAction(member)}
               />
             ))}
           </View>
