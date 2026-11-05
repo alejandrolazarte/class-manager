@@ -5,6 +5,7 @@ import {
   formatPhoneNumberForDisplay,
   toDialableDigits,
 } from "@/features/clients/phoneNumberFormatting";
+import { PlanSuggestionBanner } from "@/features/clients/components/PlanSuggestionBanner";
 import { ClientDetails } from "@/features/clients/types";
 import { useClient } from "@/features/clients/useClient";
 import { StudentProgressSection } from "@/features/measurements/components/StudentProgressSection";
@@ -298,6 +299,7 @@ export function ClientDetailScreen({ clientId }: ClientDetailScreenProps) {
           onSeparate={() => router.push(routes.separateClient(clientTab, client.id))}
         />
       ) : null}
+      <PlanSuggestionBanner client={client} clientTab={clientTab} />
       {sectionOptions.length > 1 ? (
         <Tabs options={sectionOptions} selectedValue={visibleSection} onChange={setSection} />
       ) : null}

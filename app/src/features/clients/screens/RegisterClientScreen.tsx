@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { getFieldErrors, getStringExtension, toCamelCase } from "@/api/problemDetails";
@@ -19,9 +19,6 @@ import {
   toRegisterClientRequest,
 } from "@/features/clients/registerClientSchema";
 import { ClientDetails, RegisterClientRequest } from "@/features/clients/types";
-import { useClassPacks } from "@/features/classPacks/useClassPacks";
-import { useCan } from "@/features/members/CurrentMemberProvider";
-import { permissions } from "@/features/members/permissions";
 import { useClient } from "@/features/clients/useClient";
 import { useRegisterClient } from "@/features/clients/useRegisterClient";
 import { inviteStudentApp } from "@/features/studentApp/studentAppApi";
@@ -65,9 +62,6 @@ export function RegisterClientScreen() {
   const router = useRouter();
   const { showToast } = useToast();
   const registerClientMutation = useRegisterClient();
-  const canViewClassPacks = useCan(permissions.classPacksView);
-  const { data: catalog = [] } = useClassPacks(false, { enabled: canViewClassPacks });
-  const monthlyPlans = catalog.filter((classPack) => classPack.renewsMonthly);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
   const [samePerson, setSamePerson] = useState<SamePerson | null>(null);
   const [confirmedSamePeople, setConfirmedSamePeople] = useState<ConfirmedSamePeople>({});
@@ -76,12 +70,6 @@ export function RegisterClientScreen() {
     defaultValues: emptyRegisterClientFormValues,
     mode: "onTouched",
   });
-  const onlyMonthlyPlanId = monthlyPlans.length === 1 ? monthlyPlans[0]?.id : undefined;
-  useEffect(() => {
-    if (onlyMonthlyPlanId !== undefined && form.getValues("planChoice") === null) {
-      form.setValue("planChoice", onlyMonthlyPlanId);
-    }
-  }, [onlyMonthlyPlanId, form]);
   const existingClientId =
     submissionFailure?.kind === "phoneNumberTaken" ? submissionFailure.existingClientId : undefined;
   const { data: existingClient } = useClient(existingClientId);
@@ -256,12 +244,7 @@ export function RegisterClientScreen() {
         />
       ) : null}
       <View>
-        <ClientForm
-          form={form}
-          onSubmit={submit}
-          isSubmitting={form.formState.isSubmitting}
-          monthlyPlans={monthlyPlans}
-        />
+        <ClientForm form={form} onSubmit={submit} isSubmitting={form.formState.isSubmitting} />
       </View>
     </ScrollScreen>
   );

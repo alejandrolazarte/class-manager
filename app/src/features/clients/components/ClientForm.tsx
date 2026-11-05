@@ -1,8 +1,6 @@
 import { Controller, UseFormReturn } from "react-hook-form";
 import { View } from "react-native";
 import { AttendeesSection } from "@/features/clients/components/AttendeesSection";
-import { ClassPack } from "@/features/classPacks/types";
-import { MonthlyPlanChoice } from "@/features/fees/components/MonthlyPlanChoice";
 import { formatPhoneNumberAsTyped } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientFormValues } from "@/features/clients/registerClientSchema";
 import { ContactAdultConfirmation } from "@/features/studentApp/components/ContactAdultConfirmation";
@@ -19,11 +17,9 @@ interface ClientFormProps {
   form: UseFormReturn<RegisterClientFormValues>;
   onSubmit: () => void;
   isSubmitting: boolean;
-  monthlyPlans: readonly ClassPack[];
 }
 
-export function ClientForm({ form, onSubmit, isSubmitting, monthlyPlans }: ClientFormProps) {
-  const asksPlan = monthlyPlans.length > 0;
+export function ClientForm({ form, onSubmit, isSubmitting }: ClientFormProps) {
   const { control, formState, watch } = form;
   const isAppInvitationOffered = watch("email").trim().length > 0;
   const isAppInvitationOn = isAppInvitationOffered && watch("sendAppInvitation");
@@ -32,8 +28,7 @@ export function ClientForm({ form, onSubmit, isSubmitting, monthlyPlans }: Clien
   const areRequiredFieldsFilled =
     areFilled([watch("fullName"), watch("phoneNumber")]) &&
     areFilled(additionalStudents.map((additionalStudent) => additionalStudent.fullName)) &&
-    (!isAppInvitationOn || watch("confirmsContactIsAdult")) &&
-    (!asksPlan || watch("planChoice") !== null);
+    (!isAppInvitationOn || watch("confirmsContactIsAdult"));
 
   return (
     <View className="gap-[18px]">
@@ -137,22 +132,6 @@ export function ClientForm({ form, onSubmit, isSubmitting, monthlyPlans }: Clien
         />
       </View>
       <AttendeesSection form={form} />
-      {asksPlan ? (
-        <View className="gap-3">
-          <SectionTitle title={translate("fees.billingPlan.title")} isOverline />
-          <Controller
-            control={control}
-            name="planChoice"
-            render={({ field }) => (
-              <MonthlyPlanChoice
-                monthlyPlans={monthlyPlans}
-                choice={field.value}
-                onChange={field.onChange}
-              />
-            )}
-          />
-        </View>
-      ) : null}
       <Button
         label={translate("clients.register.submit")}
         onPress={onSubmit}

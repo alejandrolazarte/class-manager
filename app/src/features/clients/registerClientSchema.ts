@@ -2,7 +2,6 @@ import { z } from "zod";
 import { emailAddressSchema } from "@/forms/emailAddress";
 import { countDigits } from "@/features/clients/phoneNumberFormatting";
 import { RegisterClientRequest } from "@/features/clients/types";
-import { paysWithClassPacks } from "@/features/fees/components/MonthlyPlanChoice";
 import {
   isEmailOfAnotherPerson,
   normalizeStudentName,
@@ -64,7 +63,6 @@ const clientFieldsSchema = clientContactSchema.extend({
   sendAppInvitation: z.boolean(),
   confirmsContactIsAdult: z.boolean(),
   additionalStudents: z.array(studentFormSchema),
-  planChoice: z.string().nullable(),
 });
 
 export const registerClientSchema = clientFieldsSchema.superRefine((formValues, context) => {
@@ -126,7 +124,6 @@ export const emptyRegisterClientFormValues: RegisterClientFormValues = {
   sendAppInvitation: true,
   confirmsContactIsAdult: false,
   additionalStudents: [],
-  planChoice: null,
 };
 
 export type RegisterClientFieldName =
@@ -195,8 +192,5 @@ export function toRegisterClientRequest(
     ...(email.length > 0 ? { email } : {}),
     ...(notes.length > 0 ? { notes } : {}),
     students: toStudentRequests(formValues),
-    ...(formValues.planChoice === null || formValues.planChoice === paysWithClassPacks
-      ? {}
-      : { planId: formValues.planChoice }),
   };
 }

@@ -54,6 +54,7 @@ import { TonalBlock } from "@/ui/TonalBlock";
 
 interface CounterSaleScreenProps {
   clientId?: string;
+  studentId?: string;
 }
 
 interface SaleCustomer {
@@ -79,7 +80,7 @@ function customerOfStudent(student: StudentSummary): SaleCustomer {
   };
 }
 
-export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
+export function CounterSaleScreen({ clientId, studentId }: CounterSaleScreenProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const currencyCode = useBusinessCurrency();
@@ -104,13 +105,14 @@ export function CounterSaleScreen({ clientId }: CounterSaleScreenProps) {
   const [notes, setNotes] = useState("");
   const [isOutOfStock, setIsOutOfStock] = useState(false);
   const [submissionFailure, setSubmissionFailure] = useState<SubmissionFailure | null>(null);
+  const initialStudent = initialClient?.students.find((student) => student.id === studentId);
   const initialCustomer: SaleCustomer | null =
     clientId === undefined
       ? null
       : {
           clientId,
-          studentId: null,
-          name: initialClient?.fullName ?? "",
+          studentId: studentId ?? null,
+          name: initialStudent?.fullName ?? initialClient?.fullName ?? "",
           detail: initialClient ? formatPhoneNumberForDisplay(initialClient.phoneNumber) : "",
         };
   const customer = pickedCustomer === undefined ? initialCustomer : pickedCustomer;
