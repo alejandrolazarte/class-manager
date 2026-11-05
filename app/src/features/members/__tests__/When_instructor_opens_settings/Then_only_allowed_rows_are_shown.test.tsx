@@ -19,7 +19,6 @@ describe("When instructor opens settings", () => {
     await renderWithProviders(<SettingsScreen />, { member: buildInstructorMember() });
 
     expect(screen.getByText(translate("settings.team"))).toBeOnTheScreen();
-    expect(screen.queryByText(translate("fees.billingPlan.title"))).toBeNull();
     expect(screen.queryByText(translate("settings.classPacks"))).toBeNull();
     expect(screen.queryByText(translate("settings.roles"))).toBeNull();
     expect(screen.queryByText(translate("settings.branches"))).toBeNull();

@@ -41,8 +41,10 @@ export const routes = {
   studentPlan: (tab: ClientTab, clientId: string, studentId: string) =>
     `/${tab}/clients/${clientId}/student-plan?studentId=${studentId}`,
   sellClassPack: (tab: ClientTab, clientId: string) => `/${tab}/clients/${clientId}/sell-pack`,
-  clientCounterSale: (tab: ClientTab, clientId: string) =>
-    `/${tab}/clients/${clientId}/counter-sale`,
+  clientCounterSale: (tab: ClientTab, clientId: string, studentId?: string) =>
+    studentId === undefined
+      ? `/${tab}/clients/${clientId}/counter-sale`
+      : `/${tab}/clients/${clientId}/counter-sale?studentId=${encodeURIComponent(studentId)}`,
   clientNewClassPack: (tab: ClientTab, clientId: string) =>
     `/${tab}/clients/${clientId}/new-class-pack`,
   studentMeasurement: (

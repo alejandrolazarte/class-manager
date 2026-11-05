@@ -41,5 +41,4 @@ export interface RegisterClientRequest {
   notes?: string;
   students: NewStudentRequest[];
   samePersonUserId?: string;
-  planId?: string;
 }

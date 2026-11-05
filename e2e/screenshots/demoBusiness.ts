@@ -178,21 +178,31 @@ export async function seedDemoBusiness(request: APIRequestContext): Promise<Demo
       renewsMonthly: true,
     },
   );
-  const registerStudentApp = (
+  const registerStudentApp = async (
     fullName: string,
     phoneNumber: string,
     notes: string | null,
     students: { fullName: string; birthDate: string | null; notes: string | null }[],
     planId: string | null = monthlyPlan.id,
-  ) =>
-    send<RegisteredClient>("POST", "/api/clients", {
+  ) => {
+    const client = await send<RegisteredClient>("POST", "/api/clients", {
       fullName,
       phoneNumber,
       email: null,
       notes,
       students,
-      ...(planId === null ? {} : { planId }),
     });
+    if (planId !== null) {
+      for (const student of client.students) {
+        await send("PUT", `/api/students/${student.id}/plan`, {
+          classPackId: planId,
+          customPrice: null,
+          effectiveFrom: month,
+        });
+      }
+    }
+    return client;
+  };
   const ana = await registerStudentApp("Ana Pérez", "11 2233-4455", "Paga por transferencia", [
     { fullName: "Tomás Pérez", birthDate: "2018-03-14", notes: "Le cuesta meter la cabeza" },
     { fullName: "Lucía Pérez", birthDate: "2020-07-02", notes: null },

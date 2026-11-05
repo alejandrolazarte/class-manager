@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Status: agreed with the owner on 2026-11-03. Steps 1, 2 and 4 built; step 3 next. Builds on the [plans catalog](../20261031-plans-catalog/plan.md).
+Status: agreed with the owner on 2026-11-03. Built (steps 1 to 4). Builds on the [plans catalog](../20261031-plans-catalog/plan.md).
 
 ## Why
 
@@ -38,13 +38,14 @@ The owner's point: a monthly plan is a subscription like in any other app. The s
 
 ### Nuevo alumno (step 3)
 
-- Once a plan can be chosen in the shop or at the counter, "¿Qué paga?" stops being required: leaving it empty registers the person with no plan, as the import already does.
+- Changed by the owner on 2026-11-05: "¿Qué paga?" is removed from Nuevo alumno instead of made optional. Choosing a plan there didn't charge it, and choosing packs didn't sell one, so it did half of each. Nuevo alumno registers people with no plan, as the import already does.
+- The family card says when a student has no plan, nothing scheduled and the family has no pack classes left ("Todavía no tiene plan ni packs.", or "{name} todavía no tiene plan ni packs." in a family with several students), right above its tabs, for members who can sell at the counter or record payments. **Cobrar** opens Venta en mostrador with that student chosen; in a business whose plan has no shop (no counter sale), **Elegir plan** opens the student's Forma de cobro instead. It stays until the student has a plan or the family has pack classes, so it also covers a family that didn't pay when registering.
 
 ## Steps
 
 1. **Shop** (built): `IsVisibleInApp` on packs and plans with its migration and the toggle in the pack and plan form; the shop lists the plans; `PUT /api/student-app/students/{studentId}/plan` chooses (`classPackId`) or cancels (`null`) a plan with the rules above; the plan page in the shop with ConfirmDialog for both.
 2. **Counter** (built): sell a plan in Venta en mostrador (gives the plan and records the month's payment) through `POST /api/students/{studentId}/plan/sales` (`SellStudentPlanUseCase`).
-3. **Nuevo alumno**: "¿Qué paga?" optional.
+3. **Nuevo alumno** (built): "¿Qué paga?" removed; the family card suggests selling a plan or pack (`PlanSuggestionBanner`). `RegisterClientCommand.PlanId` is gone.
 4. **Team notice** (built): when a student chooses or cancels a plan from the app, the members who see every payment (`payments.view.all`) and the brand owners get an aviso ("Ana eligió el plan X · Desde diciembre.", "Ana dio de baja su plan · Sin plan desde diciembre.") that opens the family card. Choosing what the person already has for that month notifies nobody.
 
 Later, with [online payments](../20260929-online-shop-and-payments/plan.md): a plan maps to a Stripe subscription and is charged automatically every month.

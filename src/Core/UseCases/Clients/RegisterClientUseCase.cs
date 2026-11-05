@@ -4,7 +4,6 @@ using ClassManager.Core.Audit;
 using ClassManager.Core.Common;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Core.Domain.Clients;
-using ClassManager.Core.Domain.Fees;
 using ClassManager.Core.Domain.Students;
 using ClassManager.Core.Domain.Users;
 using ClassManager.Core.UseCases.Fees;
@@ -19,16 +18,13 @@ public sealed record RegisterClientCommand(
     [property: AuditPersonal] string? Email,
     [property: AuditPersonal] string? Notes,
     IReadOnlyList<NewStudent>? Students,
-    long? SamePersonUserId = null,
-    long? PlanId = null) : ICommand;
+    long? SamePersonUserId = null) : ICommand;
 
 public sealed class RegisterClientUseCase(
     IBusinessRepository businessRepository,
     IClientRepository clientRepository,
     IStudentRepository studentRepository,
     IUserRepository userRepository,
-    IStudentPlanRepository studentPlanRepository,
-    IClassPackRepository classPackRepository,
     IPeopleLock peopleLock,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider,
@@ -87,43 +83,14 @@ public sealed class RegisterClientUseCase(
         }
 
         var today = business.TodayAt(now);
-        var plan = command.PlanId is { } planId ? await classPackRepository.GetByIdAsync(planId, cancellationToken) : null;
-        if (command.PlanId is not null && plan is not { IsActive: true, RenewsMonthly: true })
-        {
-            return StudentPlanFailures.PlanNotOffered(nameof(RegisterClientCommand.PlanId));
-        }
-
-        var planChanges = new List<StudentPlanChange>();
-        foreach (var student in plan is null ? [] : students.Value!)
-        {
-            var planChange = StudentPlanChange.ForStudent(student, BillingMonth.From(today), plan, null, today, now);
-            if (planChange.IsFailure)
-            {
-                return planChange.Error!;
-            }
-
-            planChanges.Add(planChange.Value!);
-        }
-
         clientRepository.Add(newClient);
         foreach (var student in students.Value!)
         {
             studentRepository.Add(student);
         }
 
-        foreach (var planChange in planChanges)
-        {
-            studentPlanRepository.Add(planChange);
-        }
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        var plans = FamilyPlansResponse.From(
-            newClient.Id,
-            students.Value!,
-            planChanges,
-            plan is null ? [] : [plan],
-            await classPackRepository.ListPriceChangesAsync(cancellationToken),
-            today);
+        var plans = FamilyPlansResponse.From(newClient.Id, students.Value!, [], [], [], today);
         return ClientDetailsResponse.Registered(newClient, students.Value!, plans);
     }
 
