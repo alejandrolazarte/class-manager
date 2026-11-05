@@ -2,7 +2,7 @@
 
 Date: 2026-10-21. Updated 2026-11-05 for the [plans catalog](../20261031-plans-catalog/plan.md): monthly fees no longer exist, families owe what their students' monthly plans add up to.
 
-Status: proposal, nothing built.
+Status: proposal, nothing built. Comes after [notification preferences](../20261105-notification-preferences/plan.md): every reminder belongs to one of its categories.
 
 ## Why
 
@@ -74,7 +74,7 @@ A brand without an active subscription is read-only ([subscriptions](../20261003
 ### Who can turn them off
 
 - **The business**, in Ajustes → Recordatorios: class reminders on or off, also the weekly classes, how many hours before, payment reminders on or off, the **due day** (1–28, default 10), and pack reminders on or off. New businesses start with class and payment reminders on (weekly classes off). Existing businesses start with everything **off**, and the owner turns them on, so no family gets a surprise push the day this is deployed.
-- **Each family account** can turn off **class reminders** in its Ajustes, below the notifications switch. Payment reminders can't be turned off by the family: they are about their own account, like an order email.
+- **Each person** decides in Mi perfil → Notificaciones ([notification preferences](../20261105-notification-preferences/plan.md)): class reminders are the category **Recordatorios de clases** (push), and payment reminders, pack and owed-classes reminders and the ones sent by hand are **Recordatorios de pago** (email and push). Every reminder email carries the one-click unsubscribe link. A family that turned off the email still sees what it owes in the app.
 - Turning push off on a device (already in Ajustes) stops every push, reminders included.
 
 ### Sent at most once
@@ -112,7 +112,6 @@ A class reminder that runs **less than 30 minutes before its class, or after it 
 | Change | What |
 |---|---|
 | `Businesses` | `ClassRemindersEnabled`, `WeeklyClassRemindersEnabled`, `PaymentRemindersEnabled`, `PackRemindersEnabled` (`bit`), `ClassReminderHoursBefore` (`tinyint`: 2, 3, 6, 12 or 24, default 3), `PaymentDueDay` (`tinyint`, 1–28, default 10). The migration sets the switches to 0 for existing businesses |
-| `ClientAccounts` | `ReceivesClassReminders` (`bit`, default 1) |
 | `SentReminders` | New, tenant-owned, `IAuditable`, see [Sent at most once](#sent-at-most-once) |
 
 ### Texts
@@ -139,7 +138,6 @@ Cobros is one view of the month ([Cobros in one view](../../frontend/20261103-un
 | Remind one family | `POST /api/fees/reminders/{clientId}` with `{ month }` | `payments.record` |
 
 The routes stay under `/api/fees` because that is where the month's monthly plan list lives (`GET /api/fees`, `ListMonthlyFeesUseCase`).
-| The family account's class reminder switch | `GET` / `PUT /api/student-app/settings/reminders` | Family session |
 
 The month's list (`GET /api/fees`) gains `lastRemindedAt` on each monthly plan client (`ClientFeeResponse`). Both reminder endpoints respect the member's scope (`payments.view.own` only reaches their own students' families), like the list.
 
@@ -147,7 +145,7 @@ The month's list (`GET /api/fees`) gains `lastRemindedAt` on each monthly plan c
 
 - **Team, Ajustes → Recordatorios** (a new row in Ajustes, shown with `business.view`, editable with `business.manage`): the class reminder switch with how many hours before, the weekly classes switch, the payment switch with the due day, the pack switch, and a **Vista previa** sheet with the class and payment pushes, reusing `PushNotificationPreview`. The form follows [forms](../../frontend/forms.md).
 - **Team, Cobros**: Recordar per monthly plan row that owes, Recordar a todos in the list header with the Deben chip on, "Recordado el …" under the status (see [Sending a payment reminder by hand](#sending-a-payment-reminder-by-hand)).
-- **Family, Ajustes**: a "Recordatorio de clases" switch below the notifications card.
+- **Family**: nothing new in Ajustes; the reminder categories show in Mi perfil → Notificaciones, which ships first.
 - Every new text goes in `es.json` and `en.json`.
 - Before/after screenshots of Ajustes, Cobros with the Deben chip and the family Ajustes go to the owner before the PR ([UI changes](../../../CLAUDE.md#ui-changes)).
 
@@ -156,7 +154,7 @@ The month's list (`GET /api/fees`) gains `lastRemindedAt` on each monthly plan c
 Ordered from least to most work, so each one ships something families and the team notice:
 
 1. **Reminding by hand** from Cobros: `SentReminders`, the payment push and email in every language, the two endpoints, `lastRemindedAt`, and the Recordar actions. No planner and no settings yet: it is the smallest step, and it builds the texts, the email and the "sent at most once" table the next steps reuse.
-2. **Class reminders**: the planner, the class reminder task, the business settings (class switches and hours) and the family switch. The pilot owner turns them on.
+2. **Class reminders**: the planner, the class reminder task, the business settings (class switches and hours). The pilot owner turns them on.
 3. **Automatic payment reminders**: the due day and payment switch in the settings, plan due and overdue, and the pack and owed-classes pushes, queued by the planner at 10:00.
 4. **Always on** (operations, no code): done, the database on Basic on 2026-10-24 and the API with `minReplicas 1` on 2026-11-03 ([hosting plan](../../hosting-plan.md#when-to-leave-the-free-setup)).
 
@@ -173,7 +171,7 @@ Unit tests (`ClassManager.Core.U.Tests`, in-memory fakes), one rule per test:
 - A reminder that would fall between 22:00 and 8:00 goes out at 21:00 the day before.
 - No reminder for a booking made after its reminder time.
 - Two students of the same family in the same class time get one push. A student's own account only gets their own classes.
-- An account that turned class reminders off gets none, and the other accounts of the family still do.
+- An account that turned off Recordatorios de clases gets none, and the other accounts of the family still do. An account that turned off the Recordatorios de pago email still gets the push, and the other way round; the reminder sent by hand respects the same choice.
 - A business with reminders off, or without an active subscription, sends nothing.
 - A reminder less than 30 minutes before its class, or after it started, is dropped.
 - Payment reminders: only families with a monthly plan that month and `Unpaid` or `Partial`, on the due day and 7 days later, with the amount left from `IFamilyBillingService` and the month's payments. Never `Paid`, `NoFee` (plans adding up to 0) or families without a monthly plan, and never twice for the same month and kind. A missed one goes out on the next run, but not between 22:00 and 8:00.
@@ -191,7 +189,7 @@ Integration tests (`ClassManager.Api.I.Tests`, Testcontainers):
 - The endpoints' permissions: an instructor can't change the settings or send a payment reminder.
 - The payment email renders in Spanish and English with the business's brand and one line per student and plan.
 
-App tests (jest): the settings form saves the switches, the hours and the due day; Recordar a todos only shows with the Deben chip on and does nothing until the dialog is confirmed; a reminded row shows the date; the family switch saves.
+App tests (jest): the settings form saves the switches, the hours and the due day; Recordar a todos only shows with the Deben chip on and does nothing until the dialog is confirmed; a reminded row shows the date.
 
 ## Later
 
