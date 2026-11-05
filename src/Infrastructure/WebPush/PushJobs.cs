@@ -9,6 +9,8 @@ public abstract record PushJob(long TenantId, PushMessage Message)
 {
     public IReadOnlyDictionary<string, PushMessage>? MessagesByLanguage { get; init; }
 
+    public NotificationCategory? Category { get; init; }
+
     public PushMessage MessageIn(string? language) =>
         language is not null && MessagesByLanguage?.TryGetValue(language, out var message) == true ? message : Message;
 }

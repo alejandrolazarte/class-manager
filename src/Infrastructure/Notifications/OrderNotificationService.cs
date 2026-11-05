@@ -18,7 +18,8 @@ internal sealed class OrderNotificationService(
     IWebAppLinks webAppLinks,
     PushPublisher pushPublisher,
     TeamNotifier teamNotifier,
-    TeamRecipients teamRecipients)
+    TeamRecipients teamRecipients,
+    INotificationPreferencesService preferences)
     : IOrderNotificationService
 {
     public async Task OrderPlacedAsync(Order order, CancellationToken cancellationToken)
@@ -33,7 +34,8 @@ internal sealed class OrderNotificationService(
         var total = OrderEmails.Amount(order.Total, order.CurrencyCode);
         var deliveryClassName = order.HasProducts ? await DeliveryClassNameAsync(order, cancellationToken) : null;
         var staffUserIds = await teamRecipients.WithPermissionAsync(Permissions.Orders.Manage, cancellationToken);
-        foreach (var recipient in await RecipientsOfAsync(staffUserIds, cancellationToken))
+        var staffWantingEmail = await preferences.WhoWantsAsync(staffUserIds, NotificationCategory.NewOrders, NotificationChannel.Email, cancellationToken);
+        foreach (var recipient in await RecipientsOfAsync(staffWantingEmail, cancellationToken))
         {
             var delivery = order.HasProducts ? recipient.Texts.OrderDeliveryForBranch(deliveryClassName) : null;
             var placed = recipient.Texts.OrderPlaced(DetailsOf(order, business), client.User.FullName, delivery, webAppLinks.TeamOrders());
@@ -42,6 +44,7 @@ internal sealed class OrderNotificationService(
 
         await teamNotifier.NotifyAsync(
             staffUserIds,
+            NotificationCategory.NewOrders,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.OrderPlacedTitle(EmailTexts.For(texts.Language).OrderNumber(order.Number), client.User.FullName),
                 total,
@@ -129,6 +132,7 @@ internal sealed class OrderNotificationService(
         {
             await pushPublisher.PublishToStudentsAsync(
                 [clientId],
+                NotificationCategory.Orders,
                 LocalizedPushMessage.Build(texts => new PushMessage(
                     texts.OrderReadyTitle,
                     WhereToGetIt(EmailTexts.For(texts.Language), business, deliveryClassName),
@@ -170,7 +174,9 @@ internal sealed class OrderNotificationService(
             .ToListAsync(cancellationToken);
         if (userIds.Count > 0)
         {
-            return await RecipientsOfAsync(userIds, cancellationToken);
+            return await RecipientsOfAsync(
+                await preferences.WhoWantsAsync(userIds, NotificationCategory.Orders, NotificationChannel.Email, cancellationToken),
+                cancellationToken);
         }
 
         var clientEmail = (await ClientOfAsync(order, cancellationToken))?.User.Email;

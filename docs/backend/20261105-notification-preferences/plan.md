@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: agreed with the owner on 2026-11-05, nothing built. Comes before the [automatic reminders](../20261021-automatic-reminders/plan.md), so the new reminder emails and pushes can be turned off from the day they ship.
+Status: agreed with the owner on 2026-11-05. Step 1 built; step 2 (unsubscribe from the email) next. Comes before the [automatic reminders](../20261021-automatic-reminders/plan.md), so the new reminder emails and pushes can be turned off from the day they ship.
 
 ## Why
 
@@ -67,8 +67,10 @@ Everything is **on** for every account, existing and new, so nothing changes the
 ### One place decides
 
 - `Category` and `Channel` are enums in `Core` (`Core/Domain/Notifications`), with the "always sent" messages having no category at all, so a new message has to pick a category or be explicitly always sent.
-- `INotificationPreferencesService.FilterAsync(accountIds, category, channel)` returns the accounts that still want it. Every sender calls it right before queuing: `TeamNotifier` (push only, the aviso is always saved), `PushPublisher` for family pushes, `OrderNotificationService` and `BrandedEmailSender` callers for emails. Nothing filters by hand.
-- The check is made **when the message is queued**, not when the background task sends it. A person who turns something off doesn't stop a message already queued a second before; that edge isn't worth a second read of preferences in the worker.
+- `INotificationPreferencesService.WhoWantsAsync(accountIds, category, channel)` returns the accounts that still want it. Nothing filters by hand:
+  - **Emails** are filtered when they are queued: `OrderNotificationService` asks before building the recipients of the order emails (Pedidos for the family, Pedidos nuevos for the team).
+  - **Pushes** carry their category in the push task (`PushJob.Category`, set by every `PushPublisher` and `TeamNotifier` call), and `PushDispatcher` drops the subscriptions of accounts that turned it off when the task runs. That is where the recipients of a push are resolved anyway (an announcement for everyone only knows its accounts then). A push with no category (guardian consent, photo approval) always goes out.
+  - `TeamNotifier` always saves the aviso; only its push is filtered.
 
 ### Unsubscribe from the email
 
@@ -86,16 +88,16 @@ Every email that can be turned off today goes to an account. Payment reminders w
 
 | Operation | Endpoint | Who |
 |---|---|---|
-| Read the signed-in account's preferences: every category that applies to them (family, team or both), each with its channels and on/off | `GET /api/account/notification-preferences` | Any signed-in account |
-| Turn one category and channel on or off | `PUT /api/account/notification-preferences/{category}/{channel}` with `{ enabled }` | Any signed-in account |
+| Read the signed-in account's preferences: every category that applies to them (family, team or both), each with its channels and on/off | `GET /api/me/notification-preferences` | Any signed-in account |
+| Turn one category and channel on or off | `PUT /api/me/notification-preferences` with `{ category, channel, isEnabled }`; a channel the category doesn't use is refused (`notifications.channel_not_in_category`) | Any signed-in account |
 | Unsubscribe from an email link | `POST /api/notification-preferences/unsubscribe` with `{ token }`, and `POST …/resubscribe` for the undo | Anonymous, the token is the proof |
 
 Which categories apply: team categories when the account is a member of any business, family categories when it has any family access (`ClientAccounts`). An owner who is also a parent sees both groups.
 
 ## App
 
-- **Mi perfil → Notificaciones**, a new row under the profile data. The screen has one section per group that applies ("Como equipo", "Como alumno o familia"), and each category is a row with its name, one line saying what it covers, and a `ToggleSwitch` for **Email** and for **Push** (only the channels the category uses). Saving is immediate on each switch, like the device notifications switch.
-- The device push switch stays where it is (Ajustes, and the student app's Notificaciones card). The new screen links to it with one line when push is off on this device: per-kind push choices only matter when the device receives push at all.
+- **Mi perfil → Notificaciones**, a new row in a "Preferencias" section under the profile data. The screen has one section per group that applies ("Como equipo", "Como alumno o familia"), and each category is a row with its name, one line saying what it covers, and a `ToggleSwitch` for **Email** and for **Push** (only the channels the category uses). Saving is immediate on each switch, like the device notifications switch.
+- The device push switch stays where it is (Ajustes, and the student app's Notificaciones card). Per-kind push choices only matter when the device receives push at all; a line linking to that switch from the new screen is left for later.
 - The texts of the device switch hints (`student.notifications.hint`, `teamNotifications.hint`) stay as they are; the new screen has its own texts.
 - The unsubscribe page is a public web route like the invitation and password pages, with the business brand of the email it came from when the token carries it, and the app's otherwise.
 - Every new text goes in `es.json` and `en.json`; the footer line and page texts go in every email language.

@@ -27,6 +27,10 @@ export default function TodayLayout() {
       <Stack.Screen name="change-email" options={{ title: translate("profile.email.title") }} />
       <Stack.Screen name="delete-account" options={{ title: translate("profile.delete.title") }} />
       <Stack.Screen name="passkeys" options={{ title: translate("profile.passkeys.title") }} />
+      <Stack.Screen
+        name="notification-preferences"
+        options={{ title: translate("notificationPreferences.title") }}
+      />
       <Stack.Screen name="add-passkey" options={{ title: translate("profile.passkeys.add") }} />
       <Stack.Screen name="orders/index" options={{ title: translate("orders.title") }} />
       <Stack.Screen name="orders/new" options={{ title: translate("orders.counterSale.title") }} />

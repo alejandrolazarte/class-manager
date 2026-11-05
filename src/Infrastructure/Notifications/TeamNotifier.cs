@@ -6,7 +6,8 @@ namespace ClassManager.Infrastructure.Notifications;
 
 internal sealed class TeamNotifier(AppDbContext context, PushPublisher publisher, IIdentityService identityService, TimeProvider timeProvider)
 {
-    public async Task NotifyAsync(IReadOnlyCollection<Guid> userIds, LocalizedPushMessage message, CancellationToken cancellationToken)
+    public async Task NotifyAsync(
+        IReadOnlyCollection<Guid> userIds, NotificationCategory category, LocalizedPushMessage message, CancellationToken cancellationToken)
     {
         if (userIds.Count == 0)
         {
@@ -23,6 +24,6 @@ internal sealed class TeamNotifier(AppDbContext context, PushPublisher publisher
         }
 
         await context.SaveChangesAsync(cancellationToken);
-        await publisher.PublishToMembersAsync(userIds, message, cancellationToken);
+        await publisher.PublishToMembersAsync(userIds, category, message, cancellationToken);
     }
 }

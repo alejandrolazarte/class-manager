@@ -76,6 +76,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IMemberInvitationRepository, MemberInvitationRepository>();
         services.AddScoped<IPendingSignUpRepository, PendingSignUpRepository>();
         services.AddScoped<ILegalTermsAcceptanceRepository, LegalTermsAcceptanceRepository>();
+        services.AddScoped<INotificationOptOutRepository, NotificationOptOutRepository>();
+        services.AddScoped<INotificationPreferencesService, NotificationPreferencesService>();
         services.AddScoped<ICustomRoleRepository, CustomRoleRepository>();
         services.AddScoped<IClientAccountRepository, ClientAccountRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -140,7 +142,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped(serviceProvider => new PushDispatcher(
             serviceProvider.GetRequiredService<AppDbContext>(),
             serviceProvider.GetRequiredService<IWebPushSender>(),
-            serviceProvider.GetRequiredService<IIdentityService>()));
+            serviceProvider.GetRequiredService<IIdentityService>(),
+            serviceProvider.GetRequiredService<INotificationPreferencesService>()));
         services.AddScoped<IStudentAppNotificationService, StudentAppNotificationService>();
         services.AddBackgroundTask<PublishScheduledAnnouncementBackgroundTaskCommand, PublishScheduledAnnouncementBackgroundTaskHandler>();
         services.AddScoped<TeamNotifier>();

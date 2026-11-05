@@ -305,6 +305,11 @@ test("Invitation flows", async ({ page, request, browser }) => {
   await page.getByLabel("Fecha de nacimiento").fill(typedDateOf("1985-06-20"));
 
   await page.goto("/settings/profile");
+  await page.getByRole("button", { name: "Notificaciones" }).filter({ visible: true }).click();
+  await page.getByRole("switch", { name: "Pedidos nuevos: Email" }).waitFor();
+  await capture(page, "16e-mi-perfil-notificaciones");
+
+  await page.goto("/settings/profile");
   const deleteAccountRow = page
     .getByRole("button", { name: "Eliminar mi cuenta" })
     .filter({ visible: true });

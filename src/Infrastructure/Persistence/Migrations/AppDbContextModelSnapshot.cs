@@ -2110,6 +2110,27 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("MemberPushSubscriptions");
                 });
 
+            modelBuilder.Entity("ClassManager.Core.Domain.Notifications.NotificationOptOut", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("Channel")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("AccountId", "Category", "Channel");
+
+                    b.ToTable("NotificationOptOuts");
+                });
+
             modelBuilder.Entity("ClassManager.Core.Domain.Notifications.PushSubscription", b =>
                 {
                     b.Property<long>("Id")
