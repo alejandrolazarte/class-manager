@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace ClassManager.Subscriptions.AspNetCore.Billing;
 
-internal sealed partial class BillingWebhookProcessor<TDbContext>(
+internal sealed partial class BillingEventProcessor<TDbContext>(
     TDbContext context,
     IBillingGateway gateway,
     TimeProvider timeProvider,
-    ILogger<BillingWebhookProcessor<TDbContext>> logger) : IBillingWebhookProcessor
+    ILogger<BillingEventProcessor<TDbContext>> logger) : IBillingEventProcessor
     where TDbContext : DbContext, ISubscriptionsDbContext
 {
     public async Task ProcessAsync(BillingEvent billingEvent, CancellationToken cancellationToken)

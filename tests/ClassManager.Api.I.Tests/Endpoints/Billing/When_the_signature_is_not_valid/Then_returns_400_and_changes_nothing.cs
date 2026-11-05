@@ -13,9 +13,8 @@ public sealed class Then_returns_400_and_changes_nothing(ApiFixture fixture)
         var business = await fixture.SeedBusinessAsync(PlanCodes.Free);
         var externalSubscriptionId = BillingWebhookRequests.NewExternalSubscriptionId();
         fixture.ApiFactory.BillingGateway.Set(BillingWebhookRequests.ExternalPro(externalSubscriptionId, business.Business.OrganizationId));
-        using var stranger = fixture.ApiFactory.CreateClient();
 
-        using var response = await stranger.PostStripeEventAsync(
+        using var response = await fixture.PostStripeEventAsync(
             BillingWebhookRequests.CheckoutSessionCompleted,
             externalSubscriptionId,
             webhookSecret: WrongWebhookSecret);

@@ -21,7 +21,7 @@ public static class StripeBillingWebhookEndpointRouteBuilderExtensions
     private static async Task<IResult> ReceiveAsync(
         HttpRequest request,
         IOptions<StripeBillingOptions> options,
-        IBillingWebhookProcessor processor,
+        IBillingEventInbox inbox,
         CancellationToken cancellationToken)
     {
         using var reader = new StreamReader(request.Body);
@@ -34,7 +34,7 @@ public static class StripeBillingWebhookEndpointRouteBuilderExtensions
             return TypedResults.BadRequest();
         }
 
-        await processor.ProcessAsync(billingEvent, cancellationToken);
+        await inbox.ReceiveAsync(billingEvent, cancellationToken);
         return TypedResults.Ok();
     }
 }

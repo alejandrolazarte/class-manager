@@ -10,13 +10,19 @@ public sealed class FakeBillingGateway : IBillingGateway
 
     private const string CustomerIdPrefix = "cus_";
 
+    private static readonly TimeSpan HeldReadTimeout = TimeSpan.FromSeconds(2);
+
     private readonly ConcurrentDictionary<string, ExternalSubscription> _subscriptions = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, int> _readCounts = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, CountdownEvent> _heldReads = new(StringComparer.Ordinal);
     private readonly ConcurrentQueue<BillingCustomerRequest> _customerRequests = new();
     private readonly ConcurrentQueue<BillingCheckoutRequest> _checkoutRequests = new();
     private readonly ConcurrentQueue<BillingPortalRequest> _portalRequests = new();
 
     public void Set(ExternalSubscription subscription) => _subscriptions[subscription.Id] = subscription;
+
+    public void HoldReadsUntilConcurrent(string externalSubscriptionId, int readers) =>
+        _heldReads[externalSubscriptionId] = new CountdownEvent(readers);
 
     public int ReadCount(string externalSubscriptionId) => _readCounts.GetValueOrDefault(externalSubscriptionId);
 
@@ -29,10 +35,16 @@ public sealed class FakeBillingGateway : IBillingGateway
     public IReadOnlyList<BillingPortalRequest> PortalsFor(string externalCustomerId) =>
         [.. _portalRequests.Where(request => request.ExternalCustomerId == externalCustomerId)];
 
-    public Task<ExternalSubscription?> GetSubscriptionAsync(string externalSubscriptionId, CancellationToken cancellationToken)
+    public async Task<ExternalSubscription?> GetSubscriptionAsync(string externalSubscriptionId, CancellationToken cancellationToken)
     {
         _readCounts.AddOrUpdate(externalSubscriptionId, 1, (_, count) => count + 1);
-        return Task.FromResult(_subscriptions.GetValueOrDefault(externalSubscriptionId));
+        if (_heldReads.TryGetValue(externalSubscriptionId, out var heldReads) && !heldReads.IsSet)
+        {
+            heldReads.Signal();
+            await Task.Run(() => heldReads.Wait(HeldReadTimeout, cancellationToken), cancellationToken);
+        }
+
+        return _subscriptions.GetValueOrDefault(externalSubscriptionId);
     }
 
     public Task<string> CreateCustomerAsync(BillingCustomerRequest request, CancellationToken cancellationToken)

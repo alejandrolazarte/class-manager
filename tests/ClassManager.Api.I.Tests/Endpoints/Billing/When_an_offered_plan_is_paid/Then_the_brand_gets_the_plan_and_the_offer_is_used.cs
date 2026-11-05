@@ -21,9 +21,8 @@ public sealed class Then_the_brand_gets_the_plan_and_the_offer_is_used(ApiFixtur
             ExternalSubscriptionStatus.Trialing,
             CancelOn: null,
             EndedOn: null));
-        using var stripe = fixture.ApiFactory.CreateClient();
 
-        using var response = await stripe.PostStripeEventAsync(BillingWebhookRequests.CheckoutSessionCompleted, externalSubscriptionId);
+        using var response = await fixture.PostStripeEventAsync(BillingWebhookRequests.CheckoutSessionCompleted, externalSubscriptionId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         (await fixture.CurrentOfferAsync(brand.OrganizationId)).ShouldBeNull();
