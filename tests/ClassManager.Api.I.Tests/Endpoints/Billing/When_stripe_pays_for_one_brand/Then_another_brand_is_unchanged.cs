@@ -12,9 +12,8 @@ public sealed class Then_another_brand_is_unchanged(ApiFixture fixture)
         var otherBrand = await fixture.SeedBusinessAsync(PlanCodes.Free);
         var externalSubscriptionId = BillingWebhookRequests.NewExternalSubscriptionId();
         fixture.ApiFactory.BillingGateway.Set(BillingWebhookRequests.ExternalPro(externalSubscriptionId, payingBrand.Business.OrganizationId));
-        using var stripe = fixture.ApiFactory.CreateClient();
 
-        using var response = await stripe.PostStripeEventAsync(BillingWebhookRequests.CheckoutSessionCompleted, externalSubscriptionId);
+        using var response = await fixture.PostStripeEventAsync(BillingWebhookRequests.CheckoutSessionCompleted, externalSubscriptionId);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var otherSubscription = await fixture.CurrentSubscriptionAsync(otherBrand);

@@ -15,6 +15,7 @@ public static class BillingWebhookRequests
     public const decimal ProPrice = 39m;
     public const string Euro = "EUR";
     public const string CheckoutSessionCompleted = "checkout.session.completed";
+    public const string SubscriptionCreated = "customer.subscription.created";
     public const string SubscriptionUpdated = "customer.subscription.updated";
     public const string SubscriptionDeleted = "customer.subscription.deleted";
     public const string InvoicePaymentFailed = "invoice.payment_failed";
@@ -22,6 +23,9 @@ public static class BillingWebhookRequests
     private const string EventIdPrefix = "evt_";
     private const string ExternalSubscriptionIdPrefix = "sub_";
     private const string JsonMediaType = "application/json";
+
+    private static readonly TimeSpan ProcessingTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(50);
 
     public static string NewEventId() => EventIdPrefix + Guid.NewGuid().ToString("N");
 
@@ -35,19 +39,40 @@ public static class BillingWebhookRequests
         new(externalSubscriptionId, subscriberId, ProPlanCode, ProPrice, Euro, status, CancelOn: null, endedOn);
 
     public static async Task<HttpResponseMessage> PostStripeEventAsync(
-        this HttpClient httpClient,
+        this ApiFixture fixture,
         string eventType,
         string externalSubscriptionId,
         string? eventId = null,
         string webhookSecret = BusinessApiFactory.TestStripeWebhookSecret)
     {
-        var payload = EventPayload(eventId ?? NewEventId(), eventType, externalSubscriptionId);
+        var sentEventId = eventId ?? NewEventId();
+        var payload = EventPayload(sentEventId, eventType, externalSubscriptionId);
+        using var stripe = fixture.ApiFactory.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(ApiRoutes.StripeBillingWebhook, UriKind.Relative))
         {
             Content = new StringContent(payload, Encoding.UTF8, JsonMediaType),
         };
         request.Headers.Add(StripeBillingWebhookEndpointRouteBuilderExtensions.SignatureHeaderName, Signature(payload, webhookSecret));
-        return await httpClient.SendAsync(request);
+        var response = await stripe.SendAsync(request);
+        await fixture.WaitUntilBillingEventProcessedAsync(sentEventId);
+        return response;
+    }
+
+    public static async Task WaitUntilBillingEventProcessedAsync(this ApiFixture fixture, string eventId)
+    {
+        var deadline = DateTimeOffset.UtcNow + ProcessingTimeout;
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            await using var context = fixture.CreateDbContext(0L);
+            if (!await context.BackgroundTasks.AnyAsync(task => task.Payload.Contains(eventId)))
+            {
+                return;
+            }
+
+            await Task.Delay(PollInterval);
+        }
+
+        throw new TimeoutException($"The billing event {eventId} is still queued.");
     }
 
     public static async Task<Subscription> CurrentSubscriptionAsync(this ApiFixture fixture, SeededBusiness business)

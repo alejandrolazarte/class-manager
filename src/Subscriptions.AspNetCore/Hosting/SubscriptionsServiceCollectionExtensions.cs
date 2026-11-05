@@ -26,7 +26,7 @@ public static class SubscriptionsServiceCollectionExtensions
         services.AddScoped<ISubscriptionsDbContext>(serviceProvider => serviceProvider.GetRequiredService<TDbContext>());
         services.AddScoped<ISubscriberResolver, TSubscriberResolver>();
         services.AddScoped<IFeatureAccess, FeatureAccess>();
-        services.AddScoped<IBillingWebhookProcessor, BillingWebhookProcessor<TDbContext>>();
+        services.AddScoped<IBillingEventProcessor, BillingEventProcessor<TDbContext>>();
 
         return services;
     }

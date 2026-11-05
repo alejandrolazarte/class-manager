@@ -21,8 +21,7 @@ public sealed class Then_the_brand_turns_read_only(ApiFixture fixture)
             business.Business.OrganizationId,
             ExternalSubscriptionStatus.Canceled,
             endedOn: yesterday));
-        using var stripe = fixture.ApiFactory.CreateClient();
-        using var deletedResponse = await stripe.PostStripeEventAsync(BillingWebhookRequests.SubscriptionDeleted, externalSubscriptionId);
+        using var deletedResponse = await fixture.PostStripeEventAsync(BillingWebhookRequests.SubscriptionDeleted, externalSubscriptionId);
 
         using var response = await business.HttpClient.PostClientAsync();
 

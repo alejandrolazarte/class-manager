@@ -12,8 +12,7 @@ public sealed class Then_returns_409(ApiFixture fixture)
         var brand = await fixture.SignUpBrandAsync();
         var externalSubscriptionId = BillingWebhookRequests.NewExternalSubscriptionId();
         fixture.ApiFactory.BillingGateway.Set(BillingWebhookRequests.ExternalPro(externalSubscriptionId, brand.OrganizationId));
-        using var stripe = fixture.ApiFactory.CreateClient();
-        using var webhookResponse = await stripe.PostStripeEventAsync(BillingWebhookRequests.CheckoutSessionCompleted, externalSubscriptionId);
+        using var webhookResponse = await fixture.PostStripeEventAsync(BillingWebhookRequests.CheckoutSessionCompleted, externalSubscriptionId);
 
         using var response = await brand.HttpClient.PostPlanCheckoutAsync(PlanCodes.Lite);
 
