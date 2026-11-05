@@ -1001,7 +1001,7 @@
   "student.classes.available.other": "You have {count} classes left",
   "student.classes.unpaid.one": "1 unpaid class",
   "student.classes.unpaid.other": "{count} unpaid classes",
-  "student.payAtSchool": "For now, payment is made at the venue.",
+  "student.payAtSchool": "Payment is made at the venue.",
   "student.loadError": "We couldn't load your information.",
   "student.invite.hint": "They get a link to see classes and balances on their phone. If they already use the app with that email, they only need to accept.",
   "student.invite.emailOnFileHint": "We send the invitation to this email. If you change it, it's also updated in their details.",
