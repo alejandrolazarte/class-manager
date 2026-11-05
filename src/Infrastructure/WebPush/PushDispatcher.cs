@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using ClassManager.Core.Abstractions.Notifications;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Notifications.WebPush;
@@ -16,12 +17,14 @@ public sealed class PushDispatcher
     private readonly AppDbContext _context;
     private readonly IWebPushSender _sender;
     private readonly IIdentityService _identityService;
+    private readonly INotificationPreferencesService _preferences;
 
-    internal PushDispatcher(AppDbContext context, IWebPushSender sender, IIdentityService identityService)
+    internal PushDispatcher(AppDbContext context, IWebPushSender sender, IIdentityService identityService, INotificationPreferencesService preferences)
     {
         _context = context;
         _sender = sender;
         _identityService = identityService;
+        _preferences = preferences;
     }
 
     public Task DispatchAsync(PushJob push, CancellationToken cancellationToken) =>
@@ -45,7 +48,7 @@ public sealed class PushDispatcher
             query = query.Where(subscription => userIds.Contains(subscription.UserId));
         }
 
-        var subscriptions = await query.ToListAsync(cancellationToken);
+        var subscriptions = await WantedAsync(push, await query.ToListAsync(cancellationToken), subscription => subscription.UserId, cancellationToken);
         var payloads = await PayloadsByUserAsync(push, subscriptions.Select(subscription => subscription.UserId), cancellationToken);
         foreach (var subscription in subscriptions)
         {
@@ -60,9 +63,11 @@ public sealed class PushDispatcher
 
     private async Task DispatchToMembersAsync(TeamPush push, CancellationToken cancellationToken)
     {
-        var subscriptions = await _context.MemberPushSubscriptions
-            .Where(subscription => push.UserIds.Contains(subscription.UserId))
-            .ToListAsync(cancellationToken);
+        var subscriptions = await WantedAsync(
+            push,
+            await _context.MemberPushSubscriptions.Where(subscription => push.UserIds.Contains(subscription.UserId)).ToListAsync(cancellationToken),
+            subscription => subscription.UserId,
+            cancellationToken);
         var payloads = await PayloadsByUserAsync(push, subscriptions.Select(subscription => subscription.UserId), cancellationToken);
         foreach (var subscription in subscriptions)
         {
@@ -73,6 +78,19 @@ public sealed class PushDispatcher
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<TSubscription>> WantedAsync<TSubscription>(
+        PushJob push, IReadOnlyList<TSubscription> subscriptions, Func<TSubscription, Guid> userIdOf, CancellationToken cancellationToken)
+    {
+        if (push.Category is not { } category || subscriptions.Count == 0)
+        {
+            return subscriptions;
+        }
+
+        var wanted = (await _preferences.WhoWantsAsync([.. subscriptions.Select(userIdOf).Distinct()], category, NotificationChannel.Push, cancellationToken))
+            .ToHashSet();
+        return [.. subscriptions.Where(subscription => wanted.Contains(userIdOf(subscription)))];
     }
 
     private async Task<Func<Guid, string>> PayloadsByUserAsync(PushJob push, IEnumerable<Guid> userIds, CancellationToken cancellationToken)

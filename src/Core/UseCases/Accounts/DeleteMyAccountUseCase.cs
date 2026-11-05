@@ -18,6 +18,7 @@ public sealed class DeleteMyAccountUseCase(
     IOrganizationMemberRepository organizationMemberRepository,
     IAccountLinkRepository accountLinkRepository,
     IUserPhotoRepository photoRepository,
+    INotificationOptOutRepository notificationOptOutRepository,
     IDocumentStorageService documentStorage,
     TimeProvider timeProvider)
     : IUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse>
@@ -53,6 +54,7 @@ public sealed class DeleteMyAccountUseCase(
 
         var photoDocuments = await photoRepository.DeleteEveryPhotoOfAccountAsync(accountId, cancellationToken);
         await accountLinkRepository.UnlinkFromEveryBusinessAsync(accountId, timeProvider.GetUtcNow(), cancellationToken);
+        await notificationOptOutRepository.DeleteEveryOptOutOfAccountAsync(accountId, cancellationToken);
         if (!await identityService.DeleteAccountAsync(accountId, cancellationToken))
         {
             throw new InvalidOperationException(AccountNotDeletedMessage);

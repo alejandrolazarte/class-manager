@@ -26,6 +26,7 @@ describe("When the privacy link is pressed in the profile", () => {
         changeEmailRoute={routes.changeMyEmail}
         deleteAccountRoute={routes.deleteMyAccount}
         passkeysRoute={routes.myPasskeys}
+        notificationPreferencesRoute={routes.myNotificationPreferences}
       />,
     );
 

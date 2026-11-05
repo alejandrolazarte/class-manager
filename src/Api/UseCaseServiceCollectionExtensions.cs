@@ -24,6 +24,7 @@ using ClassManager.Core.UseCases.ImportExport.Students;
 using ClassManager.Core.UseCases.Instructors;
 using ClassManager.Core.UseCases.Measurements;
 using ClassManager.Core.UseCases.Members;
+using ClassManager.Core.UseCases.Notifications;
 using ClassManager.Core.UseCases.Orders;
 using ClassManager.Core.UseCases.Passkeys;
 using ClassManager.Core.UseCases.PrivateLessons;
@@ -102,6 +103,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<BeginPasskeySignInCommand, PasskeyCeremonyResponse, BeginPasskeySignInUseCase>();
         services.AddUseCase<SignInWithPasskeyCommand, TokenResponse, SignInWithPasskeyUseCase>();
         services.AddUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse, DeleteMyAccountUseCase>();
+        services.AddUseCase<ListMyNotificationPreferencesQuery, IReadOnlyList<NotificationPreferenceResponse>, ListMyNotificationPreferencesUseCase>();
+        services.AddUseCase<UpdateMyNotificationPreferenceCommand, NotificationPreferenceResponse, UpdateMyNotificationPreferenceUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();
         services.AddUseCase<GetBrandQuery, BrandResponse, GetBrandUseCase>();
         services.AddUseCase<UpdateBrandCommand, BrandResponse, UpdateBrandUseCase>();

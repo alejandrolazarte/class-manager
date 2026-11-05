@@ -25,6 +25,7 @@ describe("When the profile is edited", () => {
         changeEmailRoute={routes.studentAppChangeEmail}
         deleteAccountRoute={routes.studentAppDeleteAccount}
         passkeysRoute={routes.studentAppPasskeys}
+        notificationPreferencesRoute={routes.myNotificationPreferences}
       />,
     );
 

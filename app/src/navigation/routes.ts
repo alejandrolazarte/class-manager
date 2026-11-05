@@ -84,8 +84,10 @@ export const routes = {
   deleteMyAccount: "/settings/delete-account",
   studentAppDeleteAccount: "/student-app/delete-account",
   myPasskeys: "/settings/passkeys",
+  myNotificationPreferences: "/settings/notification-preferences",
   addMyPasskey: "/settings/add-passkey",
   studentAppPasskeys: "/student-app/passkeys",
+  studentAppNotificationPreferences: "/student-app/notification-preferences",
   studentAppAddPasskey: "/student-app/add-passkey",
   forgotPassword: (email: string) =>
     email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password",
@@ -97,6 +99,7 @@ export const routes = {
   todayChangeMyEmail: "/today/change-email",
   todayDeleteMyAccount: "/today/delete-account",
   todayMyPasskeys: "/today/passkeys",
+  todayNotificationPreferences: "/today/notification-preferences",
   todayAddMyPasskey: "/today/add-passkey",
   brandSettings: "/settings/brand",
   chooseAccount: "/choose-account",

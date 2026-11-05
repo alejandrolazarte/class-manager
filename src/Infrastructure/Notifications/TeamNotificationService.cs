@@ -22,7 +22,8 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
             plan is null ? texts.StudentPlanCancelledTitle(student.FullName) : texts.StudentPlanChosenTitle(student.FullName, plan.Name),
             plan is null ? texts.StudentPlanCancelledBody(effectiveFrom) : texts.StudentPlanChosenBody(effectiveFrom),
             TeamNotificationLinks.ClientUrl(student.ClientId)));
-        await notifier.NotifyAsync(await teamRecipients.WithPermissionAsync(Permissions.Payments.ViewAll, cancellationToken), message, cancellationToken);
+        await notifier.NotifyAsync(
+            await teamRecipients.WithPermissionAsync(Permissions.Payments.ViewAll, cancellationToken), NotificationCategory.StudentPlans, message, cancellationToken);
     }
 
     public Task AbsenceNotifiedAsync(long studentId, ClassGroup classGroup, ClassSession session, CancellationToken cancellationToken) =>
@@ -41,7 +42,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
             texts.StudentAppInvitationDeclinedTitle(invitedFullName),
             texts.StudentAppInvitationDeclinedBody,
             TeamNotificationLinks.ClientUrl(invitation.ClientId)));
-        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
+        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), NotificationCategory.Invitations, message, cancellationToken);
     }
 
     public async Task GuardianConsentRefusedAsync(ClientInvitation invitation, CancellationToken cancellationToken)
@@ -51,7 +52,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
             texts.GuardianConsentRefusedTitle(invitedFullName),
             texts.GuardianConsentRefusedBody,
             TeamNotificationLinks.ClientUrl(invitation.ClientId)));
-        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
+        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), NotificationCategory.Invitations, message, cancellationToken);
     }
 
     private async Task<string> InvitedFullNameAsync(ClientInvitation invitation, CancellationToken cancellationToken)
@@ -68,7 +69,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
             texts.TeamInvitationDeclinedTitle(invitation.Email),
             texts.TeamInvitationDeclinedBody,
             TeamNotificationLinks.TeamUrl));
-        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), message, cancellationToken);
+        await notifier.NotifyAsync(await InviterOrOwnersAsync(invitation.InvitedByUserId, cancellationToken), NotificationCategory.Invitations, message, cancellationToken);
     }
 
     private async Task<IReadOnlyList<Guid>> InviterOrOwnersAsync(long? invitedByUserId, CancellationToken cancellationToken)
@@ -109,7 +110,7 @@ internal sealed class TeamNotificationService(AppDbContext context, TeamNotifier
             title(texts, student.User.FullName),
             texts.ClassBody(classGroup.Name, session.Date, session.EffectiveStartTime(classGroup.StartTime)),
             TeamNotificationLinks.SessionUrl(classGroup.Id, session.Date)));
-        await notifier.NotifyAsync(userIds, message, cancellationToken);
+        await notifier.NotifyAsync(userIds, NotificationCategory.Attendance, message, cancellationToken);
     }
 
     private async Task<IReadOnlyList<Guid>> RecipientsAsync(long instructorId, CancellationToken cancellationToken)

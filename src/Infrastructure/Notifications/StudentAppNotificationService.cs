@@ -29,12 +29,16 @@ internal sealed class StudentAppNotificationService(
             new PushMessage(announcement.Title, PushBodies.Shorten(announcement.Body ?? string.Empty), StudentAppPushLinks.NewsUrl));
         if (announcement.IsForEveryone)
         {
-            await publisher.PublishToStudentsAsync(null, message, cancellationToken);
+            await publisher.PublishToStudentsAsync(null, NotificationCategory.News, message, cancellationToken);
             return;
         }
 
         await PublishToAccountsSeeingAsync(
-            await StudentIdsEnrolledInAsync(announcement.ClassGroupIds, cancellationToken), FamilyMemberView.Classes, message, cancellationToken);
+            await StudentIdsEnrolledInAsync(announcement.ClassGroupIds, cancellationToken),
+            FamilyMemberView.Classes,
+            NotificationCategory.News,
+            message,
+            cancellationToken);
     }
 
     public async Task AnnouncementRescheduledAsync(Announcement announcement, CancellationToken cancellationToken)
@@ -47,6 +51,7 @@ internal sealed class StudentAppNotificationService(
     public Task AnnouncementReminderAsync(Announcement announcement, IReadOnlyCollection<long> clientIds, CancellationToken cancellationToken) =>
         publisher.PublishToStudentsAsync(
             clientIds,
+            NotificationCategory.News,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.AnnouncementReminderTitle(announcement.Title),
                 PushBodies.Shorten(announcement.Body ?? string.Empty),
@@ -63,6 +68,7 @@ internal sealed class StudentAppNotificationService(
         await publisher.PublishToStudentAccountsAsync(
             [invitation.ClientId],
             clientUserIds,
+            category: null,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.GuardianConsentTitle(studentFullName),
                 texts.GuardianConsentBody,
@@ -80,6 +86,7 @@ internal sealed class StudentAppNotificationService(
         await publisher.PublishToStudentAccountsAsync(
             [clientId],
             clientAccountIds,
+            category: null,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.PhotoApprovalTitle(studentFullName),
                 texts.PhotoApprovalBody,
@@ -98,6 +105,7 @@ internal sealed class StudentAppNotificationService(
         await PublishToAccountsSeeingAsync(
             await EnrolledStudentIdsAsync(session, cancellationToken),
             FamilyMemberView.Classes,
+            NotificationCategory.ClassChanges,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.ClassCancelledTitle(classGroup.Name),
                 texts.ClassCancelledBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), session.CancellationReason),
@@ -122,6 +130,7 @@ internal sealed class StudentAppNotificationService(
         await PublishToAccountsSeeingAsync(
             await EnrolledStudentIdsAsync(session, cancellationToken),
             FamilyMemberView.Classes,
+            NotificationCategory.ClassChanges,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.ClassChangedTitle(classGroup.Name),
                 texts.ClassChangedBody(session.Date, session.EffectiveStartTime(classGroup.StartTime), substituteFullName),
@@ -145,6 +154,7 @@ internal sealed class StudentAppNotificationService(
         await PublishToAccountsSeeingAsync(
             [student.Id],
             FamilyMemberView.Everything,
+            NotificationCategory.InstructorComments,
             LocalizedPushMessage.Build(texts => new PushMessage(
                 texts.FeedbackTitle(instructorFullName, student.User.FullName),
                 PushBodies.Shorten(feedback.Text),
@@ -168,11 +178,12 @@ internal sealed class StudentAppNotificationService(
     private async Task PublishToAccountsSeeingAsync(
         IReadOnlyCollection<long> studentIds,
         FamilyMemberView minimumView,
+        NotificationCategory category,
         LocalizedPushMessage message,
         CancellationToken cancellationToken)
     {
         var accounts = await recipients.SeeingAsync(studentIds, minimumView, cancellationToken);
-        await publisher.PublishToStudentAccountsAsync(accounts.ClientIds, accounts.AccountIds, message, cancellationToken);
+        await publisher.PublishToStudentAccountsAsync(accounts.ClientIds, accounts.AccountIds, category, message, cancellationToken);
     }
 
     private async Task<List<long>> StudentIdsEnrolledInAsync(IReadOnlyList<long> classGroupIds, CancellationToken cancellationToken)

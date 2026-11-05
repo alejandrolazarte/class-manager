@@ -24,6 +24,7 @@ interface MyProfileScreenProps {
   changeEmailRoute: Href;
   deleteAccountRoute: Href;
   passkeysRoute: Href;
+  notificationPreferencesRoute: Href;
 }
 
 export function MyProfileScreen({
@@ -31,6 +32,7 @@ export function MyProfileScreen({
   changeEmailRoute,
   deleteAccountRoute,
   passkeysRoute,
+  notificationPreferencesRoute,
 }: MyProfileScreenProps) {
   const router = useRouter();
   const isPasskeySupported = usePasskeySupport();
@@ -97,6 +99,15 @@ export function MyProfileScreen({
                 hasDivider={false}
               />
             ) : null}
+          </View>
+          <View className="gap-0.5">
+            <SectionTitle title={translate("profile.preferences")} isOverline />
+            <ListRow
+              icon="notifications"
+              label={translate("notificationPreferences.title")}
+              detail={translate("profile.notifications.detail")}
+              onPress={() => router.push(notificationPreferencesRoute)}
+            />
           </View>
           <View className="gap-0.5">
             <SectionTitle title={translate("profile.access")} isOverline />

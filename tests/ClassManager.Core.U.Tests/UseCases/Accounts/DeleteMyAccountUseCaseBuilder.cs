@@ -22,6 +22,8 @@ internal sealed class DeleteMyAccountUseCaseBuilder
 
     public Mock<IUserPhotoRepository> Photos { get; } = new();
 
+    public Mock<INotificationOptOutRepository> NotificationOptOuts { get; } = new();
+
     public DeleteMyAccountUseCaseBuilder WithCorrectPassword()
     {
         Identity
@@ -54,6 +56,7 @@ internal sealed class DeleteMyAccountUseCaseBuilder
             OrganizationMembers.Object,
             AccountLinks.Object,
             Photos.Object,
+            NotificationOptOuts.Object,
             new Mock<IDocumentStorageService>().Object,
             new FakeTimeProvider(Now));
     }
@@ -65,5 +68,7 @@ internal sealed class DeleteMyAccountUseCaseBuilder
             repository => repository.UnlinkFromEveryBusinessAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
             Times.Never);
         Photos.Verify(repository => repository.DeleteEveryPhotoOfAccountAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        NotificationOptOuts.Verify(
+            repository => repository.DeleteEveryOptOutOfAccountAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

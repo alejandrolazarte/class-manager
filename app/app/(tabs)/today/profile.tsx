@@ -8,6 +8,7 @@ export default function TodayMyProfileRoute() {
       changeEmailRoute={routes.todayChangeMyEmail}
       deleteAccountRoute={routes.todayDeleteMyAccount}
       passkeysRoute={routes.todayMyPasskeys}
+      notificationPreferencesRoute={routes.todayNotificationPreferences}
     />
   );
 }
