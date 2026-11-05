@@ -1,19 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationPreferenceQueryKeys } from "@/features/notifications/notificationPreferenceQueryKeys";
 import {
-  listMyNotificationPreferences,
+  getMyNotificationPreferences,
   updateMyNotificationPreference,
 } from "@/features/notifications/notificationPreferencesApi";
 import {
   NotificationPreference,
+  NotificationPreferences,
   UpdateNotificationPreferenceRequest,
 } from "@/features/notifications/notificationPreferenceTypes";
 
+function withPreference(
+  current: NotificationPreferences,
+  change: (preference: NotificationPreference) => NotificationPreference,
+): NotificationPreferences {
+  return { ...current, preferences: current.preferences.map(change) };
+}
+
 function withChannel(
-  preferences: NotificationPreference[],
+  current: NotificationPreferences,
   { category, channel, isEnabled }: UpdateNotificationPreferenceRequest,
-): NotificationPreference[] {
-  return preferences.map((preference) =>
+): NotificationPreferences {
+  return withPreference(current, (preference) =>
     preference.category === category
       ? {
           ...preference,
@@ -28,7 +36,7 @@ function withChannel(
 export function useNotificationPreferences() {
   return useQuery({
     queryKey: notificationPreferenceQueryKeys.mine,
-    queryFn: listMyNotificationPreferences,
+    queryFn: getMyNotificationPreferences,
   });
 }
 
@@ -39,7 +47,7 @@ export function useUpdateNotificationPreference(onFailure: () => void) {
       updateMyNotificationPreference(request),
     onMutate: async (request: UpdateNotificationPreferenceRequest) => {
       await queryClient.cancelQueries({ queryKey: notificationPreferenceQueryKeys.mine });
-      const previous = queryClient.getQueryData<NotificationPreference[]>(
+      const previous = queryClient.getQueryData<NotificationPreferences>(
         notificationPreferenceQueryKeys.mine,
       );
       if (previous) {
@@ -57,10 +65,11 @@ export function useUpdateNotificationPreference(onFailure: () => void) {
       onFailure();
     },
     onSuccess: (saved) => {
-      queryClient.setQueryData<NotificationPreference[]>(
+      queryClient.setQueryData<NotificationPreferences>(
         notificationPreferenceQueryKeys.mine,
         (current) =>
-          current?.map((preference) =>
+          current &&
+          withPreference(current, (preference) =>
             preference.category === saved.category ? saved : preference,
           ),
       );

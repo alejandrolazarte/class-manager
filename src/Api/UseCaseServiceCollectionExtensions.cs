@@ -103,7 +103,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<BeginPasskeySignInCommand, PasskeyCeremonyResponse, BeginPasskeySignInUseCase>();
         services.AddUseCase<SignInWithPasskeyCommand, TokenResponse, SignInWithPasskeyUseCase>();
         services.AddUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse, DeleteMyAccountUseCase>();
-        services.AddUseCase<ListMyNotificationPreferencesQuery, IReadOnlyList<NotificationPreferenceResponse>, ListMyNotificationPreferencesUseCase>();
+        services.AddUseCase<ListMyNotificationPreferencesQuery, NotificationPreferencesResponse, ListMyNotificationPreferencesUseCase>();
         services.AddUseCase<UpdateMyNotificationPreferenceCommand, NotificationPreferenceResponse, UpdateMyNotificationPreferenceUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();
         services.AddUseCase<GetBrandQuery, BrandResponse, GetBrandUseCase>();

@@ -1,11 +1,14 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import {
-  listMyNotificationPreferences,
+  getMyNotificationPreferences,
   updateMyNotificationPreference,
 } from "@/features/notifications/notificationPreferencesApi";
 import { NotificationPreferencesScreen } from "@/features/notifications/screens/NotificationPreferencesScreen";
 import { translate } from "@/i18n/translate";
-import { buildNotificationPreference } from "@/testing/notificationPreferenceFactory";
+import {
+  buildNotificationPreference,
+  buildNotificationPreferences,
+} from "@/testing/notificationPreferenceFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/notifications/notificationPreferencesApi");
@@ -18,8 +21,10 @@ const ordersEmailLabel = translate("notificationPreferences.channelAccessibility
 describe("When saving a notification choice fails", () => {
   beforeEach(() => {
     jest
-      .mocked(listMyNotificationPreferences)
-      .mockResolvedValue([buildNotificationPreference("Orders", "Family")]);
+      .mocked(getMyNotificationPreferences)
+      .mockResolvedValue(
+        buildNotificationPreferences([buildNotificationPreference("Orders", "Family")]),
+      );
     jest.mocked(updateMyNotificationPreference).mockRejectedValue(new Error("offline"));
   });
 

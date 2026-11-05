@@ -12,6 +12,6 @@ public sealed class Then_only_family_categories_are_listed(ApiFixture fixture)
 
         var preferences = await scenario.Student.GetMyNotificationPreferencesAsync();
 
-        preferences!.Select(preference => preference.Audience).Distinct().ShouldBe([NotificationAudience.Family]);
+        preferences!.Preferences.Select(preference => preference.Audience).Distinct().ShouldBe([NotificationAudience.Family]);
     }
 }

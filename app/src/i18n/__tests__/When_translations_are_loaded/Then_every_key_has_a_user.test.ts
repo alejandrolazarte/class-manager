@@ -25,7 +25,6 @@ const keysBuiltFromOneValue = [
   "fees.plan.",
   "instructors.app.",
   "months.",
-  "notificationPreferences.audience.",
   "notificationPreferences.category.",
   "notificationPreferences.channel.",
   "notificationPreferences.description.",

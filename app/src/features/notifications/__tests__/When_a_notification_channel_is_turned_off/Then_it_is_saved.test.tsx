@@ -1,11 +1,14 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import {
-  listMyNotificationPreferences,
+  getMyNotificationPreferences,
   updateMyNotificationPreference,
 } from "@/features/notifications/notificationPreferencesApi";
 import { NotificationPreferencesScreen } from "@/features/notifications/screens/NotificationPreferencesScreen";
 import { translate } from "@/i18n/translate";
-import { buildNotificationPreference } from "@/testing/notificationPreferenceFactory";
+import {
+  buildNotificationPreference,
+  buildNotificationPreferences,
+} from "@/testing/notificationPreferenceFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/notifications/notificationPreferencesApi");
@@ -18,7 +21,9 @@ const ordersEmailLabel = translate("notificationPreferences.channelAccessibility
 describe("When a notification channel is turned off", () => {
   beforeEach(() => {
     const orders = buildNotificationPreference("Orders", "Family");
-    jest.mocked(listMyNotificationPreferences).mockResolvedValue([orders]);
+    jest
+      .mocked(getMyNotificationPreferences)
+      .mockResolvedValue(buildNotificationPreferences([orders]));
     jest.mocked(updateMyNotificationPreference).mockResolvedValue({
       ...orders,
       channels: [

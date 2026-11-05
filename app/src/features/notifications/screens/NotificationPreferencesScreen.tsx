@@ -1,8 +1,5 @@
 import { View } from "react-native";
-import {
-  NotificationAudience,
-  NotificationPreference,
-} from "@/features/notifications/notificationPreferenceTypes";
+import { NotificationPreference } from "@/features/notifications/notificationPreferenceTypes";
 import {
   useNotificationPreferences,
   useUpdateNotificationPreference,
@@ -18,8 +15,6 @@ import { SectionTitle } from "@/ui/SectionTitle";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 import { SkeletonDetail } from "@/ui/motion/SkeletonDetail";
 import { useToast } from "@/ui/ToastProvider";
-
-const audiences: NotificationAudience[] = ["Team", "Family"];
 
 function categoryName(preference: NotificationPreference): string {
   return translate(`notificationPreferences.category.${preference.category}` as TranslationKey);
@@ -69,7 +64,7 @@ export function NotificationPreferencesScreen() {
   const updatePreference = useUpdateNotificationPreference(() =>
     showToast(translate("common.unexpectedError")),
   );
-  const preferences = preferencesQuery.data;
+  const data = preferencesQuery.data;
 
   return (
     <ScrollScreen
@@ -89,39 +84,29 @@ export function NotificationPreferencesScreen() {
           />
         </Banner>
       ) : null}
-      {preferences
-        ? audiences.map((audience) => {
-            const group = preferences.filter((preference) => preference.audience === audience);
-            if (group.length === 0) {
-              return null;
-            }
-            return (
-              <View key={audience} className="gap-0.5">
-                <SectionTitle
-                  title={translate(
-                    `notificationPreferences.audience.${audience}` as TranslationKey,
-                  )}
-                  isOverline
-                />
-                {audience === "Team" ? (
-                  <AppText variant="caption" tone="subtle">
-                    {translate("notificationPreferences.teamHint")}
-                  </AppText>
-                ) : null}
-                {group.map((preference, index) => (
-                  <CategoryRow
-                    key={preference.category}
-                    preference={preference}
-                    hasDivider={index < group.length - 1}
-                    onChange={(channel, isEnabled) =>
-                      updatePreference.mutate({ category: preference.category, channel, isEnabled })
-                    }
-                  />
-                ))}
-              </View>
-            );
-          })
-        : null}
+      {data ? (
+        <View className="gap-0.5">
+          <SectionTitle
+            title={translate("notificationPreferences.business", { business: data.businessName })}
+            isOverline
+          />
+          {data.preferences.some((preference) => preference.audience === "Team") ? (
+            <AppText variant="caption" tone="subtle">
+              {translate("notificationPreferences.teamHint")}
+            </AppText>
+          ) : null}
+          {data.preferences.map((preference, index) => (
+            <CategoryRow
+              key={preference.category}
+              preference={preference}
+              hasDivider={index < data.preferences.length - 1}
+              onChange={(channel, isEnabled) =>
+                updatePreference.mutate({ category: preference.category, channel, isEnabled })
+              }
+            />
+          ))}
+        </View>
+      ) : null}
     </ScrollScreen>
   );
 }

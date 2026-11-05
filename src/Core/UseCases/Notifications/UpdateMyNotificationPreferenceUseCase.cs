@@ -11,8 +11,7 @@ public sealed record UpdateMyNotificationPreferenceCommand(NotificationCategory 
 public sealed class UpdateMyNotificationPreferenceUseCase(
     ICurrentUser currentUser,
     INotificationOptOutRepository optOutRepository,
-    IUnitOfWork unitOfWork,
-    TimeProvider timeProvider)
+    IUnitOfWork unitOfWork)
     : IUseCase<UpdateMyNotificationPreferenceCommand, NotificationPreferenceResponse>
 {
     public async Task<Result<NotificationPreferenceResponse>> ExecuteAsync(
@@ -39,7 +38,7 @@ public sealed class UpdateMyNotificationPreferenceUseCase(
         }
         else if (!command.IsEnabled && optOut is null)
         {
-            optOutRepository.Add(NotificationOptOut.Create(accountId, command.Category, command.Channel, timeProvider.GetUtcNow()));
+            optOutRepository.Add(NotificationOptOut.Create(accountId, command.Category, command.Channel));
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

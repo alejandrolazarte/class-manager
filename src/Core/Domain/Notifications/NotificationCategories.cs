@@ -20,12 +20,6 @@ public static class NotificationCategories
     public static NotificationCategoryDefinition Of(NotificationCategory category) =>
         All.First(definition => definition.Category == category);
 
-    public static IReadOnlyList<NotificationCategoryDefinition> ApplyingTo(bool isTeamMember, bool hasFamilyAccess) =>
-    [
-        .. All.Where(definition => definition.Audience switch
-        {
-            NotificationAudience.Team => isTeamMember,
-            _ => hasFamilyAccess,
-        }),
-    ];
+    public static IReadOnlyList<NotificationCategoryDefinition> For(NotificationAudience audience) =>
+        [.. All.Where(definition => definition.Audience == audience)];
 }
