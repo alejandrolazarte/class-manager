@@ -148,6 +148,7 @@ public static class ApiRoutes
     public const string MyLanguage = "/api/me/account/language";
     public const string MyLegalTermsAcceptance = "/api/me/account/legal-terms-acceptance";
     public const string MyPasskeys = "/api/me/passkeys";
+    public const string MyNotificationPreferences = "/api/me/notification-preferences";
     public const string PasskeyRegistrationOptions = "/registration-options";
     public const string PasskeyById = "/{passkeyId}";
     public const string SwitchBranch = "/branch";

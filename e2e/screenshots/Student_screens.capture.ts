@@ -238,6 +238,11 @@ test("Student screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Apariencia" }).click();
   await page.getByText("Automático").filter({ visible: true }).first().waitFor();
   await capture(page, "29c-alumno-ajustes-apariencia");
+
+  await page.goto("/student-app/profile");
+  await page.getByRole("button", { name: "Notificaciones" }).filter({ visible: true }).click();
+  await page.getByRole("switch", { name: "Pedidos: Email" }).waitFor();
+  await capture(page, "29d-alumno-notificaciones");
 });
 
 test("Account chooser", async ({ page, request }) => {
