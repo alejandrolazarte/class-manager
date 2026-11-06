@@ -40,6 +40,8 @@ internal sealed class EnglishEmailTexts : IEmailTexts
 
     public string OrderHandedOver => "We already handed over your order.";
 
+    public string StopTheseEmails => "Stop getting these emails";
+
     public EmailText TeamInvitation(string businessName, string acceptInvitationLink) =>
         new(
             $"{businessName} invites you to their team",

@@ -22,9 +22,7 @@ describe("When notification preferences are opened", () => {
   });
 
   it("Then the business is named", async () => {
-    await renderWithProviders(
-      <NotificationPreferencesScreen notifications={pushUnavailable} deviceHint="" />,
-    );
+    await renderWithProviders(<NotificationPreferencesScreen notifications={pushUnavailable} />);
 
     expect(
       await screen.findByText(

@@ -18,4 +18,4 @@ internal static class OrderEmails
         new(recipient.Email, text.Subject, text.Content, businessId);
 }
 
-internal sealed record OrderEmailRecipient(string Email, IEmailTexts Texts);
+internal sealed record OrderEmailRecipient(string Email, IEmailTexts Texts, Guid? AccountId = null);

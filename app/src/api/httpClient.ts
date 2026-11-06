@@ -161,6 +161,9 @@ export const httpClient = {
 };
 
 export const anonymousHttpClient = {
+  get<TResponse>(path: string, queryParameters?: QueryParameters): Promise<TResponse> {
+    return send<TResponse>(buildUrl(path, queryParameters), { method: "GET" }, anonymousRequest);
+  },
   post<TResponse>(path: string, body: unknown): Promise<TResponse> {
     return send<TResponse>(
       buildUrl(path),

@@ -18,6 +18,8 @@ public interface IWebAppLinks
 
     string StudentAppOrders();
 
+    string Unsubscribe(string token);
+
     string TeamOrders();
 
     string PlanSettings();
