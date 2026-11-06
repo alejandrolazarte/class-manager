@@ -9,6 +9,7 @@ using ClassManager.Infrastructure.Audit;
 using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Infrastructure.Email;
 using ClassManager.Infrastructure.Notifications;
+using ClassManager.Infrastructure.OnlinePayments;
 using ClassManager.Infrastructure.Persistence;
 using ClassManager.Infrastructure.Persistence.Repositories;
 using ClassManager.Infrastructure.Security;
@@ -72,6 +73,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IBusinessRepository, BusinessRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IBrandLogoRepository, BrandLogoRepository>();
+        services.AddScoped<IOnlinePaymentAccountRepository, OnlinePaymentAccountRepository>();
+        services.AddOnlinePayments();
         services.AddScoped<IBusinessMemberRepository, BusinessMemberRepository>();
         services.AddScoped<IMemberInvitationRepository, MemberInvitationRepository>();
         services.AddScoped<IPendingSignUpRepository, PendingSignUpRepository>();

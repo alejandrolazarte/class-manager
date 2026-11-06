@@ -1,3 +1,5 @@
+using ClassManager.Core.Abstractions.OnlinePayments;
+using ClassManager.Infrastructure.OnlinePayments;
 using ClassManager.Security.Hosting;
 using ClassManager.Security.Tokens;
 using ClassManager.Subscriptions.Billing;
@@ -19,6 +21,7 @@ public sealed class BusinessApiFactory(
     public const string TestSigningKey = "integration-tests-signing-key-with-more-than-32-bytes";
     public const int TestAuthenticationPermitLimit = 10_000;
     public const string TestStripeWebhookSecret = "whsec_integration-tests";
+    public const string TestStripeConnectWebhookSecret = "whsec_connect-integration-tests";
 
     private const string ConnectionStringsSection = "ConnectionStrings";
 
@@ -33,6 +36,8 @@ public sealed class BusinessApiFactory(
     internal RecordingWebPushSender PushSender { get; } = new();
 
     public FakeBillingGateway BillingGateway { get; } = new();
+
+    public FakeOnlinePaymentGateway OnlinePaymentGateway { get; } = new();
 
     public BusinessApiFactory(string databaseConnectionString)
         : this(databaseConnectionString, new FakeTimeProvider(Now))
@@ -52,6 +57,7 @@ public sealed class BusinessApiFactory(
             $"{AuthenticationRateLimitOptions.SectionName}:{nameof(AuthenticationRateLimitOptions.PermitLimit)}",
             TestAuthenticationPermitLimit.ToString(System.Globalization.CultureInfo.InvariantCulture));
         builder.UseSetting($"{StripeBillingOptions.SectionName}:{nameof(StripeBillingOptions.WebhookSecret)}", TestStripeWebhookSecret);
+        builder.UseSetting($"{OnlinePaymentOptions.SectionName}:{nameof(OnlinePaymentOptions.ConnectWebhookSecret)}", TestStripeConnectWebhookSecret);
         foreach (var (settingName, settingValue) in extraSettings ?? new Dictionary<string, string>())
         {
             builder.UseSetting(settingName, settingValue);
@@ -63,6 +69,7 @@ public sealed class BusinessApiFactory(
             services.Replace(ServiceDescriptor.Singleton<IEmailTransport>(EmailTransport));
             services.Replace(ServiceDescriptor.Singleton<IWebPushSender>(PushSender));
             services.Replace(ServiceDescriptor.Singleton<IBillingGateway>(BillingGateway));
+            services.Replace(ServiceDescriptor.Singleton<IOnlinePaymentGateway>(OnlinePaymentGateway));
         });
     }
 }

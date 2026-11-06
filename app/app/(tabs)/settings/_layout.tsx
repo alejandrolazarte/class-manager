@@ -23,6 +23,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="feedback" options={{ title: translate("appFeedback.title") }} />
       <Stack.Screen name="brand" options={{ title: translate("brand.settings.title") }} />
       <Stack.Screen name="plan" options={{ title: translate("subscriptions.title") }} />
+      <Stack.Screen name="online-payments" options={{ title: translate("onlinePayments.title") }} />
       <Stack.Screen
         name="achievements"
         options={{ title: translate("achievements.settings.title") }}

@@ -47,12 +47,14 @@ public static class Permissions
         Orders.ViewOwn,
         Orders.ViewAll,
         Orders.Manage,
+        OnlinePayments.Manage,
+        OnlinePayments.Share,
         ImportExport.Run,
         Announcements.Manage,
     ];
 
     public static IReadOnlyList<string> BrandOnly { get; } =
-        [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners, Brand.ViewSubscription, Brand.ManageSubscription];
+        [Members.ManageBranchOwners, Brand.CreateBranches, Brand.ManageBrandOwners, Brand.ViewSubscription, Brand.ManageSubscription, OnlinePayments.Share];
 
     public static IReadOnlyList<string> PlatformOnly { get; } = [Platform.View, Platform.Manage];
 
@@ -178,6 +180,12 @@ public static class Permissions
         public const string ViewOwn = "orders.view.own";
         public const string ViewAll = "orders.view.all";
         public const string Manage = "orders.manage";
+    }
+
+    public static class OnlinePayments
+    {
+        public const string Manage = "onlinePayments.manage";
+        public const string Share = "onlinePayments.share";
     }
 
     public static class ImportExport
