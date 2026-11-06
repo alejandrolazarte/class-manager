@@ -23,6 +23,9 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public const string CheckoutCancelled = "cancelled";
     public const string OfferParameter = "?offer=1";
     public const string OnlinePaymentSettingsPath = "/settings/online-payments";
+    public const string PaymentParameter = "?payment=";
+    public const string PaymentSucceeded = "success";
+    public const string PaymentCancelled = "cancelled";
     public const string OnboardingReturnedParameter = "?onboarding=return";
     public const string OnboardingExpiredParameter = "?onboarding=refresh";
     public const string WebFontsPath = "/fonts/";
@@ -66,6 +69,10 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public string OnlinePaymentsOnboardingReturned() => WebAppUrl() + OnlinePaymentSettingsPath + OnboardingReturnedParameter;
 
     public string OnlinePaymentsOnboardingExpired() => WebAppUrl() + OnlinePaymentSettingsPath + OnboardingExpiredParameter;
+
+    public string StudentAppOrderPaymentSucceeded() => StudentAppOrders() + PaymentParameter + PaymentSucceeded;
+
+    public string StudentAppOrderPaymentCancelled() => StudentAppOrders() + PaymentParameter + PaymentCancelled;
 
     public Uri WebFonts() => new(WebAppUrl() + WebFontsPath);
 

@@ -6,6 +6,8 @@ namespace ClassManager.Core.Domain.Orders;
 
 public sealed class OrderPayment : ITenantOwned, IAuditable, ISoftDeletable
 {
+    public const int ExternalPaymentIdMaxLength = 255;
+
     private OrderPayment()
     {
     }
@@ -16,6 +18,7 @@ public sealed class OrderPayment : ITenantOwned, IAuditable, ISoftDeletable
     public decimal Amount { get; private set; }
     public PaymentMethod Method { get; private set; }
     public DateOnly PaidOn { get; private set; }
+    public string? ExternalPaymentId { get; private set; }
     public long? RecordedByUserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public long? CreatedByUserId { get; private set; }
@@ -49,4 +52,11 @@ public sealed class OrderPayment : ITenantOwned, IAuditable, ISoftDeletable
             RecordedByUserId = recordedByUserId,
             CreatedAt = createdAt.ToUniversalTime(),
         };
+
+    internal static OrderPayment CreateOnline(long orderId, decimal amount, string externalPaymentId, DateOnly paidOn, DateTimeOffset createdAt)
+    {
+        var payment = Create(orderId, amount, PaymentMethod.Online, paidOn, recordedByUserId: null, createdAt);
+        payment.ExternalPaymentId = externalPaymentId;
+        return payment;
+    }
 }

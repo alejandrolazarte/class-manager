@@ -177,7 +177,35 @@ Like [paying the plan online](../20261029-stripe-billing/plan.md#an-add-on-first
 az containerapp secret set -n class-manager-api -g class-manager-rg --secrets "stripe-connect-webhook-secret=whsec_..."; az containerapp update -n class-manager-api -g class-manager-rg --set-env-vars "Stripe__ConnectWebhookSecret=secretref:stripe-connect-webhook-secret"
 ```
 
-### The platform fee on online sales
+### Step 6 in detail: paying an order online
+
+The first part of step 6 (6b): a family pays an order from the student app. The monthly fee comes next (6c), refunds through Stripe after that.
+
+### When "Pagar ahora" shows
+
+On an order in **Mis pedidos** when all of these hold (`canPayOnline` on each order of `GET /api/student-app/orders`):
+
+- the brand has the `online-payments` add-on ([an add-on first](#an-add-on-first-a-feature-of-plans-later));
+- the branch charges through a Stripe account whose status is `Active`;
+- the order was placed in the app, isn't cancelled and still has something to pay (`Balance > 0`).
+
+Without it the order shows as today, to pay at the branch.
+
+### Paying
+
+1. **Pagar ahora** (`POST /api/student-app/orders/{id}/checkout`, the `student` policy; another family's order is `404`) creates a Stripe Checkout Session **on the branch's connected account** (direct charge, the `Stripe-Account` header) for the order's **balance**, as one line "Pedido #N" in the order's currency, and answers `{ url }`. Paying the balance and not the lines keeps partial payments at the branch working.
+2. The session carries the **platform fee** as `application_fee_amount`: the [sales fee](#the-platform-fee-on-online-sales) of the brand at that moment, rounded down to the cent (0 € while every fee is 0 %). It also carries `order_id` and `business_id` in its metadata.
+3. Stripe's hosted page takes the payment (cards, Apple Pay, Google Pay and whatever the branch turned on in its Stripe). On the web the app goes to the page; in the phone apps it opens in the browser.
+4. Stripe returns to `{WebApp:Url}/student-app/orders?payment=success` (or `cancelled`). The return page doesn't confirm anything: it shows "Procesando el pago…" and reloads the orders, like the plan checkout.
+
+### The webhook records the payment
+
+- The Connect webhook (`POST /api/online-payments/stripe/webhooks`) also receives `checkout.session.completed` from connected accounts. It checks the signature and queues a background task with the branch as its tenant (`RecordOnlineOrderPaymentBackgroundTaskCommand`: order, amount, Stripe payment id); the worker records it, so payments of the same branch never race (see [the plan payments' race](../20261029-stripe-billing/plan.md#stripe-writes-the-same-subscription-rows-the-operator-writes)).
+- The task records an `OrderPayment` with the new method **`Online`**, the amount Stripe charged and the Stripe payment id (`ExternalPaymentId`, unique), so an event delivered twice records the payment once. Then, as when the branch confirms a payment, an order with only class packs is delivered (its classes credited) and the family gets the "payment confirmed" email; an order with products stays to pick up.
+- `Online` is never offered when the branch records a payment by hand.
+- **If the order can't take the payment** (the branch cancelled it, or recorded a payment at the counter while the family paid online), the task records nothing and logs an error, which reaches Sentry: the branch refunds it from its Stripe dashboard. Rare, and the money is in the branch's own account.
+
+## The platform fee on online sales
 
 Decided with the owner on 2026-11-06. Most competitors charge a monthly plan and no fee on payments; Momence's free plan takes 5 %. [Plans, prices and competition](https://github.com/alejandrolazarte/Documentation/blob/main/projects/class-manager/planes-precios-y-competencia.md) proposed online payments with no fee in Pro and a small one (about 1 %) in Lite.
 

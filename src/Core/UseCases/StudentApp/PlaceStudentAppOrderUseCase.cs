@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Notifications;
+using ClassManager.Core.Abstractions.OnlinePayments;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Time;
@@ -29,6 +30,7 @@ public sealed class PlaceStudentAppOrderUseCase(
     IOrderNumbers orderNumbers,
     IOrderRepository orderRepository,
     IClassGroupRepository classGroupRepository,
+    IOnlineChargingService onlineCharging,
     IStudentRepository studentRepository,
     IEnrollmentRepository enrollmentRepository,
     IUnitOfWork unitOfWork,
@@ -112,6 +114,6 @@ public sealed class PlaceStudentAppOrderUseCase(
         await transaction.CommitAsync(cancellationToken);
         await orderNotifications.OrderPlacedAsync(order.Value, cancellationToken);
 
-        return (await StudentAppOrderResponses.OfAsync([order.Value], classGroupRepository, cancellationToken))[0];
+        return (await StudentAppOrderResponses.OfAsync([order.Value], classGroupRepository, await onlineCharging.FindChargingAccountAsync(cancellationToken) is not null, cancellationToken))[0];
     }
 }

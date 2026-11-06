@@ -23,6 +23,7 @@ const appInvitationSegment = "app-invitation";
 const shopPath = `${studentAppPath}/shop`;
 const familyPath = `${studentAppPath}/family`;
 const ordersPath = `${studentAppPath}/orders`;
+const checkoutSegment = "checkout";
 const cancellationSegment = "cancellation";
 const newsPath = `${studentAppPath}/news`;
 const announcementsSegment = "announcements";
@@ -88,6 +89,13 @@ export function placeStudentAppOrder(
 export function cancelStudentAppOrder(orderId: string): Promise<StudentAppOrder> {
   return httpClient.put<StudentAppOrder>(
     `${ordersPath}/${encodeURIComponent(orderId)}/${cancellationSegment}`,
+    {},
+  );
+}
+
+export function startStudentAppOrderCheckout(orderId: string): Promise<{ url: string }> {
+  return httpClient.post<{ url: string }>(
+    `${ordersPath}/${encodeURIComponent(orderId)}/${checkoutSegment}`,
     {},
   );
 }

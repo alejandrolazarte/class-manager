@@ -18,6 +18,7 @@ const methodIcons: Record<PaymentMethod, IconName> = {
   Transfer: "transfer",
   Card: "card",
   Other: "otherMethod",
+  Online: "card",
 };
 
 export function PaymentMethodPicker({ value, onChange, label }: PaymentMethodPickerProps) {

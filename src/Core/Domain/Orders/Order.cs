@@ -168,6 +168,11 @@ public sealed class Order : ITenantOwned, IAuditable
             return Result.Validation(MethodRequiredMessage, fieldName: nameof(OrderPayment.Method));
         }
 
+        if (!PaymentMethods.CanBeRecordedByHand(method.Value))
+        {
+            return Result.Validation(PaymentMethods.OnlineIsRecordedByStripeMessage, fieldName: nameof(OrderPayment.Method));
+        }
+
         if (paidOn > today)
         {
             return Result.Validation(PaidOnInFutureMessage, fieldName: nameof(OrderPayment.PaidOn));
@@ -176,6 +181,25 @@ public sealed class Order : ITenantOwned, IAuditable
         _payments.Add(OrderPayment.Create(Id, amount!.Value, method.Value, paidOn, recordedByUserId, recordedAt));
         return Result.Success();
     }
+
+    public Result RecordOnlinePayment(decimal amount, string externalPaymentId, DateOnly paidOn, DateTimeOffset recordedAt)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(externalPaymentId);
+        if (Status == OrderStatus.Cancelled || Balance == 0)
+        {
+            return Result.Conflict(NothingOwedMessage, OrderErrorCodes.NothingOwed);
+        }
+
+        if (amount <= 0 || amount > Balance)
+        {
+            return Result.Conflict(AmountOverBalanceMessage, OrderErrorCodes.AmountOverBalance);
+        }
+
+        _payments.Add(OrderPayment.CreateOnline(Id, amount, externalPaymentId, paidOn, recordedAt));
+        return Result.Success();
+    }
+
+    public bool CanBePaidOnline => Channel == OrderChannel.App && Status != OrderStatus.Cancelled && Balance > 0;
 
     public Result<OrderPayment> DeletePayment(long paymentId)
     {

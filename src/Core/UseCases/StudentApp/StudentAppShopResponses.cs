@@ -49,9 +49,10 @@ public sealed record StudentAppOrderResponse(
     IReadOnlyList<StudentAppOrderLineResponse> Lines,
     DeliveryMethod Delivery,
     string? DeliveryClassGroupName,
-    bool IsReady)
+    bool IsReady,
+    bool CanPayOnline)
 {
-    public static StudentAppOrderResponse From(Order order, string? deliveryClassGroupName) =>
+    public static StudentAppOrderResponse From(Order order, string? deliveryClassGroupName, bool branchChargesOnline) =>
         new(
             order.Id,
             order.Number,
@@ -72,5 +73,6 @@ public sealed record StudentAppOrderResponse(
             ],
             order.Delivery,
             deliveryClassGroupName,
-            order.IsReady);
+            order.IsReady,
+            branchChargesOnline && order.CanBePaidOnline);
 }

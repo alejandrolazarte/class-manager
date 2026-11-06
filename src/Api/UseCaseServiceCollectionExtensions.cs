@@ -1,5 +1,6 @@
 using ClassManager.Core.Abstractions.Fees;
 using ClassManager.Core.Abstractions.Images;
+using ClassManager.Core.Abstractions.OnlinePayments;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Abstractions.Storage;
 using ClassManager.Core.Abstractions.Subscriptions;
@@ -57,6 +58,7 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddScoped<IStudentAppFamilyService, StudentAppFamilyService>();
         services.AddScoped<IBusinessCurrencyService, BusinessCurrencyService>();
         services.AddScoped<ISelfServiceBillingService, SelfServiceBillingService>();
+        services.AddScoped<IOnlineChargingService, OnlineChargingService>();
         services.AddScoped<ICatalogImageService, CatalogImageService>();
         services.AddScoped<IUserPhotoUrlService, UserPhotoUrlService>();
         services.AddScoped<IAnnouncementResponseService, AnnouncementResponseService>();
@@ -127,6 +129,8 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<UseOnlinePaymentAccountCommand, OnlinePaymentsResponse, UseOnlinePaymentAccountUseCase>();
         services.AddUseCase<StopUsingOnlinePaymentAccountCommand, OnlinePaymentsResponse, StopUsingOnlinePaymentAccountUseCase>();
         services.AddUseCase<SyncOnlinePaymentAccountCommand, bool, SyncOnlinePaymentAccountUseCase>();
+        services.AddUseCase<StartStudentAppOrderCheckoutCommand, OnlinePaymentRedirectResponse, StartStudentAppOrderCheckoutUseCase>();
+        services.AddUseCase<RecordOnlineOrderPaymentCommand, bool, RecordOnlineOrderPaymentUseCase>();
         services.AddUseCase<GetTeamQuery, TeamResponse, GetTeamUseCase>();
         services.AddUseCase<InviteMemberCommand, InvitationResponse, InviteMemberUseCase>();
         services.AddUseCase<RevokeInvitationCommand, RevokedInvitationResponse, RevokeInvitationUseCase>();

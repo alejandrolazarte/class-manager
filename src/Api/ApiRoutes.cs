@@ -164,6 +164,7 @@ public static class ApiRoutes
     public const string OnlinePaymentsOnboarding = "/api/online-payments/onboarding";
     public const string OnlinePaymentsRefresh = "/api/online-payments/refresh";
     public const string OnlinePaymentsAccount = "/api/online-payments/account";
+    public const string Checkout = "/checkout";
     public const string StripeConnectWebhook = "/api/online-payments/stripe/webhooks";
     public const string Countries = "/api/countries";
     public const string BrandOwnerSegment = "/brand-owner";
