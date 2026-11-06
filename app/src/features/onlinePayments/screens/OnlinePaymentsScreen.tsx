@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
 import { useCan } from "@/features/members/CurrentMemberProvider";
@@ -11,6 +11,7 @@ import {
   useOnlinePayments,
 } from "@/features/onlinePayments/useOnlinePayments";
 import { translate } from "@/i18n/translate";
+import { routes } from "@/navigation/routes";
 import { AppText } from "@/ui/AppText";
 import { Banner } from "@/ui/Banner";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
@@ -27,6 +28,7 @@ export function OnlinePaymentsScreen() {
   const onlinePayments = useOnlinePayments();
   const actions = useOnlinePaymentActions();
   const canShare = useCan(permissions.onlinePaymentsShare);
+  const canManage = useCan(permissions.onlinePaymentsManage);
   const isWeb = Platform.OS === "web";
   const [isConfirmingStop, setIsConfirmingStop] = useState(false);
   const [accountToChoose, setAccountToChoose] = useState<OnlinePaymentAccount | null>(null);
@@ -34,12 +36,20 @@ export function OnlinePaymentsScreen() {
   const refreshAfterOnboarding = actions.refresh.mutate;
 
   useEffect(() => {
-    if (onboardingReturn !== onboardingReturned || hasRefreshedAfterOnboarding.current) {
+    if (
+      !canManage ||
+      onboardingReturn !== onboardingReturned ||
+      hasRefreshedAfterOnboarding.current
+    ) {
       return;
     }
     hasRefreshedAfterOnboarding.current = true;
     refreshAfterOnboarding();
-  }, [onboardingReturn, refreshAfterOnboarding]);
+  }, [canManage, onboardingReturn, refreshAfterOnboarding]);
+
+  if (!canManage) {
+    return <Redirect href={routes.settings} />;
+  }
 
   const header = <ScreenHeader navigation="back" title={translate("onlinePayments.title")} />;
   const data = onlinePayments.data;

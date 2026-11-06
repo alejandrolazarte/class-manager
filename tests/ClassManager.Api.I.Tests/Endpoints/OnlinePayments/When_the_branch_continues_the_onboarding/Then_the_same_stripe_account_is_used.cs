@@ -6,7 +6,7 @@ public sealed class Then_the_same_stripe_account_is_used(ApiFixture fixture)
     [Fact]
     public async Task Then_the_same_stripe_account_is_used_Run()
     {
-        var brand = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var brand = await fixture.SignUpBrandWithOnlinePaymentsAsync();
         await brand.HttpClient.StartOnlinePaymentOnboardingAsync();
 
         await brand.HttpClient.StartOnlinePaymentOnboardingAsync();

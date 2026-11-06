@@ -142,6 +142,10 @@ Each step is usable on its own; steps 1–4 need no payment provider.
 - **Status**, computed from Stripe's flags: `NotConnected` (no account), `Pending` (onboarding not finished: `DetailsSubmitted` is false), `Restricted` (finished but Stripe can't charge yet, it is reviewing or needs more data: `ChargesEnabled` is false), `Active` (`ChargesEnabled`). Only `Active` branches will offer "Pagar ahora" in step 6.
 - An account is never deleted: Stripe keeps it, and a branch that stops using it and connects again gets the same one back (the account created for it), instead of a second Stripe account.
 
+### An add-on first, a feature of plans later
+
+Like [paying the plan online](../20261029-stripe-billing/plan.md#an-add-on-first-a-feature-of-every-plan-later) (decided with the owner on 2026-11-06): online payments are a feature, `online-payments`, in the catalog as an **add-on at 0 €** that **no plan includes**. While we test them, the operator gives it to one brand at a time with **Dar add-on** in the backoffice, and only that brand sees Ajustes → **Cobros online**. Both permissions (`onlinePayments.manage`, `onlinePayments.share`) are gated by the feature (`FeatureGatedPermissions` in the API and `featureGatedPermissions` in the app), so without it the endpoints answer `403 feature.not_in_plan` and the app hides the row and the screen. The Connect webhook is not gated: Stripe must always reach it. Add-ons belong to a subscription and don't carry over, so a brand that changes plan needs the add-on again. **Making it a feature for everyone** is data, not code: a migration adds `online-payments` to the plans that include it.
+
 ### Who
 
 - `onlinePayments.manage` (branch permission, assignable to custom roles; branch owners and brand owners have it): see the status, connect the branch, continue the onboarding, stop using the account.

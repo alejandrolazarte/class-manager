@@ -13,6 +13,7 @@ public static class Features
     public const string Brand = "brand";
     public const string DocumentStorage = "document-storage";
     public const string SelfServiceBilling = "self-service-billing";
+    public const string OnlinePayments = "online-payments";
 
     public static IReadOnlyList<string> All { get; } =
     [
@@ -27,6 +28,7 @@ public static class Features
         Brand,
         DocumentStorage,
         SelfServiceBilling,
+        OnlinePayments,
     ];
 
     public static IReadOnlyList<string> Counted { get; } = [Students, Branches, Team, DocumentStorage];

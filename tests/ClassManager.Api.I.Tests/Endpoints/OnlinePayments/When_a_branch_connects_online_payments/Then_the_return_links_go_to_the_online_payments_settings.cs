@@ -6,7 +6,7 @@ public sealed class Then_the_return_links_go_to_the_online_payments_settings(Api
     [Fact]
     public async Task Then_the_return_links_go_to_the_online_payments_settings_Run()
     {
-        var brand = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var brand = await fixture.SignUpBrandWithOnlinePaymentsAsync();
 
         await brand.HttpClient.StartOnlinePaymentOnboardingAsync();
 

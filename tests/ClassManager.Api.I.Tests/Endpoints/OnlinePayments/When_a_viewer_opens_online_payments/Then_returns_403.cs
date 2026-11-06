@@ -8,7 +8,7 @@ public sealed class Then_returns_403(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_403_Run()
     {
-        var brand = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var brand = await fixture.SignUpBrandWithOnlinePaymentsAsync();
         using var viewer = await fixture.SeedMemberAsync(brand.BusinessId, BusinessRole.Viewer);
 
         using var response = await viewer.GetOnlinePaymentsAsync();

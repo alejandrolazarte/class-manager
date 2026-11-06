@@ -46,7 +46,10 @@ public static class SelfServiceBillingRequests
         return new SignedUpBrand(fixture.CreateClientWithToken(tokens.AccessToken), business.OrganizationId, business.Id, tokens.RefreshToken);
     }
 
-    public static async Task GiveSelfServiceBillingAsync(this ApiFixture fixture, long organizationId)
+    public static Task GiveSelfServiceBillingAsync(this ApiFixture fixture, long organizationId) =>
+        fixture.GiveAddOnAsync(organizationId, Features.SelfServiceBilling);
+
+    public static async Task GiveAddOnAsync(this ApiFixture fixture, long organizationId, string featureCode)
     {
         await using var context = fixture.CreateDbContext(0L);
         var subscriptionId = await context.Subscriptions
@@ -55,7 +58,7 @@ public static class SelfServiceBillingRequests
             .SingleAsync();
         context.SubscriptionFeatures.Add(SubscriptionFeature.Create(
             subscriptionId,
-            Features.SelfServiceBilling,
+            featureCode,
             price: 0m,
             Euro,
             limit: null,

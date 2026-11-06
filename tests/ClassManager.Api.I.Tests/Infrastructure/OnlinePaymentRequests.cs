@@ -21,11 +21,21 @@ public static class OnlinePaymentRequests
     {
         var brand = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
         await fixture.ChangePlanAsync(brand.BusinessId, PlanCodes.Enterprise);
+        await fixture.GiveAddOnAsync(brand.OrganizationId, Features.OnlinePayments);
         var secondBranchName = AuthenticationRequests.UniqueBusinessName();
         var secondBranch = await brand.HttpClient.CreateBranchAsync(secondBranchName);
         using var anonymousClient = fixture.ApiFactory.CreateClient();
         var tokens = await anonymousClient.SwitchBranchAsync(brand.RefreshToken, secondBranch.BusinessId);
         return new BrandWithTwoBranches(brand, fixture.CreateClientWithToken(tokens.AccessToken), secondBranch.BusinessId, secondBranchName);
+    }
+
+    public static async Task<SelfServiceBillingRequests.SignedUpBrand> SignUpBrandWithOnlinePaymentsAsync(
+        this ApiFixture fixture,
+        string countryCode = ApiFixture.SpainCountryCode)
+    {
+        var brand = await fixture.SignUpBrandAsync(countryCode, withSelfServiceBilling: false);
+        await fixture.GiveAddOnAsync(brand.OrganizationId, Features.OnlinePayments);
+        return brand;
     }
 
     public static Task<HttpResponseMessage> GetOnlinePaymentsAsync(this HttpClient httpClient) =>
