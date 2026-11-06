@@ -9,7 +9,7 @@ public sealed class Then_the_opt_out_is_removed
     public async Task Then_the_opt_out_is_removed_Run()
     {
         var builder = new NotificationPreferencesUseCaseBuilder();
-        builder.OptOuts.Add(NotificationOptOut.Create(builder.AccountId, NotificationCategory.NewOrders, NotificationChannel.Push, TestData.Now));
+        builder.OptOuts.Add(NotificationOptOut.Create(builder.AccountId, NotificationCategory.NewOrders, NotificationChannel.Push));
 
         var response = await builder.BuildUpdate().ExecuteAsync(
             new UpdateMyNotificationPreferenceCommand(NotificationCategory.NewOrders, NotificationChannel.Push, IsEnabled: true), CancellationToken.None);

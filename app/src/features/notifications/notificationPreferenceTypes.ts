@@ -23,6 +23,11 @@ export interface NotificationPreference {
   channels: NotificationChannelPreference[];
 }
 
+export interface NotificationPreferences {
+  businessName: string;
+  preferences: NotificationPreference[];
+}
+
 export interface UpdateNotificationPreferenceRequest {
   category: NotificationCategory;
   channel: NotificationChannel;

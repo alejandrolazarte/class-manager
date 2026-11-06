@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: agreed with the owner on 2026-11-05. Step 1 built; step 2 (unsubscribe from the email) next. Comes before the [automatic reminders](../20261021-automatic-reminders/plan.md), so the new reminder emails and pushes can be turned off from the day they ship.
+Status: agreed with the owner on 2026-11-05. Step 1 built, first per account, then per business (decided by the owner the same day); step 2 (unsubscribe from the email) next. Comes before the [automatic reminders](../20261021-automatic-reminders/plan.md), so the new reminder emails and pushes can be turned off from the day they ship.
 
 ## Why
 
@@ -11,7 +11,7 @@ Nobody can choose which emails or pushes they get. A family can only turn push o
 Decided by the owner:
 
 - **By kind**: each person chooses which kinds of email and push they get. Account and security emails can't be turned off.
-- **Per account**: set once in Mi perfil, valid in every business the person belongs to, like the language.
+- **Per business**: set in Mi perfil for the business the person is in. Someone in two businesses (an instructor in two studios, a parent with children in two schools) chooses in each; most people belong to one and see no difference. First built per account; changed the same day, because each email comes from one business and an unsubscribe link should stop that business's emails only.
 - **One-click unsubscribe** at the foot of every email that can be turned off, plus the `List-Unsubscribe` headers.
 - **Push by kind** too, on the same screen.
 
@@ -56,13 +56,14 @@ Everything is **on** for every account, existing and new, so nothing changes the
 
 ## Decisions
 
-### Stored per account, not per business
+### Stored per account and business
 
-- New table `NotificationOptOuts`: `AccountId` (the `identity.AspNetUsers` id), `Category`, `Channel` (`Email`, `Push`), `CreatedAt`. Primary key `(AccountId, Category, Channel)`.
+- Table `NotificationOptOuts`: `TenantId` (the business), `AccountId` (the `identity.AspNetUsers` id), `Category`, `Channel` (`Email`, `Push`) and the audit columns. Primary key `(TenantId, AccountId, Category, Channel)`.
 - **A row means "off"**. Turning a category back on deletes the row (physical delete: the row has no value once gone, like push subscriptions, see [deleting data](../../deleting-data.md)).
-- **Not tenant-owned**: it belongs to the account, like `PreferredLanguage`, and a person who is in two businesses sets it once. It is never read across accounts: the endpoints only read and write the signed-in account's rows, and senders read the rows of the accounts they are about to send to. The tenancy test proves an account can't read or change another account's preferences.
+- **Tenant-owned** (`ITenantOwned`, `IAuditable`), so the tenant query filter keeps each business's choices apart; the tenancy test proves business A can't read business B's rows. Within a business, the endpoints only read and write the signed-in account's rows, and senders read the rows of the accounts they are about to send to (pushes and emails already run in the business they come from).
+- Migration `NotificationOptOutsPerBusiness` copied each choice made per account to every business where it applies: team categories to the businesses where the person is on the team, family categories to those where they have family access; choices of people in no business were dropped. Checked on SQL Server with rows written by the previous version.
 - It lives in the app (`Infrastructure`, default schema), not in `src/Security`: categories are business concepts, and `Security` stays free of them (ARCH003).
-- Deleting the account deletes its rows.
+- Deleting the account deletes its rows in every business.
 
 ### One place decides
 
@@ -75,7 +76,7 @@ Everything is **on** for every account, existing and new, so nothing changes the
 ### Unsubscribe from the email
 
 - Every email with a category ends with a line in the footer, **"Dejar de recibir estos emails"** ("Stop getting these emails"), and carries `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` headers (RFC 8058), which Gmail and Outlook show as their own unsubscribe button and expect from senders of repeated emails.
-- The link carries a token protected with ASP.NET Data Protection (purpose `email-unsubscribe`, payload: account id and category, no expiry: an old email must still work). No sign-in needed.
+- The link carries a token protected with ASP.NET Data Protection (purpose `email-unsubscribe`, payload: business, account id and category, no expiry: an old email must still work). No sign-in needed.
 - `/unsubscribe?token=…` in the web app names the category and asks with one button, **Dejar de recibirlos**. The page never turns anything off by just loading, because mail scanners open links. After the button: "Ya no vas a recibir emails de {categoría}", with **Volver a recibirlos** (undo, as every reversible action) and a link to Mi perfil → Notificaciones.
 - `POST /api/notification-preferences/unsubscribe` with the token turns it off. The one-click header and the page's button both post here.
 - `src/Notifications` gains an optional unsubscribe link in `EmailContent` (rendered in the branded layout's footer and in `ToPlainText()`) and optional headers in `OutgoingEmail`. The library still knows nothing about categories: the app builds the link.
@@ -88,15 +89,15 @@ Every email that can be turned off today goes to an account. Payment reminders w
 
 | Operation | Endpoint | Who |
 |---|---|---|
-| Read the signed-in account's preferences: every category that applies to them (family, team or both), each with its channels and on/off | `GET /api/me/notification-preferences` | Any signed-in account |
+| Read the signed-in account's preferences in the current business: its name and the categories of the current session (team or family), each with its channels and on/off | `GET /api/me/notification-preferences` | Any signed-in account |
 | Turn one category and channel on or off | `PUT /api/me/notification-preferences` with `{ category, channel, isEnabled }`; a channel the category doesn't use is refused (`notifications.channel_not_in_category`) | Any signed-in account |
 | Unsubscribe from an email link | `POST /api/notification-preferences/unsubscribe` with `{ token }`, and `POST …/resubscribe` for the undo | Anonymous, the token is the proof |
 
-Which categories apply: team categories when the account is a member of any business, family categories when it has any family access (`ClientAccounts`). An owner who is also a parent sees both groups.
+Which categories apply: the team categories in a team session, the family categories in a student app session. An owner who is also a parent sets the family ones from the student app of the business where they are a parent.
 
 ## App
 
-- **Mi perfil → Notificaciones**, a new row in a "Preferencias" section under the profile data. The screen has one section per group that applies ("Como equipo", "Como alumno o familia"), and each category is a row with its name, one line saying what it covers, and a `ToggleSwitch` for **Email** and for **Push** (only the channels the category uses). Saving is immediate on each switch, like the device notifications switch.
+- **Mi perfil → Notificaciones**, a new row in a "Preferencias" section under the profile data. The screen says which business it is for ("En Escuela Brazada"), adds "Lo que apagues igual queda en Avisos." in a team session, and each category is a row with its name, one line saying what it covers, and a `ToggleSwitch` for **Email** and for **Push** (only the channels the category uses). Saving is immediate on each switch, like the device notifications switch.
 - The device push switch stays where it is (Ajustes, and the student app's Notificaciones card). Per-kind push choices only matter when the device receives push at all; a line linking to that switch from the new screen is left for later.
 - The texts of the device switch hints (`student.notifications.hint`, `teamNotifications.hint`) stay as they are; the new screen has its own texts.
 - The unsubscribe page is a public web route like the invitation and password pages, with the business brand of the email it came from when the token carries it, and the app's otherwise.
@@ -116,7 +117,7 @@ Each step is its own PR.
 Unit tests (`ClassManager.Core.U.Tests`):
 
 - Every category is on for an account with no rows; a row turns off only its category and channel.
-- Team categories apply to members, family categories to family accounts, both to an account that is both.
+- A team session lists the team categories and a student app session the family ones; someone outside the business is refused.
 - An "always sent" message has no category and is never filtered.
 
 Integration tests (`ClassManager.Api.I.Tests`, Testcontainers):
@@ -124,11 +125,11 @@ Integration tests (`ClassManager.Api.I.Tests`, Testcontainers):
 - For each category, an account that turned off the email gets no email and still gets the push, and the other way round; another account in the same business still gets both.
 - A team member who turned off the push of Pedidos nuevos still gets the aviso in Avisos.
 - A password reset, an invitation and a guardian consent request are sent even when every category is off.
-- An account can't read or change another account's preferences, and the same preferences apply in both businesses of a person who belongs to two.
+- An account can't read or change another account's preferences, and business A can't read business B's.
 - The unsubscribe token turns off exactly its account and category, a tampered token is refused, loading the page alone changes nothing, and resubscribe undoes it.
 - The email carries the footer link and both `List-Unsubscribe` headers only when it has a category.
 
-App tests (jest): the screen shows only the groups that apply; a switch saves at once and shows the saved state; the unsubscribe page doesn't turn anything off until its button is pressed, and **Volver a recibirlos** undoes it.
+App tests (jest): the screen names the business; a switch saves at once and shows the saved state; the unsubscribe page doesn't turn anything off until its button is pressed, and **Volver a recibirlos** undoes it.
 
 ## Later
 

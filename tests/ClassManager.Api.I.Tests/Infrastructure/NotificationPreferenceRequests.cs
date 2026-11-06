@@ -5,8 +5,8 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 
 public static class NotificationPreferenceRequests
 {
-    public static Task<List<NotificationPreferenceResponse>?> GetMyNotificationPreferencesAsync(this HttpClient httpClient) =>
-        httpClient.GetFromJsonAsync<List<NotificationPreferenceResponse>>(
+    public static Task<NotificationPreferencesResponse?> GetMyNotificationPreferencesAsync(this HttpClient httpClient) =>
+        httpClient.GetFromJsonAsync<NotificationPreferencesResponse>(
             new Uri(ApiRoutes.MyNotificationPreferences, UriKind.Relative), ApiRequests.JsonOptions);
 
     public static Task<HttpResponseMessage> PutMyNotificationPreferenceAsync(
@@ -17,6 +17,6 @@ public static class NotificationPreferenceRequests
     public static async Task TurnOffAsync(this HttpClient httpClient, NotificationCategory category, NotificationChannel channel) =>
         (await httpClient.PutMyNotificationPreferenceAsync(category, channel, isEnabled: false)).EnsureSuccessStatusCode();
 
-    public static bool IsEnabled(this IEnumerable<NotificationPreferenceResponse> preferences, NotificationCategory category, NotificationChannel channel) =>
-        preferences.Single(preference => preference.Category == category).Channels.Single(candidate => candidate.Channel == channel).IsEnabled;
+    public static bool IsEnabled(this NotificationPreferencesResponse response, NotificationCategory category, NotificationChannel channel) =>
+        response.Preferences.Single(preference => preference.Category == category).Channels.Single(candidate => candidate.Channel == channel).IsEnabled;
 }

@@ -1,3 +1,5 @@
+using ClassManager.Tenancy.AspNetCore.Persistence;
+
 
 namespace ClassManager.Infrastructure.Persistence.Repositories;
 
@@ -27,5 +29,5 @@ internal sealed class NotificationOptOutRepository(AppDbContext context) : INoti
     public void Remove(NotificationOptOut optOut) => context.NotificationOptOuts.Remove(optOut);
 
     public Task DeleteEveryOptOutOfAccountAsync(Guid accountId, CancellationToken cancellationToken) =>
-        context.NotificationOptOuts.Where(optOut => optOut.AccountId == accountId).ExecuteDeleteAsync(cancellationToken);
+        context.NotificationOptOuts.IgnoreTenantFilter().Where(optOut => optOut.AccountId == accountId).ExecuteDeleteAsync(cancellationToken);
 }
