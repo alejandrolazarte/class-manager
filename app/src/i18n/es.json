@@ -1829,7 +1829,7 @@
   "profile.preferences": "Preferencias",
   "profile.notifications.detail": "Elegí qué emails y notificaciones recibís",
   "notificationPreferences.title": "Notificaciones",
-  "notificationPreferences.hint": "Elegí qué te avisamos por email y con notificaciones en tus dispositivos. Si estás en más de un negocio, cada uno tiene sus preferencias. Los emails de tu cuenta, como cambiar la contraseña, te llegan siempre.",
+  "notificationPreferences.hint": "Elegí qué te avisamos por email y con notificaciones en tus dispositivos. Si estás en más de un negocio, cada uno tiene sus preferencias.",
   "notificationPreferences.business": "En {business}",
   "notificationPreferences.teamHint": "Lo que apagues igual queda en Avisos.",
   "notificationPreferences.channel.Email": "Email",
