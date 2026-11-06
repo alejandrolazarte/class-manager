@@ -30,6 +30,7 @@ const lockedMessageKeys: Readonly<Record<FeatureCode, TranslationKey>> = {
   [featureCodes.shop]: "subscriptions.locked.shop",
   [featureCodes.brand]: "subscriptions.locked.brand",
   [featureCodes.documentStorage]: "subscriptions.locked.documentStorage",
+  [featureCodes.onlinePayments]: "subscriptions.locked.onlinePayments",
 };
 
 export function lockedMessageKey(featureCode: string): TranslationKey | undefined {

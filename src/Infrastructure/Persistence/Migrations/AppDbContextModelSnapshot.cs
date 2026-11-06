@@ -3740,6 +3740,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             Currency = "EUR",
                             IsAddOn = true,
                             IsCounted = false
+                        },
+                        new
+                        {
+                            Code = "online-payments",
+                            AddOnListPrice = 0m,
+                            Currency = "EUR",
+                            IsAddOn = true,
+                            IsCounted = false
                         });
                 });
 

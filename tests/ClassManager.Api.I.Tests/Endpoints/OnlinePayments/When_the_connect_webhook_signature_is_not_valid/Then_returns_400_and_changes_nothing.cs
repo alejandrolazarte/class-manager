@@ -8,7 +8,7 @@ public sealed class Then_returns_400_and_changes_nothing(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_400_and_changes_nothing_Run()
     {
-        var brand = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var brand = await fixture.SignUpBrandWithOnlinePaymentsAsync();
         await brand.HttpClient.StartOnlinePaymentOnboardingAsync();
         var account = await fixture.OnlinePaymentAccountOfAsync(brand.BusinessId);
         fixture.ApiFactory.OnlinePaymentGateway.Set(account.ExternalAccountId, FakeOnlinePaymentGateway.ActiveAccountState);

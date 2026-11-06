@@ -16,6 +16,7 @@ export const featureCodes = {
   shop: "shop",
   brand: "brand",
   documentStorage: "document-storage",
+  onlinePayments: "online-payments",
 } as const;
 
 export type FeatureCode = (typeof featureCodes)[keyof typeof featureCodes];

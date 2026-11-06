@@ -6,7 +6,7 @@ public sealed class Then_returns_the_stripe_onboarding_link(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_the_stripe_onboarding_link_Run()
     {
-        var brand = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var brand = await fixture.SignUpBrandWithOnlinePaymentsAsync();
 
         var onboardingUrl = await brand.HttpClient.StartOnlinePaymentOnboardingAsync();
 
