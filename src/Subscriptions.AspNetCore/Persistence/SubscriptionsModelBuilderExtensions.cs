@@ -17,6 +17,7 @@ public static class SubscriptionsModelBuilderExtensions
     public const string ProcessedBillingEventsTable = "ProcessedBillingEvents";
     public const string BillingCustomersTable = "BillingCustomers";
     public const string PlanOffersTable = "PlanOffers";
+    public const string SalesFeeOverridesTable = "SalesFeeOverrides";
 
     private const string NotDeletedFilter = "[IsDeleted] = 0";
     private const string CurrentExternalSubscriptionFilter = "[IsDeleted] = 0 AND [ExternalSubscriptionId] IS NOT NULL";
@@ -35,6 +36,7 @@ public static class SubscriptionsModelBuilderExtensions
             plan.Property(entity => entity.ListPrice).HasPrecision(CatalogRules.PricePrecision, CatalogRules.PriceScale);
             plan.Property(entity => entity.Currency).HasMaxLength(CatalogRules.CurrencyLength).IsFixedLength().IsRequired();
             plan.Property(entity => entity.BillingPeriod).HasConversion<string>().HasMaxLength(BillingPeriodMaxLength).IsRequired();
+            plan.Property(entity => entity.SalesFeePercent).HasPrecision(CatalogRules.PercentPrecision, CatalogRules.PercentScale);
         });
 
         modelBuilder.Entity<Feature>(feature =>
@@ -109,6 +111,15 @@ public static class SubscriptionsModelBuilderExtensions
             planOffer.Property(entity => entity.Note).HasMaxLength(CatalogRules.NoteMaxLength);
             planOffer.HasOne<Plan>().WithMany().HasForeignKey(entity => entity.PlanCode).OnDelete(DeleteBehavior.Restrict);
             planOffer.HasIndex(entity => entity.SubscriberId).IsUnique().HasFilter(NotDeletedFilter);
+        });
+
+        modelBuilder.Entity<SalesFeeOverride>(salesFee =>
+        {
+            salesFee.ToTable(SalesFeeOverridesTable, schema);
+            salesFee.HasKey(entity => entity.Id);
+            salesFee.Property(entity => entity.Percent).HasPrecision(CatalogRules.PercentPrecision, CatalogRules.PercentScale);
+            salesFee.Property(entity => entity.Note).HasMaxLength(CatalogRules.NoteMaxLength);
+            salesFee.HasIndex(entity => entity.SubscriberId).IsUnique().HasFilter(NotDeletedFilter);
         });
 
         return modelBuilder;

@@ -105,6 +105,8 @@ internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRe
 
     public List<PlanOffer> Offers { get; } = [];
 
+    public List<SalesFeeOverride> SalesFees { get; } = [];
+
     public string? CountryCode { get; set; } = SubscriptionChangeScenario.SpainCountryCode;
 
     public Task<bool> BrandExistsAsync(long brandId, CancellationToken cancellationToken) =>
@@ -112,6 +114,12 @@ internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRe
 
     public Task<IReadOnlyList<Plan>> ListActivePlansAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Plan>>(Plans);
+
+    public Task<Plan?> FindActivePlanForUpdateAsync(string planCode, CancellationToken cancellationToken) =>
+        Task.FromResult(Plans.FirstOrDefault(plan => plan.Code == planCode));
+
+    public Task<SalesFeeOverride?> FindCurrentSalesFeeAsync(long brandId, CancellationToken cancellationToken) =>
+        Task.FromResult(SalesFees.FirstOrDefault(salesFee => salesFee.SubscriberId == brandId && !salesFee.IsDeleted));
 
     public Task<IReadOnlyList<Feature>> ListFeaturesAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Feature>>(Features);
@@ -133,6 +141,8 @@ internal sealed class InMemoryBrandSubscriptionRepository : IBrandSubscriptionRe
     public void Add(PlanOffer offer) => Offers.Add(offer);
 
     public void Add(SubscriptionFeature addOn) => AddOns.Add(addOn);
+
+    public void Add(SalesFeeOverride salesFee) => SalesFees.Add(salesFee);
 }
 
 internal sealed class FakeBrandBillingLinks : IBrandBillingLinks

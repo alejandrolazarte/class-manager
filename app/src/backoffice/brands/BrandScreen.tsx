@@ -25,6 +25,7 @@ import {
   withdrawBrandPlanOffer,
 } from "@/backoffice/brands/brandSubscriptionApi";
 import { copyText } from "@/backoffice/clipboard";
+import { BrandSalesFeeSection } from "@/backoffice/salesFees/BrandSalesFeeSection";
 import { useBackofficeSession } from "@/backoffice/session/useBackofficeSession";
 import { formatMoney } from "@/formatting/money";
 import { formatMegabytes } from "@/formatting/storageSize";
@@ -285,6 +286,7 @@ function BrandSections({ brand, canManage }: BrandSectionsProps) {
         ) : null}
       </HairlineSection>
       <OfferSection brand={brand} canManage={canManage} />
+      <BrandSalesFeeSection brandId={brand.id} canManage={canManage} />
       <HairlineSection title={translate("backoffice.brand.usageTitle")} isCompact>
         <BrandUsage brand={brand} />
       </HairlineSection>

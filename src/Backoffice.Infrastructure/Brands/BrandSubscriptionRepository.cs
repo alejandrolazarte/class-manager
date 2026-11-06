@@ -16,6 +16,12 @@ internal sealed class BrandSubscriptionRepository(AppDbContext context) : IBrand
     public async Task<IReadOnlyList<Plan>> ListActivePlansAsync(CancellationToken cancellationToken) =>
         await context.Plans.AsNoTracking().Where(plan => plan.IsActive).ToListAsync(cancellationToken);
 
+    public Task<Plan?> FindActivePlanForUpdateAsync(string planCode, CancellationToken cancellationToken) =>
+        context.Plans.FirstOrDefaultAsync(plan => plan.Code == planCode && plan.IsActive, cancellationToken);
+
+    public Task<SalesFeeOverride?> FindCurrentSalesFeeAsync(long brandId, CancellationToken cancellationToken) =>
+        context.SalesFeeOverrides.FirstOrDefaultAsync(salesFee => salesFee.SubscriberId == brandId, cancellationToken);
+
     public async Task<IReadOnlyList<Feature>> ListFeaturesAsync(CancellationToken cancellationToken) =>
         await context.Features.AsNoTracking().ToListAsync(cancellationToken);
 
@@ -43,4 +49,6 @@ internal sealed class BrandSubscriptionRepository(AppDbContext context) : IBrand
     public void Add(PlanOffer offer) => context.PlanOffers.Add(offer);
 
     public void Add(SubscriptionFeature addOn) => context.SubscriptionFeatures.Add(addOn);
+
+    public void Add(SalesFeeOverride salesFee) => context.SalesFeeOverrides.Add(salesFee);
 }

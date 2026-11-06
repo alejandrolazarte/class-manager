@@ -15,6 +15,7 @@ interface BackofficeTabDefinition {
 const backofficeTabDefinitions: readonly BackofficeTabDefinition[] = [
   { name: "index", titleKey: "backoffice.tabs.home", icon: "home" },
   { name: "brands", titleKey: "backoffice.tabs.brands", icon: "business" },
+  { name: "plans", titleKey: "backoffice.tabs.plans", icon: "plan" },
   { name: "logs", titleKey: "backoffice.tabs.logs", icon: "orders" },
   {
     name: "operators",
