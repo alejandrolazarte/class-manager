@@ -15,7 +15,7 @@ public static class SelfServiceBillingRequests
 
     private const int DaysSinceTheTrialStarted = 40;
 
-    public sealed record SignedUpBrand(HttpClient HttpClient, long OrganizationId, long BusinessId);
+    public sealed record SignedUpBrand(HttpClient HttpClient, long OrganizationId, long BusinessId, string RefreshToken);
 
     public static async Task<SignedUpBrand> SignUpBrandAsync(
         this ApiFixture fixture,
@@ -43,7 +43,7 @@ public static class SelfServiceBillingRequests
             await fixture.GiveSelfServiceBillingAsync(business.OrganizationId);
         }
 
-        return new SignedUpBrand(fixture.CreateClientWithToken(tokens.AccessToken), business.OrganizationId, business.Id);
+        return new SignedUpBrand(fixture.CreateClientWithToken(tokens.AccessToken), business.OrganizationId, business.Id, tokens.RefreshToken);
     }
 
     public static async Task GiveSelfServiceBillingAsync(this ApiFixture fixture, long organizationId)

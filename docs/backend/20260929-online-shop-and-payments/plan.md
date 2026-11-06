@@ -1,6 +1,6 @@
 # Plan — Family app, shop and online payments
 
-Status: steps 1–4 done, the rest is a proposal. Steps 1–4 need no payment provider; Stripe Connect comes last.
+Status: steps 1–4 done, step 5 in progress, the rest is a proposal. Steps 1–4 need no payment provider; Stripe Connect comes last.
 
 ## Goal
 
@@ -62,7 +62,8 @@ One `Order` per purchase, from the family app or at the counter, with lines of t
 - `PaymentMethod` gains `Online`; the monthly fee gets its own online payment that records a `Payment` with that method.
 - Webhooks are idempotent: every Stripe event id is stored once (`ProcessedStripeEvents`).
 - A branch without Stripe keeps working exactly as in steps 1–4.
-- The connected account configuration (the Stripe dashboard the branch gets, who is liable for negative balances) is chosen when we build it, following Stripe's current Connect guide for platforms in Spain.
+- **Full Stripe dashboard** (decided with the owner on 2026-11-05): each connected account is created with the full dashboard, Stripe collects its requirements, the account pays Stripe's fees and is liable for refunds, disputes and negative balances (the classic "Standard" account, set with `controller` properties). The branch manages everything about Stripe in Stripe; the app only connects it and charges through it. The platform is never liable for the branch's losses.
+- **Several branches can share one account** (decided with the owner on 2026-11-05): branches owned by the same person or company want one Stripe account, one IBAN and one set of invoices. See [step 5 in detail](#step-5-in-detail-the-stripe-account-of-each-branch).
 
 ### Architecture
 
@@ -78,7 +79,8 @@ One `Order` per purchase, from the family app or at the counter, with lines of t
 | `products.view` / `products.manage` | See / create and edit products, variants, stock |
 | `orders.view.own` / `orders.view.all` | See orders of the member's families / of every family |
 | `orders.manage` | Confirm payment, mark delivered, cancel, refund, record counter sales |
-| `onlinePayments.manage` (step 5) | Connect the branch's Stripe account. Brand owners and branch owners |
+| `onlinePayments.manage` (step 5) | Connect the branch's Stripe account, see its status, stop using it. Brand owners and branch owners |
+| `onlinePayments.share` (step 5, brand-only) | Make the branch use another branch's Stripe account. Brand owners |
 
 A family account has no team permissions.
 
@@ -95,8 +97,12 @@ A family account has no team permissions.
 | Shop: packs and products shown in the app | `GET /api/family/shop` | family | 3 |
 | Place an order to pay at the branch | `POST /api/family/orders` | family | 3 |
 | My orders, cancel a requested one | `GET /api/family/orders`, `PUT /api/family/orders/{id}/cancellation` | family | 3 |
-| Stripe account of the branch | `POST /api/online-payments/account/onboarding`, `GET /api/online-payments/account` | `onlinePayments.manage` | 5 |
-| Stripe webhooks | `POST /api/stripe/webhooks` | anonymous, signature checked | 5 |
+| Status of the branch's Stripe account (and the brand's accounts, with `onlinePayments.share`) | `GET /api/online-payments` | `onlinePayments.manage` | 5 |
+| Connect or continue the onboarding, answers `{ url }` | `POST /api/online-payments/onboarding` | `onlinePayments.manage` | 5 |
+| Read the account from Stripe again (return from onboarding) | `POST /api/online-payments/refresh` | `onlinePayments.manage` | 5 |
+| Use another branch's account | `PUT /api/online-payments/account` `{ accountId }` | `onlinePayments.share` | 5 |
+| Stop using the account | `DELETE /api/online-payments/account` | `onlinePayments.manage` | 5 |
+| Stripe Connect webhook | `POST /api/online-payments/stripe/webhooks` | anonymous, signature checked | 5 |
 | Pay an order or the monthly fee online | `POST /api/family/checkouts` | family | 6 |
 
 ## The app
@@ -123,9 +129,55 @@ Each step is usable on its own; steps 1–4 need no payment provider.
 2. **Products and orders at the counter — done** ([authorization](../../authorization.md#products-and-orders), [domain model](../domain-model.md#product-and-productvariant-added-with-the-shop)). Ajustes → Productos (sizes as a comma-separated list, stock mode, shown in the app or not, load and adjust stock with its last movements) and Ajustes → Pedidos ("Para retirar" / todos, mark delivered, refund a line). "Venta en mostrador" from Pedidos (products, no family) and from the family card (packs and products): a paid order that credits the classes at once and moves stock. Not built yet: product photos, product sales in the monthly totals.
 3. **Shop in the family app, pay at the branch — done.** "Tienda" (packs, then products with sizes and "Agotado" / "A pedido") and "Mis pedidos" from the family home; ordering reserves tracked units, a family has at most 5 unpaid orders and can cancel them. In Ajustes → Pedidos the branch filters "Pendientes de pago", confirms the payment with its method (classes credited, products "Para retirar") or cancels. Unpaid orders are cancelled after 7 days by a job that runs every hour. Stock is taken under a per-size lock, at the counter too. Not built yet: e2e for the whole flow (needs the invitation email in e2e), notifications (step 4), product photos, fine-grained family permissions (one `family` policy is enough while every family can see and order).
 4. **Delivery and notifications — done.** An order with products is picked up at the branch or handed over in a class one of the family's students attends: the family chooses it in the shop, the branch sets it at the counter (or changes it through the API). The branch marks it "Listo para entregar" (or while confirming the payment), and the coach sees "Para entregar en esta clase" in the class screen and marks it delivered. Emails (plain text, Spanish): new app order → branch staff with `orders.manage` and brand owners; payment confirmed, ready (where to get it) and cancelled (by the branch or unpaid for 7 days) → the family's account emails, or the client's email when it has no account. A failed email is logged and never undoes the operation. Not built yet: push notifications, changing the delivery from the app after ordering, a substitute coach seeing the class's deliveries (only the class's own coach and members with `attendance.record.all` do).
-5. **Stripe account per branch.** Platform account in test mode, `Payments.Stripe`, onboarding and status in Ajustes → Cobros online, webhook endpoint with signature check and idempotency.
+5. **Stripe account per branch.** Platform account in test mode, onboarding and status in Ajustes → Cobros online, sharing an account between branches of the brand, webhook endpoint with signature check ([in detail](#step-5-in-detail-the-stripe-account-of-each-branch)).
 6. **Online payment.** "Pagar ahora" for orders and the monthly fee with Stripe Checkout; webhooks mark orders paid and record fee payments; refunds through Stripe.
 7. **Later, when asked:** brand catalog shared by branches, shipping, discount codes, automatic monthly fee charges, invoices, Stripe Tax, a public shop page for people who are not families yet.
+
+## Step 5 in detail: the Stripe account of each branch
+
+### Model
+
+- `OnlinePaymentAccounts` (new, **owned by the brand**, not by a branch, so it has `OrganizationId` and no `TenantId`, like the `billing` schema): `Id`, `OrganizationId`, `ExternalAccountId` (Stripe `acct_…`, unique), `CreatedForBusinessId` (the branch that connected it), `DetailsSubmitted`, `ChargesEnabled`, `PayoutsEnabled`, `CreatedAt`, `StatusReadAt` (when the flags were last read from Stripe). It is the one table a branch reads outside its tenant on purpose: an account can be used by several branches of the same brand, so it can't belong to one of them. Every use case checks that the account's `OrganizationId` is the current branch's.
+- `Businesses.OnlinePaymentAccountId` (nullable): the account the branch charges through. Several branches can point to the same account.
+- **Status**, computed from Stripe's flags: `NotConnected` (no account), `Pending` (onboarding not finished: `DetailsSubmitted` is false), `Restricted` (finished but Stripe can't charge yet, it is reviewing or needs more data: `ChargesEnabled` is false), `Active` (`ChargesEnabled`). Only `Active` branches will offer "Pagar ahora" in step 6.
+- An account is never deleted: Stripe keeps it, and a branch that stops using it and connects again gets the same one back (the account created for it), instead of a second Stripe account.
+
+### Who
+
+- `onlinePayments.manage` (branch permission, assignable to custom roles; branch owners and brand owners have it): see the status, connect the branch, continue the onboarding, stop using the account.
+- `onlinePayments.share` (brand-only, like `branches.create`; brand owners): see the brand's other accounts and make the branch use one of them. A branch owner can't point their branch to another branch's account, because the branches may belong to different people.
+
+### Flow
+
+1. Ajustes → **Cobros online** shows the status. Outside the countries Stripe supports for us (EU and EEA, the same list as the plans' billing) it says online payments aren't available there yet.
+2. **Conectar con Stripe** (`POST /api/online-payments/onboarding`): the first time it creates the Stripe account (country of the branch, email of the person connecting, `business_id` and `organization_id` in its metadata) and stores it; every time it creates an **Account Link** (`account_onboarding`) and the app opens it. The branch types its legal details and IBAN on Stripe's page; nothing of that reaches us.
+3. Stripe returns to `{WebApp:Url}/settings/online-payments?onboarding=return`; the app calls `POST /api/online-payments/refresh`, which reads the account from Stripe and stores its flags. `?onboarding=refresh` (the link expired) starts the onboarding again.
+4. The **webhook** `POST /api/online-payments/stripe/webhooks` (a separate Stripe endpoint that listens to **connected accounts**, with its own signing secret `Stripe:ConnectWebhookSecret`) receives `account.updated`, checks the signature, reads the account from Stripe again and stores its flags. It is idempotent without a table: it always stores Stripe's current state. Step 6 adds the payment events and their `ProcessedStripeEvents`.
+5. **Usar la cuenta de otra sede** (`PUT /api/online-payments/account` `{ accountId }`, `onlinePayments.share`): lists the brand's accounts with the branches that use each one, and points the current branch to the chosen one.
+6. **Dejar de usar esta cuenta** (`DELETE /api/online-payments/account`, asks first with `ConfirmDialog`): the branch stops charging online; Stripe and the other branches that share the account are untouched.
+7. With an `Active` account the screen links to Stripe's dashboard (`https://dashboard.stripe.com/`), where the branch signs in with its own Stripe user.
+
+### Code
+
+- `Core`: `OnlinePaymentAccount`, the port `IOnlinePaymentGateway` (create an account, create an onboarding link, read an account, read a webhook event) and the use cases. `Core` never references Stripe.
+- `Infrastructure/OnlinePayments`: `StripeOnlinePaymentGateway` with `Stripe.net` and the same `Stripe:SecretKey` as the plans (it is the same platform account). Without the key the gateway is a placeholder that fails when used, so development and CI run without Stripe. A separate `Payments.Stripe` library is not worth it yet: nothing else uses it.
+- Errors: `onlinePayments.not_available` (country), `onlinePayments.account_not_found` (another brand's account, or an unknown one), `onlinePayments.not_connected` (refresh or stop without an account).
+
+### Setting it up
+
+1. In the Stripe account (the sandbox first): **Connect → Get started**, with the platform profile Stripe asks for.
+2. **Developers → Webhooks → Add destination**, events from **Connected accounts**, event `account.updated`, URL `https://api.laztty.com/api/online-payments/stripe/webhooks`. Copy its signing secret.
+3. The API already has `Stripe__SecretKey` (the plans use the same key). Add the Connect signing secret:
+
+```powershell
+az containerapp secret set -n class-manager-api -g class-manager-rg --secrets "stripe-connect-webhook-secret=whsec_..."; az containerapp update -n class-manager-api -g class-manager-rg --set-env-vars "Stripe__ConnectWebhookSecret=secretref:stripe-connect-webhook-secret"
+```
+
+### Testing
+
+- Integration tests with a fake gateway and signed fake events: connecting creates one account and returns its link, connecting again reuses it, a branch of another brand can't see or use the account (`404`), sharing needs `onlinePayments.share`, the webhook with a bad signature is `400`, `account.updated` turns the status `Active`, stopping keeps the account for the other branches.
+- App (jest): the status and its actions, the confirmation before stopping, sharing only for brand owners.
+- By hand in the Stripe sandbox: Connect enabled, onboarding with Stripe's test data, the connected accounts webhook pointing to the endpoint.
 
 ## Testing
 

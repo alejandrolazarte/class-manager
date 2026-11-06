@@ -40,6 +40,8 @@ export const permissions = {
   ordersViewOwn: "orders.view.own",
   ordersViewAll: "orders.view.all",
   ordersManage: "orders.manage",
+  onlinePaymentsManage: "onlinePayments.manage",
+  onlinePaymentsShare: "onlinePayments.share",
   importExportRun: "importExport.run",
   announcementsManage: "announcements.manage",
 } as const;
@@ -54,6 +56,7 @@ export const brandOnlyPermissions: readonly Permission[] = [
   permissions.brandOwnersManage,
   permissions.subscriptionView,
   permissions.subscriptionManage,
+  permissions.onlinePaymentsShare,
 ];
 
 export const everyInstructorPermissionByOwnPermission: Readonly<

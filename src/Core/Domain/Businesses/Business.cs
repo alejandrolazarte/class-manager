@@ -55,6 +55,7 @@ public sealed partial class Business
     public DateTimeOffset? LogoUpdatedAt { get; private set; }
     public string? LocationName { get; private set; }
     public string? LocationMapsUrl { get; private set; }
+    public long? OnlinePaymentAccountId { get; private set; }
     public string BrandDisplayName => BrandName ?? Name;
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -189,6 +190,10 @@ public sealed partial class Business
     public void RemoveLogo() => LogoUpdatedAt = null;
 
     public void ChangeNoticedAbsencesKeepStreak(bool keepsStreak) => NoticedAbsencesKeepStreak = keepsStreak;
+
+    public void UseOnlinePaymentAccount(long onlinePaymentAccountId) => OnlinePaymentAccountId = onlinePaymentAccountId;
+
+    public void StopUsingOnlinePaymentAccount() => OnlinePaymentAccountId = null;
 
     public TimeZoneInfo FindTimeZone() => TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
 

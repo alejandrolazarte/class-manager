@@ -21,6 +21,9 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public const string CheckoutSucceeded = "success";
     public const string CheckoutCancelled = "cancelled";
     public const string OfferParameter = "?offer=1";
+    public const string OnlinePaymentSettingsPath = "/settings/online-payments";
+    public const string OnboardingReturnedParameter = "?onboarding=return";
+    public const string OnboardingExpiredParameter = "?onboarding=refresh";
     public const string WebFontsPath = "/fonts/";
 
     private const string MissingWebAppUrlMessage = "Set " + WebAppUrlSetting + " to the web app address.";
@@ -56,6 +59,10 @@ internal sealed class WebAppLinks(IConfiguration configuration) : IWebAppLinks
     public string PlanCheckoutCancelled() => PlanSettings() + CheckoutParameter + CheckoutCancelled;
 
     public string PlanOfferPayment() => PlanSettings() + OfferParameter;
+
+    public string OnlinePaymentsOnboardingReturned() => WebAppUrl() + OnlinePaymentSettingsPath + OnboardingReturnedParameter;
+
+    public string OnlinePaymentsOnboardingExpired() => WebAppUrl() + OnlinePaymentSettingsPath + OnboardingExpiredParameter;
 
     public Uri WebFonts() => new(WebAppUrl() + WebFontsPath);
 

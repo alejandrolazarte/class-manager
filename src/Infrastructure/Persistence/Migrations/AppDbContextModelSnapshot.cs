@@ -522,6 +522,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<bool>("NoticedAbsencesKeepStreak")
                         .HasColumnType("bit");
 
+                    b.Property<long?>("OnlinePaymentAccountId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("OrganizationId")
                         .HasColumnType("bigint");
 
@@ -543,6 +546,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CountryCode");
+
+                    b.HasIndex("OnlinePaymentAccountId");
 
                     b.HasIndex("OrganizationId");
 
@@ -2244,6 +2249,52 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "RecipientUserId", "CreatedAt");
 
                     b.ToTable("TeamNotifications");
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.OnlinePayments.OnlinePaymentAccount", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("ChargesEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("CreatedForBusinessId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("DetailsSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ExternalAccountId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<long>("OrganizationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("PayoutsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("StatusReadAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedForBusinessId");
+
+                    b.HasIndex("ExternalAccountId")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("OnlinePaymentAccounts");
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Orders.Order", b =>
@@ -4352,6 +4403,11 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ClassManager.Core.Domain.OnlinePayments.OnlinePaymentAccount", null)
+                        .WithMany()
+                        .HasForeignKey("OnlinePaymentAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ClassManager.Core.Domain.Organizations.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
@@ -5263,6 +5319,21 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UpdatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.OnlinePayments.OnlinePaymentAccount", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedForBusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Orders.Order", b =>

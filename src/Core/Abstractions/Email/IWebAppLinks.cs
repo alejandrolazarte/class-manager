@@ -27,4 +27,8 @@ public interface IWebAppLinks
     string PlanCheckoutCancelled();
 
     string PlanOfferPayment();
+
+    string OnlinePaymentsOnboardingReturned();
+
+    string OnlinePaymentsOnboardingExpired();
 }
