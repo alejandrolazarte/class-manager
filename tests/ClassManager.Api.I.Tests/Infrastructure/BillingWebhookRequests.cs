@@ -22,6 +22,8 @@ public static class BillingWebhookRequests
 
     private const string EventIdPrefix = "evt_";
     private const string ExternalSubscriptionIdPrefix = "sub_";
+    public const string StripeSignatureHeaderName = StripeBillingWebhookEndpointRouteBuilderExtensions.SignatureHeaderName;
+
     private const string JsonMediaType = "application/json";
 
     private static readonly TimeSpan ProcessingTimeout = TimeSpan.FromSeconds(10);
@@ -136,7 +138,7 @@ public static class BillingWebhookRequests
             },
         };
 
-    private static string Signature(string payload, string webhookSecret)
+    internal static string Signature(string payload, string webhookSecret)
     {
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
         var hash = HMACSHA256.HashData(Encoding.UTF8.GetBytes(webhookSecret), Encoding.UTF8.GetBytes($"{timestamp}.{payload}"));

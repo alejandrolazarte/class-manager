@@ -67,6 +67,7 @@ app.MapBrandEndpoints();
 app.MapMemberEndpoints();
 app.MapRoleEndpoints();
 app.MapSubscriptionEndpoints();
+app.MapOnlinePaymentEndpoints();
 app.MapCountryEndpoints();
 app.MapClientEndpoints();
 app.MapStudentAppEndpoints();

@@ -116,6 +116,7 @@ export const routes = {
   newClassPack: "/settings/class-packs/new",
   classPack: (classPackId: string) => `/settings/class-packs/${classPackId}`,
   products: "/settings/products",
+  onlinePayments: "/settings/online-payments",
   newProduct: "/settings/products/new",
   product: (productId: string) => `/settings/products/${productId}`,
   orders: (tab: OrderTab) => `/${tab}/orders`,

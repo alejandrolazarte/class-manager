@@ -11,6 +11,8 @@ import { useCurrentBusiness } from "@/features/business/CurrentBusinessProvider"
 import { useClassPacks } from "@/features/classPacks/useClassPacks";
 import { useCan } from "@/features/members/CurrentMemberProvider";
 import { permissions } from "@/features/members/permissions";
+import { onlinePaymentStatusLabel } from "@/features/onlinePayments/onlinePaymentLabels";
+import { useOnlinePayments } from "@/features/onlinePayments/useOnlinePayments";
 import { useProducts } from "@/features/products/useProducts";
 import {
   colorSchemeValue,
@@ -56,12 +58,14 @@ export function SettingsScreen() {
   const canViewOrders = useCan(permissions.ordersViewAll, permissions.ordersViewOwn);
   const canViewPayments = useCan(permissions.paymentsViewAll, permissions.paymentsViewOwn);
   const canManageAnnouncements = useCan(permissions.announcementsManage);
+  const canManageOnlinePayments = useCan(permissions.onlinePaymentsManage);
   const canViewTeam = useCan(permissions.membersView);
   const canCreateBranches = useCan(permissions.branchesCreate);
   const subscription = useSubscription();
   const { data: branches = [] } = useBranches();
   const { data: classPacks } = useClassPacks(false, { enabled: canViewClassPacks });
   const { data: products } = useProducts(false, { enabled: canViewProducts });
+  const { data: onlinePayments } = useOnlinePayments();
   const hasStudentAccount = useHasOtherAccountKind("team");
   const currentBranchName = branches.find((branch) => branch.isCurrent)?.name ?? business.name;
   const currentBrand = useCurrentBrand();
@@ -160,6 +164,14 @@ export function SettingsScreen() {
           label: translate("settings.products"),
           value: countValue(products?.length),
           onPress: () => router.push(routes.products),
+        },
+        {
+          key: "onlinePayments",
+          isVisible: canManageOnlinePayments,
+          icon: "card",
+          label: translate("settings.onlinePayments"),
+          value: onlinePayments ? onlinePaymentStatusLabel(onlinePayments.status) : undefined,
+          onPress: () => router.push(routes.onlinePayments),
         },
         {
           key: "orders",

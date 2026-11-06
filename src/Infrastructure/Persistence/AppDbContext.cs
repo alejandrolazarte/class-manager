@@ -1,4 +1,5 @@
 using ClassManager.Core.Domain.Accounts;
+using ClassManager.Core.Domain.OnlinePayments;
 using ClassManager.Infrastructure.BackgroundTasks;
 using ClassManager.Subscriptions.AspNetCore.Persistence;
 using ClassManager.Subscriptions.Billing;
@@ -16,6 +17,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<OrganizationMember> OrganizationMembers => Set<OrganizationMember>();
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<BrandLogo> BrandLogos => Set<BrandLogo>();
+    public DbSet<OnlinePaymentAccount> OnlinePaymentAccounts => Set<OnlinePaymentAccount>();
     public DbSet<BusinessMember> BusinessMembers => Set<BusinessMember>();
     public DbSet<MemberInvitation> MemberInvitations => Set<MemberInvitation>();
     public DbSet<PendingSignUp> PendingSignUps => Set<PendingSignUp>();

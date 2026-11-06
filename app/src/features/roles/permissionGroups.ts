@@ -198,6 +198,11 @@ export const permissionGroups: PermissionGroup[] = [
         labelKey: "roles.permission.ordersManage",
         permission: permissions.ordersManage,
       },
+      {
+        kind: "toggle",
+        labelKey: "roles.permission.onlinePaymentsManage",
+        permission: permissions.onlinePaymentsManage,
+      },
     ],
   },
   {

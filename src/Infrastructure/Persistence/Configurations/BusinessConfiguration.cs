@@ -1,3 +1,4 @@
+using ClassManager.Core.Domain.OnlinePayments;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ClassManager.Infrastructure.Persistence.Configurations;
@@ -29,5 +30,6 @@ internal sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
         builder.Ignore(business => business.BrandDisplayName);
         builder.HasIndex(business => business.Slug).IsUnique();
         builder.HasOne(business => business.Organization).WithMany().HasForeignKey(business => business.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<OnlinePaymentAccount>().WithMany().HasForeignKey(business => business.OnlinePaymentAccountId).OnDelete(DeleteBehavior.Restrict);
     }
 }
