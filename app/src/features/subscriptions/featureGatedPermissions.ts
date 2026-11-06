@@ -11,4 +11,6 @@ export const anyFeatureByPermission: Readonly<Partial<Record<Permission, readonl
     [permissions.privateLessonsManageAll]: [featureCodes.classPacks],
     [permissions.productsManage]: [featureCodes.shop],
     [permissions.ordersManage]: [featureCodes.shop, featureCodes.classPacks],
+    [permissions.onlinePaymentsManage]: [featureCodes.onlinePayments],
+    [permissions.onlinePaymentsShare]: [featureCodes.onlinePayments],
   };

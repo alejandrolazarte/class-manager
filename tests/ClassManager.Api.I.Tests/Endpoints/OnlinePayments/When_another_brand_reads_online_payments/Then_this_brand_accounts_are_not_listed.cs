@@ -6,7 +6,7 @@ public sealed class Then_this_brand_accounts_are_not_listed(ApiFixture fixture)
     [Fact]
     public async Task Then_this_brand_accounts_are_not_listed_Run()
     {
-        var owner = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var owner = await fixture.SignUpBrandWithOnlinePaymentsAsync();
         await owner.HttpClient.StartOnlinePaymentOnboardingAsync();
         var stranger = await fixture.SignUpBrandWithTwoBranchesAsync();
 

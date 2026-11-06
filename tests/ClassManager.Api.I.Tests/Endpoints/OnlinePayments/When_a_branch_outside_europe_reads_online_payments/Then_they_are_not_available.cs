@@ -6,7 +6,7 @@ public sealed class Then_they_are_not_available(ApiFixture fixture)
     [Fact]
     public async Task Then_they_are_not_available_Run()
     {
-        var brand = await fixture.SignUpBrandAsync(ApiFixture.ArgentinaCountryCode, withSelfServiceBilling: false);
+        var brand = await fixture.SignUpBrandWithOnlinePaymentsAsync(ApiFixture.ArgentinaCountryCode);
 
         var onlinePayments = await brand.HttpClient.ReadOnlinePaymentsAsync();
 

@@ -6,10 +6,10 @@ public sealed class Then_returns_404(ApiFixture fixture)
     [Fact]
     public async Task Then_returns_404_Run()
     {
-        var owner = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var owner = await fixture.SignUpBrandWithOnlinePaymentsAsync();
         await owner.HttpClient.StartOnlinePaymentOnboardingAsync();
         var account = await fixture.OnlinePaymentAccountOfAsync(owner.BusinessId);
-        var stranger = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var stranger = await fixture.SignUpBrandWithOnlinePaymentsAsync();
 
         using var response = await stranger.HttpClient.PutOnlinePaymentAccountAsync(account.Id);
 

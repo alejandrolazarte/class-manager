@@ -15,5 +15,7 @@ public static class FeatureGatedPermissions
             [Permissions.PrivateLessons.ManageAll] = [Features.ClassPacks],
             [Permissions.Products.Manage] = [Features.Shop],
             [Permissions.Orders.Manage] = [Features.Shop, Features.ClassPacks],
+            [Permissions.OnlinePayments.Manage] = [Features.OnlinePayments],
+            [Permissions.OnlinePayments.Share] = [Features.OnlinePayments],
         };
 }

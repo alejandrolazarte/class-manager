@@ -8,7 +8,7 @@ public sealed class Then_the_status_is_not_connected(ApiFixture fixture)
     [Fact]
     public async Task Then_the_status_is_not_connected_Run()
     {
-        var brand = await fixture.SignUpBrandAsync(withSelfServiceBilling: false);
+        var brand = await fixture.SignUpBrandWithOnlinePaymentsAsync();
 
         var onlinePayments = await brand.HttpClient.ReadOnlinePaymentsAsync();
 
