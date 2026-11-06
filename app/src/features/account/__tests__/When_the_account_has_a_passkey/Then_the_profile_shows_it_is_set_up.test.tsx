@@ -31,7 +31,6 @@ describe("When the account has a passkey", () => {
         changeEmailRoute={routes.changeMyEmail}
         deleteAccountRoute={routes.deleteMyAccount}
         passkeysRoute={routes.myPasskeys}
-        notificationPreferencesRoute={routes.myNotificationPreferences}
       />,
     );
 

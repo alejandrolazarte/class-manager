@@ -203,11 +203,11 @@ export function SettingsScreen() {
         },
         {
           key: "notifications",
-          isVisible: pushNotifications.status !== "unavailable",
+          isVisible: true,
           icon: "notifications",
           label: translate("student.notifications.title"),
           value: notificationsValue(pushNotifications),
-          onPress: () => setOpenSheet("notifications"),
+          onPress: () => router.push(routes.myNotificationPreferences),
         },
       ],
     },
@@ -273,8 +273,6 @@ export function SettingsScreen() {
       ) : null}
       <DeviceSettingsSheet
         kind={openSheet}
-        notifications={pushNotifications}
-        notificationsHint={translate("teamNotifications.hint")}
         colorsHint={translate(
           canManageBusiness ? "settings.colorsHint.owner" : "settings.colorsHint.team",
         )}

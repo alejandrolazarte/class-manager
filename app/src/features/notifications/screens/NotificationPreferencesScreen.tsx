@@ -1,4 +1,6 @@
 import { View } from "react-native";
+import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
+import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import { NotificationPreference } from "@/features/notifications/notificationPreferenceTypes";
 import {
   useNotificationPreferences,
@@ -58,7 +60,15 @@ function CategoryRow({ preference, hasDivider, onChange }: CategoryRowProps) {
   );
 }
 
-export function NotificationPreferencesScreen() {
+interface NotificationPreferencesScreenProps {
+  notifications: PushNotifications;
+  deviceHint: string;
+}
+
+export function NotificationPreferencesScreen({
+  notifications,
+  deviceHint,
+}: NotificationPreferencesScreenProps) {
   const { showToast } = useToast();
   const preferencesQuery = useNotificationPreferences();
   const updatePreference = useUpdateNotificationPreference(() =>
@@ -70,6 +80,7 @@ export function NotificationPreferencesScreen() {
     <ScrollScreen
       header={<ScreenHeader navigation="back" title={translate("notificationPreferences.title")} />}
     >
+      <NotificationSettings notifications={notifications} hint={deviceHint} />
       <AppText variant="body" tone="muted">
         {translate("notificationPreferences.hint")}
       </AppText>

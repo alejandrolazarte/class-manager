@@ -230,19 +230,14 @@ test("Student screens", async ({ page, request }) => {
   await page.getByRole("button", { name: "Notificaciones" }).waitFor();
   await capture(page, "29-alumno-ajustes");
 
-  await page.getByRole("button", { name: "Notificaciones" }).click();
-  await page.getByRole("switch", { name: "Avisarme de novedades" }).waitFor();
-  await capture(page, "29b-alumno-ajustes-notificaciones");
-  await page.getByRole("button", { name: "Listo" }).click();
-
   await page.getByRole("button", { name: "Apariencia" }).click();
   await page.getByText("Automático").filter({ visible: true }).first().waitFor();
   await capture(page, "29c-alumno-ajustes-apariencia");
 
-  await page.goto("/student-app/profile");
+  await page.getByRole("button", { name: "Listo" }).click();
   await page.getByRole("button", { name: "Notificaciones" }).filter({ visible: true }).click();
   await page.getByRole("switch", { name: "Pedidos: Email" }).waitFor();
-  await capture(page, "29d-alumno-notificaciones");
+  await capture(page, "29b-alumno-notificaciones");
 });
 
 test("Account chooser", async ({ page, request }) => {

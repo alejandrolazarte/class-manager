@@ -1,4 +1,3 @@
-import { NotificationSettings } from "@/features/notifications/components/NotificationSettings";
 import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import { AppearanceSettings } from "@/features/settings/components/AppearanceSettings";
 import { LanguageSettings } from "@/features/settings/components/LanguageSettings";
@@ -7,7 +6,7 @@ import { ColorSchemePreference } from "@/theme/ThemeContext";
 import { BottomSheet } from "@/ui/BottomSheet";
 import { Button } from "@/ui/Button";
 
-export type DeviceSettingsSheetKind = "appearance" | "language" | "notifications";
+export type DeviceSettingsSheetKind = "appearance" | "language";
 
 const colorSchemeLabelKeys: Record<ColorSchemePreference, TranslationKey> = {
   system: "settings.appearance.system",
@@ -19,7 +18,10 @@ export function colorSchemeValue(preference: ColorSchemePreference): string {
   return translate(colorSchemeLabelKeys[preference]);
 }
 
-export function notificationsValue(notifications: PushNotifications): string {
+export function notificationsValue(notifications: PushNotifications): string | undefined {
+  if (notifications.status === "unavailable") {
+    return undefined;
+  }
   if (notifications.status === "supported") {
     return translate(notifications.isOn ? "settings.notificationsOn" : "settings.notificationsOff");
   }
@@ -32,19 +34,11 @@ export function notificationsValue(notifications: PushNotifications): string {
 
 interface DeviceSettingsSheetProps {
   kind: DeviceSettingsSheetKind | null;
-  notifications: PushNotifications;
-  notificationsHint: string;
   colorsHint: string;
   onClose: () => void;
 }
 
-export function DeviceSettingsSheet({
-  kind,
-  notifications,
-  notificationsHint,
-  colorsHint,
-  onClose,
-}: DeviceSettingsSheetProps) {
+export function DeviceSettingsSheet({ kind, colorsHint, onClose }: DeviceSettingsSheetProps) {
   if (kind === null) {
     return null;
   }
@@ -52,9 +46,6 @@ export function DeviceSettingsSheet({
     <BottomSheet onClose={onClose}>
       {kind === "appearance" ? <AppearanceSettings colorsHint={colorsHint} /> : null}
       {kind === "language" ? <LanguageSettings /> : null}
-      {kind === "notifications" ? (
-        <NotificationSettings notifications={notifications} hint={notificationsHint} />
-      ) : null}
       <Button label={translate("common.done")} onPress={onClose} />
     </BottomSheet>
   );

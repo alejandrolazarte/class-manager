@@ -8,6 +8,7 @@ import { translate } from "@/i18n/translate";
 import {
   buildNotificationPreference,
   buildNotificationPreferences,
+  pushUnavailable,
 } from "@/testing/notificationPreferenceFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
@@ -29,7 +30,9 @@ describe("When saving a notification choice fails", () => {
   });
 
   it("Then the switch goes back on", async () => {
-    await renderWithProviders(<NotificationPreferencesScreen />);
+    await renderWithProviders(
+      <NotificationPreferencesScreen notifications={pushUnavailable} deviceHint="" />,
+    );
 
     await fireEvent.press(await screen.findByRole("switch", { name: ordersEmailLabel }));
 

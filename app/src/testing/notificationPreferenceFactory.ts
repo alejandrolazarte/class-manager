@@ -1,3 +1,4 @@
+import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import {
   NotificationAudience,
   NotificationCategory,
@@ -25,3 +26,10 @@ export function buildNotificationPreferences(
 ): NotificationPreferences {
   return { businessName: notificationPreferencesBusinessName, preferences };
 }
+
+export const pushUnavailable: PushNotifications = {
+  status: "unavailable",
+  isOn: false,
+  isPending: false,
+  toggle: () => undefined,
+};

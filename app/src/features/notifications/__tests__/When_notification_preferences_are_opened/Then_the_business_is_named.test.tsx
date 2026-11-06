@@ -5,6 +5,7 @@ import { translate } from "@/i18n/translate";
 import {
   buildNotificationPreference,
   buildNotificationPreferences,
+  pushUnavailable,
   notificationPreferencesBusinessName,
 } from "@/testing/notificationPreferenceFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
@@ -21,7 +22,9 @@ describe("When notification preferences are opened", () => {
   });
 
   it("Then the business is named", async () => {
-    await renderWithProviders(<NotificationPreferencesScreen />);
+    await renderWithProviders(
+      <NotificationPreferencesScreen notifications={pushUnavailable} deviceHint="" />,
+    );
 
     expect(
       await screen.findByText(

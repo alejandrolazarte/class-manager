@@ -5,17 +5,18 @@ import {
   currentBrowserSubscription,
   subscribeBrowser,
 } from "@/features/studentApp/push/browserPush";
-import { SettingsScreen } from "@/features/settings/screens/SettingsScreen";
 import {
   getTeamPushKey,
   saveTeamPushSubscription,
 } from "@/features/teamNotifications/teamNotificationsApi";
+import { TeamNotificationPreferencesScreen } from "@/features/teamNotifications/screens/TeamNotificationPreferencesScreen";
 import { translate } from "@/i18n/translate";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
 jest.mock("@/features/branches/branchesApi");
 jest.mock("@/features/studentApp/push/browserPush");
 jest.mock("@/features/teamNotifications/teamNotificationsApi");
+jest.mock("@/features/notifications/notificationPreferencesApi");
 jest.mock("@/features/authentication/useSession", () => ({
   useSession: () => ({ signOut: jest.fn() }),
 }));
@@ -33,10 +34,7 @@ describe("When instructor turns on notifications", () => {
   });
 
   it("Then this device is subscribed", async () => {
-    await renderWithProviders(<SettingsScreen />);
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("student.notifications.title") }),
-    );
+    await renderWithProviders(<TeamNotificationPreferencesScreen />);
 
     await fireEvent.press(
       await screen.findByRole("switch", { name: translate("student.notifications.toggle") }),
