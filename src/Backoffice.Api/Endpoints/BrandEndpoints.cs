@@ -43,6 +43,25 @@ internal static class BrandEndpoints
             CancellationToken cancellationToken) =>
             (await useCase.ExecuteAsync(new WithdrawBrandPlanOfferCommand(brandId), cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.Manage);
+        group.MapGet(BackofficeApiRoutes.BrandSalesFee, async (
+            long brandId,
+            IUseCase<GetBrandSalesFeeQuery, BrandSalesFeeResponse> useCase,
+            CancellationToken cancellationToken) =>
+            (await useCase.ExecuteAsync(new GetBrandSalesFeeQuery(brandId), cancellationToken)).ToOkResult())
+            .RequirePlatformPermission(Permissions.Platform.View);
+        group.MapPut(BackofficeApiRoutes.BrandSalesFee, async (
+            long brandId,
+            GiveBrandSalesFeeRequest request,
+            IUseCase<GiveBrandSalesFeeCommand, BrandSalesFeeResponse> useCase,
+            CancellationToken cancellationToken) =>
+            (await useCase.ExecuteAsync(new GiveBrandSalesFeeCommand(brandId, request.Percent, request.Note), cancellationToken)).ToOkResult())
+            .RequirePlatformPermission(Permissions.Platform.Manage);
+        group.MapDelete(BackofficeApiRoutes.BrandSalesFee, async (
+            long brandId,
+            IUseCase<RemoveBrandSalesFeeCommand, BrandSalesFeeResponse> useCase,
+            CancellationToken cancellationToken) =>
+            (await useCase.ExecuteAsync(new RemoveBrandSalesFeeCommand(brandId), cancellationToken)).ToOkResult())
+            .RequirePlatformPermission(Permissions.Platform.Manage);
         group.MapPost(BackofficeApiRoutes.BrandAddOns, async (
             long brandId,
             GiveBrandAddOnRequest request,
@@ -73,6 +92,14 @@ internal static class BrandEndpoints
             (await useCase.ExecuteAsync(new GetSubscriptionCatalogQuery(), cancellationToken)).ToOkResult())
             .RequirePlatformPermission(Permissions.Platform.View);
 
+        endpoints.MapPut(BackofficeApiRoutes.PlanSalesFee, async (
+            string planCode,
+            ChangePlanSalesFeeRequest request,
+            IUseCase<ChangePlanSalesFeeCommand, CatalogPlanResponse> useCase,
+            CancellationToken cancellationToken) =>
+            (await useCase.ExecuteAsync(new ChangePlanSalesFeeCommand(planCode, request.Percent), cancellationToken)).ToOkResult())
+            .RequirePlatformPermission(Permissions.Platform.Manage);
+
         endpoints.MapGet(BackofficeApiRoutes.ExpiringAddOns, async (
             IUseCase<ListExpiringAddOnsQuery, ExpiringAddOnListResponse> useCase,
             CancellationToken cancellationToken) =>
@@ -88,3 +115,7 @@ internal sealed record ChangeBrandPlanRequest(string? PlanCode, decimal Price, s
 internal sealed record OfferBrandPlanRequest(string? PlanCode, decimal Price, string? Note, DateOnly? ExpiredOn);
 
 internal sealed record GiveBrandAddOnRequest(string? FeatureCode, decimal Price, string? Currency, int? Limit, DateOnly? ExpiredOn);
+
+internal sealed record GiveBrandSalesFeeRequest(decimal Percent, string? Note);
+
+internal sealed record ChangePlanSalesFeeRequest(decimal Percent);

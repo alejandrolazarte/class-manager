@@ -87,10 +87,16 @@ export function aPlanOffer(overrides: Partial<BrandPlanOffer> = {}): BrandPlanOf
 export function aSubscriptionCatalog(): SubscriptionCatalog {
   return {
     plans: [
-      { code: "free", listPrice: 0, currency: "EUR", durationInDays: 30 },
-      { code: "lite", listPrice: 19, currency: "EUR", durationInDays: null },
-      { code: "pro", listPrice: 29, currency: "EUR", durationInDays: null },
-      { code: "enterprise", listPrice: null, currency: "EUR", durationInDays: null },
+      { code: "free", listPrice: 0, currency: "EUR", durationInDays: 30, salesFeePercent: 0 },
+      { code: "lite", listPrice: 19, currency: "EUR", durationInDays: null, salesFeePercent: 0 },
+      { code: "pro", listPrice: 29, currency: "EUR", durationInDays: null, salesFeePercent: 0 },
+      {
+        code: "enterprise",
+        listPrice: null,
+        currency: "EUR",
+        durationInDays: null,
+        salesFeePercent: 0,
+      },
     ],
     features: [
       { code: "branches", isCounted: true, isAddOn: true, addOnListPrice: 10, currency: "EUR" },

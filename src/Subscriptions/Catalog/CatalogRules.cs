@@ -7,6 +7,9 @@ public static class CatalogRules
     public const int NoteMaxLength = 200;
     public const int PricePrecision = 18;
     public const int PriceScale = 2;
+    public const int PercentPrecision = 5;
+    public const int PercentScale = 2;
+    public const decimal MaxPercent = 100m;
 
     public static string RequireCode(string? code, string parameterName)
     {
@@ -35,6 +38,21 @@ public static class CatalogRules
         ArgumentOutOfRangeException.ThrowIfNegative(price, parameterName);
         return price;
     }
+
+    public static decimal RequirePercent(decimal percent, string parameterName)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(percent, parameterName);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(percent, MaxPercent, parameterName);
+        if (decimal.Round(percent, PercentScale) != percent)
+        {
+            throw new ArgumentException($"A percent has at most {PercentScale} decimals.", parameterName);
+        }
+
+        return percent;
+    }
+
+    public static bool IsPercent(decimal percent) =>
+        percent is >= 0m and <= MaxPercent && decimal.Round(percent, PercentScale) == percent;
 
     public static int? RequireLimit(int? limit, string parameterName)
     {

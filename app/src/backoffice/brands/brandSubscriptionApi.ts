@@ -9,6 +9,7 @@ export interface CatalogPlan {
   listPrice: number | null;
   currency: string;
   durationInDays: number | null;
+  salesFeePercent: number;
 }
 
 export interface CatalogFeature {

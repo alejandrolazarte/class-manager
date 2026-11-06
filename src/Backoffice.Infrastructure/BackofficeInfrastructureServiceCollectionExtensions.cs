@@ -58,6 +58,10 @@ public static class BackofficeInfrastructureServiceCollectionExtensions
         services.AddUseCase<RestoreBrandAddOnCommand, BrandAddOnResponse, RestoreBrandAddOnUseCase>();
         services.AddUseCase<OfferBrandPlanCommand, BrandPlanOfferResponse, OfferBrandPlanUseCase>();
         services.AddUseCase<WithdrawBrandPlanOfferCommand, BrandPlanOfferResponse, WithdrawBrandPlanOfferUseCase>();
+        services.AddUseCase<ChangePlanSalesFeeCommand, CatalogPlanResponse, ChangePlanSalesFeeUseCase>();
+        services.AddUseCase<GetBrandSalesFeeQuery, BrandSalesFeeResponse, GetBrandSalesFeeUseCase>();
+        services.AddUseCase<GiveBrandSalesFeeCommand, BrandSalesFeeResponse, GiveBrandSalesFeeUseCase>();
+        services.AddUseCase<RemoveBrandSalesFeeCommand, BrandSalesFeeResponse, RemoveBrandSalesFeeUseCase>();
         services.AddUseCase<ListOperatorsQuery, OperatorListResponse, ListOperatorsUseCase>();
         services.AddUseCase<EnableOperatorCommand, OperatorLoginResponse, EnableOperatorUseCase>();
         services.AddUseCase<DisableOperatorCommand, OperatorLoginResponse, DisableOperatorUseCase>();
