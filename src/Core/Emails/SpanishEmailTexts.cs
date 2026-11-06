@@ -37,6 +37,8 @@ internal sealed class SpanishEmailTexts : IEmailTexts
 
     public string OrderHandedOver => "Ya te entregamos el pedido.";
 
+    public string StopTheseEmails => "Dejar de recibir estos emails";
+
     public EmailText TeamInvitation(string businessName, string acceptInvitationLink) =>
         new(
             $"{businessName} te invita a su equipo",

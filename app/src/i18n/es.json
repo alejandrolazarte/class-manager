@@ -1692,8 +1692,7 @@
   "student.celebration.title": "¡Nueva medalla!",
   "student.celebration.next": "Próxima: {name}",
   "student.notifications.title": "Notificaciones",
-  "student.notifications.toggle": "Avisarme de novedades",
-  "student.notifications.hint": "Te avisamos en este dispositivo cuando hay un anuncio, se suspende una clase, el profe deja un comentario o tu pedido está listo.",
+  "student.notifications.toggle": "Activar notificaciones",
   "student.notifications.blocked": "Las notificaciones están bloqueadas para esta app. Habilitalas desde la configuración del navegador.",
   "student.notifications.unsupported": "Este navegador no puede mostrar notificaciones. En iPhone, agregá la app a la pantalla de inicio (Compartir → Agregar a inicio) y abrila desde ahí.",
   "student.notifications.notAllowed": "No se activaron: el navegador no dio permiso.",
@@ -1906,7 +1905,6 @@
   "brand.settings.saved": "Marca guardada · ya la ven tus alumnos y tu equipo",
   "teamNotifications.title": "Avisos",
   "teamNotifications.empty": "Todavía no hay avisos",
-  "teamNotifications.hint": "Te avisamos en este dispositivo cuando un alumno avisa que no viene a tu clase, alguien reserva una recuperación o entra un pedido.",
   "home.title": "Inicio",
   "home.greeting": "Hola, {name}",
   "home.agenda.inMinutes": "en {minutes} min",
@@ -2428,5 +2426,14 @@
   "backoffice.plans.confirmQuestion": "¿Comisión de {percent} en {plan}?",
   "backoffice.plans.confirmMessage": "Cambia los cobros online nuevos de todas las marcas con este plan que no tienen comisión propia.",
   "backoffice.salesFee.confirm": "Aplicar comisión",
-  "backoffice.plans.confirm": "Cambiar comisión"
+  "backoffice.plans.confirm": "Cambiar comisión",
+  "unsubscribe.title": "Dejar de recibir emails",
+  "unsubscribe.question": "¿Dejar de recibir los emails de {category}?",
+  "unsubscribe.description": "{description}. Son los emails de {business}; lo demás se sigue viendo en la app.",
+  "unsubscribe.confirm": "Dejar de recibirlos",
+  "unsubscribe.done": "Listo. Ya no vas a recibir emails de {category} de {business}.",
+  "unsubscribe.resubscribe": "Volver a recibirlos",
+  "unsubscribe.resubscribed": "Vas a volver a recibirlos.",
+  "unsubscribe.chooseMore": "Para elegir los demás avisos, entrá a la app: Ajustes → Notificaciones.",
+  "unsubscribe.invalidLink": "Este link no es válido. Podés elegir qué emails recibís en la app, en Ajustes → Notificaciones."
 }

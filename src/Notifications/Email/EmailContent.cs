@@ -20,6 +20,8 @@ public sealed record EmailContent(string Eyebrow, string Title, string Intro, st
 
     public EmailAction? Action { get; init; }
 
+    public EmailAction? Unsubscribe { get; init; }
+
     public bool ListsItems => Lines.Count > 0;
 
     public string ToPlainText()
@@ -52,7 +54,13 @@ public sealed record EmailContent(string Eyebrow, string Title, string Intro, st
             text.Append(Action.Label).Append(ActionLabelEnd).Append(LineBreak).Append(Action.Url).Append(ParagraphBreak);
         }
 
-        return text.Append(FooterNote).ToString();
+        text.Append(FooterNote);
+        if (Unsubscribe is not null)
+        {
+            text.Append(ParagraphBreak).Append(Unsubscribe.Label).Append(LabelSeparator).Append(Unsubscribe.Url);
+        }
+
+        return text.ToString();
     }
 }
 

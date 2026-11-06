@@ -7,6 +7,10 @@ internal static class NotificationsTestData
 {
     public static readonly DateTimeOffset Now = new(2026, 9, 24, 12, 0, 0, TimeSpan.Zero);
 
+    public static readonly EmailBrand Brand = new("Club", null, null, null);
+
+    public static readonly Uri WebFontsUrl = new("https://app.example.com/fonts/");
+
     private const int AuthSecretLength = 16;
 
     public static PushTarget NewPushTarget()

@@ -44,12 +44,17 @@ public sealed class BusinessApiFactory(
     {
     }
 
+    public const string TestApiPublicUrl = "https://api.example.com";
+
+    private const string ApiPublicUrlSetting = "Api:PublicUrl";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting(
             $"{ConnectionStringsSection}:{InfrastructureServiceCollectionExtensions.DatabaseConnectionStringName}",
             databaseConnectionString);
         builder.UseSetting($"{JwtOptions.SectionName}:{nameof(JwtOptions.SigningKey)}", TestSigningKey);
+        builder.UseSetting(ApiPublicUrlSetting, TestApiPublicUrl);
         builder.UseSetting($"{VapidOptions.SectionName}:{nameof(VapidOptions.Subject)}", "mailto:tests@example.com");
         builder.UseSetting($"{VapidOptions.SectionName}:{nameof(VapidOptions.PublicKey)}", TestVapidKeys.PublicKey);
         builder.UseSetting($"{VapidOptions.SectionName}:{nameof(VapidOptions.PrivateKey)}", TestVapidKeys.PrivateKey);

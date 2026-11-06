@@ -106,6 +106,9 @@ internal static class UseCaseServiceCollectionExtensions
         services.AddUseCase<DeleteMyAccountCommand, DeleteMyAccountResponse, DeleteMyAccountUseCase>();
         services.AddUseCase<ListMyNotificationPreferencesQuery, NotificationPreferencesResponse, ListMyNotificationPreferencesUseCase>();
         services.AddUseCase<UpdateMyNotificationPreferenceCommand, NotificationPreferenceResponse, UpdateMyNotificationPreferenceUseCase>();
+        services.AddUseCase<GetEmailUnsubscriptionQuery, EmailUnsubscriptionResponse, GetEmailUnsubscriptionUseCase>();
+        services.AddUseCase<UnsubscribeFromEmailCommand, EmailUnsubscriptionResponse, UnsubscribeFromEmailUseCase>();
+        services.AddUseCase<ResubscribeToEmailCommand, EmailUnsubscriptionResponse, ResubscribeToEmailUseCase>();
         services.AddUseCase<GetCurrentBusinessQuery, BusinessResponse, GetCurrentBusinessUseCase>();
         services.AddUseCase<GetBrandQuery, BrandResponse, GetBrandUseCase>();
         services.AddUseCase<UpdateBrandCommand, BrandResponse, UpdateBrandUseCase>();

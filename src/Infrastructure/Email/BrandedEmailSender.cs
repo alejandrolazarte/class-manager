@@ -20,7 +20,10 @@ internal sealed class BrandedEmailSender(EmailBrandReader brandReader, WebAppLin
             message.TextBody,
             BrandedEmailHtml.Render(message.Content, brand, webAppLinks.WebFonts()),
             brand.Logo is null ? [] : [brand.Logo],
-            message.ReplyTo);
+            message.ReplyTo)
+        {
+            OneClickUnsubscribeUrl = message.OneClickUnsubscribeUrl,
+        };
         await transport.SendAsync(email, cancellationToken);
     }
 }

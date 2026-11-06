@@ -237,6 +237,13 @@ az containerapp update --name $containerApp --resource-group $resourceGroup `
 
 `WebApp__Url` is where the links in emails point (see [Email](#email)), and where emails load their fonts from, so change it only once the web app answers on that domain.
 
+Set the API's own address too, so emails that can be turned off carry the one-click unsubscribe headers that Gmail and Outlook show as their own button ([notification preferences](backend/20261105-notification-preferences/plan.md#unsubscribe-from-the-email)). Without it those emails still carry the footer link:
+
+```powershell
+az containerapp update --name $containerApp --resource-group $resourceGroup `
+  --set-env-vars "Api__PublicUrl=https://api.laztty.com"
+```
+
 Passkeys (sign-in with a fingerprint, face or device PIN, see [Passkeys](backend/20261025-passkeys/plan.md)) belong to `laztty.com` and only work from the web app's origin. Without these settings the API keeps the `localhost` defaults from `appsettings.json` and passkeys only work locally:
 
 ```powershell

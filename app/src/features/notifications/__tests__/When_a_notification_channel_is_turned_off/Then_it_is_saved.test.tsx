@@ -35,9 +35,7 @@ describe("When a notification channel is turned off", () => {
   });
 
   it("Then it is saved", async () => {
-    await renderWithProviders(
-      <NotificationPreferencesScreen notifications={pushUnavailable} deviceHint="" />,
-    );
+    await renderWithProviders(<NotificationPreferencesScreen notifications={pushUnavailable} />);
 
     await fireEvent.press(await screen.findByRole("switch", { name: ordersEmailLabel }));
 

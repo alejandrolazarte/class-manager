@@ -8,6 +8,10 @@ namespace ClassManager.Notifications.Delivery.Email;
 
 internal sealed class SmtpEmailTransport(IOptions<SmtpOptions> options) : IEmailTransport
 {
+    public const string ListUnsubscribeHeader = "List-Unsubscribe";
+    public const string ListUnsubscribePostHeader = "List-Unsubscribe-Post";
+    public const string OneClickUnsubscribe = "List-Unsubscribe=One-Click";
+
     public async Task SendAsync(OutgoingEmail email, CancellationToken cancellationToken)
     {
         var smtp = options.Value;
@@ -26,6 +30,12 @@ internal sealed class SmtpEmailTransport(IOptions<SmtpOptions> options) : IEmail
         if (email.ReplyTo is not null)
         {
             mimeMessage.ReplyTo.Add(MailboxAddress.Parse(email.ReplyTo));
+        }
+
+        if (email.OneClickUnsubscribeUrl is not null)
+        {
+            mimeMessage.Headers.Add(ListUnsubscribeHeader, $"<{email.OneClickUnsubscribeUrl}>");
+            mimeMessage.Headers.Add(ListUnsubscribePostHeader, OneClickUnsubscribe);
         }
 
         using var client = new SmtpClient();
