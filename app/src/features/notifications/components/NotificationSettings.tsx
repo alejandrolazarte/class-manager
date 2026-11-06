@@ -7,10 +7,9 @@ import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
 interface NotificationSettingsProps {
   notifications: PushNotifications;
-  hint: string;
 }
 
-export function NotificationSettings({ notifications, hint }: NotificationSettingsProps) {
+export function NotificationSettings({ notifications }: NotificationSettingsProps) {
   const { status, isOn, isPending, toggle } = notifications;
   if (status === "unavailable") {
     return null;
@@ -25,15 +24,15 @@ export function NotificationSettings({ notifications, hint }: NotificationSettin
           onValueChange={(turnOn) => (isPending ? undefined : toggle(turnOn))}
         />
       ) : null}
-      <AppText variant="caption" tone="muted">
-        {status === "supported"
-          ? hint
-          : translate(
-              status === "blocked"
-                ? "student.notifications.blocked"
-                : "student.notifications.unsupported",
-            )}
-      </AppText>
+      {status === "supported" ? null : (
+        <AppText variant="caption" tone="muted">
+          {translate(
+            status === "blocked"
+              ? "student.notifications.blocked"
+              : "student.notifications.unsupported",
+          )}
+        </AppText>
+      )}
     </View>
   );
 }

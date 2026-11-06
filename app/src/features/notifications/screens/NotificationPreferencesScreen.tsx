@@ -62,12 +62,10 @@ function CategoryRow({ preference, hasDivider, onChange }: CategoryRowProps) {
 
 interface NotificationPreferencesScreenProps {
   notifications: PushNotifications;
-  deviceHint: string;
 }
 
 export function NotificationPreferencesScreen({
   notifications,
-  deviceHint,
 }: NotificationPreferencesScreenProps) {
   const { showToast } = useToast();
   const preferencesQuery = useNotificationPreferences();
@@ -80,7 +78,7 @@ export function NotificationPreferencesScreen({
     <ScrollScreen
       header={<ScreenHeader navigation="back" title={translate("notificationPreferences.title")} />}
     >
-      <NotificationSettings notifications={notifications} hint={deviceHint} />
+      <NotificationSettings notifications={notifications} />
       <AppText variant="body" tone="muted">
         {translate("notificationPreferences.hint")}
       </AppText>

@@ -30,9 +30,7 @@ describe("When saving a notification choice fails", () => {
   });
 
   it("Then the switch goes back on", async () => {
-    await renderWithProviders(
-      <NotificationPreferencesScreen notifications={pushUnavailable} deviceHint="" />,
-    );
+    await renderWithProviders(<NotificationPreferencesScreen notifications={pushUnavailable} />);
 
     await fireEvent.press(await screen.findByRole("switch", { name: ordersEmailLabel }));
 
