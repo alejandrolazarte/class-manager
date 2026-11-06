@@ -2426,5 +2426,14 @@
   "backoffice.plans.confirmQuestion": "A {percent} fee on {plan}?",
   "backoffice.plans.confirmMessage": "It changes the new online payments of every brand on this plan without a fee of its own.",
   "backoffice.salesFee.confirm": "Apply fee",
-  "backoffice.plans.confirm": "Change fee"
+  "backoffice.plans.confirm": "Change fee",
+  "unsubscribe.title": "Stop getting emails",
+  "unsubscribe.question": "Stop getting {category} emails?",
+  "unsubscribe.description": "{description}. These are the emails from {business}; everything else still shows in the app.",
+  "unsubscribe.confirm": "Stop getting them",
+  "unsubscribe.done": "Done. You won't get {category} emails from {business} anymore.",
+  "unsubscribe.resubscribe": "Get them again",
+  "unsubscribe.resubscribed": "You'll get them again.",
+  "unsubscribe.chooseMore": "To choose your other notices, open the app: Settings → Notifications.",
+  "unsubscribe.invalidLink": "This link isn't valid. You can choose which emails you get in the app, in Settings → Notifications."
 }

@@ -16,6 +16,8 @@ public interface IEmailTexts
 
     string OrderHandedOver { get; }
 
+    string StopTheseEmails { get; }
+
     EmailText TeamInvitation(string businessName, string acceptInvitationLink);
 
     EmailText StudentAppInvitation(string businessName, string acceptInvitationLink);

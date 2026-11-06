@@ -52,25 +52,32 @@ internal static class EmailPreviewCatalog
                 "03-autorizacion-del-responsable" + nameSuffix,
                 texts.GuardianConsentRequest(
                     PreviewBrands.BusinessName, StudentName, GuardianConsentMinimumAge, Link(WebAppLinks.AuthorizeStudentAppPath))),
-            Business(
+            Unsubscribable(
+                texts,
                 "04-nuevo-pedido-para-el-equipo" + nameSuffix,
                 texts.OrderPlaced(productOrder, ClientName, texts.OrderDeliveryForBranch(ClassGroupName), WebAppUrl + WebAppLinks.TeamOrdersPath)),
-            Business(
+            Unsubscribable(
+                texts,
                 "05-pago-confirmado-con-productos" + nameSuffix,
                 texts.OrderPaid(productOrder, texts.OrderWillNotifyWhenReady, hasProducts: true, studentAppOrders)),
-            Business(
+            Unsubscribable(
+                texts,
                 "06-pago-confirmado-listo-para-retirar" + nameSuffix,
                 texts.OrderPaid(productOrder, texts.OrderPickupAt(PreviewBrands.BusinessName), hasProducts: true, studentAppOrders)),
-            Business(
+            Unsubscribable(
+                texts,
                 "07-pago-confirmado-de-clases" + nameSuffix,
                 texts.OrderPaid(classPackOrder, texts.OrderClassesCredited, hasProducts: false, studentAppOrders)),
-            Business(
+            Unsubscribable(
+                texts,
                 "08-pedido-listo" + nameSuffix,
                 texts.OrderReady(productOrder, texts.OrderInClass(ClassGroupName), studentAppOrders)),
-            Business(
+            Unsubscribable(
+                texts,
                 "09-pedido-cancelado-sin-pago" + nameSuffix,
                 texts.OrderCancelledUnpaid(productOrder, studentAppOrders)),
-            Business(
+            Unsubscribable(
+                texts,
                 "10-pedido-cancelado-por-la-sede" + nameSuffix,
                 texts.OrderCancelledByBranch(productOrder, studentAppOrders)),
             App(
@@ -108,6 +115,13 @@ internal static class EmailPreviewCatalog
     private static string Link(string path) => WebAppUrl + path + DemoToken;
 
     private static EmailPreview Business(string name, EmailText text) => new(name, text.Subject, text.Content, UsesBusinessBrand: true);
+
+    private static EmailPreview Unsubscribable(IEmailTexts texts, string name, EmailText text) =>
+        new(
+            name,
+            text.Subject,
+            text.Content with { Unsubscribe = new EmailAction(texts.StopTheseEmails, Link(WebAppLinks.UnsubscribePath)) },
+            UsesBusinessBrand: true);
 
     private static EmailPreview App(string name, EmailText text) => new(name, text.Subject, text.Content, UsesBusinessBrand: false);
 }

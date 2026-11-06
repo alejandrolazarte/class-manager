@@ -19,7 +19,8 @@ internal sealed class OrderNotificationService(
     PushPublisher pushPublisher,
     TeamNotifier teamNotifier,
     TeamRecipients teamRecipients,
-    INotificationPreferencesService preferences)
+    INotificationPreferencesService preferences,
+    EmailUnsubscribeLinks unsubscribeLinks)
     : IOrderNotificationService
 {
     public async Task OrderPlacedAsync(Order order, CancellationToken cancellationToken)
@@ -39,7 +40,8 @@ internal sealed class OrderNotificationService(
         {
             var delivery = order.HasProducts ? recipient.Texts.OrderDeliveryForBranch(deliveryClassName) : null;
             var placed = recipient.Texts.OrderPlaced(DetailsOf(order, business), client.User.FullName, delivery, webAppLinks.TeamOrders());
-            await SendAsync(OrderEmails.To(recipient, business.Id, placed), cancellationToken);
+            await SendAsync(unsubscribeLinks.Add(
+                OrderEmails.To(recipient, business.Id, placed), business.Id, recipient.AccountId, NotificationCategory.NewOrders, recipient.Texts), cancellationToken);
         }
 
         await teamNotifier.NotifyAsync(
@@ -80,7 +82,7 @@ internal sealed class OrderNotificationService(
                 : order.IsReady ? WhereToGetIt(recipient.Texts, business, deliveryClassName)
                 : recipient.Texts.OrderWillNotifyWhenReady;
             var paid = recipient.Texts.OrderPaid(DetailsOf(order, business), nextStep, order.HasProducts, webAppLinks.StudentAppOrders());
-            await SendAsync(OrderEmails.To(recipient, business.Id, paid), cancellationToken);
+            await SendAsync(ToFamily(recipient, business, paid), cancellationToken);
         }
     }
 
@@ -98,7 +100,7 @@ internal sealed class OrderNotificationService(
         {
             var ready = recipient.Texts.OrderReady(
                 DetailsOf(order, business), WhereToGetIt(recipient.Texts, business, deliveryClassName), webAppLinks.StudentAppOrders());
-            await SendAsync(OrderEmails.To(recipient, business.Id, ready), cancellationToken);
+            await SendAsync(ToFamily(recipient, business, ready), cancellationToken);
         }
     }
 
@@ -115,7 +117,7 @@ internal sealed class OrderNotificationService(
             var cancelled = reason == OrderCancellationReason.Unpaid
                 ? recipient.Texts.OrderCancelledUnpaid(DetailsOf(order, business), webAppLinks.StudentAppOrders())
                 : recipient.Texts.OrderCancelledByBranch(DetailsOf(order, business), webAppLinks.StudentAppOrders());
-            await SendAsync(OrderEmails.To(recipient, business.Id, cancelled), cancellationToken);
+            await SendAsync(ToFamily(recipient, business, cancelled), cancellationToken);
         }
     }
 
@@ -189,8 +191,11 @@ internal sealed class OrderNotificationService(
             : [
                 .. (await identityService.ListAccountsAsync(userIds, cancellationToken))
                     .DistinctBy(account => account.Email)
-                    .Select(account => new OrderEmailRecipient(account.Email, EmailTexts.For(account.PreferredLanguage))),
+                    .Select(account => new OrderEmailRecipient(account.Email, EmailTexts.For(account.PreferredLanguage), account.UserId)),
             ];
+
+    private EmailMessage ToFamily(OrderEmailRecipient recipient, Business business, EmailText text) =>
+        unsubscribeLinks.Add(OrderEmails.To(recipient, business.Id, text), business.Id, recipient.AccountId, NotificationCategory.Orders, recipient.Texts);
 
     private Task SendAsync(EmailMessage message, CancellationToken cancellationToken) =>
         backgroundTasks.EnqueueAsync(new SendEmailBackgroundTaskCommand(message), cancellationToken);

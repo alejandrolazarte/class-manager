@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: agreed with the owner on 2026-11-05. Step 1 built, first per account, then per business (decided by the owner the same day); step 2 (unsubscribe from the email) next. Comes before the [automatic reminders](../20261021-automatic-reminders/plan.md), so the new reminder emails and pushes can be turned off from the day they ship.
+Status: agreed with the owner on 2026-11-05. Steps 1 and 2 built (step 1 first per account, then per business, decided by the owner the same day). Comes before the [automatic reminders](../20261021-automatic-reminders/plan.md), so the new reminder emails and pushes can be turned off from the day they ship.
 
 ## Why
 
@@ -75,11 +75,12 @@ Everything is **on** for every account, existing and new, so nothing changes the
 
 ### Unsubscribe from the email
 
-- Every email with a category ends with a line in the footer, **"Dejar de recibir estos emails"** ("Stop getting these emails"), and carries `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` headers (RFC 8058), which Gmail and Outlook show as their own unsubscribe button and expect from senders of repeated emails.
-- The link carries a token protected with ASP.NET Data Protection (purpose `email-unsubscribe`, payload: business, account id and category, no expiry: an old email must still work). No sign-in needed.
-- `/unsubscribe?token=…` in the web app names the category and asks with one button, **Dejar de recibirlos**. The page never turns anything off by just loading, because mail scanners open links. After the button: "Ya no vas a recibir emails de {categoría}", with **Volver a recibirlos** (undo, as every reversible action) and a link to Mi perfil → Notificaciones.
-- `POST /api/notification-preferences/unsubscribe` with the token turns it off. The one-click header and the page's button both post here.
-- `src/Notifications` gains an optional unsubscribe link in `EmailContent` (rendered in the branded layout's footer and in `ToPlainText()`) and optional headers in `OutgoingEmail`. The library still knows nothing about categories: the app builds the link.
+- Every email with a category ends with a line in the footer, **"Dejar de recibir estos emails"** ("Stop getting these emails"), and carries `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` headers (RFC 8058), which Gmail and Outlook show as their own unsubscribe button and expect from senders of repeated emails. Today that is the order emails (Pedidos for the family, Pedidos nuevos for the team); emails sent to a client without an account carry neither (see below).
+- The link carries a signed token (`EmailUnsubscribeTokenService`): business, account and category, signed with HMAC-SHA256 under a key derived from the JWT signing key with the purpose `email-unsubscribe-v1`. No new secret, no row per email and no expiry: an old email must still work. Rotating the JWT signing key makes the links of older emails stop working (the page says the link is not valid and points to Ajustes → Notificaciones). No sign-in needed.
+- `/unsubscribe?token=…` in the web app names the category and the business and asks with one button, **Dejar de recibirlos**. The page never turns anything off by just loading, because mail scanners open links. After the button: "Listo. Ya no vas a recibir emails de {categoría} de {negocio}.", with **Volver a recibirlos** (the undo) and a line pointing to Ajustes → Notificaciones.
+- `GET /api/email-unsubscribe?token=…` reads the link, `POST /api/email-unsubscribe?token=…` turns the email off (the one-click header and the page's button both post here; the body is ignored) and `POST /api/email-unsubscribe/resubscribe?token=…` turns it back on. Anonymous, under the authentication rate limit; a token that doesn't verify, or names a category without emails, is refused (`notifications.invalid_unsubscribe_link`). The business comes from the token, so the choice lands in that business only.
+- The one-click header needs the API's own address: `Api:PublicUrl` (`Api__PublicUrl=https://api.laztty.com` in production, see [pilot deployment](../../pilot-deployment.md)). Without it emails keep the footer link and go out without the headers.
+- `src/Notifications` has an optional `Unsubscribe` link in `EmailContent` (rendered in the branded layout's footer and at the end of `ToPlainText()`) and `OneClickUnsubscribeUrl` in `OutgoingEmail`, which the SMTP transport turns into both headers. The library still knows nothing about categories: the app builds the link (`EmailUnsubscribeLinks`).
 
 ### Recipients without an account
 

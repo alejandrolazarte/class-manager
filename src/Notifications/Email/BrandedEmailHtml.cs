@@ -25,6 +25,7 @@ public static partial class BrandedEmailHtml
     private const string AmountPlaceholder = "Amount";
     private const string LanguagePlaceholder = "Language";
     private const string LinkFallbackPlaceholder = "LinkFallback";
+    private const string UnsubscribeLinkPlaceholder = "UnsubscribeLink";
     private const int MaximumInitials = 2;
     private const char NameSeparator = ' ';
 
@@ -33,6 +34,9 @@ public static partial class BrandedEmailHtml
 
     private const string InitialsBadge =
         """<td width="44" height="44" align="center" style="width:44px;height:44px;background:#ffffff;border-radius:10px;font-weight:700;font-size:17px;color:{{Primary}}">{{Initials}}</td>""";
+
+    private const string UnsubscribeFooterLink =
+        """<br><a href="{{Url}}" style="color:#657179;text-decoration:underline">{{Label}}</a>""";
 
     private const string ButtonSection =
         """
@@ -121,6 +125,7 @@ public static partial class BrandedEmailHtml
             [nameof(EmailContent.Intro)] = Encode(content.Intro),
             [SectionsPlaceholder] = Sections(content, colors),
             [nameof(EmailContent.FooterNote)] = Encode(content.FooterNote),
+            [UnsubscribeLinkPlaceholder] = UnsubscribeLink(content.Unsubscribe),
         };
         return Fill(Template.Value, values);
     }
@@ -212,6 +217,15 @@ public static partial class BrandedEmailHtml
             {
                 [nameof(EmailAction.Url)] = Encode(action.Url),
                 [nameof(EmailAction.Label)] = Encode(action.Label),
+            });
+
+    private static string UnsubscribeLink(EmailAction? unsubscribe) =>
+        unsubscribe is null
+            ? string.Empty
+            : Fill(UnsubscribeFooterLink, new Dictionary<string, string>
+            {
+                [nameof(EmailAction.Url)] = Encode(unsubscribe.Url),
+                [nameof(EmailAction.Label)] = Encode(unsubscribe.Label),
             });
 
     private static string Fill(string template, Dictionary<string, string> values) =>

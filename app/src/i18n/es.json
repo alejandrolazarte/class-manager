@@ -2426,5 +2426,14 @@
   "backoffice.plans.confirmQuestion": "¿Comisión de {percent} en {plan}?",
   "backoffice.plans.confirmMessage": "Cambia los cobros online nuevos de todas las marcas con este plan que no tienen comisión propia.",
   "backoffice.salesFee.confirm": "Aplicar comisión",
-  "backoffice.plans.confirm": "Cambiar comisión"
+  "backoffice.plans.confirm": "Cambiar comisión",
+  "unsubscribe.title": "Dejar de recibir emails",
+  "unsubscribe.question": "¿Dejar de recibir los emails de {category}?",
+  "unsubscribe.description": "{description}. Son los emails de {business}; lo demás se sigue viendo en la app.",
+  "unsubscribe.confirm": "Dejar de recibirlos",
+  "unsubscribe.done": "Listo. Ya no vas a recibir emails de {category} de {business}.",
+  "unsubscribe.resubscribe": "Volver a recibirlos",
+  "unsubscribe.resubscribed": "Vas a volver a recibirlos.",
+  "unsubscribe.chooseMore": "Para elegir los demás avisos, entrá a la app: Ajustes → Notificaciones.",
+  "unsubscribe.invalidLink": "Este link no es válido. Podés elegir qué emails recibís en la app, en Ajustes → Notificaciones."
 }

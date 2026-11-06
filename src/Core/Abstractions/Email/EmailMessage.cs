@@ -5,4 +5,6 @@ namespace ClassManager.Core.Abstractions.Email;
 public sealed record EmailMessage(string To, string Subject, EmailContent Content, long? BusinessId = null, string? ReplyTo = null)
 {
     public string TextBody => Content.ToPlainText();
+
+    public string? OneClickUnsubscribeUrl { get; init; }
 }

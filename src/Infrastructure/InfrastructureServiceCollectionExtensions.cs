@@ -81,6 +81,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ILegalTermsAcceptanceRepository, LegalTermsAcceptanceRepository>();
         services.AddScoped<INotificationOptOutRepository, NotificationOptOutRepository>();
         services.AddScoped<INotificationPreferencesService, NotificationPreferencesService>();
+        services.AddSingleton<IEmailUnsubscribeTokenService, EmailUnsubscribeTokenService>();
+        services.AddScoped<EmailUnsubscribeLinks>();
         services.AddScoped<ICustomRoleRepository, CustomRoleRepository>();
         services.AddScoped<IClientAccountRepository, ClientAccountRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
