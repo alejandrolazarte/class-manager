@@ -10,6 +10,10 @@ public interface IBrandSubscriptionRepository
 
     Task<IReadOnlyList<Plan>> ListActivePlansAsync(CancellationToken cancellationToken);
 
+    Task<Plan?> FindActivePlanForUpdateAsync(string planCode, CancellationToken cancellationToken);
+
+    Task<SalesFeeOverride?> FindCurrentSalesFeeAsync(long brandId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Feature>> ListFeaturesAsync(CancellationToken cancellationToken);
 
     Task<Subscription?> FindCurrentSubscriptionAsync(long brandId, CancellationToken cancellationToken);
@@ -25,4 +29,6 @@ public interface IBrandSubscriptionRepository
     void Add(PlanOffer offer);
 
     void Add(SubscriptionFeature addOn);
+
+    void Add(SalesFeeOverride salesFee);
 }

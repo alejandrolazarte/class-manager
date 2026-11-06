@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using ClassManager.Backoffice.Core.UseCases;
 using ClassManager.Core.Domain.Businesses;
 using ClassManager.Subscriptions.Subscribers;
 
@@ -49,6 +50,28 @@ internal sealed class BrandChanges(BackofficeApiFixture fixture)
         using var response = await Client.SendAsync(HttpMethod.Post, $"{BrandRoute}/add-ons", AccessToken, new { featureCode, price = 10m, currency = Currency, limit });
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         return (await response.Content.ReadFromJsonAsync<BrandAddOnResponse>(BackofficeRequests.JsonOptions))!;
+    }
+
+    public Task<HttpResponseMessage> ChangePlanSalesFeeAsync(string planCode, decimal percent) =>
+        Client.SendAsync(HttpMethod.Put, $"/api/plans/{planCode}/sales-fee", AccessToken, new { percent });
+
+    public Task<HttpResponseMessage> GiveSalesFeeAsync(decimal percent) =>
+        Client.SendAsync(HttpMethod.Put, $"{BrandRoute}/sales-fee", AccessToken, new { percent, note = "Enterprise sin cargo, comisión por ventas" });
+
+    public Task<HttpResponseMessage> RemoveSalesFeeAsync() =>
+        Client.SendAsync(HttpMethod.Delete, $"{BrandRoute}/sales-fee", AccessToken);
+
+    public async Task<BrandSalesFeeResponse> GetSalesFeeAsync()
+    {
+        using var response = await Client.GetAsync($"{BrandRoute}/sales-fee", AccessToken);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        return (await response.Content.ReadFromJsonAsync<BrandSalesFeeResponse>(BackofficeRequests.JsonOptions))!;
+    }
+
+    public async Task<SubscriptionCatalogResponse> GetCatalogAsync()
+    {
+        using var response = await Client.GetAsync("/api/subscription-catalog", AccessToken);
+        return (await response.Content.ReadFromJsonAsync<SubscriptionCatalogResponse>(BackofficeRequests.JsonOptions))!;
     }
 
     public async Task<BrandDetailResponse> GetBrandAsync()

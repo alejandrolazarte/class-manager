@@ -14,6 +14,7 @@ public sealed class Plan
     public int? DurationInDays { get; private set; }
     public bool IsDefault { get; private set; }
     public bool IsActive { get; private set; }
+    public decimal SalesFeePercent { get; private set; }
 
     public static Plan Create(
         string code,
@@ -41,4 +42,7 @@ public sealed class Plan
             IsActive = true,
         };
     }
+
+    public void ChangeSalesFee(decimal percent) =>
+        SalesFeePercent = CatalogRules.RequirePercent(percent, nameof(percent));
 }

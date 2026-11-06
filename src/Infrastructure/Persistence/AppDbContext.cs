@@ -80,6 +80,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenant
     public DbSet<ProcessedBillingEvent> ProcessedBillingEvents => Set<ProcessedBillingEvent>();
     public DbSet<BillingCustomer> BillingCustomers => Set<BillingCustomer>();
     public DbSet<PlanOffer> PlanOffers => Set<PlanOffer>();
+    public DbSet<SalesFeeOverride> SalesFeeOverrides => Set<SalesFeeOverride>();
 
     public long CurrentTenantId => tenantContext.TenantId;
 

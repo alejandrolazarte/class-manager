@@ -23,6 +23,10 @@ public static class BrandErrorCodes
     public const string InvalidCurrency = "backoffice.invalid_currency";
     public const string InvalidCurrencyMessage = "The currency must be an ISO 4217 code of three letters.";
     public const string NoteTooLong = "backoffice.note_too_long";
+    public const string SalesFeeNotPercent = "backoffice.sales_fee_not_percent";
+    public const string SalesFeeNotPercentMessage = "The sales fee must be a percent from 0 to 100 with at most two decimals.";
+    public const string SalesFeeNotFound = "backoffice.sales_fee_not_found";
+    public const string SalesFeeNotFoundMessage = "The brand has no sales fee of its own.";
     public const string NoteTooLongMessage = "The note must be at most 200 characters.";
     public const string EndDateInThePast = "backoffice.end_date_in_the_past";
     public const string EndDateInThePastMessage = "The end date can't be before today.";

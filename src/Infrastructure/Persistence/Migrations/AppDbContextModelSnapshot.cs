@@ -3776,6 +3776,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("SalesFeePercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
                     b.HasKey("Code");
 
                     b.ToTable("Plans", "billing");
@@ -3790,7 +3794,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             DurationInDays = 30,
                             IsActive = true,
                             IsDefault = true,
-                            ListPrice = 0m
+                            ListPrice = 0m,
+                            SalesFeePercent = 0m
                         },
                         new
                         {
@@ -3800,7 +3805,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             DisplayOrder = 2,
                             IsActive = true,
                             IsDefault = false,
-                            ListPrice = 19m
+                            ListPrice = 19m,
+                            SalesFeePercent = 0m
                         },
                         new
                         {
@@ -3810,7 +3816,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             DisplayOrder = 3,
                             IsActive = true,
                             IsDefault = false,
-                            ListPrice = 39m
+                            ListPrice = 39m,
+                            SalesFeePercent = 0m
                         },
                         new
                         {
@@ -3819,7 +3826,8 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                             Currency = "EUR",
                             DisplayOrder = 4,
                             IsActive = true,
-                            IsDefault = false
+                            IsDefault = false,
+                            SalesFeePercent = 0m
                         });
                 });
 
@@ -4087,6 +4095,51 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.ToTable("PlanOffers", "billing", t =>
                         {
                             t.HasCheckConstraint("CK_PlanOffers_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("ClassManager.Subscriptions.Subscribers.SalesFeeOverride", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DeletedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Percent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<long>("SubscriberId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("SubscriberId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("SalesFeeOverrides", "billing", t =>
+                        {
+                            t.HasCheckConstraint("CK_SalesFeeOverrides_IsDeleted_DeletedAt", "([IsDeleted] = 0 AND [DeletedAt] IS NULL) OR ([IsDeleted] = 1 AND [DeletedAt] IS NOT NULL)");
                         });
                 });
 
@@ -6043,6 +6096,14 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                         .HasForeignKey("SubscriberId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClassManager.Subscriptions.Subscribers.SalesFeeOverride", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ClassManager.Subscriptions.Subscribers.Subscription", b =>

@@ -16,4 +16,5 @@ public interface ISubscriptionsDbContext
     DbSet<ProcessedBillingEvent> ProcessedBillingEvents { get; }
     DbSet<BillingCustomer> BillingCustomers { get; }
     DbSet<PlanOffer> PlanOffers { get; }
+    DbSet<SalesFeeOverride> SalesFeeOverrides { get; }
 }

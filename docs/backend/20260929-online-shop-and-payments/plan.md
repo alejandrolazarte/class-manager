@@ -130,7 +130,7 @@ Each step is usable on its own; steps 1–4 need no payment provider.
 3. **Shop in the family app, pay at the branch — done.** "Tienda" (packs, then products with sizes and "Agotado" / "A pedido") and "Mis pedidos" from the family home; ordering reserves tracked units, a family has at most 5 unpaid orders and can cancel them. In Ajustes → Pedidos the branch filters "Pendientes de pago", confirms the payment with its method (classes credited, products "Para retirar") or cancels. Unpaid orders are cancelled after 7 days by a job that runs every hour. Stock is taken under a per-size lock, at the counter too. Not built yet: e2e for the whole flow (needs the invitation email in e2e), notifications (step 4), product photos, fine-grained family permissions (one `family` policy is enough while every family can see and order).
 4. **Delivery and notifications — done.** An order with products is picked up at the branch or handed over in a class one of the family's students attends: the family chooses it in the shop, the branch sets it at the counter (or changes it through the API). The branch marks it "Listo para entregar" (or while confirming the payment), and the coach sees "Para entregar en esta clase" in the class screen and marks it delivered. Emails (plain text, Spanish): new app order → branch staff with `orders.manage` and brand owners; payment confirmed, ready (where to get it) and cancelled (by the branch or unpaid for 7 days) → the family's account emails, or the client's email when it has no account. A failed email is logged and never undoes the operation. Not built yet: push notifications, changing the delivery from the app after ordering, a substitute coach seeing the class's deliveries (only the class's own coach and members with `attendance.record.all` do).
 5. **Stripe account per branch.** Platform account in test mode, onboarding and status in Ajustes → Cobros online, sharing an account between branches of the brand, webhook endpoint with signature check ([in detail](#step-5-in-detail-the-stripe-account-of-each-branch)).
-6. **Online payment.** "Pagar ahora" for orders and the monthly fee with Stripe Checkout; webhooks mark orders paid and record fee payments; refunds through Stripe.
+6. **Online payment.** First the [platform fee](#the-platform-fee-on-online-sales) per plan and per brand in the backoffice (6a), then "Pagar ahora" for orders and the monthly fee with Stripe Checkout; webhooks mark orders paid and record fee payments; refunds through Stripe.
 7. **Later, when asked:** brand catalog shared by branches, shipping, discount codes, automatic monthly fee charges, invoices, Stripe Tax, a public shop page for people who are not families yet.
 
 ## Step 5 in detail: the Stripe account of each branch
@@ -173,7 +173,25 @@ Each step is usable on its own; steps 1–4 need no payment provider.
 az containerapp secret set -n class-manager-api -g class-manager-rg --secrets "stripe-connect-webhook-secret=whsec_..."; az containerapp update -n class-manager-api -g class-manager-rg --set-env-vars "Stripe__ConnectWebhookSecret=secretref:stripe-connect-webhook-secret"
 ```
 
-### Testing
+### The platform fee on online sales
+
+Decided with the owner on 2026-11-06. Most competitors charge a monthly plan and no fee on payments; Momence's free plan takes 5 %. [Plans, prices and competition](https://github.com/alejandrolazarte/Documentation/blob/main/projects/class-manager/planes-precios-y-competencia.md) proposed online payments with no fee in Pro and a small one (about 1 %) in Lite.
+
+- **Every plan has a sales fee**, a percent (`Plans.SalesFeePercent`, 0 to 100, two decimals). It starts at **0 % in every plan** for the pilot and the operator changes it in the backoffice (**Planes**), with no code or deploy.
+- **A brand can have its own fee** that replaces its plan's: for example a brand on Enterprise for free that pays a percent of its sales instead. It is set in the backoffice on the brand (**Comisión por ventas**) and doesn't touch any other brand.
+- **The brand's fee doesn't belong to its subscription.** Subscriptions are replaced on every plan change (by the operator or by Stripe), and add-ons don't carry over; an agreed fee should stay until the operator removes it. So it is its own record, `SalesFeeOverrides` (`SubscriberId`, `Percent`, `Note`, `CreatedOn`, soft delete; one current per brand), replaced like the other records that change over time.
+- **The fee of a sale** is the brand's fee if it has one, otherwise its current plan's, read when the checkout is created. Step 6 sends it to Stripe as the `application_fee_amount` of each direct charge, rounded down to the cent, so the fee never takes more than the percent. A sale already paid keeps the fee it had.
+- **Before charging a fee above 0 %**, the owner must be registered as self-employed and invoices the fee to the branch ([autónomo y cobros](https://github.com/alejandrolazarte/Documentation/blob/main/projects/class-manager/autonomo-y-cobros.md)). The app only records and charges it.
+
+| Operation | Endpoint (backoffice) | Who |
+|---|---|---|
+| The plans with their fee | `GET /api/subscription-catalog` (adds `salesFeePercent`) | `platform.view` |
+| Change a plan's fee | `PUT /api/plans/{code}/sales-fee` `{ percent }` | `platform.manage` |
+| The brand's fee (its own or its plan's) | `GET /api/brands/{id}/sales-fee` | `platform.view` |
+| Give the brand its own fee | `PUT /api/brands/{id}/sales-fee` `{ percent, note }` | `platform.manage` |
+| Back to the plan's fee (asks first: it changes what the brand pays) | `DELETE /api/brands/{id}/sales-fee` | `platform.manage` |
+
+## Testing
 
 - Integration tests with a fake gateway and signed fake events: connecting creates one account and returns its link, connecting again reuses it, a branch of another brand can't see or use the account (`404`), sharing needs `onlinePayments.share`, the webhook with a bad signature is `400`, `account.updated` turns the status `Active`, stopping keeps the account for the other branches.
 - App (jest): the status and its actions, the confirmation before stopping, sharing only for brand owners.
