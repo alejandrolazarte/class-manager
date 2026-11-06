@@ -8,8 +8,10 @@ internal sealed class NotificationOptOutConfiguration : IEntityTypeConfiguration
 
     public void Configure(EntityTypeBuilder<NotificationOptOut> builder)
     {
-        builder.HasKey(optOut => new { optOut.AccountId, optOut.Category, optOut.Channel });
+        builder.HasKey(optOut => new { optOut.TenantId, optOut.AccountId, optOut.Category, optOut.Channel });
         builder.Property(optOut => optOut.Category).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(optOut => optOut.Channel).HasConversion<string>().HasMaxLength(EnumMaxLength);
+
+        builder.HasOne<Business>().WithMany().HasForeignKey(optOut => optOut.TenantId).OnDelete(DeleteBehavior.Restrict);
     }
 }

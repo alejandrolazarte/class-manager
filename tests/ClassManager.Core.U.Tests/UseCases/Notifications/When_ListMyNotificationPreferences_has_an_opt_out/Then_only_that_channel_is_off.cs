@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Domain.Notifications;
 using ClassManager.Core.UseCases.Notifications;
 
@@ -9,11 +10,11 @@ public sealed class Then_only_that_channel_is_off
     public async Task Then_only_that_channel_is_off_Run()
     {
         var builder = new NotificationPreferencesUseCaseBuilder().WithFamilyAccess();
-        builder.OptOuts.Add(NotificationOptOut.Create(builder.AccountId, NotificationCategory.Orders, NotificationChannel.Email, TestData.Now));
+        builder.OptOuts.Add(NotificationOptOut.Create(builder.AccountId, NotificationCategory.Orders, NotificationChannel.Email));
 
-        var response = await builder.BuildList().ExecuteAsync(new ListMyNotificationPreferencesQuery(), CancellationToken.None);
+        var response = await builder.BuildList().ExecuteAsync(new ListMyNotificationPreferencesQuery(AccountKinds.Student), CancellationToken.None);
 
-        var turnedOff = response.Value!
+        var turnedOff = response.Value!.Preferences
             .SelectMany(preference => preference.Channels.Where(channel => !channel.IsEnabled).Select(channel => (preference.Category, channel.Channel)))
             .ToList();
         turnedOff.ShouldBe([(NotificationCategory.Orders, NotificationChannel.Email)]);

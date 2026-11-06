@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
 using ClassManager.Core.UseCases.Notifications;
@@ -16,10 +17,11 @@ internal static class NotificationPreferenceEndpoints
     }
 
     private static async Task<IResult> ListMyNotificationPreferencesAsync(
-        IUseCase<ListMyNotificationPreferencesQuery, IReadOnlyList<NotificationPreferenceResponse>> useCase,
+        ClaimsPrincipal user,
+        IUseCase<ListMyNotificationPreferencesQuery, NotificationPreferencesResponse> useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new ListMyNotificationPreferencesQuery(), cancellationToken);
+        var result = await useCase.ExecuteAsync(new ListMyNotificationPreferencesQuery(SessionKindClaim.Of(user)), cancellationToken);
 
         return result.ToOkResult();
     }

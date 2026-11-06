@@ -139,7 +139,7 @@ The student signs in through the sign-in screen, then the test captures:
 | `28f-alumno-cargar-medicion` | The form a student uses to record a measurement the team opened to them |
 | `29-alumno-ajustes` | Settings grouped like the team app: the school's location (opens Google Maps), your phone (appearance, notifications) and account (sign out) |
 | `29b-alumno-ajustes-notificaciones`, `29c-alumno-ajustes-apariencia` | Notifications and appearance sheets opened from Ajustes |
-| `29d-alumno-notificaciones` | Mi perfil → Notificaciones of the student: the family categories with their Email and Notificaciones switches |
+| `29d-alumno-notificaciones` | Mi perfil → Notificaciones of the student: the business name and the family categories with their Email and Notificaciones switches |
 | `30-elegir-cuenta` | Choosing between the team and the student account when the same email has both |
 
 The same file also captures two team screens that need student activity, signed in as the owner of a second demo business with the same data:
@@ -184,7 +184,7 @@ The images land in `e2e/screenshots-output/invitaciones/`:
 | `14-aviso-al-equipo` | The team is notified of the decline |
 | `15-editar-perfil` | Editar perfil: name and birth date |
 | `16-mi-perfil` | Mi perfil, with "Eliminar mi cuenta" |
-| `16e-mi-perfil-notificaciones` | Mi perfil → Notificaciones of the owner: the team categories with their Email and Notificaciones switches |
+| `16e-mi-perfil-notificaciones` | Mi perfil → Notificaciones of the owner: the business name and the team categories with their Email and Notificaciones switches |
 | `17-eliminar-mi-cuenta`, `18-confirmar-eliminar-cuenta` | Eliminar mi cuenta with the password, and the confirm dialog (closed with "Volver", so the account stays) |
 | `19-es-la-misma-persona` | A new instructor with Ana's email asks whether it is the same person (then "Unir") |
 | `20-tambien-esta-en-alumnos`, `21-separar`, `22-confirmar-separar` | The instructor who is also in Students, the Separar screen, and its confirm dialog (closed with "Volver") |
