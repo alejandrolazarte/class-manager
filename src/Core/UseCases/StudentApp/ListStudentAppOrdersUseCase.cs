@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.OnlinePayments;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
@@ -6,7 +7,8 @@ namespace ClassManager.Core.UseCases.StudentApp;
 
 public sealed record ListStudentAppOrdersQuery : IQuery;
 
-public sealed class ListStudentAppOrdersUseCase(IStudentAppFamilyService studentAppFamily, IOrderRepository orderRepository, IClassGroupRepository classGroupRepository)
+public sealed class ListStudentAppOrdersUseCase(IStudentAppFamilyService studentAppFamily, IOrderRepository orderRepository, IClassGroupRepository classGroupRepository,
+    IOnlineChargingService onlineCharging)
     : IUseCase<ListStudentAppOrdersQuery, IReadOnlyList<StudentAppOrderResponse>>
 {
     private const int OrderLimit = 50;
@@ -20,6 +22,6 @@ public sealed class ListStudentAppOrdersUseCase(IStudentAppFamilyService student
         }
 
         var orders = await orderRepository.ListAsync(family.Orders(awaitingPickupOnly: false, OrderLimit), null, cancellationToken);
-        return Result.Success(await StudentAppOrderResponses.OfAsync(orders, classGroupRepository, cancellationToken));
+        return Result.Success(await StudentAppOrderResponses.OfAsync(orders, classGroupRepository, await onlineCharging.FindChargingAccountAsync(cancellationToken) is not null, cancellationToken));
     }
 }

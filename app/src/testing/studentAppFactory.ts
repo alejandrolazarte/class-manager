@@ -276,6 +276,7 @@ export function buildStudentAppOrder(overrides: Partial<StudentAppOrder> = {}): 
     delivery: "Pickup",
     deliveryClassGroupName: null,
     isReady: false,
+    canPayOnline: false,
     ...overrides,
   };
 }

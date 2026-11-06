@@ -8,7 +8,10 @@ import {
   orderSteps,
 } from "@/features/studentApp/studentAppOrderStage";
 import { StudentAppOrder } from "@/features/studentApp/types";
-import { useCancelStudentAppOrder } from "@/features/studentApp/useStudentAppShop";
+import {
+  useCancelStudentAppOrder,
+  useStartStudentAppOrderCheckout,
+} from "@/features/studentApp/useStudentAppShop";
 import { formatMoney } from "@/formatting/money";
 import { formatLongDate } from "@/dates/dates";
 import { translate } from "@/i18n/translate";
@@ -59,9 +62,12 @@ function noticeOf(order: StudentAppOrder): OrderNotice | null {
   const stage = orderStage(order);
   if (stage === "awaitingPayment" && order.expiresAt !== null) {
     return {
-      message: translate("student.orders.payBeforeOrCancelled", {
-        date: inlineDate(order.expiresAt),
-      }),
+      message: translate(
+        order.canPayOnline
+          ? "student.orders.payOnlineBeforeOrCancelled"
+          : "student.orders.payBeforeOrCancelled",
+        { date: inlineDate(order.expiresAt) },
+      ),
       tone: "warning",
     };
   }
@@ -86,6 +92,7 @@ function noticeOf(order: StudentAppOrder): OrderNotice | null {
 export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
   const { showToast } = useToast();
   const cancelStudentAppOrderMutation = useCancelStudentAppOrder();
+  const checkout = useStartStudentAppOrderCheckout();
   const stage = orderStage(order);
   const currentStep = orderStepIndex(order);
   const notice = noticeOf(order);
@@ -144,6 +151,20 @@ export function StudentAppOrderRow({ order }: { order: StudentAppOrder }) {
         ))}
       </View>
       {notice === null ? null : <Notice tone={notice.tone} message={notice.message} />}
+      {order.canPayOnline ? (
+        <Button
+          size="medium"
+          label={translate("student.orders.payNow", {
+            amount: formatMoney(order.balance, order.currencyCode),
+          })}
+          isLoading={checkout.isPending}
+          onPress={() =>
+            checkout.mutate(order.id, {
+              onError: () => showToast(translate("common.unexpectedError")),
+            })
+          }
+        />
+      ) : null}
       {stage === "awaitingPayment" && order.expiresAt !== null ? (
         <Button
           size="medium"

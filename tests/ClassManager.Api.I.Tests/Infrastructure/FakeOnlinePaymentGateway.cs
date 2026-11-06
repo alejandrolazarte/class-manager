@@ -7,6 +7,7 @@ namespace ClassManager.Api.I.Tests.Infrastructure;
 public sealed class FakeOnlinePaymentGateway : IOnlinePaymentGateway
 {
     public const string OnboardingHost = "https://connect.stripe.test/";
+    public const string CheckoutHost = "https://checkout.stripe.test/";
 
     private const string AccountIdPrefix = "acct_";
 
@@ -15,6 +16,7 @@ public sealed class FakeOnlinePaymentGateway : IOnlinePaymentGateway
     private readonly ConcurrentDictionary<string, OnlinePaymentAccountState> _accounts = new(StringComparer.Ordinal);
     private readonly ConcurrentQueue<OnlinePaymentAccountRequest> _accountRequests = new();
     private readonly ConcurrentQueue<OnboardingLinkRequest> _onboardingLinkRequests = new();
+    private readonly ConcurrentQueue<OnlineCheckoutRequest> _checkoutRequests = new();
 
     public static OnlinePaymentAccountState ActiveAccountState { get; } = new(DetailsSubmitted: true, ChargesEnabled: true, PayoutsEnabled: true);
 
@@ -25,6 +27,11 @@ public sealed class FakeOnlinePaymentGateway : IOnlinePaymentGateway
 
     public IReadOnlyList<OnboardingLinkRequest> OnboardingLinksFor(string externalAccountId) =>
         [.. _onboardingLinkRequests.Where(request => request.ExternalAccountId == externalAccountId)];
+
+    public IReadOnlyList<OnlineCheckoutRequest> CheckoutsFor(long orderId) =>
+        [.. _checkoutRequests.Where(request => request.OrderId == orderId)];
+
+    public static Uri CheckoutUrlOf(long orderId) => new(CheckoutHost + orderId);
 
     public static Uri OnboardingUrlOf(string externalAccountId) => new(OnboardingHost + externalAccountId);
 
@@ -44,4 +51,10 @@ public sealed class FakeOnlinePaymentGateway : IOnlinePaymentGateway
 
     public Task<OnlinePaymentAccountState?> GetAccountAsync(string externalAccountId, CancellationToken cancellationToken) =>
         Task.FromResult(_accounts.TryGetValue(externalAccountId, out var state) ? state : null);
+
+    public Task<Uri> CreateCheckoutAsync(OnlineCheckoutRequest request, CancellationToken cancellationToken)
+    {
+        _checkoutRequests.Enqueue(request);
+        return Task.FromResult(CheckoutUrlOf(request.OrderId));
+    }
 }

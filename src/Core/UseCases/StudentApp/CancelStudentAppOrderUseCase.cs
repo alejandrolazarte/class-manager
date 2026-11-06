@@ -1,3 +1,4 @@
+using ClassManager.Core.Abstractions.OnlinePayments;
 using ClassManager.Core.Abstractions.Persistence;
 using ClassManager.Core.Abstractions.Security;
 using ClassManager.Core.Common;
@@ -12,6 +13,7 @@ public sealed class CancelStudentAppOrderUseCase(
     IStudentAppFamilyService studentAppFamily,
     IOrderRepository orderRepository,
     IClassGroupRepository classGroupRepository,
+    IOnlineChargingService onlineCharging,
     IStockMovementRepository stockMovementRepository,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
@@ -43,6 +45,6 @@ public sealed class CancelStudentAppOrderUseCase(
         await OrderReservations.ReleaseAsync(order, stockMovementRepository, access.UserId, now, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return (await StudentAppOrderResponses.OfAsync([order], classGroupRepository, cancellationToken))[0];
+        return (await StudentAppOrderResponses.OfAsync([order], classGroupRepository, await onlineCharging.FindChargingAccountAsync(cancellationToken) is not null, cancellationToken))[0];
     }
 }

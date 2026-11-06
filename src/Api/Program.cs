@@ -10,6 +10,7 @@ using ClassManager.Api.ErrorReporting;
 using ClassManager.Api.Orders;
 using ClassManager.Infrastructure.Audit;
 using ClassManager.Infrastructure.Json;
+using ClassManager.Infrastructure.OnlinePayments;
 using ClassManager.Infrastructure.SecurityHeaders;
 using ClassManager.Subscriptions.AspNetCore.Limits;
 
@@ -28,6 +29,7 @@ builder.Services.AddUseCases();
 builder.Services.AddSingleton<IExpiredOrderCancellationService, ExpiredOrderCancellationService>();
 builder.Services.AddHostedService<ExpiredOrderCancellationWorker>();
 builder.Services.AddHostedService<BackgroundTaskWorker>();
+builder.Services.AddOnlineOrderPaymentTasks();
 builder.Services.AddHostedService<AuditLogWorker<CommandAuditEntry>>();
 builder.Services.AddHostedService<AuditLogWorker<SecurityEvent>>();
 builder.Services.AddSingleton<SecurityEventThrottle>();

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { OrderPaymentReturnNotice } from "@/features/studentApp/components/OrderPaymentReturnNotice";
 import { StudentAppOrderRow } from "@/features/studentApp/components/StudentAppOrderRow";
 import {
   StudentAppOrderFilter,
@@ -43,6 +44,7 @@ export function StudentAppOrdersScreen() {
         />
       }
     >
+      <OrderPaymentReturnNotice />
       {isPending ? <SkeletonList /> : null}
       {isError ? (
         <Banner message={translate("student.loadError")}>

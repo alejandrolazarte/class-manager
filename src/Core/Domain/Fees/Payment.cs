@@ -69,6 +69,11 @@ public sealed class Payment : ITenantOwned, IAuditable, ISoftDeletable
             return Result.Validation<Payment>(MethodRequiredMessage, fieldName: nameof(Method));
         }
 
+        if (!PaymentMethods.CanBeRecordedByHand(method.Value))
+        {
+            return Result.Validation<Payment>(PaymentMethods.OnlineIsRecordedByStripeMessage, fieldName: nameof(Method));
+        }
+
         var trimmedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
         if (trimmedNotes?.Length > NotesMaxLength)
         {

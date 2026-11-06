@@ -43,4 +43,7 @@ internal sealed class SubscriptionRepository(AppDbContext context, IConfiguratio
 
     public Task<PlanOffer?> GetCurrentOfferAsync(long subscriberId, CancellationToken cancellationToken) =>
         context.PlanOffers.AsNoTracking().FirstOrDefaultAsync(offer => offer.SubscriberId == subscriberId, cancellationToken);
+
+    public Task<SalesFeeOverride?> GetSalesFeeOverrideAsync(long subscriberId, CancellationToken cancellationToken) =>
+        context.SalesFeeOverrides.AsNoTracking().FirstOrDefaultAsync(salesFee => salesFee.SubscriberId == subscriberId, cancellationToken);
 }

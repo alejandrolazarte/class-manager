@@ -2428,5 +2428,9 @@
   "backoffice.plans.confirmQuestion": "¿Comisión de {percent} en {plan}?",
   "backoffice.plans.confirmMessage": "Cambia los cobros online nuevos de todas las marcas con este plan que no tienen comisión propia.",
   "backoffice.salesFee.confirm": "Aplicar comisión",
-  "backoffice.plans.confirm": "Cambiar comisión"
+  "backoffice.plans.confirm": "Cambiar comisión",
+  "student.orders.payNow": "Pagar ahora {amount}",
+  "student.orders.payOnlineBeforeOrCancelled": "Pagalo online o en la sede antes del {date} o se cancela solo.",
+  "student.orders.paymentReceived": "Recibimos tu pago. Puede tardar unos segundos en verse en el pedido.",
+  "fees.methods.Online": "Online"
 }

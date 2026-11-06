@@ -2428,5 +2428,9 @@
   "backoffice.plans.confirmQuestion": "A {percent} fee on {plan}?",
   "backoffice.plans.confirmMessage": "It changes the new online payments of every brand on this plan without a fee of its own.",
   "backoffice.salesFee.confirm": "Apply fee",
-  "backoffice.plans.confirm": "Change fee"
+  "backoffice.plans.confirm": "Change fee",
+  "student.orders.payNow": "Pay {amount} now",
+  "student.orders.payOnlineBeforeOrCancelled": "Pay it online or at the venue before {date} or it's cancelled automatically.",
+  "student.orders.paymentReceived": "We received your payment. It may take a few seconds to show on the order.",
+  "fees.methods.Online": "Online"
 }

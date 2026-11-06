@@ -24,4 +24,6 @@ public interface ISubscriptionRepository
     void AddBillingCustomer(BillingCustomer billingCustomer);
 
     Task<PlanOffer?> GetCurrentOfferAsync(long subscriberId, CancellationToken cancellationToken);
+
+    Task<SalesFeeOverride?> GetSalesFeeOverrideAsync(long subscriberId, CancellationToken cancellationToken);
 }

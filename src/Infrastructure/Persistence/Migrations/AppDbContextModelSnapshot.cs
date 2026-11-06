@@ -2520,6 +2520,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<long?>("DeletedByUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ExternalPaymentId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -2551,6 +2555,10 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("ExternalPaymentId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0 AND [ExternalPaymentId] IS NOT NULL");
 
                     b.HasIndex("OrderId");
 

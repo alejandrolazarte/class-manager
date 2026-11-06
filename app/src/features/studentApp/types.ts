@@ -328,6 +328,7 @@ export interface StudentAppOrder {
   delivery: DeliveryMethod;
   deliveryClassGroupName: string | null;
   isReady: boolean;
+  canPayOnline: boolean;
 }
 
 export interface StudentAppDelivery {

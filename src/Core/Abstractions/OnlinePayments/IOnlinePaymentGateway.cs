@@ -9,4 +9,6 @@ public interface IOnlinePaymentGateway
     Task<Uri> CreateOnboardingLinkAsync(OnboardingLinkRequest request, CancellationToken cancellationToken);
 
     Task<OnlinePaymentAccountState?> GetAccountAsync(string externalAccountId, CancellationToken cancellationToken);
+
+    Task<Uri> CreateCheckoutAsync(OnlineCheckoutRequest request, CancellationToken cancellationToken);
 }

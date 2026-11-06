@@ -1,5 +1,6 @@
 using ClassManager.Api.Authentication;
 using ClassManager.Api.ErrorHandling;
+using ClassManager.Core.UseCases.OnlinePayments;
 using ClassManager.Core.UseCases.StudentApp;
 
 namespace ClassManager.Api.Endpoints;
@@ -16,6 +17,7 @@ internal static class StudentAppEndpoints
         student.MapGet(ApiRoutes.StudentAppOrders, ListStudentAppOrdersAsync);
         student.MapPost(ApiRoutes.StudentAppOrders, PlaceStudentAppOrderAsync);
         student.MapPut(ApiRoutes.StudentAppOrders + ApiRoutes.OrderById + ApiRoutes.Cancellation, CancelStudentAppOrderAsync);
+        student.MapPost(ApiRoutes.StudentAppOrders + ApiRoutes.OrderById + ApiRoutes.Checkout, StartOrderCheckoutAsync);
         student.MapGet(ApiRoutes.StudentAppNews, GetStudentAppNewsAsync);
         student.MapPost(ApiRoutes.StudentAppGuardianConsent + ApiRoutes.Authorization, GiveGuardianConsentInAppAsync);
         student.MapPost(ApiRoutes.StudentAppGuardianConsent + ApiRoutes.Refusal, RefuseGuardianConsentInAppAsync);
@@ -273,6 +275,12 @@ internal static class StudentAppEndpoints
 
         return result.ToHttpResult(order => TypedResults.Created($"{ApiRoutes.StudentApp}{ApiRoutes.StudentAppOrders}/{order.Id}", order));
     }
+
+    private static async Task<IResult> StartOrderCheckoutAsync(
+        long orderId,
+        IUseCase<StartStudentAppOrderCheckoutCommand, OnlinePaymentRedirectResponse> useCase,
+        CancellationToken cancellationToken) =>
+        (await useCase.ExecuteAsync(new StartStudentAppOrderCheckoutCommand(orderId), cancellationToken)).ToOkResult();
 
     private static async Task<IResult> CancelStudentAppOrderAsync(
         long orderId,

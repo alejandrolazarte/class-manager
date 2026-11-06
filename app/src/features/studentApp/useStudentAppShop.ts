@@ -5,7 +5,9 @@ import {
   getStudentAppShop,
   listStudentAppOrders,
   placeStudentAppOrder,
+  startStudentAppOrderCheckout,
 } from "@/features/studentApp/studentAppApi";
+import { openOrderCheckout } from "@/features/studentApp/orderCheckoutRedirect";
 import { studentAppQueryKeys } from "@/features/studentApp/studentAppQueryKeys";
 import { StudentAppDelivery, PlaceStudentAppOrderLine } from "@/features/studentApp/types";
 
@@ -50,5 +52,12 @@ export function useChooseStudentAppPlan() {
     mutationFn: ({ studentId, classPackId }: { studentId: string; classPackId: string | null }) =>
       chooseStudentAppPlan(studentId, classPackId),
     onSuccess: invalidate,
+  });
+}
+
+export function useStartStudentAppOrderCheckout() {
+  return useMutation({
+    mutationFn: startStudentAppOrderCheckout,
+    onSuccess: (redirect) => openOrderCheckout(redirect.url),
   });
 }

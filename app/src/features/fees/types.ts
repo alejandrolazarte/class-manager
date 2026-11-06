@@ -1,6 +1,6 @@
 export type FeeStatus = "Unpaid" | "Partial" | "NoFee" | "Paid";
 
-export type PaymentMethod = "Cash" | "Transfer" | "Card" | "Other";
+export type PaymentMethod = "Cash" | "Transfer" | "Card" | "Other" | "Online";
 
 export interface ClientFee {
   clientId: string;

@@ -6,4 +6,5 @@ public enum PaymentMethod
     Transfer,
     Card,
     Other,
+    Online,
 }

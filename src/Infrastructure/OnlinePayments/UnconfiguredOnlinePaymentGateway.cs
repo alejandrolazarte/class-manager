@@ -15,4 +15,7 @@ internal sealed class UnconfiguredOnlinePaymentGateway : IOnlinePaymentGateway
 
     public Task<OnlinePaymentAccountState?> GetAccountAsync(string externalAccountId, CancellationToken cancellationToken) =>
         throw new InvalidOperationException(NotConfiguredMessage);
+
+    public Task<Uri> CreateCheckoutAsync(OnlineCheckoutRequest request, CancellationToken cancellationToken) =>
+        throw new InvalidOperationException(NotConfiguredMessage);
 }

@@ -31,4 +31,8 @@ public interface IWebAppLinks
     string OnlinePaymentsOnboardingReturned();
 
     string OnlinePaymentsOnboardingExpired();
+
+    string StudentAppOrderPaymentSucceeded();
+
+    string StudentAppOrderPaymentCancelled();
 }

@@ -26,5 +26,7 @@ public interface IOrderRepository
 
     Task<OrderPayment?> FindDeletedPaymentForUpdateAsync(long orderId, long paymentId, CancellationToken cancellationToken);
 
+    Task<bool> HasExternalPaymentAsync(string externalPaymentId, CancellationToken cancellationToken);
+
     Task<Order?> GetForUpdateByPurchaseAsync(long purchaseId, CancellationToken cancellationToken);
 }

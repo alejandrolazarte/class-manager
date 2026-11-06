@@ -86,6 +86,11 @@ public sealed class ClassPackPurchase : ITenantOwned, IAuditable, ISoftDeletable
             return Result.Validation<ClassPackPurchase>(MethodRequiredMessage, fieldName: nameof(Method));
         }
 
+        if (!PaymentMethods.CanBeRecordedByHand(method.Value))
+        {
+            return Result.Validation<ClassPackPurchase>(PaymentMethods.OnlineIsRecordedByStripeMessage, fieldName: nameof(Method));
+        }
+
         return Create(clientId, pack, chargedPrice, currencyCode, purchasedOn, method, notes, createdAt, recordedByUserId);
     }
 

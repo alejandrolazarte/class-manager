@@ -8,6 +8,7 @@ internal static class StudentAppOrderResponses
     public static async Task<IReadOnlyList<StudentAppOrderResponse>> OfAsync(
         IReadOnlyList<Order> orders,
         IClassGroupRepository classGroupRepository,
+        bool branchChargesOnline,
         CancellationToken cancellationToken)
     {
         var classGroupNames = orders.Any(order => order.DeliveryClassGroupId is not null)
@@ -16,7 +17,9 @@ internal static class StudentAppOrderResponses
         return
         [
             .. orders.Select(order => StudentAppOrderResponse.From(
-                order, order.DeliveryClassGroupId is { } classGroupId ? classGroupNames.GetValueOrDefault(classGroupId) : null)),
+                order,
+                order.DeliveryClassGroupId is { } classGroupId ? classGroupNames.GetValueOrDefault(classGroupId) : null,
+                branchChargesOnline)),
         ];
     }
 }

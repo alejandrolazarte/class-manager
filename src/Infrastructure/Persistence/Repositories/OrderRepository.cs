@@ -117,4 +117,9 @@ internal sealed class OrderRepository(AppDbContext context) : IOrderRepository
         context.OrderPayments
             .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
             .FirstOrDefaultAsync(payment => payment.Id == paymentId && payment.OrderId == orderId && payment.IsDeleted, cancellationToken);
+
+    public Task<bool> HasExternalPaymentAsync(string externalPaymentId, CancellationToken cancellationToken) =>
+        context.OrderPayments
+            .IgnoreQueryFilters([SoftDeleteModelBuilderExtensions.SoftDeleteQueryFilter])
+            .AnyAsync(payment => payment.ExternalPaymentId == externalPaymentId, cancellationToken);
 }

@@ -59,6 +59,7 @@ internal static class OnlinePaymentEndpoints
         HttpRequest request,
         IOnlinePaymentWebhookReader webhookReader,
         IUseCase<SyncOnlinePaymentAccountCommand, bool> syncAccount,
+        IOnlineOrderPaymentInbox orderPayments,
         CancellationToken cancellationToken)
     {
         using var reader = new StreamReader(request.Body);
@@ -76,6 +77,11 @@ internal static class OnlinePaymentEndpoints
             {
                 return result.ToOkResult();
             }
+        }
+
+        if (onlinePaymentEvent.CompletedCheckout is { } completedCheckout)
+        {
+            await orderPayments.EnqueueAsync(completedCheckout, cancellationToken);
         }
 
         return TypedResults.Ok();
