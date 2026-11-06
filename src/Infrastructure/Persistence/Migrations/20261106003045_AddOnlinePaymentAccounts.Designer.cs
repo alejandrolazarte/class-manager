@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261106002006_AddOnlinePaymentAccounts")]
+    [Migration("20261106003045_AddOnlinePaymentAccounts")]
     partial class AddOnlinePaymentAccounts
     {
         /// <inheritdoc />
@@ -2120,6 +2120,9 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ClassManager.Core.Domain.Notifications.NotificationOptOut", b =>
                 {
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier");
 
@@ -2134,7 +2137,20 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.HasKey("AccountId", "Category", "Channel");
+                    b.Property<long?>("CreatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("UpdatedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("TenantId", "AccountId", "Category", "Channel");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("UpdatedByUserId");
 
                     b.ToTable("NotificationOptOuts");
                 });
@@ -5262,6 +5278,25 @@ namespace ClassManager.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ClassManager.Core.Domain.Notifications.MemberPushSubscription", b =>
+                {
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClassManager.Core.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClassManager.Core.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ClassManager.Core.Domain.Notifications.NotificationOptOut", b =>
                 {
                     b.HasOne("ClassManager.Core.Domain.Users.User", null)
                         .WithMany()
