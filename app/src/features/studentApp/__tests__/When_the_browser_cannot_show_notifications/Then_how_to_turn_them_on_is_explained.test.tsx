@@ -1,13 +1,14 @@
-import { fireEvent, screen } from "@testing-library/react-native";
+import { screen } from "@testing-library/react-native";
 import { getStudentAppHome, getPushKey } from "@/features/studentApp/studentAppApi";
 import { browserPushSupport } from "@/features/studentApp/push/browserPush";
-import { StudentAppSettingsScreen } from "@/features/studentApp/screens/StudentAppSettingsScreen";
+import { StudentAppNotificationPreferencesScreen } from "@/features/studentApp/screens/StudentAppNotificationPreferencesScreen";
 import { translate } from "@/i18n/translate";
 import { buildStudentAppHome } from "@/testing/studentAppFactory";
 import { renderStudentAppScreen } from "@/testing/renderStudentAppScreen";
 
 jest.mock("@/features/studentApp/studentAppApi");
 jest.mock("@/features/studentApp/push/browserPush");
+jest.mock("@/features/notifications/notificationPreferencesApi");
 
 describe("When the browser cannot show notifications", () => {
   beforeEach(() => {
@@ -17,10 +18,7 @@ describe("When the browser cannot show notifications", () => {
   });
 
   it("Then how to turn them on is explained", async () => {
-    await renderStudentAppScreen(<StudentAppSettingsScreen />);
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("student.notifications.title") }),
-    );
+    await renderStudentAppScreen(<StudentAppNotificationPreferencesScreen />);
 
     expect(
       await screen.findByText(translate("student.notifications.unsupported")),

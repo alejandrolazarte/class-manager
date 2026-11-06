@@ -24,7 +24,6 @@ describe("When the profile is opened", () => {
         changeEmailRoute={routes.changeMyEmail}
         deleteAccountRoute={routes.deleteMyAccount}
         passkeysRoute={routes.myPasskeys}
-        notificationPreferencesRoute={routes.myNotificationPreferences}
       />,
     );
 

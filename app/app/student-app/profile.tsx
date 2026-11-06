@@ -8,7 +8,6 @@ export default function StudentAppProfileRoute() {
       changeEmailRoute={routes.studentAppChangeEmail}
       deleteAccountRoute={routes.studentAppDeleteAccount}
       passkeysRoute={routes.studentAppPasskeys}
-      notificationPreferencesRoute={routes.studentAppNotificationPreferences}
     />
   );
 }

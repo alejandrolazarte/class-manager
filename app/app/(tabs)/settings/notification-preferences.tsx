@@ -1,5 +1,5 @@
-import { NotificationPreferencesScreen } from "@/features/notifications/screens/NotificationPreferencesScreen";
+import { TeamNotificationPreferencesScreen } from "@/features/teamNotifications/screens/TeamNotificationPreferencesScreen";
 
 export default function NotificationPreferencesRoute() {
-  return <NotificationPreferencesScreen />;
+  return <TeamNotificationPreferencesScreen />;
 }

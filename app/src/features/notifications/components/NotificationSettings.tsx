@@ -2,6 +2,7 @@ import { View } from "react-native";
 import { PushNotifications } from "@/features/notifications/usePushNotifications";
 import { translate } from "@/i18n/translate";
 import { AppText } from "@/ui/AppText";
+import { SectionTitle } from "@/ui/SectionTitle";
 import { ToggleSwitch } from "@/ui/ToggleSwitch";
 
 interface NotificationSettingsProps {
@@ -15,10 +16,8 @@ export function NotificationSettings({ notifications, hint }: NotificationSettin
     return null;
   }
   return (
-    <View className="gap-3" testID="notification-settings">
-      <AppText variant="headline" accessibilityRole="header">
-        {translate("student.notifications.title")}
-      </AppText>
+    <View className="gap-1" testID="notification-settings">
+      <SectionTitle title={translate("notificationPreferences.device")} isOverline />
       {status === "supported" ? (
         <ToggleSwitch
           label={translate("student.notifications.toggle")}

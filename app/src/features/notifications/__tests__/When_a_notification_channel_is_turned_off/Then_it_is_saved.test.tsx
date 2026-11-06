@@ -8,6 +8,7 @@ import { translate } from "@/i18n/translate";
 import {
   buildNotificationPreference,
   buildNotificationPreferences,
+  pushUnavailable,
 } from "@/testing/notificationPreferenceFactory";
 import { renderWithProviders } from "@/testing/renderWithProviders";
 
@@ -34,7 +35,9 @@ describe("When a notification channel is turned off", () => {
   });
 
   it("Then it is saved", async () => {
-    await renderWithProviders(<NotificationPreferencesScreen />);
+    await renderWithProviders(
+      <NotificationPreferencesScreen notifications={pushUnavailable} deviceHint="" />,
+    );
 
     await fireEvent.press(await screen.findByRole("switch", { name: ordersEmailLabel }));
 

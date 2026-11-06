@@ -97,12 +97,11 @@ Which categories apply: the team categories in a team session, the family catego
 
 ## App
 
-- **Mi perfil → Notificaciones**, a new row in a "Preferencias" section under the profile data. The screen says which business it is for ("En Escuela Brazada"), adds "Lo que apagues igual queda en Avisos." in a team session, and each category is a row with its name, one line saying what it covers, and a `ToggleSwitch` for **Email** and for **Push** (only the channels the category uses). Saving is immediate on each switch, like the device notifications switch.
-- The device push switch stays where it is (Ajustes, and the student app's Notificaciones card). Per-kind push choices only matter when the device receives push at all; a line linking to that switch from the new screen is left for later.
+- **Ajustes → Notificaciones** in both apps (decided by the owner on 2026-11-06; it first lived in Mi perfil). The row keeps showing whether push is on in this device, is always visible (emails can be chosen even where push is not available) and opens one screen: **En este dispositivo** first (the push switch and its hint, the blocked or unsupported message, nothing when push can't be offered), then the business's categories. The device push sheet is gone. The screen says which business it is for ("En Escuela Brazada"), adds "Lo que apagues igual queda en Avisos." in a team session, and each category is a row with its name, one line saying what it covers, and a `ToggleSwitch` for **Email** and for **Push** (only the channels the category uses). Saving is immediate on each switch, like the device notifications switch.
 - The texts of the device switch hints (`student.notifications.hint`, `teamNotifications.hint`) stay as they are; the new screen has its own texts.
 - The unsubscribe page is a public web route like the invitation and password pages, with the business brand of the email it came from when the token carries it, and the app's otherwise.
 - Every new text goes in `es.json` and `en.json`; the footer line and page texts go in every email language.
-- Screenshots of Mi perfil, the new screen and an email footer before and after go to the owner before the PR.
+- Screenshots of Ajustes, the new screen and an email footer before and after go to the owner before the PR.
 
 ## Steps
 

@@ -98,11 +98,11 @@ export function StudentAppSettingsScreen() {
         },
         {
           key: "notifications",
-          isVisible: notifications.status !== "unavailable",
+          isVisible: true,
           icon: "notifications",
           label: translate("student.notifications.title"),
           value: notificationsValue(notifications),
-          onPress: () => setOpenSheet("notifications"),
+          onPress: () => router.push(routes.studentAppNotificationPreferences),
         },
       ],
     },
@@ -164,8 +164,6 @@ export function StudentAppSettingsScreen() {
       ) : null}
       <DeviceSettingsSheet
         kind={openSheet}
-        notifications={notifications}
-        notificationsHint={translate("student.notifications.hint")}
         colorsHint={translate("settings.colorsHint.student")}
         onClose={() => setOpenSheet(null)}
       />

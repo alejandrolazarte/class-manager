@@ -9,13 +9,14 @@ import {
   currentBrowserSubscription,
   unsubscribeBrowser,
 } from "@/features/studentApp/push/browserPush";
-import { StudentAppSettingsScreen } from "@/features/studentApp/screens/StudentAppSettingsScreen";
+import { StudentAppNotificationPreferencesScreen } from "@/features/studentApp/screens/StudentAppNotificationPreferencesScreen";
 import { translate } from "@/i18n/translate";
 import { buildStudentAppHome } from "@/testing/studentAppFactory";
 import { renderStudentAppScreen } from "@/testing/renderStudentAppScreen";
 
 jest.mock("@/features/studentApp/studentAppApi");
 jest.mock("@/features/studentApp/push/browserPush");
+jest.mock("@/features/notifications/notificationPreferencesApi");
 
 const subscription = {
   endpoint: "https://push.example.com/send/1",
@@ -34,10 +35,7 @@ describe("When student turns off notifications", () => {
   });
 
   it("Then the subscription is removed", async () => {
-    await renderStudentAppScreen(<StudentAppSettingsScreen />);
-    await fireEvent.press(
-      await screen.findByRole("button", { name: translate("student.notifications.title") }),
-    );
+    await renderStudentAppScreen(<StudentAppNotificationPreferencesScreen />);
 
     const toggle = await screen.findByRole("switch", {
       name: translate("student.notifications.toggle"),

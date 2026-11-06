@@ -99,7 +99,6 @@ export const routes = {
   todayChangeMyEmail: "/today/change-email",
   todayDeleteMyAccount: "/today/delete-account",
   todayMyPasskeys: "/today/passkeys",
-  todayNotificationPreferences: "/today/notification-preferences",
   todayAddMyPasskey: "/today/add-passkey",
   brandSettings: "/settings/brand",
   chooseAccount: "/choose-account",
